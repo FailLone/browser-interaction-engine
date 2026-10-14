@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { InteractionClient } from '@interaction/client';
 import type { ActionCandidate, ActionAttempt, Checkpoint, Command, EngineEvent, FrontierItem, Graph, IdentityHypothesis, InteractionScope, Issue, Observation, ReachResult, Session } from '@interaction/browser';
 import './style.css';
+import { VisitDiff } from './VisitDiff.js';
 const api = new InteractionClient('');
 const short = (id?: string) => id?.slice(0, 8) || '—';
 const blockerText: Record<string, string> = { outside_active_boundary: '等待当前弹层关闭', pointer_intercepted: '目标被遮挡', outside_scrollable_area: '目标位于不可滚动到达的区域', observation_incomplete: '等待完整观察' };
@@ -11,13 +12,18 @@ function App() {
   const [sessions, setSessions] = useState<Session[]>([]); const [sessionId, setSessionId] = useState(''); const [session, setSession] = useState<Session>();
   const [url, setUrl] = useState('http://127.0.0.1:4174'); const [headless, setHeadless] = useState(true); const [maxActions, setMaxActions] = useState(100);
   const [contextRules, setContextRules] = useState('[]'); const [exclude, setExclude] = useState('[]');
-  const [current, setCurrent] = useState<Observation>(); const [shown, setShown] = useState<Observation>(); const [graph, setGraph] = useState<Graph>({ states: [], transitions: [], visits: [] });
+  const [current, setCurrent] = useState<Observation>(); const [graph, setGraph] = useState<Graph>({ states: [], transitions: [], visits: [] });
+  const [history, setHistory] = useState<{ sessionId: string; observationId: string }>();
+  const [inspected, setInspected] = useState<{ sessionId: string; observationId: string; observation?: Observation; error?: string }>();
+  const historyPinned = history?.sessionId === sessionId;
+  const historyResult = historyPinned && inspected?.sessionId === sessionId && inspected.observationId === history.observationId ? inspected : undefined;
+  const shown = historyPinned ? historyResult?.observation : current?.sessionId === sessionId ? current : undefined;
   const [actions, setActions] = useState<ActionCandidate[]>([]); const [frontier, setFrontier] = useState<FrontierItem[]>([]); const [attempts, setAttempts] = useState<ActionAttempt[]>([]);
   const [hypotheses, setHypotheses] = useState<IdentityHypothesis[]>([]); const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]); const [scopes, setScopes] = useState<InteractionScope[]>([]); const [issues, setIssues] = useState<Issue[]>([]); const [recovery, setRecovery] = useState<ReachResult>();
-  const [events, setEvents] = useState<EngineEvent[]>([]); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [tab, setTab] = useState('actions'); const [historyPinned, setHistoryPinned] = useState(false);
+  const [events, setEvents] = useState<EngineEvent[]>([]); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [tab, setTab] = useState('actions');
   const selected = useRef(''); const refreshVersion = useRef(0); const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const detail = useRef<HTMLDivElement>(null);
-  useEffect(() => { if (detail.current) detail.current.scrollTop = 0; }, [tab]);
+  useEffect(() => { if (detail.current) detail.current.scrollTop = 0; }, [tab, shown?.id]);
   const refresh = useCallback(async () => {
     const id = selected.current; const version = ++refreshVersion.current; setSessions(await api.sessions()); if (!id) return;
     try {
@@ -27,12 +33,22 @@ function App() {
     } catch (e) { setError(String(e)); }
   }, []);
   useEffect(() => { void refresh(); }, [refresh]);
-  useEffect(() => { selected.current = sessionId; setHistoryPinned(false); setEvents([]); if (!sessionId) return; void refresh(); const stream = new EventSource(`/v1/sessions/${sessionId}/events`); stream.onmessage = event => { const data = JSON.parse(event.data); setEvents(old => [...old, data].slice(-80)); clearTimeout(timer.current); timer.current = setTimeout(() => void refresh(), 100); }; return () => { stream.close(); clearTimeout(timer.current); }; }, [sessionId, refresh]);
-  useEffect(() => { if (!historyPinned) setShown(current); }, [current, historyPinned]);
+  useEffect(() => { selected.current = sessionId; setHistory(undefined); setInspected(undefined); setEvents([]); if (!sessionId) return; void refresh(); const stream = new EventSource(`/v1/sessions/${sessionId}/events`); stream.onmessage = event => { const data = JSON.parse(event.data); setEvents(old => [...old, data].slice(-80)); clearTimeout(timer.current); timer.current = setTimeout(() => void refresh(), 100); }; return () => { stream.close(); clearTimeout(timer.current); }; }, [sessionId, refresh]);
+  useEffect(() => {
+    if (!history || history.sessionId !== sessionId) return;
+    let cancelled = false;
+    void api.observation(sessionId, history.observationId).then(observation => {
+      if (!cancelled) setInspected({ ...history, observation });
+    }, error => { if (!cancelled) setInspected({ ...history, error: String(error) }); });
+    return () => { cancelled = true; };
+  }, [sessionId, history]);
   const perform = async (command: Command) => { setBusy(true); setError(''); try { const result = await api.command(sessionId, command); await refresh(); return result; } catch (e) { setError(String(e)); await refresh(); } finally { setBusy(false); } };
   const create = async () => { setBusy(true); setError(''); try { const session = await api.createSession({ url, headless, maxActions, contextRules: JSON.parse(contextRules), exclude: JSON.parse(exclude) }); setSessionId(session.id); } catch (e) { setError(String(e)); } finally { setBusy(false); } };
-  const inspectVisit = async (o: string) => { setShown(await api.observation(sessionId, o)); setHistoryPinned(true); };
-  const last = attempts.at(-1); const pending = frontier.filter(f => f.status === 'pending').length;
+  const inspectVisit = (observationId: string) => setHistory({ sessionId, observationId });
+  const shownVisit = graph.visits.find(v => v.observationId === shown?.id);
+  const shownAttempt = attempts.find(a => a.id === shownVisit?.viaAttemptId);
+  const parentObservationId = graph.visits.find(v => v.id === shownVisit?.parentId)?.observationId;
+  const pending = frontier.filter(f => f.status === 'pending').length;
   return <div className="shell">
     <aside className="sidebar"><div className="brand"><span className="brand-mark">↗</span><div>Interaction Atlas<small>浏览器交互探索引擎 · V0.1</small></div></div>
       <div className="sidebar-label">探索工作区</div><label>起始网址<input value={url} onChange={e => setUrl(e.target.value)} /></label>
@@ -50,12 +66,12 @@ function App() {
       {current?.gaps.some(g => g.critical) && <div className="boundary-notice" role="status"><b>观察不完整，探索已暂缓</b><small>当前无法确认完整页面及弹层状态。请重新观察；已执行的动作不会自动重试。</small></div>}
       <section className="stats">{[['界面状态', graph.states.length], ['访问记录', graph.visits.length], ['实际动作', `${session?.actionCount || 0} / ${session?.options.maxActions || 100}`], ['待探索', pending], ['身份歧义', hypotheses.filter(h => h.status === 'pending').length]].map(([label, value]) => <div key={label}><small>{label}</small><strong>{value}</strong></div>)}</section>
       <div className="explorer-grid"><section className="panel paths"><div className="panel-title"><h2>遍历路径</h2><span>{graph.transitions.length} 条迁移</span></div><div className="visit-list">{graph.visits.map((v, index) => { const a = attempts.find(a => a.id === v.viaAttemptId); const repeated = graph.visits.findIndex(x => x.stateId === v.stateId) !== index; return <button key={v.id} className={`visit ${v.observationId === shown?.id ? 'active' : ''}`} style={{ paddingLeft: 14 + Math.min(v.depth, 6) * 12 }} onClick={() => inspectVisit(v.observationId)}><span className="visit-line">{a ? '↳' : '◇'} {a ? `${a.action.kind} · ${a.action.label}` : index ? '补充观察' : '入口界面'}</span><small>{short(v.stateId)}{repeated ? ' · 再次到达' : ''}</small></button>; })}</div></section>
-      <section className="panel evidence"><div className="panel-title"><h2>观察证据 <small>{short(shown?.id)}</small></h2>{historyPinned ? <button onClick={() => setHistoryPinned(false)}>返回当前</button> : <span className="live-label"><i className="dot running" />当前页面</span>}</div><div className="screenshot">{shown?.screenshot ? <img alt="页面观察截图" src={`/v1/sessions/${sessionId}/evidence/${shown.id}`} /> : <div className="empty">截图不可用</div>}</div><div className="evidence-meta"><span>{shown?.controls.length || 0} 个控件 · {shown?.gaps.some(g => g.critical) ? '观察不完整' : shown?.stable ? '观察窗口稳定' : '页面仍在变化'}</span><span>{shown?.capturedAt ? new Date(shown.capturedAt).toLocaleTimeString() : ''}</span></div>{shown?.gaps.map((g, i) => <div key={i} className="gap"><b>{g.code}</b> {g.message}</div>)}</section></div>
+      <section className="panel evidence"><div className="panel-title"><h2>观察证据 <small>{short(shown?.id)}</small></h2>{historyPinned ? <button onClick={() => setHistory(undefined)}>返回当前</button> : <span className="live-label"><i className="dot running" />当前页面</span>}</div><div className="screenshot">{shown?.screenshot ? <img alt="页面观察截图" src={`/v1/sessions/${sessionId}/evidence/${shown.id}`} /> : <div className="empty" role={historyResult?.error ? 'alert' : 'status'}>{historyResult?.error || (historyPinned && !shown ? '正在加载所选观察…' : '截图不可用')}</div>}</div><div className="evidence-meta"><span>{shown?.controls.length || 0} 个控件 · {shown?.gaps.some(g => g.critical) ? '观察不完整' : shown?.stable ? '观察窗口稳定' : '页面仍在变化'}</span><span>{shown?.capturedAt ? new Date(shown.capturedAt).toLocaleTimeString() : ''}</span></div>{shown?.gaps.map((g, i) => <div key={i} className="gap"><b>{g.code}</b> {g.message}</div>)}</section></div>
       <section className="panel detail-panel"><nav className="tabs">{[['actions', '操作候选'], ['frontier', '探索待办'], ['diff', '变化比较'], ['identity', '身份与歧义'], ['checkpoints', '检查点'], ['scopes', '交互流程'], ['issues', '问题报告'], ['events', '事件']].map(([key, text]) => <button key={key} className={tab === key ? 'active' : ''} onClick={() => setTab(key)}>{text}</button>)}</nav>
       <div className="tab-content" ref={detail}>
         {tab === 'actions' && <><p className="muted">候选来自当前观察。手动执行会暂停默认策略；业务输入有效性仍需调用方判断。</p>{actions.length ? actions.map(a => <ActionRow key={`${sessionId}:${a.controlId}:${a.kind}:${a.kind === 'fill' ? '' : a.value}`} action={a} disabled={busy} run={value => perform({ type: 'execute', actionId: a.id, requestId: crypto.randomUUID(), value })} />) : <div className="empty">当前没有发现可执行操作。</div>}</>}
         {tab === 'frontier' && <table><thead><tr><th>操作</th><th>状态</th><th>所属界面</th><th>原因 / 解除条件</th></tr></thead><tbody>{frontier.map(f => <tr key={f.id}><td>{f.action.label} <code>{f.action.kind}</code></td><td><span className={`badge ${f.status}`}>{statusText[f.status]}</span></td><td className="mono">{short(f.stateId)}</td><td>{blockerText[f.reason || ''] || f.reason || '—'} {f.unblock}</td></tr>)}</tbody></table>}
-        {tab === 'diff' && <>{last ? <><div className="diff-title"><b>{last.action.label}</b><span className={`badge ${last.status}`}>{statusText[last.status]}</span><span>{last.reason}</span></div><div className="compare-images"><figure><img alt="操作前" src={`/v1/sessions/${sessionId}/evidence/${last.beforeId}`} /><figcaption>操作前</figcaption></figure>{last.afterId && <figure><img alt="操作后" src={`/v1/sessions/${sessionId}/evidence/${last.afterId}`} /><figcaption>操作后</figcaption></figure>}</div><JsonView value={last.diff || { status: last.status, reason: last.reason }} /></> : <div className="empty">执行操作后显示前后差异。</div>}</>}
+        {tab === 'diff' && <VisitDiff api={api} sessionId={sessionId} visit={shownVisit} parentObservationId={parentObservationId} attempt={shownAttempt} statusText={statusText} />}
         {tab === 'identity' && <>{hypotheses.length ? hypotheses.map(h => <IdentityCard key={h.id} hypothesis={h} disabled={busy} resolve={(identityId, evidence) => perform({ type: 'resolveIdentity', hypothesisId: h.id, identityId, source: 'human-ui', evidence: [evidence] })} />) : <div className="empty">当前没有身份歧义。</div>}<details><summary>当前控件与身份</summary><JsonView value={current?.controls.map(c => ({ name: c.name, role: c.role, identityId: c.identityId, instanceId: c.instanceId, region: c.region, value: c.value, constraints: c.constraints }))} /></details></>}
         {tab === 'checkpoints' && <><button onClick={() => { const name = prompt('检查点名称', `检查点 ${checkpoints.length + 1}`); if (name) void perform({ type: 'createCheckpoint', name, predicates: [], acceptable: [] }); }} disabled={busy}>＋ 保存当前检查点</button>{checkpoints.map(cp => <div className="data-row" key={cp.id}><b>{cp.name}</b><span className="mono">{short(cp.stateId)}</span><span>{cp.path.length} 步路径</span><button disabled={busy} onClick={() => perform({ type: 'reachCheckpoint', checkpointId: cp.id })}>到达并验证</button></div>)}{recovery && <div className="recovery"><h3>{recovery.status}</h3><p>{recovery.reason}</p><JsonView value={recovery.checks} /></div>}</>}
         {tab === 'scopes' && <><button disabled={busy} onClick={() => perform({ type: 'openScope', name: `手动流程 ${scopes.length + 1}`, region: 'document' })}>＋ 开启页面流程范围</button>{scopes.map(s => <div className="scope-card" key={s.id}><div className="data-row"><b>{s.name}</b><span>{s.status} · {s.attemptIds.length} 次操作</span>{s.status === 'open' && !s.boundaryKey && <button disabled={busy} onClick={() => perform({ type: 'closeScope', scopeId: s.id })}>结束并比较</button>}</div><small>父区域：{s.region}</small>{s.diff && <JsonView value={s.diff} />}</div>)}</>}
