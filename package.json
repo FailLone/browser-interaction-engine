@@ -14,14 +14,15 @@
     "typecheck": "tsc --noEmit && tsc -p packages/core/tsconfig.json",
     "start": "node dist/apps/server/src/main.js",
     "test": "vitest run",
-    "test:e2e": "vitest run tests/engine.e2e.test.ts tests/overlays.e2e.test.ts tests/boundary-regressions.test.ts tests/observation-lifecycle.test.ts tests/action-evidence.test.ts tests/evidence-query.test.ts tests/snapshot-events.test.ts tests/evidence-ui.test.ts tests/http.test.ts tests/diff-details-http.test.ts tests/ui-history.e2e.test.ts tests/frontier-ui.e2e.test.ts tests/ui.e2e.test.ts tests/crash.test.ts",
+    "test:e2e": "vitest run tests/engine.e2e.test.ts tests/overlays.e2e.test.ts tests/boundary-regressions.test.ts tests/observation-lifecycle.test.ts tests/action-evidence.test.ts tests/evidence-query.test.ts tests/snapshot-events.test.ts tests/evidence-ui.test.ts tests/http.test.ts tests/diff-details-http.test.ts tests/ui-history.e2e.test.ts tests/frontier-ui.e2e.test.ts tests/ui.e2e.test.ts tests/crash.test.ts tests/identity-lists.e2e.test.ts tests/identity-ui.test.ts tests/identity-review.test.ts",
     "report": "tsx --conditions=development scripts/report.ts",
     "smoke:built": "node scripts/smoke-built.mjs",
     "example:strategy": "tsx --conditions=development examples/external-strategy.ts",
     "experiment:inspection": "tsx --conditions=development scripts/inspection-blind-experiment.ts",
     "browser:install": "playwright install chromium",
     "example:core": "tsx --conditions=development examples/core-memory.ts",
-    "test:core": "vitest run tests/core.test.ts tests/storage-contract.test.ts tests/architecture.test.ts tests/retention.test.ts"
+    "test:core": "vitest run tests/core.test.ts tests/storage-contract.test.ts tests/architecture.test.ts tests/retention.test.ts tests/identity-matching.test.ts",
+    "experiment:identity": "tsx --conditions=development scripts/identity-blind-experiment.ts"
   },
   "dependencies": {
     "@interaction/core": "workspace:*",

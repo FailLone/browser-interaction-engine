@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Record operations</title>
+<style>body{font:16px system-ui;margin:36px;color:#223}ul{padding:0;list-style:none;width:580px}li{display:flex;align-items:center;gap:24px;padding:24px;border:1px solid #bbb}button{padding:10px 24px}p{max-width:680px}</style>
+<h1>Record operations</h1>
+<p>Record keys identify records. Where provided, data-operation-key identifies a fixed operation within its record and remains stable across redraws. Position and virtual-slot IDs may be reused. Missing operation keys provide no operation identity.</p>
+<ul id="records" aria-label="Records"></ul>
+<script>
+window.renderReview = (record, operations, reuse = false, declared = true) => {
+  const list = document.querySelector('#records');
+  const row = reuse && list.firstElementChild || document.createElement('li');
+  row.id = 'virtual-slot-0'; row.dataset.rowKey = record;
+  const previous = [...row.querySelectorAll('button')];
+  const label = document.createElement('span'); label.textContent = `Record ${record}`;
+  const buttons = operations.map((operation, index) => {
+    const button = reuse && previous[index] || document.createElement('button');
+    button.dataset.testid = 'edit'; button.textContent = 'Edit';
+    if (declared) button.dataset.operationKey = operation; else delete button.dataset.operationKey;
+    return button;
+  });
+  row.replaceChildren(label, ...buttons); list.replaceChildren(row);
+};
+window.renderReview('R17', ['op-14', 'op-82']);
+</script></html>
