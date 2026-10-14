@@ -36,6 +36,12 @@
 
 再次进入已知弹层可以使用历史成功、可重放的界面入口；入口必须在当前观察中唯一匹配且可操作。进入后重新观察，再安排当前候选，记录 `exploration.scope_reentry`。这不声明恢复了旧业务状态。每项任务的重新进入尝试有界，仍受总预算限制。
 
+部分弹层通过位于边界外的入口按钮关闭，却没有可识别的 DOM 关联。调用方可通过 actions hook 对具体点击添加 `supported` 的操作依据：`rule: 'declared-boundary-exit/v1'`，非空 `source`，以及 facts 中的当前 `observationId`、`localId`、`boundaryKey` 和非空字符串数组 `evidence`。同时必须明确 `risk: 'interface'`。适配器只为完全匹配当前观察、目标和最内层弹层的声明生成退出意图，不将任意外部候选的 boundary 字段当成依据。
+
+声明不证明退出已经发生，也不提供历史重放权限。当前唯一定位、可见性、遮挡、排除和观察完整性限制仍生效；点击后弹层仍存在时，范围保持打开，背景工作继续阻止。原生表单提交不能通过该声明或 actions hook 降级为界面退出。原始观察中的 exitControlIds 不被修改。
+
+恢复和遍历可以使用当次观察重新生成的退出声明，包括唯一定位但历史身份尚有歧义的当前节点；它们仍通过同一执行前验证。当前退出动作保持 `replayable: false`，不会因此进入历史重放路径。
+
 滚动是遍历工作。适配器根据实际 CSS overflow 和可滚动尺寸发现元素内的滚动视口，排除文档根、文本编辑区及 overflow:hidden 裁剪容器。元素滚动绑定当前节点并检查遮挡，移动后确认实际滚动偏移变化；横向和纵向均按同一位置网格安排往返，避免尾页余量产生无穷偏移组合。滚动位置参与当前观察、过期检查和严格状态比较；虚拟内容不会成为无名滚动容器的名称。
 
 当前视口变化后，同一页面范围内尚未执行、已不适用的旧滚动意图标记为 `superseded / traversal_position_changed`，保留“未执行”的证据；页面滚动和元素内滚动都从当前视口继续发现。它们不算成功，也不要求重置业务环境以还原历史滚动位置；其他真实控件的操作任务不会因此被取消。
@@ -75,6 +81,8 @@
 
 ## 本地审阅工作台
 
-`pnpm exec tsx --conditions=development scripts/exploration-workbench.ts URL OUTPUT_DIRECTORY` 启动通用工作台并输出本地 HTTP 地址。`GET /state`、`/summary`、`/screenshot`、`/hypotheses`、`/identities` 提供当前事实；`POST /command` 接受既有引擎命令。`POST /review` 接受当前 observationId、localId、kind、risk、reason、evidence 和可选 samples / replayable，也可用 reviews 数组一次审核当前观察的多个控件。
+`pnpm exec tsx --conditions=development scripts/exploration-workbench.ts URL OUTPUT_DIRECTORY` 启动通用工作台并输出本地 HTTP 地址。`GET /state`、`/summary`、`/screenshot`、`/hypotheses`、`/identities` 提供当前事实；`POST /command` 接受既有引擎命令。`POST /review` 接受当前 observationId、localId、kind、risk、reason、evidence 和可选 samples / replayable / exitBoundary，也可用 reviews 数组一次审核当前观察的多个控件。
 
 操作审核只绑定同一文档、节点实例及业务描述，不自动跨重载复用。风险与 replayable 分别声明，重放默认关闭；引擎原有提交风险、身份歧义及弹层限制继续生效。审核记录追加到 reviews.jsonl，原始 DOM 观察不修改。身份裁决使用既有 resolveIdentity 命令；它不替代操作风险审核。工作台默认保留离页链接及未知用途动作的未审核缺口，不能据此宣称页面全部覆盖。
+
+`exitBoundary` 必须是当前最内层弹层 key，并用于界面点击；工作台据此为相同实例生成上述当前观察退出声明。同一操作重新审核时采用最新记录，包括原始 DOM 没有生成操作的自定义控件。弹层关闭后声明不再授予背景操作额外权限，文档重载后需重新审核。

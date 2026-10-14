@@ -1,0 +1,153 @@
+{
+  "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+  "method": "After reviewing a current outside-click exit, call reachCheckpoint directly while the popup is open. The engine selects and executes return actions.",
+  "checkpoint": {
+    "id": "ea2a2c34-41c9-4f7c-9b30-8156e472284b",
+    "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+    "name": "Before popup for automatic return verification",
+    "observationId": "34d6c3a9-1579-4d1e-bd7f-3b7e8d57cc2a",
+    "stateId": "59241148-6492-40c6-a195-ff03ec84a149",
+    "context": {},
+    "predicates": [],
+    "acceptable": [],
+    "path": [
+      "2ab0702a-0951-4cd7-b418-5baa7fa30d71"
+    ],
+    "createdAt": "2026-10-14T20:45:25.810Z",
+    "evidenceKeys": [
+      "34d6c3a9-1579-4d1e-bd7f-3b7e8d57cc2a.png",
+      "34d6c3a9-1579-4d1e-bd7f-3b7e8d57cc2a.details.json"
+    ]
+  },
+  "reach": [
+    {
+      "id": "51d3570a-d9a8-4111-a23b-a9649890f5d1",
+      "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+      "checkpointId": "ea2a2c34-41c9-4f7c-9b30-8156e472284b",
+      "status": "REACHED_VERIFIED",
+      "reason": "Verified after boundary exit attempt",
+      "checks": [
+        {
+          "name": "retained-evidence:34d6c3a9-1579-4d1e-bd7f-3b7e8d57cc2a.png",
+          "result": "pass"
+        },
+        {
+          "name": "retained-evidence:34d6c3a9-1579-4d1e-bd7f-3b7e8d57cc2a.details.json",
+          "result": "pass"
+        },
+        {
+          "name": "observable-state",
+          "result": "pass"
+        }
+      ],
+      "attemptIds": [
+        "08a4fb95-8070-4092-979b-4730b44f2291",
+        "63c8ce9e-4157-4323-9bf8-a35976805017"
+      ],
+      "observationId": "5105ebd8-7ed5-4c43-94cb-9925e56dfb51",
+      "remainingFrontier": 214,
+      "diagnostics": {
+        "strategies": [
+          "verify_current",
+          "boundary_exit"
+        ],
+        "dirtyActions": [],
+        "resetAvailable": false
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "id": "2ab0702a-0951-4cd7-b418-5baa7fa30d71",
+      "label": "Close",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "702291e0-f327-45d9-82b5-0d0733d07d5e",
+      "afterId": "4f621ecf-3d1b-4826-8c2d-95bbb8bd5a38"
+    },
+    {
+      "id": "32ff5224-217f-45b0-bbc2-a40c3115cb65",
+      "label": "USDUSDAEDALLANGARSAUD",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "34d6c3a9-1579-4d1e-bd7f-3b7e8d57cc2a",
+      "afterId": "08c10f9d-c84b-4da4-86a5-a70b579832f4"
+    },
+    {
+      "id": "08a4fb95-8070-4092-979b-4730b44f2291",
+      "label": "Close overlay",
+      "kind": "press",
+      "status": "succeeded",
+      "purpose": "recovery",
+      "beforeId": "d95b95a9-5e95-403a-b712-5e71858b938b",
+      "afterId": "dd967f5b-2e09-46f0-80f2-6a4955a244d8"
+    },
+    {
+      "id": "63c8ce9e-4157-4323-9bf8-a35976805017",
+      "label": "0",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "recovery",
+      "beforeId": "dd967f5b-2e09-46f0-80f2-6a4955a244d8",
+      "afterId": "5105ebd8-7ed5-4c43-94cb-9925e56dfb51"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "3faf97fb-c56e-4004-bbdf-dc7a2d3ec104",
+      "at": "2026-10-14T20:45:23.964Z",
+      "observationId": "4f621ecf-3d1b-4826-8c2d-95bbb8bd5a38",
+      "instanceScope": "5f4f264c-004b-454c-bdb6-a60a54288b02",
+      "instanceId": "5f4f264c-004b-454c-bdb6-a60a54288b02:468",
+      "binding": "[null,\"generic\",\"USDUSDAEDALLANGARSAUD\",\"document\",\"document\",\"div\"]",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": false,
+      "reason": "Open the USD dropdown in the public calculator.",
+      "evidence": [
+        "observation:4f621ecf-3d1b-4826-8c2d-95bbb8bd5a38",
+        "entry.png: USD selector with chevron beside the lower amount."
+      ]
+    },
+    {
+      "id": "db84906e-b1dc-4361-aa7f-72fbd0eb3953",
+      "at": "2026-10-14T20:45:29.073Z",
+      "observationId": "08c10f9d-c84b-4da4-86a5-a70b579832f4",
+      "instanceScope": "5f4f264c-004b-454c-bdb6-a60a54288b02",
+      "instanceId": "5f4f264c-004b-454c-bdb6-a60a54288b02:448",
+      "binding": "[null,\"textbox\",\"0\",\"document\",\"document\",\"text\"]",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": false,
+      "reason": "Dismiss currency popup with an outside click on the BTC amount field; current exact node is visible and unobstructed.",
+      "evidence": [
+        "observation:08c10f9d-c84b-4da4-86a5-a70b579832f4",
+        "entry.png: BTC amount field above the USD selector.",
+        "The immediately preceding independent session verified this outside click closes the same public dropdown without navigation or amount changes; revalidate actual exit in this session."
+      ],
+      "exitBoundary": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2)"
+    }
+  ],
+  "finalObservation": {
+    "id": "5105ebd8-7ed5-4c43-94cb-9925e56dfb51",
+    "documentId": "5f4f264c-004b-454c-bdb6-a60a54288b02",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "boundaries": [],
+    "values": [
+      {
+        "localId": "5f4f264c-004b-454c-bdb6-a60a54288b02:448",
+        "name": "0",
+        "value": "1",
+        "hypothesisId": "6ace5751-9d57-40a9-9d00-4c4fa2030f36"
+      },
+      {
+        "localId": "5f4f264c-004b-454c-bdb6-a60a54288b02:450",
+        "name": "0",
+        "value": "81,920",
+        "hypothesisId": "d9392e57-8ebe-4fec-aae8-d9cf9b17ad31"
+      }
+    ]
+  }
+}

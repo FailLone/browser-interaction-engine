@@ -40,6 +40,20 @@
 
 同一新会话还依据截图和原生按钮证据审核了两个金额框之间的换向按钮，完成 BTC/USD → USD/BTC → BTC/USD。两次均重载文档，返回的是原币对页面，未验证旧金额恢复；没有操作独立的兑换/购买链接。页面重载后重新审核新按钮，未将旧实例判断直接继承给新文档。结果及判断来源见 [capture-retry-results.json](capture-retry-results.json)。
 
+### 带来源的退出声明与自动返回
+
+上述新会话随后继续默认探索，累计 67 次动作（包含 10 次外部定向验证动作），以 `known_frontier_exhausted_with_gaps` 结束；没有再次因观察不完整或预算耗尽暂停。9 次检查点恢复均因路径缺少重放权限而不可达，118 条遗留任务关联这些恢复结果。菜单分支和文档重载前的任务仍未覆盖，不以此结束页面穷尽目标。账本见 [capture-run-automatic.json](capture-run-automatic.json)。
+
+当前分支补充通用 `declared-boundary-exit/v1` 契约：外部判断指定当前观察、具体控件和最内层弹层，并提供退出用途的依据。退出仍受节点、遮挡、提交风险和完整观察检查；声明不改写原始 DOM，也不赋予历史重放资格。
+
+真实下拉验证发现，点击已展开的 USD 入口没有关闭菜单；它的 succeeded 仅代表点击完成，弹层仍被保留。随后审阅并点击弹层外的 BTC 金额框，列表消失，文档和金额均未变。再次执行“打开 → 无结果搜索 → 清空搜索 → 外部点击关闭”，严格验证原检查点为 `REACHED_VERIFIED`。这条路径不需要选择当前币种触发重载。证据见 [reviewed-exit-results.json](reviewed-exit-results.json)、[打开截图](reviewed-exit-open.png)和[关闭截图](reviewed-exit-closed.png)。
+
+进一步在新会话中保持弹层打开，仅提交带来源的退出声明，然后直接调用 reachCheckpoint：引擎先尝试 Escape，观察到弹层仍存在，再选择审阅后的外部点击，自动返回原检查点，结果 `REACHED_VERIFIED / Verified after boundary exit attempt`。此时金额框历史身份仍有歧义，但当前实例定位成立；退出动作保持不可历史重放。完整记录见 [automatic-boundary-return.json](automatic-boundary-return.json)。这是特定已审阅弹层的自动返回验收，不代表其他非模态菜单和跨文档恢复已完成。
+
+该会话还依次操作 1h、1W、1M、1Y、2Y、24h 六个已有时间范围候选，均成功且各自成为唯一选中的 tab；Canvas 图表内部及行情正确性未据此验证。见 [chart-range-actions.json](chart-range-actions.json)。随后根据原始及当前截图的相邻币种，将两个 placeholder 同为 0 的金额框分别确认为独立控件，保留不同身份，见 [distinct-amount-identities.json](distinct-amount-identities.json)。对数值输入的重放许可另外记录，不由身份裁决隐式授予；没有声明两个联动金额可各自独立恢复。默认探索继续运行。
+
+退出声明的独立回归覆盖实际关闭、无效点击、过期/错误对象声明、遮挡、原生提交风险和自动检查点返回。本阶段完整测试为 200 项 / 39 文件，typecheck、build、smoke:built 通过。
+
 ## 原始审计
 
 2026-10-15（Asia/Shanghai），测试版本为已合入 `main` 的 `e793fba`。先完成合并，再访问 https://www.okx.com/convert/btc-to-usd 。合并验证：181 项测试 / 34 个文件通过，typecheck、build、smoke:built 通过。运行环境为 Node.js 24.21.0、Playwright Chromium，1440 × 900。

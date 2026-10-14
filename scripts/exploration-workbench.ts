@@ -10,10 +10,17 @@ import { randomUUID } from 'node:crypto';
 const [url, output = 'work/exploration-workbench'] = process.argv.slice(2);
 if (!url || !/^https?:\/\//.test(url)) throw new Error('Supply an HTTP(S) URL and optional output directory');
 const directory = resolve(output); mkdirSync(directory, { recursive: true });
-type Review = { id: string; at: string; observationId: string; instanceScope: string; instanceId: string; binding: string; kind: string; risk: 'interface' | 'unknown'; replayable: boolean; reason: string; evidence: string[]; samples?: string[] };
+type Review = { id: string; at: string; observationId: string; instanceScope: string; instanceId: string; binding: string; kind: string; risk: 'interface' | 'unknown'; replayable: boolean; reason: string; evidence: string[]; samples?: string[]; exitBoundary?: string };
 const reviews: Review[] = [];
 const binding = (c: Control) => JSON.stringify([c.stableKey, c.role, c.label || c.name, c.region, c.form, c.constraints.type]);
 const match = (c: Control, o: Observation, kind: string) => reviews.findLast(r => r.instanceScope === o.instanceScope && r.instanceId === c.instanceId && r.binding === binding(c) && r.kind === kind);
+function reviewEvidence(review: Review, c: Control, o: Observation) {
+  const evidence = [{ source: 'reviewer', rule: 'sourced-control-review/v1', facts: { reviewId: review.id, reason: review.reason, evidence: review.evidence } }] as NonNullable<ActionCandidate['basis']>['evidence'];
+  if (review.exitBoundary && o.boundaries?.at(-1)?.key === review.exitBoundary) evidence.push({ source: 'reviewer', rule: 'declared-boundary-exit/v1', facts: {
+    reviewId: review.id, boundaryKey: review.exitBoundary, observationId: o.id, localId: c.localId, evidence: [`Reviewed in observation ${review.observationId}`, ...review.evidence],
+  } });
+  return evidence;
+}
 const engine = new BrowserEngine({ persistence: new SqliteStore(directory), hooks: {
   samples: (c, { observation: o }) => match(c, o, 'fill')?.samples,
   actions: (actions, { observation: o, session }) => {
@@ -21,16 +28,16 @@ const engine = new BrowserEngine({ persistence: new SqliteStore(directory), hook
       const c = o.controls.find(c => c.localId === a.localId); const review = c && match(c, o, a.kind);
       const href = a.basis?.evidence.map(e => e.facts.href).find(h => typeof h === 'string') as string | undefined;
       if (review && a.risk !== 'submission') return { ...a, excluded: false, exclusionReason: undefined, risk: review.risk,
-        replayable: review.replayable, source: 'external-review', basis: { status: 'supported' as const, evidence: [...a.basis?.evidence || [], { source: 'reviewer', rule: 'sourced-control-review/v1', facts: { reviewId: review.id, reason: review.reason, evidence: review.evidence } }] } };
+        replayable: review.replayable, source: 'external-review', basis: { status: 'supported' as const, evidence: [...a.basis?.evidence || [], ...reviewEvidence(review, c!, o)] } };
       const reason = href && !href.startsWith('#') ? 'navigation_requires_review' : a.risk !== 'interface' ? 'operation_requires_review' : undefined;
       return reason ? { ...a, excluded: true, exclusionReason: reason } : a;
     });
-    for (const c of o.controls.filter(c => c.visible)) for (const review of reviews.filter(r => r.instanceId === c.instanceId && r.instanceScope === o.instanceScope && r.binding === binding(c))) {
+    for (const c of o.controls.filter(c => c.visible)) for (const review of reviews.filter(r => r.instanceId === c.instanceId && r.instanceScope === o.instanceScope && r.binding === binding(c)).reverse()) {
       if (result.some(a => a.localId === c.localId && a.kind === review.kind)) continue;
       const a: ActionCandidate = { id: randomUUID(), sessionId: session.id, observationId: o.id, stateId: o.stateId, controlId: c.identityId, localId: c.localId, kind: review.kind, label: c.name || `Unnamed ${c.role}`, value: review.samples?.[0],
         risk: review.risk, replayable: review.replayable, source: 'external-review', excluded: false, sampleValidity: 'shape_only',
         preconditions: { context: o.context, visible: c.visible, enabled: c.enabled, identityResolved: !c.hypothesisId },
-        basis: { status: 'supported', evidence: [{ source: 'reviewer', rule: 'sourced-control-review/v1', facts: { reviewId: review.id, reason: review.reason, evidence: review.evidence } }] } };
+        basis: { status: 'supported', evidence: reviewEvidence(review, c, o) } };
       result.push(a);
     }
     return result;
@@ -76,8 +83,9 @@ const server = createServer(async (req,res)=> {
       const accepted:Review[]=proposed.map(data=>{
         const c=o.controls.find(c=>c.localId===data.localId);if(!c)throw new Error('Control not present');
         if(!['click','fill','select','check','press'].includes(data.kind)||!['interface','unknown'].includes(data.risk)||typeof data.reason!=='string'||!data.reason.trim()||!Array.isArray(data.evidence)||!data.evidence.length||data.evidence.some((e:unknown)=>typeof e!=='string'||!e.trim()))throw new Error('Review requires operation, risk, reason and evidence');
+        if(data.exitBoundary!==undefined&&(typeof data.exitBoundary!=='string'||data.exitBoundary!==o.boundaries?.at(-1)?.key||data.kind!=='click'||data.risk!=='interface'))throw new Error('Boundary exit review must name the current active boundary and an interface click');
         if(data.samples!==undefined&&(!Array.isArray(data.samples)||data.samples.some((s:unknown)=>typeof s!=='string')))throw new Error('Samples must be strings');
-        return {id:randomUUID(),at:new Date().toISOString(),observationId:o.id,instanceScope:o.instanceScope,instanceId:c.instanceId,binding:binding(c),kind:data.kind,risk:data.risk,replayable:data.replayable===true,reason:data.reason,evidence:data.evidence,samples:data.samples};
+        return {id:randomUUID(),at:new Date().toISOString(),observationId:o.id,instanceScope:o.instanceScope,instanceId:c.instanceId,binding:binding(c),kind:data.kind,risk:data.risk,replayable:data.replayable===true,reason:data.reason,evidence:data.evidence,samples:data.samples,exitBoundary:data.exitBoundary};
       });
       reviews.push(...accepted);appendFileSync(resolve(directory,'reviews.jsonl'),accepted.map(r=>JSON.stringify(r)+'\n').join(''));result=data.reviews ? accepted : accepted[0];
       await engine.observe(sid);

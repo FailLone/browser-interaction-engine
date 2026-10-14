@@ -1,0 +1,92 @@
+[
+  {
+    "decision": {
+      "type": "resolveIdentity",
+      "hypothesisId": "6ace5751-9d57-40a9-9d00-4c4fa2030f36",
+      "identityId": "5a41abda-b76b-44ad-91f4-7485bd73bbcc",
+      "source": "Visual review of current and original calculator fields",
+      "evidence": [
+        "original-observation:702291e0-f327-45d9-82b5-0d0733d07d5e",
+        "current-observation:d02ba1b9-5697-49cf-9ba4-7bf87f6b2b2c",
+        "entry.png and restored.png: this field is paired with BTC; the other placeholder-0 field is paired with the other currency, so they are distinct simultaneous controls.",
+        "Keep this provisional identity separate; do not merge the two amount fields or grant reversibility through identity resolution."
+      ]
+    },
+    "result": {
+      "id": "6ace5751-9d57-40a9-9d00-4c4fa2030f36",
+      "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+      "observationId": "702291e0-f327-45d9-82b5-0d0733d07d5e",
+      "localId": "5f4f264c-004b-454c-bdb6-a60a54288b02:448",
+      "provisionalIdentityId": "5a41abda-b76b-44ad-91f4-7485bd73bbcc",
+      "candidateIds": [
+        "47ab07ce-afd9-4980-af2a-3d4a6fbb8440"
+      ],
+      "evidence": [
+        "adapter-semantic-signature",
+        "duplicate-current-candidates"
+      ],
+      "conflicts": [
+        "multiple-current-controls"
+      ],
+      "status": "resolved",
+      "revisions": [
+        {
+          "identityId": "5a41abda-b76b-44ad-91f4-7485bd73bbcc",
+          "source": "Visual review of current and original calculator fields",
+          "evidence": [
+            "original-observation:702291e0-f327-45d9-82b5-0d0733d07d5e",
+            "current-observation:d02ba1b9-5697-49cf-9ba4-7bf87f6b2b2c",
+            "entry.png and restored.png: this field is paired with BTC; the other placeholder-0 field is paired with the other currency, so they are distinct simultaneous controls.",
+            "Keep this provisional identity separate; do not merge the two amount fields or grant reversibility through identity resolution."
+          ],
+          "at": "2026-10-14T20:48:26.959Z"
+        }
+      ]
+    }
+  },
+  {
+    "decision": {
+      "type": "resolveIdentity",
+      "hypothesisId": "d9392e57-8ebe-4fec-aae8-d9cf9b17ad31",
+      "identityId": "47ab07ce-afd9-4980-af2a-3d4a6fbb8440",
+      "source": "Visual review of current and original calculator fields",
+      "evidence": [
+        "original-observation:702291e0-f327-45d9-82b5-0d0733d07d5e",
+        "current-observation:fbfa9c2d-9f55-497a-8c61-7dd52e8ad525",
+        "entry.png and restored.png: this field is paired with USD; the other placeholder-0 field is paired with the other currency, so they are distinct simultaneous controls.",
+        "Keep this provisional identity separate; do not merge the two amount fields or grant reversibility through identity resolution."
+      ]
+    },
+    "result": {
+      "id": "d9392e57-8ebe-4fec-aae8-d9cf9b17ad31",
+      "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+      "observationId": "702291e0-f327-45d9-82b5-0d0733d07d5e",
+      "localId": "5f4f264c-004b-454c-bdb6-a60a54288b02:450",
+      "provisionalIdentityId": "47ab07ce-afd9-4980-af2a-3d4a6fbb8440",
+      "candidateIds": [
+        "5a41abda-b76b-44ad-91f4-7485bd73bbcc"
+      ],
+      "evidence": [
+        "adapter-semantic-signature",
+        "duplicate-current-candidates"
+      ],
+      "conflicts": [
+        "multiple-current-controls"
+      ],
+      "status": "resolved",
+      "revisions": [
+        {
+          "identityId": "47ab07ce-afd9-4980-af2a-3d4a6fbb8440",
+          "source": "Visual review of current and original calculator fields",
+          "evidence": [
+            "original-observation:702291e0-f327-45d9-82b5-0d0733d07d5e",
+            "current-observation:fbfa9c2d-9f55-497a-8c61-7dd52e8ad525",
+            "entry.png and restored.png: this field is paired with USD; the other placeholder-0 field is paired with the other currency, so they are distinct simultaneous controls.",
+            "Keep this provisional identity separate; do not merge the two amount fields or grant reversibility through identity resolution."
+          ],
+          "at": "2026-10-14T20:48:28.816Z"
+        }
+      ]
+    }
+  }
+]

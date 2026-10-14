@@ -3,7 +3,7 @@ import { BrowserAdapter } from './browser.js';
 import { observableCanonical, compareObservations } from './model.js';
 import { sessionSchema } from './schema.js';
 import { signature } from './util.js';
-import { constrain } from './policy.js';
+import { constrain, hasDeclaredBoundaryExit } from './policy.js';
 import { controlCase, explorationCase, restorationStep } from './exploration.js';
 import type { ActionCandidate, Control, EngineHooks, Observation, Session, SessionOptions } from './types.js';
 export * from './types.js';
@@ -31,7 +31,12 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
     return canonical(control[predicate.field as 'value']) === canonical(predicate.equals) ? 'pass' : 'fail';
   }
   replayMatches(candidate: ActionCandidate, recorded: ActionCandidate) { return candidate.controlId === recorded.controlId && candidate.kind === recorded.kind && (candidate.kind === 'fill' || canonical(candidate.value) === canonical(recorded.value)); }
-  returnAction(actions: ActionCandidate[]) { return actions.find(a => a.boundary?.intent === 'exit' && a.risk === 'interface' && a.replayable && a.basis?.status !== 'tentative' && !a.excluded && a.preconditions.visible && a.preconditions.enabled && a.preconditions.identityResolved && !a.preconditions.blockers?.length); }
+  returnAction(actions: ActionCandidate[], observation: Observation) {
+    return actions.find(a => a.boundary?.intent === 'exit' && a.risk === 'interface' && a.basis?.status !== 'tentative' && !a.excluded
+      && a.preconditions.visible && a.preconditions.enabled && !a.preconditions.blockers?.length
+      && (a.replayable && a.preconditions.identityResolved
+        || a.observationId === observation.id && a.preconditions.targetResolved && hasDeclaredBoundaryExit(a, observation)));
+  }
   entryAction(observation: Observation, session: Session): ActionCandidate {
     return { id: id(), sessionId: session.id, observationId: observation.id, stateId: observation.stateId, kind: 'navigate', value: session.options.url, label: 'Reopen session entry', source: 'recovery-entry', risk: 'interface', replayable: false, excluded: false, sampleValidity: 'known', preconditions: { context: observation.context, visible: true, enabled: true, identityResolved: true } };
   }
