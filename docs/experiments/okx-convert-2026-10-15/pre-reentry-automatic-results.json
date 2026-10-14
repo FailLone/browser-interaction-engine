@@ -1,0 +1,2394 @@
+{
+  "note": "Separate runs with different directed setup actions; cumulative task counts include repeated/rebuilt instances. Neither exhausted budgets or completed all page work.",
+  "runs": [
+    {
+      "session": {
+        "id": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+        "options": {
+          "url": "https://www.okx.com/convert/btc-to-usd",
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "maxActions": 10000,
+          "maxDepth": 100,
+          "maxDurationMs": 86400000,
+          "actionTimeoutMs": 15000,
+          "settleMs": 300,
+          "observeTimeoutMs": 10000,
+          "evidence": {
+            "enabled": true,
+            "maxNodes": 5000,
+            "maxTextLength": 20000,
+            "maxHtmlLength": 2000000,
+            "maxDomCharacters": 4000000,
+            "maxAttributeLength": 4000,
+            "maxRuntimeEntries": 200,
+            "styles": "essential",
+            "accessibility": true,
+            "fullPageScreenshot": false
+          },
+          "evidenceRetention": {
+            "mode": "persistent",
+            "ttlMs": 0,
+            "maxBytes": 21474836480,
+            "maxObservations": 100000
+          },
+          "exclude": [],
+          "replayable": [],
+          "context": {},
+          "exploration": "controls",
+          "interfaceActions": [],
+          "reversible": [],
+          "environmentReset": "none",
+          "contextRules": []
+        },
+        "createdAt": "2026-10-14T20:44:35.697Z",
+        "status": "finished",
+        "actionCount": 109,
+        "elapsedMs": 693710,
+        "mode": "dfs",
+        "dirty": false,
+        "currentObservationId": "f073dc03-bd7e-4df2-b896-7d4fab43196c",
+        "stopReason": "known_frontier_exhausted_with_gaps"
+      },
+      "frontierCounts": {
+        "blocked": 529,
+        "executed": 109,
+        "superseded": 28,
+        "needs_revalidation": 1
+      },
+      "attempts": [
+        {
+          "id": "2ab0702a-0951-4cd7-b418-5baa7fa30d71",
+          "label": "Close",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "702291e0-f327-45d9-82b5-0d0733d07d5e",
+          "afterId": "4f621ecf-3d1b-4826-8c2d-95bbb8bd5a38"
+        },
+        {
+          "id": "32ff5224-217f-45b0-bbc2-a40c3115cb65",
+          "label": "USDUSDAEDALLANGARSAUD",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "34d6c3a9-1579-4d1e-bd7f-3b7e8d57cc2a",
+          "afterId": "08c10f9d-c84b-4da4-86a5-a70b579832f4"
+        },
+        {
+          "id": "08a4fb95-8070-4092-979b-4730b44f2291",
+          "label": "Close overlay",
+          "kind": "press",
+          "status": "succeeded",
+          "purpose": "recovery",
+          "beforeId": "d95b95a9-5e95-403a-b712-5e71858b938b",
+          "afterId": "dd967f5b-2e09-46f0-80f2-6a4955a244d8"
+        },
+        {
+          "id": "63c8ce9e-4157-4323-9bf8-a35976805017",
+          "label": "0",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "recovery",
+          "beforeId": "dd967f5b-2e09-46f0-80f2-6a4955a244d8",
+          "afterId": "5105ebd8-7ed5-4c43-94cb-9925e56dfb51"
+        },
+        {
+          "id": "8f124022-2246-4728-9e72-0e8d40930adb",
+          "label": "1h",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "5105ebd8-7ed5-4c43-94cb-9925e56dfb51",
+          "afterId": "639ed588-b7f1-4d25-8db5-c32118b17376"
+        },
+        {
+          "id": "e5c3318a-bfc8-4c77-b30c-62fd66ebaa9e",
+          "label": "1W",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "639ed588-b7f1-4d25-8db5-c32118b17376",
+          "afterId": "cea522ec-6644-45c3-b6f6-bfd8c57339a4"
+        },
+        {
+          "id": "044e612a-5dc8-4ab2-bfc5-2a4f9242cc1f",
+          "label": "1M",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "cea522ec-6644-45c3-b6f6-bfd8c57339a4",
+          "afterId": "c7504ebe-f58b-4028-8847-34d55e4cd2c0"
+        },
+        {
+          "id": "b98749d7-ad91-49be-bb48-ba61dd620cd2",
+          "label": "1Y",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "c7504ebe-f58b-4028-8847-34d55e4cd2c0",
+          "afterId": "ba5cb84a-7bf2-4232-a9a0-67e5d6430d9a"
+        },
+        {
+          "id": "6a7122f5-6450-4508-b03c-993e979d66ad",
+          "label": "2Y",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "ba5cb84a-7bf2-4232-a9a0-67e5d6430d9a",
+          "afterId": "eccb8c11-3bb3-453c-901d-a39758591a66"
+        },
+        {
+          "id": "3a1718f0-e0ec-4474-822d-c2d8d401de3e",
+          "label": "24h",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "eccb8c11-3bb3-453c-901d-a39758591a66",
+          "afterId": "d02ba1b9-5697-49cf-9ba4-7bf87f6b2b2c"
+        },
+        {
+          "id": "0de90991-d89a-489b-b257-f726587d1cdd",
+          "label": "0",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "eaa5d284-652a-474b-8b40-10cadb121545",
+          "afterId": "394b5123-e328-4d85-8d77-102e57321101"
+        },
+        {
+          "id": "4086617b-4611-4580-9eb4-55c15b7af075",
+          "label": "Trade",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "394b5123-e328-4d85-8d77-102e57321101",
+          "afterId": "0685030d-21fa-423a-9308-5b8755b1df7a"
+        },
+        {
+          "id": "b77fca2e-1d59-4e8a-8a5b-63a6bb712d51",
+          "label": "Open Spot sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "0685030d-21fa-423a-9308-5b8755b1df7a",
+          "afterId": "a788b294-5b68-43a0-af1a-d1f10e2aaf82"
+        },
+        {
+          "id": "a415057d-476a-4bb5-9ecf-ee40690fab68",
+          "label": "Open Spot sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "d8aca245-31a8-4789-b9b1-fbd079f2a97c",
+          "afterId": "dc9c4e8f-feff-48fa-877a-994532f71db2"
+        },
+        {
+          "id": "e18c0a35-5a8c-4310-bf40-3a7a788b39e8",
+          "label": "USDT",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "dc9c4e8f-feff-48fa-877a-994532f71db2",
+          "afterId": "3fd7b267-1c9a-47d0-911c-55cf19e9ff89"
+        },
+        {
+          "id": "f7edf6ff-56fc-4f45-a140-5d4337a69253",
+          "label": "Crypto",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "3fd7b267-1c9a-47d0-911c-55cf19e9ff89",
+          "afterId": "bcc2eeea-46fa-4465-82c0-927eaad091d0"
+        },
+        {
+          "id": "f9e5350f-ce50-4fa4-8d60-3707d529a00c",
+          "label": "Open Spot sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "bcc2eeea-46fa-4465-82c0-927eaad091d0",
+          "afterId": "710bb5f8-95c1-46bc-89e5-9c0335523f2d"
+        },
+        {
+          "id": "efac254f-0577-4b01-80cc-c05b58c9a9f6",
+          "label": "USDT",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "710bb5f8-95c1-46bc-89e5-9c0335523f2d",
+          "afterId": "d8bcc63d-8dab-4cee-ae6f-bc70887cae16"
+        },
+        {
+          "id": "8f7db5e2-bc56-4915-8a45-1f304a930ec8",
+          "label": "Open Spot sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "d8bcc63d-8dab-4cee-ae6f-bc70887cae16",
+          "afterId": "1a6e2ef5-4b1d-4c43-a69a-69fb3e64a8fb"
+        },
+        {
+          "id": "2e6c0165-b4df-4ea3-b4ff-897f8c72690a",
+          "label": "USDT",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "1a6e2ef5-4b1d-4c43-a69a-69fb3e64a8fb",
+          "afterId": "e50063d4-64e8-410e-a26f-17517b1dc37f"
+        },
+        {
+          "id": "09f18e8f-57c5-40c6-80da-2c474b8a39d6",
+          "label": "Crypto",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "e50063d4-64e8-410e-a26f-17517b1dc37f",
+          "afterId": "500aa536-18ee-4db3-a3c6-a594ef8abfa7"
+        },
+        {
+          "id": "facd8eba-0c9e-42c5-91cc-fba02d0ee019",
+          "label": "Open Spot sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "500aa536-18ee-4db3-a3c6-a594ef8abfa7",
+          "afterId": "59294275-045b-4719-843d-f10898831181"
+        },
+        {
+          "id": "477c3e8d-4cd6-41b2-a7cf-8bde82453866",
+          "label": "USDT",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "59294275-045b-4719-843d-f10898831181",
+          "afterId": "7e3bc7fd-8a78-43a3-b588-43d70c098672"
+        },
+        {
+          "id": "e3b0c930-9b1c-4fa7-b2c0-1e89373ae77b",
+          "label": "Open Spot sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "7e3bc7fd-8a78-43a3-b588-43d70c098672",
+          "afterId": "eb242d04-ec82-4bd4-8a65-4247d35ddbc1"
+        },
+        {
+          "id": "c233abaf-4de2-425e-ac39-88ead3002e21",
+          "label": "USDT",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "eb242d04-ec82-4bd4-8a65-4247d35ddbc1",
+          "afterId": "ff497ea8-146a-4c09-a6e2-676ce02b612f"
+        },
+        {
+          "id": "cade86d3-3e44-4c3a-93c5-5c4040bd693b",
+          "label": "Crypto",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "ff497ea8-146a-4c09-a6e2-676ce02b612f",
+          "afterId": "842f8397-1b91-4aca-8004-fd149e0defd6"
+        },
+        {
+          "id": "a604c3e2-6e42-45a6-ab48-aff7aa3efc8a",
+          "label": "Open Spot sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "842f8397-1b91-4aca-8004-fd149e0defd6",
+          "afterId": "57dbe6f1-99ca-4396-989b-b0da32891fb9"
+        },
+        {
+          "id": "6cee8fcb-d4f6-4468-9275-16f5d76136b3",
+          "label": "USDT",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "57dbe6f1-99ca-4396-989b-b0da32891fb9",
+          "afterId": "33035e7c-5181-4648-8e64-8f0b4826a8db"
+        },
+        {
+          "id": "7ad22a25-a647-49a8-9c45-0a615ab89bd5",
+          "label": "Search",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "33035e7c-5181-4648-8e64-8f0b4826a8db",
+          "afterId": "bda5775d-3538-4819-81d6-7ebc8375d3b5"
+        },
+        {
+          "id": "35c564da-10ad-454e-83e7-5fc6a6a40732",
+          "label": "Open Spot sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "bda5775d-3538-4819-81d6-7ebc8375d3b5",
+          "afterId": "aa120c37-d239-48b4-8b82-57d9d8227a73"
+        },
+        {
+          "id": "1a1b374d-eecf-49cf-a060-86a6c98df7a6",
+          "label": "USDT",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "aa120c37-d239-48b4-8b82-57d9d8227a73",
+          "afterId": "9efc1ba0-c94d-4c23-badd-dc1c1dd53364"
+        },
+        {
+          "id": "f5f2613e-ce8f-42c6-b6ad-5f5b10f5b078",
+          "label": "Crypto",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "9efc1ba0-c94d-4c23-badd-dc1c1dd53364",
+          "afterId": "8e5889da-c37d-4a18-842c-3965343094bf"
+        },
+        {
+          "id": "2139dd7c-da22-41cc-95e2-1f240707f7ac",
+          "label": "Open sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "8e5889da-c37d-4a18-842c-3965343094bf",
+          "afterId": "cde6addf-2d2e-4d3b-b50e-78121f9e616d"
+        },
+        {
+          "id": "10b47d0b-f186-4a98-acb4-f2a4a92bbfd2",
+          "label": "Open sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "cde6addf-2d2e-4d3b-b50e-78121f9e616d",
+          "afterId": "dd0bc270-aaac-48dc-bd6d-51ae18e36888"
+        },
+        {
+          "id": "19ab4763-281f-4601-acbd-f5be983e71ab",
+          "label": "Institutional",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "dd0bc270-aaac-48dc-bd6d-51ae18e36888",
+          "afterId": "8fc6dbd6-9dc3-40dc-9b6f-5d5bc8d16d2f"
+        },
+        {
+          "id": "8fd969a4-7aa7-497a-847d-6e997ec77d9b",
+          "label": "Learn",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "8fc6dbd6-9dc3-40dc-9b6f-5d5bc8d16d2f",
+          "afterId": "d82207bd-759a-4c6f-b398-62ef296f7cec"
+        },
+        {
+          "id": "2e496ace-d4f3-4a79-8e29-a0f1723a1404",
+          "label": "More",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "d82207bd-759a-4c6f-b398-62ef296f7cec",
+          "afterId": "73cde8fb-06fe-4163-ad85-6600f226b0c3"
+        },
+        {
+          "id": "bae89f38-f63e-4c1e-8f5f-019fdd77fa26",
+          "label": "Search crypto",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "73cde8fb-06fe-4163-ad85-6600f226b0c3",
+          "afterId": "be4c3445-8028-4db3-b20f-a9dda72dbaf3"
+        },
+        {
+          "id": "1fd6335a-db1d-4a0f-882c-17b57eed0e7b",
+          "label": "Notifications and announcements",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "e9550e3b-09e6-4961-a2ab-f5c9276d2699",
+          "afterId": "b6a816e4-6c9c-4636-8aa5-07aa09644d32"
+        },
+        {
+          "id": "59d3fa16-f2d1-4823-a5b3-4966f63e3f84",
+          "label": "Unnamed textbox",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "b6a816e4-6c9c-4636-8aa5-07aa09644d32",
+          "afterId": "9b831cf1-fec7-40ab-acdc-6097c7fc36a7"
+        },
+        {
+          "id": "1fc2e12c-1086-4ce7-93ed-c989dacd92f7",
+          "label": "Change language or currency",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "9b831cf1-fec7-40ab-acdc-6097c7fc36a7",
+          "afterId": "055d7480-f331-4aa1-868e-b15dbf8fed74"
+        },
+        {
+          "id": "9b84f2c9-8a85-4a98-82ad-52a6c835daa4",
+          "label": "Search crypto",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "055d7480-f331-4aa1-868e-b15dbf8fed74",
+          "afterId": "80031d8c-cdf0-47fa-9ff4-f1eb30c4e3e4"
+        },
+        {
+          "id": "2b17cf88-6cf5-4ff1-82ec-48a790cac0ee",
+          "label": "Search",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "80031d8c-cdf0-47fa-9ff4-f1eb30c4e3e4",
+          "afterId": "60669e51-d59d-48e2-ad3f-8228b9cfe2b3"
+        },
+        {
+          "id": "9d7dce5d-cb78-4896-bc28-d4ed845064c6",
+          "label": "Search",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "60669e51-d59d-48e2-ad3f-8228b9cfe2b3",
+          "afterId": "fc97c42d-b43b-4beb-ad73-1c322498e5ba"
+        },
+        {
+          "id": "79131cdf-4aa1-4eba-981a-d3b3691cb4bd",
+          "label": "What is today's exchange rate for 1 BTC to USD?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "fc97c42d-b43b-4beb-ad73-1c322498e5ba",
+          "afterId": "a6ea604b-a596-4b18-a1d3-3173907764c1"
+        },
+        {
+          "id": "01e54fc2-1cc6-4cd0-a868-590c8b86d874",
+          "label": "How did the BTC to USD exchange rate change over the past 24 hours?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "a6ea604b-a596-4b18-a1d3-3173907764c1",
+          "afterId": "aef87c61-fcee-457b-a030-a6c6b06be38d"
+        },
+        {
+          "id": "b250c912-a458-41a9-9b10-d4d9d45eeb12",
+          "label": "How many Bitcoin are there in total?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "aef87c61-fcee-457b-a030-a6c6b06be38d",
+          "afterId": "5f30b58a-132f-4a89-a40b-f05f36dc9490"
+        },
+        {
+          "id": "e990d69a-1482-431a-a8f5-4d6e596c519c",
+          "label": "Where can I learn more about trading?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "5f30b58a-132f-4a89-a40b-f05f36dc9490",
+          "afterId": "681360c7-58b9-4243-b528-fa746b2c5acb"
+        },
+        {
+          "id": "ea0660d9-82c7-4d68-b4da-90720a8d23d9",
+          "label": "How much is 1 Bitcoin worth in USD today?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "681360c7-58b9-4243-b528-fa746b2c5acb",
+          "afterId": "a205028f-d902-49e3-8a5a-201e3cd8bc11"
+        },
+        {
+          "id": "c84975f4-b318-45c7-a255-664256582a45",
+          "label": "Is it safe to convert BTC to USD on OKX?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "a205028f-d902-49e3-8a5a-201e3cd8bc11",
+          "afterId": "a3122736-0029-48a1-89ff-ec21651bee8d"
+        },
+        {
+          "id": "4101a4e3-0965-4d01-bb53-18f6f83fad87",
+          "label": "Where can I find more information about Bitcoin (BTC)?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "a3122736-0029-48a1-89ff-ec21651bee8d",
+          "afterId": "1344fb74-47bf-4de7-9692-7237e91cf351"
+        },
+        {
+          "id": "da33e6cc-98cf-4192-9221-25895a501f0f",
+          "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "1344fb74-47bf-4de7-9692-7237e91cf351",
+          "afterId": "cb6f0f3c-9e1b-4672-b4ea-d965a4f9f6df"
+        },
+        {
+          "id": "b5bb3392-47a3-4f00-b9cf-6fbd0dc7be37",
+          "label": "How much is $1 worth of Bitcoin today?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "cb6f0f3c-9e1b-4672-b4ea-d965a4f9f6df",
+          "afterId": "65dd01d9-8796-4748-a9f2-1e38553ee7a4"
+        },
+        {
+          "id": "b9d12d9e-2663-49b3-a71f-6480abd35847",
+          "label": "How can I convert BTC to USD using the crypto calculator?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "65dd01d9-8796-4748-a9f2-1e38553ee7a4",
+          "afterId": "4d7778d0-90e1-4d27-b57a-b8959dbf6cac"
+        },
+        {
+          "id": "2a5afbb2-db54-47eb-8cd7-01092767561c",
+          "label": "Selected language and currency: English/USD",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "4d7778d0-90e1-4d27-b57a-b8959dbf6cac",
+          "afterId": "06ce8863-b315-4b21-900e-60345e449713"
+        },
+        {
+          "id": "115d19c4-4899-4f45-90d8-45c53a9ba2ac",
+          "label": "Search",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "06ce8863-b315-4b21-900e-60345e449713",
+          "afterId": "bd4f8af5-9e65-465c-a0c0-e9f844a4aa9f"
+        },
+        {
+          "id": "3edba7c0-c835-4191-bc52-994f71c5bfe2",
+          "label": "Search",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "bd4f8af5-9e65-465c-a0c0-e9f844a4aa9f",
+          "afterId": "5ad7df28-fbfe-4d70-982f-961a24330f06"
+        },
+        {
+          "id": "889ea9fc-29cf-4a77-acaa-253ec8550089",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "5ad7df28-fbfe-4d70-982f-961a24330f06",
+          "afterId": "28de15ff-4439-4c35-abf4-32a441c0e5f1"
+        },
+        {
+          "id": "abb1bd9a-120f-46ab-8a92-51aeffa28519",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "28de15ff-4439-4c35-abf4-32a441c0e5f1",
+          "afterId": "f91875c3-3576-4049-9d90-039603f154f6"
+        },
+        {
+          "id": "22b0cdc7-11ff-4f36-bc3c-af34173d4e01",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "f91875c3-3576-4049-9d90-039603f154f6",
+          "afterId": "a7277df0-7266-4158-b5af-8712dbc1f9b9"
+        },
+        {
+          "id": "ba256b57-c286-4570-a80d-d53391e2fc4c",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "a7277df0-7266-4158-b5af-8712dbc1f9b9",
+          "afterId": "5bac4b2b-921e-4303-a49a-18f6b51d8588"
+        },
+        {
+          "id": "01c89b0f-aeaa-4aef-bf15-68035629fc23",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "5bac4b2b-921e-4303-a49a-18f6b51d8588",
+          "afterId": "33cb7bb8-cea4-4102-b0b4-8580304cda79"
+        },
+        {
+          "id": "a2c10019-ee0a-40b6-b0f4-34477020c3fd",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "33cb7bb8-cea4-4102-b0b4-8580304cda79",
+          "afterId": "8569e348-d564-48a2-adb4-ac55e575e438"
+        },
+        {
+          "id": "3aa70b48-3083-403a-83da-ea94b3ef728e",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "8569e348-d564-48a2-adb4-ac55e575e438",
+          "afterId": "f75a9c48-56b5-470a-98f4-20b502a01cc1"
+        },
+        {
+          "id": "8132eeb8-3f62-4ec9-be80-bc162c7764c4",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "f75a9c48-56b5-470a-98f4-20b502a01cc1",
+          "afterId": "c504dcf1-fa74-46bb-9f69-db96593495b3"
+        },
+        {
+          "id": "ad2f199e-4a6a-4216-9afd-18853d8ee380",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "c504dcf1-fa74-46bb-9f69-db96593495b3",
+          "afterId": "cbc5c0d2-edda-427d-a377-52569b3fe50e"
+        },
+        {
+          "id": "450e4ac3-f018-485d-a510-366144d4e1eb",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "cbc5c0d2-edda-427d-a377-52569b3fe50e",
+          "afterId": "08205d84-b081-4090-bf6d-b5123517ffb7"
+        },
+        {
+          "id": "94f6ac26-6da9-4166-94cc-9982115e48ba",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "08205d84-b081-4090-bf6d-b5123517ffb7",
+          "afterId": "bb795c53-4e58-4b37-867b-ad825e284f26"
+        },
+        {
+          "id": "8c3a18ab-64a3-49ac-9fe5-28bdd11f3860",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "bb795c53-4e58-4b37-867b-ad825e284f26",
+          "afterId": "ccf8befa-270a-4c6f-aef5-df01e83a7d1e"
+        },
+        {
+          "id": "3a3edb84-4452-45ea-9e4d-f30c3fca2c11",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "ccf8befa-270a-4c6f-aef5-df01e83a7d1e",
+          "afterId": "73eabeb6-21be-4b09-90bf-048e540a6195"
+        },
+        {
+          "id": "29a40d6a-1263-44e7-865b-b7090d82e1cb",
+          "label": "Reopen session entry",
+          "kind": "navigate",
+          "status": "succeeded",
+          "purpose": "recovery",
+          "beforeId": "d7f89d0c-c34a-4353-8beb-9006abdb597c",
+          "afterId": "ddef5136-0ea0-4ae1-980f-dba95b6a23d5"
+        },
+        {
+          "id": "0d41aaaa-1d66-4b27-a8e4-4bbc8b94f70f",
+          "label": "Don’t show for 7 days",
+          "kind": "check",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "ddef5136-0ea0-4ae1-980f-dba95b6a23d5",
+          "afterId": "21c032be-70e1-46f1-815a-e82bc802608e"
+        },
+        {
+          "id": "08584edf-0a50-46dc-be47-884e772d52ff",
+          "label": "Don’t show for 7 days",
+          "kind": "check",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "21c032be-70e1-46f1-815a-e82bc802608e",
+          "afterId": "4bc4829d-47ee-4680-82b3-1c053ef2bbb5"
+        },
+        {
+          "id": "06feac54-bc58-4f76-8170-848f2890e4cc",
+          "label": "Close",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "4bc4829d-47ee-4680-82b3-1c053ef2bbb5",
+          "afterId": "279db1e0-636b-4ce4-9819-41e83d19cd27"
+        },
+        {
+          "id": "ca49b24c-0c0a-443f-be79-5eaa66c90350",
+          "label": "Search crypto",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "279db1e0-636b-4ce4-9819-41e83d19cd27",
+          "afterId": "8f40420c-7d6e-4482-ac8e-ced2b93e1bb5"
+        },
+        {
+          "id": "c0d7dd8f-ce14-4a6d-a324-877d8acd0513",
+          "label": "1h",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "6c77b347-a57e-4623-b82a-13729c73a5e8",
+          "afterId": "c110f0e6-a9ae-408c-a9ed-c12977642eb1"
+        },
+        {
+          "id": "765faeb5-b2c8-49cb-a245-1f99cb8695c2",
+          "label": "Unnamed textbox",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "c110f0e6-a9ae-408c-a9ed-c12977642eb1",
+          "afterId": "8b013c87-4ced-49d7-97b2-378e694f514e"
+        },
+        {
+          "id": "1f16af26-23e2-4ef5-b06f-615f437180c3",
+          "label": "24h",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "8b013c87-4ced-49d7-97b2-378e694f514e",
+          "afterId": "73e349d3-60c6-4204-a154-0e1ae654ffab"
+        },
+        {
+          "id": "625fb3a0-5b06-467d-b340-092a1d3eb3aa",
+          "label": "1W",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "73e349d3-60c6-4204-a154-0e1ae654ffab",
+          "afterId": "09db0350-b62c-453f-a39f-4d9a45fa4348"
+        },
+        {
+          "id": "39115a42-7668-4a6e-88d7-3aee8a03df1c",
+          "label": "1M",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "09db0350-b62c-453f-a39f-4d9a45fa4348",
+          "afterId": "6eb73eac-995d-49ab-b832-3d8098a793df"
+        },
+        {
+          "id": "c9d72c60-6ee1-49f3-818a-850ba6fbfb19",
+          "label": "1Y",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "6eb73eac-995d-49ab-b832-3d8098a793df",
+          "afterId": "72f4166b-4e50-46dc-8168-efc6c5da20a5"
+        },
+        {
+          "id": "3a34bc70-bda8-4be4-a6ac-e222ec9ea6e9",
+          "label": "2Y",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "72f4166b-4e50-46dc-8168-efc6c5da20a5",
+          "afterId": "e6966180-35ca-4392-90e3-2ef78225defb"
+        },
+        {
+          "id": "847130e8-5537-46d3-b1a7-276ef2c56573",
+          "label": "0",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "e6966180-35ca-4392-90e3-2ef78225defb",
+          "afterId": "056a4b76-cfb0-46b0-9a16-92d33f22ccbf"
+        },
+        {
+          "id": "eb785b25-0762-4b7e-b630-efe529750fe0",
+          "label": "0",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "056a4b76-cfb0-46b0-9a16-92d33f22ccbf",
+          "afterId": "e32d8f0c-09b7-4697-9327-ce2661f6ac2e"
+        },
+        {
+          "id": "e27690a6-dc77-4cfa-9d1e-ced443805e08",
+          "label": "What is today's exchange rate for 1 BTC to USD?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "e32d8f0c-09b7-4697-9327-ce2661f6ac2e",
+          "afterId": "dcbb7ecd-8dcf-44e6-b065-48a9b7b36819"
+        },
+        {
+          "id": "03e26849-3cc2-468a-a767-04c5b68c0cad",
+          "label": "How did the BTC to USD exchange rate change over the past 24 hours?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "dcbb7ecd-8dcf-44e6-b065-48a9b7b36819",
+          "afterId": "5b15c156-5335-4683-b86f-bbabcb6b7370"
+        },
+        {
+          "id": "c6998a9c-ea2e-43fc-86e2-010f9f34306e",
+          "label": "How many Bitcoin are there in total?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "5b15c156-5335-4683-b86f-bbabcb6b7370",
+          "afterId": "c8d84def-06a6-4bbe-bb7d-2e27d2074819"
+        },
+        {
+          "id": "0236c6d4-dd6c-46a9-950f-e56e8616c0dc",
+          "label": "Where can I learn more about trading?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "c8d84def-06a6-4bbe-bb7d-2e27d2074819",
+          "afterId": "645b8265-70ff-4ab4-a07d-15ac67098a15"
+        },
+        {
+          "id": "efbe709e-5ef8-4709-8683-1ed8bf393f23",
+          "label": "How much is 1 Bitcoin worth in USD today?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "645b8265-70ff-4ab4-a07d-15ac67098a15",
+          "afterId": "29b33902-30d8-4692-b1d7-56d9f8e7ee89"
+        },
+        {
+          "id": "511ca7d2-8be2-4962-9946-05a7cdad2f3e",
+          "label": "Is it safe to convert BTC to USD on OKX?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "29b33902-30d8-4692-b1d7-56d9f8e7ee89",
+          "afterId": "10a5d49e-2ec5-44a7-a3e0-c9967313f262"
+        },
+        {
+          "id": "36a4b92e-cea9-4684-a840-278ae36cf53a",
+          "label": "Where can I find more information about Bitcoin (BTC)?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "10a5d49e-2ec5-44a7-a3e0-c9967313f262",
+          "afterId": "96e8ec3a-e72c-467f-b5ad-ad1369e2921a"
+        },
+        {
+          "id": "530c8281-ee9d-4201-9a37-a5cdb349d2d7",
+          "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "96e8ec3a-e72c-467f-b5ad-ad1369e2921a",
+          "afterId": "2ebe2c68-7cda-4a2a-a998-2be655a67693"
+        },
+        {
+          "id": "7bbf9198-5808-48e5-b3b2-9b85bea02c60",
+          "label": "How much is $1 worth of Bitcoin today?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "2ebe2c68-7cda-4a2a-a998-2be655a67693",
+          "afterId": "268a06c1-7841-40c6-b1f0-cfda72e9803b"
+        },
+        {
+          "id": "89359971-3e2b-4aac-85fd-3292c5d0b10e",
+          "label": "How can I convert BTC to USD using the crypto calculator?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "268a06c1-7841-40c6-b1f0-cfda72e9803b",
+          "afterId": "a544e989-abbb-4c4f-88e9-6f7f9fa4005b"
+        },
+        {
+          "id": "7b8fd2ea-cca7-4085-bf5a-3202e2d501bd",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "a544e989-abbb-4c4f-88e9-6f7f9fa4005b",
+          "afterId": "191c610c-d3a2-43ca-9569-fed509d2d4f7"
+        },
+        {
+          "id": "3a393684-53a9-4772-a837-a25c51c261ce",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "191c610c-d3a2-43ca-9569-fed509d2d4f7",
+          "afterId": "e0369afc-f6d6-4d6b-9fc9-2563382c4654"
+        },
+        {
+          "id": "4e7490b4-1ee4-487c-8d1c-8f200df1e4d1",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "e0369afc-f6d6-4d6b-9fc9-2563382c4654",
+          "afterId": "a456199e-07aa-489a-ba5b-e27aef215ff8"
+        },
+        {
+          "id": "f2bc79e2-2b29-4fa0-a6b0-3c24d1df6a3b",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "a456199e-07aa-489a-ba5b-e27aef215ff8",
+          "afterId": "03c64336-fa2c-4f61-bb8a-5553f7901e3a"
+        },
+        {
+          "id": "f1197401-4d9a-4cb0-8b40-dce32846d56b",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "03c64336-fa2c-4f61-bb8a-5553f7901e3a",
+          "afterId": "0c7fe8eb-3f1b-4505-8549-e0ca30a6f903"
+        },
+        {
+          "id": "01e1db98-1503-4bf3-b674-9dc024a3c516",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "0c7fe8eb-3f1b-4505-8549-e0ca30a6f903",
+          "afterId": "0e6aafba-3f76-489e-aa19-b6eaec96d31d"
+        },
+        {
+          "id": "62f74a53-dd8e-4efa-ac98-763fa4481aa4",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "0e6aafba-3f76-489e-aa19-b6eaec96d31d",
+          "afterId": "aceddbeb-8648-426a-9595-1ba2279b3604"
+        },
+        {
+          "id": "4c697957-5423-44a8-b06c-77fb0dc487a7",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "aceddbeb-8648-426a-9595-1ba2279b3604",
+          "afterId": "4ca11867-9ecf-423b-bcac-4b49d5735b3d"
+        },
+        {
+          "id": "dde0f8e7-3dc3-47fb-b50e-3c8b4a06e3a8",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "4ca11867-9ecf-423b-bcac-4b49d5735b3d",
+          "afterId": "8786d76b-1fe1-4132-aed5-6174f1caa81c"
+        },
+        {
+          "id": "6ba90e48-f292-4be8-b1de-9cd8a484629c",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "8786d76b-1fe1-4132-aed5-6174f1caa81c",
+          "afterId": "5de09d7e-1492-4b6f-966b-b1140d78e1db"
+        },
+        {
+          "id": "9b4ba58e-732e-4a5c-90b5-ef0d0f58b3eb",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "5de09d7e-1492-4b6f-966b-b1140d78e1db",
+          "afterId": "d957034a-b58b-4d94-ba77-3dc597dcd492"
+        },
+        {
+          "id": "c7b04677-d5a8-4433-91b0-adee9706d861",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "d957034a-b58b-4d94-ba77-3dc597dcd492",
+          "afterId": "eaceb833-29ae-4d18-8657-a71fd9233b84"
+        },
+        {
+          "id": "565f6bed-6399-4106-94e9-214a5b8d1643",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "eaceb833-29ae-4d18-8657-a71fd9233b84",
+          "afterId": "59785f81-6c8e-4d37-907e-f9fca1b2d5fb"
+        },
+        {
+          "id": "fca36fe5-c3ab-453a-bb96-978e4013ab3b",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "59785f81-6c8e-4d37-907e-f9fca1b2d5fb",
+          "afterId": "d28a70d8-9edc-4a0f-8616-26bd17a105f3"
+        },
+        {
+          "id": "b7a3a16d-5268-4f9e-9a9e-5cf6ac34afdb",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "d28a70d8-9edc-4a0f-8616-26bd17a105f3",
+          "afterId": "e8855f48-c5a8-411b-baeb-0cf85ff4de99"
+        }
+      ],
+      "recoveries": [
+        {
+          "id": "51d3570a-d9a8-4111-a23b-a9649890f5d1",
+          "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+          "checkpointId": "ea2a2c34-41c9-4f7c-9b30-8156e472284b",
+          "status": "REACHED_VERIFIED",
+          "reason": "Verified after boundary exit attempt",
+          "checks": [
+            {
+              "name": "retained-evidence:34d6c3a9-1579-4d1e-bd7f-3b7e8d57cc2a.png",
+              "result": "pass"
+            },
+            {
+              "name": "retained-evidence:34d6c3a9-1579-4d1e-bd7f-3b7e8d57cc2a.details.json",
+              "result": "pass"
+            },
+            {
+              "name": "observable-state",
+              "result": "pass"
+            }
+          ],
+          "attemptIds": [
+            "08a4fb95-8070-4092-979b-4730b44f2291",
+            "63c8ce9e-4157-4323-9bf8-a35976805017"
+          ],
+          "observationId": "5105ebd8-7ed5-4c43-94cb-9925e56dfb51",
+          "remainingFrontier": 214,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "50b31c0a-5e5f-4ffe-8b61-95315ac925d8",
+          "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+          "checkpointId": "b4f529b9-a9fd-4995-a8b8-b3b37c31e2f9",
+          "status": "UNREACHABLE",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [],
+          "observationId": "3ae9ebde-88ba-4ae8-93d6-c5f288c9cc6a",
+          "remainingFrontier": 497,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "4a5e4368-59c5-481a-ac83-9f50e14a286d",
+          "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+          "checkpointId": "c47eaf2a-3f7f-4d65-be76-fe035e38b060",
+          "status": "UNREACHABLE",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [],
+          "observationId": "a1fe42df-f96c-4233-9fc3-33987588bd34",
+          "remainingFrontier": 497,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "4d2a9378-28b1-43b2-9314-8be75804ec42",
+          "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+          "checkpointId": "deddc11e-b229-40ee-8038-cbc77569f818",
+          "status": "UNREACHABLE",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [],
+          "observationId": "5d6a57fa-ee51-4ebc-a65d-297bdb80c4f0",
+          "remainingFrontier": 497,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "243959e9-ba0e-45d0-95d4-e2275f978291",
+          "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+          "checkpointId": "80cc374f-3cea-4dc7-9bbb-72c9b29d6293",
+          "status": "UNREACHABLE",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [],
+          "observationId": "72c0f91c-d582-410c-b613-ff98b33d1276",
+          "remainingFrontier": 497,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "56fb7bd7-9f28-4207-bb9c-d63585c7d295",
+          "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+          "checkpointId": "9cb20832-cd5e-43bd-a3b8-01e1a93e4693",
+          "status": "UNREACHABLE",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [],
+          "observationId": "8ed29866-b06d-4089-8993-6c5ebcca6700",
+          "remainingFrontier": 497,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "5505fcfb-409b-4239-8164-ea955e6378d9",
+          "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+          "checkpointId": "a6b22f2b-2164-4027-9d4b-c2427f7e8445",
+          "status": "UNREACHABLE",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [],
+          "observationId": "8b824f79-2eeb-4a86-af95-f0a95fe66638",
+          "remainingFrontier": 497,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "59c11498-59b5-47cc-b67d-372fadaca6be",
+          "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+          "checkpointId": "94b4f569-fb85-42fc-8096-32db7568cf3f",
+          "status": "UNREACHABLE",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [],
+          "observationId": "51e45a2d-8fb5-4d6c-a6bf-8f3444ce7c1a",
+          "remainingFrontier": 497,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "0e030c03-8013-495e-b4d8-896ef2718e83",
+          "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+          "checkpointId": "3a69e10e-797a-4a93-984b-90df7c731811",
+          "status": "UNREACHABLE",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [],
+          "observationId": "c2f18ed2-c005-4ddd-b8c0-644f4454f042",
+          "remainingFrontier": 497,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "7b7bc970-79c2-4a1b-8be5-043a6953ce03",
+          "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+          "checkpointId": "f3ed7f7c-bd1a-425b-883d-31c339eee67f",
+          "status": "UNREACHABLE",
+          "reason": "Entry replay verification: UNREACHABLE",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [
+            "29a40d6a-1263-44e7-865b-b7090d82e1cb"
+          ],
+          "observationId": "ddef5136-0ea0-4ae1-980f-dba95b6a23d5",
+          "remainingFrontier": 499,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore",
+              "entry_replay"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "95b3a50f-4553-4780-b2be-42e17f1d1839",
+          "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+          "checkpointId": "266dc99a-29b4-40b6-b790-28eaaef3914a",
+          "status": "UNREACHABLE",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [],
+          "observationId": "166df711-9a8b-4b74-aa28-5d5eb582e280",
+          "remainingFrontier": 558,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "89f68acd-4cd3-4fea-8240-f97de862f60c",
+          "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+          "checkpointId": "70e69689-c757-4614-88a5-88b1876252b8",
+          "status": "UNREACHABLE",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [],
+          "observationId": "f073dc03-bd7e-4df2-b896-7d4fab43196c",
+          "remainingFrontier": 558,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        }
+      ],
+      "version": "0106e49",
+      "purposeCounts": {
+        "external": 8,
+        "recovery": 3,
+        "exploration": 98
+      },
+      "blockedReasons": {
+        "navigation_requires_review": 383,
+        "operation_requires_review": 36,
+        "Checkpoint path contains actions without replay permission": 80,
+        "pointer_intercepted": 30
+      }
+    },
+    {
+      "session": {
+        "id": "84323c93-3e5e-4405-a86e-139b58cbd2e4",
+        "options": {
+          "url": "https://www.okx.com/convert/btc-to-usd",
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "maxActions": 10000,
+          "maxDepth": 100,
+          "maxDurationMs": 86400000,
+          "actionTimeoutMs": 15000,
+          "settleMs": 300,
+          "observeTimeoutMs": 10000,
+          "evidence": {
+            "enabled": true,
+            "maxNodes": 5000,
+            "maxTextLength": 20000,
+            "maxHtmlLength": 2000000,
+            "maxDomCharacters": 4000000,
+            "maxAttributeLength": 4000,
+            "maxRuntimeEntries": 200,
+            "styles": "essential",
+            "accessibility": true,
+            "fullPageScreenshot": false
+          },
+          "evidenceRetention": {
+            "mode": "persistent",
+            "ttlMs": 0,
+            "maxBytes": 21474836480,
+            "maxObservations": 100000
+          },
+          "exclude": [],
+          "replayable": [],
+          "context": {},
+          "exploration": "controls",
+          "interfaceActions": [],
+          "reversible": [],
+          "environmentReset": "none",
+          "contextRules": []
+        },
+        "createdAt": "2026-10-14T20:53:27.143Z",
+        "status": "finished",
+        "actionCount": 92,
+        "elapsedMs": 534446,
+        "mode": "dfs",
+        "dirty": false,
+        "currentObservationId": "c603990f-e0ce-42a2-b131-68d0178af05b",
+        "stopReason": "known_frontier_exhausted_with_gaps"
+      },
+      "frontierCounts": {
+        "blocked": 497,
+        "executed": 90,
+        "superseded": 25
+      },
+      "attempts": [
+        {
+          "id": "7b2c73ab-124f-4acd-8732-0787851c374b",
+          "label": "Close",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "d6d93391-363b-42cb-aa6b-95bf3ac3f61f",
+          "afterId": "a5f34b1e-38d4-4851-961b-57a68900d19d"
+        },
+        {
+          "id": "d355ade3-bdc3-4de5-a9aa-02a02728d330",
+          "label": "Trade",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "a5f34b1e-38d4-4851-961b-57a68900d19d",
+          "afterId": "d970ad27-def1-48c7-a496-7755bcda262e"
+        },
+        {
+          "id": "ed76726b-dfef-496f-8d62-f51396784582",
+          "label": "Open Spot sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "d970ad27-def1-48c7-a496-7755bcda262e",
+          "afterId": "2ade2856-52e9-4eb7-bdd7-d9bf330e8ce5"
+        },
+        {
+          "id": "49411c19-25b4-4434-830b-ee513e80c148",
+          "label": "Crypto",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "1f34cf96-ed4b-4e0c-bb7f-ef9b0ac81e46",
+          "afterId": "6618f2a8-b0e5-4f97-ae6c-e83d759d8b72"
+        },
+        {
+          "id": "7615aa27-f219-4b0c-b6e1-a9f1a0a7124f",
+          "label": "USDT",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "6618f2a8-b0e5-4f97-ae6c-e83d759d8b72",
+          "afterId": "2ce84ef1-bd18-484f-9527-e2ea987e19f1"
+        },
+        {
+          "id": "7b4a9365-bdf2-48bf-bf91-e5d13d92248f",
+          "label": "Crypto",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "2ce84ef1-bd18-484f-9527-e2ea987e19f1",
+          "afterId": "baa15669-9a00-4f9b-b562-a19f476bee06"
+        },
+        {
+          "id": "7222f10f-661c-4757-b6a8-1b3e3334e24a",
+          "label": "USDT",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "baa15669-9a00-4f9b-b562-a19f476bee06",
+          "afterId": "ae851ddb-6663-41a9-b4b0-37c5fbd8baa5"
+        },
+        {
+          "id": "bd79669d-0623-4fb0-b432-fc588e31ba13",
+          "label": "Search",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "ae851ddb-6663-41a9-b4b0-37c5fbd8baa5",
+          "afterId": "c72ec84c-e4cb-4e9b-99e4-53abd9fac401"
+        },
+        {
+          "id": "442db893-a6a0-4f5d-925d-7d463c3be735",
+          "label": "Search",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "external",
+          "beforeId": "c72ec84c-e4cb-4e9b-99e4-53abd9fac401",
+          "afterId": "5d87f31e-2b75-4c29-8702-f82ffee1b24e"
+        },
+        {
+          "id": "37fc2584-0a52-4c3b-a231-ebaea7279eb8",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "8614a4d9-5863-41ff-8d31-4428517b4106",
+          "afterId": "25d71afe-45d5-445f-bfdf-3053602dd8d1"
+        },
+        {
+          "id": "5dd1f5e8-fe28-4df0-828a-b23b8de999bd",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "25d71afe-45d5-445f-bfdf-3053602dd8d1",
+          "afterId": "b6359833-fc2b-4d53-9647-b9fbcb0f11c3"
+        },
+        {
+          "id": "d4d8b9c7-89b7-43e7-a6a9-6289c97064fd",
+          "label": "Open sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "b6359833-fc2b-4d53-9647-b9fbcb0f11c3",
+          "afterId": "1123bcdc-d352-4e09-b657-5c79d2d2db0a"
+        },
+        {
+          "id": "cda20368-63db-49a9-9db9-b6ba4aa816d0",
+          "label": "Open sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "1123bcdc-d352-4e09-b657-5c79d2d2db0a",
+          "afterId": "cf1d4077-74df-443c-b74d-d60f1e0b688c"
+        },
+        {
+          "id": "d0266568-8b9c-4f18-aa8c-1aaf6f40b4c8",
+          "label": "Open sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "cf1d4077-74df-443c-b74d-d60f1e0b688c",
+          "afterId": "92aa878b-c5a7-4eca-ab5c-51e5e02356b7"
+        },
+        {
+          "id": "d38a3e2a-29ef-43e9-a7bc-d75b4bfa858d",
+          "label": "Open sub-menu",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "92aa878b-c5a7-4eca-ab5c-51e5e02356b7",
+          "afterId": "7eb01d4c-d2b5-4801-bd79-a21ce84a0a7b"
+        },
+        {
+          "id": "45f4d820-01e5-4322-89a7-37785ed3073b",
+          "label": "Institutional",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "7eb01d4c-d2b5-4801-bd79-a21ce84a0a7b",
+          "afterId": "844ae3d0-94ae-4284-91bc-992992e2a3bb"
+        },
+        {
+          "id": "73af582d-634d-4099-ad28-15caecb93539",
+          "label": "Learn",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "844ae3d0-94ae-4284-91bc-992992e2a3bb",
+          "afterId": "21f63361-1448-4e12-bdf7-f5a2175c6063"
+        },
+        {
+          "id": "a5cd23b7-1e96-4dc9-9eb3-913a5d7baad6",
+          "label": "More",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "21f63361-1448-4e12-bdf7-f5a2175c6063",
+          "afterId": "85820cf4-c2ee-490c-9cf7-f6ccb69c4afb"
+        },
+        {
+          "id": "8e1565bd-aae5-4cfd-9f5b-465c36e95557",
+          "label": "Search crypto",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "85820cf4-c2ee-490c-9cf7-f6ccb69c4afb",
+          "afterId": "a98dca2c-82b2-4883-8576-aaeaf1e27c30"
+        },
+        {
+          "id": "556aafe7-62a7-42d8-bc11-0a05bd131251",
+          "label": "Notifications and announcements",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "8a4fca67-bf13-43f6-b83d-f8e100251768",
+          "afterId": "5a5d5395-22f7-437c-a5d4-61d5aee4e9d4"
+        },
+        {
+          "id": "c3881473-9ea8-47a8-9b92-0e5b083399a3",
+          "label": "Unnamed textbox",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "5a5d5395-22f7-437c-a5d4-61d5aee4e9d4",
+          "afterId": "d92bda89-6cd9-44b3-ab25-d6ddea75da50"
+        },
+        {
+          "id": "45497f6a-5734-4180-b205-1fdfecc13598",
+          "label": "Change language or currency",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "d92bda89-6cd9-44b3-ab25-d6ddea75da50",
+          "afterId": "3e43eedf-7510-4bf5-ab8f-41e51e0c886b"
+        },
+        {
+          "id": "83475cf2-90db-4a7b-b6b3-c660858c3d2e",
+          "label": "Search crypto",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "3e43eedf-7510-4bf5-ab8f-41e51e0c886b",
+          "afterId": "13c24c95-77fc-4507-9f2a-01a0171043c3"
+        },
+        {
+          "id": "26e81ea7-414e-48a1-909c-6f2a4bd953d5",
+          "label": "Search",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "13c24c95-77fc-4507-9f2a-01a0171043c3",
+          "afterId": "1e037870-31ac-4a50-a0f9-05cd8bff6d1a"
+        },
+        {
+          "id": "09dd9274-ff65-4709-a8a5-1dafc5c9f71a",
+          "label": "Search",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "1e037870-31ac-4a50-a0f9-05cd8bff6d1a",
+          "afterId": "a4f1d576-efdf-4600-8ac5-d189565002b0"
+        },
+        {
+          "id": "6e18cbca-7f0a-4247-b1d3-5a06d44dac40",
+          "label": "1h",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "a4f1d576-efdf-4600-8ac5-d189565002b0",
+          "afterId": "28b88136-fb38-4054-9621-14b0660adf86"
+        },
+        {
+          "id": "aa87f4ad-6f99-47ec-8e14-96053cb16744",
+          "label": "24h",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "28b88136-fb38-4054-9621-14b0660adf86",
+          "afterId": "59d0c8d2-fa52-41fd-8f69-d036a92b8dd3"
+        },
+        {
+          "id": "9169cc04-31f7-45d7-bd98-358be9f72e68",
+          "label": "1W",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "59d0c8d2-fa52-41fd-8f69-d036a92b8dd3",
+          "afterId": "d70c99d9-9cc3-4417-8ee7-65e18cc2eebd"
+        },
+        {
+          "id": "b2ec57ac-409b-45f6-8028-3172b6539b09",
+          "label": "1M",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "d70c99d9-9cc3-4417-8ee7-65e18cc2eebd",
+          "afterId": "679c54b4-e575-4a34-9f2c-4221407894e8"
+        },
+        {
+          "id": "1d34510d-a356-4bd7-b248-be51aeecbca1",
+          "label": "1Y",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "679c54b4-e575-4a34-9f2c-4221407894e8",
+          "afterId": "0e8f2368-c546-4675-af64-254928b3ada9"
+        },
+        {
+          "id": "eade7116-f613-4609-abd9-3444779e4f7a",
+          "label": "2Y",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "0e8f2368-c546-4675-af64-254928b3ada9",
+          "afterId": "eb52171e-c646-42dc-9586-dcc28dd4f103"
+        },
+        {
+          "id": "4fd54846-9859-4e70-b0ae-eb4630405df0",
+          "label": "0",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "eb52171e-c646-42dc-9586-dcc28dd4f103",
+          "afterId": "fffc86d6-66f5-4527-87d6-c40237a6dc15"
+        },
+        {
+          "id": "5d0b4f4c-16f9-4507-a919-c044bd96bbb7",
+          "label": "0",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "fffc86d6-66f5-4527-87d6-c40237a6dc15",
+          "afterId": "65a41607-ab79-4843-82a0-395b977d8127"
+        },
+        {
+          "id": "5931787d-2970-4b5b-9ec1-440852216a1a",
+          "label": "What is today's exchange rate for 1 BTC to USD?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "65a41607-ab79-4843-82a0-395b977d8127",
+          "afterId": "a2c57a0c-1cc0-444c-b5cc-f135a61b9516"
+        },
+        {
+          "id": "b22175c5-f416-4a68-bb38-d1cf65ed6de8",
+          "label": "How did the BTC to USD exchange rate change over the past 24 hours?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "a2c57a0c-1cc0-444c-b5cc-f135a61b9516",
+          "afterId": "a89ec634-332d-4cde-a455-4f8fc4126989"
+        },
+        {
+          "id": "2c9ea9e8-4dc5-4940-a219-0f8052ff1a44",
+          "label": "How many Bitcoin are there in total?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "a89ec634-332d-4cde-a455-4f8fc4126989",
+          "afterId": "0e316ec1-32e4-4b24-8b83-370874efef4c"
+        },
+        {
+          "id": "d4cee1a4-1afd-49e8-b936-72ec596e8dd2",
+          "label": "Where can I learn more about trading?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "0e316ec1-32e4-4b24-8b83-370874efef4c",
+          "afterId": "9caaeb72-3e43-4939-984a-bd17444b4b6d"
+        },
+        {
+          "id": "14a2bda4-aa5f-43d4-99f0-6fecd8ee3337",
+          "label": "How much is 1 Bitcoin worth in USD today?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "9caaeb72-3e43-4939-984a-bd17444b4b6d",
+          "afterId": "88ff1c13-6b4e-4083-9425-0707d5ce1450"
+        },
+        {
+          "id": "f6f30386-8270-4cca-be1b-e820cd45c76b",
+          "label": "Is it safe to convert BTC to USD on OKX?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "88ff1c13-6b4e-4083-9425-0707d5ce1450",
+          "afterId": "f1465dea-306c-47a7-8396-6ecab469394f"
+        },
+        {
+          "id": "29b4d2c1-2531-4738-9086-9a242b2cbc9c",
+          "label": "Where can I find more information about Bitcoin (BTC)?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "f1465dea-306c-47a7-8396-6ecab469394f",
+          "afterId": "6636da26-7b38-4806-9bf3-2d5565c62048"
+        },
+        {
+          "id": "a52f8206-8a9f-4bd6-80d3-691ae33f054a",
+          "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "6636da26-7b38-4806-9bf3-2d5565c62048",
+          "afterId": "6c980782-9c9d-4a0d-9cc8-99db375b1936"
+        },
+        {
+          "id": "f704b830-92a2-4072-9727-50680b069771",
+          "label": "How much is $1 worth of Bitcoin today?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "6c980782-9c9d-4a0d-9cc8-99db375b1936",
+          "afterId": "38a4970b-3b51-41eb-8f53-49b581fdd561"
+        },
+        {
+          "id": "6dfc2165-6827-498e-a5f8-5c456d0c6c16",
+          "label": "How can I convert BTC to USD using the crypto calculator?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "38a4970b-3b51-41eb-8f53-49b581fdd561",
+          "afterId": "cdc47784-8be5-417f-9374-20d67962e946"
+        },
+        {
+          "id": "50956fbc-6ef1-4dc4-819a-af4ea9209f77",
+          "label": "Selected language and currency: English/USD",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "cdc47784-8be5-417f-9374-20d67962e946",
+          "afterId": "d70637ab-75fb-4f75-9a5d-4249e4464804"
+        },
+        {
+          "id": "7e35322f-c903-436d-92fb-c4c0c45ee4be",
+          "label": "Search",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "d70637ab-75fb-4f75-9a5d-4249e4464804",
+          "afterId": "18056ef8-70c6-424c-961b-dbc2be4ea491"
+        },
+        {
+          "id": "0781d040-b61a-46d0-b53e-6747821c2785",
+          "label": "Search",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "18056ef8-70c6-424c-961b-dbc2be4ea491",
+          "afterId": "fc99919f-6f07-4925-a37f-059ae74d3621"
+        },
+        {
+          "id": "65d3d9bf-4066-4862-8765-3a7212fea7fd",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "fc99919f-6f07-4925-a37f-059ae74d3621",
+          "afterId": "002cefe9-2781-4ad4-84ae-022064421a33"
+        },
+        {
+          "id": "f4349e1f-9da5-4338-b2b0-0db166a023f0",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "002cefe9-2781-4ad4-84ae-022064421a33",
+          "afterId": "b6d79da9-dd69-40b6-b421-459fc2fcad7b"
+        },
+        {
+          "id": "3d05db51-d0ee-4d4f-bd39-456b42a5b83a",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "b6d79da9-dd69-40b6-b421-459fc2fcad7b",
+          "afterId": "1e8ce4cd-51bf-4e05-8927-b45b82c45340"
+        },
+        {
+          "id": "5a63b2a2-5b43-4e2b-911c-9aa8790e2ba2",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "1e8ce4cd-51bf-4e05-8927-b45b82c45340",
+          "afterId": "11440d65-a46f-4099-96c1-6f1c45f94b21"
+        },
+        {
+          "id": "f8f34e77-f30d-455c-9ed4-1a485d20661b",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "11440d65-a46f-4099-96c1-6f1c45f94b21",
+          "afterId": "9b085b7e-f600-4891-b926-50d9cea654b9"
+        },
+        {
+          "id": "bc19c404-ec2a-4e71-8779-735b014a31ba",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "9b085b7e-f600-4891-b926-50d9cea654b9",
+          "afterId": "c44a129b-0653-440b-b271-755eb93dbcef"
+        },
+        {
+          "id": "c7f5efea-beae-42fc-af61-387d3435f738",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "c44a129b-0653-440b-b271-755eb93dbcef",
+          "afterId": "1928e542-c981-4a75-9b2b-7607db5cdab9"
+        },
+        {
+          "id": "cff00d18-56ad-4edc-abc1-b9d6df12fee0",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "1928e542-c981-4a75-9b2b-7607db5cdab9",
+          "afterId": "939040d8-cea2-4616-86d1-f9690ec16c36"
+        },
+        {
+          "id": "30df41b9-8db7-40e3-9fbf-fce73ca826cc",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "939040d8-cea2-4616-86d1-f9690ec16c36",
+          "afterId": "95b02566-f59a-4660-96bb-5c8e6fa1835d"
+        },
+        {
+          "id": "e190da47-cd32-422c-97e8-927ba6974384",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "95b02566-f59a-4660-96bb-5c8e6fa1835d",
+          "afterId": "9a6b455d-3ba5-4f7b-80d4-f48640585d50"
+        },
+        {
+          "id": "c49d45c8-30d1-4247-952b-fa7f0170c4a4",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "9a6b455d-3ba5-4f7b-80d4-f48640585d50",
+          "afterId": "fdae312a-add7-4691-b60c-c2abd9fd14ec"
+        },
+        {
+          "id": "3478043e-50fa-4d9e-99f9-ccbf48726774",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "fdae312a-add7-4691-b60c-c2abd9fd14ec",
+          "afterId": "d3763b1d-8cf9-4b9a-b22e-049aff8de0b7"
+        },
+        {
+          "id": "5886178d-1031-45ab-9eec-59f0f7618767",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "d3763b1d-8cf9-4b9a-b22e-049aff8de0b7",
+          "afterId": "fd377f9d-face-4c59-afdd-8800b1ceb28d"
+        },
+        {
+          "id": "5c22711f-00b4-440b-a6a1-16d175124ad9",
+          "label": "Reopen session entry",
+          "kind": "navigate",
+          "status": "succeeded",
+          "purpose": "recovery",
+          "beforeId": "1d677ef6-318e-499b-afd8-c8db357dab99",
+          "afterId": "a18ea433-e212-428f-9e04-9c520f73475f"
+        },
+        {
+          "id": "b98c1d70-0ac5-4c82-b816-303bb9c02e00",
+          "label": "Don’t show for 7 days",
+          "kind": "check",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "a18ea433-e212-428f-9e04-9c520f73475f",
+          "afterId": "49c7c4a7-8a3f-4cd3-89be-9d6ea6531f10"
+        },
+        {
+          "id": "49b11bb8-33a3-4540-8278-a4d21bfcae30",
+          "label": "Don’t show for 7 days",
+          "kind": "check",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "49c7c4a7-8a3f-4cd3-89be-9d6ea6531f10",
+          "afterId": "5e227872-f04c-419e-9847-5f5ddbf65652"
+        },
+        {
+          "id": "ab34354c-a7fb-438e-bbb7-41a4c196bda8",
+          "label": "Close",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "5e227872-f04c-419e-9847-5f5ddbf65652",
+          "afterId": "c7f8dd95-ca68-484e-b0cb-1378cad8acb5"
+        },
+        {
+          "id": "e216023a-f86a-4461-a694-d68fdba87fdb",
+          "label": "Search crypto",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "c7f8dd95-ca68-484e-b0cb-1378cad8acb5",
+          "afterId": "5c639efe-276a-42a5-9fdf-3a07621332e2"
+        },
+        {
+          "id": "f221176c-e656-41e2-858e-2763856f5131",
+          "label": "0",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "7164f3fe-e4d2-4f80-9f8c-9495f3317bb7",
+          "afterId": "521f9bc8-b9f2-4954-a023-8920d07e12c6"
+        },
+        {
+          "id": "e41c77dc-50c7-480b-bd4f-949e037ef239",
+          "label": "Unnamed textbox",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "521f9bc8-b9f2-4954-a023-8920d07e12c6",
+          "afterId": "ac38fc09-0bfc-4d4d-b0b7-fc71034cb189"
+        },
+        {
+          "id": "61ed841e-048a-467c-a5b3-0d1afaf91028",
+          "label": "0",
+          "kind": "fill",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "ac38fc09-0bfc-4d4d-b0b7-fc71034cb189",
+          "afterId": "e2e48469-1c21-448a-92dd-7362ca6939b6"
+        },
+        {
+          "id": "7ad446ab-e9b3-490f-9d1a-4bc575ab0d28",
+          "label": "What is today's exchange rate for 1 BTC to USD?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "e2e48469-1c21-448a-92dd-7362ca6939b6",
+          "afterId": "97864da1-f115-4a9f-8df7-112112e28907"
+        },
+        {
+          "id": "70f7c7d0-9eed-4493-9eb3-c926e4e68c00",
+          "label": "How did the BTC to USD exchange rate change over the past 24 hours?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "97864da1-f115-4a9f-8df7-112112e28907",
+          "afterId": "778a9931-b4a6-4873-aee4-fbca82b3e08f"
+        },
+        {
+          "id": "e46841c0-b00a-4754-91e7-4aa156968b63",
+          "label": "How many Bitcoin are there in total?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "778a9931-b4a6-4873-aee4-fbca82b3e08f",
+          "afterId": "bcc37be0-16a0-466d-b976-7c5b1f5fdb43"
+        },
+        {
+          "id": "5b94465c-8238-45e6-a334-a38d10d58116",
+          "label": "Where can I learn more about trading?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "bcc37be0-16a0-466d-b976-7c5b1f5fdb43",
+          "afterId": "3c5b6bd5-96f4-4583-b752-bb7b4a6cc31f"
+        },
+        {
+          "id": "777b9f05-cc67-4269-9131-bdeaa6b5a3c6",
+          "label": "How much is 1 Bitcoin worth in USD today?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "3c5b6bd5-96f4-4583-b752-bb7b4a6cc31f",
+          "afterId": "5b7c5515-6624-4c9b-8091-469778144e3e"
+        },
+        {
+          "id": "b1857da2-fc37-448b-ab63-b273381a917f",
+          "label": "Is it safe to convert BTC to USD on OKX?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "5b7c5515-6624-4c9b-8091-469778144e3e",
+          "afterId": "8b359206-7de8-4f27-b19b-527b45603feb"
+        },
+        {
+          "id": "adf917f0-f978-474b-8c38-4c08230a1d56",
+          "label": "Where can I find more information about Bitcoin (BTC)?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "8b359206-7de8-4f27-b19b-527b45603feb",
+          "afterId": "6aaff361-3842-4011-8327-4f55f2d5260d"
+        },
+        {
+          "id": "a8cea0e6-5c39-4d51-a039-90578503339b",
+          "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "6aaff361-3842-4011-8327-4f55f2d5260d",
+          "afterId": "6d32c4b0-c783-44e6-9cac-2800b56fe7f4"
+        },
+        {
+          "id": "34ca8ae6-4977-4cc3-a06a-6e8153c42354",
+          "label": "How much is $1 worth of Bitcoin today?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "6d32c4b0-c783-44e6-9cac-2800b56fe7f4",
+          "afterId": "32b2e83e-ae75-45f0-b2b3-981fdf2d0d22"
+        },
+        {
+          "id": "31efa855-2914-496a-a7cb-5e05fd5145d0",
+          "label": "How can I convert BTC to USD using the crypto calculator?",
+          "kind": "click",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "32b2e83e-ae75-45f0-b2b3-981fdf2d0d22",
+          "afterId": "577c855d-5062-4f09-85b9-a1117a107969"
+        },
+        {
+          "id": "ec099ca5-5345-4fcd-984d-ec5a0297ac22",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "577c855d-5062-4f09-85b9-a1117a107969",
+          "afterId": "07582312-90fc-48b0-a62b-614fdc080f62"
+        },
+        {
+          "id": "e50a5ff2-049d-4987-b69d-9c4e2a11e669",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "07582312-90fc-48b0-a62b-614fdc080f62",
+          "afterId": "996da53f-fe43-4274-be82-27dffa9689f3"
+        },
+        {
+          "id": "f1b8a000-2b03-42d0-84cd-4f2e8da93285",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "996da53f-fe43-4274-be82-27dffa9689f3",
+          "afterId": "9c203c7f-d3ef-40fd-8b8a-1cab37abbffb"
+        },
+        {
+          "id": "3ea61d32-e050-4971-98f6-f8fa153e97ec",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "9c203c7f-d3ef-40fd-8b8a-1cab37abbffb",
+          "afterId": "a9b634fa-d8ae-4275-accb-087f02d5f0fb"
+        },
+        {
+          "id": "190f9183-213b-4e1f-adbf-281f1db667d9",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "a9b634fa-d8ae-4275-accb-087f02d5f0fb",
+          "afterId": "7a586ffe-8c4e-4dd6-adc4-fd4d364a6a96"
+        },
+        {
+          "id": "382a4015-d6b5-4c13-89b9-01a609879cbf",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "7a586ffe-8c4e-4dd6-adc4-fd4d364a6a96",
+          "afterId": "41b1d8d9-1a7d-49e4-8b52-eac312ae9fb2"
+        },
+        {
+          "id": "4aded0a3-e0b1-47fa-ac2d-d203e37a246f",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "41b1d8d9-1a7d-49e4-8b52-eac312ae9fb2",
+          "afterId": "a02ca8c7-07f3-45aa-9389-425c37f05be8"
+        },
+        {
+          "id": "42e06f77-8c20-44db-a59d-28d67d107d87",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "a02ca8c7-07f3-45aa-9389-425c37f05be8",
+          "afterId": "4ca1ff4d-c845-40d4-8f08-f5ea728f42dc"
+        },
+        {
+          "id": "7f6a819b-f160-4fa1-a210-06aa01778291",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "4ca1ff4d-c845-40d4-8f08-f5ea728f42dc",
+          "afterId": "3a2f1b6d-9cab-4089-b262-bdaef9479a42"
+        },
+        {
+          "id": "c17847ea-c796-47c2-b1a1-e7f2566feefa",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "3a2f1b6d-9cab-4089-b262-bdaef9479a42",
+          "afterId": "aed8ec99-d8b6-402b-b491-7cf4aa43bb37"
+        },
+        {
+          "id": "13fd2d09-1394-4b6b-92dd-2a2739c1fefb",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "aed8ec99-d8b6-402b-b491-7cf4aa43bb37",
+          "afterId": "1e76cb97-f2fb-4fe7-8f1f-b1da3a638a66"
+        },
+        {
+          "id": "d19971e5-6d60-46da-9b2c-80c0b6a89af7",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "1e76cb97-f2fb-4fe7-8f1f-b1da3a638a66",
+          "afterId": "80dc09d0-6fa7-440f-bc87-a92077ccd2a3"
+        },
+        {
+          "id": "47dbe696-e3cd-4a77-9882-0c905f7db45b",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "80dc09d0-6fa7-440f-bc87-a92077ccd2a3",
+          "afterId": "f0bb48ae-c6b9-496d-aa95-44e46055b613"
+        },
+        {
+          "id": "f7ffe4a8-9b4a-41aa-936e-384625d76482",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "f0bb48ae-c6b9-496d-aa95-44e46055b613",
+          "afterId": "7a3967f9-477a-4257-8701-4ee878181f1e"
+        },
+        {
+          "id": "7bb82c2d-2a3c-408d-99b7-67f005c95a4f",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "succeeded",
+          "purpose": "exploration",
+          "beforeId": "7a3967f9-477a-4257-8701-4ee878181f1e",
+          "afterId": "9010bfe5-499d-413d-abd7-e9ee24963fe2"
+        }
+      ],
+      "recoveries": [
+        {
+          "id": "22dfd3c1-9f67-4d80-a40f-58e17d643e77",
+          "sessionId": "84323c93-3e5e-4405-a86e-139b58cbd2e4",
+          "checkpointId": "3b907c95-0682-4518-8d6b-e1e64a7579ab",
+          "status": "UNREACHABLE",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [],
+          "observationId": "b7f5554c-0748-4dbe-8c2d-040aec2df285",
+          "remainingFrontier": 460,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "945fdfd0-082f-4cc5-85a7-ae9b2d57b67c",
+          "sessionId": "84323c93-3e5e-4405-a86e-139b58cbd2e4",
+          "checkpointId": "619899c6-ab20-4b8b-b1ba-088cf2d3854f",
+          "status": "UNREACHABLE",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [],
+          "observationId": "0323e2f0-7a52-40df-996d-b14be736697e",
+          "remainingFrontier": 460,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "e4813e98-43f5-42e5-b9fc-fb3a295e60f1",
+          "sessionId": "84323c93-3e5e-4405-a86e-139b58cbd2e4",
+          "checkpointId": "4e51b4ee-b70d-48fa-a013-0e9179d60be1",
+          "status": "UNREACHABLE",
+          "reason": "Entry replay verification: UNREACHABLE",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [
+            "5c22711f-00b4-440b-a6a1-16d175124ad9"
+          ],
+          "observationId": "a18ea433-e212-428f-9e04-9c520f73475f",
+          "remainingFrontier": 462,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore",
+              "entry_replay"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        },
+        {
+          "id": "fef268ee-543a-412e-ba52-9f34aef9d2bf",
+          "sessionId": "84323c93-3e5e-4405-a86e-139b58cbd2e4",
+          "checkpointId": "2cc5dc2c-617a-4c78-a25e-b2a2a989b63f",
+          "status": "UNREACHABLE",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [],
+          "observationId": "c603990f-e0ce-42a2-b131-68d0178af05b",
+          "remainingFrontier": 522,
+          "diagnostics": {
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          }
+        }
+      ],
+      "version": "f6be2e4",
+      "purposeCounts": {
+        "external": 9,
+        "exploration": 82,
+        "recovery": 1
+      },
+      "blockedReasons": {
+        "navigation_requires_review": 376,
+        "operation_requires_review": 30,
+        "Checkpoint path contains actions without replay permission": 61,
+        "pointer_intercepted": 30
+      }
+    }
+  ]
+}

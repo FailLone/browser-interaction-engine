@@ -30,6 +30,9 @@ it('shares a failed reach across sibling work and revalidates it when the contro
     <button id="hide" onclick="panel.hidden=true;document.querySelector('#open').setAttribute('aria-expanded','false');document.querySelector('#version').value='after'">Hide</button>
     <input id="version" aria-label="Version" readonly value="before">
     <div id="panel" hidden><input aria-label="One"><input aria-label="Two"><input aria-label="Three"></div>`, {
+    // With replay permission, observed nonmodal re-entry now completes this work.
+    // Keep this case focused on sharing a genuinely unavailable recovery path.
+    actions: actions => actions.map(a => a.label === 'Open' ? { ...a, replayable: false } : a),
     choose: (items, ctx) => (ctx.session.actionCount === 0 ? items.find(f => f.action.label === 'Open') : ctx.session.actionCount === 1 ? items.find(f => f.action.label === 'Hide') : items[0])?.id || null,
   });
   try {

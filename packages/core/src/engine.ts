@@ -615,13 +615,86 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     });
   }
   async waitForIdle() { await this.runner; await this.queue; }
+  /** Follow observed reveal relationships without treating inline UI as an exclusive boundary. */
+  private async revealFrontierTarget(sessionId: string, item: FrontierItem, tried: Set<string>) {
+    const current = this.observation(sessionId);
+    const targetId = item.action.controlId;
+    if (!targetId || !item.action.preconditions.identityResolved || !this.adapter.explorationScope) return false;
+    const visible = (o: O, controlId: string, resolved = true) => {
+      const matches = o.controls.filter(c => c.identityId === controlId && c.visible);
+      return resolved ? matches.length === 1 && !matches[0].hypothesisId : matches.length > 0;
+    };
+    if (visible(current, targetId, false)) return false;
+    const scope = this.adapter.explorationScope(current);
+    const attempts = this.store.list<ActionAttempt>('attempt', sessionId);
+    const visits = this.store.list<Visit>('visit', sessionId);
+    const indices = new Map(visits.map((v, i) => [v.observationId, i]));
+    const history = attempts.filter(a => a.status === 'succeeded' && a.afterId
+      && a.action.controlId && a.action.risk === 'interface' && a.action.replayable && a.action.preconditions.identityResolved
+      && a.action.basis?.status !== 'tentative').toReversed().flatMap(attempt => {
+      const before = this.observation(sessionId, attempt.beforeId);
+      const start = indices.get(attempt.afterId!);
+      const next = attempts[attempts.indexOf(attempt) + 1];
+      const end = next ? indices.get(next.beforeId) : visits.length - 1;
+      if (start === undefined || end === undefined || start > end) return [];
+      // Async content may first appear in a later inspection. Include only the
+      // contiguous read-only interval before the next attempt (even a failed one).
+      const observations: O[] = [];
+      for (let i = start; i <= end; i++) {
+        const o = this.observation(sessionId, visits[i].observationId);
+        if (i !== start && (visits[i].viaAttemptId || o.cause !== 'inspection')) break;
+        if (o.instanceScope !== current.instanceScope || o.gaps.some(g => g.critical)
+          || contextKey(o.context) !== item.contextKey || this.adapter.explorationScope!(o) !== scope) break;
+        observations.push(o);
+      }
+      // A same-document reveal is evidence for another traversal attempt, not a
+      // cross-document identity decision or proof that business state was reset.
+      return before.instanceScope === current.instanceScope && !before.gaps.some(g => g.critical)
+        && contextKey(before.context) === item.contextKey && this.adapter.explorationScope!(before) === scope
+        ? observations.toReversed().map(after => ({ attempt, before, after })) : [];
+    });
+    const actions = this.actions(sessionId);
+    const entry = (controlId: string, seen: Set<string>): { recorded: ActionAttempt; witnessed: O; action: ActionCandidate; reveals: string; key: string } | undefined => {
+      if (seen.has(controlId)) return;
+      const next = new Set(seen).add(controlId);
+      for (const { attempt, before, after } of history) {
+        if (visible(before, controlId, false) || !visible(after, controlId)) continue;
+        const target = after.controls.find(c => c.identityId === controlId)!;
+        // Resolving an already visible instance's identity is not a UI reveal.
+        if (before.controls.some(c => c.visible && c.hypothesisId && c.instanceId === target.instanceId)) continue;
+        const key = canonical({ frontier: item.id, entry: attempt.action.controlId, kind: attempt.action.kind, value: attempt.action.value });
+        if (tried.has(key)) continue;
+        const matches = actions.filter(a => this.adapter.replayMatches(a, attempt.action) && a.replayable && a.risk === 'interface'
+          && a.basis?.status !== 'tentative' && !a.excluded && !a.preconditions.blockers?.length
+          && a.preconditions.visible && a.preconditions.enabled && this.targetResolved(a, current));
+        if (matches.length === 1) return { recorded: attempt, witnessed: after, action: matches[0], reveals: controlId, key };
+        // Nested menus may require revealing their opener first. Execute only
+        // one currently valid step, then re-plan from the new complete capture.
+        if (!visible(current, attempt.action.controlId!, false)) {
+          const parent = entry(attempt.action.controlId!, next);
+          if (parent) return parent;
+        }
+      }
+    };
+    const plan = entry(targetId, new Set());
+    if (!plan) return false;
+    tried.add(plan.key);
+    const result = await this.runAction(sessionId, plan.action.id, id(), plan.recorded.action.value, 'recovery');
+    const after = this.observation(sessionId);
+    this.emit(sessionId, 'exploration.target_reentry', { frontierId: item.id, attemptId: result.id, sourceAttemptId: plan.recorded.id,
+      sourceObservationId: plan.witnessed.id, attribution: 'observed_during_interval',
+      expectedControlId: plan.reveals, targetControlId: targetId, observationId: after.id,
+      revealed: !after.gaps.some(g => g.critical) && visible(after, plan.reveals) });
+    return true;
+  }
   /** Re-enter a previously observed interaction scope without claiming checkpoint equality. */
   private async enterFrontierScope(sessionId: string, item: FrontierItem, tried: Set<string>) {
     const current = this.observation(sessionId);
     if (current.boundaries?.length || tried.has(item.id) || !this.adapter.explorationScope) return false;
     const target = this.observation(sessionId, item.action.observationId);
     const boundary = target.boundaries?.[0];
-    if (!boundary || contextKey(current.context) !== item.contextKey) return false;
+    if (contextKey(current.context) !== item.contextKey) return false;
+    if (!boundary) return this.revealFrontierTarget(sessionId, item, tried);
     const openers = this.store.list<ActionAttempt>('attempt', sessionId).filter(a => a.status === 'succeeded' && a.afterId && a.action.risk === 'interface' && a.action.replayable
       && contextKey(a.action.preconditions.context) === item.contextKey
       && this.adapter.explorationScope!(this.observation(sessionId, a.beforeId)) === this.adapter.explorationScope!(current)
