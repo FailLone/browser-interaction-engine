@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Interaction boundary fixtures</title>
+<style>
+body { font: 16px system-ui; padding: 32px; } button,input { margin: 12px; padding: 8px; }
+.mask { position: fixed; inset: 0; z-index: 10; background: #0008; display: grid; place-items: center; }
+.panel { background: white; padding: 24px; width: 480px; }
+#child { position: fixed; z-index: 20; top: 40px; right: 40px; background: #eef; padding: 20px; }
+[hidden] { display: none !important; }
+</style></head><body>
+<main aria-label="Parent workspace"><button id="parent">Parent action</button><button id="opener" aria-controls="child" aria-expanded="false" aria-haspopup="dialog" hidden>Open popup</button></main>
+<div id="mask" class="mask" hidden><section id="outer" class="panel" role="dialog" aria-modal="true" aria-label="Outer dialog">
+  <button id="outer-close">Close outer</button><label>Outer input<input id="outer-input"></label><button id="probe">Inspect outer</button>
+  <button id="nested-opener" aria-haspopup="dialog" aria-controls="child" aria-expanded="false" hidden>Open nested popup</button>
+</section></div>
+<div id="child" role="dialog" aria-label="Child popup" hidden><button id="child-close">Close child</button><label>Child input<input id="child-input"></label></div>
+<dialog id="native" aria-label="Native dialog"><form method="dialog"><button id="native-close">Finish</button><label>Native input<input id="native-input"></label></form></dialog>
+<div id="native-popover" popover aria-label="Native popup"><button id="popover-close" popovertarget="native-popover" popovertargetaction="hide">Dismiss popup</button><label>Popover input<input id="popover-input"></label></div>
+<script>
+const params = new URLSearchParams(location.search), scenario = params.get('scenario') || 'modal';
+window.fixtureLog = [];
+const $ = id => document.getElementById(id), log = value => window.fixtureLog.push(value);
+$('parent').onclick = () => log('parent');
+$('probe').onclick = () => log('outer-probe');
+for (const id of ['outer-input', 'child-input', 'native-input', 'popover-input']) $(id).oninput = () => log(id);
+const closeOuter = () => { if (scenario === 'stuck') { log('exit-ignored'); return; } $('mask').hidden = true; log('outer-closed'); };
+$('outer-close').onclick = closeOuter;
+$('child-close').onclick = () => { $('child').hidden = true; $('nested-opener').setAttribute('aria-expanded','false'); $('opener').setAttribute('aria-expanded','false'); log('child-closed'); };
+const openChild = e => { $('child').hidden = false; e.currentTarget.setAttribute('aria-expanded','true'); log('child-opened'); };
+$('nested-opener').onclick = openChild; $('opener').onclick = openChild;
+$('native').addEventListener('close', () => log('native-closed'));
+$('native-popover').addEventListener('toggle', e => { if (e.newState === 'closed') log('popover-closed'); });
+document.addEventListener('keydown', e => { if(e.key !== 'Escape') return; if (!$('child').hidden) $('child-close').click(); else if (!$('mask').hidden) closeOuter(); });
+if (scenario === 'native') $('native').showModal();
+else if (scenario === 'popover') $('native-popover').showPopover();
+else if (scenario === 'hidden-popup') { $('opener').hidden = false; $('child').removeAttribute('role'); }
+else {
+  $('mask').hidden = false;
+  if (scenario === 'nested') { $('nested-opener').hidden = false; $('outer-input').value = 'example'; $('probe').hidden = true; }
+  if (scenario === 'custom') { $('outer').removeAttribute('role'); $('outer').removeAttribute('aria-modal'); }
+}
+</script></body></html>

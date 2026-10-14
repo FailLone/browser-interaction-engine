@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-14T16:14:39.948Z",
+  "standalonePackageInstall": "passed",
+  "memoryPersistence": "passed",
+  "checkpoint": "REACHED_VERIFIED",
+  "absentDependencies": [
+    "playwright",
+    "better-sqlite3",
+    "fastify"
+  ]
+}

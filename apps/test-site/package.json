@@ -1,0 +1,1 @@
+{ "name": "@interaction/test-site", "version": "0.1.0", "type": "module", "private": true, "scripts": { "build": "vite build" }, "dependencies": { "react": "^19.2.0", "react-dom": "^19.2.0" } }

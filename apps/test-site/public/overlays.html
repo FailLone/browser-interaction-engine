@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Overlay exploration fixture</title>
+  <style>
+    body { font: 16px system-ui; padding: 24px; } button, input { margin: 10px; padding: 12px; }
+    dialog, [popover] { padding: 24px; border: 1px solid #aaa; border-radius: 12px; }
+    dialog::backdrop { background: #0007; }
+    #mask { position: fixed; inset: 0; background: #0007; z-index: 10; display: grid; place-items: center; }
+    #panel { background: white; padding: 30px; }
+  </style>
+</head>
+<body>
+  <h1>Nested modal and portal popover</h1>
+  <button id="parent" onclick="this.textContent='Parent visited'">Parent operation</button>
+  <button id="open" aria-haspopup="dialog" aria-controls="modal" onclick="modal.showModal()">Open modal</button>
+  <button id="open-popover" popovertarget="popover">Open independent popover</button>
+  <dialog id="modal" aria-label="Preferences">
+    <button id="done" onclick="modal.close()">Done</button>
+    <input id="setting" aria-label="Setting">
+    <button id="nested" popovertarget="details">Open details</button>
+  </dialog>
+  <!-- Portal: this popup deliberately lives outside the dialog DOM subtree. -->
+  <div id="details" popover aria-label="Details">
+    <button popovertarget="details" popovertargetaction="hide">Close details</button>
+    <input id="detail-value" aria-label="Detail value">
+  </div>
+  <div id="popover" popover aria-label="Independent popover">
+    <button popovertarget="popover" popovertargetaction="hide">Close popover</button>
+    <input id="popover-value" aria-label="Popover value">
+  </div>
+  <script>
+    const scenario = new URLSearchParams(location.search).get('initial');
+    if (scenario === 'modal') modal.showModal();
+    if (scenario === 'popover') popover.showPopover();
+    if (scenario === 'aria' || scenario === 'custom' || scenario === 'stuck') {
+      const mask = document.createElement('div'); mask.id = 'mask';
+      mask.innerHTML = '<div id="panel"><button id="close-panel" onclick="mask.remove()">Close panel</button><input id="panel-value" aria-label="Panel value"></div>';
+      document.body.append(mask);
+      if (scenario !== 'custom') { panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true'); panel.setAttribute('aria-label', 'Panel'); }
+      if (scenario === 'aria') { const nested = document.createElement('button'); nested.id = 'portal-opener'; nested.setAttribute('popovertarget', 'details'); nested.textContent = 'Open portal details'; panel.append(nested); }
+      if (scenario === 'stuck') { document.querySelector('#close-panel').remove(); document.querySelector('#panel-value').remove(); }
+    }
+  </script>
+</body>
+</html>

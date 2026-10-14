@@ -1,0 +1,58 @@
+import type { ActionCandidate, Context, Control, Diff, EngineEvent, EngineHooks, InteractionScope, Observation, Predicate, Session, SessionOptions } from './types.js';
+
+export interface Evidence { data: Uint8Array; mediaType: string }
+export interface EvidenceStore {
+  put(key: string, evidence: Evidence): Promise<void>;
+  get(key: string): Promise<Evidence | undefined>;
+}
+/** Synchronous atomic record transactions; asynchronous binary evidence is separate. */
+export interface Persistence {
+  readonly evidence: EvidenceStore;
+  transaction<T>(fn: () => T): T;
+  put<T extends { id: string; sessionId?: string }>(kind: string, value: T): void;
+  get<T>(kind: string, id: string): T | undefined;
+  require<T>(kind: string, id: string): T;
+  list<T>(kind: string, sessionId?: string): T[];
+  event(sessionId: string, type: string, data: unknown): EngineEvent;
+  events(sessionId: string, after?: number, limit?: number): EngineEvent[];
+  request(sessionId: string, requestId: string): { attemptId: string; payload: string } | undefined;
+  recordRequest(sessionId: string, requestId: string, attemptId: string, payload: string): void;
+  close(): void;
+}
+export type HookInvoker = <T>(name: string, fn: () => T | Promise<T>) => Promise<{ value?: T; error?: string }>;
+export type ObservationData<O extends Observation> = Omit<O, 'id' | 'sessionId' | 'stateId' | 'visitId' | 'fingerprint' | 'canonical' | 'ruleVersion' | 'cause'>;
+export interface InteractionDriver<O extends Observation, S extends SessionOptions> {
+  start(): Promise<void>;
+  connected(): boolean;
+  capture(observationId: string): Promise<ObservationData<O>>;
+  discover(observation: O, session: Session<S>, invoke: HookInvoker): Promise<ActionCandidate[]>;
+  preflight(observation: O): Promise<'valid' | 'stale' | 'context_changed'>;
+  validate(action: ActionCandidate, control?: O['controls'][number]): Promise<void>;
+  execute(action: ActionCandidate, control?: O['controls'][number]): Promise<void>;
+  reopen(): Promise<void>;
+  close(): Promise<void>;
+}
+export interface ScopeStart { name: string; region: string }
+/** Platform policy lives behind this port. The engine does not interpret action kinds. */
+export interface InteractionAdapter<O extends Observation = Observation, S extends SessionOptions = SessionOptions> {
+  readonly ruleVersion: string;
+  parseOptions(input: unknown): S;
+  createDriver(options: S, evidence: EvidenceStore): InteractionDriver<O, S>;
+  signature(control: O['controls'][number]): string;
+  normalize(observation: O): string;
+  compare(before: O, after: O, region?: string): Diff;
+  constrain(action: ActionCandidate, observation: O, session: Session<S>): ActionCandidate;
+  testPredicate(predicate: Predicate, observation: O): 'pass' | 'fail' | 'unknown';
+  replayMatches(candidate: ActionCandidate, recorded: ActionCandidate): boolean;
+  scopeBefore?(action: ActionCandidate, observation: O): ScopeStart | undefined;
+  scopeAfter?(action: ActionCandidate, before: O, after: O): { start?: ScopeStart; anchors: string[] };
+  scopeClosed?(scope: InteractionScope, observation: O): boolean;
+  returnAction?(actions: ActionCandidate[], observation: O): ActionCandidate | undefined;
+  entryAction?(observation: O, session: Session<S>): ActionCandidate;
+  inRegion?(control: O['controls'][number], region: string, observation: O): boolean;
+}
+export interface EngineOptions<O extends Observation = Observation, S extends SessionOptions = SessionOptions> {
+  adapter: InteractionAdapter<O, S>;
+  persistence: Persistence;
+  hooks?: EngineHooks<O, S>;
+}
