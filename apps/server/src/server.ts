@@ -51,6 +51,7 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
   app.post('/v1/sessions/:sessionId/checkpoints/:checkpointId/release-evidence', async request => engine.releaseCheckpointEvidence(sid(request), (request.params as any).checkpointId));
   app.get('/v1/sessions/:sessionId/actions', async request => engine.actions(sid(request), (request.query as any).observationId));
   app.get('/v1/sessions/:sessionId/graph', async request => engine.getGraph(sid(request)));
+  app.get('/v1/sessions/:sessionId/frontier-coverage', async request => engine.frontierCoverage(sid(request)));
   app.get('/v1/sessions/:sessionId/report', async request => { const r = engine.report(sid(request)); return { ...r, session: { ...r.session, options: { ...r.session.options, storageState: undefined } } }; });
   app.get('/v1/sessions/:sessionId/compare', async request => {
     const q = request.query as Record<string, string>;

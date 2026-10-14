@@ -1,4 +1,4 @@
-import type { Command, ActionCandidate, ActionAttempt, Checkpoint, EngineEvent, Graph, Observation, Session, SessionOptions } from '@interaction/browser';
+import type { Command, ActionCandidate, ActionAttempt, Checkpoint, EngineEvent, FrontierItemView, BrowserFrontierCoverageGroup, Graph, Observation, Session, SessionOptions } from '@interaction/browser';
 import type { ObservationDetails, ControlDetails, RegionDetails, DomResult, DomQuery, EventContext, ArtifactKind, EvidenceOptions, EvidenceRetentionPolicy, SubscriptionOptions, BrowserEngine, evidenceCapabilities } from '@interaction/browser';
 export class InteractionClient {
   constructor(public baseUrl = 'http://127.0.0.1:4173') {}
@@ -30,6 +30,8 @@ export class InteractionClient {
     return { mediaType: response.headers.get('content-type') || 'application/octet-stream', data: new Uint8Array(await response.arrayBuffer()) };
   }
   graph(id: string) { return this.request<Graph>(`/sessions/${id}/graph`); }
+  frontier(id: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.list<FrontierItemView>(id, 'frontier', options); }
+  frontierCoverage(id: string) { return this.request<BrowserFrontierCoverageGroup[]>(`/sessions/${encodeURIComponent(id)}/frontier-coverage`); }
   list<T>(id: string, resource: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.request<{ items: T[]; total: number }>(`/sessions/${id}/${resource}?${new URLSearchParams(Object.entries(options).map(([k, v]) => [k, String(v)]))}`); }
   execute(id: string, actionId: string, requestId: string, value?: Extract<Command, { type: 'execute' }>['value']) { return this.command<ActionAttempt>(id, { type: 'execute', actionId, requestId, value }); }
   checkpoint(id: string, name: string, retainEvidence = false) { return this.command<Checkpoint>(id, { type: 'createCheckpoint', name, predicates: [], acceptable: [], retainEvidence }); }

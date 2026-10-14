@@ -2,6 +2,7 @@ import { EventBus } from './events.js';
 import { contextSchema, actionBasisSchema } from './schema.js';
 import { assignState, matchIdentities } from './identity.js';
 import { recoverStore } from './recovery.js';
+import { describeFrontier, groupFrontier } from './frontier.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
 import type { EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
 import { EngineError, type ActionCandidate, type ActionAttempt, type Checkpoint, type ControlIdentity, type EngineHooks, type FrontierItem, type Graph, type IdentityHypothesis, type InteractionScope, type Issue, type Observation, type Predicate, type ReachResult, type Session, type SessionOptions, type Transition, type UIState, type Visit } from './types.js';
@@ -55,7 +56,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (!oid) throw new EngineError('NO_OBSERVATION', 'No observation is available');
     return this.owned<O>('observation', oid, sessionId);
   }
-  list<T>(sessionId: string, kind: string): T[] { this.session(sessionId); return kind === 'frontier' ? this.frontier(sessionId) as T[] : this.store.list<T>(kind, sessionId); }
+  list<T>(sessionId: string, kind: string): T[] { this.session(sessionId); return kind === 'frontier' ? this.getFrontier(sessionId) as T[] : this.store.list<T>(kind, sessionId); }
+  getFrontier(sessionId: string) { this.session(sessionId); return describeFrontier(this.frontier(sessionId), this.store.list<ActionAttempt>('attempt', sessionId)); }
+  frontierCoverage(sessionId: string) { return groupFrontier(this.getFrontier(sessionId)); }
   private outsideBoundary(action: ActionCandidate) { return action.preconditions.blockers?.some(b => b.code === 'outside_active_boundary'); }
   private frontier(sessionId: string) {
     // Older sessions stored background candidates once per overlay state. Keep the
@@ -69,7 +72,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   report(sessionId: string) {
     const frontier = this.list<FrontierItem>(sessionId, 'frontier'); const attempts = this.list<ActionAttempt>(sessionId, 'attempt'); const observations = this.list<O>(sessionId, 'observation');
     const counts = (items: { status: string }[]) => items.reduce<Record<string, number>>((out, i) => { out[i.status] = (out[i.status] || 0) + 1; return out; }, {});
-    return { session: this.session(sessionId), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), coverage: 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
+    return { session: this.session(sessionId), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), frontierCoverage: this.frontierCoverage(sessionId).map(({ id, controlId, kind, label, coverageStatus, counts }) => ({ id, controlId, kind, label, coverageStatus, counts })), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), coverage: 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
   }
   async createSession(input: unknown): Promise<Session<S>> {
     const options = this.adapter.parseOptions(input);
@@ -523,7 +526,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           if (!pending.length) { session.status = 'finished'; session.stopReason = this.frontier(sessionId).some(f => f.status !== 'executed') ? 'known_frontier_exhausted_with_gaps' : 'known_frontier_exhausted'; this.store.put('session', session); this.emit(sessionId, 'exploration.finished', this.report(sessionId)); return false; }
           let chosen = pending.find(f => f.stateId === o.stateId) || pending[0];
           if (this.hooks.choose) {
-            const result = await this.hook(sessionId, 'choose', () => this.hooks.choose!(structuredClone(pending), structuredClone({ session, observation: o })));
+            const result = await this.hook(sessionId, 'choose', () => this.hooks.choose!(describeFrontier(structuredClone(pending), this.store.list<ActionAttempt>('attempt', sessionId)), structuredClone({ session, observation: o })));
             if (result.error || result.value === null) { this.pauseRequested = true; session.status = 'paused'; session.stopReason = result.error || 'external_strategy_paused'; this.store.put('session', session); return false; }
             const item = pending.find(f => f.id === result.value); if (!item) throw new EngineError('INVALID_STRATEGY_CHOICE', 'Strategy returned an unknown frontier item'); chosen = item;
           }

@@ -60,6 +60,23 @@ export interface FrontierItem {
   status: 'pending' | 'executing' | 'executed' | 'blocked' | 'unknown' | 'needs_revalidation';
   reason?: string; unblock?: string; attempts: ID[]; depth: number;
 }
+/** Read-time coverage metadata. Scheduling status/reason apply to this case, not its control. */
+export interface FrontierItemView extends FrontierItem {
+  coverage: {
+    groupId: string;
+    unit: 'input_sample' | 'action_case';
+    /** Last recorded attempt outcome; unknown also covers missing historical attempts. */
+    executionStatus: ActionAttempt['status'] | 'not_attempted';
+  };
+}
+/** Groups one logical control and operation; state/context/value variants remain separate cases. */
+export interface FrontierCoverageGroup {
+  id: string; controlId?: ID; kind: ActionKind; label: string;
+  coverageStatus: 'not_attempted' | 'attempted' | 'partial' | 'complete';
+  /** Complete means all currently discovered cases are executed, not exhaustive coverage. */
+  counts: { total: number; executed: number; blocked: number; notAttempted: number };
+  items: FrontierItemView[];
+}
 export interface Predicate { target: string; key?: string; identityId?: ID; field?: string; equals: Json }
 export interface Checkpoint {
   id: ID; sessionId: ID; name: string; observationId: ID; stateId: ID; context: Context;
@@ -78,7 +95,7 @@ export interface HookContext<O extends Observation = Observation, S extends Sess
 export interface EngineHooks<O extends Observation = Observation, S extends SessionOptions = SessionOptions> {
   context?: (ctx: HookContext<O, S>) => Promise<Context> | Context;
   actions?: (actions: ActionCandidate[], ctx: HookContext<O, S>) => Promise<ActionCandidate[]> | ActionCandidate[];
-  choose?: (items: FrontierItem[], ctx: HookContext<O, S>) => Promise<ID | null> | ID | null;
+  choose?: (items: FrontierItemView[], ctx: HookContext<O, S>) => Promise<ID | null> | ID | null;
   identity?: (hypothesis: IdentityHypothesis, ctx: HookContext<O, S>) => Promise<{ identityId: ID; source: string; evidence: string[] } | undefined> | { identityId: ID; source: string; evidence: string[] } | undefined;
   verify?: (checkpoint: Checkpoint, ctx: HookContext<O, S>) => Promise<{ result: 'pass' | 'fail' | 'unknown'; evidence: string[] }> | { result: 'pass' | 'fail' | 'unknown'; evidence: string[] };
   accept?: (checkpoint: Checkpoint, ctx: HookContext<O, S>) => Promise<{ accepted: boolean; evidence: string[] }> | { accepted: boolean; evidence: string[] };

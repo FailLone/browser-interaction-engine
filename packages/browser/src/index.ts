@@ -3,14 +3,17 @@ import { RetainedPersistence, type RetentionOptions } from '@interaction/storage
 import { subscribeEvents, projectEvent, type SubscriptionOptions, type SnapshotEvent, type DeliveryMode } from './subscription.js';
 import { PlaywrightAdapter, commandSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
 import { BrowserEvidenceQueries, type DomQuery, type ArtifactKind } from './evidence.js';
+import { withFrontierStates } from './frontier.js';
 export * from '@interaction/adapter-playwright';
 export * from './evidence.js';
 export * from './subscription.js';
+export * from './frontier.js';
 /** Browser composition only. The caller chooses persistence; there is no implicit disk storage. */
 export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   declare readonly store: RetainedPersistence;
   private subscriptions = new Set<ReturnType<typeof subscribeEvents>>();
   private readonly evidenceQueries = new BrowserEvidenceQueries(this);
+  override frontierCoverage(sessionId: string) { return withFrontierStates(super.frontierCoverage(sessionId), id => this.store.get<Observation>('observation', id)); }
   observationDetails(sessionId: string, observationId: string) { return this.evidenceQueries.details(sessionId, observationId); }
   controlDetails(sessionId: string, observationId: string, controlId: string) { return this.evidenceQueries.control(sessionId, observationId, controlId); }
   regionDetails(sessionId: string, observationId: string, key: string) { return this.evidenceQueries.region(sessionId, observationId, key); }

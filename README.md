@@ -65,6 +65,8 @@ PLAN.md / ROADMAP.md           发布契约与迭代范围
 
 操作发现区分原生能力、ARIA 声明与疑似行为；焦点、鼠标样式和弹窗文案不会兜底生成 click。疑似操作默认跳过，可明确试探或通过 hook 提供依据，见 [操作候选与证据](docs/ACTION-EVIDENCE.md)。
 
+探索待办区分控件身份、具体输入样本和执行结果。SDK、HTTP 与策略 hook 提供结构化覆盖信息；调试页按同一控件及操作汇总，见 [待办与样本覆盖接口](docs/FRONTIER-COVERAGE.md)。
+
 ## 纯 core SDK
 
 core 不依赖 Playwright、DOM、URL、文件系统、数据库或 HTTP。它接收调用方注入的交互适配器和存储插件，动作类型及参数也是通用的。计数器示例没有网页或浏览器：
