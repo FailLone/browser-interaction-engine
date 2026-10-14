@@ -1,0 +1,288 @@
+{
+  "commit": "e793fba427ae54f086ac8b07c16f152bb9cb191c",
+  "sessionId": "3b1cf190-24a9-4dc1-a22f-0b8d59ec0ee1",
+  "attempts": [
+    {
+      "id": "a345e6ef-b571-4f7b-ae57-71b564771472",
+      "requestId": "okx-dismiss-notice",
+      "status": "succeeded",
+      "beforeId": "2ba47b03-2579-4d69-bd8d-f1e3310ae5ca",
+      "afterId": "5a3a7c63-50f3-4edb-a83b-c2d224da25c1",
+      "action": {
+        "kind": "click",
+        "label": "Close",
+        "value": null,
+        "risk": "interface",
+        "replayable": false,
+        "target": {
+          "kind": "instance",
+          "instanceScope": "5bdb4a48-cc92-4366-8913-065c1f7dfe73",
+          "instanceId": "5bdb4a48-cc92-4366-8913-065c1f7dfe73:410",
+          "evidence": [
+            "Unique current node instance; historical logical identity remains unresolved",
+            "observation:2ba47b03-2579-4d69-bd8d-f1e3310ae5ca"
+          ]
+        },
+        "preconditions": {
+          "context": {},
+          "visible": true,
+          "enabled": true,
+          "identityResolved": false,
+          "blockers": [],
+          "targetResolved": true
+        }
+      },
+      "valueChanges": []
+    },
+    {
+      "id": "361ca25b-3b99-4482-b44c-80267b4e32a4",
+      "requestId": "okx-btc-input",
+      "status": "succeeded",
+      "beforeId": "5a3a7c63-50f3-4edb-a83b-c2d224da25c1",
+      "afterId": "fa022638-b529-45d0-9abc-dc94dcf40610",
+      "action": {
+        "kind": "fill",
+        "label": "0",
+        "value": "2",
+        "risk": "interface",
+        "replayable": false,
+        "target": {
+          "kind": "instance",
+          "instanceScope": "5bdb4a48-cc92-4366-8913-065c1f7dfe73",
+          "instanceId": "5bdb4a48-cc92-4366-8913-065c1f7dfe73:447",
+          "evidence": [
+            "Unique current node instance; historical logical identity remains unresolved",
+            "observation:5a3a7c63-50f3-4edb-a83b-c2d224da25c1"
+          ]
+        },
+        "preconditions": {
+          "context": {},
+          "visible": true,
+          "enabled": true,
+          "identityResolved": false,
+          "blockers": [],
+          "targetResolved": true
+        }
+      },
+      "valueChanges": [
+        {
+          "controlId": "bb5523ed-c8a8-4fdc-957e-d2536f7edef5",
+          "kind": "changed",
+          "field": "value",
+          "before": "1",
+          "after": "2"
+        },
+        {
+          "controlId": "aff380d9-4966-43f9-9006-0a2ee4c5a529",
+          "kind": "changed",
+          "field": "value",
+          "before": "81,879.8",
+          "after": "163,759.6"
+        }
+      ]
+    },
+    {
+      "id": "897633f6-8a3e-4e59-b2df-34a8d33fe4cc",
+      "requestId": "okx-usd-input",
+      "status": "succeeded",
+      "beforeId": "fa022638-b529-45d0-9abc-dc94dcf40610",
+      "afterId": "0960435a-be1e-4b93-8eee-1dd34013b5ce",
+      "action": {
+        "kind": "fill",
+        "label": "0",
+        "value": "100",
+        "risk": "interface",
+        "replayable": false,
+        "target": {
+          "kind": "instance",
+          "instanceScope": "5bdb4a48-cc92-4366-8913-065c1f7dfe73",
+          "instanceId": "5bdb4a48-cc92-4366-8913-065c1f7dfe73:449",
+          "evidence": [
+            "Unique current node instance; historical logical identity remains unresolved",
+            "observation:fa022638-b529-45d0-9abc-dc94dcf40610"
+          ]
+        },
+        "preconditions": {
+          "context": {},
+          "visible": true,
+          "enabled": true,
+          "identityResolved": false,
+          "blockers": [],
+          "targetResolved": true
+        }
+      },
+      "valueChanges": [
+        {
+          "controlId": "bb5523ed-c8a8-4fdc-957e-d2536f7edef5",
+          "kind": "changed",
+          "field": "value",
+          "before": "2",
+          "after": "0.001221302445780278"
+        },
+        {
+          "controlId": "aff380d9-4966-43f9-9006-0a2ee4c5a529",
+          "kind": "changed",
+          "field": "value",
+          "before": "163,759.6",
+          "after": "100"
+        }
+      ]
+    },
+    {
+      "id": "9107cb85-8ff7-4920-b3af-0322144e7cac",
+      "requestId": "okx-restore-btc-2",
+      "status": "succeeded",
+      "beforeId": "0fdfe247-4336-47c0-88e0-7b81e65d71ba",
+      "afterId": "fef15f58-e83d-47fb-b967-4341e583fe5f",
+      "action": {
+        "kind": "fill",
+        "label": "0",
+        "value": "2",
+        "risk": "interface",
+        "replayable": false,
+        "target": {
+          "kind": "instance",
+          "instanceScope": "5bdb4a48-cc92-4366-8913-065c1f7dfe73",
+          "instanceId": "5bdb4a48-cc92-4366-8913-065c1f7dfe73:447",
+          "evidence": [
+            "Unique current node instance; historical logical identity remains unresolved",
+            "observation:0fdfe247-4336-47c0-88e0-7b81e65d71ba"
+          ]
+        },
+        "preconditions": {
+          "context": {},
+          "visible": true,
+          "enabled": true,
+          "identityResolved": false,
+          "blockers": [],
+          "targetResolved": true
+        }
+      },
+      "valueChanges": [
+        {
+          "controlId": "bb5523ed-c8a8-4fdc-957e-d2536f7edef5",
+          "kind": "changed",
+          "field": "value",
+          "before": "0.001221302445780278",
+          "after": "2"
+        },
+        {
+          "controlId": "aff380d9-4966-43f9-9006-0a2ee4c5a529",
+          "kind": "changed",
+          "field": "value",
+          "before": "100",
+          "after": "163,759.6"
+        }
+      ]
+    }
+  ],
+  "recoveries": [
+    {
+      "id": "94864a6b-66db-44ef-9848-1c940bf2b727",
+      "sessionId": "3b1cf190-24a9-4dc1-a22f-0b8d59ec0ee1",
+      "checkpointId": "80473ee2-987f-4124-9e6e-94bb77396aa2",
+      "status": "UNREACHABLE",
+      "reason": "Checkpoint path contains actions without replay permission",
+      "checks": [
+        {
+          "name": "retained-evidence:fa022638-b529-45d0-9abc-dc94dcf40610.png",
+          "result": "pass"
+        },
+        {
+          "name": "retained-evidence:fa022638-b529-45d0-9abc-dc94dcf40610.details.json",
+          "result": "pass"
+        },
+        {
+          "name": "observable-state",
+          "result": "fail"
+        }
+      ],
+      "attemptIds": [],
+      "observationId": "0fdfe247-4336-47c0-88e0-7b81e65d71ba",
+      "remainingFrontier": 202,
+      "diagnostics": {
+        "strategies": [
+          "verify_current",
+          "boundary_exit",
+          "recorded_path",
+          "declared_local_restore"
+        ],
+        "dirtyActions": [],
+        "resetAvailable": false
+      }
+    },
+    {
+      "id": "72b0913a-9d42-4350-a28d-9cb1ecb76c95",
+      "sessionId": "3b1cf190-24a9-4dc1-a22f-0b8d59ec0ee1",
+      "checkpointId": "80473ee2-987f-4124-9e6e-94bb77396aa2",
+      "status": "REACHED_VERIFIED",
+      "reason": "Checkpoint verification: REACHED_VERIFIED",
+      "checks": [
+        {
+          "name": "retained-evidence:fa022638-b529-45d0-9abc-dc94dcf40610.png",
+          "result": "pass"
+        },
+        {
+          "name": "retained-evidence:fa022638-b529-45d0-9abc-dc94dcf40610.details.json",
+          "result": "pass"
+        },
+        {
+          "name": "observable-state",
+          "result": "pass"
+        }
+      ],
+      "attemptIds": [],
+      "observationId": "5cb2cf57-71e9-41f3-8b4d-03ae812514f6",
+      "remainingFrontier": 202,
+      "diagnostics": {
+        "strategies": [
+          "verify_current"
+        ],
+        "dirtyActions": [],
+        "resetAvailable": false
+      }
+    }
+  ],
+  "currencySelectors": [
+    {
+      "name": "BTCBTC0G1INCH2ZAAAOI",
+      "role": "generic",
+      "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+      "actions": [],
+      "actionBasis": {},
+      "discovery": [
+        "style:cursor=pointer"
+      ],
+      "interactionHints": [
+        {
+          "source": "css",
+          "rule": "pointer-cursor/v1",
+          "facts": {
+            "cursor": "pointer",
+            "inherited": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "USDUSDAEDALLANGARSAUD",
+      "role": "generic",
+      "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1)",
+      "actions": [],
+      "actionBasis": {},
+      "discovery": [
+        "style:cursor=pointer"
+      ],
+      "interactionHints": [
+        {
+          "source": "css",
+          "rule": "pointer-cursor/v1",
+          "facts": {
+            "cursor": "pointer",
+            "inherited": false
+          }
+        }
+      ]
+    }
+  ]
+}
