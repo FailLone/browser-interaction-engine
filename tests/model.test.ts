@@ -10,6 +10,7 @@ it('never merges incomplete observations or a fingerprint collision without cont
   const a = observation(); const first = assignState(a, [], o => observableCanonical(o as Observation));
   const collision = { ...first, canonical: 'different normalized content' };
   expect(assignState(observation(), [collision], o => observableCanonical(o as Observation)).id).not.toBe(first.id);
+  expect(assignState({ ...observation(), ruleVersion: 'observable-v3' }, [first], o => observableCanonical(o as Observation)).id).not.toBe(first.id);
   const partial = { ...observation(), gaps: [{ code: 'TRUNCATED', message: 'Incomplete DOM', critical: true }] };
   const state = assignState(partial, [], o => observableCanonical(o as Observation));
   expect(assignState(structuredClone(partial), [state], o => observableCanonical(o as Observation)).id).not.toBe(state.id);

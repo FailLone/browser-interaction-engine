@@ -1,6 +1,7 @@
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
+import { createHash } from 'node:crypto';
 import type { EvidenceStore, InteractionDriver, HookInvoker } from '@interaction/core';
-import { canonical, timeout } from '@interaction/core';
+import { canonical, timeout, hash } from '@interaction/core';
 import { observableCanonical } from './model.js';
 import type { Session, EngineHooks } from './types.js';
 import { constrain } from './policy.js';
@@ -9,9 +10,14 @@ import type { ActionCandidate, Context, Control, Gap, Observation, Region, Sessi
 import { EngineError } from './types.js';
 import { now } from './util.js';
 import { collectOverlays } from './overlays.js';
+import { collectActionEvidence } from './action-evidence.js';
+import { collectEvidence } from './collect-evidence.js';
+import { evidenceOptionsSchema } from './schema.js';
+import { RuntimeRecorder } from './runtime-evidence.js';
+import type { BrowserEvidenceManifest, DetailSnapshot, DomEvidence, EvidenceOptions } from './evidence-types.js';
 
 // Runs in the page without framework knowledge or DOM mutation.
-function collectDOM(overlayCollector: typeof collectOverlays) {
+function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
@@ -23,7 +29,7 @@ function collectDOM(overlayCollector: typeof collectOverlays) {
     const labels = (el as HTMLInputElement).labels;
     return labels?.length ? clean([...labels].map(l => { const copy = l.cloneNode(true) as Element; copy.querySelectorAll('input,select,textarea,button,[role=combobox]').forEach(child => child.remove()); return copy.textContent; }).join(' ')) : '';
   };
-  const role = (el: Element): string => el.getAttribute('role') || ({ BUTTON: 'button', A: 'link', SELECT: 'combobox', TEXTAREA: 'textbox', FORM: 'form', MAIN: 'main', NAV: 'navigation', DIALOG: 'dialog', SUMMARY: 'button' }[el.tagName] || (el.tagName === 'INPUT' ? ({ checkbox: 'checkbox', radio: 'radio', button: 'button', submit: 'button', number: 'spinbutton' }[(el as HTMLInputElement).type] || 'textbox') : 'generic'));
+  const role = (el: Element): string => el.getAttribute('role') || (el.tagName === 'A' ? el.hasAttribute('href') ? 'link' : 'generic' : { BUTTON: 'button', SELECT: 'combobox', TEXTAREA: 'textbox', FORM: 'form', MAIN: 'main', NAV: 'navigation', DIALOG: 'dialog', SUMMARY: 'button' }[el.tagName] || (el.tagName === 'INPUT' ? ({ checkbox: 'checkbox', radio: 'radio', button: 'button', submit: 'button', reset: 'button', image: 'button', number: 'spinbutton' }[(el as HTMLInputElement).type] || 'textbox') : 'generic'));
   const rect = (el: Element | null) => { const r = el?.getBoundingClientRect(); return r ? { x: r.x, y: r.y, width: r.width, height: r.height } : { x: 0, y: 0, width: 0, height: 0 }; };
   const body = document.body;
   const bodyText = body?.innerText ?? body?.textContent ?? '';
@@ -38,15 +44,25 @@ function collectDOM(overlayCollector: typeof collectOverlays) {
     }
     return `html > ${parts.join(' > ')}`;
   };
-  const regionSelector = 'form,main,nav,section[aria-label],section[aria-labelledby],[role=dialog],[role=menu],[role=listbox],[role=tabpanel],dialog';
+  const regionSelector = 'form,main,nav,section[aria-label],section[aria-labelledby],[role=dialog],[role=alertdialog],[role=menu],[role=listbox],[role=tabpanel],dialog';
   const regionKey = (el: Element | null) => {
     if (!el) return 'document';
     return `${role(el)}:${el.getAttribute('data-testid') || el.id || label(el) || el.getAttribute('name') || selector(el)}`;
   };
   const regions = [...document.querySelectorAll(regionSelector)].map(el => ({ key: regionKey(el), label: label(el) || el.getAttribute('name') || role(el), role: role(el), selector: selector(el), parentKey: regionKey(el.parentElement?.closest(regionSelector) ?? null), rect: rect(el), text: ((el as HTMLElement).innerText || el.textContent || '').slice(0, 8000) }));
   regions.unshift({ key: 'document', label: document.title, role: 'document', selector: 'body', parentKey: '', rect: rect(body), text: bodyText.slice(0, 8000) });
-  const query = 'a[href],button,input:not([type=hidden]),select,textarea,summary,[role=button],[role=link],[role=menuitem],[role=option],[role=tab],[role=checkbox],[role=radio],[role=combobox],[aria-expanded],[onclick],[tabindex], [contenteditable=true]';
-  const all = [...document.querySelectorAll(query)];
+  const query = 'a[href],button,input:not([type=hidden]),select,textarea,summary,[role=button],[role=link],[role=menuitem],[role=menuitemcheckbox],[role=menuitemradio],[role=option],[role=tab],[role=checkbox],[role=radio],[role=switch],[role=combobox],[role=dialog],[role=alertdialog],dialog,[popover],[aria-expanded],[onclick],[tabindex],[contenteditable]:not([contenteditable=false])';
+  const selected = new Set(document.querySelectorAll(query));
+  // Document roots host event delegation and focus management. Preserve those
+  // signals separately instead of making the entire document an action target.
+  const documentRoots = [document.documentElement, body].filter((el): el is HTMLElement => !!el);
+  const documentHints = documentRoots.flatMap(el => actionCollector(el).interactionHints.map(hint => ({ ...hint, facts: { ...hint.facts, tag: el.tagName.toLowerCase(), scope: 'document' } })));
+  for (const root of documentRoots) selected.delete(root);
+  const elements = [...document.querySelectorAll('*')];
+  // A bounded supplemental scan finds property handlers and cursor-only hints.
+  // Inherited pointer cursors do not turn every descendant into another target.
+  for (const el of elements.slice(0, 5000)) if (el !== body && el !== document.documentElement && !selected.has(el) && (typeof (el as HTMLElement).onclick === 'function' || getComputedStyle(el).cursor === 'pointer' && (!el.parentElement || getComputedStyle(el.parentElement).cursor !== 'pointer'))) selected.add(el);
+  const all = [...selected];
   const controls = all.slice(0, 1500).map(el => {
     const e = el as HTMLInputElement;
     const r = rect(el); const style = getComputedStyle(el);
@@ -54,12 +70,8 @@ function collectDOM(overlayCollector: typeof collectOverlays) {
     const enabled = !e.disabled && !el.matches(':disabled') && el.getAttribute('aria-disabled') !== 'true' && !el.closest('[inert]');
     const semanticRole = role(el); const name = label(el) || clean(el.textContent) || clean(el.getAttribute('title')) || clean(el.getAttribute('placeholder')) || (['submit', 'button'].includes(e.type) ? e.value : '');
     const type = el.tagName === 'INPUT' ? e.type : el.tagName.toLowerCase();
-    const editable = enabled && !e.readOnly && (['INPUT', 'TEXTAREA'].includes(el.tagName) || el.getAttribute('contenteditable') === 'true');
-    const actions: string[] = [];
-    if (el.tagName === 'SELECT') actions.push('select');
-    else if (['checkbox', 'radio'].includes(type) || ['checkbox', 'radio'].includes(semanticRole)) actions.push('check');
-    else if (editable && !['file', 'submit', 'button', 'reset', 'color', 'range'].includes(type)) actions.push('fill');
-    else actions.push('click');
+    const capabilities = actionCollector(el);
+    const editable = enabled && !e.readOnly && el.getAttribute('aria-readonly') !== 'true' && capabilities.actions.includes('fill');
     const x = Math.max(0, Math.min(innerWidth - 1, r.x + r.width / 2)); const y = Math.max(0, Math.min(innerHeight - 1, r.y + r.height / 2));
     const hit = document.elementFromPoint(x, y);
     const isInView = r.x >= 0 && r.y >= 0 && r.x + r.width <= innerWidth && r.y + r.height <= innerHeight;
@@ -68,12 +80,12 @@ function collectDOM(overlayCollector: typeof collectOverlays) {
     return {
       localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey,
       region: regionKey(el.closest(regionSelector)), form: regionKey(el.closest('form')), selector: selector(el), rect: r,
-      value: typeof e.value === 'string' ? e.value : el.getAttribute('contenteditable') === 'true' ? clean(el.textContent) : '', displayedText: clean(el.textContent),
+      value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
       checked: ['checkbox', 'radio'].includes(type) ? e.checked : el.hasAttribute('aria-checked') ? el.getAttribute('aria-checked') === 'true' : null,
       selected: el.tagName === 'SELECT' ? [...(el as HTMLSelectElement).selectedOptions].map(o => o.value) : el.getAttribute('aria-selected') === 'true' ? [name] : [],
       visible: !!visible, enabled: !!enabled, editable: !!editable, expanded: el.hasAttribute('aria-expanded') ? el.getAttribute('aria-expanded') === 'true' : null, controls: el.getAttribute('aria-controls'),
       constraints: { type, required: !!e.required, min: e.min || undefined, max: e.max || undefined, step: e.step || undefined, pattern: e.pattern || undefined, minLength: e.minLength >= 0 ? e.minLength : undefined, maxLength: e.maxLength >= 0 ? e.maxLength : undefined, valid: e.validity?.valid ?? true },
-      options, actions, discovery: [el.hasAttribute('role') ? 'aria-role' : 'native-or-dom-heuristic'],
+      options, ...capabilities, discovery: [...query.split(',').filter(q => el.matches(q)).map(q => `selector:${q}`), ...(typeof (el as HTMLElement).onclick === 'function' ? ['property:onclick'] : []), ...(style.cursor === 'pointer' ? ['style:cursor=pointer'] : [])],
       actionable: { visible: !!visible, enabled: !!enabled, editable: !!editable, hitTarget: isInView ? !!hit && (hit === el || el.contains(hit)) : null, unknown: ['event-handler-completeness', 'business-preconditions', ...(!isInView ? ['off-viewport-hit-target'] : [])] },
     };
   });
@@ -81,22 +93,28 @@ function collectDOM(overlayCollector: typeof collectOverlays) {
   if (!body) gaps.push({ code: 'DOM_ROOT_UNAVAILABLE', message: 'Document body is absent; the page may be navigating or rebuilding', critical: true });
   if (document.readyState === 'loading') gaps.push({ code: 'DOCUMENT_LOADING', message: 'Document parsing is still in progress', critical: true });
   for (const el of document.querySelectorAll('iframe,canvas,input[type=file]')) gaps.push({ code: `UNSUPPORTED_${el.tagName === 'INPUT' ? 'FILE_INPUT' : el.tagName}`, message: `${el.tagName} internals are outside V0.1 coverage`, selector: selector(el) });
-  for (const el of document.querySelectorAll('*')) if (el.shadowRoot) gaps.push({ code: 'UNSUPPORTED_SHADOW_DOM', message: 'Shadow root contents were not collected', selector: selector(el) });
+  for (const el of elements) if (el.shadowRoot) gaps.push({ code: 'UNSUPPORTED_SHADOW_DOM', message: 'Shadow root contents were not collected', selector: selector(el) });
+  for (const c of controls) if (c.tag === 'input' && ['color', 'range'].includes(c.constraints.type)) gaps.push({ code: 'UNSUPPORTED_INPUT_TYPE', message: `No V0.1 operation for input type ${c.constraints.type}`, selector: c.selector });
+  if (elements.length > 5000) gaps.push({ code: 'SIGNAL_SCAN_TRUNCATED', message: 'Supplemental property-handler and cursor scan limited to 5000 elements; semantic selectors are collected separately' });
+  gaps.push({ code: 'EVENT_LISTENER_COVERAGE', message: 'Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation.' });
   if (all.length > controls.length) gaps.push({ code: 'TRUNCATED', message: `${all.length - controls.length} controls omitted`, critical: true });
   if (bodyText.length > 50000) gaps.push({ code: 'TEXT_TRUNCATED', message: 'Visible text was truncated to 50000 characters' });
   const layers = overlayCollector(controls, regions);
-  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, ...layers, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
+  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, ...layers, actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
 
 export class BrowserAdapter implements InteractionDriver<Observation, SessionOptions> {
   browser?: Browser; context?: BrowserContext; page?: Page;
   private gaps: Gap[] = [];
-  constructor(public options: SessionOptions, private evidence: EvidenceStore, private hooks: EngineHooks = {}) {}
+  private recorder?: RuntimeRecorder;
+  constructor(public options: SessionOptions, private evidence: EvidenceStore, private hooks: EngineHooks = {}) { this.options = { ...options, evidence: evidenceOptionsSchema.parse(options.evidence) }; }
   connected() { return !!this.page && !this.page.isClosed(); }
   async start() {
     this.browser = await chromium.launch({ headless: this.options.headless });
     this.context = await this.browser.newContext({ viewport: this.options.viewport, storageState: this.options.storageState as any, acceptDownloads: false });
     this.page = await this.context.newPage();
+    this.recorder = new RuntimeRecorder(this.options.evidence.maxRuntimeEntries, this.options.evidence.maxTextLength);
+    if (this.options.evidence.enabled) this.recorder.attach(this.page);
     this.page.setDefaultTimeout(this.options.actionTimeoutMs);
     this.context.on('page', async p => { if (p !== this.page) { this.gaps.push({ code: 'UNSUPPORTED_NEW_TAB', message: `New tab blocked: ${p.url()}`, critical: true }); await p.close().catch(() => {}); } });
     this.page.on('dialog', async dialog => { this.gaps.push({ code: 'UNSUPPORTED_NATIVE_DIALOG', message: `${dialog.type()}: ${dialog.message()}; dismissed`, critical: true }); await dialog.dismiss().catch(() => {}); });
@@ -109,12 +127,13 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     });
     await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' });
   }
-  async readDOM() {
+  async readDOM(detailed = false) {
     if (!this.page || this.page.isClosed()) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
-    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}); })()`;
-    return this.page.evaluate(source) as Promise<{ documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[]; overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>; scroll: Observation['scroll']; gaps: Gap[] }>;
+    const args = detailed ? `, ${collectEvidence.toString()}, ${JSON.stringify(this.options.evidence)}` : '';
+    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}${args}); })()`;
+    return this.page.evaluate(source) as Promise<{ documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[]; overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>; actionDiscovery?: Observation['actionDiscovery']; scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence }>;
   }
   async capture(observationId: string) {
     if (!this.page) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
@@ -126,7 +145,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         dom = await timeout(this.readDOM(), Math.max(1, deadline - Date.now()), 'DOM capture deadline exceeded');
         lastError = undefined;
         const incomplete = dom.gaps.some(g => ['DOM_ROOT_UNAVAILABLE', 'DOCUMENT_LOADING'].includes(g.code));
-        const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.visible, c.enabled, c.expanded, c.constraints, c.rect, c.actionable.hitTarget]) });
+        const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
         if (key !== previous || incomplete) { previous = key; unchangedSince = Date.now(); }
         if (!incomplete && Date.now() - unchangedSince >= this.options.settleMs) { stable = true; break; }
       } catch (error) {
@@ -136,6 +155,16 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if (Date.now() >= deadline) break;
       await new Promise(r => setTimeout(r, Math.min(50, Math.max(0, deadline - Date.now()))));
     } while (Date.now() < deadline);
+    const evidenceManifest: BrowserEvidenceManifest = { schemaVersion: 1, status: this.options.evidence.enabled ? 'captured' : 'disabled', artifacts: {}, gaps: [] };
+    if (this.options.evidence.enabled && dom && !lastError) {
+      try {
+        const detailed = await timeout(this.readDOM(true), this.options.observeTimeoutMs, 'Detailed DOM capture deadline exceeded');
+        if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId) {
+          stable = false; detailed.gaps.push({ code: 'EVIDENCE_CAPTURE_CHANGED', message: 'Page changed between stability sampling and detailed capture', critical: true });
+        }
+        dom = detailed;
+      } catch (error) { evidenceManifest.gaps.push({ code: 'DETAIL_CAPTURE_FAILED', message: String(error) }); }
+    }
     // Keep the last successful evidence, or an explicitly incomplete record when
     // the execution context never became readable. Never replay the action here.
     dom ??= { documentId: `unavailable:${id()}`, url: this.page.url(), title: '', text: '', controls: [], regions: [], overlays: [], boundaries: [], scroll: { x: 0, y: 0, maxY: 0 }, gaps: [] };
@@ -156,13 +185,45 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       }
     }
     let screenshot: string | undefined; let screenshotAt: string | undefined;
-    try { screenshot = `${observationId}.png`; const data = await this.page.screenshot({ timeout: this.options.actionTimeoutMs }); await this.evidence.put(screenshot, { data, mediaType: 'image/png' }); screenshotAt = now(); }
+    const saveImage = async (key: string, fullPage = false) => {
+      const data = await this.page!.screenshot({ timeout: this.options.actionTimeoutMs, fullPage }); const at = now();
+      await this.evidence.put(key, { data, mediaType: 'image/png' });
+      // Hash the exact bytes rather than their JSON representation.
+      return { key, mediaType: 'image/png', capturedAt: at, bytes: data.length, sha256: createHash('sha256').update(data).digest('hex') };
+    };
+    try { screenshot = `${observationId}.png`; evidenceManifest.artifacts.screenshot = await saveImage(screenshot); screenshotAt = evidenceManifest.artifacts.screenshot.capturedAt; }
     catch (error) { gaps.push({ code: 'SCREENSHOT_FAILED', message: String(error) }); screenshot = undefined; }
+    const accessibility: DetailSnapshot['accessibility'] = { status: 'disabled', format: 'playwright-aria-yaml', gaps: [] };
+    if (this.options.evidence.enabled && this.options.evidence.accessibility) {
+      try {
+        const text = await this.page.locator('body').ariaSnapshot({ timeout: this.options.observeTimeoutMs });
+        Object.assign(accessibility, { status: 'captured', capturedAt: now(), text: text.slice(0, this.options.evidence.maxHtmlLength), truncated: text.length > this.options.evidence.maxHtmlLength });
+        if (accessibility.truncated) accessibility.gaps.push({ code: 'ARIA_TRUNCATED', message: 'ARIA snapshot exceeds the configured character limit' });
+      } catch (error) { accessibility.status = 'unavailable'; accessibility.gaps.push({ code: 'ARIA_UNAVAILABLE', message: String(error) }); }
+    }
+    if (this.options.evidence.enabled && this.options.evidence.fullPageScreenshot) {
+      try { evidenceManifest.artifacts.fullPageScreenshot = await saveImage(`${observationId}.full.png`, true); }
+      catch (error) { evidenceManifest.gaps.push({ code: 'FULL_PAGE_SCREENSHOT_FAILED', message: String(error) }); }
+    }
     try {
       const current = await timeout(this.page.evaluate(() => ({ documentId: (window as any).__interactionEvidenceTracker?.documentId, hasBody: !!document.body })), this.options.observeTimeoutMs, 'Document verification deadline exceeded');
       if (current.documentId !== dom.documentId || !current.hasBody) { stable = false; gaps.push({ code: 'OBSERVATION_INTERRUPTED', message: 'Document changed or became unavailable between DOM and evidence collection', critical: true }); }
     } catch (error) { stable = false; gaps.push({ code: 'OBSERVATION_INTERRUPTED', message: String(error), critical: true }); }
-    return { ...dom, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: this.options.viewport };
+    if (this.options.evidence.enabled) {
+      if (!dom.detailDom) evidenceManifest.gaps.push({ code: 'DETAIL_DOM_UNAVAILABLE', message: 'Detailed DOM was not captured; historical queries cannot reconstruct it later' });
+      evidenceManifest.gaps.push(...gaps, ...accessibility.gaps, ...(dom.detailDom?.gaps || []));
+      const runtime = this.recorder!.snapshot(this.page);
+      if (runtime.truncatedFields || Object.values(runtime.dropped).some(n => n > 0)) evidenceManifest.gaps.push({ code: 'RUNTIME_TRUNCATED', message: 'Runtime evidence exceeded entry or text limits; see dropped and truncatedFields' });
+      const snapshot: DetailSnapshot = { schemaVersion: 1, observationId, documentId: dom.documentId, dom: dom.detailDom, accessibility, runtime, gaps: evidenceManifest.gaps, limits: this.options.evidence, semantics: { businessIntent: 'not_inferred', textTrust: 'page_content', execution: 'inert_evidence', consistency: 'components_have_individual_timestamps' } };
+      try {
+        const json = JSON.stringify(snapshot); const bytes = new TextEncoder().encode(json); const key = `${observationId}.details.json`;
+        await this.evidence.put(key, { data: bytes, mediaType: 'application/json' });
+        evidenceManifest.artifacts.details = { key, mediaType: 'application/json', capturedAt: dom.detailDom?.capturedAt || capturedAt, bytes: bytes.length, sha256: hash(json) };
+      } catch (error) { evidenceManifest.gaps.push({ code: 'DETAIL_STORAGE_FAILED', message: String(error) }); }
+      if (evidenceManifest.gaps.length || dom.detailDom?.nodes.some(n => n.gaps.length)) evidenceManifest.status = 'partial';
+    }
+    const { detailDom: _, ...observation } = dom;
+    return { ...observation, evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: this.options.viewport };
   }
   async execute(action: ActionCandidate, control?: Control) {
     const page = this.page!;
@@ -180,7 +241,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if (control.tag === 'input') await target.setChecked(Boolean(action.value), clickOptions);
       else if (control.checked !== action.value) await target.click(clickOptions);
     } else if (action.kind === 'press') await target.press(String(action.value));
-    else await target.click(clickOptions);
+    else if (action.kind === 'click') await target.click(clickOptions);
+    else throw new EngineError('UNSUPPORTED_ACTION', `Unsupported browser action: ${action.kind}`);
   }
   async validateInput(control: Control, value: string) {
     if (!['input', 'textarea'].includes(control.tag)) return { valid: true, reason: '' };
@@ -197,9 +259,12 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   async discover(o: Observation, session: Session, invoke: HookInvoker): Promise<ActionCandidate[]> {
     const actions: ActionCandidate[] = [];
     const add = (kind: ActionCandidate['kind'], value: ActionCandidate['value'], c?: Control, sampleValidity: ActionCandidate['sampleValidity'] = 'known', blocked?: string) => {
-      const interfaceAction = ['fill', 'select', 'check', 'scroll', 'press'].includes(kind) || c?.expanded !== null && c?.expanded !== undefined || ['menuitem', 'option', 'tab', 'link'].includes(c?.role || '') || c?.tag === 'summary';
-      const risk = interfaceAction ? 'interface' : c?.constraints.type === 'submit' || c?.tag === 'button' && c.form !== 'document' ? 'submission' : 'unknown';
-      const a: ActionCandidate = { id: id(), sessionId: o.sessionId, observationId: o.id, stateId: o.stateId, controlId: c?.identityId, localId: c?.localId, kind, value, label: c?.name || (kind === 'scroll' ? 'Scroll page' : 'Close overlay'), preconditions: { context: o.context, visible: true, enabled: true, identityResolved: true }, replayable: interfaceAction, risk, source: 'dom-v1', excluded: !!blocked, exclusionReason: blocked, sampleValidity };
+      const submitsForm = kind === 'click' && c?.actionBasis?.click?.evidence.some(e => e.rule === 'native-button/v1' && e.facts.submitsForm === true);
+      const boundaryExit = kind === 'click' && !!c && o.overlays?.at(-1)?.exitControlIds.includes(c.localId);
+      const interfaceAction = !submitsForm && (boundaryExit || ['fill', 'select', 'check', 'scroll', 'press'].includes(kind) || c?.expanded !== null && c?.expanded !== undefined || ['menuitem', 'option', 'tab', 'link'].includes(c?.role || '') || c?.tag === 'summary');
+      const risk = submitsForm ? 'submission' : interfaceAction ? 'interface' : 'unknown';
+      const basis: NonNullable<ActionCandidate['basis']> = c ? c.actionBasis?.[kind] || { status: 'tentative', evidence: [{ source: 'adapter-playwright', rule: 'missing-operation-evidence/v1', facts: { kind } }] } : { status: 'supported', evidence: [{ source: 'adapter-playwright', rule: kind === 'scroll' ? 'viewport-scroll/v1' : 'overlay-escape-probe/v1', facts: kind === 'scroll' ? { y: o.scroll.y, maxY: o.scroll.maxY } : { key: 'Escape', boundary: o.overlays?.at(-1)?.key || '', effect: 'unknown' } }] };
+      const a: ActionCandidate = { id: id(), sessionId: o.sessionId, observationId: o.id, stateId: o.stateId, controlId: c?.identityId, localId: c?.localId, kind, value, label: c?.name || (kind === 'scroll' ? 'Scroll page' : 'Close overlay'), preconditions: { context: o.context, visible: true, enabled: true, identityResolved: true }, basis, replayable: interfaceAction && basis.status !== 'tentative', risk: basis.status === 'tentative' ? 'unknown' : risk, source: 'dom-actions-v2', excluded: !!blocked, exclusionReason: blocked, sampleValidity };
       actions.push(constrain(a, o, session));
     };
     for (const c of o.controls.filter(c => c.visible)) {
@@ -221,7 +286,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
             add(kind, value, c, 'shape_only', blocked || (!validation.valid ? 'input_sample_required' : undefined));
           }
         } else if (kind === 'select') for (const option of c.options.filter(x => !x.disabled && x.value !== c.value)) add(kind, option.value, c);
-        else if (kind === 'check') { if (c.role !== 'radio' || !c.checked) add(kind, !c.checked, c); }
+        else if (kind === 'check') { if (!['radio', 'menuitemradio'].includes(c.role) || !c.checked) add(kind, !c.checked, c); }
         else add(kind, undefined, c);
       }
     }

@@ -1,8 +1,17 @@
 import { InteractionEngine as CoreEngine, type Persistence, type Predicate, type InteractionScope } from '@interaction/core';
 import { PlaywrightAdapter, commandSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
+import { BrowserEvidenceQueries, type DomQuery, type ArtifactKind } from './evidence.js';
 export * from '@interaction/adapter-playwright';
+export * from './evidence.js';
 /** Browser composition only. The caller chooses persistence; there is no implicit disk storage. */
 export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
+  private readonly evidenceQueries = new BrowserEvidenceQueries(this);
+  observationDetails(sessionId: string, observationId: string) { return this.evidenceQueries.details(sessionId, observationId); }
+  controlDetails(sessionId: string, observationId: string, controlId: string) { return this.evidenceQueries.control(sessionId, observationId, controlId); }
+  regionDetails(sessionId: string, observationId: string, key: string) { return this.evidenceQueries.region(sessionId, observationId, key); }
+  dom(sessionId: string, observationId: string, query: DomQuery = {}) { return this.evidenceQueries.dom(sessionId, observationId, query); }
+  eventContext(sessionId: string, sequence: number) { return this.evidenceQueries.eventContext(sessionId, sequence); }
+  evidenceArtifact(sessionId: string, observationId: string, kind: ArtifactKind) { return this.evidenceQueries.artifact(sessionId, observationId, kind); }
   constructor(options: { persistence: Persistence; hooks?: EngineHooks }) {
     // Migrate only the browser-specific legacy field; immutable observations stay intact.
     options.persistence.transaction(() => {

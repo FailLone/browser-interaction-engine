@@ -24,6 +24,10 @@ try {
   const action = actions.find(a => a.label === 'Open'); assert.ok(action);
   const attempt = await (await fetch(`${base}/v1/sessions/${session.id}/commands`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'execute', actionId: action.id, requestId: 'compiled-once' }) })).json();
   assert.equal(attempt.status, 'succeeded'); assert.ok(attempt.diff.changes.some(c => c.field === 'expanded'));
-  const result = { at: new Date().toISOString(), node: process.version, compiledAPI: 'passed', staticUI: 'passed', chromiumExecution: 'passed', attemptId: attempt.id };
+  const details = await (await fetch(`${base}/v1/sessions/${session.id}/observations/${attempt.beforeId}/details`)).json();
+  assert.ok(details.snapshot.dom.html.includes('Compiled runtime fixture'));
+  assert.ok(details.snapshot.dom.nodes.some(n => n.attributes?.id === 'open'));
+  assert.equal(details.snapshot.accessibility.status, 'captured');
+  const result = { at: new Date().toISOString(), node: process.version, compiledAPI: 'passed', staticUI: 'passed', chromiumExecution: 'passed', historicalEvidence: 'passed', attemptId: attempt.id };
   writeFileSync(resolve('docs/build-smoke.json'), JSON.stringify(result, null, 2)); console.log(result);
 } finally { await app.close(); await engine.close(); await new Promise(r => fixture.close(r)); }

@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>证据查询测试</title><meta name="description" content="填写订单金额并选择计价单位">
+<style>body{font:16px system-ui;padding:30px}input,select,button{margin:12px;padding:8px}.note{color:rgb(20,60,100)}</style></head>
+<body><main aria-label="交易工作区"><h1>新订单</h1><form id="order" aria-label="订单表单" action="/orders" method="post">
+<label id="amount-label" for="amount">订单金额</label><input id="amount" name="amount" type="number" value="10" min="1" max="1000" step="1" required aria-describedby="amount-help" data-business-field="order.amount">
+<p id="amount-help" class="note">金额以当前计价单位计算，最小为 1。</p>
+<label for="currency">计价单位</label><select id="currency" name="currency"><option value="USD">美元</option><option value="EUR">欧元</option></select>
+<button id="submit" type="submit">提交订单</button><output id="result"></output></form>
+<a id="help" href="/help" title="订单说明">查看帮助</a></main>
+<script>window.submissions=0;document.querySelector('form').onsubmit=e=>{e.preventDefault();window.submissions++;document.querySelector('output').textContent='已提交';};console.info('evidence fixture ready');fetch('/capture.html').then(()=>console.info('metadata request finished'));</script></body></html>

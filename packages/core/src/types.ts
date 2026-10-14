@@ -6,6 +6,9 @@ export interface Region { key: string; label: string; role: string; parentKey?: 
 /** Ordered outermost to innermost. Only the last boundary accepts interaction. */
 export interface InteractionBoundary { key: string; name: string; parentKey?: string; region: string; evidence: string[] }
 export interface ActionBlocker { code: string; boundaryKey?: string; evidence: string[]; unblock: string }
+/** Evidence supporting an operation, independent of its availability or observed effect. */
+export interface ActionEvidence { source: string; rule: string; facts: Record<string, Json> }
+export interface ActionBasis { status: 'supported' | 'tentative'; evidence: ActionEvidence[] }
 export type ActionKind = string;
 /** A logical interaction target; platform-specific evidence belongs in an extension. */
 export interface Control {
@@ -37,6 +40,8 @@ export interface ActionCandidate {
   kind: ActionKind; label: string; value?: Json;
   preconditions: { context: Context; visible: boolean; enabled: boolean; identityResolved: boolean; blockers?: ActionBlocker[] };
   boundary?: { key: string; intent: 'interact' | 'exit' };
+  /** Absent on legacy records. Tentative operations require explicit external execution. */
+  basis?: ActionBasis;
   replayable: boolean; risk: 'interface' | 'submission' | 'unknown'; source: string;
   excluded: boolean; exclusionReason?: string; sampleValidity: 'shape_only' | 'known' | 'unknown';
 }

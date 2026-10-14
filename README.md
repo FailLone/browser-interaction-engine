@@ -4,6 +4,10 @@
 
 ![调试界面](docs/screenshots/dashboard.png)
 
+## 详细证据查询（功能分支）
+
+事件 data 可保持简约。BrowserEngine / HTTP 客户端提供 observationDetails、controlDetails、regionDetails、dom、eventContext 和 evidenceArtifact，查询指定观察的文案、类型、状态、DOM 结构/属性、标签关系、ARIA、截图及运行记录。查询读取历史证据，不操作浏览器，也不推断业务意图。见 [证据接口、配置及限制](docs/EVIDENCE-API.md)。
+
 ## 启动
 
 需要 Node.js 24 和 pnpm 10。在项目目录运行：
@@ -55,6 +59,8 @@ PLAN.md / ROADMAP.md           发布契约与迭代范围
 ```
 
 这是可直接运行和修改的 workspace；包尚未发布到 npm。各包通过自己的 `package.json` 声明依赖，`pnpm build` 会生成每个包的 `dist/`。依赖方向和插件契约见 [ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+
+操作发现区分原生能力、ARIA 声明与疑似行为；焦点、鼠标样式和弹窗文案不会兜底生成 click。疑似操作默认跳过，可明确试探或通过 hook 提供依据，见 [操作候选与证据](docs/ACTION-EVIDENCE.md)。
 
 ## 纯 core SDK
 

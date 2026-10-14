@@ -99,3 +99,11 @@ const engine = new BrowserEngine({ persistence: new SqliteStore(directory), hook
 ## 独占交互范围
 
 core 接受与平台无关的 `Observation.boundaries` 和动作阻塞前提。默认 DFS 优先当前最内层范围，退出操作执行后必须重新观察验证；父页面待办保留。浏览器识别规则、事件和验证场景见 [弹层优先探索](INTERACTION-BOUNDARIES.md)。
+
+## 详细证据查询
+
+Playwright 适配层采集 DOM、ARIA、样式和运行信息，按观察 ID 存入 EvidenceStore。BrowserEngine 组合层提供历史查询；HTTP 与客户端只是同一查询的传输入口。core 不新增 Web 或 Playwright 依赖。详见 [证据接口](EVIDENCE-API.md)。
+
+## 操作依据
+
+core 的 `ActionBasis` 只含状态和来源证据，不解释 DOM、ARIA 或 Playwright。适配层生成具体依据；core 默认跳过 tentative 待办，接受外部明确试探，并阻止自动重放。观察目标可以没有操作。规则和扩展方式见 [操作候选与证据](ACTION-EVIDENCE.md)。

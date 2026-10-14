@@ -101,7 +101,9 @@ export function collectOverlays(controls: Control[], regions: Region[]) {
       if (e.getAttribute('popovertarget') === el.id && ['hide', 'toggle'].includes(e.getAttribute('popovertargetaction') || 'toggle')) return true;
       if (e.getAttribute('commandfor') === el.id && ['close', 'request-close', 'hide-popover', 'toggle-popover'].includes(e.getAttribute('command') || '')) return true;
       if (!controlIds.includes(c.localId) || !c.actions.includes('click')) return false;
-      if ((e as HTMLButtonElement).form?.getAttribute('method') === 'dialog') return true;
+      const button = e as HTMLButtonElement | HTMLInputElement;
+      const formMethod = button.hasAttribute('formmethod') ? button.formMethod : button.form?.method;
+      if (button.form && ['submit', 'image'].includes(button.type) && formMethod === 'dialog') return true;
       return /^(?:close|dismiss|done|cancel|关闭|取消|完成)(?:\b|\s|$)|^[×✕✖]$/i.test(c.name.trim());
     }).map(c => c.localId);
     return { key, name: regions.find(r => r.key === key)!.label, kind: details.kind, selector: selector(el), parentKey: parent ? keys.get(parent) : undefined, parentRegion: opener?.region || (parent ? keys.get(parent)! : 'document'), evidence: [...details.evidence, ...(opener ? ['opener-relationship'] : []), ...(prior.includes(el) ? [] : ['newly-visible'])], controlIds, exitControlIds };

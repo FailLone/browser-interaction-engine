@@ -3,7 +3,7 @@ import fastifyStatic from '@fastify/static';
 import { ZodError } from 'zod';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { InteractionEngine, EngineError, type EngineEvent } from '@interaction/browser';
+import { InteractionEngine, EngineError, artifactKindSchema, domQuerySchema, evidenceCapabilities, type EngineEvent } from '@interaction/browser';
 
 export async function createServer(engine: InteractionEngine, options: { uiDirectory?: string; logger?: boolean } = {}) {
   const app = Fastify({ logger: options.logger ?? false, bodyLimit: 1024 * 1024 });
@@ -11,10 +11,11 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
   app.addHook('preClose', async () => { for (const stream of streams) stream.end(); });
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof ZodError) return reply.code(400).send({ error: { code: 'INVALID_REQUEST', message: 'Request validation failed', details: error.issues } });
-    if (error instanceof EngineError) return reply.code(error.code === 'NOT_FOUND' ? 404 : 409).send({ error: { code: error.code, message: error.message, details: error.details } });
+    if (error instanceof EngineError) return reply.code(error.code === 'NOT_FOUND' ? 404 : error.code === 'INVALID_QUERY' ? 400 : 409).send({ error: { code: error.code, message: error.message, details: error.details } });
     return reply.code(500).send({ error: { code: 'INTERNAL_ERROR', message: error instanceof Error ? error.message : String(error) } });
   });
   app.get('/v1/health', async () => ({ status: 'ok', version: '0.1.0', modelIndependent: true }));
+  app.get('/v1/capabilities/evidence', async () => evidenceCapabilities);
   app.get('/v1/sessions', async () => engine.sessions().map(s => ({ ...s, options: { ...s.options, storageState: s.options.storageState ? '[configured]' : undefined } })));
   app.post('/v1/sessions', async (request, reply) => { const s = await engine.createSession(request.body); return reply.code(201).send({ ...s, options: { ...s.options, storageState: s.options.storageState ? '[configured]' : undefined } }); });
   const sid = (request: any) => request.params.sessionId as string;
@@ -25,6 +26,22 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
     return result;
   });
   app.get('/v1/sessions/:sessionId/observation', async request => engine.observation(sid(request), (request.query as any).id));
+  const oid = (request: any) => request.params.observationId as string;
+  app.get('/v1/sessions/:sessionId/observations/:observationId/details', async request => engine.observationDetails(sid(request), oid(request)));
+  app.get('/v1/sessions/:sessionId/observations/:observationId/dom', async request => engine.dom(sid(request), oid(request), domQuerySchema.parse(request.query)));
+  app.get('/v1/sessions/:sessionId/observations/:observationId/controls/:controlId', async request => engine.controlDetails(sid(request), oid(request), (request.params as any).controlId));
+  app.get('/v1/sessions/:sessionId/observations/:observationId/region', async request => {
+    const key = (request.query as any).key;
+    if (typeof key !== 'string' || !key) throw new EngineError('INVALID_QUERY', 'A region key is required');
+    return engine.regionDetails(sid(request), oid(request), key);
+  });
+  app.get('/v1/sessions/:sessionId/observations/:observationId/artifacts/:kind', async (request, reply) => {
+    const kind = artifactKindSchema.parse((request.params as any).kind);
+    const evidence = await engine.evidenceArtifact(sid(request), oid(request), kind);
+    return reply.type(evidence.mediaType).header('X-Content-Type-Options', 'nosniff').header('Content-Security-Policy', "default-src 'none'; sandbox")
+      .header('Cache-Control', 'private, max-age=31536000, immutable').send(Buffer.from(evidence.data));
+  });
+  app.get('/v1/sessions/:sessionId/events/:sequence/context', async request => engine.eventContext(sid(request), Number((request.params as any).sequence)));
   app.get('/v1/sessions/:sessionId/actions', async request => engine.actions(sid(request), (request.query as any).observationId));
   app.get('/v1/sessions/:sessionId/graph', async request => engine.getGraph(sid(request)));
   app.get('/v1/sessions/:sessionId/report', async request => { const r = engine.report(sid(request)); return { ...r, session: { ...r.session, options: { ...r.session.options, storageState: undefined } } }; });

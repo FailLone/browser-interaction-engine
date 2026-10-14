@@ -1,4 +1,5 @@
 import type { Command, ActionCandidate, ActionAttempt, Checkpoint, EngineEvent, Graph, Observation, Session, SessionOptions } from '@interaction/browser';
+import type { ObservationDetails, ControlDetails, RegionDetails, DomResult, DomQuery, EventContext, ArtifactKind, EvidenceOptions, evidenceCapabilities } from '@interaction/browser';
 export class InteractionClient {
   constructor(public baseUrl = 'http://127.0.0.1:4173') {}
   async request<T>(path: string, body?: unknown): Promise<T> {
@@ -7,11 +8,22 @@ export class InteractionClient {
     if (!response.ok) throw Object.assign(new Error(result.error?.message || response.statusText), result.error || {}); return result as T;
   }
   sessions() { return this.request<Session[]>('/sessions'); }
-  createSession(options: Pick<SessionOptions, 'url'> & Partial<SessionOptions>) { return this.request<Session>('/sessions', options); }
+  evidenceCapabilities() { return this.request<typeof evidenceCapabilities>('/capabilities/evidence'); }
+  createSession(options: Pick<SessionOptions, 'url'> & Partial<Omit<SessionOptions, 'evidence'>> & { evidence?: Partial<EvidenceOptions> }) { return this.request<Session>('/sessions', options); }
   session(id: string) { return this.request<Session>(`/sessions/${id}`); }
   observe(id: string) { return this.command<Observation>(id, { type: 'observe' }); }
   observation(id: string, observationId?: string) { return this.request<Observation>(`/sessions/${id}/observation${observationId ? `?id=${observationId}` : ''}`); }
   actions(id: string) { return this.request<ActionCandidate[]>(`/sessions/${id}/actions`); }
+  observationDetails(id: string, observationId: string) { return this.request<ObservationDetails>(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/details`); }
+  controlDetails(id: string, observationId: string, controlId: string) { return this.request<ControlDetails>(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/controls/${encodeURIComponent(controlId)}`); }
+  regionDetails(id: string, observationId: string, key: string) { return this.request<RegionDetails>(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/region?${new URLSearchParams({ key })}`); }
+  dom(id: string, observationId: string, query: DomQuery = {}) { return this.request<DomResult>(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/dom?${new URLSearchParams(Object.entries(query).map(([k, v]) => [k, String(v)]))}`); }
+  eventContext(id: string, sequence: number) { return this.request<EventContext>(`/sessions/${encodeURIComponent(id)}/events/${sequence}/context`); }
+  async evidenceArtifact(id: string, observationId: string, kind: ArtifactKind = 'screenshot') {
+    const response = await fetch(`${this.baseUrl}/v1/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/artifacts/${encodeURIComponent(kind)}`);
+    if (!response.ok) { const result = await response.json(); throw Object.assign(new Error(result.error?.message || response.statusText), result.error || {}); }
+    return { mediaType: response.headers.get('content-type') || 'application/octet-stream', data: new Uint8Array(await response.arrayBuffer()) };
+  }
   graph(id: string) { return this.request<Graph>(`/sessions/${id}/graph`); }
   list<T>(id: string, resource: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.request<{ items: T[]; total: number }>(`/sessions/${id}/${resource}?${new URLSearchParams(Object.entries(options).map(([k, v]) => [k, String(v)]))}`); }
   execute(id: string, actionId: string, requestId: string, value?: Extract<Command, { type: 'execute' }>['value']) { return this.command<ActionAttempt>(id, { type: 'execute', actionId, requestId, value }); }

@@ -64,7 +64,7 @@ export function matchIdentities<C extends Control>(observation: Observation<C>, 
 
 export function assignState(o: Observation, states: UIState[], normalize: (observation: Observation) => string): UIState {
   o.canonical = normalize(o); o.fingerprint = hash(o.canonical);
-  const prior = !o.gaps.some(g => g.critical) && states.find(s => s.fingerprint === o.fingerprint && s.canonical === o.canonical);
+  const prior = !o.gaps.some(g => g.critical) && states.find(s => s.ruleVersion === o.ruleVersion && s.fingerprint === o.fingerprint && s.canonical === o.canonical);
   const state = prior || { id: id(), sessionId: o.sessionId, fingerprint: o.fingerprint, canonical: o.canonical, ruleVersion: o.ruleVersion, observationIds: [], context: o.context };
   state.observationIds.push(o.id); o.stateId = state.id; return state;
 }

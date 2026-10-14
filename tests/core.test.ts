@@ -28,3 +28,31 @@ it('runs the same budgeted exploration with no browser or disk dependency', asyn
     expect(engine.store.events(s.id).filter(e => e.type === 'action.completed')).toHaveLength(3);
   } finally { await engine.close(); }
 });
+
+it('keeps tentative operations out of automatic exploration and recovery without platform knowledge', async () => {
+  const engine = new InteractionEngine({ adapter: new CounterAdapter(), persistence: new MemoryStore(), hooks: {
+    actions: actions => actions.map(a => ({ ...a, basis: { status: 'tentative', evidence: [{ source: 'counter-signal', rule: 'unknown-purpose/v1', facts: { receiver: 'counter' } }] } })),
+  } });
+  try {
+    const s = await engine.createSession({});
+    await engine.explore(s.id); await engine.waitForIdle();
+    expect(engine.session(s.id).actionCount).toBe(0);
+    const attempt = await engine.execute(s.id, engine.actions(s.id)[0].id, 'probe');
+    expect(attempt.action.replayable).toBe(false);
+    expect(engine.observation(s.id).count).toBe(1);
+    expect(engine.graph(s.id).transitions[0].replayable).toBe(false);
+  } finally { await engine.close(); }
+});
+
+it('preserves observations when a hook supplies malformed operation evidence', async () => {
+  const engine = new InteractionEngine({ adapter: new CounterAdapter(), persistence: new MemoryStore(), hooks: {
+    actions: actions => actions.map(a => ({ ...a, basis: { status: 'supported', evidence: [] } })),
+  } });
+  try {
+    const s = await engine.createSession({});
+    expect(engine.observation(s.id).controls).toHaveLength(1);
+    expect(engine.observation(s.id).gaps.some(g => g.code === 'ACTION_HOOK_FAILED')).toBe(true);
+    expect(engine.actions(s.id)[0].exclusionReason).toBe('action_hook_failed');
+    expect(engine.store.events(s.id).some(e => e.type === 'hook.error')).toBe(true);
+  } finally { await engine.close(); }
+});

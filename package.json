@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit && tsc -p packages/core/tsconfig.json",
     "start": "node dist/apps/server/src/main.js",
     "test": "vitest run",
-    "test:e2e": "vitest run tests/engine.e2e.test.ts tests/overlays.e2e.test.ts tests/boundary-regressions.test.ts tests/observation-lifecycle.test.ts tests/http.test.ts tests/ui.e2e.test.ts tests/crash.test.ts",
+    "test:e2e": "vitest run tests/engine.e2e.test.ts tests/overlays.e2e.test.ts tests/boundary-regressions.test.ts tests/observation-lifecycle.test.ts tests/action-evidence.test.ts tests/evidence-query.test.ts tests/evidence-ui.test.ts tests/http.test.ts tests/ui.e2e.test.ts tests/crash.test.ts",
     "report": "tsx --conditions=development scripts/report.ts",
     "smoke:built": "node scripts/smoke-built.mjs",
     "example:strategy": "tsx --conditions=development examples/external-strategy.ts",

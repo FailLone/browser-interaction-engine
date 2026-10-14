@@ -59,7 +59,8 @@ it('keeps parent exploration suspended when no operation can close a modal', asy
     expect(attempts).toHaveLength(1); expect(attempts[0].action.value).toBe('Escape');
     expect(t.engine.observation(t.sessionId).boundaries).toHaveLength(1);
     expect(t.engine.list<InteractionScope>(t.sessionId, 'scope')[0].status).toBe('open');
-    expect(t.engine.list<FrontierItem>(t.sessionId, 'frontier').find(f => f.action.label === 'Parent operation')?.status).toBe('blocked');
+    expect(t.engine.actions(t.sessionId).find(a => a.label === 'Parent operation')?.preconditions.blockers?.[0].code).toBe('outside_active_boundary');
+    expect(t.engine.list<FrontierItem>(t.sessionId, 'frontier').some(f => f.action.label === 'Parent operation')).toBe(false);
   } finally { await t.close(); }
 });
 
