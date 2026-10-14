@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { InteractionClient } from '@interaction/client';
 import type { ActionAttempt, Diff, Visit } from '@interaction/browser';
+import { DiffExplanation } from './DiffExplanation.js';
 
 type Comparison = { attempt?: ActionAttempt; diff?: Diff; beforeId: string; afterId?: string };
 type Loaded = { key: string; comparison?: Comparison; error?: string };
@@ -47,10 +48,10 @@ export function VisitDiff({ api, sessionId, visit, parentObservationId, attempt,
   return <div data-testid="visit-diff" data-visit-id={visit.id}>
     <div className="diff-title"><b>{action ? action.action.label || '未命名操作' : '补充观察'}</b>{action && <><span className={`badge ${action.status}`}>{statusText[action.status]}</span><span>{action.reason}</span></>}</div>
     {!action && <p className="muted">与该访问记录的父观察比较；期间变化不归因于某次操作。</p>}
-    <div className="compare-images">
+    {!comparison.diff && <div className="compare-images">
       <figure><img alt="操作前" src={`/v1/sessions/${sessionId}/evidence/${comparison.beforeId}`} /><figcaption>{action ? '操作前' : '父观察'}</figcaption></figure>
       {comparison.afterId && <figure><img alt="操作后" src={`/v1/sessions/${sessionId}/evidence/${comparison.afterId}`} /><figcaption>{action ? '操作后' : '所选观察'}</figcaption></figure>}
-    </div>
-    {comparison.diff ? <pre>{JSON.stringify(comparison.diff, null, 2)}</pre> : <div className="empty">此步骤尚未获得可比较的结果。{action?.reason}</div>}
+    </div>}
+    {comparison.diff && comparison.afterId ? <><DiffExplanation api={api} sessionId={sessionId} beforeId={comparison.beforeId} afterId={comparison.afterId} attemptId={action?.id} /><details className="diff-section"><summary>原始 diff</summary><pre data-testid="raw-diff">{JSON.stringify(comparison.diff, null, 2)}</pre></details></> : <div className="empty">此步骤尚未获得可比较的结果。{action?.reason}</div>}
   </div>;
 }

@@ -39,12 +39,13 @@ afterEach(async () => {
 
 async function expectDiff(attempt: ActionAttempt) {
   await page.waitForFunction(afterId => {
-    const text = document.querySelector('[data-testid="visit-diff"] pre')?.textContent;
+    const text = document.querySelector('[data-testid="raw-diff"]')?.textContent;
     return text && JSON.parse(text).afterId === afterId;
   }, attempt.afterId);
+  await page.waitForFunction(id => document.querySelector('[data-testid="diff-explanation"]')?.getAttribute('data-after-id') === id, attempt.afterId);
   const panel = page.getByTestId('visit-diff');
   expect(await panel.locator('.diff-title b').textContent()).toBe(attempt.action.label);
-  expect(JSON.parse(await panel.locator('pre').innerText())).toEqual(attempt.diff);
+  expect(JSON.parse((await panel.getByTestId('raw-diff').textContent())!)).toEqual(attempt.diff);
   expect(await panel.getByAltText('操作前').getAttribute('src')).toContain(attempt.beforeId);
   expect(await panel.getByAltText('操作后').getAttribute('src')).toContain(attempt.afterId);
   expect(await page.getByAltText('页面观察截图').getAttribute('src')).toContain(attempt.afterId);
@@ -76,12 +77,13 @@ it('compares supplemental observations to their parent and keeps history pinned 
   await expectDiff(market);
   await page.getByRole('button', { name: '返回当前', exact: true }).click();
   await page.waitForFunction(id => {
-    const text = document.querySelector('[data-testid="visit-diff"] pre')?.textContent;
+    const text = document.querySelector('[data-testid="raw-diff"]')?.textContent;
     return text && JSON.parse(text).afterId === id;
   }, inspected.id);
+  await page.getByTestId('diff-explanation').waitFor();
   const panel = page.getByTestId('visit-diff');
   expect(await panel.locator('.diff-title b').innerText()).toBe('补充观察');
-  const diff = JSON.parse(await panel.locator('pre').innerText());
+  const diff = JSON.parse((await panel.getByTestId('raw-diff').textContent())!);
   expect(diff.beforeId).toBe(amount.afterId);
   expect(diff.changes).toContainEqual(expect.objectContaining({ field: 'value', before: '2', after: '3' }));
   expect(await panel.getByAltText('操作后').getAttribute('src')).toContain(inspected.id);
@@ -152,4 +154,44 @@ it('loads the selected attempt when it is outside the dashboard first page', asy
   await expectDiff(amount);
   expect(offsets).toContain(2);
   await page.locator('.visit').filter({ hasText: 'click · Market' }).click(); await expectDiff(market);
+});
+
+it('shows readable field meaning, historical control evidence and matching screenshot regions', async () => {
+  const explanation = page.getByTestId('diff-explanation');
+  expect(await explanation.innerText()).toContain('Amount');
+  expect(await explanation.innerText()).toContain('当前值的记录值发生变化');
+  const control = page.getByTestId('diff-control').filter({ hasText: 'Amount' }).first();
+  await control.locator('summary').first().click();
+  expect(await control.innerText()).toContain('Order form');
+  expect(await control.innerText()).toContain('scoped-stable-key');
+  await control.getByRole('button', { name: '在前后截图中定位' }).click();
+  expect(await explanation.locator('svg rect').count()).toBe(2);
+  const target = t.engine.observation(t.sessionId).controls.find(c => c.identityId === amount.action.controlId)!;
+  expect(await explanation.locator('svg').last().locator('rect').getAttribute('x')).toBe(String(target.rect.x));
+  const apiLink = explanation.getByRole('link', { name: '完整详情 API ↗' });
+  expect(await apiLink.getAttribute('href')).toContain(`/attempts/${amount.id}/diff/details`);
+
+  await pageOf(t.engine).locator('#quick-market').evaluate(el => el.setAttribute('aria-expanded', 'false'));
+  const inspected = await t.engine.observe(t.sessionId);
+  await page.waitForFunction(id => document.querySelector('[data-testid="diff-explanation"]')?.getAttribute('data-after-id') === id, inspected.id);
+  expect(await explanation.innerText()).toContain('不能据此认定发生了视觉展开或收起');
+  await page.screenshot({ path: '.data/diff-details-ui.png', fullPage: true });
+});
+
+it('ignores a delayed detail response after selecting another visit', async () => {
+  let release!: () => void, requested!: () => void, done!: () => void;
+  const blocked = new Promise<void>(resolve => { release = resolve; });
+  const started = new Promise<void>(resolve => { requested = resolve; });
+  const completed = new Promise<void>(resolve => { done = resolve; });
+  await page.route(`**/attempts/${market.id}/diff/details`, async route => {
+    const response = await route.fetch(); requested(); await blocked; await route.fulfill({ response }); done();
+  });
+  try {
+    await page.locator('.visit').filter({ hasText: 'click · Market' }).click(); await started;
+    expect(await page.getByTestId('diff-explanation').count()).toBe(0);
+    await page.locator('.visit').filter({ hasText: 'click · Order type' }).click(); await expectDiff(opened);
+    release(); await completed;
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+    await expectDiff(opened);
+  } finally { release(); }
 });

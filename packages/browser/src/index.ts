@@ -1,6 +1,8 @@
 import { InteractionEngine as CoreEngine, type Persistence, type Predicate, type InteractionScope } from '@interaction/core';
 import { PlaywrightAdapter, commandSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
+import { explainBrowserDiff } from './diff-details.js';
 export * from '@interaction/adapter-playwright';
+export * from './diff-details.js';
 /** Browser composition only. The caller chooses persistence; there is no implicit disk storage. */
 export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   constructor(options: { persistence: Persistence; hooks?: EngineHooks }) {
@@ -12,6 +14,10 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     });
     super({ persistence: options.persistence, adapter: new PlaywrightAdapter(options.hooks), hooks: options.hooks });
   }
+  override diffDetails(sessionId: string, beforeId: string, afterId: string, region?: string) { return explainBrowserDiff(super.diffDetails(sessionId, beforeId, afterId, region)); }
+  override attemptDiffDetails(sessionId: string, attemptId: string) { return explainBrowserDiff(super.attemptDiffDetails(sessionId, attemptId)); }
+  override eventDiffDetails(sessionId: string, sequence: number) { return explainBrowserDiff(super.eventDiffDetails(sessionId, sequence)); }
+  override scopeDiffDetails(sessionId: string, scopeId: string) { return explainBrowserDiff(super.scopeDiffDetails(sessionId, scopeId)); }
   async command(sessionId: string, input: unknown) {
     const command: Command = commandSchema.parse(input);
     switch (command.type) {

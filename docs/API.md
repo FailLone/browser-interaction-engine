@@ -42,6 +42,10 @@ flowchart LR
 | GET | /sessions/:sid/actions?observationId= | 当前或历史候选 |
 | GET | /sessions/:sid/graph | states、transitions、visits |
 | GET | /sessions/:sid/compare?before=&after=&region= | 单步或区域比较 |
+| GET | /sessions/:sid/compare/details?before=&after=&region= | 比较并关联完整历史证据 |
+| GET | /sessions/:sid/attempts/:attemptId/diff/details | 动作保存的 diff 详情 |
+| GET | /sessions/:sid/events/:sequence/diff/details | 事件保存的 diff 详情 |
+| GET | /sessions/:sid/scopes/:scopeId/diff/details | 流程累计 diff 详情 |
 | GET | /sessions/:sid/path?from=&to= | 已记录可重放路径；无路径为 null |
 | GET | /sessions/:sid/report | 发现范围、动作、待办、缺口和问题 |
 | GET | /sessions/:sid/evidence/:observationId | PNG 截图 |
@@ -131,3 +135,5 @@ SQLite 插件使用 WAL，`entities` 保存带 kind 的结构化实体，`events
 公开的通用 TypeScript Hook 类型位于 `packages/core/src/types.ts`，输入样本等 Web 扩展位于 `packages/adapter-playwright/src/types.ts`，编译时检查返回值；动作、输入和上下文的运行时边界也验证其结构。Hook 异常记录 `hook.error`。普通观察事实先保留，依赖失败 hook 的操作受阻；动作后检查失败不改变已经记录的浏览器结果。
 
 内存插件保留同样的实体、请求去重、事件游标和事务语义，证据通过 `EvidenceStore.get()` 返回字节。`/evidence` 不依赖本地路径。内存数据不跨进程保存。
+
+详细响应、历史语义及 SDK/Event 用法见 [DIFF-DETAILS.md](DIFF-DETAILS.md)。

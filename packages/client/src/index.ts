@@ -1,4 +1,4 @@
-import type { Command, ActionCandidate, ActionAttempt, Checkpoint, EngineEvent, Graph, Observation, Session, SessionOptions } from '@interaction/browser';
+import type { Command, ActionCandidate, ActionAttempt, BrowserDiffDetails, Checkpoint, EngineEvent, Graph, Observation, Session, SessionOptions } from '@interaction/browser';
 export class InteractionClient {
   constructor(public baseUrl = 'http://127.0.0.1:4173') {}
   async request<T>(path: string, body?: unknown): Promise<T> {
@@ -13,6 +13,13 @@ export class InteractionClient {
   observation(id: string, observationId?: string) { return this.request<Observation>(`/sessions/${id}/observation${observationId ? `?id=${observationId}` : ''}`); }
   actions(id: string) { return this.request<ActionCandidate[]>(`/sessions/${id}/actions`); }
   graph(id: string) { return this.request<Graph>(`/sessions/${id}/graph`); }
+  diffDetails(id: string, beforeId: string, afterId: string, region?: string) {
+    const query = new URLSearchParams({ before: beforeId, after: afterId }); if (region !== undefined) query.set('region', region);
+    return this.request<BrowserDiffDetails>(`/sessions/${encodeURIComponent(id)}/compare/details?${query}`);
+  }
+  attemptDiffDetails(id: string, attemptId: string) { return this.request<BrowserDiffDetails>(`/sessions/${encodeURIComponent(id)}/attempts/${encodeURIComponent(attemptId)}/diff/details`); }
+  eventDiffDetails(id: string, sequence: number) { return this.request<BrowserDiffDetails>(`/sessions/${encodeURIComponent(id)}/events/${sequence}/diff/details`); }
+  scopeDiffDetails(id: string, scopeId: string) { return this.request<BrowserDiffDetails>(`/sessions/${encodeURIComponent(id)}/scopes/${encodeURIComponent(scopeId)}/diff/details`); }
   list<T>(id: string, resource: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.request<{ items: T[]; total: number }>(`/sessions/${id}/${resource}?${new URLSearchParams(Object.entries(options).map(([k, v]) => [k, String(v)]))}`); }
   execute(id: string, actionId: string, requestId: string, value?: Extract<Command, { type: 'execute' }>['value']) { return this.command<ActionAttempt>(id, { type: 'execute', actionId, requestId, value }); }
   checkpoint(id: string, name: string) { return this.command<Checkpoint>(id, { type: 'createCheckpoint', name, predicates: [], acceptable: [] }); }

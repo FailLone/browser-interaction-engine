@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
-import { ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { InteractionEngine, EngineError, type EngineEvent } from '@interaction/browser';
@@ -11,7 +11,7 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
   app.addHook('preClose', async () => { for (const stream of streams) stream.end(); });
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof ZodError) return reply.code(400).send({ error: { code: 'INVALID_REQUEST', message: 'Request validation failed', details: error.issues } });
-    if (error instanceof EngineError) return reply.code(error.code === 'NOT_FOUND' ? 404 : 409).send({ error: { code: error.code, message: error.message, details: error.details } });
+    if (error instanceof EngineError) return reply.code(error.code === 'NOT_FOUND' ? 404 : ['INVALID_QUERY', 'INVALID_REQUEST'].includes(error.code) ? 400 : 409).send({ error: { code: error.code, message: error.message, details: error.details } });
     return reply.code(500).send({ error: { code: 'INTERNAL_ERROR', message: error instanceof Error ? error.message : String(error) } });
   });
   app.get('/v1/health', async () => ({ status: 'ok', version: '0.1.0', modelIndependent: true }));
@@ -32,6 +32,16 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
     const q = request.query as Record<string, string>;
     if (!q.before || !q.after) throw new EngineError('INVALID_REQUEST', 'before and after observation IDs are required');
     return engine.compare(sid(request), q.before, q.after, q.region);
+  });
+  const comparisonQuery = z.object({ before: z.string().min(1), after: z.string().min(1), region: z.string().min(1).optional() }).strict();
+  app.get('/v1/sessions/:sessionId/compare/details', async request => {
+    const q = comparisonQuery.parse(request.query); return engine.diffDetails(sid(request), q.before, q.after, q.region);
+  });
+  app.get('/v1/sessions/:sessionId/attempts/:attemptId/diff/details', async request => engine.attemptDiffDetails(sid(request), (request.params as any).attemptId));
+  app.get('/v1/sessions/:sessionId/scopes/:scopeId/diff/details', async request => engine.scopeDiffDetails(sid(request), (request.params as any).scopeId));
+  app.get('/v1/sessions/:sessionId/events/:sequence/diff/details', async request => {
+    const sequence = z.coerce.number().int().positive().max(Number.MAX_SAFE_INTEGER).parse((request.params as any).sequence);
+    return engine.eventDiffDetails(sid(request), sequence);
   });
   app.get('/v1/sessions/:sessionId/path', async request => { const q = request.query as Record<string, string>; if (!q.from || !q.to) throw new EngineError('INVALID_REQUEST', 'from and to state IDs are required'); return { path: engine.navigationPath(sid(request), q.from, q.to) }; });
   const collections: Record<string, string> = { observations: 'observation', states: 'state', visits: 'visit', attempts: 'attempt', frontier: 'frontier', identities: 'identity', hypotheses: 'hypothesis', scopes: 'scope', checkpoints: 'checkpoint', issues: 'issue', recoveries: 'reach' };

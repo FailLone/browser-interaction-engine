@@ -4,6 +4,7 @@ import { InteractionClient } from '@interaction/client';
 import type { ActionCandidate, ActionAttempt, Checkpoint, Command, EngineEvent, FrontierItem, Graph, IdentityHypothesis, InteractionScope, Issue, Observation, ReachResult, Session } from '@interaction/browser';
 import './style.css';
 import { VisitDiff } from './VisitDiff.js';
+import { DiffExplanation } from './DiffExplanation.js';
 const api = new InteractionClient('');
 const short = (id?: string) => id?.slice(0, 8) || '—';
 const blockerText: Record<string, string> = { outside_active_boundary: '等待当前弹层关闭', pointer_intercepted: '目标被遮挡', outside_scrollable_area: '目标位于不可滚动到达的区域', observation_incomplete: '等待完整观察' };
@@ -74,13 +75,17 @@ function App() {
         {tab === 'diff' && <VisitDiff api={api} sessionId={sessionId} visit={shownVisit} parentObservationId={parentObservationId} attempt={shownAttempt} statusText={statusText} />}
         {tab === 'identity' && <>{hypotheses.length ? hypotheses.map(h => <IdentityCard key={h.id} hypothesis={h} disabled={busy} resolve={(identityId, evidence) => perform({ type: 'resolveIdentity', hypothesisId: h.id, identityId, source: 'human-ui', evidence: [evidence] })} />) : <div className="empty">当前没有身份歧义。</div>}<details><summary>当前控件与身份</summary><JsonView value={current?.controls.map(c => ({ name: c.name, role: c.role, identityId: c.identityId, instanceId: c.instanceId, region: c.region, value: c.value, constraints: c.constraints }))} /></details></>}
         {tab === 'checkpoints' && <><button onClick={() => { const name = prompt('检查点名称', `检查点 ${checkpoints.length + 1}`); if (name) void perform({ type: 'createCheckpoint', name, predicates: [], acceptable: [] }); }} disabled={busy}>＋ 保存当前检查点</button>{checkpoints.map(cp => <div className="data-row" key={cp.id}><b>{cp.name}</b><span className="mono">{short(cp.stateId)}</span><span>{cp.path.length} 步路径</span><button disabled={busy} onClick={() => perform({ type: 'reachCheckpoint', checkpointId: cp.id })}>到达并验证</button></div>)}{recovery && <div className="recovery"><h3>{recovery.status}</h3><p>{recovery.reason}</p><JsonView value={recovery.checks} /></div>}</>}
-        {tab === 'scopes' && <><button disabled={busy} onClick={() => perform({ type: 'openScope', name: `手动流程 ${scopes.length + 1}`, region: 'document' })}>＋ 开启页面流程范围</button>{scopes.map(s => <div className="scope-card" key={s.id}><div className="data-row"><b>{s.name}</b><span>{s.status} · {s.attemptIds.length} 次操作</span>{s.status === 'open' && !s.boundaryKey && <button disabled={busy} onClick={() => perform({ type: 'closeScope', scopeId: s.id })}>结束并比较</button>}</div><small>父区域：{s.region}</small>{s.diff && <JsonView value={s.diff} />}</div>)}</>}
+        {tab === 'scopes' && <><button disabled={busy} onClick={() => perform({ type: 'openScope', name: `手动流程 ${scopes.length + 1}`, region: 'document' })}>＋ 开启页面流程范围</button>{scopes.map(s => <div className="scope-card" key={s.id}><div className="data-row"><b>{s.name}</b><span>{s.status} · {s.attemptIds.length} 次操作</span>{s.status === 'open' && !s.boundaryKey && <button disabled={busy} onClick={() => perform({ type: 'closeScope', scopeId: s.id })}>结束并比较</button>}</div><small>父区域：{s.region}</small>{s.diff && <ScopeDetails sessionId={sessionId} scope={s} />}</div>)}</>}
         {tab === 'issues' && <>{issues.length ? issues.map(issue => <div className={`gap ${issue.severity}`} key={issue.id}><b>{issue.source}</b> {issue.message}<small>{issue.evidence?.join(' · ')}</small></div>) : <div className="empty">检查 hook 尚未报告问题。采集缺口显示在观察证据中。</div>}</>}
         {tab === 'events' && <div className="event-list">{events.slice().reverse().map(e => <div key={e.sequence}><time>{new Date(e.at).toLocaleTimeString()}</time><code>#{e.sequence}</code><b>{e.type}</b><details><summary>数据</summary><JsonView value={e.data} /></details></div>)}</div>}
       </div></section><p className="coverage-note">进度仅针对已发现范围；采集缺口和未探索路径始终保留。恢复成功以验证结果为准。</p>
       </>}
     </main>
   </div>;
+}
+function ScopeDetails({ sessionId, scope }: { sessionId: string; scope: InteractionScope }) {
+  const [open, setOpen] = useState(false);
+  return <details onToggle={event => setOpen(event.currentTarget.open)}><summary>查看流程累计差异详情</summary>{open && scope.afterId && <DiffExplanation api={api} sessionId={sessionId} beforeId={scope.beforeId} afterId={scope.afterId} scopeId={scope.id} />}</details>;
 }
 function JsonView({ value }: { value: unknown }) { return <pre>{JSON.stringify(value, null, 2)}</pre>; }
 function ActionRow({ action, disabled, run }: { action: ActionCandidate; disabled: boolean; run: (value?: string | boolean | number) => unknown }) {
