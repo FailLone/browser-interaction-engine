@@ -19,6 +19,9 @@ export const sessionSchema = z.object({
   inspection: inspectionOptionsSchema.optional(),
   evidenceRetention: evidenceRetentionSchema.optional(),
   exclude: z.array(match).default([]), replayable: z.array(match).default([]), context: z.record(z.string(), z.json()).default({}),
+  exploration: z.enum(['controls', 'representative', 'stateful']).default('controls'),
+  interfaceActions: z.array(match).default([]), reversible: z.array(match).default([]),
+  environmentReset: z.enum(['none', 'document-reload']).default('none'),
   contextRules: z.array(z.object({ key: z.string().min(1), selector: z.string().min(1), attribute: z.string().optional(), required: z.boolean().optional() })).default([]),
   storageState: z.union([z.string(), z.object({ cookies: z.array(z.unknown()), origins: z.array(z.unknown()) })]).optional(),
 }).strict();

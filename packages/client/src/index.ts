@@ -25,6 +25,7 @@ export class InteractionClient {
   cancelInspection(id: string, inspectionId: string, consumerId: string) { return this.request<Awaited<ReturnType<BrowserEngine['cancelInspection']>>>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/cancel`, { consumerId }); }
   completeInspection(id: string, inspectionId: string, consumerId: string, results: InspectionResult[] = []) { return this.request<Awaited<ReturnType<BrowserEngine['completeInspection']>>>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/complete`, { consumerId, results }); }
   session(id: string) { return this.request<Session>(`/sessions/${id}`); }
+  report(id: string) { return this.request<ReturnType<BrowserEngine['report']>>(`/sessions/${id}/report`); }
   observe(id: string) { return this.command<Observation>(id, { type: 'observe' }); }
   observation(id: string, observationId?: string) { return this.request<Observation>(`/sessions/${id}/observation${observationId ? `?id=${observationId}` : ''}`); }
   actions(id: string) { return this.request<ActionCandidate[]>(`/sessions/${id}/actions`); }

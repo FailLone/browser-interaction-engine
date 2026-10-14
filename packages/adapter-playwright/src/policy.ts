@@ -3,6 +3,11 @@ import type { ActionCandidate, Observation, Session } from './types.js';
 import { ruleMatches } from './util.js';
 export function constrain(action: ActionCandidate, observation: Observation, session: Session) {
   const control = observation.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
+  if (session.options.exploration === 'controls' && control?.hypothesisId) {
+    action.target = { kind: 'instance', instanceScope: observation.instanceScope, instanceId: control.instanceId,
+      evidence: ['Unique current node instance; historical logical identity remains unresolved', `observation:${observation.id}`] };
+    action.replayable = false;
+  }
   action.basis ??= control?.actionBasis?.[action.kind] || { status: 'tentative', evidence: [{ source: action.source || 'external', rule: 'missing-operation-evidence/v1', facts: { kind: action.kind } }] };
   const active = observation.overlays?.at(-1);
   action.preconditions.blockers = [];
@@ -22,5 +27,8 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
   if (session.options.exclude.some(rule => ruleMatches(rule, action, control, observation.url))) { action.excluded = true; action.exclusionReason = 'excluded_by_rule'; }
   if (control?.constraints.type === 'file') { action.excluded = true; action.exclusionReason = 'unsupported_file_input'; }
   if (session.options.replayable.some(rule => ruleMatches(rule, action, control, observation.url))) action.replayable = true;
+  if (action.risk !== 'submission' && action.basis.status === 'supported' && session.options.interfaceActions?.some(rule => ruleMatches(rule, action, control, observation.url))) {
+    action.risk = 'interface'; action.replayable = true;
+  }
   return action;
 }

@@ -3,7 +3,7 @@ import { chromium } from 'playwright';
 import { createServer as createViteServer } from 'vite';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { fixtureServer, testEngine } from './helpers.js';
+import { act, fixtureServer, testEngine } from './helpers.js';
 import { createServer } from '../apps/server/src/server.js';
 it('exposes the actual engine through the UI and renders a traversed Market flow', async () => {
   const fixture = await fixtureServer(); const t = await testEngine(fixture.url); const app = await createServer(t.engine);
@@ -12,6 +12,8 @@ it('exposes the actual engine through the UI and renders a traversed Market flow
   const browser = await chromium.launch({ headless: true }); const page = await browser.newPage({ viewport: { width: 1500, height: 1100 } }); const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   try {
     await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as any).port}`);
+    expect(await page.getByLabel('探索范围').inputValue()).toBe('controls');
+    expect(await page.getByRole('button', { name: '使用测试站常规配置' }).count()).toBe(0);
     await page.locator('.session-item').first().click();
     const orderType = page.locator('.action-row').filter({ has: page.locator('b', { hasText: /^Order type$/ }) });
     await orderType.getByRole('button', { name: '执行 ↗' }).click();
@@ -31,6 +33,30 @@ it('exposes the actual engine through the UI and renders a traversed Market flow
     await page.screenshot({ path: resolve('docs/screenshots/dashboard.png'), fullPage: true });
     expect(errors).toEqual([]); expect(t.engine.session(t.sessionId).actionCount).toBe(3);
     expect(t.engine.observation(t.sessionId).controls.find(c => c.name === 'Amount')?.value).toBe('2');
+  } finally { await browser.close(); await ui.close(); await app.close(); await t.close(); await fixture.server.close(); }
+});
+
+it('shows independent control coverage and allows exact current-node actions despite historical ambiguity', async () => {
+  const fixture = await fixtureServer(); const t = await testEngine(fixture.url, { exploration: 'controls', contextRules: [] });
+  await act(t.engine, t.sessionId, 'Duplicate controls');
+  const app = await createServer(t.engine); await app.listen({ host: '127.0.0.1', port: 0 });
+  const ui = await createViteServer({ root: resolve('apps/ui'), logLevel: 'error', server: { port: 0, strictPort: false, proxy: { '/v1': `http://127.0.0.1:${(app.server.address() as any).port}` } } }); await ui.listen();
+  const browser = await chromium.launch({ headless: true }); const page = await browser.newPage();
+  try {
+    await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as any).port}`);
+    await page.locator('.session-item').first().click();
+    await page.locator('.coverage-summary').waitFor();
+    expect(await page.locator('.coverage-summary').innerText()).toContain('1 / 15');
+    const duplicates = page.locator('.action-row').filter({ has: page.locator('b', { hasText: /^Reference$/ }) });
+    expect(await duplicates.count()).toBe(2);
+    for (let i = 0; i < 2; i++) {
+      expect(await duplicates.first().innerText()).toContain('当前节点已定位；历史身份待确认');
+      expect(await duplicates.first().getByRole('button', { name: '执行 ↗' }).isEnabled()).toBe(true);
+      await duplicates.first().getByRole('button', { name: '执行 ↗' }).click();
+      await page.waitForFunction(count => document.querySelector('.coverage-summary')?.textContent?.includes(`${count} / 15`), i + 2);
+    }
+    expect(t.engine.controlCoverage(t.sessionId).counts).toMatchObject({ covered: 3, incomplete: 12 });
+    expect(t.engine.list<{ status: string }>(t.sessionId, 'hypothesis').some(h => h.status === 'pending')).toBe(true);
   } finally { await browser.close(); await ui.close(); await app.close(); await t.close(); await fixture.server.close(); }
 });
 

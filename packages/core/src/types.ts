@@ -38,8 +38,10 @@ export interface IdentityHypothesis {
 export interface ActionCandidate {
   id: ID; sessionId: ID; observationId: ID; stateId: ID; controlId?: ID; localId?: ID;
   kind: ActionKind; label: string; value?: Json;
-  preconditions: { context: Context; visible: boolean; enabled: boolean; identityResolved: boolean; blockers?: ActionBlocker[] };
+  preconditions: { context: Context; visible: boolean; enabled: boolean; identityResolved: boolean; targetResolved?: boolean; blockers?: ActionBlocker[] };
   boundary?: { key: string; intent: 'interact' | 'exit' };
+  /** Current-observation execution binding; does not resolve historical logical identity. */
+  target?: { kind: 'instance'; instanceScope: string; instanceId: string; evidence: string[] };
   /** Absent on legacy records. Tentative operations require explicit external execution. */
   basis?: ActionBasis;
   replayable: boolean; risk: 'interface' | 'submission' | 'unknown'; source: string;
@@ -51,14 +53,17 @@ export interface ActionAttempt {
   purpose: 'exploration' | 'external' | 'recovery'; reason?: string; diff?: Diff; transitionId?: ID;
 }
 export interface Transition { id: ID; sessionId: ID; from: ID; to: ID; attemptId: ID; replayable: boolean }
-export interface Visit { id: ID; sessionId: ID; stateId: ID; observationId: ID; parentId?: ID; viaAttemptId?: ID; depth: number; at: string }
+export interface Visit { id: ID; sessionId: ID; stateId: ID; observationId: ID; parentId?: ID; viaAttemptId?: ID; depth: number; at: string; explorationScope?: string; explorationDepth?: number }
 export interface Change { controlId?: ID; kind: 'appeared' | 'disappeared' | 'rebuilt' | 'changed' | 'context'; field?: string; before?: unknown; after?: unknown }
 export interface Diff { beforeId: ID; afterId: ID; changes: Change[]; gaps: Gap[]; attribution: 'observed_during_interval'; region?: string }
 export interface InteractionScope { id: ID; sessionId: ID; name: string; region: string; beforeId: ID; afterId?: ID; attemptIds: ID[]; status: 'open' | 'closed' | 'interrupted'; automatic: boolean; anchors: string[]; boundaryKey?: string; parentScopeId?: ID; baseline?: 'before_entry' | 'already_open'; diff?: Diff }
 export interface FrontierItem {
   id: ID; sessionId: ID; key: string; stateId: ID; contextKey: string; action: ActionCandidate;
-  status: 'pending' | 'executing' | 'executed' | 'blocked' | 'unknown' | 'needs_revalidation';
+  status: 'pending' | 'executing' | 'executed' | 'blocked' | 'unknown' | 'needs_revalidation' | 'superseded';
   reason?: string; unblock?: string; attempts: ID[]; depth: number;
+  /** Sampling groups observations, not equivalent states or successful executions. */
+  sampling?: { policy: string; evidence: string[]; observationIds: ID[] };
+  recovery?: { resultId: ID; diagnostics: RecoveryDiagnostics };
 }
 /** Read-time coverage metadata. Scheduling status/reason apply to this case, not its control. */
 export interface FrontierItemView extends FrontierItem {
@@ -69,11 +74,11 @@ export interface FrontierItemView extends FrontierItem {
     executionStatus: ActionAttempt['status'] | 'not_attempted';
   };
 }
-/** Groups one logical control and operation; state/context/value variants remain separate cases. */
+/** Groups one logical control and operation; items follow the session coverage policy. */
 export interface FrontierCoverageGroup {
   id: string; controlId?: ID; kind: ActionKind; label: string;
   coverageStatus: 'not_attempted' | 'attempted' | 'partial' | 'complete';
-  /** Complete means all currently discovered cases are executed, not exhaustive coverage. */
+  /** Complete means all discovered cases under the selected policy are executed, not exhaustive coverage. */
   counts: { total: number; executed: number; blocked: number; notAttempted: number };
   items: FrontierItemView[];
 }
@@ -85,9 +90,14 @@ export interface Checkpoint {
   evidenceKeys?: string[];
 }
 export type ReachStatus = 'REACHED_VERIFIED' | 'REACHED_ACCEPTABLE' | 'PRECONDITIONS_CHANGED' | 'UNREACHABLE' | 'UNVERIFIED';
-export interface ReachResult { id: ID; sessionId: ID; checkpointId: ID; status: ReachStatus; observationId?: ID; reason: string; attemptIds: ID[]; checks: { name: string; result: 'pass' | 'fail' | 'unknown' }[]; remainingFrontier: number }
-export interface SessionOptions { maxActions: number; maxDepth: number; maxDurationMs: number; context: Record<string, Json>; evidenceRetention?: import('./ports.js').EvidenceRetentionPolicy }
-export interface Session<S extends SessionOptions = SessionOptions> { id: ID; options: S; createdAt: string; status: 'idle' | 'running' | 'paused' | 'stopped' | 'finished'; currentObservationId?: ID; actionCount: number; elapsedMs: number; stopReason?: string; mode: 'manual' | 'dfs'; dirty: boolean }
+export interface RecoveryDiagnostics {
+  strategies: string[];
+  dirtyActions: { attemptId: ID; label: string; risk: ActionCandidate['risk'] }[];
+  resetAvailable: boolean;
+}
+export interface ReachResult { id: ID; sessionId: ID; checkpointId: ID; status: ReachStatus; observationId?: ID; reason: string; attemptIds: ID[]; checks: { name: string; result: 'pass' | 'fail' | 'unknown' }[]; remainingFrontier: number; diagnostics?: RecoveryDiagnostics }
+export interface SessionOptions { maxActions: number; maxDepth: number; maxDurationMs: number; context: Record<string, Json>; exploration?: 'controls' | 'representative' | 'stateful'; evidenceRetention?: import('./ports.js').EvidenceRetentionPolicy }
+export interface Session<S extends SessionOptions = SessionOptions> { id: ID; options: S; createdAt: string; status: 'idle' | 'running' | 'paused' | 'stopped' | 'finished'; currentObservationId?: ID; actionCount: number; elapsedMs: number; stopReason?: string; mode: 'manual' | 'dfs'; dirty: boolean; dirtyAttemptIds?: ID[] }
 export interface EngineEvent { sequence: number; sessionId: ID; type: string; at: string; data: unknown }
 export interface Issue { id: ID; sessionId: ID; observationId: ID; source: string; severity: 'info' | 'warning' | 'error'; message: string; evidence?: string[] }
 export interface Graph { states: UIState[]; transitions: Transition[]; visits: Visit[] }

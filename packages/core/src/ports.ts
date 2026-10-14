@@ -47,6 +47,8 @@ export interface InteractionDriver<O extends Observation, S extends SessionOptio
   close(): Promise<void>;
 }
 export interface ScopeStart { name: string; region: string }
+export interface ExplorationCase { key: string; policy: string; evidence: string[] }
+export interface RestorationStep { action: ActionCandidate; expectedCanonical: string; evidence: string[] }
 /** Platform policy lives behind this port. The engine does not interpret action kinds. */
 export interface InteractionAdapter<O extends Observation = Observation, S extends SessionOptions = SessionOptions> {
   readonly ruleVersion: string;
@@ -63,6 +65,14 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   scopeClosed?(scope: InteractionScope, observation: O): boolean;
   returnAction?(actions: ActionCandidate[], observation: O): ActionCandidate | undefined;
   entryAction?(observation: O, session: Session<S>): ActionCandidate;
+  /** Explicit sampling policy. This is not a state equivalence or independence claim. */
+  explorationCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
+  /** Optional structural scope for representative depth budgets; raw visit depth is retained. */
+  explorationScope?(observation: O): string;
+  /** Only explicitly declared reversible operations may produce local restoration steps. */
+  restorationStep?(target: O, current: O, session: Session<S>): RestorationStep | undefined;
+  /** An explicitly configured environment reset, executed through the normal action ledger. */
+  resetAction?(observation: O, session: Session<S>): ActionCandidate | undefined;
   inRegion?(control: O['controls'][number], region: string, observation: O): boolean;
 }
 export interface EngineOptions<O extends Observation = Observation, S extends SessionOptions = SessionOptions> {

@@ -11,7 +11,7 @@ export interface Control extends CoreControl {
   tag: string; role: string; name: string; label: string; stableKey?: string;
   region: string; form: string; selector: string; rect: Rect;
   value: string; displayedText: string; checked: boolean | null; selected: string[];
-  visible: boolean; enabled: boolean; editable: boolean;
+  visible: boolean; enabled: boolean; editable: boolean; readOnly?: boolean;
   expanded: boolean | null; controls: string | null;
   constraints: { type: string; required: boolean; min?: string; max?: string; step?: string; pattern?: string; minLength?: number; maxLength?: number; valid: boolean };
   options: { value: string; label: string; disabled: boolean }[];
@@ -42,6 +42,12 @@ export interface SessionOptions {
   inspection?: import('./inspection-contract.js').InspectionOptions;
   evidenceRetention?: import('@interaction/core').EvidenceRetentionPolicy;
   exclude: MatchRule[]; replayable: MatchRule[]; context: Record<string, Json>; contextRules: ContextRule[];
+  exploration?: 'controls' | 'representative' | 'stateful';
+  /** Application declarations; never inferred from button labels. */
+  interfaceActions?: MatchRule[];
+  reversible?: MatchRule[];
+  /** Caller asserts all relevant business state lives in this document. */
+  environmentReset?: 'none' | 'document-reload';
   storageState?: string | { cookies: unknown[]; origins: unknown[] };
 }
 
