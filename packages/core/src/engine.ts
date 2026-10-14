@@ -218,9 +218,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           && !currentKeys.has(f.key) && this.adapter.explorationScope(this.observation(sessionId, f.action.observationId)) === scope) {
           f.status = 'superseded'; f.reason = 'traversal_position_changed'; f.unblock = undefined; f.recovery = undefined; this.store.put('frontier', f);
         }
-        // An untried synthetic exit is traversal work, not a reason to reopen a
-        // dialog that has already been observed closed in this document.
-        for (const f of this.frontier(sessionId)) if (!f.attempts.length && !f.action.controlId && f.action.boundary?.intent === 'exit'
+        // Untried exits (including reviewed controls) are traversal work, not a
+        // reason to reopen a boundary already observed closed in this document.
+        // Keep the records unexecuted; retiring an intent is not control coverage.
+        for (const f of this.frontier(sessionId)) if (!f.attempts.length && f.action.boundary?.intent === 'exit'
           && this.observation(sessionId, f.action.observationId).instanceScope === o.instanceScope
           && !o.boundaries?.some(b => b.key === f.action.boundary!.key)) {
           f.status = 'superseded'; f.reason = 'boundary_already_exited'; f.unblock = undefined; f.recovery = undefined; this.store.put('frontier', f);

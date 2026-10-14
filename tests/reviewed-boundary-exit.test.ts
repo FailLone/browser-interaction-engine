@@ -62,6 +62,32 @@ it('uses a freshly reviewed exit during checkpoint recovery without granting his
   } finally { await t.close(); }
 });
 
+it('retires unused reviewed exits after observing their boundary closed, without counting them as executed', async () => {
+  const t = await fixture({ actions: (actions, { observation: o }) => actions.map(a => ['Choices', 'No effect'].includes(a.label) && o.boundaries?.length
+    ? declaration(a, o.id, o.boundaries.at(-1)!.key) : a) });
+  try {
+    await act(t.engine, t.sessionId, 'Choices');
+    for (let i = 0; i < 3; i++) await t.engine.observe(t.sessionId);
+    const unused = t.engine.getFrontier(t.sessionId).filter(f => f.action.controlId && f.action.boundary?.intent === 'exit' && !f.attempts.length);
+    expect(unused.length).toBeGreaterThan(3);
+    await act(t.engine, t.sessionId, 'Choices');
+    expect(t.engine.observation(t.sessionId).boundaries).toEqual([]);
+    const after = t.engine.getFrontier(t.sessionId);
+    const retired = after.filter(f => unused.some(old => old.id === f.id) && !f.attempts.length);
+    expect(retired.length).toBeGreaterThan(3);
+    expect(retired.every(f => f.status === 'superseded' && f.reason === 'boundary_already_exited')).toBe(true);
+    expect(after.filter(f => f.action.boundary?.intent === 'exit' && f.status === 'executed')).toHaveLength(1);
+    expect(t.engine.list<ActionAttempt>(t.sessionId, 'attempt').some(a => a.action.label === 'No effect')).toBe(false);
+    expect(t.engine.controlCoverage(t.sessionId).counts.incomplete).toBeGreaterThan(0);
+    // A later reopening still has fresh executable exits, and retains the old ledger.
+    await act(t.engine, t.sessionId, 'Choices');
+    expect(t.engine.getFrontier(t.sessionId).some(f => f.status === 'pending' && f.action.boundary?.intent === 'exit')).toBe(true);
+    await act(t.engine, t.sessionId, 'Choices');
+    expect(t.engine.observation(t.sessionId).boundaries).toEqual([]);
+    expect(t.engine.getFrontier(t.sessionId).filter(f => retired.some(old => old.id === f.id))).toHaveLength(retired.length);
+  } finally { await t.close(); }
+});
+
 it('rejects stale, mismatched and unsourced exit declarations without permitting background work', async () => {
   let variant = 'none'; let oldObservation = '';
   const t = await fixture({ actions: (actions, { observation: o }) => actions.map(a => a.label === 'Choices' && o.boundaries?.length
