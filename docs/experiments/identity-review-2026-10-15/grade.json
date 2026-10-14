@@ -1,0 +1,138 @@
+{
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "frozenAt": "2026-10-14T19:06:04.331Z",
+  "gradedAt": "2026-10-14T19:08:48.958Z",
+  "oracleSha256": "f5345e22c0edfd58ea7dad1dcbfe562113c1b58d89c1d0e8b93859728a751fbe",
+  "total": 12,
+  "exact": 12,
+  "validEvidence": 12,
+  "unsafeMerges": 0,
+  "perClass": {
+    "same": {
+      "total": 4,
+      "correct": 4
+    },
+    "independent": {
+      "total": 4,
+      "correct": 4
+    },
+    "uncertain": {
+      "total": 4,
+      "correct": 4
+    }
+  },
+  "accepted": true,
+  "rows": [
+    {
+      "caseId": "57d721f9",
+      "scenario": "initial",
+      "expected": "independent",
+      "actual": "independent",
+      "exact": true,
+      "validEvidence": true,
+      "unsafeMerge": false
+    },
+    {
+      "caseId": "ef3cd3ca",
+      "scenario": "initial",
+      "expected": "independent",
+      "actual": "independent",
+      "exact": true,
+      "validEvidence": true,
+      "unsafeMerge": false
+    },
+    {
+      "caseId": "95f6a15b",
+      "scenario": "virtual",
+      "expected": "independent",
+      "actual": "independent",
+      "exact": true,
+      "validEvidence": true,
+      "unsafeMerge": false
+    },
+    {
+      "caseId": "af7c63b3",
+      "scenario": "virtual",
+      "expected": "independent",
+      "actual": "independent",
+      "exact": true,
+      "validEvidence": true,
+      "unsafeMerge": false
+    },
+    {
+      "caseId": "1c41fe08",
+      "scenario": "reorder-a",
+      "expected": "same",
+      "actual": "same",
+      "exact": true,
+      "validEvidence": true,
+      "unsafeMerge": false
+    },
+    {
+      "caseId": "73b130f9",
+      "scenario": "reorder-a",
+      "expected": "same",
+      "actual": "same",
+      "exact": true,
+      "validEvidence": true,
+      "unsafeMerge": false
+    },
+    {
+      "caseId": "19f00d86",
+      "scenario": "reorder-b",
+      "expected": "same",
+      "actual": "same",
+      "exact": true,
+      "validEvidence": true,
+      "unsafeMerge": false
+    },
+    {
+      "caseId": "15919389",
+      "scenario": "reorder-b",
+      "expected": "same",
+      "actual": "same",
+      "exact": true,
+      "validEvidence": true,
+      "unsafeMerge": false
+    },
+    {
+      "caseId": "cb312535",
+      "scenario": "opaque",
+      "expected": "uncertain",
+      "actual": "uncertain",
+      "exact": true,
+      "validEvidence": true,
+      "unsafeMerge": false
+    },
+    {
+      "caseId": "423aa02b",
+      "scenario": "opaque",
+      "expected": "uncertain",
+      "actual": "uncertain",
+      "exact": true,
+      "validEvidence": true,
+      "unsafeMerge": false
+    },
+    {
+      "caseId": "d5680f41",
+      "scenario": "expired",
+      "expected": "uncertain",
+      "actual": "uncertain",
+      "exact": true,
+      "validEvidence": true,
+      "unsafeMerge": false
+    },
+    {
+      "caseId": "bf71030a",
+      "scenario": "expired",
+      "expected": "uncertain",
+      "actual": "uncertain",
+      "exact": true,
+      "validEvidence": true,
+      "unsafeMerge": false
+    }
+  ],
+  "limitations": "Controlled local fixture, six sessions with two correlated cases each; procedural file-access blinding, not filesystem isolation; results do not estimate real-world accuracy.",
+  "note": "Evidence-reference validation is structural. Parent reviewer separately inspected reasons against source facts; this score does not prove general semantic reliability."
+}

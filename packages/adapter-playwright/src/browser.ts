@@ -49,6 +49,47 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     if (!el) return 'document';
     return `${role(el)}:${el.getAttribute('data-testid') || el.id || label(el) || el.getAttribute('name') || selector(el)}`;
   };
+  const elementKey = (el: Element) => el.getAttribute('data-testid') ? `testid:${el.getAttribute('data-testid')}` : el.id ? `id:${el.id}` : el.getAttribute('name') ? `name:${el.getAttribute('name')}` : undefined;
+  const itemSelector = '[data-row-key],[data-item-key],li,tr,[role=row],[role=listitem],[role=treeitem],[role=option]';
+  const listSelector = 'ul,ol,table,[role=list],[role=listbox],[role=grid],[role=tree],[data-list-key]';
+  const itemKeyCache = new Map<Element, string | undefined>();
+  const itemKey = (item: Element) => {
+    if (itemKeyCache.has(item)) return itemKeyCache.get(item);
+    // Explicit record keys survive reorder/rebuild and change when a virtual row
+    // is recycled. Do not use sibling indexes, geometry or input values as keys.
+    const declared = ['data-row-key', 'data-item-key', 'data-key'].map(key => [key, item.getAttribute(key)]).find(([, value]) => value);
+    let key = declared ? JSON.stringify(declared) : undefined;
+    if (!key) {
+      const copy = item.cloneNode(true) as Element;
+      copy.querySelectorAll('button,input,select,textarea,[role=button],[role=checkbox],[role=switch],[role=combobox],script,style,[hidden],[aria-hidden=true]').forEach(child => child.remove());
+      const labelledBy = item.getAttribute('aria-labelledby');
+      const fullLabel = labelledBy ? labelledBy.split(/\s+/).map(id => document.getElementById(id)?.textContent || '').join(' ') : item.getAttribute('aria-label');
+      const text = (fullLabel || copy.textContent || '').replace(/\s+/g, ' ').trim();
+      // Long/truncated descriptions are not a unique business record key.
+      if (text && text.length <= 500) key = JSON.stringify(['item-text', text]);
+    }
+    // A row's DOM id/testid may identify a reusable viewport slot, not its item.
+    // Without a declared record key or descriptive text, leave it unresolved.
+    itemKeyCache.set(item, key); return key;
+  };
+  const scopedControlKey = (el: Element, name: string, type: string) => {
+    const own = elementKey(el);
+    const bindings: string[][] = [];
+    let item = el.closest(itemSelector);
+    while (item) {
+      const key = itemKey(item);
+      // Missing item evidence must not turn a recycled slot ID into a record ID.
+      if (!key) return undefined;
+      const list = item.parentElement?.closest(listSelector);
+      const scope = list ? list.getAttribute('data-list-key') || elementKey(list) || label(list) || list.tagName.toLowerCase() : '';
+      bindings.unshift([scope, key]);
+      item = item.parentElement?.closest(itemSelector) || null;
+    }
+    if (!bindings.length) return own;
+    const localKey = el.getAttribute('data-testid') || el.getAttribute('name') || (name ? JSON.stringify([role(el), name, type]) : own);
+    // Duplicate controls within one item still share this key and stay ambiguous.
+    return localKey ? `item:${JSON.stringify([bindings, localKey])}` : undefined;
+  };
   const regions = [...document.querySelectorAll(regionSelector)].map(el => ({ key: regionKey(el), label: label(el) || el.getAttribute('name') || role(el), role: role(el), selector: selector(el), parentKey: regionKey(el.parentElement?.closest(regionSelector) ?? null), rect: rect(el), text: ((el as HTMLElement).innerText || el.textContent || '').slice(0, 8000) }));
   regions.unshift({ key: 'document', label: document.title, role: 'document', selector: 'body', parentKey: '', rect: rect(body), text: bodyText.slice(0, 8000) });
   const query = 'a[href],button,input:not([type=hidden]),select,textarea,summary,[role=button],[role=link],[role=menuitem],[role=menuitemcheckbox],[role=menuitemradio],[role=option],[role=tab],[role=checkbox],[role=radio],[role=switch],[role=combobox],[role=dialog],[role=alertdialog],dialog,[popover],[aria-expanded],[onclick],[tabindex],[contenteditable]:not([contenteditable=false])';
@@ -76,7 +117,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const hit = document.elementFromPoint(x, y);
     const isInView = r.x >= 0 && r.y >= 0 && r.x + r.width <= innerWidth && r.y + r.height <= innerHeight;
     const options = el.tagName === 'SELECT' ? [...(el as HTMLSelectElement).options].map(o => ({ value: o.value, label: clean(o.label), disabled: o.disabled })) : [];
-    const stableKey = el.getAttribute('data-testid') ? `testid:${el.getAttribute('data-testid')}` : el.id ? `id:${el.id}` : el.getAttribute('name') ? `name:${el.getAttribute('name')}` : undefined;
+    const stableKey = scopedControlKey(el, name, type);
     return {
       localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey,
       region: regionKey(el.closest(regionSelector)), form: regionKey(el.closest('form')), selector: selector(el), rect: r,

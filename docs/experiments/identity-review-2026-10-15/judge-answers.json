@@ -1,0 +1,90 @@
+[
+  {
+    "caseId": "15919389",
+    "decision": "same",
+    "candidateId": "dc14a764-9b6b-402d-b649-2e2ffeecca95",
+    "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "timeline", "current"],
+    "reason": "目标与 candidate-1 位于同一记录 R-c67038，且跨相邻观察保持相同的 data-operation-key 8d3850；另一操作键 a6a5a6 在前后观察中对应另一个按钮，candidate-3 又与目标在当前观察同时存在，因而排除了这些替代对应。",
+    "missingEvidence": []
+  },
+  {
+    "caseId": "ef3cd3ca",
+    "decision": "independent",
+    "evidenceRefs": ["target", "candidate-1", "current"],
+    "reason": "目标与唯一列出的 candidate-1 在同一次观察中作为两个不同按钮同时存在，实例和 data-operation-key 也不同，因此不能是同一控件；可排除全部列出候选并单独追踪目标。",
+    "missingEvidence": []
+  },
+  {
+    "caseId": "af7c63b3",
+    "decision": "independent",
+    "evidenceRefs": ["target", "candidate-1", "current"],
+    "reason": "目标与唯一列出的 candidate-1 在同一次观察中并存，分别具有不同实例及不同 data-operation-key，足以排除该候选。",
+    "missingEvidence": []
+  },
+  {
+    "caseId": "cb312535",
+    "decision": "uncertain",
+    "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "timeline", "current"],
+    "reason": "candidate-3 与目标在当前观察同时存在，可以排除；但目标及两个历史候选都缺少 operation key，名称、记录范围和外观均相同。位置虽延续 candidate-1 的位置，材料明确说明位置可复用，且时间线没有记录触发操作，因此无法在 candidate-1 与 candidate-2 中唯一对应。",
+    "missingEvidence": ["目标与历史候选之间稳定且唯一的操作标识", "能说明两次观察之间控件重排或替换过程的触发记录"]
+  },
+  {
+    "caseId": "19f00d86",
+    "decision": "same",
+    "candidateId": "919eed45-4e0a-4139-a4bc-f367bf084b75",
+    "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "timeline", "current"],
+    "reason": "目标与 candidate-2 跨相邻观察保持同一记录范围及相同的 data-operation-key a6a5a6；键 8d3850 对应另一操作，且 candidate-3 与目标在当前观察同时存在，排除了替代对应。",
+    "missingEvidence": []
+  },
+  {
+    "caseId": "57d721f9",
+    "decision": "independent",
+    "evidenceRefs": ["target", "candidate-1", "current"],
+    "reason": "目标与唯一列出的 candidate-1 在同一次观察中同时存在，并有不同实例及不同 data-operation-key，因此能够排除该候选。",
+    "missingEvidence": []
+  },
+  {
+    "caseId": "423aa02b",
+    "decision": "uncertain",
+    "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "timeline", "current"],
+    "reason": "candidate-3 与目标在当前观察同时存在，不能合并；两个历史候选与目标均无 operation key，其他可见身份特征相同。目标的位置对应先前 candidate-2，但位置不足以建立历史身份，且没有变化原因记录，所以无法唯一选择历史候选。",
+    "missingEvidence": ["目标与历史候选之间稳定且唯一的操作标识", "两次观察之间能够解释控件延续、交换或替换的事件记录"]
+  },
+  {
+    "caseId": "1c41fe08",
+    "decision": "same",
+    "candidateId": "ff06b103-a6f1-4934-9641-ad62b1f3d46a",
+    "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "timeline", "current"],
+    "reason": "目标与 candidate-2 跨相邻观察在同一记录 R-f35fb9 下保持 data-operation-key 226a1c；另一键 eb0a3c 在当前观察属于与目标并存的 candidate-3，因而排除其他列出候选。",
+    "missingEvidence": []
+  },
+  {
+    "caseId": "95f6a15b",
+    "decision": "independent",
+    "evidenceRefs": ["target", "candidate-1", "current"],
+    "reason": "目标与唯一列出的 candidate-1 在同次观察中为两个并存按钮，实例及 data-operation-key 不同，故可排除该候选并单独追踪。",
+    "missingEvidence": []
+  },
+  {
+    "caseId": "d5680f41",
+    "decision": "uncertain",
+    "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "timeline", "current"],
+    "reason": "candidate-3 与目标在当前观察同时存在，可以排除；但两个历史候选的详细 DOM 证据和历史截图均不可用，仅剩相同名称、范围、stableKey 与位置等不足以证明历史对应的特征。当前目标的 operation key 不能与已释放的历史属性比较，因此无法在 candidate-1 与 candidate-2 中唯一选择。",
+    "missingEvidence": ["历史观察 08aa3988-e74d-4246-bebb-dcb400951d82 的截图", "candidate-1 与 candidate-2 的历史 DOM 属性，尤其是 data-operation-key", "两次观察之间的触发或重绘记录"]
+  },
+  {
+    "caseId": "bf71030a",
+    "decision": "uncertain",
+    "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "timeline", "current"],
+    "reason": "candidate-3 与目标在当前观察并存，不能是同一控件；然而两个历史候选的 DOM 细节已释放且历史截图不可用。现有相同名称、范围、stableKey 和位置证据不能唯一确定目标对应 candidate-1 还是 candidate-2。",
+    "missingEvidence": ["历史观察 08aa3988-e74d-4246-bebb-dcb400951d82 的截图", "candidate-1 与 candidate-2 的历史 DOM 属性，尤其是 data-operation-key", "能够解释观察间变化的事件记录"]
+  },
+  {
+    "caseId": "73b130f9",
+    "decision": "same",
+    "candidateId": "d49029b3-b253-4fdf-841e-a68f26c41650",
+    "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "timeline", "current"],
+    "reason": "目标与 candidate-1 跨相邻观察在记录 R-f35fb9 下保持相同的 data-operation-key eb0a3c；键 226a1c 对应另一操作，并在当前观察由与目标同时存在的 candidate-3 承载，因此 candidate-1 是唯一支持的历史对应。",
+    "missingEvidence": []
+  }
+]

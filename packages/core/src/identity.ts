@@ -1,63 +1,90 @@
 import type { ControlIdentity, IdentityHypothesis, Observation, UIState, Control } from './types.js';
 import { canonical, hash, id, now, clone as structuredClone } from './util.js';
 export function matchIdentities<C extends Control>(observation: Observation<C>, identities: ControlIdentity<C>[], hypotheses: IdentityHypothesis[], signature: (control: C) => string) {
-  const claimed = new Set<string>(); const pending: IdentityHypothesis[] = [];
-  for (const control of observation.controls) {
+  // Decide against one immutable view of history. New identities and updates from
+  // this observation must not become evidence for controls later in DOM order.
+  const history = identities.map(i => ({ ...i, lastControl: structuredClone(i.lastControl) }));
+  const byId = new Map(history.map(i => [i.id, i]));
+  const byKey = new Map<string, ControlIdentity<C>[]>();
+  const superseded = new Set(hypotheses.filter(h => h.status === 'resolved' && h.revisions.at(-1)?.identityId !== h.provisionalIdentityId).map(h => h.provisionalIdentityId));
+  const keyFor = (control: C, sig: string) => control.stableKey
+    ? canonical(['key', control.region, control.role, control.stableKey])
+    : canonical(['semantic', sig]);
+  for (const identity of history) {
+    if (superseded.has(identity.id)) continue;
+    const key = keyFor(identity.lastControl, identity.signature);
+    byKey.set(key, [...(byKey.get(key) || []), identity]);
+  }
+  const entries = observation.controls.map(control => {
     const sig = signature(control);
-    const explicit = hypotheses.filter(h => h.status === 'resolved').find(h => {
-      const provisional = identities.find(i => i.id === h.provisionalIdentityId);
-      return provisional?.lastControl.instanceId === control.instanceId;
+    return { control, sig, key: keyFor(control, sig) };
+  });
+  const groups = new Map<string, typeof entries>();
+  for (const entry of entries) groups.set(entry.key, [...(groups.get(entry.key) || []), entry]);
+  const compatible = (previous: C, entry: typeof entries[number]) => keyFor(previous, signature(previous)) === entry.key;
+  const plans = entries.map(entry => {
+    const { control, key } = entry;
+    const candidates = byKey.get(key) || [];
+    const duplicates = groups.get(key)!;
+    const evidence = control.stableKey ? ['scoped-stable-key', 'compatible-role'] : ['adapter-semantic-signature'];
+    if (duplicates.length > 1) evidence.push('duplicate-current-candidates');
+    // An earlier human decision or pending hypothesis only follows the same
+    // element while its binding remains compatible. Virtual rows recycle nodes.
+    const anchored = hypotheses.findLast(h => {
+      const previous = byId.get(h.provisionalIdentityId)?.lastControl;
+      return previous?.instanceId === control.instanceId && compatible(previous, entry);
     });
-    let candidates: ControlIdentity<C>[] = [];
-    let evidence: string[] = [];
-    if (explicit) {
-      const chosen = identities.find(i => i.id === explicit.revisions.at(-1)?.identityId);
-      if (chosen) { candidates = [chosen]; evidence = ['external-resolution', ...explicit.revisions.at(-1)!.evidence]; }
-    } else {
-      const unresolved = hypotheses.find(h => h.status === 'pending' && identities.find(i => i.id === h.provisionalIdentityId)?.lastControl.instanceId === control.instanceId);
-      if (unresolved) {
-        control.identityId = unresolved.provisionalIdentityId; control.hypothesisId = unresolved.id;
-        const provisional = identities.find(i => i.id === unresolved.provisionalIdentityId)!;
-        provisional.occurrences.push({ observationId: observation.id, localId: control.localId, instanceId: control.instanceId, context: observation.context, evidence: ['unresolved-hypothesis-retained'] });
-        provisional.lastControl = structuredClone(control); provisional.status = 'present'; claimed.add(provisional.id); continue;
+    let chosen: string | undefined;
+    let retained: IdentityHypothesis | undefined;
+    if (anchored?.status === 'resolved') {
+      const revision = anchored.revisions.at(-1);
+      const identity = revision && byId.get(revision.identityId);
+      if (identity && compatible(identity.lastControl, entry) && !superseded.has(identity.id)) {
+        chosen = identity.id;
+        evidence.push('external-resolution', ...revision!.evidence);
       }
-      if (control.stableKey) {
-        candidates = identities.filter(i => i.stableKey === control.stableKey && i.lastControl.region === control.region && i.lastControl.role === control.role);
-        evidence = ['scoped-stable-key', 'compatible-role'];
-      }
-      if (!candidates.length) { candidates = identities.filter(i => i.signature === sig); evidence = ['adapter-semantic-signature']; }
-      // A node instance is supporting evidence, not an override for duplicate semantics.
-      const duplicates = observation.controls.filter(c => control.stableKey ? c.stableKey === control.stableKey && c.region === control.region : signature(c) === sig);
-      if (duplicates.length > 1 && candidates.length) evidence.push('duplicate-current-candidates');
-      if (candidates.length === 1 && duplicates.length > 1) candidates = [];
+    } else if (anchored?.status === 'pending') {
+      chosen = anchored.provisionalIdentityId; retained = anchored;
+      evidence.push('unresolved-hypothesis-retained');
     }
-    candidates = candidates.filter(i => !claimed.has(i.id));
-    const duplicates = observation.controls.filter(c => control.stableKey ? c.stableKey === control.stableKey && c.region === control.region : signature(c) === sig);
-    if (candidates.length === 1 && (explicit || duplicates.length === 1 && !!(control.stableKey || control.label || control.name))) {
-      const identity = candidates[0]; control.identityId = identity.id;
-      if (identity.lastControl.instanceId === control.instanceId) evidence.push('same-instance');
-      else evidence.push('instance-rebuilt');
+    if (!chosen && candidates.length === 1 && duplicates.length === 1 && (control.stableKey || control.name || control.label)) chosen = candidates[0].id;
+    return { ...entry, candidates, duplicates, evidence, chosen, retained };
+  });
+  const claims = new Map<string, number>();
+  for (const plan of plans) if (plan.chosen) claims.set(plan.chosen, (claims.get(plan.chosen) || 0) + 1);
+  const claimed = new Set<string>(); const pending: IdentityHypothesis[] = [];
+  const mutableById = new Map(identities.map(i => [i.id, i]));
+  for (const plan of plans) {
+    const { control, sig, candidates, duplicates, evidence, retained } = plan;
+    // Never carry stale IDs supplied by an adapter into a new observation.
+    delete control.identityId; delete control.hypothesisId;
+    if (plan.chosen && claims.get(plan.chosen) === 1) {
+      const identity = mutableById.get(plan.chosen)!;
+      control.identityId = identity.id;
+      if (retained) control.hypothesisId = retained.id;
+      evidence.push(identity.lastControl.instanceId === control.instanceId ? 'same-instance' : 'instance-rebuilt');
       if (canonical(identity.occurrences.at(-1)?.context) !== canonical(observation.context)) evidence.push('business-binding-changed');
       identity.occurrences.push({ observationId: observation.id, localId: control.localId, instanceId: control.instanceId, context: observation.context, evidence });
-      identity.lastControl = structuredClone(control); identity.status = 'present'; claimed.add(identity.id);
-    } else {
-      const identityId = id(); control.identityId = identityId;
-      const similar = identities.filter(i => !claimed.has(i.id) && i.signature === sig);
-      if (candidates.length > 1 || duplicates.length > 1 || similar.length > 0) {
-        const h: IdentityHypothesis = { id: id(), sessionId: observation.sessionId, observationId: observation.id, localId: control.localId, provisionalIdentityId: identityId, candidateIds: [...new Set([...candidates, ...similar].map(i => i.id))], evidence, conflicts: [duplicates.length > 1 ? 'multiple-current-controls' : 'multiple-historical-controls'], status: 'pending', revisions: [] };
-        control.hypothesisId = h.id; pending.push(h);
-      }
-      identities.push({ id: identityId, sessionId: observation.sessionId, createdAt: now(), signature: sig, stableKey: control.stableKey, occurrences: [{ observationId: observation.id, localId: control.localId, instanceId: control.instanceId, context: observation.context, evidence: ['first-occurrence'] }], lastControl: structuredClone(control), status: 'present' });
-      claimed.add(identityId);
+      identity.lastControl = structuredClone(control); identity.signature = sig; identity.status = 'present'; claimed.add(identity.id);
+      continue;
     }
+    const identityId = id(); control.identityId = identityId;
+    const contested = !!plan.chosen && claims.get(plan.chosen)! > 1;
+    if (candidates.length > 0 || duplicates.length > 1 || contested) {
+      if (contested) evidence.push('competing-current-matches');
+      const h: IdentityHypothesis = { id: id(), sessionId: observation.sessionId, observationId: observation.id, localId: control.localId, provisionalIdentityId: identityId, candidateIds: [...new Set([...candidates.map(i => i.id), ...(plan.chosen ? [plan.chosen] : [])])], evidence, conflicts: [duplicates.length > 1 || contested ? 'multiple-current-controls' : 'multiple-historical-controls'], status: 'pending', revisions: [] };
+      control.hypothesisId = h.id; pending.push(h);
+    }
+    identities.push({ id: identityId, sessionId: observation.sessionId, createdAt: now(), signature: sig, stableKey: control.stableKey, occurrences: [{ observationId: observation.id, localId: control.localId, instanceId: control.instanceId, context: observation.context, evidence: ['first-occurrence'] }], lastControl: structuredClone(control), status: 'present' });
+    claimed.add(identityId);
   }
   for (const identity of identities) if (!claimed.has(identity.id)) {
     identity.status = observation.gaps.some(g => g.critical) ? 'unknown' : identity.lastControl.instanceId.startsWith(observation.instanceScope) ? 'removed' : 'not_observed';
   }
-  // Include all contemporaneous alternatives, without silently merging them.
+  // Include every contemporaneous alternative, but never cross conflicting keys.
   for (const h of pending) {
-    const c = observation.controls.find(c => c.localId === h.localId)!;
-    h.candidateIds = [...new Set([...h.candidateIds, ...observation.controls.filter(x => x.localId !== c.localId && signature(x) === signature(c)).map(x => x.identityId!)])];
+    const entry = entries.find(e => e.control.localId === h.localId)!;
+    h.candidateIds = [...new Set([...h.candidateIds, ...groups.get(entry.key)!.filter(e => e !== entry).map(e => e.control.identityId!)])];
   }
   return { identities, hypotheses: pending };
 }
