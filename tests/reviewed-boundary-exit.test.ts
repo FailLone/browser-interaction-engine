@@ -1,9 +1,9 @@
 import { expect, it } from 'vitest';
 import { createServer } from 'node:http';
-import type { ActionCandidate, ActionAttempt, EngineHooks, InteractionScope } from '@interaction/browser';
+import type { ActionCandidate, ActionAttempt, EngineHooks, InteractionScope, SessionOptions } from '@interaction/browser';
 import { testEngine, act, pageOf } from './helpers.js';
 
-async function fixture(hooks: EngineHooks) {
+async function fixture(hooks: EngineHooks, options: Partial<SessionOptions> = {}) {
   const server = createServer((_req, res) => {
     res.setHeader('Content-Type', 'text/html');
     res.end(`<button id="toggle" type="button" onclick="panel.hidden=!panel.hidden">Choices</button>
@@ -14,7 +14,7 @@ async function fixture(hooks: EngineHooks) {
   });
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
   const t = await testEngine(`http://127.0.0.1:${(server.address() as {port:number}).port}`, {
-    exploration: 'controls', contextRules: [], interfaceActions: [{ name: 'Choices' }], replayable: [{ name: 'Choices' }],
+    exploration: 'controls', contextRules: [], interfaceActions: [{ name: 'Choices' }], replayable: [{ name: 'Choices' }], ...options,
   }, hooks);
   return { ...t, close: async () => { await t.close(); await new Promise<void>(resolve => server.close(() => resolve())); } };
 }
@@ -108,6 +108,57 @@ it('does not downgrade native submission risk or declare it a reviewed boundary 
     expect(submit.preconditions.blockers?.some(b => b.code === 'outside_active_boundary')).toBe(true);
     await expect(t.engine.execute(t.sessionId, submit.id, 'not-an-exit')).rejects.toMatchObject({ code: 'ACTION_BLOCKED' });
     expect(await pageOf(t.engine).evaluate(() => (window as any).submits)).toBe(0);
+  } finally { await t.close(); }
+});
+
+it('bounds ineffective exit attempts even when the sourced declaration refreshes each observation', async () => {
+  const t = await fixture({ actions: (actions, { observation: o }) => actions.map(a => a.label === 'No effect' && o.boundaries?.length
+    ? declaration(a, o.id, o.boundaries.at(-1)!.key) : a) }, { maxActions: 8 });
+  try {
+    const cp = await t.engine.createCheckpoint(t.sessionId, 'before choices');
+    await act(t.engine, t.sessionId, 'Choices');
+    const result = await t.engine.reachCheckpoint(t.sessionId, cp.id);
+    const attempts = t.engine.list<ActionAttempt>(t.sessionId, 'attempt').filter(a => a.purpose === 'recovery');
+    expect(attempts.filter(a => a.action.label === 'No effect')).toHaveLength(1);
+    expect(attempts.filter(a => a.action.kind === 'press')).toHaveLength(1);
+    expect(result).toMatchObject({ status: 'UNREACHABLE', reason: 'Active interaction boundary could not be exited and verified' });
+    expect(t.engine.session(t.sessionId).actionCount).toBe(3);
+    expect(t.engine.observation(t.sessionId).boundaries).toHaveLength(1);
+  } finally { await t.close(); }
+});
+
+it('does not reschedule an ineffective boundary exit just because its observation evidence changed', async () => {
+  const t = await fixture({ actions: (actions, { observation: o }) => actions.map(a => a.label === 'No effect' && o.boundaries?.length
+    ? declaration(a, o.id, o.boundaries.at(-1)!.key) : a) }, { maxActions: 8, exclude: [{ name: 'Alpha' }] });
+  try {
+    await act(t.engine, t.sessionId, 'Choices');
+    await t.engine.explore(t.sessionId); await t.engine.waitForIdle();
+    const attempts = t.engine.list<ActionAttempt>(t.sessionId, 'attempt');
+    expect(attempts.filter(a => a.action.label === 'No effect')).toHaveLength(1);
+    expect(attempts.filter(a => a.action.kind === 'press')).toHaveLength(1);
+    expect(t.engine.session(t.sessionId)).toMatchObject({ status: 'paused', stopReason: 'ACTIVE_BOUNDARY_BLOCKED', actionCount: 3 });
+    expect(t.engine.observation(t.sessionId).boundaries).toHaveLength(1);
+  } finally { await t.close(); }
+});
+
+it('allows another exit attempt after an intervening interaction changes the boundary', async () => {
+  const t = await fixture({
+    actions: (actions, { observation: o }) => actions.map(a => a.label === 'No effect' && o.boundaries?.length ? declaration(a, o.id, o.boundaries.at(-1)!.key) : a),
+    choose: (items, { observation: o }) => o.boundaries?.length ? (items.find(f => f.action.label === 'Alpha') || items.find(f => f.action.label === 'No effect'))?.id || null : null,
+  }, { maxActions: 10, interfaceActions: [{ name: 'Choices' }, { name: 'Alpha' }] });
+  try {
+    await pageOf(t.engine).evaluate(() => {
+      let ready = false;
+      document.querySelector('[role="option"]')!.addEventListener('click', () => { ready = true; });
+      document.querySelector('#ineffective')!.addEventListener('click', () => { if (ready) (document.querySelector('#panel') as HTMLElement).hidden = true; });
+    });
+    await t.engine.observe(t.sessionId); await act(t.engine, t.sessionId, 'Choices');
+    await act(t.engine, t.sessionId, 'No effect');
+    expect(t.engine.observation(t.sessionId).boundaries).toHaveLength(1);
+    await t.engine.explore(t.sessionId); await t.engine.waitForIdle();
+    const attempts = t.engine.list<ActionAttempt>(t.sessionId, 'attempt');
+    expect(attempts.map(a => a.action.label)).toEqual(['Choices', 'No effect', 'Alpha', 'No effect']);
+    expect(t.engine.observation(t.sessionId).boundaries).toEqual([]);
   } finally { await t.close(); }
 });
 

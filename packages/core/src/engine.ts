@@ -511,6 +511,12 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (action.excluded || action.risk !== 'interface' || action.basis?.status !== 'supported' || action.preconditions.blockers?.length) return;
     return action;
   }
+  private boundaryExitKey(action: ActionCandidate, observation: O) {
+    const target = observation.controls.find(c => c.localId === action.localId && c.identityId === action.controlId);
+    // Fresh audit references do not make the same current exit a new route.
+    return canonical({ instanceScope: observation.instanceScope, scope: this.adapter.explorationScope?.(observation),
+      boundary: action.boundary?.key, target: target?.instanceId || action.controlId, kind: action.kind, value: action.value });
+  }
   private async reachInternal(sessionId: string, checkpointId: string): Promise<ReachResult> {
     const checkpoint = this.owned<Checkpoint>('checkpoint', checkpointId, sessionId); const performed: string[] = [];
     let checks: ReachResult['checks'] = []; let status: ReachResult['status'] = 'UNREACHABLE'; let reason = 'No verified path within the current recovery constraints';
@@ -534,7 +540,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       strategies.push('boundary_exit');
       while (true) {
         const current = this.observation(sessionId);
-        const close = this.adapter.returnAction?.(this.actions(sessionId).filter(a => !triedExits.has(this.frontierKey(a))), current);
+        const close = this.adapter.returnAction?.(this.actions(sessionId).filter(a => !triedExits.has(this.boundaryExitKey(a, current))), current);
         if (!close) {
           if (current.boundaries?.length) { reason = 'Active interaction boundary could not be exited and verified'; return finish(); }
           const sourceReturn = !returnedToSource && this.observationReturn(sessionId, this.observation(sessionId, checkpoint.observationId));
@@ -544,13 +550,14 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
             verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
             if (attempt.status !== 'succeeded') { status = 'UNVERIFIED'; reason = 'Return to observed source could not be verified'; return finish(); }
             if (verification.status) { status = verification.status; reason = 'Verified after return to observed source'; return finish(); }
+            triedExits.clear();
             // Native history may restore an open interaction boundary. Exit and
             // verify it before considering any replay or environment reopening.
             continue;
           }
           break;
         }
-        triedExits.add(this.frontierKey(close));
+        triedExits.add(this.boundaryExitKey(close, current));
         const a = await this.runAction(sessionId, close.id, id(), undefined, 'recovery'); performed.push(a.id);
         verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
         if (verification.status) { status = verification.status; reason = 'Verified after boundary exit attempt'; return finish(); }
@@ -771,6 +778,19 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
             // Never navigate to another branch while an exclusive interaction is open.
             // Adapters classify targets; core only enforces the generic boundary contract.
             pending = pending.filter(f => f.stateId === o.stateId && f.action.boundary?.key === boundary.key && !f.action.preconditions.blockers?.length);
+            const scope = this.store.list<InteractionScope>('scope', sessionId).find(s => s.status === 'open' && s.boundaryKey === boundary.key);
+            const attempted = new Set<string>();
+            for (const aid of scope?.attemptIds || []) {
+              const a = this.store.get<ActionAttempt>('attempt', aid);
+              if (!a || a.action.boundary?.key !== boundary.key) continue;
+              if (a.action.boundary.intent !== 'exit') { attempted.clear(); continue; }
+              attempted.add(this.boundaryExitKey(a.action, this.observation(sessionId, a.beforeId)));
+            }
+            pending = pending.filter(f => {
+              if (!isExit(f) || !attempted.has(this.boundaryExitKey(f.action, o))) return true;
+              f.status = 'blocked'; f.reason = 'boundary_exit_not_verified';
+              f.unblock = 'Try a different exit or change the active boundary before retrying this operation'; this.store.put('frontier', f); return false;
+            });
             pending.sort((a, b) => Number(isExit(a)) - Number(isExit(b))
               || (session.options.exploration === 'controls' ? Number(a.action.risk !== 'interface') - Number(b.action.risk !== 'interface') : 0)
               || novelty(a) - novelty(b) || revealed(b) - revealed(a));
@@ -778,12 +798,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
               // Sampling can finish this scope before a later visit. Exiting is
               // still necessary traversal work, even when its sample was executed.
               if (['controls', 'representative'].includes(session.options.exploration || '')) {
-                const scope = this.store.list<InteractionScope>('scope', sessionId).find(s => s.status === 'open' && s.boundaryKey === boundary.key);
-                const attempted = new Set((scope?.attemptIds || []).flatMap(aid => {
-                  const a = this.store.get<ActionAttempt>('attempt', aid);
-                  return a?.action.boundary?.intent === 'exit' ? [canonical({ control: a.action.controlId, kind: a.action.kind, value: a.action.value })] : [];
-                }));
-                const exit = this.adapter.returnAction?.(this.actions(sessionId).filter(a => !attempted.has(canonical({ control: a.controlId, kind: a.kind, value: a.value }))), o);
+                const exit = this.adapter.returnAction?.(this.actions(sessionId).filter(a => !attempted.has(this.boundaryExitKey(a, o))), o);
                 if (exit) { await this.runAction(sessionId, exit.id, id(), undefined, 'recovery'); return true; }
               }
               session.status = 'paused'; session.stopReason = 'ACTIVE_BOUNDARY_BLOCKED'; this.pauseRequested = true; this.store.put('session', session);
