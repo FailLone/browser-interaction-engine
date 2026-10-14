@@ -192,7 +192,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       return { key, mediaType: 'image/png', capturedAt: at, bytes: data.length, sha256: createHash('sha256').update(data).digest('hex') };
     };
     try { screenshot = `${observationId}.png`; evidenceManifest.artifacts.screenshot = await saveImage(screenshot); screenshotAt = evidenceManifest.artifacts.screenshot.capturedAt; }
-    catch (error) { gaps.push({ code: 'SCREENSHOT_FAILED', message: String(error) }); screenshot = undefined; }
+    catch (error) { gaps.push({ code: 'SCREENSHOT_FAILED', message: String(error), critical: error instanceof EngineError && error.code === 'EVIDENCE_BUDGET_EXHAUSTED' }); screenshot = undefined; }
     const accessibility: DetailSnapshot['accessibility'] = { status: 'disabled', format: 'playwright-aria-yaml', gaps: [] };
     if (this.options.evidence.enabled && this.options.evidence.accessibility) {
       try {
@@ -219,7 +219,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         const json = JSON.stringify(snapshot); const bytes = new TextEncoder().encode(json); const key = `${observationId}.details.json`;
         await this.evidence.put(key, { data: bytes, mediaType: 'application/json' });
         evidenceManifest.artifacts.details = { key, mediaType: 'application/json', capturedAt: dom.detailDom?.capturedAt || capturedAt, bytes: bytes.length, sha256: hash(json) };
-      } catch (error) { evidenceManifest.gaps.push({ code: 'DETAIL_STORAGE_FAILED', message: String(error) }); }
+      } catch (error) { evidenceManifest.gaps.push({ code: 'DETAIL_STORAGE_FAILED', message: String(error) }); if (error instanceof EngineError && error.code === 'EVIDENCE_BUDGET_EXHAUSTED') gaps.push({ code: error.code, message: error.message, critical: true }); }
       if (evidenceManifest.gaps.length || dom.detailDom?.nodes.some(n => n.gaps.length)) evidenceManifest.status = 'partial';
     }
     const { detailDom: _, ...observation } = dom;

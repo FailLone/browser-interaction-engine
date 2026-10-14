@@ -4,9 +4,11 @@
 
 ![调试界面](docs/screenshots/dashboard.png)
 
-## 详细证据查询（功能分支）
+## 详细证据与快照订阅
 
 事件 data 可保持简约。BrowserEngine / HTTP 客户端提供 observationDetails、controlDetails、regionDetails、dom、eventContext 和 evidenceArtifact，查询指定观察的文案、类型、状态、DOM 结构/属性、标签关系、ARIA、截图及运行记录。查询读取历史证据，不操作浏览器，也不推断业务意图。见 [证据接口、配置及限制](docs/EVIDENCE-API.md)。
+
+观察事件支持直接交付详细快照（含截图），留存可选择临时交付、短期缓存或注入的持久插件。界面在“详细证据留存”设置策略，在“事件 → 事件交付 → 完整快照”打开事件内的历史数据；缓存释放不会改写已收到的快照。检查点可显式固定必要证据，缺失时返回 UNVERIFIED。用法见 [交付与留存](docs/EVIDENCE-API.md#事件直接交付快照)。
 
 ## 启动
 
@@ -47,6 +49,7 @@ pnpm report
 packages/core/                纯 SDK：图、身份、待办、队列、探索、恢复、hook、事件
 packages/adapter-playwright/  Web 模型、DOM 观察/定位、浏览器操作及原生输入规则
 packages/browser/             浏览器 SDK 的组合入口，不选择默认存储
+packages/storage-retained/    证据生命周期插件：TTL、预算、固定与可用性
 packages/storage-memory/      内存记录和二进制证据插件
 packages/storage-sqlite/      SQLite 记录和文件证据插件
 packages/client/              HTTP 客户端与 SSE 续读
@@ -130,7 +133,7 @@ await client.execute(session.id, selected.id, crypto.randomUUID());
 
 完整的“候选 → 选择 → 执行 → 查询歧义 → 裁决”示例为 [examples/external-strategy.ts](examples/external-strategy.ts)，在 `pnpm demo` 启动且没有其他活动会话时运行 `pnpm example:strategy`。这个示例使用测试站标签；引擎内部不包含这些标签或 ID。
 
-事件使用 `client.events(sessionId, lastSequence, abortSignal)` 订阅。记录最后处理的 `sequence`，重连后从该序号续读。进程内也可以监听 `engine.events.on('event', listener)`。
+引用事件使用 `client.events(sessionId, lastSequence, abortSignal)` 订阅；第四个参数 `{ delivery: 'inline' }` 交付完整观察快照。记录最后处理的 `sequence`，重连后从该序号续读；完整证据受留存窗口限制。进程内 `engine.subscribeEvents` 支持同样的投影，原有 `engine.events.on('event', listener)` 保持引用通知。
 
 ## 扩展边界
 

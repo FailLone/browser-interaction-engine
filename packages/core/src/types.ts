@@ -64,10 +64,12 @@ export interface Predicate { target: string; key?: string; identityId?: ID; fiel
 export interface Checkpoint {
   id: ID; sessionId: ID; name: string; observationId: ID; stateId: ID; context: Context;
   predicates: Predicate[]; acceptable: Predicate[]; path: ID[]; createdAt: string;
+  /** Additional retained evidence explicitly required by this checkpoint. */
+  evidenceKeys?: string[];
 }
 export type ReachStatus = 'REACHED_VERIFIED' | 'REACHED_ACCEPTABLE' | 'PRECONDITIONS_CHANGED' | 'UNREACHABLE' | 'UNVERIFIED';
 export interface ReachResult { id: ID; sessionId: ID; checkpointId: ID; status: ReachStatus; observationId?: ID; reason: string; attemptIds: ID[]; checks: { name: string; result: 'pass' | 'fail' | 'unknown' }[]; remainingFrontier: number }
-export interface SessionOptions { maxActions: number; maxDepth: number; maxDurationMs: number; context: Record<string, Json> }
+export interface SessionOptions { maxActions: number; maxDepth: number; maxDurationMs: number; context: Record<string, Json>; evidenceRetention?: import('./ports.js').EvidenceRetentionPolicy }
 export interface Session<S extends SessionOptions = SessionOptions> { id: ID; options: S; createdAt: string; status: 'idle' | 'running' | 'paused' | 'stopped' | 'finished'; currentObservationId?: ID; actionCount: number; elapsedMs: number; stopReason?: string; mode: 'manual' | 'dfs'; dirty: boolean }
 export interface EngineEvent { sequence: number; sessionId: ID; type: string; at: string; data: unknown }
 export interface Issue { id: ID; sessionId: ID; observationId: ID; source: string; severity: 'info' | 'warning' | 'error'; message: string; evidence?: string[] }

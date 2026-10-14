@@ -100,6 +100,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   }
   private async capture(sessionId: string, cause: O['cause'], attemptId?: string, parentId?: string): Promise<O> {
     let session = this.session(sessionId); const observationId = id();
+    await this.store.evidence.beginObservation?.({ sessionId, observationId, policy: session.options.evidenceRetention });
+    try {
     const data = await this.driver!.capture(observationId);
     const o: O = { ...data, id: observationId, sessionId, cause, stateId: '', visitId: id(), fingerprint: '', canonical: '', ruleVersion: this.adapter.ruleVersion } as O;
     const declared = Object.fromEntries(Object.entries(session.options.context).map(([key, value]) => [key, { value, status: 'known' as const, source: 'declared' }]));
@@ -185,6 +187,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       this.emit(sessionId, 'frontier.updated', { observationId: o.id });
       this.syncBoundaries(sessionId, previous, o, attemptId);
     });
+    await this.store.evidence.endObservation?.(observationId, true);
     let resolvedByHook = false;
     for (const hypothesis of matched.hypotheses) if (this.hooks.identity) {
       const result = await this.hook(sessionId, 'identity', () => this.hooks.identity!(structuredClone(hypothesis), ctx()));
@@ -192,6 +195,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     }
     if (resolvedByHook) return this.capture(sessionId, 'inspection');
     return o;
+    } catch (error) { await this.store.evidence.endObservation?.(observationId, !!this.store.get('observation', observationId)); throw error; }
   }
   private frontierKey(a: ActionCandidate) { return hash({ state: a.stateId, control: a.controlId, kind: a.kind, value: a.value, context: a.preconditions.context }); }
   private constrain(action: ActionCandidate, observation: O, session: Session<S>) {
@@ -353,14 +357,38 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     }
     return result;
   }
-  private checkpointInternal(sessionId: string, name: string, predicates: Predicate[] = [], acceptable: Predicate[] = [], observationId?: string) {
-    const o = this.observation(sessionId, observationId); const checkpoint: Checkpoint = { id: id(), sessionId, name, observationId: o.id, stateId: o.stateId, context: o.context, predicates, acceptable, path: this.visitPath(sessionId, o.visitId), createdAt: now() };
+  private checkpointInternal(sessionId: string, name: string, predicates: Predicate[] = [], acceptable: Predicate[] = [], observationId?: string, checkpointId = id()) {
+    const o = this.observation(sessionId, observationId); const checkpoint: Checkpoint = { id: checkpointId, sessionId, name, observationId: o.id, stateId: o.stateId, context: o.context, predicates, acceptable, path: this.visitPath(sessionId, o.visitId), createdAt: now() };
     this.store.put('checkpoint', checkpoint); this.emit(sessionId, 'checkpoint.created', checkpoint); return checkpoint;
   }
-  createCheckpoint(sessionId: string, name: string, predicates: Predicate[] = [], acceptable: Predicate[] = []) { return this.enqueue(async () => this.checkpointInternal(sessionId, name, predicates, acceptable)); }
+  createCheckpoint(sessionId: string, name: string, predicates: Predicate[] = [], acceptable: Predicate[] = [], retainedEvidence: string[] | ((observation: O) => string[]) = []) {
+    return this.enqueue(async () => {
+      const owner = id();
+      // Resolve platform evidence only after earlier actions finish, against the
+      // same observation that the checkpoint will describe.
+      const evidenceKeys = typeof retainedEvidence === 'function' ? retainedEvidence(this.observation(sessionId)) : [...retainedEvidence];
+      if (evidenceKeys.length) {
+        if (!this.store.evidence.pin) throw new EngineError('EVIDENCE_RETENTION_UNSUPPORTED', 'This evidence plugin cannot guarantee retained evidence');
+        await this.store.evidence.pin(evidenceKeys, `checkpoint:${owner}`);
+      }
+      try {
+        return this.store.transaction(() => {
+          const cp = this.checkpointInternal(sessionId, name, predicates, acceptable, undefined, owner);
+          if (evidenceKeys.length) { cp.evidenceKeys = evidenceKeys; this.store.put('checkpoint', cp); this.emit(sessionId, 'checkpoint.evidence_retained', { checkpointId: cp.id, observationId: cp.observationId, owner: `checkpoint:${owner}`, keys: evidenceKeys }); }
+          return cp;
+        });
+      } catch (error) { if (evidenceKeys.length) await this.store.evidence.unpin?.(`checkpoint:${owner}`); throw error; }
+    });
+  }
   private testPredicate(predicate: Predicate, observation: O) { return this.adapter.testPredicate(predicate, observation); }
   private async verify(sessionId: string, checkpoint: Checkpoint): Promise<{ status?: ReachResult['status']; checks: ReachResult['checks'] }> {
     const o = this.observation(sessionId); const checks: ReachResult['checks'] = [];
+    for (const key of checkpoint.evidenceKeys || []) {
+      let available = false;
+      try { available = this.store.evidence.availability ? (await this.store.evidence.availability(key)).status === 'available' : !!(await this.store.evidence.get(key)); } catch { /* Verification remains unknown on storage failure. */ }
+      checks.push({ name: `retained-evidence:${key}`, result: available ? 'pass' : 'unknown' });
+    }
+    if (checks.some(c => c.result === 'unknown')) return { status: 'UNVERIFIED', checks };
     for (const [key, expected] of Object.entries(checkpoint.context)) { const actual = o.context[key]; checks.push({ name: `context:${key}`, result: !actual || actual.status === 'unknown' || expected.status === 'unknown' ? 'unknown' : canonical(actual.value) === canonical(expected.value) ? 'pass' : 'fail' }); }
     if (checks.some(c => c.result === 'fail')) return { status: 'PRECONDITIONS_CHANGED', checks };
     if (o.gaps.some(g => g.critical) || checks.some(c => c.result === 'unknown')) return { status: 'UNVERIFIED', checks: [...checks, { name: 'observation-completeness', result: 'unknown' }] };
@@ -521,5 +549,5 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       }
     }
   }
-  async close() { this.closing = true; this.pauseRequested = true; await this.runner; await this.queue; await this.driver?.close(); this.store.close(); }
+  async close() { this.closing = true; this.pauseRequested = true; await this.runner; await this.queue; await this.driver?.close(); await this.store.evidence.flush?.(); this.store.close(); }
 }

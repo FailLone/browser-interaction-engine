@@ -22,12 +22,20 @@ export class BrowserEvidenceQueries {
     const key = reference?.key || (kind === 'screenshot' ? observation.screenshot : undefined);
     if (!key) throw new EngineError('EVIDENCE_UNAVAILABLE', `${kind} was not captured for this observation`, { observationId });
     const evidence = await this.reader.store.evidence.get(key);
-    if (!evidence) throw new EngineError('EVIDENCE_UNAVAILABLE', 'Referenced evidence is missing from the persistence plugin', { observationId, kind });
+    if (!evidence) {
+      const availability = await this.reader.store.evidence.availability?.(key);
+      throw new EngineError('EVIDENCE_UNAVAILABLE', 'Referenced evidence is unavailable', { observationId, kind, availability });
+    }
     return { ...evidence, reference };
   }
   async details(sessionId: string, observationId: string) {
     const observation = this.observation(sessionId, observationId);
     const gaps: Gap[] = [...observation.gaps, ...(observation.evidence?.gaps || [])];
+    const availability: Record<string, import('@interaction/core').EvidenceAvailability> = {};
+    for (const [kind, ref] of Object.entries(observation.evidence?.artifacts || {})) if (ref && this.reader.store.evidence.availability) {
+      availability[kind] = await this.reader.store.evidence.availability(ref.key);
+      if (availability[kind].status !== 'available') gaps.push({ code: `EVIDENCE_${availability[kind].status.toUpperCase()}`, reference: ref.key, message: availability[kind].reason || `${kind} is unavailable` });
+    }
     let snapshot: DetailSnapshot | undefined;
     if (observation.evidence?.artifacts.details) {
       try {
@@ -39,7 +47,7 @@ export class BrowserEvidenceQueries {
         snapshot = parsed;
       } catch (error) { gaps.push({ code: 'DETAIL_EVIDENCE_UNAVAILABLE', message: String(error) }); }
     } else gaps.push({ code: observation.evidence?.status === 'disabled' ? 'DETAIL_CAPTURE_DISABLED' : 'DETAIL_NOT_CAPTURED', message: 'No historical detailed snapshot exists; request a new observation to collect current evidence' });
-    return { schemaVersion: 1 as const, observation, actions: this.reader.actions(sessionId, observationId), snapshot, capabilities: evidenceCapabilities, gaps };
+    return { schemaVersion: 1 as const, observation, actions: this.reader.actions(sessionId, observationId), snapshot, capabilities: evidenceCapabilities, availability, gaps };
   }
   async dom(sessionId: string, observationId: string, input: DomQuery = {}) {
     const query = domQuerySchema.parse(input); const details = await this.details(sessionId, observationId); const dom = details.snapshot?.dom;

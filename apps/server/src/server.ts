@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
-import { ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { InteractionEngine, EngineError, artifactKindSchema, domQuerySchema, evidenceCapabilities, type EngineEvent } from '@interaction/browser';
@@ -39,9 +39,16 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
     const kind = artifactKindSchema.parse((request.params as any).kind);
     const evidence = await engine.evidenceArtifact(sid(request), oid(request), kind);
     return reply.type(evidence.mediaType).header('X-Content-Type-Options', 'nosniff').header('Content-Security-Policy', "default-src 'none'; sandbox")
-      .header('Cache-Control', 'private, max-age=31536000, immutable').send(Buffer.from(evidence.data));
+      .header('Cache-Control', 'no-store').send(Buffer.from(evidence.data));
   });
   app.get('/v1/sessions/:sessionId/events/:sequence/context', async request => engine.eventContext(sid(request), Number((request.params as any).sequence)));
+  app.get('/v1/sessions/:sessionId/evidence-retention', async request => engine.evidenceStats(sid(request)));
+  app.post('/v1/sessions/:sessionId/observations/:observationId/evidence-retention', async request => {
+    const body = z.discriminatedUnion('action', [z.object({ action: z.literal('pin'), owner: z.string().min(1).max(200) }).strict(), z.object({ action: z.literal('release') }).strict()]).parse(request.body);
+    return body.action === 'pin' ? engine.pinEvidence(sid(request), oid(request), body.owner) : engine.releaseEvidence(sid(request), oid(request));
+  });
+  app.post('/v1/sessions/:sessionId/evidence-retention/unpin', async request => { const body = z.object({ owner: z.string().min(1).max(200) }).strict().parse(request.body); return engine.unpinEvidence(sid(request), body.owner); });
+  app.post('/v1/sessions/:sessionId/checkpoints/:checkpointId/release-evidence', async request => engine.releaseCheckpointEvidence(sid(request), (request.params as any).checkpointId));
   app.get('/v1/sessions/:sessionId/actions', async request => engine.actions(sid(request), (request.query as any).observationId));
   app.get('/v1/sessions/:sessionId/graph', async request => engine.getGraph(sid(request)));
   app.get('/v1/sessions/:sessionId/report', async request => { const r = engine.report(sid(request)); return { ...r, session: { ...r.session, options: { ...r.session.options, storageState: undefined } } }; });
@@ -61,23 +68,31 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
   app.get('/v1/sessions/:sessionId/evidence/:observationId', async (request, reply) => {
     const o = engine.observation(sid(request), (request.params as any).observationId);
     if (!o.screenshot) throw new EngineError('NOT_FOUND', 'Screenshot is unavailable');
-    const evidence = await engine.store.evidence.get(o.screenshot);
+    const evidence = await engine.evidenceArtifact(sid(request), o.id, 'screenshot');
     if (!evidence) throw new EngineError('NOT_FOUND', 'Evidence is unavailable');
-    return reply.type(evidence.mediaType).header('Cache-Control', 'private, max-age=31536000, immutable').send(Buffer.from(evidence.data));
+    return reply.type(evidence.mediaType).header('Cache-Control', 'no-store').send(Buffer.from(evidence.data));
   });
   app.get('/v1/sessions/:sessionId/events', async (request, reply) => {
     const sessionId = sid(request); engine.session(sessionId); const q = request.query as Record<string, string>;
-    let cursor = Math.max(0, Number(request.headers['last-event-id'] || q.after) || 0);
+    const cursor = z.coerce.number().int().min(0).parse(request.headers['last-event-id'] || q.after || 0);
+    const delivery = z.enum(['reference', 'inline', 'hybrid']).parse(q.delivery || 'reference');
+    const maxSnapshotBytes = z.coerce.number().int().min(1024).max(64 * 1024 ** 2).parse(q.maxSnapshotBytes || 8 * 1024 ** 2);
     if (q.format === 'json') return engine.store.events(sessionId, cursor);
     reply.hijack(); reply.raw.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive', 'X-Accel-Buffering': 'no' });
     streams.add(reply.raw);
-    const send = (event: EngineEvent) => { if (event.sessionId === sessionId && event.sequence > cursor) { cursor = event.sequence; reply.raw.write(`id: ${event.sequence}\ndata: ${JSON.stringify(event)}\n\n`); } };
-    // No await between backfill and subscribe: a committed event cannot fall into a gap.
-    let batch: EngineEvent[];
-    do { batch = engine.store.events(sessionId, cursor); batch.forEach(send); } while (batch.length === 1000);
-    const onEvent = (event: EngineEvent) => send(event); engine.events.on('event', onEvent);
-    const heartbeat = setInterval(() => reply.raw.write(': keepalive\n\n'), 15000);
-    reply.raw.on('close', () => { clearInterval(heartbeat); engine.events.off('event', onEvent); streams.delete(reply.raw); });
+    const subscription = engine.subscribeEvents(sessionId, async event => {
+      if (reply.raw.destroyed) throw new Error('Event connection closed');
+      const ready = reply.raw.write(`id: ${event.sequence}\ndata: ${JSON.stringify(event)}\n\n`);
+      if (!ready) await new Promise<void>((resolve, reject) => {
+        const cleanup = () => { reply.raw.off('drain', drain); reply.raw.off('close', closed); };
+        const drain = () => { cleanup(); resolve(); }; const closed = () => { cleanup(); reject(new Error('Event connection closed')); };
+        reply.raw.once('drain', drain); reply.raw.once('close', closed);
+      });
+    }, { after: cursor, delivery, maxSnapshotBytes, onGap: gap => {
+      if (!reply.raw.destroyed) { reply.raw.write(`event: gap\ndata: ${JSON.stringify(gap)}\n\n`); reply.raw.end(); }
+    } });
+    const heartbeat = setInterval(() => { if (!reply.raw.destroyed && !reply.raw.writableNeedDrain) reply.raw.write(': keepalive\n\n'); }, 15000);
+    reply.raw.on('close', () => { subscription.close(); clearInterval(heartbeat); streams.delete(reply.raw); });
   });
   const ui = options.uiDirectory || resolve('apps/ui/dist');
   if (existsSync(ui)) { await app.register(fastifyStatic, { root: ui }); app.setNotFoundHandler((request, reply) => request.url.startsWith('/v1/') ? reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Unknown API route' } }) : reply.sendFile('index.html')); }

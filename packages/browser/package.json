@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@interaction/core": "workspace:*",
-    "@interaction/adapter-playwright": "workspace:*"
+    "@interaction/adapter-playwright": "workspace:*",
+    "@interaction/storage-retained": "workspace:*"
   }
 }

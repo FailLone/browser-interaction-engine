@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { InteractionClient } from '@interaction/client';
-import type { ControlDetails, DomResult, EventContext, Gap, ObservationDetails } from '@interaction/browser';
+import type { ControlDetails, DomResult, EventContext, Gap, ObservationDetails, EvidenceDelivery } from '@interaction/browser';
 
 const relationNames: Record<string, string> = { before: '操作前', after: '操作后', observation: '关联观察', actionSource: '操作来源', currentAtEvent: '事件发生时' };
 const views = [['controls', '控件详情'], ['dom', 'DOM / HTML'], ['images', '截图'], ['aria', 'ARIA'], ['runtime', '页面与运行记录'], ['gaps', '采集缺口'], ['json', '完整 JSON']];
@@ -13,7 +13,7 @@ function Gaps({ gaps }: { gaps: Gap[] }) {
 }
 
 /** Public queries only. This inspector never observes again or changes the explored page. */
-export function EvidencePanel({ api, sessionId, observationId, eventSequence }: { api: InteractionClient; sessionId: string; observationId?: string; eventSequence?: number }) {
+export function EvidencePanel({ api, sessionId, observationId, eventSequence, delivered }: { api: InteractionClient; sessionId: string; observationId?: string; eventSequence?: number; delivered?: EvidenceDelivery }) {
   const [context, setContext] = useState<EventContext>();
   const [direct, setDirect] = useState<ObservationDetails>();
   const [selected, setSelected] = useState('');
@@ -23,7 +23,8 @@ export function EvidencePanel({ api, sessionId, observationId, eventSequence }: 
     let active = true;
     setLoading(true); setError(''); setContext(undefined); setDirect(undefined); setSelected('');
     (async () => {
-      if (eventSequence !== undefined) {
+      if (delivered?.details) { setDirect(delivered.details); setSelected(delivered.details.observation.id); }
+      else if (eventSequence !== undefined) {
         const result = await api.eventContext(sessionId, eventSequence); if (!active) return;
         setContext(result); setSelected((result.observations.find(o => o.relations.includes('after')) || result.observations[0])?.observationId || '');
       } else if (observationId) {
@@ -32,11 +33,12 @@ export function EvidencePanel({ api, sessionId, observationId, eventSequence }: 
       }
     })().catch(e => { if (active) setError(String(e)); }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [api, sessionId, observationId, eventSequence]);
+  }, [api, sessionId, observationId, eventSequence, delivered]);
   const details = context ? context.observations.find(o => o.observationId === selected)?.details : direct;
   return <div className="evidence-inspector">
     <div className="evidence-heading"><h3>{eventSequence !== undefined ? `事件 #${eventSequence} · 历史详细数据` : '观察详细数据'}</h3><span className="badge">只读查询</span></div>
-    <p className="muted">原始 data 是事件通知；下方通过公共接口读取该时刻保存的证据，不会重新观察或操作页面。</p>
+    <p className="muted">{delivered ? '正在显示事件直接交付的快照；服务端缓存释放后，此份已收到的数据仍可查看。' : '下方通过公共接口读取该时刻留存的证据，不会重新观察或操作页面。'}</p>
+    {!!delivered?.gaps.length && <Gaps gaps={delivered.gaps} />}
     {loading && <p role="status">正在读取详细证据…</p>}
     {error && <div role="alert" className="error">{error}</div>}
     {context && <>
@@ -45,31 +47,46 @@ export function EvidencePanel({ api, sessionId, observationId, eventSequence }: 
       {!context.observations.length && <p className="empty">此事件没有可查询的历史观察引用。可从“遍历路径”选择观察，再打开“详细数据”。</p>}
       <Section title="原始事件 data" value={context.event.data} />
     </>}
-    {details && <ObservationEvidence key={details.observation.id} api={api} sessionId={sessionId} details={details} />}
+    {details && <ObservationEvidence key={details.observation.id} api={api} sessionId={sessionId} details={details} delivered={delivered} />}
     {!loading && !error && !context && !details && <p className="empty">先选择一个观察。</p>}
   </div>;
 }
 
-function ObservationEvidence({ api, sessionId, details }: { api: InteractionClient; sessionId: string; details: ObservationDetails }) {
+function ObservationEvidence({ api, sessionId, details, delivered }: { api: InteractionClient; sessionId: string; details: ObservationDetails; delivered?: EvidenceDelivery }) {
   const [view, setView] = useState('controls'); const [rootId, setRootId] = useState<string>();
   const { observation: o, snapshot } = details;
   const base = `/v1/sessions/${encodeURIComponent(sessionId)}/observations/${encodeURIComponent(o.id)}`;
   return <>
     <div className="evidence-facts"><b>{o.title || '无标题页面'}</b><span>{o.url}</span><code>observationId: {o.id}</code><span>观察时间：{o.capturedAt} · {o.controls.length} 个控件 · 已保存 {snapshot?.dom?.nodes.length ?? 0} 个 DOM 节点</span><a href={`${base}/details`} target="_blank" rel="noreferrer">打开详细数据 API ↗</a></div>
-    {!snapshot && <div className="gap"><b>详细证据未保存</b> 此观察只有基础记录；请使用“重新观察”显式创建新观察。旧观察不会被补写。</div>}
+    {!snapshot && <div className="gap"><b>{Object.values(details.availability || {}).some(a => a.status !== 'available') ? '详细证据当前不可用' : '详细证据未保存'}</b> 请在“采集缺口”查看未留存、过期或清理原因。需要当前页面时使用“重新观察”，旧观察不会被补写。</div>}
+    <Section title="证据留存状态" value={details.availability} />
+    {!delivered && <RetentionControls api={api} sessionId={sessionId} observationId={o.id} />}
     <nav className="evidence-views" aria-label="详细证据分类">{views.map(([key, label]) => <button key={key} aria-pressed={view === key} onClick={() => setView(key)}>{label}</button>)}</nav>
-    {view === 'controls' && <Controls api={api} sessionId={sessionId} details={details} openDom={id => { setRootId(id); setView('dom'); }} />}
-    {view === 'dom' && <><DomTree key={rootId || 'document'} api={api} sessionId={sessionId} observationId={o.id} rootId={rootId} /><button disabled={!rootId} onClick={() => setRootId(undefined)}>查看整个文档</button><details className="evidence-section"><summary>原始 HTML{snapshot?.dom?.htmlTruncated ? '（采集已截断）' : ''}</summary><pre>{snapshot?.dom?.html ?? '此观察没有保存 HTML'}</pre></details></>}
+    {view === 'controls' && (delivered ? <><p className="muted">事件快照中的控件与操作；详情和 DOM 使用已交付内容，图片引用仍受服务端留存限制。</p><Json value={{ controls: o.controls, actions: details.actions, context: o.context }} /></> : <Controls api={api} sessionId={sessionId} details={details} openDom={id => { setRootId(id); setView('dom'); }} />)}
+    {view === 'dom' && <>{delivered ? <Json value={snapshot?.dom?.nodes} /> : <><DomTree key={rootId || 'document'} api={api} sessionId={sessionId} observationId={o.id} rootId={rootId} /><button disabled={!rootId} onClick={() => setRootId(undefined)}>查看整个文档</button></>}<details className="evidence-section"><summary>原始 HTML{snapshot?.dom?.htmlTruncated ? '（采集已截断）' : ''}</summary><pre>{snapshot?.dom?.html ?? '此观察没有保存 HTML'}</pre></details></>}
     {view === 'images' && <div className="evidence-images">{(['screenshot', 'fullPageScreenshot'] as const).map(kind => {
       const artifact = o.evidence?.artifacts[kind]; const present = !!artifact || kind === 'screenshot' && !!o.screenshot;
       const label = kind === 'screenshot' ? '历史视口截图' : '历史整页截图';
-      return <figure key={kind}><figcaption>{label} · {artifact?.capturedAt || '未记录独立时间'}</figcaption>{present ? <><a href={`${base}/artifacts/${kind}`} target="_blank" rel="noreferrer">打开原图 ↗</a><img alt={label} src={`${base}/artifacts/${kind}`} /></> : <p className="muted">未采集{kind === 'fullPageScreenshot' ? '（需要在会话配置中启用）' : ''}</p>}</figure>;
+      const inline = delivered?.artifacts.find(a => a.kind === kind && a.data); const source = inline ? `data:${inline.mediaType};base64,${inline.data}` : `${base}/artifacts/${kind}`;
+      return <figure key={kind}><figcaption>{label} · {artifact?.capturedAt || '未记录独立时间'}</figcaption>{present ? <><a href={source} target="_blank" rel="noreferrer">打开原图 ↗</a><img alt={label} src={source} /></> : <p className="muted">未采集{kind === 'fullPageScreenshot' ? '（需要在会话配置中启用）' : ''}</p>}</figure>;
     })}</div>}
     {view === 'aria' && <><p className="muted">{snapshot?.accessibility.status || '未保存'} · {snapshot?.accessibility.capturedAt} · Playwright ARIA 快照</p><pre>{snapshot?.accessibility.text || '此观察没有保存 ARIA 快照'}</pre><Gaps gaps={snapshot?.accessibility.gaps || []} /></>}
     {view === 'runtime' && <><Section title="页面元数据" value={snapshot?.dom?.page || { url: o.url, title: o.title }} /><Section title="区域、弹层和业务上下文" value={{ regions: o.regions, overlays: o.overlays, context: o.context }} /><p className="muted">运行记录：{snapshot?.runtime.since || '未保存'} → {snapshot?.runtime.capturedAt || '未保存'}</p><Section title="网络请求元数据" value={snapshot?.runtime.network} /><Section title="控制台消息" value={snapshot?.runtime.console} /><Section title="页面异常" value={snapshot?.runtime.errors} /><Section title="Frame 清单" value={snapshot?.runtime.frames} /></>}
-    {view === 'gaps' && <><Gaps gaps={details.gaps} /><Section title="节点级采集缺口" value={snapshot?.dom?.nodes.filter(n => n.gaps.length).map(n => ({ nodeId: n.id, gaps: n.gaps }))} /><Section title="采集限额与截断计数" value={{ limits: snapshot?.limits, dropped: snapshot?.runtime.dropped, truncatedFields: snapshot?.runtime.truncatedFields }} /><Section title="已支持与未支持能力" value={details.capabilities} /></>}
+    {view === 'gaps' && <><Gaps gaps={[...details.gaps, ...(delivered?.gaps || [])]} /><Section title="节点级采集缺口" value={snapshot?.dom?.nodes.filter(n => n.gaps.length).map(n => ({ nodeId: n.id, gaps: n.gaps }))} /><Section title="采集限额与截断计数" value={{ limits: snapshot?.limits, dropped: snapshot?.runtime.dropped, truncatedFields: snapshot?.runtime.truncatedFields }} /><Section title="已支持与未支持能力" value={details.capabilities} /></>}
     {view === 'json' && <><a href={`${base}/details`} target="_blank" rel="noreferrer">在新标签页读取完整 JSON ↗</a><Json value={details} /></>}
   </>;
+}
+
+function RetentionControls({ api, sessionId, observationId }: { api: InteractionClient; sessionId: string; observationId: string }) {
+  const [stats, setStats] = useState<Awaited<ReturnType<InteractionClient['evidenceStats']>>>(); const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
+  useEffect(() => { let active = true; void api.evidenceStats(sessionId).then(s => { if (active) setStats(s); }).catch(e => { if (active) setError(String(e)); }); return () => { active = false; }; }, [api, sessionId]);
+  const run = async (operation: () => Promise<unknown>) => { setBusy(true); setError(''); try { await operation(); setStats(await api.evidenceStats(sessionId)); } catch (e) { setError(String(e)); } finally { setBusy(false); } };
+  return <details className="evidence-section"><summary>缓存容量与固定 / 释放</summary>
+    <p className="muted">{stats ? `${stats.retainedObservations} 次观察 · 本会话逻辑证据 ${(stats.logicalBytes / 1024 ** 2).toFixed(2)} MiB · 引擎共享缓存 ${(stats.memoryBytes / 1024 ** 2).toFixed(2)} / ${(stats.maxMemoryBytes / 1024 ** 2).toFixed(0)} MiB` : '正在读取容量…'}</p>
+    <div className="buttons"><button disabled={busy} onClick={() => run(() => api.pinEvidence(sessionId, observationId, `ui-${observationId}`))}>固定这次证据</button><button disabled={busy} onClick={() => run(() => api.unpinEvidence(sessionId, `ui-${observationId}`))}>解除界面固定</button><button disabled={busy} onClick={() => run(() => api.releaseEvidence(sessionId, observationId))}>释放这次证据</button></div>
+    <p className="muted">活动观察、流程基线和检查点固定可能阻止释放。这里的容量不包含交互图、动作与事件日志；旧会话未纳入留存统计。</p>
+    {error && <p role="alert" className="error">{error}</p>}<Json value={stats} />
+  </details>;
 }
 
 function Controls({ api, sessionId, details, openDom }: { api: InteractionClient; sessionId: string; details: ObservationDetails; openDom: (id: string) => void }) {

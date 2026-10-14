@@ -39,6 +39,7 @@ export interface SessionOptions {
   maxActions: number; maxDepth: number; maxDurationMs: number;
   actionTimeoutMs: number; settleMs: number; observeTimeoutMs: number;
   evidence: EvidenceOptions;
+  evidenceRetention?: import('@interaction/core').EvidenceRetentionPolicy;
   exclude: MatchRule[]; replayable: MatchRule[]; context: Record<string, Json>; contextRules: ContextRule[];
   storageState?: string | { cookies: unknown[]; origins: unknown[] };
 }

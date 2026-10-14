@@ -18,7 +18,7 @@ const base = `http://127.0.0.1:${app.server.address().port}`;
 try {
   const health = await (await fetch(`${base}/v1/health`)).json(); assert.equal(health.status, 'ok');
   const html = await (await fetch(base)).text(); assert.ok(html.includes('id="root"') && html.includes('/assets/'));
-  const created = await fetch(`${base}/v1/sessions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: `http://127.0.0.1:${fixture.address().port}`, headless: true }) });
+  const created = await fetch(`${base}/v1/sessions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: `http://127.0.0.1:${fixture.address().port}`, headless: true, evidenceRetention: { mode: 'cache' } }) });
   assert.equal(created.status, 201); const session = await created.json();
   const actions = await (await fetch(`${base}/v1/sessions/${session.id}/actions`)).json();
   const action = actions.find(a => a.label === 'Open'); assert.ok(action);
@@ -28,6 +28,12 @@ try {
   assert.ok(details.snapshot.dom.html.includes('Compiled runtime fixture'));
   assert.ok(details.snapshot.dom.nodes.some(n => n.attributes?.id === 'open'));
   assert.equal(details.snapshot.accessibility.status, 'captured');
-  const result = { at: new Date().toISOString(), node: process.version, compiledAPI: 'passed', staticUI: 'passed', chromiumExecution: 'passed', historicalEvidence: 'passed', attemptId: attempt.id };
+  const event = engine.store.events(session.id).find(e => e.type === 'observation.created');
+  const projected = await engine.projectEvent(event, 'inline');
+  assert.ok(projected.data.evidence.details.snapshot.dom.nodes.length);
+  assert.equal(projected.data.evidence.artifacts[0].encoding, 'base64');
+  assert.ok((await engine.evidenceStats(session.id)).memoryBytes > 0);
+  assert.equal(await engine.store.backing.evidence.get(projected.data.evidence.artifacts[0].key), undefined);
+  const result = { at: new Date().toISOString(), node: process.version, compiledAPI: 'passed', staticUI: 'passed', chromiumExecution: 'passed', historicalEvidence: 'passed', snapshotDelivery: 'passed', cachedEvidence: 'passed', attemptId: attempt.id };
   writeFileSync(resolve('docs/build-smoke.json'), JSON.stringify(result, null, 2)); console.log(result);
 } finally { await app.close(); await engine.close(); await new Promise(r => fixture.close(r)); }

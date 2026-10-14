@@ -75,3 +75,40 @@ it('shows missing detailed snapshots and events without observation references e
     expect(await page.locator('.evidence-facts').count()).toBe(0);
   } finally { await browser.close(); await ui.close(); await app.close(); await t.close(); await fixture.server.close(); }
 });
+
+it('opens an inline event snapshot after transient server evidence has been released without querying it again', async () => {
+  const fixture = await fixtureServer();
+  const t = await testEngine(`${fixture.url}/evidence.html`, { contextRules: [], evidenceRetention: { mode: 'transient', ttlMs: 60000, maxBytes: 64 * 1024 ** 2, maxObservations: 100 } });
+  const observation = t.engine.observation(t.sessionId);
+  const event = t.engine.store.events(t.sessionId).find(e => e.type === 'observation.created')!;
+  const app = await createServer(t.engine); await app.listen({ host: '127.0.0.1', port: 0 });
+  const ui = await createViteServer({ root: resolve('apps/ui'), logLevel: 'error', server: { port: 0, strictPort: false, proxy: { '/v1': `http://127.0.0.1:${(app.server.address() as any).port}` } } }); await ui.listen();
+  const browser = await chromium.launch({ headless: true }); const page = await browser.newPage({ viewport: { width: 1500, height: 1100 } });
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
+  try {
+    await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as any).port}`);
+    await page.getByText('详细证据留存', { exact: true }).click();
+    expect(await page.getByLabel('留存方式', { exact: true }).inputValue()).toBe('cache');
+    await page.getByLabel('留存方式', { exact: true }).selectOption('transient');
+    expect(await page.getByLabel('保留秒数', { exact: false }).inputValue()).toBe('30');
+    await page.locator('.session-item').first().click();
+    await page.getByRole('button', { name: '事件', exact: true }).click();
+    await page.getByLabel('事件交付', { exact: true }).selectOption('inline');
+    const open = page.locator(`[data-event-sequence="${event.sequence}"]`).getByRole('button', { name: '打开事件快照', exact: true });
+    await open.waitFor();
+    await t.engine.releaseEvidence(t.sessionId, observation.id);
+    expect((await t.engine.observationDetails(t.sessionId, observation.id)).availability.details.status).toBe('released');
+    const requests: string[] = [];
+    page.on('request', request => { if (/\/(details|dom|controls|artifacts|context)(\/|\?|$)/.test(new URL(request.url()).pathname)) requests.push(request.url()); });
+    await open.click();
+    await page.getByText('事件快照中的控件与操作；详情和 DOM 使用已交付内容，图片引用仍受服务端留存限制。', { exact: true }).waitFor();
+    await page.getByRole('button', { name: 'DOM / HTML', exact: true }).click();
+    await page.getByText('原始 HTML', { exact: true }).click();
+    expect(await page.locator('.evidence-inspector').innerText()).toContain('data-business-field="order.amount"');
+    await page.getByRole('button', { name: '截图', exact: true }).click();
+    expect(await page.getByAltText('历史视口截图').getAttribute('src')).toMatch(/^data:image\/png;base64,/);
+    await page.waitForFunction(() => (document.querySelector('img[alt="历史视口截图"]') as HTMLImageElement)?.naturalWidth > 0);
+    expect(requests).toEqual([]); expect(errors).toEqual([]);
+    expect(t.engine.session(t.sessionId).actionCount).toBe(0);
+  } finally { await browser.close(); await ui.close(); await app.close(); await t.close(); await fixture.server.close(); }
+});
