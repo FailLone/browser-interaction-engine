@@ -11,7 +11,7 @@ export interface Control extends CoreControl {
   tag: string; role: string; name: string; label: string; stableKey?: string;
   region: string; form: string; selector: string; rect: Rect;
   value: string; displayedText: string; checked: boolean | null; selected: string[];
-  visible: boolean; enabled: boolean; editable: boolean;
+  visible: boolean; enabled: boolean; editable: boolean; readOnly?: boolean;
   expanded: boolean | null; controls: string | null;
   constraints: { type: string; required: boolean; min?: string; max?: string; step?: string; pattern?: string; minLength?: number; maxLength?: number; valid: boolean };
   options: { value: string; label: string; disabled: boolean }[];
@@ -41,7 +41,7 @@ export interface SessionOptions {
   evidence: EvidenceOptions;
   evidenceRetention?: import('@interaction/core').EvidenceRetentionPolicy;
   exclude: MatchRule[]; replayable: MatchRule[]; context: Record<string, Json>; contextRules: ContextRule[];
-  exploration?: 'representative' | 'stateful';
+  exploration?: 'controls' | 'representative' | 'stateful';
   /** Application declarations; never inferred from button labels. */
   interfaceActions?: MatchRule[];
   reversible?: MatchRule[];

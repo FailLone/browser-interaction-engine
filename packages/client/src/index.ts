@@ -11,6 +11,7 @@ export class InteractionClient {
   evidenceCapabilities() { return this.request<typeof evidenceCapabilities>('/capabilities/evidence'); }
   createSession(options: Pick<SessionOptions, 'url'> & Partial<Omit<SessionOptions, 'evidence' | 'evidenceRetention'>> & { evidence?: Partial<EvidenceOptions>; evidenceRetention?: Pick<EvidenceRetentionPolicy, 'mode'> & Partial<EvidenceRetentionPolicy> }) { return this.request<Session>('/sessions', options); }
   session(id: string) { return this.request<Session>(`/sessions/${id}`); }
+  report(id: string) { return this.request<ReturnType<BrowserEngine['report']>>(`/sessions/${id}/report`); }
   observe(id: string) { return this.command<Observation>(id, { type: 'observe' }); }
   observation(id: string, observationId?: string) { return this.request<Observation>(`/sessions/${id}/observation${observationId ? `?id=${observationId}` : ''}`); }
   actions(id: string) { return this.request<ActionCandidate[]>(`/sessions/${id}/actions`); }

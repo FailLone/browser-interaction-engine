@@ -66,7 +66,7 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   returnAction?(actions: ActionCandidate[], observation: O): ActionCandidate | undefined;
   entryAction?(observation: O, session: Session<S>): ActionCandidate;
   /** Explicit sampling policy. This is not a state equivalence or independence claim. */
-  explorationCase?(action: ActionCandidate, observation: O): ExplorationCase | undefined;
+  explorationCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
   /** Optional structural scope for representative depth budgets; raw visit depth is retained. */
   explorationScope?(observation: O): string;
   /** Only explicitly declared reversible operations may produce local restoration steps. */

@@ -6,6 +6,8 @@ import { explainBrowserDiff } from './diff-details.js';
 export * from './diff-details.js';
 import { BrowserEvidenceQueries, type DomQuery, type ArtifactKind } from './evidence.js';
 import { withFrontierStates } from './frontier.js';
+import { describeControlCoverage } from './control-coverage.js';
+export * from './control-coverage.js';
 export * from '@interaction/adapter-playwright';
 export * from './evidence.js';
 export * from './evidence-availability.js';
@@ -17,6 +19,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   private subscriptions = new Set<ReturnType<typeof subscribeEvents>>();
   private readonly evidenceQueries = new BrowserEvidenceQueries(this);
   override frontierCoverage(sessionId: string) { return withFrontierStates(super.frontierCoverage(sessionId), id => this.store.get<Observation>('observation', id)); }
+  controlCoverage(sessionId: string) { return describeControlCoverage(this.list<Observation>(sessionId, 'observation'), this.list(sessionId, 'attempt')); }
+  override report(sessionId: string) { return { ...super.report(sessionId), controlCoverage: this.controlCoverage(sessionId) }; }
   observationDetails(sessionId: string, observationId: string) { return this.evidenceQueries.details(sessionId, observationId); }
   controlDetails(sessionId: string, observationId: string, controlId: string) { return this.evidenceQueries.control(sessionId, observationId, controlId); }
   regionDetails(sessionId: string, observationId: string, key: string) { return this.evidenceQueries.region(sessionId, observationId, key); }

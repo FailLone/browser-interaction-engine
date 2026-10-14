@@ -4,8 +4,9 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createServer, type ViteDevServer } from 'vite';
 import { InteractionEngine, type EngineHooks, type SessionOptions, type ActionCandidate } from '@interaction/browser';
-export async function fixtureServer() {
-  const server = await createServer({ root: resolve('apps/test-site'), server: { port: 0, strictPort: false }, logLevel: 'error' }); await server.listen();
+export async function fixtureServer(transform?: (source: string) => string) {
+  const server = await createServer({ root: resolve('apps/test-site'), server: { port: 0, strictPort: false }, logLevel: 'error',
+    plugins: transform ? [{ name: 'fixture-variation', enforce: 'pre', transform(code, id) { if (id.split('?')[0].endsWith('/src/main.tsx')) return transform(code); } }] : [] }); await server.listen();
   const address = server.httpServer!.address() as { port: number }; return { server, url: `http://127.0.0.1:${address.port}` };
 }
 export async function testEngine(url: string, options: Partial<SessionOptions> = {}, hooks: EngineHooks = {}) {

@@ -34,7 +34,7 @@
 
 ## 疑似操作
 
-疑似操作写入 action 和 frontier，并发出持久化 `action.tentative` 事件。默认待办为 blocked，原因为 `action_basis_unconfirmed`；其他更直接的阻塞条件优先显示。DFS 跳过它，保留未确认范围，不将其视为已完成。
+疑似操作写入 action，并发出持久化 `action.tentative` 事件。控件覆盖模式不为其生成自动探索待办，在 controlCoverage 中单独报告未确认范围；representative/stateful 保留 blocked 待办，原因为 `action_basis_unconfirmed`，其他更直接的阻塞条件优先显示。自动探索均跳过它，不将其视为已完成。
 
 外部明确调用 `execute(sessionId, actionId, requestId)` 可以试探候选。UI 按钮标为“试探”。试探仍使用统一队列、最新观察、目标唯一性、弹层边界和预算检查。疑似操作及其迁移不可自动重放，恢复也不会把它作为自动关闭动作。
 

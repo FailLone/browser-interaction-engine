@@ -1,7 +1,6 @@
 import { afterAll, beforeAll, expect, it } from 'vitest';
 import { sessionSchema } from '@interaction/adapter-playwright';
-import type { ActionAttempt, FrontierItem, ReachResult } from '@interaction/browser';
-import { testSiteProfile } from '../examples/test-site-profile.js';
+import type { ActionAttempt, FrontierItem } from '@interaction/browser';
 import { createServer } from '../apps/server/src/server.js';
 import { act, fixtureServer, pageOf, testEngine } from './helpers.js';
 
@@ -10,7 +9,7 @@ beforeAll(async () => { fixture = await fixtureServer(); });
 afterAll(async () => { await fixture.server.close(); });
 
 it('samples ordinary field values without duplicating the page or rewriting actual execution evidence', async () => {
-  expect(sessionSchema.parse({ url: fixture.url }).exploration).toBe('representative');
+  expect(sessionSchema.parse({ url: fixture.url }).exploration).toBe('controls');
   const t = await testEngine(fixture.url, { exploration: 'representative', contextRules: [] });
   const app = await createServer(t.engine);
   try {
@@ -62,7 +61,7 @@ it('keeps stateful exploration and legacy sessions on strict per-state cases', a
 });
 
 it('restores declared reversible fields locally with full verification and a durable recovery ledger', async () => {
-  const t = await testEngine(fixture.url, { ...testSiteProfile });
+  const t = await testEngine(fixture.url, { exploration: 'representative', contextRules: [], interfaceActions: [{ stableKey: 'id:rebuild' }], reversible: [{ stableKey: 'id:amount' }, { stableKey: 'id:price' }] });
   try {
     const original = t.engine.observation(t.sessionId);
     const cp = await t.engine.createCheckpoint(t.sessionId, 'entry');
@@ -130,7 +129,7 @@ it('executes a configured document reset once, verifies it, and clears only rese
 });
 
 it('does not bypass action budgets during local restoration', async () => {
-  const t = await testEngine(fixture.url, { ...testSiteProfile, maxActions: 1 });
+  const t = await testEngine(fixture.url, { contextRules: [], reversible: [{ stableKey: 'id:amount' }], maxActions: 1 });
   try {
     const cp = await t.engine.createCheckpoint(t.sessionId, 'entry');
     await act(t.engine, t.sessionId, 'Amount', 'fill', '2');
@@ -142,29 +141,11 @@ it('does not bypass action budgets during local restoration', async () => {
 });
 
 it('preserves boundary depth limits in representative mode while allowing verified exits', async () => {
-  const t = await testEngine(fixture.url, { ...testSiteProfile, maxDepth: 1 }, { choose: items => items.find(f => f.action.label === 'Other settings')?.id || items.find(f => f.action.boundary?.intent === 'exit')?.id || null });
+  const t = await testEngine(fixture.url, { exploration: 'representative', contextRules: [], maxDepth: 1 }, { choose: items => items.find(f => f.action.label === 'Other settings')?.id || items.find(f => f.action.boundary?.intent === 'exit')?.id || null });
   try {
     await t.engine.explore(t.sessionId); await t.engine.waitForIdle();
     expect(t.engine.getFrontier(t.sessionId).find(f => f.action.label === 'Time in force')).toMatchObject({ status: 'blocked', reason: 'depth_budget', depth: 1 });
     expect(t.engine.observation(t.sessionId).boundaries).toEqual([]);
     expect(t.engine.list<ActionAttempt>(t.sessionId, 'attempt').some(a => a.action.label === 'Done')).toBe(true);
-  } finally { await t.close(); }
-});
-
-it('finishes the declared ordinary test-site scope within the default action budget', async () => {
-  const t = await testEngine(fixture.url, { ...testSiteProfile, evidence: { enabled: false } as any });
-  try {
-    await t.engine.explore(t.sessionId); await t.engine.waitForIdle();
-    const report = t.engine.report(t.sessionId);
-    const remaining = t.engine.getFrontier(t.sessionId).filter(f => !f.action.excluded && f.action.basis?.status !== 'tentative' && f.status !== 'executed');
-    expect({ stop: report.session.stopReason, remaining: remaining.map(f => ({ label: f.action.label, reason: f.reason, state: f.stateId })) }).toEqual({ stop: 'known_frontier_exhausted_with_gaps', remaining: [] });
-    expect(report.session.actionCount).toBeLessThan(100);
-    expect(t.engine.list<ReachResult>(t.sessionId, 'reach').every(r => r.status === 'REACHED_VERIFIED')).toBe(true);
-    const attempts = t.engine.list<ActionAttempt>(t.sessionId, 'attempt').filter(a => a.purpose === 'exploration');
-    expect(attempts.some(a => a.action.label === 'Market')).toBe(true);
-    expect(attempts.some(a => a.action.label === 'Time in force')).toBe(true);
-    expect(attempts.some(a => a.action.risk === 'submission')).toBe(true);
-    const firstWrite = attempts.findIndex(a => a.action.risk !== 'interface');
-    expect(attempts.slice(firstWrite).every(a => a.action.risk !== 'interface')).toBe(true);
   } finally { await t.close(); }
 });

@@ -3,6 +3,11 @@ import type { ActionCandidate, Observation, Session } from './types.js';
 import { ruleMatches } from './util.js';
 export function constrain(action: ActionCandidate, observation: Observation, session: Session) {
   const control = observation.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
+  if (session.options.exploration === 'controls' && control?.hypothesisId) {
+    action.target = { kind: 'instance', instanceScope: observation.instanceScope, instanceId: control.instanceId,
+      evidence: ['Unique current node instance; historical logical identity remains unresolved', `observation:${observation.id}`] };
+    action.replayable = false;
+  }
   action.basis ??= control?.actionBasis?.[action.kind] || { status: 'tentative', evidence: [{ source: action.source || 'external', rule: 'missing-operation-evidence/v1', facts: { kind: action.kind } }] };
   const active = observation.overlays?.at(-1);
   action.preconditions.blockers = [];

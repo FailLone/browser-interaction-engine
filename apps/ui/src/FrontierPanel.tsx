@@ -7,11 +7,12 @@ const executionText: Record<FrontierItemView['coverage']['executionStatus'], str
   not_attempted: '尚未执行', executing: '执行中', succeeded: '已执行成功', failed: '已尝试，执行失败', blocked: '已尝试，执行受阻', unknown: '执行结果未知',
 };
 const statusText: Record<FrontierItemView['status'], string> = {
-  pending: '待执行', executing: '执行中', executed: '已执行', blocked: '受阻', unknown: '结果未知', needs_revalidation: '需重新验证',
+  pending: '待执行', executing: '执行中', executed: '已执行', blocked: '受阻', unknown: '结果未知', needs_revalidation: '需重新验证', superseded: '已由当前滚动位置替代',
 };
 function groupLabel(group: BrowserFrontierCoverageGroup) {
   const unit = group.kind === 'fill' ? '样本' : '测试项';
-  if (group.coverageStatus === 'complete') return group.items.some(f => f.sampling) ? '代表性样本均已执行' : '已发现测试项均已执行';
+  if (group.items.every(f => f.status === 'superseded')) return '历史遍历意图（未执行）';
+  if (group.coverageStatus === 'complete') return group.items.some(f => f.sampling) ? '所选操作样本均已执行' : '已发现测试项均已执行';
   if (group.coverageStatus === 'partial') return group.counts.blocked ? `已探索，仍有${unit}受阻` : '已探索，仍有测试项待完成';
   if (group.coverageStatus === 'attempted') return '已尝试，仍有测试项待确认';
   return group.counts.blocked ? `尚未执行，存在受阻${unit}` : '尚未执行';
@@ -19,7 +20,7 @@ function groupLabel(group: BrowserFrontierCoverageGroup) {
 type Props = { groups: BrowserFrontierCoverageGroup[]; blockerText: Record<string, string>; unblockText: Record<string, string>; inspectObservation?: (id: string) => unknown };
 export function FrontierPanel({ groups, ...props }: Props) {
   return <>
-    <p className="muted">每行展示计划使用的输入与执行前界面，并对照成功记录列出差异。代表性探索按抽样条件安排操作，不覆盖全部字段组合；逐状态探索保留每个界面的独立测试。已执行记录始终对应实际执行时的界面。</p>
+    <p className="muted">每行展示操作样本与执行前界面。控件覆盖优先完成每个控件的支持操作；代表性模式增加界面结构等取样条件；逐状态模式保留每个界面的独立测试。样本完成度独立于上方的控件计数，已执行记录始终对应真实执行条件。</p>
     {groups.map(group => <FrontierGroup key={group.id} group={group} {...props} />)}
     {!groups.length && <div className="empty">当前没有探索待办。</div>}
   </>;

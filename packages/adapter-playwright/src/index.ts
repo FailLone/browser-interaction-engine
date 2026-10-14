@@ -4,7 +4,7 @@ import { observableCanonical, compareObservations } from './model.js';
 import { sessionSchema } from './schema.js';
 import { signature } from './util.js';
 import { constrain } from './policy.js';
-import { explorationCase, restorationStep } from './exploration.js';
+import { controlCase, explorationCase, restorationStep } from './exploration.js';
 import type { ActionCandidate, Control, EngineHooks, Observation, Session, SessionOptions } from './types.js';
 export * from './types.js';
 export { sessionSchema, commandSchema, predicateSchema, domQuerySchema, artifactKindSchema } from './schema.js';
@@ -20,7 +20,7 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   normalize = observableCanonical;
   compare = compareObservations;
   constrain = constrain;
-  explorationCase = explorationCase;
+  explorationCase(a: ActionCandidate, o: Observation, s: Session) { return s.options.exploration === 'controls' ? controlCase(a, o) : explorationCase(a, o); }
   explorationScope(o: Observation) { return canonical({ url: o.url, boundaries: o.boundaries?.map(b => b.key) || [] }); }
   restorationStep = restorationStep;
   testPredicate(predicate: Predicate, observation: Observation): 'pass' | 'fail' | 'unknown' {

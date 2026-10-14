@@ -27,6 +27,30 @@ export function explorationCase(action: ActionCandidate, o: Observation): Explor
   ] };
 }
 
+/** Control/operation coverage, independent of other controls' input combinations. */
+export function controlCase(action: ActionCandidate, o: Observation): ExplorationCase | undefined {
+  if (!action.controlId && ['scroll', 'press'].includes(action.kind)) return {
+    key: hash({ url: o.url, boundaries: o.boundaries?.map(b => b.key) || [], kind: action.kind,
+      viewport: action.kind === 'scroll' ? o.scroll : undefined }), policy: 'browser-controls-v1',
+    evidence: ['Traversal operation grouped by interaction scope and viewport, independent of form values'],
+  };
+  const c = o.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
+  if (!c || o.gaps.some(g => g.critical)) return;
+  return { key: hash({ url: o.url, boundary: o.boundaries?.map(b => b.key) || [], shape: shape(c),
+    instance: action.target?.instanceId, basis: action.basis }), policy: 'browser-controls-v1',
+    evidence: ['One operation sample per encountered control, target constraints, option and declared context',
+      'Current-instance targets do not assert historical identity; all combinations are outside this coverage unit'] };
+}
+
+/** A changing read-only display is evidence, not an unstable editable target. */
+export function interactionProjection(o: Pick<Observation, 'documentId' | 'url' | 'controls' | 'boundaries' | 'scroll'>) {
+  return canonical({ document: o.documentId, url: o.url, boundaries: o.boundaries?.map(b => b.key) || [], scroll: o.scroll,
+    controls: o.controls.filter(c => Object.entries(c.actionBasis || {}).some(([kind, b]) => b.status === 'supported' && !(c.readOnly && kind === 'fill'))).map(c => ({
+      instance: c.instanceId, shape: shape(c), value: c.value, checked: c.checked, selected: c.selected, expanded: c.expanded,
+      text: c.displayedText, rect: c.rect, actionable: c.actionable, basis: c.actionBasis,
+    })) });
+}
+
 /** Only application-declared reversibility permits synthesizing an inverse operation. */
 export function restorationStep(target: Observation, current: Observation, session: Session): RestorationStep | undefined {
   if (!session.options.reversible?.length || target.url !== current.url || canonical(target.context) !== canonical(current.context)

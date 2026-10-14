@@ -11,6 +11,6 @@ export const sessionSchema = z.object({
   maxDepth: z.number().int().positive().max(100).default(10),
   maxDurationMs: z.number().int().positive().max(86400000).default(600000),
   context: z.record(z.string(), z.json()).default({}),
-  exploration: z.enum(['representative', 'stateful']).default('stateful'),
+  exploration: z.enum(['controls', 'representative', 'stateful']).default('stateful'),
   evidenceRetention: evidenceRetentionSchema.optional(),
 });

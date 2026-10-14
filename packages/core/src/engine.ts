@@ -78,7 +78,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   report(sessionId: string) {
     const frontier = this.list<FrontierItem>(sessionId, 'frontier'); const attempts = this.list<ActionAttempt>(sessionId, 'attempt'); const observations = this.list<O>(sessionId, 'observation');
     const counts = (items: { status: string }[]) => items.reduce<Record<string, number>>((out, i) => { out[i.status] = (out[i.status] || 0) + 1; return out; }, {});
-    return { session: this.session(sessionId), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), frontierCoverage: this.frontierCoverage(sessionId).map(({ id, controlId, kind, label, coverageStatus, counts }) => ({ id, controlId, kind, label, coverageStatus, counts })), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), exploration: this.session(sessionId).options.exploration || 'stateful', coverage: this.session(sessionId).options.exploration === 'representative' ? 'representative operation samples only; untested starting values, field combinations and undiscovered behavior remain unknown' : 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
+    return { session: this.session(sessionId), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), frontierCoverage: this.frontierCoverage(sessionId).map(({ id, controlId, kind, label, coverageStatus, counts }) => ({ id, controlId, kind, label, coverageStatus, counts })), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), exploration: this.session(sessionId).options.exploration || 'stateful', coverage: this.session(sessionId).options.exploration === 'controls' ? 'encountered control operations; values and constraints are sampled, not exhaustive combinations or business assertions' : this.session(sessionId).options.exploration === 'representative' ? 'representative operation samples only; untested starting values, field combinations and undiscovered behavior remain unknown' : 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
   }
   async createSession(input: unknown): Promise<Session<S>> {
     const options = this.adapter.parseOptions(input);
@@ -124,7 +124,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const parent = parentId ?? previous?.visitId;
     const parentVisit = parent ? this.store.get<Visit>('visit', parent) : undefined;
     const visit: Visit = { id: o.visitId, sessionId, stateId: o.stateId, observationId: o.id, parentId: parent, viaAttemptId: attemptId, depth: (parentVisit?.depth ?? 0) + (attemptId ? 1 : 0), at: now() };
-    if (session.options.exploration === 'representative' && this.adapter.explorationScope) {
+    if (session.options.exploration !== 'stateful' && !!session.options.exploration && this.adapter.explorationScope) {
       visit.explorationScope = this.adapter.explorationScope(o);
       const earlier = this.store.list<Visit>('visit', sessionId).filter(v => v.explorationScope === visit.explorationScope && v.explorationDepth !== undefined);
       const depth = parentVisit ? (parentVisit.explorationDepth ?? parentVisit.depth) + Number(parentVisit.explorationScope !== visit.explorationScope) : 0;
@@ -166,17 +166,17 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       }
       for (const action of actions) {
         this.store.put('action', action);
+        if (action.basis?.status === 'tentative') this.emit(sessionId, 'action.tentative', { actionId: action.id, observationId: o.id, basis: action.basis });
         // These remain inspectable candidates. Their parent-state work is queued
         // only when that state is observed without the exclusive child boundary.
-        if (this.outsideBoundary(action)) continue;
+        if (this.outsideBoundary(action) || session.options.exploration === 'controls' && action.basis?.status === 'tentative') continue;
         const key = this.frontierKey(action, o);
         const sample = this.samplingCase(action, o);
         const existing = this.store.list<FrontierItem>('frontier', sessionId).find(f => f.key === key);
         const blocker = action.preconditions.blockers?.[0];
         const tentative = action.basis?.status === 'tentative';
-        const reason = action.exclusionReason || (!action.preconditions.identityResolved ? 'identity_ambiguous' : !action.preconditions.enabled ? 'disabled' : blocker?.code) || (tentative ? 'action_basis_unconfirmed' : undefined);
+        const reason = action.exclusionReason || (!this.targetResolved(action, o) ? 'identity_ambiguous' : !action.preconditions.enabled ? 'disabled' : blocker?.code) || (tentative ? 'action_basis_unconfirmed' : undefined);
         const unblock = blocker?.unblock || (tentative ? 'Explicitly execute a probe, or supply an action hook with supporting evidence' : undefined);
-        if (tentative) this.emit(sessionId, 'action.tentative', { actionId: action.id, observationId: o.id, basis: action.basis });
         if (!existing) {
           const f: FrontierItem = { id: id(), sessionId, key, stateId: o.stateId, contextKey: contextKey(o.context), action, status: reason || action.excluded ? 'blocked' : 'pending', reason, unblock, depth: frontierDepth, attempts: [] };
           if (sample) f.sampling = { policy: sample.policy, evidence: sample.evidence, observationIds: [o.id] };
@@ -190,11 +190,21 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
             existing.action = action;
             if (existing.sampling) { existing.stateId = o.stateId; existing.depth = Math.min(existing.depth, frontierDepth); }
           }
-          if (existing.status === 'pending' || temporarilyBlocked || (existing.status === 'blocked' && (existing.reason === 'identity_ambiguous' && action.preconditions.identityResolved || !!existing.recovery && !!existing.sampling && !existing.attempts.length)) || existing.status === 'needs_revalidation') {
+          if (existing.status === 'pending' || existing.status === 'superseded' || temporarilyBlocked || (existing.status === 'blocked' && (existing.reason === 'identity_ambiguous' && action.preconditions.identityResolved || !!existing.recovery && !!existing.sampling && !existing.attempts.length)) || existing.status === 'needs_revalidation') {
             existing.status = reason || action.excluded ? 'blocked' : 'pending'; existing.reason = reason; existing.unblock = unblock;
             existing.recovery = undefined;
           }
           this.store.put('frontier', existing);
+        }
+      }
+      if (session.options.exploration === 'controls' && this.adapter.explorationScope && !o.gaps.some(g => g.critical)) {
+        const scope = this.adapter.explorationScope(o);
+        const currentKeys = new Set(actions.map(a => this.frontierKey(a, o)));
+        // Scroll is traversal from a live viewport, not a demand to recreate a
+        // historical business state. Preserve unused intents as unexecuted history.
+        for (const f of this.frontier(sessionId)) if (!f.attempts.length && !f.action.controlId && f.action.kind === 'scroll'
+          && !currentKeys.has(f.key) && this.adapter.explorationScope(this.observation(sessionId, f.action.observationId)) === scope) {
+          f.status = 'superseded'; f.reason = 'traversal_position_changed'; f.unblock = undefined; f.recovery = undefined; this.store.put('frontier', f);
         }
       }
       session = this.session(sessionId); session.currentObservationId = o.id; this.store.put('session', session);
@@ -226,12 +236,20 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     } catch (error) { await this.store.evidence.endObservation?.(observationId, !!this.store.get('observation', observationId)); throw error; }
   }
   private samplingCase(a: ActionCandidate, observation?: O) {
-    if (this.session(a.sessionId).options.exploration !== 'representative' || !a.controlId || !a.preconditions.identityResolved) return undefined;
-    return this.adapter.explorationCase?.(a, observation || this.observation(a.sessionId, a.observationId));
+    const session = this.session(a.sessionId); const o = observation || this.observation(a.sessionId, a.observationId);
+    if (!['representative', 'controls'].includes(session.options.exploration || '') || !a.controlId && session.options.exploration !== 'controls' || !this.targetResolved(a, o)) return undefined;
+    return this.adapter.explorationCase?.(a, o, session);
   }
   private frontierKey(a: ActionCandidate, observation?: O) {
     const sample = this.samplingCase(a, observation);
     return hash({ ...(sample ? { sample: sample.key, policy: sample.policy } : { state: a.stateId }), control: a.controlId, kind: a.kind, value: a.value, context: a.preconditions.context });
+  }
+  private targetResolved(action: ActionCandidate, o: O) {
+    if (action.preconditions.identityResolved) return true;
+    const target = action.target;
+    const matches = o.controls.filter(c => c.instanceId === target?.instanceId);
+    return this.session(action.sessionId).options.exploration === 'controls' && target?.kind === 'instance' && target.instanceScope === o.instanceScope
+      && matches.length === 1 && matches[0].localId === action.localId && matches[0].identityId === action.controlId;
   }
   private constrain(action: ActionCandidate, observation: O, session: Session<S>) {
     const result = this.adapter.constrain(action, observation, session);
@@ -241,6 +259,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const control = observation.controls.find(c => c.identityId === result.controlId && c.localId === result.localId);
     if (result.controlId && !control) { result.excluded = true; result.exclusionReason = 'unknown_control'; }
     result.preconditions = { ...result.preconditions, context: observation.context, visible: control?.visible ?? true, enabled: control?.enabled ?? true, identityResolved: !control?.hypothesisId };
+    result.preconditions.targetResolved = !!this.targetResolved(result, observation);
+    if (result.target) result.replayable = false;
     const active = observation.boundaries?.at(-1);
     if (active && result.boundary?.key !== active.key && !result.preconditions.blockers?.some(b => b.code === 'outside_active_boundary')) {
       (result.preconditions.blockers ??= []).push({ code: 'outside_active_boundary', boundaryKey: active.key, evidence: active.evidence, unblock: `Exit and verify ${active.name} before interacting with its parent` });
@@ -275,7 +295,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (current.id !== original.observationId) throw new EngineError('STALE_OBSERVATION', 'Choose an action from the latest observation', { observationId: current.id, actions: this.actions(sessionId) });
     if (original.excluded && original.exclusionReason !== 'input_sample_required') throw new EngineError('ACTION_EXCLUDED', original.exclusionReason || 'Action excluded');
     if (original.basis?.status === 'tentative' && purpose !== 'external') throw new EngineError('ACTION_BLOCKED', 'action_basis_unconfirmed');
-    if (!original.preconditions.identityResolved) throw new EngineError('IDENTITY_AMBIGUOUS', 'Resolve the identity before acting');
+    if (!this.targetResolved(original, current)) throw new EngineError('IDENTITY_AMBIGUOUS', 'Resolve the identity before acting');
     const preflight = await this.driver!.preflight(current);
     if (preflight !== 'valid') {
       const fresh = await this.capture(sessionId, 'external');
@@ -433,7 +453,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (checks.some(c => c.result === 'unknown')) return { status: 'UNVERIFIED', checks };
     for (const [key, expected] of Object.entries(checkpoint.context)) { const actual = o.context[key]; checks.push({ name: `context:${key}`, result: !actual || actual.status === 'unknown' || expected.status === 'unknown' ? 'unknown' : canonical(actual.value) === canonical(expected.value) ? 'pass' : 'fail' }); }
     if (checks.some(c => c.result === 'fail')) return { status: 'PRECONDITIONS_CHANGED', checks };
-    if (o.gaps.some(g => g.critical) || checks.some(c => c.result === 'unknown')) return { status: 'UNVERIFIED', checks: [...checks, { name: 'observation-completeness', result: 'unknown' }] };
+    if (!o.stable || o.gaps.some(g => g.critical) || checks.some(c => c.result === 'unknown')) return { status: 'UNVERIFIED', checks: [...checks, { name: 'observation-completeness', result: 'unknown' }] };
     for (const [i, p] of checkpoint.predicates.entries()) checks.push({ name: `predicate:${i}`, result: this.testPredicate(p, o) });
     checks.push({ name: 'observable-state', result: o.canonical === this.observation(sessionId, checkpoint.observationId).canonical ? 'pass' : 'fail' });
     if (this.hooks.verify) { const h = await this.hook(sessionId, 'verify', () => this.hooks.verify!(structuredClone(checkpoint), structuredClone({ session: this.session(sessionId), observation: o }))); checks.push({ name: `verifier:${h.value?.evidence.join('; ') || h.error || ''}`, result: h.value?.result || 'unknown' }); }
@@ -577,7 +597,32 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     });
   }
   async waitForIdle() { await this.runner; await this.queue; }
+  /** Re-enter a previously observed interaction scope without claiming checkpoint equality. */
+  private async enterFrontierScope(sessionId: string, item: FrontierItem, tried: Set<string>) {
+    const current = this.observation(sessionId);
+    if (current.boundaries?.length || tried.has(item.id) || !this.adapter.explorationScope) return false;
+    const target = this.observation(sessionId, item.action.observationId);
+    const boundary = target.boundaries?.[0];
+    if (!boundary || contextKey(current.context) !== item.contextKey) return false;
+    const openers = this.store.list<ActionAttempt>('attempt', sessionId).filter(a => a.status === 'succeeded' && a.afterId && a.action.risk === 'interface' && a.action.replayable
+      && contextKey(a.action.preconditions.context) === item.contextKey
+      && this.adapter.explorationScope!(this.observation(sessionId, a.beforeId)) === this.adapter.explorationScope!(current)
+      && !this.observation(sessionId, a.beforeId).boundaries?.some(b => b.key === boundary.key)
+      && this.observation(sessionId, a.afterId).boundaries?.some(b => b.key === boundary.key));
+    for (const old of openers) {
+      const matches = this.actions(sessionId).filter(a => this.adapter.replayMatches(a, old.action) && a.replayable && a.risk === 'interface'
+        && !a.excluded && !a.preconditions.blockers?.length && a.preconditions.enabled && this.targetResolved(a, current));
+      if (matches.length !== 1) continue;
+      tried.add(item.id);
+      const result = await this.runAction(sessionId, matches[0].id, id(), old.action.value, 'recovery');
+      this.emit(sessionId, 'exploration.scope_reentry', { frontierId: item.id, attemptId: result.id, boundaryKey: boundary.key,
+        entered: this.observation(sessionId).boundaries?.some(b => b.key === boundary.key) || false });
+      return true;
+    }
+    return false;
+  }
   private async explorationLoop(sessionId: string, epoch: number) {
+    const triedScopeEntries = new Set<string>();
     while (!this.pauseRequested && !this.closing && epoch === this.runEpoch) {
       try {
         const keepGoing = await this.enqueueMeasured(sessionId, async () => {
@@ -592,17 +637,21 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           let pending = this.frontier(sessionId).filter(f => f.status === 'pending');
           const boundary = o.boundaries?.at(-1);
           const isExit = (f: FrontierItem) => !!boundary && f.stateId === o.stateId && f.action.boundary?.key === boundary.key && f.action.boundary.intent === 'exit';
+          const explored = new Set(this.store.list<ActionAttempt>('attempt', sessionId).filter(a => a.status === 'succeeded').map(a => a.action.controlId));
+          const novelty = (f: FrontierItem) => session.options.exploration === 'controls' && (f.action.kind === 'scroll' || f.action.controlId && !explored.has(f.action.controlId)) ? 0 : 1;
           for (const f of pending.filter(f => f.depth >= session.options.maxDepth && !isExit(f))) { f.status = 'blocked'; f.reason = 'depth_budget'; f.unblock = 'Increase maxDepth'; this.store.put('frontier', f); }
           pending = pending.filter(f => f.depth < session.options.maxDepth || isExit(f)).sort((a, b) => b.depth - a.depth);
           if (boundary) {
             // Never navigate to another branch while an exclusive interaction is open.
             // Adapters classify targets; core only enforces the generic boundary contract.
             pending = pending.filter(f => f.stateId === o.stateId && f.action.boundary?.key === boundary.key && !f.action.preconditions.blockers?.length);
-            pending.sort((a, b) => Number(isExit(a)) - Number(isExit(b)));
+            pending.sort((a, b) => Number(isExit(a)) - Number(isExit(b))
+              || (session.options.exploration === 'controls' ? Number(a.action.risk !== 'interface') - Number(b.action.risk !== 'interface') : 0)
+              || novelty(a) - novelty(b));
             if (!pending.length) {
               // Sampling can finish this scope before a later visit. Exiting is
               // still necessary traversal work, even when its sample was executed.
-              if (session.options.exploration === 'representative') {
+              if (['controls', 'representative'].includes(session.options.exploration || '')) {
                 const scope = this.store.list<InteractionScope>('scope', sessionId).find(s => s.status === 'open' && s.boundaryKey === boundary.key);
                 const attempted = new Set((scope?.attemptIds || []).flatMap(aid => {
                   const a = this.store.get<ActionAttempt>('attempt', aid);
@@ -616,12 +665,12 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
               return false;
             }
           }
-          if (!pending.length) { session.status = 'finished'; session.stopReason = this.frontier(sessionId).some(f => f.status !== 'executed') ? 'known_frontier_exhausted_with_gaps' : 'known_frontier_exhausted'; this.store.put('session', session); this.emit(sessionId, 'exploration.finished', this.report(sessionId)); return false; }
-          // Exhaust ordinary work before risking a write or unknown effect, including
-          // ordinary work in another branch. A caller's strategy may override ordering.
-          const riskOrdered = !boundary && session.options.exploration === 'representative';
-          if (riskOrdered) pending.sort((a, b) => Number(a.action.risk !== 'interface') - Number(b.action.risk !== 'interface') || b.depth - a.depth);
-          const pool = riskOrdered ? pending.filter(f => (f.action.risk === 'interface') === (pending[0].action.risk === 'interface')) : pending;
+          if (!pending.length) { session.status = 'finished'; session.stopReason = this.frontier(sessionId).some(f => !['executed', 'superseded'].includes(f.status)) ? 'known_frontier_exhausted_with_gaps' : 'known_frontier_exhausted'; this.store.put('session', session); this.emit(sessionId, 'exploration.finished', this.report(sessionId)); return false; }
+          // Controls mode prefers unseen targets; risk breaks ties. Representative
+          // mode exhausts ordinary work first. The caller may override ordering.
+          const riskOrdered = !boundary && ['controls', 'representative'].includes(session.options.exploration || '');
+          if (riskOrdered) pending.sort((a, b) => novelty(a) - novelty(b) || Number(a.action.risk !== 'interface') - Number(b.action.risk !== 'interface') || b.depth - a.depth);
+          const pool = riskOrdered ? pending.filter(f => novelty(f) === novelty(pending[0]) && (f.action.risk === 'interface') === (pending[0].action.risk === 'interface')) : pending;
           let chosen = pool.find(f => f.stateId === o.stateId) || pool[0];
           if (this.hooks.choose) {
             const result = await this.hook(sessionId, 'choose', () => this.hooks.choose!(describeFrontier(structuredClone(pending), this.store.list<ActionAttempt>('attempt', sessionId)), structuredClone({ session, observation: o })));
@@ -629,6 +678,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
             const item = pending.find(f => f.id === result.value); if (!item) throw new EngineError('INVALID_STRATEGY_CHOICE', 'Strategy returned an unknown frontier item'); chosen = item;
           }
           if (chosen.stateId !== this.observation(sessionId).stateId) {
+            if (session.options.exploration === 'controls' && await this.enterFrontierScope(sessionId, chosen, triedScopeEntries)) return true;
             const state = this.owned<UIState>('state', chosen.stateId, sessionId); const checkpoint = this.checkpointInternal(sessionId, 'Exploration branch', [], [], state.observationIds[0]);
             const result = await this.reachInternal(sessionId, checkpoint.id);
             if (result.status !== 'REACHED_VERIFIED') { chosen.status = 'blocked'; chosen.reason = result.reason; chosen.unblock = 'Reach the branch checkpoint or repair its preconditions';

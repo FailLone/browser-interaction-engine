@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import type { EvidenceStore, InteractionDriver, HookInvoker } from '@interaction/core';
 import { canonical, timeout, hash } from '@interaction/core';
 import { observableCanonical } from './model.js';
+import { interactionProjection } from './exploration.js';
 import type { Session, EngineHooks } from './types.js';
 import { constrain } from './policy.js';
 import { id } from './util.js';
@@ -83,7 +84,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
       checked: ['checkbox', 'radio'].includes(type) ? e.checked : el.hasAttribute('aria-checked') ? el.getAttribute('aria-checked') === 'true' : null,
       selected: el.tagName === 'SELECT' ? [...(el as HTMLSelectElement).selectedOptions].map(o => o.value) : el.getAttribute('aria-selected') === 'true' ? [name] : [],
-      visible: !!visible, enabled: !!enabled, editable: !!editable, expanded: el.hasAttribute('aria-expanded') ? el.getAttribute('aria-expanded') === 'true' : null, controls: el.getAttribute('aria-controls'),
+      visible: !!visible, enabled: !!enabled, editable: !!editable, readOnly: !!e.readOnly || el.getAttribute('aria-readonly') === 'true', expanded: el.hasAttribute('aria-expanded') ? el.getAttribute('aria-expanded') === 'true' : null, controls: el.getAttribute('aria-controls'),
       constraints: { type, required: !!e.required, min: e.min || undefined, max: e.max || undefined, step: e.step || undefined, pattern: e.pattern || undefined, minLength: e.minLength >= 0 ? e.minLength : undefined, maxLength: e.maxLength >= 0 ? e.maxLength : undefined, valid: e.validity?.valid ?? true },
       options, ...capabilities, discovery: [...query.split(',').filter(q => el.matches(q)).map(q => `selector:${q}`), ...(typeof (el as HTMLElement).onclick === 'function' ? ['property:onclick'] : []), ...(style.cursor === 'pointer' ? ['style:cursor=pointer'] : [])],
       actionable: { visible: !!visible, enabled: !!enabled, editable: !!editable, hitTarget: isInView ? !!hit && (hit === el || el.contains(hit)) : null, unknown: ['event-handler-completeness', 'business-preconditions', ...(!isInView ? ['off-viewport-hit-target'] : [])] },
@@ -138,6 +139,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   async capture(observationId: string) {
     if (!this.page) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
     let previous = ''; let unchangedSince = Date.now(); const deadline = Date.now() + this.options.observeTimeoutMs; let stable = false;
+    let previousInteraction = ''; let interactionSince = Date.now(); let interactionStable = false;
     let dom: Awaited<ReturnType<BrowserAdapter['readDOM']>> | undefined;
     let lastError: string | undefined;
     do {
@@ -147,9 +149,13 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         const incomplete = dom.gaps.some(g => ['DOM_ROOT_UNAVAILABLE', 'DOCUMENT_LOADING'].includes(g.code));
         const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
         if (key !== previous || incomplete) { previous = key; unchangedSince = Date.now(); }
+        const interactive = interactionProjection(dom);
+        if (interactive !== previousInteraction || incomplete) { previousInteraction = interactive; interactionSince = Date.now(); }
+        interactionStable = !incomplete && Date.now() - interactionSince >= this.options.settleMs;
         if (!incomplete && Date.now() - unchangedSince >= this.options.settleMs) { stable = true; break; }
+        if (this.options.exploration === 'controls' && interactionStable) break;
       } catch (error) {
-        lastError = String(error); previous = ''; unchangedSince = Date.now();
+        lastError = String(error); previous = ''; unchangedSince = Date.now(); previousInteraction = ''; interactionSince = Date.now(); interactionStable = false;
         if (this.page.isClosed()) break;
       }
       if (Date.now() >= deadline) break;
@@ -160,7 +166,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       try {
         const detailed = await timeout(this.readDOM(true), this.options.observeTimeoutMs, 'Detailed DOM capture deadline exceeded');
         if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId) {
-          stable = false; detailed.gaps.push({ code: 'EVIDENCE_CAPTURE_CHANGED', message: 'Page changed between stability sampling and detailed capture', critical: true });
+          interactionStable &&= interactionProjection(dom) === interactionProjection(detailed);
+          stable = false; detailed.gaps.push({ code: 'EVIDENCE_CAPTURE_CHANGED', message: 'Page changed between stability sampling and detailed capture', critical: !(this.options.exploration === 'controls' && interactionStable) });
         }
         dom = detailed;
       } catch (error) { evidenceManifest.gaps.push({ code: 'DETAIL_CAPTURE_FAILED', message: String(error) }); }
@@ -170,7 +177,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     dom ??= { documentId: `unavailable:${id()}`, url: this.page.url(), title: '', text: '', controls: [], regions: [], overlays: [], boundaries: [], scroll: { x: 0, y: 0, maxY: 0 }, gaps: [] };
     const capturedAt = now(); const gaps = [...dom.gaps, ...this.gaps.splice(0)];
     if (lastError) gaps.push({ code: 'DOM_CAPTURE_FAILED', message: lastError, critical: true });
-    if (!stable) gaps.push({ code: 'UNSTABLE', message: 'Page did not settle within the observation budget', critical: true });
+    if (!stable) gaps.push({ code: 'UNSTABLE', message: 'Page did not settle within the observation budget', critical: !(this.options.exploration === 'controls' && interactionStable) });
+    if (!stable && this.options.exploration === 'controls' && interactionStable) gaps.push({ code: 'INTERACTION_STABLE', message: 'Supported interactive controls settled; passive display changes remain in the full observation' });
     const context: Context = Object.fromEntries(Object.entries(this.options.context).map(([k, value]) => [k, { value, status: 'known', source: 'declared' }]));
     for (const rule of this.options.contextRules) {
       try {
@@ -269,6 +277,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     };
     for (const c of o.controls.filter(c => c.visible)) {
       for (const kind of c.actions) {
+        if (session.options.exploration === 'controls' && kind === 'fill' && c.readOnly) continue;
         if (kind === 'fill') {
           let values: (string | boolean)[] | undefined; let blocked: string | undefined;
           if (this.hooks.samples) { const result = await invoke('samples', async () => { const values = await this.hooks.samples!(structuredClone(c), structuredClone({ session, observation: o })); if (values !== undefined && (!Array.isArray(values) || values.some(v => typeof v !== 'string' && typeof v !== 'boolean'))) throw new EngineError('INVALID_PLUGIN_SAMPLE', 'Samples must be strings or booleans'); return values; }); values = result.value; if (result.error) blocked = 'samples_hook_failed'; }
@@ -301,7 +310,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     catch { return 'stale'; }
     if (live.gaps.some(g => g.critical)) return 'stale';
     const liveCanonical = observableCanonical({ ...current, ...live, context: current.context, gaps: current.gaps });
-    if (liveCanonical !== current.canonical || live.controls.some((c, i) => c.instanceId !== current.controls[i]?.instanceId)) {
+    const changed = this.options.exploration === 'controls' ? interactionProjection(live) !== interactionProjection(current)
+      : liveCanonical !== current.canonical || live.controls.some((c, i) => c.instanceId !== current.controls[i]?.instanceId);
+    if (changed) {
       return 'stale';
     }
     // Context rules must be re-read even when their DOM node is not an interactive control.
