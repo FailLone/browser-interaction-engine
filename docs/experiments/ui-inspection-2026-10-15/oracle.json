@@ -1,0 +1,204 @@
+[
+  {
+    "sampleId": "sample-00953b16",
+    "variant": {
+      "id": "bcc6822d-9eee-4a2f-b4a9-e87016e0eb57",
+      "constrained": true,
+      "backgroundHeight": 1800,
+      "expected": "pass"
+    },
+    "inspectionId": "34160f1e-752a-44cb-bfc4-027f77d617aa",
+    "captureId": "capture:012e2bb7-f6b0-46f8-9766-d289b6ad4b82",
+    "baselineCaptureId": "capture:2b180c9d-7945-4236-984e-df010e6ebb19",
+    "geometry": {
+      "viewportHeight": 600,
+      "root": {
+        "x": 32,
+        "y": 80,
+        "width": 340,
+        "height": 358
+      },
+      "pageBefore": {
+        "nodeId": "6cf069a4-50b2-4921-83c2-68e917f428af:5",
+        "clientWidth": 800,
+        "clientHeight": 600,
+        "scrollWidth": 800,
+        "scrollHeight": 1867,
+        "scrollLeft": 0,
+        "scrollTop": 0
+      },
+      "pageAfter": {
+        "nodeId": "6cf069a4-50b2-4921-83c2-68e917f428af:5",
+        "clientWidth": 800,
+        "clientHeight": 600,
+        "scrollWidth": 800,
+        "scrollHeight": 1867,
+        "scrollLeft": 0,
+        "scrollTop": 0
+      },
+      "rootScroll": {
+        "width": 338,
+        "height": 356,
+        "left": 0,
+        "top": 0
+      },
+      "rootClient": {
+        "width": 338,
+        "height": 356,
+        "left": 1,
+        "top": 1
+      },
+      "internalScrollNodes": [
+        {
+          "id": "6cf069a4-50b2-4921-83c2-68e917f428af:18",
+          "rect": {
+            "x": 45,
+            "y": 126,
+            "width": 314,
+            "height": 264
+          },
+          "client": {
+            "width": 314,
+            "height": 264,
+            "left": 0,
+            "top": 0
+          },
+          "scroll": {
+            "width": 314,
+            "height": 720,
+            "left": 0,
+            "top": 0
+          },
+          "overflowY": "auto"
+        }
+      ]
+    }
+  },
+  {
+    "sampleId": "sample-4598e8c4",
+    "variant": {
+      "id": "56a181e8-ded8-4f35-9ba7-e927d98c8613",
+      "constrained": false,
+      "backgroundHeight": 0,
+      "expected": "fail"
+    },
+    "inspectionId": "deed04ad-c4f5-4dca-8322-0c0477f764c0",
+    "captureId": "capture:d076f3da-1240-40f2-968a-82a45f36aae5",
+    "baselineCaptureId": "capture:e5ad50a4-d1bc-49fe-ad1e-bc2dbb4a4d90",
+    "geometry": {
+      "viewportHeight": 600,
+      "root": {
+        "x": 32,
+        "y": 80,
+        "width": 340,
+        "height": 814
+      },
+      "pageBefore": {
+        "nodeId": "77994f46-7d89-48a6-a538-e7abcff3f709:5",
+        "clientWidth": 800,
+        "clientHeight": 600,
+        "scrollWidth": 800,
+        "scrollHeight": 600,
+        "scrollLeft": 0,
+        "scrollTop": 0
+      },
+      "pageAfter": {
+        "nodeId": "77994f46-7d89-48a6-a538-e7abcff3f709:5",
+        "clientWidth": 800,
+        "clientHeight": 600,
+        "scrollWidth": 800,
+        "scrollHeight": 894,
+        "scrollLeft": 0,
+        "scrollTop": 0
+      },
+      "rootScroll": {
+        "width": 338,
+        "height": 812,
+        "left": 0,
+        "top": 0
+      },
+      "rootClient": {
+        "width": 338,
+        "height": 812,
+        "left": 1,
+        "top": 1
+      },
+      "internalScrollNodes": []
+    }
+  },
+  {
+    "sampleId": "sample-851269c2",
+    "variant": {
+      "id": "c77eacab-7cba-41a6-baa4-3e8919a9405f",
+      "constrained": true,
+      "backgroundHeight": 0,
+      "expected": "pass"
+    },
+    "inspectionId": "a151a7c8-c36a-455c-a2cb-1619b3c1f2b6",
+    "captureId": "capture:044680ea-d31c-4487-81b4-87d46bcc6bf1",
+    "baselineCaptureId": "capture:3e7c6bae-204e-4b1a-8346-1c8366d0bf2e",
+    "geometry": {
+      "viewportHeight": 600,
+      "root": {
+        "x": 32,
+        "y": 80,
+        "width": 340,
+        "height": 358
+      },
+      "pageBefore": {
+        "nodeId": "916f86ec-0704-4ea0-91e8-fc470234f027:5",
+        "clientWidth": 800,
+        "clientHeight": 600,
+        "scrollWidth": 800,
+        "scrollHeight": 600,
+        "scrollLeft": 0,
+        "scrollTop": 0
+      },
+      "pageAfter": {
+        "nodeId": "916f86ec-0704-4ea0-91e8-fc470234f027:5",
+        "clientWidth": 800,
+        "clientHeight": 600,
+        "scrollWidth": 800,
+        "scrollHeight": 600,
+        "scrollLeft": 0,
+        "scrollTop": 0
+      },
+      "rootScroll": {
+        "width": 338,
+        "height": 356,
+        "left": 0,
+        "top": 0
+      },
+      "rootClient": {
+        "width": 338,
+        "height": 356,
+        "left": 1,
+        "top": 1
+      },
+      "internalScrollNodes": [
+        {
+          "id": "916f86ec-0704-4ea0-91e8-fc470234f027:18",
+          "rect": {
+            "x": 45,
+            "y": 126,
+            "width": 314,
+            "height": 264
+          },
+          "client": {
+            "width": 314,
+            "height": 264,
+            "left": 0,
+            "top": 0
+          },
+          "scroll": {
+            "width": 314,
+            "height": 720,
+            "left": 0,
+            "top": 0
+          },
+          "overflowY": "auto"
+        }
+      ]
+    }
+  }
+]

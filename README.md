@@ -166,3 +166,7 @@ HTTP 调用方通过命令提交选择、输入、裁决和检查点条件；自
 Modal、popover 与浮动菜单建立独占交互范围，DFS 先探索当前最内层范围，验证关闭后才继续父页面。调试界面显示范围链与受阻原因；无法退出时暂停并保留待办。规则、事件和本地测试入口见 [弹层优先探索](docs/INTERACTION-BOUNDARIES.md)。
 
 差异详情查询与上层集成：见 [docs/DIFF-DETAILS.md](docs/DIFF-DETAILS.md)。支持按观察、动作、事件或流程一次读取前后控件、身份依据、操作、业务上下文及截图引用；调试页面同步提供解释和定位。
+
+## UI 检查支撑
+
+`main` 已提供初始/操作后检查任务、弹层范围与前后基线、常规空间证据、有限消费租约及 SDK/HTTP 接口。创建会话时传 `inspection: {}` 开启；外部检查规则与接入方式见 [UI 检查 API](docs/INSPECTION-API.md)。中间态、现场 probe、文字行与 iframe/Shadow DOM 取证仍为后续工作。

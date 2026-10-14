@@ -130,3 +130,13 @@ BrowserEngine 的 subscribeEvents 从已提交日志逐条读取，在 observati
 ## 操作依据
 
 core 的 `ActionBasis` 只含状态和来源证据，不解释 DOM、ARIA 或 Playwright。适配层生成具体依据；core 默认跳过 tentative 待办，接受外部明确试探，并阻止自动重放。观察目标可以没有操作。规则和扩展方式见 [操作候选与证据](ACTION-EVIDENCE.md)。
+
+## 检查机会与消费生命周期
+
+BrowserEngine 的 InspectionCoordinator 将已保存的观察映射为独立 Capture/Inspection，负责配置协商、焦点范围、入口/单步基线、消费状态与查询。Playwright 适配器提供主文档空间事实；core 只增加平台无关的采集前/完成/失败及动作前组合扩展点，不导入 Web 或 HTTP 类型。扩展点在同一动作队列中、同步记录事务之外执行，禁止从扩展点等待自身队列命令。
+
+发布顺序为：保护即将失去 scope 保护的旧基线 → 采集/保存证据 → 观察及 scope 事务 → 组装 capture → 为每个消费者预留有限 pin → 原子保存 Capture、Inspection、Delivery 与 ready 事件 → 释放暂存 pin。消费者不在短超时 hook 中执行。公开订阅先读提交日志，ready 通知后可查询记录；已有 observation.created 仍只承诺原有观察接口。
+
+异步二进制保存不能放入同步 Persistence.transaction。未提交检查的预留 pin 会主动释放；进程崩溃留下的有限 pin 也由 storage-retained 的通用 expiresAt 支持到期回收。重启保留 pending 消费元数据并核验实际证据。生产流程与 receive/renew/complete/cancel 使用 coordinator 串行队列，避免续租、过期和完成的竞争；它不操纵独立浏览器。
+
+Capture/Inspection 不因消费者更新而改变。read queries 不触发观察或行为；只读事件可用性与消费生命周期会反映过期。长期历史记录压缩、多进程任务分发和原生异步远程持久化不在这轮扩展内。接口与限制见 [检查 API](INSPECTION-API.md)。

@@ -23,6 +23,13 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     this.store = options.persistence; this.adapter = options.adapter; this.hooks = options.hooks || {};
     recoverStore(this.store);
   }
+  /** Composition lifecycle: runs in the action queue, outside record transactions.
+   * Implementations must not enqueue commands on this engine from these methods. */
+  protected async beforeCapture(_sessionId: string, _observationId: string): Promise<void> {}
+  protected async afterCapture(_observation: O, _previous?: O, _attemptId?: string): Promise<void> {}
+  protected async captureFailed(_sessionId: string, _observationId: string, _error: unknown): Promise<void> {}
+  protected async beforeAction(_sessionId: string): Promise<void> {}
+  protected publish(sessionId: string, type: string, data: unknown) { return this.emit(sessionId, type, data); }
   private enqueue<T>(fn: () => Promise<T>): Promise<T> {
     const task = this.queue.then(fn); this.queue = task.catch(() => {}); return task;
   }
@@ -109,8 +116,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   }
   private async capture(sessionId: string, cause: O['cause'], attemptId?: string, parentId?: string): Promise<O> {
     let session = this.session(sessionId); const observationId = id();
-    await this.store.evidence.beginObservation?.({ sessionId, observationId, policy: session.options.evidenceRetention });
     try {
+    await this.beforeCapture(sessionId, observationId);
+    await this.store.evidence.beginObservation?.({ sessionId, observationId, policy: session.options.evidenceRetention });
     const data = await this.driver!.capture(observationId);
     const o: O = { ...data, id: observationId, sessionId, cause, stateId: '', visitId: id(), fingerprint: '', canonical: '', ruleVersion: this.adapter.ruleVersion } as O;
     const declared = Object.fromEntries(Object.entries(session.options.context).map(([key, value]) => [key, { value, status: 'known' as const, source: 'declared' }]));
@@ -196,6 +204,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       this.emit(sessionId, 'frontier.updated', { observationId: o.id });
       this.syncBoundaries(sessionId, previous, o, attemptId);
     });
+    await this.afterCapture(structuredClone(o), previous ? structuredClone(previous) : undefined, attemptId);
     await this.store.evidence.endObservation?.(observationId, true);
     let resolvedByHook = false;
     for (const hypothesis of matched.hypotheses) if (this.hooks.identity) {
@@ -204,7 +213,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     }
     if (resolvedByHook) return this.capture(sessionId, 'inspection');
     return o;
-    } catch (error) { await this.store.evidence.endObservation?.(observationId, !!this.store.get('observation', observationId)); throw error; }
+    } catch (error) { await this.captureFailed(sessionId, observationId, error); await this.store.evidence.endObservation?.(observationId, !!this.store.get('observation', observationId)); throw error; }
   }
   private frontierKey(a: ActionCandidate) { return hash({ state: a.stateId, control: a.controlId, kind: a.kind, value: a.value, context: a.preconditions.context }); }
   private constrain(action: ActionCandidate, observation: O, session: Session<S>) {
@@ -241,7 +250,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   private async runAction(sessionId: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: ActionAttempt['purpose'] = 'external'): Promise<ActionAttempt> {
     const payload = canonical({ actionId, value }); const prior = this.store.request(sessionId, requestId);
     if (prior) { if (prior.payload !== payload) throw new EngineError('REQUEST_CONFLICT', 'Request ID was used with different parameters'); return this.owned<ActionAttempt>('attempt', prior.attemptId, sessionId); }
-    await this.attach(sessionId); let session = this.session(sessionId); this.budget(session);
+    await this.attach(sessionId); await this.beforeAction(sessionId); let session = this.session(sessionId); this.budget(session);
     const original = this.owned<ActionCandidate>('action', actionId, sessionId);
     const originalObservation = this.observation(sessionId, original.observationId);
     const current = this.observation(sessionId);
@@ -266,6 +275,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const control = current.controls.find(c => c.localId === action.localId);
     if (control && (!control.visible || !control.enabled)) throw new EngineError('ACTION_BLOCKED', 'Control is not visible or enabled');
     await this.driver!.validate(action, control);
+    await this.beforeAction(sessionId);
     const attempt: ActionAttempt = { id: id(), sessionId, requestId, action, startedAt: now(), beforeId: current.id, status: 'executing', purpose };
     const started = Date.now();
     this.store.transaction(() => {
@@ -465,6 +475,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       }
       let session = this.session(sessionId); let resetConfirmed = false;
       if (session.dirty && this.hooks.reset) {
+        await this.beforeAction(sessionId);
         const result = await this.hook(sessionId, 'reset', () => this.hooks.reset!(structuredClone(session)));
         resetConfirmed = result.value?.reset === true && !!result.value.evidence.length;
         this.emit(sessionId, 'environment.reset', result.value || { error: result.error });

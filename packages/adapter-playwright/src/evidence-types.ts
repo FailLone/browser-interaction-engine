@@ -5,10 +5,27 @@ export interface EvidenceOptions {
   maxAttributeLength: number; maxRuntimeEntries: number; styles: 'none' | 'essential' | 'all';
   accessibility: boolean; fullPageScreenshot: boolean;
 }
+export interface LayoutEvidence {
+  coordinateSpace: 'layout-viewport-css-px';
+  client: { width: number; height: number; left: number; top: number };
+  scroll: { width: number; height: number; left: number; top: number };
+  offset?: { width: number; height: number; left: number; top: number; parentId?: string };
+  box: { padding: string[]; border: string[]; margin: string[] };
+  scrollAncestorIds: string[]; clipAncestorIds: string[];
+  hitSample?: { x: number; y: number; topNodeId?: string; withinSubtree: boolean };
+}
+export interface PageEnvironment {
+  layoutViewport: { width: number; height: number; clientWidth: number; clientHeight: number };
+  visualViewport?: { width: number; height: number; offsetLeft: number; offsetTop: number; pageLeft: number; pageTop: number; scale: number };
+  scroll: { x: number; y: number }; devicePixelRatio: number;
+  scrollingElement?: { nodeId: string; clientWidth: number; clientHeight: number; scrollWidth: number; scrollHeight: number; scrollLeft: number; scrollTop: number };
+  coordinateSpace: 'layout-viewport-css-px'; zoom: 'visual-viewport-scale-and-dpr-only';
+}
 export interface DomNodeEvidence {
   id: string; parentId?: string; children: string[]; nodeType: 'element' | 'text';
   tag?: string; text?: string; attributes?: Record<string, string>; rect?: Rect;
   styles?: Record<string, string>; properties?: Record<string, Json>;
+  layout?: LayoutEvidence;
   relations?: Record<string, string[]>;
   gaps: Gap[];
 }
@@ -16,6 +33,7 @@ export interface DomEvidence {
   documentId: string; capturedAt: string; rootId?: string; nodes: DomNodeEvidence[];
   html: string; htmlTruncated: boolean; nodesTruncated: boolean; gaps: Gap[];
   regionRoots: Record<string, string>;
+  spatialVersion?: 1; environment?: PageEnvironment;
   page: { url: string; title: string; baseURI: string; language: string; characterSet: string; readyState: string; doctype: string; activeNodeId?: string; metadata: Record<string, string>[] };
 }
 export interface NetworkEvidence {
@@ -48,7 +66,7 @@ export interface BrowserEvidenceManifest {
 }
 export const evidenceCapabilities = {
   version: 1,
-  stored: ['page-metadata', 'controls', 'text', 'dom-tree', 'html', 'attributes', 'live-properties', 'label-and-aria-relations', 'computed-styles', 'viewport-screenshot', 'aria-snapshot', 'network-metadata', 'console', 'page-errors', 'frame-inventory'],
+  stored: ['page-metadata', 'controls', 'text', 'dom-tree', 'html', 'attributes', 'live-properties', 'label-and-aria-relations', 'computed-styles', 'page-environment', 'box-and-scroll-metrics', 'ancestor-chains', 'sampled-hit-targets', 'viewport-screenshot', 'aria-snapshot', 'network-metadata', 'console', 'page-errors', 'frame-inventory'],
   optional: ['full-page-screenshot', 'all-computed-styles'],
   unsupported: ['shadow-dom-contents', 'iframe-dom', 'javascript-heap', 'complete-event-listeners', 'network-bodies', 'business-intent-inference'],
   queriesChangePage: false,

@@ -215,3 +215,7 @@ SqliteStore 的详细文件采用内容寻址的 16 KiB 独立分块，文本块
 ### 差异详情中的证据状态
 
 [差异详情接口](DIFF-DETAILS.md) 复用同一留存插件，分别检查 before / after 的 screenshot、fullPageScreenshot、details。历史截图仅有 observation.screenshot 引用时，也会返回可用状态。浏览器详情查询不会另外缓存完整 DOM 或截图，也不会隐式 pin；查询时的留存状态与历史采集缺口分开表达。
+
+## Inspection / Capture 扩展
+
+检查任务、有限消费者租约及常规空间数据见 [UI 检查 API](INSPECTION-API.md)。旧观察与查询接口保持兼容；新的详细 DOM 可携带 `spatialVersion: 1`、environment 和逐节点 layout。DOM 查询新增可选 fields 投影；缺失字段仍需新采集，不能从实时页面补写历史数据。`inspection.ready` 支持与 observation.created 相同的 reference/inline/hybrid 事件投影。

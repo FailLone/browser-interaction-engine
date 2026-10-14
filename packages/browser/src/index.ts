@@ -1,3 +1,5 @@
+import { InspectionCoordinator, validateInspectionOptions } from './inspection.js';
+import type { InspectionResult } from './inspection-types.js';
 import { InteractionEngine as CoreEngine, EngineError, type Persistence, type Predicate, type InteractionScope, type Checkpoint } from '@interaction/core';
 import { RetainedPersistence, type RetentionOptions } from '@interaction/storage-retained';
 import { subscribeEvents, projectEvent, type SubscriptionOptions, type SnapshotEvent, type DeliveryMode } from './subscription.js';
@@ -11,9 +13,42 @@ export * from './evidence.js';
 export * from './evidence-availability.js';
 export * from './subscription.js';
 export * from './frontier.js';
+export * from './inspection-types.js';
+export { inspectionResultSchema, completeInspectionSchema, inspectionConsumerSchema, inspectionPageSchema, validateInspectionOptions } from './inspection.js';
 /** Browser composition only. The caller chooses persistence; there is no implicit disk storage. */
 export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   declare readonly store: RetainedPersistence;
+  private readonly inspections: InspectionCoordinator;
+  override async createSession(input: unknown) { return super.createSession(validateInspectionOptions(input)); }
+  protected override beforeCapture(sessionId: string, observationId: string) { return this.inspections.prepare(sessionId, observationId); }
+  protected override afterCapture(observation: Observation, previous?: Observation, attemptId?: string) { return this.inspections.finish(observation, previous, attemptId); }
+  protected override captureFailed(sessionId: string, observationId: string, error: unknown) { return this.inspections.failed(sessionId, observationId, error); }
+  protected override beforeAction(sessionId: string) { return this.inspections.beforeAction(sessionId); }
+  listInspections(sessionId: string, query: { after?: number; limit?: number } = {}) { return this.inspections.list(sessionId, query); }
+  inspection(sessionId: string, inspectionId: string) { return this.inspections.inspection(sessionId, inspectionId); }
+  captureDetails(sessionId: string, captureId: string) { return this.inspections.captureDetails(sessionId, captureId); }
+  captureNodes(sessionId: string, captureId: string, query: DomQuery = {}) {
+    const capture = this.inspections.capture(sessionId, captureId);
+    if (!capture.observationId) throw new EngineError('EVIDENCE_UNAVAILABLE', 'This capture has no DOM observation');
+    return this.dom(sessionId, capture.observationId, query);
+  }
+  nodeContext(sessionId: string, captureId: string, nodeId: string) { return this.inspections.nodeContext(sessionId, captureId, nodeId); }
+  async regionContext(sessionId: string, captureId: string, regionKey: string) {
+    const capture = this.inspections.capture(sessionId, captureId);
+    if (!capture.observationId) throw new EngineError('EVIDENCE_UNAVAILABLE', 'This capture has no region observation');
+    const region = await this.regionDetails(sessionId, capture.observationId, regionKey);
+    const observation = this.observation(sessionId, capture.observationId);
+    return { ...region, captureId, overlay: observation.overlays?.find(o => o.key === regionKey), page: (await this.observationDetails(sessionId, observation.id)).snapshot?.dom?.environment };
+  }
+  captureArtifact(sessionId: string, captureId: string, kind: ArtifactKind) {
+    const capture = this.inspections.capture(sessionId, captureId);
+    if (!capture.observationId) throw new EngineError('EVIDENCE_UNAVAILABLE', 'This capture has no observation artifacts');
+    return this.evidenceArtifact(sessionId, capture.observationId, kind);
+  }
+  receiveInspection(sessionId: string, inspectionId: string, consumerId: string) { return this.inspections.receipt(sessionId, inspectionId, consumerId); }
+  renewInspection(sessionId: string, inspectionId: string, consumerId: string) { return this.inspections.renew(sessionId, inspectionId, consumerId); }
+  completeInspection(sessionId: string, inspectionId: string, consumerId: string, results: InspectionResult[] = []) { return this.inspections.complete(sessionId, inspectionId, consumerId, results); }
+  cancelInspection(sessionId: string, inspectionId: string, consumerId: string) { return this.inspections.cancel(sessionId, inspectionId, consumerId); }
   private subscriptions = new Set<ReturnType<typeof subscribeEvents>>();
   private readonly evidenceQueries = new BrowserEvidenceQueries(this);
   override frontierCoverage(sessionId: string) { return withFrontierStates(super.frontierCoverage(sessionId), id => this.store.get<Observation>('observation', id)); }
@@ -40,7 +75,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     this.session(sessionId); const subscription = subscribeEvents(this, sessionId, listener, options);
     this.subscriptions.add(subscription); void subscription.done.finally(() => this.subscriptions.delete(subscription)); return subscription;
   }
-  override async close() { const subscriptions = [...this.subscriptions]; for (const s of subscriptions) s.close(); await Promise.all(subscriptions.map(s => s.done)); await super.close(); }
+  override async close() { const subscriptions = [...this.subscriptions]; for (const s of subscriptions) s.close(); await Promise.all(subscriptions.map(s => s.done)); await this.inspections.close(); await super.close(); }
   constructor(options: { persistence: Persistence; hooks?: EngineHooks; retention?: RetentionOptions }) {
     // Migrate only the browser-specific legacy field; immutable observations stay intact.
     options.persistence.transaction(() => {
@@ -49,6 +84,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       }
     });
     super({ persistence: options.persistence instanceof RetainedPersistence ? options.persistence : new RetainedPersistence(options.persistence, options.retention), adapter: new PlaywrightAdapter(options.hooks), hooks: options.hooks });
+    this.inspections = new InspectionCoordinator(this, (sid, type, data) => this.publish(sid, type, data));
   }
   override async diffDetails(sessionId: string, beforeId: string, afterId: string, region?: string) { return explainBrowserDiff(await super.diffDetails(sessionId, beforeId, afterId, region), this.store.evidence); }
   override async attemptDiffDetails(sessionId: string, attemptId: string) { return explainBrowserDiff(await super.attemptDiffDetails(sessionId, attemptId), this.store.evidence); }

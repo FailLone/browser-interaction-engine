@@ -1,3 +1,4 @@
+import { inspectionOptionsSchema } from './inspection-contract.js';
 import { z } from 'zod';
 import { evidenceRetentionSchema } from '@interaction/core';
 export const contextSchema = z.record(z.string(), z.object({ value: z.json(), status: z.enum(['known', 'unknown']), source: z.string() }));
@@ -15,6 +16,7 @@ export const sessionSchema = z.object({
   maxActions: z.number().int().positive().max(10000).default(100), maxDepth: z.number().int().positive().max(100).default(10), maxDurationMs: z.number().int().positive().max(86400000).default(600000),
   actionTimeoutMs: z.number().int().positive().max(60000).default(10000), settleMs: z.number().int().min(0).max(5000).default(200), observeTimeoutMs: z.number().int().positive().max(30000).default(2000),
   evidence: evidenceOptionsSchema,
+  inspection: inspectionOptionsSchema.optional(),
   evidenceRetention: evidenceRetentionSchema.optional(),
   exclude: z.array(match).default([]), replayable: z.array(match).default([]), context: z.record(z.string(), z.json()).default({}),
   contextRules: z.array(z.object({ key: z.string().min(1), selector: z.string().min(1), attribute: z.string().optional(), required: z.boolean().optional() })).default([]),
@@ -33,5 +35,5 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('reachCheckpoint'), checkpointId: z.string() }),
 ]);
 export type Command = z.infer<typeof commandSchema>;
-export const domQuerySchema = z.object({ rootId: z.string().min(1).optional(), depth: z.coerce.number().int().min(0).max(100).default(20), offset: z.coerce.number().int().min(0).max(50000).default(0), limit: z.coerce.number().int().min(1).max(5000).default(1000) }).strict();
+export const domQuerySchema = z.object({ fields: z.preprocess(v => typeof v === 'string' ? (v ? v.split(',') : []) : v, z.array(z.enum(['tag', 'text', 'attributes', 'rect', 'styles', 'properties', 'relations', 'layout'])).max(8).optional()), rootId: z.string().min(1).optional(), depth: z.coerce.number().int().min(0).max(100).default(20), offset: z.coerce.number().int().min(0).max(50000).default(0), limit: z.coerce.number().int().min(1).max(5000).default(1000) }).strict();
 export const artifactKindSchema = z.enum(['screenshot', 'fullPageScreenshot', 'details']);

@@ -1,9 +1,12 @@
 {
-  "at": "2026-10-14T17:08:13.715Z",
-  "node": "v24.21.0",
+  "inspectionContract": "passed",
+  "at": "2026-10-14T19:17:46.879Z",
+  "node": "v24.22.0",
   "compiledAPI": "passed",
   "staticUI": "passed",
   "chromiumExecution": "passed",
   "historicalEvidence": "passed",
-  "attemptId": "761f605d-08be-4c46-9c82-d108f53f2763"
+  "snapshotDelivery": "passed",
+  "cachedEvidence": "passed",
+  "attemptId": "bae4704a-0361-463f-90e7-9e0147ad3c6d"
 }

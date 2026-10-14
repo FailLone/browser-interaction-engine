@@ -18,6 +18,7 @@
     "report": "tsx --conditions=development scripts/report.ts",
     "smoke:built": "node scripts/smoke-built.mjs",
     "example:strategy": "tsx --conditions=development examples/external-strategy.ts",
+    "experiment:inspection": "tsx --conditions=development scripts/inspection-blind-experiment.ts",
     "browser:install": "playwright install chromium",
     "example:core": "tsx --conditions=development examples/core-memory.ts",
     "test:core": "vitest run tests/core.test.ts tests/storage-contract.test.ts tests/architecture.test.ts tests/retention.test.ts"

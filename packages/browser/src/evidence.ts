@@ -7,7 +7,7 @@ interface Reader {
   observation(sessionId: string, observationId: string): Observation;
   actions(sessionId: string, observationId: string): ActionCandidate[];
 }
-export interface DomQuery { rootId?: string; depth?: number; offset?: number; limit?: number }
+export interface DomQuery { rootId?: string; depth?: number; offset?: number; limit?: number; fields?: ('tag' | 'text' | 'attributes' | 'rect' | 'styles' | 'properties' | 'relations' | 'layout')[] }
 export type ArtifactKind = 'screenshot' | 'fullPageScreenshot' | 'details';
 /** All methods read committed records. They never consult a browser or latest state. */
 export class BrowserEvidenceQueries {
@@ -65,7 +65,12 @@ export class BrowserEvidenceQueries {
       else if (node.children.length) depthLimited = true;
     }
     const end = Math.min(nodes.length, query.offset + query.limit);
-    return { observationId, capturedAt: dom.capturedAt, rootId, nodes: nodes.slice(query.offset, end), total: nodes.length, offset: query.offset, limit: query.limit, nextOffset: end < nodes.length ? end : null, depthLimited, captureTruncated: dom.nodesTruncated, gaps: dom.gaps };
+    const projected = nodes.slice(query.offset, end).map(node => {
+      if (!query.fields) return node;
+      const { id, parentId, children, nodeType, gaps } = node;
+      return { id, parentId, children, nodeType, gaps, ...Object.fromEntries(query.fields.filter(key => node[key] !== undefined).map(key => [key, node[key]])) };
+    });
+    return { observationId, capturedAt: dom.capturedAt, rootId, nodes: projected, total: nodes.length, offset: query.offset, limit: query.limit, nextOffset: end < nodes.length ? end : null, depthLimited, captureTruncated: dom.nodesTruncated, gaps: dom.gaps };
   }
   async control(sessionId: string, observationId: string, controlId: string) {
     const details = await this.details(sessionId, observationId); const observation = details.observation;
