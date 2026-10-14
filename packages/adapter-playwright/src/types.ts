@@ -16,6 +16,8 @@ export interface Control extends CoreControl {
   constraints: { type: string; required: boolean; min?: string; max?: string; step?: string; pattern?: string; minLength?: number; maxLength?: number; valid: boolean };
   options: { value: string; label: string; disabled: boolean }[];
   actions: ActionKind[]; discovery: string[];
+  /** Native element scroll viewport; document scrolling is recorded separately. */
+  scroll?: { x: number; y: number; maxX: number; maxY: number; width: number; height: number };
   /** Keyed by action kind. Optional only for observations written by older adapters. */
   actionBasis?: Record<ActionKind, ActionBasis>;
   interactionHints?: ActionEvidence[];

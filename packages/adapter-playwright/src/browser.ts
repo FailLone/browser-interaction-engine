@@ -101,18 +101,33 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   const documentHints = documentRoots.flatMap(el => actionCollector(el).interactionHints.map(hint => ({ ...hint, facts: { ...hint.facts, tag: el.tagName.toLowerCase(), scope: 'document' } })));
   for (const root of documentRoots) selected.delete(root);
   const elements = [...document.querySelectorAll('*')];
-  // A bounded supplemental scan finds property handlers and cursor-only hints.
+  const scrollViewport = (el: Element) => {
+    if (el === body || el === document.documentElement || el.matches('input,textarea,select,[contenteditable]:not([contenteditable=false])')) return;
+    const style = getComputedStyle(el);
+    const maxX = /^(auto|scroll)$/.test(style.overflowX) ? Math.max(0, el.scrollWidth - el.clientWidth) : 0;
+    const maxY = /^(auto|scroll)$/.test(style.overflowY) ? Math.max(0, el.scrollHeight - el.clientHeight) : 0;
+    if ((maxX > 1 || maxY > 1) && el.clientWidth && el.clientHeight) return { x: el.scrollLeft, y: el.scrollTop, maxX, maxY, width: el.clientWidth, height: el.clientHeight };
+  };
+  // A bounded supplemental scan finds scroll viewports, handlers and cursor hints.
   // Inherited pointer cursors do not turn every descendant into another target.
-  for (const el of elements.slice(0, 5000)) if (el !== body && el !== document.documentElement && !selected.has(el) && (typeof (el as HTMLElement).onclick === 'function' || getComputedStyle(el).cursor === 'pointer' && (!el.parentElement || getComputedStyle(el.parentElement).cursor !== 'pointer'))) selected.add(el);
+  for (const el of elements.slice(0, 5000)) if (el !== body && el !== document.documentElement && !selected.has(el) && (scrollViewport(el) || typeof (el as HTMLElement).onclick === 'function' || getComputedStyle(el).cursor === 'pointer' && (!el.parentElement || getComputedStyle(el.parentElement).cursor !== 'pointer'))) selected.add(el);
   const all = [...selected];
   const controls = all.slice(0, 1500).map(el => {
     const e = el as HTMLInputElement;
     const r = rect(el); const style = getComputedStyle(el);
     const visible = r.width > 0 && r.height > 0 && style.visibility !== 'hidden' && style.display !== 'none' && !el.closest('[hidden],[inert]');
     const enabled = !e.disabled && !el.matches(':disabled') && el.getAttribute('aria-disabled') !== 'true' && !el.closest('[inert]');
-    const semanticRole = role(el); const name = label(el) || clean(el.textContent) || clean(el.getAttribute('title')) || clean(el.getAttribute('placeholder')) || (['submit', 'button'].includes(e.type) ? e.value : '');
+    const semanticRole = role(el);
     const type = el.tagName === 'INPUT' ? e.type : el.tagName.toLowerCase();
     const capabilities = actionCollector(el);
+    const scroll = scrollViewport(el);
+    // Virtualized descendants change as the viewport moves. They are not the
+    // identity/name of an otherwise unnamed scroll viewport.
+    const name = label(el) || (scroll && capabilities.actions.every(kind => capabilities.actionBasis[kind]?.status === 'tentative') ? clean(el.getAttribute('title')) || `Scrollable ${semanticRole}` : clean(el.textContent) || clean(el.getAttribute('title')) || clean(el.getAttribute('placeholder')) || (['submit', 'button'].includes(e.type) ? e.value : ''));
+    if (scroll) {
+      capabilities.actions.push('scroll');
+      capabilities.actionBasis.scroll = { status: 'supported', evidence: [{ source: 'cssom', rule: 'element-scroll-viewport/v1', facts: { overflowX: style.overflowX, overflowY: style.overflowY } }] };
+    }
     const editable = enabled && !e.readOnly && el.getAttribute('aria-readonly') !== 'true' && capabilities.actions.includes('fill');
     const x = Math.max(0, Math.min(innerWidth - 1, r.x + r.width / 2)); const y = Math.max(0, Math.min(innerHeight - 1, r.y + r.height / 2));
     const hit = document.elementFromPoint(x, y);
@@ -127,7 +142,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       selected: el.tagName === 'SELECT' ? [...(el as HTMLSelectElement).selectedOptions].map(o => o.value) : el.getAttribute('aria-selected') === 'true' ? [name] : [],
       visible: !!visible, enabled: !!enabled, editable: !!editable, readOnly: !!e.readOnly || el.getAttribute('aria-readonly') === 'true', expanded: el.hasAttribute('aria-expanded') ? el.getAttribute('aria-expanded') === 'true' : null, controls: el.getAttribute('aria-controls'),
       constraints: { type, required: !!e.required, min: e.min || undefined, max: e.max || undefined, step: e.step || undefined, pattern: e.pattern || undefined, minLength: e.minLength >= 0 ? e.minLength : undefined, maxLength: e.maxLength >= 0 ? e.maxLength : undefined, valid: e.validity?.valid ?? true },
-      options, ...capabilities, discovery: [...query.split(',').filter(q => el.matches(q)).map(q => `selector:${q}`), ...(typeof (el as HTMLElement).onclick === 'function' ? ['property:onclick'] : []), ...(style.cursor === 'pointer' ? ['style:cursor=pointer'] : [])],
+      options, ...capabilities, ...(scroll ? { scroll } : {}), discovery: [...query.split(',').filter(q => el.matches(q)).map(q => `selector:${q}`), ...(typeof (el as HTMLElement).onclick === 'function' ? ['property:onclick'] : []), ...(style.cursor === 'pointer' ? ['style:cursor=pointer'] : []), ...(scroll ? ['cssom:scroll-viewport'] : [])],
       actionable: { visible: !!visible, enabled: !!enabled, editable: !!editable, hitTarget: isInView ? !!hit && (hit === el || el.contains(hit)) : null, unknown: ['event-handler-completeness', 'business-preconditions', ...(!isInView ? ['off-viewport-hit-target'] : [])] },
     };
   });
@@ -137,7 +152,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   for (const el of document.querySelectorAll('iframe,canvas,input[type=file]')) gaps.push({ code: `UNSUPPORTED_${el.tagName === 'INPUT' ? 'FILE_INPUT' : el.tagName}`, message: `${el.tagName} internals are outside V0.1 coverage`, selector: selector(el) });
   for (const el of elements) if (el.shadowRoot) gaps.push({ code: 'UNSUPPORTED_SHADOW_DOM', message: 'Shadow root contents were not collected', selector: selector(el) });
   for (const c of controls) if (c.tag === 'input' && ['color', 'range'].includes(c.constraints.type)) gaps.push({ code: 'UNSUPPORTED_INPUT_TYPE', message: `No V0.1 operation for input type ${c.constraints.type}`, selector: c.selector });
-  if (elements.length > 5000) gaps.push({ code: 'SIGNAL_SCAN_TRUNCATED', message: 'Supplemental property-handler and cursor scan limited to 5000 elements; semantic selectors are collected separately' });
+  if (elements.length > 5000) gaps.push({ code: 'SIGNAL_SCAN_TRUNCATED', message: 'Supplemental scroll-viewport, property-handler and cursor scan limited to 5000 elements; semantic selectors are collected separately' });
   gaps.push({ code: 'EVENT_LISTENER_COVERAGE', message: 'Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation.' });
   if (all.length > controls.length) gaps.push({ code: 'TRUNCATED', message: `${all.length - controls.length} controls omitted`, critical: true });
   if (bodyText.length > 50000) gaps.push({ code: 'TEXT_TRUNCATED', message: 'Visible text was truncated to 50000 characters' });
@@ -276,7 +291,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   }
   async execute(action: ActionCandidate, control?: Control) {
     const page = this.page!;
-    if (action.kind === 'scroll') { await page.mouse.wheel(0, Number(action.value ?? 600)); return; }
+    if (action.kind === 'scroll' && !control) { await page.mouse.wheel(0, Number(action.value ?? 600)); return; }
     if (action.kind === 'press' && !control) { await page.keyboard.press(String(action.value || 'Escape')); return; }
     if (!control) throw new EngineError('TARGET_MISSING', 'A current control is required');
     const target = page.locator(control.selector);
@@ -284,7 +299,17 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const sameInstance = await target.evaluate((el, expected) => (window as any).__interactionEvidenceTracker?.ids.get(el) === expected, control.instanceId);
     if (!sameInstance) throw new EngineError('STALE_TARGET', 'Target was rebuilt after observation');
     const clickOptions = control.actionable.clickPoint ? { position: control.actionable.clickPoint } : {};
-    if (action.kind === 'fill') await target.fill(String(action.value ?? ''));
+    if (action.kind === 'scroll') {
+      const delta = typeof action.value === 'object' && action.value !== null ? action.value as { x: number; y: number } : { x: 0, y: Number(action.value) };
+      await target.hover(clickOptions);
+      const before = await target.evaluate(el => ({ x: el.scrollLeft, y: el.scrollTop }));
+      await page.mouse.wheel(delta.x, delta.y);
+      await page.waitForFunction(({ selector, instanceId, before, delta }) => {
+        const el = document.querySelector(selector);
+        return el && (window as any).__interactionEvidenceTracker?.ids.get(el) === instanceId
+          && (delta.x !== 0 && el.scrollLeft !== before.x || delta.y !== 0 && el.scrollTop !== before.y);
+      }, { selector: control.selector, instanceId: control.instanceId, before, delta }, { timeout: this.options.actionTimeoutMs });
+    } else if (action.kind === 'fill') await target.fill(String(action.value ?? ''));
     else if (action.kind === 'select') await target.selectOption(String(action.value));
     else if (action.kind === 'check') {
       if (control.tag === 'input') await target.setChecked(Boolean(action.value), clickOptions);
@@ -335,6 +360,14 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
             const validation = await this.validateInput(c, String(value));
             add(kind, value, c, 'shape_only', blocked || (!validation.valid ? 'input_sample_required' : undefined));
           }
+        } else if (kind === 'scroll' && c.scroll) {
+          for (const [axis, position, max, size] of [['y', c.scroll.y, c.scroll.maxY, c.scroll.height], ['x', c.scroll.x, c.scroll.maxX, c.scroll.width]] as const) {
+            const step = Math.max(1, Math.round(size * .75));
+            // Align both directions to the same grid, including partial last
+            // pages, instead of producing endlessly shifted return positions.
+            const targets = [Math.min(max, (Math.floor(position / step) + 1) * step), Math.max(0, (Math.ceil(position / step) - 1) * step)];
+            for (const next of targets) if (Math.abs(next - position) > 1) add(kind, { x: axis === 'x' ? next - position : 0, y: axis === 'y' ? next - position : 0 }, c);
+          }
         } else if (kind === 'select') for (const option of c.options.filter(x => !x.disabled && x.value !== c.value)) add(kind, option.value, c);
         else if (kind === 'check') { if (!['radio', 'menuitemradio'].includes(c.role) || !c.checked) add(kind, !c.checked, c); }
         else add(kind, undefined, c);
@@ -366,6 +399,10 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     return 'valid';
   }
   async validate(action: ActionCandidate, control?: Control) {
+    if (action.kind === 'scroll' && control) {
+      const delta = typeof action.value === 'object' && action.value !== null ? action.value as { x: number; y: number } : { x: 0, y: action.value };
+      if (!control.scroll || !Number.isFinite(delta.x) || !Number.isFinite(delta.y)) throw new EngineError('INVALID_INPUT', 'Element scroll requires a scroll viewport and finite deltas');
+    }
     if (action.kind === 'fill' && typeof action.value !== 'string' && typeof action.value !== 'number') throw new EngineError('INVALID_INPUT', 'Fill requires text or a number');
     if (action.kind === 'check' && typeof action.value !== 'boolean') throw new EngineError('INVALID_INPUT', 'Check requires a boolean');
     if (action.kind === 'select' && !control?.options.some(o => o.value === action.value && !o.disabled)) throw new EngineError('INVALID_INPUT', 'Select value is not an enabled option');

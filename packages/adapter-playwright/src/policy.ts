@@ -18,7 +18,7 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
     if (inside || exit) action.boundary = { key: active.key, intent: exit ? 'exit' : 'interact' };
     else action.preconditions.blockers.push({ code: 'outside_active_boundary', boundaryKey: active.key, evidence: active.evidence, unblock: `Close and verify exit from ${active.name} before interacting with its parent` });
   }
-  if (control && ['click', 'check'].includes(action.kind)) {
+  if (control && ['click', 'check', 'scroll'].includes(action.kind)) {
     if (control.actionable.outsideScrollableArea) action.preconditions.blockers.push({ code: 'outside_scrollable_area', evidence: ['target-outside-scrollable-viewport'], unblock: 'Make the control reachable in the viewport' });
     else if (control.actionable.hitTarget === false) action.preconditions.blockers.push({ code: 'pointer_intercepted', evidence: [control.actionable.occludedBy || 'hit-test-failed'], unblock: 'Remove the obstruction and observe again' });
   }

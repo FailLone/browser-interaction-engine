@@ -605,5 +605,48 @@
         }
       ]
     }
-  ]
+  ],
+  "continuedThrough": {
+    "actionCount": 15,
+    "attempts": [
+      {
+        "id": "65c114f5-a0a1-4fa7-bd8d-e25dd902d8d5",
+        "label": "ETH",
+        "kind": "click",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "25e88309-fa38-491b-88e3-5256875b85d4",
+        "afterId": "ba31dab0-4acf-4618-8424-82dfd5620f88"
+      },
+      {
+        "id": "0a8ae122-0723-4a2c-90a8-66a1e70093a2",
+        "label": "ETHBTC0G1INCH2ZAAAOI",
+        "kind": "click",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "1aa3093c-40f8-4e92-8c65-4dc00ca22a33",
+        "afterId": "2b86a165-acc5-4e8b-bc75-c7f87833a91d"
+      },
+      {
+        "id": "d97895e7-62ca-4a9b-afae-f4a174d16792",
+        "label": "Search",
+        "kind": "fill",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "2b86a165-acc5-4e8b-bc75-c7f87833a91d",
+        "afterId": "75f912aa-3260-46c2-8fea-f205e6f495cf"
+      },
+      {
+        "id": "3de7dcf1-65ac-40a9-a953-b5e8e58a30b6",
+        "label": "BTC",
+        "kind": "click",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "b317cd14-1cd7-464e-9a18-d1e2931c11de",
+        "afterId": "e20bc9df-eccb-4b77-8f9e-4cef28fad067"
+      }
+    ],
+    "returnedUrl": "https://www.okx.com/convert/btc-to-usd",
+    "note": "BTC to ETH to BTC via reviewed selectors and options; page return, not strict old-value checkpoint recovery."
+  }
 }

@@ -37,7 +37,7 @@ export function controlCase(action: ActionCandidate, o: Observation): Exploratio
   const c = o.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
   if (!c || o.gaps.some(g => g.critical)) return;
   return { key: hash({ url: o.url, boundary: o.boundaries?.map(b => b.key) || [], shape: shape(c),
-    instance: action.target?.instanceId, basis: action.basis }), policy: 'browser-controls-v1',
+    instance: action.target?.instanceId, basis: action.basis, scroll: action.kind === 'scroll' ? c.scroll : undefined }), policy: 'browser-controls-v1',
     evidence: ['One operation sample per encountered control, target constraints, option and declared context',
       'Current-instance targets do not assert historical identity; all combinations are outside this coverage unit'] };
 }
@@ -47,7 +47,7 @@ export function interactionProjection(o: Pick<Observation, 'documentId' | 'url' 
   return canonical({ document: o.documentId, url: o.url, boundaries: o.boundaries?.map(b => b.key) || [], scroll: o.scroll,
     controls: o.controls.filter(c => Object.entries(c.actionBasis || {}).some(([kind, b]) => b.status === 'supported' && !(c.readOnly && kind === 'fill'))).map(c => ({
       instance: c.instanceId, shape: shape(c), value: c.value, checked: c.checked, selected: c.selected, expanded: c.expanded,
-      text: c.displayedText, rect: c.rect, actionable: c.actionable, basis: c.actionBasis,
+      text: c.displayedText, rect: c.rect, actionable: c.actionable, basis: c.actionBasis, scroll: c.scroll,
     })) });
 }
 

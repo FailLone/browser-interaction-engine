@@ -210,7 +210,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         const currentKeys = new Set(actions.map(a => this.frontierKey(a, o)));
         // Scroll is traversal from a live viewport, not a demand to recreate a
         // historical business state. Preserve unused intents as unexecuted history.
-        for (const f of this.frontier(sessionId)) if (!f.attempts.length && !f.action.controlId && f.action.kind === 'scroll'
+        for (const f of this.frontier(sessionId)) if (!f.attempts.length && f.action.kind === 'scroll'
           && !currentKeys.has(f.key) && this.adapter.explorationScope(this.observation(sessionId, f.action.observationId)) === scope) {
           f.status = 'superseded'; f.reason = 'traversal_position_changed'; f.unblock = undefined; f.recovery = undefined; this.store.put('frontier', f);
         }
