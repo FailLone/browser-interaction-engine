@@ -48,9 +48,9 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
     if (inside || exit) action.boundary = { key: active.key, intent: exit ? 'exit' : 'interact' };
     else action.preconditions.blockers.push({ code: 'outside_active_boundary', boundaryKey: active.key, evidence: active.evidence, unblock: `Close and verify exit from ${active.name} before interacting with its parent` });
   }
-  if (control && ['click', 'check', 'scroll'].includes(action.kind)) {
+  if (control) {
     if (control.actionable.outsideScrollableArea) action.preconditions.blockers.push({ code: 'outside_scrollable_area', evidence: ['target-outside-scrollable-viewport'], unblock: 'Make the control reachable in the viewport' });
-    else if (control.actionable.hitTarget === false) action.preconditions.blockers.push({ code: 'pointer_intercepted', evidence: [control.actionable.occludedBy || 'hit-test-failed'], unblock: 'Remove the obstruction and observe again' });
+    else if (['click', 'check', 'scroll'].includes(action.kind) && control.actionable.hitTarget === false) action.preconditions.blockers.push({ code: 'pointer_intercepted', evidence: [control.actionable.occludedBy || 'hit-test-failed'], unblock: 'Remove the obstruction and observe again' });
   }
   if (control && action.kind === 'fill' && !control.editable) action.preconditions.blockers.push({ code: 'not_editable', evidence: ['observed-editable=false'], unblock: 'Wait until the field is editable and observe again' });
   if (!['click', 'fill', 'select', 'check', 'scroll', 'press', 'history'].includes(action.kind)) throw new EngineError('INVALID_PLUGIN_ACTION', 'Unsupported browser action kind');

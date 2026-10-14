@@ -172,6 +172,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if (item.sampling) continue;
         if (item.contextKey !== contextKey(o.context) && item.status !== 'executing') { item.status = 'needs_revalidation'; item.reason = 'business_context_changed'; this.store.put('frontier', item); }
       }
+      // Capture is serialized. Index this transaction's current records once,
+      // and keep inserts in the index so duplicate candidates still update one row.
+      const frontierByKey = new Map<string, FrontierItem>();
+      for (const item of this.store.list<FrontierItem>('frontier', sessionId)) if (!frontierByKey.has(item.key)) frontierByKey.set(item.key, item);
       for (const action of actions) {
         this.store.put('action', action);
         if (action.basis?.status === 'tentative') this.emit(sessionId, 'action.tentative', { actionId: action.id, observationId: o.id, basis: action.basis });
@@ -180,7 +184,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if (this.outsideBoundary(action) || session.options.exploration === 'controls' && action.basis?.status === 'tentative') continue;
         const key = this.frontierKey(action, o);
         const sample = this.samplingCase(action, o);
-        const existing = this.store.list<FrontierItem>('frontier', sessionId).find(f => f.key === key);
+        const existing = frontierByKey.get(key);
         const blocker = action.preconditions.blockers?.[0];
         const tentative = action.basis?.status === 'tentative';
         const reason = action.exclusionReason || (!this.targetResolved(action, o) ? 'identity_ambiguous' : !action.preconditions.enabled ? 'disabled' : blocker?.code) || (tentative ? 'action_basis_unconfirmed' : undefined);
@@ -188,7 +192,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if (!existing) {
           const f: FrontierItem = { id: id(), sessionId, key, stateId: o.stateId, contextKey: contextKey(o.context), action, status: reason || action.excluded ? 'blocked' : 'pending', reason, unblock, depth: frontierDepth, attempts: [] };
           if (sample) f.sampling = { policy: sample.policy, evidence: sample.evidence, observationIds: [o.id] };
-          this.store.put('frontier', f);
+          this.store.put('frontier', f); frontierByKey.set(key, f);
         } else {
           const temporarilyBlocked = existing.status === 'blocked' && (!!existing.action.preconditions.blockers?.length || existing.reason === 'action_basis_unconfirmed');
           if (existing.sampling && !existing.sampling.observationIds.includes(o.id)) existing.sampling.observationIds.push(o.id);
@@ -295,7 +299,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (session.actionCount >= session.options.maxActions || session.elapsedMs >= session.options.maxDurationMs) throw new EngineError('BUDGET_EXHAUSTED', 'Action or elapsed-time budget exhausted');
   }
   private updateFrontier(attempt: ActionAttempt) {
-    for (const item of this.store.list<FrontierItem>('frontier', attempt.sessionId).filter(f => f.key === this.frontierKey(attempt.action))) {
+    const key = this.frontierKey(attempt.action);
+    for (const item of this.store.list<FrontierItem>('frontier', attempt.sessionId).filter(f => f.key === key)) {
       item.status = attempt.status === 'succeeded' ? 'executed' : attempt.status === 'failed' || attempt.status === 'blocked' ? 'blocked' : attempt.status === 'executing' ? 'executing' : 'unknown';
       item.action = attempt.action; item.stateId = attempt.action.stateId;
       item.reason = attempt.reason; if (!item.attempts.includes(attempt.id)) item.attempts.push(attempt.id); this.store.put('frontier', item);
@@ -336,9 +341,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       session.actionCount++;
       if (action.risk !== 'interface') { session.dirty = true; (session.dirtyAttemptIds ??= []).push(attempt.id); }
       this.store.put('session', session);
-      if (!this.store.list<FrontierItem>('frontier', sessionId).some(f => f.key === this.frontierKey(action))) {
-        const sample = this.samplingCase(action);
-        this.store.put('frontier', { id: id(), sessionId, key: this.frontierKey(action), stateId: action.stateId, contextKey: contextKey(action.preconditions.context), action, status: 'executing', attempts: [], depth: this.owned<Visit>('visit', current.visitId, sessionId).depth,
+      const key = this.frontierKey(action, current);
+      if (!this.store.list<FrontierItem>('frontier', sessionId).some(f => f.key === key)) {
+        const sample = this.samplingCase(action, current);
+        this.store.put('frontier', { id: id(), sessionId, key, stateId: action.stateId, contextKey: contextKey(action.preconditions.context), action, status: 'executing', attempts: [], depth: this.owned<Visit>('visit', current.visitId, sessionId).depth,
           ...(sample ? { sampling: { policy: sample.policy, evidence: sample.evidence, observationIds: [current.id] } } : {}) } as FrontierItem);
       }
       this.store.put('attempt', attempt); this.store.recordRequest(sessionId, requestId, attempt.id, payload); this.updateFrontier(attempt); this.emit(sessionId, 'action.started', attempt);

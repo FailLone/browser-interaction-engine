@@ -1,0 +1,178 @@
+{
+  "before": {
+    "attempt": {
+      "id": "6ab930c8-04f5-4fd3-bb4a-cbb7c36ba92d",
+      "action": {
+        "id": "c9651af6-7ac0-4e1f-b863-1c00c796723a",
+        "sessionId": "d5188447-1ed5-4484-87af-33ea064d9594",
+        "observationId": "cd7fb1e4-9625-48ca-a5bc-88137e5d3c60",
+        "stateId": "16df1936-5ff8-43d9-a4f4-412f1465b13e",
+        "controlId": "ae35cace-ebb1-4b76-913c-aca702428ee7",
+        "localId": "7e2f9afa-6ba0-4cba-8306-256734a098df:448",
+        "kind": "fill",
+        "value": "example",
+        "label": "Unnamed textbox",
+        "preconditions": {
+          "context": {},
+          "visible": true,
+          "enabled": true,
+          "identityResolved": false,
+          "blockers": [],
+          "targetResolved": true
+        },
+        "basis": {
+          "status": "supported",
+          "evidence": [
+            {
+              "source": "html",
+              "rule": "native-text-entry/v1",
+              "facts": {
+                "tag": "input",
+                "type": "text"
+              }
+            }
+          ]
+        },
+        "replayable": false,
+        "risk": "interface",
+        "source": "dom-actions-v2",
+        "excluded": false,
+        "sampleValidity": "shape_only",
+        "target": {
+          "kind": "instance",
+          "instanceScope": "7e2f9afa-6ba0-4cba-8306-256734a098df",
+          "instanceId": "7e2f9afa-6ba0-4cba-8306-256734a098df:448",
+          "evidence": [
+            "Unique current node instance; historical logical identity remains unresolved",
+            "observation:cd7fb1e4-9625-48ca-a5bc-88137e5d3c60"
+          ]
+        }
+      },
+      "status": "succeeded",
+      "purpose": "exploration",
+      "beforeId": "cd7fb1e4-9625-48ca-a5bc-88137e5d3c60",
+      "afterId": "68103853-d87a-4d28-bc21-eaf135bc38e1"
+    },
+    "before": {
+      "localId": "7e2f9afa-6ba0-4cba-8306-256734a098df:448",
+      "value": "",
+      "rect": {
+        "x": -9106.421875,
+        "y": -9976,
+        "width": 146,
+        "height": 16
+      },
+      "visible": true,
+      "actionable": {
+        "visible": true,
+        "enabled": true,
+        "editable": true,
+        "hitTarget": null,
+        "unknown": [
+          "event-handler-completeness",
+          "business-preconditions",
+          "off-viewport-hit-target"
+        ],
+        "outsideScrollableArea": true
+      }
+    },
+    "afterValue": "example"
+  },
+  "after": {
+    "runtime": "31e86ca plus generic target reachability constraint",
+    "policySha256": "c3c60351d335835dd974508d208bed39bbc3a8cb3ff513b66a54e7f9eba5e2a3",
+    "sessionId": "bb6891d7-2e1b-4a1c-8834-1d8a4c140d64",
+    "observationId": "7be96769-cdc2-4089-a6df-fcd3251c38b3",
+    "control": {
+      "localId": "46a241c0-b9be-4ed2-8209-4b993caf7231:429",
+      "name": "",
+      "role": "textbox",
+      "value": "",
+      "visible": true,
+      "rect": {
+        "x": -9106.421875,
+        "y": -9976,
+        "width": 146,
+        "height": 16
+      },
+      "actionable": {
+        "visible": true,
+        "enabled": true,
+        "editable": true,
+        "hitTarget": null,
+        "unknown": [
+          "event-handler-completeness",
+          "business-preconditions",
+          "off-viewport-hit-target"
+        ],
+        "outsideScrollableArea": true
+      }
+    },
+    "action": {
+      "id": "e61637e1-ffee-4681-9ea7-b287802a61e0",
+      "sessionId": "bb6891d7-2e1b-4a1c-8834-1d8a4c140d64",
+      "observationId": "7be96769-cdc2-4089-a6df-fcd3251c38b3",
+      "stateId": "fd7ec92f-37d4-48ab-92b3-8279e9e53482",
+      "controlId": "f5ac68dc-3a9a-40b0-b4ef-224ae98199cf",
+      "localId": "46a241c0-b9be-4ed2-8209-4b993caf7231:429",
+      "kind": "fill",
+      "value": "example",
+      "label": "Unnamed textbox",
+      "preconditions": {
+        "context": {},
+        "visible": true,
+        "enabled": true,
+        "identityResolved": false,
+        "blockers": [
+          {
+            "code": "outside_scrollable_area",
+            "evidence": [
+              "target-outside-scrollable-viewport"
+            ],
+            "unblock": "Make the control reachable in the viewport"
+          }
+        ],
+        "targetResolved": true
+      },
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "html",
+            "rule": "native-text-entry/v1",
+            "facts": {
+              "tag": "input",
+              "type": "text"
+            }
+          }
+        ]
+      },
+      "replayable": false,
+      "risk": "interface",
+      "source": "dom-actions-v2",
+      "excluded": false,
+      "sampleValidity": "shape_only",
+      "target": {
+        "kind": "instance",
+        "instanceScope": "46a241c0-b9be-4ed2-8209-4b993caf7231",
+        "instanceId": "46a241c0-b9be-4ed2-8209-4b993caf7231:429",
+        "evidence": [
+          "Unique current node instance; historical logical identity remains unresolved",
+          "observation:7be96769-cdc2-4089-a6df-fcd3251c38b3"
+        ]
+      }
+    },
+    "request": {
+      "type": "execute",
+      "actionId": "e61637e1-ffee-4681-9ea7-b287802a61e0",
+      "requestId": "40265ad1-9e93-4187-b2e5-bb8585c77bee",
+      "value": "unreachable-probe"
+    },
+    "rejection": "{\"error\":\"EngineError: outside_scrollable_area\",\"code\":\"ACTION_BLOCKED\",\"details\":{\"blockers\":[{\"code\":\"outside_scrollable_area\",\"evidence\":[\"target-outside-scrollable-viewport\"],\"unblock\":\"Make the control reachable in the viewport\"}],\"observationId\":\"7be96769-cdc2-4089-a6df-fcd3251c38b3\"}}",
+    "actionCountBefore": 1,
+    "actionCountAfter": 1,
+    "valueAfter": "",
+    "scope": "The existing outside-scrollable-area signal now blocks input; no page-specific selector or threshold was added"
+  },
+  "meaning": "Before: native text input accepted a fill while already known outside the reachable scroll area. After: the same kind of current target is blocked before execution, with value and action count unchanged. The field remains an observed incomplete capability; it is not silently counted as covered or removed."
+}
