@@ -128,6 +128,10 @@
 
 准备选择分支清单时，同时纠正旧聚合口径：原 823 个名称包含地区提示的 `Go to OKX Wallet` 和 `Close`，按实际 BTC 弹层、listbox 区域及原生按钮归属重新核对，得到 821 个真实选项。原错误聚合及排除依据保存在 [crypto-list-bottom.json](crypto-list-bottom.json) 的 `aggregateCorrection`；821 仍表示观察到，不能当作全部选择完成。独立审阅批次正在逐项重新定位、选中、核对目标标签并返回；缺失或歧义项继续保留未执行。
 
+选择批次的首个留存快照实际完成 9 个选项：BTC、0G、1INCH、2Z、A、AAOI、AAPL、AAVE、ACA。每项都在当前弹层重新唯一定位原生按钮，通过引擎选择，在目标观察中核对选中标签和 USD 对应标签，再关闭提示并返回来源。9 次完整旧检查点恢复均未通过，来源页实际返回和选择标签验证单独记录；没有执行兑换或交易。见 [currency-selection-progress.json](currency-selection-progress.json)。该文件是前 9 项的快照，821 项清单的后续批次仍运行中。
+
+另一个运行退出退役修复的默认遍历再次到达完整币种列表底部，按实际列表归属复核仍为 821 个选项；退出后 244 条未尝试出口已退役，无遗留待执行的旧出口。法币搜索无结果时补充当前清空样本及外部点击退出声明后，继续遍历。这个长会话未加载最后的名称修复，与上面的新版本选择批次分别记录。
+
 ## 原始审计
 
 2026-10-15（Asia/Shanghai），测试版本为已合入 `main` 的 `e793fba`。先完成合并，再访问 https://www.okx.com/convert/btc-to-usd 。合并验证：181 项测试 / 34 个文件通过，typecheck、build、smoke:built 通过。运行环境为 Node.js 24.21.0、Playwright Chromium，1440 × 900。
