@@ -108,3 +108,68 @@ it('ignores editable values in row descriptions and rejects overlong labels inst
     expect(edits(tooLong.controls).every(c => !c.stableKey && c.hypothesisId)).toBe(true);
   } finally { await t.close(); }
 });
+
+it('keeps parent and tab identities when an unowned floating child panel loads, updates or filters its content', async () => {
+  const t = await testEngine(`${fixture.url}/identity-lists.html?mode=semantic`, { contextRules: [], exploration: 'controls' });
+  try {
+    await pageOf(t.engine).setContent(`<ul aria-label="Products"><li style="position:relative;width:260px;height:50px">
+      <span id="record">Product A</span><button aria-expanded="false" onclick="panel.hidden=false;this.setAttribute('aria-expanded','true')">Open details</button>
+      <div id="panel" hidden style="position:absolute;left:280px;top:0;width:250px;height:200px">
+        <button role="tab">Overview</button><button role="tab">History</button><div id="results">Loading</div>
+      </div></li></ul>`);
+    const initial = await t.engine.observe(t.sessionId);
+    const opener = initial.controls.find(c => c.name === 'Open details')!;
+    const action = t.engine.actions(t.sessionId).find(a => a.label === 'Open details')!;
+    await t.engine.execute(t.sessionId, action.id, 'open-product');
+    const opened = t.engine.observation(t.sessionId);
+    const tabs = opened.controls.filter(c => c.role === 'tab');
+    expect(opened.controls.find(c => c.name === 'Open details')!.identityId).toBe(opener.identityId);
+    for (const content of ['Quote 12.34, change +1.5%', 'Quote 56.78, change -2%', 'No matching records']) {
+      await pageOf(t.engine).locator('#results').evaluate((el, text) => { el.textContent = text; }, content);
+      const next = await t.engine.observe(t.sessionId);
+      expect(next.controls.find(c => c.name === 'Open details')!.identityId).toBe(opener.identityId);
+      expect(next.controls.filter(c => c.role === 'tab').map(c => c.identityId)).toEqual(tabs.map(c => c.identityId));
+      expect(next.controls.filter(c => c.role === 'tab').every(c => !c.hypothesisId)).toBe(true);
+      expect(next.text).toContain(content); // Full evidence still contains the changing panel.
+    }
+    expect(t.engine.getFrontier(t.sessionId).filter(f => f.action.label === 'Open details')).toHaveLength(1);
+    await pageOf(t.engine).locator('#record').evaluate(el => { el.textContent = 'Product B'; });
+    const rebound = await t.engine.observe(t.sessionId);
+    expect(rebound.controls.find(c => c.name === 'Open details')!.instanceId).toBe(opener.instanceId);
+    expect(rebound.controls.find(c => c.name === 'Open details')!.identityId).not.toBe(opener.identityId);
+    expect(rebound.controls.filter(c => c.role === 'tab').every(c => !tabs.some(old => old.identityId === c.identityId))).toBe(true);
+    expect(t.engine.observation(t.sessionId, initial.id)).toEqual(initial);
+  } finally { await t.close(); }
+});
+
+it('separates nested record descriptions while retaining their complete parent binding', async () => {
+  const t = await testEngine(`${fixture.url}/identity-lists.html`, { contextRules: [] });
+  try {
+    await pageOf(t.engine).setContent(`<ul aria-label="Categories"><li><span>Category A</span><button id="parent">Edit category</button>
+      <ul aria-label="Products"><li><span id="child">Product A</span><button>Edit product</button></li></ul>
+    </li></ul>`);
+    const first = await t.engine.observe(t.sessionId);
+    const parent = first.controls.find(c => c.name === 'Edit category')!, child = first.controls.find(c => c.name === 'Edit product')!;
+    await pageOf(t.engine).locator('#child').evaluate(el => { el.textContent = 'Product B'; });
+    const next = await t.engine.observe(t.sessionId);
+    expect(next.controls.find(c => c.name === 'Edit category')!.identityId).toBe(parent.identityId);
+    expect(next.controls.find(c => c.name === 'Edit product')!.identityId).not.toBe(child.identityId);
+    expect(next.controls.find(c => c.name === 'Edit product')!.stableKey).toContain('Category A');
+    expect(next.controls.find(c => c.name === 'Edit product')!.stableKey).toContain('Product B');
+  } finally { await t.close(); }
+});
+
+it('retains an ordinary positioned record label instead of treating every positioned node as a popup', async () => {
+  const t = await testEngine(`${fixture.url}/identity-lists.html`, { contextRules: [] });
+  try {
+    await pageOf(t.engine).setContent(`<ul><li style="position:relative;width:250px;height:70px">
+      <span id="record" style="position:absolute;top:0;left:0"><b>Record A</b></span>
+      <button aria-expanded="false" style="position:absolute;top:30px">Edit</button></li></ul>`);
+    const first = await t.engine.observe(t.sessionId); const control = first.controls.find(c => c.name === 'Edit')!;
+    expect(control.stableKey).toContain('Record A');
+    await pageOf(t.engine).locator('#record').evaluate(el => { el.textContent = 'Record B'; });
+    const next = await t.engine.observe(t.sessionId);
+    expect(next.controls.find(c => c.name === 'Edit')!.identityId).not.toBe(control.identityId);
+    expect(next.controls.find(c => c.name === 'Edit')!.stableKey).toContain('Record B');
+  } finally { await t.close(); }
+});

@@ -1,0 +1,731 @@
+{
+  "recordedAt": "2026-10-14T20:58:17.912388+00:00",
+  "change": "Exclude nested list/panel contents from the parent record descriptor; preserve parent binding and full raw evidence",
+  "method": "Different real sessions: baseline automatic exploration versus directed identity validation. Not an equal-length coverage comparison. No identity resolution or control review used for the three menu controls.",
+  "before": {
+    "sessionId": "7fb86a64-5da8-4ff3-8f8d-5b59e94a9b44",
+    "version": "0106e49",
+    "records": [
+      {
+        "label": "Open Spot sub-menu",
+        "identityCount": 9,
+        "instances": [
+          "5f4f264c-004b-454c-bdb6-a60a54288b02:299"
+        ],
+        "identities": [
+          {
+            "id": "4735b0b3-0cff-4c7b-82ef-7401ba8bcb3b",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Open Spot sub-menu\",\"region\":\"navigation:navContainer\",\"role\":\"button\",\"type\":\"i\"}",
+            "observations": [
+              "702291e0-f327-45d9-82b5-0d0733d07d5e",
+              "4f621ecf-3d1b-4826-8c2d-95bbb8bd5a38",
+              "34d6c3a9-1579-4d1e-bd7f-3b7e8d57cc2a",
+              "08c10f9d-c84b-4da4-86a5-a70b579832f4",
+              "66a690b8-b900-4a7d-9a03-2db2b1556035",
+              "d95b95a9-5e95-403a-b712-5e71858b938b",
+              "dd967f5b-2e09-46f0-80f2-6a4955a244d8",
+              "5105ebd8-7ed5-4c43-94cb-9925e56dfb51",
+              "639ed588-b7f1-4d25-8db5-c32118b17376",
+              "cea522ec-6644-45c3-b6f6-bfd8c57339a4",
+              "c7504ebe-f58b-4028-8847-34d55e4cd2c0",
+              "ba5cb84a-7bf2-4232-a9a0-67e5d6430d9a",
+              "eccb8c11-3bb3-453c-901d-a39758591a66",
+              "d02ba1b9-5697-49cf-9ba4-7bf87f6b2b2c",
+              "fbfa9c2d-9f55-497a-8c61-7dd52e8ad525",
+              "a2ca61c2-4f36-4832-b185-e185b9942b50",
+              "9b600bd2-83ed-4acf-ab01-5af5f7c0e409",
+              "eaa5d284-652a-474b-8b40-10cadb121545",
+              "394b5123-e328-4d85-8d77-102e57321101",
+              "0685030d-21fa-423a-9308-5b8755b1df7a",
+              "cde6addf-2d2e-4d3b-b50e-78121f9e616d",
+              "dd0bc270-aaac-48dc-bd6d-51ae18e36888",
+              "8fc6dbd6-9dc3-40dc-9b6f-5d5bc8d16d2f",
+              "d82207bd-759a-4c6f-b398-62ef296f7cec",
+              "73cde8fb-06fe-4163-ad85-6600f226b0c3",
+              "be4c3445-8028-4db3-b20f-a9dda72dbaf3",
+              "e9550e3b-09e6-4961-a2ab-f5c9276d2699",
+              "b6a816e4-6c9c-4636-8aa5-07aa09644d32",
+              "9b831cf1-fec7-40ab-acdc-6097c7fc36a7",
+              "055d7480-f331-4aa1-868e-b15dbf8fed74",
+              "80031d8c-cdf0-47fa-9ff4-f1eb30c4e3e4",
+              "60669e51-d59d-48e2-ad3f-8228b9cfe2b3",
+              "fc97c42d-b43b-4beb-ad73-1c322498e5ba",
+              "a6ea604b-a596-4b18-a1d3-3173907764c1",
+              "aef87c61-fcee-457b-a030-a6c6b06be38d",
+              "5f30b58a-132f-4a89-a40b-f05f36dc9490",
+              "681360c7-58b9-4243-b528-fa746b2c5acb",
+              "a205028f-d902-49e3-8a5a-201e3cd8bc11",
+              "a3122736-0029-48a1-89ff-ec21651bee8d",
+              "1344fb74-47bf-4de7-9692-7237e91cf351",
+              "cb6f0f3c-9e1b-4672-b4ea-d965a4f9f6df",
+              "65dd01d9-8796-4748-a9f2-1e38553ee7a4",
+              "4d7778d0-90e1-4d27-b57a-b8959dbf6cac",
+              "06ce8863-b315-4b21-900e-60345e449713",
+              "bd4f8af5-9e65-465c-a0c0-e9f844a4aa9f",
+              "5ad7df28-fbfe-4d70-982f-961a24330f06",
+              "28de15ff-4439-4c35-abf4-32a441c0e5f1",
+              "f91875c3-3576-4049-9d90-039603f154f6",
+              "a7277df0-7266-4158-b5af-8712dbc1f9b9",
+              "5bac4b2b-921e-4303-a49a-18f6b51d8588",
+              "33cb7bb8-cea4-4102-b0b4-8580304cda79",
+              "8569e348-d564-48a2-adb4-ac55e575e438",
+              "f75a9c48-56b5-470a-98f4-20b502a01cc1",
+              "c504dcf1-fa74-46bb-9f69-db96593495b3"
+            ]
+          },
+          {
+            "id": "8dc2dca0-9a59-487b-9b67-5b2d8d155cf6",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeLoading\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Open Spot sub-menu\",\"region\":\"navigation:navContainer\",\"role\":\"button\",\"type\":\"i\"}",
+            "observations": [
+              "a788b294-5b68-43a0-af1a-d1f10e2aaf82"
+            ]
+          },
+          {
+            "id": "43a54454-fffe-464e-8fba-e8cd33c34035",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoBTC/USDTLast price81,670.524h change-2.07%ETH/USDTLast price2,415.6124h change-3.80%UNI/USDTLast price7.08324h change-6.58%LINK/USDTLast price12.38924h change-4.10%AVAX/USDTLast price9.92324h change-3.53%USDC/USDTLast price1.0010324h change+0.01%\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Open Spot sub-menu\",\"region\":\"navigation:navContainer\",\"role\":\"button\",\"type\":\"i\"}",
+            "observations": [
+              "d8aca245-31a8-4789-b9b1-fbd079f2a97c",
+              "dc9c4e8f-feff-48fa-877a-994532f71db2",
+              "3fd7b267-1c9a-47d0-911c-55cf19e9ff89"
+            ]
+          },
+          {
+            "id": "1dfcd9ce-bbeb-4a61-b18a-fd24717cb619",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoETH/BTCLast price0.0295724h change-1.83%\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Open Spot sub-menu\",\"region\":\"navigation:navContainer\",\"role\":\"button\",\"type\":\"i\"}",
+            "observations": [
+              "bcc2eeea-46fa-4465-82c0-927eaad091d0",
+              "710bb5f8-95c1-46bc-89e5-9c0335523f2d"
+            ]
+          },
+          {
+            "id": "bc8aad48-0ef3-4f3c-8390-e0cea17736f0",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoBTC/USDTLast price81,689.624h change-2.05%ETH/USDTLast price2,416.9424h change-3.75%UNI/USDTLast price7.08924h change-6.50%LINK/USDTLast price12.39024h change-4.09%AVAX/USDTLast price9.92024h change-3.56%USDC/USDTLast price1.0010424h change+0.01%\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Open Spot sub-menu\",\"region\":\"navigation:navContainer\",\"role\":\"button\",\"type\":\"i\"}",
+            "observations": [
+              "d8bcc63d-8dab-4cee-ae6f-bc70887cae16",
+              "1a6e2ef5-4b1d-4c43-a69a-69fb3e64a8fb",
+              "e50063d4-64e8-410e-a26f-17517b1dc37f"
+            ]
+          },
+          {
+            "id": "b7a37bbe-7851-4882-a1c9-8adfa1374f5c",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoETH/BTCLast price0.0295924h change-1.76%\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Open Spot sub-menu\",\"region\":\"navigation:navContainer\",\"role\":\"button\",\"type\":\"i\"}",
+            "observations": [
+              "500aa536-18ee-4db3-a3c6-a594ef8abfa7",
+              "59294275-045b-4719-843d-f10898831181"
+            ]
+          },
+          {
+            "id": "32faf7c7-7cd2-4d10-b4bb-2414f73bf081",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoBTC/USDTLast price81,704.524h change-2.02%ETH/USDTLast price2,418.9124h change-3.68%UNI/USDTLast price7.09324h change-6.50%LINK/USDTLast price12.39624h change-4.05%AVAX/USDTLast price9.92624h change-3.53%USDC/USDTLast price1.0010424h change+0.01%\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Open Spot sub-menu\",\"region\":\"navigation:navContainer\",\"role\":\"button\",\"type\":\"i\"}",
+            "observations": [
+              "7e3bc7fd-8a78-43a3-b588-43d70c098672",
+              "eb242d04-ec82-4bd4-8a65-4247d35ddbc1",
+              "ff497ea8-146a-4c09-a6e2-676ce02b612f",
+              "33035e7c-5181-4648-8e64-8f0b4826a8db"
+            ]
+          },
+          {
+            "id": "326d0966-c6e8-4a81-ba9a-c0e319fa1404",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoETH/BTCLast price0.0296024h change-1.73%\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Open Spot sub-menu\",\"region\":\"navigation:navContainer\",\"role\":\"button\",\"type\":\"i\"}",
+            "observations": [
+              "842f8397-1b91-4aca-8004-fd149e0defd6",
+              "57dbe6f1-99ca-4396-989b-b0da32891fb9"
+            ]
+          },
+          {
+            "id": "e878f963-58a6-4436-bde7-4bcef704b1d0",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoNo results found\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Open Spot sub-menu\",\"region\":\"navigation:navContainer\",\"role\":\"button\",\"type\":\"i\"}",
+            "observations": [
+              "bda5775d-3538-4819-81d6-7ebc8375d3b5",
+              "aa120c37-d239-48b4-8b82-57d9d8227a73",
+              "9efc1ba0-c94d-4c23-badd-dc1c1dd53364",
+              "8e5889da-c37d-4a18-842c-3965343094bf"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "USDT",
+        "identityCount": 7,
+        "instances": [
+          "5f4f264c-004b-454c-bdb6-a60a54288b02:2268"
+        ],
+        "identities": [
+          {
+            "id": "f3548e69-4102-462e-8cff-9171cba77ee9",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoBTC/USDTLast price81,670.524h change-2.07%ETH/USDTLast price2,415.6124h change-3.80%UNI/USDTLast price7.08324h change-6.58%LINK/USDTLast price12.38924h change-4.10%AVAX/USDTLast price9.92324h change-3.53%USDC/USDTLast price1.0010324h change+0.01%\\\"]\"]],\"[\\\"tab\\\",\\\"USDT\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"USDT\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "d8aca245-31a8-4789-b9b1-fbd079f2a97c",
+              "dc9c4e8f-feff-48fa-877a-994532f71db2",
+              "3fd7b267-1c9a-47d0-911c-55cf19e9ff89"
+            ]
+          },
+          {
+            "id": "97e07780-b623-40d8-96c4-b5cbbd151fc3",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoETH/BTCLast price0.0295724h change-1.83%\\\"]\"]],\"[\\\"tab\\\",\\\"USDT\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"USDT\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "bcc2eeea-46fa-4465-82c0-927eaad091d0",
+              "710bb5f8-95c1-46bc-89e5-9c0335523f2d"
+            ]
+          },
+          {
+            "id": "62b18e9d-2677-40fd-9f98-a718b849097d",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoBTC/USDTLast price81,689.624h change-2.05%ETH/USDTLast price2,416.9424h change-3.75%UNI/USDTLast price7.08924h change-6.50%LINK/USDTLast price12.39024h change-4.09%AVAX/USDTLast price9.92024h change-3.56%USDC/USDTLast price1.0010424h change+0.01%\\\"]\"]],\"[\\\"tab\\\",\\\"USDT\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"USDT\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "d8bcc63d-8dab-4cee-ae6f-bc70887cae16",
+              "1a6e2ef5-4b1d-4c43-a69a-69fb3e64a8fb",
+              "e50063d4-64e8-410e-a26f-17517b1dc37f"
+            ]
+          },
+          {
+            "id": "4b44b943-4786-4db4-b7d0-890e3f8fefb3",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoETH/BTCLast price0.0295924h change-1.76%\\\"]\"]],\"[\\\"tab\\\",\\\"USDT\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"USDT\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "500aa536-18ee-4db3-a3c6-a594ef8abfa7",
+              "59294275-045b-4719-843d-f10898831181"
+            ]
+          },
+          {
+            "id": "cc274354-a90c-457f-ba72-cd3244009bcd",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoBTC/USDTLast price81,704.524h change-2.02%ETH/USDTLast price2,418.9124h change-3.68%UNI/USDTLast price7.09324h change-6.50%LINK/USDTLast price12.39624h change-4.05%AVAX/USDTLast price9.92624h change-3.53%USDC/USDTLast price1.0010424h change+0.01%\\\"]\"]],\"[\\\"tab\\\",\\\"USDT\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"USDT\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "7e3bc7fd-8a78-43a3-b588-43d70c098672",
+              "eb242d04-ec82-4bd4-8a65-4247d35ddbc1",
+              "ff497ea8-146a-4c09-a6e2-676ce02b612f",
+              "33035e7c-5181-4648-8e64-8f0b4826a8db"
+            ]
+          },
+          {
+            "id": "09bce5ec-5aa2-47c9-96b2-d06fc2a4f730",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoETH/BTCLast price0.0296024h change-1.73%\\\"]\"]],\"[\\\"tab\\\",\\\"USDT\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"USDT\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "842f8397-1b91-4aca-8004-fd149e0defd6",
+              "57dbe6f1-99ca-4396-989b-b0da32891fb9"
+            ]
+          },
+          {
+            "id": "ffec8ba6-f875-4d41-9132-842fe20ddea0",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoNo results found\\\"]\"]],\"[\\\"tab\\\",\\\"USDT\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"USDT\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "bda5775d-3538-4819-81d6-7ebc8375d3b5",
+              "aa120c37-d239-48b4-8b82-57d9d8227a73",
+              "9efc1ba0-c94d-4c23-badd-dc1c1dd53364",
+              "8e5889da-c37d-4a18-842c-3965343094bf"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Crypto",
+        "identityCount": 7,
+        "instances": [
+          "5f4f264c-004b-454c-bdb6-a60a54288b02:2269"
+        ],
+        "identities": [
+          {
+            "id": "8ad30824-476b-4359-ad42-15a184122119",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoBTC/USDTLast price81,670.524h change-2.07%ETH/USDTLast price2,415.6124h change-3.80%UNI/USDTLast price7.08324h change-6.58%LINK/USDTLast price12.38924h change-4.10%AVAX/USDTLast price9.92324h change-3.53%USDC/USDTLast price1.0010324h change+0.01%\\\"]\"]],\"[\\\"tab\\\",\\\"Crypto\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Crypto\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "d8aca245-31a8-4789-b9b1-fbd079f2a97c",
+              "dc9c4e8f-feff-48fa-877a-994532f71db2",
+              "3fd7b267-1c9a-47d0-911c-55cf19e9ff89"
+            ]
+          },
+          {
+            "id": "7a9585c1-469b-4055-8fda-1b6ea6c4e60e",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoETH/BTCLast price0.0295724h change-1.83%\\\"]\"]],\"[\\\"tab\\\",\\\"Crypto\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Crypto\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "bcc2eeea-46fa-4465-82c0-927eaad091d0",
+              "710bb5f8-95c1-46bc-89e5-9c0335523f2d"
+            ]
+          },
+          {
+            "id": "29ca2285-07bf-49d1-a303-a37629998192",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoBTC/USDTLast price81,689.624h change-2.05%ETH/USDTLast price2,416.9424h change-3.75%UNI/USDTLast price7.08924h change-6.50%LINK/USDTLast price12.39024h change-4.09%AVAX/USDTLast price9.92024h change-3.56%USDC/USDTLast price1.0010424h change+0.01%\\\"]\"]],\"[\\\"tab\\\",\\\"Crypto\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Crypto\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "d8bcc63d-8dab-4cee-ae6f-bc70887cae16",
+              "1a6e2ef5-4b1d-4c43-a69a-69fb3e64a8fb",
+              "e50063d4-64e8-410e-a26f-17517b1dc37f"
+            ]
+          },
+          {
+            "id": "3901b5d8-90f8-40b7-ba83-513f6516a4a0",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoETH/BTCLast price0.0295924h change-1.76%\\\"]\"]],\"[\\\"tab\\\",\\\"Crypto\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Crypto\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "500aa536-18ee-4db3-a3c6-a594ef8abfa7",
+              "59294275-045b-4719-843d-f10898831181"
+            ]
+          },
+          {
+            "id": "fa37ce91-b17f-48cc-9c30-cfe255549972",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoBTC/USDTLast price81,704.524h change-2.02%ETH/USDTLast price2,418.9124h change-3.68%UNI/USDTLast price7.09324h change-6.50%LINK/USDTLast price12.39624h change-4.05%AVAX/USDTLast price9.92624h change-3.53%USDC/USDTLast price1.0010424h change+0.01%\\\"]\"]],\"[\\\"tab\\\",\\\"Crypto\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Crypto\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "7e3bc7fd-8a78-43a3-b588-43d70c098672",
+              "eb242d04-ec82-4bd4-8a65-4247d35ddbc1",
+              "ff497ea8-146a-4c09-a6e2-676ce02b612f",
+              "33035e7c-5181-4648-8e64-8f0b4826a8db"
+            ]
+          },
+          {
+            "id": "74e2bba1-fda8-42da-8e94-1a858edd6f44",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoETH/BTCLast price0.0296024h change-1.73%\\\"]\"]],\"[\\\"tab\\\",\\\"Crypto\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Crypto\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "842f8397-1b91-4aca-8004-fd149e0defd6",
+              "57dbe6f1-99ca-4396-989b-b0da32891fb9"
+            ]
+          },
+          {
+            "id": "82f96b04-e2ad-4743-ac59-8cd3b193d0c8",
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with easeUSDTCryptoNo results found\\\"]\"]],\"[\\\"tab\\\",\\\"Crypto\\\",\\\"div\\\"]\"]",
+            "signature": "{\"actions\":[\"click\"],\"form\":\"document\",\"label\":\"Crypto\",\"region\":\"navigation:navContainer\",\"role\":\"tab\",\"type\":\"div\"}",
+            "observations": [
+              "bda5775d-3538-4819-81d6-7ebc8375d3b5",
+              "aa120c37-d239-48b4-8b82-57d9d8227a73",
+              "9efc1ba0-c94d-4c23-badd-dc1c1dd53364",
+              "8e5889da-c37d-4a18-842c-3965343094bf"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "after": {
+    "sessionId": "84323c93-3e5e-4405-a86e-139b58cbd2e4",
+    "actionCount": 9,
+    "identityCounts": {
+      "Open Spot sub-menu": 1,
+      "USDT": 1,
+      "Crypto": 1
+    },
+    "steps": [
+      {
+        "step": "initial",
+        "observationId": "d6d93391-363b-42cb-aa6b-95bf3ac3f61f",
+        "controls": [
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "identityId": "a23eba86-3125-49f6-9204-24b6d79ebaef",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "name": "Open Spot sub-menu",
+            "visible": false,
+            "expanded": false,
+            "selected": []
+          }
+        ]
+      },
+      {
+        "step": "Close",
+        "observationId": "a5f34b1e-38d4-4851-961b-57a68900d19d",
+        "controls": [
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "identityId": "a23eba86-3125-49f6-9204-24b6d79ebaef",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "name": "Open Spot sub-menu",
+            "visible": false,
+            "expanded": false,
+            "selected": []
+          }
+        ]
+      },
+      {
+        "step": "Trade",
+        "observationId": "d970ad27-def1-48c7-a496-7755bcda262e",
+        "controls": [
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "identityId": "a23eba86-3125-49f6-9204-24b6d79ebaef",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "name": "Open Spot sub-menu",
+            "visible": true,
+            "expanded": false,
+            "selected": []
+          }
+        ]
+      },
+      {
+        "step": "Open Spot sub-menu",
+        "observationId": "2ade2856-52e9-4eb7-bdd7-d9bf330e8ce5",
+        "controls": [
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "identityId": "a23eba86-3125-49f6-9204-24b6d79ebaef",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "name": "Open Spot sub-menu",
+            "visible": true,
+            "expanded": true,
+            "selected": []
+          }
+        ]
+      },
+      {
+        "step": "Crypto",
+        "observationId": "6618f2a8-b0e5-4f97-ae6c-e83d759d8b72",
+        "controls": [
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "identityId": "a23eba86-3125-49f6-9204-24b6d79ebaef",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "name": "Open Spot sub-menu",
+            "visible": true,
+            "expanded": true,
+            "selected": []
+          },
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:2274",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:2274",
+            "identityId": "f43d20b2-1753-4f06-bfa5-b2f19db11556",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"tab\\\",\\\"USDT\\\",\\\"div\\\"]\"]",
+            "name": "USDT",
+            "visible": true,
+            "expanded": null,
+            "selected": []
+          },
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:2275",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:2275",
+            "identityId": "f3d64d93-6186-4752-b8f6-b286c696c529",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"tab\\\",\\\"Crypto\\\",\\\"div\\\"]\"]",
+            "name": "Crypto",
+            "visible": true,
+            "expanded": null,
+            "selected": [
+              "Crypto"
+            ]
+          }
+        ]
+      },
+      {
+        "step": "USDT",
+        "observationId": "2ce84ef1-bd18-484f-9527-e2ea987e19f1",
+        "controls": [
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "identityId": "a23eba86-3125-49f6-9204-24b6d79ebaef",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "name": "Open Spot sub-menu",
+            "visible": true,
+            "expanded": true,
+            "selected": []
+          },
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:2274",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:2274",
+            "identityId": "f43d20b2-1753-4f06-bfa5-b2f19db11556",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"tab\\\",\\\"USDT\\\",\\\"div\\\"]\"]",
+            "name": "USDT",
+            "visible": true,
+            "expanded": null,
+            "selected": [
+              "USDT"
+            ]
+          },
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:2275",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:2275",
+            "identityId": "f3d64d93-6186-4752-b8f6-b286c696c529",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"tab\\\",\\\"Crypto\\\",\\\"div\\\"]\"]",
+            "name": "Crypto",
+            "visible": true,
+            "expanded": null,
+            "selected": []
+          }
+        ]
+      },
+      {
+        "step": "Crypto",
+        "observationId": "baa15669-9a00-4f9b-b562-a19f476bee06",
+        "controls": [
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "identityId": "a23eba86-3125-49f6-9204-24b6d79ebaef",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "name": "Open Spot sub-menu",
+            "visible": true,
+            "expanded": true,
+            "selected": []
+          },
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:2274",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:2274",
+            "identityId": "f43d20b2-1753-4f06-bfa5-b2f19db11556",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"tab\\\",\\\"USDT\\\",\\\"div\\\"]\"]",
+            "name": "USDT",
+            "visible": true,
+            "expanded": null,
+            "selected": []
+          },
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:2275",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:2275",
+            "identityId": "f3d64d93-6186-4752-b8f6-b286c696c529",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"tab\\\",\\\"Crypto\\\",\\\"div\\\"]\"]",
+            "name": "Crypto",
+            "visible": true,
+            "expanded": null,
+            "selected": [
+              "Crypto"
+            ]
+          }
+        ]
+      },
+      {
+        "step": "USDT",
+        "observationId": "ae851ddb-6663-41a9-b4b0-37c5fbd8baa5",
+        "controls": [
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "identityId": "a23eba86-3125-49f6-9204-24b6d79ebaef",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "name": "Open Spot sub-menu",
+            "visible": true,
+            "expanded": true,
+            "selected": []
+          },
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:2274",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:2274",
+            "identityId": "f43d20b2-1753-4f06-bfa5-b2f19db11556",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"tab\\\",\\\"USDT\\\",\\\"div\\\"]\"]",
+            "name": "USDT",
+            "visible": true,
+            "expanded": null,
+            "selected": [
+              "USDT"
+            ]
+          },
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:2275",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:2275",
+            "identityId": "f3d64d93-6186-4752-b8f6-b286c696c529",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"tab\\\",\\\"Crypto\\\",\\\"div\\\"]\"]",
+            "name": "Crypto",
+            "visible": true,
+            "expanded": null,
+            "selected": []
+          }
+        ]
+      },
+      {
+        "step": "search:zzzzzz",
+        "attemptId": "bd79669d-0623-4fb0-b432-fc588e31ba13",
+        "status": "succeeded",
+        "observationId": "c72ec84c-e4cb-4e9b-99e4-53abd9fac401",
+        "controls": [
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "identityId": "a23eba86-3125-49f6-9204-24b6d79ebaef",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "name": "Open Spot sub-menu",
+            "visible": true,
+            "expanded": true,
+            "selected": []
+          },
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:2274",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:2274",
+            "identityId": "f43d20b2-1753-4f06-bfa5-b2f19db11556",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"tab\\\",\\\"USDT\\\",\\\"div\\\"]\"]",
+            "name": "USDT",
+            "visible": true,
+            "expanded": null,
+            "selected": [
+              "USDT"
+            ]
+          },
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:2275",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:2275",
+            "identityId": "f3d64d93-6186-4752-b8f6-b286c696c529",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"tab\\\",\\\"Crypto\\\",\\\"div\\\"]\"]",
+            "name": "Crypto",
+            "visible": true,
+            "expanded": null,
+            "selected": []
+          }
+        ]
+      },
+      {
+        "step": "search:",
+        "attemptId": "442db893-a6a0-4f5d-925d-7d463c3be735",
+        "status": "succeeded",
+        "observationId": "5d87f31e-2b75-4c29-8702-f82ffee1b24e",
+        "controls": [
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:299",
+            "identityId": "a23eba86-3125-49f6-9204-24b6d79ebaef",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "name": "Open Spot sub-menu",
+            "visible": true,
+            "expanded": true,
+            "selected": []
+          },
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:2274",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:2274",
+            "identityId": "f43d20b2-1753-4f06-bfa5-b2f19db11556",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"tab\\\",\\\"USDT\\\",\\\"div\\\"]\"]",
+            "name": "USDT",
+            "visible": true,
+            "expanded": null,
+            "selected": [
+              "USDT"
+            ]
+          },
+          {
+            "localId": "23082e25-3cdd-449e-914d-6ebc8638e575:2275",
+            "instanceId": "23082e25-3cdd-449e-914d-6ebc8638e575:2275",
+            "identityId": "f3d64d93-6186-4752-b8f6-b286c696c529",
+            "hypothesisId": null,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"item-text\\\",\\\"SpotBuy and sell crypto with ease\\\"]\"]],\"[\\\"tab\\\",\\\"Crypto\\\",\\\"div\\\"]\"]",
+            "name": "Crypto",
+            "visible": true,
+            "expanded": null,
+            "selected": []
+          }
+        ]
+      }
+    ],
+    "attempts": [
+      {
+        "id": "7b2c73ab-124f-4acd-8732-0787851c374b",
+        "label": "Close",
+        "kind": "click",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "d6d93391-363b-42cb-aa6b-95bf3ac3f61f",
+        "afterId": "a5f34b1e-38d4-4851-961b-57a68900d19d"
+      },
+      {
+        "id": "d355ade3-bdc3-4de5-a9aa-02a02728d330",
+        "label": "Trade",
+        "kind": "click",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "a5f34b1e-38d4-4851-961b-57a68900d19d",
+        "afterId": "d970ad27-def1-48c7-a496-7755bcda262e"
+      },
+      {
+        "id": "ed76726b-dfef-496f-8d62-f51396784582",
+        "label": "Open Spot sub-menu",
+        "kind": "click",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "d970ad27-def1-48c7-a496-7755bcda262e",
+        "afterId": "2ade2856-52e9-4eb7-bdd7-d9bf330e8ce5"
+      },
+      {
+        "id": "49411c19-25b4-4434-830b-ee513e80c148",
+        "label": "Crypto",
+        "kind": "click",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "1f34cf96-ed4b-4e0c-bb7f-ef9b0ac81e46",
+        "afterId": "6618f2a8-b0e5-4f97-ae6c-e83d759d8b72"
+      },
+      {
+        "id": "7615aa27-f219-4b0c-b6e1-a9f1a0a7124f",
+        "label": "USDT",
+        "kind": "click",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "6618f2a8-b0e5-4f97-ae6c-e83d759d8b72",
+        "afterId": "2ce84ef1-bd18-484f-9527-e2ea987e19f1"
+      },
+      {
+        "id": "7b4a9365-bdf2-48bf-bf91-e5d13d92248f",
+        "label": "Crypto",
+        "kind": "click",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "2ce84ef1-bd18-484f-9527-e2ea987e19f1",
+        "afterId": "baa15669-9a00-4f9b-b562-a19f476bee06"
+      },
+      {
+        "id": "7222f10f-661c-4757-b6a8-1b3e3334e24a",
+        "label": "USDT",
+        "kind": "click",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "baa15669-9a00-4f9b-b562-a19f476bee06",
+        "afterId": "ae851ddb-6663-41a9-b4b0-37c5fbd8baa5"
+      },
+      {
+        "id": "bd79669d-0623-4fb0-b432-fc588e31ba13",
+        "label": "Search",
+        "kind": "fill",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "ae851ddb-6663-41a9-b4b0-37c5fbd8baa5",
+        "afterId": "c72ec84c-e4cb-4e9b-99e4-53abd9fac401"
+      },
+      {
+        "id": "442db893-a6a0-4f5d-925d-7d463c3be735",
+        "label": "Search",
+        "kind": "fill",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "c72ec84c-e4cb-4e9b-99e4-53abd9fac401",
+        "afterId": "5d87f31e-2b75-4c29-8702-f82ffee1b24e"
+      }
+    ],
+    "complete": null,
+    "limitations": [
+      "Same-document menu identity only; not cross-document matching or menu scope re-entry.",
+      "No historical observations or successful work were rewritten or merged."
+    ]
+  }
+}

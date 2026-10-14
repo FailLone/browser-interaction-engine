@@ -62,6 +62,20 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     let key = declared ? JSON.stringify(declared) : undefined;
     if (!key) {
       const copy = item.cloneNode(true) as Element;
+      // A record can contain a nested list or an independently positioned
+      // expanded panel. Its changing contents are not the parent record's name.
+      // Keep ordinary positioned descriptions: position alone is not ownership.
+      const descendants = [...item.querySelectorAll('*')]; const copies = [...copy.querySelectorAll('*')];
+      const openers = [...item.querySelectorAll('[aria-expanded]')].filter(el => el.closest(itemSelector) === item);
+      const itemRect = item.getBoundingClientRect();
+      descendants.forEach((el, index) => {
+        const nestedScope = el.matches(`${listSelector},dialog,[role=dialog],[role=alertdialog],[role=menu],[role=tabpanel],[popover]`);
+        const panelRect = el.getBoundingClientRect();
+        const outsideItem = panelRect.width > 0 && panelRect.height > 0 && (panelRect.left < itemRect.left || panelRect.right > itemRect.right || panelRect.top < itemRect.top || panelRect.bottom > itemRect.bottom);
+        const expandedPanel = ['absolute', 'fixed'].includes(getComputedStyle(el).position)
+          && outsideItem && el.children.length > 0 && openers.some(opener => opener !== el && !el.contains(opener));
+        if (nestedScope || expandedPanel) copies[index].remove();
+      });
       copy.querySelectorAll('button,input,select,textarea,[role=button],[role=checkbox],[role=switch],[role=combobox],script,style,[hidden],[aria-hidden=true]').forEach(child => child.remove());
       const labelledBy = item.getAttribute('aria-labelledby');
       const fullLabel = labelledBy ? labelledBy.split(/\s+/).map(id => document.getElementById(id)?.textContent || '').join(' ') : item.getAttribute('aria-label');
