@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Action evidence fixture</title>
+<style>body { font: 14px sans-serif; margin: 20px; } section { display: flex; flex-wrap: wrap; gap: 12px; max-width: 900px; } section > * { padding: 6px; } [role=dialog] { position: fixed; inset: 80px 120px; background: white; border: 2px solid; z-index: 2; padding: 24px; } [hidden] { display: none !important; }</style></head>
+<body>
+<section id="semantics">
+  <button id="native">Native action</button>
+  <a id="link" href="#destination">Native link</a>
+  <a id="anchor" tabindex="0">Anchor without destination</a>
+  <div id="declared" role="button" tabindex="0">Declared button</div>
+  <div id="switch" role="switch" aria-checked="false" tabindex="0">Declared switch</div>
+  <div id="focus" tabindex="0">Focusable prose</div>
+  <div id="weak-combination" role="region" tabindex="0" aria-expanded="false" style="cursor: pointer">Multiple weak hints</div>
+  <div id="pointer" style="cursor: pointer"><span>Styled prose</span></div>
+  <div id="expanded" aria-expanded="false">Expanded state alone</div>
+  <div id="handler" onclick="window.handlerCalls++">Handler with unknown purpose</div>
+  <div id="property">Property handler</div>
+  <div id="delegate">Delegated behavior is not enumerated</div>
+  <div id="container" tabindex="-1"><p>Container prose</p><button id="child">Child action</button></div>
+  <label>Readonly value<input id="readonly" readonly value="fixed"></label>
+  <label>Disabled value<input id="disabled" disabled></label>
+  <label>Editable value<input id="editable"></label>
+  <label>File<input id="file" type="file"></label>
+  <label>Color<input id="color" type="color"></label>
+  <label>Range<input id="range" type="range"></label>
+  <details><summary id="summary">Valid disclosure</summary><p>Details</p></details>
+  <summary id="orphan-summary">Orphan summary</summary>
+  <div id="edit-host" contenteditable="plaintext-only" aria-label="Editable host">Initial text</div>
+</section>
+<section id="modal-case" hidden>
+  <button id="parent">Parent action</button>
+  <div id="notice" data-testid="notice-window" role="dialog" aria-modal="true" tabindex="-1">
+    <h2 tabindex="-1" id="heading">Products aren’t available in your region</h2>
+    <p>This is a long regional availability notice with explanatory text, followed by the real controls.</p>
+    <button id="details">Read details</button>
+    <label><input id="reminder" type="checkbox">Don't show for 7 days</label>
+    <button id="close" onclick="document.getElementById('modal-case').hidden = true">Close</button>
+  </div>
+</section>
+<script>
+  window.handlerCalls = 0;
+  document.getElementById('property').onclick = () => { window.handlerCalls++; };
+  document.getElementById('delegate').addEventListener('click', () => { window.handlerCalls++; });
+  const mode = new URLSearchParams(location.search).get('mode');
+  if (mode === 'tentative') {
+    const handler = document.getElementById('handler');
+    document.getElementById('semantics').replaceChildren(handler);
+    document.getElementById('modal-case').remove();
+  } else if (mode === 'modal' || mode === 'handler-modal') {
+    document.getElementById('semantics').remove();
+    document.getElementById('modal-case').hidden = false;
+    // Keep the parent available when the dialog closes.
+    document.getElementById('close').onclick = () => { document.getElementById('notice').hidden = true; };
+    if (mode === 'handler-modal') document.getElementById('notice').onclick = () => { window.handlerCalls++; };
+  }
+</script>
+</body></html>

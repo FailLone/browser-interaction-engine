@@ -18,7 +18,7 @@ let errors: string[];
 beforeAll(async () => { fixture = await fixtureServer(); browser = await chromium.launch({ headless: true }); });
 afterAll(async () => { await browser.close(); await fixture.server.close(); });
 beforeEach(async () => {
-  t = await testEngine(fixture.url);
+  t = await testEngine(fixture.url, { evidenceRetention: { mode: 'cache', ttlMs: 600000, maxBytes: 64 * 1024 ** 2, maxObservations: 100 } });
   opened = await act(t.engine, t.sessionId, 'Order type');
   market = await act(t.engine, t.sessionId, 'Market');
   amount = await act(t.engine, t.sessionId, 'Amount', 'fill', '2');
@@ -194,4 +194,34 @@ it('ignores a delayed detail response after selecting another visit', async () =
     await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     await expectDiff(opened);
   } finally { release(); }
+});
+
+it('preserves readable changes when evidence is released, and opens full historical evidence on demand', async () => {
+  let detailReads = 0;
+  page.on('request', request => { if (/\/observations\/[^/]+\/details$/.test(new URL(request.url()).pathname)) detailReads++; });
+  const explanation = page.getByTestId('diff-explanation');
+  await t.engine.releaseEvidence(t.sessionId, amount.beforeId);
+  await explanation.getByRole('button', { name: '刷新详情', exact: true }).click();
+  await explanation.getByText('截图已释放；历史控件属性仍可查询。', { exact: true }).waitFor();
+  expect(await explanation.getByAltText('操作前').count()).toBe(0);
+  expect(await explanation.getByAltText('操作后').count()).toBe(1);
+  expect(await explanation.getByTestId('diff-retention-before').innerText()).toContain('已释放');
+  expect(await explanation.getByTestId('explained-change').first().innerText()).toContain('当前值的记录值发生变化');
+  expect(JSON.parse((await page.getByTestId('raw-diff').textContent())!)).toEqual(amount.diff);
+  expect(detailReads).toBe(0);
+  await explanation.getByRole('button', { name: '读取操作前完整证据', exact: true }).click();
+  await explanation.getByTestId('diff-full-evidence').getByText('详细证据当前不可用', { exact: true }).waitFor();
+  expect(detailReads).toBe(1);
+  await page.locator('.visit').filter({ hasText: 'click · Order type' }).click();
+  await expectDiff(opened);
+  expect(await explanation.getByTestId('diff-full-evidence').count()).toBe(0);
+});
+
+it('shows an explicit image failure if availability changes after the detail response', async () => {
+  await page.route(`**/evidence/${opened.beforeId}`, route => route.fulfill({ status: 409, json: { error: { code: 'EVIDENCE_UNAVAILABLE' } } }));
+  await page.locator('.visit').filter({ hasText: 'click · Order type' }).click();
+  const explanation = page.getByTestId('diff-explanation');
+  await explanation.getByText('截图读取失败，可能在查询后过期或被清理；请刷新详情。控件属性仍可查询。', { exact: true }).waitFor();
+  expect(await explanation.getByAltText('操作前').count()).toBe(0);
+  expect(await explanation.getByTestId('explained-change').count()).toBeGreaterThan(0);
 });

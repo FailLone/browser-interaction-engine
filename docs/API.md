@@ -104,7 +104,7 @@ flowchart LR
 
 ## 检查点
 
-检查点默认验证其完整 `observable-v1` 投影与已知业务前提，可以增加：
+检查点默认验证保存时的完整观察契约（新观察为 `observable-v3`）投影与已知业务前提，可以增加：
 
 ```json
 {"target":"url","equals":"http://127.0.0.1:4174/"}
@@ -137,3 +137,10 @@ SQLite 插件使用 WAL，`entities` 保存带 kind 的结构化实体，`events
 内存插件保留同样的实体、请求去重、事件游标和事务语义，证据通过 `EvidenceStore.get()` 返回字节。`/evidence` 不依赖本地路径。内存数据不跨进程保存。
 
 详细响应、历史语义及 SDK/Event 用法见 [DIFF-DETAILS.md](DIFF-DETAILS.md)。
+## 详细证据接口
+
+按事件、观察、控件及区域读取不可覆盖的历史证据，见 [详细证据查询](EVIDENCE-API.md)。新接口只读，不调用浏览器，不改变现有 SSE data 结构。
+
+## 操作依据与试探
+
+候选返回 `basis: {status: 'supported' | 'tentative', evidence: [{source, rule, facts}]}`，与当前前提和实际结果分别记录。疑似操作保留在待办中，默认 DFS 跳过，并发出 `action.tentative`（actionId、observationId、basis）。外部明确 execute 可试探，仍检查最新观察和执行前提，不自动重放。原始控件保存 `actionBasis`、`interactionHints` 和命中的 `discovery`；无操作的元素仍可查询。详见 [操作候选与证据](ACTION-EVIDENCE.md)。

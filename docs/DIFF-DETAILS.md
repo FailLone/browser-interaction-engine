@@ -35,9 +35,9 @@ for await (const event of client.events(sessionId, lastSequence, signal)) {
 }
 ```
 
-已有 check(attempt, context) hook 在事实落盘后执行，可调用 engine.attemptDiffDetails(sessionId, attempt.id)。普通事件订阅器也使用同一查询方法，不需要新的浏览器状态或比较链路。不要同时消费 action.completed 和 observation.diff，并将它们误认为两次动作。
+已有 check(attempt, context) hook 在事实落盘后执行，可调用 await engine.attemptDiffDetails(sessionId, attempt.id)。普通事件订阅器也使用同一查询方法，不需要新的浏览器状态或比较链路。不要同时消费 action.completed 和 observation.diff，并将它们误认为两次动作。
 
-纯 core SDK 提供相同的四个查询方法，返回 DiffDetails<O>，适用于非网页适配器。独立 DiffQueries 类接受 Persistence 和比较函数，构造时不执行会话恢复、不启动驱动。浏览器组合层增加 browser 字段、ARIA 含义及浏览器解释规则；HTTP、React、Playwright 不进入 core。内存和 SQLite 插件使用相同契约。
+Engine 上的四个详情查询均返回 Promise，调用方需 await，以支持异步证据存储。纯 core SDK 提供相同的四个查询方法，返回 DiffDetails<O>，适用于非网页适配器。独立 DiffQueries 类仍提供同步的结构化记录查询，接受 Persistence 和比较函数，构造时不执行会话恢复、不启动驱动。浏览器组合层增加 browser 字段、ARIA 含义及浏览器解释规则；HTTP、React、Playwright 不进入 core。内存和 SQLite 插件使用相同契约。
 
 ## 返回内容
 
@@ -57,11 +57,32 @@ for await (const event of client.events(sessionId, lastSequence, signal)) {
 | related | 对应区间的动作、可验证的访问祖先路径、对应起止的流程；跨分支无祖先路径时明确返回 verifiedAncestry: false，完整遍历图仍通过 graph 查询 |
 | browser.fields | 属性定义及 null、false 含义 |
 | browser.pageChanges | URL、标题、滚动、视口、浮层、边界的变化；独立于原始 diff |
-| browser.screenshots | 截图 key、观察 ID、时间、视口、滚动与坐标系 |
+| browser.screenshots | 截图 key、观察 ID、时间、视口、滚动、坐标系及当前 availability；available 仅在本次检查可读时为 true |
+| browser.evidence.before / after | observationId、checkedAt、各类 artifacts 的引用与可用状态，复用证据留存插件契约 |
 
-控件与一层身份候选按 ID 去重，不递归展开整个身份图。完整观察和文本可能较大，本版不截断查询响应；原始采集限制和缺口继续保留。截图单独读取 /sessions/:sid/evidence/:observationId，SDK 可用 EvidenceStore.get(evidenceKey)。available 表示保存了截图引用，文件缺失时图片读取仍可能返回 404。
+控件与一层身份候选按 ID 去重，不递归展开整个身份图。完整观察和文本可能较大，本版不截断查询响应；原始采集限制和缺口继续保留。截图单独读取 /sessions/:sid/evidence/:observationId，SDK 可用 EvidenceStore.get(evidenceKey)。available 表示本次查询检查时可读取，不是永久保证。截图读取时若证据已不可用，返回 409 / EVIDENCE_UNAVAILABLE；没有截图引用的旧截图入口返回 404。
 
-查询不重新采集、不滚动、不执行、不消耗预算、不修改身份或原始 diff。浏览器关闭后仍可查询持久证据。旧观察未保存的 HTML、属性或截图无法补造；详细 DOM 等额外证据应使用其绑定 observationId 的查询入口。
+### 与证据留存的关系
+
+差异解释在查询时组装，不另外持久化详细响应，不嵌入截图字节、完整 DOM 或 HTML。两侧 artifacts 分别包含 screenshot、fullPageScreenshot、details，状态含义如下：
+
+| availability.status | 含义 |
+| --- | --- |
+| available | 此次检查可读取；仍可能在下一次读取前过期或被清理 |
+| not_captured | 历史观察没有这类证据的引用，区别于文件丢失 |
+| not_retained | 例如内存证据在进程重启后未保留 |
+| expired / evicted / released | 分别为 TTL 到期、容量淘汰、主动释放 |
+| missing / storage_failed | 引用存在但数据缺失，或存储读取失败 |
+
+mode、expiresAt、bytes、durability 和 reason 由存储插件提供；未知字段可以省略。checkedAt 表示本次可用性检查完成时间，各项检查不是一个原子快照。当前观察、流程基线或显式固定可能保护证据，因而到期时间可省略。persistent 表示留存策略，实际介质是否跨进程保存看 durability。
+
+留存状态单独位于 browser.evidence，**不追加到当时的原始 diff.gaps**。历史采集失败与查询时证据已过期是不同事实。证据缺失不使完整 diff 查询失败，响应继续为 200；原始 diff、控件属性、身份依据和采集缺口仍保留。存储状态查询失败降级到相应 artifact 的 storage_failed。结构化观察自身缺失仍返回 404，不用最新页面替换。
+
+完整证据复用 [证据查询 API](EVIDENCE-API.md)：将 observations.before.id / after.id 传给 observationDetails、controlDetails、regionDetails 或 dom，控件精确出现使用 controls 中的 localId。查询不自动固定、不延长 TTL，也不恢复服务器端已释放的数据；需要保留基线时显式使用已有 pinEvidence / retainEvidence 检查点机制。已通过 inline 事件交付给上层的快照由上层保管，服务端不会从调用方副本恢复旧证据。
+
+HTTP 详情响应使用 Cache-Control: no-store，防止把上一次检查的可用状态当作当前保证。浏览器 SDK 通过异步 EvidenceStore 检查当前状态，不依赖文件路径或 SQLite。插件实现可能读取字节以验证完整性，但 diff 查询不解析详细 DOM JSON；原始 DiffQueries 完全不读取证据字节。
+
+查询不重新采集、不滚动、不执行、不消耗预算、不修改身份或原始 diff。留存插件可以在查询时执行已配置的过期清理。浏览器关闭后仍可查询持久证据。旧观察未保存的 HTML、属性或截图无法补造；详细 DOM 等额外证据应使用其绑定 observationId 的查询入口。
 
 ## 解读边界
 
@@ -76,6 +97,8 @@ for await (const event of client.events(sessionId, lastSequence, signal)) {
 
 ## 调试页面
 
-变化比较跟随选中访问记录，显示摘要、两侧截图、属性解释、控件详情、身份候选、缺口和完整 JSON。点击定位控件，在截图上标出采集时矩形。展开控件查看状态、约束、操作前提、匹配证据和修订。
+变化比较跟随选中访问记录，显示每侧证据的可用状态、留存方式、实际介质、到期时间和原因，以及摘要、两侧截图、属性解释、控件详情、身份候选、缺口和完整 JSON。点击定位控件，在截图上标出采集时矩形。展开控件查看状态、约束、操作前提、匹配证据和修订。
 
 交互流程可展开累计差异详情。原始 diff 保留在独立折叠区；完整详情 API 链接直接返回当前详细结果。快速切换历史时忽略迟到响应，不会混用上一条解释或截图。
+
+两侧“读取操作前/后完整证据”按需打开已有详细证据面板。打开 diff 默认不请求完整 DOM；过期图片显示原因，历史控件仍可查看。图片在状态查询后失效时显示明确提示，可点击“刷新详情”重新检查；不会用当前截图替换历史截图。

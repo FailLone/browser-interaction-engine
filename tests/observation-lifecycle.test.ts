@@ -12,7 +12,7 @@ it('waits through a missing body after an action and compares the rebuilt docume
     const result = await act(t.engine, t.sessionId, 'Rebuild document');
     expect(result.status).toBe('succeeded');
     expect(result.diff?.changes).toContainEqual(expect.objectContaining({ field: 'value', before: 'before', after: 'after' }));
-    expect(t.engine.observation(t.sessionId).gaps).toEqual([]);
+    expect(t.engine.observation(t.sessionId).gaps.filter(g => g.code !== 'EVENT_LISTENER_COVERAGE')).toEqual([]);
     expect(await pageOf(t.engine).evaluate(() => (window as any).actionCalls)).toBe(1);
     expect(t.engine.session(t.sessionId).actionCount).toBe(1);
   } finally { await t.close(); }

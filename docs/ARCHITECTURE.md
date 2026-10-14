@@ -11,6 +11,8 @@ flowchart TD
   Server --> SQLite[packages/storage-sqlite]
   Browser --> PW[packages/adapter-playwright]
   Browser --> Core[packages/core · SDK]
+  Browser --> Retained[packages/storage-retained · 证据生命周期]
+  Retained --> Core
   PW --> Core
   SQLite --> Core
   Memory[packages/storage-memory] --> Core
@@ -23,6 +25,7 @@ flowchart TD
 | `@interaction/core` | 交互图、身份历史、歧义、访问路径、待办、串行执行、DFS、预算、检查点、恢复、hook 与进程内事件 | DOM、浏览器、文件、数据库、HTTP、SSE |
 | `@interaction/adapter-playwright` | Web 类型扩展、URL 与认证配置、DOM/ARIA 采集、定位、点击填写、输入约束、菜单/弹窗识别、Web 等价规则 | 调度策略、数据库、HTTP 服务 |
 | `@interaction/browser` | 把 core 与 Playwright 适配器组合成 `BrowserEngine`，提供浏览器命令契约 | 默认存储选择、HTTP 服务 |
+| `@interaction/storage-retained` | 装饰任意 Persistence，管理证据 TTL、容量、内存去重、固定/释放和可用性清单 | Web、HTTP、数据库选择 |
 | `@interaction/storage-memory` | 内存事务记录、事件日志、请求去重、二进制证据 | 浏览器、文件、SQL |
 | `@interaction/storage-sqlite` | SQLite 事务记录、事件日志、请求去重、文件证据 | 浏览器执行、HTTP |
 | `@interaction/client` | 浏览器 HTTP 客户端与 SSE 续读 | core 执行器 |
@@ -99,3 +102,31 @@ const engine = new BrowserEngine({ persistence: new SqliteStore(directory), hook
 ## 独占交互范围
 
 core 接受与平台无关的 `Observation.boundaries` 和动作阻塞前提。默认 DFS 优先当前最内层范围，退出操作执行后必须重新观察验证；父页面待办保留。浏览器识别规则、事件和验证场景见 [弹层优先探索](INTERACTION-BOUNDARIES.md)。
+
+## 详细证据查询
+
+Playwright 适配层采集 DOM、ARIA、样式和运行信息，按观察 ID 存入 EvidenceStore。BrowserEngine 组合层提供历史查询；HTTP 与客户端只是同一查询的传输入口。core 不新增 Web 或 Playwright 依赖。详见 [证据接口](EVIDENCE-API.md)。
+
+## 快照交付、缓存与持久留存
+
+四个维度已拆开：采集范围决定有哪些事实；订阅交付决定发送快照、引用或两者组合；留存策略决定证据保存在哪里、多久；探索工作状态保存交互图、待办、身份、路径、执行意图与请求去重。后三者不会因详细缓存释放而删除。
+
+`@interaction/storage-retained` 是只依赖 core 的存储装饰插件。BrowserEngine 自动包装调用方注入的 Persistence，记录方法和事务仍由原插件执行。纯 core 调用方也可自行组合 `new RetainedPersistence(new MemoryStore())`；core 不依赖这个具体插件。EvidenceStore 的可选生命周期方法是 beginObservation/endObservation、availability、pin/unpin、delete/flush，参数只含通用 ID、字节和留存规则。
+
+未声明 evidenceRetention 时继续直通原存储，保持旧会话行为。声明后：transient 在有限交付窗口内使用内存；cache 使用 TTL/数量/容量限制的内存；persistent 将字节交给调用方的证据插件。mode 不提升插件的实际 durability，persistent + MemoryStore 仍不跨进程保存。具体配置和默认值见 [证据接口](EVIDENCE-API.md#留存与容量)。
+
+cache/persistent 保护当前观察和未结束范围的父基线；正在采集的观察也不能被淘汰。显式 pin 保护整次观察，owner 决定解除范围。保护内容仍计入容量，无法容纳新证据时拒绝写入并保存基础观察及缺口，不无限增大缓存。停止会话解除自动保护，检查点和调用方的显式固定继续有效。transient 提交后不自动固定，也不接受持久基线保证。
+
+缓存只按字节内容去重；SQLite 文件证据以 16 KiB 独立块进行内容寻址和文本压缩，逻辑引用仍绑定观察。哈希不是控件身份或状态归并规则。清理释放大块内容而保留清单和可用性原因，不删除基础历史。事件日志也只存引用；存储预算明确不包括图、执行记录和事件日志。
+
+BrowserEngine 的 subscribeEvents 从已提交日志逐条读取，在 observation.created 上投影详细载荷，交付副本隔离。reference、inline、hybrid 与留存方式独立；其他事件沿用稳定观察引用。HTTP 层负责 SSE 序列化、图片传输和写入背压，client 负责续读。SDK 与 HTTP 的慢消费者均有超时与缺口回报，不积累无界的完整快照队列；订阅失败不回滚已经提交的事实。
+
+断线续读由事件日志与证据保留共同决定。事件序号仍在不代表 DOM/图片仍在；availability 显式返回过期、淘汰、释放、进程重启丢失或存储失败。SDK 收到的副本由调用方管理，服务端释放不会修改它。快照记录各项实际采集时间，不把不同浏览器 API 宣称为原子快照；重新投影只更新可用性信息，不重新读页面。
+
+检查点可显式记录 evidenceKeys，创建时先验证并固定，再原子保存契约和事件；并发操作后在串行队列内选取相应观察。到达验证先检查这些证据的实际可用性，缺失返回 UNVERIFIED，不自动重放原动作。普通检查点继续基于原有结构化观察验证。保留 HTML/截图不代表保存服务器状态，恢复仍经过统一执行器、业务前提检查和新观察验证。
+
+当前实现不提供 DOM 增量链、远程异步记录事务或磁盘配额统计。持久证据查询仍重建完整文件后分页；结构化历史和生命周期清单未自动压缩清理。后续范围见 [Roadmap](../ROADMAP.md)。
+
+## 操作依据
+
+core 的 `ActionBasis` 只含状态和来源证据，不解释 DOM、ARIA 或 Playwright。适配层生成具体依据；core 默认跳过 tentative 待办，接受外部明确试探，并阻止自动重放。观察目标可以没有操作。规则和扩展方式见 [操作候选与证据](ACTION-EVIDENCE.md)。

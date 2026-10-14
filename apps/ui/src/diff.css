@@ -53,3 +53,7 @@
   .diff-summary { align-items: flex-start; flex-direction: column; }
   .detailed-images { grid-template-columns: 1fr; }
 }
+
+.diff-retention { margin: 10px 0; padding: 12px; border: 1px solid var(--border, #dce3e9); border-radius: 8px; overflow-wrap: anywhere; }
+.diff-retention small { display: block; color: #637483; margin: 4px 0; }
+.diff-retention p { margin: 10px 0; }

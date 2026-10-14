@@ -1,9 +1,23 @@
 import type { ActionCandidate, Context, Control, Diff, EngineEvent, EngineHooks, InteractionScope, Observation, Predicate, Session, SessionOptions } from './types.js';
 
 export interface Evidence { data: Uint8Array; mediaType: string }
+export interface EvidenceRetentionPolicy { mode: 'transient' | 'cache' | 'persistent'; ttlMs: number; maxBytes: number; maxObservations: number }
+export interface EvidenceAvailability {
+  status: 'available' | 'not_retained' | 'expired' | 'evicted' | 'released' | 'storage_failed' | 'missing';
+  mode?: EvidenceRetentionPolicy['mode']; bytes?: number; expiresAt?: string; reason?: string;
+  durability?: 'process' | 'persistent' | 'unknown';
+}
 export interface EvidenceStore {
   put(key: string, evidence: Evidence): Promise<void>;
   get(key: string): Promise<Evidence | undefined>;
+  readonly durability?: 'process' | 'persistent';
+  delete?(key: string): Promise<void>;
+  availability?(key: string): Promise<EvidenceAvailability>;
+  beginObservation?(context: { sessionId: string; observationId: string; policy?: EvidenceRetentionPolicy }): Promise<void>;
+  endObservation?(observationId: string, committed: boolean): Promise<void>;
+  pin?(keys: string[], owner: string): Promise<void>;
+  unpin?(owner: string): Promise<void>;
+  flush?(): Promise<void>;
 }
 /** Synchronous atomic record transactions; asynchronous binary evidence is separate. */
 export interface Persistence {

@@ -1,9 +1,11 @@
 import { EngineError, canonical, clone, now, type Persistence, type Evidence, type EvidenceStore, type EngineEvent } from '@interaction/core';
 
 export class MemoryEvidenceStore implements EvidenceStore {
+  readonly durability = 'process' as const;
   private values = new Map<string, Evidence>();
   async put(key: string, evidence: Evidence) { this.values.set(key, clone(evidence)); }
   async get(key: string) { const value = this.values.get(key); return value ? clone(value) : undefined; }
+  async delete(key: string) { this.values.delete(key); }
 }
 
 /** No disk writes. A fresh instance represents a fresh, empty database. */

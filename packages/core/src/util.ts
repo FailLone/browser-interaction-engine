@@ -21,6 +21,7 @@ export function canonical(value: unknown): string {
   return JSON.stringify(value) ?? 'null';
 }
 export const hash = (value: unknown) => bytesToHex(sha256(utf8ToBytes(typeof value === 'string' ? value : canonical(value))));
+export const hashBytes = (value: Uint8Array) => bytesToHex(sha256(value));
 export const contextKey = (context: Context) => hash(context);
 export function timeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
   let timer: unknown;

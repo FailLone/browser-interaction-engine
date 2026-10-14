@@ -3,6 +3,7 @@ import type { ActionCandidate, Observation, Session } from './types.js';
 import { ruleMatches } from './util.js';
 export function constrain(action: ActionCandidate, observation: Observation, session: Session) {
   const control = observation.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
+  action.basis ??= control?.actionBasis?.[action.kind] || { status: 'tentative', evidence: [{ source: action.source || 'external', rule: 'missing-operation-evidence/v1', facts: { kind: action.kind } }] };
   const active = observation.overlays?.at(-1);
   action.preconditions.blockers = [];
   action.boundary = undefined;
@@ -16,6 +17,7 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
     if (control.actionable.outsideScrollableArea) action.preconditions.blockers.push({ code: 'outside_scrollable_area', evidence: ['target-outside-scrollable-viewport'], unblock: 'Make the control reachable in the viewport' });
     else if (control.actionable.hitTarget === false) action.preconditions.blockers.push({ code: 'pointer_intercepted', evidence: [control.actionable.occludedBy || 'hit-test-failed'], unblock: 'Remove the obstruction and observe again' });
   }
+  if (control && action.kind === 'fill' && !control.editable) action.preconditions.blockers.push({ code: 'not_editable', evidence: ['observed-editable=false'], unblock: 'Wait until the field is editable and observe again' });
   if (!['click', 'fill', 'select', 'check', 'scroll', 'press'].includes(action.kind)) throw new EngineError('INVALID_PLUGIN_ACTION', 'Unsupported browser action kind');
   if (session.options.exclude.some(rule => ruleMatches(rule, action, control, observation.url))) { action.excluded = true; action.exclusionReason = 'excluded_by_rule'; }
   if (control?.constraints.type === 'file') { action.excluded = true; action.exclusionReason = 'unsupported_file_input'; }

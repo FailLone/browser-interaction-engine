@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import type { InteractionClient } from '@interaction/client';
 import type { BrowserDiffDetails, ControlOccurrenceDetails, Observation } from '@interaction/browser';
 import './diff.css';
+import { EvidencePanel } from './EvidencePanel.js';
+import { evidenceStatusText } from './EvidenceImage.js';
 
 const kindText = { appeared: '出现', disappeared: '未再观察到', rebuilt: '实例重建', changed: '属性变化', context: '上下文变化' };
 const correspondenceText = { same_identity: '沿用同一逻辑身份', uncertain: '身份对应不确定', one_sided: '仅在一侧观察到', unavailable: '缺少身份事实' };
@@ -15,6 +17,7 @@ export function DiffExplanation({ api, sessionId, beforeId, afterId, attemptId, 
   const [loaded, setLoaded] = useState<{ key: string; details?: BrowserDiffDetails; error?: string }>();
   const [selected, setSelected] = useState<{ key: string; controlId: string }>();
   const [revision, setRevision] = useState(0);
+  const [expandedEvidence, setExpandedEvidence] = useState<{ key: string; side: 'before' | 'after' }>();
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   useEffect(() => {
     let cancelled = false;
@@ -23,7 +26,7 @@ export function DiffExplanation({ api, sessionId, beforeId, afterId, attemptId, 
     return () => { cancelled = true; };
   }, [api, sessionId, beforeId, afterId, attemptId, scopeId, key, revision]);
   const result = loaded?.key === key ? loaded : undefined;
-  if (!result?.details) return <div className="diff-loading" role={result?.error ? 'alert' : 'status'}>{result?.error ? <>详细差异读取失败：{result.error} <button onClick={() => { setLoaded(undefined); setRevision(n => n + 1); }}>重试</button></> : '正在读取控件、身份和历史证据…'}</div>;
+  if (!result?.details) return <div className="diff-loading" role={result?.error ? 'alert' : 'status'}>{result?.error ? <>详细差异读取失败：{result.error} <button onClick={() => { setLoaded(undefined); setFailedImages({}); setRevision(n => n + 1); }}>重试</button></> : '正在读取控件、身份和历史证据…'}</div>;
   const d = result.details;
   const activeId = selected?.key === key ? selected.controlId : d.changes.find(c => c.change.controlId)?.change.controlId;
   const active = activeId ? d.controls[activeId] : undefined;
@@ -31,7 +34,7 @@ export function DiffExplanation({ api, sessionId, beforeId, afterId, attemptId, 
   const query = new URLSearchParams({ before: beforeId, after: afterId });
   const url = scopeId ? `${base}/scopes/${encodeURIComponent(scopeId)}/diff/details` : attemptId ? `${base}/attempts/${encodeURIComponent(attemptId)}/diff/details` : `${base}/compare/details?${query}`;
   return <section className="diff-explanation" data-testid="diff-explanation" data-after-id={d.diff.afterId}>
-    <div className="diff-summary"><div><b>{d.summary.changes} 项变化</b><span>{d.summary.affectedControls} 个变化控件 · {d.summary.uncertainControls} 个历史身份对应不确定 · {d.gaps.length} 项采集或比较缺口</span></div><button onClick={() => { setLoaded(undefined); setRevision(n => n + 1); }}>刷新详情</button><a href={url} target="_blank" rel="noreferrer">完整详情 API ↗</a></div>
+    <div className="diff-summary"><div><b>{d.summary.changes} 项变化</b><span>{d.summary.affectedControls} 个变化控件 · {d.summary.uncertainControls} 个历史身份对应不确定 · {d.gaps.length} 项采集或比较缺口</span></div><button onClick={() => { setLoaded(undefined); setFailedImages({}); setRevision(n => n + 1); }}>刷新详情</button><a href={url} target="_blank" rel="noreferrer">完整详情 API ↗</a></div>
     <p className="diff-caveat">观察区间内的变化，尚未证明由本次操作导致。{d.summary.contextChanged && '业务上下文已变化，旧探索结果需要重新验证。'}</p>
     <div className="diff-time">{d.interval.beforeAt} → {d.interval.afterAt}<span>间隔 {d.interval.elapsedMs === null ? '未知' : `${d.interval.elapsedMs} ms`}</span></div>
     <div className="diff-changes">{d.changes.length ? d.changes.map(item => {
@@ -46,13 +49,18 @@ export function DiffExplanation({ api, sessionId, beforeId, afterId, attemptId, 
       </article>;
     }) : <p className="diff-caveat">没有记录到属性差异；这不保证页面完全相同，也不表示没有采集或身份缺口。</p>}</div>
     <div className="compare-images detailed-images">{(['before', 'after'] as const).map(side => {
-      const o = d.observations[side]; const label = side === 'before' ? '操作前' : '操作后';
+      const o = d.observations[side]; const storage = d.browser.evidence[side]; const screenshot = storage.artifacts.screenshot; const available = screenshot.availability.status === 'available'; const label = side === 'before' ? '操作前' : '操作后';
       return <figure key={side}><div className="diff-image" style={{ aspectRatio: `${o.viewport.width} / ${o.viewport.height}` }}>
-        {o.screenshot && !failedImages[o.id] ? <img alt={label} src={`${base}/evidence/${encodeURIComponent(o.id)}`} onError={() => setFailedImages(old => ({ ...old, [o.id]: true }))} /> : <span>{failedImages[o.id] ? '截图证据读取失败，控件属性仍可查询' : '未保存截图'}</span>}
-        {o.screenshot && !failedImages[o.id] && <svg viewBox={`0 0 ${o.viewport.width} ${o.viewport.height}`} aria-label={`${label}控件位置`}><title>{active?.label || '选择控件查看位置'}</title>{active?.[side].map(({ control }) => <rect key={control.localId} x={control.rect.x} y={control.rect.y} width={control.rect.width} height={control.rect.height} />)}</svg>}
+        {available && !failedImages[o.id] ? <img alt={label} src={`${base}/evidence/${encodeURIComponent(o.id)}`} onError={() => setFailedImages(old => ({ ...old, [o.id]: true }))} /> : <span>{failedImages[o.id] ? '截图读取失败，可能在查询后过期或被清理；请刷新详情。控件属性仍可查询。' : `截图${evidenceStatusText[screenshot.availability.status]}；历史控件属性仍可查询。`}</span>}
+        {available && !failedImages[o.id] && <svg viewBox={`0 0 ${o.viewport.width} ${o.viewport.height}`} aria-label={`${label}控件位置`}><title>{active?.label || '选择控件查看位置'}</title>{active?.[side].map(({ control }) => <rect key={control.localId} x={control.rect.x} y={control.rect.y} width={control.rect.width} height={control.rect.height} />)}</svg>}
       </div><figcaption>{label} · {o.title || '无标题'}<small>{active ? `${active.label} · ${active[side].length ? '红框为采集时区域' : '此侧未观察到该身份'}` : '选择下方控件，在截图中定位'}</small></figcaption>
+      <div className="diff-retention" data-testid={`diff-retention-${side}`}><b>证据留存 · 查询时状态</b><small>检查时间：{storage.checkedAt}；状态不保证后续请求仍可读取。</small>
+        {Object.entries(storage.artifacts).map(([kind, artifact]) => <p key={kind}><span>{kind === 'screenshot' ? '视口截图' : kind === 'fullPageScreenshot' ? '整页截图' : '详细 DOM / HTML'}：{evidenceStatusText[artifact.availability.status]}</span>{artifact.availability.status !== 'not_captured' && <small>{artifact.availability.mode || '未配置留存策略'} · {artifact.availability.durability === 'persistent' ? '持久介质' : artifact.availability.durability === 'process' ? '仅当前进程' : '介质未知'}{artifact.availability.expiresAt && ` · 到期时间 ${artifact.availability.expiresAt}`}</small>}{artifact.availability.reason && <small>{artifact.availability.reason}</small>}</p>)}
+        <button onClick={() => setExpandedEvidence({ key, side })}>读取{label}完整证据</button>
+      </div>
       <details><summary>页面与采集信息</summary><dl><dt>URL</dt><dd>{o.url}</dd><dt>观察 ID</dt><dd>{o.id}</dd><dt>状态 / 访问</dt><dd>{o.stateId} / {o.visitId}</dd><dt>规则 / 原因</dt><dd>{o.ruleVersion} / {o.cause}</dd><dt>稳定性</dt><dd>{o.stable ? '在稳定等待规则下稳定' : '不稳定 / 部分观察'}</dd><dt>属性 / 截图时间</dt><dd>{o.capturedAt}<br/>{o.screenshotAt || '未记录'}</dd><dt>视口 / 滚动</dt><dd>{json(o.viewport)} / {json(o.scroll)}</dd></dl><h4>业务上下文</h4><pre>{json(o.context)}</pre><h4>交互边界 / 浮层</h4><pre>{json({ boundaries: o.boundaries, overlays: o.overlays })}</pre></details></figure>;
     })}</div>
+    {expandedEvidence?.key === key && <section className="diff-section" data-testid="diff-full-evidence"><button onClick={() => setExpandedEvidence(undefined)}>收起完整证据</button><EvidencePanel key={`${key}:${expandedEvidence.side}:${revision}`} api={api} sessionId={sessionId} observationId={d.observations[expandedEvidence.side].id} /></section>}
     {d.browser.pageChanges.length > 0 && <details className="diff-section"><summary>页面与浮层变化（{d.browser.pageChanges.length}）</summary><pre>{json(d.browser.pageChanges)}</pre></details>}
     <section className="diff-section"><h3>控件与身份依据</h3>{Object.values(d.controls).map(control => <details className="diff-control" key={control.identityId} data-testid="diff-control"><summary><b>{control.label}</b> · {correspondenceText[control.correspondence]}<code>{control.identityId}</code></summary>
       <button onClick={() => setSelected({ key, controlId: control.identityId })}>在前后截图中定位</button>

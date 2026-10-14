@@ -58,6 +58,8 @@ describe('Real Chromium interaction engine', () => {
       const initial = t.engine.observation(t.sessionId); await act(t.engine, t.sessionId, 'Order type'); await act(t.engine, t.sessionId, 'Market');
       const firstMarket = t.engine.observation(t.sessionId); await act(t.engine, t.sessionId, 'Reset interface');
       expect(t.engine.observation(t.sessionId).stateId).toBe(initial.stateId);
+      expect(t.engine.observation(t.sessionId).actionDiscovery?.documentHints.some(h => h.rule === 'click-handler/v1' && h.facts.tag === 'body')).toBe(true);
+      expect(t.engine.observation(t.sessionId).controls.some(c => c.tag === 'body')).toBe(false);
       await act(t.engine, t.sessionId, 'Quick Market');
       const secondMarket = t.engine.observation(t.sessionId); expect(secondMarket.stateId).toBe(firstMarket.stateId); expect(secondMarket.visitId).not.toBe(firstMarket.visitId);
     } finally { await t.close(); }

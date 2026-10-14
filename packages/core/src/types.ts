@@ -6,6 +6,9 @@ export interface Region { key: string; label: string; role: string; parentKey?: 
 /** Ordered outermost to innermost. Only the last boundary accepts interaction. */
 export interface InteractionBoundary { key: string; name: string; parentKey?: string; region: string; evidence: string[] }
 export interface ActionBlocker { code: string; boundaryKey?: string; evidence: string[]; unblock: string }
+/** Evidence supporting an operation, independent of its availability or observed effect. */
+export interface ActionEvidence { source: string; rule: string; facts: Record<string, Json> }
+export interface ActionBasis { status: 'supported' | 'tentative'; evidence: ActionEvidence[] }
 export type ActionKind = string;
 /** A logical interaction target; platform-specific evidence belongs in an extension. */
 export interface Control {
@@ -37,6 +40,8 @@ export interface ActionCandidate {
   kind: ActionKind; label: string; value?: Json;
   preconditions: { context: Context; visible: boolean; enabled: boolean; identityResolved: boolean; blockers?: ActionBlocker[] };
   boundary?: { key: string; intent: 'interact' | 'exit' };
+  /** Absent on legacy records. Tentative operations require explicit external execution. */
+  basis?: ActionBasis;
   replayable: boolean; risk: 'interface' | 'submission' | 'unknown'; source: string;
   excluded: boolean; exclusionReason?: string; sampleValidity: 'shape_only' | 'known' | 'unknown';
 }
@@ -55,14 +60,33 @@ export interface FrontierItem {
   status: 'pending' | 'executing' | 'executed' | 'blocked' | 'unknown' | 'needs_revalidation';
   reason?: string; unblock?: string; attempts: ID[]; depth: number;
 }
+/** Read-time coverage metadata. Scheduling status/reason apply to this case, not its control. */
+export interface FrontierItemView extends FrontierItem {
+  coverage: {
+    groupId: string;
+    unit: 'input_sample' | 'action_case';
+    /** Last recorded attempt outcome; unknown also covers missing historical attempts. */
+    executionStatus: ActionAttempt['status'] | 'not_attempted';
+  };
+}
+/** Groups one logical control and operation; state/context/value variants remain separate cases. */
+export interface FrontierCoverageGroup {
+  id: string; controlId?: ID; kind: ActionKind; label: string;
+  coverageStatus: 'not_attempted' | 'attempted' | 'partial' | 'complete';
+  /** Complete means all currently discovered cases are executed, not exhaustive coverage. */
+  counts: { total: number; executed: number; blocked: number; notAttempted: number };
+  items: FrontierItemView[];
+}
 export interface Predicate { target: string; key?: string; identityId?: ID; field?: string; equals: Json }
 export interface Checkpoint {
   id: ID; sessionId: ID; name: string; observationId: ID; stateId: ID; context: Context;
   predicates: Predicate[]; acceptable: Predicate[]; path: ID[]; createdAt: string;
+  /** Additional retained evidence explicitly required by this checkpoint. */
+  evidenceKeys?: string[];
 }
 export type ReachStatus = 'REACHED_VERIFIED' | 'REACHED_ACCEPTABLE' | 'PRECONDITIONS_CHANGED' | 'UNREACHABLE' | 'UNVERIFIED';
 export interface ReachResult { id: ID; sessionId: ID; checkpointId: ID; status: ReachStatus; observationId?: ID; reason: string; attemptIds: ID[]; checks: { name: string; result: 'pass' | 'fail' | 'unknown' }[]; remainingFrontier: number }
-export interface SessionOptions { maxActions: number; maxDepth: number; maxDurationMs: number; context: Record<string, Json> }
+export interface SessionOptions { maxActions: number; maxDepth: number; maxDurationMs: number; context: Record<string, Json>; evidenceRetention?: import('./ports.js').EvidenceRetentionPolicy }
 export interface Session<S extends SessionOptions = SessionOptions> { id: ID; options: S; createdAt: string; status: 'idle' | 'running' | 'paused' | 'stopped' | 'finished'; currentObservationId?: ID; actionCount: number; elapsedMs: number; stopReason?: string; mode: 'manual' | 'dfs'; dirty: boolean }
 export interface EngineEvent { sequence: number; sessionId: ID; type: string; at: string; data: unknown }
 export interface Issue { id: ID; sessionId: ID; observationId: ID; source: string; severity: 'info' | 'warning' | 'error'; message: string; evidence?: string[] }
@@ -71,7 +95,7 @@ export interface HookContext<O extends Observation = Observation, S extends Sess
 export interface EngineHooks<O extends Observation = Observation, S extends SessionOptions = SessionOptions> {
   context?: (ctx: HookContext<O, S>) => Promise<Context> | Context;
   actions?: (actions: ActionCandidate[], ctx: HookContext<O, S>) => Promise<ActionCandidate[]> | ActionCandidate[];
-  choose?: (items: FrontierItem[], ctx: HookContext<O, S>) => Promise<ID | null> | ID | null;
+  choose?: (items: FrontierItemView[], ctx: HookContext<O, S>) => Promise<ID | null> | ID | null;
   identity?: (hypothesis: IdentityHypothesis, ctx: HookContext<O, S>) => Promise<{ identityId: ID; source: string; evidence: string[] } | undefined> | { identityId: ID; source: string; evidence: string[] } | undefined;
   verify?: (checkpoint: Checkpoint, ctx: HookContext<O, S>) => Promise<{ result: 'pass' | 'fail' | 'unknown'; evidence: string[] }> | { result: 'pass' | 'fail' | 'unknown'; evidence: string[] };
   accept?: (checkpoint: Checkpoint, ctx: HookContext<O, S>) => Promise<{ accepted: boolean; evidence: string[] }> | { accepted: boolean; evidence: string[] };

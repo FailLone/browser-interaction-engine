@@ -1,4 +1,5 @@
 import type { EngineEvent } from './types.js';
+import { clone } from './util.js';
 /** In-process subscriptions only; durable cursors are provided by Persistence. */
 export class EventBus {
   private listeners = new Set<(event: EngineEvent) => void>();
@@ -7,7 +8,7 @@ export class EventBus {
   emit(_name: 'event', event: EngineEvent) {
     for (const listener of [...this.listeners]) {
       // Subscriber failures must not change committed execution results.
-      try { listener(event); } catch { /* Pull the durable log to resume a failed consumer. */ }
+      try { const result = listener(clone(event)) as unknown; if (result && typeof (result as Promise<unknown>).catch === 'function') void (result as Promise<unknown>).catch(() => {}); } catch { /* Pull the durable log to resume a failed consumer. */ }
     }
   }
 }

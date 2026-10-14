@@ -23,7 +23,7 @@ it('keeps core package imports within its SDK boundary', () => {
 });
 
 it('does not couple persistence plugins to browser or transport packages', () => {
-  for (const name of ['storage-memory', 'storage-sqlite']) {
+  for (const name of ['storage-memory', 'storage-sqlite', 'storage-retained']) {
     const deps = JSON.parse(readFileSync(`packages/${name}/package.json`, 'utf8')).dependencies;
     expect(Object.keys(deps).filter(d => /playwright|fastify|browser|client/.test(d))).toEqual([]);
   }

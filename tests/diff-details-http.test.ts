@@ -5,16 +5,18 @@ import { SqliteStore } from '@interaction/storage-sqlite';
 import { act, fixtureServer, testEngine } from './helpers.js';
 import { createServer } from '../apps/server/src/server.js';
 
+const facts = (value: unknown) => JSON.parse(JSON.stringify(value, (key, value) => key === 'checkedAt' ? undefined : value));
+
 it('serves the same historical details to HTTP, SDK, hooks and events, including after restart', async () => {
   const fixture = await fixtureServer(); let hookDetails: BrowserDiffDetails | undefined;
-  const t = await testEngine(fixture.url, {}, { check: attempt => { hookDetails = t.engine.attemptDiffDetails(t.sessionId, attempt.id); return []; } });
+  const t = await testEngine(fixture.url, {}, { check: async attempt => { hookDetails = await t.engine.attemptDiffDetails(t.sessionId, attempt.id); return []; } });
   const app = await createServer(t.engine); await app.listen({ host: '127.0.0.1', port: 0 });
   const client = new InteractionClient(`http://127.0.0.1:${(app.server.address() as { port: number }).port}`);
   try {
     const scope = await t.engine.openScope(t.sessionId, 'menu journey', 'document');
     const attempt = await act(t.engine, t.sessionId, 'Order type');
     const snapshot = await client.attemptDiffDetails(t.sessionId, attempt.id);
-    expect(JSON.parse(JSON.stringify(hookDetails))).toEqual(snapshot);
+    expect(facts(hookDetails)).toEqual(facts(snapshot));
     expect(snapshot.diff).toEqual(attempt.diff);
     expect(snapshot.controls[attempt.action.controlId!].after[0].control.expanded).toBe(true);
     expect(snapshot.controls[attempt.action.controlId!].before[0].actions.some(a => a.id === attempt.action.id)).toBe(true);
@@ -31,14 +33,14 @@ it('serves the same historical details to HTTP, SDK, hooks and events, including
     const event = events.find(e => e.type === 'observation.diff')!;
     expect((await client.eventDiffDetails(t.sessionId, event.sequence)).diff).toEqual(attempt.diff);
     expect((await client.diffDetails(t.sessionId, attempt.beforeId, attempt.afterId!)).diff).toEqual(attempt.diff);
-    expect(await client.attemptDiffDetails(t.sessionId, attempt.id)).toEqual(snapshot);
+    expect(facts(await client.attemptDiffDetails(t.sessionId, attempt.id))).toEqual(facts(snapshot));
     expect(t.engine.store.events(t.sessionId)).toEqual(events);
     const s = t.engine.session(t.sessionId); const count = s.actionCount;
     await t.engine.stop(t.sessionId);
     // A new engine can read this completed historical evidence without opening a browser.
     const reader = new BrowserEngine({ persistence: new SqliteStore(t.directory) });
     try {
-      expect(JSON.parse(JSON.stringify(reader.attemptDiffDetails(t.sessionId, attempt.id)))).toEqual(snapshot);
+      expect(facts(await reader.attemptDiffDetails(t.sessionId, attempt.id))).toEqual(facts(snapshot));
       expect(reader.session(t.sessionId).actionCount).toBe(count);
     } finally { await reader.close(); }
   } finally { await app.close(); await t.close(); await fixture.server.close(); }

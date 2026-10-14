@@ -33,3 +33,25 @@ it('exposes the actual engine through the UI and renders a traversed Market flow
     expect(t.engine.observation(t.sessionId).controls.find(c => c.name === 'Amount')?.value).toBe('2');
   } finally { await browser.close(); await ui.close(); await app.close(); await t.close(); await fixture.server.close(); }
 });
+
+it('shows evidence and explicit probes separately from observed-only elements', async () => {
+  const fixture = await fixtureServer(); const t = await testEngine(`${fixture.url}/action-evidence.html`, { contextRules: [] });
+  const app = await createServer(t.engine); await app.listen({ host: '127.0.0.1', port: 0 });
+  const ui = await createViteServer({ root: resolve('apps/ui'), logLevel: 'error', server: { port: 0, strictPort: false, proxy: { '/v1': `http://127.0.0.1:${(app.server.address() as any).port}` } } }); await ui.listen();
+  const browser = await chromium.launch({ headless: true }); const page = await browser.newPage();
+  try {
+    await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as any).port}`);
+    await page.locator('.session-item').first().click();
+    const tentative = page.locator('.action-row').filter({ has: page.locator('b', { hasText: /^Handler with unknown purpose$/ }) });
+    await tentative.getByText('疑似操作 · 默认跳过', { exact: true }).click();
+    expect(await tentative.locator('pre').innerText()).toContain('click-handler/v1');
+    expect(await tentative.getByRole('button', { name: '试探 ↗' }).isEnabled()).toBe(true);
+    expect(await page.locator('.action-row').filter({ has: page.locator('b', { hasText: /^Focusable prose$/ }) }).count()).toBe(0);
+    await page.getByText('仅观察的元素（未生成操作）', { exact: true }).click();
+    expect(await page.locator('details').filter({ has: page.getByText('仅观察的元素（未生成操作）', { exact: true }) }).innerText()).toContain('Focusable prose');
+    await tentative.getByRole('button', { name: '试探 ↗' }).click();
+    await page.waitForFunction(() => document.querySelectorAll('.visit').length >= 2);
+    expect(t.engine.session(t.sessionId).actionCount).toBe(1);
+    expect(t.engine.actions(t.sessionId).find(a => a.label === 'Handler with unknown purpose')?.basis?.status).toBe('tentative');
+  } finally { await browser.close(); await ui.close(); await app.close(); await t.close(); await fixture.server.close(); }
+});

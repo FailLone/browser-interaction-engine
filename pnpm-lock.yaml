@@ -23,6 +23,9 @@ importers:
       '@interaction/storage-memory':
         specifier: workspace:*
         version: link:packages/storage-memory
+      '@interaction/storage-retained':
+        specifier: workspace:*
+        version: link:packages/storage-retained
       '@interaction/storage-sqlite':
         specifier: workspace:*
         version: link:packages/storage-sqlite
@@ -135,6 +138,9 @@ importers:
       '@interaction/core':
         specifier: workspace:*
         version: link:../core
+      '@interaction/storage-retained':
+        specifier: workspace:*
+        version: link:../storage-retained
 
   packages/client:
     dependencies:
@@ -152,6 +158,12 @@ importers:
         version: 4.6.7
 
   packages/storage-memory:
+    dependencies:
+      '@interaction/core':
+        specifier: workspace:*
+        version: link:../core
+
+  packages/storage-retained:
     dependencies:
       '@interaction/core':
         specifier: workspace:*
