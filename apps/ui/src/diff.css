@@ -57,3 +57,9 @@
 .diff-retention { margin: 10px 0; padding: 12px; border: 1px solid var(--border, #dce3e9); border-radius: 8px; overflow-wrap: anywhere; }
 .diff-retention small { display: block; color: #637483; margin: 4px 0; }
 .diff-retention p { margin: 10px 0; }
+
+.diff-warning button { margin-left: 8px; padding: 3px 7px; font-size: 10px; }
+.diff-gap > summary { color: #7b6039; overflow-wrap: anywhere; }
+.diff-hypothesis { border-top: 1px solid #e5dbc5; padding-top: 6px; margin-top: 12px; }
+.diff-hypothesis li { overflow-wrap: anywhere; }
+.diff-hypothesis code { font-size: 10px; }

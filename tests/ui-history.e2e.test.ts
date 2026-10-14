@@ -160,8 +160,12 @@ it('shows readable field meaning, historical control evidence and matching scree
   const explanation = page.getByTestId('diff-explanation');
   expect(await explanation.innerText()).toContain('Amount');
   expect(await explanation.innerText()).toContain('当前值的记录值发生变化');
-  const control = page.getByTestId('diff-control').filter({ hasText: 'Amount' }).first();
+  expect(await explanation.getByRole('heading', { name: '控件与身份依据', exact: true }).count()).toBe(0);
+  const control = explanation.getByTestId('explained-change').filter({ hasText: 'Amount' }).first().getByTestId('diff-control');
+  expect(await control.getAttribute('open')).toBeNull();
+  expect(await control.locator('.diff-occurrence').count()).toBe(0);
   await control.locator('summary').first().click();
+  await control.locator('.diff-occurrence').first().waitFor();
   expect(await control.innerText()).toContain('Order form');
   expect(await control.innerText()).toContain('scoped-stable-key');
   await control.getByRole('button', { name: '在前后截图中定位' }).click();
@@ -224,4 +228,44 @@ it('shows an explicit image failure if availability changes after the detail res
   await explanation.getByText('截图读取失败，可能在查询后过期或被清理；请刷新详情。控件属性仍可查询。', { exact: true }).waitFor();
   expect(await explanation.getByAltText('操作前').count()).toBe(0);
   expect(await explanation.getByTestId('explained-change').count()).toBeGreaterThan(0);
+});
+
+it('keeps identity candidates inside gaps, including legacy supplements and uncertainty without changes', async () => {
+  const duplicated = await act(t.engine, t.sessionId, 'Duplicate controls');
+  await expectDiff(duplicated);
+  const explanation = page.getByTestId('diff-explanation');
+  const changes = explanation.getByTestId('explained-change');
+  expect(await changes.count()).toBe(duplicated.diff!.changes.length);
+  expect(await explanation.getByTestId('diff-hypothesis').count()).toBe(0);
+  const identityGap = explanation.getByTestId('diff-gap').filter({ hasText: 'IDENTITY_UNCERTAIN' }).first();
+  expect(await identityGap.innerText()).toContain('详情补充');
+  expect(await identityGap.getAttribute('open')).toBeNull();
+  await changes.getByRole('button', { name: '查看相关缺口' }).first().click();
+  await identityGap.getByTestId('diff-hypothesis').first().waitFor();
+  expect(await identityGap.innerText()).toContain('multiple-current-controls');
+  expect(await identityGap.innerText()).toContain('候选身份');
+  expect(await changes.getByTestId('diff-hypothesis').count()).toBe(0);
+  const candidate = identityGap.getByTestId('diff-control').last();
+  await candidate.locator('summary').first().click();
+  await candidate.getByRole('button', { name: '在前后截图中定位' }).click();
+  const candidateId = await candidate.getAttribute('data-control-id');
+  const candidateControl = t.engine.observation(t.sessionId).controls.find(c => c.identityId === candidateId)!;
+  expect(await explanation.locator('svg').last().locator('rect').getAttribute('x')).toBe(String(candidateControl.rect.x));
+  expect(JSON.parse((await page.getByTestId('raw-diff').textContent())!)).toEqual(duplicated.diff);
+
+  // Observe the same duplicate controls again: identity gaps remain, properties do not change.
+  const next = await t.engine.observe(t.sessionId);
+  await page.waitForFunction(id => document.querySelector('[data-testid="diff-explanation"]')?.getAttribute('data-after-id') === id, next.id);
+  expect(await changes.count()).toBe(0);
+  const raw = JSON.parse((await page.getByTestId('raw-diff').textContent())!);
+  expect(raw.changes).toEqual([]);
+  expect(raw.gaps.some((g: { code: string }) => g.code === 'IDENTITY_UNCERTAIN')).toBe(true);
+  expect(await explanation.getByTestId('diff-hypothesis').count()).toBe(0);
+  const nextGap = explanation.getByTestId('diff-gap').filter({ hasText: 'IDENTITY_UNCERTAIN' }).first();
+  expect(await nextGap.innerText()).toContain('原始 diff');
+  await nextGap.locator('summary').first().click();
+  await nextGap.getByTestId('diff-hypothesis').first().waitFor();
+  expect(await nextGap.innerText()).toContain('multiple-current-controls');
+  await nextGap.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: '.data/diff-gap-evidence.png' });
 });
