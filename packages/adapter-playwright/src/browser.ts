@@ -55,6 +55,23 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   const elementKey = (el: Element) => el.getAttribute('data-testid') ? `testid:${el.getAttribute('data-testid')}` : el.id ? `id:${el.id}` : el.getAttribute('name') ? `name:${el.getAttribute('name')}` : undefined;
   const itemSelector = '[data-row-key],[data-item-key],li,tr,[role=row],[role=listitem],[role=treeitem],[role=option]';
   const listSelector = 'ul,ol,table,[role=list],[role=listbox],[role=grid],[role=tree],[data-list-key]';
+  const contentName = (el: Element, independentScopes?: Set<Element>) => {
+    // Fallback names describe this control, not an independent descendant panel.
+    // Explicit labels are resolved separately (including hidden referenced text).
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (node.nodeType === Node.TEXT_NODE) return NodeFilter.FILTER_ACCEPT;
+        const child = node as Element;
+        if (independentScopes?.has(child) || child.matches('script,style,[hidden],[aria-hidden=true],dialog,[role=dialog],[role=alertdialog],[role=menu],[role=listbox],[role=grid],[role=tree],[role=tabpanel],[popover]')) return NodeFilter.FILTER_REJECT;
+        const style = getComputedStyle(child);
+        return style.display === 'none' || style.visibility === 'hidden' ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_SKIP;
+      },
+    });
+    const parts: string[] = [];
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) parts.push(node.textContent || '');
+    const input = el as HTMLInputElement;
+    return clean(parts.join('')) || clean(el.getAttribute('title')) || clean(el.getAttribute('placeholder')) || (['submit', 'button'].includes(input.type) ? input.value : '');
+  };
   const itemKeyCache = new Map<Element, string | undefined>();
   const itemKey = (item: Element) => {
     if (itemKeyCache.has(item)) return itemKeyCache.get(item);
@@ -128,6 +145,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   // Inherited pointer cursors do not turn every descendant into another target.
   for (const el of elements.slice(0, 5000)) if (el !== body && el !== document.documentElement && !selected.has(el) && (scrollViewport(el) || typeof (el as HTMLElement).onclick === 'function' || getComputedStyle(el).cursor === 'pointer' && (!el.parentElement || getComputedStyle(el.parentElement).cursor !== 'pointer'))) selected.add(el);
   const all = [...selected];
+  const unnamedScrolls = new Set<Element>();
   const controls = all.slice(0, 1500).map(el => {
     const e = el as HTMLInputElement;
     const r = rect(el); const style = getComputedStyle(el);
@@ -139,7 +157,9 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const scroll = scrollViewport(el);
     // Virtualized descendants change as the viewport moves. They are not the
     // identity/name of an otherwise unnamed scroll viewport.
-    const name = label(el) || (scroll && capabilities.actions.every(kind => capabilities.actionBasis[kind]?.status === 'tentative') ? clean(el.getAttribute('title')) || `Scrollable ${semanticRole}` : clean(el.textContent) || clean(el.getAttribute('title')) || clean(el.getAttribute('placeholder')) || (['submit', 'button'].includes(e.type) ? e.value : ''));
+    const unnamedScroll = scroll && capabilities.actions.every(kind => capabilities.actionBasis[kind]?.status === 'tentative');
+    if (unnamedScroll) unnamedScrolls.add(el);
+    const name = label(el) || (unnamedScroll ? clean(el.getAttribute('title')) || `Scrollable ${semanticRole}` : contentName(el));
     if (scroll) {
       capabilities.actions.push('scroll');
       capabilities.actionBasis.scroll = { status: 'supported', evidence: [{ source: 'cssom', rule: 'element-scroll-viewport/v1', facts: { overflowX: style.overflowX, overflowY: style.overflowY } }] };
@@ -172,7 +192,18 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   gaps.push({ code: 'EVENT_LISTENER_COVERAGE', message: 'Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation.' });
   if (all.length > controls.length) gaps.push({ code: 'TRUNCATED', message: `${all.length - controls.length} controls omitted`, critical: true });
   if (bodyText.length > 50000) gaps.push({ code: 'TEXT_TRUNCATED', message: 'Visible text was truncated to 50000 characters' });
-  const layers = overlayCollector(controls, regions);
+  const layers = overlayCollector(controls, regions, roots => {
+    const scopes = new Set(roots);
+    controls.forEach((control, index) => {
+      const el = all[index];
+      if (control.label || unnamedScrolls.has(el) || !roots.some(root => root !== el && el.contains(root))) return;
+      // A composite popup can remove its list while showing empty results. Its
+      // observed boundary still separates that content from the ancestor's name.
+      control.name = contentName(el, scopes);
+      control.stableKey = scopedControlKey(el, control.name, control.constraints.type);
+      if (el.getAttribute('aria-selected') === 'true' && el.tagName !== 'SELECT') control.selected = [control.name];
+    });
+  });
   return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, ...layers, actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
 

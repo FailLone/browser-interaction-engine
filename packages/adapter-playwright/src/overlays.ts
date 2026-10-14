@@ -1,7 +1,7 @@
 import type { Control, Overlay, Region } from './types.js';
 
 /** Serialized into the page. Semantic evidence is preferred to styling heuristics. */
-export function collectOverlays(controls: Control[], regions: Region[]) {
+export function collectOverlays(controls: Control[], regions: Region[], describeControls?: (roots: Element[]) => void) {
   const visible = (el: Element) => {
     const r = el.getBoundingClientRect(); const s = getComputedStyle(el);
     return r.width > 0 && r.height > 0 && s.display !== 'none' && s.visibility !== 'hidden' && !el.closest('[hidden]');
@@ -118,6 +118,9 @@ export function collectOverlays(controls: Control[], regions: Region[]) {
   // At equal stacking levels a newly observed layer follows the existing one.
   // Retaining this order avoids DOM order reversing portalled nested popups.
   tracker.visibleOverlays = order;
+  // Finalize ancestor names with the observed independent scopes before using
+  // those names to recognize exits. This does not alter any DOM evidence.
+  describeControls?.(order);
   const keys = new Map<Element, string>();
   for (const el of order) {
     const path = selector(el); let region = regions.find(r => r.selector === path);

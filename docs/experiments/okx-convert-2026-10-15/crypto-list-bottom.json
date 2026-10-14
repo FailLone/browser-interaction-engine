@@ -1,17 +1,7 @@
 {
   "sessionId": "83acfc63-6912-4d79-9eb7-e61c3233ca0f",
-  "observationCountWithPopup": 245,
+  "observationCountWithPopup": 244,
   "observedOptionNames": {
-    "Go to OKX Wallet": {
-      "firstObservation": "e091255f-f4e8-4854-91b4-9cbe400e5ae3",
-      "localId": "129dc34c-caf7-4063-a009-2639d28f0634:410",
-      "identityId": "32057a47-6382-48a2-b424-7f93cf0eb455"
-    },
-    "Close": {
-      "firstObservation": "e091255f-f4e8-4854-91b4-9cbe400e5ae3",
-      "localId": "129dc34c-caf7-4063-a009-2639d28f0634:411",
-      "identityId": "14a784de-b22d-487a-b592-6f8fb6bb250c"
-    },
     "BTC": {
       "firstObservation": "cf2d005f-7789-4d55-a75a-ca2afa509145",
       "localId": "129dc34c-caf7-4063-a009-2639d28f0634:454",
@@ -4175,5 +4165,24 @@
     }
   ],
   "limitation": "Observed options, not selected or business-verified options; live list content/size may change",
-  "runtimeNote": "Long default traversal started before the final nonmodal identity-decision safeguard and before native-history/exit-dedup additions; do not attribute it to the latest runtime."
+  "runtimeNote": "Long default traversal started before the final nonmodal identity-decision safeguard and before native-history/exit-dedup additions; do not attribute it to the latest runtime.",
+  "aggregateCorrection": {
+    "previousNameCount": 823,
+    "previousObservationCountWithPopup": 245,
+    "excludedUnrelatedButtons": {
+      "Go to OKX Wallet": {
+        "firstObservation": "e091255f-f4e8-4854-91b4-9cbe400e5ae3",
+        "localId": "129dc34c-caf7-4063-a009-2639d28f0634:410",
+        "identityId": "32057a47-6382-48a2-b424-7f93cf0eb455"
+      },
+      "Close": {
+        "firstObservation": "e091255f-f4e8-4854-91b4-9cbe400e5ae3",
+        "localId": "129dc34c-caf7-4063-a009-2639d28f0634:411",
+        "identityId": "14a784de-b22d-487a-b592-6f8fb6bb250c"
+      }
+    },
+    "criterion": "Visible native buttons belonging to the actual crypto listbox region within the specific observed BTC popup; excludes unrelated popup buttons.",
+    "actualBoundary": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)"
+  },
+  "observedOptionCount": 821
 }
