@@ -1,5 +1,7 @@
 # V0.1 实施计划与交付契约
 
+后续 UI/UX 检查支撑工作见 [UI/UX 检查支撑实施计划](docs/UI-INSPECTION-PLAN.md)，版本优先级见 [Roadmap](ROADMAP.md)。该计划新增检查机会、空间取证和查询契约，不扩大本文 V0.1 发布条件。
+
 ## 当前工程分层（2026-10-15 更新）
 
 项目位于 `~/Projects/browser-interaction-engine`。core 是与 Web 无关的纯 SDK，负责交互图、身份、探索及恢复；通过 `InteractionAdapter` / `InteractionDriver` 注入交互源。Playwright 与 Web 模型位于独立包，HTTP 位于 `apps/server`，HTTP 客户端位于 `packages/client`。持久化通过 `Persistence` / `EvidenceStore` 插件注入，提供 SQLite 和内存实现。默认演示选择 SQLite；core 和浏览器组合层不选择默认持久化。详细契约见 `docs/ARCHITECTURE.md`。
