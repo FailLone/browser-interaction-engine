@@ -1,6 +1,6 @@
 import { EngineError, clone, evidenceRetentionSchema, hashBytes, type Evidence, type EvidenceAvailability, type EvidenceStore, type EvidenceRetentionPolicy, type Persistence, type Session, type InteractionScope } from '@interaction/core';
 
-interface Group { id: string; sessionId: string; policy: EvidenceRetentionPolicy; createdAt: number; expiresAt?: number; keys: string[]; pins: string[]; committed: boolean }
+interface Group { id: string; sessionId: string; policy: EvidenceRetentionPolicy; createdAt: number; expiresAt?: number; keys: string[]; pins: string[]; pinExpirations?: Record<string, number>; committed: boolean }
 interface Entry { id: string; sessionId: string; observationId: string; bytes: number; hash: string; status: EvidenceAvailability['status']; reason?: string }
 const GROUP = 'evidence-retention'; const ENTRY = 'evidence-entry';
 export interface RetentionOptions { maxMemoryBytes?: number; now?: () => number; sweepIntervalMs?: number }
@@ -46,7 +46,7 @@ export class RetainedEvidenceStore implements EvidenceStore {
   private entries(group: Group) { return group.keys.map(k => this.entry(k)).filter((e): e is Entry => e?.status === 'available'); }
   private memoryBytes() { return [...this.blobs.values()].reduce((n, b) => n + b.value.data.byteLength, 0); }
   private protectionOwners(group: Group) {
-    const owners = [...group.pins];
+    const owners = group.pins.filter(owner => group.pinExpirations?.[owner] === undefined || group.pinExpirations[owner] > this.clock());
     if (!group.committed || group.id === this.active) owners.push('active-capture');
     if (group.policy.mode === 'transient') return owners;
     const session = this.records.get<Session>('session', group.sessionId);
@@ -69,7 +69,15 @@ export class RetainedEvidenceStore implements EvidenceStore {
   }
   private async expire() {
     const now = this.clock();
-    for (const group of this.groups()) if (group.expiresAt !== undefined && group.expiresAt <= now && !this.protected(group)) await this.drop(group, 'expired', 'ttl_elapsed');
+    for (const group of this.groups()) {
+      const expired = group.pins.filter(owner => group.pinExpirations?.[owner] !== undefined && group.pinExpirations[owner] <= now);
+      if (expired.length) {
+        group.pins = group.pins.filter(owner => !expired.includes(owner));
+        for (const owner of expired) delete group.pinExpirations![owner];
+        this.saveGroup(group);
+      }
+      if (group.expiresAt !== undefined && group.expiresAt <= now && !this.protected(group)) await this.drop(group, 'expired', 'ttl_elapsed');
+    }
   }
   beginObservation(context: { sessionId: string; observationId: string; policy?: EvidenceRetentionPolicy }) {
     return this.run(async () => {
@@ -148,8 +156,9 @@ export class RetainedEvidenceStore implements EvidenceStore {
       return { status: entry.status, bytes: entry.bytes, reason: entry.reason, mode: group.policy.mode, expiresAt: !this.protected(group) && group.expiresAt !== undefined ? new Date(group.expiresAt).toISOString() : undefined, durability: group.policy.mode === 'persistent' ? this.records.evidence.durability || 'unknown' : 'process' };
     });
   }
-  pin(keys: string[], owner: string) {
+  pin(keys: string[], owner: string, options?: { expiresAt: number }) {
     return this.run(async () => {
+      if (options && (!Number.isFinite(options.expiresAt) || options.expiresAt <= this.clock())) throw new EngineError('INVALID_QUERY', 'Pin expiry must be in the future');
       const groups = new Map<string, Group>();
       for (const key of keys) {
         if (!await this.read(key)) throw new EngineError('EVIDENCE_UNAVAILABLE', 'Cannot pin unavailable evidence', { key });
@@ -160,10 +169,11 @@ export class RetainedEvidenceStore implements EvidenceStore {
         if (group.policy.mode === 'transient') throw new EngineError('EVIDENCE_RETENTION_UNSUPPORTED', 'Use cache or persistent mode to pin historical evidence');
         groups.set(group.id, group);
       }
-      this.records.transaction(() => { for (const group of groups.values()) { if (!group.pins.includes(owner)) group.pins.push(owner); this.saveGroup(group); } });
+      if (options && options.expiresAt <= this.clock()) throw new EngineError('INVALID_QUERY', 'Pin expired while reserving evidence');
+      this.records.transaction(() => { for (const group of groups.values()) { if (!group.pins.includes(owner)) group.pins.push(owner); group.pinExpirations ||= {}; if (options) group.pinExpirations[owner] = options.expiresAt; else delete group.pinExpirations[owner]; this.saveGroup(group); } });
     });
   }
-  unpin(owner: string) { return this.run(async () => { for (const group of this.groups()) if (group.pins.includes(owner)) { group.pins = group.pins.filter(p => p !== owner); this.saveGroup(group); } await this.expire(); }); }
+  unpin(owner: string) { return this.run(async () => { for (const group of this.groups()) if (group.pins.includes(owner)) { group.pins = group.pins.filter(p => p !== owner); if (group.pinExpirations) delete group.pinExpirations[owner]; this.saveGroup(group); } await this.expire(); }); }
   release(sessionId: string, observationId: string) {
     return this.run(async () => {
       const group = this.group(observationId);

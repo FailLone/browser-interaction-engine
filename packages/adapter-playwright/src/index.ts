@@ -38,3 +38,5 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
     return false;
   }
 }
+
+export * from './inspection-contract.js';

@@ -14,6 +14,15 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
   };
   if (!document.documentElement) { result.gaps.push({ code: 'DOM_ROOT_UNAVAILABLE', message: 'No document element for detailed evidence' }); return result; }
   result.rootId = id(document.documentElement);
+  result.spatialVersion = 1;
+  const viewport = window.visualViewport; const scrolling = document.scrollingElement;
+  result.environment = {
+    layoutViewport: { width: innerWidth, height: innerHeight, clientWidth: document.documentElement.clientWidth, clientHeight: document.documentElement.clientHeight },
+    visualViewport: viewport ? { width: viewport.width, height: viewport.height, offsetLeft: viewport.offsetLeft, offsetTop: viewport.offsetTop, pageLeft: viewport.pageLeft, pageTop: viewport.pageTop, scale: viewport.scale } : undefined,
+    scroll: { x: scrollX, y: scrollY }, devicePixelRatio,
+    scrollingElement: scrolling ? { nodeId: id(scrolling), clientWidth: scrolling.clientWidth, clientHeight: scrolling.clientHeight, scrollWidth: scrolling.scrollWidth, scrollHeight: scrolling.scrollHeight, scrollLeft: scrolling.scrollLeft, scrollTop: scrolling.scrollTop } : undefined,
+    coordinateSpace: 'layout-viewport-css-px', zoom: 'visual-viewport-scale-and-dpr-only',
+  };
   for (const region of regions) { const el = document.querySelector(region.selector); if (el) result.regionRoots[region.key] = id(el); }
   const html = `${result.page.doctype}\n${document.documentElement.outerHTML}`;
   result.html = html.slice(0, limits.maxHtmlLength); result.htmlTruncated = html.length > limits.maxHtmlLength;
@@ -21,7 +30,7 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
   const stack: { node: Node; parentId?: string }[] = [{ node: document.documentElement }];
   const byId = new Map<string, DomNodeEvidence>();
   let characters = 0; let sizeLimited = false;
-  const essential = ['display', 'visibility', 'opacity', 'position', 'z-index', 'pointer-events', 'overflow', 'overflow-x', 'overflow-y', 'color', 'background-color', 'font-size', 'font-weight', 'cursor', 'transform', 'direction', 'white-space'];
+  const essential = ['display', 'visibility', 'opacity', 'position', 'z-index', 'pointer-events', 'overflow', 'overflow-x', 'overflow-y', 'color', 'background-color', 'font-size', 'font-weight', 'cursor', 'transform', 'direction', 'white-space', 'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height', 'box-sizing', 'contain', 'clip-path', 'overflow-wrap', 'text-overflow', 'font-family', 'line-height', 'background-image', 'outline', 'filter', 'isolation', 'flex', 'flex-direction', 'align-items', 'justify-content', 'gap', 'grid-template-columns'];
   while (stack.length && result.nodes.length < limits.maxNodes) {
     const { node, parentId } = stack.pop()!;
     if (node.nodeType !== Node.ELEMENT_NODE && node.nodeType !== Node.TEXT_NODE) continue;
@@ -38,6 +47,27 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
       const r = el.getBoundingClientRect(); record.rect = { x: r.x, y: r.y, width: r.width, height: r.height };
       const style = getComputedStyle(el); record.styles = {};
       for (const key of limits.styles === 'all' ? Array.from(style) : limits.styles === 'essential' ? essential : []) record.styles[key] = trim(style.getPropertyValue(key), limits.maxAttributeLength, `style:${key}`);
+      const scrollAncestorIds: string[] = []; const clipAncestorIds: string[] = [];
+      // These are DOM ancestor chains, not logical overlay ownership. Hit testing
+      // is one visible center sample, never a claim of complete pixel visibility.
+      for (let parent = el.parentElement; parent; parent = parent.parentElement) {
+        const ps = getComputedStyle(parent); const overflow = `${ps.overflowX} ${ps.overflowY}`;
+        if (/(auto|scroll|hidden)/.test(overflow) || parent === scrolling) scrollAncestorIds.push(id(parent));
+        if (/(auto|scroll|hidden|clip)/.test(overflow) || ps.clipPath !== 'none' || /paint/.test(ps.contain)) clipAncestorIds.push(id(parent));
+      }
+      const x = Math.max(0, r.left) + (Math.min(innerWidth, r.right) - Math.max(0, r.left)) / 2;
+      const y = Math.max(0, r.top) + (Math.min(innerHeight, r.bottom) - Math.max(0, r.top)) / 2;
+      const inView = r.width > 0 && r.height > 0 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight;
+      const hit = inView ? document.elementFromPoint(x, y) : null;
+      record.layout = {
+        coordinateSpace: 'layout-viewport-css-px',
+        client: { width: el.clientWidth, height: el.clientHeight, left: el.clientLeft, top: el.clientTop },
+        scroll: { width: el.scrollWidth, height: el.scrollHeight, left: el.scrollLeft, top: el.scrollTop },
+        offset: el instanceof HTMLElement ? { width: el.offsetWidth, height: el.offsetHeight, left: el.offsetLeft, top: el.offsetTop, parentId: el.offsetParent ? id(el.offsetParent) : undefined } : undefined,
+        box: { padding: ['top', 'right', 'bottom', 'left'].map(side => style.getPropertyValue(`padding-${side}`)), border: ['top', 'right', 'bottom', 'left'].map(side => style.getPropertyValue(`border-${side}-width`)), margin: ['top', 'right', 'bottom', 'left'].map(side => style.getPropertyValue(`margin-${side}`)) },
+        scrollAncestorIds, clipAncestorIds,
+        hitSample: inView ? { x, y, topNodeId: hit ? id(hit) : undefined, withinSubtree: !!hit && el.contains(hit) } : undefined,
+      };
       record.properties = {};
       for (const key of ['value', 'checked', 'indeterminate', 'selected', 'selectedIndex', 'disabled', 'readOnly', 'required', 'type', 'tabIndex', 'contentEditable', 'href', 'action', 'method', 'target', 'validationMessage']) {
         const value = (el as any)[key];

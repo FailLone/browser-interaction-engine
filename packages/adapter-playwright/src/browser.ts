@@ -223,7 +223,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if (evidenceManifest.gaps.length || dom.detailDom?.nodes.some(n => n.gaps.length)) evidenceManifest.status = 'partial';
     }
     const { detailDom: _, ...observation } = dom;
-    return { ...observation, evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: this.options.viewport };
+    return { ...observation, evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
   }
   async execute(action: ActionCandidate, control?: Control) {
     const page = this.page!;

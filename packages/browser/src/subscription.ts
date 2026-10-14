@@ -21,7 +21,7 @@ export interface SubscriptionOptions {
 /** Project a durable reference event without changing the durable log. */
 export async function projectEvent(engine: BrowserEngine, event: EngineEvent, delivery: DeliveryMode = 'inline', maxBytes = 8 * 1024 ** 2): Promise<SnapshotEvent> {
   if (!['reference', 'inline', 'hybrid'].includes(delivery) || !Number.isSafeInteger(maxBytes) || maxBytes < 1024 || maxBytes > 64 * 1024 ** 2) throw new EngineError('INVALID_QUERY', 'Invalid snapshot delivery mode or size limit');
-  if (delivery === 'reference' || event.type !== 'observation.created') return clone(event);
+  if (delivery === 'reference' || !['observation.created', 'inspection.ready'].includes(event.type)) return clone(event);
   const data = event.data as SnapshotEventData;
   const evidence: EvidenceDelivery = { mode: delivery, status: 'unavailable', artifacts: [], gaps: [] };
   try {

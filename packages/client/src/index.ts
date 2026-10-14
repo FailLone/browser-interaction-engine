@@ -1,3 +1,4 @@
+import type { InspectionOptionsInput, InspectionResult, CaptureProfile, inspectionCapabilities, validateCaptureProfile } from '@interaction/browser';
 import type { Command, ActionCandidate, ActionAttempt, Checkpoint, EngineEvent, FrontierItemView, BrowserFrontierCoverageGroup, Graph, Observation, Session, SessionOptions } from '@interaction/browser';
 import type { ObservationDetails, ControlDetails, RegionDetails, DomResult, DomQuery, EventContext, ArtifactKind, EvidenceOptions, EvidenceRetentionPolicy, SubscriptionOptions, BrowserEngine, evidenceCapabilities } from '@interaction/browser';
 export class InteractionClient {
@@ -9,7 +10,19 @@ export class InteractionClient {
   }
   sessions() { return this.request<Session[]>('/sessions'); }
   evidenceCapabilities() { return this.request<typeof evidenceCapabilities>('/capabilities/evidence'); }
-  createSession(options: Pick<SessionOptions, 'url'> & Partial<Omit<SessionOptions, 'evidence' | 'evidenceRetention'>> & { evidence?: Partial<EvidenceOptions>; evidenceRetention?: Pick<EvidenceRetentionPolicy, 'mode'> & Partial<EvidenceRetentionPolicy> }) { return this.request<Session>('/sessions', options); }
+  createSession(options: Pick<SessionOptions, 'url'> & Partial<Omit<SessionOptions, 'evidence' | 'evidenceRetention' | 'inspection'>> & { inspection?: InspectionOptionsInput; evidence?: Partial<EvidenceOptions>; evidenceRetention?: Pick<EvidenceRetentionPolicy, 'mode'> & Partial<EvidenceRetentionPolicy> }) { return this.request<Session>('/sessions', options); }
+  inspectionCapabilities() { return this.request<typeof inspectionCapabilities>('/capabilities/inspection'); }
+  validateCaptureProfile(profile: Partial<CaptureProfile> = {}) { return this.request<ReturnType<typeof validateCaptureProfile>>('/capabilities/inspection/validate', profile); }
+  listInspections(id: string, query: { after?: number; limit?: number } = {}) { return this.request<ReturnType<BrowserEngine['listInspections']>>(`/sessions/${encodeURIComponent(id)}/inspections?${new URLSearchParams(Object.entries(query).map(([k, v]) => [k, String(v)]))}`); }
+  inspection(id: string, inspectionId: string) { return this.request<Awaited<ReturnType<BrowserEngine['inspection']>>>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}`); }
+  captureDetails(id: string, captureId: string) { return this.request<Awaited<ReturnType<BrowserEngine['captureDetails']>>>(`/sessions/${encodeURIComponent(id)}/captures/${encodeURIComponent(captureId)}`); }
+  captureNodes(id: string, captureId: string, query: DomQuery = {}) { return this.request<Awaited<ReturnType<BrowserEngine['captureNodes']>>>(`/sessions/${encodeURIComponent(id)}/captures/${encodeURIComponent(captureId)}/nodes?${new URLSearchParams(Object.entries(query).map(([k, v]) => [k, String(v)]))}`); }
+  nodeContext(id: string, captureId: string, nodeId: string) { return this.request<Awaited<ReturnType<BrowserEngine['nodeContext']>>>(`/sessions/${encodeURIComponent(id)}/captures/${encodeURIComponent(captureId)}/nodes/${encodeURIComponent(nodeId)}/context`); }
+  regionContext(id: string, captureId: string, key: string) { return this.request<Awaited<ReturnType<BrowserEngine['regionContext']>>>(`/sessions/${encodeURIComponent(id)}/captures/${encodeURIComponent(captureId)}/region?${new URLSearchParams({ key })}`); }
+  receiveInspection(id: string, inspectionId: string, consumerId: string) { return this.request<Awaited<ReturnType<BrowserEngine['receiveInspection']>>>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/receive`, { consumerId }); }
+  renewInspection(id: string, inspectionId: string, consumerId: string) { return this.request<Awaited<ReturnType<BrowserEngine['renewInspection']>>>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/renew`, { consumerId }); }
+  cancelInspection(id: string, inspectionId: string, consumerId: string) { return this.request<Awaited<ReturnType<BrowserEngine['cancelInspection']>>>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/cancel`, { consumerId }); }
+  completeInspection(id: string, inspectionId: string, consumerId: string, results: InspectionResult[] = []) { return this.request<Awaited<ReturnType<BrowserEngine['completeInspection']>>>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/complete`, { consumerId, results }); }
   session(id: string) { return this.request<Session>(`/sessions/${id}`); }
   observe(id: string) { return this.command<Observation>(id, { type: 'observe' }); }
   observation(id: string, observationId?: string) { return this.request<Observation>(`/sessions/${id}/observation${observationId ? `?id=${observationId}` : ''}`); }
@@ -24,6 +37,11 @@ export class InteractionClient {
   unpinEvidence(id: string, owner: string) { return this.request(`/sessions/${encodeURIComponent(id)}/evidence-retention/unpin`, { owner }); }
   releaseEvidence(id: string, observationId: string) { return this.request(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/evidence-retention`, { action: 'release' }); }
   releaseCheckpointEvidence(id: string, checkpointId: string) { return this.request(`/sessions/${encodeURIComponent(id)}/checkpoints/${encodeURIComponent(checkpointId)}/release-evidence`, {}); }
+  async captureArtifact(id: string, captureId: string, kind: ArtifactKind = 'screenshot') {
+    const response = await fetch(`${this.baseUrl}/v1/sessions/${encodeURIComponent(id)}/captures/${encodeURIComponent(captureId)}/artifacts/${encodeURIComponent(kind)}`);
+    if (!response.ok) { const result = await response.json(); throw Object.assign(new Error(result.error?.message || response.statusText), result.error || {}); }
+    return { mediaType: response.headers.get('content-type') || 'application/octet-stream', data: new Uint8Array(await response.arrayBuffer()) };
+  }
   async evidenceArtifact(id: string, observationId: string, kind: ArtifactKind = 'screenshot') {
     const response = await fetch(`${this.baseUrl}/v1/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/artifacts/${encodeURIComponent(kind)}`);
     if (!response.ok) { const result = await response.json(); throw Object.assign(new Error(result.error?.message || response.statusText), result.error || {}); }

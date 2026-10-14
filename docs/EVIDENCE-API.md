@@ -211,3 +211,7 @@ SqliteStore 的详细文件采用内容寻址的 16 KiB 独立分块，文本块
 界面侧栏“详细证据留存”配置新会话；“事件 → 事件交付”选择完整快照后，观察事件出现“打开事件快照”。该入口直接展示已收到的数据；“查看详细证据”则查询服务端当前留存的历史证据。“详细数据 → 缓存容量与固定 / 释放”管理留存，“检查点”可显式固定证据。界面事件缓冲最多 80 条、16 MiB，已打开的一份快照另由当前面板持有；重新加载界面仍依赖服务端留存。
 
 架构与边界见 [证据生命周期](ARCHITECTURE.md#快照交付缓存与持久留存)，DOM 增量、长期归档与更细投影留在 [Roadmap](../ROADMAP.md)。
+
+## Inspection / Capture 扩展
+
+检查任务、有限消费者租约及常规空间数据见 [UI 检查 API](INSPECTION-API.md)。旧观察与查询接口保持兼容；新的详细 DOM 可携带 `spatialVersion: 1`、environment 和逐节点 layout。DOM 查询新增可选 fields 投影；缺失字段仍需新采集，不能从实时页面补写历史数据。`inspection.ready` 支持与 observation.created 相同的 reference/inline/hybrid 事件投影。

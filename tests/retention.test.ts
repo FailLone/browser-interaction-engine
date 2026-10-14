@@ -87,3 +87,18 @@ it('persists retention manifests across restart and records lost memory snapshot
     await store.evidence.release('persistent', 'persistent'); expect((await store.evidence.availability('persistent.json')).status).toBe('released');
   } finally { await store.evidence.flush(); store.close(); rmSync(directory, { recursive: true, force: true }); }
 });
+
+it('expires finite pins independently and drops abandoned reservations without an inspection process', async () => {
+  let clock = 0; const store = new RetainedPersistence(new MemoryStore(), { now: () => clock, sweepIntervalMs: 0 });
+  try {
+    await store.evidence.beginObservation({ sessionId: 's', observationId: 'o', policy: evidenceRetentionSchema.parse({ mode: 'cache', ttlMs: 10 }) });
+    await store.evidence.put('o.json', { data: new TextEncoder().encode('saved'), mediaType: 'text/plain' });
+    await store.evidence.pin(['o.json'], 'short', { expiresAt: 20 }); await store.evidence.pin(['o.json'], 'long', { expiresAt: 40 });
+    await store.evidence.endObservation('o', true);
+    clock = 25; expect((await store.evidence.stats('s')).protected[0].owners).toEqual(['long']);
+    expect((await store.evidence.availability('o.json')).status).toBe('available');
+    clock = 41; expect((await store.evidence.availability('o.json')).status).toBe('expired');
+    await expect(store.evidence.pin(['o.json'], 'late', { expiresAt: 100 })).rejects.toMatchObject({ code: 'EVIDENCE_UNAVAILABLE' });
+    expect((await store.evidence.stats('s')).memoryBytes).toBe(0);
+  } finally { await store.evidence.flush(); store.close(); }
+});

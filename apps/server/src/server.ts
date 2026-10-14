@@ -1,3 +1,4 @@
+import { inspectionCapabilities, validateCaptureProfile, inspectionConsumerSchema, completeInspectionSchema, inspectionPageSchema } from '@interaction/browser';
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import { z, ZodError } from 'zod';
@@ -16,6 +17,8 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
   });
   app.get('/v1/health', async () => ({ status: 'ok', version: '0.1.0', modelIndependent: true }));
   app.get('/v1/capabilities/evidence', async () => evidenceCapabilities);
+  app.get('/v1/capabilities/inspection', async () => inspectionCapabilities);
+  app.post('/v1/capabilities/inspection/validate', async request => validateCaptureProfile(request.body));
   app.get('/v1/sessions', async () => engine.sessions().map(s => ({ ...s, options: { ...s.options, storageState: s.options.storageState ? '[configured]' : undefined } })));
   app.post('/v1/sessions', async (request, reply) => { const s = await engine.createSession(request.body); return reply.code(201).send({ ...s, options: { ...s.options, storageState: s.options.storageState ? '[configured]' : undefined } }); });
   const sid = (request: any) => request.params.sessionId as string;
@@ -24,6 +27,25 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
     const result = await engine.command(sid(request), request.body);
     if (result && 'options' in result) return { ...result, options: { ...result.options, storageState: result.options.storageState ? '[configured]' : undefined } };
     return result;
+  });
+  const iid = (request: any) => request.params.inspectionId as string;
+  const cid = (request: any) => request.params.captureId as string;
+  app.get('/v1/sessions/:sessionId/inspections', async request => engine.listInspections(sid(request), inspectionPageSchema.parse(request.query)));
+  app.get('/v1/sessions/:sessionId/inspections/:inspectionId', async request => engine.inspection(sid(request), iid(request)));
+  for (const action of ['receive', 'renew', 'cancel'] as const) app.post(`/v1/sessions/:sessionId/inspections/:inspectionId/${action}`, async request => {
+    const { consumerId } = inspectionConsumerSchema.parse(request.body);
+    return engine[`${action}Inspection`](sid(request), iid(request), consumerId);
+  });
+  app.post('/v1/sessions/:sessionId/inspections/:inspectionId/complete', async request => {
+    const { consumerId, results } = completeInspectionSchema.parse(request.body); return engine.completeInspection(sid(request), iid(request), consumerId, results);
+  });
+  app.get('/v1/sessions/:sessionId/captures/:captureId', async request => engine.captureDetails(sid(request), cid(request)));
+  app.get('/v1/sessions/:sessionId/captures/:captureId/nodes', async request => engine.captureNodes(sid(request), cid(request), domQuerySchema.parse(request.query)));
+  app.get('/v1/sessions/:sessionId/captures/:captureId/nodes/:nodeId/context', async request => engine.nodeContext(sid(request), cid(request), (request.params as any).nodeId));
+  app.get('/v1/sessions/:sessionId/captures/:captureId/region', async request => engine.regionContext(sid(request), cid(request), z.object({ key: z.string().min(1) }).parse(request.query).key));
+  app.get('/v1/sessions/:sessionId/captures/:captureId/artifacts/:kind', async (request, reply) => {
+    const evidence = await engine.captureArtifact(sid(request), cid(request), artifactKindSchema.parse((request.params as any).kind));
+    return reply.type(evidence.mediaType).header('X-Content-Type-Options', 'nosniff').header('Content-Security-Policy', "default-src 'none'; sandbox").header('Cache-Control', 'no-store').send(Buffer.from(evidence.data));
   });
   app.get('/v1/sessions/:sessionId/observation', async request => engine.observation(sid(request), (request.query as any).id));
   const oid = (request: any) => request.params.observationId as string;

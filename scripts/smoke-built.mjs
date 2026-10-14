@@ -18,7 +18,7 @@ const base = `http://127.0.0.1:${app.server.address().port}`;
 try {
   const health = await (await fetch(`${base}/v1/health`)).json(); assert.equal(health.status, 'ok');
   const html = await (await fetch(base)).text(); assert.ok(html.includes('id="root"') && html.includes('/assets/'));
-  const created = await fetch(`${base}/v1/sessions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: `http://127.0.0.1:${fixture.address().port}`, headless: true, evidenceRetention: { mode: 'cache' } }) });
+  const created = await fetch(`${base}/v1/sessions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: `http://127.0.0.1:${fixture.address().port}`, headless: true, inspection: { consumers: [{ id: 'smoke' }] }, evidenceRetention: { mode: 'cache' } }) });
   assert.equal(created.status, 201); const session = await created.json();
   const actions = await (await fetch(`${base}/v1/sessions/${session.id}/actions`)).json();
   const action = actions.find(a => a.label === 'Open'); assert.ok(action);
@@ -34,6 +34,14 @@ try {
   assert.equal(projected.data.evidence.artifacts[0].encoding, 'base64');
   assert.ok((await engine.evidenceStats(session.id)).memoryBytes > 0);
   assert.equal(await engine.store.backing.evidence.get(projected.data.evidence.artifacts[0].key), undefined);
-  const result = { at: new Date().toISOString(), node: process.version, compiledAPI: 'passed', staticUI: 'passed', chromiumExecution: 'passed', historicalEvidence: 'passed', snapshotDelivery: 'passed', cachedEvidence: 'passed', attemptId: attempt.id };
+  const inspections = await (await fetch(`${base}/v1/sessions/${session.id}/inspections`)).json();
+  assert.equal(inspections.items.length, 2);
+  const inspection = inspections.items[0];
+  const capture = await (await fetch(`${base}/v1/sessions/${session.id}/captures/${encodeURIComponent(inspection.captureId)}`)).json();
+  assert.equal(capture.capture.quality.status, 'complete');
+  assert.ok(capture.details.snapshot.dom.environment.scrollingElement);
+  const completed = await (await fetch(`${base}/v1/sessions/${session.id}/inspections/${inspection.id}/complete`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ consumerId: 'smoke', results: [] }) })).json();
+  assert.equal(completed.status, 'completed');
+  const result = { inspectionContract: 'passed', at: new Date().toISOString(), node: process.version, compiledAPI: 'passed', staticUI: 'passed', chromiumExecution: 'passed', historicalEvidence: 'passed', snapshotDelivery: 'passed', cachedEvidence: 'passed', attemptId: attempt.id };
   writeFileSync(resolve('docs/build-smoke.json'), JSON.stringify(result, null, 2)); console.log(result);
 } finally { await app.close(); await engine.close(); await new Promise(r => fixture.close(r)); }

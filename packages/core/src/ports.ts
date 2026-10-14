@@ -15,7 +15,7 @@ export interface EvidenceStore {
   availability?(key: string): Promise<EvidenceAvailability>;
   beginObservation?(context: { sessionId: string; observationId: string; policy?: EvidenceRetentionPolicy }): Promise<void>;
   endObservation?(observationId: string, committed: boolean): Promise<void>;
-  pin?(keys: string[], owner: string): Promise<void>;
+  pin?(keys: string[], owner: string, options?: { expiresAt: number }): Promise<void>;
   unpin?(owner: string): Promise<void>;
   flush?(): Promise<void>;
 }
