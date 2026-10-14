@@ -144,3 +144,7 @@ SQLite 插件使用 WAL，`entities` 保存带 kind 的结构化实体，`events
 ## 操作依据与试探
 
 候选返回 `basis: {status: 'supported' | 'tentative', evidence: [{source, rule, facts}]}`，与当前前提和实际结果分别记录。疑似操作保留在待办中，默认 DFS 跳过，并发出 `action.tentative`（actionId、observationId、basis）。外部明确 execute 可试探，仍检查最新观察和执行前提，不自动重放。原始控件保存 `actionBasis`、`interactionHints` 和命中的 `discovery`；无操作的元素仍可查询。详见 [操作候选与证据](ACTION-EVIDENCE.md)。
+
+## 探索与恢复配置
+
+新浏览器会话默认 `exploration: representative`，可选 `stateful`；新增 interfaceActions、reversible 和 environmentReset 声明。待办 sampling 标识抽样范围，恢复 diagnostics 标识业务副作用来源与恢复路径。SDK/HTTP/client 共用这些字段，旧会话不自动迁移。详见 [探索与恢复](EXPLORATION-RECOVERY.md)。

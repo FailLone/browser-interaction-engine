@@ -22,5 +22,8 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
   if (session.options.exclude.some(rule => ruleMatches(rule, action, control, observation.url))) { action.excluded = true; action.exclusionReason = 'excluded_by_rule'; }
   if (control?.constraints.type === 'file') { action.excluded = true; action.exclusionReason = 'unsupported_file_input'; }
   if (session.options.replayable.some(rule => ruleMatches(rule, action, control, observation.url))) action.replayable = true;
+  if (action.risk !== 'submission' && action.basis.status === 'supported' && session.options.interfaceActions?.some(rule => ruleMatches(rule, action, control, observation.url))) {
+    action.risk = 'interface'; action.replayable = true;
+  }
   return action;
 }

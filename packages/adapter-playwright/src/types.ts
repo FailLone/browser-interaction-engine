@@ -41,6 +41,12 @@ export interface SessionOptions {
   evidence: EvidenceOptions;
   evidenceRetention?: import('@interaction/core').EvidenceRetentionPolicy;
   exclude: MatchRule[]; replayable: MatchRule[]; context: Record<string, Json>; contextRules: ContextRule[];
+  exploration?: 'representative' | 'stateful';
+  /** Application declarations; never inferred from button labels. */
+  interfaceActions?: MatchRule[];
+  reversible?: MatchRule[];
+  /** Caller asserts all relevant business state lives in this document. */
+  environmentReset?: 'none' | 'document-reload';
   storageState?: string | { cookies: unknown[]; origins: unknown[] };
 }
 

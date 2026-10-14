@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { BrowserFrontierCoverageGroup, FrontierItemView, FrontierStateSummary } from '@interaction/browser';
 import { differenceText, factText, referenceFor, sameValue, sampleText, stateDifferences, summaryFacts } from './frontier-comparison.js';
+import { RecoveryDetails } from './RecoveryDetails.js';
 
 const executionText: Record<FrontierItemView['coverage']['executionStatus'], string> = {
   not_attempted: '尚未执行', executing: '执行中', succeeded: '已执行成功', failed: '已尝试，执行失败', blocked: '已尝试，执行受阻', unknown: '执行结果未知',
@@ -10,7 +11,7 @@ const statusText: Record<FrontierItemView['status'], string> = {
 };
 function groupLabel(group: BrowserFrontierCoverageGroup) {
   const unit = group.kind === 'fill' ? '样本' : '测试项';
-  if (group.coverageStatus === 'complete') return '已发现测试项均已执行';
+  if (group.coverageStatus === 'complete') return group.items.some(f => f.sampling) ? '代表性样本均已执行' : '已发现测试项均已执行';
   if (group.coverageStatus === 'partial') return group.counts.blocked ? `已探索，仍有${unit}受阻` : '已探索，仍有测试项待完成';
   if (group.coverageStatus === 'attempted') return '已尝试，仍有测试项待确认';
   return group.counts.blocked ? `尚未执行，存在受阻${unit}` : '尚未执行';
@@ -18,7 +19,7 @@ function groupLabel(group: BrowserFrontierCoverageGroup) {
 type Props = { groups: BrowserFrontierCoverageGroup[]; blockerText: Record<string, string>; unblockText: Record<string, string>; inspectObservation?: (id: string) => unknown };
 export function FrontierPanel({ groups, ...props }: Props) {
   return <>
-    <p className="muted">每行展示计划使用的输入与执行前界面，并对照成功记录列出差异。业务上下文单独展示；未配置业务上下文不代表界面相同。</p>
+    <p className="muted">每行展示计划使用的输入与执行前界面，并对照成功记录列出差异。代表性探索按抽样条件安排操作，不覆盖全部字段组合；逐状态探索保留每个界面的独立测试。已执行记录始终对应实际执行时的界面。</p>
     {groups.map(group => <FrontierGroup key={group.id} group={group} {...props} />)}
     {!groups.length && <div className="empty">当前没有探索待办。</div>}
   </>;
@@ -34,7 +35,7 @@ function FrontierGroup({ group, blockerText, unblockText, inspectObservation }: 
       const reference = referenceFor(group, item, executed.some(f => f.id === referenceId) ? referenceId : 'auto');
       const referenceState = group.states.find(s => s.stateId === reference?.stateId);
       return <tr key={item.id} data-frontier-id={item.id}>
-        <td><code>{sampleText(item.action.value)}</code></td>
+        <td><code>{sampleText(item.action.value)}</code>{item.sampling && <details><summary>代表性样本 · {item.sampling.observationIds.length} 次观察</summary><p>这些观察共享一个抽样任务，不表示界面等价或均已执行。其他输入起始值及字段组合不在完整覆盖范围内。</p><code>{item.sampling.policy}</code></details>}</td>
         <td className="frontier-state"><code>{item.stateId.slice(0, 8)}</code>{state?.status === 'available' ? <>
           <ul className="state-facts">{summaryFacts(state).map(f => <li key={f.key}><span>{f.label}</span><b>{factText(f.value, f.field)}</b></li>)}</ul>
           <button onClick={() => inspectObservation?.(state.observationId)}>查看历史界面</button>
@@ -42,7 +43,7 @@ function FrontierGroup({ group, blockerText, unblockText, inspectObservation }: 
         </> : <p className="muted">历史界面记录不可用，无法还原执行前条件。</p>}</td>
         <td className="frontier-differences"><Comparison item={item} state={state} reference={reference} referenceState={referenceState} /></td>
         <td><span className={`badge ${item.status}`}>{group.kind === 'fill' && item.status === 'blocked' ? '样本受阻' : statusText[item.status]}</span><p>{executionText[item.coverage.executionStatus]}</p></td>
-        <td>{blockerText[item.reason || ''] || item.reason || '—'} {unblockText[item.unblock || ''] || item.unblock}</td>
+        <td>{blockerText[item.reason || ''] || item.reason || '—'} {unblockText[item.unblock || ''] || item.unblock}<RecoveryDetails diagnostics={item.recovery?.diagnostics} /></td>
       </tr>;
     })}</tbody></table>
   </details>;

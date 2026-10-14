@@ -10,7 +10,8 @@ export async function fixtureServer() {
 }
 export async function testEngine(url: string, options: Partial<SessionOptions> = {}, hooks: EngineHooks = {}) {
   const directory = mkdtempSync(join(tmpdir(), 'interaction-engine-')); const engine = new InteractionEngine({ persistence: new SqliteStore(directory), hooks });
-  const session = await engine.createSession({ url, headless: true, settleMs: 60, observeTimeoutMs: 600, actionTimeoutMs: 2000, contextRules: [{ key: 'pair', selector: '#pair' }], ...options });
+  // Legacy regression cases intentionally exercise full state-by-state exploration.
+  const session = await engine.createSession({ url, headless: true, exploration: 'stateful', settleMs: 60, observeTimeoutMs: 600, actionTimeoutMs: 2000, contextRules: [{ key: 'pair', selector: '#pair' }], ...options });
   return { engine, sessionId: session.id, directory, close: async () => { await engine.close(); rmSync(directory, { recursive: true, force: true }); } };
 }
 export async function act(engine: InteractionEngine, sessionId: string, name: string, kind: ActionCandidate['kind'] = 'click', value?: ActionCandidate['value']) {
