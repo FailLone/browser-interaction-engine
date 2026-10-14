@@ -2,10 +2,13 @@ import { InteractionEngine as CoreEngine, EngineError, type Persistence, type Pr
 import { RetainedPersistence, type RetentionOptions } from '@interaction/storage-retained';
 import { subscribeEvents, projectEvent, type SubscriptionOptions, type SnapshotEvent, type DeliveryMode } from './subscription.js';
 import { PlaywrightAdapter, commandSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
+import { explainBrowserDiff } from './diff-details.js';
+export * from './diff-details.js';
 import { BrowserEvidenceQueries, type DomQuery, type ArtifactKind } from './evidence.js';
 import { withFrontierStates } from './frontier.js';
 export * from '@interaction/adapter-playwright';
 export * from './evidence.js';
+export * from './evidence-availability.js';
 export * from './subscription.js';
 export * from './frontier.js';
 /** Browser composition only. The caller chooses persistence; there is no implicit disk storage. */
@@ -47,6 +50,10 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     });
     super({ persistence: options.persistence instanceof RetainedPersistence ? options.persistence : new RetainedPersistence(options.persistence, options.retention), adapter: new PlaywrightAdapter(options.hooks), hooks: options.hooks });
   }
+  override async diffDetails(sessionId: string, beforeId: string, afterId: string, region?: string) { return explainBrowserDiff(await super.diffDetails(sessionId, beforeId, afterId, region), this.store.evidence); }
+  override async attemptDiffDetails(sessionId: string, attemptId: string) { return explainBrowserDiff(await super.attemptDiffDetails(sessionId, attemptId), this.store.evidence); }
+  override async eventDiffDetails(sessionId: string, sequence: number) { return explainBrowserDiff(await super.eventDiffDetails(sessionId, sequence), this.store.evidence); }
+  override async scopeDiffDetails(sessionId: string, scopeId: string) { return explainBrowserDiff(await super.scopeDiffDetails(sessionId, scopeId), this.store.evidence); }
   async command(sessionId: string, input: unknown) {
     const command: Command = commandSchema.parse(input);
     switch (command.type) {

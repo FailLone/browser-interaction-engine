@@ -1,4 +1,4 @@
-import type { Command, ActionCandidate, ActionAttempt, Checkpoint, EngineEvent, FrontierItemView, BrowserFrontierCoverageGroup, Graph, Observation, Session, SessionOptions } from '@interaction/browser';
+import type { BrowserDiffDetails, Command, ActionCandidate, ActionAttempt, Checkpoint, EngineEvent, FrontierItemView, BrowserFrontierCoverageGroup, Graph, Observation, Session, SessionOptions } from '@interaction/browser';
 import type { ObservationDetails, ControlDetails, RegionDetails, DomResult, DomQuery, EventContext, ArtifactKind, EvidenceOptions, EvidenceRetentionPolicy, SubscriptionOptions, BrowserEngine, evidenceCapabilities } from '@interaction/browser';
 export class InteractionClient {
   constructor(public baseUrl = 'http://127.0.0.1:4173') {}
@@ -30,6 +30,13 @@ export class InteractionClient {
     return { mediaType: response.headers.get('content-type') || 'application/octet-stream', data: new Uint8Array(await response.arrayBuffer()) };
   }
   graph(id: string) { return this.request<Graph>(`/sessions/${id}/graph`); }
+  diffDetails(id: string, beforeId: string, afterId: string, region?: string) {
+    const query = new URLSearchParams({ before: beforeId, after: afterId }); if (region !== undefined) query.set('region', region);
+    return this.request<BrowserDiffDetails>(`/sessions/${encodeURIComponent(id)}/compare/details?${query}`);
+  }
+  attemptDiffDetails(id: string, attemptId: string) { return this.request<BrowserDiffDetails>(`/sessions/${encodeURIComponent(id)}/attempts/${encodeURIComponent(attemptId)}/diff/details`); }
+  eventDiffDetails(id: string, sequence: number) { return this.request<BrowserDiffDetails>(`/sessions/${encodeURIComponent(id)}/events/${sequence}/diff/details`); }
+  scopeDiffDetails(id: string, scopeId: string) { return this.request<BrowserDiffDetails>(`/sessions/${encodeURIComponent(id)}/scopes/${encodeURIComponent(scopeId)}/diff/details`); }
   frontier(id: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.list<FrontierItemView>(id, 'frontier', options); }
   frontierCoverage(id: string) { return this.request<BrowserFrontierCoverageGroup[]>(`/sessions/${encodeURIComponent(id)}/frontier-coverage`); }
   list<T>(id: string, resource: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.request<{ items: T[]; total: number }>(`/sessions/${id}/${resource}?${new URLSearchParams(Object.entries(options).map(([k, v]) => [k, String(v)]))}`); }

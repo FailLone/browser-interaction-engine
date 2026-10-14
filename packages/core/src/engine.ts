@@ -2,6 +2,7 @@ import { EventBus } from './events.js';
 import { contextSchema, actionBasisSchema } from './schema.js';
 import { assignState, matchIdentities } from './identity.js';
 import { recoverStore } from './recovery.js';
+import { DiffQueries } from './diff-details.js';
 import { describeFrontier, groupFrontier } from './frontier.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
 import type { EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
@@ -69,6 +70,11 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   graph(sessionId: string): Graph { return this.getGraph(sessionId); }
   getGraph(sessionId: string): Graph { this.session(sessionId); return { states: this.store.list('state', sessionId), transitions: this.store.list('transition', sessionId), visits: this.store.list('visit', sessionId) }; }
   compare(sessionId: string, beforeId: string, afterId: string, region?: string) { return this.adapter.compare(this.observation(sessionId, beforeId), this.observation(sessionId, afterId), region); }
+  private diffQueries() { return new DiffQueries<O>(this.store, (before, after, region) => this.adapter.compare(before, after, region)); }
+  async diffDetails(sessionId: string, beforeId: string, afterId: string, region?: string) { return this.diffQueries().diffDetails(sessionId, beforeId, afterId, region); }
+  async attemptDiffDetails(sessionId: string, attemptId: string) { return this.diffQueries().attemptDiffDetails(sessionId, attemptId); }
+  async eventDiffDetails(sessionId: string, sequence: number) { return this.diffQueries().eventDiffDetails(sessionId, sequence); }
+  async scopeDiffDetails(sessionId: string, scopeId: string) { return this.diffQueries().scopeDiffDetails(sessionId, scopeId); }
   report(sessionId: string) {
     const frontier = this.list<FrontierItem>(sessionId, 'frontier'); const attempts = this.list<ActionAttempt>(sessionId, 'attempt'); const observations = this.list<O>(sessionId, 'observation');
     const counts = (items: { status: string }[]) => items.reduce<Record<string, number>>((out, i) => { out[i.status] = (out[i.status] || 0) + 1; return out; }, {});

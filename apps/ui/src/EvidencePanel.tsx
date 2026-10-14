@@ -1,3 +1,4 @@
+import { EvidenceImage } from './EvidenceImage.js';
 import React, { useEffect, useState } from 'react';
 import type { InteractionClient } from '@interaction/client';
 import type { ControlDetails, DomResult, EventContext, Gap, ObservationDetails, EvidenceDelivery } from '@interaction/browser';
@@ -68,7 +69,8 @@ function ObservationEvidence({ api, sessionId, details, delivered }: { api: Inte
       const artifact = o.evidence?.artifacts[kind]; const present = !!artifact || kind === 'screenshot' && !!o.screenshot;
       const label = kind === 'screenshot' ? '历史视口截图' : '历史整页截图';
       const inline = delivered?.artifacts.find(a => a.kind === kind && a.data); const source = inline ? `data:${inline.mediaType};base64,${inline.data}` : `${base}/artifacts/${kind}`;
-      return <figure key={kind}><figcaption>{label} · {artifact?.capturedAt || '未记录独立时间'}</figcaption>{present ? <><a href={source} target="_blank" rel="noreferrer">打开原图 ↗</a><img alt={label} src={source} /></> : <p className="muted">未采集{kind === 'fullPageScreenshot' ? '（需要在会话配置中启用）' : ''}</p>}</figure>;
+      const availability = inline ? undefined : details.availability?.[kind];
+      return <figure key={kind}><figcaption>{label} · {artifact?.capturedAt || '未记录独立时间'}</figcaption>{present ? <>{(!availability || availability.status === 'available') && <a href={source} target="_blank" rel="noreferrer">打开原图 ↗</a>}<EvidenceImage alt={label} src={source} availability={availability} /></> : <p className="muted">未采集{kind === 'fullPageScreenshot' ? '（需要在会话配置中启用）' : ''}</p>}</figure>;
     })}</div>}
     {view === 'aria' && <><p className="muted">{snapshot?.accessibility.status || '未保存'} · {snapshot?.accessibility.capturedAt} · Playwright ARIA 快照</p><pre>{snapshot?.accessibility.text || '此观察没有保存 ARIA 快照'}</pre><Gaps gaps={snapshot?.accessibility.gaps || []} /></>}
     {view === 'runtime' && <><Section title="页面元数据" value={snapshot?.dom?.page || { url: o.url, title: o.title }} /><Section title="区域、弹层和业务上下文" value={{ regions: o.regions, overlays: o.overlays, context: o.context }} /><p className="muted">运行记录：{snapshot?.runtime.since || '未保存'} → {snapshot?.runtime.capturedAt || '未保存'}</p><Section title="网络请求元数据" value={snapshot?.runtime.network} /><Section title="控制台消息" value={snapshot?.runtime.console} /><Section title="页面异常" value={snapshot?.runtime.errors} /><Section title="Frame 清单" value={snapshot?.runtime.frames} /></>}

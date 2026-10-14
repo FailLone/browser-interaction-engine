@@ -127,7 +127,7 @@ export class RetainedEvidenceStore implements EvidenceStore {
       if (!group.keys.includes(key)) { group.keys.push(key); this.saveGroup(group); }
     });
   }
-  private async read(key: string): Promise<Evidence | undefined> {
+  private async read(key: string, copy = true): Promise<Evidence | undefined> {
     await this.expire(); const entry = this.entry(key);
     if (!entry) return this.records.evidence.get(key);
     if (entry.status !== 'available') return undefined;
@@ -135,15 +135,16 @@ export class RetainedEvidenceStore implements EvidenceStore {
     try {
       const value = group.policy.mode === 'persistent' ? await this.records.evidence.get(key) : this.blobs.get(entry.hash)?.value;
       if (!value) { this.save({ ...entry, status: group.policy.mode === 'persistent' ? 'missing' : 'not_retained', reason: 'evidence_not_found' }); return undefined; }
-      return clone(value);
+      return copy ? clone(value) : value;
     } catch (error) { this.save({ ...entry, status: 'storage_failed', reason: String(error) }); throw error; }
   }
   get(key: string) { return this.run(() => this.read(key)); }
   availability(key: string) {
     return this.run(async (): Promise<EvidenceAvailability> => {
-      try { await this.read(key); } catch { /* Status is returned as data. */ }
+      let value: Evidence | undefined; let failure: string | undefined;
+      try { value = await this.read(key, false); } catch (error) { failure = String(error); }
       const entry = this.entry(key);
-      if (!entry) { try { const value = await this.records.evidence.get(key); return { status: value ? 'available' : 'missing', bytes: value?.data.byteLength, durability: this.records.evidence.durability || 'unknown' }; } catch (error) { return { status: 'storage_failed', reason: String(error) }; } }
+      if (!entry) return { status: failure ? 'storage_failed' : value ? 'available' : 'missing', reason: failure, bytes: value?.data.byteLength, durability: this.records.evidence.durability || 'unknown' };
       const group = this.requireGroup(entry.observationId);
       return { status: entry.status, bytes: entry.bytes, reason: entry.reason, mode: group.policy.mode, expiresAt: !this.protected(group) && group.expiresAt !== undefined ? new Date(group.expiresAt).toISOString() : undefined, durability: group.policy.mode === 'persistent' ? this.records.evidence.durability || 'unknown' : 'process' };
     });

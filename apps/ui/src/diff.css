@@ -1,0 +1,65 @@
+.diff-explanation { font-size: 12px; line-height: 1.65; min-width: 0; }
+.diff-summary { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 18px; }
+.diff-summary b { font-size: 17px; font-weight: 500; }
+.diff-summary span { display: block; color: #6e7d6c; font-size: 11px; }
+.diff-summary a { font-size: 11px; color: #3d7050; white-space: nowrap; }
+.diff-caveat { padding: 10px 12px; background: #f5f7ef; border-radius: 5px; color: #67775e; }
+.diff-time { font-size: 10px; color: #77836f; overflow-wrap: anywhere; }
+.diff-time span { margin-left: 12px; }
+.diff-explanation h3 { font-size: 13px; font-weight: 600; margin: 12px 0; }
+.diff-explanation h4 { font-size: 11px; margin: 10px 0 5px; }
+.diff-explanation details { margin: 9px 0; }
+.diff-explanation summary { font-size: 11px; line-height: 1.8; cursor: pointer; color: #476546; }
+.diff-explanation p { overflow-wrap: anywhere; }
+.diff-explanation dl { display: grid; grid-template-columns: 95px minmax(0,1fr); gap: 6px; margin: 10px 0; font-size: 10px; }
+.diff-explanation dt { color: #7b8876; }
+.diff-explanation dd { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.diff-explanation code { overflow-wrap: anywhere; white-space: pre-wrap; }
+.diff-explanation pre { font-size: 10px; max-height: 280px; text-align: left; }
+.diff-image { position: relative; background: #eef2e9; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.detailed-images .diff-image img { width: 100%; height: 100%; max-height: none; object-fit: fill; display: block; }
+.diff-image svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.diff-image rect { fill: #de603115; stroke: #db582b; stroke-width: 3; vector-effect: non-scaling-stroke; }
+.detailed-images figure { min-width: 0; }
+.detailed-images figcaption { padding: 7px 0; }
+.detailed-images figcaption small { display: block; font-size: 10px; }
+.diff-values { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 15px; }
+.diff-values > div { min-width: 0; }
+.diff-values small { font-size: 10px; color: #7d8a75; display: block; }
+.diff-values code { display: block; padding: 8px; background: #f5f7f1; color: #4d684b; border-radius: 5px; }
+.diff-change { padding: 13px; margin: 11px 0; border: 1px solid #e0e7da; border-radius: 7px; }
+.diff-change.selected { border-color: #9fb29a; background: #fbfcf8; }
+.diff-change-heading { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.diff-change-heading b { font-size: 12px; flex: 1; }
+.diff-change-heading button { font-size: 10px; padding: 5px 8px; }
+.diff-id { display: block; margin-top: 9px; font-size: 9px; }
+.diff-warning { color: #91612e; background: #fcf5e6; padding: 8px; border-radius: 4px; font-size: 11px; }
+.diff-section { border-top: 1px solid #e2e8db; margin-top: 18px; padding-top: 12px; }
+.diff-section > summary { font-size: 12px; cursor: pointer; }
+.diff-control { border: 1px solid #e1e7dc; padding: 10px 12px; border-radius: 6px; }
+.diff-control > summary > code { display: block; font-size: 9px; margin-left: 15px; }
+.diff-control button { font-size: 10px; padding: 5px 8px; }
+.diff-alternatives p { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+.diff-alternatives span { font-size: 10px; color: #8a663a; }
+.diff-gap { border-left: 2px solid #dbb884; background: #fcf9f0; padding: 9px 12px; margin: 9px 0; overflow-wrap: anywhere; }
+.diff-gap small { display: block; color: #8c7e61; font-size: 10px; }
+.diff-gap p { font-size: 11px; margin: 5px 0; }
+.diff-gap button { padding: 4px 7px; font-size: 10px; margin: 3px; }
+.diff-loading { padding: 25px; font-size: 12px; color: #7d8a75; }
+.diff-loading[role=alert] { color: #925940; background: #fff4eb; }
+.diff-occurrence { font-size: 11px; }
+@media(max-width: 900px) {
+  .diff-values { grid-template-columns: 1fr; }
+  .diff-summary { align-items: flex-start; flex-direction: column; }
+  .detailed-images { grid-template-columns: 1fr; }
+}
+
+.diff-retention { margin: 10px 0; padding: 12px; border: 1px solid var(--border, #dce3e9); border-radius: 8px; overflow-wrap: anywhere; }
+.diff-retention small { display: block; color: #637483; margin: 4px 0; }
+.diff-retention p { margin: 10px 0; }
+
+.diff-warning button { margin-left: 8px; padding: 3px 7px; font-size: 10px; }
+.diff-gap > summary { color: #7b6039; overflow-wrap: anywhere; }
+.diff-hypothesis { border-top: 1px solid #e5dbc5; padding-top: 6px; margin-top: 12px; }
+.diff-hypothesis li { overflow-wrap: anywhere; }
+.diff-hypothesis code { font-size: 10px; }

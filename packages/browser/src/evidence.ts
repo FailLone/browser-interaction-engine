@@ -1,3 +1,4 @@
+import { inspectObservationEvidence } from './evidence-availability.js';
 import { EngineError, hash, type ActionCandidate, type ControlIdentity, type EngineEvent, type Gap, type IdentityHypothesis, type Persistence } from '@interaction/core';
 import { artifactKindSchema, domQuerySchema, evidenceCapabilities, type DetailSnapshot, type DomNodeEvidence, type Observation } from '@interaction/adapter-playwright';
 
@@ -32,9 +33,11 @@ export class BrowserEvidenceQueries {
     const observation = this.observation(sessionId, observationId);
     const gaps: Gap[] = [...observation.gaps, ...(observation.evidence?.gaps || [])];
     const availability: Record<string, import('@interaction/core').EvidenceAvailability> = {};
-    for (const [kind, ref] of Object.entries(observation.evidence?.artifacts || {})) if (ref && this.reader.store.evidence.availability) {
-      availability[kind] = await this.reader.store.evidence.availability(ref.key);
-      if (availability[kind].status !== 'available') gaps.push({ code: `EVIDENCE_${availability[kind].status.toUpperCase()}`, reference: ref.key, message: availability[kind].reason || `${kind} is unavailable` });
+    const evidenceStatus = await inspectObservationEvidence(this.reader.store.evidence, observation);
+    for (const [kind, artifact] of Object.entries(evidenceStatus.artifacts)) {
+      if (artifact.availability.status === 'not_captured') continue;
+      availability[kind] = artifact.availability;
+      if (artifact.availability.status !== 'available') gaps.push({ code: `EVIDENCE_${artifact.availability.status.toUpperCase()}`, reference: artifact.key, message: artifact.availability.reason || `${kind} is unavailable` });
     }
     let snapshot: DetailSnapshot | undefined;
     if (observation.evidence?.artifacts.details) {

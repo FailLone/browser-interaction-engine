@@ -42,6 +42,10 @@ flowchart LR
 | GET | /sessions/:sid/actions?observationId= | 当前或历史候选 |
 | GET | /sessions/:sid/graph | states、transitions、visits |
 | GET | /sessions/:sid/compare?before=&after=&region= | 单步或区域比较 |
+| GET | /sessions/:sid/compare/details?before=&after=&region= | 比较并关联完整历史证据 |
+| GET | /sessions/:sid/attempts/:attemptId/diff/details | 动作保存的 diff 详情 |
+| GET | /sessions/:sid/events/:sequence/diff/details | 事件保存的 diff 详情 |
+| GET | /sessions/:sid/scopes/:scopeId/diff/details | 流程累计 diff 详情 |
 | GET | /sessions/:sid/path?from=&to= | 已记录可重放路径；无路径为 null |
 | GET | /sessions/:sid/report | 发现范围、动作、待办、缺口和问题 |
 | GET | /sessions/:sid/evidence/:observationId | PNG 截图 |
@@ -132,6 +136,7 @@ SQLite 插件使用 WAL，`entities` 保存带 kind 的结构化实体，`events
 
 内存插件保留同样的实体、请求去重、事件游标和事务语义，证据通过 `EvidenceStore.get()` 返回字节。`/evidence` 不依赖本地路径。内存数据不跨进程保存。
 
+详细响应、历史语义及 SDK/Event 用法见 [DIFF-DETAILS.md](DIFF-DETAILS.md)。
 ## 详细证据接口
 
 按事件、观察、控件及区域读取不可覆盖的历史证据，见 [详细证据查询](EVIDENCE-API.md)。新接口只读，不调用浏览器，不改变现有 SSE data 结构。
