@@ -502,6 +502,15 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     }
     return undefined;
   }
+  private observationReturn(sessionId: string, target: O) {
+    const session = this.session(sessionId), current = this.observation(sessionId);
+    if (session.dirty || current.boundaries?.length || current.gaps.some(g => g.critical)) return;
+    const proposed = this.adapter.returnToObservation?.(target, current, session);
+    if (!proposed) return;
+    const action = this.constrain(proposed, current, session);
+    if (action.excluded || action.risk !== 'interface' || action.basis?.status !== 'supported' || action.preconditions.blockers?.length) return;
+    return action;
+  }
   private async reachInternal(sessionId: string, checkpointId: string): Promise<ReachResult> {
     const checkpoint = this.owned<Checkpoint>('checkpoint', checkpointId, sessionId); const performed: string[] = [];
     let checks: ReachResult['checks'] = []; let status: ReachResult['status'] = 'UNREACHABLE'; let reason = 'No verified path within the current recovery constraints';
@@ -521,12 +530,24 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       let verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
       if (verification.status) { status = verification.status; reason = `Checkpoint verification: ${status}`; return finish(); }
       const triedExits = new Set<string>();
+      let returnedToSource = false;
       strategies.push('boundary_exit');
       while (true) {
         const current = this.observation(sessionId);
         const close = this.adapter.returnAction?.(this.actions(sessionId).filter(a => !triedExits.has(this.frontierKey(a))), current);
         if (!close) {
           if (current.boundaries?.length) { reason = 'Active interaction boundary could not be exited and verified'; return finish(); }
+          const sourceReturn = !returnedToSource && this.observationReturn(sessionId, this.observation(sessionId, checkpoint.observationId));
+          if (sourceReturn) {
+            returnedToSource = true; strategies.push('observed_source_return'); this.store.put('action', sourceReturn);
+            const attempt = await this.runAction(sessionId, sourceReturn.id, id(), undefined, 'recovery'); performed.push(attempt.id);
+            verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
+            if (attempt.status !== 'succeeded') { status = 'UNVERIFIED'; reason = 'Return to observed source could not be verified'; return finish(); }
+            if (verification.status) { status = verification.status; reason = 'Verified after return to observed source'; return finish(); }
+            // Native history may restore an open interaction boundary. Exit and
+            // verify it before considering any replay or environment reopening.
+            continue;
+          }
           break;
         }
         triedExits.add(this.frontierKey(close));
@@ -694,6 +715,17 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const target = this.observation(sessionId, item.action.observationId);
     const boundary = target.boundaries?.[0];
     if (contextKey(current.context) !== item.contextKey) return false;
+    const returnKey = `source-return:${item.id}`;
+    const sourceReturn = !tried.has(returnKey) && this.observationReturn(sessionId, target);
+    if (sourceReturn) {
+      tried.add(returnKey); this.store.put('action', sourceReturn);
+      const result = await this.runAction(sessionId, sourceReturn.id, id(), undefined, 'recovery');
+      const after = this.observation(sessionId);
+      this.emit(sessionId, 'exploration.source_return', { frontierId: item.id, attemptId: result.id, targetObservationId: target.id,
+        observationId: after.id, returnedScope: result.status === 'succeeded' && !after.gaps.some(g => g.critical)
+          && this.adapter.explorationScope(after) === this.adapter.explorationScope(target) });
+      return true;
+    }
     if (!boundary) return this.revealFrontierTarget(sessionId, item, tried);
     const openers = this.store.list<ActionAttempt>('attempt', sessionId).filter(a => a.status === 'succeeded' && a.afterId && a.action.risk === 'interface' && a.action.replayable
       && contextKey(a.action.preconditions.context) === item.contextKey

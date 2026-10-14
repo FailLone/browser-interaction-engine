@@ -1,6 +1,17 @@
 import { EngineError } from '@interaction/core';
 import type { ActionCandidate, Observation, Session } from './types.js';
 import { ruleMatches } from './util.js';
+import { historyTarget } from './navigation.js';
+
+/** A fresh observed exit can be used without resolving its historical identity. */
+export function hasObservedBoundaryExit(action: ActionCandidate, observation: Observation) {
+  const active = observation.overlays?.at(-1);
+  const control = observation.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
+  return !!active && !!control && action.observationId === observation.id && action.kind === 'click'
+    && action.risk === 'interface' && action.basis?.status === 'supported' && control.actionBasis?.click?.status === 'supported'
+    && active.exitControlIds.includes(control.localId)
+    && !control.actionBasis.click.evidence.some(e => e.rule === 'native-button/v1' && e.facts.submitsForm === true);
+}
 
 /** A current, sourced exit intent; never a proof of exit or a historical replay grant. */
 export function hasDeclaredBoundaryExit(action: ActionCandidate, observation: Observation) {
@@ -42,13 +53,16 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
     else if (control.actionable.hitTarget === false) action.preconditions.blockers.push({ code: 'pointer_intercepted', evidence: [control.actionable.occludedBy || 'hit-test-failed'], unblock: 'Remove the obstruction and observe again' });
   }
   if (control && action.kind === 'fill' && !control.editable) action.preconditions.blockers.push({ code: 'not_editable', evidence: ['observed-editable=false'], unblock: 'Wait until the field is editable and observe again' });
-  if (!['click', 'fill', 'select', 'check', 'scroll', 'press'].includes(action.kind)) throw new EngineError('INVALID_PLUGIN_ACTION', 'Unsupported browser action kind');
+  if (!['click', 'fill', 'select', 'check', 'scroll', 'press', 'history'].includes(action.kind)) throw new EngineError('INVALID_PLUGIN_ACTION', 'Unsupported browser action kind');
+  if (action.kind === 'history' && (session.dirty || !historyTarget(action, observation.navigation))) {
+    action.preconditions.blockers.push({ code: 'unverified_history_return', evidence: ['History return requires a previously observed GET entry in this browser session and no unresolved business effects'], unblock: 'Observe a valid return target and resolve business state requirements' });
+  }
   if (session.options.exclude.some(rule => ruleMatches(rule, action, control, observation.url))) { action.excluded = true; action.exclusionReason = 'excluded_by_rule'; }
   if (control?.constraints.type === 'file') { action.excluded = true; action.exclusionReason = 'unsupported_file_input'; }
   if (session.options.replayable.some(rule => ruleMatches(rule, action, control, observation.url))) action.replayable = true;
   if (action.risk !== 'submission' && action.basis.status === 'supported' && session.options.interfaceActions?.some(rule => ruleMatches(rule, action, control, observation.url))) {
     action.risk = 'interface'; action.replayable = true;
   }
-  if (declaredExit) action.replayable = false;
+  if (declaredExit || action.kind === 'history') action.replayable = false;
   return action;
 }

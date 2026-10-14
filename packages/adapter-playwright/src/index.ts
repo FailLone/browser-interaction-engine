@@ -3,8 +3,9 @@ import { BrowserAdapter } from './browser.js';
 import { observableCanonical, compareObservations } from './model.js';
 import { sessionSchema } from './schema.js';
 import { signature } from './util.js';
-import { constrain, hasDeclaredBoundaryExit } from './policy.js';
+import { constrain, hasDeclaredBoundaryExit, hasObservedBoundaryExit } from './policy.js';
 import { controlCase, explorationCase, restorationStep } from './exploration.js';
+import { historyReturn } from './navigation.js';
 import type { ActionCandidate, Control, EngineHooks, Observation, Session, SessionOptions } from './types.js';
 export * from './types.js';
 export { sessionSchema, commandSchema, predicateSchema, domQuerySchema, artifactKindSchema } from './schema.js';
@@ -23,6 +24,7 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   explorationCase(a: ActionCandidate, o: Observation, s: Session) { return s.options.exploration === 'controls' ? controlCase(a, o) : explorationCase(a, o); }
   explorationScope(o: Observation) { return canonical({ url: o.url, boundaries: o.boundaries?.map(b => b.key) || [] }); }
   restorationStep = restorationStep;
+  returnToObservation = historyReturn;
   testPredicate(predicate: Predicate, observation: Observation): 'pass' | 'fail' | 'unknown' {
     if (predicate.target === 'url') return observation.url === predicate.equals ? 'pass' : 'fail';
     if (predicate.target === 'context') { const value = observation.context[predicate.key || '']; return !value || value.status === 'unknown' ? 'unknown' : canonical(value.value) === canonical(predicate.equals) ? 'pass' : 'fail'; }
@@ -35,7 +37,8 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
     return actions.find(a => a.boundary?.intent === 'exit' && a.risk === 'interface' && a.basis?.status !== 'tentative' && !a.excluded
       && a.preconditions.visible && a.preconditions.enabled && !a.preconditions.blockers?.length
       && (a.replayable && a.preconditions.identityResolved
-        || a.observationId === observation.id && a.preconditions.targetResolved && hasDeclaredBoundaryExit(a, observation)));
+        || a.observationId === observation.id && a.preconditions.targetResolved
+          && (hasDeclaredBoundaryExit(a, observation) || hasObservedBoundaryExit(a, observation))));
   }
   entryAction(observation: Observation, session: Session): ActionCandidate {
     return { id: id(), sessionId: session.id, observationId: observation.id, stateId: observation.stateId, kind: 'navigate', value: session.options.url, label: 'Reopen session entry', source: 'recovery-entry', risk: 'interface', replayable: false, excluded: false, sampleValidity: 'known', preconditions: { context: observation.context, visible: true, enabled: true, identityResolved: true } };

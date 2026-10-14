@@ -1,4 +1,4 @@
-import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
+import { chromium, type Browser, type BrowserContext, type Page, type CDPSession } from 'playwright';
 import { createHash } from 'node:crypto';
 import type { EvidenceStore, InteractionDriver, HookInvoker } from '@interaction/core';
 import { canonical, timeout, hash } from '@interaction/core';
@@ -15,6 +15,8 @@ import { collectActionEvidence } from './action-evidence.js';
 import { collectEvidence } from './collect-evidence.js';
 import { evidenceOptionsSchema } from './schema.js';
 import { RuntimeRecorder } from './runtime-evidence.js';
+import { historyPosition, historyTarget } from './navigation.js';
+import type { BrowserHistory } from './types.js';
 import type { BrowserEvidenceManifest, DetailSnapshot, DomEvidence, EvidenceOptions } from './evidence-types.js';
 
 // Runs in the page without framework knowledge or DOM mutation.
@@ -178,12 +180,23 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   browser?: Browser; context?: BrowserContext; page?: Page;
   private gaps: Gap[] = [];
   private recorder?: RuntimeRecorder;
+  private navigationClient?: CDPSession;
+  private navigationSessionId = '';
+  private documentMethods = new Map<string, string>();
+  private entryMethods = new Map<number, string>();
+  private lastDocumentResponse?: { url: string; method: string };
   constructor(public options: SessionOptions, private evidence: EvidenceStore, private hooks: EngineHooks = {}) { this.options = { ...options, evidence: evidenceOptionsSchema.parse(options.evidence) }; }
   connected() { return !!this.page && !this.page.isClosed(); }
   async start() {
     this.browser = await chromium.launch({ headless: this.options.headless });
     this.context = await this.browser.newContext({ viewport: this.options.viewport, storageState: this.options.storageState as any, acceptDownloads: false });
     this.page = await this.context.newPage();
+    this.navigationSessionId = id(); this.documentMethods.clear(); this.entryMethods.clear(); this.lastDocumentResponse = undefined;
+    this.navigationClient = await this.context.newCDPSession(this.page);
+    this.page.on('response', response => {
+      const request = response.request();
+      if (request.isNavigationRequest() && request.frame() === this.page?.mainFrame()) this.lastDocumentResponse = { url: response.url(), method: request.method() };
+    });
     this.recorder = new RuntimeRecorder(this.options.evidence.maxRuntimeEntries, this.options.evidence.maxTextLength);
     if (this.options.evidence.enabled) this.recorder.attach(this.page);
     this.page.setDefaultTimeout(this.options.actionTimeoutMs);
@@ -197,6 +210,21 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       } else await route.continue();
     });
     await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' });
+  }
+  private async readHistory(documentId?: string): Promise<BrowserHistory> {
+    if (!this.navigationClient) throw new EngineError('BROWSER_UNAVAILABLE', 'Native navigation history is unavailable');
+    const history = await this.navigationClient.send('Page.getNavigationHistory');
+    const current = history.entries[history.currentIndex];
+    if (documentId && current) {
+      const withoutHash = (url: string) => url.split('#')[0];
+      if (!this.documentMethods.has(documentId) && this.lastDocumentResponse && withoutHash(this.lastDocumentResponse.url) === withoutHash(current.url)) {
+        this.documentMethods.set(documentId, this.lastDocumentResponse.method);
+      }
+      const method = this.documentMethods.get(documentId);
+      if (method) this.entryMethods.set(current.id, method);
+    }
+    return { browserSessionId: this.navigationSessionId, currentIndex: history.currentIndex,
+      entries: history.entries.map(e => ({ id: e.id, url: e.url, method: this.entryMethods.get(e.id) })) };
   }
   async readDOM(detailed = false) {
     if (!this.page || this.page.isClosed()) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
@@ -258,6 +286,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // the execution context never became readable. Never replay the action here.
     dom ??= { documentId: `unavailable:${id()}`, url: this.page.url(), title: '', text: '', controls: [], regions: [], overlays: [], boundaries: [], scroll: { x: 0, y: 0, maxY: 0 }, gaps: [] };
     const capturedAt = now(); const gaps = [...dom.gaps, ...this.gaps.splice(0)];
+    let navigation: BrowserHistory | undefined;
+    try { navigation = await this.readHistory(dom.documentId); }
+    catch (error) { gaps.push({ code: 'NAVIGATION_HISTORY_UNAVAILABLE', message: String(error) }); }
     if (captureRetries) gaps.push({ code: 'EVIDENCE_CAPTURE_RETRIED', message: `Re-sampled after ${captureRetries} change(s) during detailed capture; the browser action was not repeated` });
     if (lastError) gaps.push({ code: 'DOM_CAPTURE_FAILED', message: lastError, critical: true });
     if (!stable) gaps.push({ code: 'UNSTABLE', message: 'Page did not settle within the observation budget', critical: !(this.options.exploration === 'controls' && interactionStable) });
@@ -299,6 +330,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     try {
       const current = await timeout(this.page.evaluate(() => ({ documentId: (window as any).__interactionEvidenceTracker?.documentId, hasBody: !!document.body })), this.options.observeTimeoutMs, 'Document verification deadline exceeded');
       if (current.documentId !== dom.documentId || !current.hasBody) { stable = false; gaps.push({ code: 'OBSERVATION_INTERRUPTED', message: 'Document changed or became unavailable between DOM and evidence collection', critical: true }); }
+      if (navigation && (historyPosition(navigation).url !== dom.url || canonical(historyPosition(navigation)) !== canonical(historyPosition(await this.readHistory())))) {
+        stable = false; gaps.push({ code: 'NAVIGATION_HISTORY_CHANGED', message: 'Browser history changed during evidence collection', critical: true });
+      }
     } catch (error) { stable = false; gaps.push({ code: 'OBSERVATION_INTERRUPTED', message: String(error), critical: true }); }
     if (this.options.evidence.enabled) {
       if (!dom.detailDom) evidenceManifest.gaps.push({ code: 'DETAIL_DOM_UNAVAILABLE', message: 'Detailed DOM was not captured; historical queries cannot reconstruct it later' });
@@ -314,10 +348,24 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if (evidenceManifest.gaps.length || dom.detailDom?.nodes.some(n => n.gaps.length)) evidenceManifest.status = 'partial';
     }
     const { detailDom: _, ...observation } = dom;
-    return { ...observation, evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
+    return { ...observation, navigation, evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
   }
   async execute(action: ActionCandidate, control?: Control) {
     const page = this.page!;
+    if (action.kind === 'history') {
+      const target = historyTarget(action, await this.readHistory());
+      if (!target) throw new EngineError('STALE_OBSERVATION', 'Native history no longer matches the observed return path');
+      await this.navigationClient!.send('Page.navigateToHistoryEntry', { entryId: target.id });
+      const deadline = Date.now() + this.options.actionTimeoutMs;
+      while (true) {
+        const history = await this.readHistory(); const current = history.entries[history.currentIndex];
+        if (current?.id === target.id && current.url === target.url) break;
+        if (Date.now() >= deadline) throw new EngineError('NAVIGATION_RETURN_UNVERIFIED', 'Native history did not reach the expected entry');
+        await new Promise(resolve => setTimeout(resolve, 25));
+      }
+      await page.waitForURL(target.url, { waitUntil: 'domcontentloaded', timeout: this.options.actionTimeoutMs });
+      return;
+    }
     if (action.kind === 'scroll' && !control) { await page.mouse.wheel(0, Number(action.value ?? 600)); return; }
     if (action.kind === 'press' && !control) { await page.keyboard.press(String(action.value || 'Escape')); return; }
     if (!control) throw new EngineError('TARGET_MISSING', 'A current control is required');
@@ -410,6 +458,10 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     try { live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
     if (live.gaps.some(g => g.critical)) return 'stale';
+    if (current.navigation) {
+      try { if (canonical(historyPosition(current.navigation)) !== canonical(historyPosition(await this.readHistory(live.documentId)))) return 'stale'; }
+      catch { return 'stale'; }
+    }
     const liveCanonical = observableCanonical({ ...current, ...live, context: current.context, gaps: current.gaps });
     const changed = this.options.exploration === 'controls' ? interactionProjection(live) !== interactionProjection(current)
       : liveCanonical !== current.canonical || live.controls.some((c, i) => c.instanceId !== current.controls[i]?.instanceId);
@@ -426,6 +478,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     return 'valid';
   }
   async validate(action: ActionCandidate, control?: Control) {
+    if (action.kind === 'history' && !historyTarget(action, await this.readHistory())) throw new EngineError('INVALID_INPUT', 'History return requires a previously observed GET entry');
     if (action.kind === 'scroll' && control) {
       const delta = typeof action.value === 'object' && action.value !== null ? action.value as { x: number; y: number } : { x: 0, y: action.value };
       if (!control.scroll || !Number.isFinite(delta.x) || !Number.isFinite(delta.y)) throw new EngineError('INVALID_INPUT', 'Element scroll requires a scroll viewport and finite deltas');

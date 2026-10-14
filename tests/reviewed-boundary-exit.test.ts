@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { createServer } from 'node:http';
-import type { ActionCandidate, EngineHooks, InteractionScope } from '@interaction/browser';
+import type { ActionCandidate, ActionAttempt, EngineHooks, InteractionScope } from '@interaction/browser';
 import { testEngine, act, pageOf } from './helpers.js';
 
 async function fixture(hooks: EngineHooks) {
@@ -109,4 +109,30 @@ it('does not downgrade native submission risk or declare it a reviewed boundary 
     await expect(t.engine.execute(t.sessionId, submit.id, 'not-an-exit')).rejects.toMatchObject({ code: 'ACTION_BLOCKED' });
     expect(await pageOf(t.engine).evaluate(() => (window as any).submits)).toBe(0);
   } finally { await t.close(); }
+});
+
+it('uses a unique current exit instance with ambiguous historical identity, without granting replay', async () => {
+  const server = createServer((_req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.end(`<button id="open" aria-controls="dialog" aria-expanded="false" onclick="dialog.showModal();this.setAttribute('aria-expanded','true')">Open dialog</button>
+      <dialog id="dialog" onclose="document.getElementById('open').setAttribute('aria-expanded','false')">
+        <button type="button" onclick="dialog.close()">Close</button><button type="button" onclick="dialog.close()">Close</button>
+      </dialog>`);
+  });
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  const t = await testEngine(`http://127.0.0.1:${(server.address() as {port:number}).port}`, { exploration: 'controls', contextRules: [] });
+  try {
+    const cp = await t.engine.createCheckpoint(t.sessionId, 'before dialog');
+    await act(t.engine, t.sessionId, 'Open dialog');
+    const exits = t.engine.actions(t.sessionId).filter(a => a.label === 'Close');
+    expect(exits).toHaveLength(2);
+    expect(exits.every(a => !a.preconditions.identityResolved && a.preconditions.targetResolved && !a.replayable)).toBe(true);
+    const result = await t.engine.reachCheckpoint(t.sessionId, cp.id);
+    expect(result.status).toBe('REACHED_VERIFIED');
+    const attempts = t.engine.list<ActionAttempt>(t.sessionId, 'attempt').filter(a => a.purpose === 'recovery');
+    expect(attempts).toHaveLength(1);
+    expect(attempts[0]).toMatchObject({ status: 'succeeded', action: { label: 'Close', replayable: false, preconditions: { identityResolved: false, targetResolved: true } } });
+    expect(t.engine.graph(t.sessionId).transitions.find(tr => tr.attemptId === attempts[0].id)?.replayable).toBe(false);
+    expect(t.engine.observation(t.sessionId).boundaries).toEqual([]);
+  } finally { await t.close(); await new Promise<void>(resolve => server.close(() => resolve())); }
 });

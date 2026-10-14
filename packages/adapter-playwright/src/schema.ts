@@ -2,7 +2,7 @@ import { inspectionOptionsSchema } from './inspection-contract.js';
 import { z } from 'zod';
 import { evidenceRetentionSchema } from '@interaction/core';
 export const contextSchema = z.record(z.string(), z.object({ value: z.json(), status: z.enum(['known', 'unknown']), source: z.string() }));
-const match = z.object({ role: z.string().optional(), name: z.string().optional(), stableKey: z.string().optional(), kind: z.enum(['click', 'fill', 'select', 'check', 'scroll', 'press', 'navigate']).optional(), urlIncludes: z.string().optional() }).strict();
+const match = z.object({ role: z.string().optional(), name: z.string().optional(), stableKey: z.string().optional(), kind: z.enum(['click', 'fill', 'select', 'check', 'scroll', 'press', 'navigate', 'history']).optional(), urlIncludes: z.string().optional() }).strict();
 export const evidenceOptionsSchema = z.object({
     enabled: z.boolean().default(true), maxNodes: z.number().int().min(1).max(50000).default(5000),
     maxTextLength: z.number().int().min(1).max(100000).default(20000), maxHtmlLength: z.number().int().min(1).max(10000000).default(2000000),

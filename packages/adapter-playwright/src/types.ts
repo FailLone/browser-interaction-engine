@@ -6,6 +6,11 @@ export * from '@interaction/core';
 export interface Rect { x: number; y: number; width: number; height: number }
 export interface Region { key: string; label: string; role: string; selector: string; parentKey?: string; rect: Rect; text: string }
 export interface Overlay { key: string; name: string; kind: 'modal' | 'dialog' | 'popover' | 'menu' | 'listbox'; selector: string; parentKey?: string; parentRegion: string; evidence: string[]; controlIds: string[]; exitControlIds: string[] }
+/** Browser navigation evidence; not a claim that the page/business state is equal. */
+export interface BrowserHistory {
+  browserSessionId: string; currentIndex: number;
+  entries: { id: number; url: string; method?: string }[];
+}
 export interface Control extends CoreControl {
   localId: ID; instanceId: ID; identityId?: ID; hypothesisId?: ID;
   tag: string; role: string; name: string; label: string; stableKey?: string;
@@ -28,6 +33,7 @@ export interface Observation extends CoreObservation<Control> {
   url: string; title: string; text: string; viewport: { width: number; height: number }; scroll: { x: number; y: number; maxY: number };
   documentId: string; controls: Control[]; regions: Region[]; context: Context;
   overlays?: Overlay[];
+  navigation?: BrowserHistory;
   actionDiscovery?: { version: 'dom-actions-v2'; documentHints: ActionEvidence[] };
   screenshot?: string; gaps: Gap[]; stable: boolean;
   evidence?: BrowserEvidenceManifest;
