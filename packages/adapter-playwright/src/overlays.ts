@@ -16,6 +16,7 @@ export function collectOverlays(controls: Control[], regions: Region[]) {
     return `html > ${parts.join(' > ')}`;
   };
   const elements = new Map(controls.map(c => [c.localId, document.querySelector(c.selector)!]));
+  const tracker = (window as any).__interactionEvidenceTracker;
   const candidates = new Map<Element, { kind: Overlay['kind']; evidence: string[] }>();
   const add = (el: Element, kind: Overlay['kind'], evidence: string) => {
     if (!visible(el)) return;
@@ -43,6 +44,48 @@ export function collectOverlays(controls: Control[], regions: Region[]) {
       if (el && (['absolute', 'fixed'].includes(getComputedStyle(el).position) || opener.hasAttribute('aria-haspopup'))) add(el, 'popover', 'expanded-popup-owner');
     }
   }
+  // A searchable popup can put its semantic list inside a virtual scroll viewport,
+  // with the search/close controls as siblings. Use their shared floating panel,
+  // not the absolutely positioned list filler, as the interaction boundary.
+  // Do not cross an existing semantic boundary or absorb a page landmark.
+  const floatingPanel = (el: Element) => {
+    const r = el.getBoundingClientRect();
+    return visible(el) && ['absolute', 'fixed'].includes(getComputedStyle(el).position)
+      && r.width < innerWidth && r.height < innerHeight;
+  };
+  const containsRect = (panel: Element, el: Element) => {
+    const p = panel.getBoundingClientRect(), r = el.getBoundingClientRect();
+    return r.left >= p.left && r.right <= p.right && r.top >= p.top && r.bottom <= p.bottom;
+  };
+  const compositePanels = new Map<Element, Overlay['kind']>();
+  for (const [list, details] of [...candidates]) {
+    if (!['menu', 'listbox'].includes(details.kind)) continue;
+    for (let panel = list.parentElement; panel && panel !== document.body; panel = panel.parentElement) {
+      if (candidates.has(panel) || panel.matches('main,nav,header,footer,aside,form,dialog,[role=dialog],[role=alertdialog],[role=main],[role=navigation],[role=complementary],[aria-modal=true],[popover]')) break;
+      if (!floatingPanel(panel)) continue;
+      const lists = [...panel.querySelectorAll('[role=menu],[role=listbox]')].filter(visible);
+      const chrome = controls.some(c => {
+        const e = elements.get(c.localId);
+        return c.visible && c.actions.length && e && panel.contains(e) && !list.contains(e) && !e.contains(list) && containsRect(panel, e);
+      });
+      if (lists.length === 1 && lists[0] === list && chrome) {
+        candidates.delete(list); add(panel, details.kind, 'composite-popup-panel');
+        candidates.get(panel)!.evidence.push(...details.evidence);
+        compositePanels.set(panel, details.kind);
+      }
+      break;
+    }
+  }
+  // Filtering may temporarily empty/remove the list. The same visible floating
+  // panel still owns its search field; it has not exited merely because no options
+  // match. Forget this association as soon as the panel disappears or is replaced.
+  for (const prior of (tracker.compositePopupPanels || []) as { element: Element; kind: Overlay['kind'] }[]) {
+    if (prior.element.isConnected && floatingPanel(prior.element)) {
+      add(prior.element, prior.kind, 'observed-composite-popup-continuity');
+      compositePanels.set(prior.element, prior.kind);
+    }
+  }
+  tracker.compositePopupPanels = [...compositePanels].map(([element, kind]) => ({ element, kind }));
   // Conservative fallback for custom dialogs: require a fixed viewport backdrop and
   // a visible interactive panel. Do not infer a modal from a class name or z-index alone.
   for (const mask of document.querySelectorAll('body *')) {
@@ -57,7 +100,6 @@ export function collectOverlays(controls: Control[], regions: Region[]) {
     });
     if (panels.length === 1) add(panels[0], 'modal', 'fixed-backdrop-with-interactive-panel');
   }
-  const tracker = (window as any).__interactionEvidenceTracker;
   const prior: Element[] = tracker.visibleOverlays || [];
   const roots = [...candidates.keys()];
   const order = [...prior.filter(el => candidates.has(el)), ...roots.filter(el => !prior.includes(el))];

@@ -7,7 +7,7 @@ const executionText: Record<FrontierItemView['coverage']['executionStatus'], str
   not_attempted: '尚未执行', executing: '执行中', succeeded: '已执行成功', failed: '已尝试，执行失败', blocked: '已尝试，执行受阻', unknown: '执行结果未知',
 };
 const statusText: Record<FrontierItemView['status'], string> = {
-  pending: '待执行', executing: '执行中', executed: '已执行', blocked: '受阻', unknown: '结果未知', needs_revalidation: '需重新验证', superseded: '已由当前滚动位置替代',
+  pending: '待执行', executing: '执行中', executed: '已执行', blocked: '受阻', unknown: '结果未知', needs_revalidation: '需重新验证', superseded: '历史遍历意图已失效',
 };
 function groupLabel(group: BrowserFrontierCoverageGroup) {
   const unit = group.kind === 'fill' ? '样本' : '测试项';

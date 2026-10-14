@@ -42,7 +42,7 @@ it.each([false, true])('covers the entire fixture with generic defaults, renamed
     const observed = observations.flatMap(o => o.controls).filter(c => c.visible && !c.readOnly && c.actions.some(k => c.actionBasis?.[k]?.status === 'supported'));
     expect(observed.every(c => dispatched.has(c.hypothesisId ? `${c.name}:${c.instanceId}` : c.stableKey || c.identityId)), 'every actual control instance without a stable key was dispatched').toBe(true);
     expect(t.engine.getFrontier(t.sessionId).filter(f => f.action.controlId).every(f => f.status === 'executed')).toBe(true);
-    expect(t.engine.getFrontier(t.sessionId).filter(f => f.status === 'superseded').every(f => f.action.kind === 'scroll' && !f.action.controlId && !f.attempts.length && f.coverage.executionStatus === 'not_attempted')).toBe(true);
+    expect(t.engine.getFrontier(t.sessionId).filter(f => f.status === 'superseded').every(f => (f.action.kind === 'scroll' || f.action.boundary?.intent === 'exit') && !f.action.controlId && !f.attempts.length && f.coverage.executionStatus === 'not_attempted')).toBe(true);
     expect(attempts.every(a => a.status === 'succeeded')).toBe(true);
     expect(attempts.filter(a => a.action.risk === 'submission')).toHaveLength(1);
     expect(report.session).toMatchObject({ dirty: true, options: { exploration: 'controls', exclude: [], interfaceActions: [], reversible: [], environmentReset: 'none' } });

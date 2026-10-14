@@ -39,8 +39,11 @@ it('exposes an untested input sample separately from successful work on the same
     expect(state.facts).toContainEqual(expect.objectContaining({ label: 'Amount', value: '' }));
     expect(state.facts).toContainEqual(expect.objectContaining({ label: 'Price', value: '' }));
     const page = await client.frontier(t.sessionId, { status: 'blocked', limit: 1 });
-    expect(page.items).toEqual([sample]);
-    expect(page.total).toBe(views.filter(f => f.status === 'blocked').length);
+    const blocked = views.filter(f => f.status === 'blocked');
+    expect(page.items).toEqual(blocked.slice(0, 1));
+    expect(page.total).toBe(blocked.length);
+    const samplePage = await client.frontier(t.sessionId, { status: 'blocked', offset: blocked.findIndex(f => f.id === sample.id), limit: 1 });
+    expect(samplePage.items).toEqual([sample]);
     expect(t.engine.list(t.sessionId, 'frontier')).toEqual(views);
     expect(t.engine.frontierCoverage(t.sessionId)).toEqual(await client.frontierCoverage(t.sessionId));
     const report = (await app.inject(`/v1/sessions/${t.sessionId}/report`)).json();

@@ -1,0 +1,609 @@
+{
+  "status": "in_progress",
+  "sessionId": "703c71ab-e1c2-436f-b27a-b321f976d43e",
+  "capturedAt": "2026-10-14T20:06:44.954Z",
+  "actionCount": 11,
+  "counts": {
+    "actionable": 289,
+    "covered": 9,
+    "incomplete": 280,
+    "readOnly": 0,
+    "unconfirmed": 48
+  },
+  "frontierCounts": {
+    "blocked": 235,
+    "executed": 11,
+    "superseded": 1,
+    "pending": 55
+  },
+  "attempts": [
+    {
+      "id": "80cd78d0-3d3c-4a9f-8df7-e6230193c8b3",
+      "label": "Don’t show for 7 days",
+      "kind": "check",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "4ffa148a-5b19-44d7-9920-339e299c2cc2",
+      "afterId": "ed3d0bc0-82b2-4334-b9ea-ac8ed2c7416f"
+    },
+    {
+      "id": "8e479d86-cb7e-411c-847d-8b4f02da75c4",
+      "label": "Don’t show for 7 days",
+      "kind": "check",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "ed3d0bc0-82b2-4334-b9ea-ac8ed2c7416f",
+      "afterId": "7d09b6bb-aced-4628-9be9-251ec99ac487"
+    },
+    {
+      "id": "9dec4855-75ee-4909-a5a2-eeb8aa65ec3e",
+      "label": "Close",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "7d09b6bb-aced-4628-9be9-251ec99ac487",
+      "afterId": "c5320695-5c27-49af-b0a6-6c83a0f4f06e"
+    },
+    {
+      "id": "a20b3988-9d10-4b86-b45a-a3587195ed3c",
+      "label": "0",
+      "kind": "fill",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "0f782555-0d3c-4601-85c8-e0b368b29be1",
+      "afterId": "ba29ec13-489b-4c16-bb6a-95dcbff99fa5"
+    },
+    {
+      "id": "627d787a-b6b6-4f2f-8d37-542574dc1c51",
+      "label": "0",
+      "kind": "fill",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "ba29ec13-489b-4c16-bb6a-95dcbff99fa5",
+      "afterId": "78d8e229-60b3-4c17-bba3-1c9c54f2707e"
+    },
+    {
+      "id": "925286ed-5a10-4078-8b3e-5917650b73e7",
+      "label": "USDUSDAEDALLANGARSAUD",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "78d8e229-60b3-4c17-bba3-1c9c54f2707e",
+      "afterId": "78587001-d1fb-4b51-81c8-f0bd7df4de57"
+    },
+    {
+      "id": "673d2366-ff58-45e1-8d35-034f8fa96825",
+      "label": "Search",
+      "kind": "fill",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "78587001-d1fb-4b51-81c8-f0bd7df4de57",
+      "afterId": "5ea9ab94-9c73-45c0-984e-d6f7c68f14fa"
+    },
+    {
+      "id": "288a1c7e-785b-442e-be3c-e6eb4d32eba7",
+      "label": "Search",
+      "kind": "fill",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "5ea9ab94-9c73-45c0-984e-d6f7c68f14fa",
+      "afterId": "1ad3f3e0-8660-43eb-a8ca-889e3921b0da"
+    },
+    {
+      "id": "4eac2657-71b3-4ba2-b5d3-681faaff447d",
+      "label": "USD",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "22d7864c-0304-4194-8968-2fa1b30c7486",
+      "afterId": "596bf0cb-44f3-4c43-b7c2-9ff6e505a381"
+    },
+    {
+      "id": "e5c15561-6a4f-438b-9412-c8e25515f623",
+      "label": "BTCBTC0G1INCH2ZAAAOI",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "afc0b7b0-fc67-4dc0-8c13-4621cbac4629",
+      "afterId": "4a3a916e-fa40-4c9a-8c85-92aff716560c"
+    },
+    {
+      "id": "27d082c2-d33c-436d-8a47-b8c199037601",
+      "label": "Search",
+      "kind": "fill",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "4a3a916e-fa40-4c9a-8c85-92aff716560c",
+      "afterId": "db8e899a-3d34-461b-a0fb-1ad379ac4450"
+    }
+  ],
+  "recoveries": [],
+  "reviews": [
+    {
+      "id": "fa1f3397-0b30-4647-90db-6d88595360c5",
+      "at": "2026-10-14T20:03:09.046Z",
+      "observationId": "c5320695-5c27-49af-b0a6-6c83a0f4f06e",
+      "instanceScope": "425dbfce-b024-4334-9bcc-5d62ca3aa76d",
+      "instanceId": "425dbfce-b024-4334-9bcc-5d62ca3aa76d:447",
+      "binding": "[null,\"textbox\",\"0\",\"document\",\"document\",\"text\"]",
+      "kind": "fill",
+      "risk": "interface",
+      "replayable": true,
+      "reason": "BTC 相邻金额框，先前数值输入验证仅联动换算显示，使用数值 2。",
+      "evidence": [
+        "observation:c5320695-5c27-49af-b0a6-6c83a0f4f06e",
+        "screenshot:work/real-page-composite-run/calculator.png",
+        "prior-tested-inputs:docs/experiments/okx-convert-2026-10-15/recovery-evidence.json"
+      ],
+      "samples": [
+        "2"
+      ]
+    },
+    {
+      "id": "f8d422d5-acd4-4ad0-bc92-5df270df4103",
+      "at": "2026-10-14T20:03:09.046Z",
+      "observationId": "c5320695-5c27-49af-b0a6-6c83a0f4f06e",
+      "instanceScope": "425dbfce-b024-4334-9bcc-5d62ca3aa76d",
+      "instanceId": "425dbfce-b024-4334-9bcc-5d62ca3aa76d:449",
+      "binding": "[null,\"textbox\",\"0\",\"document\",\"document\",\"text\"]",
+      "kind": "fill",
+      "risk": "interface",
+      "replayable": true,
+      "reason": "USD 相邻金额框，先前数值输入验证仅联动换算显示，使用数值 100。",
+      "evidence": [
+        "observation:c5320695-5c27-49af-b0a6-6c83a0f4f06e",
+        "screenshot:work/real-page-composite-run/calculator.png",
+        "prior-tested-inputs:docs/experiments/okx-convert-2026-10-15/recovery-evidence.json"
+      ],
+      "samples": [
+        "100"
+      ]
+    },
+    {
+      "id": "abe77b10-c095-4643-9237-af85f4dbe532",
+      "at": "2026-10-14T20:03:09.046Z",
+      "observationId": "c5320695-5c27-49af-b0a6-6c83a0f4f06e",
+      "instanceScope": "425dbfce-b024-4334-9bcc-5d62ca3aa76d",
+      "instanceId": "425dbfce-b024-4334-9bcc-5d62ca3aa76d:466",
+      "binding": "[null,\"generic\",\"BTCBTC0G1INCH2ZAAAOI\",\"document\",\"document\",\"div\"]",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": true,
+      "reason": "带向下箭头的 BTC 币种选择入口，先前浏览器观察确认展开选币列表。",
+      "evidence": [
+        "observation:c5320695-5c27-49af-b0a6-6c83a0f4f06e",
+        "screenshot:work/real-page-composite-run/calculator.png",
+        "prior-tested-inputs:docs/experiments/okx-convert-2026-10-15/recovery-evidence.json"
+      ]
+    },
+    {
+      "id": "e92c541f-865b-421d-b14c-6a5b67422448",
+      "at": "2026-10-14T20:03:09.046Z",
+      "observationId": "c5320695-5c27-49af-b0a6-6c83a0f4f06e",
+      "instanceScope": "425dbfce-b024-4334-9bcc-5d62ca3aa76d",
+      "instanceId": "425dbfce-b024-4334-9bcc-5d62ca3aa76d:467",
+      "binding": "[null,\"generic\",\"USDUSDAEDALLANGARSAUD\",\"document\",\"document\",\"div\"]",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": true,
+      "reason": "带向下箭头的 USD 币种选择入口；上一轮引擎已确认打开含搜索框的列表。",
+      "evidence": [
+        "observation:c5320695-5c27-49af-b0a6-6c83a0f4f06e",
+        "screenshot:work/real-page-composite-run/calculator.png",
+        "prior-tested-inputs:docs/experiments/okx-convert-2026-10-15/recovery-evidence.json"
+      ]
+    },
+    {
+      "id": "3e0d176f-97fc-4ada-97fb-4ceacfaa293e",
+      "at": "2026-10-14T20:04:26.547Z",
+      "observationId": "1ad3f3e0-8660-43eb-a8ca-889e3921b0da",
+      "instanceScope": "425dbfce-b024-4334-9bcc-5d62ca3aa76d",
+      "instanceId": "425dbfce-b024-4334-9bcc-5d62ca3aa76d:2260",
+      "binding": "[null,\"button\",\"USD\",\"listbox:okd-virtual-list-filler-inner\",\"document\",\"button\"]",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": true,
+      "reason": "截图中此项是带选中勾的 USD，选择当前计算器币种；该动作只选择显示货币，不执行兑换。",
+      "evidence": [
+        "observation:1ad3f3e0-8660-43eb-a8ca-889e3921b0da",
+        "screenshot:work/real-page-composite-run/search-USD.png"
+      ]
+    },
+    {
+      "id": "d008e594-8cd1-4f2a-8155-389a7f0dc157",
+      "at": "2026-10-14T20:06:36.302Z",
+      "observationId": "00f011af-4d10-466e-b1bc-e186732ac9d9",
+      "instanceScope": "0a85377a-980a-4ce7-8ffe-9e921dec9b84",
+      "instanceId": "0a85377a-980a-4ce7-8ffe-9e921dec9b84:456",
+      "binding": "[null,\"generic\",\"BTCBTC0G1INCH2ZAAAOI\",\"document\",\"document\",\"div\"]",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": true,
+      "reason": "完整页面重载后的 BTC 币种选择入口，截图确认相邻币种和向下箭头，之前已验证相同用途的入口可展开列表；此判断只绑定当前节点。",
+      "evidence": [
+        "observation:00f011af-4d10-466e-b1bc-e186732ac9d9",
+        "screenshot:work/real-page-composite-run/after-usd-selection.png"
+      ]
+    }
+  ],
+  "identityReviews": [
+    {
+      "command": {
+        "type": "resolveIdentity",
+        "hypothesisId": "e9f430db-4744-48ec-b8a1-c721fec96899",
+        "identityId": "cee29560-6557-413b-a288-9d0d7ff6dfd8",
+        "source": "external-review:visual-and-neighbor-semantics",
+        "evidence": [
+          "当前与历史截图的计算器币对均为 BTC/USD；BTC 金额框保持相同相邻币种标记、输入用途及所属行。两个 placeholder=0 字段保持不同身份。",
+          "current-observation:596bf0cb-44f3-4c43-b7c2-9ff6e505a381",
+          "source-observation:c5320695-5c27-49af-b0a6-6c83a0f4f06e",
+          "screenshot:work/real-page-composite-run/calculator.png",
+          "screenshot:work/real-page-composite-run/after-usd-selection.png"
+        ]
+      },
+      "result": {
+        "id": "e9f430db-4744-48ec-b8a1-c721fec96899",
+        "sessionId": "703c71ab-e1c2-436f-b27a-b321f976d43e",
+        "observationId": "596bf0cb-44f3-4c43-b7c2-9ff6e505a381",
+        "localId": "0a85377a-980a-4ce7-8ffe-9e921dec9b84:432",
+        "provisionalIdentityId": "ef169741-537b-45a3-94d9-b3a2c1ac57a7",
+        "candidateIds": [
+          "cee29560-6557-413b-a288-9d0d7ff6dfd8",
+          "45a36441-ed76-4ed7-95d3-acecbe2822ec",
+          "d7ffec15-82c2-42f1-a3ff-b2631e4b97fd"
+        ],
+        "evidence": [
+          "adapter-semantic-signature",
+          "duplicate-current-candidates"
+        ],
+        "conflicts": [
+          "multiple-current-controls"
+        ],
+        "status": "resolved",
+        "revisions": [
+          {
+            "identityId": "cee29560-6557-413b-a288-9d0d7ff6dfd8",
+            "source": "external-review:visual-and-neighbor-semantics",
+            "evidence": [
+              "当前与历史截图的计算器币对均为 BTC/USD；BTC 金额框保持相同相邻币种标记、输入用途及所属行。两个 placeholder=0 字段保持不同身份。",
+              "current-observation:596bf0cb-44f3-4c43-b7c2-9ff6e505a381",
+              "source-observation:c5320695-5c27-49af-b0a6-6c83a0f4f06e",
+              "screenshot:work/real-page-composite-run/calculator.png",
+              "screenshot:work/real-page-composite-run/after-usd-selection.png"
+            ],
+            "at": "2026-10-14T20:06:04.711Z"
+          }
+        ]
+      }
+    },
+    {
+      "command": {
+        "type": "resolveIdentity",
+        "hypothesisId": "e1cdb568-95f2-4c14-986b-1487fa41a4b8",
+        "identityId": "45a36441-ed76-4ed7-95d3-acecbe2822ec",
+        "source": "external-review:visual-and-neighbor-semantics",
+        "evidence": [
+          "当前与历史截图的计算器币对均为 BTC/USD；USD 金额框保持相同相邻币种标记、输入用途及所属行。两个 placeholder=0 字段保持不同身份。",
+          "current-observation:f0c92187-2e81-4863-85b2-5f522bde7d18",
+          "source-observation:c5320695-5c27-49af-b0a6-6c83a0f4f06e",
+          "screenshot:work/real-page-composite-run/calculator.png",
+          "screenshot:work/real-page-composite-run/after-usd-selection.png"
+        ]
+      },
+      "result": {
+        "id": "e1cdb568-95f2-4c14-986b-1487fa41a4b8",
+        "sessionId": "703c71ab-e1c2-436f-b27a-b321f976d43e",
+        "observationId": "596bf0cb-44f3-4c43-b7c2-9ff6e505a381",
+        "localId": "0a85377a-980a-4ce7-8ffe-9e921dec9b84:434",
+        "provisionalIdentityId": "d7ffec15-82c2-42f1-a3ff-b2631e4b97fd",
+        "candidateIds": [
+          "cee29560-6557-413b-a288-9d0d7ff6dfd8",
+          "45a36441-ed76-4ed7-95d3-acecbe2822ec",
+          "ef169741-537b-45a3-94d9-b3a2c1ac57a7"
+        ],
+        "evidence": [
+          "adapter-semantic-signature",
+          "duplicate-current-candidates"
+        ],
+        "conflicts": [
+          "multiple-current-controls"
+        ],
+        "status": "resolved",
+        "revisions": [
+          {
+            "identityId": "45a36441-ed76-4ed7-95d3-acecbe2822ec",
+            "source": "external-review:visual-and-neighbor-semantics",
+            "evidence": [
+              "当前与历史截图的计算器币对均为 BTC/USD；USD 金额框保持相同相邻币种标记、输入用途及所属行。两个 placeholder=0 字段保持不同身份。",
+              "current-observation:f0c92187-2e81-4863-85b2-5f522bde7d18",
+              "source-observation:c5320695-5c27-49af-b0a6-6c83a0f4f06e",
+              "screenshot:work/real-page-composite-run/calculator.png",
+              "screenshot:work/real-page-composite-run/after-usd-selection.png"
+            ],
+            "at": "2026-10-14T20:06:06.685Z"
+          }
+        ]
+      }
+    }
+  ],
+  "searchCases": [
+    {
+      "query": "zzzzzz",
+      "observationId": "5ea9ab94-9c73-45c0-984e-d6f7c68f14fa",
+      "boundaries": [
+        {
+          "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2)",
+          "name": "Popup",
+          "region": "document",
+          "evidence": [
+            "observed-composite-popup-continuity"
+          ]
+        }
+      ],
+      "inside": [
+        {
+          "id": "aacd1748-383c-4563-a134-0d43a1b40185",
+          "localId": "425dbfce-b024-4334-9bcc-5d62ca3aa76d:459",
+          "label": "Search",
+          "kind": "fill",
+          "excluded": false,
+          "boundary": {
+            "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "intent": "interact"
+          },
+          "preconditions": {
+            "context": {},
+            "visible": true,
+            "enabled": true,
+            "identityResolved": false,
+            "blockers": [],
+            "targetResolved": true
+          }
+        },
+        {
+          "id": "d78fc00f-9270-47ad-83e8-0b4ac5cd70fd",
+          "localId": null,
+          "label": "Close overlay",
+          "kind": "press",
+          "excluded": false,
+          "boundary": {
+            "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "intent": "exit"
+          },
+          "preconditions": {
+            "context": {},
+            "visible": true,
+            "enabled": true,
+            "identityResolved": true,
+            "blockers": [],
+            "targetResolved": true
+          }
+        }
+      ]
+    },
+    {
+      "query": "USD",
+      "observationId": "1ad3f3e0-8660-43eb-a8ca-889e3921b0da",
+      "boundaries": [
+        {
+          "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2)",
+          "name": "Popup",
+          "region": "document",
+          "evidence": [
+            "observed-composite-popup-continuity"
+          ]
+        }
+      ],
+      "inside": [
+        {
+          "id": "0ffbfc99-5a0a-47b1-abae-9a46a3b090e2",
+          "localId": "425dbfce-b024-4334-9bcc-5d62ca3aa76d:459",
+          "label": "Search",
+          "kind": "fill",
+          "excluded": false,
+          "boundary": {
+            "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "intent": "interact"
+          },
+          "preconditions": {
+            "context": {},
+            "visible": true,
+            "enabled": true,
+            "identityResolved": false,
+            "blockers": [],
+            "targetResolved": true
+          }
+        },
+        {
+          "id": "b2d2cf55-2117-4f22-9966-95af4ad1a19b",
+          "localId": "425dbfce-b024-4334-9bcc-5d62ca3aa76d:2260",
+          "label": "USD",
+          "kind": "click",
+          "excluded": true,
+          "boundary": {
+            "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "intent": "interact"
+          },
+          "preconditions": {
+            "context": {},
+            "visible": true,
+            "enabled": true,
+            "identityResolved": true,
+            "blockers": [],
+            "targetResolved": true
+          }
+        },
+        {
+          "id": "8a9f1c71-05a4-429b-947e-c6c2e2fa6ddc",
+          "localId": null,
+          "label": "Close overlay",
+          "kind": "press",
+          "excluded": false,
+          "boundary": {
+            "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "intent": "exit"
+          },
+          "preconditions": {
+            "context": {},
+            "visible": true,
+            "enabled": true,
+            "identityResolved": true,
+            "blockers": [],
+            "targetResolved": true
+          }
+        }
+      ]
+    },
+    {
+      "query": "ETH",
+      "observationId": "db8e899a-3d34-461b-a0fb-1ad379ac4450",
+      "boundaries": [
+        {
+          "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+          "name": "Popup",
+          "region": "document",
+          "evidence": [
+            "composite-popup-panel",
+            "positioned-popup-role",
+            "observed-composite-popup-continuity"
+          ]
+        }
+      ],
+      "inside": [
+        {
+          "id": "72dfdda7-af38-4fa7-979b-92f36701307f",
+          "localId": "0a85377a-980a-4ce7-8ffe-9e921dec9b84:439",
+          "label": "Search",
+          "kind": "fill",
+          "excluded": false,
+          "boundary": {
+            "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "intent": "interact"
+          },
+          "preconditions": {
+            "context": {},
+            "visible": true,
+            "enabled": true,
+            "identityResolved": false,
+            "blockers": [],
+            "targetResolved": true
+          }
+        },
+        {
+          "id": "ad33aa2c-9f10-4460-b5b6-2f94abbbaedd",
+          "localId": "0a85377a-980a-4ce7-8ffe-9e921dec9b84:2207",
+          "label": "BETH",
+          "kind": "click",
+          "excluded": true,
+          "boundary": {
+            "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "intent": "interact"
+          },
+          "preconditions": {
+            "context": {},
+            "visible": true,
+            "enabled": true,
+            "identityResolved": true,
+            "blockers": [],
+            "targetResolved": true
+          }
+        },
+        {
+          "id": "e6995e54-0b07-4a97-8806-d39034196988",
+          "localId": "0a85377a-980a-4ce7-8ffe-9e921dec9b84:2208",
+          "label": "ETH",
+          "kind": "click",
+          "excluded": true,
+          "boundary": {
+            "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "intent": "interact"
+          },
+          "preconditions": {
+            "context": {},
+            "visible": true,
+            "enabled": true,
+            "identityResolved": true,
+            "blockers": [],
+            "targetResolved": true
+          }
+        },
+        {
+          "id": "978f7871-0b2c-4e04-b193-5e7fecb8dd70",
+          "localId": "0a85377a-980a-4ce7-8ffe-9e921dec9b84:2209",
+          "label": "ETHFI",
+          "kind": "click",
+          "excluded": true,
+          "boundary": {
+            "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "intent": "interact"
+          },
+          "preconditions": {
+            "context": {},
+            "visible": true,
+            "enabled": true,
+            "identityResolved": true,
+            "blockers": [],
+            "targetResolved": true
+          }
+        },
+        {
+          "id": "c4fc8965-da2d-43aa-b1e7-70a5a1502d4f",
+          "localId": "0a85377a-980a-4ce7-8ffe-9e921dec9b84:2210",
+          "label": "ETHW",
+          "kind": "click",
+          "excluded": true,
+          "boundary": {
+            "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "intent": "interact"
+          },
+          "preconditions": {
+            "context": {},
+            "visible": true,
+            "enabled": true,
+            "identityResolved": true,
+            "blockers": [],
+            "targetResolved": true
+          }
+        },
+        {
+          "id": "f1952463-44d3-41cf-a10d-6797c3f24751",
+          "localId": "0a85377a-980a-4ce7-8ffe-9e921dec9b84:2211",
+          "label": "STETH",
+          "kind": "click",
+          "excluded": true,
+          "boundary": {
+            "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "intent": "interact"
+          },
+          "preconditions": {
+            "context": {},
+            "visible": true,
+            "enabled": true,
+            "identityResolved": true,
+            "blockers": [],
+            "targetResolved": true
+          }
+        },
+        {
+          "id": "85a361b3-af8e-4145-990b-d884c83822f1",
+          "localId": null,
+          "label": "Close overlay",
+          "kind": "press",
+          "excluded": false,
+          "boundary": {
+            "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "intent": "exit"
+          },
+          "preconditions": {
+            "context": {},
+            "visible": true,
+            "enabled": true,
+            "identityResolved": true,
+            "blockers": [],
+            "targetResolved": true
+          }
+        }
+      ]
+    }
+  ]
+}

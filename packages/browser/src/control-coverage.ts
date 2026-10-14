@@ -1,4 +1,4 @@
-import { hash, type ActionAttempt, type ActionKind, type Observation } from '@interaction/adapter-playwright';
+import { hash, type ActionAttempt, type ActionCandidate, type ActionKind, type Observation } from '@interaction/adapter-playwright';
 
 export interface ControlCoverageItem {
   id: string; label: string; role: string; target: 'logical' | 'instance';
@@ -15,9 +15,10 @@ export interface ControlCoverage {
 }
 
 /** Read-only audit, independent of scheduling statuses and traversal work. */
-export function describeControlCoverage(observations: Observation[], attempts: ActionAttempt[]): ControlCoverage {
+export function describeControlCoverage(observations: Observation[], attempts: ActionAttempt[], actions: ActionCandidate[] = []): ControlCoverage {
   const groups = new Map<string, ControlCoverageItem>();
   const occurrences = new Map<string, ControlCoverageItem>();
+  const readOnlyOccurrences = new Set<string>();
   for (const o of observations) for (const c of o.controls.filter(c => c.visible)) {
     const instance = `${o.instanceScope}:${c.instanceId}`;
     const logical = !!c.identityId && !c.hypothesisId && !c.readOnly;
@@ -34,6 +35,16 @@ export function describeControlCoverage(observations: Observation[], attempts: A
     for (const kind of kinds) if (!item.operations.some(op => op.kind === kind)) item.operations.push({ kind, succeeded: false, attemptIds: [] });
     if (item.operations.length) item.classification = 'actionable';
     occurrences.set(`${o.id}:${c.localId}`, item);
+    if (c.readOnly) readOnlyOccurrences.add(`${o.id}:${c.localId}`);
+  }
+  // External reviewed capabilities participate in coverage without rewriting
+  // the DOM observation. Tentative probes never establish a supported operation.
+  for (const a of [...actions, ...attempts.map(a => a.action)]) {
+    const key = `${a.observationId}:${a.localId}`;
+    const item = occurrences.get(key);
+    if (!item || a.basis?.status !== 'supported' || a.kind === 'fill' && readOnlyOccurrences.has(key)) continue;
+    if (!item.operations.some(op => op.kind === a.kind)) item.operations.push({ kind: a.kind, succeeded: false, attemptIds: [] });
+    item.classification = 'actionable';
   }
   for (const a of attempts) {
     const op = occurrences.get(`${a.beforeId}:${a.action.localId}`)?.operations.find(op => op.kind === a.action.kind);

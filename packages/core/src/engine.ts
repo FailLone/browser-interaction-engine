@@ -214,6 +214,13 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           && !currentKeys.has(f.key) && this.adapter.explorationScope(this.observation(sessionId, f.action.observationId)) === scope) {
           f.status = 'superseded'; f.reason = 'traversal_position_changed'; f.unblock = undefined; f.recovery = undefined; this.store.put('frontier', f);
         }
+        // An untried synthetic exit is traversal work, not a reason to reopen a
+        // dialog that has already been observed closed in this document.
+        for (const f of this.frontier(sessionId)) if (!f.attempts.length && !f.action.controlId && f.action.boundary?.intent === 'exit'
+          && this.observation(sessionId, f.action.observationId).instanceScope === o.instanceScope
+          && !o.boundaries?.some(b => b.key === f.action.boundary!.key)) {
+          f.status = 'superseded'; f.reason = 'boundary_already_exited'; f.unblock = undefined; f.recovery = undefined; this.store.put('frontier', f);
+        }
       }
       session = this.session(sessionId); session.currentObservationId = o.id; this.store.put('session', session);
       if (attemptId) {
@@ -650,6 +657,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           const isExit = (f: FrontierItem) => !!boundary && f.stateId === o.stateId && f.action.boundary?.key === boundary.key && f.action.boundary.intent === 'exit';
           const explored = new Set(this.store.list<ActionAttempt>('attempt', sessionId).filter(a => a.status === 'succeeded').map(a => a.action.controlId));
           const novelty = (f: FrontierItem) => session.options.exploration === 'controls' && (f.action.kind === 'scroll' || f.action.controlId && !explored.has(f.action.controlId)) ? 0 : 1;
+          const observationOrder = new Map(this.store.list<Visit>('visit', sessionId).map((v, i) => [v.observationId, i]));
+          const revealed = (f: FrontierItem) => session.options.exploration === 'controls' && f.action.controlId
+            ? observationOrder.get(f.sampling?.observationIds[0] || f.action.observationId) ?? 0 : 0;
           for (const f of pending.filter(f => f.depth >= session.options.maxDepth && !isExit(f))) { f.status = 'blocked'; f.reason = 'depth_budget'; f.unblock = 'Increase maxDepth'; this.store.put('frontier', f); }
           pending = pending.filter(f => f.depth < session.options.maxDepth || isExit(f)).sort((a, b) => b.depth - a.depth);
           if (boundary) {
@@ -658,7 +668,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
             pending = pending.filter(f => f.stateId === o.stateId && f.action.boundary?.key === boundary.key && !f.action.preconditions.blockers?.length);
             pending.sort((a, b) => Number(isExit(a)) - Number(isExit(b))
               || (session.options.exploration === 'controls' ? Number(a.action.risk !== 'interface') - Number(b.action.risk !== 'interface') : 0)
-              || novelty(a) - novelty(b));
+              || novelty(a) - novelty(b) || revealed(b) - revealed(a));
             if (!pending.length) {
               // Sampling can finish this scope before a later visit. Exiting is
               // still necessary traversal work, even when its sample was executed.
@@ -680,7 +690,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           // Controls mode prefers unseen targets; risk breaks ties. Representative
           // mode exhausts ordinary work first. The caller may override ordering.
           const riskOrdered = !boundary && ['controls', 'representative'].includes(session.options.exploration || '');
-          if (riskOrdered) pending.sort((a, b) => novelty(a) - novelty(b) || Number(a.action.risk !== 'interface') - Number(b.action.risk !== 'interface') || b.depth - a.depth);
+          if (riskOrdered) pending.sort((a, b) => novelty(a) - novelty(b) || Number(a.action.risk !== 'interface') - Number(b.action.risk !== 'interface')
+            || Number(b.stateId === o.stateId) - Number(a.stateId === o.stateId) || revealed(b) - revealed(a) || b.depth - a.depth);
           const pool = riskOrdered ? pending.filter(f => novelty(f) === novelty(pending[0]) && (f.action.risk === 'interface') === (pending[0].action.risk === 'interface')) : pending;
           let chosen = pool.find(f => f.stateId === o.stateId) || pool[0];
           if (this.hooks.choose) {
@@ -692,9 +703,19 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
             if (session.options.exploration === 'controls' && await this.enterFrontierScope(sessionId, chosen, triedScopeEntries)) return true;
             const state = this.owned<UIState>('state', chosen.stateId, sessionId); const checkpoint = this.checkpointInternal(sessionId, 'Exploration branch', [], [], state.observationIds[0]);
             const result = await this.reachInternal(sessionId, checkpoint.id);
-            if (result.status !== 'REACHED_VERIFIED') { chosen.status = 'blocked'; chosen.reason = result.reason; chosen.unblock = 'Reach the branch checkpoint or repair its preconditions';
-              if (result.diagnostics) chosen.recovery = { resultId: result.id, diagnostics: result.diagnostics };
-              this.store.put('frontier', chosen); return true; }
+            if (result.status !== 'REACHED_VERIFIED') {
+              // One failed reach proves the same target unavailable for all of
+              // its pending work at this instant. Do not repeat a full capture
+              // for each sibling. Later observations can revalidate the items.
+              const affected = this.frontier(sessionId).filter(f => f.status === 'pending' && f.stateId === chosen.stateId && f.contextKey === chosen.contextKey);
+              for (const item of affected) {
+                item.status = 'blocked'; item.reason = result.reason; item.unblock = 'Reach the branch checkpoint or repair its preconditions';
+                if (result.diagnostics) item.recovery = { resultId: result.id, diagnostics: result.diagnostics };
+                this.store.put('frontier', item);
+              }
+              this.emit(sessionId, 'exploration.recovery_shared', { resultId: result.id, targetStateId: chosen.stateId, frontierIds: affected.map(f => f.id) });
+              return true;
+            }
           }
           const action = this.actions(sessionId).find(a => this.frontierKey(a) === chosen.key);
           if (!action) { chosen.status = 'blocked'; chosen.reason = 'action_no_longer_available'; this.store.put('frontier', chosen); return true; }
