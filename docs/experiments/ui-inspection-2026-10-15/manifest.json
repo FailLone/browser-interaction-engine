@@ -1,0 +1,173 @@
+{
+  "protocolVersion": 1,
+  "apiBase": "http://127.0.0.1:51203",
+  "samples": [
+    {
+      "sampleId": "sample-00953b16",
+      "sessionId": "170d8198-7bd1-4bda-ae04-536dba7cb180",
+      "inspectionId": "34160f1e-752a-44cb-bfc4-027f77d617aa",
+      "notification": {
+        "sequence": 12,
+        "sessionId": "170d8198-7bd1-4bda-ae04-536dba7cb180",
+        "type": "inspection.ready",
+        "at": "2026-10-14T19:08:17.119Z",
+        "data": {
+          "inspectionId": "34160f1e-752a-44cb-bfc4-027f77d617aa",
+          "captureId": "capture:012e2bb7-f6b0-46f8-9766-d289b6ad4b82",
+          "observationId": "012e2bb7-f6b0-46f8-9766-d289b6ad4b82",
+          "reasons": [
+            "scope_entered",
+            "after_action"
+          ],
+          "focus": {
+            "regionKey": "dialog:panel",
+            "rootIds": [
+              "6cf069a4-50b2-4921-83c2-68e917f428af:2"
+            ],
+            "scopeId": "981cb1a8-79ea-4c11-bb33-28489a748a91",
+            "kind": "overlay",
+            "confidence": "observed",
+            "relatedRegions": [
+              "document",
+              "dialog:panel"
+            ]
+          },
+          "quality": {
+            "status": "complete",
+            "missingRequired": [],
+            "gaps": [
+              {
+                "code": "EVENT_LISTENER_COVERAGE",
+                "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+              },
+              {
+                "code": "EVENT_LISTENER_COVERAGE",
+                "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+              }
+            ]
+          },
+          "deliveries": [
+            {
+              "consumerId": "trial",
+              "status": "pending",
+              "leaseUntil": "2026-10-14T19:28:17.118Z"
+            }
+          ],
+          "protocolVersion": 1
+        }
+      }
+    },
+    {
+      "sampleId": "sample-4598e8c4",
+      "sessionId": "ca34e266-41b3-4ed4-b1d5-35660ce3a318",
+      "inspectionId": "deed04ad-c4f5-4dca-8322-0c0477f764c0",
+      "notification": {
+        "sequence": 25,
+        "sessionId": "ca34e266-41b3-4ed4-b1d5-35660ce3a318",
+        "type": "inspection.ready",
+        "at": "2026-10-14T19:08:17.672Z",
+        "data": {
+          "inspectionId": "deed04ad-c4f5-4dca-8322-0c0477f764c0",
+          "captureId": "capture:d076f3da-1240-40f2-968a-82a45f36aae5",
+          "observationId": "d076f3da-1240-40f2-968a-82a45f36aae5",
+          "reasons": [
+            "scope_entered",
+            "after_action"
+          ],
+          "focus": {
+            "regionKey": "dialog:panel",
+            "rootIds": [
+              "77994f46-7d89-48a6-a538-e7abcff3f709:2"
+            ],
+            "scopeId": "a3ad38c5-d857-4c11-bf14-2d98b65b83b5",
+            "kind": "overlay",
+            "confidence": "observed",
+            "relatedRegions": [
+              "document",
+              "dialog:panel"
+            ]
+          },
+          "quality": {
+            "status": "complete",
+            "missingRequired": [],
+            "gaps": [
+              {
+                "code": "EVENT_LISTENER_COVERAGE",
+                "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+              },
+              {
+                "code": "EVENT_LISTENER_COVERAGE",
+                "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+              }
+            ]
+          },
+          "deliveries": [
+            {
+              "consumerId": "trial",
+              "status": "pending",
+              "leaseUntil": "2026-10-14T19:28:17.671Z"
+            }
+          ],
+          "protocolVersion": 1
+        }
+      }
+    },
+    {
+      "sampleId": "sample-851269c2",
+      "sessionId": "8ff78e01-d04b-4f33-ae2c-a21ea7dd2217",
+      "inspectionId": "a151a7c8-c36a-455c-a2cb-1619b3c1f2b6",
+      "notification": {
+        "sequence": 38,
+        "sessionId": "8ff78e01-d04b-4f33-ae2c-a21ea7dd2217",
+        "type": "inspection.ready",
+        "at": "2026-10-14T19:08:18.222Z",
+        "data": {
+          "inspectionId": "a151a7c8-c36a-455c-a2cb-1619b3c1f2b6",
+          "captureId": "capture:044680ea-d31c-4487-81b4-87d46bcc6bf1",
+          "observationId": "044680ea-d31c-4487-81b4-87d46bcc6bf1",
+          "reasons": [
+            "scope_entered",
+            "after_action"
+          ],
+          "focus": {
+            "regionKey": "dialog:panel",
+            "rootIds": [
+              "916f86ec-0704-4ea0-91e8-fc470234f027:2"
+            ],
+            "scopeId": "920f0eed-4417-4d0b-ae0e-792640ade18e",
+            "kind": "overlay",
+            "confidence": "observed",
+            "relatedRegions": [
+              "document",
+              "dialog:panel"
+            ]
+          },
+          "quality": {
+            "status": "complete",
+            "missingRequired": [],
+            "gaps": [
+              {
+                "code": "EVENT_LISTENER_COVERAGE",
+                "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+              },
+              {
+                "code": "EVENT_LISTENER_COVERAGE",
+                "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+              }
+            ]
+          },
+          "deliveries": [
+            {
+              "consumerId": "trial",
+              "status": "pending",
+              "leaseUntil": "2026-10-14T19:28:18.220Z"
+            }
+          ],
+          "protocolVersion": 1
+        }
+      }
+    }
+  ],
+  "createdAt": "2026-10-14T19:08:18.246Z",
+  "responseRetention": "All responses are archived unchanged in public/response-*.json"
+}
