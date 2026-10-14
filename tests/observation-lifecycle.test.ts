@@ -94,3 +94,50 @@ it('preserves observation facts when post-action discovery loses the execution c
     expect(o.canonical).toContain('ACTION_DISCOVERY_FAILED');
   } finally { vi.restoreAllMocks(); await t.close(); }
 });
+
+it.each(['controls', 'stateful'] as const)('re-samples a transition during detailed capture without repeating the %s action', async exploration => {
+  const t = await testEngine(`${fixture.url}/capture.html`, { contextRules: [], exploration, observeTimeoutMs: 1200 });
+  try {
+    const driver = (t.engine as any).driver;
+    const read = driver.readDOM.bind(driver); let transitioned = false;
+    vi.spyOn(driver, 'readDOM').mockImplementation(async (detailed: unknown) => {
+      if (detailed && !transitioned) {
+        transitioned = true;
+        await pageOf(t.engine).locator('#value').fill('settled after capture began');
+      }
+      return read(detailed);
+    });
+    const attempt = await act(t.engine, t.sessionId, 'Rebuild document');
+    expect(attempt.status).toBe('succeeded');
+    const o = t.engine.observation(t.sessionId);
+    expect(o.stable).toBe(true);
+    expect(o.controls.find(c => c.name === 'Value')?.value).toBe('settled after capture began');
+    expect(o.gaps.some(g => g.critical)).toBe(false);
+    expect(o.gaps.some(g => g.code === 'EVIDENCE_CAPTURE_RETRIED')).toBe(true);
+    expect(o.evidence?.artifacts.details).toBeTruthy();
+    expect(attempt.diff?.changes).toContainEqual(expect.objectContaining({ field: 'value', before: 'before', after: 'settled after capture began' }));
+    expect(await pageOf(t.engine).evaluate(() => (window as any).actionCalls)).toBe(1);
+    expect(t.engine.session(t.sessionId).actionCount).toBe(1);
+  } finally { vi.restoreAllMocks(); await t.close(); }
+});
+
+it('keeps persistent sampling/capture changes incomplete when the original observation budget runs out', async () => {
+  const t = await testEngine(`${fixture.url}/capture.html`, { contextRules: [], exploration: 'controls', observeTimeoutMs: 600 });
+  try {
+    const driver = (t.engine as any).driver;
+    const read = driver.readDOM.bind(driver); let transitions = 0;
+    vi.spyOn(driver, 'readDOM').mockImplementation(async (detailed: unknown) => {
+      if (detailed) await pageOf(t.engine).locator('#value').fill(`transition-${++transitions}`);
+      return read(detailed);
+    });
+    const attempt = await act(t.engine, t.sessionId, 'Rebuild document');
+    expect(attempt.status).toBe('unknown');
+    const o = t.engine.observation(t.sessionId);
+    expect(o.stable).toBe(false);
+    expect(o.gaps.some(g => g.code === 'UNSTABLE' && g.critical)).toBe(true);
+    expect(transitions).toBeGreaterThan(1);
+    expect(o.gaps.some(g => g.code === 'EVIDENCE_CAPTURE_RETRIED')).toBe(true);
+    expect(await pageOf(t.engine).evaluate(() => (window as any).actionCalls)).toBe(1);
+    expect(t.engine.session(t.sessionId).actionCount).toBe(1);
+  } finally { vi.restoreAllMocks(); await t.close(); }
+});

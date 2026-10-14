@@ -194,44 +194,57 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   }
   async capture(observationId: string) {
     if (!this.page) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
-    let previous = ''; let unchangedSince = Date.now(); const deadline = Date.now() + this.options.observeTimeoutMs; let stable = false;
-    let previousInteraction = ''; let interactionSince = Date.now(); let interactionStable = false;
+    const deadline = Date.now() + this.options.observeTimeoutMs;
+    let stable = false; let interactionStable = false; let captureRetries = 0;
     let dom: Awaited<ReturnType<BrowserAdapter['readDOM']>> | undefined;
     let lastError: string | undefined;
-    do {
-      try {
-        dom = await timeout(this.readDOM(), Math.max(1, deadline - Date.now()), 'DOM capture deadline exceeded');
-        lastError = undefined;
-        const incomplete = dom.gaps.some(g => ['DOM_ROOT_UNAVAILABLE', 'DOCUMENT_LOADING'].includes(g.code));
-        const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
-        if (key !== previous || incomplete) { previous = key; unchangedSince = Date.now(); }
-        const interactive = interactionProjection(dom);
-        if (interactive !== previousInteraction || incomplete) { previousInteraction = interactive; interactionSince = Date.now(); }
-        interactionStable = !incomplete && Date.now() - interactionSince >= this.options.settleMs;
-        if (!incomplete && Date.now() - unchangedSince >= this.options.settleMs) { stable = true; break; }
-        if (this.options.exploration === 'controls' && interactionStable) break;
-      } catch (error) {
-        lastError = String(error); previous = ''; unchangedSince = Date.now(); previousInteraction = ''; interactionSince = Date.now(); interactionStable = false;
-        if (this.page.isClosed()) break;
-      }
-      if (Date.now() >= deadline) break;
-      await new Promise(r => setTimeout(r, Math.min(50, Math.max(0, deadline - Date.now()))));
-    } while (Date.now() < deadline);
     const evidenceManifest: BrowserEvidenceManifest = { schemaVersion: 1, status: this.options.evidence.enabled ? 'captured' : 'disabled', artifacts: {}, gaps: [] };
-    if (this.options.evidence.enabled && dom && !lastError) {
-      try {
-        const detailed = await timeout(this.readDOM(true), this.options.observeTimeoutMs, 'Detailed DOM capture deadline exceeded');
-        if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId) {
-          interactionStable &&= interactionProjection(dom) === interactionProjection(detailed);
-          stable = false; detailed.gaps.push({ code: 'EVIDENCE_CAPTURE_CHANGED', message: 'Page changed between stability sampling and detailed capture', critical: !(this.options.exploration === 'controls' && interactionStable) });
+    for (;;) {
+      let previous = ''; let unchangedSince = Date.now();
+      let previousInteraction = ''; let interactionSince = Date.now();
+      stable = false; interactionStable = false;
+      do {
+        try {
+          dom = await timeout(this.readDOM(), Math.max(1, deadline - Date.now()), 'DOM capture deadline exceeded');
+          lastError = undefined;
+          const incomplete = dom.gaps.some(g => ['DOM_ROOT_UNAVAILABLE', 'DOCUMENT_LOADING'].includes(g.code));
+          const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
+          if (key !== previous || incomplete) { previous = key; unchangedSince = Date.now(); }
+          const interactive = interactionProjection(dom);
+          if (interactive !== previousInteraction || incomplete) { previousInteraction = interactive; interactionSince = Date.now(); }
+          interactionStable = !incomplete && Date.now() - interactionSince >= this.options.settleMs;
+          if (!incomplete && Date.now() - unchangedSince >= this.options.settleMs) { stable = true; break; }
+          if (this.options.exploration === 'controls' && interactionStable) break;
+        } catch (error) {
+          lastError = String(error); previous = ''; unchangedSince = Date.now(); previousInteraction = ''; interactionSince = Date.now(); interactionStable = false;
+          if (this.page.isClosed()) break;
         }
-        dom = detailed;
-      } catch (error) { evidenceManifest.gaps.push({ code: 'DETAIL_CAPTURE_FAILED', message: String(error) }); }
+        if (Date.now() >= deadline) break;
+        await new Promise(r => setTimeout(r, Math.min(50, Math.max(0, deadline - Date.now()))));
+      } while (Date.now() < deadline);
+      if (this.options.evidence.enabled && dom && !lastError) {
+        try {
+          const detailed = await timeout(this.readDOM(true), this.options.observeTimeoutMs, 'Detailed DOM capture deadline exceeded');
+          if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId) {
+            interactionStable &&= interactionProjection(dom) === interactionProjection(detailed);
+            stable = false;
+            const critical = !(this.options.exploration === 'controls' && interactionStable);
+            dom = detailed;
+            // A transition can arrive after the quiet sampling window. Re-sample
+            // within the original deadline; never retry the browser action.
+            if (critical && Date.now() < deadline) { captureRetries++; continue; }
+            detailed.gaps.push({ code: 'EVIDENCE_CAPTURE_CHANGED', message: 'Page changed between stability sampling and detailed capture', critical });
+          }
+          dom = detailed;
+        } catch (error) { evidenceManifest.gaps.push({ code: 'DETAIL_CAPTURE_FAILED', message: String(error) }); }
+      }
+      break;
     }
     // Keep the last successful evidence, or an explicitly incomplete record when
     // the execution context never became readable. Never replay the action here.
     dom ??= { documentId: `unavailable:${id()}`, url: this.page.url(), title: '', text: '', controls: [], regions: [], overlays: [], boundaries: [], scroll: { x: 0, y: 0, maxY: 0 }, gaps: [] };
     const capturedAt = now(); const gaps = [...dom.gaps, ...this.gaps.splice(0)];
+    if (captureRetries) gaps.push({ code: 'EVIDENCE_CAPTURE_RETRIED', message: `Re-sampled after ${captureRetries} change(s) during detailed capture; the browser action was not repeated` });
     if (lastError) gaps.push({ code: 'DOM_CAPTURE_FAILED', message: lastError, critical: true });
     if (!stable) gaps.push({ code: 'UNSTABLE', message: 'Page did not settle within the observation budget', critical: !(this.options.exploration === 'controls' && interactionStable) });
     if (!stable && this.options.exploration === 'controls' && interactionStable) gaps.push({ code: 'INTERACTION_STABLE', message: 'Supported interactive controls settled; passive display changes remain in the full observation' });

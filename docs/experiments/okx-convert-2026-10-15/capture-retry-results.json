@@ -1,0 +1,174 @@
+{
+  "sessionId": "082fa38b-3fc5-4be9-a2d8-c5573dd8fd02",
+  "implementation": "bounded re-sampling added after b76c787",
+  "attempts": [
+    {
+      "id": "0655d39f-2a44-411d-986f-14017c78468a",
+      "label": "Close",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "f5412319-0190-4b22-a9ea-75d61b442e55",
+      "afterId": "5a71ce3d-7d20-4ae9-8446-bbd9ef4409de"
+    },
+    {
+      "id": "41d81373-8687-4ded-bf27-52cc7f80de85",
+      "label": "Trade",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "5a71ce3d-7d20-4ae9-8446-bbd9ef4409de",
+      "afterId": "775524a5-3320-442b-930d-72a5edcbc531"
+    },
+    {
+      "id": "b9b9eec8-4931-4720-83ec-14564acbe1ef",
+      "label": "Open Spot sub-menu",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "775524a5-3320-442b-930d-72a5edcbc531",
+      "afterId": "c5b3a3ea-d48b-4ac7-8543-014631c8595f"
+    },
+    {
+      "id": "b91cfcfa-14f3-4a51-9a2b-f5ff91013de3",
+      "label": "Crypto",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "4ee9a8b8-317a-4e54-8b44-197646deeae9",
+      "afterId": "5a6bfa41-15c3-419b-846b-de9abc1f258d"
+    },
+    {
+      "id": "da03eb95-5b0e-4852-80b8-affa47daaac4",
+      "label": "USDT",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "5a6bfa41-15c3-419b-846b-de9abc1f258d",
+      "afterId": "9c0910cc-f63b-4765-aabd-371f5fd82a6b"
+    },
+    {
+      "id": "068d8bbe-912c-4f1b-9845-003b3071e7cf",
+      "label": "Crypto",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "9c0910cc-f63b-4765-aabd-371f5fd82a6b",
+      "afterId": "a5c8202e-9443-4dc2-8382-fdc341059f86"
+    }
+  ],
+  "finalObservation": {
+    "id": "a5c8202e-9443-4dc2-8382-fdc341059f86",
+    "stable": true,
+    "criticalGaps": []
+  },
+  "firstCryptoObservationId": "5a6bfa41-15c3-419b-846b-de9abc1f258d",
+  "firstCryptoEvidence": "EVIDENCE_CAPTURE_RETRIED: Re-sampled after 1 change(s) during detailed capture; the browser action was not repeated",
+  "method": "External caller chose current engine candidates after observing each result. No site-specific production code; not an automatic strategy run.",
+  "directionSwitchRoundTrip": {
+    "attempts": [
+      {
+        "id": "f63bd309-a378-4a63-a18b-94ba937ec256",
+        "label": "Unnamed button",
+        "kind": "click",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "e487d0d2-1a47-4a09-8a06-ee79460bf408",
+        "afterId": "d4f83f99-db71-42ef-b5f9-fcc16e88c2b8"
+      },
+      {
+        "id": "7146a228-dad3-40bc-85bf-8982395198c4",
+        "label": "Close",
+        "kind": "click",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "d4f83f99-db71-42ef-b5f9-fcc16e88c2b8",
+        "afterId": "30bbe32e-389c-4e24-b1ea-2edcd1a2a064"
+      },
+      {
+        "id": "d37c1ad8-b256-4f11-b1da-63009f276a85",
+        "label": "Unnamed button",
+        "kind": "click",
+        "status": "succeeded",
+        "purpose": "external",
+        "beforeId": "fb0f9580-4dde-44b5-9ecd-195e27a97cb5",
+        "afterId": "7e2a2454-1ccb-4d30-abbe-61f92d0fece2"
+      }
+    ],
+    "reviews": [
+      {
+        "id": "6f5fa88f-c6da-4691-b003-b445d42432a2",
+        "at": "2026-10-14T20:32:07.975Z",
+        "observationId": "311f93cb-b947-414d-ba6e-a503b607223d",
+        "instanceScope": "faba45cc-3d78-43b2-81d0-74290a7377da",
+        "instanceId": "faba45cc-3d78-43b2-81d0-74290a7377da:448",
+        "binding": "[null,\"textbox\",\"0\",\"document\",\"document\",\"text\"]",
+        "kind": "fill",
+        "risk": "interface",
+        "replayable": false,
+        "reason": "BTC amount in the public calculator; supply a valid numeric sample. No transaction submission.",
+        "evidence": [
+          "observation:311f93cb-b947-414d-ba6e-a503b607223d",
+          "calculator.png: upper amount field visually paired with BTC selector; initial value 1."
+        ],
+        "samples": [
+          "2"
+        ]
+      },
+      {
+        "id": "ddba4f7b-459c-4626-9028-a9b478621e00",
+        "at": "2026-10-14T20:32:07.975Z",
+        "observationId": "311f93cb-b947-414d-ba6e-a503b607223d",
+        "instanceScope": "faba45cc-3d78-43b2-81d0-74290a7377da",
+        "instanceId": "faba45cc-3d78-43b2-81d0-74290a7377da:450",
+        "binding": "[null,\"textbox\",\"0\",\"document\",\"document\",\"text\"]",
+        "kind": "fill",
+        "risk": "interface",
+        "replayable": false,
+        "reason": "USD amount in the public calculator; supply a valid numeric sample. No transaction submission.",
+        "evidence": [
+          "observation:311f93cb-b947-414d-ba6e-a503b607223d",
+          "calculator.png: lower amount field visually paired with USD selector; initial value 81,981."
+        ],
+        "samples": [
+          "100"
+        ]
+      },
+      {
+        "id": "92210d31-c6e4-433e-89f1-7308de499b34",
+        "at": "2026-10-14T20:32:07.975Z",
+        "observationId": "311f93cb-b947-414d-ba6e-a503b607223d",
+        "instanceScope": "faba45cc-3d78-43b2-81d0-74290a7377da",
+        "instanceId": "faba45cc-3d78-43b2-81d0-74290a7377da:449",
+        "binding": "[null,\"button\",\"\",\"document\",\"document\",\"button\"]",
+        "kind": "click",
+        "risk": "interface",
+        "replayable": false,
+        "reason": "The small opposing-arrow button between the calculator amount rows is the conversion-direction switch. The separate Convert link is below both rows.",
+        "evidence": [
+          "observation:311f93cb-b947-414d-ba6e-a503b607223d",
+          "calculator.png: opposing arrows at x1119 y317 between BTC and USD fields; native button type=button, no submit evidence."
+        ]
+      },
+      {
+        "id": "d3576783-6de9-4426-9a8e-49a1f8b91000",
+        "at": "2026-10-14T20:32:49.694Z",
+        "observationId": "30bbe32e-389c-4e24-b1ea-2edcd1a2a064",
+        "instanceScope": "a3ebb6e0-06fc-424a-8428-3fe59c8d6d57",
+        "instanceId": "a3ebb6e0-06fc-424a-8428-3fe59c8d6d57:442",
+        "binding": "[null,\"button\",\"\",\"document\",\"document\",\"button\"]",
+        "kind": "click",
+        "risk": "interface",
+        "replayable": false,
+        "reason": "Conversion-direction switch on the USD/BTC public calculator, reviewed again after document replacement.",
+        "evidence": [
+          "observation:30bbe32e-389c-4e24-b1ea-2edcd1a2a064",
+          "swapped.png: opposing arrows between USD and BTC amounts; separate Buy link below calculator; button type=button."
+        ]
+      }
+    ],
+    "finalUrl": "https://www.okx.com/convert/btc-to-usd",
+    "finalDocumentId": "b96f41f0-0534-4571-829f-489083d15210",
+    "interpretation": "Both direction switches navigated to a fresh public calculator document; this verifies page traversal, not restoration of prior amount values. No trade or purchase was submitted."
+  }
+}
