@@ -1,0 +1,172 @@
+[
+  {
+    "attemptId": "08be2a9e-26b2-4704-bc6f-b66ced42dde6",
+    "label": "30% and above",
+    "beforeId": "f77f90ac-757f-43ef-92db-7a54262b2289",
+    "afterId": "28fd296c-0d62-40df-b4a0-f07bc461b617",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3447",
+      "value": "30% and above"
+    }
+  },
+  {
+    "attemptId": "d1d31558-9b17-40e5-a929-d5bdf635510d",
+    "label": "20% and above",
+    "beforeId": "9e6fecfc-7499-4e1c-a30e-e8750b55db26",
+    "afterId": "e67d06d8-a1de-4097-aa5d-51afeab5d121",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3447",
+      "value": "20% and above"
+    }
+  },
+  {
+    "attemptId": "946be699-3a3b-4824-b70a-fc739e0c9654",
+    "label": "10% and above",
+    "beforeId": "00f08379-8389-4497-93d7-c8916d753c49",
+    "afterId": "457db880-6a56-40a3-97b8-cd65eff281fb",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3447",
+      "value": "10% and above"
+    }
+  },
+  {
+    "attemptId": "648ee9cc-7cb4-46ed-8829-0fdb2f8e1580",
+    "label": "5% and above",
+    "beforeId": "115d8a12-94d6-4430-9335-4a1d4f36a0f4",
+    "afterId": "c2f20813-706e-4523-9981-1da2ef6ba6ad",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3447",
+      "value": "5% and above"
+    }
+  },
+  {
+    "attemptId": "efdebe82-e400-4893-83b1-32709952a195",
+    "label": "0% to 5%",
+    "beforeId": "a93bff5c-5d0f-4dc0-ae14-b55a1963213b",
+    "afterId": "70b92fff-755d-4a63-a17e-7a13528c3e4f",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3447",
+      "value": "0% to 5%"
+    }
+  },
+  {
+    "attemptId": "bbe94af5-f686-4ed2-85c4-ad4701cc8a48",
+    "label": "0% and above",
+    "beforeId": "fef57a05-a91c-47c6-94b0-79e70f7dfb68",
+    "afterId": "499e78c1-19c1-4ac8-a7d4-72f63c25a013",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3447",
+      "value": "0% and above"
+    }
+  },
+  {
+    "attemptId": "faa21104-2aa7-4ace-b899-442848ad4463",
+    "label": "0% and below",
+    "beforeId": "02287de1-bea6-437e-a02e-ebb0b286061d",
+    "afterId": "1a7f7221-3bcd-45bc-8b49-445d24e2fe96",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3447",
+      "value": "0% and below"
+    }
+  },
+  {
+    "attemptId": "7cce6c21-ac02-4427-a643-faaab876becd",
+    "label": "−5% to 0%",
+    "beforeId": "92e2f8a7-de3d-426e-a2aa-738cf0115341",
+    "afterId": "eee50844-47ec-4626-a7e5-5886cf9508aa",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3447",
+      "value": "−5% to 0%"
+    }
+  },
+  {
+    "attemptId": "3d96e300-0c83-4e78-b0fc-085f720f0e26",
+    "label": "−5% and below",
+    "beforeId": "cd0ef9dd-1ff2-4be0-a5ae-2e9d102cbbcf",
+    "afterId": "7819bdcf-9377-4eb0-9d12-5cf21cb82479",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3447",
+      "value": "−5% and below"
+    }
+  },
+  {
+    "attemptId": "95bb225b-e5f7-4546-8dbd-95094287f75d",
+    "label": "−10% and below",
+    "beforeId": "2d4d9c69-fa73-4f6a-80db-174f002ff7e4",
+    "afterId": "749e74e3-8b40-48f7-9724-60ebecaf0b99",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3447",
+      "value": "−10% and below"
+    }
+  },
+  {
+    "attemptId": "924cd904-bee6-4a11-86f9-ace66a504946",
+    "label": "−20% and below",
+    "beforeId": "08d3f531-5b52-44ae-989c-cb4fb8bbcf39",
+    "afterId": "7841b452-adb2-48fa-9c91-29edef648362",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3447",
+      "value": "−20% and below"
+    }
+  },
+  {
+    "attemptId": "d3079a56-ac78-4517-bf88-07c1857dd05c",
+    "label": "−30% and below",
+    "beforeId": "9e207632-8327-4d14-bb34-73e221efc1a0",
+    "afterId": "b4317d19-5744-4bf0-8878-e0aa90bd726b",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3447",
+      "value": "−30% and below"
+    }
+  },
+  {
+    "attemptId": "16a1b17a-7c58-42c4-9dc0-6fbc420bb091",
+    "label": "10B USD and above",
+    "beforeId": "76a10e37-d670-43d7-a669-236fb0423617",
+    "afterId": "e650defd-7f4d-4e48-98e6-d1e37274b49c",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3458",
+      "value": "10B USD and above"
+    }
+  },
+  {
+    "attemptId": "eeee48e7-578a-44ba-ad95-523682117f9e",
+    "label": "1B to 10B USD",
+    "beforeId": "f0ba9315-a473-4194-a00a-4e8603ff246c",
+    "afterId": "75e24ee6-1d0e-4107-9dfb-33455d05bec9",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3458",
+      "value": "1B to 10B USD"
+    }
+  },
+  {
+    "attemptId": "96bbf15a-abe5-423f-8253-6813746bbbc0",
+    "label": "100M to 1B USD",
+    "beforeId": "1026c07d-dedc-4403-9cd3-b967f312188d",
+    "afterId": "c9943eba-b9de-4aa0-9f2f-4bc8c3f547e8",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3458",
+      "value": "100M to 1B USD"
+    }
+  },
+  {
+    "attemptId": "67cac5d7-3359-4514-9d0e-77d98d83d1f1",
+    "label": "10M to 100M USD",
+    "beforeId": "c724190f-8397-416e-8d9c-5344e62342f4",
+    "afterId": "61dce5bf-5c3c-4745-a98d-38118e16da2d",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3458",
+      "value": "10M to 100M USD"
+    }
+  },
+  {
+    "attemptId": "14f97ab5-6e39-4d79-9a8d-1ffaf7b2a978",
+    "label": "10M USD and below",
+    "beforeId": "6018a0d9-108f-4a0d-93f6-42d4152e2eba",
+    "afterId": "25bc3ca9-2f86-43c1-ab92-11d73132a61c",
+    "valueMatches": {
+      "localId": "09f655c3-67cc-4974-a5f1-4db100122c3c:3458",
+      "value": "10M USD and below"
+    }
+  }
+]

@@ -46,6 +46,11 @@ export function discoverStructuralLists(elements: Element[], selected: Set<Eleme
   };
   const result:{owner:Element;template:string;qualification:Remembered['qualification'];members:{element:Element;row:Element;slot:string;recordKey?:string}[];binding:StructuralListCandidate['binding'];label:string;selector:string}[]=[];
   owners: for(const owner of elements){
+    // A semantic row owns fields, not repeated records. Its inherited pointer
+    // cursor must not promote price/status cells to independent click targets
+    // or turn changing cell text into record keys. Explicit cell operations
+    // and nested collections are still discovered through their own elements.
+    if(owner.matches('tr,[role=row]'))continue;
     if(owner===document.body||owner===document.documentElement||owner.matches(atomic)||owner.closest('[role=listbox],select')||!visible(owner)&&!history.has(owner))continue;
     const children=[...owner.children].filter(el=>!el.matches('script,style')&&visible(el));
     if(children.length<2&&!history.has(owner))continue;

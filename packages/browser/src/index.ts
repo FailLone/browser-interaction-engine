@@ -12,7 +12,7 @@ import type { InspectionResult } from './inspection-types.js';
 import { InteractionEngine as CoreEngine, EngineError, type Persistence, type Predicate, type InteractionScope, type Checkpoint } from '@interaction/core';
 import { RetainedPersistence, type RetentionOptions } from '@interaction/storage-retained';
 import { subscribeEvents, projectEvent, type SubscriptionOptions, type SnapshotEvent, type DeliveryMode } from './subscription.js';
-import { BrowserAdapter, supplementDiscoverySchema, PlaywrightAdapter, commandSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
+import { BrowserAdapter, supplementDiscoverySchema, PlaywrightAdapter, commandSchema, regionReviewSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
 import { explainBrowserDiff } from './diff-details.js';
 export * from './diff-details.js';
 import { BrowserEvidenceQueries, type DomQuery, type ArtifactKind } from './evidence.js';
@@ -139,12 +139,22 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   protected override afterExplorationDecisions(sid: string) { this.regions.gate(this.observation(sid), this.session(sid)); }
   regionReviewMaterial(sid: string) { return this.regions.material(this.observation(sid), this.actions(sid), this.session(sid)); }
   reviewRegions(sid: string, input: import('@interaction/adapter-playwright').RegionReviewInput) {
-    const review = structuredClone(input);
+    const snapshot = structuredClone(input);
     return this.enqueueMeasured(sid, async () => {
+      const review = regionReviewSchema.parse(snapshot);
       const o = this.observation(sid);
       if (review.observationId !== o.id) throw new EngineError('STALE_REGION_REVIEW', 'Review the latest complete observation');
       if (this.activeId !== sid || !this.driver?.connected()) throw new EngineError('BROWSER_UNAVAILABLE', 'Observe this session in a connected browser before reviewing regions');
-      if (await this.driver.preflight?.(o) !== 'valid') { await this.capture(sid, 'inspection'); throw new EngineError('STALE_REGION_REVIEW', 'Region facts changed; review the new observation'); }
+      const anchors = [...review.regions.flatMap(r => r.candidateIds), ...(review.rejectedCandidateIds || [])];
+      const candidates = new Map((o.regionCandidates || []).map(c => [c.id, c]));
+      const targets = [...new Set(anchors.flatMap(id => candidates.get(id)?.controlIds || []))];
+      const active = o.overlays?.at(-1), activeIds = new Set([...(active?.controlIds || []), ...(active?.exitControlIds || [])]);
+      // Only a partition wholly inside the observed active boundary can use its
+      // local readiness. A mixed ancestor, page traversal or unknown anchor keeps
+      // the whole-page check, even when an individual region selects fewer members.
+      const scopedTargets = !review.update && active?.key === o.boundaries?.at(-1)?.key && targets.length > 0
+        && anchors.every(id => candidates.has(id)) && targets.every(id => activeIds.has(id)) && !review.regions.some(r => r.pageTraversal) ? targets : undefined;
+      if (await this.driver.preflight?.(o, undefined, scopedTargets) !== 'valid') { await this.capture(sid, 'inspection'); throw new EngineError('STALE_REGION_REVIEW', 'Region facts changed; review the new observation'); }
       const record = this.store.transaction(() => this.regions.record(o, this.actions(sid), this.session(sid), review));
       await this.capture(sid, 'inspection');
       return this.store.require<import('@interaction/adapter-playwright').RegionReviewRecord>('region-review', record.id);

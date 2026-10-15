@@ -1,0 +1,65 @@
+{
+  "upstream": "84e4cc4",
+  "source": "Already committed popup-relations implementation, evaluated read-only on generic fixture",
+  "currentBoundary": {
+    "key": "listbox:choices",
+    "name": "listbox",
+    "kind": "listbox",
+    "selector": "#choices",
+    "parentRegion": "document",
+    "evidence": [
+      "expanded-owner",
+      "opener-relationship"
+    ],
+    "controlIds": [
+      "33d9244d-7ec4-4f1c-92de-6e2b103c7554:4",
+      "33d9244d-7ec4-4f1c-92de-6e2b103c7554:5",
+      "33d9244d-7ec4-4f1c-92de-6e2b103c7554:6",
+      "33d9244d-7ec4-4f1c-92de-6e2b103c7554:7",
+      "33d9244d-7ec4-4f1c-92de-6e2b103c7554:8",
+      "33d9244d-7ec4-4f1c-92de-6e2b103c7554:9",
+      "33d9244d-7ec4-4f1c-92de-6e2b103c7554:10",
+      "33d9244d-7ec4-4f1c-92de-6e2b103c7554:11",
+      "33d9244d-7ec4-4f1c-92de-6e2b103c7554:12",
+      "33d9244d-7ec4-4f1c-92de-6e2b103c7554:13",
+      "33d9244d-7ec4-4f1c-92de-6e2b103c7554:14",
+      "33d9244d-7ec4-4f1c-92de-6e2b103c7554:15"
+    ],
+    "exitControlIds": []
+  },
+  "scroll": {
+    "localId": "33d9244d-7ec4-4f1c-92de-6e2b103c7554:17",
+    "selector": "#viewport",
+    "scroll": {
+      "x": 0,
+      "y": 0,
+      "maxX": 0,
+      "maxY": 240,
+      "width": 260,
+      "height": 120
+    }
+  },
+  "currentScrollActions": [
+    {
+      "kind": "scroll",
+      "blockers": [
+        {
+          "code": "outside_active_boundary",
+          "boundaryKey": "listbox:choices",
+          "evidence": [
+            "expanded-owner",
+            "opener-relationship"
+          ],
+          "unblock": "Close and verify exit from listbox before interacting with its parent"
+        }
+      ]
+    }
+  ],
+  "incomingRelations": [
+    {
+      "content": "choices",
+      "panel": "panel",
+      "ownsViewport": true
+    }
+  ]
+}
