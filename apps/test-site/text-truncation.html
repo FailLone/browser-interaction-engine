@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Text truncation fixtures</title>
+<style>
+body { margin:20px }
+#target, #label { display:block; box-sizing:border-box; font:16px/20px Arial,sans-serif; width:120px; padding:0; border:0; border-radius:0; white-space:nowrap; text-align:start }
+#target { overflow:hidden; background:#eee }
+</style>
+<div id="outer"><button id="target" data-testid="target">A sufficiently long label for a small control</button></div>
+<script>
+const mode = new URLSearchParams(location.search).get('mode');
+let target=document.getElementById('target'); const outer=document.getElementById('outer');
+if(['healthy','ellipsis-fit','clamp-fit','hard-y','scroll','cancel','modal-scroll','inner-scroll','label-scroll','viewport','native-modal','offscreen-hard'].includes(mode)) target.textContent='Save changes';
+if(mode==='literal') target.textContent='Loading…';
+if(mode?.startsWith('ellipsis') || mode==='rtl') target.style.textOverflow='ellipsis';
+if(mode==='hard-y' || mode==='ellipsis-vertical') target.style.height='8px';
+if(mode==='wrap') target.style.whiteSpace='normal';
+if(mode?.startsWith('clamp')) {
+  const button=document.createElement('div'); button.id='target'; button.dataset.testid='target'; button.setAttribute('role','button');
+  button.textContent=target.textContent; target.replaceWith(button); target=button;
+  target.style.cssText='display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;white-space:normal;overflow:hidden';
+  if(mode==='clamp-partial') target.style.height='25px';
+}
+if(mode==='nested') { target.innerHTML='<span>A sufficiently long label for a small control</span>'; target.style.textOverflow='ellipsis'; }
+if(mode==='block-child') { target.innerHTML='<div>A sufficiently long label for a small control</div>'; target.style.textOverflow='ellipsis'; }
+if(mode==='rtl') { target.dir='rtl'; target.textContent='זהו טקסט ארוך מאוד שלא מתאים לכפתור'; }
+if(['scroll','cancel','modal-scroll'].includes(mode)) {
+  outer.style.cssText='height:24px;width:160px;overflow:auto'; outer.setAttribute('aria-label','Label scroller');
+  const content=document.createElement('div'); content.style.cssText='height:150px;padding-top:16px;box-sizing:border-box';
+  outer.append(content); content.append(target);
+  if(mode==='cancel') outer.addEventListener('scroll',()=>outer.scrollTop=0);
+}
+if(mode==='modal-scroll') {
+  const dialog=document.createElement('dialog'); dialog.style.cssText='width:200px;height:100px;padding:20px;border:0';
+  document.body.append(dialog); dialog.append(outer); dialog.showModal();
+}
+if(mode==='inner-scroll') {
+  const scroller=document.createElement('div'); scroller.id='scroller'; scroller.setAttribute('aria-label','Inner label scroller');
+  scroller.style.cssText='height:24px;width:120px;overflow:auto';
+  const content=document.createElement('div'); content.style.cssText='height:150px;padding-top:16px;box-sizing:border-box';
+  content.textContent=target.textContent; target.replaceChildren(scroller); scroller.append(content); target.style.overflow='visible';
+}
+if(mode==='viewport' || mode==='offscreen-hard') target.style.marginTop='900px';
+if(mode==='offscreen-hard') target.style.height='8px';
+if(mode==='transform') target.style.transform='scale(.8)';
+if(mode==='vertical') target.style.writingMode='vertical-rl';
+if(mode==='columns') { target.style.whiteSpace='normal'; target.style.columnCount='2'; }
+if(mode==='clip-margin') { target.style.overflow='clip'; target.style.overflowClipMargin='100px'; }
+if(mode==='absolute-escape') {
+  outer.style.cssText='width:80px;height:20px;overflow:hidden'; target.style.cssText='position:absolute;left:180px;top:60px;overflow:visible';
+}
+if(mode==='native-modal') {
+  outer.style.cssText='width:30px;height:20px;overflow:hidden';
+  const dialog=document.createElement('dialog'); dialog.style.cssText='width:200px;height:100px;padding:20px;border:0';
+  outer.append(dialog); dialog.append(target); dialog.showModal();
+}
+if(mode==='disabled') target.disabled=true;
+if(mode==='empty') target.replaceChildren();
+if(mode==='title-only') { target.replaceChildren(); target.title='Long text not rendered in the label'; }
+if(mode==='label' || mode==='hidden-label' || mode==='input-value' || mode==='label-scroll') {
+  const label=document.createElement('label'); label.id='label'; label.htmlFor='target'; label.textContent=target.textContent; label.style.overflow='hidden';
+  const input=document.createElement('input'); input.id='target'; input.dataset.testid='target'; input.value='A long input value that naturally scrolls during editing';
+  target.replaceWith(input); target=input;
+  if(mode!=='input-value') outer.prepend(label);
+  if(mode==='hidden-label') label.hidden=true;
+  if(mode==='label-scroll') {
+    outer.after(input); outer.style.cssText='height:24px;width:160px;overflow:auto'; outer.setAttribute('aria-label','External label scroller');
+    const content=document.createElement('div'); content.style.cssText='height:150px;padding-top:16px;box-sizing:border-box';
+    outer.append(content); content.append(label);
+  }
+}
+if(mode==='fragments-budget') { target.style.whiteSpace='pre'; target.textContent=Array.from({length:200},()=> 'Line').join('\n'); }
+</script></html>

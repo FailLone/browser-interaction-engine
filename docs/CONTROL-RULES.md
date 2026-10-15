@@ -254,3 +254,87 @@ Tracker 在内存中保留有界状态；每个实例只接受一个会话的递
 `tests/clipped-control.test.ts` 覆盖上述基础通过/失败/待定场景、边框、嵌套/双轴滚动、原生弹层、普通元素遮盖、被取消的滚动、身份/实例变化、历史积压与旧证据兼容。
 
 编译后运行 `node scripts/smoke-clipped-control.mjs`，可复现真实 Chromium + HTTP 的配置要求、顶层弹窗内外裁剪、普通滚动后恢复和报告保存检查。
+
+## 文字截断规则 text-truncation
+
+`text-truncation@1.0.0` 检查按钮、链接、菜单项等控件中的 DOM 标签文字，以及输入框、复选框等通过 label / aria-labelledby 关联的可见标签。原生输入值、placeholder、title、aria-label 和伪元素不替代可见文字。一个几何通过只表示本次捕获的文字矩形适合当前矩形边界，不表示完整可读性或产品验收通过。
+
+默认策略 `text-truncation-default@1.0.0` 的来源是 builtin，每个检查结果保存该策略和版本：
+
+| 观察到的事实 | 默认结论 |
+| --- | --- |
+| 文字矩形在支持的边界内 | pass / info |
+| 文字超出 hidden/clip 的矩形边界，且没有对应的省略配置解释 | unknown / warning，疑似硬截断 |
+| 实际文字溢出，同时存在适用的 text-overflow: ellipsis 或 line-clamp | unknown / info，记录省略配置与溢出事实 |
+| 设置了 ellipsis/line-clamp，但文字实际放得下 | pass / info，不凭 CSS 声明推断发生截断 |
+| 文案本身含有 `…` 或 `...` | 普通文字，按实际布局检查 |
+| 标签尚未完整进入视口，或文字超出 auto/scroll 容器边界 | unknown / info，等待探索后复查 |
+| 字体仍加载、文字片段不全、旧 Capture 或不支持的几何 | unknown / info |
+| 没有覆盖范围内的可见 DOM 标签 | not-applicable |
+
+横向省略配置不能解释纵向切掉半行；父元素的省略配置也不能直接豁免另一个块容器中的文字。原生 top-layer 弹层不受其外部祖先 overflow 约束，但内部文字仍检查。
+
+```ts
+import { RuleRunner, textTruncationRule } from '@interaction/rules';
+
+const runner = new RuleRunner([textTruncationRule]);
+const reports = await runner.run(client, inspection, [{
+  ruleId: 'text-truncation', ruleVersion: '1.0.0',
+  options: { includeDisabled: false, tolerancePx: 1 },
+}]);
+```
+
+参数严格校验，容差为 0–2 CSS px。当前策略没有 error 分支；重复出现、滚到终点、按钮重要性推测都不能补出产品要求。报告保留文字节点、片段矩形、裁剪边界、机制、证据引用和局限。`elisionMarkerPainted` 与 `alternativeReading` 为 unverified：Range 几何不能证明省略号实际绘制，title 或 tooltip 的存在也不能证明用户已经能读到完整文字。
+
+### 随探索被动复查
+
+```ts
+import { TextTruncationTracker, toInspectionResults } from '@interaction/rules';
+
+const tracker = new TextTruncationTracker(); // 每个 session 一个实例
+// 按 inspection.sequence 依次传入已保存的任务
+const report = await tracker.run(client, inspection);
+await client.completeInspection(sessionId, inspection.id, consumerId,
+  toInspectionResults([report]));
+```
+
+报告 ID 为 `observed-text-truncation@1.0.0`。pending 表示等待更充分证据，suspected 表示疑似硬截断，resolved 表示同一绑定下的文字矩形恢复，unverified 表示此前问题仍未核验。持续关联同时核对控件身份、DOM 实例、业务绑定、文档/作用范围和标签文字节点及内容；文字换短、DOM 重建、控件消失或作用范围关闭均不直接证明旧问题恢复。重新建立基线后，可比较后续观察。
+
+已经出现的硬截断 warning 不会因为后来仅有省略配置而自动消失；完整矩形恢复后才关闭几何问题。规则记录标签和控件的实际祖先滚动差异，但不声称滚动导致了变化。页面取消滚动时，不凭动作名称伪造滚动证据。这里复用裁剪跟踪器的顺序处理、幂等、容量限制和不可变报告逻辑。
+
+规则只读取历史 Capture，不主动滚动，不调用实时页面，不等待页面恢复，也不要求探索器等待检查完成。正常采集增加有界的 Range 读取成本。探索程序是否因其他原因暂停仍由原有策略决定。可运行 [消费示例](../examples/text-truncation-inspector.ts)。
+
+### 项目规范与 Agent 的预留接口
+
+本版只导出 `RuleRequirementProvider<TProposal>`、`TextRequirementProvider`、`RuleRequirementQuery`、`RequirementTarget`、`TextRequirementProposal` 及其形状校验器；不提供规范读取器、模型调用、provider 注册执行、冲突处理或要求接受器。
+
+未来 provider 的入口为 `propose(query, signal)`，返回要求提案数组。query 包含规则版本、目标绑定和历史评估，不包含浏览器操作句柄。提案字段包括：
+
+| 字段 | 约定 |
+| --- | --- |
+| schemaVersion / status | 1 / proposed；校验器不接受 confirmed |
+| ruleId / ruleVersion | text-truncation / 1.0.0 |
+| target | sessionId、observationId、captureId、documentId、nodeId、instanceId，另可提供 identityId、scopeId |
+| requirement | full-text-inline、allow-elision 或 full-text-via-alternative |
+| source | project-specification + reference，或 agent-judgment + agentId + basis |
+| basis | Agent 引用规范 cited-specification，或推断 inference |
+| reason / evidence | 非空理由与证据引用 |
+
+接口示例（仅类型约定，不会被当前 RuleRunner 调用）：
+
+```ts
+import type { TextRequirementProvider } from '@interaction/rules';
+
+declare const futureProvider: TextRequirementProvider;
+// futureProvider.propose(query, signal) -> Promise<readonly TextRequirementProposal[]>
+```
+
+形状有效不等于证据真实或要求被接受。未来宿主需要另外验证来源权威性、绑定是否仍有效、作用范围、冲突和替代阅读路径。网页内容、规范引用和 Agent 输出都是待核验数据；source 字段不会赋予其执行权限。当前规则拒绝在 options 中塞入 requirements / agent 判断，不把未实现的能力静默当成已生效。
+
+### 取证范围与验证
+
+采集器保存可选的 `dom.textGeometry.version: 1` 以及 text 节点 `textLayout`，包含原始文本起止偏移、Range 矩形与 captured/truncated/unavailable/skipped 状态。每个节点最多 128 个片段，整次最多 4096 个；规则每控件另限制 512 个遍历节点、64 个文字节点和 256 个片段。片段仍计入原有 DOM 字符预算。旧 Capture 不回填新字段；文字片段预算超限使依赖缺失片段的检查返回 unknown，原有 DOM 与字段预算仍遵循 Capture 的整体完整度策略。
+
+当前支持主文档 light DOM 的横向文字、矩形 overflow 边界、常规嵌套标签及原生 top-layer 内部。复杂变换、包含块、mask/clip-path、非默认 containment、多栏、其他书写方向和扩展 clip margin 保持 unknown。Range 返回字体度量相关的矩形，不是字形绘制区域；圆角、字符实际可见度、遮盖、完整阅读路径和设计合规不在本规则的通过声明内。依据 [CSSOM View 的 Range 几何](https://drafts.csswg.org/cssom-view/#dom-range-getclientrects)、[CSS text-overflow](https://www.w3.org/TR/css-overflow-3/#text-overflow) 与 [line-clamp](https://www.w3.org/TR/css-overflow-4/#propdef-line-clamp)。
+
+`pnpm test tests/text-truncation.test.ts tests/clipped-control.test.ts` 验证文字行为与共享持续复查逻辑。编译后运行 `node scripts/smoke-text-truncation.mjs`，验证真实 Chromium、HTTP 字段投影、默认策略、普通滚动恢复和报告保存。
