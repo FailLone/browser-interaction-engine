@@ -116,3 +116,15 @@ it('matches a large keyed list without repeatedly recomputing semantic signature
   expect(calls).toBe(1500); expect(result.hypotheses).toHaveLength(0);
   expect(next.controls.map(c => c.identityId)).toEqual(first.controls.toReversed().map(c => c.identityId));
 });
+
+it('limits weak identity continuity to a present instance, including disappearance and node reuse', () => {
+  const t = tracker(); const weak = { ...control('slot', 'description:Package'), identityScope: 'instance' as const };
+  const first = t.observe([weak]);
+  expect(t.observe([weak]).controls[0].identityId).toBe(first.controls[0].identityId);
+  const rebuilt = t.observe([{ ...weak, localId: 'doc:new', instanceId: 'doc:new' }]);
+  expect(rebuilt.controls[0].identityId).not.toBe(first.controls[0].identityId);
+  t.observe([]);
+  const reused = t.observe([weak]);
+  expect(reused.controls[0].identityId).not.toBe(first.controls[0].identityId);
+  expect(reused.controls[0].hypothesisId).toBeUndefined();
+});

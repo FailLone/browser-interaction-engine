@@ -5,3 +5,10 @@ export const signature = (c: Control) => canonical({ role: c.role, label: c.labe
 export function ruleMatches(rule: MatchRule, a: ActionCandidate, c?: Control, url = '') {
   return (!rule.role || rule.role === c?.role) && (!rule.name || rule.name === c?.name) && (!rule.stableKey || rule.stableKey === c?.stableKey) && (!rule.kind || rule.kind === a.kind) && (!rule.urlIncludes || url.includes(rule.urlIncludes));
 }
+
+/** Logical form binding for state/coverage; instance continuity is checked separately. */
+export function formBinding(control: Control) {
+  if (!control.formOwner) return;
+  const { instanceId: _instance, ...binding } = control.formOwner;
+  return binding;
+}

@@ -7,11 +7,13 @@ export function matchIdentities<C extends Control>(observation: Observation<C>, 
   const byId = new Map(history.map(i => [i.id, i]));
   const byKey = new Map<string, ControlIdentity<C>[]>();
   const superseded = new Set(hypotheses.filter(h => h.status === 'resolved' && h.revisions.at(-1)?.identityId !== h.provisionalIdentityId).map(h => h.provisionalIdentityId));
-  const keyFor = (control: C, sig: string) => control.stableKey
+  const keyFor = (control: C, sig: string) => control.identityScope === 'instance'
+    ? canonical(['instance', control.instanceId, control.region, control.role, control.stableKey || sig])
+    : control.stableKey
     ? canonical(['key', control.region, control.role, control.stableKey])
     : canonical(['semantic', sig]);
   for (const identity of history) {
-    if (superseded.has(identity.id)) continue;
+    if (superseded.has(identity.id) || identity.lastControl.identityScope === 'instance' && identity.status !== 'present') continue;
     const key = keyFor(identity.lastControl, identity.signature);
     byKey.set(key, [...(byKey.get(key) || []), identity]);
   }
@@ -27,11 +29,14 @@ export function matchIdentities<C extends Control>(observation: Observation<C>, 
     const candidates = byKey.get(key) || [];
     const duplicates = groups.get(key)!;
     const evidence = control.stableKey ? ['scoped-stable-key', 'compatible-role'] : ['adapter-semantic-signature'];
+    if (control.identityScope === 'instance') evidence.push('current-instance-only');
     if (duplicates.length > 1) evidence.push('duplicate-current-candidates');
     // An earlier human decision or pending hypothesis only follows the same
     // element while its binding remains compatible. Virtual rows recycle nodes.
     const anchored = hypotheses.findLast(h => {
-      const previous = byId.get(h.provisionalIdentityId)?.lastControl;
+      const identity = byId.get(h.provisionalIdentityId);
+      const previous = identity?.lastControl;
+      if (previous?.identityScope === 'instance' && identity?.status !== 'present') return false;
       return previous?.instanceId === control.instanceId && compatible(previous, entry);
     });
     let chosen: string | undefined;

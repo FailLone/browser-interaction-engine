@@ -245,3 +245,144 @@ it('validates the chosen weak target even when passive controls are excluded fro
     expect(t.engine.session(t.sessionId).actionCount).toBe(0);
   } finally { await t.close(); }
 });
+
+it.each(['description', 'shared-destination'])('does not inherit coverage after rebuilding a row with only inferred %s identity', async binding => {
+  const row = (price: number) => `<li>Package <span>$${price}</span>${binding === 'shared-destination' ? '<a href="/help">Details</a>' : ''}<button>Inspect</button></li>`;
+  const t = await fixture(`<ul>${row(10)}</ul>`, { listExploration: 'all' });
+  try {
+    const first = t.engine.observation(t.sessionId).controls.find(c => c.name === 'Inspect')!;
+    expect(first.identityScope).toBe('instance');
+    expect((await act(t.engine, t.sessionId, 'Inspect')).status).toBe('succeeded');
+    await pageOf(t.engine).locator('ul').evaluate((el, html) => { el.innerHTML = html; }, row(20));
+    await t.engine.observe(t.sessionId);
+    const next = t.engine.observation(t.sessionId).controls.find(c => c.name === 'Inspect')!;
+    expect(next.identityId).not.toBe(first.identityId);
+    const action = t.engine.actions(t.sessionId).find(a => a.label === 'Inspect')!;
+    expect(action.target?.instanceId).toBe(next.instanceId);
+    expect(action.replayable).toBe(false);
+    expect(t.engine.getFrontier(t.sessionId).find(f => f.action.controlId === next.identityId)?.status).toBe('pending');
+    expect((await act(t.engine, t.sessionId, 'Inspect')).status).toBe('succeeded');
+  } finally { await t.close(); }
+});
+
+it('retains coverage for an explicitly keyed record after rebuilding its price display', async () => {
+  const t = await fixture('<ul><li data-row-key="package-1">Package <span>$10</span><button>Inspect</button></li></ul>');
+  try {
+    const first = t.engine.observation(t.sessionId).controls.find(c => c.name === 'Inspect')!;
+    await act(t.engine, t.sessionId, 'Inspect');
+    await pageOf(t.engine).locator('li').evaluate(el => { el.outerHTML = '<li data-row-key="package-1">Package <span>$20</span><button>Inspect</button></li>'; });
+    await t.engine.observe(t.sessionId);
+    const next = t.engine.observation(t.sessionId).controls.find(c => c.name === 'Inspect')!;
+    expect(next.identityId).toBe(first.identityId);
+    expect(next.identityScope).toBeUndefined();
+    expect(t.engine.getFrontier(t.sessionId).filter(f => f.action.label === 'Inspect')).toHaveLength(1);
+  } finally { await t.close(); }
+});
+
+it('validates native field operations against their form while preserving other forms in evidence', async () => {
+  const t = await fixture('<form id="first"><input aria-label="Target"></form><form id="second"><input aria-label="Other" value="10"></form>');
+  try {
+    await pageOf(t.engine).getByLabel('Other').fill('20');
+    expect((await act(t.engine, t.sessionId, 'Target', 'fill', 'ok')).status).toBe('succeeded');
+    expect(t.engine.observation(t.sessionId).controls.find(c => c.name === 'Other')!.value).toBe('20');
+    await pageOf(t.engine).getByLabel('Other').evaluate(el => { el.setAttribute('form', 'first'); });
+    await expect(act(t.engine, t.sessionId, 'Target', 'fill', 'again')).rejects.toMatchObject({ code: 'ACTION_DEPENDENCIES_CHANGED' });
+    expect(await pageOf(t.engine).getByLabel('Target').inputValue()).toBe('ok');
+  } finally { await t.close(); }
+});
+
+it.each(['sibling-value', 'external-associated-field', 'form-destination', 'target-position'])('rejects a changed native dependency: %s', async change => {
+  const t = await fixture('<form id="owner"><input aria-label="Target"><input aria-label="Sibling" value="10"></form><input form="owner" aria-label="External" value="10">');
+  try {
+    if (change === 'sibling-value') await pageOf(t.engine).getByLabel('Sibling').fill('20');
+    if (change === 'external-associated-field') await pageOf(t.engine).getByLabel('External').fill('20');
+    if (change === 'form-destination') await pageOf(t.engine).locator('form').evaluate(el => { el.setAttribute('action', '/different'); });
+    if (change === 'target-position') await pageOf(t.engine).getByLabel('Target').evaluate(el => { (el as HTMLElement).style.marginLeft = '20px'; });
+    await expect(act(t.engine, t.sessionId, 'Target', 'fill', 'ok')).rejects.toMatchObject({ code: 'ACTION_DEPENDENCIES_CHANGED' });
+    expect(t.engine.session(t.sessionId).actionCount).toBe(0);
+  } finally { await t.close(); }
+});
+
+it('keeps cross-form relationships and submission validation global', async () => {
+  const t = await fixture('<form><input aria-label="Target" aria-controls="other"><button>Submit</button></form><form><input id="other" aria-label="Other" value="10"></form>');
+  try {
+    await pageOf(t.engine).getByLabel('Other').fill('20');
+    await expect(act(t.engine, t.sessionId, 'Target', 'fill', 'ok')).rejects.toMatchObject({ code: 'STALE_OBSERVATION' });
+    await pageOf(t.engine).getByLabel('Other').fill('30');
+    await expect(act(t.engine, t.sessionId, 'Submit')).rejects.toMatchObject({ code: 'STALE_OBSERVATION' });
+    expect(t.engine.session(t.sessionId).validationFailures).toBeUndefined();
+  } finally { await t.close(); }
+});
+
+it('continues stable form operations while another form never settles and reports the remaining gap', async () => {
+  const t = await fixture(`<form><label><input type="checkbox">Ready</label></form><form><input aria-label="Live" value="10"></form>
+<script>window.ticks=0;setInterval(()=>{document.querySelector('[aria-label=Live]').value=String(++window.ticks)},10)</script>`, { observeTimeoutMs: 450 });
+  try {
+    const initial = t.engine.observation(t.sessionId);
+    expect(initial.gaps.some(g => g.critical)).toBe(false);
+    expect(initial.gaps.some(g => g.code === 'PARTIAL_INTERACTION_READY')).toBe(true);
+    expect(initial.controls.find(c => c.name === 'Ready')!.readiness).toBeUndefined();
+    expect(initial.controls.find(c => c.name === 'Live')!.readiness?.status).toBe('unstable');
+    await t.engine.explore(t.sessionId); await t.engine.waitForIdle();
+    const attempts = t.engine.list<ActionAttempt>(t.sessionId, 'attempt');
+    expect(attempts.length).toBeGreaterThan(0);
+    expect(attempts.every(a => a.action.label === 'Ready' && a.status === 'succeeded')).toBe(true);
+    expect(t.engine.session(t.sessionId).stopReason).toBe('ACTION_DEPENDENCIES_BLOCKED');
+    expect(t.engine.session(t.sessionId).observationFailures).toBeUndefined();
+    expect(t.engine.getFrontier(t.sessionId).filter(f => f.action.label === 'Live').every(f => f.status === 'blocked' && f.reason === 'interaction_unstable')).toBe(true);
+    expect(await pageOf(t.engine).evaluate(() => (window as any).ticks)).toBeGreaterThan(10);
+  } finally { await t.close(); }
+});
+
+it('budgets stale form dependencies independently, keeps the failure across resume, and clears only verified recovery', async () => {
+  const t = await fixture('<form id="bad"><label><input type="checkbox">Changing</label><input aria-label="Version" value="0" readonly></form><form><label><input type="checkbox">Independent</label></form>');
+  try {
+    const driver = (t.engine as any).driver;
+    const read = driver.preflight.bind(driver); let failures = 0;
+    const spy = vi.spyOn(driver, 'preflight').mockImplementation(async (o: any, action: any) => {
+      if (action.label === 'Changing') {
+        failures++;
+        // Change enabled state: read-only display values alone are not a dependency.
+        await pageOf(t.engine).getByLabel('Changing').evaluate(el => { (el as HTMLInputElement).checked = !(el as HTMLInputElement).checked; });
+      }
+      return read(o, action);
+    });
+    await t.engine.explore(t.sessionId); await t.engine.waitForIdle();
+    expect(failures).toBe(3);
+    expect(t.engine.session(t.sessionId)).toMatchObject({ stopReason: 'ACTION_DEPENDENCIES_BLOCKED', validationFailures: [{ count: 3 }] });
+    const attempts = t.engine.list<ActionAttempt>(t.sessionId, 'attempt');
+    expect(attempts.length).toBeGreaterThan(0);
+    expect(attempts.every(a => a.action.label === 'Independent' && a.status === 'succeeded')).toBe(true);
+    await t.engine.explore(t.sessionId); await t.engine.waitForIdle();
+    expect(failures).toBe(3);
+    spy.mockRestore();
+    expect((await act(t.engine, t.sessionId, 'Changing', 'check')).status).toBe('succeeded');
+    expect(t.engine.session(t.sessionId).validationFailures).toEqual([]);
+    await t.engine.explore(t.sessionId); await t.engine.waitForIdle();
+    expect(t.engine.session(t.sessionId).stopReason).toBe('known_frontier_exhausted');
+  } finally { vi.restoreAllMocks(); await t.close(); }
+});
+
+it('does not call an action successful just because an unrelated form settled afterward', async () => {
+  const t = await fixture(`<form><label><input type="checkbox" onchange="window.timer=setInterval(()=>{this.checked=!this.checked},10)">Starts changing</label></form><form><input aria-label="Stable"></form>`);
+  try {
+    const attempt = await act(t.engine, t.sessionId, 'Starts changing', 'check');
+    expect(attempt.status).toBe('unknown');
+    expect(attempt.reason).toBe('Post-action dependencies did not settle');
+    expect(t.engine.observation(t.sessionId).gaps.some(g => g.critical)).toBe(false);
+    expect(t.engine.getFrontier(t.sessionId).find(f => f.attempts.includes(attempt.id))!.status).toBe('unknown');
+  } finally { await t.close(); }
+});
+
+it('does not localize a declared business-context change or a newly opened modal', async () => {
+  const t = await fixture('<span id="version">10</span><form><input aria-label="Target"></form><dialog><button>Dismiss</button></dialog>', { contextRules: [{ key: 'version', selector: '#version' }] });
+  try {
+    await pageOf(t.engine).locator('#version').evaluate(el => { el.textContent = '20'; });
+    await expect(act(t.engine, t.sessionId, 'Target', 'fill', 'ok')).rejects.toMatchObject({ code: 'PRECONDITIONS_CHANGED' });
+    await pageOf(t.engine).locator('dialog').evaluate(el => { (el as HTMLDialogElement).showModal(); });
+    await expect(act(t.engine, t.sessionId, 'Target', 'fill', 'ok')).rejects.toMatchObject({ code: 'STALE_OBSERVATION' });
+    expect(t.engine.session(t.sessionId).validationFailures).toBeUndefined();
+    expect(t.engine.session(t.sessionId).observationFailures?.count).toBe(2);
+    expect(t.engine.session(t.sessionId).actionCount).toBe(0);
+  } finally { await t.close(); }
+});

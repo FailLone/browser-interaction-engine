@@ -26,9 +26,9 @@ export function hasDeclaredBoundaryExit(action: ActionCandidate, observation: Ob
 
 export function constrain(action: ActionCandidate, observation: Observation, session: Session) {
   const control = observation.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
-  if (session.options.exploration === 'controls' && control?.hypothesisId) {
+  if (session.options.exploration === 'controls' && (control?.hypothesisId || control?.identityScope === 'instance')) {
     action.target = { kind: 'instance', instanceScope: observation.instanceScope, instanceId: control.instanceId,
-      evidence: ['Unique current node instance; historical logical identity remains unresolved', `observation:${observation.id}`] };
+      evidence: ['Unique current node instance; no cross-instance identity or coverage claim', `observation:${observation.id}`] };
     action.replayable = false;
   }
   action.basis ??= control?.actionBasis?.[action.kind] || { status: 'tentative', evidence: [{ source: action.source || 'external', rule: 'missing-operation-evidence/v1', facts: { kind: action.kind } }] };
@@ -49,6 +49,7 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
     else action.preconditions.blockers.push({ code: 'outside_active_boundary', boundaryKey: active.key, evidence: active.evidence, unblock: `Close and verify exit from ${active.name} before interacting with its parent` });
   }
   if (control) {
+    if (control.readiness?.status === 'unstable') action.preconditions.blockers.push({ code: 'interaction_unstable', evidence: [control.readiness.reason], unblock: 'Wait for this operation’s dependencies to settle; other independently validated work may continue' });
     if (control.actionable.outsideScrollableArea) action.preconditions.blockers.push({ code: 'outside_scrollable_area', evidence: ['target-outside-scrollable-viewport'], unblock: 'Make the control reachable in the viewport' });
     else if (['click', 'check', 'scroll', 'hover'].includes(action.kind) && control.actionable.hitTarget === false) action.preconditions.blockers.push({ code: 'pointer_intercepted', evidence: [control.actionable.occludedBy || 'hit-test-failed'], unblock: 'Remove the obstruction and observe again' });
   }
@@ -63,6 +64,6 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
   if (action.risk !== 'submission' && action.basis.status === 'supported' && session.options.interfaceActions?.some(rule => ruleMatches(rule, action, control, observation.url))) {
     action.risk = 'interface'; action.replayable = true;
   }
-  if (declaredExit || action.kind === 'history') action.replayable = false;
+  if (declaredExit || action.kind === 'history' || control?.identityScope === 'instance') action.replayable = false;
   return action;
 }

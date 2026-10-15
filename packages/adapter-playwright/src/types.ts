@@ -17,6 +17,10 @@ export interface Control extends CoreControl {
   region: string; regionInstanceId?: string; form: string; selector: string; rect: Rect;
   /** Comparison-only projection. Original names/text and all snapshots remain intact. */
   liveContent?: { name: string; text: string; evidence: ActionEvidence[] };
+  /** Native form ownership, including fields associated through the form attribute. */
+  formOwner?: { key: string; instanceId: string; action: string; method: string; target: string; isolated: boolean };
+  /** Capture can be complete for independent operations while this target remains unsettled. */
+  readiness?: { status: 'unstable'; reason: string };
   value: string; displayedText: string; checked: boolean | null; selected: string[];
   visible: boolean; enabled: boolean; editable: boolean; readOnly?: boolean;
   pressed?: boolean | 'mixed' | null;
@@ -44,7 +48,7 @@ export interface Observation extends CoreObservation<Control> {
   actionDiscovery?: { version: 'dom-actions-v2'; documentHints: ActionEvidence[] };
   screenshot?: string; gaps: Gap[]; stable: boolean;
   evidence?: BrowserEvidenceManifest;
-  stateId: ID; visitId: ID; fingerprint: string; canonical: string; ruleVersion: 'observable-v1' | 'observable-v2' | 'observable-v3' | 'observable-v3-live-v1';
+  stateId: ID; visitId: ID; fingerprint: string; canonical: string; ruleVersion: 'observable-v1' | 'observable-v2' | 'observable-v3' | 'observable-v3-live-v1' | 'observable-v3-live-v2';
   cause: 'initial' | 'action' | 'inspection' | 'recovery' | 'external';
 }
 export interface ContextRule { key: string; selector: string; attribute?: string; required?: boolean }

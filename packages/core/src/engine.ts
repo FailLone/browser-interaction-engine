@@ -237,7 +237,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           if (sample) f.sampling = { policy: sample.policy, evidence: sample.evidence, observationIds: [o.id] };
           this.store.put('frontier', f); frontierByKey.set(key, f);
         } else {
-          const temporarilyBlocked = existing.status === 'blocked' && (!!existing.action.preconditions.blockers?.length || ['action_basis_unconfirmed', 'exploration_scope_hook_failed'].includes(existing.reason || ''));
+          const temporarilyBlocked = existing.status === 'blocked' && (!!existing.action.preconditions.blockers?.length || ['action_basis_unconfirmed', 'exploration_scope_hook_failed', 'action_dependencies_unstable'].includes(existing.reason || ''));
           if (existing.sampling && !existing.sampling.observationIds.includes(o.id)) existing.sampling.observationIds.push(o.id);
           // A recorded attempt stays attached to its actual source observation.
           // Only unattempted samples may move to newly observed conditions.
@@ -279,8 +279,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         const attempt = this.owned<ActionAttempt>('attempt', attemptId, sessionId);
         attempt.afterId = o.id; attempt.finishedAt = now();
         if (attempt.status === 'executing') {
-          attempt.status = o.gaps.some(g => g.critical) ? 'unknown' : 'succeeded';
-          if (attempt.status === 'unknown') attempt.reason = `Post-action observation incomplete: ${o.gaps.filter(g => g.critical).map(g => g.code).join(', ')}`;
+          const ready = this.adapter.actionObservationReady?.(attempt.action, this.observation(sessionId, attempt.beforeId), o) !== false;
+          attempt.status = o.gaps.some(g => g.critical) || !ready ? 'unknown' : 'succeeded';
+          if (attempt.status === 'unknown') attempt.reason = !ready ? 'Post-action dependencies did not settle' : `Post-action observation incomplete: ${o.gaps.filter(g => g.critical).map(g => g.code).join(', ')}`;
         }
         attempt.diff = this.adapter.compare(this.observation(sessionId, attempt.beforeId), o);
         const transition: Transition = { id: id(), sessionId, from: attempt.action.stateId, to: o.stateId, attemptId, replayable: attempt.action.replayable && attempt.status === 'succeeded' };
@@ -298,12 +299,19 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       const succeeded = attemptId && this.owned<ActionAttempt>('attempt', attemptId, sessionId).status === 'succeeded';
       // Resolving an incomplete observation is progress. A stale-preflight streak
       // needs an actual successful operation; a fresh snapshot alone cannot reset it.
+      if (succeeded && currentSession.validationFailures?.length) {
+        const attempt = this.owned<ActionAttempt>('attempt', attemptId!, sessionId);
+        const scopeKey = this.adapter.validationScope?.(attempt.action, this.observation(sessionId, attempt.beforeId));
+        currentSession.validationFailures = currentSession.validationFailures.filter(f => f.scopeKey !== scopeKey);
+        this.store.put('session', currentSession);
+      }
       if (succeeded || currentSession.observationFailures?.kind === 'incomplete') {
         delete currentSession.observationFailures;
         if (currentSession.stopReason === 'OBSERVATION_NO_PROGRESS') delete currentSession.stopReason;
         this.store.put('session', currentSession);
       }
     }
+    this.applyValidationFailures(sessionId);
     await this.afterCapture(structuredClone(o), previous ? structuredClone(previous) : undefined, attemptId);
     await this.store.evidence.endObservation?.(observationId, true);
     const decisionHook = this.hooks.explorationDecision || this.hooks.explorationGroup;
@@ -406,6 +414,29 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       item.reason = attempt.reason; if (!item.attempts.includes(attempt.id)) item.attempts.push(attempt.id); this.store.put('frontier', item);
     }
   }
+  private applyValidationFailures(sessionId: string) {
+    const failures = this.session(sessionId).validationFailures || [];
+    if (!failures.some(f => f.count >= 3)) return;
+    for (const item of this.frontier(sessionId)) {
+      if (item.attempts.length || !['pending', 'needs_revalidation'].includes(item.status)) continue;
+      const scopeKey = this.adapter.validationScope?.(item.action, this.observation(sessionId, item.action.observationId));
+      if (!failures.some(f => f.scopeKey === scopeKey && f.count >= 3)) continue;
+      item.status = 'blocked'; item.reason = 'action_dependencies_unstable';
+      item.unblock = 'Repair this scope’s changing dependencies and explicitly execute a fresh action to verify recovery';
+      this.store.put('frontier', item);
+    }
+  }
+  private validationFailure(sessionId: string, scopeKey: string, observationId: string, evidence: string[]) {
+    const session = this.session(sessionId);
+    const failures = session.validationFailures ??= [];
+    let failure = failures.find(f => f.scopeKey === scopeKey);
+    if (!failure) { failure = { scopeKey, count: 0, observationIds: [], evidence }; failures.push(failure); }
+    if (!failure.observationIds.includes(observationId)) { failure.count++; failure.observationIds = [...failure.observationIds, observationId].slice(-3); }
+    failure.evidence = evidence; this.store.put('session', session);
+    this.applyValidationFailures(sessionId);
+    this.emit(sessionId, 'exploration.dependencies_invalidated', { ...failure, blocked: failure.count >= 3 });
+    return failure.count >= 3;
+  }
   protected async runAction(sessionId: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: ActionAttempt['purpose'] = 'external'): Promise<ActionAttempt> {
     const payload = canonical({ actionId, value }); const prior = this.store.request(sessionId, requestId);
     if (prior) { if (prior.payload !== payload) throw new EngineError('REQUEST_CONFLICT', 'Request ID was used with different parameters'); return this.owned<ActionAttempt>('attempt', prior.attemptId, sessionId); }
@@ -420,6 +451,12 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const preflight = await this.driver!.preflight(current, original);
     if (preflight !== 'valid') {
       const fresh = await this.capture(sessionId, 'external');
+      if (typeof preflight === 'object' && preflight.scopeKey && preflight.evidence?.length && session.options.exploration === 'controls'
+        && !fresh.gaps.some(g => g.critical) && this.adapter.validationScope?.(original, current) === preflight.scopeKey
+        && canonical(fresh.context) === canonical(current.context)) {
+        const blocked = this.validationFailure(sessionId, preflight.scopeKey, fresh.id, preflight.evidence);
+        throw new EngineError(blocked ? 'ACTION_DEPENDENCIES_BLOCKED' : 'ACTION_DEPENDENCIES_CHANGED', 'This operation’s dependencies changed before dispatch; independent work may continue', { observationId: fresh.id, scopeKey: preflight.scopeKey });
+      }
       if (this.observationFailure(sessionId, 'stale', fresh.id)) throw new EngineError('OBSERVATION_NO_PROGRESS', 'Repeated source invalidation without an executed action; inspect changing targets or context before continuing', { observationId: fresh.id });
       throw new EngineError(preflight === 'context_changed' ? 'PRECONDITIONS_CHANGED' : 'STALE_OBSERVATION', 'Interaction source changed before execution', { observationId: fresh.id, actions: this.actions(sessionId) });
     }
@@ -921,6 +958,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
             }
           }
           if (!pending.length) {
+            if (this.frontier(sessionId).some(f => f.status === 'blocked' && ['action_dependencies_unstable', 'interaction_unstable'].includes(f.reason || ''))) {
+              session.status = 'paused'; session.stopReason = 'ACTION_DEPENDENCIES_BLOCKED'; this.pauseRequested = true; this.store.put('session', session);
+              this.emit(sessionId, 'exploration.paused', { reason: session.stopReason, failures: session.validationFailures }); return false;
+            }
             const idleReason = this.explorationIdleReason(sessionId);
             if (idleReason) {
               session.status = 'paused'; session.stopReason = idleReason; this.pauseRequested = true; this.store.put('session', session);
@@ -976,6 +1017,11 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           if (!action) { chosen.status = 'blocked'; chosen.reason = 'action_no_longer_available'; this.store.put('frontier', chosen); return true; }
           try { await this.runAction(sessionId, action.id, id(), undefined, 'exploration'); }
           catch (error) {
+            if (error instanceof EngineError && ['ACTION_DEPENDENCIES_CHANGED', 'ACTION_DEPENDENCIES_BLOCKED'].includes(error.code)) {
+              // No dispatch occurred. The failed scope has its own durable budget;
+              // refreshed independent samples remain eligible in this run.
+              return true;
+            }
             if (error instanceof EngineError && ['STALE_OBSERVATION', 'PRECONDITIONS_CHANGED'].includes(error.code)) {
               // Preflight already captured fresh evidence. Retry only a newly
               // discovered, unattempted controls sample; the persisted streak bounds it.

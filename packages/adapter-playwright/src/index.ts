@@ -1,3 +1,4 @@
+import { nativeFormScope } from './dependencies.js';
 import { canonical, id, type InteractionAdapter, type EvidenceStore, type Predicate, type InteractionScope } from '@interaction/core';
 import { BrowserAdapter } from './browser.js';
 import { observableCanonical, compareObservations } from './model.js';
@@ -16,7 +17,16 @@ export type { Command } from './schema.js';
 export { compareObservations, observableCanonical } from './model.js';
 
 export class PlaywrightAdapter implements InteractionAdapter<Observation, SessionOptions> {
-  readonly ruleVersion = 'observable-v3-live-v1';
+  readonly ruleVersion = 'observable-v3-live-v2';
+  validationScope(action: ActionCandidate, observation: Observation) {
+    const target = observation.controls.find(c => c.localId === action.localId);
+    return action.risk === 'interface' && target ? nativeFormScope(target, action.kind) : undefined;
+  }
+  actionObservationReady(action: ActionCandidate, before: Observation, after: Observation) {
+    if (!after.gaps.some(g => g.code === 'PARTIAL_INTERACTION_READY')) return true;
+    const target = before.controls.find(c => c.localId === action.localId);
+    return !!target && !!after.controls.find(c => c.instanceId === target.instanceId && !c.readiness);
+  }
   constructor(private hooks: EngineHooks = {}) {}
   parseOptions(input: unknown) { return sessionSchema.parse(input) as SessionOptions; }
   createDriver(options: SessionOptions, evidence: EvidenceStore) { return new BrowserAdapter(options, evidence, this.hooks); }

@@ -35,12 +35,14 @@ export interface Persistence {
 }
 export type HookInvoker = <T>(name: string, fn: () => T | Promise<T>) => Promise<{ value?: T; error?: string }>;
 export type ObservationData<O extends Observation> = Omit<O, 'id' | 'sessionId' | 'stateId' | 'visitId' | 'fingerprint' | 'canonical' | 'ruleVersion' | 'cause'>;
+export type PreflightResult = 'valid' | 'stale' | 'context_changed'
+  | { status: 'stale'; scopeKey: string; evidence: string[] };
 export interface InteractionDriver<O extends Observation, S extends SessionOptions> {
   start(): Promise<void>;
   connected(): boolean;
   capture(observationId: string): Promise<ObservationData<O>>;
   discover(observation: O, session: Session<S>, invoke: HookInvoker): Promise<ActionCandidate[]>;
-  preflight(observation: O, action?: ActionCandidate): Promise<'valid' | 'stale' | 'context_changed'>;
+  preflight(observation: O, action?: ActionCandidate): Promise<PreflightResult>;
   validate(action: ActionCandidate, control?: O['controls'][number]): Promise<void>;
   execute(action: ActionCandidate, control?: O['controls'][number]): Promise<void>;
   reopen(): Promise<void>;
@@ -71,6 +73,10 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   explorationCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
   /** Optional structural scope for representative depth budgets; raw visit depth is retained. */
   explorationScope?(observation: O): string;
+  /** Partial captures must establish readiness for the dispatched operation itself. */
+  actionObservationReady?(action: ActionCandidate, before: O, after: O): boolean;
+  /** A bounded DOM dependency scope; undefined means global validation. */
+  validationScope?(action: ActionCandidate, observation: O): string | undefined;
   /** Groups repeated operations for an upper-layer traversal decision. Does not alter their capabilities or risk. */
   explorationGroups?(actions: ActionCandidate[], observation: O, session: Session<S>, known: import('./types.js').ExplorationGroup[]): import('./types.js').ExplorationGroupProposal[];
   /** Only explicitly declared reversible operations may produce local restoration steps. */

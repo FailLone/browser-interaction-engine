@@ -1,9 +1,10 @@
 import { chromium, type Browser, type BrowserContext, type Page, type CDPSession } from 'playwright';
 import { createHash } from 'node:crypto';
-import type { EvidenceStore, InteractionDriver, HookInvoker } from '@interaction/core';
+import type { EvidenceStore, InteractionDriver, HookInvoker, PreflightResult } from '@interaction/core';
 import { canonical, timeout, hash } from '@interaction/core';
 import { observableCanonical } from './model.js';
 import { interactionProjection } from './exploration.js';
+import { dependencyProjection, dependencyProjections, nativeFormScope } from './dependencies.js';
 import type { Session, EngineHooks } from './types.js';
 import { constrain } from './policy.js';
 import { id } from './util.js';
@@ -75,6 +76,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     return clean(parts.join('')) || clean(el.getAttribute('title')) || clean(el.getAttribute('placeholder')) || (['submit', 'button'].includes(input.type) ? input.value : '');
   };
   const itemKeyCache = new Map<Element, string | undefined>();
+  const instanceBoundItems = new Set<Element>();
   const linkBindings = new Map<Element, string | undefined>();
   const recordLinks = (item: Element) => {
     if (linkBindings.has(item)) return linkBindings.get(item);
@@ -151,16 +153,19 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const links = recordLinks(item), list = item.parentElement?.closest(listSelector);
     // Shared generic links do not identify a record. A changed destination creates
     // a different binding even when a virtual list recycles the same DOM slot.
-    if (!key && links && list && uniqueRecordLinks(list, links)) key = links;
+    if (!key && links && list && uniqueRecordLinks(list, links)) { key = links; instanceBoundItems.add(item); }
     if (!key) {
       const { text, fullText } = recordDescription(item);
       const projected = text !== fullText && /[\p{L}]/u.test(text) && list && uniqueDescription(list, text);
       const description = projected ? text : fullText;
+      if (projected) instanceBoundItems.add(item);
       // Long/truncated descriptions are not a unique business record key.
       if (description && description.length <= 500) key = JSON.stringify([projected ? 'item-description' : 'item-text', description]);
     }
     // A row's DOM id/testid may identify a reusable viewport slot, not its item.
     // Without a declared record key or descriptive text, leave it unresolved.
+    // Present-snapshot uniqueness cannot prove identity across virtualization/rebuild.
+    if (key && instanceBoundItems.has(item)) key = JSON.stringify(['record-instance', instance(item), key]);
     itemKeyCache.set(item, key); return key;
   };
   const scopedControlKey = (el: Element, name: string, type: string) => {
@@ -203,6 +208,21 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   for (const el of elements.slice(0, 5000)) if (el !== body && el !== document.documentElement && !selected.has(el) && (scrollViewport(el) || typeof (el as HTMLElement).onclick === 'function' || getComputedStyle(el).cursor === 'pointer' && (!el.parentElement || getComputedStyle(el.parentElement).cursor !== 'pointer'))) selected.add(el);
   const all = [...selected];
   const unnamedScrolls = new Set<Element>();
+  const formOwners = new Map<HTMLFormElement, NonNullable<Control['formOwner']>>();
+  const formOwner = (el: Element) => {
+    const form = 'form' in el ? (el as HTMLInputElement).form : el.closest('form');
+    if (!form) return;
+    if (!formOwners.has(form)) {
+      // Cross-form ARIA relationships and enclosing records defeat local ownership.
+      // Keep those cases global; native .form includes externally associated fields.
+      const members = [...form.elements, ...form.querySelectorAll('*')];
+      const external = [form, ...members].some(node => ['aria-controls', 'aria-owns', 'aria-labelledby', 'aria-describedby'].some(attribute =>
+        (node.getAttribute(attribute) || '').split(/\s+/).filter(Boolean).some(key => { const ref = document.getElementById(key); return !ref || !form.contains(ref); })));
+      formOwners.set(form, { key: regionKey(form), instanceId: instance(form), action: form.action, method: form.method, target: form.target,
+        isolated: !external && !form.closest(itemSelector) });
+    }
+    return formOwners.get(form);
+  };
   const controls = all.slice(0, 1500).map(el => {
     const e = el as HTMLInputElement;
     const r = rect(el); const style = getComputedStyle(el);
@@ -230,16 +250,18 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const liveName = liveEvidence?.length ? label(el) || contentName(el, undefined, true) : undefined;
     const liveContent = liveName ? { name: liveName, text: contentName(el, undefined, true), evidence: liveEvidence! } : undefined;
     const stableKey = scopedControlKey(el, liveName || name, type);
+    let record = el.closest(itemSelector); let identityScope: 'instance' | undefined;
+    while (record) { if (instanceBoundItems.has(record)) identityScope = 'instance'; record = record.parentElement?.closest(itemSelector) || null; }
     const nestedLists = scroll ? el.querySelectorAll('[role=listbox]') : [];
     const list = el.tagName === 'SELECT' ? el : el.closest('[role=listbox]') || (nestedLists.length === 1 ? nestedLists[0] : undefined);
     const boundForm = (el as HTMLInputElement).form;
     const purposeBinding = list ? { attributes: Object.fromEntries(['type', 'role', 'href', 'target', 'form', 'formaction', 'formmethod', 'formtarget', 'aria-controls', 'aria-haspopup'].filter(k => el.hasAttribute(k)).map(k => [k, el.getAttribute(k)!])),
       ...(boundForm ? { form: { instanceId: instance(boundForm), action: boundForm.action, method: boundForm.method, target: boundForm.target } } : {}) } : undefined;
     return {
-      localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey, ...(liveContent ? { liveContent } : {}),
+      localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey, ...(identityScope ? { identityScope } : {}), ...(liveContent ? { liveContent } : {}),
       ...(list ? { list: { instanceId: instance(list), role: list.tagName === 'SELECT' ? 'select' : 'listbox', label: label(list), selector: selector(list) } } : {}),
       ...(purposeBinding ? { purposeBinding } : {}),
-      region: regionKey(el.closest(regionSelector)), regionInstanceId: instance(el.closest(regionSelector) || body || document.documentElement), form: regionKey(el.closest('form')), selector: selector(el), rect: r,
+      region: regionKey(el.closest(regionSelector)), regionInstanceId: instance(el.closest(regionSelector) || body || document.documentElement), form: regionKey(el.closest('form')), formOwner: formOwner(el), selector: selector(el), rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
       checked: ['checkbox', 'radio'].includes(type) ? e.checked : el.hasAttribute('aria-checked') ? el.getAttribute('aria-checked') === 'true' : null,
       pressed: el.getAttribute('aria-pressed') === 'mixed' ? 'mixed' as const : el.hasAttribute('aria-pressed') ? el.getAttribute('aria-pressed') === 'true' : null,
@@ -345,6 +367,26 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     let stable = false; let interactionStable = false; let captureRetries = 0;
     let dom: Awaited<ReturnType<BrowserAdapter['readDOM']>> | undefined;
     let lastError: string | undefined;
+    const projections = new WeakMap<object, Map<string, string>>();
+    const project = (view: NonNullable<typeof dom>) => {
+      if (!projections.has(view)) projections.set(view, dependencyProjections(view));
+      return projections.get(view)!;
+    };
+    const dependencyWindows = new Map<string, { key: string; since: number }>();
+    const sampleDependencies = (view: NonNullable<typeof dom>) => {
+      const present = new Set<string>();
+      for (const control of view.controls) {
+        const key = project(view).get(control.instanceId); if (!key) continue;
+        present.add(control.instanceId);
+        if (dependencyWindows.get(control.instanceId)?.key !== key) dependencyWindows.set(control.instanceId, { key, since: Date.now() });
+      }
+      for (const key of dependencyWindows.keys()) if (!present.has(key)) dependencyWindows.delete(key);
+    };
+    const readyDependencies = (view: NonNullable<typeof dom>) => new Set(view.controls.filter(control => {
+      const window = dependencyWindows.get(control.instanceId);
+      return control.visible && control.enabled && !!window && window.key === project(view).get(control.instanceId)
+        && Date.now() - window.since >= this.options.settleMs;
+    }).map(control => control.instanceId));
     const evidenceManifest: BrowserEvidenceManifest = { schemaVersion: 1, status: this.options.evidence.enabled ? 'captured' : 'disabled', artifacts: {}, gaps: [] };
     for (;;) {
       let previous = ''; let unchangedSince = Date.now();
@@ -354,6 +396,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         try {
           dom = await timeout(this.readDOM(), Math.max(1, deadline - Date.now()), 'DOM capture deadline exceeded');
           lastError = undefined;
+          sampleDependencies(dom);
           const incomplete = dom.gaps.some(g => ['DOM_ROOT_UNAVAILABLE', 'DOCUMENT_LOADING'].includes(g.code));
           const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.pressed, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
           if (key !== previous || incomplete) { previous = key; unchangedSince = Date.now(); }
@@ -361,9 +404,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
           if (interactive !== previousInteraction || incomplete) { previousInteraction = interactive; interactionSince = Date.now(); }
           interactionStable = !incomplete && Date.now() - interactionSince >= this.options.settleMs;
           if (!incomplete && Date.now() - unchangedSince >= this.options.settleMs) { stable = true; break; }
-          if (this.options.exploration === 'controls' && interactionStable) break;
+          if (this.options.exploration === 'controls' && !dom.gaps.some(g => g.critical) && (interactionStable || readyDependencies(dom).size > 0)) break;
         } catch (error) {
-          lastError = String(error); previous = ''; unchangedSince = Date.now(); previousInteraction = ''; interactionSince = Date.now(); interactionStable = false;
+          dependencyWindows.clear(); lastError = String(error); previous = ''; unchangedSince = Date.now(); previousInteraction = ''; interactionSince = Date.now(); interactionStable = false;
           if (this.page.isClosed()) break;
         }
         if (Date.now() >= deadline) break;
@@ -375,7 +418,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
           if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId) {
             interactionStable &&= interactionProjection(dom) === interactionProjection(detailed);
             stable = false;
-            const critical = !(this.options.exploration === 'controls' && interactionStable);
+            const critical = !(this.options.exploration === 'controls' && (interactionStable || readyDependencies(detailed).size > 0));
             dom = detailed;
             // A transition can arrive after the quiet sampling window. Re-sample
             // within the original deadline; never retry the browser action.
@@ -390,13 +433,19 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // Keep the last successful evidence, or an explicitly incomplete record when
     // the execution context never became readable. Never replay the action here.
     dom ??= { documentId: `unavailable:${id()}`, url: this.page.url(), title: '', text: '', controls: [], regions: [], overlays: [], boundaries: [], scroll: { x: 0, y: 0, maxY: 0 }, gaps: [] };
+    const ready = this.options.exploration === 'controls' && !stable && !interactionStable && !lastError && !dom.gaps.some(g => g.critical)
+      ? readyDependencies(dom) : new Set<string>();
+    if (ready.size) for (const control of dom.controls) if (!ready.has(control.instanceId)) {
+      control.readiness = { status: 'unstable', reason: 'This operation’s dependency scope did not settle during capture' };
+    }
     const capturedAt = now(); const gaps = [...dom.gaps, ...this.gaps.splice(0)];
     let navigation: BrowserHistory | undefined;
     try { navigation = await this.readHistory(dom.documentId); }
     catch (error) { gaps.push({ code: 'NAVIGATION_HISTORY_UNAVAILABLE', message: String(error) }); }
     if (captureRetries) gaps.push({ code: 'EVIDENCE_CAPTURE_RETRIED', message: `Re-sampled after ${captureRetries} change(s) during detailed capture; the browser action was not repeated` });
     if (lastError) gaps.push({ code: 'DOM_CAPTURE_FAILED', message: lastError, critical: true });
-    if (!stable) gaps.push({ code: 'UNSTABLE', message: 'Page did not settle within the observation budget', critical: !(this.options.exploration === 'controls' && interactionStable) });
+    if (!stable) gaps.push({ code: 'UNSTABLE', message: 'Page did not settle within the observation budget', critical: !(this.options.exploration === 'controls' && (interactionStable || ready.size > 0)) });
+    if (ready.size) gaps.push({ code: 'PARTIAL_INTERACTION_READY', message: `${ready.size} native form targets have stable dependencies; unsettled operations remain blocked` });
     if (!stable && this.options.exploration === 'controls' && interactionStable) gaps.push({ code: 'INTERACTION_STABLE', message: 'Supported interactive controls settled; passive display changes remain in the full observation' });
     const context: Context = Object.fromEntries(Object.entries(this.options.context).map(([k, value]) => [k, { value, status: 'known', source: 'declared' }]));
     for (const rule of this.options.contextRules) {
@@ -560,7 +609,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (o.overlays?.length) add('press', 'Escape');
     return actions;
   }
-  async preflight(current: Observation, action?: ActionCandidate): Promise<'valid' | 'stale' | 'context_changed'> {
+  async preflight(current: Observation, action?: ActionCandidate): Promise<PreflightResult> {
     let live: Awaited<ReturnType<BrowserAdapter['readDOM']>>;
     try { live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
@@ -569,11 +618,15 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       try { if (canonical(historyPosition(current.navigation)) !== canonical(historyPosition(await this.readHistory(live.documentId)))) return 'stale'; }
       catch { return 'stale'; }
     }
-    const liveCanonical = observableCanonical({ ...current, ...live, context: current.context, gaps: current.gaps });
-    const listOwners = new Map(current.controls.map(c => [c.instanceId, c.list]));
-    if (live.controls.some(c => canonical(c.list) !== canonical(listOwners.get(c.instanceId)))) return 'stale';
-    const purposeBindings = new Map(current.controls.map(c => [c.instanceId, c.purposeBinding]));
-    if (live.controls.some(c => canonical(c.purposeBinding) !== canonical(purposeBindings.get(c.instanceId)))) return 'stale';
+    // These invariants and declared context apply to every operation, even local ones.
+    const global = (o: typeof live | Observation) => canonical({ document: o.documentId, url: o.url, scroll: o.scroll, boundaries: o.boundaries });
+    if (global(live) !== global(current)) return 'stale';
+    for (const rule of this.options.contextRules) {
+      const locator = this.page!.locator(rule.selector);
+      let observed: string | null = null;
+      if (await locator.count() === 1) observed = rule.attribute ? await locator.getAttribute(rule.attribute) : await locator.evaluate(el => 'value' in el ? String((el as HTMLInputElement).value) : el.textContent?.trim() ?? '');
+      if (canonical(observed) !== canonical(current.context[rule.key]?.value)) return 'context_changed';
+    }
     if (this.options.decisionScopes?.length) {
       const owners = (regions: Region[]) => regions.map(({ key, instanceId, role, label, selector, parentKey }) => ({ key, instanceId, role, label, selector, parentKey }));
       if (canonical(owners(live.regions)) !== canonical(owners(current.regions))) return 'stale';
@@ -581,20 +634,23 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if (live.controls.some(c => c.regionInstanceId !== bindings.get(c.instanceId))) return 'stale';
     }
     const target = action && current.controls.find(c => c.localId === action.localId);
-    const changed = this.options.exploration === 'controls' ? interactionProjection(live, target?.instanceId) !== interactionProjection(current, target?.instanceId)
-      : liveCanonical !== current.canonical || live.controls.some((c, i) => c.instanceId !== current.controls[i]?.instanceId);
-    if (changed) {
-      return 'stale';
+    const scopeKey = this.options.exploration === 'controls' && action?.risk === 'interface' && target ? nativeFormScope(target, action.kind) : undefined;
+    if (scopeKey && target) {
+      const next = live.controls.find(c => c.instanceId === target.instanceId);
+      if (!next || nativeFormScope(next, action!.kind) !== scopeKey || dependencyProjection(current, target, action!.kind) !== dependencyProjection(live, next, action!.kind)) {
+        return { status: 'stale', scopeKey, evidence: ['native-form-dependencies-changed', `target:${target.instanceId}`, `form:${scopeKey}`] };
+      }
+    } else {
+      const listOwners = new Map(current.controls.map(c => [c.instanceId, c.list]));
+      if (live.controls.some(c => canonical(c.list) !== canonical(listOwners.get(c.instanceId)))) return 'stale';
+      const purposeBindings = new Map(current.controls.map(c => [c.instanceId, c.purposeBinding]));
+      if (live.controls.some(c => canonical(c.purposeBinding) !== canonical(purposeBindings.get(c.instanceId)))) return 'stale';
+      const changed = this.options.exploration === 'controls' ? interactionProjection(live, target?.instanceId) !== interactionProjection(current, target?.instanceId)
+        : observableCanonical({ ...current, ...live, context: current.context, gaps: current.gaps }) !== current.canonical || live.controls.some((c, i) => c.instanceId !== current.controls[i]?.instanceId);
+      if (changed) return 'stale';
     }
     // A submission or externally reviewed operation must retain its exact target text.
     if (target && action?.risk !== 'interface' && target.displayedText !== live.controls.find(c => c.instanceId === target.instanceId)?.displayedText) return 'stale';
-    // Context rules must be re-read even when their DOM node is not an interactive control.
-    for (const rule of this.options.contextRules) {
-      const locator = this.page!.locator(rule.selector);
-      let observed: string | null = null;
-      if (await locator.count() === 1) observed = rule.attribute ? await locator.getAttribute(rule.attribute) : await locator.evaluate(el => 'value' in el ? String((el as HTMLInputElement).value) : el.textContent?.trim() ?? '');
-      if (canonical(observed) !== canonical(current.context[rule.key]?.value)) return 'context_changed';
-    }
     return 'valid';
   }
   async validate(action: ActionCandidate, control?: Control) {
