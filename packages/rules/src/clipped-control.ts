@@ -5,6 +5,7 @@ import type { ControlRule, RuleAssessment, RuleContext } from './types.js';
 export const clippedControlOptionsSchema = z.object({
   includeDisabled: z.boolean().default(false),
   tolerancePx: z.number().min(0).max(2).default(1),
+  /** Explicit host requirements only; provider proposals remain separate data. */
   requirements: z.array(z.object({
     identityId: z.string().min(1), kind: z.literal('unclipped-by-nonscroll-container'),
     reason: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1),

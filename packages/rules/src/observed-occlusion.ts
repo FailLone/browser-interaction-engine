@@ -6,7 +6,8 @@ import { RuleRunner } from './runner.js';
 import { sampledOcclusionRule } from './sampled-occlusion.js';
 
 export const observedOcclusionOptionsSchema = z.object({
-  /** Applies only to the named logical controls, not every button on the page. */
+  /** Explicit host requirements for named controls. Provider proposals are not
+   * accepted here and do not automatically become effective requirements. */
   requirements: z.array(z.object({
     identityId: z.string().min(1), kind: z.literal('sampled-pointer-at-observed-position'),
     reason: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1),

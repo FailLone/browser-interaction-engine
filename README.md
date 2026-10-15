@@ -180,7 +180,9 @@ Modal、popover 与浮动菜单建立独占交互范围，DFS 先探索当前最
 
 `clipped-control` 检查控件是否被祖先容器的矩形边界裁剪。普通滚动中的部分可见保持待复查；`hidden/clip` 裁剪先报 warning，有明确身份绑定要求时才报 error。`ClippedControlTracker` 可随探索快照持续跟踪，只有同一控件的可比证据恢复完整才关闭问题；移出视口、缺证和重建不会直接消除警告。见 [裁剪检查示例](examples/clipped-control-inspector.ts) 与 [规则范围](docs/CONTROL-RULES.md#裁剪规则-clipped-control)。
 
-`text-truncation` 检查控件的 DOM 标签文字：硬截断先报 warning，实际溢出且配置 ellipsis/line-clamp 时记录 info，普通滚动保持待复查。`TextTruncationTracker` 使用后续探索快照核验同一控件、同一标签文字，不主动滚动。项目规范与 Agent 判断暂只提供带来源和目标绑定的要求提案接口，不执行、不自动升级为 error。见 [文字检查示例](examples/text-truncation-inspector.ts) 与 [文字规则及扩展接口](docs/CONTROL-RULES.md#文字截断规则-text-truncation)。
+`text-truncation` 检查控件的 DOM 标签文字：硬截断先报 warning，实际溢出且配置 ellipsis/line-clamp 时记录 info，普通滚动保持待复查。`TextTruncationTracker` 使用后续探索快照核验同一控件、同一标签文字，不主动滚动。见 [文字检查示例](examples/text-truncation-inspector.ts) 与 [文字规则及扩展接口](docs/CONTROL-RULES.md#文字截断规则-text-truncation)。
+
+三条规则共用[要求提案接口](docs/CONTROL-RULES.md#要求提案接口)，统一来源、理由、证据和目标绑定。项目规范与 Agent 判断暂只提供接口；新提案不自动变成生效要求。遮盖、裁剪的既有显式 `requirements` 配置仍按各自证据条件参与 error 判定，文字规则暂不执行外部要求。
 
 显式调用 `scroll-recovery` 可探测双轴和嵌套滚动，验证同一控件是否恢复命中并尝试恢复原位置；经过确认的恢复为 warning，有明确当前操作要求且五点被挡、无可用滚动路径时为限定范围的 error。有限探测失败、目标变化和恢复位置失败保留 unknown。见 [主动检查示例](examples/scroll-recovery-inspector.ts)。
 

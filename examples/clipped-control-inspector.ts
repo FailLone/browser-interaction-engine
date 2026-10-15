@@ -10,8 +10,9 @@ const session = await client.createSession({ url, headless: true, exploration: '
   inspection: { consumers: [{ id: consumerId, leaseMs: 300000, maxLeaseMs: 300000 }] },
   evidenceRetention: { mode: 'cache', ttlMs: 300000 },
 });
-// Default requirements are empty. An agent may explicitly provide requirements
-// using observed identity IDs and sourced product expectations, never page prose.
+// Default requirements are empty. The host may explicitly provide sourced,
+// identity-scoped requirements. ClippingRequirementProvider describes future
+// proposals; they are never automatically adopted by this consumer.
 const tracker = new ClippedControlTracker();
 console.log(JSON.stringify({ sessionId: session.id, rules: [clippedControlRule.id, observedClippingRule] }));
 await client.command(session.id, { type: 'explore' });

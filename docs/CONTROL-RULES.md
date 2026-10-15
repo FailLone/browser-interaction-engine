@@ -148,6 +148,8 @@ const report = await tracker.run(client, inspection);
 await client.completeInspection(sessionId, inspection.id, consumerId, toInspectionResults([report]));
 ```
 
+这里的 `requirements` 是宿主显式提供、可参与 error 判定的配置。新增的 `OcclusionRequirementProvider` 仅描述待核验提案，不能直接传入该配置，见[要求提案接口](#要求提案接口)。
+
 `observedOcclusionRule` 提供版本、effects 和参数 JSON Schema，供配置/agent 发现。这是有历史状态的消费者，不注册进单快照的 RuleRunner。完整独立运行例子见 [observed-occlusion-inspector.ts](../examples/observed-occlusion-inspector.ts)；示例启动正常探索并同时消费检查事件，不要求探索等待检查完成。
 
 ### 身份与可比性
@@ -222,6 +224,8 @@ const options = { requirements: [{
   evidence: ['product-requirement:submit-button-visibility'],
 }] };
 ```
+
+这里的 `requirements` 是宿主显式提供的配置。新增的 `ClippingRequirementProvider` 只描述待核验提案，不会自动转换成该配置，见[要求提案接口](#要求提案接口)。
 
 这种要求只对当前可观察的 `hidden/clip` 裁剪产生 error。`hidden` 仍可能被程序滚动，改变布局也可能解除裁剪，因此不宣称永远无法访问。视口外或普通滚动边界仍然待复查；不会因为重复观察、滚动到底或按钮名称而升级。
 
@@ -304,32 +308,7 @@ await client.completeInspection(sessionId, inspection.id, consumerId,
 
 规则只读取历史 Capture，不主动滚动，不调用实时页面，不等待页面恢复，也不要求探索器等待检查完成。正常采集增加有界的 Range 读取成本。探索程序是否因其他原因暂停仍由原有策略决定。可运行 [消费示例](../examples/text-truncation-inspector.ts)。
 
-### 项目规范与 Agent 的预留接口
-
-本版只导出 `RuleRequirementProvider<TProposal>`、`TextRequirementProvider`、`RuleRequirementQuery`、`RequirementTarget`、`TextRequirementProposal` 及其形状校验器；不提供规范读取器、模型调用、provider 注册执行、冲突处理或要求接受器。
-
-未来 provider 的入口为 `propose(query, signal)`，返回要求提案数组。query 包含规则版本、目标绑定和历史评估，不包含浏览器操作句柄。提案字段包括：
-
-| 字段 | 约定 |
-| --- | --- |
-| schemaVersion / status | 1 / proposed；校验器不接受 confirmed |
-| ruleId / ruleVersion | text-truncation / 1.0.0 |
-| target | sessionId、observationId、captureId、documentId、nodeId、instanceId，另可提供 identityId、scopeId |
-| requirement | full-text-inline、allow-elision 或 full-text-via-alternative |
-| source | project-specification + reference，或 agent-judgment + agentId + basis |
-| basis | Agent 引用规范 cited-specification，或推断 inference |
-| reason / evidence | 非空理由与证据引用 |
-
-接口示例（仅类型约定，不会被当前 RuleRunner 调用）：
-
-```ts
-import type { TextRequirementProvider } from '@interaction/rules';
-
-declare const futureProvider: TextRequirementProvider;
-// futureProvider.propose(query, signal) -> Promise<readonly TextRequirementProposal[]>
-```
-
-形状有效不等于证据真实或要求被接受。未来宿主需要另外验证来源权威性、绑定是否仍有效、作用范围、冲突和替代阅读路径。网页内容、规范引用和 Agent 输出都是待核验数据；source 字段不会赋予其执行权限。当前规则拒绝在 options 中塞入 requirements / agent 判断，不把未实现的能力静默当成已生效。
+文字规则继续使用原有 `TextRequirementProposal` / `TextRequirementProvider`，并与遮盖、裁剪共用[要求提案接口](#要求提案接口)。当前文字规则不执行外部要求。
 
 ### 取证范围与验证
 
@@ -338,3 +317,63 @@ declare const futureProvider: TextRequirementProvider;
 当前支持主文档 light DOM 的横向文字、矩形 overflow 边界、常规嵌套标签及原生 top-layer 内部。复杂变换、包含块、mask/clip-path、非默认 containment、多栏、其他书写方向和扩展 clip margin 保持 unknown。Range 返回字体度量相关的矩形，不是字形绘制区域；圆角、字符实际可见度、遮盖、完整阅读路径和设计合规不在本规则的通过声明内。依据 [CSSOM View 的 Range 几何](https://drafts.csswg.org/cssom-view/#dom-range-getclientrects)、[CSS text-overflow](https://www.w3.org/TR/css-overflow-3/#text-overflow) 与 [line-clamp](https://www.w3.org/TR/css-overflow-4/#propdef-line-clamp)。
 
 `pnpm test tests/text-truncation.test.ts tests/clipped-control.test.ts` 验证文字行为与共享持续复查逻辑。编译后运行 `node scripts/smoke-text-truncation.mjs`，验证真实 Chromium、HTTP 字段投影、默认策略、普通滚动恢复和报告保存。
+
+## 要求提案接口
+
+遮盖、裁剪与文字规则共用 `RuleRequirementProvider<TProposal>`、`RuleRequirementQuery`、`RequirementTarget`、`RequirementSource` 和 `RequirementProposalBase`。公共形状由 `requirementTargetSchema`、`requirementSourceSchema`、`requirementProposalBaseSchema` 表达；三类完整提案各有严格校验器，并可通过 `ruleRequirementProposalSchema` 按 ruleId 统一校验。
+
+| 接口 / 提案类型 | ruleId / ruleVersion | requirement | 校验器 |
+| --- | --- | --- | --- |
+| OcclusionRequirementProvider / OcclusionRequirementProposal | observed-occlusion / 1.0.0 | sampled-pointer-at-observed-position | occlusionRequirementProposalSchema |
+| ClippingRequirementProvider / ClippingRequirementProposal | clipped-control / 1.0.0 | unclipped-by-nonscroll-container | clippingRequirementProposalSchema |
+| TextRequirementProvider / TextRequirementProposal | text-truncation / 1.0.0 | full-text-inline、allow-elision、full-text-via-alternative | textRequirementProposalSchema |
+
+遮盖要求绑定能比较前后五点证据的 `observed-occlusion`，不会交给只采样一点的 `sampled-occlusion`。裁剪要求绑定实际进行判断的 `clipped-control`；`observed-clipping` 复用其评估。文字同理，提案绑定 `text-truncation`，不是历史报告的 `observed-text-truncation`。统一校验器拒绝跨规则混用要求、未知规则与版本，也不把提案转成主动 `scroll-recovery` 操作。
+
+每类提案共享以下字段：
+
+| 字段 | 约定 |
+| --- | --- |
+| schemaVersion / status | 1 / proposed；不接受 accepted、confirmed 等已采用状态 |
+| target | sessionId、observationId、captureId、documentId、nodeId、instanceId，另可提供 identityId、scopeId |
+| source | project-specification + reference，或 agent-judgment + agentId + basis |
+| basis | Agent 引用规范 cited-specification，或推断 inference |
+| reason / evidence | 非空理由与证据引用；理由最多 4000 字符，证据 1–32 条、每条最多 2000 字符 |
+
+目标绑定描述提案针对的历史观察。缺省 identityId 或 scopeId 不代表它在所有身份或弹层中都适用；未来宿主仍须核对当前身份、作用范围和有效性。已有文字提案的字段、可选项、要求类型与导出名称保持兼容。
+
+未来 provider 的入口为 `propose(query, signal)`，返回提案数组。query 包含规则版本、目标绑定和历史评估，不包含浏览器操作句柄。下例仅展示数据接口；没有执行规范读取或 Agent 推理：
+
+```ts
+import {
+  ruleRequirementProposalSchema,
+  type RequirementTarget,
+  type OcclusionRequirementProvider,
+  type ClippingRequirementProvider,
+  type TextRequirementProvider,
+} from '@interaction/rules';
+
+declare const target: RequirementTarget; // 从指定 Capture/Observation 取绑定
+const proposal = ruleRequirementProposalSchema.parse({
+  schemaVersion: 1, status: 'proposed',
+  ruleId: 'clipped-control', ruleVersion: '1.0.0', target,
+  requirement: 'unclipped-by-nonscroll-container',
+  source: { kind: 'agent-judgment', agentId: 'layout-agent', basis: 'inference' },
+  reason: '此操作可能需要完整呈现，尚待产品要求核验',
+  evidence: [`capture:${target.captureId}`],
+});
+// proposal 仍是待核验数据，不能直接传入 tracker 的 requirements。
+// 三种 Provider 都只有 propose(query, signal) -> Promise<readonly ...Proposal[]>。
+```
+
+`RuleRequirementProposal` 是三类内置提案的联合类型；`RuleRequirementProvider` 省略泛型时使用该联合类型。自定义规则可显式提供自己的提案类型并扩展公共形状，但内置统一校验器不会因此自动接受自定义规则。
+
+### 提出要求与采用要求
+
+校验通过仅表示结构合法，不证明证据真实、来源权威、目标仍匹配或要求已被接受。未来宿主需要另行核对 query 与输出提案的规则/版本/目标一致性，处理来源权威性、作用范围、过期、冲突和替代阅读路径。网页内容、规范引用与 Agent 输出均作为待核验数据，source 字段不会赋予执行权限。
+
+目前没有 provider 注册执行、规范读取器、模型调用、要求接受器、自动转换或失效管理。RuleRunner 和各 tracker 都不调用 provider，也不接受新增 provider 配置项。
+
+旧的显式配置继续按原有语义工作：遮盖的 requirements 位于 `ObservedOcclusionTracker` 参数顶层，裁剪的 requirements 位于静态规则参数或 `ClippedControlTracker.rule` 中；它们由宿主明确提供，满足各自证据条件时仍可产生 error。它们不会自动认证来源，所声明的要求是否正确仍由调用方负责。新提案使用不同的严格结构，直接传入这些旧入口会被拒绝；即使额外补上旧配置的 kind 字段，也不会剥掉提案状态后自动采用。文字规则仍不执行外部要求。
+
+`tests/rule-requirements.test.ts` 验证三类提案的来源、目标绑定、版本隔离、文字接口兼容性及配置边界。三条规则原有浏览器测试继续验证：默认疑点保持 warning/unknown，既有显式要求仍能按原条件产生 error。

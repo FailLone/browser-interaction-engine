@@ -10,8 +10,9 @@ const session = await client.createSession({ url, headless: true, exploration: '
   inspection: { consumers: [{ id: consumerId, leaseMs: 300000, maxLeaseMs: 300000 }] },
   evidenceRetention: { mode: 'cache', ttlMs: 300000 },
 });
-// No requirements are inferred from labels or CSS. An agent may provide explicit,
-// identity-scoped sampled-pointer requirements using observedOcclusionRule.optionsSchema.
+// The host may explicitly supply identity-scoped requirements using the options
+// schema. OcclusionRequirementProvider only describes future proposals; this
+// consumer never calls providers or converts their output into requirements.
 const tracker = new ObservedOcclusionTracker();
 console.log(JSON.stringify({ sessionId: session.id, rule: observedOcclusionRule }));
 // Exploration advances independently. The inspector receives only saved captures.
