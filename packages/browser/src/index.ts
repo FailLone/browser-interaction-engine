@@ -1,3 +1,6 @@
+import { contextKey } from '@interaction/core';
+import { PageExploration } from './page-exploration.js';
+export type { PageExplorationState } from './page-exploration.js';
 import { InspectionCoordinator, validateInspectionOptions } from './inspection.js';
 import { PurposeReviews } from './purpose-reviews.js';
 import type { ActionCandidate, ListPurposeReviewInput, RevokePurposeReviewInput } from '@interaction/adapter-playwright';
@@ -24,6 +27,43 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   declare readonly store: RetainedPersistence;
   private readonly inspections: InspectionCoordinator;
   private readonly purposeReviews: PurposeReviews;
+  private readonly pages: PageExploration;
+  protected override explorationScopes(actions: ActionCandidate[], o: Observation) { return this.pages.proposals(actions, o, this.session(o.sessionId)); }
+  protected override explorationCandidates(items: import('@interaction/core').FrontierItem[], o: Observation) { return this.pages.candidates(items, o, this.session(o.sessionId)); }
+  protected override explorationIdleReason(sid: string) { return this.pages.idleReason(sid, this.session(sid)); }
+  protected override async beforeExplorationStep(sid: string): Promise<'continue' | 'changed' | 'paused'> {
+    const o = this.observation(sid);
+    if (!this.pages.shouldReturn(o, this.session(sid), () => this.getFrontier(sid))) return 'continue';
+    // Existing boundary scheduling can execute only current exits: page members remain gated.
+    if (o.boundaries?.length) return 'continue';
+    const state = this.pages.state(sid);
+    const targetId = state?.frames.at(-1)?.sourceObservationId;
+    const target = targetId ? this.observation(sid, targetId) : undefined;
+    const action = target && this.observationReturn(sid, target);
+    const blocked = (reason: string, attemptId?: string, afterId?: string) => {
+      const latest = this.pages.state(sid);
+      if (latest) {
+        latest.lastReturn = { fromId: o.id, targetId: targetId || '', afterId, attemptId, status: 'blocked', reason };
+        this.store.put('page-exploration', latest);
+      }
+      const session = this.session(sid); session.status = 'paused'; session.stopReason = 'PAGE_RETURN_BLOCKED'; this.store.put('session', session);
+      this.publish(sid, 'exploration.page_return_blocked', { fromId: o.id, targetId, attemptId, afterId, reason });
+      this.publish(sid, 'exploration.paused', { reason: 'PAGE_RETURN_BLOCKED', observationId: this.observation(sid).id });
+      return 'paused' as const;
+    };
+    if (!action || !target) return blocked('No verified return path to the source page; page exploration remains unapproved');
+    this.store.put('action', action);
+    // Normal preflight, inspection, budgets and the action ledger apply to the return.
+    const attempt = await this.runAction(sid, action.id, crypto.randomUUID(), undefined, 'recovery');
+    const after = this.observation(sid);
+    if (attempt.status !== 'succeeded' || after.gaps.some(g => g.critical) || after.url !== target.url
+      || contextKey(after.context) !== contextKey(target.context)) return blocked('Source page location/context could not be verified', attempt.id, after.id);
+    const updated = this.pages.state(sid)!;
+    updated.lastReturn = { fromId: o.id, targetId: target.id, afterId: after.id, attemptId: attempt.id, status: 'returned' };
+    this.store.put('page-exploration', updated);
+    this.publish(sid, 'exploration.page_returned', { ...updated.lastReturn, stateRestored: false });
+    return 'changed';
+  }
   protected override prepareActions(actions: ActionCandidate[], observation: Observation) { return this.purposeReviews.apply(actions, observation); }
   protected override validatePreparedAction(action: ActionCandidate, observation: Observation) { this.purposeReviews.validate(action, observation); }
   purposeReviewMaterial(sessionId: string, groupId: string) { return this.purposeReviews.material(this.observation(sessionId), this.actions(sessionId), groupId); }
@@ -36,6 +76,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   override async createSession(input: unknown) { return super.createSession(validateInspectionOptions(input)); }
   protected override beforeCapture(sessionId: string, observationId: string) { return this.inspections.prepare(sessionId, observationId); }
   protected override afterCapture(observation: Observation, previous?: Observation, attemptId?: string) {
+    this.pages.reconcile(observation, previous, this.session(observation.sessionId));
     this.purposeReviews.reconcile(observation, this.actions(observation.sessionId));
     return this.inspections.finish(observation, previous, attemptId);
   }
@@ -70,7 +111,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   private readonly evidenceQueries = new BrowserEvidenceQueries(this);
   override frontierCoverage(sessionId: string) { return withFrontierStates(super.frontierCoverage(sessionId), id => this.store.get<Observation>('observation', id)); }
   controlCoverage(sessionId: string) { return describeControlCoverage(this.list<Observation>(sessionId, 'observation'), this.list(sessionId, 'attempt'), this.list(sessionId, 'action')); }
-  override report(sessionId: string) { return { ...super.report(sessionId), controlCoverage: this.controlCoverage(sessionId) }; }
+  override report(sessionId: string) { return { ...super.report(sessionId), pageExploration: this.pages.state(sessionId), controlCoverage: this.controlCoverage(sessionId) }; }
   observationDetails(sessionId: string, observationId: string) { return this.evidenceQueries.details(sessionId, observationId); }
   controlDetails(sessionId: string, observationId: string, controlId: string) { return this.evidenceQueries.control(sessionId, observationId, controlId); }
   regionDetails(sessionId: string, observationId: string, key: string) { return this.evidenceQueries.region(sessionId, observationId, key); }
@@ -103,6 +144,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       }
     });
     super({ persistence: options.persistence instanceof RetainedPersistence ? options.persistence : new RetainedPersistence(options.persistence, options.retention), adapter: new PlaywrightAdapter(options.hooks), hooks: options.hooks });
+    this.pages = new PageExploration(this.store);
     this.inspections = new InspectionCoordinator(this, (sid, type, data) => this.publish(sid, type, data));
     this.purposeReviews = new PurposeReviews(this.store, (sid, type, data) => this.publish(sid, type, data));
   }

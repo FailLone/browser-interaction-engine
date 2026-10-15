@@ -57,6 +57,8 @@ export interface SessionOptions {
   exploration?: 'controls' | 'representative' | 'stateful';
   /** New sessions defer repeated list members for an upper-layer decision. Legacy sessions without this field keep their existing policy. */
   listExploration?: 'review' | 'all';
+  /** Entry page first; other pages require a scoped decision. Missing on legacy sessions means all. */
+  pageExploration?: 'review' | 'all';
   /** Optional observed scopes that require upper-layer decisions before automatic exploration. */
   decisionScopes?: ('region' | 'branch' | 'input-space')[];
   /** Application declarations; never inferred from button labels. */

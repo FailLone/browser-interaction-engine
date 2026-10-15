@@ -106,6 +106,8 @@ export interface Graph { states: UIState[]; transitions: Transition[]; visits: V
 export interface HookContext<O extends Observation = Observation, S extends SessionOptions = SessionOptions> { session: Readonly<Session<S>>; observation: Readonly<O> }
 /** Observed exploration scope, not proof of equal business effects or permission to execute. */
 export interface ExplorationGroupProposal {
+  /** Context-bound scheduling scopes survive document changes; they grant no target or replay permission. */
+  binding?: 'instance' | 'context';
   key: string; kind: string; label: string; actionIds: ID[]; traversalActionIds: ID[]; evidence: ActionEvidence[];
   /** Stable key identifies the scope; changing these conditions requires a fresh decision. */
   conditions?: Json;
@@ -114,6 +116,7 @@ export type ExplorationGroupDecision = { source: string; evidence: string[] } & 
   { mode: 'all' | 'defer' | 'skip'; memberKeys?: never } | { mode: 'sample'; memberKeys: string[] }
 );
 export interface ExplorationGroup {
+  binding?: 'instance' | 'context';
   id: ID; sessionId: ID; key: string; proposalKey: string; kind: string; label: string; membership: 'observed-action-cases';
   instanceScope: string; contextKey: string; observationId: ID; revision: number;
   status: 'pending' | 'decided' | 'invalidated'; evidence: ActionEvidence[]; conditions?: Json;

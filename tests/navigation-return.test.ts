@@ -47,7 +47,7 @@ it('returns to a known native GET entry without replaying a nonreplayable prefix
 });
 
 it('continues original-page control work through native return without claiming checkpoint equality', async () => {
-  const t = await setup('plain', { choose: (items, ctx) => (ctx.session.actionCount === 1 ? items.find(f => f.action.label === 'Next') : items.find(f => f.action.label === 'Remaining'))?.id || null });
+  const t = await setup('plain', { choose: (items, ctx) => (ctx.session.actionCount === 1 ? items.find(f => f.action.label === 'Next') : items.find(f => f.action.label === 'Remaining'))?.id || null }, { pageExploration: 'all' });
   try {
     await act(t.engine, t.sessionId, 'Prepare');
     await t.engine.explore(t.sessionId); await t.engine.waitForIdle();

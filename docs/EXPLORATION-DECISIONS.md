@@ -10,6 +10,7 @@
 - `kind`、`label`：场景类型和可读名称；kind 是开放字符串，core 不依赖 DOM 或业务词汇。
 - `actionIds`：属于范围的当前动作 ID，可以只有一个入口或操作。
 - `traversalActionIds`：用于继续发现范围的动作，如列表滚动。它们随范围等待，不能被 sample 单独放行。
+- `binding`：默认 `instance`，绑定当前文档/实例；显式 `context` 允许同声明上下文和条件下跨文档保留调度决定，适用于页面范围授权，不代表操作语义相同。
 - `conditions`：可选 JSON 条件，如测试目标版本、目标对象、结构版本。条件改变，需要新的决策。
 - `evidence`：非空观察依据，结构与 ActionEvidence 一致。
 
@@ -66,6 +67,34 @@ const engine = new BrowserEngine({
 
 列表继续默认 `listExploration: 'review'`，由原生 select/listbox 生产 `similar-list`。其至少两个成员的初次识别规则保持不变；通用范围支持单成员。列表与通用范围可重叠，`listExploration: 'all'` 只关闭列表待决机制，不会批准其他范围。列表详情及用途审阅见[列表协议](LIST-EXPLORATION.md)。
 
+## 页面范围优先于 DFS 顺序
+
+新浏览器会话默认 `pageExploration: 'review'`。入口页面是首次完整初始观察的实际 URL（包括启动重定向后的落地地址）。DFS 只决定已获准范围内的顺序，不代表沿所有链接继续深入。
+
+1. 当前页面的普通工作优先于已知离页入口。无法从候选预知的按钮导航，在动作后的观察中识别。
+2. 到达其他 URL 后，产生 `kind: 'page'` 的范围请求，沿用 `explorationDecision`、持久事件及 `decideExplorationGroup` 命令。未获准前，不自动操作目的页业务控件。
+3. 没有决定、defer、skip，或指定样本已无当前可执行项（包括深度上限阻塞）时，先退出目的页的活动弹层，再尝试原生历史返回来源页，继续允许的工作。有效出口仍可执行；没有有效出口则保留 ACTIVE_BOUNDARY_BLOCKED。
+4. all 允许深入该页面，但 B 通往的 C 会有独立请求。sample 只放行选中的已观察操作样本，defer 留待后续，skip 保留未测。调试页支持允许、暂缓和本轮不测；指定样本通过 hook/SDK/HTTP 提交。
+
+```ts
+const session = await engine.createSession({
+  url: 'https://example.test/a',
+  pageExploration: 'review', // 新会话默认值；all 显式采用原来的跨页探索策略
+});
+// 已有 explorationDecision hook 可根据 group.kind === 'page' 和 group.conditions.url 判断。
+// 异步决定仍使用 client.decideExplorationGroup(...); 决定本身不触发浏览器操作。
+```
+
+页面范围以**完整 URL** 区分，包括 query 和 hash；同源不代表同页。这样覆盖 SPA 路由，但普通锚点/展示参数也可能被保守地分成新范围。URL 不变的弹层、标签和业务视图仍由已有区域/分支/输入范围控制，不承诺识别所有业务页面边界。上层将页面组明确设为 all 或使用 pageExploration all 时，上层已经选择允许跨页，DFS 仍可能深入获准的 B；若要先完成 A，应保留 B 待决或暂缓。
+
+页面组采用 `binding: 'context'`，因此返回 A 后仍可批准 B，重新访问 B 时无需只因文档重载重问页面范围。授权绑定准确 URL 和声明上下文；普通区域、用途审阅及每次目标验证继续遵守自己的失效规则，允许 B 不会批准其子页面。业务条件改变时旧页面决定失效。
+
+返回必须使用同一浏览器会话里仍存在的已观察 GET 历史条目，并遵守排除、预算、业务副作用和当前目标检查。返回后重新验证完整观察、目标 URL 和声明上下文；只发布 `exploration.page_returned` / `stateRestored: false`，不声称金额、服务器状态或检查点已恢复。没有可信路径（例如 location.replace、POST 来源、未处理副作用）或返回结果不符时，以 `PAGE_RETURN_BLOCKED` 暂停并发布 `exploration.page_return_blocked`；上层需恢复来源页后重新观察，或明确允许当前目的页，不会自动猜 URL 或重置环境。
+
+允许范围内无可执行工作但有待决页面时暂停为 `PAGE_DECISION_REQUIRED`；只有暂缓页面时为 `PAGE_EXPLORATION_DEFERRED`。静态无控件页面也保留请求；skip 不计覆盖，结束仍报告缺口。`report.pageExploration` 保存入口、已观察返回链和最近返回结果。
+
+显式单项 execute 属于上层接管，不自动遍历或返回，也不代表批准整个页面。已持久化但缺少 pageExploration 字段的旧会话保持原行为，不做静默迁移。独立回归覆盖意外跳转、B → C、同文档 URL 变化、异步抽样、弹层退出、受阻返回、上下文失效、旧会话和调试界面。
+
 ## 材料、异步接入与失效
 
 沿用 `client.explorationGroups(sessionId)` / `GET /v1/sessions/:sessionId/exploration-groups` 查询全部类型，返回条件、版本、成员材料和历史决策。成员是已观察的操作样本，不是业务对象总数或已发现路径总数。
@@ -82,7 +111,9 @@ await client.command(sessionId, { type: 'resume' });
 
 命令仍是 `{ type: 'decideExplorationGroup', groupId, revision, decision }`。提交决策本身不操作浏览器或自动恢复探索。revision 必须匹配；新成员或新决策都可能改变版本，过期返回 STALE_GROUP_DECISION，应重新读取材料判断。
 
-通用范围绑定文档/实例范围、声明上下文及 conditions。文档或上下文改变，或同 kind/key 的 conditions 改变时，旧组标为 invalidated，旧未执行待办保留为 superseded / exploration_scope_invalidated；不能计为覆盖。对失效组提交决策返回 EXPLORATION_SCOPE_INVALIDATED。重新回到旧条件也创建新请求，不复活旧批准。浏览器区域节点重建在派发前检测，重新观察后要求新决策。
+通用范围默认绑定文档/实例范围、声明上下文及 conditions。默认 binding 下文档或上下文改变，或同 kind/key 的 conditions 改变时，旧组标为 invalidated，旧未执行待办保留为 superseded / exploration_scope_invalidated；不能计为覆盖。对失效组提交决策返回 EXPLORATION_SCOPE_INVALIDATED。重新回到旧条件也创建新请求，不复活旧批准。浏览器区域节点重建在派发前检测，重新观察后要求新决策。
+
+`binding: context` 的范围仅豁免文档实例变化；声明上下文或同 kind/key 的 conditions 改变仍使旧批准失效，回到旧条件也不复活。它允许零成员范围，用于记录没有控件的待决目的页。成员仍是精确操作样本，sample 不按名称匹配新文档的控件；all 可以接纳同条件下新发现的成员。该权限不扩展用途审阅、身份、重放或检查结果的有效期。
 
 暂时省略范围提议不会释放仍匹配其精确成员键的候选；持续吸收新成员需要生产者继续提出该范围。业务目标变化时，应更新 conditions 或声明 context，然后 observe。引擎不能监控未声明的服务端状态或外部闭包变化；条件稳定仅表示在声明范围内可复用调度决定，不证明业务效果相同。
 
@@ -92,4 +123,4 @@ await client.command(sessionId, { type: 'resume' });
 
 独立回归见 `tests/exploration-scopes-core.test.ts` 和 `tests/exploration-scopes-browser.test.ts`：非浏览器单动作、业务目标选择、重叠范围、条件失效、迟到决策、异常恢复、弹层退出、输入抽样、原有安全阻塞以及 SDK/HTTP。
 
-[OKX 目标驱动实测](experiments/exploration-decisions-2026-10-15/README.md)另验证了待决期间继续其他工作、all/sample/defer/skip、金额样本、列表暂缓后自动重入，以及导航后的条件失效。实测发现并修复旧文档退出待办引发的多余返回；范围决策不提供未知退出方式的自动语义判断，跨文档的旧批准也不会复活。此结果不构成全页面或全列表穷尽证明。
+[OKX 目标驱动实测](experiments/exploration-decisions-2026-10-15/README.md)另验证了待决期间继续其他工作、all/sample/defer/skip、金额样本、列表暂缓后自动重入，以及导航后的条件失效。实测发现并修复旧文档退出待办引发的多余返回；范围决策不提供未知退出方式的自动语义判断，默认实例绑定的旧批准也不会复活。此结果不构成全页面或全列表穷尽证明。

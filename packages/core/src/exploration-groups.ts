@@ -33,7 +33,7 @@ export class ExplorationGroups {
       this.emit(o.sessionId, 'exploration.group_invalidated', { groupId: group.id, revision: group.revision, ...group.invalidation });
     };
     for (const g of known) if (g.status !== 'invalidated' && (g.kind !== 'similar-list' || g.conditions !== undefined)
-      && (g.instanceScope !== o.instanceScope || g.contextKey !== contextKey(o.context))) invalidate(g);
+      && (g.binding !== 'context' && g.instanceScope !== o.instanceScope || g.contextKey !== contextKey(o.context))) invalidate(g);
     const groups = new Map(known.filter(g => g.status !== 'invalidated').map(g => [g.key, g]));
     const references = new Map<string, NonNullable<FrontierItem['explorationGroups']>>();
     const requested: ExplorationGroup[] = [];
@@ -45,7 +45,7 @@ export class ExplorationGroups {
     };
     for (const proposal of proposals) {
       // Preserve persisted list keys; custom scopes also bind their declared conditions.
-      const key = hash({ proposal: proposal.key, scope: o.instanceScope, context: contextKey(o.context),
+      const key = hash({ proposal: proposal.key, scope: proposal.binding === 'context' ? 'context-bound' : o.instanceScope, context: contextKey(o.context),
         ...(proposal.kind !== 'similar-list' || proposal.conditions !== undefined ? { kind: proposal.kind, conditions: proposal.conditions } : {}) });
       // A generic scope is a decision under current conditions, never a reusable
       // approval for returning to old conditions. Legacy list decisions keep their contract.
@@ -58,9 +58,9 @@ export class ExplorationGroups {
       const traversal = proposal.traversalActionIds.filter(aid => byAction.get(aid)!.boundary?.intent !== 'exit');
       const members = new Map(memberActions.map(a => [keyOf(a), { key: keyOf(a), actionId: a.id, observationId: o.id, localId: a.localId, label: a.label, kind: a.kind, value: a.value, risk: a.risk, excluded: a.excluded }]));
       // A known virtual list remains known when filtering leaves one or zero members.
-      if (!group && (proposal.kind === 'similar-list' ? members.size < 2 : !members.size && !traversal.length)) continue;
+      if (!group && (proposal.kind === 'similar-list' ? members.size < 2 : proposal.binding !== 'context' && !members.size && !traversal.length)) continue;
       const created = !group;
-      group ??= { id: id(), sessionId: o.sessionId, key, proposalKey: proposal.key, kind: proposal.kind, label: proposal.label, conditions: proposal.conditions,
+      group ??= { id: id(), sessionId: o.sessionId, key, proposalKey: proposal.key, kind: proposal.kind, label: proposal.label, conditions: proposal.conditions, binding: proposal.binding,
         membership: 'observed-action-cases', instanceScope: o.instanceScope, contextKey: contextKey(o.context), observationId: o.id, revision: 1,
         status: 'pending', evidence: proposal.evidence, members: [], decisions: [] };
       const existing = new Map(group.members.map(m => [m.key, m]));
@@ -79,7 +79,7 @@ export class ExplorationGroups {
     // Omitting a previously declared scope is not approval of its still-observed
     // members. Producers must keep proposing it to enroll newly observed members.
     const byMember = new Map<string, { groupId: string; memberKey?: string }[]>();
-    for (const g of groups.values()) if (g.instanceScope === o.instanceScope && g.contextKey === contextKey(o.context)) {
+    for (const g of groups.values()) if ((g.binding === 'context' || g.instanceScope === o.instanceScope) && g.contextKey === contextKey(o.context)) {
       for (const m of g.members) { const owners = byMember.get(m.key) || []; owners.push({ groupId: g.id, memberKey: m.key }); byMember.set(m.key, owners); }
       for (const key of g.traversalKeys || []) { const owners = byMember.get(key) || []; owners.push({ groupId: g.id }); byMember.set(key, owners); }
     }

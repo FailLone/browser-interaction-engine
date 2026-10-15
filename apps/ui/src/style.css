@@ -13,3 +13,5 @@
 
 .coverage-summary { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 12px 16px; margin-bottom: 14px; border: 1px solid #dce4dc; border-radius: 10px; }
 .coverage-summary small { flex-basis: 100%; color: #738474; }
+
+.page-scope-panel{margin-top:18px}.page-scope-content{padding:0 16px 12px}.page-scope-panel .action-row{flex-wrap:wrap}.page-scope-panel .action-label small{overflow-wrap:anywhere}.page-scope-panel .panel-title{height:auto;min-height:51px;gap:12px;flex-wrap:wrap}

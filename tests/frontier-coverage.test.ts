@@ -7,7 +7,8 @@ import { act, fixtureServer, testEngine } from './helpers.js';
 
 it('exposes an untested input sample separately from successful work on the same control through SDK, HTTP, hooks and reports', async () => {
   const fixture = await fixtureServer(); let initialState = ''; const chosenUnits: string[] = [];
-  const t = await testEngine(fixture.url, { contextRules: [] }, { choose: items => {
+  // Force historical work to exercise recovery; entry-page scheduling has separate coverage.
+  const t = await testEngine(fixture.url, { contextRules: [], pageExploration: 'all' }, { choose: items => {
     const sample = items.find(f => f.stateId === initialState && f.action.label === 'Amount' && f.action.value === '0.001');
     if (sample) chosenUnits.push(sample.coverage.unit);
     return sample?.id ?? null;

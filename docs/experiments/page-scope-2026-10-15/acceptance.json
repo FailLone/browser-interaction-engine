@@ -1,0 +1,4181 @@
+{
+  "sessionId": "d4159405-5623-4533-9709-d810911b3241",
+  "date": "2026-10-15",
+  "baseCommit": "119b99a",
+  "databaseSha256": "5988499b7837f3af234846218d95e47e191827f4a6054ecd0d1c0c4216d74e16",
+  "sourceSha256": {
+    "packages/browser/src/index.ts": "5855df1f0d435694674c276c71a10a06b4a849dadf7997cc9bffdf6a56f6361f",
+    "packages/browser/src/page-exploration.ts": "3c74a7aeca82a82992600f2557b9e5eb287c5214840d1a022e034865ad64b6a0",
+    "packages/core/src/engine.ts": "ab05ddb71a58d2b66b6d702788b40c4dda1fd2525129bf8ced7e2f9c12706b0e",
+    "packages/core/src/exploration-groups.ts": "fa832f8ac157b0ff74453b50ded0e90f38f8ff34dfe4377373ad666741557294"
+  },
+  "phases": [
+    {
+      "name": "before-navigation",
+      "session": {
+        "id": "d4159405-5623-4533-9709-d810911b3241",
+        "options": {
+          "url": "https://www.okx.com/convert/btc-to-usd",
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "maxActions": 15,
+          "maxDepth": 30,
+          "maxDurationMs": 900000,
+          "actionTimeoutMs": 15000,
+          "settleMs": 300,
+          "observeTimeoutMs": 10000,
+          "evidence": {
+            "enabled": true,
+            "maxNodes": 5000,
+            "maxTextLength": 20000,
+            "maxHtmlLength": 2000000,
+            "maxDomCharacters": 4000000,
+            "maxAttributeLength": 4000,
+            "maxRuntimeEntries": 200,
+            "styles": "essential",
+            "accessibility": true,
+            "fullPageScreenshot": false
+          },
+          "evidenceRetention": {
+            "mode": "persistent",
+            "ttlMs": 0,
+            "maxBytes": 1073741824,
+            "maxObservations": 1000
+          },
+          "exclude": [],
+          "replayable": [],
+          "context": {},
+          "exploration": "controls",
+          "listExploration": "review",
+          "pageExploration": "review",
+          "decisionScopes": [
+            "region"
+          ],
+          "interfaceActions": [],
+          "reversible": [],
+          "environmentReset": "none",
+          "contextRules": []
+        },
+        "createdAt": "2026-10-15T03:20:19.088Z",
+        "status": "paused",
+        "actionCount": 1,
+        "elapsedMs": 1878,
+        "mode": "manual",
+        "dirty": false,
+        "currentObservationId": "d589c921-8a66-41bb-a448-7b3427c566fb"
+      },
+      "observation": {
+        "id": "d589c921-8a66-41bb-a448-7b3427c566fb",
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "instanceScope": "99528382-c387-4fc4-ab19-906347b4d541",
+        "stateId": "a00b642c-bb28-47d5-959c-336f93bac203",
+        "cause": "inspection",
+        "context": {},
+        "boundaries": [],
+        "gaps": [
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+          "currentIndex": 1,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/btc-to-usd",
+              "method": "GET"
+            }
+          ]
+        }
+      },
+      "pageExploration": {
+        "id": "d4159405-5623-4533-9709-d810911b3241:page-exploration",
+        "sessionId": "d4159405-5623-4533-9709-d810911b3241",
+        "rootUrl": "https://www.okx.com/convert/btc-to-usd",
+        "frames": [
+          {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "observationId": "d589c921-8a66-41bb-a448-7b3427c566fb"
+          }
+        ]
+      },
+      "pageGroups": [],
+      "destinationFrontier": []
+    },
+    {
+      "name": "after-return",
+      "session": {
+        "id": "d4159405-5623-4533-9709-d810911b3241",
+        "options": {
+          "url": "https://www.okx.com/convert/btc-to-usd",
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "maxActions": 15,
+          "maxDepth": 30,
+          "maxDurationMs": 900000,
+          "actionTimeoutMs": 15000,
+          "settleMs": 300,
+          "observeTimeoutMs": 10000,
+          "evidence": {
+            "enabled": true,
+            "maxNodes": 5000,
+            "maxTextLength": 20000,
+            "maxHtmlLength": 2000000,
+            "maxDomCharacters": 4000000,
+            "maxAttributeLength": 4000,
+            "maxRuntimeEntries": 200,
+            "styles": "essential",
+            "accessibility": true,
+            "fullPageScreenshot": false
+          },
+          "evidenceRetention": {
+            "mode": "persistent",
+            "ttlMs": 0,
+            "maxBytes": 1073741824,
+            "maxObservations": 1000
+          },
+          "exclude": [],
+          "replayable": [],
+          "context": {},
+          "exploration": "controls",
+          "listExploration": "review",
+          "pageExploration": "review",
+          "decisionScopes": [
+            "region"
+          ],
+          "interfaceActions": [],
+          "reversible": [],
+          "environmentReset": "none",
+          "contextRules": []
+        },
+        "createdAt": "2026-10-15T03:20:19.088Z",
+        "status": "paused",
+        "actionCount": 5,
+        "elapsedMs": 14709,
+        "mode": "dfs",
+        "dirty": false,
+        "currentObservationId": "2433c7c3-745c-4b63-959d-b45d0ed09a2f",
+        "stopReason": "PAGE_DECISION_REQUIRED"
+      },
+      "observation": {
+        "id": "2433c7c3-745c-4b63-959d-b45d0ed09a2f",
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "instanceScope": "7628c744-e9cf-4b7a-9aae-20d509f6fb8c",
+        "stateId": "3b4ae3af-abdb-4f2e-85d6-07ccf3b8231b",
+        "cause": "action",
+        "context": {},
+        "boundaries": [],
+        "gaps": [
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+          "currentIndex": 1,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/btc-to-usd",
+              "method": "GET"
+            },
+            {
+              "id": 6,
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            }
+          ]
+        }
+      },
+      "pageExploration": {
+        "id": "d4159405-5623-4533-9709-d810911b3241:page-exploration",
+        "sessionId": "d4159405-5623-4533-9709-d810911b3241",
+        "rootUrl": "https://www.okx.com/convert/btc-to-usd",
+        "frames": [
+          {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "observationId": "2433c7c3-745c-4b63-959d-b45d0ed09a2f"
+          }
+        ],
+        "lastReturn": {
+          "fromId": "43951d01-17dc-4994-bb96-04f444260009",
+          "targetId": "3d72a912-a9fb-4233-86e0-a43ab0af48e3",
+          "afterId": "f9fe5399-5b2d-40eb-93c2-b73bd1a55834",
+          "attemptId": "62508d67-a3af-499c-9de7-550843d4fd6b",
+          "status": "returned"
+        }
+      },
+      "pageGroups": [
+        {
+          "id": "4ad5fbdb-3637-4bde-acd9-214526804b55",
+          "sessionId": "d4159405-5623-4533-9709-d810911b3241",
+          "key": "f0877af4bf9167e4879d6d23275a962277a6427161c068306ab17ec7c2671346",
+          "proposalKey": "page:https://www.okx.com/convert/usd-to-btc",
+          "kind": "page",
+          "label": "USD to BTC | Convert US Dollar to Bitcoin | OKX",
+          "conditions": {
+            "url": "https://www.okx.com/convert/usd-to-btc"
+          },
+          "binding": "context",
+          "membership": "observed-action-cases",
+          "instanceScope": "ccef60ff-a21b-4554-896e-c0aaaa163196",
+          "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "observationId": "43951d01-17dc-4994-bb96-04f444260009",
+          "revision": 2,
+          "status": "pending",
+          "evidence": [
+            {
+              "source": "browser",
+              "rule": "observed-page-scope/v1",
+              "facts": {
+                "url": "https://www.okx.com/convert/usd-to-btc",
+                "observationId": "4bb23db7-7a63-44d4-9747-41fe4a986169",
+                "rootUrl": "https://www.okx.com/convert/btc-to-usd",
+                "meaning": "Permission to explore this exact page URL under the declared context; excludes other destinations and grants no purpose, identity or replay permission"
+              }
+            }
+          ],
+          "decisions": [],
+          "memberCount": 537,
+          "traversalCount": 4
+        }
+      ],
+      "destinationFrontier": [
+        {
+          "id": "a9230e35-8ff1-4178-ab5f-f71fb5f14f22",
+          "actionId": "6e0bc52e-169a-4f1c-aa18-5f77313312eb",
+          "label": "announced",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "1db1dfae-ddb0-4794-9742-bf7a56ea784b",
+          "actionId": "821d12f2-8717-4c01-8be1-1fccf3fe8ec1",
+          "label": "Don’t show for 7 days",
+          "kind": "check",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "1c5c5085-3fc3-4142-8f8e-7fad3c4b3270",
+          "actionId": "d665942e-232f-47bd-a585-873ae24e34f7",
+          "label": "Go to OKX Wallet",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "b3b14db2-4c06-4c6d-93b3-7449da0756dd",
+          "actionId": "44a82a84-6930-40a8-a72d-fbce02978052",
+          "label": "Skip to main content",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "d8408e7e-d527-429c-a943-58312c5b50c1",
+          "actionId": "b8670ca9-3174-4ec2-a32e-b96ab92b671c",
+          "label": "OKX logo, go to homepage",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "f8b03233-9e46-4bcb-b41d-aaa422fb2969",
+          "actionId": "310aa896-1ca4-4b93-8aa6-8b8b9a6415ea",
+          "label": "Markets",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "085767c2-1e18-4a2b-9e77-e200d8756ef2",
+          "actionId": "680f128b-1c14-4485-aa0d-08f8567cd347",
+          "label": "Trade",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "8448b7c5-4771-45b4-90d6-f40fd05661de",
+          "actionId": "c85be209-8fd5-41d7-b023-5b4737d142e7",
+          "label": "Institutional",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "34e684b5-e945-47a2-8eda-c23fc44e6c71",
+          "actionId": "09c0881f-5a57-4799-9033-d42f029308b5",
+          "label": "Learn",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "a564cbc2-977f-4945-ba5c-819a70de7bc1",
+          "actionId": "4696db70-b8a1-49f1-a43a-765054872a36",
+          "label": "More",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "782db757-1bfc-4368-925c-1f485ed3525d",
+          "actionId": "b99773d2-1e2b-4147-894b-4ba9395a1847",
+          "label": "Search crypto",
+          "kind": "fill",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "c35996c3-3d4d-4b06-8411-00f911c6bea7",
+          "actionId": "ddd8c7ea-822b-46d0-a9f8-13c89c6559b2",
+          "label": "Unnamed textbox",
+          "kind": "fill",
+          "status": "blocked",
+          "reason": "outside_scrollable_area",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "62cb25f9-6ee4-4371-a2ee-6b40f373e6bb",
+          "actionId": "cdb48a33-e02f-4c41-afe5-7719b323e2e9",
+          "label": "Log in",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "1fb1eb15-abeb-45d8-8e8b-91550174e474",
+          "actionId": "7fe36ed3-fb5c-4456-9d1c-0ec447a1abca",
+          "label": "Sign up",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "4f8f53cd-8110-4c41-9e91-ee8c4e29e51d",
+          "actionId": "55459300-5866-4d43-9f2c-68db64596ee2",
+          "label": "Download our app. Menu includes a QR code and other download options.",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7babeb73-161a-4b2c-a5cf-80a378900b84",
+          "actionId": "311fde26-3557-4564-bf5a-53c3e3d6afde",
+          "label": "Notifications and announcements",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "1996dc45-aa66-48c2-81df-9791224a52d3",
+          "actionId": "ac7b40ab-c8eb-4e25-8df0-1f2ec3e737a2",
+          "label": "Get help or follow our socials",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "9033d144-0607-4254-9017-f9dcd40714c1",
+          "actionId": "2b785ec2-687d-417a-8857-a41889ef84cf",
+          "label": "Change language or currency",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "b163995d-99e5-42dd-91af-ecd75adc2ac5",
+          "actionId": "42b51016-8664-42e3-a042-1c62ec0b2e91",
+          "label": "Home",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "8954906b-f7a3-4b64-a654-aa2ea2438b7b",
+          "actionId": "eb4d895a-2c9a-4876-9726-97b0ae21e9fb",
+          "label": "Calculator",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "e04ddf92-a59d-405e-b8b2-6e311df5afa8",
+          "actionId": "2bde965f-2b9c-455e-9bec-4a77887d9309",
+          "label": "Unnamed button",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "8d315546-3389-40d4-a413-e06920c08374",
+          "actionId": "677fbd06-2baa-42e3-9698-90cdb717de00",
+          "label": "Unnamed button",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "b2b15088-5903-4451-9f75-0a5def48ab45",
+          "actionId": "490a98ea-46d6-4985-b440-aab502bf103d",
+          "label": "Unnamed button",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "c30b0557-9bb5-40cf-a3f6-ac73672e9e81",
+          "actionId": "8b87d610-6639-4fc8-aa09-8348fc052a84",
+          "label": "Unnamed button",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "d163cf77-a235-465b-93c5-86ed0eca0e28",
+          "actionId": "a0bc90fb-b1ea-493f-9e40-4ca983384275",
+          "label": "Unnamed button",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "0ac2071d-de31-4577-84d1-8e3c9c2f075e",
+          "actionId": "0c281dcc-fd2d-49d9-b4a0-6cbed2d9e977",
+          "label": "1h",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "9fc57335-6ad0-4b47-a99f-eedabcb21f09",
+          "actionId": "cb52fd4a-a867-447b-a10e-c6dbd75ca67f",
+          "label": "24h",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "38ee0dfe-b43b-45a9-acbc-7b32d71d4f09",
+          "actionId": "a046b478-e3bd-4bbb-985f-07071afce895",
+          "label": "1W",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "f2c9ff2d-d016-4011-84a0-8e257b3b68d3",
+          "actionId": "b9a689e5-97e3-4736-965c-f7b843991b7b",
+          "label": "1M",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "e7b7574d-e0a3-4562-b7a3-181897b9a4c7",
+          "actionId": "3a9612eb-7c8c-4ce0-b0e5-862038162982",
+          "label": "1Y",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7938ec56-7d43-49d3-9b46-472965fae89e",
+          "actionId": "51a486f7-5914-480b-bc5c-22815f60f142",
+          "label": "2Y",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "ffe78a81-b2dd-48bf-be21-3cbb07c797b0",
+          "actionId": "9edab741-6a89-4276-b5dd-bbe37856c802",
+          "label": "Bitcoin (BTC) price",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "91a15c05-0d15-4c0f-986d-4661a82dcfb9",
+          "actionId": "bc56515a-47c7-4407-baed-75ee2b60629d",
+          "label": "0",
+          "kind": "fill",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "8bdd270b-6d65-4aae-8657-a9add0721f0f",
+          "actionId": "112ed243-0acb-4cab-abe0-a71fbe819de7",
+          "label": "Unnamed button",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "ba27f7b2-f21a-4cf0-9d80-0515672ea8c3",
+          "actionId": "82828f44-7a36-41d5-9aa9-63533711c4e4",
+          "label": "0",
+          "kind": "fill",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "93ac5d48-21b9-40c7-abdf-c74bcb0038f8",
+          "actionId": "608e7542-56d6-412d-8511-cfa10d2ef7bc",
+          "label": "Buy BTC with USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "18f376f3-d6c7-4577-967f-e662a77dddc0",
+          "actionId": "a4dda567-1931-45bc-adb8-33ee737bbc6e",
+          "label": "Learn more about BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "16660f93-e58d-42bd-b222-3c41829d848b",
+          "actionId": "513a2cba-7ca8-4999-9ca6-230ff2720796",
+          "label": "Read more",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "8d86bea4-fd68-41f3-9f7d-ddcc3da245e9",
+          "actionId": "334c86c2-0f99-493f-b384-de6384f295f0",
+          "label": "Read more",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7dd41336-2fbe-4e90-9d4e-888b3eafc61a",
+          "actionId": "a25b4122-bcdf-4eaa-b0a4-f30c736dc07a",
+          "label": "Read more",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "d0cf6744-3d21-4045-8376-267a787b7ffe",
+          "actionId": "c02fe099-058d-4cd0-adc3-f56c9724f384",
+          "label": "More about BTC to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7a074cc8-7f10-4980-bc63-7708d13edb84",
+          "actionId": "8aacd99b-a1b3-43c3-90ec-2e7c34cfab9e",
+          "label": "identity verification",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "642749fc-61fd-4a4b-9d04-bfcacd4ce33a",
+          "actionId": "59892457-ba3d-42ae-9d4f-b7df89982b65",
+          "label": "Buy BTC with USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "41f81b28-7e4d-46cd-a075-f15ba36442d3",
+          "actionId": "f4051c36-047e-4f09-a5ae-3c8dc5e129e1",
+          "label": "What is the exchange rate for USD to Bitcoin (BTC) today?",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "d2ffa0c5-1595-411a-8e09-a00c59b9299d",
+          "actionId": "cba11867-a2a7-470e-a246-079ccf74987c",
+          "label": "How many Bitcoin are there in total?",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "18e22dd6-0a53-4c2b-a5fd-d11bb46bbaec",
+          "actionId": "6f1a2c2c-4117-4eb2-a6f1-475ebe4c7a1b",
+          "label": "I just bought Bitcoin. How do I increase my profits after buying BTC?",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "d5106d27-0f17-408d-a9aa-37dd6c62a52b",
+          "actionId": "f8141a48-8c80-40aa-99c5-fd08ee320e71",
+          "label": "What is the recorded all-time high price of BTC compared to today's market price?",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "fc1a41af-d351-4573-b14a-cfa0839c077c",
+          "actionId": "730f5071-5e66-4635-a9e3-5bf4108eb518",
+          "label": "I have some questions about buying BTC. Who do I contact?",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "ab065204-3ef3-4eae-9628-d3530e6bc684",
+          "actionId": "21e87d1a-e594-4092-a9ae-5c0ca34c2b65",
+          "label": "Where can I find more information about Bitcoin (BTC)?",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "2e507274-d5d9-4b8f-b0cf-2d3cf5f4d887",
+          "actionId": "23751a87-dbf3-4c28-8358-f0141c1ecdac",
+          "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "587c7590-f9cd-4a15-b2a0-f53e2e0c23f6",
+          "actionId": "f8b32602-05be-49ff-a018-1c830d260d26",
+          "label": "How much is $1 worth of Bitcoin today?",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "0eead504-8ebb-4b81-9ad4-e1df13edb531",
+          "actionId": "9f4dc182-60ab-46f7-9de9-e846fd1f70f7",
+          "label": "How much is 1 Bitcoin worth in USD today?",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "a75a94aa-340d-4257-a300-3f8c7395df4d",
+          "actionId": "d5d47093-486b-49c8-84ba-3537cf29f1c3",
+          "label": "How can I convert BTC to USD using the crypto calculator?",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "c8037f20-cd14-41be-9a25-2dc1ab347278",
+          "actionId": "571b769d-579d-48f1-ad3d-0ce84893b6ec",
+          "label": "BTC to PKR",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "1cc02842-02da-4e4b-85d2-9320f6295871",
+          "actionId": "7a1b348b-c076-4d6d-9991-f79b639745e8",
+          "label": "BTC to PHP",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7c0abb22-809c-423f-b4ae-3afbd27a0def",
+          "actionId": "03636b63-4f4f-4dc2-bac5-7a9ef7763ef8",
+          "label": "BTC to CNY",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "651a3b97-2a86-4442-94b9-35a4bf9440fb",
+          "actionId": "5269f999-097e-4174-b104-ac051f62e8cb",
+          "label": "BTC to VND",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "1e8923fe-3620-48ed-b707-1ce75fe60b5e",
+          "actionId": "f03ad639-e909-484f-a13f-08b220d586c1",
+          "label": "BTC to EUR",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "b43fe0cf-7973-48d1-9a75-7b0976a3acb0",
+          "actionId": "04206414-7fa9-4c5e-8ae5-6e307a8dfaf9",
+          "label": "BTC to IDR",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "f6fa2710-bc5e-4e6b-b484-1cde4036885f",
+          "actionId": "fbc677f4-2d7e-4e47-b6d9-08c1a358a5f2",
+          "label": "BTC to UAH",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "ccf24a74-d4f5-48db-8de8-9e99d3f63783",
+          "actionId": "25908a2a-b343-4724-bc8e-0f1b84c4f9fc",
+          "label": "BTC to GBP",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "f16a899f-e11d-434d-8164-32a6058f94b3",
+          "actionId": "f9273cee-afc7-48ce-a5ca-d67bb496c23a",
+          "label": "BTC to MYR",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "c45b7a98-9d06-472d-a569-fa00935462e4",
+          "actionId": "d881f6e3-bc99-4be4-98d7-9178ce88e32f",
+          "label": "BTC to UGX",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "46108722-52f8-411a-85fe-0c24c79e76bd",
+          "actionId": "ed2e846f-201a-4a84-9e9d-bf55c9a6db90",
+          "label": "BTC to GTQ",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "4cd60308-8a81-45dc-99b6-77652b881748",
+          "actionId": "a6d30576-291e-4047-b417-7a945a3f0621",
+          "label": "BTC to CHF",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "d6cc644d-5e75-4f78-ba7a-3cfe79cdc708",
+          "actionId": "23f3d905-3cb3-485e-b416-4971fa592c1b",
+          "label": "BTC to TWD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "9541edcc-5e38-44b8-ae7f-bb73419ca226",
+          "actionId": "fbe23ee8-f099-447c-a62f-2cf185e8a8c9",
+          "label": "BTC to ZAR",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "90d2d0f7-4e38-4f0a-9baa-9eaf075cb203",
+          "actionId": "cb2a84ff-6d52-4412-874e-a43048d75a97",
+          "label": "BTC to MKD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "cd007f80-6143-4d1c-be46-22a3323ff28a",
+          "actionId": "d00b1691-c5c7-41a1-a635-49503e9ffe6e",
+          "label": "BTC to XAF",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "1e15310b-13d5-4beb-a1e2-fb83a4c5a19e",
+          "actionId": "5bfae8d4-354e-4b91-848d-689c78471835",
+          "label": "BTC to BWP",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "93902b13-6a40-4e0b-9685-f30ac272b455",
+          "actionId": "f57bfbcd-bf76-4eae-a369-d13089d974e7",
+          "label": "BTC to ALL",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "dbdfbdf9-e7cd-4a6b-987c-bd579c9700f5",
+          "actionId": "ee66c012-3f61-4c13-84d1-5095332d8167",
+          "label": "BTC to BDT",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "73ba7bd4-4d85-43e2-9628-8357e89e9c64",
+          "actionId": "bc0e6bac-df49-416c-a0ac-a3181d608eab",
+          "label": "USD to ETH",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "decf1036-c93f-4f8e-aa9a-f710d9332ffb",
+          "actionId": "a8ae54f6-52cf-4662-b6fe-20fdd9f1fb15",
+          "label": "USD to USDT",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "8e6a6b05-ad47-420c-bd07-b9acab71e54b",
+          "actionId": "1def3976-9c8f-48f2-aee9-08ac63d959d3",
+          "label": "USD to BNB",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "db7d82ec-0e71-48bd-9537-f764675c9b8a",
+          "actionId": "8496f25f-7542-4aa4-ad52-438d5a670268",
+          "label": "USD to XRP",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "17d3df3f-35d3-4320-b574-5c9f8ed2d2cf",
+          "actionId": "f35ae8c6-76f2-480c-9075-38813c97dd85",
+          "label": "USD to USDC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "16437a04-3d75-40cc-9f7f-cb6198ce8887",
+          "actionId": "a1427eb8-78ee-465c-96e9-75404b1eb920",
+          "label": "USD to SOL",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "d311f0b5-2bc4-4908-a99f-4359d3fc1ee9",
+          "actionId": "7d3ef8be-df77-4aa4-a1b7-24c0d1084ba1",
+          "label": "USD to TRX",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "0e686cf2-a779-4dfc-9788-f8e532379165",
+          "actionId": "af6de78a-4e05-4b08-9fc4-12e832227adb",
+          "label": "USD to WBTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "3d21a09d-5069-4c7d-998c-254b08d1d3c9",
+          "actionId": "f9846018-1572-47c3-ae7c-51b1cea09613",
+          "label": "USD to ZEC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "e870ce87-728e-4960-9780-30546d7b64e7",
+          "actionId": "2de8346e-d711-4c7b-97de-f8d60bec0028",
+          "label": "USD to AAPL",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "da2390d8-9f56-4568-8230-7b64ac8433b6",
+          "actionId": "a1cdeaef-a629-478a-969d-8d3d7566977a",
+          "label": "USD to ARM",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "49426809-773f-4aca-beac-853615441e1c",
+          "actionId": "a2d37f5c-6d8d-439c-bf02-a541affb6d5e",
+          "label": "USD to ORBS",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "63599aae-200f-4b0a-a401-9fb692b1933e",
+          "actionId": "ee0be95b-7c2b-4b61-a4b7-eb36d6e982df",
+          "label": "USD to SHLD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "f2241e55-614c-4507-8be9-585bf2cf1864",
+          "actionId": "50b1d647-0ca1-497e-8edc-96a6801be6ff",
+          "label": "USD to 2Z",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "c3351b88-be33-4420-aecb-5e0ede379b4e",
+          "actionId": "acf6bbeb-fa61-4115-b4d8-3bd7226ad6d6",
+          "label": "USD to PI",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "eebddea9-cc71-44fc-be3b-67c35e7ebcd0",
+          "actionId": "b11e0828-9dfa-4747-9863-73fb2f8c8a1c",
+          "label": "USD to xSPY",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "3da4079d-1ef4-4270-8303-df4f4294341f",
+          "actionId": "a26920f0-30c3-4137-93c9-c66e15d1bea0",
+          "label": "USD to OAS",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "aca4cea3-1c26-45a0-aa30-1a0856149242",
+          "actionId": "c792cb08-001d-45ef-84fb-662cdfe75fe5",
+          "label": "USD to IREN",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "56698028-5726-453e-b3b4-bb0c75e4c68a",
+          "actionId": "d6d0ae9e-d51b-406e-a8af-5ce4f0747815",
+          "label": "USD to TTMI",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "527197fc-94b6-405b-8ac4-108b3aea85d2",
+          "actionId": "23b2a466-647b-479c-8cff-ad9e7403b3c7",
+          "label": "ETH to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "6c6e4d62-c34e-4e6b-af31-e316554c7f13",
+          "actionId": "2f1cbb91-f0ee-4b98-828d-4d9d3f3d56f4",
+          "label": "USDT to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "867d2acb-9aa2-4b64-9364-50a3f44bb1ab",
+          "actionId": "27c60bb5-29ba-473e-a21b-223791e789f5",
+          "label": "BNB to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "77916ea7-2735-49fc-94fa-73a87fedce43",
+          "actionId": "d959c38f-f8f1-4dcb-a5c1-6a4f5671a785",
+          "label": "XRP to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "5552b107-b6cb-48e3-9a09-35dcfc160f4b",
+          "actionId": "f990e71d-4a41-44a7-af97-51d71060b14f",
+          "label": "USDC to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "e28225a8-5044-4e03-8696-cfb753a5051c",
+          "actionId": "ee3c17a2-a682-447c-a6b1-7697d9b3b515",
+          "label": "SOL to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "56e2afa4-30d0-4518-bc89-a551d120b6df",
+          "actionId": "ebb6559e-e0fb-4799-a2e4-c6d486ee2a50",
+          "label": "TRX to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "daefdd66-8b5e-4521-9603-f6e65c3e51e1",
+          "actionId": "61457ea5-2f4f-497e-ab75-8e63720437d7",
+          "label": "WBTC to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7c296a84-6e7f-4b95-bb15-c7ec5083fa55",
+          "actionId": "2ecff466-11d8-40e3-ab17-80d25752ac5c",
+          "label": "ZEC to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "77d8dc4e-179c-4043-b1c2-abb1224b8b4d",
+          "actionId": "dd9461df-385f-4a57-810d-1fef761f10f6",
+          "label": "AAPL to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "57162505-dea0-4a79-b2f2-c9f0339744e6",
+          "actionId": "3b0ecfd4-4091-4b79-98f7-6d5cee2fa7fa",
+          "label": "ARM to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "b62fc791-8c34-4a20-b342-7f3468378877",
+          "actionId": "082d2c43-a447-4a80-86e8-7188ee37a0b7",
+          "label": "ORBS to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "c679f625-4e83-439d-83dd-3633b9b1f050",
+          "actionId": "a13b31e9-be66-4119-ac18-45ea6a3b325a",
+          "label": "SHLD to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "4984bdae-240c-4076-b664-9eb7466e67ef",
+          "actionId": "cecfd896-f93b-43cc-a774-ea890f94852a",
+          "label": "2Z to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "60075cec-7fbb-450a-92f3-971eef3b594c",
+          "actionId": "09a5717c-cef3-4cd9-a298-2c33214c1c28",
+          "label": "PI to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "296d62bb-066d-43fa-abad-aa0bb5589d13",
+          "actionId": "020a914b-0982-4771-9ec1-096c821aef38",
+          "label": "xSPY to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "2696447e-9edf-492c-8c71-be7b1de6d55e",
+          "actionId": "d8c23600-b2e1-4310-8d72-93b56f308a69",
+          "label": "OAS to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "8291dc45-c9c2-4a57-adb8-1ed17791757d",
+          "actionId": "bcd49414-750f-4944-8e38-ff1a05733242",
+          "label": "IREN to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "018a4814-3d9f-40e5-a763-7e1f2c05393c",
+          "actionId": "26e0c303-f279-42ce-b5d9-5e86b2ff80ab",
+          "label": "TTMI to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "c2ffc8c4-ad35-4384-a0a7-64f71b82457e",
+          "actionId": "c4a2eafa-d96a-40e3-aaf4-bd9b4d6b0b7a",
+          "label": "Open this token’s ‘how to buy’ page in a new tab.",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "c1014a3c-eccf-4627-b228-7b965f7e018c",
+          "actionId": "1f0ce81c-ab4f-4ee1-97cb-b1e96e616f28",
+          "label": "View price",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "501a2662-dfee-4ecd-9642-f7abe2035357",
+          "actionId": "7ca723d9-9339-4915-8c01-052f45e4eb98",
+          "label": "Open this token’s ‘price prediction’ page in a new tab.",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "4de2dc3a-2dd9-4e16-a4c5-df774f7f82e2",
+          "actionId": "49e4c9de-f6e8-4c43-849f-ddd144932578",
+          "label": "Learn more about BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "486e0a9d-bb5f-487d-b44a-3d40ab988404",
+          "actionId": "5ce7454e-2eca-4941-8935-0f99173c4886",
+          "label": "Terms of Use",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "b7be056f-a660-4293-a7d9-d56d8af03fe2",
+          "actionId": "3002ff9f-7e6f-4e59-b444-9324a28fd13f",
+          "label": "Risk Warning",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7d58377a-936e-4d30-9e8b-be6fe8d4100c",
+          "actionId": "ae5dc4c9-57ca-4f3c-b4df-c7d1d65ff8b3",
+          "label": "Terms of Service",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "e715607a-9741-4720-8045-f60c82bb3eda",
+          "actionId": "6a0855a3-0a10-4945-b1f5-3e369319bafd",
+          "label": "Previous",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "8bb2e679-37e1-4402-b006-12bd2c494be6",
+          "actionId": "68addf92-e844-4871-9a2f-82527473e63b",
+          "label": "1 PKRto0.0₇4 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "e1649688-80d3-4cc4-a17e-8a1d51f494b6",
+          "actionId": "e67eb7ac-6bed-417b-a781-3ea1ceb56bfd",
+          "label": "1 PHPto0.0₆2 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "63104471-f855-45cf-bf7f-586b2b1b20bd",
+          "actionId": "2646d83c-0461-4f4c-ae23-0ed1a05f1862",
+          "label": "1 CNYto0.0₅184 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "08bdd910-bcb4-470c-8b27-133c9d57d6f9",
+          "actionId": "c236fe83-f644-4851-b6e0-db6c1b7a68eb",
+          "label": "1 VNDto0.0₉47558 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7477f47a-613a-45bd-a46a-9e211ae5423d",
+          "actionId": "4a5fbfa9-689d-4f96-ba3f-a3c0311384ee",
+          "label": "1 EURto0.0₄138 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7aeb5933-5697-4490-bd2a-ff2b7743235d",
+          "actionId": "a6a76dbe-71a5-4129-9d49-e80c9beeab97",
+          "label": "1 IDRto0.0₉6877 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "ae2c020a-04a9-44e4-badf-42d34c24a497",
+          "actionId": "1335fa4c-c7d6-4c86-ada8-ba7aefe933d0",
+          "label": "1 UAHto0.0₆27 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "e5e61993-775e-4c2c-9503-35353600cb7c",
+          "actionId": "581a7a2d-a4ba-4553-9452-16ee8f97cf2c",
+          "label": "1 GBPto0.0₄1629 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "fb07864c-8aff-4a48-a5d6-6aba1196e1c1",
+          "actionId": "2e7b2c4b-ddd4-40e8-b520-f2df30f1cc16",
+          "label": "1 MYRto0.0₅302 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "2bc6405f-6e2d-4539-9132-6d6f16425bf6",
+          "actionId": "a7821482-b926-49b6-93e1-8ca9bc183123",
+          "label": "1 UGXto0.0₈30208 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "b15bb81a-7706-4aff-8555-c2f36887eb2c",
+          "actionId": "3e5c87d5-18ac-45b2-abed-94d45ff8da50",
+          "label": "1 GTQto0.0₅161 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "0e3a2f7d-736e-4ab0-adc8-c8cb6bb69c82",
+          "actionId": "d782ade4-8b66-4131-9835-68606acabdf4",
+          "label": "1 CHFto0.0₄1484 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "be4a7276-bf63-4013-9c11-6e4030400dc6",
+          "actionId": "de7e46e7-7b5f-4fb1-b61d-bf487b4d323e",
+          "label": "1 TWDto0.0₆38 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "f55b6c12-594f-43f5-95a3-56752242336a",
+          "actionId": "52e6f99b-ccfe-46a6-be25-1fc6343c1169",
+          "label": "1 ZARto0.0₆74 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "481b0046-aa59-4752-bf3d-e918698cd770",
+          "actionId": "255759e0-29ad-4a00-9bfa-35c3f0f42cda",
+          "label": "1 MKDto0.0₆22 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "9096aae2-955b-4726-ad22-f2ec9ebfda08",
+          "actionId": "e3b5c248-1659-4e0f-9521-47f95412cf32",
+          "label": "1 XAFto0.0₇2 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "1c4b6dcb-d93d-44c4-8414-32e76752d028",
+          "actionId": "b7594ff7-725c-4730-9fdc-3d8c1c3bce97",
+          "label": "1 BWPto0.0₆88 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7405b5a9-12ce-417b-8b6f-c2611185dcc0",
+          "actionId": "5d3f72fb-f1da-43b5-a7dc-1f800077f18c",
+          "label": "1 ALLto0.0₆15 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "766aba35-cd85-4252-a4a3-bf039a138d86",
+          "actionId": "5dce1638-bd3a-403b-a932-c9ffe7c1f3ba",
+          "label": "1 BDTto0.0₆1 BTC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "5afbd500-4e41-4092-8c9d-1ae801dbaaf0",
+          "actionId": "e2d55a84-ccf3-413d-8721-8b722bff449c",
+          "label": "Next",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "operation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "5a6c67d0-26e3-4d00-a752-cc9b0c5b56cd",
+          "actionId": "3b16c99e-0be8-4fe1-9bd6-5210c9f4229b",
+          "label": "Selected language and currency: English/USD",
+          "kind": "click",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "27108dd4-4ebf-4bfc-8803-1726865a33be",
+          "actionId": "87b3852c-9e35-4c0e-8834-8894fccf8a13",
+          "label": "About us",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "31e74458-b7b9-40c0-a286-82d39fdf17e9",
+          "actionId": "d9f7a5f0-32c0-4bfd-8fef-a0c09db990ef",
+          "label": "Candidate Privacy Notice",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "f6329d45-cd72-4aea-bd87-dde3eaaaca80",
+          "actionId": "816c6e7d-e009-4d86-8341-11a5e92fc3fe",
+          "label": "Careers",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "68804bc0-2a1a-468b-9ea9-716d7f786ae8",
+          "actionId": "9166aad5-d931-48b6-9647-6174a09aa512",
+          "label": "Contact us",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "879c6e35-d64e-4ebb-8007-62cc4a12f454",
+          "actionId": "1d2587f5-16e8-40c7-8b32-db26a50921d4",
+          "label": "Terms of Service",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "4f25b6ef-310e-4166-879b-4986617cdcee",
+          "actionId": "010f4a3f-3fed-4fa1-a2af-bc25809db346",
+          "label": "Privacy Notice",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "1d444883-1efb-4dfd-b62a-1df8658fe2c0",
+          "actionId": "8e869c74-4d35-449b-95c1-b28c32eb9dd4",
+          "label": "Disclosures",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "8cbed085-768f-4c06-9544-a27644831599",
+          "actionId": "f0ade82f-d392-4615-9d13-b55e73296c44",
+          "label": "Whistleblower notice",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "8dc8cc57-782c-42b8-8bea-daad0eb8c62a",
+          "actionId": "571b160a-4645-490f-a341-6f144a3802ce",
+          "label": "Law enforcement",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "6d2eb6dc-1f84-4436-8a0d-09bffe20cfaf",
+          "actionId": "f3c83ef2-f522-4ab8-84cf-f097d6678074",
+          "label": "OKX app",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "63eb7ac0-ff51-4905-9be0-f66e07389383",
+          "actionId": "40e271d4-b83c-4d3f-b2f9-5fdddbe2dabe",
+          "label": "OKX TR",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "e4f2ec24-1827-4b8f-88a7-d3f5330215ea",
+          "actionId": "da3f9db9-b6de-4cff-801e-8189c05c7fed",
+          "label": "Buy crypto",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "aa186faa-f52a-48d2-96f0-b1e1341f092b",
+          "actionId": "12eb93f7-49eb-4b82-972c-33eada51698b",
+          "label": "Convert",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "c48db06c-69ff-4792-8943-f46c2a2afd9f",
+          "actionId": "447be285-b41e-4766-a5bb-5cd30e98397e",
+          "label": "Trade",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "bee9cd62-7f13-4ad5-9a2e-dc2f5f1f95af",
+          "actionId": "54b064f5-7398-4099-a85a-0f6650911ee0",
+          "label": "All cryptocurrencies",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "643a36dd-943b-4c90-bd33-c7a16b4dd7c8",
+          "actionId": "f658ea54-4cad-4c01-8519-6bae96875bb8",
+          "label": "Learn",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "8d3ee86d-48d9-46d2-a450-70a5d57c5219",
+          "actionId": "d6853180-9fa6-4c49-ab8c-c8297db8e650",
+          "label": "TradingView",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "8ed37476-a739-46cc-bdf6-1b0e62e1c40d",
+          "actionId": "f7223045-2d9b-4f58-a3ba-5fabbc8073c6",
+          "label": "X-RWA",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "9aa67274-7fdc-4540-be37-7015511705a3",
+          "actionId": "6b3cc757-bab4-407e-b392-946377bb5332",
+          "label": "Outcome markets",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7cc9079c-a5f7-473f-b72b-bc0b79684255",
+          "actionId": "6132c056-2a3c-4c3b-a447-1a99ad1fb671",
+          "label": "API",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "6cf6ca50-3295-4c29-b616-bea649b65a61",
+          "actionId": "a70dfca0-bfe8-49fb-bbe4-c98fe0f1ef8b",
+          "label": "Historical market data",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "f6572dbc-fce3-4a9a-8198-e10a9a206f63",
+          "actionId": "510b9e3a-e65c-4cf4-abc4-5d885fdb0290",
+          "label": "CEX fee schedule",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "88ff03f2-92a5-492a-a081-28d0e701b3d1",
+          "actionId": "9e4f8909-6136-4b81-9a04-dbcdbacd7f33",
+          "label": "Listing application",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "f82256e9-f621-4989-b970-3c8e1c6a65cb",
+          "actionId": "509ae59b-651f-47f5-a590-e174db72d7ba",
+          "label": "Support center",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "a4400fe4-a39e-40f1-a085-fd62d4de10f3",
+          "actionId": "e6f8f648-9a91-4d77-b861-27f081f33845",
+          "label": "Channel verification",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "d1c400f0-85eb-4646-acdf-013b0b295b1f",
+          "actionId": "7e509593-294f-4cc5-b45f-788aa998602d",
+          "label": "Announcements",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "c62b1e09-c0e9-4170-bdfb-433692c4f8c2",
+          "actionId": "56b15d67-bcef-4e09-a3bc-5e719daf2b8f",
+          "label": "Connect with OKX",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "fade1527-ae3e-4fc3-8af3-a6c39d995378",
+          "actionId": "aea0ad9b-3944-4cb4-ba06-0b605fb2e178",
+          "label": "BTC to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7274baed-adb1-4a06-b007-2d465e952960",
+          "actionId": "d0619d98-c6e9-47d8-84e4-8d491b0c399b",
+          "label": "ETH to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "3945b597-69e7-4f27-89d6-203629e974da",
+          "actionId": "db9061ca-38df-43e4-8658-d609633577be",
+          "label": "USDT to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "2896d69a-4dc9-4997-81bb-31649a1630e7",
+          "actionId": "e703b076-8b0c-4b3d-8c4e-64154cc3b014",
+          "label": "SOL to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "eecddb5d-09ff-43bc-beae-206f034663e7",
+          "actionId": "c3055d38-5ce5-4a69-b771-7b1d627601fc",
+          "label": "XRP to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "940b3ce8-097a-4a5f-8e33-ee63f2c7a7d6",
+          "actionId": "c4dd8e77-d5e2-4aa1-8c99-c4fa9b6734f8",
+          "label": "PI to USD",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7ba3e9d0-8ea3-4cfd-8469-f8568f7301cc",
+          "actionId": "4a86389c-a46d-4cac-9989-d9d6ff41da8a",
+          "label": "BTC USDC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "8af6fac7-200f-4d3f-a542-ba4cc91cde34",
+          "actionId": "e6f29797-bdbf-4d22-b48d-6f27b55c8c40",
+          "label": "ETH USDC",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "9ef3e2ae-d406-4b9f-bcac-be5934ac2523",
+          "actionId": "9e16e627-c32a-4a2a-b1e8-59745c7c9c2a",
+          "label": "BTC USDT",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "a0364d11-75e9-4d77-bbb8-b753fdbd10e4",
+          "actionId": "6850f7d0-5dda-4042-b354-c4d610968067",
+          "label": "ETH USDT",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7bb5d191-2a0c-4a7d-ab47-6654c06a4caa",
+          "actionId": "2aa71c9c-1aa9-43c8-b870-b872b7ab7c1f",
+          "label": "PI USDT",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "01eb8ef0-0212-4a80-a863-00e7bdd41140",
+          "actionId": "ecf3c9ec-be1d-4cc1-9bf9-150a60c2263b",
+          "label": "SOL USDT",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "10b73c46-66cb-46ef-b87f-dc5589221963",
+          "actionId": "5a3d2f49-1d26-49b4-a81d-7557680cc40a",
+          "label": "XRP USDT",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "64881de3-411f-482b-ac3e-a2b762e4d7f2",
+          "actionId": "fbb5db8a-af3d-4f60-82db-56b3e3ab5123",
+          "label": "Bitcoin price",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "40ff61d3-8e01-4d86-9aeb-99a54b2bb8be",
+          "actionId": "a968a70e-bbf8-45c2-95e3-7e52bb2c001d",
+          "label": "Ethereum price",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "ee05cb7c-52f0-4aaf-a6de-5973405b72cb",
+          "actionId": "6223e0de-b51e-412e-bf1e-30c6ca8f60f7",
+          "label": "Pi Network price",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "f9ad4518-4d0c-434b-8506-785545c50321",
+          "actionId": "45efd840-d7f8-41c1-98a1-75b0972967b3",
+          "label": "Solana price",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "15161be5-a44b-4080-b25f-1ebc47f24155",
+          "actionId": "92a2498e-5bab-4d32-a4ca-0ccd5133ee23",
+          "label": "XRP price",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "bd82d35a-933c-4939-9af7-7995354c2fa7",
+          "actionId": "89cc91af-ae5e-4af9-a14b-f46fc978cdc0",
+          "label": "Bitcoin price prediction",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "39dbbecb-3f1f-4c0b-9fc1-5b16441fb546",
+          "actionId": "8d7a312e-4055-4474-a549-f3fd68648020",
+          "label": "Ethereum price prediction",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "f4cfdb57-fa1b-4f46-beab-efee230de00c",
+          "actionId": "3c27c3cb-37b2-4733-b5c4-e1d91d006249",
+          "label": "XRP price prediction",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "1d8b5cc3-07d3-46a7-aa20-8fecd0cfb3c0",
+          "actionId": "dab16b6f-6c1c-4724-aece-117b25591066",
+          "label": "Pi Network price prediction",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "148242b7-47bf-406f-8c28-03a84223557c",
+          "actionId": "e6444307-fe93-472b-8ccb-5b9a337590f6",
+          "label": "How to buy crypto",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "0fe9a4ae-36ff-4283-9227-f71dd32bb85f",
+          "actionId": "7bc7c7b6-b489-4f3d-a207-c5a2baf39f39",
+          "label": "How to buy Bitcoin",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "f1970d09-36c4-447a-8d77-f8e9dc4ab4fc",
+          "actionId": "69fe9f0d-7d37-4406-9f91-63e79fcfa86b",
+          "label": "How to buy Ethereum",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "1c619716-0534-4dd9-bc99-aa8707f1b03d",
+          "actionId": "a80c0694-475c-48c2-8006-6fbc557aa319",
+          "label": "How to buy Solana",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "13000d63-b0f5-450f-adf1-e2d126779796",
+          "actionId": "0b7e0e6b-7330-4e9a-8c9c-b3641d3779a8",
+          "label": "How to buy Pi Network",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "83452031-1967-4498-8a80-06ac5c581e4b",
+          "actionId": "b044a853-7bc6-4ded-964a-b00143a4462d",
+          "label": "Register",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "577b27b4-4113-48e7-8300-982ff844c22f",
+          "actionId": "dd9286ef-0b08-459c-a7e6-08a73f713120",
+          "label": "X",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "835c9a54-45f5-4e27-8563-00ea42a85b41",
+          "actionId": "52ff48de-838b-4553-9ba2-d93fbaa6b878",
+          "label": "TikTok",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "6d830cb9-357d-4ed9-b096-26458a94f6cb",
+          "actionId": "3467ce88-a1b1-4cdc-a5ea-9a251d5ba27f",
+          "label": "Instagram",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "28a9a183-f826-44e8-b43b-93529c5b95ed",
+          "actionId": "591b8909-f9c6-4dd6-9fbb-a7fab2b108ca",
+          "label": "Discord",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "85725046-f5c2-4802-89c4-e387e6a8f87d",
+          "actionId": "84f87081-0f61-4216-84ca-dc01cdf07d71",
+          "label": "Telegram",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "169f36aa-dbb5-42fa-8af0-5cd65c7f0ff6",
+          "actionId": "f52b8f5c-8ffa-4a78-986b-895876ad799a",
+          "label": "Facebook",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "c64a2a01-f2dc-4a34-829a-ab21029691d7",
+          "actionId": "ce86da13-0b83-4e84-9cb1-63d01c34e713",
+          "label": "TradingView",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7573a6e3-2005-4666-970f-2cac9689d11e",
+          "actionId": "ab3b1818-9254-4838-89e4-6b22cf8a3b85",
+          "label": "Linkedin",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "7cbe78db-db38-455a-945c-63dc1736734b",
+          "actionId": "ef7be06e-fc27-451e-b4f5-d2dff0a30bdd",
+          "label": "OKX community page and socials",
+          "kind": "click",
+          "status": "blocked",
+          "reason": "navigation_requires_review",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "2b2d9f79-0dee-4d82-8364-4a42d4738ab5",
+          "actionId": "db7d1b47-1d93-41e8-958d-99e6dfd25008",
+          "label": "Scrollable generic",
+          "kind": "scroll",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        },
+        {
+          "id": "5ddd72aa-47ef-4cdf-8eb1-c8f072a52161",
+          "actionId": "09204aa6-118f-4c14-85c3-a8d03c816664",
+          "label": "Scroll page",
+          "kind": "scroll",
+          "status": "superseded",
+          "reason": "exploration_scope_invalidated",
+          "coverage": {
+            "executionStatus": "not_attempted"
+          },
+          "attempts": []
+        }
+      ]
+    },
+    {
+      "name": "after-defer",
+      "session": {
+        "id": "d4159405-5623-4533-9709-d810911b3241",
+        "options": {
+          "url": "https://www.okx.com/convert/btc-to-usd",
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "maxActions": 15,
+          "maxDepth": 30,
+          "maxDurationMs": 900000,
+          "actionTimeoutMs": 15000,
+          "settleMs": 300,
+          "observeTimeoutMs": 10000,
+          "evidence": {
+            "enabled": true,
+            "maxNodes": 5000,
+            "maxTextLength": 20000,
+            "maxHtmlLength": 2000000,
+            "maxDomCharacters": 4000000,
+            "maxAttributeLength": 4000,
+            "maxRuntimeEntries": 200,
+            "styles": "essential",
+            "accessibility": true,
+            "fullPageScreenshot": false
+          },
+          "evidenceRetention": {
+            "mode": "persistent",
+            "ttlMs": 0,
+            "maxBytes": 1073741824,
+            "maxObservations": 1000
+          },
+          "exclude": [],
+          "replayable": [],
+          "context": {},
+          "exploration": "controls",
+          "listExploration": "review",
+          "pageExploration": "review",
+          "decisionScopes": [
+            "region"
+          ],
+          "interfaceActions": [],
+          "reversible": [],
+          "environmentReset": "none",
+          "contextRules": []
+        },
+        "createdAt": "2026-10-15T03:20:19.088Z",
+        "status": "paused",
+        "actionCount": 5,
+        "elapsedMs": 14721,
+        "mode": "dfs",
+        "dirty": false,
+        "currentObservationId": "2433c7c3-745c-4b63-959d-b45d0ed09a2f",
+        "stopReason": "PAGE_DECISION_REQUIRED"
+      },
+      "observation": {
+        "id": "2433c7c3-745c-4b63-959d-b45d0ed09a2f",
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "instanceScope": "7628c744-e9cf-4b7a-9aae-20d509f6fb8c",
+        "stateId": "3b4ae3af-abdb-4f2e-85d6-07ccf3b8231b",
+        "cause": "action",
+        "context": {},
+        "boundaries": [],
+        "gaps": [
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+          "currentIndex": 1,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/btc-to-usd",
+              "method": "GET"
+            },
+            {
+              "id": 6,
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            }
+          ]
+        }
+      },
+      "pageExploration": {
+        "id": "d4159405-5623-4533-9709-d810911b3241:page-exploration",
+        "sessionId": "d4159405-5623-4533-9709-d810911b3241",
+        "rootUrl": "https://www.okx.com/convert/btc-to-usd",
+        "frames": [
+          {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "observationId": "2433c7c3-745c-4b63-959d-b45d0ed09a2f"
+          }
+        ],
+        "lastReturn": {
+          "fromId": "43951d01-17dc-4994-bb96-04f444260009",
+          "targetId": "3d72a912-a9fb-4233-86e0-a43ab0af48e3",
+          "afterId": "f9fe5399-5b2d-40eb-93c2-b73bd1a55834",
+          "attemptId": "62508d67-a3af-499c-9de7-550843d4fd6b",
+          "status": "returned"
+        }
+      },
+      "pageGroups": [
+        {
+          "id": "4ad5fbdb-3637-4bde-acd9-214526804b55",
+          "sessionId": "d4159405-5623-4533-9709-d810911b3241",
+          "key": "f0877af4bf9167e4879d6d23275a962277a6427161c068306ab17ec7c2671346",
+          "proposalKey": "page:https://www.okx.com/convert/usd-to-btc",
+          "kind": "page",
+          "label": "USD to BTC | Convert US Dollar to Bitcoin | OKX",
+          "conditions": {
+            "url": "https://www.okx.com/convert/usd-to-btc"
+          },
+          "binding": "context",
+          "membership": "observed-action-cases",
+          "instanceScope": "ccef60ff-a21b-4554-896e-c0aaaa163196",
+          "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "observationId": "43951d01-17dc-4994-bb96-04f444260009",
+          "revision": 3,
+          "status": "decided",
+          "evidence": [
+            {
+              "source": "browser",
+              "rule": "observed-page-scope/v1",
+              "facts": {
+                "url": "https://www.okx.com/convert/usd-to-btc",
+                "observationId": "4bb23db7-7a63-44d4-9747-41fe4a986169",
+                "rootUrl": "https://www.okx.com/convert/btc-to-usd",
+                "meaning": "Permission to explore this exact page URL under the declared context; excludes other destinations and grants no purpose, identity or replay permission"
+              }
+            }
+          ],
+          "decisions": [
+            {
+              "revision": 2,
+              "at": "2026-10-15T03:21:13.691Z",
+              "decision": {
+                "source": "page-scope-acceptance",
+                "evidence": [
+                  "The test target remains BTC/USD; inverse converter exploration is deferred"
+                ],
+                "mode": "defer"
+              }
+            }
+          ],
+          "memberCount": 537,
+          "traversalCount": 4
+        }
+      ],
+      "destinationFrontier": []
+    }
+  ],
+  "attempts": [
+    {
+      "id": "1d507934-9cdf-4421-8f29-ab764b020e16",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "17a60513-5334-4aee-ba28-e71944dd8a40",
+      "afterId": "8c5e452b-9415-4896-b7fc-1facdea31851",
+      "action": {
+        "id": "12bfd867-3666-4eee-a00c-bc1cfb30606f",
+        "sessionId": "d4159405-5623-4533-9709-d810911b3241",
+        "observationId": "17a60513-5334-4aee-ba28-e71944dd8a40",
+        "stateId": "b0407f7a-a23f-45ec-aa02-34aa80a5680a",
+        "controlId": "a3f8d841-0117-44b4-8c53-b0f9821a89f7",
+        "localId": "99528382-c387-4fc4-ab19-906347b4d541:418",
+        "kind": "click",
+        "label": "Close",
+        "preconditions": {
+          "context": {},
+          "visible": true,
+          "enabled": true,
+          "identityResolved": false,
+          "blockers": [],
+          "targetResolved": true
+        },
+        "basis": {
+          "status": "supported",
+          "evidence": [
+            {
+              "source": "html",
+              "rule": "native-button/v1",
+              "facts": {
+                "tag": "button",
+                "type": "button",
+                "submitsForm": false
+              }
+            }
+          ]
+        },
+        "replayable": false,
+        "risk": "interface",
+        "source": "dom-actions-v2",
+        "excluded": false,
+        "sampleValidity": "known",
+        "target": {
+          "kind": "instance",
+          "instanceScope": "99528382-c387-4fc4-ab19-906347b4d541",
+          "instanceId": "99528382-c387-4fc4-ab19-906347b4d541:418",
+          "evidence": [
+            "Unique current node instance; historical logical identity remains unresolved",
+            "observation:17a60513-5334-4aee-ba28-e71944dd8a40"
+          ]
+        },
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "before": {
+        "id": "17a60513-5334-4aee-ba28-e71944dd8a40",
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "instanceScope": "99528382-c387-4fc4-ab19-906347b4d541",
+        "stateId": "b0407f7a-a23f-45ec-aa02-34aa80a5680a",
+        "cause": "inspection",
+        "context": {},
+        "boundaries": [
+          {
+            "key": "dialog:okd-dialog-window",
+            "name": "dialog",
+            "region": "document",
+            "evidence": [
+              "aria-modal"
+            ]
+          }
+        ],
+        "gaps": [
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+          "currentIndex": 1,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/btc-to-usd",
+              "method": "GET"
+            }
+          ]
+        }
+      },
+      "after": {
+        "id": "8c5e452b-9415-4896-b7fc-1facdea31851",
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "instanceScope": "99528382-c387-4fc4-ab19-906347b4d541",
+        "stateId": "a00b642c-bb28-47d5-959c-336f93bac203",
+        "cause": "action",
+        "context": {},
+        "boundaries": [],
+        "gaps": [
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+          "currentIndex": 1,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/btc-to-usd",
+              "method": "GET"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "c738fa3f-8d7e-4960-8459-be18af8379e9",
+      "status": "succeeded",
+      "purpose": "exploration",
+      "beforeId": "3d72a912-a9fb-4233-86e0-a43ab0af48e3",
+      "afterId": "4bb23db7-7a63-44d4-9747-41fe4a986169",
+      "action": {
+        "id": "cc71751f-0131-4fca-b9dd-b48da1c29167",
+        "sessionId": "d4159405-5623-4533-9709-d810911b3241",
+        "observationId": "3d72a912-a9fb-4233-86e0-a43ab0af48e3",
+        "stateId": "a00b642c-bb28-47d5-959c-336f93bac203",
+        "controlId": "30f275e0-a573-4292-af3f-b29a049c48cb",
+        "localId": "99528382-c387-4fc4-ab19-906347b4d541:71",
+        "kind": "click",
+        "label": "More about USD to BTC",
+        "preconditions": {
+          "context": {},
+          "visible": true,
+          "enabled": true,
+          "identityResolved": false,
+          "blockers": [],
+          "targetResolved": true
+        },
+        "basis": {
+          "status": "supported",
+          "evidence": [
+            {
+              "source": "html",
+              "rule": "hyperlink/v1",
+              "facts": {
+                "tag": "a",
+                "href": "/convert/usd-to-btc"
+              }
+            },
+            {
+              "source": "reviewer",
+              "rule": "sourced-control-review/v1",
+              "facts": {
+                "reviewId": "aeb1f7e7-8b6e-4f7c-adfe-0d155b1c3da6",
+                "reason": "Open the public inverse conversion information page to verify page-scope gating",
+                "evidence": [
+                  "Observed native anchor href /convert/usd-to-btc in the BTC/USD converter; no form submission or account action"
+                ]
+              }
+            }
+          ]
+        },
+        "replayable": false,
+        "risk": "interface",
+        "source": "external-review",
+        "excluded": false,
+        "sampleValidity": "known",
+        "target": {
+          "kind": "instance",
+          "instanceScope": "99528382-c387-4fc4-ab19-906347b4d541",
+          "instanceId": "99528382-c387-4fc4-ab19-906347b4d541:71",
+          "evidence": [
+            "Unique current node instance; historical logical identity remains unresolved",
+            "observation:3d72a912-a9fb-4233-86e0-a43ab0af48e3"
+          ]
+        }
+      },
+      "before": {
+        "id": "3d72a912-a9fb-4233-86e0-a43ab0af48e3",
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "instanceScope": "99528382-c387-4fc4-ab19-906347b4d541",
+        "stateId": "a00b642c-bb28-47d5-959c-336f93bac203",
+        "cause": "inspection",
+        "context": {},
+        "boundaries": [],
+        "gaps": [
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+          "currentIndex": 1,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/btc-to-usd",
+              "method": "GET"
+            }
+          ]
+        }
+      },
+      "after": {
+        "id": "4bb23db7-7a63-44d4-9747-41fe4a986169",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "instanceScope": "ccef60ff-a21b-4554-896e-c0aaaa163196",
+        "stateId": "70efc8f3-3e48-48bd-890a-9119bf62f3ee",
+        "cause": "action",
+        "context": {},
+        "boundaries": [
+          {
+            "key": "dialog:okd-dialog-window",
+            "name": "dialog",
+            "region": "document",
+            "evidence": [
+              "aria-modal"
+            ]
+          }
+        ],
+        "gaps": [
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+          "currentIndex": 2,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/btc-to-usd",
+              "method": "GET"
+            },
+            {
+              "id": 6,
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "d4bf5b3a-6d15-49c9-9139-1f7a6b8a6037",
+      "status": "succeeded",
+      "purpose": "exploration",
+      "beforeId": "4bb23db7-7a63-44d4-9747-41fe4a986169",
+      "afterId": "43951d01-17dc-4994-bb96-04f444260009",
+      "action": {
+        "id": "bfa54f08-ef4e-4fa2-a98f-404d6e638c59",
+        "sessionId": "d4159405-5623-4533-9709-d810911b3241",
+        "observationId": "4bb23db7-7a63-44d4-9747-41fe4a986169",
+        "stateId": "70efc8f3-3e48-48bd-890a-9119bf62f3ee",
+        "controlId": "6ceaaa66-12d6-4440-95a3-654fe4337a1c",
+        "localId": "ccef60ff-a21b-4554-896e-c0aaaa163196:496",
+        "kind": "click",
+        "label": "Close",
+        "preconditions": {
+          "context": {},
+          "visible": true,
+          "enabled": true,
+          "identityResolved": false,
+          "blockers": [],
+          "targetResolved": true
+        },
+        "basis": {
+          "status": "supported",
+          "evidence": [
+            {
+              "source": "html",
+              "rule": "native-button/v1",
+              "facts": {
+                "tag": "button",
+                "type": "button",
+                "submitsForm": false
+              }
+            }
+          ]
+        },
+        "replayable": false,
+        "risk": "interface",
+        "source": "dom-actions-v2",
+        "excluded": false,
+        "sampleValidity": "known",
+        "target": {
+          "kind": "instance",
+          "instanceScope": "ccef60ff-a21b-4554-896e-c0aaaa163196",
+          "instanceId": "ccef60ff-a21b-4554-896e-c0aaaa163196:496",
+          "evidence": [
+            "Unique current node instance; historical logical identity remains unresolved",
+            "observation:4bb23db7-7a63-44d4-9747-41fe4a986169"
+          ]
+        },
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "before": {
+        "id": "4bb23db7-7a63-44d4-9747-41fe4a986169",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "instanceScope": "ccef60ff-a21b-4554-896e-c0aaaa163196",
+        "stateId": "70efc8f3-3e48-48bd-890a-9119bf62f3ee",
+        "cause": "action",
+        "context": {},
+        "boundaries": [
+          {
+            "key": "dialog:okd-dialog-window",
+            "name": "dialog",
+            "region": "document",
+            "evidence": [
+              "aria-modal"
+            ]
+          }
+        ],
+        "gaps": [
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+          "currentIndex": 2,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/btc-to-usd",
+              "method": "GET"
+            },
+            {
+              "id": 6,
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            }
+          ]
+        }
+      },
+      "after": {
+        "id": "43951d01-17dc-4994-bb96-04f444260009",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "instanceScope": "ccef60ff-a21b-4554-896e-c0aaaa163196",
+        "stateId": "9e7360f0-8118-4629-ad0d-4e9cda2a0573",
+        "cause": "action",
+        "context": {},
+        "boundaries": [],
+        "gaps": [
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+          "currentIndex": 2,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/btc-to-usd",
+              "method": "GET"
+            },
+            {
+              "id": 6,
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "62508d67-a3af-499c-9de7-550843d4fd6b",
+      "status": "succeeded",
+      "purpose": "recovery",
+      "beforeId": "43951d01-17dc-4994-bb96-04f444260009",
+      "afterId": "f9fe5399-5b2d-40eb-93c2-b73bd1a55834",
+      "action": {
+        "id": "1857a58b-b414-42d3-95b5-28ba0a8fe909",
+        "sessionId": "d4159405-5623-4533-9709-d810911b3241",
+        "observationId": "43951d01-17dc-4994-bb96-04f444260009",
+        "stateId": "9e7360f0-8118-4629-ad0d-4e9cda2a0573",
+        "kind": "history",
+        "value": 4,
+        "label": "Return to observed page",
+        "source": "browser-history-return",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "sampleValidity": "known",
+        "preconditions": {
+          "context": {},
+          "visible": true,
+          "enabled": true,
+          "identityResolved": true,
+          "blockers": [],
+          "targetResolved": true
+        },
+        "basis": {
+          "status": "supported",
+          "evidence": [
+            {
+              "source": "adapter-playwright",
+              "rule": "browser-history-return/v1",
+              "facts": {
+                "observationId": "43951d01-17dc-4994-bb96-04f444260009",
+                "targetObservationId": "3d72a912-a9fb-4233-86e0-a43ab0af48e3",
+                "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+                "fromEntryId": 6,
+                "fromUrl": "https://www.okx.com/convert/usd-to-btc",
+                "toEntryId": 4,
+                "toUrl": "https://www.okx.com/convert/btc-to-usd",
+                "method": "GET"
+              }
+            }
+          ]
+        }
+      },
+      "before": {
+        "id": "43951d01-17dc-4994-bb96-04f444260009",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "instanceScope": "ccef60ff-a21b-4554-896e-c0aaaa163196",
+        "stateId": "9e7360f0-8118-4629-ad0d-4e9cda2a0573",
+        "cause": "action",
+        "context": {},
+        "boundaries": [],
+        "gaps": [
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+          "currentIndex": 2,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/btc-to-usd",
+              "method": "GET"
+            },
+            {
+              "id": 6,
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            }
+          ]
+        }
+      },
+      "after": {
+        "id": "f9fe5399-5b2d-40eb-93c2-b73bd1a55834",
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "instanceScope": "7628c744-e9cf-4b7a-9aae-20d509f6fb8c",
+        "stateId": "64527f70-9bd0-4066-92b2-959a6a83a416",
+        "cause": "recovery",
+        "context": {},
+        "boundaries": [
+          {
+            "key": "dialog:okd-dialog-window",
+            "name": "dialog",
+            "region": "document",
+            "evidence": [
+              "aria-modal"
+            ]
+          }
+        ],
+        "gaps": [
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+          "currentIndex": 1,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/btc-to-usd",
+              "method": "GET"
+            },
+            {
+              "id": 6,
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "414173eb-c982-45c4-9184-03b938ad5eb1",
+      "status": "succeeded",
+      "purpose": "exploration",
+      "beforeId": "f9fe5399-5b2d-40eb-93c2-b73bd1a55834",
+      "afterId": "2433c7c3-745c-4b63-959d-b45d0ed09a2f",
+      "action": {
+        "id": "02aeb7b2-4876-42d9-8199-6e0192936216",
+        "sessionId": "d4159405-5623-4533-9709-d810911b3241",
+        "observationId": "f9fe5399-5b2d-40eb-93c2-b73bd1a55834",
+        "stateId": "64527f70-9bd0-4066-92b2-959a6a83a416",
+        "controlId": "f55c5795-78f7-4b70-aef2-ef4af66a357f",
+        "localId": "7628c744-e9cf-4b7a-9aae-20d509f6fb8c:426",
+        "kind": "click",
+        "label": "Close",
+        "preconditions": {
+          "context": {},
+          "visible": true,
+          "enabled": true,
+          "identityResolved": false,
+          "blockers": [],
+          "targetResolved": true
+        },
+        "basis": {
+          "status": "supported",
+          "evidence": [
+            {
+              "source": "html",
+              "rule": "native-button/v1",
+              "facts": {
+                "tag": "button",
+                "type": "button",
+                "submitsForm": false
+              }
+            }
+          ]
+        },
+        "replayable": false,
+        "risk": "interface",
+        "source": "dom-actions-v2",
+        "excluded": false,
+        "sampleValidity": "known",
+        "target": {
+          "kind": "instance",
+          "instanceScope": "7628c744-e9cf-4b7a-9aae-20d509f6fb8c",
+          "instanceId": "7628c744-e9cf-4b7a-9aae-20d509f6fb8c:426",
+          "evidence": [
+            "Unique current node instance; historical logical identity remains unresolved",
+            "observation:f9fe5399-5b2d-40eb-93c2-b73bd1a55834"
+          ]
+        },
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "before": {
+        "id": "f9fe5399-5b2d-40eb-93c2-b73bd1a55834",
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "instanceScope": "7628c744-e9cf-4b7a-9aae-20d509f6fb8c",
+        "stateId": "64527f70-9bd0-4066-92b2-959a6a83a416",
+        "cause": "recovery",
+        "context": {},
+        "boundaries": [
+          {
+            "key": "dialog:okd-dialog-window",
+            "name": "dialog",
+            "region": "document",
+            "evidence": [
+              "aria-modal"
+            ]
+          }
+        ],
+        "gaps": [
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+          "currentIndex": 1,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/btc-to-usd",
+              "method": "GET"
+            },
+            {
+              "id": 6,
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            }
+          ]
+        }
+      },
+      "after": {
+        "id": "2433c7c3-745c-4b63-959d-b45d0ed09a2f",
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "instanceScope": "7628c744-e9cf-4b7a-9aae-20d509f6fb8c",
+        "stateId": "3b4ae3af-abdb-4f2e-85d6-07ccf3b8231b",
+        "cause": "action",
+        "context": {},
+        "boundaries": [],
+        "gaps": [
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "4d8d2b18-47b3-4120-8b8b-7a9882762fa2",
+          "currentIndex": 1,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/btc-to-usd",
+              "method": "GET"
+            },
+            {
+              "id": 6,
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "recoveries": [],
+  "events": [
+    {
+      "sequence": 114,
+      "type": "exploration.group_decided",
+      "at": "2026-10-15T03:20:41.661Z",
+      "data": {
+        "groupId": "a6f026d2-289f-458e-afda-367712776a44",
+        "revision": 4,
+        "decision": {
+          "source": "page-scope-acceptance",
+          "evidence": [
+            "This run tests one public navigation and its automatic return; other entry-page work is outside this targeted run"
+          ],
+          "mode": "sample",
+          "memberKeys": [
+            "0d8d8a5661e0be91e31b1a1a4dd9c2b56783c9ed3dcd5328a8b9d0299b0d251c"
+          ]
+        }
+      }
+    },
+    {
+      "sequence": 116,
+      "type": "exploration.group_decided",
+      "at": "2026-10-15T03:20:41.665Z",
+      "data": {
+        "groupId": "7b78be0b-7c64-47d4-b5d3-56c1967f4ca3",
+        "revision": 4,
+        "decision": {
+          "source": "page-scope-acceptance",
+          "evidence": [
+            "This run tests one public navigation and its automatic return; other entry-page work is outside this targeted run"
+          ],
+          "mode": "skip"
+        }
+      }
+    },
+    {
+      "sequence": 118,
+      "type": "exploration.group_decided",
+      "at": "2026-10-15T03:20:41.668Z",
+      "data": {
+        "groupId": "4444ab71-b09a-47b0-9d50-6bf8150ead56",
+        "revision": 3,
+        "decision": {
+          "source": "page-scope-acceptance",
+          "evidence": [
+            "This run tests one public navigation and its automatic return; other entry-page work is outside this targeted run"
+          ],
+          "mode": "skip"
+        }
+      }
+    },
+    {
+      "sequence": 120,
+      "type": "exploration.group_decided",
+      "at": "2026-10-15T03:20:41.672Z",
+      "data": {
+        "groupId": "fc45b259-52f6-42fe-950d-db91c2c681d0",
+        "revision": 3,
+        "decision": {
+          "source": "page-scope-acceptance",
+          "evidence": [
+            "This run tests one public navigation and its automatic return; other entry-page work is outside this targeted run"
+          ],
+          "mode": "skip"
+        }
+      }
+    },
+    {
+      "sequence": 122,
+      "type": "exploration.group_decided",
+      "at": "2026-10-15T03:20:41.675Z",
+      "data": {
+        "groupId": "811a2b2e-2591-4f0a-8120-63e97d801a0c",
+        "revision": 2,
+        "decision": {
+          "source": "page-scope-acceptance",
+          "evidence": [
+            "This run tests one public navigation and its automatic return; other entry-page work is outside this targeted run"
+          ],
+          "mode": "skip"
+        }
+      }
+    },
+    {
+      "sequence": 143,
+      "type": "exploration.group_detected",
+      "at": "2026-10-15T03:20:47.185Z",
+      "data": {
+        "id": "4ad5fbdb-3637-4bde-acd9-214526804b55",
+        "sessionId": "d4159405-5623-4533-9709-d810911b3241",
+        "key": "f0877af4bf9167e4879d6d23275a962277a6427161c068306ab17ec7c2671346",
+        "proposalKey": "page:https://www.okx.com/convert/usd-to-btc",
+        "kind": "page",
+        "label": "USD to BTC | Convert US Dollar to Bitcoin | OKX",
+        "conditions": {
+          "url": "https://www.okx.com/convert/usd-to-btc"
+        },
+        "binding": "context",
+        "membership": "observed-action-cases",
+        "instanceScope": "ccef60ff-a21b-4554-896e-c0aaaa163196",
+        "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "observationId": "4bb23db7-7a63-44d4-9747-41fe4a986169",
+        "revision": 1,
+        "status": "pending",
+        "evidence": [
+          {
+            "source": "browser",
+            "rule": "observed-page-scope/v1",
+            "facts": {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "observationId": "4bb23db7-7a63-44d4-9747-41fe4a986169",
+              "rootUrl": "https://www.okx.com/convert/btc-to-usd",
+              "meaning": "Permission to explore this exact page URL under the declared context; excludes other destinations and grants no purpose, identity or replay permission"
+            }
+          }
+        ],
+        "decisions": [],
+        "memberCount": 270,
+        "traversalCount": 2
+      }
+    },
+    {
+      "sequence": 514,
+      "type": "exploration.page_returned",
+      "at": "2026-10-15T03:20:53.931Z",
+      "data": {
+        "fromId": "43951d01-17dc-4994-bb96-04f444260009",
+        "targetId": "3d72a912-a9fb-4233-86e0-a43ab0af48e3",
+        "afterId": "f9fe5399-5b2d-40eb-93c2-b73bd1a55834",
+        "attemptId": "62508d67-a3af-499c-9de7-550843d4fd6b",
+        "status": "returned",
+        "stateRestored": false
+      }
+    },
+    {
+      "sequence": 531,
+      "type": "exploration.paused",
+      "at": "2026-10-15T03:20:56.455Z",
+      "data": {
+        "reason": "PAGE_DECISION_REQUIRED"
+      }
+    },
+    {
+      "sequence": 532,
+      "type": "exploration.group_decided",
+      "at": "2026-10-15T03:21:13.697Z",
+      "data": {
+        "groupId": "4ad5fbdb-3637-4bde-acd9-214526804b55",
+        "revision": 3,
+        "decision": {
+          "source": "page-scope-acceptance",
+          "evidence": [
+            "The test target remains BTC/USD; inverse converter exploration is deferred"
+          ],
+          "mode": "defer"
+        }
+      }
+    }
+  ],
+  "reviews": [
+    {
+      "id": "aeb1f7e7-8b6e-4f7c-adfe-0d155b1c3da6",
+      "at": "2026-10-15T03:20:39.909Z",
+      "observationId": "8c5e452b-9415-4896-b7fc-1facdea31851",
+      "instanceScope": "99528382-c387-4fc4-ab19-906347b4d541",
+      "instanceId": "99528382-c387-4fc4-ab19-906347b4d541:71",
+      "binding": "[\"testid:okd-asLink\",\"link\",\"More about USD to BTC\",\"document\",\"document\",\"a\"]",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": false,
+      "reason": "Open the public inverse conversion information page to verify page-scope gating",
+      "evidence": [
+        "Observed native anchor href /convert/usd-to-btc in the BTC/USD converter; no form submission or account action"
+      ]
+    }
+  ]
+}

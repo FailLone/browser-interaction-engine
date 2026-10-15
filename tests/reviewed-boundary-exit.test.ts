@@ -115,7 +115,7 @@ it.each([false, true])('retires old-document exits after navigation, including w
   });
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
   const t = await testEngine(`http://127.0.0.1:${(server.address() as { port: number }).port}`, {
-    exploration: 'controls', contextRules: [], decisionScopes: ['region'],
+    exploration: 'controls', contextRules: [], decisionScopes: ['region'], pageExploration: 'all',
   }, { actions: (actions, { observation: o }) => actions.map(a => a.label === 'Dismiss' && o.boundaries?.length
     ? declaration(a, o.id, o.boundaries.at(-1)!.key) : a) });
   try {
