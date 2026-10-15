@@ -172,9 +172,13 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const stableKey = scopedControlKey(el, name, type);
     const nestedLists = scroll ? el.querySelectorAll('[role=listbox]') : [];
     const list = el.tagName === 'SELECT' ? el : el.closest('[role=listbox]') || (nestedLists.length === 1 ? nestedLists[0] : undefined);
+    const boundForm = (el as HTMLInputElement).form;
+    const purposeBinding = list ? { attributes: Object.fromEntries(['type', 'role', 'href', 'target', 'form', 'formaction', 'formmethod', 'formtarget', 'aria-controls', 'aria-haspopup'].filter(k => el.hasAttribute(k)).map(k => [k, el.getAttribute(k)!])),
+      ...(boundForm ? { form: { instanceId: instance(boundForm), action: boundForm.action, method: boundForm.method, target: boundForm.target } } : {}) } : undefined;
     return {
       localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey,
       ...(list ? { list: { instanceId: instance(list), role: list.tagName === 'SELECT' ? 'select' : 'listbox', label: label(list), selector: selector(list) } } : {}),
+      ...(purposeBinding ? { purposeBinding } : {}),
       region: regionKey(el.closest(regionSelector)), form: regionKey(el.closest('form')), selector: selector(el), rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
       checked: ['checkbox', 'radio'].includes(type) ? e.checked : el.hasAttribute('aria-checked') ? el.getAttribute('aria-checked') === 'true' : null,
@@ -500,6 +504,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const liveCanonical = observableCanonical({ ...current, ...live, context: current.context, gaps: current.gaps });
     const listOwners = new Map(current.controls.map(c => [c.instanceId, c.list]));
     if (live.controls.some(c => canonical(c.list) !== canonical(listOwners.get(c.instanceId)))) return 'stale';
+    const purposeBindings = new Map(current.controls.map(c => [c.instanceId, c.purposeBinding]));
+    if (live.controls.some(c => canonical(c.purposeBinding) !== canonical(purposeBindings.get(c.instanceId)))) return 'stale';
     const changed = this.options.exploration === 'controls' ? interactionProjection(live) !== interactionProjection(current)
       : liveCanonical !== current.canonical || live.controls.some((c, i) => c.instanceId !== current.controls[i]?.instanceId);
     if (changed) {

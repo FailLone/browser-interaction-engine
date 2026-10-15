@@ -1,4 +1,6 @@
 import { InspectionCoordinator, validateInspectionOptions } from './inspection.js';
+import { PurposeReviews } from './purpose-reviews.js';
+import type { ActionCandidate, ListPurposeReviewInput, RevokePurposeReviewInput } from '@interaction/adapter-playwright';
 import type { InspectionResult } from './inspection-types.js';
 import { InteractionEngine as CoreEngine, EngineError, type Persistence, type Predicate, type InteractionScope, type Checkpoint } from '@interaction/core';
 import { RetainedPersistence, type RetentionOptions } from '@interaction/storage-retained';
@@ -21,9 +23,22 @@ export { inspectionResultSchema, completeInspectionSchema, inspectionConsumerSch
 export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   declare readonly store: RetainedPersistence;
   private readonly inspections: InspectionCoordinator;
+  private readonly purposeReviews: PurposeReviews;
+  protected override prepareActions(actions: ActionCandidate[], observation: Observation) { return this.purposeReviews.apply(actions, observation); }
+  protected override validatePreparedAction(action: ActionCandidate, observation: Observation) { this.purposeReviews.validate(action, observation); }
+  purposeReviewMaterial(sessionId: string, groupId: string) { return this.purposeReviews.material(this.observation(sessionId), this.actions(sessionId), groupId); }
+  reviewListPurpose(sessionId: string, review: ListPurposeReviewInput) {
+    return this.enqueueMeasured(sessionId, async () => this.store.transaction(() => this.purposeReviews.record(this.observation(sessionId), this.actions(sessionId), review)));
+  }
+  revokePurposeReview(sessionId: string, revocation: RevokePurposeReviewInput) {
+    return this.enqueueMeasured(sessionId, async () => { this.session(sessionId); return this.store.transaction(() => this.purposeReviews.revoke(sessionId, revocation)); });
+  }
   override async createSession(input: unknown) { return super.createSession(validateInspectionOptions(input)); }
   protected override beforeCapture(sessionId: string, observationId: string) { return this.inspections.prepare(sessionId, observationId); }
-  protected override afterCapture(observation: Observation, previous?: Observation, attemptId?: string) { return this.inspections.finish(observation, previous, attemptId); }
+  protected override afterCapture(observation: Observation, previous?: Observation, attemptId?: string) {
+    this.purposeReviews.reconcile(observation, this.actions(observation.sessionId));
+    return this.inspections.finish(observation, previous, attemptId);
+  }
   protected override captureFailed(sessionId: string, observationId: string, error: unknown) { return this.inspections.failed(sessionId, observationId, error); }
   protected override beforeAction(sessionId: string) { return this.inspections.beforeAction(sessionId); }
   listInspections(sessionId: string, query: { after?: number; limit?: number } = {}) { return this.inspections.list(sessionId, query); }
@@ -89,6 +104,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     });
     super({ persistence: options.persistence instanceof RetainedPersistence ? options.persistence : new RetainedPersistence(options.persistence, options.retention), adapter: new PlaywrightAdapter(options.hooks), hooks: options.hooks });
     this.inspections = new InspectionCoordinator(this, (sid, type, data) => this.publish(sid, type, data));
+    this.purposeReviews = new PurposeReviews(this.store, (sid, type, data) => this.publish(sid, type, data));
   }
   override async diffDetails(sessionId: string, beforeId: string, afterId: string, region?: string) { return explainBrowserDiff(await super.diffDetails(sessionId, beforeId, afterId, region), this.store.evidence); }
   override async attemptDiffDetails(sessionId: string, attemptId: string) { return explainBrowserDiff(await super.attemptDiffDetails(sessionId, attemptId), this.store.evidence); }
@@ -105,6 +121,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       case 'stop': return this.stop(sessionId);
       case 'resolveIdentity': return this.resolveIdentity(sessionId, command.hypothesisId, command.identityId, command.source, command.evidence);
       case 'decideExplorationGroup': return this.decideExplorationGroup(sessionId, command.groupId, command.revision, command.decision);
+      case 'reviewListPurpose': return this.reviewListPurpose(sessionId, command.review);
+      case 'revokePurposeReview': return this.revokePurposeReview(sessionId, command.revocation);
       case 'openScope': return this.openScope(sessionId, command.name, command.region);
       case 'closeScope': return this.closeScope(sessionId, command.scopeId);
       case 'createCheckpoint': {

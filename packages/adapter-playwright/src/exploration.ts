@@ -6,7 +6,7 @@ import { ruleMatches, signature } from './util.js';
 
 function shape(c: Control) {
   const { valid: _valid, ...constraints } = c.constraints;
-  return { signature: signature(c), visible: c.visible, enabled: c.enabled, editable: c.editable, constraints, options: c.options, list: c.list };
+  return { signature: signature(c), visible: c.visible, enabled: c.enabled, editable: c.editable, constraints, options: c.options, list: c.list, purposeBinding: c.purposeBinding };
 }
 
 /** Deliberate representative sampling, not a proof that other values are irrelevant. */

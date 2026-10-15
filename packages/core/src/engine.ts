@@ -33,11 +33,14 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   protected async afterCapture(_observation: O, _previous?: O, _attemptId?: string): Promise<void> {}
   protected async captureFailed(_sessionId: string, _observationId: string, _error: unknown): Promise<void> {}
   protected async beforeAction(_sessionId: string): Promise<void> {}
+  /** Composition policy runs before final constraints; it must not alter captured facts. */
+  protected prepareActions(actions: ActionCandidate[], _observation: O): ActionCandidate[] { return actions; }
+  protected validatePreparedAction(_action: ActionCandidate, _observation: O): void {}
   protected publish(sessionId: string, type: string, data: unknown) { return this.emit(sessionId, type, data); }
   private enqueue<T>(fn: () => Promise<T>): Promise<T> {
     const task = this.queue.then(fn); this.queue = task.catch(() => {}); return task;
   }
-  private enqueueMeasured<T>(sessionId: string, fn: () => Promise<T>) {
+  protected enqueueMeasured<T>(sessionId: string, fn: () => Promise<T>) {
     return this.enqueue(async () => {
       const start = Date.now(); const prior = this.session(sessionId).elapsedMs;
       try { return await fn(); }
@@ -170,7 +173,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       state = assignState(o, this.store.list<UIState>('state', sessionId), value => this.adapter.normalize(value as O));
       visit.stateId = o.stateId;
     }
-    actions = actions.map(a => this.constrain({ ...a, stateId: o.stateId }, o, session));
+    actions = this.prepareActions(actions, o).map(a => this.constrain({ ...a, stateId: o.stateId }, o, session));
     const proposals = o.gaps.some(g => g.critical) ? [] : this.adapter.explorationGroups?.(actions, o, session, this.store.list<ExplorationGroup>('exploration-group', sessionId)) || [];
     let groupDiscovery: ReturnType<ExplorationGroups['discover']>;
     if (o.gaps.some(g => g.critical)) for (const identity of matched.identities) if (identity.status !== 'present') identity.status = 'unknown';
@@ -356,6 +359,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (control && (!control.visible || !control.enabled)) throw new EngineError('ACTION_BLOCKED', 'Control is not visible or enabled');
     await this.driver!.validate(action, control);
     await this.beforeAction(sessionId);
+    this.validatePreparedAction(action, current);
     const attempt: ActionAttempt = { id: id(), sessionId, requestId, action, startedAt: now(), beforeId: current.id, status: 'executing', purpose };
     const started = Date.now();
     this.store.transaction(() => {

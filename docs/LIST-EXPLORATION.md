@@ -50,4 +50,46 @@ await client.command(sessionId, { type: 'resume' });
 
 每个组绑定浏览器文档、列表节点、结构和声明的业务上下文。列表节点重建、文档重载或上下文改变会产生新的决策范围；同一节点换成另一个业务选项也不能继承旧抽样键。明确的单项 `execute` 仍可用于人工接管或探测，但不会批准其余列表项。
 
+## 穷尽与用途审阅复用可以同时启用
+
+遍历决定回答“执行多少项”；用途审阅回答“这些操作的用途和风险是什么”。选择 all 仍然可以只审阅一次满足条件的共同用途，然后对每个当前目标分别执行和验证。共享的是上层判断，不是控件身份、执行结果或覆盖记录。
+
+`engine.purposeReviewMaterial(sessionId, groupId)` 输出当前组的审阅材料，SDK 同名，HTTP 为 `GET /v1/sessions/:sessionId/exploration-groups/:groupId/purpose-material`。材料按更严格的条件分组：同一文档、URL、列表节点及标签、完整声明上下文、所属区域、操作类型、原生能力证据、约束、表单和派发属性。相同列表中的不同结构可能产生多份材料。只允许受支持的 select 或 listbox 选项点击；表单提交、链接和未证实能力不提供复用材料。
+
+材料明确列出允许变化的部分：成员节点、选项标签和选项值。上层必须检查材料及对应观察，确认共同用途和业务范围适用于当前及后续匹配成员，再提交有来源的判断。引擎不自行推断业务用途。`businessScope` 是上层对范围的说明；需要机器持续校验的账号、业务对象、模式等条件，应通过 context/contextRules/context hook 输出。任何声明上下文为 unknown 时均不能复用。未暴露的服务端状态、JavaScript 行为或隐藏业务条件不在自动验证能力之内。
+
+```ts
+const material = await client.purposeReviewMaterial(sessionId, group.id);
+// 上层审阅 material.conditions[0] 及其成员的观察材料后：
+await client.reviewListPurpose(sessionId, {
+  groupId: group.id,
+  revision: material.revision,
+  observationId: material.observationId,
+  conditionKey: material.conditions[0].key,
+  purpose: '切换公开计算器的展示币种',
+  businessScope: '当前计算器与声明上下文，不包含交易或账户操作',
+  risk: 'interface',
+  reuse: 'matching-list-members',
+  source: 'test-orchestrator',
+  evidence: ['此处填写上层实际审阅的依据'],
+});
+// 记录判断本身不操作浏览器；刷新后重新生成带复用依据的候选。
+await client.command(sessionId, { type: 'observe' });
+// 使用刷新后的组版本决定 all/sample/defer，再按需要 resume。
+```
+
+通用命令为 `{ type: 'reviewListPurpose', review }`，材料版本或观察过期返回 `STALE_PURPOSE_REVIEW`。记录、刷新、列表决策及继续探索是独立步骤；读取材料到提交期间可以暂停探索，避免版本变化。新增成员无需重复确认共同用途，但仍必须匹配全部条件；不匹配的成员继续保留其原有审阅需求。列表待决、sample 或 defer 不会因用途审阅而放行。all 决策也不会自动产生用途审阅。
+
+复用证据保留在每个 action 的 `conditional-purpose-review/v1` 中，可以追溯 reviewId、原始观察、条件键和上层依据。它只解除 `operation_requires_review`，不解除其他明确排除、禁用、遮挡、边界或身份限制，不额外授予重放权限。每次派发仍校验当前观察、节点实例、目标可达性和声明上下文；列表相关派发属性及表单端点改变也会令旧动作过期。旧观察不改写，每个实际操作仍产生独立尝试和结果。
+
+同一当前目标在相同用途条件下生成新审阅候选后，旧的未执行待办可以退役为 `superseded / purpose_review_replaced`；已失效或撤销的审阅待办为 `purpose_review_invalidated`。这避免为了旧判断重复恢复分支。原有已执行记录不变，退役记录仍是 not_attempted，不能当作新增覆盖。
+
+文档、URL、业务上下文或列表所属节点改变后，记录失效并发出 `purpose.review_invalidated`，恢复旧上下文也不会自动重新启用。结构不匹配的当前操作不会使用旧判断。关闭后临时不可见不等于节点重建，也不授权操作当前不可见项。记录持久化后可查询，但重启浏览器形成的新文档需要重新审阅。
+
+`client.purposeReviews(sessionId)` / `GET /v1/sessions/:sessionId/purpose-reviews` 查询记录，`purpose.review_recorded`、`purpose.review_invalidated`、`purpose.review_revoked` 可通过现有事件订阅读取。上层可用 `client.revokePurposeReview(sessionId, { reviewId, source, reason })`，或 `{ type: 'revokePurposeReview', revocation }` 撤销；撤销后即便动作已生成，执行前也会拒绝，刷新后恢复原有用途限制。
+
+同一条件的新审阅会将旧审阅标记为 superseded，记录 replacedBy 并发出 `purpose.review_superseded`。撤销新审阅不会使旧判断重新生效；历史尝试仍保留当时使用的审阅来源。
+
 回归见 `tests/list-decisions.test.ts`，覆盖等待与普通工作优先、即时与异步决策、抽样再穷尽、错误及过期决策、虚拟列表和空窗口、弹层退出/重入、无出口、身份与上下文失效、持久化、SDK/HTTP，以及禁用和排除保护。
+
+条件复用回归见 `tests/purpose-reuse.test.ts`，覆盖一次审阅逐项穷尽、抽样/暂缓独立性、后续成员、结构差异、当前节点替换、上下文与列表重建、派发表单变化、撤销、持久化和 SDK/HTTP。

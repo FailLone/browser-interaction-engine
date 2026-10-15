@@ -1,0 +1,971 @@
+{
+  "baseCommit": "3c57c6756b2027adcd360a760c561d0ef1111d7e",
+  "sourceHashes": {
+    "packages/core/src/engine.ts": "db152810626c79800d15c97d8a74a62b885523b096fe129571c4667714a9c746",
+    "packages/adapter-playwright/src/browser.ts": "dd8acd8196cede05e45460c183c44d4cdc95a2a8d17150892f634c522902f3b4",
+    "packages/adapter-playwright/src/purpose-review.ts": "e9b378908e125d200d810f7ebd552d037da5bff4573bd670f854f3dd1e3cabe0",
+    "packages/browser/src/purpose-reviews.ts": "dca701aa583f214c4f4928c6c8c941c9e2b6687d2a5f4ae3b8543328d9b03364",
+    "packages/browser/src/index.ts": "0fe5d60efddaca72007f6f24ac73d17b0810752dfbc2597fcacda2dc0c0ef1fc"
+  },
+  "sessionId": "5700c229-113e-4b59-976d-f80b86b36bcc",
+  "status": "verified_shared_review_for_new_member_dispatch_and_scope_invalidation",
+  "review": {
+    "groupId": "89f8450a-d5a5-4823-9470-5d8780844bc5",
+    "revision": 1,
+    "observationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+    "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+    "purpose": "Choose the display currency in the public conversion calculator",
+    "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+    "source": "codex-real-page-review",
+    "evidence": [
+      "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+      "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+      "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+    ],
+    "risk": "interface",
+    "reuse": "matching-list-members",
+    "id": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+    "sessionId": "5700c229-113e-4b59-976d-f80b86b36bcc",
+    "at": "2026-10-15T02:00:37.753Z",
+    "status": "active",
+    "conditions": {
+      "scope": {
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "instanceScope": "f80d28cb-22c2-4675-b500-9b8ef259ce02",
+        "context": {},
+        "owner": {
+          "instanceId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:455",
+          "role": "listbox",
+          "label": "",
+          "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1)"
+        }
+      },
+      "structure": {
+        "kind": "click",
+        "tag": "button",
+        "role": "button",
+        "form": "document",
+        "regions": [
+          {
+            "key": "listbox:okd-virtual-list-filler-inner",
+            "role": "listbox",
+            "label": "listbox",
+            "parentKey": "document"
+          },
+          {
+            "key": "document",
+            "role": "document",
+            "label": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "parentKey": ""
+          }
+        ],
+        "constraints": {
+          "type": "button",
+          "required": false
+        },
+        "readOnly": false,
+        "binding": {
+          "attributes": {
+            "type": "button"
+          }
+        },
+        "basis": {
+          "status": "supported",
+          "evidence": [
+            {
+              "source": "html",
+              "rule": "native-button/v1",
+              "facts": {
+                "tag": "button",
+                "type": "button",
+                "submitsForm": false
+              }
+            }
+          ]
+        },
+        "boundaries": [
+          {
+            "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "name": "Popup"
+          }
+        ]
+      }
+    },
+    "sourceActionIds": [
+      "10e4f4b5-e142-4442-af92-c0dad0a86dc0",
+      "a51a3928-25e6-4e5e-8139-50ec79d5fe0d",
+      "cafc0952-3d9f-4dda-a8ea-bdff078272cc",
+      "79e784b6-73cb-474a-adfa-10fad288f2e5",
+      "0458608b-0730-4cd5-90e3-046d5338af14",
+      "7e857dc9-6b40-45b1-a991-044cd3d3e1d4"
+    ]
+  },
+  "material": {
+    "sessionId": "5700c229-113e-4b59-976d-f80b86b36bcc",
+    "groupId": "89f8450a-d5a5-4823-9470-5d8780844bc5",
+    "revision": 1,
+    "observationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+    "variations": [
+      "member-instance",
+      "option-label",
+      "option-value"
+    ],
+    "conditions": [
+      {
+        "key": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+        "conditions": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "instanceScope": "f80d28cb-22c2-4675-b500-9b8ef259ce02",
+            "context": {},
+            "owner": {
+              "instanceId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:455",
+              "role": "listbox",
+              "label": "",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1)"
+            }
+          },
+          "structure": {
+            "kind": "click",
+            "tag": "button",
+            "role": "button",
+            "form": "document",
+            "regions": [
+              {
+                "key": "listbox:okd-virtual-list-filler-inner",
+                "role": "listbox",
+                "label": "listbox",
+                "parentKey": "document"
+              },
+              {
+                "key": "document",
+                "role": "document",
+                "label": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+                "parentKey": ""
+              }
+            ],
+            "constraints": {
+              "type": "button",
+              "required": false
+            },
+            "readOnly": false,
+            "binding": {
+              "attributes": {
+                "type": "button"
+              }
+            },
+            "basis": {
+              "status": "supported",
+              "evidence": [
+                {
+                  "source": "html",
+                  "rule": "native-button/v1",
+                  "facts": {
+                    "tag": "button",
+                    "type": "button",
+                    "submitsForm": false
+                  }
+                }
+              ]
+            },
+            "boundaries": [
+              {
+                "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "name": "Popup"
+              }
+            ]
+          }
+        },
+        "members": [
+          {
+            "actionId": "10e4f4b5-e142-4442-af92-c0dad0a86dc0",
+            "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:454",
+            "label": "BTC",
+            "risk": "unknown",
+            "excluded": true
+          },
+          {
+            "actionId": "a51a3928-25e6-4e5e-8139-50ec79d5fe0d",
+            "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:456",
+            "label": "0G",
+            "risk": "unknown",
+            "excluded": true
+          },
+          {
+            "actionId": "cafc0952-3d9f-4dda-a8ea-bdff078272cc",
+            "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:457",
+            "label": "1INCH",
+            "risk": "unknown",
+            "excluded": true
+          },
+          {
+            "actionId": "79e784b6-73cb-474a-adfa-10fad288f2e5",
+            "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:458",
+            "label": "2Z",
+            "risk": "unknown",
+            "excluded": true
+          },
+          {
+            "actionId": "0458608b-0730-4cd5-90e3-046d5338af14",
+            "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:459",
+            "label": "A",
+            "risk": "unknown",
+            "excluded": true
+          },
+          {
+            "actionId": "7e857dc9-6b40-45b1-a991-044cd3d3e1d4",
+            "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:460",
+            "label": "AAOI",
+            "risk": "unknown",
+            "excluded": true
+          }
+        ]
+      }
+    ]
+  },
+  "beforeTraversalDecision": {
+    "observationId": "147707ef-f69a-43b0-950d-00a87eac0c3b",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "actionCount": 2,
+    "reviewCount": 1,
+    "reviewStatuses": [
+      "active"
+    ],
+    "groups": [
+      {
+        "id": "89f8450a-d5a5-4823-9470-5d8780844bc5",
+        "status": "pending",
+        "revision": 2,
+        "observedActionCases": 12,
+        "decisions": []
+      }
+    ],
+    "listFrontierCounts": {
+      "superseded": 6,
+      "deferred": 6,
+      "blocked": 1
+    },
+    "listActions": [
+      {
+        "label": "BTC",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:454",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "0G",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:456",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "1INCH",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:457",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "2Z",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:458",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "A",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:459",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "AAOI",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:460",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [
+          "pointer_intercepted"
+        ],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "afterAll": {
+    "observationId": "147707ef-f69a-43b0-950d-00a87eac0c3b",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "actionCount": 2,
+    "reviewCount": 1,
+    "reviewStatuses": [
+      "active"
+    ],
+    "groups": [
+      {
+        "id": "89f8450a-d5a5-4823-9470-5d8780844bc5",
+        "status": "decided",
+        "revision": 3,
+        "observedActionCases": 12,
+        "decisions": [
+          {
+            "revision": 2,
+            "at": "2026-10-15T02:00:39.506Z",
+            "decision": {
+              "source": "codex-real-page-test",
+              "evidence": [
+                "Verify that exhaustive scheduling and shared purpose judgments can coexist; this bounded proof does not claim every option has executed"
+              ],
+              "mode": "all"
+            }
+          }
+        ]
+      }
+    ],
+    "listFrontierCounts": {
+      "superseded": 6,
+      "pending": 6,
+      "blocked": 1
+    },
+    "listActions": [
+      {
+        "label": "BTC",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:454",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "0G",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:456",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "1INCH",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:457",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "2Z",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:458",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "A",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:459",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "AAOI",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:460",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [
+          "pointer_intercepted"
+        ],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "afterScroll": {
+    "observationId": "316c5bd1-9d22-4dfc-b5da-4b52212e34b2",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "actionCount": 3,
+    "reviewCount": 1,
+    "reviewStatuses": [
+      "active"
+    ],
+    "groups": [
+      {
+        "id": "89f8450a-d5a5-4823-9470-5d8780844bc5",
+        "status": "decided",
+        "revision": 4,
+        "observedActionCases": 16,
+        "decisions": [
+          {
+            "revision": 2,
+            "at": "2026-10-15T02:00:39.506Z",
+            "decision": {
+              "source": "codex-real-page-test",
+              "evidence": [
+                "Verify that exhaustive scheduling and shared purpose judgments can coexist; this bounded proof does not claim every option has executed"
+              ],
+              "mode": "all"
+            }
+          }
+        ]
+      }
+    ],
+    "listFrontierCounts": {
+      "superseded": 6,
+      "executed": 1,
+      "pending": 10,
+      "blocked": 2
+    },
+    "listActions": [
+      {
+        "label": "2Z",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:458",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "A",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:459",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "AAOI",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:460",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "AAPL",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:2256",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "AAVE",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:2257",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "ACA",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:2258",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [
+          "pointer_intercepted"
+        ],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "ACE",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:2259",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [
+          "pointer_intercepted"
+        ],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "afterSelection": {
+    "observationId": "4c38a1e9-251e-48d0-bfe5-47c55bdce071",
+    "url": "https://www.okx.com/convert/aave-to-usd",
+    "title": "AAVE to USD | Convert AAVE to US Dollar | OKX",
+    "actionCount": 4,
+    "boundaries": [
+      {
+        "key": "dialog:okd-dialog-window",
+        "name": "dialog",
+        "region": "document",
+        "evidence": [
+          "aria-modal"
+        ]
+      }
+    ],
+    "reviews": [
+      {
+        "groupId": "89f8450a-d5a5-4823-9470-5d8780844bc5",
+        "revision": 1,
+        "observationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+        "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+        "purpose": "Choose the display currency in the public conversion calculator",
+        "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+        "source": "codex-real-page-review",
+        "evidence": [
+          "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+          "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+          "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+        ],
+        "risk": "interface",
+        "reuse": "matching-list-members",
+        "id": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+        "sessionId": "5700c229-113e-4b59-976d-f80b86b36bcc",
+        "at": "2026-10-15T02:00:37.753Z",
+        "status": "invalidated",
+        "conditions": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "instanceScope": "f80d28cb-22c2-4675-b500-9b8ef259ce02",
+            "context": {},
+            "owner": {
+              "instanceId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:455",
+              "role": "listbox",
+              "label": "",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1)"
+            }
+          },
+          "structure": {
+            "kind": "click",
+            "tag": "button",
+            "role": "button",
+            "form": "document",
+            "regions": [
+              {
+                "key": "listbox:okd-virtual-list-filler-inner",
+                "role": "listbox",
+                "label": "listbox",
+                "parentKey": "document"
+              },
+              {
+                "key": "document",
+                "role": "document",
+                "label": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+                "parentKey": ""
+              }
+            ],
+            "constraints": {
+              "type": "button",
+              "required": false
+            },
+            "readOnly": false,
+            "binding": {
+              "attributes": {
+                "type": "button"
+              }
+            },
+            "basis": {
+              "status": "supported",
+              "evidence": [
+                {
+                  "source": "html",
+                  "rule": "native-button/v1",
+                  "facts": {
+                    "tag": "button",
+                    "type": "button",
+                    "submitsForm": false
+                  }
+                }
+              ]
+            },
+            "boundaries": [
+              {
+                "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "name": "Popup"
+              }
+            ]
+          }
+        },
+        "sourceActionIds": [
+          "10e4f4b5-e142-4442-af92-c0dad0a86dc0",
+          "a51a3928-25e6-4e5e-8139-50ec79d5fe0d",
+          "cafc0952-3d9f-4dda-a8ea-bdff078272cc",
+          "79e784b6-73cb-474a-adfa-10fad288f2e5",
+          "0458608b-0730-4cd5-90e3-046d5338af14",
+          "7e857dc9-6b40-45b1-a991-044cd3d3e1d4"
+        ],
+        "invalidation": {
+          "at": "2026-10-15T02:00:44.974Z",
+          "observationId": "4c38a1e9-251e-48d0-bfe5-47c55bdce071",
+          "reason": "document_url_context_or_list_owner_changed"
+        }
+      }
+    ],
+    "visibleControls": [
+      {
+        "localId": "1fb87304-d2fa-4e6a-9bc0-0434aea8e5d2:470",
+        "name": "AAVE",
+        "role": "generic",
+        "value": "",
+        "visible": true
+      }
+    ]
+  },
+  "attempts": [
+    {
+      "id": "40007624-ac20-4c47-be71-42081d748790",
+      "status": "succeeded",
+      "beforeId": "fad64a49-636e-4e3b-9f34-b6d533b0e757",
+      "afterId": "b89bd9cd-7bf9-43d3-b032-17741df7fb5c",
+      "kind": "click",
+      "label": "Close"
+    },
+    {
+      "id": "a5277393-69fd-4a27-ae77-8ccfdccf1329",
+      "status": "succeeded",
+      "beforeId": "6569656e-0b8c-4a7c-a3dd-876b7c10f0c9",
+      "afterId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+      "kind": "click",
+      "label": "BTC"
+    },
+    {
+      "id": "5b6860de-1a40-467b-b895-9e365e92c193",
+      "status": "succeeded",
+      "beforeId": "147707ef-f69a-43b0-950d-00a87eac0c3b",
+      "afterId": "316c5bd1-9d22-4dfc-b5da-4b52212e34b2",
+      "purpose": "external",
+      "action": {
+        "label": "Scrollable generic",
+        "kind": "scroll",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:1070",
+        "risk": "interface",
+        "replayable": true,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": []
+      }
+    },
+    {
+      "id": "d0ba38ac-33a0-41f5-bb39-846c40a25a95",
+      "status": "succeeded",
+      "beforeId": "316c5bd1-9d22-4dfc-b5da-4b52212e34b2",
+      "afterId": "4c38a1e9-251e-48d0-bfe5-47c55bdce071",
+      "purpose": "external",
+      "action": {
+        "label": "AAVE",
+        "kind": "click",
+        "localId": "f80d28cb-22c2-4675-b500-9b8ef259ce02:2257",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "blockers": [],
+        "reviewReferences": [
+          {
+            "reviewId": "8b8e8da1-8236-4c9c-9b27-2a5b064f8082",
+            "conditionKey": "6f1d9c35f5f3de7f8130b3c2abb0d6f4065cdfb62f826d582ce68b73f1d3e353",
+            "purpose": "Choose the display currency in the public conversion calculator",
+            "businessScope": "The current BTC/USD public calculator asset-selector list in this document; no logged-in account or trade submission. Approval applies to matching native button choices including newly observed currency labels.",
+            "sourceObservationId": "42aaf01b-7163-4085-8ae2-e20db41045d7",
+            "evidence": [
+              "Current calculator/list screenshot and native non-submitting button evidence in observation 42aaf01b-7163-4085-8ae2-e20db41045d7",
+              "Prior independently executed public currency selections in docs/experiments/okx-convert-2026-10-15 establish this selector purpose; current list has the same observed calculator role",
+              "This judgment does not grant replay or establish historical identity; URL, document or list replacement requires renewed judgment"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "newlyObservedLabels": [
+    "AAPL",
+    "AAVE",
+    "ACA",
+    "ACE"
+  ],
+  "limits": [
+    "One actual currency selection, not exhaustive list execution.",
+    "AAVE/USD region notice remains open; this proof does not claim return to BTC/USD.",
+    "Scope reuse is document/list/URL bound; cross-document review reuse is not implemented.",
+    "Additional members with pointer interception remain blocked despite their purpose judgment."
+  ]
+}

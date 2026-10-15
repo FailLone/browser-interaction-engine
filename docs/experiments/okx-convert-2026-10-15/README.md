@@ -156,6 +156,16 @@
 
 验证结果：完整回归 253 项 / 46 个文件通过，其中列表决策新增 14 项；typecheck、build、smoke:built 均通过。真实材料记录的生产源文件哈希与本次实现一致。
 
+## 穷尽决定下的用途审阅复用
+
+在新增条件复用机制的独立会话中，当前 BTC/USD 计算器下拉产生一份共同结构材料，包含首屏 BTC、0G、1INCH、2Z、A、AAOI 六个按钮。上层依据当前截图、原生非提交按钮证据和此前逐项选币实测，声明“当前公开计算器的展示币种选择”这一用途及业务范围；全程只建立一条共享用途审阅。用途审阅后列表仍等待遍历决定，随后单独提交 all，相关候选才进入可调度范围。
+
+实际滚动一屏后，同一列表出现 AAPL、AAVE、ACA、ACE 等新成员，符合条件的候选复用了同一 reviewId，replayable 仍为 false。ACA、ACE 虽有用途判断，仍保留遮挡阻塞。随后实际执行新出现的 AAVE 候选成功，页面 URL 切换到 `/convert/aave-to-usd`，截图确认计算器为 AAVE/USD；旧审阅因 URL/范围变化自动变为 invalidated。
+
+此证明实际执行一次列表滚动和一次币种选择，另有地区提示关闭及入口打开；没有启动整页自动穷尽，不宣称其余成员已执行。材料见 [purpose-reuse-proof.json](purpose-reuse-proof.json)、[滚动后的列表](purpose-reuse-after-scroll.png) 和[选择后的计算器](purpose-reuse-after-selection.png)。同文档同范围复用已经实现；选择后跨 URL 或重建列表仍需要新审阅，跨文档用途判断复用继续作为后续能力。
+
+验证记录：完整回归 263 项 / 47 个文件通过；补充审阅替换与撤销边界后，相关 27 项 / 3 个文件通过，包含 11 项用途复用测试。最终版本 typecheck、build、smoke:built 通过；上述真实证明已在最终源文件上重跑，材料保存源文件哈希。
+
 ## 原始审计
 
 2026-10-15（Asia/Shanghai），测试版本为已合入 `main` 的 `e793fba`。先完成合并，再访问 https://www.okx.com/convert/btc-to-usd 。合并验证：181 项测试 / 34 个文件通过，typecheck、build、smoke:built 通过。运行环境为 Node.js 24.21.0、Playwright Chromium，1440 × 900。

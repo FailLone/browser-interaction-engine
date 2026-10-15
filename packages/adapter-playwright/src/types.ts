@@ -28,6 +28,8 @@ export interface Control extends CoreControl {
   interactionHints?: ActionEvidence[];
   /** Observed semantic list owner. Similarity is a scheduling hint, not shared business behavior. */
   list?: { instanceId: string; role: string; label: string; selector: string };
+  /** Dispatch-related DOM facts used to bound an external purpose judgment. */
+  purposeBinding?: { attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
   actionable: { visible: boolean; enabled: boolean; editable: boolean; hitTarget: boolean | null; clickPoint?: { x: number; y: number }; occludedBy?: string; outsideScrollableArea?: boolean; unknown: string[] };
 }
 export interface Observation extends CoreObservation<Control> {
