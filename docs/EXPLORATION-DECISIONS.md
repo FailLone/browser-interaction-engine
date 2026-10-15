@@ -183,3 +183,5 @@ await client.command(sessionId, { type: 'resume' });
 上层可订阅持久事件 `exploration.decision_reuse_requested` 后读取材料并异步提交。也可提供 `hooks.explorationDecisionReuse(material, ctx)`，返回同一接受输入或 `undefined`；hook 超时/失败保持待决，迟到结果不写入。接受决定和 `explore` 分开，避免上游尚未准备好就开始派发。
 
 所有上述方法均有同名 client 方法及命令；只读 HTTP 地址为 `GET /v1/sessions/:sessionId/exploration-decision-reuse`。审计集合为 `exploration-decision-reviews` 和 `exploration-decision-applications`，分别保存来源注册和当前接受记录。事件还包括 `exploration.decision_reuse_registered`、`exploration.decision_reused`、`exploration.decision_reuse_revoked`、`exploration.decision_invalidated`。失效记录保留原决定与原因；报告不将失效 skip/sample 继续当作有效排除。
+
+调试页范围面板把失效决定显示为“等待重新决定”，保留原决定、来源和失效原因；当前版本的新决定可解除待决，仍需另行启动 DFS。尚无专用复用面板，上述接受操作通过 hook、SDK 或 HTTP 完成。`explore` 会先重新观察，先前未提交的接受候选可能因此过期；上游应重新读取当前材料，不替换旧候选里的版本字段后直接重试。OKX 的待决零动作、显式接受和再次 DFS 往返见[本轮验收](experiments/exploration-decision-reuse-2026-10-15/README.md)。
