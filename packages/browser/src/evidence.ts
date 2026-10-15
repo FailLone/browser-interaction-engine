@@ -1,5 +1,5 @@
 import { inspectObservationEvidence } from './evidence-availability.js';
-import { EngineError, hash, type ActionCandidate, type ControlIdentity, type EngineEvent, type Gap, type IdentityHypothesis, type Persistence } from '@interaction/core';
+import { EngineError, hash, type ActionCandidate, type ActionAttempt, type ComponentDescription, type ControlIdentity, type EngineEvent, type Gap, type IdentityHypothesis, type Persistence } from '@interaction/core';
 import { artifactKindSchema, domQuerySchema, evidenceCapabilities, type DetailSnapshot, type DomNodeEvidence, type Observation } from '@interaction/adapter-playwright';
 
 interface Reader {
@@ -98,6 +98,40 @@ export class BrowserEvidenceQueries {
       gaps: [...details.gaps, ...(node?.gaps || []), ...(!node ? [{ code: 'CONTROL_DOM_UNAVAILABLE', message: 'Control DOM evidence was not captured or was truncated' }] : [])],
     };
   }
+  async component(sessionId: string, observationId: string, componentId: string) {
+    const details = await this.details(sessionId, observationId); const o = details.observation;
+    const component = o.components?.find(c => c.id === componentId);
+    if (!component) throw new EngineError('NOT_FOUND', 'Component is not present in this observation');
+    const dom = details.snapshot?.dom; const nodes = new Map(dom?.nodes.map(n => [n.id, n]) || []);
+    const root = nodes.get(component.rootNodeId); const ancestors: DomNodeEvidence[] = [];
+    for (let parent = root?.parentId; parent && nodes.has(parent);) { const node = nodes.get(parent)!; ancestors.push(node); parent = node.parentId; }
+    const subtree: DomNodeEvidence[] = []; const queue = root ? [root.id] : []; const limit = 500;
+    for (let i = 0; i < queue.length && subtree.length < limit; i++) {
+      const node = nodes.get(queue[i]); if (node) { subtree.push(node); queue.push(...node.children); }
+    }
+    const members = component.members.map(member => ({ ...member, control: o.controls.find(c => c.localId === member.localId), node: nodes.get(member.localId),
+      actions: details.actions.filter(a => a.localId === member.localId) }));
+    const rects = members.flatMap(m => m.control?.visible && m.control.rect.width > 0 && m.control.rect.height > 0 ? [m.control.rect] : []);
+    const left = Math.min(...rects.map(r => r.x)), top = Math.min(...rects.map(r => r.y));
+    const screenshotRegion = rects.length ? { x: left, y: top, width: Math.max(...rects.map(r => r.x + r.width)) - left, height: Math.max(...rects.map(r => r.y + r.height)) - top } : component.rect;
+    // Only the same root instance in the same document is linked. Reloads require a new judgment.
+    const history = this.reader.store.list<Observation>('observation', sessionId)
+      .filter(p => p.documentId === o.documentId && p.components?.some(c => c.id === componentId)).sort((a, b) => a.capturedAt.localeCompare(b.capturedAt));
+    const index = history.findIndex(p => p.id === observationId); const prior = history.slice(0, index + 1);
+    const attempts = this.reader.store.list<ActionAttempt>('attempt', sessionId);
+    const gaps = [...details.gaps, ...(dom?.gaps || [])];
+    if (!root) gaps.push({ code: 'COMPONENT_DOM_UNAVAILABLE', message: 'Component subtree was not retained or captured; no live DOM was substituted' });
+    if (queue.length > subtree.length) gaps.push({ code: 'COMPONENT_SUBTREE_TRUNCATED', message: 'Component view includes at most 500 nodes; use the paginated DOM query', reference: component.rootNodeId });
+    return { schemaVersion: 1 as const, observationId, capturedAt: o.capturedAt, component, members, ancestors,
+      children: o.components?.filter(c => c.parentId === componentId) || [],
+      subtree: { rootId: component.rootNodeId, nodes: subtree, truncated: queue.length > subtree.length || !!dom?.nodesTruncated },
+      descriptions: this.reader.store.list<ComponentDescription>('component-description', sessionId).filter(d => d.observationId === observationId && d.componentId === componentId),
+      timeline: prior.slice(-20).map(p => ({ observationId: p.id, capturedAt: p.capturedAt, cause: p.cause,
+        attempt: attempts.find(a => a.afterId === p.id), component: p.components!.find(c => c.id === componentId) })), timelineTruncated: prior.length > 20,
+      context: o.context, boundaries: o.boundaries,
+      screenshot: o.evidence?.artifacts.screenshot || (o.screenshot ? { key: o.screenshot } : undefined), screenshotRegion,
+      availability: details.availability, gaps };
+  }
   private content(nodes: Map<string, DomNodeEvidence>, rootId: string, limit: number, captureTruncated: boolean) {
     if (!nodes.has(rootId)) return { text: '', status: 'unavailable' as const, truncated: captureTruncated };
     let text = ''; const stack = [rootId]; let truncated = captureTruncated;
@@ -141,6 +175,7 @@ function observationReferences(event: EngineEvent) {
 }
 export type ObservationDetails = Awaited<ReturnType<BrowserEvidenceQueries['details']>>;
 export type ControlDetails = Awaited<ReturnType<BrowserEvidenceQueries['control']>>;
+export type ComponentDetails = Awaited<ReturnType<BrowserEvidenceQueries['component']>>;
 export type RegionDetails = Awaited<ReturnType<BrowserEvidenceQueries['region']>>;
 export type DomResult = Awaited<ReturnType<BrowserEvidenceQueries['dom']>>;
 export type EventContext = Awaited<ReturnType<BrowserEvidenceQueries['eventContext']>>;

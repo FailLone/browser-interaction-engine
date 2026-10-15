@@ -7,11 +7,10 @@ export function matchIdentities<C extends Control>(observation: Observation<C>, 
   const byId = new Map(history.map(i => [i.id, i]));
   const byKey = new Map<string, ControlIdentity<C>[]>();
   const superseded = new Set(hypotheses.filter(h => h.status === 'resolved' && h.revisions.at(-1)?.identityId !== h.provisionalIdentityId).map(h => h.provisionalIdentityId));
-  const keyFor = (control: C, sig: string) => control.identityScope === 'instance'
-    ? canonical(['instance', control.instanceId, control.region, control.role, control.stableKey || sig])
-    : control.stableKey
-    ? canonical(['key', control.region, control.role, control.stableKey])
-    : canonical(['semantic', sig]);
+  const keyFor = (control: C, sig: string) => canonical([control.identityScope === 'instance'
+    ? ['instance', control.instanceId, control.region, control.role, control.stableKey || sig]
+    : control.stableKey ? ['key', control.region, control.role, control.stableKey] : ['semantic', sig],
+    control.identityContext?.scope, control.identityContext?.binding]);
   for (const identity of history) {
     if (superseded.has(identity.id) || identity.lastControl.identityScope === 'instance' && identity.status !== 'present') continue;
     const key = keyFor(identity.lastControl, identity.signature);
@@ -23,13 +22,21 @@ export function matchIdentities<C extends Control>(observation: Observation<C>, 
   });
   const groups = new Map<string, typeof entries>();
   for (const entry of entries) groups.set(entry.key, [...(groups.get(entry.key) || []), entry]);
-  const compatible = (previous: C, entry: typeof entries[number]) => keyFor(previous, signature(previous)) === entry.key;
   const plans = entries.map(entry => {
     const { control, key } = entry;
-    const candidates = byKey.get(key) || [];
-    const duplicates = groups.get(key)!;
+    const historical = byKey.get(key) || [];
+    const current = groups.get(key)!;
+    // Component test IDs often describe a class of controls. Refine collisions
+    // using independently collected semantics, without changing the public key.
+    // Unlabelled alternatives remain possible: missing evidence is not a mismatch.
+    const refined = !!control.stableKey && !!(control.label || control.name) && (historical.length > 1 || current.length > 1);
+    const candidates = refined ? historical.filter(i => i.signature === entry.sig || !(i.lastControl.label || i.lastControl.name)) : historical;
+    const duplicates = refined ? current.filter(e => e.sig === entry.sig || !(e.control.label || e.control.name)) : current;
+    const compatible = (previous: C) => keyFor(previous, signature(previous)) === key && (!refined || signature(previous) === entry.sig);
     const evidence = control.stableKey ? ['scoped-stable-key', 'compatible-role'] : ['adapter-semantic-signature'];
     if (control.identityScope === 'instance') evidence.push('current-instance-only');
+    if (refined) evidence.push('shared-key-refined-by-semantics');
+    evidence.push(...(control.identityContext?.evidence || []));
     if (duplicates.length > 1) evidence.push('duplicate-current-candidates');
     // An earlier human decision or pending hypothesis only follows the same
     // element while its binding remains compatible. Virtual rows recycle nodes.
@@ -37,14 +44,14 @@ export function matchIdentities<C extends Control>(observation: Observation<C>, 
       const identity = byId.get(h.provisionalIdentityId);
       const previous = identity?.lastControl;
       if (previous?.identityScope === 'instance' && identity?.status !== 'present') return false;
-      return previous?.instanceId === control.instanceId && compatible(previous, entry);
+      return previous?.instanceId === control.instanceId && compatible(previous);
     });
     let chosen: string | undefined;
     let retained: IdentityHypothesis | undefined;
     if (anchored?.status === 'resolved') {
       const revision = anchored.revisions.at(-1);
       const identity = revision && byId.get(revision.identityId);
-      if (identity && compatible(identity.lastControl, entry) && !superseded.has(identity.id)) {
+      if (identity && compatible(identity.lastControl) && !superseded.has(identity.id)) {
         chosen = identity.id;
         evidence.push('external-resolution', ...revision!.evidence);
       }
@@ -52,7 +59,7 @@ export function matchIdentities<C extends Control>(observation: Observation<C>, 
       chosen = anchored.provisionalIdentityId; retained = anchored;
       evidence.push('unresolved-hypothesis-retained');
     }
-    if (!chosen && candidates.length === 1 && duplicates.length === 1 && (control.stableKey || control.name || control.label)) chosen = candidates[0].id;
+    if (!chosen && candidates.length === 1 && duplicates.length === 1 && (!refined || candidates[0].signature === entry.sig) && (control.stableKey || control.name || control.label || control.identityContext?.binding || control.identityContext?.scope)) chosen = candidates[0].id;
     return { ...entry, candidates, duplicates, evidence, chosen, retained };
   });
   const claims = new Map<string, number>();
@@ -88,8 +95,8 @@ export function matchIdentities<C extends Control>(observation: Observation<C>, 
   }
   // Include every contemporaneous alternative, but never cross conflicting keys.
   for (const h of pending) {
-    const entry = entries.find(e => e.control.localId === h.localId)!;
-    h.candidateIds = [...new Set([...h.candidateIds, ...groups.get(entry.key)!.filter(e => e !== entry).map(e => e.control.identityId!)])];
+    const plan = plans.find(e => e.control.localId === h.localId)!;
+    h.candidateIds = [...new Set([...h.candidateIds, ...plan.duplicates.filter(e => e.control !== plan.control).map(e => e.control.identityId!)])];
   }
   return { identities, hypotheses: pending };
 }

@@ -19,6 +19,9 @@ import { collectOverlays } from './overlays.js';
 import { collectLiveContent } from './live-content.js';
 import { collectActionEvidence } from './action-evidence.js';
 import { collectEvidence } from './collect-evidence.js';
+import { collectIdentityContexts } from './identity-context.js';
+import { collectPopupRelations } from './popup-relations.js';
+import { collectComponents } from './components.js';
 import { evidenceOptionsSchema } from './schema.js';
 import { RuntimeRecorder } from './runtime-evidence.js';
 import { historyPosition, historyTarget } from './navigation.js';
@@ -28,13 +31,13 @@ import type { BrowserEvidenceManifest, DetailSnapshot, DomEvidence, EvidenceOpti
 type DOMSnapshot = {
   documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[];
   overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>;
-  regionCandidates?: Observation['regionCandidates']; structuralLists?: Observation['structuralLists'];
+  components?: Observation['components']; regionCandidates?: Observation['regionCandidates']; structuralLists?: Observation['structuralLists'];
   actionDiscovery?: Observation['actionDiscovery']; discoveryScan?: DiscoverySnapshot;
   scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence;
 };
 
 // Runs in the page without framework knowledge or DOM mutation.
-function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan) {
+function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
@@ -214,6 +217,8 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   regions.unshift({ key: 'document', instanceId: document.documentElement ? instance(body || document.documentElement) : undefined, label: document.title, role: 'document', selector: 'body', parentKey: '', rect: rect(body), text: bodyText.slice(0, 8000) });
   const query = 'a[href],button,input:not([type=hidden]),select,textarea,summary,[role=button],[role=link],[role=menuitem],[role=menuitemcheckbox],[role=menuitemradio],[role=option],[role=tab],[role=checkbox],[role=radio],[role=switch],[role=combobox],[role=dialog],[role=alertdialog],dialog,[popover],[aria-expanded],[onclick],[tabindex],[contenteditable]:not([contenteditable=false])';
   const selected = new Set(document.querySelectorAll(query));
+  const popupRelations = popupCollector();
+  for (const relation of popupRelations) if (relation.trigger) selected.add(relation.trigger);
   // Document roots host event delegation and focus management. Preserve those
   // signals separately instead of making the entire document an action target.
   const documentRoots = [document.documentElement, body].filter((el): el is HTMLElement => !!el);
@@ -293,6 +298,12 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const semanticRole = role(el);
     const type = el.tagName === 'INPUT' ? e.type : el.tagName.toLowerCase();
     const capabilities = actionCollector(el);
+    const popupRelation = popupRelations.find(p => p.trigger === el);
+    if (popupRelation && !capabilities.actions.length) {
+      capabilities.actions.push('click');
+      capabilities.actionBasis.click = { status: 'tentative', evidence: [{ source: 'dom-structure', rule: 'positioned-choice-popup-trigger/v1',
+        facts: { contentRole: popupRelation.content.getAttribute('role') || '', relation: popupRelation.retained ? 'observed-panel-continuity' : 'positioned-child-panel-with-sibling-title', purpose: 'unverified' } }] };
+    }
     const structuralItem=structuralMembers.get(el);
     if(structuralItem&&!capabilities.actions.length&&style.cursor==='pointer'){
       capabilities.actions.push('click');capabilities.actionBasis.click={status:'tentative',evidence:[{source:'dom',rule:'repeated-record-probe/v1',facts:{...structuralItem,meaning:'Repeated custom pointer record; click purpose remains unconfirmed'}}]};
@@ -330,6 +341,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey, ...(identityScope ? { identityScope } : {}), ...(liveContent ? { liveContent } : {}),
       ...(list ? { list: { instanceId: instance(list), role: list.tagName === 'SELECT' ? 'select' : 'listbox', label: label(list), selector: selector(list) } } : {}),
       ...(purposeBinding ? { purposeBinding } : {}),
+      reviewAttributes: Object.fromEntries(Array.from(el.attributes).filter(a => /^data-(?!testid)|^name$/.test(a.name)).map(a => [a.name, a.value])),
       reviewBinding, ...(structuralItem ? { structuralItem } : {}),
       ...(!Object.values(capabilities.actionBasis).some(b => b.status === 'supported') ? { classificationBinding: classificationBinding(el) } : {}),
       region: regionKey(el.closest(regionSelector)), regionInstanceId: instance(el.closest(regionSelector) || body || document.documentElement), form: regionKey(el.closest('form')), formOwner: formOwner(el), selector: selector(el), rect: r,
@@ -380,7 +392,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       control.stableKey = scopedControlKey(el, control.name, control.constraints.type);
       if (el.getAttribute('aria-selected') === 'true' && el.tagName !== 'SELECT') control.selected = [control.name];
     });
-  });
+  }, popupRelations);
   // Detected overlays may introduce regions outside the native semantic selectors.
   for(const c of controls)if(c.structuralItem){
     const item=c.structuralItem;
@@ -395,7 +407,9 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const owners = document.querySelectorAll(region.selector);
     if (owners.length === 1) region.instanceId = instance(owners[0]);
   }
-  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, ...layers, discoveryScan, discoveryTopology, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
+  identityCollector(all.slice(0, 1500), controls);
+  const components = componentCollector(all.slice(0, 1500), controls, popupRelations);
+  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, components, ...layers, discoveryScan, discoveryTopology, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
 
 export class BrowserAdapter implements InteractionDriver<Observation, SessionOptions> {
@@ -462,7 +476,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
     const args = `, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? discoverStructuralLists.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? describeStructuralLists.toString() : 'undefined'}, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}, ${this.discoveryPlan?.status === 'active' ? JSON.stringify(this.discoveryPlan) : 'undefined'}`;
-    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}${args}); })()`;
+    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}${args}); })()`;
     const raw = await this.page.evaluate(source) as DOMSnapshot & { discoveryTopology: string[][]; discoveryScan: DiscoverySnapshot };
     const { discoveryTopology, ...dom } = raw;
     dom.discoveryScan.topologyKey = hash(discoveryTopology);
@@ -661,6 +675,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       else if (control.checked !== action.value) await target.click(clickOptions);
     } else if (action.kind === 'press') await target.press(String(action.value));
     else if (action.kind === 'click') await target.click(clickOptions);
+    else if (action.kind === 'focus') await target.focus();
     else throw new EngineError('UNSUPPORTED_ACTION', `Unsupported browser action: ${action.kind}`);
   }
   async validateInput(control: Control, value: string) {
@@ -760,8 +775,18 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // Passive read-only background labels remain evidence, not global prerequisites.
     const reviewBindingsChanged = (controls: Control[]) => controls.some(c => {
       const before = reviewedControls.get(c.instanceId);
-      return (!c.readOnly || !before?.readOnly || reviewTargets.has(c.localId)) && canonical(c.reviewBinding) !== canonical(before?.reviewBinding);
+      return (!c.readOnly || !before?.readOnly || reviewTargets.has(c.localId)) &&
+        (canonical(c.reviewBinding) !== canonical(before?.reviewBinding) || canonical(c.reviewAttributes || {}) !== canonical(before?.reviewAttributes || {}));
     });
+    // External descriptions review the whole observed component; explicit probes
+    // depend on the components containing their target. Ordinary local actions
+    // keep their existing dependency scope instead of inheriting a global check.
+    if (!action || action.source === 'external-probe') {
+      const components = (o: typeof live | Observation) => (o.components || [])
+        .filter(c => !action || c.members.some(m => m.localId === action.localId))
+        .map(({ id, kind, name, parentId, members }) => ({ id, kind, name, parentId, members }));
+      if (canonical(components(current)) !== canonical(components(live))) return 'stale';
+    }
     if (this.options.decisionScopes?.length) {
       const owners = (regions: Region[]) => regions.map(({ key, instanceId, role, label, selector, parentKey }) => ({ key, instanceId, role, label, selector, parentKey }));
       if (canonical(owners(live.regions)) !== canonical(owners(current.regions))) return 'stale';
@@ -794,6 +819,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     return 'valid';
   }
   async validate(action: ActionCandidate, control?: Control) {
+    if (action.kind === 'focus' && (!control || !await this.page!.locator(control.selector).evaluate(el => el.matches('input:not([type=hidden]),textarea,select,button,a[href],[tabindex]') || (el as HTMLElement).isContentEditable))) throw new EngineError('INVALID_INPUT', 'Focus requires a focusable control');
     if (action.kind === 'history' && !historyTarget(action, await this.readHistory())) throw new EngineError('INVALID_INPUT', 'History return requires a previously observed GET entry');
     if (action.kind === 'scroll' && control) {
       const delta = typeof action.value === 'object' && action.value !== null ? action.value as { x: number; y: number } : { x: 0, y: action.value };

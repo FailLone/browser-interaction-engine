@@ -25,13 +25,15 @@ it('keeps a reviewed generic selector distinct from its changing child popup whi
         controlId: c.identityId, localId: c.localId, kind: 'click', label: c.name, risk: 'interface', replayable: false, excluded: false, sampleValidity: 'known',
         source: 'fixture-reviewer', basis: { status: 'supported', evidence: [{ source: 'fixture', rule: 'review/v1', facts: { purpose: 'Open current selector' } }] },
         preconditions: { context: o.context, visible: c.visible, enabled: c.enabled, identityResolved: !c.hypothesisId } };
-      return [...actions, reviewed];
+      return [...actions.filter(a => a.localId !== c.localId || a.kind !== 'click'), reviewed];
     },
   });
   try {
     const first = t.engine.observation(t.sessionId);
     const selector = first.controls.find(c => c.role === 'generic' && c.rect.width === 160)!;
-    expect(selector.name).toBe('Primary'); expect(selector.actions).toEqual([]);
+    expect(selector.name).toBe('Primary'); expect(selector.actions).toEqual(['click']);
+    expect(selector.actionBasis?.click?.status).toBe('tentative');
+    expect(t.engine.actions(t.sessionId).find(a => a.localId === selector.localId)?.risk).toBe('unknown');
     expect(selector.displayedText).toContain('Choice A');
     reviewedInstance = selector.instanceId;
     await t.engine.observe(t.sessionId); await act(t.engine, t.sessionId, 'Primary');
@@ -40,7 +42,8 @@ it('keeps a reviewed generic selector distinct from its changing child popup whi
       await pageOf(t.engine).locator('#results').evaluate((el, markup) => { el.innerHTML = markup; }, markup);
       const next = await t.engine.observe(t.sessionId);
       const c = next.controls.find(c => c.instanceId === reviewedInstance)!;
-      expect(c).toMatchObject({ name: 'Primary', identityId: selector.identityId, actions: [] });
+      expect(c).toMatchObject({ name: 'Primary', identityId: selector.identityId });
+      expect(c.actions.every(kind => c.actionBasis?.[kind]?.status === 'tentative')).toBe(true);
       expect(next.boundaries).toHaveLength(1);
       expect(c.displayedText).toMatch(/Choice Z|No matching choices/);
       expect(next.text).toMatch(/Choice Z|No matching choices/);

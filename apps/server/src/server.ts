@@ -52,6 +52,11 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
   app.get('/v1/sessions/:sessionId/observations/:observationId/details', async request => engine.observationDetails(sid(request), oid(request)));
   app.get('/v1/sessions/:sessionId/observations/:observationId/dom', async request => engine.dom(sid(request), oid(request), domQuerySchema.parse(request.query)));
   app.get('/v1/sessions/:sessionId/observations/:observationId/controls/:controlId', async request => engine.controlDetails(sid(request), oid(request), (request.params as any).controlId));
+  app.get('/v1/sessions/:sessionId/observations/:observationId/components', async request => {
+    const observation = engine.observation(sid(request), oid(request));
+    return { observationId: observation.id, components: observation.components || [], descriptions: engine.componentDescriptions(sid(request), observation.id) };
+  });
+  app.get('/v1/sessions/:sessionId/observations/:observationId/components/:componentId', async request => engine.componentDetails(sid(request), oid(request), (request.params as any).componentId));
   app.get('/v1/sessions/:sessionId/observations/:observationId/region', async request => {
     const key = (request.query as any).key;
     if (typeof key !== 'string' || !key) throw new EngineError('INVALID_QUERY', 'A region key is required');

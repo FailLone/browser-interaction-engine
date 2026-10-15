@@ -54,7 +54,7 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
     else if (['click', 'check', 'scroll', 'hover'].includes(action.kind) && control.actionable.hitTarget === false) action.preconditions.blockers.push({ code: 'pointer_intercepted', evidence: [control.actionable.occludedBy || 'hit-test-failed'], unblock: 'Remove the obstruction and observe again' });
   }
   if (control && action.kind === 'fill' && !control.editable) action.preconditions.blockers.push({ code: 'not_editable', evidence: ['observed-editable=false'], unblock: 'Wait until the field is editable and observe again' });
-  if (!['click', 'fill', 'select', 'check', 'scroll', 'press', 'hover', 'history'].includes(action.kind)) throw new EngineError('INVALID_PLUGIN_ACTION', 'Unsupported browser action kind');
+  if (!['click', 'fill', 'select', 'check', 'scroll', 'press', 'hover', 'focus', 'history'].includes(action.kind)) throw new EngineError('INVALID_PLUGIN_ACTION', 'Unsupported browser action kind');
   if (action.kind === 'history' && (session.dirty || !historyTarget(action, observation.navigation))) {
     action.preconditions.blockers.push({ code: 'unverified_history_return', evidence: ['History return requires a previously observed GET entry in this browser session and no unresolved business effects'], unblock: 'Observe a valid return target and resolve business state requirements' });
   }
@@ -65,5 +65,6 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
     action.risk = 'interface'; action.replayable = true;
   }
   if (declaredExit || action.kind === 'history' || control?.identityScope === 'instance') action.replayable = false;
+  if (action.source === 'external-probe') { action.risk = 'unknown'; action.replayable = false; }
   return action;
 }

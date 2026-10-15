@@ -261,6 +261,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   }
   observationDetails(sessionId: string, observationId: string) { return this.evidenceQueries.details(sessionId, observationId); }
   controlDetails(sessionId: string, observationId: string, controlId: string) { return this.evidenceQueries.control(sessionId, observationId, controlId); }
+  componentDetails(sessionId: string, observationId: string, componentId: string) { return this.evidenceQueries.component(sessionId, observationId, componentId); }
   regionDetails(sessionId: string, observationId: string, key: string) { return this.evidenceQueries.region(sessionId, observationId, key); }
   dom(sessionId: string, observationId: string, query: DomQuery = {}) { return this.evidenceQueries.dom(sessionId, observationId, query); }
   eventContext(sessionId: string, sequence: number) { return this.evidenceQueries.eventContext(sessionId, sequence); }
@@ -315,13 +316,15 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       case 'reviewControls': return this.reviewControls(sessionId,command.review);
       case 'revokeControlReview': return this.revokeControlReview(sessionId,command.revocation);
       case 'reviewRegions': return this.reviewRegions(sessionId, command.review);
+      case 'describeComponent': { const { type: _, ...description } = command; return this.describeComponent(sessionId, description); }
+      case 'probe': return this.probe(sessionId, command.observationId, command.localId, command.kind, command.requestId);
       case 'observe': return this.observe(sessionId);
       case 'inspect': return this.inspect(sessionId, command.region);
       case 'execute': return this.execute(sessionId, command.actionId, command.requestId, command.value);
       case 'explore': case 'resume': return this.explore(sessionId);
       case 'pause': return this.pause(sessionId);
       case 'stop': return this.stop(sessionId);
-      case 'resolveIdentity': return this.resolveIdentity(sessionId, command.hypothesisId, command.identityId, command.source, command.evidence);
+      case 'resolveIdentity': return this.resolveIdentity(sessionId, command.hypothesisId, command.identityId, command.source, command.evidence, command.guard);
       case 'decideExplorationGroups': return this.decideExplorationGroups(sessionId, command.resolutions);
       case 'decideExplorationGroup': return this.decideExplorationGroup(sessionId, command.groupId, command.revision, command.decision);
       case 'reviewListPurpose': return this.reviewListPurpose(sessionId, command.review);

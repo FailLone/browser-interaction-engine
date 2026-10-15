@@ -1,4 +1,5 @@
 import type { InspectionOptionsInput, InspectionResult, CaptureProfile, inspectionCapabilities, validateCaptureProfile } from '@interaction/browser';
+import type { BrowserComponent, ComponentDetails, ComponentDescription, ComponentDescriptionInput } from '@interaction/browser';
 import type { BrowserDiffDetails, Command, ActionCandidate, ActionAttempt, Checkpoint, EngineEvent, FrontierItemView, BrowserFrontierCoverageGroup, Graph, Observation, Session, SessionOptions } from '@interaction/browser';
 import type { ObservationDetails, ControlDetails, RegionDetails, DomResult, DomQuery, EventContext, ArtifactKind, EvidenceOptions, EvidenceRetentionPolicy, SubscriptionOptions, BrowserEngine, evidenceCapabilities } from '@interaction/browser';
 export * from './identity-review.js';
@@ -31,6 +32,10 @@ export class InteractionClient {
   actions(id: string) { return this.request<ActionCandidate[]>(`/sessions/${id}/actions`); }
   observationDetails(id: string, observationId: string) { return this.request<ObservationDetails>(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/details`); }
   controlDetails(id: string, observationId: string, controlId: string) { return this.request<ControlDetails>(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/controls/${encodeURIComponent(controlId)}`); }
+  components(id: string, observationId: string) { return this.request<{ observationId: string; components: BrowserComponent[]; descriptions: ComponentDescription[] }>(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/components`); }
+  componentDetails(id: string, observationId: string, componentId: string) { return this.request<ComponentDetails>(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/components/${encodeURIComponent(componentId)}`); }
+  describeComponent(id: string, description: ComponentDescriptionInput) { return this.command<ComponentDescription>(id, { ...description, type: 'describeComponent' }); }
+  probe(id: string, observationId: string, localId: string, kind: 'hover' | 'focus', requestId: string) { return this.command<ActionAttempt>(id, { type: 'probe', observationId, localId, kind, requestId }); }
   regionDetails(id: string, observationId: string, key: string) { return this.request<RegionDetails>(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/region?${new URLSearchParams({ key })}`); }
   dom(id: string, observationId: string, query: DomQuery = {}) { return this.request<DomResult>(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/dom?${new URLSearchParams(Object.entries(query).map(([k, v]) => [k, String(v)]))}`); }
   eventContext(id: string, sequence: number) { return this.request<EventContext>(`/sessions/${encodeURIComponent(id)}/events/${sequence}/context`); }

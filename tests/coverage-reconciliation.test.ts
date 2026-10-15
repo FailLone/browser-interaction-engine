@@ -90,13 +90,17 @@ it('lets the caller resolve retained historical identity evidence after the targ
     expect(packet.current.targetPresent).toBe(false);
     expect(packet.target.node?.attributes?.['data-operation-key']).toBe(same.exhibit.node?.attributes?.['data-operation-key']);
     const command = identityDecisionCommand(packet, { decision: 'same', candidateId: same.identityId, evidenceRefs: ['target', same.exhibit.ref], reason: reason[0] }, 'test')!;
+    expect(command.guard?.scope).toBe('historical');
+    await expect(api.command(t.sid, { ...command, guard: { observationId: packet.current.observationId, revision: 0 } })).rejects.toMatchObject({ code: 'STALE_IDENTITY_REVIEW' });
+    // Historical coexistence still forbids merging the removed target with its peer.
+    await expect(t.engine.resolveIdentity(t.sid, target.hypothesisId!, rebuilt.controls[1].identityId!, 'test', reason)).rejects.toMatchObject({ code: 'INVALID_RESOLUTION' });
     await api.command(t.sid, command);
     expect((await api.explorationReviewMaterial(t.sid)).identityReviews.some(r => r.hypothesisId === target.hypothesisId)).toBe(false);
     expect(t.engine.observation(t.sid).controls.some(c => c.identityId === first.controls[0].identityId)).toBe(false);
     expect(t.engine.session(t.sid).actionCount).toBe(1);
     expect(t.engine.getFrontier(t.sid).some(f => f.coverage.equivalentTo?.identityId === first.controls[0].identityId)).toBe(true);
-    // Historical coexistence still forbids merging the removed target with its peer.
-    await expect(t.engine.resolveIdentity(t.sid, target.hypothesisId!, rebuilt.controls[1].identityId!, 'test', reason)).rejects.toMatchObject({ code: 'INVALID_RESOLUTION' });
+    // A consumed decision cannot be applied again, even with fresh evidence.
+    await expect(t.engine.resolveIdentity(t.sid, target.hypothesisId!, rebuilt.controls[1].identityId!, 'test', reason)).rejects.toMatchObject({ code: 'STALE_IDENTITY_REVIEW' });
   } finally { await server.close(); await t.close(); }
 });
 

@@ -1,5 +1,6 @@
 import { EventBus } from './events.js';
-import { contextSchema, actionBasisSchema } from './schema.js';
+import { contextSchema, actionBasisSchema, componentDescriptionSchema } from './schema.js';
+import type { ComponentDescription, ComponentDescriptionInput } from './types.js';
 import { assignState, matchIdentities } from './identity.js';
 import { recoverStore } from './recovery.js';
 import { DiffQueries } from './diff-details.js';
@@ -11,7 +12,7 @@ import { reconcileCoverage } from './coverage-reconciliation.js';
 import type { ExplorationGroup, ExplorationGroupDecision, ExplorationGroupResolution } from './types.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
 import type { EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
-import { EngineError, type ActionCandidate, type ActionAttempt, type Checkpoint, type ControlIdentity, type EngineHooks, type FrontierItem, type Graph, type IdentityHypothesis, type InteractionScope, type Issue, type Observation, type Predicate, type ReachResult, type Session, type SessionOptions, type Transition, type UIState, type Visit } from './types.js';
+import { EngineError, type ActionCandidate, type ActionAttempt, type Checkpoint, type ControlIdentity, type EngineHooks, type FrontierItem, type Graph, type IdentityHypothesis, type IdentityReviewGuard, type InteractionScope, type Issue, type Observation, type Predicate, type ReachResult, type Session, type SessionOptions, type Transition, type UIState, type Visit } from './types.js';
 export class InteractionEngine<O extends Observation = Observation, S extends SessionOptions = SessionOptions> {
   readonly store: Persistence;
   readonly events = new EventBus();
@@ -380,7 +381,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (action.preconditions.identityResolved) return true;
     const target = action.target;
     const matches = o.controls.filter(c => c.instanceId === target?.instanceId);
-    return this.session(action.sessionId).options.exploration === 'controls' && target?.kind === 'instance' && target.instanceScope === o.instanceScope
+    return (this.session(action.sessionId).options.exploration === 'controls' || action.source === 'external-probe') && target?.kind === 'instance' && target.instanceScope === o.instanceScope
       && matches.length === 1 && matches[0].localId === action.localId && matches[0].identityId === action.controlId;
   }
   private constrain(action: ActionCandidate, observation: O, session: Session<S>) {
@@ -548,8 +549,65 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     this.pauseRequested = true;
     return this.enqueue(async () => { const s = this.session(sessionId); s.mode = 'manual'; if (s.status === 'running') s.status = 'paused'; this.store.put('session', s); return this.runAction(sessionId, actionId, requestId, value); });
   }
-  private resolveIdentityInternal(sessionId: string, hypothesisId: string, identityId: string, source: string, evidence: string[]) {
+  probe(sessionId: string, observationId: string, localId: string, kind: string, requestId: string) {
+    if (![observationId, localId, kind, requestId].every(v => typeof v === 'string' && v.trim())) throw new EngineError('INVALID_INPUT', 'Probe requires observation, target, kind and request ID');
+    this.pauseRequested = true;
+    return this.enqueue(async () => {
+      const session = this.session(sessionId);
+      const actionId = `probe:${hash({ sessionId, observationId, localId, kind })}`;
+      // A completed request remains repeatable even after its observation is stale.
+      if (this.store.request(sessionId, requestId)) return this.runAction(sessionId, actionId, requestId);
+      const o = this.observation(sessionId);
+      if (o.id !== observationId) throw new EngineError('STALE_OBSERVATION', 'Probe a control from the current observation');
+      const control = o.controls.find(c => c.localId === localId);
+      if (!control) throw new EngineError('TARGET_MISSING', 'Probe target is absent from the observation');
+      if (!this.adapter.probeAction) throw new EngineError('UNSUPPORTED_PROBE', 'Adapter does not support probes');
+      const action = this.constrain({ ...this.adapter.probeAction(kind, control, o, session), id: actionId }, o, session);
+      if (!this.store.get('action', actionId)) this.store.put('action', action);
+      session.mode = 'manual'; if (session.status === 'running') session.status = 'paused'; this.store.put('session', session);
+      return this.runAction(sessionId, actionId, requestId);
+    });
+  }
+  componentDescriptions(sessionId: string, observationId: string, componentId?: string) {
+    this.observation(sessionId, observationId);
+    return this.store.list<ComponentDescription>('component-description', sessionId).filter(d => d.observationId === observationId && (!componentId || d.componentId === componentId));
+  }
+  describeComponent(sessionId: string, input: ComponentDescriptionInput) {
+    const description = componentDescriptionSchema.parse(input);
+    this.pauseRequested = true;
+    return this.enqueue(async () => {
+      const o = this.observation(sessionId);
+      if (o.id !== description.observationId) throw new EngineError('STALE_OBSERVATION', 'Describe a component from the current observation');
+      const component = o.components?.find(c => c.id === description.componentId);
+      if (!component) throw new EngineError('NOT_FOUND', 'Component is not present in this observation');
+      const ids = description.members.map(m => m.localId);
+      if (new Set(ids).size !== ids.length || ids.length !== component.members.length || ids.some(id => !component.members.some(m => m.localId === id))) throw new EngineError('INVALID_COMPONENT', 'Description must reference each observed member exactly once');
+      for (const ref of description.evidence) {
+        const evidence = this.observation(sessionId, ref.observationId);
+        if (ref.localId && !evidence.controls.some(c => c.localId === ref.localId) || ref.componentId && !evidence.components?.some(c => c.id === ref.componentId)) throw new EngineError('INVALID_COMPONENT', 'Evidence reference is not present in its observation');
+        if (ref.localId && ref.componentId && !evidence.components!.find(c => c.id === ref.componentId)!.members.some(m => m.localId === ref.localId)) throw new EngineError('INVALID_COMPONENT', 'Referenced control does not belong to the referenced component');
+      }
+      await this.attach(sessionId);
+      if (await this.driver!.preflight(o) !== 'valid') { await this.capture(sessionId, 'inspection'); throw new EngineError('STALE_OBSERVATION', 'The source changed before the description was submitted'); }
+      const saved: ComponentDescription = { ...description, id: id(), sessionId, createdAt: now() };
+      this.store.transaction(() => { this.store.put('component-description', saved); this.emit(sessionId, 'component.described', saved); });
+      return saved;
+    });
+  }
+  private validateIdentityReview(sessionId: string, hypothesisId: string, guard?: IdentityReviewGuard) {
     const h = this.owned<IdentityHypothesis>('hypothesis', hypothesisId, sessionId);
+    const current = this.observation(sessionId);
+    if (h.status !== 'pending' || guard && (guard.observationId !== current.id || guard.revision !== h.revisions.length)) throw new EngineError('STALE_IDENTITY_REVIEW', 'The identity review is no longer current');
+    const origin = this.observation(sessionId, h.observationId);
+    const target = origin.controls.find(c => c.localId === h.localId);
+    const matches = target ? current.controls.filter(c => c.instanceId === target.instanceId) : [];
+    const binding = (c: O['controls'][number]) => canonical([c.stableKey, c.role, c.region, this.adapter.signature(c), this.adapter.reviewBinding?.(c)]);
+    const historical = guard?.scope === 'historical' && matches.length === 0;
+    if (!target || !historical && (matches.length !== 1 || binding(target) !== binding(matches[0]))) throw new EngineError('STALE_IDENTITY_REVIEW', 'The target was removed, rebuilt or rebound; prepare a new review');
+    return { h, current, origin };
+  }
+  private resolveIdentityInternal(sessionId: string, hypothesisId: string, identityId: string, source: string, evidence: string[], guard?: IdentityReviewGuard) {
+    const { h, current, origin } = this.validateIdentityReview(sessionId, hypothesisId, guard);
     this.owned<ControlIdentity<O['controls'][number]>>('identity', identityId, sessionId);
     if (![h.provisionalIdentityId, ...h.candidateIds].includes(identityId)) throw new EngineError('INVALID_RESOLUTION', 'Identity must be one of the recorded candidates or the provisional identity');
     if (identityId !== h.provisionalIdentityId) {
@@ -566,10 +624,24 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       }
     }
     if (!source.trim() || !evidence.length || evidence.some(value => !value.trim())) throw new EngineError('INVALID_RESOLUTION', 'Source and evidence are required');
-    h.status = 'resolved'; h.revisions.push({ identityId, source, evidence, at: now() }); this.store.put('hypothesis', h); this.emit(sessionId, 'identity.resolved', h); return h;
+    return this.store.transaction(() => { h.status = 'resolved'; h.revisions.push({ identityId, source, evidence, at: now() }); this.store.put('hypothesis', h); this.emit(sessionId, 'identity.resolved', h); return h; });
   }
-  resolveIdentity(sessionId: string, hypothesisId: string, identityId: string, source: string, evidence: string[]) {
-    this.pauseRequested = true; return this.enqueue(async () => { const h = this.resolveIdentityInternal(sessionId, hypothesisId, identityId, source, evidence); await this.attach(sessionId); await this.capture(sessionId, 'inspection'); return h; });
+  resolveIdentity(sessionId: string, hypothesisId: string, identityId: string, source: string, evidence: string[], guard?: IdentityReviewGuard) {
+    // Legacy callers are guarded against queue races from invocation onward. New
+    // callers also send the observation/revision they actually reviewed.
+    const hypothesis = this.owned<IdentityHypothesis>('hypothesis', hypothesisId, sessionId);
+    const current = this.observation(sessionId);
+    const originTarget = this.observation(sessionId, hypothesis.observationId).controls.find(c => c.localId === hypothesis.localId);
+    const expected: IdentityReviewGuard = guard ? { ...guard } : { observationId: current.id, revision: hypothesis.revisions.length,
+      ...(originTarget && !current.controls.some(c => c.instanceId === originTarget.instanceId) ? { scope: 'historical' as const } : {}) };
+    const reviewedEvidence = [...evidence];
+    this.pauseRequested = true; return this.enqueue(async () => {
+      const { current } = this.validateIdentityReview(sessionId, hypothesisId, expected);
+      await this.attach(sessionId);
+      if (await this.driver!.preflight(current) !== 'valid') { await this.capture(sessionId, 'inspection'); throw new EngineError('STALE_IDENTITY_REVIEW', 'The live source changed after the review'); }
+      const h = this.resolveIdentityInternal(sessionId, hypothesisId, identityId, source, reviewedEvidence, expected);
+      await this.capture(sessionId, 'inspection'); return h;
+    });
   }
   private openScopeInternal(sessionId: string, name: string, region: string, automatic = false, beforeId?: string, metadata: Partial<Pick<InteractionScope, 'boundaryKey' | 'parentScopeId' | 'baseline' | 'anchors' | 'attemptIds'>> = {}) {
     const before = this.observation(sessionId, beforeId);

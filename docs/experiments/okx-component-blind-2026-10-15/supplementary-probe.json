@@ -1,0 +1,272 @@
+{
+  "capturedAt": "2026-10-15T03:25:09.979781+00:00",
+  "source": "Separate live agent-browser session; not provided to blind judge",
+  "url": "https://www.okx.com/zh-hans/convert/btc-to-usd",
+  "actions": "Closed region notice and hovered five buttons, then moved away; no rating clicks or votes",
+  "hoverEvidence": [
+    {
+      "hoverTargetRef": "e5",
+      "filledStars": 1,
+      "aggregateText": "4.7"
+    },
+    {
+      "hoverTargetRef": "e6",
+      "filledStars": 2,
+      "aggregateText": "4.7"
+    },
+    {
+      "hoverTargetRef": "e7",
+      "filledStars": 3,
+      "aggregateText": "4.7"
+    },
+    {
+      "hoverTargetRef": "e8",
+      "filledStars": 4,
+      "aggregateText": "4.7"
+    },
+    {
+      "hoverTargetRef": "e9",
+      "filledStars": 5,
+      "aggregateText": "4.7"
+    }
+  ],
+  "afterPointerLeave": {
+    "aggregateText": "4.7",
+    "iconClasses": [
+      [
+        "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe"
+      ],
+      [
+        "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe"
+      ],
+      [
+        "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe"
+      ],
+      [
+        "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe"
+      ],
+      [
+        "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_emptyStar__SX6gL",
+        "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_halfFilledStar__zrJC+"
+      ]
+    ]
+  },
+  "frameworkEvidence": [
+    [
+      {
+        "key": null,
+        "scalarProps": {
+          "type": "button"
+        },
+        "type": "button"
+      },
+      {
+        "key": "0",
+        "scalarProps": {},
+        "type": "object"
+      },
+      {
+        "key": null,
+        "scalarProps": {},
+        "type": "div"
+      },
+      {
+        "key": null,
+        "scalarProps": {
+          "halfStarThreshold": 0.3,
+          "ratingNumber": 4.7,
+          "starSize": 24
+        },
+        "type": "function"
+      },
+      {
+        "key": null,
+        "scalarProps": {
+          "canVote": true,
+          "halfStarThreshold": 0.3,
+          "ratingNumber": 4.7,
+          "starSize": 24
+        },
+        "type": "function"
+      },
+      {
+        "key": null,
+        "scalarProps": {},
+        "type": "div"
+      }
+    ],
+    [
+      {
+        "key": null,
+        "scalarProps": {
+          "type": "button"
+        },
+        "type": "button"
+      },
+      {
+        "key": "1",
+        "scalarProps": {},
+        "type": "object"
+      },
+      {
+        "key": null,
+        "scalarProps": {},
+        "type": "div"
+      },
+      {
+        "key": null,
+        "scalarProps": {
+          "halfStarThreshold": 0.3,
+          "ratingNumber": 4.7,
+          "starSize": 24
+        },
+        "type": "function"
+      },
+      {
+        "key": null,
+        "scalarProps": {
+          "canVote": true,
+          "halfStarThreshold": 0.3,
+          "ratingNumber": 4.7,
+          "starSize": 24
+        },
+        "type": "function"
+      },
+      {
+        "key": null,
+        "scalarProps": {},
+        "type": "div"
+      }
+    ],
+    [
+      {
+        "key": null,
+        "scalarProps": {
+          "type": "button"
+        },
+        "type": "button"
+      },
+      {
+        "key": "2",
+        "scalarProps": {},
+        "type": "object"
+      },
+      {
+        "key": null,
+        "scalarProps": {},
+        "type": "div"
+      },
+      {
+        "key": null,
+        "scalarProps": {
+          "halfStarThreshold": 0.3,
+          "ratingNumber": 4.7,
+          "starSize": 24
+        },
+        "type": "function"
+      },
+      {
+        "key": null,
+        "scalarProps": {
+          "canVote": true,
+          "halfStarThreshold": 0.3,
+          "ratingNumber": 4.7,
+          "starSize": 24
+        },
+        "type": "function"
+      },
+      {
+        "key": null,
+        "scalarProps": {},
+        "type": "div"
+      }
+    ],
+    [
+      {
+        "key": null,
+        "scalarProps": {
+          "type": "button"
+        },
+        "type": "button"
+      },
+      {
+        "key": "3",
+        "scalarProps": {},
+        "type": "object"
+      },
+      {
+        "key": null,
+        "scalarProps": {},
+        "type": "div"
+      },
+      {
+        "key": null,
+        "scalarProps": {
+          "halfStarThreshold": 0.3,
+          "ratingNumber": 4.7,
+          "starSize": 24
+        },
+        "type": "function"
+      },
+      {
+        "key": null,
+        "scalarProps": {
+          "canVote": true,
+          "halfStarThreshold": 0.3,
+          "ratingNumber": 4.7,
+          "starSize": 24
+        },
+        "type": "function"
+      },
+      {
+        "key": null,
+        "scalarProps": {},
+        "type": "div"
+      }
+    ],
+    [
+      {
+        "key": null,
+        "scalarProps": {
+          "type": "button"
+        },
+        "type": "button"
+      },
+      {
+        "key": "4",
+        "scalarProps": {},
+        "type": "object"
+      },
+      {
+        "key": null,
+        "scalarProps": {},
+        "type": "div"
+      },
+      {
+        "key": null,
+        "scalarProps": {
+          "halfStarThreshold": 0.3,
+          "ratingNumber": 4.7,
+          "starSize": 24
+        },
+        "type": "function"
+      },
+      {
+        "key": null,
+        "scalarProps": {
+          "canVote": true,
+          "halfStarThreshold": 0.3,
+          "ratingNumber": 4.7,
+          "starSize": 24
+        },
+        "type": "function"
+      },
+      {
+        "key": null,
+        "scalarProps": {},
+        "type": "div"
+      }
+    ]
+  ],
+  "limits": "Hover previews corroborate ordinal values; no click or network-submission semantics were verified. React internals are optional, framework-specific evidence, not a stable public identity contract."
+}
