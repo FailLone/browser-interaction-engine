@@ -11,6 +11,7 @@ import type { ActionCandidate, Context, Control, Gap, Observation, Region, Sessi
 import { EngineError } from './types.js';
 import { now } from './util.js';
 import { collectOverlays } from './overlays.js';
+import { collectLiveContent } from './live-content.js';
 import { collectActionEvidence } from './action-evidence.js';
 import { collectEvidence } from './collect-evidence.js';
 import { evidenceOptionsSchema } from './schema.js';
@@ -20,10 +21,11 @@ import type { BrowserHistory } from './types.js';
 import type { BrowserEvidenceManifest, DetailSnapshot, DomEvidence, EvidenceOptions } from './evidence-types.js';
 
 // Runs in the page without framework knowledge or DOM mutation.
-function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions) {
+function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
+  const live = liveCollector?.(instance, liveEpoch);
   const clean = (s: string | null | undefined) => (s || '').replace(/\s+/g, ' ').trim().slice(0, 500);
   const label = (el: Element) => {
     const labelled = el.getAttribute('aria-labelledby');
@@ -55,14 +57,14 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   const elementKey = (el: Element) => el.getAttribute('data-testid') ? `testid:${el.getAttribute('data-testid')}` : el.id ? `id:${el.id}` : el.getAttribute('name') ? `name:${el.getAttribute('name')}` : undefined;
   const itemSelector = '[data-row-key],[data-item-key],li,tr,[role=row],[role=listitem],[role=treeitem],[role=option]';
   const listSelector = 'ul,ol,table,[role=list],[role=listbox],[role=grid],[role=tree],[data-list-key]';
-  const contentName = (el: Element, independentScopes?: Set<Element>) => {
+  const contentName = (el: Element, independentScopes?: Set<Element>, omitLive = false) => {
     // Fallback names describe this control, not an independent descendant panel.
     // Explicit labels are resolved separately (including hidden referenced text).
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         if (node.nodeType === Node.TEXT_NODE) return NodeFilter.FILTER_ACCEPT;
         const child = node as Element;
-        if (independentScopes?.has(child) || child.matches('script,style,[hidden],[aria-hidden=true],dialog,[role=dialog],[role=alertdialog],[role=menu],[role=listbox],[role=grid],[role=tree],[role=tabpanel],[role=tooltip],[popover]')) return NodeFilter.FILTER_REJECT;
+        if (omitLive && live?.ignored.has(child) || independentScopes?.has(child) || child.matches('script,style,[hidden],[aria-hidden=true],dialog,[role=dialog],[role=alertdialog],[role=menu],[role=listbox],[role=grid],[role=tree],[role=tabpanel],[role=tooltip],[popover]')) return NodeFilter.FILTER_REJECT;
         const style = getComputedStyle(child);
         return style.display === 'none' || style.visibility === 'hidden' ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_SKIP;
       },
@@ -73,34 +75,89 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     return clean(parts.join('')) || clean(el.getAttribute('title')) || clean(el.getAttribute('placeholder')) || (['submit', 'button'].includes(input.type) ? input.value : '');
   };
   const itemKeyCache = new Map<Element, string | undefined>();
+  const linkBindings = new Map<Element, string | undefined>();
+  const recordLinks = (item: Element) => {
+    if (linkBindings.has(item)) return linkBindings.get(item);
+    const links = [...item.querySelectorAll('a[href]')].filter(a => a.closest(itemSelector) === item)
+      .map(a => (a as HTMLAnchorElement).href).filter(href => {
+        try { const u = new URL(href); return ['http:', 'https:'].includes(u.protocol) && u.origin + u.pathname + u.search !== location.origin + location.pathname + location.search; } catch { return false; }
+      });
+    const binding = links.length ? JSON.stringify(['record-links', [...new Set(links)].sort()]) : undefined;
+    linkBindings.set(item, binding); return binding;
+  };
+  const recordLinkCounts = new Map<Element, Map<string, number>>();
+  const uniqueRecordLinks = (list: Element, binding: string) => {
+    let counts = recordLinkCounts.get(list);
+    if (!counts) {
+      counts = new Map();
+      for (const item of list.querySelectorAll(itemSelector)) if (item.parentElement?.closest(listSelector) === list) {
+        const key = recordLinks(item); if (key) counts.set(key, (counts.get(key) || 0) + 1);
+      }
+      recordLinkCounts.set(list, counts);
+    }
+    return counts.get(binding) === 1;
+  };
+  const descriptions = new Map<Element, { text: string; fullText: string }>();
+  const recordDescription = (item: Element) => {
+    if (descriptions.has(item)) return descriptions.get(item)!;
+    const copy = item.cloneNode(true) as Element;
+    // A record can contain a nested list or an independently positioned
+    // expanded panel. Its changing contents are not the parent record's name.
+    // Keep ordinary positioned descriptions: position alone is not ownership.
+    const descendants = [...item.querySelectorAll('*')]; const copies = [...copy.querySelectorAll('*')];
+    const openers = [...item.querySelectorAll('[aria-expanded]')].filter(el => el.closest(itemSelector) === item);
+    const itemRect = item.getBoundingClientRect();
+    descendants.forEach((el, index) => {
+      const nestedScope = el.matches(`${listSelector},dialog,[role=dialog],[role=alertdialog],[role=menu],[role=tabpanel],[popover]`);
+      const panelRect = el.getBoundingClientRect();
+      const outsideItem = panelRect.width > 0 && panelRect.height > 0 && (panelRect.left < itemRect.left || panelRect.right > itemRect.right || panelRect.top < itemRect.top || panelRect.bottom > itemRect.bottom);
+      const expandedPanel = ['absolute', 'fixed'].includes(getComputedStyle(el).position)
+        && outsideItem && el.children.length > 0 && openers.some(opener => opener !== el && !el.contains(opener));
+      if (nestedScope || expandedPanel) copies[index].remove();
+    });
+    copy.querySelectorAll('button,input,select,textarea,[role=button],[role=checkbox],[role=switch],[role=combobox],script,style,[hidden],[aria-hidden=true]').forEach(child => child.remove());
+    const labelledBy = item.getAttribute('aria-labelledby');
+    const fullLabel = labelledBy ? labelledBy.split(/\s+/).map(id => document.getElementById(id)?.textContent || '').join(' ') : item.getAttribute('aria-label');
+    const fullText = (fullLabel || copy.textContent || '').replace(/\s+/g, ' ').trim();
+    // These are typed display values, not textual record descriptions. Keep
+    // plain numbers (which could be record IDs) and explicit row labels.
+    if (!fullLabel) for (const el of [...copy.querySelectorAll('*')].reverse()) {
+      const text = (el.textContent || '').trim();
+      const readout = /^[+\-−]?\p{Sc}\s*\d[\d,.]*(?:\s*[KMBTkmbt])?$/u.test(text)
+        || /^[+\-−]?\d[\d,.]*\s*[%‰]$/.test(text);
+      if (readout && !el.closest('label') && !el.matches('a,[role],output[for]') && !el.querySelector('a,[role],input,button,select,textarea')) el.remove();
+    }
+    const text = (fullLabel || copy.textContent || '').replace(/\s+/g, ' ').trim();
+    const description = { text, fullText }; descriptions.set(item, description); return description;
+  };
+  const descriptionCounts = new Map<Element, Map<string, number>>();
+  const uniqueDescription = (list: Element, text: string) => {
+    let counts = descriptionCounts.get(list);
+    if (!counts) {
+      counts = new Map();
+      for (const item of list.querySelectorAll(itemSelector)) if (item.parentElement?.closest(listSelector) === list) {
+        const value = recordDescription(item).text; counts.set(value, (counts.get(value) || 0) + 1);
+      }
+      descriptionCounts.set(list, counts);
+    }
+    return counts.get(text) === 1;
+  };
   const itemKey = (item: Element) => {
     if (itemKeyCache.has(item)) return itemKeyCache.get(item);
     // Explicit record keys survive reorder/rebuild and change when a virtual row
     // is recycled. Do not use sibling indexes, geometry or input values as keys.
     const declared = ['data-row-key', 'data-item-key', 'data-key'].map(key => [key, item.getAttribute(key)]).find(([, value]) => value);
     let key = declared ? JSON.stringify(declared) : undefined;
+    const links = recordLinks(item), list = item.parentElement?.closest(listSelector);
+    // Shared generic links do not identify a record. A changed destination creates
+    // a different binding even when a virtual list recycles the same DOM slot.
+    if (!key && links && list && uniqueRecordLinks(list, links)) key = links;
     if (!key) {
-      const copy = item.cloneNode(true) as Element;
-      // A record can contain a nested list or an independently positioned
-      // expanded panel. Its changing contents are not the parent record's name.
-      // Keep ordinary positioned descriptions: position alone is not ownership.
-      const descendants = [...item.querySelectorAll('*')]; const copies = [...copy.querySelectorAll('*')];
-      const openers = [...item.querySelectorAll('[aria-expanded]')].filter(el => el.closest(itemSelector) === item);
-      const itemRect = item.getBoundingClientRect();
-      descendants.forEach((el, index) => {
-        const nestedScope = el.matches(`${listSelector},dialog,[role=dialog],[role=alertdialog],[role=menu],[role=tabpanel],[popover]`);
-        const panelRect = el.getBoundingClientRect();
-        const outsideItem = panelRect.width > 0 && panelRect.height > 0 && (panelRect.left < itemRect.left || panelRect.right > itemRect.right || panelRect.top < itemRect.top || panelRect.bottom > itemRect.bottom);
-        const expandedPanel = ['absolute', 'fixed'].includes(getComputedStyle(el).position)
-          && outsideItem && el.children.length > 0 && openers.some(opener => opener !== el && !el.contains(opener));
-        if (nestedScope || expandedPanel) copies[index].remove();
-      });
-      copy.querySelectorAll('button,input,select,textarea,[role=button],[role=checkbox],[role=switch],[role=combobox],script,style,[hidden],[aria-hidden=true]').forEach(child => child.remove());
-      const labelledBy = item.getAttribute('aria-labelledby');
-      const fullLabel = labelledBy ? labelledBy.split(/\s+/).map(id => document.getElementById(id)?.textContent || '').join(' ') : item.getAttribute('aria-label');
-      const text = (fullLabel || copy.textContent || '').replace(/\s+/g, ' ').trim();
+      const { text, fullText } = recordDescription(item);
+      const projected = text !== fullText && /[\p{L}]/u.test(text) && list && uniqueDescription(list, text);
+      const description = projected ? text : fullText;
       // Long/truncated descriptions are not a unique business record key.
-      if (text && text.length <= 500) key = JSON.stringify(['item-text', text]);
+      if (description && description.length <= 500) key = JSON.stringify([projected ? 'item-description' : 'item-text', description]);
     }
     // A row's DOM id/testid may identify a reusable viewport slot, not its item.
     // Without a declared record key or descriptive text, leave it unresolved.
@@ -120,7 +177,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       item = item.parentElement?.closest(itemSelector) || null;
     }
     if (!bindings.length) return own;
-    const localKey = el.getAttribute('data-testid') || el.getAttribute('name') || (name ? JSON.stringify([role(el), name, type]) : own);
+    const localKey = el.matches(itemSelector) ? JSON.stringify([role(el), 'record', type]) : el.getAttribute('data-testid') || el.getAttribute('name') || (name ? JSON.stringify([role(el), name, type]) : own);
     // Duplicate controls within one item still share this key and stay ambiguous.
     return localKey ? `item:${JSON.stringify([bindings, localKey])}` : undefined;
   };
@@ -169,19 +226,23 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const hit = document.elementFromPoint(x, y);
     const isInView = r.x >= 0 && r.y >= 0 && r.x + r.width <= innerWidth && r.y + r.height <= innerHeight;
     const options = el.tagName === 'SELECT' ? [...(el as HTMLSelectElement).options].map(o => ({ value: o.value, label: clean(o.label), disabled: o.disabled })) : [];
-    const stableKey = scopedControlKey(el, name, type);
+    const liveEvidence = live?.evidence.get(el);
+    const liveName = liveEvidence?.length ? label(el) || contentName(el, undefined, true) : undefined;
+    const liveContent = liveName ? { name: liveName, text: contentName(el, undefined, true), evidence: liveEvidence! } : undefined;
+    const stableKey = scopedControlKey(el, liveName || name, type);
     const nestedLists = scroll ? el.querySelectorAll('[role=listbox]') : [];
     const list = el.tagName === 'SELECT' ? el : el.closest('[role=listbox]') || (nestedLists.length === 1 ? nestedLists[0] : undefined);
     const boundForm = (el as HTMLInputElement).form;
     const purposeBinding = list ? { attributes: Object.fromEntries(['type', 'role', 'href', 'target', 'form', 'formaction', 'formmethod', 'formtarget', 'aria-controls', 'aria-haspopup'].filter(k => el.hasAttribute(k)).map(k => [k, el.getAttribute(k)!])),
       ...(boundForm ? { form: { instanceId: instance(boundForm), action: boundForm.action, method: boundForm.method, target: boundForm.target } } : {}) } : undefined;
     return {
-      localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey,
+      localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey, ...(liveContent ? { liveContent } : {}),
       ...(list ? { list: { instanceId: instance(list), role: list.tagName === 'SELECT' ? 'select' : 'listbox', label: label(list), selector: selector(list) } } : {}),
       ...(purposeBinding ? { purposeBinding } : {}),
       region: regionKey(el.closest(regionSelector)), regionInstanceId: instance(el.closest(regionSelector) || body || document.documentElement), form: regionKey(el.closest('form')), selector: selector(el), rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
       checked: ['checkbox', 'radio'].includes(type) ? e.checked : el.hasAttribute('aria-checked') ? el.getAttribute('aria-checked') === 'true' : null,
+      pressed: el.getAttribute('aria-pressed') === 'mixed' ? 'mixed' as const : el.hasAttribute('aria-pressed') ? el.getAttribute('aria-pressed') === 'true' : null,
       selected: el.tagName === 'SELECT' ? [...(el as HTMLSelectElement).selectedOptions].map(o => o.value) : el.getAttribute('aria-selected') === 'true' ? [name] : [],
       visible: !!visible, enabled: !!enabled, editable: !!editable, readOnly: !!e.readOnly || el.getAttribute('aria-readonly') === 'true', expanded: el.hasAttribute('aria-expanded') ? el.getAttribute('aria-expanded') === 'true' : null, controls: el.getAttribute('aria-controls'),
       constraints: { type, required: !!e.required, min: e.min || undefined, max: e.max || undefined, step: e.step || undefined, pattern: e.pattern || undefined, minLength: e.minLength >= 0 ? e.minLength : undefined, maxLength: e.maxLength >= 0 ? e.maxLength : undefined, valid: e.validity?.valid ?? true },
@@ -222,6 +283,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
 export class BrowserAdapter implements InteractionDriver<Observation, SessionOptions> {
   browser?: Browser; context?: BrowserContext; page?: Page;
   private gaps: Gap[] = [];
+  private liveEpoch = 0;
   private recorder?: RuntimeRecorder;
   private navigationClient?: CDPSession;
   private navigationSessionId = '';
@@ -273,7 +335,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (!this.page || this.page.isClosed()) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
-    const args = detailed ? `, ${collectEvidence.toString()}, ${JSON.stringify(this.options.evidence)}` : '';
+    const args = `, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}`;
     const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}${args}); })()`;
     return this.page.evaluate(source) as Promise<{ documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[]; overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>; actionDiscovery?: Observation['actionDiscovery']; scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence }>;
   }
@@ -293,7 +355,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
           dom = await timeout(this.readDOM(), Math.max(1, deadline - Date.now()), 'DOM capture deadline exceeded');
           lastError = undefined;
           const incomplete = dom.gaps.some(g => ['DOM_ROOT_UNAVAILABLE', 'DOCUMENT_LOADING'].includes(g.code));
-          const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
+          const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.pressed, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
           if (key !== previous || incomplete) { previous = key; unchangedSince = Date.now(); }
           const interactive = interactionProjection(dom);
           if (interactive !== previousInteraction || incomplete) { previousInteraction = interactive; interactionSince = Date.now(); }
@@ -394,6 +456,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     return { ...observation, navigation, evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
   }
   async execute(action: ActionCandidate, control?: Control) {
+    this.liveEpoch++;
     const page = this.page!;
     if (action.kind === 'history') {
       const target = historyTarget(action, await this.readHistory());
@@ -497,7 +560,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (o.overlays?.length) add('press', 'Escape');
     return actions;
   }
-  async preflight(current: Observation): Promise<'valid' | 'stale' | 'context_changed'> {
+  async preflight(current: Observation, action?: ActionCandidate): Promise<'valid' | 'stale' | 'context_changed'> {
     let live: Awaited<ReturnType<BrowserAdapter['readDOM']>>;
     try { live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
@@ -517,11 +580,14 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       const bindings = new Map(current.controls.map(c => [c.instanceId, c.regionInstanceId]));
       if (live.controls.some(c => c.regionInstanceId !== bindings.get(c.instanceId))) return 'stale';
     }
-    const changed = this.options.exploration === 'controls' ? interactionProjection(live) !== interactionProjection(current)
+    const target = action && current.controls.find(c => c.localId === action.localId);
+    const changed = this.options.exploration === 'controls' ? interactionProjection(live, target?.instanceId) !== interactionProjection(current, target?.instanceId)
       : liveCanonical !== current.canonical || live.controls.some((c, i) => c.instanceId !== current.controls[i]?.instanceId);
     if (changed) {
       return 'stale';
     }
+    // A submission or externally reviewed operation must retain its exact target text.
+    if (target && action?.risk !== 'interface' && target.displayedText !== live.controls.find(c => c.instanceId === target.instanceId)?.displayedText) return 'stale';
     // Context rules must be re-read even when their DOM node is not an interactive control.
     for (const rule of this.options.contextRules) {
       const locator = this.page!.locator(rule.selector);

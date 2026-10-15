@@ -292,6 +292,18 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       this.emit(sessionId, 'frontier.updated', { observationId: o.id });
       this.syncBoundaries(sessionId, previous, o, attemptId);
     });
+    if (o.gaps.some(g => g.critical)) this.observationFailure(sessionId, 'incomplete', o.id);
+    else {
+      const currentSession = this.session(sessionId);
+      const succeeded = attemptId && this.owned<ActionAttempt>('attempt', attemptId, sessionId).status === 'succeeded';
+      // Resolving an incomplete observation is progress. A stale-preflight streak
+      // needs an actual successful operation; a fresh snapshot alone cannot reset it.
+      if (succeeded || currentSession.observationFailures?.kind === 'incomplete') {
+        delete currentSession.observationFailures;
+        if (currentSession.stopReason === 'OBSERVATION_NO_PROGRESS') delete currentSession.stopReason;
+        this.store.put('session', currentSession);
+      }
+    }
     await this.afterCapture(structuredClone(o), previous ? structuredClone(previous) : undefined, attemptId);
     await this.store.evidence.endObservation?.(observationId, true);
     const decisionHook = this.hooks.explorationDecision || this.hooks.explorationGroup;
@@ -365,6 +377,24 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (!observation.regions.some(r => r.key === region)) throw new EngineError('REGION_NOT_FOUND', 'Requested region was not found', { observationId: observation.id });
     return { observation, region, controls: observation.controls.filter(c => this.adapter.inRegion?.(c, region, observation) ?? c.region === region), note: 'Observation only; no action was executed' };
   }
+  /** Persist the streak across pause/resume; refreshing pixels is not progress. */
+  private observationFailure(sessionId: string, kind: 'incomplete' | 'stale', observationId: string) {
+    const session = this.session(sessionId), previous = session.observationFailures;
+    if (previous?.observationIds.includes(observationId)) {
+      // A failed preflight can itself produce an incomplete capture. Count that
+      // observation once, but retain the stronger requirement for action progress.
+      if (kind === 'stale' && previous.kind !== 'stale') { previous.kind = 'stale'; this.store.put('session', session); }
+      return previous.count >= 3;
+    }
+    session.observationFailures = { count: (previous?.count || 0) + 1, kind: previous?.kind === 'stale' ? 'stale' : kind,
+      observationIds: [...(previous?.observationIds || []), observationId].slice(-3) };
+    if (session.observationFailures.count >= 3) {
+      session.status = 'paused'; session.stopReason = 'OBSERVATION_NO_PROGRESS'; this.pauseRequested = true;
+      this.emit(sessionId, 'exploration.no_progress', { reason: session.stopReason, ...session.observationFailures });
+    }
+    this.store.put('session', session);
+    return session.observationFailures.count >= 3;
+  }
   private budget(session: Session<S>) {
     if (session.actionCount >= session.options.maxActions || session.elapsedMs >= session.options.maxDurationMs) throw new EngineError('BUDGET_EXHAUSTED', 'Action or elapsed-time budget exhausted');
   }
@@ -387,9 +417,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (original.excluded && original.exclusionReason !== 'input_sample_required') throw new EngineError('ACTION_EXCLUDED', original.exclusionReason || 'Action excluded');
     if (original.basis?.status === 'tentative' && purpose !== 'external') throw new EngineError('ACTION_BLOCKED', 'action_basis_unconfirmed');
     if (!this.targetResolved(original, current)) throw new EngineError('IDENTITY_AMBIGUOUS', 'Resolve the identity before acting');
-    const preflight = await this.driver!.preflight(current);
+    const preflight = await this.driver!.preflight(current, original);
     if (preflight !== 'valid') {
       const fresh = await this.capture(sessionId, 'external');
+      if (this.observationFailure(sessionId, 'stale', fresh.id)) throw new EngineError('OBSERVATION_NO_PROGRESS', 'Repeated source invalidation without an executed action; inspect changing targets or context before continuing', { observationId: fresh.id });
       throw new EngineError(preflight === 'context_changed' ? 'PRECONDITIONS_CHANGED' : 'STALE_OBSERVATION', 'Interaction source changed before execution', { observationId: fresh.id, actions: this.actions(sessionId) });
     }
     const constrained = ['recovery-entry', 'recovery-reset'].includes(original.source) ? original : this.constrain(structuredClone(original), current, session);
@@ -397,7 +428,11 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (this.hooks.context) {
       const check = await this.hook(sessionId, 'context-preflight', async () => contextSchema.parse(await this.hooks.context!(structuredClone({ session, observation: current }))));
       if (check.error) throw new EngineError('PRECONDITIONS_UNKNOWN', check.error);
-      if (canonical({ ...current.context, ...check.value }) !== canonical(current.context)) { const fresh = await this.capture(sessionId, 'external'); throw new EngineError('PRECONDITIONS_CHANGED', 'Context hook reported changed preconditions', { observationId: fresh.id }); }
+      if (canonical({ ...current.context, ...check.value }) !== canonical(current.context)) {
+        const fresh = await this.capture(sessionId, 'external');
+        if (this.observationFailure(sessionId, 'stale', fresh.id)) throw new EngineError('OBSERVATION_NO_PROGRESS', 'Repeated context invalidation without an executed action', { observationId: fresh.id });
+        throw new EngineError('PRECONDITIONS_CHANGED', 'Context hook reported changed preconditions', { observationId: fresh.id });
+      }
     }
     const action = structuredClone(original); if (value !== undefined) { action.value = value; if (action.exclusionReason === 'input_sample_required') { action.excluded = false; action.exclusionReason = undefined; } }
     if (action.excluded) throw new EngineError('INPUT_REQUIRED', 'Provide an input sample');
@@ -837,7 +872,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           const session = this.session(sessionId); this.budget(session);
           const o = this.observation(sessionId);
           if (o.gaps.some(g => g.critical)) {
-            session.status = 'paused'; session.stopReason = 'OBSERVATION_INCOMPLETE'; this.pauseRequested = true; this.store.put('session', session);
+            session.status = 'paused'; session.stopReason = (session.observationFailures?.count || 0) >= 3 ? 'OBSERVATION_NO_PROGRESS' : 'OBSERVATION_INCOMPLETE'; this.pauseRequested = true; this.store.put('session', session);
             this.emit(sessionId, 'exploration.paused', { reason: session.stopReason, observationId: o.id, gaps: o.gaps });
             return false;
           }
@@ -941,7 +976,14 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           if (!action) { chosen.status = 'blocked'; chosen.reason = 'action_no_longer_available'; this.store.put('frontier', chosen); return true; }
           try { await this.runAction(sessionId, action.id, id(), undefined, 'exploration'); }
           catch (error) {
-            if (error instanceof EngineError && ['STALE_OBSERVATION', 'PRECONDITIONS_CHANGED'].includes(error.code)) { chosen.status = 'needs_revalidation'; chosen.reason = error.code; this.store.put('frontier', chosen); }
+            if (error instanceof EngineError && ['STALE_OBSERVATION', 'PRECONDITIONS_CHANGED'].includes(error.code)) {
+              // Preflight already captured fresh evidence. Retry only a newly
+              // discovered, unattempted controls sample; the persisted streak bounds it.
+              const fresh = this.owned<FrontierItem>('frontier', chosen.id, sessionId);
+              const refreshed = session.options.exploration === 'controls' && !fresh.attempts.length
+                && fresh.action.observationId === this.observation(sessionId).id && fresh.status === 'pending';
+              if (!refreshed) { fresh.status = 'needs_revalidation'; fresh.reason = error.code; this.store.put('frontier', fresh); }
+            }
             else if (error instanceof EngineError && error.code === 'ACTION_BLOCKED') { chosen.status = 'blocked'; chosen.reason = error.message; this.store.put('frontier', chosen); }
             else throw error;
           }

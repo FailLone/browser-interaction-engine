@@ -1,0 +1,30 @@
+{
+  "node": "v24.21.0",
+  "base": "bfb809a",
+  "fullRun": {
+    "files": 53,
+    "cases": 323,
+    "passed": 321,
+    "failed": 2,
+    "reason": "Missing ObservationNotice import during rebase; corrected"
+  },
+  "resolvedFailures": {
+    "file": "tests/ui-history.e2e.test.ts",
+    "passed": 11,
+    "failed": 0
+  },
+  "finalTargetedRun": {
+    "files": 4,
+    "passed": 37,
+    "failed": 0,
+    "liveContentCases": 18
+  },
+  "reviewedTargets": {
+    "files": 3,
+    "passed": 16,
+    "failed": 0
+  },
+  "typecheck": "passed",
+  "build": "passed",
+  "smokeBuilt": "passed"
+}

@@ -6,7 +6,7 @@ import { ruleMatches, signature } from './util.js';
 
 function shape(c: Control) {
   const { valid: _valid, ...constraints } = c.constraints;
-  return { signature: signature(c), visible: c.visible, enabled: c.enabled, editable: c.editable, constraints, options: c.options, list: c.list, purposeBinding: c.purposeBinding };
+  return { signature: signature(c), stableKey: c.stableKey, visible: c.visible, enabled: c.enabled, editable: c.editable, constraints, options: c.options, list: c.list, purposeBinding: c.purposeBinding };
 }
 
 /** Deliberate representative sampling, not a proof that other values are irrelevant. */
@@ -31,23 +31,28 @@ export function explorationCase(action: ActionCandidate, o: Observation): Explor
 export function controlCase(action: ActionCandidate, o: Observation): ExplorationCase | undefined {
   if (!action.controlId && ['scroll', 'press'].includes(action.kind)) return {
     key: hash({ url: o.url, boundaries: o.boundaries?.map(b => b.key) || [], kind: action.kind,
-      viewport: action.kind === 'scroll' ? o.scroll : undefined }), policy: 'browser-controls-v1',
+      viewport: action.kind === 'scroll' ? o.scroll : undefined }), policy: 'browser-controls-live-v1',
     evidence: ['Traversal operation grouped by interaction scope and viewport, independent of form values'],
   };
   const c = o.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
   if (!c || o.gaps.some(g => g.critical)) return;
   return { key: hash({ url: o.url, boundary: o.boundaries?.map(b => b.key) || [], shape: shape(c),
-    instance: action.target?.instanceId, basis: action.basis, scroll: action.kind === 'scroll' ? c.scroll : undefined }), policy: 'browser-controls-v1',
+    instance: action.target?.instanceId, basis: action.basis, scroll: action.kind === 'scroll' ? c.scroll : undefined }), policy: 'browser-controls-live-v1',
     evidence: ['One operation sample per encountered control, target constraints, option and declared context',
       'Current-instance targets do not assert historical identity; all combinations are outside this coverage unit'] };
 }
 
-/** A changing read-only display is evidence, not an unstable editable target. */
-export function interactionProjection(o: Pick<Observation, 'documentId' | 'url' | 'controls' | 'boundaries' | 'scroll'>) {
+/** Compare interaction semantics, retaining editable values and obstruction checks.
+ * Geometry is checked for the selected action target at preflight; unrelated
+ * movement must not require the entire page to reach visual rest. */
+export function interactionProjection(o: Pick<Observation, 'documentId' | 'url' | 'controls' | 'boundaries' | 'scroll'>, targetInstance?: string) {
   return canonical({ document: o.documentId, url: o.url, boundaries: o.boundaries?.map(b => b.key) || [], scroll: o.scroll,
-    controls: o.controls.filter(c => Object.entries(c.actionBasis || {}).some(([kind, b]) => b.status === 'supported' && !(c.readOnly && kind === 'fill'))).map(c => ({
-      instance: c.instanceId, shape: shape(c), value: c.value, checked: c.checked, selected: c.selected, expanded: c.expanded,
-      text: c.displayedText, rect: c.rect, actionable: c.actionable, basis: c.actionBasis, scroll: c.scroll,
+    controls: o.controls.filter(c => c.instanceId === targetInstance || Object.entries(c.actionBasis || {}).some(([kind, b]) => b.status === 'supported' && !(c.readOnly && kind === 'fill'))).map(c => ({
+      instance: c.instanceId, shape: shape(c), value: c.value, checked: c.checked, pressed: c.pressed, selected: c.selected, expanded: c.expanded,
+      text: c.liveContent?.text ?? c.displayedText, rect: targetInstance === c.instanceId ? c.rect : undefined,
+      actionable: { visible: c.actionable.visible, enabled: c.actionable.enabled, editable: c.actionable.editable,
+        hitTarget: c.actionable.hitTarget, outsideScrollableArea: c.actionable.outsideScrollableArea, occludedBy: c.actionable.occludedBy },
+      basis: c.actionBasis, scroll: c.scroll,
     })) });
 }
 

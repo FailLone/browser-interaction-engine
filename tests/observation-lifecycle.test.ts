@@ -34,10 +34,12 @@ it('persists a partial observation after the body disappears, without false remo
     const cp = await t.engine.createCheckpoint(t.sessionId, 'partial');
     expect((await t.engine.reachCheckpoint(t.sessionId, cp.id)).status).toBe('UNVERIFIED');
     await t.engine.explore(t.sessionId); await t.engine.waitForIdle();
-    expect(t.engine.session(t.sessionId).stopReason).toBe('OBSERVATION_INCOMPLETE');
+    expect(t.engine.session(t.sessionId).stopReason).toBe('OBSERVATION_NO_PROGRESS');
+    expect(t.engine.session(t.sessionId).observationFailures!.count).toBeGreaterThanOrEqual(3);
     expect(await pageOf(t.engine).evaluate(() => (window as any).actionCalls)).toBe(1);
     await pageOf(t.engine).evaluate(() => (window as any).restoreBody());
     expect((await t.engine.observe(t.sessionId)).stable).toBe(true);
+    expect(t.engine.session(t.sessionId).observationFailures).toBeUndefined();
     expect(t.engine.session(t.sessionId).actionCount).toBe(1);
   } finally { await t.close(); }
 });

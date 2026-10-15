@@ -15,8 +15,11 @@ export interface Control extends CoreControl {
   localId: ID; instanceId: ID; identityId?: ID; hypothesisId?: ID;
   tag: string; role: string; name: string; label: string; stableKey?: string;
   region: string; regionInstanceId?: string; form: string; selector: string; rect: Rect;
+  /** Comparison-only projection. Original names/text and all snapshots remain intact. */
+  liveContent?: { name: string; text: string; evidence: ActionEvidence[] };
   value: string; displayedText: string; checked: boolean | null; selected: string[];
   visible: boolean; enabled: boolean; editable: boolean; readOnly?: boolean;
+  pressed?: boolean | 'mixed' | null;
   expanded: boolean | null; controls: string | null;
   constraints: { type: string; required: boolean; min?: string; max?: string; step?: string; pattern?: string; minLength?: number; maxLength?: number; valid: boolean };
   options: { value: string; label: string; disabled: boolean }[];
@@ -41,7 +44,7 @@ export interface Observation extends CoreObservation<Control> {
   actionDiscovery?: { version: 'dom-actions-v2'; documentHints: ActionEvidence[] };
   screenshot?: string; gaps: Gap[]; stable: boolean;
   evidence?: BrowserEvidenceManifest;
-  stateId: ID; visitId: ID; fingerprint: string; canonical: string; ruleVersion: 'observable-v1' | 'observable-v2' | 'observable-v3';
+  stateId: ID; visitId: ID; fingerprint: string; canonical: string; ruleVersion: 'observable-v1' | 'observable-v2' | 'observable-v3' | 'observable-v3-live-v1';
   cause: 'initial' | 'action' | 'inspection' | 'recovery' | 'external';
 }
 export interface ContextRule { key: string; selector: string; attribute?: string; required?: boolean }

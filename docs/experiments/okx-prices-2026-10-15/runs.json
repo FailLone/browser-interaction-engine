@@ -1,0 +1,514 @@
+{
+  "before": {
+    "session": {
+      "id": "fb1378bc-9338-4370-b016-b1efe2a94576",
+      "options": {
+        "url": "https://www.okx.com/markets/prices",
+        "headless": true,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "maxActions": 20,
+        "maxDepth": 10,
+        "maxDurationMs": 120000,
+        "actionTimeoutMs": 30000,
+        "settleMs": 200,
+        "observeTimeoutMs": 2000,
+        "evidence": {
+          "enabled": true,
+          "maxNodes": 5000,
+          "maxTextLength": 20000,
+          "maxHtmlLength": 2000000,
+          "maxDomCharacters": 4000000,
+          "maxAttributeLength": 4000,
+          "maxRuntimeEntries": 200,
+          "styles": "essential",
+          "accessibility": true,
+          "fullPageScreenshot": false
+        },
+        "exclude": [],
+        "replayable": [],
+        "context": {},
+        "exploration": "controls",
+        "interfaceActions": [],
+        "reversible": [],
+        "environmentReset": "none",
+        "contextRules": []
+      },
+      "createdAt": "2026-10-15T02:51:50.419Z",
+      "status": "paused",
+      "actionCount": 11,
+      "elapsedMs": 44320,
+      "mode": "dfs",
+      "dirty": false,
+      "currentObservationId": "bef310c8-fb1e-4e3b-91c0-e764c7a677ad",
+      "stopReason": "OBSERVATION_INCOMPLETE"
+    },
+    "attempts": [
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Close"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Markets"
+      },
+      {
+        "status": "succeeded",
+        "kind": "press",
+        "label": "Close overlay"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Close"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Markets"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Markets"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Crypto"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Crypto"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "All"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "All"
+      },
+      {
+        "status": "unknown",
+        "kind": "click",
+        "label": "Hot"
+      }
+    ],
+    "observations": [
+      {
+        "id": "6aaebf31-9b31-459c-b415-981699a06003",
+        "stable": false,
+        "controls": 280,
+        "gaps": []
+      },
+      {
+        "id": "14b3cf55-2ff7-41b5-b8cd-05709da6d2c7",
+        "stable": false,
+        "controls": 335,
+        "gaps": []
+      },
+      {
+        "id": "0261c92f-8113-4c9f-91e2-6b734497cf45",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "ac8f26ea-7441-4bc4-8c52-44a38449e438",
+        "stable": false,
+        "controls": 280,
+        "gaps": []
+      },
+      {
+        "id": "e4d32657-94af-406e-8412-c2e1ab18405f",
+        "stable": false,
+        "controls": 335,
+        "gaps": []
+      },
+      {
+        "id": "053cab78-a8ba-4d43-b482-8924d6454479",
+        "stable": false,
+        "controls": 335,
+        "gaps": []
+      },
+      {
+        "id": "61fdf141-e6c3-4dc7-9b5c-a27ad5adaeef",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "65ae9c7b-41ea-4028-b398-bd157307f63f",
+        "stable": true,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "80db6d83-fd6b-457d-9582-9dceae4ecfb8",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "b56a7587-df77-4d3c-a394-55e80ed9ea2a",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "b052dc5a-0f84-44b1-b082-ecdffe1292f2",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "a57554c0-bc29-429f-8fd3-02764f19cd35",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "688b589f-33f1-4297-9e49-01ee473b36b6",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "bef310c8-fb1e-4e3b-91c0-e764c7a677ad",
+        "stable": false,
+        "controls": 204,
+        "gaps": [
+          {
+            "code": "EVIDENCE_CAPTURE_CHANGED",
+            "message": "Page changed between stability sampling and detailed capture",
+            "critical": true
+          },
+          {
+            "code": "UNSTABLE",
+            "message": "Page did not settle within the observation budget",
+            "critical": true
+          }
+        ]
+      }
+    ],
+    "coverage": {
+      "actionable": 416,
+      "covered": 9,
+      "incomplete": 407,
+      "readOnly": 0,
+      "unconfirmed": 292
+    },
+    "ruleVersions": [
+      "observable-v3"
+    ],
+    "captureRetries": []
+  },
+  "after": {
+    "session": {
+      "id": "4c65ea0c-0179-42cb-b9cc-03b2b99dc5d5",
+      "options": {
+        "url": "https://www.okx.com/markets/prices",
+        "headless": true,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "maxActions": 20,
+        "maxDepth": 10,
+        "maxDurationMs": 120000,
+        "actionTimeoutMs": 30000,
+        "settleMs": 200,
+        "observeTimeoutMs": 2000,
+        "evidence": {
+          "enabled": true,
+          "maxNodes": 5000,
+          "maxTextLength": 20000,
+          "maxHtmlLength": 2000000,
+          "maxDomCharacters": 4000000,
+          "maxAttributeLength": 4000,
+          "maxRuntimeEntries": 200,
+          "styles": "essential",
+          "accessibility": true,
+          "fullPageScreenshot": false
+        },
+        "exclude": [],
+        "replayable": [],
+        "context": {},
+        "exploration": "controls",
+        "interfaceActions": [],
+        "reversible": [],
+        "environmentReset": "none",
+        "contextRules": []
+      },
+      "createdAt": "2026-10-15T02:56:18.775Z",
+      "status": "paused",
+      "actionCount": 20,
+      "elapsedMs": 104846,
+      "mode": "dfs",
+      "dirty": false,
+      "currentObservationId": "d8f461ef-d969-4e33-9e61-8e2e2ad1f0cc",
+      "stopReason": "BUDGET_EXHAUSTED"
+    },
+    "attempts": [
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Close"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Markets"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Close"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Markets"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Markets"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Crypto"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Crypto"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "All"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "All"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Hot"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Hot"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Top"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Top"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "DeFi"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "DeFi"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Layer 1&2"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Layer 1&2"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Top gainers"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Top gainers"
+      },
+      {
+        "status": "succeeded",
+        "kind": "click",
+        "label": "Top losers"
+      }
+    ],
+    "observations": [
+      {
+        "id": "556008ff-9d4e-4175-8e90-c69211ccfc48",
+        "stable": true,
+        "controls": 280,
+        "gaps": []
+      },
+      {
+        "id": "75f11d2c-a468-46d5-aaac-05b327421697",
+        "stable": false,
+        "controls": 335,
+        "gaps": []
+      },
+      {
+        "id": "79a7bddf-2af0-4c51-86d3-85475dea381b",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "300dd975-a69c-4fe8-aa21-2eb79749422a",
+        "stable": false,
+        "controls": 280,
+        "gaps": []
+      },
+      {
+        "id": "ccb9cbc8-fe62-42fa-9f42-2d4a488edbca",
+        "stable": false,
+        "controls": 335,
+        "gaps": []
+      },
+      {
+        "id": "397d39f8-5666-4c8c-8418-51691289cffc",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "5ad48097-382a-47b7-8fb4-bf9d3d6035d9",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "1f7f7d20-bf00-423b-b7b3-f68f17beae4e",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "6c7a63ce-beec-47d1-b4e7-fdf6e9d6c9ef",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "b8d5450c-1322-4f9e-a72f-0cc5bf35c8f1",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "8f2fe32a-ae4b-4fe4-8e1c-a18020cc14ec",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "9398d4ef-947e-46e9-b477-c21eeea4badd",
+        "stable": false,
+        "controls": 326,
+        "gaps": []
+      },
+      {
+        "id": "f638f51f-26e7-4645-bf8d-fd06e7e7ff48",
+        "stable": false,
+        "controls": 216,
+        "gaps": []
+      },
+      {
+        "id": "f109543d-10f6-4813-9457-9bdb709544f9",
+        "stable": true,
+        "controls": 216,
+        "gaps": []
+      },
+      {
+        "id": "9042bbd1-98d8-4452-b2a4-4536a942dfb1",
+        "stable": false,
+        "controls": 219,
+        "gaps": []
+      },
+      {
+        "id": "d41713f9-a30b-4b2e-a7ed-c7c6f0974ef1",
+        "stable": false,
+        "controls": 219,
+        "gaps": []
+      },
+      {
+        "id": "8bf222e1-e29b-4ff6-8a69-3f9dcad8a62c",
+        "stable": true,
+        "controls": 212,
+        "gaps": []
+      },
+      {
+        "id": "a1e9751a-701b-4b1d-b90b-6907c745404a",
+        "stable": false,
+        "controls": 212,
+        "gaps": []
+      },
+      {
+        "id": "d77ac220-cf9e-4192-96a9-ccfaaf5e09d3",
+        "stable": false,
+        "controls": 224,
+        "gaps": []
+      },
+      {
+        "id": "dd1b8bcc-a7d9-445f-bb46-3051d0bea6ad",
+        "stable": true,
+        "controls": 224,
+        "gaps": []
+      },
+      {
+        "id": "fa07fa82-fcbc-4b38-99c2-3490734dc200",
+        "stable": false,
+        "controls": 216,
+        "gaps": []
+      },
+      {
+        "id": "0d8c6fa5-9891-4229-a2d7-8ff05cf8400f",
+        "stable": true,
+        "controls": 216,
+        "gaps": []
+      },
+      {
+        "id": "d8f461ef-d969-4e33-9e61-8e2e2ad1f0cc",
+        "stable": true,
+        "controls": 216,
+        "gaps": []
+      }
+    ],
+    "coverage": {
+      "actionable": 496,
+      "covered": 19,
+      "incomplete": 477,
+      "readOnly": 0,
+      "unconfirmed": 456
+    },
+    "ruleVersions": [
+      "observable-v4"
+    ],
+    "captureRetries": []
+  }
+}

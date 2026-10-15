@@ -1,7 +1,7 @@
 import type { Observation, Diff, Control } from './types.js';
 import { canonical, signature } from './util.js';
 export function observableCanonical(o: Pick<Observation, 'url' | 'controls' | 'context' | 'scroll' | 'gaps' | 'overlays'>) {
-  return canonical({ url: o.url, context: o.context, scroll: o.scroll, overlays: o.overlays?.map(layer => ({ key: layer.key, kind: layer.kind, parentKey: layer.parentKey })) || [], incomplete: o.gaps.filter(g => g.critical).map(g => g.code).sort(), controls: o.controls.map(c => ({ signature: signature(c), stableKey: c.stableKey, value: c.value, displayedText: c.displayedText, checked: c.checked, selected: c.selected, visible: c.visible, enabled: c.enabled, editable: c.editable, expanded: c.expanded, constraints: c.constraints, options: c.options, scroll: c.scroll, actionBasis: c.actionBasis, hitTarget: c.actionable?.hitTarget, outsideScrollableArea: c.actionable?.outsideScrollableArea })) });
+  return canonical({ url: o.url, context: o.context, scroll: o.scroll, overlays: o.overlays?.map(layer => ({ key: layer.key, kind: layer.kind, parentKey: layer.parentKey })) || [], incomplete: o.gaps.filter(g => g.critical).map(g => g.code).sort(), controls: o.controls.map(c => ({ signature: signature(c), stableKey: c.stableKey, value: c.value, displayedText: c.displayedText, checked: c.checked, pressed: c.pressed, selected: c.selected, visible: c.visible, enabled: c.enabled, editable: c.editable, expanded: c.expanded, constraints: c.constraints, options: c.options, scroll: c.scroll, actionBasis: c.actionBasis, hitTarget: c.actionable?.hitTarget, outsideScrollableArea: c.actionable?.outsideScrollableArea })) });
 }
 export function compareObservations(before: Observation, after: Observation, region?: string): Diff {
   const diff: Diff = { beforeId: before.id, afterId: after.id, changes: [], gaps: [], attribution: 'observed_during_interval', region };
@@ -20,7 +20,7 @@ export function compareObservations(before: Observation, after: Observation, reg
       continue;
     }
     if (next.instanceId !== old.instanceId) diff.changes.push({ controlId: old.identityId, kind: 'rebuilt' });
-    for (const field of ['value', 'displayedText', 'checked', 'selected', 'visible', 'enabled', 'editable', 'expanded', 'constraints', 'actionBasis', 'scroll'] as const) if (canonical(old[field]) !== canonical(next[field])) diff.changes.push({ controlId: old.identityId, kind: 'changed', field, before: old[field], after: next[field] });
+    for (const field of ['value', 'displayedText', 'checked', 'pressed', 'selected', 'visible', 'enabled', 'editable', 'expanded', 'constraints', 'actionBasis', 'scroll'] as const) if (canonical(old[field]) !== canonical(next[field])) diff.changes.push({ controlId: old.identityId, kind: 'changed', field, before: old[field], after: next[field] });
     if (next.hypothesisId || old.hypothesisId) diff.gaps.push({ code: 'IDENTITY_UNCERTAIN', message: next.identityId! });
   }
   for (const c of right) if (!before.gaps.some(g => g.critical) && !left.some(x => x.identityId === c.identityId)) diff.changes.push({ controlId: c.identityId, kind: 'appeared', after: c.name });
