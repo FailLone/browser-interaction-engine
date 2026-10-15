@@ -97,6 +97,9 @@ export class InteractionClient {
   reuseExplorationDecisions(id: string, review: import('@interaction/browser').ReuseExplorationDecisionsInput) { return this.command<import('@interaction/browser').ExplorationGroup[]>(id, { type: 'reuseExplorationDecisions', review }); }
   revokeExplorationDecisionReuse(id: string, revocation: import('@interaction/browser').RevokeExplorationDecisionReuseInput) { return this.command<import('@interaction/browser').ExplorationDecisionReuseRecord>(id, { type: 'revokeExplorationDecisionReuse', revocation }); }
   explorationReviewMaterial(id: string) { return this.request<import('@interaction/browser').ExplorationReviewMaterial>(`/sessions/${encodeURIComponent(id)}/exploration-review`); }
+  interventionMaterial(id: string, since?: string) { return this.request<import('@interaction/browser').InterventionMaterial>(`/sessions/${encodeURIComponent(id)}/interventions${since ? `?${new URLSearchParams({ since })}` : ''}`); }
+  respondToIntervention(id: string, response: import('@interaction/browser').InterventionResponseInput) { return this.command<Awaited<ReturnType<BrowserEngine['respondToIntervention']>>>(id, { type: 'respondToIntervention', response: response as Extract<Command, { type: 'respondToIntervention' }>['response'] }); }
+  continueExploration(id: string, continuation: import('@interaction/browser').ContinueExplorationInput) { return this.command<Awaited<ReturnType<BrowserEngine['continueExploration']>>>(id, { type: 'continueExploration', continuation }); }
   decideExplorationGroups(id: string, resolutions: import('@interaction/browser').ExplorationGroupResolution[]) {
     return this.command<import('@interaction/browser').ExplorationGroup[]>(id, { type: 'decideExplorationGroups', resolutions });
   }

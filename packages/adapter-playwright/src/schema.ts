@@ -48,7 +48,7 @@ export const sessionSchema = z.object({
   storageState: z.union([z.string(), z.object({ cookies: z.array(z.unknown()), origins: z.array(z.unknown()) })]).optional(),
 }).strict().refine(o => o.regionExploration !== 'review' || !o.decisionScopes.some(s => s === 'region' || s === 'branch'), 'Reviewed regions replace optional region/branch producers; select one scope granularity');
 export const predicateSchema = z.object({ target: z.enum(['url', 'context', 'control']), key: z.string().optional(), identityId: z.string().optional(), field: z.enum(['value', 'checked', 'visible', 'enabled']).optional(), equals: z.json() }).strict();
-export const commandSchema = z.discriminatedUnion('type', [
+const baseCommandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('scrollProbe'), observationId: z.string().min(1), localId: z.string().min(1), options: scrollProbeSchema, requestId: z.string().trim().min(1) }).strict(),
   z.object({type:z.literal('supplementDiscovery'),scan:supplementDiscoverySchema}).strict(),
   z.object({type:z.literal('classifyControls'),classification:classifyControlsSchema}).strict(),
@@ -78,6 +78,23 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('closeScope'), scopeId: z.string() }),
   z.object({ type: z.literal('createCheckpoint'), name: z.string().min(1), predicates: z.array(predicateSchema).default([]), acceptable: z.array(predicateSchema).default([]), retainEvidence: z.boolean().optional() }),
   z.object({ type: z.literal('reachCheckpoint'), checkpointId: z.string() }),
+]);
+export const interventionResponseSchema = z.object({
+  requestId: z.string().trim().min(1), interventionId: z.string().min(1), conditionKey: z.string().min(1),
+  command: baseCommandSchema.refine(c => ['observe', 'reviewRegions', 'reuseRegionReviews', 'reviewControls', 'reuseControlReviews', 'classifyControls',
+    'reviewBoundaryExit', 'decideExplorationGroup', 'decideExplorationGroups', 'reuseExplorationDecisions', 'reviewListPurpose',
+    'resolveIdentity', 'supplementDiscovery', 'probe', 'scrollProbe', 'reachCheckpoint'].includes(c.type), 'Use a supported intervention response; execution and exploration are separate'),
+}).strict();
+export const continuationSchema = z.object({
+  requestId: z.string().trim().min(1), observationId: z.string().min(1), source: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1).max(100),
+  recovery: z.object({
+    url: z.url(), context: contextSchema, boundaryKeys: z.array(z.string()).max(100), predicates: z.array(predicateSchema).max(100),
+  }).strict().optional(),
+}).strict();
+export const commandSchema = z.discriminatedUnion('type', [
+  ...baseCommandSchema.options,
+  z.object({ type: z.literal('respondToIntervention'), response: interventionResponseSchema }).strict(),
+  z.object({ type: z.literal('continueExploration'), continuation: continuationSchema }).strict(),
 ]);
 export type Command = z.infer<typeof commandSchema>;
 export const domQuerySchema = z.object({ fields: z.preprocess(v => typeof v === 'string' ? (v ? v.split(',') : []) : v, z.array(z.enum(['tag', 'text', 'attributes', 'rect', 'styles', 'properties', 'relations', 'layout', 'textLayout'])).max(9).optional()), rootId: z.string().min(1).optional(), depth: z.coerce.number().int().min(0).max(100).default(20), offset: z.coerce.number().int().min(0).max(50000).default(0), limit: z.coerce.number().int().min(1).max(5000).default(1000) }).strict();

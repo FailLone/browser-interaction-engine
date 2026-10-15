@@ -21,6 +21,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   protected driver?: InteractionDriver<O, S>;
   protected activeId?: string;
   private queue: Promise<unknown> = Promise.resolve();
+  private dispatchGuard?: { check: () => void; used: boolean };
   private runner?: Promise<void>;
   private pauseRequested = true;
   private runEpoch = 0;
@@ -51,7 +52,27 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   protected explorationIdleReason(_sessionId: string): string | undefined { return undefined; }
   protected publish(sessionId: string, type: string, data: unknown) { return this.emit(sessionId, type, data); }
   private enqueue<T>(fn: () => Promise<T>): Promise<T> {
-    const task = this.queue.then(fn); this.queue = task.catch(() => {}); return task;
+    const guard = this.dispatchGuard;
+    if (guard) {
+      if (guard.used) throw new EngineError('INVALID_GUARDED_COMMAND', 'A guarded dispatch must enqueue exactly one operation');
+      guard.used = true;
+    }
+    const task = this.queue.then(() => { guard?.check(); return fn(); }); this.queue = task.catch(() => {}); return task;
+  }
+  /** Bind a synchronous command dispatch to a check inside its queued operation.
+   * The dispatch must enqueue once before returning its promise. No guard leaks
+   * into later commands, hooks, captures, or automatic exploration steps. */
+  protected guardCommand<T>(check: () => void, dispatch: () => Promise<T>): Promise<T> {
+    if (this.dispatchGuard) throw new EngineError('INVALID_GUARDED_COMMAND', 'Nested guarded dispatch is unsupported');
+    const guard = { check, used: false }; this.dispatchGuard = guard;
+    try {
+      const task = dispatch();
+      // Consume an early rejected dispatch as well: domain validation may fail
+      // before enqueueing, and its rejection must reach the durable caller.
+      if (!guard.used) return task.then(() => { throw new EngineError('INVALID_GUARDED_COMMAND', 'Command did not enqueue synchronously'); });
+      return task;
+    } catch (error) { return Promise.reject(error); }
+    finally { this.dispatchGuard = undefined; }
   }
   protected enqueueMeasured<T>(sessionId: string, fn: () => Promise<T>) {
     return this.enqueue(async () => {
@@ -158,7 +179,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       return this.session(session.id);
     });
   }
-  private async attach(sessionId: string) {
+  protected async attach(sessionId: string) {
     if (this.activeId && this.activeId !== sessionId && !['stopped', 'finished'].includes(this.session(this.activeId).status)) throw new EngineError('ACTIVE_SESSION', 'A different session owns the interaction driver');
     if (this.activeId !== sessionId || !this.driver?.connected()) {
       await this.driver?.close(); const session = this.session(sessionId);
@@ -724,7 +745,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       } catch (error) { if (evidenceKeys.length) await this.store.evidence.unpin?.(`checkpoint:${owner}`); throw error; }
     });
   }
-  private testPredicate(predicate: Predicate, observation: O) { return this.adapter.testPredicate(predicate, observation); }
+  protected testPredicate(predicate: Predicate, observation: O) { return this.adapter.testPredicate(predicate, observation); }
   private async verify(sessionId: string, checkpoint: Checkpoint): Promise<{ status?: ReachResult['status']; checks: ReachResult['checks'] }> {
     const o = this.observation(sessionId); const checks: ReachResult['checks'] = [];
     for (const key of checkpoint.evidenceKeys || []) {
@@ -901,11 +922,15 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       await this.attach(sessionId);
       if (this.runner && !this.pauseRequested && this.session(sessionId).status === 'running') return this.session(sessionId);
       await this.capture(sessionId, 'inspection');
-      const session = this.session(sessionId); session.status = 'running'; session.mode = 'dfs'; session.stopReason = undefined; this.store.put('session', session); this.pauseRequested = false; this.emit(sessionId, 'exploration.started', session);
-      const epoch = ++this.runEpoch; const task = this.explorationLoop(sessionId, epoch); this.runner = task;
-      void task.finally(() => { if (this.runner === task) this.runner = undefined; });
-      return session;
+      return this.startExploration(sessionId);
     });
+  }
+  /** Call only inside the queue, after capture and any composition verification. */
+  protected startExploration(sessionId: string): Session<S> {
+    const session = this.session(sessionId); session.status = 'running'; session.mode = 'dfs'; session.stopReason = undefined; this.store.put('session', session); this.pauseRequested = false; this.emit(sessionId, 'exploration.started', session);
+    const epoch = ++this.runEpoch; const task = this.explorationLoop(sessionId, epoch); this.runner = task;
+    void task.finally(() => { if (this.runner === task) this.runner = undefined; });
+    return session;
   }
   async waitForIdle() { await this.runner; await this.queue; }
   /** Follow observed reveal relationships without treating inline UI as an exclusive boundary. */

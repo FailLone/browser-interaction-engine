@@ -94,7 +94,20 @@ export class BoundaryExits {
   }
   blockingResult(sid: string) {
     const last = this.store.list<ActionAttempt>('attempt', sid).at(-1);
-    return last && this.store.list<BoundaryExitResult>('boundary-exit-result', sid).find(r => r.attemptId === last.id && ['changed', 'unverified'].includes(r.status));
+    const verified = new Set(this.store.list<import('@interaction/adapter-playwright').ContinuationRecord>('continuation', sid).flatMap(r => r.verifiedRecovery?.boundaryResultId || []));
+    return last && this.store.list<BoundaryExitResult>('boundary-exit-result', sid).find(r => r.attemptId === last.id && ['changed', 'unverified'].includes(r.status) && !verified.has(r.id));
+  }
+  verifyRestoredExit(sid: string, o: Observation) {
+    const result = this.blockingResult(sid);
+    if (!result) return;
+    const review = this.store.get<BoundaryExitReviewRecord>('boundary-exit-review', result.reviewId);
+    const before = this.store.get<Observation>('observation', result.beforeId);
+    const attempt = this.store.get<ActionAttempt>('attempt', result.attemptId);
+    if (!review || !before || attempt?.status !== 'succeeded' || !o.stable || o.gaps.some(g => g.critical || g.code === 'PARTIAL_INTERACTION_READY')) return;
+    if (before.instanceScope !== o.instanceScope || before.url !== o.url || contextKey(before.context) !== contextKey(o.context)) return;
+    if (canonical(o.boundaries?.map(b => b.key) || []) !== canonical((before.boundaries || []).slice(0, -1).map(b => b.key))) return;
+    if (!review.preserved?.every(p => preservedControlFacts(o.controls.find(c => c.localId === p.localId)) === p.facts)) return;
+    return { resultId: result.id, attemptId: result.attemptId, evidence: [`Revalidated original exit contract against observation ${o.id}`, 'Same document, URL, context, parent boundary stack and all declared preserved fields; no server-state assertion'] };
   }
   finishUnknown(a: ActionAttempt, dispatch?: BoundaryExitDispatch) {
     const ref = dismissalReference(a.action);

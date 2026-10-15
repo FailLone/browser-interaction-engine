@@ -21,7 +21,7 @@ export async function reviewExploration(client: InteractionClient, sessionId: st
   }
   // Partitioning generates new scopes. Never decide scopes from the old material.
   const material = await client.explorationReviewMaterial(sessionId);
-  if (material.groups.some(g => !g.decisions.length || g.decisions.at(-1)?.decision.mode === 'defer')) {
+  if (material.groups.some(g => !g.decisions.length || g.decisions.at(-1)?.invalidation || g.decisions.at(-1)?.decision.mode === 'defer')) {
     const decisions = await reviewer.decide(material);
     if (decisions?.length) await client.decideExplorationGroups(sessionId, decisions);
   }

@@ -1,4 +1,7 @@
 import { ExplorationDecisionReuse } from './exploration-decision-reuse.js';
+import { Interventions } from './interventions.js';
+import { canonical, hash, now } from '@interaction/core';
+import { interventionResponseSchema, continuationSchema, type InterventionResponseInput, type InterventionResponseRecord, type ContinueExplorationInput, type ContinuationRecord } from '@interaction/adapter-playwright';
 import { reviewExplorationDecisionReuseSchema, reuseExplorationDecisionsSchema, revokeExplorationDecisionReuseSchema } from '@interaction/adapter-playwright';
 import { scrollProbeSchema, type ScrollProbeOptions } from '@interaction/adapter-playwright';
 import { BoundaryExits } from './boundary-exits.js';
@@ -37,6 +40,123 @@ export { inspectionResultSchema, completeInspectionSchema, inspectionConsumerSch
 export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   declare readonly store: RetainedPersistence;
   private readonly inspections: InspectionCoordinator;
+  private readonly interventions: Interventions;
+  private readonly externalRecoveryVerifier?: EngineHooks['verifyExternalRecovery'];
+  private readonly interventionRequests = new Map<string, Promise<unknown>>();
+  publishInterventions(sid: string, type: string, data: unknown) { this.publish(sid, type, data); }
+  interventionMaterial(sid: string, since?: string) { return this.interventions.material(sid, since); }
+  blockingBoundaryExit(sid: string) { return this.boundaryExits.blockingResult(sid); }
+  private unknownOutcomes(sid: string) {
+    const recovered = new Set(this.list<ContinuationRecord>(sid, 'continuation').flatMap(r => r.verifiedRecovery?.attemptIds || []));
+    return this.list<import('@interaction/core').ActionAttempt>(sid, 'attempt').filter(a => a.status === 'unknown' && !recovered.has(a.id));
+  }
+  respondToIntervention(sid: string, input: InterventionResponseInput): Promise<{ response: InterventionResponseRecord; material: import('@interaction/adapter-playwright').InterventionMaterial }> {
+    const parsed = interventionResponseSchema.parse(structuredClone(input)), id = hash({ sid, requestId: parsed.requestId, kind: 'intervention-response' });
+    this.session(sid);
+    const previous = this.store.get<InterventionResponseRecord>('intervention-response', id);
+    if (previous) {
+      if (canonical(previous.input) !== canonical(parsed)) throw new EngineError('REQUEST_CONFLICT', 'Request ID was used for another response');
+      return (this.interventionRequests.get(id) || Promise.resolve({ response: previous, material: this.interventionMaterial(sid) })) as Promise<{ response: InterventionResponseRecord; material: import('@interaction/adapter-playwright').InterventionMaterial }>;
+    }
+    const record: InterventionResponseRecord = { id, sessionId: sid, requestId: parsed.requestId, input: parsed, at: now(), status: 'queued' };
+    this.store.put('intervention-response', record);
+    const task = this.guardCommand(() => {
+      this.interventions.validate(sid, parsed);
+      record.status = 'applying'; this.store.put('intervention-response', record);
+    }, () => this.command(sid, parsed.command)).then(result => {
+      record.status = 'applied';
+      const records = (Array.isArray(result) ? result : [result]) as { id?: string; status?: string }[];
+      record.outcome = { recordIds: records.flatMap(r => r?.id || []), ...records.length === 1 && records[0]?.status ? { status: records[0].status } : {} };
+    }, error => {
+      record.status = 'rejected'; record.error = { code: error.code || 'INTERVENTION_RESPONSE_FAILED', message: String(error.message || error) };
+    }).then(() => {
+      record.finishedAt = now(); record.observationId = this.session(sid).currentObservationId;
+      this.store.put('intervention-response', record); this.interventions.sync(sid);
+      this.publish(sid, 'interventions.responded', record);
+      return { response: record, material: this.interventionMaterial(sid) };
+    }).finally(() => { this.interventionRequests.delete(id); });
+    this.interventionRequests.set(id, task); return task;
+  }
+  continueExploration(sid: string, input: ContinueExplorationInput) {
+    const parsed = continuationSchema.parse(structuredClone(input)), id = hash({ sid, requestId: parsed.requestId, kind: 'continuation' });
+    this.session(sid);
+    const previous = this.store.get<ContinuationRecord>('continuation', id);
+    if (previous) {
+      if (canonical(previous.input) !== canonical(parsed)) throw new EngineError('REQUEST_CONFLICT', 'Request ID was used for another continuation');
+      return (this.interventionRequests.get(id) || Promise.resolve({ continuation: previous, material: this.interventionMaterial(sid), session: this.session(sid) })) as Promise<{ continuation: ContinuationRecord; material: import('@interaction/adapter-playwright').InterventionMaterial; session: import('@interaction/adapter-playwright').Session }>;
+    }
+    if (this.activeId && this.activeId !== sid && !['stopped', 'finished'].includes(this.session(this.activeId).status)) throw new EngineError('ACTIVE_SESSION', 'A different session owns the interaction driver');
+    const record: ContinuationRecord = { id, sessionId: sid, requestId: parsed.requestId, input: parsed, at: now(), beforeId: parsed.observationId, status: 'queued', started: false, checks: [] };
+    this.store.put('continuation', record);
+    // Pause settles any in-flight operation before validating the caller's source.
+    const task = this.pause(sid).then(() => this.enqueueMeasured(sid, async () => {
+      const finish = () => {
+        record.finishedAt = now(); record.afterId = this.session(sid).currentObservationId;
+        this.store.put('continuation', record); this.interventions.sync(sid); this.publish(sid, 'exploration.continuation', record);
+        return { continuation: record, material: this.interventionMaterial(sid), session: this.session(sid) };
+      };
+      try {
+        const before = this.observation(sid);
+        if (before.id !== parsed.observationId) throw new EngineError('STALE_CONTINUATION', 'The scene changed while waiting; read the current material before continuing');
+        const prior = this.interventionMaterial(sid), original = this.session(sid);
+        record.status = 'verifying'; this.store.put('continuation', record);
+        await this.attach(sid); let current = await this.capture(sid, 'inspection');
+        const compare = () => {
+          const next = this.interventionMaterial(sid), old = new Map(prior.items.map(i => [i.id, i.conditionKey]));
+          record.changes = { document: before.instanceScope !== current.instanceScope, url: before.url !== current.url, context: contextKey(before.context) !== contextKey(current.context),
+            added: next.items.filter(i => !old.has(i.id)).map(i => i.id), changed: next.items.filter(i => old.has(i.id) && old.get(i.id) !== i.conditionKey).map(i => i.id), retired: prior.items.filter(i => !next.items.some(n => n.id === i.id)).map(i => i.id) };
+        };
+        compare();
+        const check = (name: string, result: 'pass' | 'fail' | 'unknown', evidence?: string[]) => { record.checks.push({ name, result, evidence }); return result === 'pass'; };
+        const ready = () => current.stable && !current.gaps.some(g => g.critical) && Object.values(current.context).every(c => c.status === 'known');
+        if (!check('current-observation', ready() ? 'pass' : 'unknown')) { record.status = 'needs_review'; return finish(); }
+        const unknown = this.unknownOutcomes(sid), exit = this.blockingBoundaryExit(sid);
+        const restoredExit = !original.dirty && !unknown.length ? this.boundaryExits.verifyRestoredExit(sid, current) : undefined;
+        const recoveryNeeded = !!unknown.length || !!exit && !restoredExit || original.dirty && (!!record.changes?.document || !!record.changes?.url || !!record.changes?.context);
+        if (parsed.recovery) {
+          const expected = parsed.recovery;
+          const verifyUI = () => {
+            const checks = [check('expected-url', current.url === expected.url ? 'pass' : 'fail'), check('expected-context', contextKey(current.context) === contextKey(expected.context) ? 'pass' : 'fail'),
+              check('expected-boundaries', canonical(current.boundaries?.map(b => b.key) || []) === canonical(expected.boundaryKeys) ? 'pass' : 'fail'),
+              ...expected.predicates.map((p, i) => check(`expected-predicate:${i}`, this.testPredicate(p, current)))];
+            return checks.every(Boolean);
+          };
+          if (!verifyUI()) { record.status = 'needs_review'; return finish(); }
+          const ids = [...new Set([...(original.dirtyAttemptIds || []), ...unknown.map(a => a.id), ...exit ? [exit.attemptId] : []])].sort();
+          let evidence = [...parsed.evidence, ...restoredExit?.evidence || []];
+          if (original.dirty || unknown.length || exit && !restoredExit) {
+            if (!this.externalRecoveryVerifier) { check('external-state-verifier', 'unknown', ['Configure verifyExternalRecovery; caller claims alone do not verify business state']); record.status = 'needs_review'; return finish(); }
+            const result = await this.hook(sid, 'verifyExternalRecovery', () => this.externalRecoveryVerifier!(structuredClone({ request: parsed, before, attemptIds: ids, boundaryResultId: exit?.id }), structuredClone({ session: this.session(sid), observation: current })));
+            const proof = result.value;
+            if (!check('external-state-verifier', proof?.result === 'pass' && proof.evidence?.length && proof.evidence.every(x => typeof x === 'string' && x.trim()) ? 'pass' : proof?.result === 'fail' ? 'fail' : 'unknown', proof?.evidence || [result.error || 'No verification evidence'])) { record.status = 'needs_review'; return finish(); }
+            evidence = [...parsed.evidence, ...proof!.evidence];
+            // A verifier may be slow. Confirm that its UI basis has not changed.
+            const basis = current;
+            current = await this.capture(sid, 'inspection'); compare();
+            if (!check('scene-after-verifier', ready() && basis.instanceScope === current.instanceScope && basis.canonical === current.canonical ? 'pass' : 'fail') || !verifyUI()) { record.status = 'needs_review'; return finish(); }
+          }
+          record.verifiedRecovery = { attemptIds: ids, boundaryResultId: exit?.id, evidence };
+          this.store.transaction(() => {
+            const session = this.session(sid); session.dirty = false; session.dirtyAttemptIds = []; this.store.put('session', session); this.store.put('continuation', record);
+          });
+        } else if (recoveryNeeded) { check('external-recovery-required', 'unknown', ['Submit explicit expected UI conditions after external recovery']); record.status = 'needs_review'; return finish(); }
+        else if (restoredExit) {
+          check('original-exit-contract', 'pass', restoredExit.evidence);
+          record.verifiedRecovery = { attemptIds: [restoredExit.attemptId], boundaryResultId: restoredExit.resultId, evidence: restoredExit.evidence };
+          this.store.put('continuation', record);
+        }
+        const currentMaterial = this.interventionMaterial(sid);
+        if (currentMaterial.sessionBlockerIds.length) { check('session-blockers', 'fail', currentMaterial.sessionBlockerIds); record.status = 'needs_review'; return finish(); }
+        // Pending individual decisions do not prevent independent approved work.
+        this.startExploration(sid); record.status = 'started'; record.started = true;
+        return finish();
+      } catch (error) {
+        record.status = error instanceof EngineError && error.code.startsWith('STALE_') ? 'needs_review' : 'failed';
+        record.error = { code: (error as EngineError).code || 'CONTINUATION_FAILED', message: String(error) }; return finish();
+      }
+    })).finally(() => { this.interventionRequests.delete(id); });
+    this.interventionRequests.set(id, task); return task;
+  }
   private readonly purposeReviews: PurposeReviews;
   private readonly pages: PageExploration;
   private readonly regions: RegionReviews;
@@ -202,6 +322,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   protected override afterExplorationDecisions(sid: string) {
     this.depthReuse.reconcile(this.observation(sid), this.actions(sid));
     this.regions.gate(this.observation(sid), this.session(sid));
+    this.interventions.sync(sid);
   }
   explorationDecisionReuseMaterial(sid: string) { return this.depthReuse.material(this.observation(sid), this.actions(sid)); }
   private async validateDepthReuse(o: Observation, actionIds: string[]) {
@@ -310,6 +431,11 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       this.publish(sid, 'exploration.paused', { reason: session.stopReason, resultId: exitFailure.id });
       return 'paused';
     }
+    const unknown = this.unknownOutcomes(sid);
+    if (unknown.length) {
+      const session = this.session(sid); session.status = 'paused'; session.stopReason = 'EXECUTION_OUTCOME_UNVERIFIED'; this.store.put('session', session);
+      this.publish(sid, 'exploration.paused', { reason: session.stopReason, attemptIds: unknown.map(a => a.id) }); return 'paused';
+    }
     const o = this.observation(sid);
     this.depthReuse.reconcile(o, this.actions(sid));
     this.regions.gate(o, this.session(sid));
@@ -400,6 +526,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
         if (valid.value) await this.hook(observation.sessionId, 'explorationDecisionReuse-record', () => this.commitDepthReuse(observation, valid.value!));
       }
     }
+    this.interventions.sync(observation.sessionId);
   }
   protected override captureFailed(sessionId: string, observationId: string, error: unknown) { return this.inspections.failed(sessionId, observationId, error); }
   protected override beforeAction(sessionId: string) { return this.inspections.beforeAction(sessionId); }
@@ -484,6 +611,11 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     this.regionHook = options.hooks?.regionReview;
     this.inspections = new InspectionCoordinator(this, (sid, type, data) => this.publish(sid, type, data));
     this.purposeReviews = new PurposeReviews(this.store, (sid, type, data) => this.publish(sid, type, data));
+    this.externalRecoveryVerifier = options.hooks?.verifyExternalRecovery;
+    this.interventions = new Interventions(this); this.interventions.recover();
+    this.events.on('event', event => {
+      if (/^(exploration\.(paused|finished|group_decided|group_invalidated|decision_reuse_revoked|decision_invalidated)|session\.(paused|reattached)|checkpoint\.result|control\.(review_revoked|classification_revoked)|region\.reuse_revoked|action\.(completed|unknown))$/.test(event.type)) this.interventions.sync(event.sessionId);
+    });
   }
   override async diffDetails(sessionId: string, beforeId: string, afterId: string, region?: string) { return explainBrowserDiff(await super.diffDetails(sessionId, beforeId, afterId, region), this.store.evidence); }
   override async attemptDiffDetails(sessionId: string, attemptId: string) { return explainBrowserDiff(await super.attemptDiffDetails(sessionId, attemptId), this.store.evidence); }
@@ -492,6 +624,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   async command(sessionId: string, input: unknown) {
     const command: Command = commandSchema.parse(input);
     switch (command.type) {
+      case 'respondToIntervention': return this.respondToIntervention(sessionId, command.response);
+      case 'continueExploration': return this.continueExploration(sessionId, command.continuation);
       case 'reviewExplorationDecisionReuse': return this.reviewExplorationDecisionReuse(sessionId, command.review);
       case 'reuseExplorationDecisions': return this.reuseExplorationDecisions(sessionId, command.review);
       case 'revokeExplorationDecisionReuse': return this.revokeExplorationDecisionReuse(sessionId, command.revocation);
