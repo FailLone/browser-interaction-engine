@@ -98,7 +98,7 @@ export class RegionReviews {
       if (!owned) { f.status = 'deferred'; f.reason = 'region_review_required'; f.unblock = 'Confirm an observed region partition before choosing its exploration policy'; this.store.put('frontier', f); }
     }
   }
-  idleReason(sid: string) {
-    return this.store.list<FrontierItem>('frontier', sid).some(f => f.reason === 'region_review_required' && f.status === 'deferred') ? 'REGION_REVIEW_REQUIRED' : undefined;
+  idleReason(sid: string, frontier = this.store.list<FrontierItem>('frontier', sid)) {
+    return frontier.some(f => f.reason === 'region_review_required' && f.status === 'deferred') ? 'REGION_REVIEW_REQUIRED' : undefined;
   }
 }

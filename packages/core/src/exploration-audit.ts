@@ -1,7 +1,8 @@
 import type { ActionAttempt, ExplorationGroup, FrontierItem, Observation, Session } from './types.js';
 import { canonical, contextKey } from './util.js';
+import type { EquivalentCoverage } from './coverage-reconciliation.js';
 
-export type ExplorationCaseDisposition = 'succeeded' | 'policy_excluded' | 'awaiting_decision' | 'pending' | 'blocked' | 'retired';
+export type ExplorationCaseDisposition = 'succeeded' | 'covered_equivalent' | 'policy_excluded' | 'awaiting_decision' | 'pending' | 'blocked' | 'retired';
 export interface ExplorationAudit {
   unit: 'discovered_action_cases';
   status: 'in_progress' | 'awaiting_decision' | 'blocked' | 'complete';
@@ -10,6 +11,7 @@ export interface ExplorationAudit {
   counts: Record<ExplorationCaseDisposition, number> & { notAttempted: number };
   cases: { frontierId: string; actionId: string; label: string; kind: string; observationId: string;
     disposition: ExplorationCaseDisposition; reason: string; schedulingReason?: string; attemptIds: string[];
+    equivalentTo?: EquivalentCoverage;
     policies: { groupId: string; groupKind: string; revision: number; decisionRevision: number; at: string; validity: 'current' | 'historical'; mode: string; source: string; evidence: string[] }[] }[];
   pendingGroupIds: string[];
   stopReasons: string[];
@@ -19,7 +21,7 @@ export interface ExplorationAudit {
 const retiredReasons = new Set(['traversal_position_changed', 'boundary_already_exited', 'boundary_document_changed', 'exploration_scope_invalidated', 'purpose_review_invalidated', 'purpose_review_replaced', 'control_review_invalidated', 'control_review_replaced']);
 
 /** Explain actual execution separately from scheduling decisions. Does not change the frontier. */
-export function auditExploration(session: Session, frontier: FrontierItem[], attempts: ActionAttempt[], observations: Observation[], groups: ExplorationGroup[]): ExplorationAudit {
+export function auditExploration(session: Session, frontier: FrontierItem[], attempts: ActionAttempt[], observations: Observation[], groups: ExplorationGroup[], equivalents = new Map<string, EquivalentCoverage>()): ExplorationAudit {
   const byAttempt = new Map(attempts.filter(a => a.sessionId === session.id).map(a => [a.id, a]));
   const byObservation = new Map(observations.filter(o => o.sessionId === session.id).map(o => [o.id, o]));
   const byGroup = new Map(groups.filter(g => g.sessionId === session.id).map(g => [g.id, g]));
@@ -50,6 +52,7 @@ export function auditExploration(session: Session, frontier: FrontierItem[], att
       waiting ||= d.decision.mode === 'defer';
     }
     const last = f.attempts.length ? byAttempt.get(f.attempts.at(-1)!) : undefined;
+    const equivalent = equivalents.get(f.id);
     let disposition: ExplorationCaseDisposition, reason: string;
     if (f.attempts.length) {
       const before = last && byObservation.get(last.beforeId), after = last?.afterId && byObservation.get(last.afterId);
@@ -62,6 +65,9 @@ export function auditExploration(session: Session, frontier: FrontierItem[], att
       } else {
         disposition = 'blocked'; reason = !last || last.status === 'succeeded' ? 'execution_evidence_missing_or_incomplete' : `attempt_${last.status}`;
       }
+    } else if (equivalent && byAttempt.get(equivalent.attemptId)?.status === 'succeeded'
+      && byObservation.has(equivalent.beforeId) && byObservation.has(equivalent.afterId)) {
+      disposition = 'covered_equivalent'; reason = 'equivalent_operation_sample_with_observations';
     } else if (excluded && !invalidReference && f.action.boundary?.intent !== 'exit') {
       disposition = 'policy_excluded'; reason = 'explicit_scope_policy';
     } else if (f.status === 'superseded' && retiredReasons.has(f.reason || '')) {
@@ -76,9 +82,10 @@ export function auditExploration(session: Session, frontier: FrontierItem[], att
       disposition = 'blocked'; reason = f.status === 'executed' ? 'execution_evidence_missing_or_incomplete' : f.reason || f.status;
     }
     return { frontierId: f.id, actionId: f.action.id, label: f.action.label, kind: f.action.kind, observationId: f.action.observationId,
-      disposition, reason, schedulingReason: f.reason, attemptIds: [...f.attempts], policies };
+      disposition, reason, schedulingReason: f.reason, attemptIds: [...f.attempts], policies,
+      ...(disposition === 'covered_equivalent' ? { equivalentTo: equivalent } : {}) };
   });
-  const counts: ExplorationAudit['counts'] = { succeeded: 0, policy_excluded: 0, awaiting_decision: 0, pending: 0, blocked: 0, retired: 0, notAttempted: 0 };
+  const counts: ExplorationAudit['counts'] = { succeeded: 0, covered_equivalent: 0, policy_excluded: 0, awaiting_decision: 0, pending: 0, blocked: 0, retired: 0, notAttempted: 0 };
   for (const c of cases) { counts[c.disposition]++; if (!c.attemptIds.length) counts.notAttempted++; }
   const pendingGroupIds = groups.filter(g => g.sessionId === session.id && g.status !== 'invalidated' && (!g.decisions.length || g.decisions.at(-1)?.decision.mode === 'defer')).map(g => g.id);
   const current = session.currentObservationId && byObservation.get(session.currentObservationId);
@@ -92,5 +99,5 @@ export function auditExploration(session: Session, frontier: FrontierItem[], att
   const status = counts.blocked || stopReasons.length ? 'blocked' : counts.pending || session.status === 'running' ? 'in_progress'
     : counts.awaiting_decision || pendingGroupIds.length ? 'awaiting_decision' : session.status === 'finished' ? 'complete' : 'in_progress';
   return { unit: 'discovered_action_cases', status, discoveryComplete: false, counts, cases, pendingGroupIds, stopReasons,
-    limitation: 'Complete only means all recorded cases have successful execution evidence or explicit scope exclusion/retirement. Exclusions are not coverage. Undiscovered controls, value combinations, business assertions and adapter discovery gaps require separate verification.' };
+    limitation: 'Complete only means all recorded cases have successful execution, equivalent operation-sample evidence, or explicit scope exclusion/retirement. Equivalent cases were not dispatched again; exclusions are not coverage. Undiscovered controls, value combinations, business assertions and adapter discovery gaps require separate verification.' };
 }

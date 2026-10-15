@@ -38,8 +38,17 @@ export function controlCase(action: ActionCandidate, o: Observation): Exploratio
   };
   const c = o.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
   if (!c || o.gaps.some(g => g.critical)) return;
+  // Review record IDs identify evidence, not a new operation. Preserve the
+  // reviewed DOM conditions and risk; dispatch still validates the exact review.
+  const reviewed = action.basis?.evidence.some(e => e.rule === 'reviewed-control/v1');
+  const basis = reviewed ? { ...action.basis, evidence: action.basis!.evidence.map(e => e.rule === 'reviewed-control/v1'
+    ? { source: e.source, rule: e.rule } : e) } : action.basis;
+  const { instanceId: _formInstance, ...reviewForm } = c.reviewBinding?.form || {};
+  const reviewBinding = reviewed ? { name: c.name, tag: c.tag, readOnly: c.readOnly,
+    attributes: c.reviewBinding?.attributes, form: reviewForm } : undefined;
   return { key: hash({ url: o.url, boundary: o.boundaries?.map(b => b.key) || [], shape: shape(c),
-    instance: action.target?.instanceId, basis: action.basis, scroll: action.kind === 'scroll' ? c.scroll : undefined }), policy: 'browser-controls-live-v2',
+    instance: c.hypothesisId || c.identityScope === 'instance' ? c.instanceId : undefined,
+    basis, reviewBinding, risk: action.risk, scroll: action.kind === 'scroll' ? c.scroll : undefined }), policy: 'browser-controls-live-v3',
     evidence: ['One operation sample per encountered control, target constraints, option and declared context',
       'Current-instance targets do not assert historical identity; all combinations are outside this coverage unit'] };
 }

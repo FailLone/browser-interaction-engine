@@ -88,7 +88,8 @@ export async function prepareIdentityReview(api: InteractionClient, sessionId: s
     const e = await exhibit(`candidate-${i + 1}`, occurrence?.observationId, occurrence?.localId);
     if (e.control && e.control.identityId !== identityId) { e.gaps.push('历史控件与候选身份不一致'); delete e.control; }
     const simultaneous = occurrence?.observationId === h.observationId;
-    const unavailable = !e.control ? '历史证据不可用' : simultaneous ? '同次观察同时存在，不能合并' : current.controls.some(c => c.identityId === identityId && c.localId !== h.localId) ? '当前被另一控件占用' : undefined;
+    const unavailable = !e.control ? '历史证据不可用' : simultaneous ? '同次观察同时存在，不能合并'
+      : current.controls.some(c => c.hypothesisId === h.id) && current.controls.some(c => c.identityId === identityId && c.hypothesisId !== h.id) ? '当前被另一控件占用' : undefined;
     const comparisons: IdentityReview['candidates'][number]['comparisons'] = (['name', 'role', 'region', 'stableKey', 'instanceId', 'value'] as const).map(field => ({ field, target: target.control?.[field] ?? null, candidate: e.control?.[field] ?? null }));
     comparisons.push({ field: 'declaredAttributes', target: target.node?.attributes ?? null, candidate: e.node?.attributes ?? null });
     return { identityId, exhibit: e, simultaneous, unavailable, comparisons };
@@ -112,6 +113,7 @@ export async function prepareIdentityReview(api: InteractionClient, sessionId: s
       'independent：有证据排除列出的所有候选，单独追踪；不证明不存在未收集的历史对应。',
       'uncertain：缺少区分证据，保留待确认并列出缺失信息。不要猜测，也不要用单独记录掩盖未知的历史对应。',
       'candidate-N 引用包含该候选的观察时间、控件、DOM 及缺失信息；历史候选只取歧义发生时或之前的最近观察。',
+      '目标已消失时仍可依据保留的历史证据裁决；裁决用于身份与覆盖对账，不授权操作当前替代节点。',
     ],
     timeline: { ref: 'timeline', cause: origin?.cause, previousObservationId: attempt?.beforeId || visits[originIndex - 1]?.observationId,
       action: attempt && { id: attempt.id, beforeId: attempt.beforeId, afterId: attempt.afterId, status: attempt.status, action: attempt.action },
@@ -139,7 +141,7 @@ export function identityDecisionCommand(review: IdentityReview, decision: Identi
     if (!decision.missingEvidence?.some(s => s.trim())) throw new Error('请说明还缺少什么信息');
     return undefined;
   }
-  if (review.hypothesis.status !== 'pending' || !review.target.control || !review.current.targetPresent || review.current.bindingChanged) throw new Error('当前目标已变化或不可确认，请重新观察');
+  if (review.hypothesis.status !== 'pending' || !review.target.control || review.current.bindingChanged) throw new Error('当前目标已变化或不可确认，请重新观察');
   const candidate = review.candidates.find(c => c.identityId === decision.candidateId);
   if (decision.decision === 'same' && (!candidate || candidate.unavailable)) throw new Error('这条候选不能关联');
   if (decision.decision !== 'same' && decision.decision !== 'independent') throw new Error('未知的判断类型');

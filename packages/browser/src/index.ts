@@ -97,7 +97,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     });
   }
   protected override explorationCandidates(items: import('@interaction/core').FrontierItem[], o: Observation) { return this.pages.candidates(items, o, this.session(o.sessionId)); }
-  protected override explorationIdleReason(sid: string) { return this.pages.idleReason(sid, this.session(sid)) || this.regions.idleReason(sid); }
+  protected override explorationIdleReason(sid: string) { return this.pages.idleReason(sid, this.session(sid)) || this.regions.idleReason(sid, this.outstandingFrontier(sid)); }
   protected override async beforeExplorationStep(sid: string): Promise<'continue' | 'changed' | 'paused'> {
     const o = this.observation(sid);
     this.regions.gate(o, this.session(sid));
@@ -193,7 +193,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   private subscriptions = new Set<ReturnType<typeof subscribeEvents>>();
   private readonly evidenceQueries = new BrowserEvidenceQueries(this);
   override frontierCoverage(sessionId: string) { return withFrontierStates(super.frontierCoverage(sessionId), id => this.store.get<Observation>('observation', id)); }
-  controlCoverage(sessionId: string) { return describeControlCoverage(this.list<Observation>(sessionId, 'observation'), this.list(sessionId, 'attempt'), this.list(sessionId, 'action')); }
+  controlCoverage(sessionId: string) { return describeControlCoverage(this.list<Observation>(sessionId, 'observation'), this.list(sessionId, 'attempt'), this.list(sessionId, 'action'), this.list(sessionId, 'hypothesis')); }
   override report(sessionId: string) {
     const report = super.report(sessionId), controlCoverage = this.controlCoverage(sessionId);
     return { ...report, pageExploration: this.pages.state(sessionId), controlCoverage,

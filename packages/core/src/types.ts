@@ -76,14 +76,16 @@ export interface FrontierItemView extends FrontierItem {
     unit: 'input_sample' | 'action_case';
     /** Last recorded attempt outcome; unknown also covers missing historical attempts. */
     executionStatus: ActionAttempt['status'] | 'not_attempted';
+    /** Equivalent sampled operation evidence, without claiming this case was dispatched. */
+    equivalentTo?: import('./coverage-reconciliation.js').EquivalentCoverage;
   };
 }
 /** Groups one logical control and operation; items follow the session coverage policy. */
 export interface FrontierCoverageGroup {
   id: string; controlId?: ID; kind: ActionKind; label: string;
   coverageStatus: 'not_attempted' | 'attempted' | 'partial' | 'complete';
-  /** Complete means all discovered cases under the selected policy are executed, not exhaustive coverage. */
-  counts: { total: number; executed: number; blocked: number; notAttempted: number };
+  /** Complete means all discovered cases have execution or equivalent sample evidence, not exhaustive coverage. */
+  counts: { total: number; executed: number; blocked: number; notAttempted: number; coveredEquivalent: number };
   items: FrontierItemView[];
 }
 export interface Predicate { target: string; key?: string; identityId?: ID; field?: string; equals: Json }
@@ -118,6 +120,10 @@ export interface ExplorationReviewMaterial {
   overlaps: { groupIds: ID[]; caseKeys: string[] }[];
   /** New scopes in this notification. Read-only queries leave this empty. */
   requestedGroupIds: ID[];
+  /** Pending identity decisions tied to recorded work. Scope IDs may refer to archived groups.
+   * Current-instance execution remains possible; these are not automatic dispatch blockers. */
+  identityReviews: { hypothesisId: ID; observationId: ID; localId: ID; provisionalIdentityId: ID;
+    candidateIds: ID[]; frontierIds: ID[]; groupIds: ID[]; currentLocalIds: ID[] }[];
 }
 /** Observed exploration scope, not proof of equal business effects or permission to execute. */
 export interface ExplorationGroupProposal {

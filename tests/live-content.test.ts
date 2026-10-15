@@ -26,7 +26,7 @@ const c=document.querySelector('canvas').getContext('2d');c.clearRect(0,0,300,15
 </script>`;
 
 it.each([false, true])('finishes finite control traversal while quotes and canvas never settle (variant %s)', async variant => {
-  const t = await fixture(market(variant));
+  const t = await fixture(market(variant), { listExploration: 'all' });
   try {
     const initial = t.engine.observation(t.sessionId);
     expect(initial.stable).toBe(false);
@@ -168,7 +168,7 @@ it('revokes a learned live projection when a numeric readout becomes meaningful 
 it('traverses records with no links or declared keys while formatted display cells keep updating', async () => {
   const t = await fixture(`<table><tr><td>North</td><td class="quote">$10</td><td>record-1</td><td><button>Inspect</button></td></tr>
 <tr><td>South</td><td class="quote">$20</td><td>record-2</td><td><button>Inspect</button></td></tr></table>
-<script>window.calls=0;document.addEventListener('click',e=>{if(e.target.matches('button'))window.calls++});let n=10;setInterval(()=>{n++;document.querySelectorAll('.quote').forEach(el=>el.textContent='$'+n)},10)</script>`);
+<script>window.calls=0;document.addEventListener('click',e=>{if(e.target.matches('button'))window.calls++});let n=10;setInterval(()=>{n++;document.querySelectorAll('.quote').forEach(el=>el.textContent='$'+n)},10)</script>`, { listExploration: 'all' });
   try {
     const before = t.engine.observation(t.sessionId).controls.filter(c => c.tag === 'button');
     expect(before.every(c => c.stableKey?.includes('item-description'))).toBe(true);
@@ -364,7 +364,8 @@ it('budgets stale form dependencies independently, keeps the failure across resu
 });
 
 it('does not call an action successful just because an unrelated form settled afterward', async () => {
-  const t = await fixture(`<form><label><input type="checkbox" onchange="window.timer=setInterval(()=>{this.checked=!this.checked},10)">Starts changing</label></form><form><input aria-label="Stable"></form>`);
+  // A monotonic value prevents a periodic checkbox toggle aliasing the sampling interval.
+  const t = await fixture(`<form><label><input type="checkbox" onchange="window.timer=setInterval(()=>{this.checked=!this.checked;this.value=String(Date.now())},10)">Starts changing</label></form><form><input aria-label="Stable"></form>`);
   try {
     const attempt = await act(t.engine, t.sessionId, 'Starts changing', 'check');
     expect(attempt.status).toBe('unknown');

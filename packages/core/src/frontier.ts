@@ -1,7 +1,8 @@
 import type { ActionAttempt, FrontierCoverageGroup, FrontierItem, FrontierItemView } from './types.js';
 import { hash } from './util.js';
+import type { EquivalentCoverage } from './coverage-reconciliation.js';
 
-export function describeFrontier(items: FrontierItem[], attempts: ActionAttempt[]): FrontierItemView[] {
+export function describeFrontier(items: FrontierItem[], attempts: ActionAttempt[], equivalents = new Map<string, EquivalentCoverage>()): FrontierItemView[] {
   const byId = new Map(attempts.map(a => [a.id, a]));
   return items.map(item => {
     const lastId = item.attempts.at(-1);
@@ -13,6 +14,7 @@ export function describeFrontier(items: FrontierItem[], attempts: ActionAttempt[
       groupId: hash({ session: item.sessionId, control: item.action.controlId ?? item.id, kind: item.action.kind }),
       unit: item.action.kind === 'fill' ? 'input_sample' : 'action_case',
       executionStatus,
+      ...(equivalents.has(item.id) ? { equivalentTo: equivalents.get(item.id) } : {}),
     } };
   });
 }
@@ -24,17 +26,18 @@ export function groupFrontier(items: FrontierItemView[]): FrontierCoverageGroup[
     let group = groups.get(id);
     if (!group) {
       group = { id, controlId: item.action.controlId, kind: item.action.kind, label: item.action.label,
-        coverageStatus: 'not_attempted', counts: { total: 0, executed: 0, blocked: 0, notAttempted: 0 }, items: [] };
+        coverageStatus: 'not_attempted', counts: { total: 0, executed: 0, blocked: 0, notAttempted: 0, coveredEquivalent: 0 }, items: [] };
       groups.set(id, group);
     }
     group.items.push(item); group.counts.total++;
     if (item.status === 'executed') group.counts.executed++;
-    if (item.status === 'blocked') group.counts.blocked++;
+    if (item.coverage.equivalentTo) group.counts.coveredEquivalent++;
+    if (item.status === 'blocked' && !item.coverage.equivalentTo) group.counts.blocked++;
     if (item.coverage.executionStatus === 'not_attempted') group.counts.notAttempted++;
   }
   for (const group of groups.values()) {
     const c = group.counts;
-    group.coverageStatus = c.executed === c.total ? 'complete' : c.executed ? 'partial'
+    group.coverageStatus = c.executed + c.coveredEquivalent === c.total ? 'complete' : c.executed + c.coveredEquivalent ? 'partial'
       : c.notAttempted === c.total ? 'not_attempted' : 'attempted';
   }
   return [...groups.values()];

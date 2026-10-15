@@ -1,4 +1,4 @@
-import { hash, type ActionAttempt, type ActionCandidate, type ActionKind, type Observation } from '@interaction/adapter-playwright';
+import { hash, identityResolver, type IdentityHypothesis, type ActionAttempt, type ActionCandidate, type ActionKind, type Observation } from '@interaction/adapter-playwright';
 
 export interface ControlCoverageItem {
   id: string; label: string; role: string; target: 'logical' | 'instance';
@@ -15,27 +15,33 @@ export interface ControlCoverage {
 }
 
 /** Read-only audit, independent of scheduling statuses and traversal work. */
-export function describeControlCoverage(observations: Observation[], attempts: ActionAttempt[], actions: ActionCandidate[] = []): ControlCoverage {
+export function describeControlCoverage(observations: Observation[], attempts: ActionAttempt[], actions: ActionCandidate[] = [], hypotheses: IdentityHypothesis[] = []): ControlCoverage {
+  const resolve = identityResolver(hypotheses);
   const groups = new Map<string, ControlCoverageItem>();
   const occurrences = new Map<string, ControlCoverageItem>();
   const readOnlyOccurrences = new Set<string>();
-  for (const o of observations) for (const c of o.controls.filter(c => c.visible)) {
-    const instance = `${o.instanceScope}:${c.instanceId}`;
-    const logical = !!c.identityId && !c.hypothesisId && !c.readOnly;
-    const key = logical ? `identity:${c.identityId}` : `instance:${instance}`;
-    const kinds = c.actions.filter(kind => c.actionBasis?.[kind]?.status === 'supported' && !(c.readOnly && kind === 'fill'));
-    let item = groups.get(key);
-    if (!item) {
-      item = { id: hash(key), label: c.name, role: c.role, target: logical ? 'logical' : 'instance', controlIds: [], observationIds: [],
-        classification: kinds.length ? 'actionable' : c.readOnly ? 'read_only' : 'unconfirmed', status: 'observed_only', operations: [] };
-      groups.set(key, item);
+  for (const o of observations) {
+    const counts = new Map<string, number>();
+    for (const c of o.controls) { const identity = resolve(c); if (identity) counts.set(identity, (counts.get(identity) || 0) + 1); }
+    for (const c of o.controls.filter(c => c.visible)) {
+      const instance = `${o.instanceScope}:${c.instanceId}`;
+      const resolved = resolve(c);
+      const logical = !!resolved && !c.readOnly && counts.get(resolved!) === 1;
+      const key = logical ? `identity:${resolved}` : `instance:${instance}`;
+      const kinds = c.actions.filter(kind => c.actionBasis?.[kind]?.status === 'supported' && !(c.readOnly && kind === 'fill'));
+      let item = groups.get(key);
+      if (!item) {
+        item = { id: hash(key), label: c.name, role: c.role, target: logical ? 'logical' : 'instance', controlIds: [], observationIds: [],
+          classification: kinds.length ? 'actionable' : c.readOnly ? 'read_only' : 'unconfirmed', status: 'observed_only', operations: [] };
+        groups.set(key, item);
+      }
+      if (c.identityId && !item.controlIds.includes(c.identityId)) item.controlIds.push(c.identityId);
+      if (!item.observationIds.includes(o.id)) item.observationIds.push(o.id);
+      for (const kind of kinds) if (!item.operations.some(op => op.kind === kind)) item.operations.push({ kind, succeeded: false, attemptIds: [] });
+      if (item.operations.length) item.classification = 'actionable';
+      occurrences.set(`${o.id}:${c.localId}`, item);
+      if (c.readOnly) readOnlyOccurrences.add(`${o.id}:${c.localId}`);
     }
-    if (c.identityId && !item.controlIds.includes(c.identityId)) item.controlIds.push(c.identityId);
-    if (!item.observationIds.includes(o.id)) item.observationIds.push(o.id);
-    for (const kind of kinds) if (!item.operations.some(op => op.kind === kind)) item.operations.push({ kind, succeeded: false, attemptIds: [] });
-    if (item.operations.length) item.classification = 'actionable';
-    occurrences.set(`${o.id}:${c.localId}`, item);
-    if (c.readOnly) readOnlyOccurrences.add(`${o.id}:${c.localId}`);
   }
   // External reviewed capabilities participate in coverage without rewriting
   // the DOM observation. Tentative probes never establish a supported operation.

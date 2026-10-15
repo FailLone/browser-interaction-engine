@@ -7,6 +7,7 @@ import { describeFrontier, groupFrontier } from './frontier.js';
 import { ExplorationGroups, validateExplorationProposals } from './exploration-groups.js';
 import { explorationReviewMaterial } from './exploration-review.js';
 import { auditExploration } from './exploration-audit.js';
+import { reconcileCoverage } from './coverage-reconciliation.js';
 import type { ExplorationGroup, ExplorationGroupDecision, ExplorationGroupResolution } from './types.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
 import type { EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
@@ -82,7 +83,16 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     return this.owned<O>('observation', oid, sessionId);
   }
   list<T>(sessionId: string, kind: string): T[] { this.session(sessionId); return kind === 'frontier' ? this.getFrontier(sessionId) as T[] : this.store.list<T>(kind, sessionId); }
-  getFrontier(sessionId: string) { this.session(sessionId); return describeFrontier(this.frontier(sessionId), this.store.list<ActionAttempt>('attempt', sessionId)); }
+  private equivalentCoverage(sessionId: string) {
+    const session = this.session(sessionId);
+    if (session.options.exploration !== 'controls') return new Map<string, import('./coverage-reconciliation.js').EquivalentCoverage>();
+    return reconcileCoverage(session, this.frontier(sessionId), this.store.list<ActionAttempt>('attempt', sessionId),
+      this.store.list<O>('observation', sessionId), this.store.list<IdentityHypothesis>('hypothesis', sessionId),
+      (a, o) => this.adapter.explorationCase?.(a, o, session));
+  }
+  getFrontier(sessionId: string) { this.session(sessionId); return describeFrontier(this.frontier(sessionId), this.store.list<ActionAttempt>('attempt', sessionId), this.equivalentCoverage(sessionId)); }
+  /** Outstanding scheduling work; equivalence never rewrites stored actions or attempts. */
+  protected outstandingFrontier(sessionId: string) { const covered = this.equivalentCoverage(sessionId); return this.frontier(sessionId).filter(f => !covered.has(f.id)); }
   frontierCoverage(sessionId: string) { return groupFrontier(this.getFrontier(sessionId)); }
   decideExplorationGroup(sessionId: string, groupId: string, revision: number, decision: ExplorationGroupDecision) {
     return this.enqueueMeasured(sessionId, async () => {
@@ -91,7 +101,12 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     });
   }
   explorationReviewMaterial(sessionId: string) {
-    return explorationReviewMaterial(sessionId, this.observation(sessionId).id, this.store.list<ExplorationGroup>('exploration-group', sessionId));
+    return this.reviewMaterial(sessionId);
+  }
+  private reviewMaterial(sessionId: string, requestedGroupIds: string[] = []) {
+    const current = this.observation(sessionId);
+    return explorationReviewMaterial(sessionId, current.id, this.store.list<ExplorationGroup>('exploration-group', sessionId), requestedGroupIds,
+      { current, hypotheses: this.store.list<IdentityHypothesis>('hypothesis', sessionId), frontier: this.frontier(sessionId) });
   }
   decideExplorationGroups(sessionId: string, resolutions: ExplorationGroupResolution[]) {
     return this.enqueueMeasured(sessionId, async () => {
@@ -115,9 +130,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   async eventDiffDetails(sessionId: string, sequence: number) { return this.diffQueries().eventDiffDetails(sessionId, sequence); }
   async scopeDiffDetails(sessionId: string, scopeId: string) { return this.diffQueries().scopeDiffDetails(sessionId, scopeId); }
   report(sessionId: string) {
-    const frontier = this.list<FrontierItem>(sessionId, 'frontier'); const attempts = this.list<ActionAttempt>(sessionId, 'attempt'); const observations = this.list<O>(sessionId, 'observation');
+    const equivalents = this.equivalentCoverage(sessionId); const frontier = describeFrontier(this.frontier(sessionId), this.store.list<ActionAttempt>('attempt', sessionId), equivalents); const attempts = this.list<ActionAttempt>(sessionId, 'attempt'); const observations = this.list<O>(sessionId, 'observation');
     const counts = (items: { status: string }[]) => items.reduce<Record<string, number>>((out, i) => { out[i.status] = (out[i.status] || 0) + 1; return out; }, {});
-    return { session: this.session(sessionId), explorationAudit: auditExploration(this.session(sessionId), frontier, attempts, observations, this.store.list<ExplorationGroup>('exploration-group', sessionId)), explorationGroups: this.store.list<ExplorationGroup>('exploration-group', sessionId).map(g => ({ id: g.id, label: g.label, status: g.status, revision: g.revision, observedCases: g.members.length, mode: g.decisions.at(-1)?.decision.mode })), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), frontierCoverage: this.frontierCoverage(sessionId).map(({ id, controlId, kind, label, coverageStatus, counts }) => ({ id, controlId, kind, label, coverageStatus, counts })), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), exploration: this.session(sessionId).options.exploration || 'stateful', coverage: this.session(sessionId).options.exploration === 'controls' ? 'encountered control operations; values and constraints are sampled, not exhaustive combinations or business assertions' : this.session(sessionId).options.exploration === 'representative' ? 'representative operation samples only; untested starting values, field combinations and undiscovered behavior remain unknown' : 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
+    return { session: this.session(sessionId), explorationAudit: auditExploration(this.session(sessionId), frontier, attempts, observations, this.store.list<ExplorationGroup>('exploration-group', sessionId), equivalents), explorationGroups: this.store.list<ExplorationGroup>('exploration-group', sessionId).map(g => ({ id: g.id, label: g.label, status: g.status, revision: g.revision, observedCases: g.members.length, mode: g.decisions.at(-1)?.decision.mode })), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), frontierCoverage: groupFrontier(frontier).map(({ id, controlId, kind, label, coverageStatus, counts }) => ({ id, controlId, kind, label, coverageStatus, counts })), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), exploration: this.session(sessionId).options.exploration || 'stateful', coverage: this.session(sessionId).options.exploration === 'controls' ? 'encountered control operations; values and constraints are sampled, not exhaustive combinations or business assertions' : this.session(sessionId).options.exploration === 'representative' ? 'representative operation samples only; untested starting values, field combinations and undiscovered behavior remain unknown' : 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
   }
   async createSession(input: unknown): Promise<Session<S>> {
     const options = this.adapter.parseOptions(input);
@@ -328,7 +343,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       this.emit(sessionId, 'exploration.review_requested', { observationId: o.id, requestedGroupIds,
         groups: groupDiscovery!.requested.map(g => ({ groupId: g.id, revision: g.revision })) });
       if (this.hooks.explorationReview) {
-        const material = explorationReviewMaterial(sessionId, o.id, this.store.list<ExplorationGroup>('exploration-group', sessionId), requestedGroupIds);
+        const material = this.reviewMaterial(sessionId, requestedGroupIds);
         const result = await this.hook(sessionId, 'explorationReview', () => this.hooks.explorationReview!(structuredClone(material), ctx()));
         if (result.value !== undefined) await this.hook(sessionId, 'explorationReview-decision', () => {
           if (!Array.isArray(result.value) || result.value.some(r => !material.groups.some(g => g.id === r?.groupId && g.revision === r?.revision))) {
@@ -537,8 +552,20 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const h = this.owned<IdentityHypothesis>('hypothesis', hypothesisId, sessionId);
     this.owned<ControlIdentity<O['controls'][number]>>('identity', identityId, sessionId);
     if (![h.provisionalIdentityId, ...h.candidateIds].includes(identityId)) throw new EngineError('INVALID_RESOLUTION', 'Identity must be one of the recorded candidates or the provisional identity');
-    if (this.observation(sessionId).controls.some(c => c.identityId === identityId && c.localId !== h.localId && c.identityId !== h.provisionalIdentityId)) throw new EngineError('INVALID_RESOLUTION', 'The chosen identity is already represented by another current control');
-    if (!source.trim() || !evidence.length) throw new EngineError('INVALID_RESOLUTION', 'Source and evidence are required');
+    if (identityId !== h.provisionalIdentityId) {
+      const hypotheses = this.store.list<IdentityHypothesis>('hypothesis', sessionId);
+      const aliases = new Map(hypotheses.filter(other => other.id !== h.id && other.status === 'resolved' && other.revisions.length)
+        .map(other => [other.provisionalIdentityId, other.revisions.at(-1)!.identityId]));
+      const terminal = (start: string) => { const seen = new Set<string>(); let value = start;
+        while (aliases.has(value) && aliases.get(value) !== value) { if (seen.has(value)) throw new EngineError('INVALID_RESOLUTION', 'Identity decisions contain a cycle'); seen.add(value); value = aliases.get(value)!; } return value; };
+      const chosen = terminal(identityId), provisional = terminal(h.provisionalIdentityId);
+      if (chosen === h.provisionalIdentityId) throw new EngineError('INVALID_RESOLUTION', 'Identity decisions must not create a cycle');
+      if (this.store.list<O>('observation', sessionId).some(o => o.controls.some(c => c.identityId && terminal(c.identityId) === provisional)
+        && o.controls.some(c => c.identityId && terminal(c.identityId) === chosen))) {
+        throw new EngineError('INVALID_RESOLUTION', 'Controls observed simultaneously cannot share one identity');
+      }
+    }
+    if (!source.trim() || !evidence.length || evidence.some(value => !value.trim())) throw new EngineError('INVALID_RESOLUTION', 'Source and evidence are required');
     h.status = 'resolved'; h.revisions.push({ identityId, source, evidence, at: now() }); this.store.put('hypothesis', h); this.emit(sessionId, 'identity.resolved', h); return h;
   }
   resolveIdentity(sessionId: string, hypothesisId: string, identityId: string, source: string, evidence: string[]) {
@@ -922,7 +949,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           }
           const navigation = await this.beforeExplorationStep(sessionId);
           if (navigation !== 'continue') return navigation === 'changed';
-          let pending = this.frontier(sessionId).filter(f => f.status === 'pending');
+          const outstanding = this.outstandingFrontier(sessionId);
+          let pending = outstanding.filter(f => f.status === 'pending');
           const boundary = o.boundaries?.at(-1);
           const isExit = (f: FrontierItem) => !!boundary && f.stateId === o.stateId && f.action.boundary?.key === boundary.key && f.action.boundary.intent === 'exit';
           const explored = new Set(this.store.list<ActionAttempt>('attempt', sessionId).filter(a => a.status === 'succeeded').map(a => a.action.controlId));
@@ -965,7 +993,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
             }
           }
           if (!pending.length) {
-            if (this.frontier(sessionId).some(f => f.status === 'blocked' && ['action_dependencies_unstable', 'interaction_unstable'].includes(f.reason || ''))) {
+            if (outstanding.some(f => f.status === 'blocked' && ['action_dependencies_unstable', 'interaction_unstable'].includes(f.reason || ''))) {
               session.status = 'paused'; session.stopReason = 'ACTION_DEPENDENCIES_BLOCKED'; this.pauseRequested = true; this.store.put('session', session);
               this.emit(sessionId, 'exploration.paused', { reason: session.stopReason, failures: session.validationFailures }); return false;
             }
@@ -974,7 +1002,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
               session.status = 'paused'; session.stopReason = idleReason; this.pauseRequested = true; this.store.put('session', session);
               this.emit(sessionId, 'exploration.paused', { reason: idleReason }); return false;
             }
-            const waiting = this.frontier(sessionId).filter(f => f.status === 'deferred' && ['awaiting_list_decision', 'awaiting_exploration_decision', 'list_deferred_by_caller', 'exploration_deferred_by_caller'].includes(f.reason || ''));
+            const waiting = outstanding.filter(f => f.status === 'deferred' && ['awaiting_list_decision', 'awaiting_exploration_decision', 'list_deferred_by_caller', 'exploration_deferred_by_caller'].includes(f.reason || ''));
             if (waiting.length) {
               session.status = 'paused';
               session.stopReason = waiting.some(f => f.reason === 'awaiting_exploration_decision') ? 'EXPLORATION_DECISION_REQUIRED'
@@ -982,7 +1010,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
               this.pauseRequested = true; this.store.put('session', session);
               this.emit(sessionId, 'exploration.paused', { reason: session.stopReason, groupIds: [...new Set(waiting.flatMap(f => f.explorationGroups?.map(g => g.groupId) || []))] }); return false;
             }
-            session.status = 'finished'; session.stopReason = (this.frontier(sessionId).some(f => !['executed', 'superseded'].includes(f.status)) || this.store.list<ExplorationGroup>('exploration-group', sessionId).some(g => g.status !== 'invalidated' && g.decisions.at(-1)?.decision.mode === 'skip')) ? 'known_frontier_exhausted_with_gaps' : 'known_frontier_exhausted'; this.store.put('session', session); this.emit(sessionId, 'exploration.finished', this.report(sessionId)); return false;
+            session.status = 'finished'; session.stopReason = (outstanding.some(f => !['executed', 'superseded'].includes(f.status)) || this.store.list<ExplorationGroup>('exploration-group', sessionId).some(g => g.status !== 'invalidated' && g.decisions.at(-1)?.decision.mode === 'skip')) ? 'known_frontier_exhausted_with_gaps' : 'known_frontier_exhausted'; this.store.put('session', session); this.emit(sessionId, 'exploration.finished', this.report(sessionId)); return false;
           }
           // Controls mode prefers unseen targets; risk breaks ties. Representative
           // mode exhausts ordinary work first. The caller may override ordering.

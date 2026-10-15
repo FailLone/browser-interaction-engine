@@ -7,3 +7,4 @@ export { matchIdentities, assignState } from './identity.js';
 export { recoverStore } from './recovery.js';
 export * from './diff-details.js';
 export * from './exploration-audit.js';
+export * from './coverage-reconciliation.js';

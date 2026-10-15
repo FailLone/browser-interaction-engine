@@ -222,6 +222,12 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   // Inherited pointer cursors do not turn every descendant into another target.
   for (const el of elements.slice(0, 5000)) if (el !== body && el !== document.documentElement && !selected.has(el) && (scrollViewport(el) || typeof (el as HTMLElement).onclick === 'function' || getComputedStyle(el).cursor === 'pointer' && (!el.parentElement || getComputedStyle(el.parentElement).cursor !== 'pointer'))) selected.add(el);
   const structuralScan=listCollector?.(elements.slice(0,5000),selected,instance,selector,actionCollector)||{candidates:[],limits:{templatesTruncated:0,collectionsTruncated:false}};
+  // Semantic rows already have scoped record evidence, including instance-bound
+  // passive readouts. Structural discovery must not reintroduce raw quote text
+  // as a second, conflicting record identity or freshness prerequisite.
+  for (const list of structuralScan.candidates) for (const member of list.members) {
+    if (member.row.matches(itemSelector)) member.recordKey = itemKey(member.row);
+  }
   for(const list of structuralScan.candidates)for(const member of list.members)selected.add(member.element);
   const structuralMembers=new Map(structuralScan.candidates.flatMap(list=>list.members.map(member=>[member.element,{ownerInstanceId:instance(list.owner),template:list.template,slot:member.slot,rowInstanceId:instance(member.row),...(member.recordKey?{recordKey:member.recordKey}:{})}] as const)));
   const all = [...selected];
