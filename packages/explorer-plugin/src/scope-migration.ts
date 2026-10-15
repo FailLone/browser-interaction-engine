@@ -26,7 +26,7 @@ export function remapStoredReviewScopes(task:Task,host:ExplorerHost) {
 /** Upgrade saved matching hints only when the original public evidence proves their source. */
 export function remapStoredScopes(task:Task,host:ExplorerHost) {
   const scopes=[...task.plan.flatMap(i=>[i.scope,...i.prerequisites]),...task.rounds.flatMap(r=>[...r.entryPath,...r.stack.flatMap(f=>[...f.path,...f.remaining])]),...(task.intent?.mode==='exhaustive'?task.intent.exclusions.map(e=>e.scope):[])];
-  const wanted=new Set(scopes.flatMap(s=>s.stableKey&&!s.stableKey.startsWith('explorer:record:v1:')?[s.stableKey]:[]));
+  const wanted=new Set(scopes.flatMap(s=>s.stableKey&&!s.stableKey.startsWith('explorer:')?[s.stableKey]:[]));
   if(!wanted.size)return [];
   const refs:EvidenceRef[]=[...task.plan.flatMap(i=>[...i.evidence,...(i.resolvedBy?[i.resolvedBy]:[]),...i.attempts.flatMap(a=>a.evidence?[a.evidence]:[])]),...task.rounds.flatMap(r=>r.stack.map(f=>({sessionId:r.sessionId,observationId:f.observationId})))];
   // An attempt's after-observation may no longer contain the source control.

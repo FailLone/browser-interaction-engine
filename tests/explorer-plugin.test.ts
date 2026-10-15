@@ -8,10 +8,44 @@ import { InteractionEngine } from '@interaction/browser';
 import { SqliteStore } from '@interaction/storage-sqlite';
 import { ExplorerPlugin,ExplorerStore,ExplorerError,type Provider,type ModelRequest } from '@interaction/explorer-plugin';
 import { createServer } from '../apps/server/src/server.js';
-import { scopeFor } from '../packages/explorer-plugin/src/policy.js';
+import { scopeFor,scopeControlKey } from '../packages/explorer-plugin/src/policy.js';
 import { remapStoredScopes } from '../packages/explorer-plugin/src/scope-migration.js';
 
 const repeatedRecords=()=>`<section aria-label="Records">${['Alpha','Beta','Gamma'].map(name=>`<article data-key="${name}"><span>${name}</span><button type="button" onclick="this.disabled=true">Visit ${name}</button></article>`).join('')}</section>`;
+it.each(['distinct','ambiguous'] as const)('uses public semantic context to distinguish %s unnamed-key fields without guessing an occurrence',async(mode)=>{
+ const descriptions=mode==='distinct'?['Length','Width']:['Value','Value'];
+ const f=await explorerFixture(`<section aria-label="Measurements">${descriptions.map(label=>`<div><span>${label}</span><input placeholder="0"></div>`).join('')}</section>`),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:10}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),sid=v.task.rounds[0].sessionId,attempts=f.host.list<any>(sid,'attempt');
+  if(mode==='distinct'){
+   expect(attempts).toHaveLength(2);expect(attempts.every(a=>a.action.kind==='fill'&&a.status==='succeeded')).toBe(true);expect(v.task.status).toBe('completed');
+   const sources=attempts.map(a=>{const o=f.host.observation(sid,a.beforeId);const c=o.controls.find(c=>c.localId===a.action.localId)!;expect(c.stableKey).toBeUndefined();return {binding:c.identityContext?.binding,key:scopeFor(a.action,o).stableKey};});expect(new Set(sources.map(s=>s.key)).size).toBe(2);expect(sources.every(s=>s.key?.startsWith('explorer:context:v1:'))).toBe(true);expect(sources.map(s=>s.binding)).toEqual(expect.arrayContaining([expect.stringContaining('Length'),expect.stringContaining('Width')]));
+  }else{expect(attempts).toEqual([]);expect(v.task.status).not.toBe('completed');expect(v.task.plan.some(i=>i.reason==='ambiguous_scope_match')).toBe(true);}
+ }finally{await plugin.close();await f.close();}
+});
+
+it('keeps contextual hints separate from stable and list-record keys, values and execution identifiers',()=>{
+ const control={tag:'input',role:'textbox',name:'0',constraints:{type:'text'},identityContext:{scope:'Measurements',binding:'Length',evidence:['local-field-description/v1']}} as any;
+ const key=scopeControlKey(control);expect(key).toMatch(/^explorer:context:v1:/);expect(scopeControlKey({...control,localId:'fresh',instanceId:'fresh',value:'100'})).toBe(key);expect(scopeControlKey({...control,identityContext:{...control.identityContext,binding:'Width'}})).not.toBe(key);
+ expect(scopeControlKey({...control,stableKey:'id:field'})).toBe('id:field');expect(scopeControlKey({...control,list:{instanceId:'list'}})).toBeUndefined();expect(scopeControlKey({...control,structuralItem:{ownerInstanceId:'owner',slot:'0'}})).toBeUndefined();expect(scopeControlKey({...control,identityContext:{evidence:[]}})).toBeUndefined();
+ const task={plan:[{scope:{stableKey:key},prerequisites:[]}],rounds:[]} as any;expect(remapStoredScopes(task,{} as any)).toEqual([]);
+});
+
+it('matches contextual fields across rounds while keeping actual attempts in their original sessions',async()=>{
+ const f=await explorerFixture(`<section aria-label="Measurements"><div><span>Length</span><input placeholder="0"></div><div><span>Width</span><input placeholder="0"></div></section>`),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{maxActions:1,settleMs:0,observeTimeoutMs:100},budget:{rounds:3,actions:3}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);expect(v.task.status).toBe('completed');expect(v.task.rounds).toHaveLength(2);expect(v.task.usage.actions).toBe(2);
+  const bindings=v.task.rounds.map(r=>{const attempts=f.host.list<any>(r.sessionId,'attempt');expect(attempts).toHaveLength(1);const a=attempts[0];expect(a.status).toBe('succeeded');return f.host.observation(r.sessionId,a.beforeId).controls.find(c=>c.localId===a.action.localId)!.identityContext?.binding;});expect(new Set(bindings).size).toBe(2);
+ }finally{await plugin.close();await f.close();}
+});
+
+it('provides semantic field evidence with exact scopes so a target plan selects only the intended field',async()=>{
+ const f=await explorerFixture(`<section aria-label="Measurements"><div><span>Length</span><input placeholder="0"></div><div><span>Width</span><input placeholder="0"></div></section>`),p=fakeProviders(f.url),original=p.llm.decide;
+ p.llm.decide=async(r,s)=>{if(r.purpose!=='initial-plan')return original(r,s);const candidate=(r.state as any).material.observation.contextualActions?.find((a:any)=>a.context?.binding?.includes('Width'));expect(candidate).toBeDefined();return {model:'mock',value:{mode:'targeted',items:[{title:'Width',scope:candidate.scope,prerequisites:[],completion:'Fill Width',required:true,reason:'user target'}]}};};
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'Fill Width only',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),sid=v.task.rounds[0].sessionId,attempts=f.host.list<any>(sid,'attempt');expect(v.task.status).toBe('completed');expect(attempts).toHaveLength(1);const a=attempts[0];expect(f.host.observation(sid,a.beforeId).controls.find(c=>c.localId===a.action.localId)!.identityContext?.binding).toContain('Width');
+  const selection=v.decisions.find(d=>d.purpose==='next-action')!;expect((selection.request.options![String(selection.answer!.value)] as any).context.binding).toContain('Width');
+ }finally{await plugin.close();await f.close();}
+});
+
 it.each(['same-document','new-document'] as const)('exits a reappearing boundary in %s even when its close operation succeeded earlier',async(mode)=>{
  const f=await explorerFixture(`<div id="gate" role="dialog" aria-modal="true" style="position:fixed;inset:0;background:white;z-index:10"><button type="button" id="close" onclick="document.querySelector('#gate').hidden=true">Close</button></div><button type="button" id="next" onclick="${mode==='same-document'?`this.disabled=true;document.querySelector('#gate').hidden=false`:`sessionStorage.setItem('next-done','yes');location.reload()`}">Next</button><button type="button" id="last" onclick="this.disabled=true">Last</button><script>if(sessionStorage.getItem('next-done'))document.querySelector('#next').disabled=true</script>`),p=fakeProviders(f.url),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:300},budget:{rounds:1,actions:12}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');

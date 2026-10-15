@@ -15,12 +15,20 @@ export function navigationTarget(action:ActionCandidate,o:Observation):string|un
 /** Durable matching hint, never identity resolution or operation authorization. */
 export function scopeControlKey(c:Observation['controls'][number]):string|undefined {
   const item=c.structuralItem;
-  if(!item?.recordKey)return c.stableKey;
-  return `explorer:record:v1:${digest({record:item.recordKey,template:item.template,slot:item.slot,tag:c.tag,role:c.role,name:c.name||c.label,type:c.constraints.type})}`;
+  if(item?.recordKey)return `explorer:record:v1:${digest({record:item.recordKey,template:item.template,slot:item.slot,tag:c.tag,role:c.role,name:c.name||c.label,type:c.constraints.type})}`;
+  return c.stableKey||contextScopeKey(c);
+}
+function contextScopeKey(c:Observation['controls'][number]):string|undefined {
+  // Public semantic context can distinguish same-name fields and destinations.
+  // It must not replace an existing key or invent missing list-record identity.
+  if(c.list||c.structuralItem)return;
+  const context=c.identityContext;
+  if(context?.evidence.length&&(context.scope||context.binding))return `explorer:context:v1:${digest({tag:c.tag,role:c.role,name:c.name||c.label,type:c.constraints.type,scope:context.scope,binding:context.binding})}`;
+  return undefined;
 }
 function actionScope(action:ActionCandidate,o:Observation,durable:boolean):Scope {
   const c=o.controls.find(c=>c.localId===action.localId),r=o.regions.find(r=>r.key===c?.region);
-  const key=c&&(durable?scopeControlKey(c):c.stableKey);
+  const key=c&&(durable?scopeControlKey(c):c.stableKey||contextScopeKey(c));
   return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(key?{stableKey:key}:{})}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};
 }
 export function scopeFor(action:ActionCandidate,o:Observation):Scope {return actionScope(action,o,true);}
@@ -49,8 +57,8 @@ export function controlInScope(scope:Scope,control:Observation['controls'][numbe
   const actual:Scope={url:o.url,region:o.regions.find(r=>r.key===control.region)?.label,label:control.name||control.label,role:control.role,stableKey:scopeControlKey(control)};
   return Object.entries(scope).filter(([key])=>!['kind','value'].includes(key)).every(([key,value])=>actual[key as keyof Scope]===value);
 }
-// Attempt caches intentionally keep document-local keys. Changing durable scope
-// matching must not reset tried actions in an already-running document.
+// Preserve existing host keys in attempt caches. Keyless controls use semantic
+// context so distinct fields do not suppress one another's attempts.
 export function keyFor(action:ActionCandidate,o:Observation){return digest({scope:actionScope(action,o,false),context:o.context,...(action.kind==='scroll'?{position:action.value}:{})});}
 export function permitted(action:ActionCandidate,o:Observation,groups:ExplorationGroup[],frontier:FrontierItemView[]) {
   if(o.gaps.some(g=>g.critical))return false;
