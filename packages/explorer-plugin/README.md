@@ -54,6 +54,6 @@ On restart active tasks become paused, in-flight decisions become stale, and con
 
 ## Debug UI and validation
 
-The optional panel creates tasks, adjusts budgets, selects unfinished ranges and resumes them. The traversal column interleaves program, JEV, LLM and engine events. Inspect a decision to see its evidence snapshot, typed answer, provider, duration, confidence/probability, fallback reason and application status. The UI does not invent a prose explanation for a JEV choice.
+`ExplorerWorkspace` integrates goal, budget, task selection and execution controls into the host sidebar, alongside a switch to the existing manual controls. `ExplorerPlan` shows unfinished ranges and evidence in the main workspace. User-facing controls use exploration terminology without exposing the package boundary. The traversal column interleaves program, JEV, LLM and engine events. Inspect a decision to see its evidence snapshot, typed answer, provider, duration, confidence/probability, fallback reason and application status. The UI does not invent a prose explanation for a JEV choice.
 
 Tests use explicitly injected mock providers and real local Playwright pages. No real key or paid service is required. Live-provider acceptance is a separate final check after credentials are configured.

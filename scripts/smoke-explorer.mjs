@@ -30,7 +30,7 @@ try {
   const task=plugin.create({url,goal:'编译产物验收：遍历两个控件并展示 JEV → LLM',sessionOptions:{settleMs:0,observeTimeoutMs:100}});
   await page.goto(origin);await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);
   await page.getByRole('button',{name:'开始 / 继续探索',exact:true}).click();
-  await page.waitForFunction(()=>document.querySelector('[aria-label="自主探索插件"]')?.textContent?.includes('当前计划完成'));
+  await page.waitForFunction(()=>document.querySelector('[aria-label="自主探索"]')?.textContent?.includes('当前计划完成'));
   const timeline=page.getByLabel('包含模型决策的遍历路径');await timeline.waitFor();
   assert.ok((await timeline.innerText()).includes('转交 LLM'));
   const final=plugin.view(task.id);assert.equal(final.task.status,'completed');assert.equal(final.task.usage.actions,2);assert.deepEqual(errors,[]);
