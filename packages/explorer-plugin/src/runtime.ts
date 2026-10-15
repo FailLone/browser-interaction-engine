@@ -347,7 +347,12 @@ export class ExplorerPlugin {
       apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),retain:groups=>this.retainScopes(task,signal,o,groups),gap:(reason,scope,required)=>{this.gap(task,reason,scope,required);}});for(const d of this.store.decisions(task.id).filter(d=>!knownDecisions.has(d.id)&&d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}if(reviewed)return true; } catch(error) { round.reviewed.splice(reviewedBefore); throw error; }
     this.assert(task,signal,o.id);
     const actions=this.host.actions(sid),groups=this.host.explorationReviewMaterial(sid).groups,frontier=this.host.getFrontier(sid);
-    const eligible=actions.filter(a=>!this.navigationIsUnverified(task,a,o)&&permitted(a,o,groups,frontier)&&includesScope(task.plan,a,o)&&((!round.tried.includes(keyFor(a,o))&&!this.wasCompleted(task,a,o))||this.neededEntry(task,round,a,o)));
+    const fresh=new Set<string>();
+    const eligible=actions.filter(a=>{
+      if(this.navigationIsUnverified(task,a,o)||!permitted(a,o,groups,frontier)||!includesScope(task.plan,a,o))return false;
+      if(!round.tried.includes(keyFor(a,o))&&!this.wasCompleted(task,a,o)){fresh.add(a.id);return true;}
+      return this.neededEntry(task,round,a,o);
+    });
     // Same-label targets must be disambiguated by scope/role/stable key. Never choose an arbitrary occurrence.
     const counts=new Map<string,number>();for(const a of actions){const k=digest(scopeFor(a,o));counts.set(k,(counts.get(k)||0)+1);}
     const unique=eligible.filter(a=>{if(counts.get(digest(scopeFor(a,o)))===1)return true;this.gap(task,'ambiguous_scope_match',scopeFor(a,o));return false;});
@@ -357,9 +362,15 @@ export class ExplorerPlugin {
     this.store.save(task);
     if(unique.length) {
       if(round.entryPath.length>(task.sessionOptions.maxDepth||10)){this.gap(task,'depth_budget',{url:o.url});return false;}
-      const batch=unique.slice().sort((a,b)=>Number(a.boundary?.intent==='exit')-Number(b.boundary?.intent==='exit')||Number(!!navigationTarget(a,o))-Number(!!navigationTarget(b,o))).slice(0,200); // Later loop iterations consume remaining cases; never mark omitted cases done.
-      const options:Record<string,unknown>=Object.fromEntries(batch.map(a=>[a.id,{label:a.label,kind:a.kind,value:a.value,scope:decisionScope(scopeFor(a,o)),purpose:includesScope(task.plan,a,o),navigationTarget:navigationTarget(a,o),boundaryIntent:a.boundary?.intent}]));options.uncertain='No evidenced next action';
-      const selected=await this.choose(task,signal,o,'next-action','Choose the next useful in-scope action. Prefer unexplored controls and internal work before exits, and in-place operations before document navigation. Navigation destinations are captured evidence, not permission to explore beyond the task. Select uncertain if none can advance the goal.',{goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',plan:decisionPlan(task.plan),remainingCandidates:unique.length,batchSize:batch.length},options);
+      // Reopening an old branch while new in-place work is ready causes avoidable
+      // open/leave/reopen cycles. Keep every deferred case in the ledger and stack.
+      const deferReentry=unique.some(a=>fresh.has(a.id)&&a.boundary?.intent!=='exit'&&!navigationTarget(a,o));
+      const deferred=deferReentry?unique.filter(a=>!fresh.has(a.id)):[];
+      const selectable=deferReentry?unique.filter(a=>fresh.has(a.id)):unique;
+      if(deferred.length)this.event(task,'action.priority',{reason:'fresh_work_before_reentry',sourceObservationId:o.id,deferred:deferred.map(a=>({actionId:a.id,label:a.label,kind:a.kind})),retainedInPlan:true,executionAuthorized:false});
+      const batch=selectable.slice().sort((a,b)=>Number(a.boundary?.intent==='exit')-Number(b.boundary?.intent==='exit')||Number(!!navigationTarget(a,o))-Number(!!navigationTarget(b,o))).slice(0,200); // Later loop iterations consume remaining cases; never mark omitted cases done.
+      const options:Record<string,unknown>=Object.fromEntries(batch.map(a=>[a.id,{label:a.label,kind:a.kind,value:a.value,scope:decisionScope(scopeFor(a,o)),purpose:fresh.has(a.id)?includesScope(task.plan,a,o):'prerequisite',reentry:!fresh.has(a.id),navigationTarget:navigationTarget(a,o),boundaryIntent:a.boundary?.intent}]));options.uncertain='No evidenced next action';
+      const selected=await this.choose(task,signal,o,'next-action','Choose the next useful in-scope action. Prefer unexplored controls and internal work before exits, and in-place operations before document navigation. A reentry repeats a previously tried or verified operation only to reach unfinished children; it is not new coverage. Navigation destinations are captured evidence, not permission to explore beyond the task. Select uncertain if none can advance the goal.',{goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',plan:decisionPlan(task.plan),remainingCandidates:unique.length,deferredReentries:deferred.length,batchSize:batch.length},options);
       if(selected.value==='uncertain'){this.router.mark(selected.decision,'rejected','no_action_selected');this.gap(task,'action_selection_unresolved',{url:o.url});return false;}
       const action=batch.find(a=>a.id===selected.value)!;this.assert(task,signal,o.id,selected.decision.revision);
       const checkpoint=await this.host.createCheckpoint(sid,`explorer ${round.number}/${round.stack.length+1}`,[],[]);

@@ -33,6 +33,8 @@ Tune gates against labeled examples of each judgment: missed in-scope controls, 
 
 Next-action and sampling prompts include accepted scopes and explicit exclusions, not the accumulated historical ledger. Model-only scope fingerprints are fixed-size hashes; exact bindings, evidence, unresolved obligations and prior attempts stay in persistence and remain subject to normal execution checks. HTTP failures retain the status and a normalized `context_limit` or `unspecified` category, never the error body. A context-limit failure pauses without retrying through LLM. Reviews and browser actions still run sequentially: advancing the page while a model is pending requires finer dependency validation and is not enabled by these optimizations.
 
+When a permitted, unique, untested in-place action is already available, the scheduler defers replaying earlier entry operations until that fresh work is drained. Deferred branches remain in the plan and checkpoint stack, and necessary entries become eligible again afterward. The program emits `action.priority`; model options explicitly identify reentries as prerequisites, never new coverage. This prevents opening an old menu only to leave it for unrelated fresh work, without introducing concurrent model/browser execution or relaxing any scope/review gate.
+
 ## Embed
 
 ```ts

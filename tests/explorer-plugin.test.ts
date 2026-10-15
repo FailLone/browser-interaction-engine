@@ -12,6 +12,18 @@ import { scopeFor } from '../packages/explorer-plugin/src/policy.js';
 import { remapStoredScopes } from '../packages/explorer-plugin/src/scope-migration.js';
 
 const repeatedRecords=()=>`<section aria-label="Records">${['Alpha','Beta','Gamma'].map(name=>`<article data-key="${name}"><span>${name}</span><button type="button" onclick="this.disabled=true">Visit ${name}</button></article>`).join('')}</section>`;
+it('finishes available new controls before replaying an entry and still returns for its unfinished child',async()=>{
+ const f=await explorerFixture(`<button id="open" type="button" onclick="document.getElementById('menu').hidden=false">Open</button><div id="menu" hidden>${['First','Second'].map(name=>`<button type="button" onclick="this.disabled=true;document.getElementById('menu').hidden=true">${name}</button>`).join('')}</div><button type="button" onclick="this.disabled=true;document.getElementById('menu').hidden=true">Outside</button>`),p=fakeProviders(f.url),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>{if(r.purpose==='next-action'){const options=Object.entries(r.options!) as [string,any][];const selected=['Open','First','Outside','Second'].map(label=>options.find(([,o])=>o.label===label)).find(Boolean)!;return {model:'mock',value:selected[0],confidence:1};}return original(r,s);};
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:10}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');
+  expect(attempts.map(a=>a.action.label)).toEqual(['Open','First','Outside','Open','Second']);expect(v.task.status).toBe('completed');
+  expect(v.events.some(e=>e.type==='action.priority'&&(e.data as any).deferred.some((a:any)=>a.label==='Open'))).toBe(true);
+  const reentry=v.decisions.filter(d=>d.purpose==='next-action').map(d=>d.request.options![String(d.answer!.value)] as any).find(o=>o.reentry);expect(reentry).toMatchObject({label:'Open',purpose:'prerequisite',reentry:true});
+  expect(v.task.plan.some(i=>i.scope.label==='Second'&&i.status==='succeeded')).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});
+
 it.each(['whole-page','targeted','after-last-action'] as const)('retains host coverage limitations for %s without treating other successes as coverage',async(mode)=>{
  const f=await explorerFixture(mode==='after-last-action'?`<button type="button" onclick="this.disabled=true;document.querySelector('main').appendChild(document.createElement('canvas'))">Ready</button>`:`<canvas id="chart"></canvas><button type="button" onclick="this.disabled=true">Ready</button>`),p=fakeProviders(f.url,{url:f.url,label:'Ready',kind:'click'}),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,...(mode==='targeted'?{goal:'Click Ready'}:{}),sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:mode==='after-last-action'?1:10}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),sid=v.task.rounds[0].sessionId;
@@ -186,10 +198,10 @@ it.each([true,false])('reopens the recorded entry path after an action budget bo
  try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:1}});plugin.start(t.id);await plugin.waitForIdle();let task=plugin.view(t.id).task;
   const target=task.plan.find(i=>i.scope.label==='New operation'&&i.status==='unresolved')!;expect(target).toBeDefined();
   expect(task.plan.filter(i=>i.scope.label==='Unrelated').every(i=>!i.prerequisites.length)).toBe(true);
-  if(supplement)plugin.revise(t.id,{itemIds:[target.id]},true);plugin.extendBudget(t.id,{rounds:1,actions:2,durationMs:60000,modelRequests:80});plugin.start(t.id);await plugin.waitForIdle();task=plugin.view(t.id).task;
+  if(supplement)plugin.revise(t.id,{itemIds:[target.id]},true);plugin.extendBudget(t.id,{rounds:1,actions:supplement?2:3,durationMs:60000,modelRequests:80});plugin.start(t.id);await plugin.waitForIdle();task=plugin.view(t.id).task;
   expect(task.plan.find(i=>i.id===target.id)?.status,JSON.stringify(task)).toBe('succeeded');
-  expect(f.host.list<any>(task.rounds.at(-1)!.sessionId,'attempt').map(a=>a.action.label)).toEqual(['Open','New operation']);
-  expect(task.usage.actions).toBe(3);expect(task.plan.find(i=>i.id===target.id)?.prerequisites.map(s=>s.label)).toEqual(['Open']);
+  expect(f.host.list<any>(task.rounds.at(-1)!.sessionId,'attempt').map(a=>a.action.label)).toEqual(supplement?['Open','New operation']:['Unrelated','Open','New operation']);
+  expect(task.usage.actions).toBe(supplement?3:4);expect(task.plan.find(i=>i.id===target.id)?.prerequisites.map(s=>s.label)).toEqual(['Open']);
  }finally{await plugin.close();await f.close();}
 });
 it('explores a nested dialog and verifies return before continuing the parent branch',async()=>{
