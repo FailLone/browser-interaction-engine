@@ -1,0 +1,1435 @@
+{
+  "sessionId": "182bb177-a981-473c-add0-024130a3e3bd",
+  "before": {
+    "observationId": "86a61a40-0f0c-4e79-a815-c7ff86abd805",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "documentId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2",
+    "instanceScope": "3581203e-b147-4fd5-86e6-6f9c3ce133c2",
+    "stable": true,
+    "actionCount": 0,
+    "discovery": {
+      "version": "dom-discovery/v1",
+      "topologyKey": "cf4f600e282aafac12353f50c8a83b501b77729e67cfcf6a3efbc84ec763c877",
+      "nodeCount": 1556,
+      "signal": {
+        "baselineLimit": 5000,
+        "scanned": 1556,
+        "omitted": 0
+      },
+      "structural": {
+        "templatesTruncated": 17,
+        "collectionsTruncated": false,
+        "rowWindowsTruncated": 0,
+        "omissions": [
+          {
+            "kind": "template_depth",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1380",
+            "ownerSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1)",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1381",
+            "rowSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "limit": 8,
+            "observed": 9
+          },
+          {
+            "kind": "template_depth",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1381",
+            "ownerSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1375",
+            "rowSelector": "#navContainer",
+            "limit": 8,
+            "observed": 9
+          },
+          {
+            "kind": "template_depth",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1382",
+            "ownerSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1)",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1383",
+            "rowSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "limit": 8,
+            "observed": 9
+          },
+          {
+            "kind": "template_depth",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1384",
+            "ownerSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1385",
+            "rowSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "limit": 8,
+            "observed": 9
+          },
+          {
+            "kind": "template_depth",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+            "ownerSelector": "#root",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:12",
+            "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "limit": 8,
+            "observed": 9
+          },
+          {
+            "kind": "template_nodes",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+            "ownerSelector": "#root",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:13",
+            "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "limit": 100,
+            "observed": 101
+          },
+          {
+            "kind": "template_depth",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:14",
+            "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:647",
+            "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "limit": 8,
+            "observed": 9
+          },
+          {
+            "kind": "template_depth",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:14",
+            "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:15",
+            "rowSelector": "#banner-and-convert",
+            "limit": 8,
+            "observed": 9
+          },
+          {
+            "kind": "template_nodes",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:14",
+            "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:16",
+            "rowSelector": "#bottom-part",
+            "limit": 100,
+            "observed": 101
+          },
+          {
+            "kind": "template_depth",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:647",
+            "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:648",
+            "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+            "limit": 8,
+            "observed": 9
+          },
+          {
+            "kind": "template_depth",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:647",
+            "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:698",
+            "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2)",
+            "limit": 8,
+            "observed": 9
+          },
+          {
+            "kind": "template_depth",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1804",
+            "ownerSelector": "#okx-sticky_1",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1806",
+            "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "limit": 8,
+            "observed": 9
+          },
+          {
+            "kind": "template_nodes",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:16",
+            "ownerSelector": "#bottom-part",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:28",
+            "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1)",
+            "limit": 100,
+            "observed": 101
+          },
+          {
+            "kind": "template_nodes",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:28",
+            "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1)",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:29",
+            "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "limit": 100,
+            "observed": 101
+          },
+          {
+            "kind": "template_nodes",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:103",
+            "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:104",
+            "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "limit": 100,
+            "observed": 101
+          },
+          {
+            "kind": "template_nodes",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:104",
+            "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:105",
+            "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+            "limit": 100,
+            "observed": 101
+          },
+          {
+            "kind": "template_nodes",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:105",
+            "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:106",
+            "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "limit": 100,
+            "observed": 101
+          }
+        ],
+        "omittedLocations": 0
+      },
+      "controls": {
+        "discovered": 302,
+        "collected": 302,
+        "limit": 1500
+      },
+      "targets": [
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+          "selector": "html > ",
+          "tag": "html",
+          "label": "",
+          "elementCount": 1556
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1380",
+          "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1)",
+          "tag": "div",
+          "label": "",
+          "elementCount": 190
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1381",
+          "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+          "tag": "div",
+          "label": "",
+          "elementCount": 188
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1382",
+          "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1)",
+          "tag": "div",
+          "label": "",
+          "elementCount": 181
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1384",
+          "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+          "tag": "div",
+          "label": "",
+          "elementCount": 142
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+          "selector": "#root",
+          "tag": "div",
+          "label": "",
+          "elementCount": 1011
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:14",
+          "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+          "tag": "div",
+          "label": "",
+          "elementCount": 860
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:647",
+          "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+          "tag": "div",
+          "label": "",
+          "elementCount": 254
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1804",
+          "selector": "#okx-sticky_1",
+          "tag": "div",
+          "label": "",
+          "elementCount": 136
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:16",
+          "selector": "#bottom-part",
+          "tag": "div",
+          "label": "",
+          "elementCount": 347
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:28",
+          "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1)",
+          "tag": "div",
+          "label": "",
+          "elementCount": 300
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:103",
+          "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1)",
+          "tag": "div",
+          "label": "",
+          "elementCount": 144
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:104",
+          "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+          "tag": "div",
+          "label": "",
+          "elementCount": 142
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:105",
+          "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+          "tag": "div",
+          "label": "",
+          "elementCount": 137
+        }
+      ]
+    },
+    "controlCount": 302,
+    "structuralListCount": 16,
+    "actionCountCandidates": 209,
+    "boundaries": [
+      {
+        "key": "dialog:okd-dialog-window",
+        "name": "dialog",
+        "region": "document",
+        "evidence": [
+          "aria-modal"
+        ]
+      }
+    ],
+    "gaps": [
+      {
+        "code": "STRUCTURAL_LIST_SCAN_TRUNCATED",
+        "reference": "discovery:structural",
+        "message": "Repeated-record discovery: 17 limited templates, 0 partial sibling windows; collection limit reached: false"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:1380:3581203e-b147-4fd5-86e6-6f9c3ce133c2:1381:template_depth",
+        "message": "template_depth: limit 8, observed at least 9; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "#navContainer",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:1381:3581203e-b147-4fd5-86e6-6f9c3ce133c2:1375:template_depth",
+        "message": "template_depth: limit 8, observed at least 9; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:1382:3581203e-b147-4fd5-86e6-6f9c3ce133c2:1383:template_depth",
+        "message": "template_depth: limit 8, observed at least 9; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:1384:3581203e-b147-4fd5-86e6-6f9c3ce133c2:1385:template_depth",
+        "message": "template_depth: limit 8, observed at least 9; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:11:3581203e-b147-4fd5-86e6-6f9c3ce133c2:12:template_depth",
+        "message": "template_depth: limit 8, observed at least 9; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:11:3581203e-b147-4fd5-86e6-6f9c3ce133c2:13:template_nodes",
+        "message": "template_nodes: limit 100, observed at least 101; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:14:3581203e-b147-4fd5-86e6-6f9c3ce133c2:647:template_depth",
+        "message": "template_depth: limit 8, observed at least 9; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "#banner-and-convert",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:14:3581203e-b147-4fd5-86e6-6f9c3ce133c2:15:template_depth",
+        "message": "template_depth: limit 8, observed at least 9; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "#bottom-part",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:14:3581203e-b147-4fd5-86e6-6f9c3ce133c2:16:template_nodes",
+        "message": "template_nodes: limit 100, observed at least 101; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:647:3581203e-b147-4fd5-86e6-6f9c3ce133c2:648:template_depth",
+        "message": "template_depth: limit 8, observed at least 9; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:647:3581203e-b147-4fd5-86e6-6f9c3ce133c2:698:template_depth",
+        "message": "template_depth: limit 8, observed at least 9; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:1804:3581203e-b147-4fd5-86e6-6f9c3ce133c2:1806:template_depth",
+        "message": "template_depth: limit 8, observed at least 9; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:16:3581203e-b147-4fd5-86e6-6f9c3ce133c2:28:template_nodes",
+        "message": "template_nodes: limit 100, observed at least 101; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1) > div:nth-of-type(2)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:28:3581203e-b147-4fd5-86e6-6f9c3ce133c2:29:template_nodes",
+        "message": "template_nodes: limit 100, observed at least 101; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:103:3581203e-b147-4fd5-86e6-6f9c3ce133c2:104:template_nodes",
+        "message": "template_nodes: limit 100, observed at least 101; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:104:3581203e-b147-4fd5-86e6-6f9c3ce133c2:105:template_nodes",
+        "message": "template_nodes: limit 100, observed at least 101; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:105:3581203e-b147-4fd5-86e6-6f9c3ce133c2:106:template_nodes",
+        "message": "template_nodes: limit 100, observed at least 101; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "EVENT_LISTENER_COVERAGE",
+        "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+      }
+    ]
+  },
+  "after": {
+    "observationId": "251a953d-a0d6-4a0d-8c52-de590fe0ccd3",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "documentId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2",
+    "instanceScope": "3581203e-b147-4fd5-86e6-6f9c3ce133c2",
+    "stable": true,
+    "actionCount": 0,
+    "discovery": {
+      "version": "dom-discovery/v1",
+      "topologyKey": "cf4f600e282aafac12353f50c8a83b501b77729e67cfcf6a3efbc84ec763c877",
+      "nodeCount": 1556,
+      "signal": {
+        "baselineLimit": 5000,
+        "scanned": 1556,
+        "omitted": 0
+      },
+      "structural": {
+        "templatesTruncated": 1,
+        "collectionsTruncated": false,
+        "rowWindowsTruncated": 0,
+        "omissions": [
+          {
+            "kind": "template_nodes",
+            "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+            "ownerSelector": "#root",
+            "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:12",
+            "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "limit": 500,
+            "observed": 501
+          }
+        ],
+        "omittedLocations": 0
+      },
+      "controls": {
+        "discovered": 302,
+        "collected": 302,
+        "limit": 1500
+      },
+      "targets": [
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+          "selector": "html > ",
+          "tag": "html",
+          "label": "",
+          "elementCount": 1556
+        },
+        {
+          "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+          "selector": "#root",
+          "tag": "div",
+          "label": "",
+          "elementCount": 1011
+        }
+      ],
+      "supplement": {
+        "requestId": "febd07fb-2c40-4128-8c25-30d365ec7842",
+        "targetId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+        "budget": {
+          "offset": 0,
+          "elements": 2000,
+          "templateNodes": 500,
+          "templateDepth": 20,
+          "collections": 500
+        },
+        "status": "active"
+      }
+    },
+    "controlCount": 302,
+    "structuralListCount": 16,
+    "actionCountCandidates": 209,
+    "boundaries": [
+      {
+        "key": "dialog:okd-dialog-window",
+        "name": "dialog",
+        "region": "document",
+        "evidence": [
+          "aria-modal"
+        ]
+      }
+    ],
+    "gaps": [
+      {
+        "code": "STRUCTURAL_LIST_SCAN_TRUNCATED",
+        "reference": "discovery:structural",
+        "message": "Repeated-record discovery: 1 limited templates, 0 partial sibling windows; collection limit reached: false"
+      },
+      {
+        "code": "STRUCTURAL_DISCOVERY_LIMIT",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+        "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:11:3581203e-b147-4fd5-86e6-6f9c3ce133c2:12:template_nodes",
+        "message": "template_nodes: limit 500, observed at least 501; inspect discoveryScan for the exact owner and bounded supplementation target"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "EVENT_LISTENER_COVERAGE",
+        "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+      }
+    ]
+  },
+  "firstRejected": {
+    "error": "EngineError: Document or discovery window changed; use the new observation",
+    "code": "STALE_DISCOVERY_SCAN"
+  },
+  "records": [
+    {
+      "observationId": "86a61a40-0f0c-4e79-a815-c7ff86abd805",
+      "targetId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+      "source": "gpt-5.6-sol/low",
+      "evidence": [
+        "The refreshed stable document has 1556 signal nodes, all already scanned, and 17 structural template depth/node omissions.",
+        "The current html target includes every reported omission owner, including newly loaded #okx-sticky_1.",
+        "A 2000-element full-root window with templateDepth 20 and templateNodes 500 remains bounded and exceeds all current reported lower bounds."
+      ],
+      "budget": {
+        "offset": 0,
+        "elements": 2000,
+        "templateNodes": 500,
+        "templateDepth": 20,
+        "collections": 500
+      },
+      "id": "febd07fb-2c40-4128-8c25-30d365ec7842",
+      "requestId": "febd07fb-2c40-4128-8c25-30d365ec7842",
+      "sessionId": "182bb177-a981-473c-add0-024130a3e3bd",
+      "documentId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2",
+      "url": "https://www.okx.com/convert/btc-to-usd",
+      "topologyKey": "cf4f600e282aafac12353f50c8a83b501b77729e67cfcf6a3efbc84ec763c877",
+      "at": "2026-10-15T07:47:45.657Z",
+      "status": "active",
+      "resultObservationId": "251a953d-a0d6-4a0d-8c52-de590fe0ccd3"
+    }
+  ],
+  "attempts": [],
+  "sourceObservationUnchanged": true,
+  "sourceFilesUnchanged": true,
+  "sourceHashesFile": "source-hashes.json",
+  "databaseSha256": "cb300709c8af662ee999f779e517038bd4a5fd23a9d50fe80b11aa7b358776e8",
+  "exhaustive": false,
+  "completionStatus": "blocked",
+  "counts": {
+    "succeeded": 0,
+    "covered_equivalent": 0,
+    "policy_excluded": 0,
+    "awaiting_decision": 0,
+    "pending": 3,
+    "blocked": 2,
+    "retired": 0,
+    "notAttempted": 5
+  },
+  "coverage": {
+    "actionable": 203,
+    "covered": 0,
+    "incomplete": 203,
+    "readOnly": 0,
+    "unconfirmed": 35,
+    "display": 0,
+    "containers": 0
+  },
+  "scanEvents": [
+    {
+      "sequence": 77,
+      "type": "discovery.scan_requested",
+      "at": "2026-10-15T07:43:20.854Z",
+      "data": {
+        "observationId": "f2b99140-9aa5-4af7-bb70-ceec9aa2ae09",
+        "discovery": {
+          "version": "dom-discovery/v1",
+          "topologyKey": "591a0d8afabd9ad8e1251499f36e5bfeb2569d55b6c68b16fbfdfdb5bf75a70e",
+          "nodeCount": 1458,
+          "signal": {
+            "baselineLimit": 5000,
+            "scanned": 1458,
+            "omitted": 0
+          },
+          "structural": {
+            "templatesTruncated": 16,
+            "collectionsTruncated": false,
+            "rowWindowsTruncated": 0,
+            "omissions": [
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1380",
+                "ownerSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1381",
+                "rowSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1381",
+                "ownerSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1375",
+                "rowSelector": "#navContainer",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1382",
+                "ownerSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1383",
+                "rowSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1384",
+                "ownerSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1385",
+                "rowSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+                "ownerSelector": "#root",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:12",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+                "ownerSelector": "#root",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:13",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "limit": 100,
+                "observed": 101
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:14",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:647",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:14",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:15",
+                "rowSelector": "#banner-and-convert",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:14",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:16",
+                "rowSelector": "#bottom-part",
+                "limit": 100,
+                "observed": 101
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:647",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:648",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:647",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:698",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:16",
+                "ownerSelector": "#bottom-part",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:28",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1)",
+                "limit": 100,
+                "observed": 101
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:28",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:29",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "limit": 100,
+                "observed": 101
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:103",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:104",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "limit": 100,
+                "observed": 101
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:104",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:105",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+                "limit": 100,
+                "observed": 101
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:105",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:106",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "limit": 100,
+                "observed": 101
+              }
+            ],
+            "omittedLocations": 0
+          },
+          "controls": {
+            "discovered": 286,
+            "collected": 286,
+            "limit": 1500
+          },
+          "targets": [
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+              "selector": "html > ",
+              "tag": "html",
+              "label": "",
+              "elementCount": 1458
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1380",
+              "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 190
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1381",
+              "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 188
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1382",
+              "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 181
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1384",
+              "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 142
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+              "selector": "#root",
+              "tag": "div",
+              "label": "",
+              "elementCount": 913
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:14",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 762
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:647",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 156
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:16",
+              "selector": "#bottom-part",
+              "tag": "div",
+              "label": "",
+              "elementCount": 347
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:28",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 300
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:103",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 144
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:104",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 142
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:105",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 137
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sequence": 98,
+      "type": "discovery.scan_requested",
+      "at": "2026-10-15T07:46:07.990Z",
+      "data": {
+        "observationId": "86a61a40-0f0c-4e79-a815-c7ff86abd805",
+        "discovery": {
+          "version": "dom-discovery/v1",
+          "topologyKey": "cf4f600e282aafac12353f50c8a83b501b77729e67cfcf6a3efbc84ec763c877",
+          "nodeCount": 1556,
+          "signal": {
+            "baselineLimit": 5000,
+            "scanned": 1556,
+            "omitted": 0
+          },
+          "structural": {
+            "templatesTruncated": 17,
+            "collectionsTruncated": false,
+            "rowWindowsTruncated": 0,
+            "omissions": [
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1380",
+                "ownerSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1381",
+                "rowSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1381",
+                "ownerSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1375",
+                "rowSelector": "#navContainer",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1382",
+                "ownerSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1383",
+                "rowSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1384",
+                "ownerSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1385",
+                "rowSelector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+                "ownerSelector": "#root",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:12",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+                "ownerSelector": "#root",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:13",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "limit": 100,
+                "observed": 101
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:14",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:647",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:14",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:15",
+                "rowSelector": "#banner-and-convert",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:14",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:16",
+                "rowSelector": "#bottom-part",
+                "limit": 100,
+                "observed": 101
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:647",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:648",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:647",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:698",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_depth",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1804",
+                "ownerSelector": "#okx-sticky_1",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1806",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "limit": 8,
+                "observed": 9
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:16",
+                "ownerSelector": "#bottom-part",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:28",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1)",
+                "limit": 100,
+                "observed": 101
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:28",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:29",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "limit": 100,
+                "observed": 101
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:103",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:104",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "limit": 100,
+                "observed": 101
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:104",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:105",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+                "limit": 100,
+                "observed": 101
+              },
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:105",
+                "ownerSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:106",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2)",
+                "limit": 100,
+                "observed": 101
+              }
+            ],
+            "omittedLocations": 0
+          },
+          "controls": {
+            "discovered": 302,
+            "collected": 302,
+            "limit": 1500
+          },
+          "targets": [
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+              "selector": "html > ",
+              "tag": "html",
+              "label": "",
+              "elementCount": 1556
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1380",
+              "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 190
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1381",
+              "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 188
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1382",
+              "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 181
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1384",
+              "selector": "html > body:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > nav:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 142
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+              "selector": "#root",
+              "tag": "div",
+              "label": "",
+              "elementCount": 1011
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:14",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 860
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:647",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 254
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:1804",
+              "selector": "#okx-sticky_1",
+              "tag": "div",
+              "label": "",
+              "elementCount": 136
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:16",
+              "selector": "#bottom-part",
+              "tag": "div",
+              "label": "",
+              "elementCount": 347
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:28",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 300
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:103",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 144
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:104",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 142
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:105",
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)",
+              "tag": "div",
+              "label": "",
+              "elementCount": 137
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sequence": 101,
+      "type": "discovery.scan_recorded",
+      "at": "2026-10-15T07:47:46.162Z",
+      "data": {
+        "observationId": "86a61a40-0f0c-4e79-a815-c7ff86abd805",
+        "targetId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+        "source": "gpt-5.6-sol/low",
+        "evidence": [
+          "The refreshed stable document has 1556 signal nodes, all already scanned, and 17 structural template depth/node omissions.",
+          "The current html target includes every reported omission owner, including newly loaded #okx-sticky_1.",
+          "A 2000-element full-root window with templateDepth 20 and templateNodes 500 remains bounded and exceeds all current reported lower bounds."
+        ],
+        "budget": {
+          "offset": 0,
+          "elements": 2000,
+          "templateNodes": 500,
+          "templateDepth": 20,
+          "collections": 500
+        },
+        "id": "febd07fb-2c40-4128-8c25-30d365ec7842",
+        "requestId": "febd07fb-2c40-4128-8c25-30d365ec7842",
+        "sessionId": "182bb177-a981-473c-add0-024130a3e3bd",
+        "documentId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2",
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "topologyKey": "cf4f600e282aafac12353f50c8a83b501b77729e67cfcf6a3efbc84ec763c877",
+        "at": "2026-10-15T07:47:45.657Z",
+        "status": "active"
+      }
+    },
+    {
+      "sequence": 109,
+      "type": "discovery.scan_completed",
+      "at": "2026-10-15T07:47:48.357Z",
+      "data": {
+        "observationId": "86a61a40-0f0c-4e79-a815-c7ff86abd805",
+        "targetId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+        "source": "gpt-5.6-sol/low",
+        "evidence": [
+          "The refreshed stable document has 1556 signal nodes, all already scanned, and 17 structural template depth/node omissions.",
+          "The current html target includes every reported omission owner, including newly loaded #okx-sticky_1.",
+          "A 2000-element full-root window with templateDepth 20 and templateNodes 500 remains bounded and exceeds all current reported lower bounds."
+        ],
+        "budget": {
+          "offset": 0,
+          "elements": 2000,
+          "templateNodes": 500,
+          "templateDepth": 20,
+          "collections": 500
+        },
+        "id": "febd07fb-2c40-4128-8c25-30d365ec7842",
+        "requestId": "febd07fb-2c40-4128-8c25-30d365ec7842",
+        "sessionId": "182bb177-a981-473c-add0-024130a3e3bd",
+        "documentId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2",
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "topologyKey": "cf4f600e282aafac12353f50c8a83b501b77729e67cfcf6a3efbc84ec763c877",
+        "at": "2026-10-15T07:47:45.657Z",
+        "status": "active",
+        "resultObservationId": "251a953d-a0d6-4a0d-8c52-de590fe0ccd3",
+        "gaps": [
+          {
+            "code": "STRUCTURAL_LIST_SCAN_TRUNCATED",
+            "reference": "discovery:structural",
+            "message": "Repeated-record discovery: 1 limited templates, 0 partial sibling windows; collection limit reached: false"
+          },
+          {
+            "code": "STRUCTURAL_DISCOVERY_LIMIT",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "reference": "discovery:3581203e-b147-4fd5-86e6-6f9c3ce133c2:11:3581203e-b147-4fd5-86e6-6f9c3ce133c2:12:template_nodes",
+            "message": "template_nodes: limit 500, observed at least 501; inspect discoveryScan for the exact owner and bounded supplementation target"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+          },
+          {
+            "code": "UNSUPPORTED_CANVAS",
+            "message": "CANVAS internals are outside V0.1 coverage",
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+          },
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+          }
+        ],
+        "discovery": {
+          "version": "dom-discovery/v1",
+          "topologyKey": "cf4f600e282aafac12353f50c8a83b501b77729e67cfcf6a3efbc84ec763c877",
+          "nodeCount": 1556,
+          "signal": {
+            "baselineLimit": 5000,
+            "scanned": 1556,
+            "omitted": 0
+          },
+          "structural": {
+            "templatesTruncated": 1,
+            "collectionsTruncated": false,
+            "rowWindowsTruncated": 0,
+            "omissions": [
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+                "ownerSelector": "#root",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:12",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "limit": 500,
+                "observed": 501
+              }
+            ],
+            "omittedLocations": 0
+          },
+          "controls": {
+            "discovered": 302,
+            "collected": 302,
+            "limit": 1500
+          },
+          "targets": [
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+              "selector": "html > ",
+              "tag": "html",
+              "label": "",
+              "elementCount": 1556
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+              "selector": "#root",
+              "tag": "div",
+              "label": "",
+              "elementCount": 1011
+            }
+          ],
+          "supplement": {
+            "requestId": "febd07fb-2c40-4128-8c25-30d365ec7842",
+            "targetId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+            "budget": {
+              "offset": 0,
+              "elements": 2000,
+              "templateNodes": 500,
+              "templateDepth": 20,
+              "collections": 500
+            },
+            "status": "active"
+          }
+        }
+      }
+    },
+    {
+      "sequence": 110,
+      "type": "discovery.scan_requested",
+      "at": "2026-10-15T07:47:48.357Z",
+      "data": {
+        "observationId": "251a953d-a0d6-4a0d-8c52-de590fe0ccd3",
+        "discovery": {
+          "version": "dom-discovery/v1",
+          "topologyKey": "cf4f600e282aafac12353f50c8a83b501b77729e67cfcf6a3efbc84ec763c877",
+          "nodeCount": 1556,
+          "signal": {
+            "baselineLimit": 5000,
+            "scanned": 1556,
+            "omitted": 0
+          },
+          "structural": {
+            "templatesTruncated": 1,
+            "collectionsTruncated": false,
+            "rowWindowsTruncated": 0,
+            "omissions": [
+              {
+                "kind": "template_nodes",
+                "ownerId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+                "ownerSelector": "#root",
+                "rowId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:12",
+                "rowSelector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+                "limit": 500,
+                "observed": 501
+              }
+            ],
+            "omittedLocations": 0
+          },
+          "controls": {
+            "discovered": 302,
+            "collected": 302,
+            "limit": 1500
+          },
+          "targets": [
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+              "selector": "html > ",
+              "tag": "html",
+              "label": "",
+              "elementCount": 1556
+            },
+            {
+              "id": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:11",
+              "selector": "#root",
+              "tag": "div",
+              "label": "",
+              "elementCount": 1011
+            }
+          ],
+          "supplement": {
+            "requestId": "febd07fb-2c40-4128-8c25-30d365ec7842",
+            "targetId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+            "budget": {
+              "offset": 0,
+              "elements": 2000,
+              "templateNodes": 500,
+              "templateDepth": 20,
+              "collections": 500
+            },
+            "status": "active"
+          }
+        }
+      }
+    }
+  ],
+  "knownMetadataDefect": "html root selector rendered as html >; scan execution uses observed targetId; corrected after full regression with separate targeted verification"
+}

@@ -1,7 +1,8 @@
 import type { Control, StructuralListCandidate } from './types.js';
+import type { DiscoveryOmission } from './discovery-scan.js';
 
 /** Runs in the page. Repetition is a review prompt, never a business-purpose grant. */
-export function discoverStructuralLists(elements: Element[], selected: Set<Element>, instance: (el: Element) => string, selector: (el: Element) => string, capabilities: (el: Element) => {actions:string[]}) {
+export function discoverStructuralLists(elements: Element[], selected: Set<Element>, instance: (el: Element) => string, selector: (el: Element) => string, capabilities: (el: Element) => {actions:string[]}, supplement?: { root: Element; templateNodes: number; templateDepth: number; collections: number }) {
   const clean=(s:string|null|undefined)=>(s||'').replace(/\s+/g,' ').trim();
   const label=(el:Element)=>clean(el.getAttribute('aria-label'))||clean((el.getAttribute('aria-labelledby')||'').split(/\s+/).map(id=>document.getElementById(id)?.textContent||'').join(' '));
   const visible=(el:Element)=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'&&!el.closest('[hidden],[inert]');};
@@ -11,18 +12,27 @@ export function discoverStructuralLists(elements: Element[], selected: Set<Eleme
   type Remembered={template:string;slots:string[];qualification:{rowInstanceIds:string[];semanticOwner:boolean}};
   const history:WeakMap<Element,Map<string,Remembered>>=tracker.structuralLists??=new WeakMap();
   const byElement=new Set(elements);
-  const limits={templatesTruncated:0,collectionsTruncated:false};
+  const limits={templatesTruncated:0,collectionsTruncated:false,rowWindowsTruncated:0,omissions:[] as DiscoveryOmission[],omittedLocations:0};
+  const omit=(kind:DiscoveryOmission['kind'],owner:Element,row:Element|undefined,limit:number,observed:number)=>{
+    if(limits.omissions.length>=100){limits.omittedLocations++;return;}
+    limits.omissions.push({kind,ownerId:instance(owner),ownerSelector:selector(owner),...(row?{rowId:instance(row),rowSelector:selector(row)}:{}),limit,observed});
+  };
   const path=(root:Element,el:Element)=>{const parts:number[]=[];for(let n=el;n!==root;){const p=n.parentElement;if(!p)return '';parts.unshift([...p.children].indexOf(n));n=p;}return parts.join('/');};
   const targetElements=(row:Element)=>[...selected].filter(el=>(el===row||row.contains(el))&&!el.closest('[role=listbox],select')&&visible(el)&&capabilities(el).actions.length>0);
-  const structure=(root:Element)=>{
-    let count=0,limited=false;
+  const structure=(root:Element,owner:Element)=>{
+    const extended=!!supplement?.root.contains(root),maxNodes=extended?supplement!.templateNodes:100,maxDepth=extended?supplement!.templateDepth:8;
+    let count=0,limited:DiscoveryOmission['kind']|undefined;
     const walk=(el:Element,depth:number):unknown=>{
-      if(++count>100||depth>8){limited=true;return null;}
+      if(count>=maxNodes){limited='template_nodes';return null;}
+      if(depth>maxDepth){limited='template_depth';return null;}
+      count++;
       if(el!==root&&el.matches(scope))return ['independent-scope',el.tagName,el.getAttribute('role')];
+      const children:unknown[]=[];
+      for(const child of el.children){if(child.matches('script,style,[hidden],[aria-hidden=true]'))continue;children.push(walk(child,depth+1));if(limited)break;}
       return [el.tagName,el.getAttribute('role')||'',el.getAttribute('type')||'',el.hasAttribute('href'),el.hasAttribute('contenteditable'),
-        [...el.children].filter(c=>!c.matches('script,style,[hidden],[aria-hidden=true]')).map(c=>walk(c,depth+1))];
+        children];
     };
-    const value=walk(root,0);if(limited)limits.templatesTruncated++;return limited?undefined:JSON.stringify(value);
+    const value=walk(root,0);if(limited){limits.templatesTruncated++;omit(limited,owner,root,limited==='template_nodes'?maxNodes:maxDepth,limited==='template_nodes'?count+1:maxDepth+1);}return limited?undefined:JSON.stringify(value);
   };
   const recordKey=(row:Element)=>{
     const declared=['data-row-key','data-item-key','data-key'].find(k=>row.hasAttribute(k));
@@ -35,11 +45,13 @@ export function discoverStructuralLists(elements: Element[], selected: Set<Eleme
     return text&&text.length<=500?JSON.stringify(['description',text]):undefined;
   };
   const result:{owner:Element;template:string;qualification:Remembered['qualification'];members:{element:Element;row:Element;slot:string;recordKey?:string}[];binding:StructuralListCandidate['binding'];label:string;selector:string}[]=[];
-  for(const owner of elements){
+  owners: for(const owner of elements){
     if(owner===document.body||owner===document.documentElement||owner.matches(atomic)||owner.closest('[role=listbox],select')||!visible(owner)&&!history.has(owner))continue;
     const children=[...owner.children].filter(el=>!el.matches('script,style')&&visible(el));
     if(children.length<2&&!history.has(owner))continue;
     const buckets=new Map<string,{row:Element;targets:Element[]}[]>();
+    const missingRows=children.filter(row=>!byElement.has(row));
+    if(missingRows.length){limits.rowWindowsTruncated++;omit('row_window',owner,missingRows[0],children.length-missingRows.length,children.length);}
     for(const row of children){
       if(!byElement.has(row)||row.matches('h1,h2,h3,h4,h5,h6,[role=heading]'))continue;
       let targets=targetElements(row);
@@ -47,7 +59,7 @@ export function discoverStructuralLists(elements: Element[], selected: Set<Eleme
       // pointer cursor is inherited from the collection owner.
       if(!targets.length&&getComputedStyle(row).cursor==='pointer'&&clean(row.textContent))targets=[row];
       if(!targets.length)continue;
-      const template=structure(row);if(!template)continue;
+      const template=structure(row,owner);if(!template)continue;
       const bucket=buckets.get(template)||[];bucket.push({row,targets});buckets.set(template,bucket);
     }
     const remembered=history.get(owner)||new Map<string,Remembered>();
@@ -65,7 +77,7 @@ export function discoverStructuralLists(elements: Element[], selected: Set<Eleme
     for(const {template,slots,qualification} of remembered.values()){
       const rows=buckets.get(template)||[];
       const members=rows.flatMap(({row,targets})=>targets.filter(el=>slots.includes(path(row,el))).map(element=>({element,row,slot:path(row,element),recordKey:recordKey(row)})));
-      if(result.length>=300){limits.collectionsTruncated=true;break;}
+      if(result.length>=(supplement?.collections??300)){limits.collectionsTruncated=true;omit('collections',owner,undefined,supplement?.collections??300,result.length+1);break owners;}
       result.push({owner,template,qualification,members,binding:{ownerInstanceId:instance(owner),ancestry,tag:owner.tagName.toLowerCase(),role:owner.getAttribute('role')||'',label:label(owner),template,templatePresent:rows.length>0||buckets.size===0},
         label:label(owner)||'Repeated record controls',selector:selector(owner)});
     }

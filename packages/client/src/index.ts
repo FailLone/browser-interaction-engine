@@ -61,6 +61,9 @@ export class InteractionClient {
   explorationGroups(id: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.list<import('@interaction/browser').ExplorationGroup>(id, 'exploration-groups', options); }
   regionReviewMaterial(id: string) { return this.request<import('@interaction/browser').RegionReviewMaterial>(`/sessions/${encodeURIComponent(id)}/region-review`); }
   controlReviewMaterial(id:string) {return this.request<import('@interaction/browser').ControlReviewMaterial>(`/sessions/${encodeURIComponent(id)}/control-review`);}
+  discoveryScanMaterial(id: string) { return this.request<import('@interaction/browser').DiscoveryScanMaterial>(`/sessions/${encodeURIComponent(id)}/discovery-scan`); }
+  discoveryScans(id: string, options: {offset?: number; limit?: number; status?: string} = {}) { return this.list<import('@interaction/browser').DiscoveryScanRecord>(id, 'discovery-scans', options); }
+  supplementDiscovery(id: string, scan: import('@interaction/browser').SupplementDiscoveryInput) { return this.request<import('@interaction/browser').DiscoveryScanRecord>(`/sessions/${encodeURIComponent(id)}/commands`, {type: 'supplementDiscovery', scan}); }
   controlClassificationMaterial(id:string) {return this.request<import('@interaction/browser').ControlClassificationMaterial>(`/sessions/${encodeURIComponent(id)}/control-classification`);}
   controlClassifications(id:string,options:{offset?:number;limit?:number;status?:string}={}) {return this.list<import('@interaction/browser').ControlClassificationRecord>(id,'control-classifications',options);}
   classifyControls(id:string,classification:import('@interaction/browser').ClassifyControlsInput) {return this.command<import('@interaction/browser').ControlClassificationRecord[]>(id,{type:'classifyControls',classification});}

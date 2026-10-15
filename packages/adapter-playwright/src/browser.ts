@@ -14,6 +14,7 @@ import { EngineError } from './types.js';
 import { now } from './util.js';
 import { collectRegionCandidates } from './region-candidates.js';
 import { discoverStructuralLists, describeStructuralLists } from './structural-lists.js';
+import type { DiscoveryScanPlan, DiscoverySnapshot } from './discovery-scan.js';
 import { collectOverlays } from './overlays.js';
 import { collectLiveContent } from './live-content.js';
 import { collectActionEvidence } from './action-evidence.js';
@@ -24,8 +25,16 @@ import { historyPosition, historyTarget } from './navigation.js';
 import type { BrowserHistory } from './types.js';
 import type { BrowserEvidenceManifest, DetailSnapshot, DomEvidence, EvidenceOptions } from './evidence-types.js';
 
+type DOMSnapshot = {
+  documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[];
+  overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>;
+  regionCandidates?: Observation['regionCandidates']; structuralLists?: Observation['structuralLists'];
+  actionDiscovery?: Observation['actionDiscovery']; discoveryScan?: DiscoverySnapshot;
+  scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence;
+};
+
 // Runs in the page without framework knowledge or DOM mutation.
-function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0) {
+function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
@@ -211,6 +220,9 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   const documentHints = documentRoots.flatMap(el => actionCollector(el).interactionHints.map(hint => ({ ...hint, facts: { ...hint.facts, tag: el.tagName.toLowerCase(), scope: 'document' } })));
   for (const root of documentRoots) selected.delete(root);
   const elements = [...document.querySelectorAll('*')];
+  const scanRoot = scanPlan && scanPlan.documentId === tracker.documentId && scanPlan.url === location.href ? elements.find(el => tracker.ids.get(el) === scanPlan.targetId) : undefined;
+  const scopedElements = scanRoot ? [scanRoot, ...scanRoot.querySelectorAll('*')] : [];
+  const scanElements = [...new Set([...elements.slice(0, 5000), ...(scanPlan && scanRoot ? scopedElements.slice(scanPlan.budget.offset, scanPlan.budget.offset + scanPlan.budget.elements) : [])])];
   const scrollViewport = (el: Element) => {
     if (el === body || el === document.documentElement || el.matches('input,textarea,select,[contenteditable]:not([contenteditable=false])')) return;
     const style = getComputedStyle(el);
@@ -220,8 +232,9 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   };
   // A bounded supplemental scan finds scroll viewports, handlers and cursor hints.
   // Inherited pointer cursors do not turn every descendant into another target.
-  for (const el of elements.slice(0, 5000)) if (el !== body && el !== document.documentElement && !selected.has(el) && (scrollViewport(el) || typeof (el as HTMLElement).onclick === 'function' || getComputedStyle(el).cursor === 'pointer' && (!el.parentElement || getComputedStyle(el.parentElement).cursor !== 'pointer'))) selected.add(el);
-  const structuralScan=listCollector?.(elements.slice(0,5000),selected,instance,selector,actionCollector)||{candidates:[],limits:{templatesTruncated:0,collectionsTruncated:false}};
+  for (const el of scanElements) if (el !== body && el !== document.documentElement && !selected.has(el) && (scrollViewport(el) || typeof (el as HTMLElement).onclick === 'function' || getComputedStyle(el).cursor === 'pointer' && (!el.parentElement || getComputedStyle(el.parentElement).cursor !== 'pointer'))) selected.add(el);
+  const structuralElements = scanRoot && !scanElements.includes(scanRoot) ? [...scanElements, scanRoot] : scanElements;
+  const structuralScan=listCollector?.(structuralElements,selected,instance,selector,actionCollector,scanRoot&&scanPlan?{root:scanRoot,...scanPlan.budget}:undefined)||{candidates:[],limits:{templatesTruncated:0,collectionsTruncated:false,rowWindowsTruncated:0,omissions:[],omittedLocations:0}};
   // Semantic rows already have scoped record evidence, including instance-bound
   // passive readouts. Structural discovery must not reintroduce raw quote text
   // as a second, conflicting record identity or freshness prerequisite.
@@ -330,14 +343,29 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       actionable: { visible: !!visible, enabled: !!enabled, editable: !!editable, hitTarget: isInView ? !!hit && (hit === el || el.contains(hit)) : null, unknown: ['event-handler-completeness', 'business-preconditions', ...(!isInView ? ['off-viewport-hit-target'] : [])] },
     };
   });
-  const gaps: { code: string; message: string; selector?: string; critical?: boolean }[] = [];
-  if(structuralScan.limits.templatesTruncated||structuralScan.limits.collectionsTruncated)gaps.push({code:'STRUCTURAL_LIST_SCAN_TRUNCATED',message:`Repeated-record discovery skipped ${structuralScan.limits.templatesTruncated} oversized row templates; collection limit reached: ${structuralScan.limits.collectionsTruncated}`});
+  const scanned = new Set(scanElements), firstOmittedIndex = elements.findIndex(el => !scanned.has(el));
+  const firstOmitted = elements[firstOmittedIndex];
+  const targetElements = new Set<Element>(document.documentElement ? [document.documentElement] : []);
+  if (firstOmitted?.parentElement) targetElements.add(firstOmitted.parentElement);
+  const omittedOwners = new Set(structuralScan.limits.omissions.map(o => o.ownerId));
+  for (const el of elements) if (omittedOwners.has(tracker.ids.get(el))) targetElements.add(el);
+  const discoveryScan: DiscoverySnapshot = { version: 'dom-discovery/v1', topologyKey: '', nodeCount: elements.length,
+    signal: { baselineLimit: 5000, scanned: scanned.size, omitted: elements.length - scanned.size,
+      ...(firstOmitted ? { firstOmitted: { id: instance(firstOmitted), selector: selector(firstOmitted), index: firstOmittedIndex, parentId: firstOmitted.parentElement ? instance(firstOmitted.parentElement) : undefined } } : {}) },
+    structural: structuralScan.limits, controls: { discovered: all.length, collected: controls.length, limit: 1500 },
+    targets: [...targetElements].map(el => ({ id: instance(el), selector: el === document.documentElement ? 'html' : selector(el), tag: el.tagName.toLowerCase(), label: label(el), elementCount: 1 + el.querySelectorAll('*').length })),
+    ...(scanPlan ? { supplement: { requestId: scanPlan.requestId, targetId: scanPlan.targetId, budget: scanPlan.budget, status: scanRoot ? 'active' : 'invalidated', ...(!scanRoot ? { reason: 'scan_root_changed' } : {}) } } : {}) };
+  // Returned only to the host for hashing; the full topology is not retained in observations.
+  const discoveryTopology = elements.map(el => [instance(el), el.parentElement ? instance(el.parentElement) : '', el.tagName]);
+  const gaps: { code: string; message: string; selector?: string; reference?: string; critical?: boolean }[] = [];
+  if(structuralScan.limits.templatesTruncated||structuralScan.limits.collectionsTruncated||structuralScan.limits.rowWindowsTruncated)gaps.push({code:'STRUCTURAL_LIST_SCAN_TRUNCATED',reference:'discovery:structural',message:`Repeated-record discovery: ${structuralScan.limits.templatesTruncated} limited templates, ${structuralScan.limits.rowWindowsTruncated} partial sibling windows; collection limit reached: ${structuralScan.limits.collectionsTruncated}`});
+  for (const omission of structuralScan.limits.omissions) gaps.push({ code: 'STRUCTURAL_DISCOVERY_LIMIT', selector: omission.rowSelector || omission.ownerSelector, reference: `discovery:${omission.ownerId}:${omission.rowId || ''}:${omission.kind}`, message: `${omission.kind}: limit ${omission.limit}, observed at least ${omission.observed}; inspect discoveryScan for the exact owner and bounded supplementation target` });
   if (!body) gaps.push({ code: 'DOM_ROOT_UNAVAILABLE', message: 'Document body is absent; the page may be navigating or rebuilding', critical: true });
   if (document.readyState === 'loading') gaps.push({ code: 'DOCUMENT_LOADING', message: 'Document parsing is still in progress', critical: true });
   for (const el of document.querySelectorAll('iframe,canvas,input[type=file]')) gaps.push({ code: `UNSUPPORTED_${el.tagName === 'INPUT' ? 'FILE_INPUT' : el.tagName}`, message: `${el.tagName} internals are outside V0.1 coverage`, selector: selector(el) });
   for (const el of elements) if (el.shadowRoot) gaps.push({ code: 'UNSUPPORTED_SHADOW_DOM', message: 'Shadow root contents were not collected', selector: selector(el) });
   for (const c of controls) if (c.tag === 'input' && ['color', 'range'].includes(c.constraints.type)) gaps.push({ code: 'UNSUPPORTED_INPUT_TYPE', message: `No V0.1 operation for input type ${c.constraints.type}`, selector: c.selector });
-  if (elements.length > 5000) gaps.push({ code: 'SIGNAL_SCAN_TRUNCATED', message: 'Supplemental repeated-record, scroll-viewport, property-handler and cursor scan limited to 5000 elements; semantic selectors are collected separately' });
+  if (firstOmitted) gaps.push({ code: 'SIGNAL_SCAN_TRUNCATED', selector: selector(firstOmitted), reference: 'discovery:signal', message: `${discoveryScan.signal.omitted} elements outside the current bounded signal scan; first omission at document index ${firstOmittedIndex}. Semantic selectors are collected separately` });
   gaps.push({ code: 'EVENT_LISTENER_COVERAGE', message: 'Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation.' });
   if (all.length > controls.length) gaps.push({ code: 'TRUNCATED', message: `${all.length - controls.length} controls omitted`, critical: true });
   if (bodyText.length > 50000) gaps.push({ code: 'TEXT_TRUNCATED', message: 'Visible text was truncated to 50000 characters' });
@@ -367,7 +395,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const owners = document.querySelectorAll(region.selector);
     if (owners.length === 1) region.instanceId = instance(owners[0]);
   }
-  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, ...layers, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
+  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, ...layers, discoveryScan, discoveryTopology, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
 
 export class BrowserAdapter implements InteractionDriver<Observation, SessionOptions> {
@@ -380,6 +408,14 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   private documentMethods = new Map<string, string>();
   private entryMethods = new Map<number, string>();
   private lastDocumentResponse?: { url: string; method: string };
+  private discoveryPlan?: DiscoveryScanPlan & { status: 'active' | 'invalidated'; reason?: string };
+  setDiscoveryScan(plan: DiscoveryScanPlan) { this.discoveryPlan = { ...structuredClone(plan), status: 'active' }; }
+  async validateDiscoveryScan(current: Observation) {
+    const live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Discovery validation deadline exceeded');
+    return !live.gaps.some(g => g.critical) && live.documentId === current.documentId && live.url === current.url
+      && !!current.discoveryScan && live.discoveryScan?.topologyKey === current.discoveryScan.topologyKey;
+  }
+  invalidateDiscoveryScan(reason: string) { if (this.discoveryPlan) this.discoveryPlan = { ...this.discoveryPlan, status: 'invalidated', reason }; }
   constructor(public options: SessionOptions, private evidence: EvidenceStore, private hooks: EngineHooks = {}) { this.options = { ...options, evidence: evidenceOptionsSchema.parse(options.evidence) }; }
   connected() { return !!this.page && !this.page.isClosed(); }
   async start() {
@@ -421,13 +457,22 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     return { browserSessionId: this.navigationSessionId, currentIndex: history.currentIndex,
       entries: history.entries.map(e => ({ id: e.id, url: e.url, method: this.entryMethods.get(e.id) })) };
   }
-  async readDOM(detailed = false) {
+  async readDOM(detailed = false): Promise<DOMSnapshot> {
     if (!this.page || this.page.isClosed()) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
-    const args = `, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? discoverStructuralLists.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? describeStructuralLists.toString() : 'undefined'}, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}`;
+    const args = `, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? discoverStructuralLists.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? describeStructuralLists.toString() : 'undefined'}, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}, ${this.discoveryPlan?.status === 'active' ? JSON.stringify(this.discoveryPlan) : 'undefined'}`;
     const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}${args}); })()`;
-    return this.page.evaluate(source) as Promise<{ documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[]; overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>; regionCandidates?: Observation['regionCandidates']; structuralLists?: Observation['structuralLists']; actionDiscovery?: Observation['actionDiscovery']; scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence }>;
+    const raw = await this.page.evaluate(source) as DOMSnapshot & { discoveryTopology: string[][]; discoveryScan: DiscoverySnapshot };
+    const { discoveryTopology, ...dom } = raw;
+    dom.discoveryScan.topologyKey = hash(discoveryTopology);
+    const plan = this.discoveryPlan;
+    if (plan?.status === 'active' && (dom.documentId !== plan.documentId || dom.url !== plan.url || dom.discoveryScan.topologyKey !== plan.topologyKey || dom.discoveryScan.supplement?.status !== 'active')) {
+      this.invalidateDiscoveryScan('document_url_or_topology_changed');
+      return this.readDOM(detailed);
+    }
+    if (plan?.status === 'invalidated') dom.discoveryScan.supplement = { requestId: plan.requestId, targetId: plan.targetId, budget: plan.budget, status: 'invalidated', reason: plan.reason };
+    return dom;
   }
   async capture(observationId: string) {
     if (!this.page) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
@@ -683,6 +728,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     try { live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
     if (live.gaps.some(g => g.critical)) return 'stale';
+    if (current.discoveryScan?.supplement?.status === 'active' && (live.discoveryScan?.supplement?.status !== 'active' || live.discoveryScan?.supplement.requestId !== current.discoveryScan.supplement.requestId)) return 'stale';
     let liveHistory: BrowserHistory | undefined;
     if (current.navigation) {
       try { liveHistory = await this.readHistory(live.documentId); if (canonical(historyPosition(current.navigation)) !== canonical(historyPosition(liveHistory))) return 'stale'; }

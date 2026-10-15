@@ -14,6 +14,8 @@ export * from './types.js';
 export * from './purpose-review.js';
 export * from './control-review.js';
 export * from './control-classification.js';
+export * from './discovery-scan.js';
+export { BrowserAdapter } from './browser.js';
 export { sessionSchema, commandSchema, regionReviewSchema, predicateSchema, domQuerySchema, artifactKindSchema } from './schema.js';
 export type { Command } from './schema.js';
 export { compareObservations, observableCanonical } from './model.js';

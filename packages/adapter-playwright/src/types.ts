@@ -76,6 +76,7 @@ export interface Observation extends CoreObservation<Control> {
   navigation?: BrowserHistory;
   regionCandidates?: RegionCandidate[];
   structuralLists?: StructuralListCandidate[];
+  discoveryScan?: import('./discovery-scan.js').DiscoverySnapshot;
   actionDiscovery?: { version: 'dom-actions-v2'; documentHints: ActionEvidence[] };
   screenshot?: string; gaps: Gap[]; stable: boolean;
   evidence?: BrowserEvidenceManifest;

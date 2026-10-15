@@ -1,3 +1,4 @@
+import { DiscoveryScans } from './discovery-scans.js';
 import { RegionReviews } from './region-reviews.js';
 import { ControlReviews } from './control-reviews.js';
 import { ControlClassifications } from './control-classifications.js';
@@ -11,7 +12,7 @@ import type { InspectionResult } from './inspection-types.js';
 import { InteractionEngine as CoreEngine, EngineError, type Persistence, type Predicate, type InteractionScope, type Checkpoint } from '@interaction/core';
 import { RetainedPersistence, type RetentionOptions } from '@interaction/storage-retained';
 import { subscribeEvents, projectEvent, type SubscriptionOptions, type SnapshotEvent, type DeliveryMode } from './subscription.js';
-import { PlaywrightAdapter, commandSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
+import { BrowserAdapter, supplementDiscoverySchema, PlaywrightAdapter, commandSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
 import { explainBrowserDiff } from './diff-details.js';
 export * from './diff-details.js';
 import { BrowserEvidenceQueries, type DomQuery, type ArtifactKind } from './evidence.js';
@@ -36,6 +37,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   private readonly regions: RegionReviews;
   private readonly controls: ControlReviews;
   private readonly classifications: ControlClassifications;
+  private readonly discoveryScans: DiscoveryScans;
   private readonly classificationHook?: EngineHooks['controlClassification'];
   private readonly controlHook?: EngineHooks['controlReview'];
   private readonly regionHook?: EngineHooks['regionReview'];
@@ -69,6 +71,23 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       reviewed=this.controls.apply(actions,o);
     }
     return reviewed;
+  }
+  discoveryScanMaterial(sid: string) { return this.discoveryScans.material(this.observation(sid)); }
+  supplementDiscovery(sid: string, input: import('@interaction/adapter-playwright').SupplementDiscoveryInput) {
+    return this.enqueueMeasured(sid, async () => {
+      const parsed = supplementDiscoverySchema.parse(input), o = this.observation(sid);
+      const record = this.discoveryScans.prepare(o, parsed);
+      if (this.activeId !== sid || !(this.driver instanceof BrowserAdapter) || !this.driver.connected()) throw new EngineError('BROWSER_UNAVAILABLE', 'Observe this session before supplementing discovery');
+      if (await this.driver.preflight(o) !== 'valid' || !await this.driver.validateDiscoveryScan(o)) {
+        await this.capture(sid, 'inspection');
+        throw new EngineError('STALE_DISCOVERY_SCAN', 'Document or discovery window changed; use the new observation');
+      }
+      this.store.transaction(() => this.discoveryScans.record(record));
+      this.driver.setDiscoveryScan(record);
+      try { await this.capture(sid, 'inspection'); }
+      catch (error) { this.driver.invalidateDiscoveryScan('capture_failed'); this.discoveryScans.failed(record, error); throw error; }
+      return this.store.require<import('@interaction/adapter-playwright').DiscoveryScanRecord>('discovery-scan', record.id);
+    });
   }
   controlClassificationMaterial(sid: string) { return this.classifications.material(this.observation(sid), this.actions(sid)); }
   classifyControls(sid: string, input: import('@interaction/adapter-playwright').ClassifyControlsInput) {
@@ -194,6 +213,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   override async createSession(input: unknown) { return super.createSession(validateInspectionOptions(input)); }
   protected override beforeCapture(sessionId: string, observationId: string) { return this.inspections.prepare(sessionId, observationId); }
   protected override afterCapture(observation: Observation, previous?: Observation, attemptId?: string) {
+    this.discoveryScans.reconcile(observation);
     this.pages.reconcile(observation, previous, this.session(observation.sessionId));
     this.purposeReviews.reconcile(observation, this.actions(observation.sessionId));
     this.controls.retire(observation,this.actions(observation.sessionId));
@@ -236,7 +256,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   controlCoverage(sessionId: string) { return describeControlCoverage(this.list<Observation>(sessionId, 'observation'), this.list(sessionId, 'attempt'), this.list(sessionId, 'action'), this.classifications.records(sessionId), this.list(sessionId, 'hypothesis')); }
   override report(sessionId: string) {
     const report = super.report(sessionId), controlCoverage = this.controlCoverage(sessionId);
-    return { ...report, pageExploration: this.pages.state(sessionId), controlCoverage,
+    return { ...report, discoveryScans: this.discoveryScans.records(sessionId), pageExploration: this.pages.state(sessionId), controlCoverage,
       completionAudit: auditBrowserCompletion(report.explorationAudit, controlCoverage, this.list<Observation>(sessionId, 'observation'), report.session.currentObservationId, this.list<ExplorationGroup>(sessionId, 'exploration-group'), this.classifications.records(sessionId)) };
   }
   observationDetails(sessionId: string, observationId: string) { return this.evidenceQueries.details(sessionId, observationId); }
@@ -271,6 +291,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       }
     });
     super({ persistence: options.persistence instanceof RetainedPersistence ? options.persistence : new RetainedPersistence(options.persistence, options.retention), adapter: new PlaywrightAdapter(options.hooks), hooks: options.hooks });
+    this.discoveryScans = new DiscoveryScans(this.store, (sid, type, data) => this.publish(sid, type, data));
     this.pages = new PageExploration(this.store);
     this.regions = new RegionReviews(this.store, (sid, type, data) => this.publish(sid, type, data));
     this.classifications = new ControlClassifications(this.store, (sid,type,data)=>this.publish(sid,type,data));
@@ -288,6 +309,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   async command(sessionId: string, input: unknown) {
     const command: Command = commandSchema.parse(input);
     switch (command.type) {
+      case 'supplementDiscovery': return this.supplementDiscovery(sessionId, command.scan);
       case 'classifyControls': return this.classifyControls(sessionId, command.classification);
       case 'revokeControlClassification': return this.revokeControlClassification(sessionId, command.revocation);
       case 'reviewControls': return this.reviewControls(sessionId,command.review);

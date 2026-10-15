@@ -1,0 +1,60 @@
+{
+  "source": "gpt-5.6-sol/low",
+  "observationId": "86a61a40-0f0c-4e79-a815-c7ff86abd805",
+  "decision": "supplement_once_read_only",
+  "priorAttempt": {
+    "status": "rejected_before_recording",
+    "code": "STALE_DISCOVERY_SCAN",
+    "evidence": [
+      "supplement-result-01.json reports Document or discovery window changed; use the new observation.",
+      "discovery-after-01.json contains records=[], so no supplement window was saved.",
+      "state-after-01.json reports actionCount 0."
+    ]
+  },
+  "rationale": "The new stable observation still warrants one bounded structural supplement. The document grew from 1,458 to 1,556 nodes and added a seventeenth template-depth omission at #okx-sticky_1, but all signal nodes remain inside the 5,000-node baseline and the same current html root still contains every omission. The earlier budget remains applicable because elements=2,000 covers the full 1,556-node root, while templateDepth=20 and templateNodes=500 exceed every reported depth-9 or 101-node lower bound.",
+  "evidence": [
+    "The current material is bound to observation 86a61a40-0f0c-4e79-a815-c7ff86abd805, URL https://www.okx.com/convert/btc-to-usd, and the same document instance scope 3581203e-b147-4fd5-86e6-6f9c3ce133c2.",
+    "The current observation is stable and actionCount remains 0.",
+    "Signal discovery now reports scanned 1556 and omitted 0, so a later-offset signal window is still unnecessary.",
+    "Structural discovery reports 17 truncated templates, 0 row-window truncations, no collection truncation, and 0 unreported omission locations.",
+    "The new omission is template_depth at owner #okx-sticky_1 (:1804), observed depth 9 versus limit 8; it is included beneath the current html root.",
+    "Other omissions remain distributed across header and body owners, so a narrower single target still cannot cover the whole reported omission set.",
+    "The current html target keeps id 3581203e-b147-4fd5-86e6-6f9c3ce133c2:500 and now reports elementCount 1556, which remains below the proposed elements budget of 2000."
+  ],
+  "targetSelection": {
+    "targetId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+    "tag": "html",
+    "selector": "html > ",
+    "elementCount": 1556,
+    "reason": "This refreshed current-material target contains the header, body, and newly loaded #okx-sticky_1 omission. It remains the only listed single root that can assess all 17 structural omissions in one bounded read."
+  },
+  "supplementDiscovery": {
+    "observationId": "86a61a40-0f0c-4e79-a815-c7ff86abd805",
+    "targetId": "3581203e-b147-4fd5-86e6-6f9c3ce133c2:500",
+    "source": "gpt-5.6-sol/low",
+    "evidence": [
+      "The refreshed stable document has 1556 signal nodes, all already scanned, and 17 structural template depth/node omissions.",
+      "The current html target includes every reported omission owner, including newly loaded #okx-sticky_1.",
+      "A 2000-element full-root window with templateDepth 20 and templateNodes 500 remains bounded and exceeds all current reported lower bounds."
+    ],
+    "budget": {
+      "offset": 0,
+      "elements": 2000,
+      "templateNodes": 500,
+      "templateDepth": 20,
+      "collections": 500
+    }
+  },
+  "acceptanceChecks": [
+    "Require an active supplement record and a new resultObservationId; command acceptance alone is insufficient.",
+    "Verify URL, document instance, and topology validation succeed and actionCount remains 0.",
+    "Compare all 17 current omission references against the result rather than comparing only the aggregate count.",
+    "Confirm signal omitted remains 0 and inspect whether controls or structural collections change.",
+    "Newly discovered candidates remain unapproved and require independent later protocols."
+  ],
+  "nonAuthorizations": [
+    "No browser operation, modal exit, scroll, navigation, classification, control review, or list/page scope decision is approved.",
+    "The newly loaded sticky subtree is included only as read-only discovery material and is not approved for interaction.",
+    "Removal of current structural scan limits would not prove exhaustive page discovery or business correctness."
+  ]
+}
