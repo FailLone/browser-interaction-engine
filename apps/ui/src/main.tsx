@@ -1,6 +1,7 @@
 import { RegionReviewPanel } from './RegionReviewPanel.js';
 import { ExplorationReviewPanel } from './ExplorationReviewPanel.js';
 import { PageScopePanel } from './PageScopePanel.js';
+import { CompletionSummary } from './CompletionSummary.js';
 import { InspectionPanel } from './InspectionPanel.js';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -39,6 +40,7 @@ function App() {
   const shown = historyPinned ? historyResult?.observation : current?.sessionId === sessionId ? current : undefined;
   const [coverage, setCoverage] = useState<ControlCoverage>();
   const [audit, setAudit] = useState<ExplorationAudit>();
+  const [completion, setCompletion] = useState<import('@interaction/browser').BrowserCompletionAudit>();
   const [actions, setActions] = useState<ActionCandidate[]>([]); const [frontierGroups, setFrontierGroups] = useState<BrowserFrontierCoverageGroup[]>([]); const [attempts, setAttempts] = useState<ActionAttempt[]>([]);
   const [hypotheses, setHypotheses] = useState<IdentityHypothesis[]>([]); const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]); const [scopes, setScopes] = useState<InteractionScope[]>([]); const [issues, setIssues] = useState<Issue[]>([]); const [recovery, setRecovery] = useState<ReachResult>();
   const [events, setEvents] = useState<EngineEvent[]>([]); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [tab, setTab] = useState('actions');
@@ -52,7 +54,7 @@ function App() {
     try {
       const [s, o, g, a, f, attempts, h, cp, scopes, issues, reaches, report, reviewMaterial, regionMaterial] = await Promise.all([api.session(id), api.observation(id), api.graph(id), api.actions(id), api.frontierCoverage(id), api.list<ActionAttempt>(id, 'attempts', { limit: 1000 }), listAll<IdentityHypothesis>(api, id, 'hypotheses'), api.list<Checkpoint>(id, 'checkpoints', { limit: 1000 }), api.list<InteractionScope>(id, 'scopes', { limit: 1000 }), api.list<Issue>(id, 'issues', { limit: 1000 }), api.list<ReachResult>(id, 'recoveries', { limit: 1000 }), api.report(id), api.explorationReviewMaterial(id), api.regionReviewMaterial(id)]);
       if (selected.current !== id || version !== refreshVersion.current) return;
-      setRegionMaterial(regionMaterial); setReviewMaterial(reviewMaterial); setSession(s); setCoverage(report.controlCoverage); setAudit(report.explorationAudit); setCurrent(o); setGraph(g); setActions(a); setFrontierGroups(f); setAttempts(attempts.items); setHypotheses(h); setCheckpoints(cp.items); setScopes(scopes.items); setIssues(issues.items); setRecovery(reaches.items.at(-1));
+      setRegionMaterial(regionMaterial); setReviewMaterial(reviewMaterial); setSession(s); setCoverage(report.controlCoverage); setAudit(report.explorationAudit); setCompletion(report.completionAudit); setCurrent(o); setGraph(g); setActions(a); setFrontierGroups(f); setAttempts(attempts.items); setHypotheses(h); setCheckpoints(cp.items); setScopes(scopes.items); setIssues(issues.items); setRecovery(reaches.items.at(-1));
     } catch (e) { setError(String(e)); }
   }, []);
   useEffect(() => { void refresh(); }, [refresh]);
@@ -92,6 +94,7 @@ function App() {
       <PageScopePanel groups={reviewMaterial?.sessionId === sessionId ? reviewMaterial.groups : []} busy={busy} decide={perform} />
       {!!current?.boundaries?.length && <div className="boundary-notice" role="status"><b>优先探索：{current.boundaries.at(-1)!.name}</b><span>{current.boundaries.map(b => b.name).join(' → ')}</span><small>父页面操作已暂缓；验证当前弹层关闭后继续。{session?.stopReason === 'ACTIVE_BOUNDARY_BLOCKED' ? '当前没有可继续的内部操作或退出操作，请查看操作候选中的阻塞原因。' : ''}</small></div>}
       {current?.gaps.some(g => g.critical) && <div className="boundary-notice" role="status"><b>观察不完整，探索已暂缓</b><small>当前无法确认完整页面及弹层状态。请重新观察；已执行的动作不会自动重试。</small></div>}
+      {completion && <CompletionSummary audit={completion} />}
       {coverage && <div className="coverage-summary" role="status"><b>已发现控件覆盖：{coverage.counts.covered} / {coverage.counts.actionable}</b><span>未完成 {coverage.counts.incomplete} · 只读已观察 {coverage.counts.readOnly} · 操作依据未确认 {coverage.counts.unconfirmed}</span><small>覆盖表示各控件支持的操作至少成功执行一次；输入样本、状态组合和业务断言另行验证。</small></div>}
       {audit && <div className="exploration-audit-summary" aria-label="已记录操作审计"><b>已记录操作：{{in_progress:'仍有工作',awaiting_decision:'等待上层决策',blocked:'存在阻塞',complete:'当前范围已处理'}[audit.status]}</b><span>成功 {audit.counts.succeeded} · 上层决定不测 {audit.counts.policy_excluded} · 待决 {audit.counts.awaiting_decision} · 待执行 {audit.counts.pending} · 阻塞 {audit.counts.blocked} · 旧意图退役 {audit.counts.retired}</span><small>未执行共 {audit.counts.notAttempted} 项。上层排除和退役均不计作覆盖；当前范围已处理不表示页面所有交互均已发现。</small></div>}
       <section className="stats">{[['界面状态', graph.states.length], ['访问记录', graph.visits.length], ['实际动作', `${session?.actionCount || 0} / ${session?.options.maxActions || 100}`], ['待探索', pending], ['身份歧义', hypotheses.filter(h => h.status === 'pending').length]].map(([label, value]) => <div key={label}><small>{label}</small><strong>{value}</strong></div>)}</section>
