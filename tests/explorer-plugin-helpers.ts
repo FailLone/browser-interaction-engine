@@ -23,3 +23,5 @@ export function fakeProviders(url:string,scope:Record<string,unknown>={url}) {
  return {value,model:'mock-explicit',confidence:1};};
  return {calls,jev:{name:'mock-jev',model:'mock',decide} as Provider,llm:{name:'mock-llm',model:'mock',decide} as Provider};
 }
+
+export const semanticPopupHtml=`<div id="picker" aria-label="Picker" style="cursor:pointer;position:relative;width:200px"><span>Picker</span><div id="panel" hidden style="position:absolute"><div role="listbox" aria-label="Choices"><div role="option">One</div></div></div></div><script>document.getElementById('picker').addEventListener('click',function(){this.setAttribute('aria-disabled','true');document.getElementById('panel').hidden=false})</script>`;

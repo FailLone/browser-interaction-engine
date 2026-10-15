@@ -4,7 +4,23 @@ import { createServer as createViteServer } from 'vite';
 import { resolve,join } from 'node:path';
 import { ExplorerPlugin,ExplorerStore } from '@interaction/explorer-plugin';
 import { createServer } from '../apps/server/src/server.js';
-import { explorerFixture,fakeProviders } from './explorer-plugin-helpers.js';
+import { explorerFixture,fakeProviders,semanticPopupHtml } from './explorer-plugin-helpers.js';
+it('shows a semantic LLM handoff, grounded input/output and the resulting accepted review',async()=>{
+ const f=await explorerFixture(semanticPopupHtml),providers=fakeProviders(f.url,{url:f.url,label:'Picker',kind:'click'}),original=providers.jev.decide;
+ providers.jev.decide=async(r,s)=>r.purpose==='control-classification'?{model:'mock',value:'interaction',confidence:1}:r.purpose==='control-risk'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,.5]))}:original(r,s);
+ providers.llm.decide=async(r,s)=>r.purpose==='operation-clarification'?{model:'mock-llm',value:{choice:'click',evidenceRefs:['current','actions','effect:click'],reason:'Captured relationship to the child choice panel.',interfaceOnly:true,externalWrite:false}}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),providers),app=await createServer(f.host,{explorer:plugin});await app.listen({host:'127.0.0.1',port:0});const origin=`http://127.0.0.1:${(app.server.address() as {port:number}).port}`;
+ const ui=await createViteServer({root:resolve('apps/ui'),logLevel:'error',server:{port:0,strictPort:false,proxy:{'/v1':origin,'/plugins':origin}}});await ui.listen();const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1500,height:1100}});const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ try {const task=plugin.create({url:f.url,goal:'Open Picker',sessionOptions:{settleMs:0,observeTimeoutMs:300},budget:{rounds:1}});plugin.start(task.id);await plugin.waitForIdle();expect(plugin.view(task.id).task.status).toBe('completed');
+  await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as {port:number}).port}`);await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);
+  const timeline=page.getByLabel('包含模型决策的遍历路径');await timeline.getByRole('button').filter({hasText:'澄清控件用途'}).first().click();
+  const inspector=page.getByLabel('探索决策详情');expect(await inspector.innerText()).toContain('JEV 补充观察后仍有歧义');
+  await page.getByRole('tab',{name:'输入',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'模型输入'}).innerText()).toContain('effect:click');
+  await page.getByRole('tab',{name:'输出',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'模型输出'}).innerText()).toContain('Captured relationship');
+  await page.getByRole('tab',{name:'决策影响',exact:true}).click();const impact=await page.getByRole('tabpanel',{name:'决策影响'}).innerText();expect(impact).toContain('核对结构化结论与证据引用');expect(impact).toContain('reviewControls');expect(impact).toContain('上游判断来源');
+  await inspector.screenshot({path:resolve('.data/explorer-semantic-inspector.png')});expect(errors).toEqual([]);
+ } finally {await browser.close();await ui.close();await app.close();await f.close();}
+});
 it('integrates autonomous exploration, interleaves JEV/LLM decisions and restores task history',async()=>{
  const f=await explorerFixture();const providers=fakeProviders(f.url);const original=providers.jev.decide;let uncertain=false;
  providers.jev.decide=async(r,s)=>{if(r.purpose==='region-review'&&!uncertain){uncertain=true;return {value:'include',confidence:.5,model:'mock-jev'};}if(r.purpose==='scope-review')return {value:'sample',confidence:1,model:'mock-jev'};return original(r,s);};
@@ -22,7 +38,7 @@ it('integrates autonomous exploration, interleaves JEV/LLM decisions and restore
  await timeline.getByRole('button').filter({hasText:'识别探索区域'}).first().click();
  await page.getByRole('tab',{name:'决策影响',exact:true}).click();
  expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('不排除候选');
- expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('evidence-routing-v4');
+ expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('evidence-routing-v5');
  await page.getByRole('tab',{name:'输出',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'模型输出'}).innerText()).toContain('include');
  await page.getByRole('button',{name:'返回页面证据'}).click();
  expect(await page.getByLabel('遍历范围',{exact:true}).inputValue()).toBe('all');

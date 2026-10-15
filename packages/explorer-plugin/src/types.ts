@@ -27,6 +27,8 @@ export interface Round {
   status: 'running' | 'paused' | 'finished'; reason?: string; actions: number;
   stack: Frame[]; entryPath: Scope[]; reentries: string[]; tried: string[]; reviewed: string[]; lastProgress?: string; noProgress: number;
   evidenceRefreshes?: string[];
+  /** No repeated LLM interpretation of the same target and evidence within a round. */
+  semanticReviews?: string[];
   policyVersion?: string;
 }
 export interface Task {

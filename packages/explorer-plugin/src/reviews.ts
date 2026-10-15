@@ -3,12 +3,14 @@ import type { ActionCandidate, IdentityHypothesis, ControlIdentity, Observation,
 import type { ExplorerHost, Task, ModelRequest, Decision, Scope } from './types.js';
 import { jsonSchema } from './schema.js';
 import { digest, matches, includesScope, broadScope, controlInScope } from './policy.js';
+import type { SemanticReview } from './semantic-review.js';
 
 export interface ReviewContext {
   host:ExplorerHost;task:Task;observation:Observation;
   choose(purpose:string,instructions:string,state:unknown,options:Record<string,unknown>,constraints?:ChoiceConstraints):Promise<{value:string;decision:Decision}>;
   assess(purpose:string,state:unknown,checks:NonNullable<ModelRequest['checks']>):Promise<{values:Record<string,boolean|null>;decision:Decision}>;
   refresh(decision:Decision,key:string):Promise<boolean>;
+  clarify(request:SemanticReview):Promise<{value:string;decision:Decision}>;
   generate<T>(purpose:string,instructions:string,state:unknown,schema:z.ZodType<T>):Promise<{value:T;decision:Decision}>;
   apply(decision:Decision,command:unknown):Promise<void>;
   gap(reason:string,scope:Scope,required?:boolean):void;
@@ -17,6 +19,8 @@ export interface ReviewContext {
 export type ChoiceConstraints=Pick<ModelRequest,'allowedReductions'|'blockedOptions'>;
 const evidence=(d:Decision)=>[`explorer-decision:${d.id}`];
 const source='explorer-plugin';
+// Execution IDs change on recapture; model evidence describes the operation, not a dispatch grant.
+const semanticActions=(actions:ActionCandidate[])=>actions.map(({kind,label,value,basis,risk})=>({kind,label,value,basis,risk}));
 /** The host retains exact bindings for validation; grouping needs semantic evidence, not repeated dispatch fingerprints. */
 function regionEvidence(candidate:RegionCandidate) {
   const {binding,reuseBinding,controlIds,...description}=candidate;
@@ -70,9 +74,13 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     const key=digest({type:'classification',instance:o.instanceScope,control:item.control,reviews:item.classifications.map(r=>[r.id,r.status])});if(done(key))continue;
     const positiveBasis=item.control.editable||Object.entries(item.control.actionBasis||{}).some(([kind,basis])=>['click','fill','select','check','press','hover'].includes(kind)&&basis.status==='supported');
     const blockedOptions=positiveBasis||!item.control.classificationBinding||item.control.classificationBinding.truncated?['display','container']:[];
-    const d=await c.choose('control-classification','Classify this observed element using its own action basis, interaction hints and bounded subtree. Interactive descendants do not make a dialog or section itself an interaction; focusability alone does not establish its own operation. Do not classify as display/container if the subtree is truncated or there is positive interaction evidence. Classification never grants operation permission.',{observationId:o.id,control:item.control,actions:item.actions},
+    let d=await c.choose('control-classification','Classify this observed element using its own action basis, interaction hints and bounded subtree. Interactive descendants do not make a dialog or section itself an interaction; focusability alone does not establish its own operation. Do not classify as display/container if the subtree is truncated or there is positive interaction evidence. Classification never grants operation permission.',{observationId:o.id,control:item.control,actions:item.actions},
       {interaction:'Evidence of an interactive control',display:'Read-only information with complete evidence and no interaction basis',container:'Structural grouping with complete evidence and no own interaction basis',probe_required:'A bounded hover/focus observation is needed',uncertain:'Insufficient evidence'},{blockedOptions});
     if(d.value==='uncertain'&&await c.refresh(d.decision,`classification:${o.instanceScope}:${item.control.instanceId}`))return true;
+    if(d.value==='uncertain'&&item.control.classificationBinding&&!item.control.classificationBinding.truncated) {
+      const options=Object.fromEntries(Object.entries({interaction:'Possible interaction; still requires operation review',display:'Read-only information',container:'Structural grouping',probe_required:'Needs bounded observation',uncertain:'Insufficient evidence'}).filter(([key])=>!blockedOptions.includes(key)));
+      d=await c.clarify({key:`classification:${item.control.instanceId}`,purpose:'classification-clarification',parent:d.decision,instructions:'Resolve the remaining element classification ambiguity. Interactive descendants do not make their container actionable. No classification grants operation permission.',options,evidence:{current:item.control,actions:semanticActions(item.actions)},requiredEvidence:Object.fromEntries(Object.keys(options).filter(k=>k!=='uncertain').map(k=>[k,['current','actions']]))});
+    }
     mark(key);
     await c.apply(d.decision,{type:'classifyControls',classification:{observationId:o.id,source,classifications:[{localId:item.control.localId,classification:d.value==='uncertain'?'unresolved':d.value,reason:`Selected ${d.value}`,evidence:evidence(d.decision)}]}});
     if(d.value==='uncertain')c.gap('classification_unresolved',{url:o.url,label:item.control.label,role:item.control.role});
@@ -85,8 +93,18 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     const options:Record<string,unknown>={independent:'Keep this occurrence independent',uncertain:'Insufficient historical evidence'};
     for(const candidate of candidates)if(candidate.historical)options[candidate.id]={decision:'same identity',historical:candidate.historical};
     const current=o.controls.filter(x=>x.hypothesisId===h.id);
-    const blockedOptions=candidates.filter(candidate=>{const historical=candidate.historical as Observation['controls'][number]|undefined;return !historical||current.length!==1||historical.tag!==current[0].tag||historical.role!==current[0].role||historical.stableKey!==current[0].stableKey;}).map(c=>c.id);
-    const d=await c.choose('identity-review','Judge identity using historical occurrences and current evidence. Equal labels alone do not prove identity. Keep this occurrence independent unless both structural identity and semantic continuity are established.',{observationId:o.id,hypothesis:h,candidates,current},options,{blockedOptions});mark(key);
+    const blockedOptions=candidates.filter(candidate=>{const historical=candidate.historical as Observation['controls'][number]|undefined;return !historical||current.length!==1||!current[0].stableKey||historical.tag!==current[0].tag||historical.role!==current[0].role||historical.stableKey!==current[0].stableKey;}).map(c=>c.id);
+    let d=await c.choose('identity-review','Judge identity using historical occurrences and current evidence. Equal labels alone do not prove identity. Keep this occurrence independent unless both structural identity and semantic continuity are established.',{observationId:o.id,hypothesis:h,candidates,current},options,{blockedOptions});
+    const compatible=candidates.filter(candidate=>!blockedOptions.includes(candidate.id));
+    // An explicit independent result already permits fresh testing. Spend LLM only on an unresolved viable match.
+    if(d.decision.resolution?.source==='program'&&d.decision.answer?.value!=='independent'&&compatible.length) {
+      if(await c.refresh(d.decision,`identity:${o.instanceScope}:${h.id}`))return true;
+      const allowed=Object.fromEntries(Object.entries(options).filter(([id])=>!blockedOptions.includes(id)));
+      d=await c.clarify({key:`identity:${h.id}`,purpose:'identity-clarification',parent:d.decision,instructions:'Compare the current occurrence with compatible historical occurrences. Merge only with positive structural identity AND semantic continuity. Equal names or historical execution success do not prove identity or current coverage. Prefer independent if no match is established.',options:allowed,evidence:{current,...Object.fromEntries(compatible.map(candidate=>[`historical:${candidate.id}`,candidate]))},requiredEvidence:{independent:['current'],...Object.fromEntries(compatible.map(candidate=>[candidate.id,['current',`historical:${candidate.id}`]]))}});
+      // An uncertain interpretation must not prevent testing an independently bound current occurrence.
+      if(d.value==='uncertain'){c.gap('identity_unresolved',{url:o.url,label:current[0]?.label});d={value:'independent',decision:d.decision};}
+    }
+    mark(key);
     if(d.value==='uncertain'){c.gap('identity_unresolved',{url:o.url,label:o.controls.find(x=>x.hypothesisId===h.id)?.label});continue;}
     await c.apply(d.decision,{type:'resolveIdentity',hypothesisId:h.id,identityId:d.value==='independent'?h.provisionalIdentityId:d.value,source,evidence:evidence(d.decision),guard:{observationId:o.id,revision:h.revisions.length}});return true;
   }
@@ -103,12 +121,26 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       checks[`external_${kind}`]={instructions:`Is there evidence that ${kind} submits business data, sends a message, purchases, deletes, authenticates, or performs another external/business write? Judge this effect independently of interface changes; an action can do both.`};
     }
     const judged=await c.assess('control-risk',{control:item.control,actions:item.actions},checks);
-    const kind=kinds.find(k=>judged.values[`interface_${k}`]===true&&judged.values[`external_${k}`]===false);
+    let kind=kinds.find(k=>judged.values[`interface_${k}`]===true&&judged.values[`external_${k}`]===false);
+    let decision=judged.decision;
     if(!kind){
       if(await c.refresh(judged.decision,`risk:${o.instanceScope}:${item.control.instanceId}`))return true;
-      mark(key);c.gap('operation_risk_unresolved',{url:o.url,label:item.control.label});continue;
+      // Missing semantics can be interpreted; a confident veto or missing structural evidence cannot.
+      const observed=o.controls.find(control=>control.localId===item.control.localId);
+      const controlledIds=(observed?.controls||'').split(/\s+/).filter(Boolean);
+      const controlled=o.controls.filter(control=>controlledIds.includes(control.reviewAttributes?.id||''));
+      const effects=Object.fromEntries(kinds.flatMap(k=>{
+        if(judged.values[`interface_${k}`]===false||judged.values[`external_${k}`]===true)return [];
+        const structure=item.control.actionBasis?.[k]?.evidence.filter(e=>e.source==='dom-structure')||[];
+        return structure.length||(k==='click'&&controlled.length)?[[k,{structure,controlled}]]:[];
+      }));
+      if(Object.keys(effects).length) {
+        const clarified=await c.clarify({key:`risk:${item.control.instanceId}`,purpose:'operation-clarification',parent:judged.decision,operation:true,instructions:'Resolve the remaining purpose ambiguity for one offered operation. Establish its interface effect from the captured relationship or controlled content, and separately rule out an external/business write. A popup relationship is evidence to interpret, not automatic permission. Return uncertain if either effect remains unclear.',options:{...Object.fromEntries(Object.keys(effects).map(k=>[k,`Review ${k} as interface-only if evidenced`])),uncertain:'Cannot establish a safe interface-only purpose'},evidence:{current:item.control,actions:semanticActions(item.actions),...Object.fromEntries(Object.entries(effects).map(([k,v])=>[`effect:${k}`,v]))},requiredEvidence:Object.fromEntries(Object.keys(effects).map(k=>[k,['current','actions',`effect:${k}`]]))});
+        if(clarified.value!=='uncertain'){kind=clarified.value;decision=clarified.decision;}
+      }
+      if(!kind){mark(key);c.gap('operation_risk_unresolved',{url:o.url,label:item.control.label});continue;}
     }
-    const d={value:kind,decision:judged.decision};mark(key);
+    const d={value:kind,decision};mark(key);
     let samples:(string|boolean)[]|undefined;
     if(['fill','press'].includes(d.value)) {
       const generated=await c.generate('input-samples','Generate a small set of harmless representative input samples compatible with the observed constraints. Do not invent credentials, personal data or submission commands.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',control:item.control,kind:d.value},z.object({samples:z.array(z.string()).min(1).max(5)}).strict());
