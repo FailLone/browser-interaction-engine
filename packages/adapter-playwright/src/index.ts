@@ -1,3 +1,4 @@
+export { traversalScrollSchema } from './scroll-containers.js';
 import { scrollProbeSchema } from './scroll-probe.js';
 export { scrollProbeSchema } from './scroll-probe.js';
 export type { ScrollProbeOptions } from './scroll-probe.js';

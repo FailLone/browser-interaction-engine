@@ -33,6 +33,15 @@ it.each(['page', 'vertical-container', 'horizontal-container'] as const)('traver
     expect(Math.max(...positions)).toBe(horizontal ? 741 : isPage ? 3600 : 791);
     expect(attempts.length).toBeLessThan(40);
     expect(attempts.every(a => a.status === 'succeeded' && a.action.kind === 'scroll')).toBe(true);
+    if (isPage) for (const attempt of attempts) {
+      const before = t.engine.observation(t.sessionId, attempt.beforeId);
+      const value = attempt.action.value as { documentId: string; containerNodeId: string; expectedTop: number };
+      expect(attempt.action.source).toBe('scroll-traversal');
+      expect(value.documentId).toBe(before.documentId);
+      const container = before.scrollContainers!.find(c => c.nodeId === value.containerNodeId)!;
+      expect(container.root).toBe(true);
+      expect(value.expectedTop).toBe(container.top);
+    }
     expect(t.engine.list(t.sessionId, 'reach')).toHaveLength(0);
     // Every interval of this static viewport was actually observed, not inferred
     // from having seen a control in the DOM or merely reaching the far edge.
