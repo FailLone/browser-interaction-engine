@@ -14,6 +14,9 @@ export function activeInteractionIds(o: Snapshot): Set<string> | undefined {
 export function interactionScope<T extends Snapshot>(o: T, ids = activeInteractionIds(o)): T {
   if (!ids) return o;
   return { ...o, controls: o.controls.filter(c => ids.has(c.localId)),
+    // Mixed ancestors include background work. Their whole-page binding is not
+    // a dependency of an operation inside this exclusive boundary.
+    regionCandidates: o.regionCandidates?.filter(c => c.controlIds.length > 0 && c.controlIds.every(id => ids.has(id))),
     structuralLists: o.structuralLists?.filter(g => g.members.some(m => ids.has(m.localId)) || g.traversalLocalIds.some(id => ids.has(id))),
   };
 }
