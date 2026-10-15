@@ -39,11 +39,23 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     const state = this.pages.state(sid);
     const targetId = state?.frames.at(-1)?.sourceObservationId;
     const target = targetId ? this.observation(sid, targetId) : undefined;
-    const action = target && this.observationReturn(sid, target);
+    let navigationTarget = target;
+    let action = target && this.observationReturn(sid, target);
+    // An SPA can replace the most recent source entry while an older observed
+    // GET entry for that page still exists. Page scheduling verifies location and
+    // declared context, not the old checkpoint's full state. Keep this fallback
+    // out of strict checkpoint restoration and retain the actual navigation proof.
+    if (!action && target && !target.gaps.some(g => g.critical)) {
+      for (const prior of this.list<Observation>(sid, 'observation').toReversed()) {
+        if (prior.id === target.id || prior.url !== target.url || contextKey(prior.context) !== contextKey(target.context)) continue;
+        const candidate = this.observationReturn(sid, prior);
+        if (candidate) { action = candidate; navigationTarget = prior; break; }
+      }
+    }
     const blocked = (reason: string, attemptId?: string, afterId?: string) => {
       const latest = this.pages.state(sid);
       if (latest) {
-        latest.lastReturn = { fromId: o.id, targetId: targetId || '', afterId, attemptId, status: 'blocked', reason };
+        latest.lastReturn = { fromId: o.id, targetId: targetId || '', navigationTargetId: navigationTarget?.id, afterId, attemptId, status: 'blocked', reason };
         this.store.put('page-exploration', latest);
       }
       const session = this.session(sid); session.status = 'paused'; session.stopReason = 'PAGE_RETURN_BLOCKED'; this.store.put('session', session);
@@ -59,7 +71,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     if (attempt.status !== 'succeeded' || after.gaps.some(g => g.critical) || after.url !== target.url
       || contextKey(after.context) !== contextKey(target.context)) return blocked('Source page location/context could not be verified', attempt.id, after.id);
     const updated = this.pages.state(sid)!;
-    updated.lastReturn = { fromId: o.id, targetId: target.id, afterId: after.id, attemptId: attempt.id, status: 'returned' };
+    updated.lastReturn = { fromId: o.id, targetId: target.id, navigationTargetId: navigationTarget?.id, afterId: after.id, attemptId: attempt.id, status: 'returned' };
     this.store.put('page-exploration', updated);
     this.publish(sid, 'exploration.page_returned', { ...updated.lastReturn, stateRestored: false });
     return 'changed';

@@ -4,7 +4,7 @@ import type { ActionCandidate, Observation, Session } from '@interaction/adapter
 export interface PageExplorationState {
   id: string; sessionId: string; rootUrl: string;
   frames: { url: string; observationId: string; sourceObservationId?: string }[];
-  lastReturn?: { fromId: string; targetId: string; afterId?: string; attemptId?: string; status: 'returned' | 'blocked'; reason?: string };
+  lastReturn?: { fromId: string; targetId: string; navigationTargetId?: string; afterId?: string; attemptId?: string; status: 'returned' | 'blocked'; reason?: string };
 }
 /** Page permission is a scheduling scope, not a document identity or business-state assertion. */
 export class PageExploration {

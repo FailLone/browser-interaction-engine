@@ -1,0 +1,16 @@
+
+> browser-interaction-engine@0.1.0 smoke:built /Users/xietian/.codex/worktrees/okx-observation-stability/browser-interaction-engine
+> node scripts/smoke-built.mjs
+
+{
+  inspectionContract: 'passed',
+  at: '2026-10-15T04:30:20.038Z',
+  node: 'v24.21.0',
+  compiledAPI: 'passed',
+  staticUI: 'passed',
+  chromiumExecution: 'passed',
+  historicalEvidence: 'passed',
+  snapshotDelivery: 'passed',
+  cachedEvidence: 'passed',
+  attemptId: '6c61b6f6-111b-48b2-9492-379425767a24'
+}

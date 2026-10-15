@@ -77,10 +77,31 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   };
   const itemKeyCache = new Map<Element, string | undefined>();
   const instanceBoundItems = new Set<Element>();
+  const recordScopeCache = new Map<Element, Element[]>();
+  const recordScopes = (item: Element) => {
+    if (recordScopeCache.has(item)) return recordScopeCache.get(item)!;
+    const openers = [...item.querySelectorAll('[aria-expanded]')].filter(el => el.closest(itemSelector) === item);
+    const itemRect = item.getBoundingClientRect();
+    const scopes = [...item.querySelectorAll('*')].filter(el => {
+      if (el.matches(`${listSelector},dialog,[role=dialog],[role=alertdialog],[role=menu],[role=tabpanel],[popover],[hidden],[aria-hidden=true]`)) return true;
+      const style = getComputedStyle(el);
+      if (style.display === 'none' || style.visibility === 'hidden') return true;
+      const panelRect = el.getBoundingClientRect();
+      const outsideItem = panelRect.width > 0 && panelRect.height > 0 && (panelRect.left < itemRect.left || panelRect.right > itemRect.right || panelRect.top < itemRect.top || panelRect.bottom > itemRect.bottom);
+      // Position alone is not ownership: require an expanded-control relationship
+      // and a separate descendant panel extending beyond the record.
+      return ['absolute', 'fixed'].includes(style.position)
+        && outsideItem && el.children.length > 0 && openers.some(opener => opener !== el && !el.contains(opener));
+    });
+    recordScopeCache.set(item, scopes); return scopes;
+  };
   const linkBindings = new Map<Element, string | undefined>();
   const recordLinks = (item: Element) => {
     if (linkBindings.has(item)) return linkBindings.get(item);
-    const links = [...item.querySelectorAll('a[href]')].filter(a => a.closest(itemSelector) === item)
+    // Child menus change their destinations when opened, searched or switched.
+    // Use the same record boundary for links and text; neither identifies the parent.
+    const scopes = recordScopes(item);
+    const links = [...item.querySelectorAll('a[href]')].filter(a => a.closest(itemSelector) === item && !scopes.some(scope => scope === a || scope.contains(a)))
       .map(a => (a as HTMLAnchorElement).href).filter(href => {
         try { const u = new URL(href); return ['http:', 'https:'].includes(u.protocol) && u.origin + u.pathname + u.search !== location.origin + location.pathname + location.search; } catch { return false; }
       });
@@ -107,16 +128,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     // expanded panel. Its changing contents are not the parent record's name.
     // Keep ordinary positioned descriptions: position alone is not ownership.
     const descendants = [...item.querySelectorAll('*')]; const copies = [...copy.querySelectorAll('*')];
-    const openers = [...item.querySelectorAll('[aria-expanded]')].filter(el => el.closest(itemSelector) === item);
-    const itemRect = item.getBoundingClientRect();
-    descendants.forEach((el, index) => {
-      const nestedScope = el.matches(`${listSelector},dialog,[role=dialog],[role=alertdialog],[role=menu],[role=tabpanel],[popover]`);
-      const panelRect = el.getBoundingClientRect();
-      const outsideItem = panelRect.width > 0 && panelRect.height > 0 && (panelRect.left < itemRect.left || panelRect.right > itemRect.right || panelRect.top < itemRect.top || panelRect.bottom > itemRect.bottom);
-      const expandedPanel = ['absolute', 'fixed'].includes(getComputedStyle(el).position)
-        && outsideItem && el.children.length > 0 && openers.some(opener => opener !== el && !el.contains(opener));
-      if (nestedScope || expandedPanel) copies[index].remove();
-    });
+    for (const scope of recordScopes(item)) copies[descendants.indexOf(scope)].remove();
     copy.querySelectorAll('button,input,select,textarea,[role=button],[role=checkbox],[role=switch],[role=combobox],script,style,[hidden],[aria-hidden=true]').forEach(child => child.remove());
     const labelledBy = item.getAttribute('aria-labelledby');
     const fullLabel = labelledBy ? labelledBy.split(/\s+/).map(id => document.getElementById(id)?.textContent || '').join(' ') : item.getAttribute('aria-label');

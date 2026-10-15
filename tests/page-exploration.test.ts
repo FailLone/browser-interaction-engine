@@ -103,6 +103,34 @@ it('pauses with a return blocker when navigation replaced the source history ent
   } finally { await t.close(); }
 });
 
+it.each([false, true])('uses another observed source-page history entry only in the same declared context (changed=%s)', async changed => {
+  let context = 'one';
+  const t = await fixture({ '/a': `<button type="button" onclick="history.replaceState({},'', '/b');document.body.innerHTML='<h1>B</h1>'">Replace route</button><input aria-label="Remaining A">
+    <script>const original=document.body.innerHTML;addEventListener('popstate',()=>{document.body.innerHTML=original})</script>` }, {
+    context: () => ({ workspace: { value: context, status: 'known', source: 'fixture' } }),
+  }, { interfaceActions: [{ name: 'Replace route' }] });
+  try {
+    const initial = t.engine.observation(t.sessionId);
+    await pageOf(t.engine).evaluate(() => history.pushState({}, '', location.href));
+    if (changed) context = 'two';
+    const source = await t.engine.observe(t.sessionId);
+    expect(source.navigation!.entries[source.navigation!.currentIndex].id).not.toBe(initial.navigation!.entries[initial.navigation!.currentIndex].id);
+    await explore(t);
+    if (changed) {
+      expect(t.engine.session(t.sessionId).stopReason).toBe('PAGE_RETURN_BLOCKED');
+      expect(attempts(t).map(a => a.action.label)).toEqual(['Replace route']);
+    } else {
+      expect(attempts(t).map(a => a.action.label)).toEqual(['Replace route', 'Return to observed page', 'Remaining A']);
+      expect(t.engine.observation(t.sessionId).url).toBe(initial.url);
+      const returned = t.engine.store.events(t.sessionId).find(e => e.type === 'exploration.page_returned');
+      expect(returned?.data).toMatchObject({ navigationTargetId: initial.id, stateRestored: false });
+      const returnSource = t.engine.observation(t.sessionId, (returned!.data as { targetId: string }).targetId);
+      expect(returnSource.url).toBe(source.url);
+      expect(returnSource.navigation!.entries[returnSource.navigation!.currentIndex].id).toBe(source.navigation!.entries[source.navigation!.currentIndex].id);
+    }
+  } finally { await t.close(); }
+});
+
 it('explicit all retains cross-page exploration, while explicit single actions do not start a traversal', async () => {
   const t = await fixture({ '/a': '<a href="/b">To B</a>', '/b': '<input aria-label="B work">' }, {}, { pageExploration: 'all' });
   try {
