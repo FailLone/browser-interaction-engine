@@ -10,6 +10,7 @@ import { reviewNext, type ChoiceConstraints } from './reviews.js';
 import { safeError } from './providers.js';
 import { POLICY_VERSION } from './decision-policy.js';
 import { semanticAnswerSchema, semanticRejection, type SemanticReview } from './semantic-review.js';
+import { remapStoredScopes } from './scope-migration.js';
 
 const requiredCapabilities: (keyof ExplorerHost)[]=['sessions','session','createSession','observation','observe','actions','execute','command','getFrontier','report','list','regionReviewMaterial','explorationReviewMaterial','controlClassificationMaterial','controlReviewMaterial','purposeReviewMaterial','discoveryScanMaterial','createCheckpoint','reachCheckpoint','pause','stop','pinEvidence','unpinEvidence'];
 const now=()=>new Date().toISOString();
@@ -268,6 +269,8 @@ export class ExplorerPlugin {
   private async run(task:Task,signal:AbortSignal) {
     try {
       await this.reconcileDispatch(task);
+      const remapped=remapStoredScopes(task,this.host);
+      if(remapped.length){this.store.save(task);this.event(task,'scope.remapped',{changes:remapped,executionAuthorized:false,historicalResultsUnchanged:true});}
       let round=task.rounds.at(-1);
       if(round&&round.status==='paused'&&round.policyVersion===POLICY_VERSION&&this.host.session(round.sessionId).actionCount<this.host.session(round.sessionId).options.maxActions) {round.status='running';const before=this.host.observation(round.sessionId);const fresh=await this.host.observe(round.sessionId);if(fresh.instanceScope!==before.instanceScope){round.stack=[];round.entryPath=[];round.reentries=[];round.reviewed=[];round.tried=[];round.noProgress=0;delete round.lastProgress;this.event(task,'round.reattached',{businessStateRestored:false,attemptCacheReset:true,unknownOutcomesRetained:true});}this.store.save(task);}
       else {if(round&&round.policyVersion!==POLICY_VERSION){round.status='finished';round.endedAt=now();this.event(task,'routing.updated',{from:round.policyVersion||'legacy',to:POLICY_VERSION,newSessionRequired:true});}round=await this.createRound(task,signal);}
@@ -313,8 +316,8 @@ export class ExplorerPlugin {
     const actions=this.host.actions(sid),groups=this.host.explorationReviewMaterial(sid).groups,frontier=this.host.getFrontier(sid);
     const eligible=actions.filter(a=>!this.navigationIsUnverified(task,a,o)&&permitted(a,o,groups,frontier)&&includesScope(task.plan,a,o)&&((!round.tried.includes(keyFor(a,o))&&!this.wasCompleted(task,a,o))||this.neededEntry(task,round,a,o)));
     // Same-label targets must be disambiguated by scope/role/stable key. Never choose an arbitrary occurrence.
-    const counts=new Map<string,number>();for(const a of eligible){const k=keyFor(a,o);counts.set(k,(counts.get(k)||0)+1);}
-    const unique=eligible.filter(a=>{if(counts.get(keyFor(a,o))===1)return true;this.gap(task,'ambiguous_scope_match',scopeFor(a,o));return false;});
+    const counts=new Map<string,number>();for(const a of actions){const k=digest(scopeFor(a,o));counts.set(k,(counts.get(k)||0)+1);}
+    const unique=eligible.filter(a=>{if(counts.get(digest(scopeFor(a,o)))===1)return true;this.gap(task,'ambiguous_scope_match',scopeFor(a,o));return false;});
     for(const candidate of unique.filter(a=>includesScope(task.plan,a,o)==='target')) {
       if(!task.plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,candidate,o)))task.plan.push(this.newItem({title:`${candidate.kind} ${candidate.label}`,scope:scopeFor(candidate,o),prerequisites:[...round.entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false));
     }

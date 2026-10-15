@@ -12,10 +12,18 @@ export function navigationTarget(action:ActionCandidate,o:Observation):string|un
   if(control?.tag!=='a'||control.reviewBinding?.attributes.download!==undefined)return;
   try{const target=new URL(href,o.url),source=new URL(o.url);if(!['http:','https:'].includes(target.protocol)||target.origin+target.pathname+target.search===source.origin+source.pathname+source.search)return;return target.href;}catch{return;}
 }
-export function scopeFor(action:ActionCandidate,o:Observation):Scope {
-  const c=o.controls.find(c=>c.localId===action.localId),r=o.regions.find(r=>r.key===c?.region);
-  return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(c.stableKey?{stableKey:c.stableKey}:{})}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};
+/** Durable matching hint, never identity resolution or operation authorization. */
+export function scopeControlKey(c:Observation['controls'][number]):string|undefined {
+  const item=c.structuralItem;
+  if(!item?.recordKey)return c.stableKey;
+  return `explorer:record:v1:${digest({record:item.recordKey,template:item.template,slot:item.slot,tag:c.tag,role:c.role,name:c.name||c.label,type:c.constraints.type})}`;
 }
+function actionScope(action:ActionCandidate,o:Observation,durable:boolean):Scope {
+  const c=o.controls.find(c=>c.localId===action.localId),r=o.regions.find(r=>r.key===c?.region);
+  const key=c&&(durable?scopeControlKey(c):c.stableKey);
+  return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(key?{stableKey:key}:{})}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};
+}
+export function scopeFor(action:ActionCandidate,o:Observation):Scope {return actionScope(action,o,true);}
 export function matches(scope:Scope,action:ActionCandidate,o:Observation) {
   const actual=scopeFor(action,o);
   return Object.entries(scope).every(([key,value])=>JSON.stringify(actual[key as keyof Scope])===JSON.stringify(value));
@@ -27,10 +35,12 @@ export function controlInScope(scope:Scope,control:Observation['controls'][numbe
   // A named target may need classification before candidates exist. An operation-only
   // target must bind to a real candidate; dropping kind/value would match the entire page.
   if((scope.kind||scope.value!==undefined)&&!scope.label&&!scope.stableKey)return false;
-  const actual:Scope={url:o.url,region:o.regions.find(r=>r.key===control.region)?.label,label:control.name||control.label,role:control.role,stableKey:control.stableKey};
+  const actual:Scope={url:o.url,region:o.regions.find(r=>r.key===control.region)?.label,label:control.name||control.label,role:control.role,stableKey:scopeControlKey(control)};
   return Object.entries(scope).filter(([key])=>!['kind','value'].includes(key)).every(([key,value])=>actual[key as keyof Scope]===value);
 }
-export function keyFor(action:ActionCandidate,o:Observation){return digest({scope:scopeFor(action,o),context:o.context,...(action.kind==='scroll'?{position:action.value}:{})});}
+// Attempt caches intentionally keep document-local keys. Changing durable scope
+// matching must not reset tried actions in an already-running document.
+export function keyFor(action:ActionCandidate,o:Observation){return digest({scope:actionScope(action,o,false),context:o.context,...(action.kind==='scroll'?{position:action.value}:{})});}
 export function permitted(action:ActionCandidate,o:Observation,groups:ExplorationGroup[],frontier:FrontierItemView[]) {
   if(o.gaps.some(g=>g.critical))return false;
   if(action.excluded || action.basis?.status!=='supported' || action.risk!=='interface' || action.preconditions.blockers?.length || !action.preconditions.visible || !action.preconditions.enabled || !(action.preconditions.targetResolved??action.preconditions.identityResolved))return false;

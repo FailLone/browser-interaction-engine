@@ -8,6 +8,43 @@ import { InteractionEngine } from '@interaction/browser';
 import { SqliteStore } from '@interaction/storage-sqlite';
 import { ExplorerPlugin,ExplorerStore,type Provider,type ModelRequest } from '@interaction/explorer-plugin';
 import { createServer } from '../apps/server/src/server.js';
+import { scopeFor } from '../packages/explorer-plugin/src/policy.js';
+import { remapStoredScopes } from '../packages/explorer-plugin/src/scope-migration.js';
+
+const repeatedRecords=()=>`<section aria-label="Records">${['Alpha','Beta','Gamma'].map(name=>`<article data-key="${name}"><span>${name}</span><button type="button" onclick="this.disabled=true">Visit ${name}</button></article>`).join('')}</section>`;
+it('matches repeated records across fresh documents without treating history as a new execution',async()=>{
+ const f=await explorerFixture(repeatedRecords());const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{maxActions:1,settleMs:0,observeTimeoutMs:100},budget:{rounds:4,actions:5,modelRequests:200}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+  expect(v.task.status,JSON.stringify({task:v.task,decisions:v.decisions.map(d=>({p:d.purpose,r:d.reason}))})).toBe('completed');
+  const attempts=v.task.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
+  expect(attempts.map(a=>a.action.label)).toEqual(['Visit Alpha','Visit Beta','Visit Gamma']);expect(v.task.usage.actions).toBe(3);
+  const first=attempts[0],source=f.host.observation(first.sessionId,first.beforeId),old=source.controls.find(c=>c.localId===first.action.localId)!;
+  expect(old.structuralItem?.recordKey).toBeTruthy();expect(scopeFor(first.action,source).stableKey).toMatch(/^explorer:record:v1:/);
+  const last=f.host.observation(v.task.rounds.at(-1)!.sessionId),current=last.controls.find(c=>c.name==='Visit Alpha')!;
+  expect(current.stableKey).not.toBe(old.stableKey);
+  expect(v.task.plan.find(i=>i.scope.label==='Visit Alpha'&&i.status==='succeeded')?.resolvedBy?.attemptId).toBe(first.id);
+ }finally{await plugin.close();await f.close();}
+});
+it('migrates legacy scope keys using retained original evidence and preserves unresolved unmatched scopes',async()=>{
+ const f=await explorerFixture(repeatedRecords());const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:3,actions:1}});plugin.start(t.id);await plugin.waitForIdle();const saved=plugin.store.task(t.id),sid=saved.rounds[0].sessionId,o=f.host.observation(sid);
+  const beta=saved.plan.find(i=>i.scope.label==='Visit Beta')!;expect(beta).toBeDefined();const control=o.controls.find(c=>c.name==='Visit Beta')!;
+  beta.scope.stableKey=control.stableKey;const missing={...structuredClone(beta),id:'missing-evidence',scope:{...beta.scope,stableKey:'unknown-old-key'},evidence:[]};saved.plan.push(missing);
+  const before=structuredClone({usage:saved.usage,attempts:beta.attempts,evidence:beta.evidence,required:beta.required,dispatchScope:beta.dispatchScope,status:beta.status});
+  const changes=remapStoredScopes(saved,f.host);expect(changes.some(c=>c.before.stableKey===control.stableKey)).toBe(true);expect(beta.scope.stableKey).toMatch(/^explorer:record:v1:/);expect(missing.scope.stableKey).toBe('unknown-old-key');
+  expect({usage:saved.usage,attempts:beta.attempts,evidence:beta.evidence,required:beta.required,dispatchScope:beta.dispatchScope,status:beta.status}).toEqual(before);
+  // Exercise the automatic migration path too, then supplement only this exact record.
+  beta.scope.stableKey=control.stableKey;plugin.store.save(saved);plugin.revise(t.id,{itemIds:[beta.id]},true);plugin.extendBudget(t.id,{rounds:1,actions:1,durationMs:60000,modelRequests:100});plugin.start(t.id);await plugin.waitForIdle();const view=plugin.view(t.id);
+  expect(view.task.plan.find(i=>i.id===beta.id)?.status,JSON.stringify(view.task)).toBe('succeeded');expect(view.events.some(e=>e.type==='scope.remapped')).toBe(true);expect(view.task.usage.actions).toBe(2);
+  expect(f.host.list<any>(view.task.rounds.at(-1)!.sessionId,'attempt').map(a=>a.action.label)).toEqual(['Visit Beta']);
+ }finally{await plugin.close();await f.close();}
+});
+it('does not arbitrarily execute colliding semantic record scopes',async()=>{
+ const f=await explorerFixture(`<section>${Array.from({length:3},()=>'<article data-key="duplicate"><span>Same record</span><button type="button" onclick="this.disabled=true">Visit</button></article>').join('')}</section>`);const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,modelRequests:100}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+  expect(v.task.usage.actions).toBe(0);expect(v.task.status).not.toBe('completed');expect(v.task.plan.some(i=>i.reason==='ambiguous_scope_match')).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});
 it('explores real browser actions with an independent ledger and leaves engine mode manual',async()=>{
  const f=await explorerFixture();const providers=fakeProviders(f.url);const plugin=new ExplorerPlugin(f.host,new ExplorerStore(join(f.dir,'plugin.sqlite')),providers);
  try{const t=plugin.create({url:f.url,goal:'Verify both buttons',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,modelRequests:80}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
