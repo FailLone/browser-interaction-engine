@@ -60,7 +60,7 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   /** Extra binding evidence used to reject stale external identity judgments. */
   reviewBinding?(control: O['controls'][number]): unknown;
   /** Explicit, observation-bound experiments; never added to automatic discovery. */
-  probeAction?(kind: string, control: O['controls'][number], observation: O, session: Session<S>): ActionCandidate;
+  probeAction?(kind: string, control: O['controls'][number], observation: O, session: Session<S>, parameters?: ActionCandidate['value']): ActionCandidate;
   normalize(observation: O): string;
   compare(before: O, after: O, region?: string): Diff;
   constrain(action: ActionCandidate, observation: O, session: Session<S>): ActionCandidate;

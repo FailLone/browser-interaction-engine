@@ -1,3 +1,4 @@
+import { scrollProbeSchema, type ScrollProbeOptions } from '@interaction/adapter-playwright';
 import { BoundaryExits } from './boundary-exits.js';
 import { continueScrollTraversal } from './scroll-traversal.js';
 import { DiscoveryScans } from './discovery-scans.js';
@@ -323,6 +324,9 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     return this.enqueueMeasured(sessionId, async () => { this.session(sessionId); return this.store.transaction(() => this.purposeReviews.revoke(sessionId, revocation)); });
   }
   override async createSession(input: unknown) { return super.createSession(validateInspectionOptions(input)); }
+  scrollProbe(sessionId: string, observationId: string, localId: string, options: ScrollProbeOptions, requestId: string) {
+    return super.probe(sessionId, observationId, localId, 'scroll', requestId, scrollProbeSchema.parse(options));
+  }
   protected override beforeCapture(sessionId: string, observationId: string) { return this.inspections.prepare(sessionId, observationId); }
   protected override afterCapture(observation: Observation, previous?: Observation, attemptId?: string) {
     const attempt = attemptId ? this.store.get<import('@interaction/core').ActionAttempt>('attempt', attemptId) : undefined;
@@ -438,6 +442,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       case 'reuseRegionReviews': return this.reuseRegionReviews(sessionId, command.review);
       case 'revokeRegionReuse': return this.revokeRegionReuse(sessionId, command.revocation);
       case 'describeComponent': { const { type: _, ...description } = command; return this.describeComponent(sessionId, description); }
+      case 'scrollProbe': return this.scrollProbe(sessionId, command.observationId, command.localId, command.options, command.requestId);
       case 'probe': return this.probe(sessionId, command.observationId, command.localId, command.kind, command.requestId);
       case 'observe': return this.observe(sessionId);
       case 'inspect': return this.inspect(sessionId, command.region);

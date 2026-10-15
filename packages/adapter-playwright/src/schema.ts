@@ -1,3 +1,4 @@
+import { scrollProbeSchema } from './scroll-probe.js';
 import { inspectionOptionsSchema } from './inspection-contract.js';
 import { listPurposeReviewSchema, revokePurposeReviewSchema } from './purpose-review.js';
 import { controlReviewSchema, revokeControlReviewSchema, reuseControlReviewsSchema } from './control-review.js';
@@ -47,6 +48,7 @@ export const sessionSchema = z.object({
 }).strict().refine(o => o.regionExploration !== 'review' || !o.decisionScopes.some(s => s === 'region' || s === 'branch'), 'Reviewed regions replace optional region/branch producers; select one scope granularity');
 export const predicateSchema = z.object({ target: z.enum(['url', 'context', 'control']), key: z.string().optional(), identityId: z.string().optional(), field: z.enum(['value', 'checked', 'visible', 'enabled']).optional(), equals: z.json() }).strict();
 export const commandSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('scrollProbe'), observationId: z.string().min(1), localId: z.string().min(1), options: scrollProbeSchema, requestId: z.string().trim().min(1) }).strict(),
   z.object({type:z.literal('supplementDiscovery'),scan:supplementDiscoverySchema}).strict(),
   z.object({type:z.literal('classifyControls'),classification:classifyControlsSchema}).strict(),
   z.object({type:z.literal('revokeControlClassification'),revocation:revokeControlClassificationSchema}).strict(),
@@ -74,5 +76,5 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('reachCheckpoint'), checkpointId: z.string() }),
 ]);
 export type Command = z.infer<typeof commandSchema>;
-export const domQuerySchema = z.object({ fields: z.preprocess(v => typeof v === 'string' ? (v ? v.split(',') : []) : v, z.array(z.enum(['tag', 'text', 'attributes', 'rect', 'styles', 'properties', 'relations', 'layout'])).max(8).optional()), rootId: z.string().min(1).optional(), depth: z.coerce.number().int().min(0).max(100).default(20), offset: z.coerce.number().int().min(0).max(50000).default(0), limit: z.coerce.number().int().min(1).max(5000).default(1000) }).strict();
+export const domQuerySchema = z.object({ fields: z.preprocess(v => typeof v === 'string' ? (v ? v.split(',') : []) : v, z.array(z.enum(['tag', 'text', 'attributes', 'rect', 'styles', 'properties', 'relations', 'layout', 'textLayout'])).max(9).optional()), rootId: z.string().min(1).optional(), depth: z.coerce.number().int().min(0).max(100).default(20), offset: z.coerce.number().int().min(0).max(50000).default(0), limit: z.coerce.number().int().min(1).max(5000).default(1000) }).strict();
 export const artifactKindSchema = z.enum(['screenshot', 'fullPageScreenshot', 'details']);

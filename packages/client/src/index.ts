@@ -1,4 +1,7 @@
 import type { InspectionOptionsInput, InspectionResult, CaptureProfile, inspectionCapabilities, validateCaptureProfile } from '@interaction/browser';
+import type { ScrollProbeOptions } from '@interaction/browser';
+import type { RulePluginInfo, RulePluginRun, RulePluginRunRequest, RuleAutomation, RuleAutomationInput, RuleRunSummary } from '@interaction/rules';
+export type { RulePluginInfo, RulePluginRun, RulePluginRunRequest, RulePluginResult, RuleCheck, RuleAutomation, RuleRunSummary } from '@interaction/rules';
 import type { BrowserComponent, ComponentDetails, ComponentDescription, ComponentDescriptionInput } from '@interaction/browser';
 import type { BrowserDiffDetails, Command, ActionCandidate, ActionAttempt, Checkpoint, EngineEvent, FrontierItemView, BrowserFrontierCoverageGroup, Graph, Observation, Session, SessionOptions } from '@interaction/browser';
 import type { ObservationDetails, ControlDetails, RegionDetails, DomResult, DomQuery, EventContext, ArtifactKind, EvidenceOptions, EvidenceRetentionPolicy, SubscriptionOptions, BrowserEngine, evidenceCapabilities } from '@interaction/browser';
@@ -11,6 +14,12 @@ export class InteractionClient {
     if (!response.ok) throw Object.assign(new Error(result.error?.message || response.statusText), result.error || {}); return result as T;
   }
   sessions() { return this.request<Session[]>('/sessions'); }
+  rulePlugins() { return this.request<{ plugins: RulePluginInfo[]; maxHistory: number }>('/rule-plugins'); }
+  ruleAutomation(id: string) { return this.request<{ automation: RuleAutomation | null }>(`/sessions/${encodeURIComponent(id)}/rule-automation`); }
+  setRuleAutomation(id: string, input: RuleAutomationInput) { return this.request<RuleAutomation>(`/sessions/${encodeURIComponent(id)}/rule-automation`, input); }
+  ruleRunSummary(id: string) { return this.request<{ items: RuleRunSummary[]; hasMore: boolean }>(`/sessions/${encodeURIComponent(id)}/rule-run-summary`); }
+  ruleRuns(id: string, inspectionId: string) { return this.request<{ items: RulePluginRun[] }>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/rule-runs`); }
+  runRules(id: string, inspectionId: string, request: RulePluginRunRequest) { return this.request<RulePluginRun>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/rule-runs`, request); }
   evidenceCapabilities() { return this.request<typeof evidenceCapabilities>('/capabilities/evidence'); }
   createSession(options: Pick<SessionOptions, 'url'> & Partial<Omit<SessionOptions, 'evidence' | 'evidenceRetention' | 'inspection'>> & { inspection?: InspectionOptionsInput; evidence?: Partial<EvidenceOptions>; evidenceRetention?: Pick<EvidenceRetentionPolicy, 'mode'> & Partial<EvidenceRetentionPolicy> }) { return this.request<Session>('/sessions', options); }
   inspectionCapabilities() { return this.request<typeof inspectionCapabilities>('/capabilities/inspection'); }
@@ -36,6 +45,7 @@ export class InteractionClient {
   componentDetails(id: string, observationId: string, componentId: string) { return this.request<ComponentDetails>(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/components/${encodeURIComponent(componentId)}`); }
   describeComponent(id: string, description: ComponentDescriptionInput) { return this.command<ComponentDescription>(id, { ...description, type: 'describeComponent' }); }
   probe(id: string, observationId: string, localId: string, kind: 'hover' | 'focus', requestId: string) { return this.command<ActionAttempt>(id, { type: 'probe', observationId, localId, kind, requestId }); }
+  scrollProbe(id: string, observationId: string, localId: string, options: ScrollProbeOptions, requestId: string) { return this.command<ActionAttempt>(id, { type: 'scrollProbe', observationId, localId, options, requestId }); }
   regionDetails(id: string, observationId: string, key: string) { return this.request<RegionDetails>(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/region?${new URLSearchParams({ key })}`); }
   dom(id: string, observationId: string, query: DomQuery = {}) { return this.request<DomResult>(`/sessions/${encodeURIComponent(id)}/observations/${encodeURIComponent(observationId)}/dom?${new URLSearchParams(Object.entries(query).map(([k, v]) => [k, String(v)]))}`); }
   eventContext(id: string, sequence: number) { return this.request<EventContext>(`/sessions/${encodeURIComponent(id)}/events/${sequence}/context`); }

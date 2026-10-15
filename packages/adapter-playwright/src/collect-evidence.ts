@@ -15,6 +15,8 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
   if (!document.documentElement) { result.gaps.push({ code: 'DOM_ROOT_UNAVAILABLE', message: 'No document element for detailed evidence' }); return result; }
   result.rootId = id(document.documentElement);
   result.spatialVersion = 1;
+  result.textGeometry = { version: 1, coordinateSpace: 'layout-viewport-css-px', fonts: document.fonts?.status ?? 'unavailable',
+    maxFragments: 4096, maxFragmentsPerNode: 128, fragments: 0, truncated: false };
   const viewport = window.visualViewport; const scrolling = document.scrollingElement;
   result.environment = {
     layoutViewport: { width: innerWidth, height: innerHeight, clientWidth: document.documentElement.clientWidth, clientHeight: document.documentElement.clientHeight },
@@ -30,7 +32,10 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
   const stack: { node: Node; parentId?: string }[] = [{ node: document.documentElement }];
   const byId = new Map<string, DomNodeEvidence>();
   let characters = 0; let sizeLimited = false;
-  const essential = ['display', 'visibility', 'opacity', 'position', 'z-index', 'pointer-events', 'overflow', 'overflow-x', 'overflow-y', 'color', 'background-color', 'font-size', 'font-weight', 'cursor', 'transform', 'direction', 'white-space', 'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height', 'box-sizing', 'contain', 'clip-path', 'overflow-wrap', 'text-overflow', 'font-family', 'line-height', 'background-image', 'outline', 'filter', 'isolation', 'flex', 'flex-direction', 'align-items', 'justify-content', 'gap', 'grid-template-columns'];
+  const essential = ['display', 'visibility', 'opacity', 'position', 'z-index', 'pointer-events', 'overflow', 'overflow-x', 'overflow-y', 'color', 'background-color', 'font-size', 'font-weight', 'cursor', 'transform', 'direction', 'writing-mode', 'white-space', 'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height', 'box-sizing', 'contain', 'clip-path', 'overflow-wrap', 'text-overflow', 'font-family', 'line-height', 'background-image', 'outline', 'filter', 'isolation', 'flex', 'flex-direction', 'align-items', 'justify-content', 'gap', 'grid-template-columns',
+    'translate', 'rotate', 'scale', 'zoom', 'perspective', 'clip', 'mask-image', 'content-visibility', 'will-change', 'overflow-clip-margin',
+    'border-top-left-radius', 'border-top-right-radius', 'border-bottom-left-radius', 'border-bottom-right-radius',
+    '-webkit-line-clamp', '-webkit-box-orient', 'line-clamp', 'text-indent', 'text-transform', 'column-count', 'column-width'];
   while (stack.length && result.nodes.length < limits.maxNodes) {
     const { node, parentId } = stack.pop()!;
     if (node.nodeType !== Node.ELEMENT_NODE && node.nodeType !== Node.TEXT_NODE) continue;
@@ -39,7 +44,29 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
       if (value.length > max) record.gaps.push({ code: 'FIELD_TRUNCATED', message: `${field} exceeds ${max} characters`, reference: record.id });
       return value.slice(0, max);
     };
-    if (node.nodeType === Node.TEXT_NODE) record.text = trim(node.textContent || '', limits.maxTextLength, 'text');
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent || '';
+      record.text = trim(text, limits.maxTextLength, 'text');
+      const start = text.search(/\S/), end = text.trimEnd().length;
+      const geometry = result.textGeometry;
+      record.textLayout = { version: 1, status: 'skipped', start: Math.max(0, start), end, rects: [] };
+      if (start >= 0 && !node.parentElement?.closest('head,script,style,noscript,template,input,textarea,select')) {
+        if (text.length > limits.maxTextLength || geometry.fragments >= geometry.maxFragments) {
+          record.textLayout.status = 'truncated'; record.textLayout.reason = 'Text or fragment budget exceeded'; geometry.truncated = true;
+        } else try {
+          const range = document.createRange(); range.setStart(node, start); range.setEnd(node, end);
+          const rects = range.getClientRects(), budget = Math.min(geometry.maxFragmentsPerNode, geometry.maxFragments - geometry.fragments);
+          for (let i = 0; i < Math.min(rects.length, budget); i++) {
+            const r = rects[i]; record.textLayout.rects.push({ x: r.x, y: r.y, width: r.width, height: r.height });
+          }
+          geometry.fragments += record.textLayout.rects.length;
+          record.textLayout.status = rects.length > budget ? 'truncated' : 'captured';
+          if (rects.length > budget) { geometry.truncated = true; record.textLayout.reason = 'Text fragment budget exceeded'; }
+        } catch {
+          record.textLayout.status = 'unavailable'; record.textLayout.reason = 'Range geometry could not be read';
+        }
+      }
+    }
     else {
       const el = node as HTMLElement;
       record.tag = el.tagName.toLowerCase(); record.attributes = {};
@@ -61,12 +88,19 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
       const hit = inView ? document.elementFromPoint(x, y) : null;
       record.layout = {
         coordinateSpace: 'layout-viewport-css-px',
+        clipping: { version: 1, topLayer: el.matches(':modal, :popover-open, :fullscreen'), fragmentCount: el.getClientRects().length },
         client: { width: el.clientWidth, height: el.clientHeight, left: el.clientLeft, top: el.clientTop },
         scroll: { width: el.scrollWidth, height: el.scrollHeight, left: el.scrollLeft, top: el.scrollTop },
         offset: el instanceof HTMLElement ? { width: el.offsetWidth, height: el.offsetHeight, left: el.offsetLeft, top: el.offsetTop, parentId: el.offsetParent ? id(el.offsetParent) : undefined } : undefined,
         box: { padding: ['top', 'right', 'bottom', 'left'].map(side => style.getPropertyValue(`padding-${side}`)), border: ['top', 'right', 'bottom', 'left'].map(side => style.getPropertyValue(`border-${side}-width`)), margin: ['top', 'right', 'bottom', 'left'].map(side => style.getPropertyValue(`margin-${side}`)) },
         scrollAncestorIds, clipAncestorIds,
         hitSample: inView ? { x, y, topNodeId: hit ? id(hit) : undefined, withinSubtree: !!hit && el.contains(hit) } : undefined,
+        hitSamples: inView ? [[.5, .5], [.2, .2], [.8, .2], [.2, .8], [.8, .8]].map(([fx, fy]) => {
+          const px = Math.max(0, r.left) + (Math.min(innerWidth, r.right) - Math.max(0, r.left)) * fx;
+          const py = Math.max(0, r.top) + (Math.min(innerHeight, r.bottom) - Math.max(0, r.top)) * fy;
+          const top = document.elementFromPoint(px, py);
+          return { x: px, y: py, topNodeId: top ? id(top) : undefined, withinSubtree: !!top && el.contains(top) };
+        }) : undefined,
       };
       record.properties = {};
       for (const key of ['value', 'checked', 'indeterminate', 'selected', 'selectedIndex', 'disabled', 'readOnly', 'required', 'type', 'tabIndex', 'contentEditable', 'href', 'action', 'method', 'target', 'validationMessage']) {
@@ -102,6 +136,9 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
     for (let child = node.lastChild; child; child = child.previousSibling) stack.push({ node: child, parentId: record.id });
   }
   result.nodesTruncated = stack.length > 0 || sizeLimited;
+  // Reading layout can start a previously unused font load. Keep either end's
+  // unsettled state rather than reporting the initial "loaded" value as settled.
+  if (document.fonts?.status === 'loading') result.textGeometry.fonts = 'loading';
   if (result.nodesTruncated) result.gaps.push({ code: 'DOM_TREE_TRUNCATED', message: `DOM exceeded its node (${limits.maxNodes}) or character (${limits.maxDomCharacters}) budget; missing children and relationship targets may be outside the captured range` });
   return result;
 }

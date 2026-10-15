@@ -9,6 +9,7 @@
   },
   "scripts": {
     "demo": "tsx --conditions=development scripts/demo.ts",
+    "demo:rule-defects": "tsx --conditions=development scripts/rule-defect-demo.ts",
     "dev": "tsx --conditions=development apps/server/src/main.ts",
     "build": "node scripts/clean-build.mjs && tsc -p tsconfig.build.json && node scripts/package-build.mjs && pnpm --filter @interaction/ui build && pnpm --filter @interaction/test-site build",
     "typecheck": "tsc --noEmit && tsc -p packages/core/tsconfig.json",
@@ -25,6 +26,7 @@
     "experiment:identity": "tsx --conditions=development scripts/identity-blind-experiment.ts"
   },
   "dependencies": {
+    "@interaction/rules": "workspace:*",
     "@interaction/core": "workspace:*",
     "@interaction/adapter-playwright": "workspace:*",
     "@interaction/storage-memory": "workspace:*",

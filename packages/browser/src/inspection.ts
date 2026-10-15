@@ -6,8 +6,9 @@ import type { Capture, EvidenceComponent, Inspection, InspectionBaseline, Inspec
 
 export const inspectionResultSchema = z.object({
   ruleId: z.string().min(1).max(200), ruleVersion: z.string().min(1).max(100),
-  status: z.enum(['pass', 'fail', 'inconclusive', 'unsupported']), message: z.string().max(10000),
+  status: z.enum(['pass', 'fail', 'inconclusive', 'unsupported', 'not-applicable']), message: z.string().max(10000),
   nodeIds: z.array(z.string().min(1).max(300)).max(1000).optional(), evidence: z.array(z.string().max(2000)).max(100).optional(),
+  severity: z.enum(['info', 'warning', 'error']).optional(), details: z.json().optional(),
 }).strict();
 export const completeInspectionSchema = z.object({ consumerId: z.string().min(1), results: z.array(inspectionResultSchema).max(1000) }).strict();
 export const inspectionConsumerSchema = z.object({ consumerId: z.string().min(1).max(100) }).strict();

@@ -20,6 +20,9 @@ importers:
       '@interaction/core':
         specifier: workspace:*
         version: link:packages/core
+      '@interaction/rules':
+        specifier: workspace:*
+        version: link:packages/rules
       '@interaction/storage-memory':
         specifier: workspace:*
         version: link:packages/storage-memory
@@ -84,6 +87,9 @@ importers:
       '@interaction/browser':
         specifier: workspace:*
         version: link:../../packages/browser
+      '@interaction/rules':
+        specifier: workspace:*
+        version: link:../../packages/rules
       '@interaction/storage-sqlite':
         specifier: workspace:*
         version: link:../../packages/storage-sqlite
@@ -147,12 +153,27 @@ importers:
       '@interaction/browser':
         specifier: workspace:*
         version: link:../browser
+      '@interaction/rules':
+        specifier: workspace:*
+        version: link:../rules
 
   packages/core:
     dependencies:
       '@noble/hashes':
         specifier: ^2.0.1
         version: 2.4.0
+      zod:
+        specifier: ^4.1.12
+        version: 4.6.7
+
+  packages/rules:
+    dependencies:
+      '@interaction/adapter-playwright':
+        specifier: workspace:*
+        version: link:../adapter-playwright
+      '@interaction/browser':
+        specifier: workspace:*
+        version: link:../browser
       zod:
         specifier: ^4.1.12
         version: 4.6.7
