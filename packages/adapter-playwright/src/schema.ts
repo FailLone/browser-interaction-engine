@@ -1,8 +1,8 @@
 import { inspectionOptionsSchema } from './inspection-contract.js';
 import { z } from 'zod';
-import { evidenceRetentionSchema } from '@interaction/core';
+import { evidenceRetentionSchema, componentDescriptionSchema } from '@interaction/core';
 export const contextSchema = z.record(z.string(), z.object({ value: z.json(), status: z.enum(['known', 'unknown']), source: z.string() }));
-const match = z.object({ role: z.string().optional(), name: z.string().optional(), stableKey: z.string().optional(), kind: z.enum(['click', 'fill', 'select', 'check', 'scroll', 'press', 'navigate']).optional(), urlIncludes: z.string().optional() }).strict();
+const match = z.object({ role: z.string().optional(), name: z.string().optional(), stableKey: z.string().optional(), kind: z.enum(['click', 'fill', 'select', 'check', 'scroll', 'press', 'navigate', 'hover', 'focus']).optional(), urlIncludes: z.string().optional() }).strict();
 export const evidenceOptionsSchema = z.object({
     enabled: z.boolean().default(true), maxNodes: z.number().int().min(1).max(50000).default(5000),
     maxTextLength: z.number().int().min(1).max(100000).default(20000), maxHtmlLength: z.number().int().min(1).max(10000000).default(2000000),
@@ -27,11 +27,13 @@ export const sessionSchema = z.object({
 }).strict();
 export const predicateSchema = z.object({ target: z.enum(['url', 'context', 'control']), key: z.string().optional(), identityId: z.string().optional(), field: z.enum(['value', 'checked', 'visible', 'enabled']).optional(), equals: z.json() }).strict();
 export const commandSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('probe'), observationId: z.string().min(1), localId: z.string().min(1), kind: z.enum(['hover', 'focus']), requestId: z.string().trim().min(1) }).strict(),
+  componentDescriptionSchema.extend({ type: z.literal('describeComponent') }),
   z.object({ type: z.literal('observe') }),
   z.object({ type: z.literal('inspect'), region: z.string() }),
   z.object({ type: z.literal('execute'), actionId: z.string(), requestId: z.string().min(1), value: z.union([z.string(), z.boolean(), z.number()]).optional() }),
   z.object({ type: z.literal('explore') }), z.object({ type: z.literal('pause') }), z.object({ type: z.literal('resume') }), z.object({ type: z.literal('stop') }),
-  z.object({ type: z.literal('resolveIdentity'), hypothesisId: z.string(), identityId: z.string(), source: z.string().min(1), evidence: z.array(z.string()).min(1) }),
+  z.object({ type: z.literal('resolveIdentity'), hypothesisId: z.string(), identityId: z.string(), source: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1), guard: z.object({ observationId: z.string().min(1), revision: z.number().int().nonnegative() }).strict().optional() }),
   z.object({ type: z.literal('openScope'), name: z.string().min(1), region: z.string() }),
   z.object({ type: z.literal('closeScope'), scopeId: z.string() }),
   z.object({ type: z.literal('createCheckpoint'), name: z.string().min(1), predicates: z.array(predicateSchema).default([]), acceptable: z.array(predicateSchema).default([]), retainEvidence: z.boolean().optional() }),

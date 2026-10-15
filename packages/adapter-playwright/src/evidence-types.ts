@@ -66,8 +66,10 @@ export interface BrowserEvidenceManifest {
 }
 export const evidenceCapabilities = {
   version: 1,
-  stored: ['page-metadata', 'controls', 'text', 'dom-tree', 'html', 'attributes', 'live-properties', 'label-and-aria-relations', 'computed-styles', 'page-environment', 'box-and-scroll-metrics', 'ancestor-chains', 'sampled-hit-targets', 'viewport-screenshot', 'aria-snapshot', 'network-metadata', 'console', 'page-errors', 'frame-inventory'],
+  stored: ['page-metadata', 'controls', 'component-groups', 'text', 'dom-tree', 'html', 'attributes', 'live-properties', 'label-and-aria-relations', 'computed-styles', 'page-environment', 'box-and-scroll-metrics', 'ancestor-chains', 'sampled-hit-targets', 'viewport-screenshot', 'aria-snapshot', 'network-metadata', 'console', 'page-errors', 'frame-inventory'],
   optional: ['full-page-screenshot', 'all-computed-styles'],
   unsupported: ['shadow-dom-contents', 'iframe-dom', 'javascript-heap', 'complete-event-listeners', 'network-bodies', 'business-intent-inference'],
   queriesChangePage: false,
+  explicitProbes: ['hover', 'focus'],
+  probeEffects: 'unknown',
 } as const;

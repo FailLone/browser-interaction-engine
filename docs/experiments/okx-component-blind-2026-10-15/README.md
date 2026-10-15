@@ -74,3 +74,5 @@ node --import tsx --conditions=development scripts/grade-okx-component-blind.ts 
 ```
 
 本轮脚本已实际执行，输入哈希核对通过；类型检查通过。生产代码未改动，没有重复运行上一轮已经通过的 192 项全量回归。
+
+后续实现与实际引擎验收见 [复合控件和主动探测](../components-probes-2026-10-15/README.md)。图片引用协议、组关系、局部证据与显式 hover/focus 已在同一开发分支补齐；原盲测结果仍保持原输入与原结论，没有用新增证据回填或宣称重新盲测。

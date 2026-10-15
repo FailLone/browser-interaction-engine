@@ -83,7 +83,7 @@ flowchart LR
 {"type":"pause"}
 {"type":"resume"}
 {"type":"stop"}
-{"type":"resolveIdentity","hypothesisId":"...","identityId":"...","source":"human","evidence":["业务记录和控件职责一致"]}
+{"type":"resolveIdentity","hypothesisId":"...","identityId":"...","source":"human","evidence":["业务记录和控件职责一致"],"guard":{"observationId":"...","revision":0}}
 {"type":"openScope","name":"订单设置","region":"form:order-form"}
 {"type":"closeScope","scopeId":"..."}
 {"type":"createCheckpoint","name":"Market 表单","predicates":[],"acceptable":[]}
@@ -104,7 +104,7 @@ flowchart LR
 
 ## 检查点
 
-检查点默认验证保存时的完整观察契约（新观察为 `observable-v3`）投影与已知业务前提，可以增加：
+检查点默认验证保存时的完整观察契约（新观察为 `observable-v5`）投影与已知业务前提，可以增加：
 
 ```json
 {"target":"url","equals":"http://127.0.0.1:4174/"}
@@ -148,3 +148,7 @@ SQLite 插件使用 WAL，`entities` 保存带 kind 的结构化实体，`events
 ## 探索与恢复配置
 
 新浏览器会话默认 `exploration: controls`，也支持 `representative` 和 `stateful`。`report.controlCoverage` 提供独立控件操作覆盖；`target` / `preconditions.targetResolved` 区分当前节点定位与历史身份。interfaceActions、reversible 和 environmentReset 是可选应用声明。待办 sampling 标识抽样范围，superseded 标识由当前视口替代且未执行的滚动意图；恢复 diagnostics 标识业务副作用来源与恢复路径。SDK/HTTP/client 共用这些字段，旧会话不自动迁移。详见 [探索与恢复](EXPLORATION-RECOVERY.md)。
+
+## 复合控件、外部解释和主动探测
+
+`Observation.components` 保留组关系和独立成员，`componentDetails` 提供有界局部证据及历史引用。`describeComponent` 保存来源解释，不覆盖观察；`probe` 支持显式 hover/focus，共用动作队列、前提、预算、去重与前后采集。接口、校验和能力限制见 [复合控件与探测](COMPONENTS-AND-PROBES.md)。

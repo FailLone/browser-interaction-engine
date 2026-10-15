@@ -1,0 +1,1797 @@
+[
+  {
+    "observationId": "326656e3-0370-4569-b26c-2d92619efc51",
+    "capturedAt": "2026-10-15T03:49:58.797Z",
+    "component": {
+      "id": "component:3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+      "rootNodeId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+      "kind": "choice-group",
+      "name": "",
+      "members": [
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+          "role": "button",
+          "name": ""
+        }
+      ],
+      "rect": {
+        "x": 108,
+        "y": 220.953125,
+        "width": 120,
+        "height": 24
+      },
+      "basis": {
+        "status": "tentative",
+        "evidence": [
+          {
+            "source": "dom-structure",
+            "rule": "sibling-choice-group/v1",
+            "facts": {
+              "rootNodeId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+              "kind": "choice-group",
+              "meaning": "unverified",
+              "memberCount": 5
+            }
+          }
+        ]
+      }
+    },
+    "subtreeNodes": [
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:82",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:65"
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "RatingStar_ratingContainer__7L-Nd",
+          "style": "--filled-star-color:var(--growth-okd-color-data-visualization-category-02);--empty-star-color:var(--growth-okd-color-background-surface-pressed);--background-color:var(--growth-okd-color-background-base-secondary)"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 120,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:926"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:927"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 132,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:928"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 156,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:929"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 180,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:2263"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 204,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:926",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:927",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_emptyStar__SX6gL",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 132,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:928",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_emptyStar__SX6gL",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 156,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:929",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_emptyStar__SX6gL",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 180,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:2263",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_emptyStar__SX6gL",
+          "role": "img",
+          "aria-hidden": "true",
+          "style": "font-size: 24px; width: 24px; height: 24px; line-height: 24px;"
+        },
+        "rect": {
+          "x": 204,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      }
+    ],
+    "screenshot": {
+      "key": "326656e3-0370-4569-b26c-2d92619efc51.png",
+      "mediaType": "image/png",
+      "capturedAt": "2026-10-15T03:49:58.836Z",
+      "bytes": 120637,
+      "sha256": "4fa5b8e6d337c623c4c22d5f49616fd6a74c96f7be50a624813b7e0c31c23712"
+    },
+    "screenshotRegion": {
+      "x": 108,
+      "y": 220.953125,
+      "width": 120,
+      "height": 24
+    },
+    "gaps": [
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "EVENT_LISTENER_COVERAGE",
+        "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "EVENT_LISTENER_COVERAGE",
+        "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+      },
+      {
+        "code": "RUNTIME_TRUNCATED",
+        "message": "Runtime evidence exceeded entry or text limits; see dropped and truncatedFields"
+      }
+    ]
+  },
+  {
+    "observationId": "5bb84a36-59a6-48d2-b732-e5cdfb4eeabd",
+    "capturedAt": "2026-10-15T03:50:03.128Z",
+    "component": {
+      "id": "component:3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+      "rootNodeId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+      "kind": "choice-group",
+      "name": "",
+      "members": [
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+          "role": "button",
+          "name": ""
+        }
+      ],
+      "rect": {
+        "x": 108,
+        "y": 220.953125,
+        "width": 120,
+        "height": 24
+      },
+      "basis": {
+        "status": "tentative",
+        "evidence": [
+          {
+            "source": "dom-structure",
+            "rule": "sibling-choice-group/v1",
+            "facts": {
+              "rootNodeId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+              "kind": "choice-group",
+              "meaning": "unverified",
+              "memberCount": 5
+            }
+          }
+        ]
+      }
+    },
+    "subtreeNodes": [
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:82",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:65"
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "RatingStar_ratingContainer__7L-Nd",
+          "style": "--filled-star-color:var(--growth-okd-color-data-visualization-category-02);--empty-star-color:var(--growth-okd-color-background-surface-pressed);--background-color:var(--growth-okd-color-background-base-secondary)"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 120,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:926"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:927"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 132,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:928"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 156,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:929"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 180,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:2263"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 204,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:926",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:927",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 132,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:928",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_emptyStar__SX6gL",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 156,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:929",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_emptyStar__SX6gL",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 180,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:2263",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_emptyStar__SX6gL",
+          "role": "img",
+          "aria-hidden": "true",
+          "style": "font-size: 24px; width: 24px; height: 24px; line-height: 24px;"
+        },
+        "rect": {
+          "x": 204,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      }
+    ],
+    "screenshot": {
+      "key": "5bb84a36-59a6-48d2-b732-e5cdfb4eeabd.png",
+      "mediaType": "image/png",
+      "capturedAt": "2026-10-15T03:50:03.171Z",
+      "bytes": 120682,
+      "sha256": "a5b5070c7eb87c5fea0774c8bea3ee273f0652d49fa46eb99bea1b46f586d291"
+    },
+    "screenshotRegion": {
+      "x": 108,
+      "y": 220.953125,
+      "width": 120,
+      "height": 24
+    },
+    "gaps": [
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "EVENT_LISTENER_COVERAGE",
+        "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "EVENT_LISTENER_COVERAGE",
+        "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+      },
+      {
+        "code": "RUNTIME_TRUNCATED",
+        "message": "Runtime evidence exceeded entry or text limits; see dropped and truncatedFields"
+      }
+    ]
+  },
+  {
+    "observationId": "fee0928e-5fa8-454b-8ab4-8904fb341c28",
+    "capturedAt": "2026-10-15T03:50:07.501Z",
+    "component": {
+      "id": "component:3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+      "rootNodeId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+      "kind": "choice-group",
+      "name": "",
+      "members": [
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+          "role": "button",
+          "name": ""
+        }
+      ],
+      "rect": {
+        "x": 108,
+        "y": 220.953125,
+        "width": 120,
+        "height": 24
+      },
+      "basis": {
+        "status": "tentative",
+        "evidence": [
+          {
+            "source": "dom-structure",
+            "rule": "sibling-choice-group/v1",
+            "facts": {
+              "rootNodeId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+              "kind": "choice-group",
+              "meaning": "unverified",
+              "memberCount": 5
+            }
+          }
+        ]
+      }
+    },
+    "subtreeNodes": [
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:82",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:65"
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "RatingStar_ratingContainer__7L-Nd",
+          "style": "--filled-star-color:var(--growth-okd-color-data-visualization-category-02);--empty-star-color:var(--growth-okd-color-background-surface-pressed);--background-color:var(--growth-okd-color-background-base-secondary)"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 120,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:926"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:927"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 132,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:928"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 156,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:929"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 180,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:2263"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 204,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:926",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:927",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 132,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:928",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 156,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:929",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_emptyStar__SX6gL",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 180,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:2263",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_emptyStar__SX6gL",
+          "role": "img",
+          "aria-hidden": "true",
+          "style": "font-size: 24px; width: 24px; height: 24px; line-height: 24px;"
+        },
+        "rect": {
+          "x": 204,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      }
+    ],
+    "screenshot": {
+      "key": "fee0928e-5fa8-454b-8ab4-8904fb341c28.png",
+      "mediaType": "image/png",
+      "capturedAt": "2026-10-15T03:50:07.535Z",
+      "bytes": 120690,
+      "sha256": "af553f03fbf723caf460efca0eeb29f5e64e5eb6d15e5f73f4505c8271bb2b16"
+    },
+    "screenshotRegion": {
+      "x": 108,
+      "y": 220.953125,
+      "width": 120,
+      "height": 24
+    },
+    "gaps": [
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "EVENT_LISTENER_COVERAGE",
+        "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "EVENT_LISTENER_COVERAGE",
+        "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+      },
+      {
+        "code": "RUNTIME_TRUNCATED",
+        "message": "Runtime evidence exceeded entry or text limits; see dropped and truncatedFields"
+      }
+    ]
+  },
+  {
+    "observationId": "33d1ba50-c0b2-4a2b-bf63-294f664ecfef",
+    "capturedAt": "2026-10-15T03:50:12.060Z",
+    "component": {
+      "id": "component:3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+      "rootNodeId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+      "kind": "choice-group",
+      "name": "",
+      "members": [
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+          "role": "button",
+          "name": ""
+        }
+      ],
+      "rect": {
+        "x": 108,
+        "y": 220.953125,
+        "width": 120,
+        "height": 24
+      },
+      "basis": {
+        "status": "tentative",
+        "evidence": [
+          {
+            "source": "dom-structure",
+            "rule": "sibling-choice-group/v1",
+            "facts": {
+              "rootNodeId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+              "kind": "choice-group",
+              "meaning": "unverified",
+              "memberCount": 5
+            }
+          }
+        ]
+      }
+    },
+    "subtreeNodes": [
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:82",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:65"
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "RatingStar_ratingContainer__7L-Nd",
+          "style": "--filled-star-color:var(--growth-okd-color-data-visualization-category-02);--empty-star-color:var(--growth-okd-color-background-surface-pressed);--background-color:var(--growth-okd-color-background-base-secondary)"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 120,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:926"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:927"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 132,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:928"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 156,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:929"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 180,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:2263"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 204,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:926",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:927",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 132,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:928",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 156,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:929",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 180,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:2263",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_emptyStar__SX6gL",
+          "role": "img",
+          "aria-hidden": "true",
+          "style": "font-size: 24px; width: 24px; height: 24px; line-height: 24px;"
+        },
+        "rect": {
+          "x": 204,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      }
+    ],
+    "screenshot": {
+      "key": "33d1ba50-c0b2-4a2b-bf63-294f664ecfef.png",
+      "mediaType": "image/png",
+      "capturedAt": "2026-10-15T03:50:12.103Z",
+      "bytes": 120652,
+      "sha256": "2453ca3e010e9bd992cac9f02afd87b9e84112c9630744ed7dc6af3d2ae3e565"
+    },
+    "screenshotRegion": {
+      "x": 108,
+      "y": 220.953125,
+      "width": 120,
+      "height": 24
+    },
+    "gaps": [
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "EVENT_LISTENER_COVERAGE",
+        "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "EVENT_LISTENER_COVERAGE",
+        "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+      },
+      {
+        "code": "RUNTIME_TRUNCATED",
+        "message": "Runtime evidence exceeded entry or text limits; see dropped and truncatedFields"
+      }
+    ]
+  },
+  {
+    "observationId": "2febe46a-3726-43de-b3b8-b4ed78208ad1",
+    "capturedAt": "2026-10-15T03:50:16.598Z",
+    "component": {
+      "id": "component:3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+      "rootNodeId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+      "kind": "choice-group",
+      "name": "",
+      "members": [
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+          "role": "button",
+          "name": ""
+        },
+        {
+          "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+          "role": "button",
+          "name": ""
+        }
+      ],
+      "rect": {
+        "x": 108,
+        "y": 220.953125,
+        "width": 120,
+        "height": 24
+      },
+      "basis": {
+        "status": "tentative",
+        "evidence": [
+          {
+            "source": "dom-structure",
+            "rule": "sibling-choice-group/v1",
+            "facts": {
+              "rootNodeId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+              "kind": "choice-group",
+              "meaning": "unverified",
+              "memberCount": 5
+            }
+          }
+        ]
+      }
+    },
+    "subtreeNodes": [
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:82",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:65"
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "RatingStar_ratingContainer__7L-Nd",
+          "style": "--filled-star-color:var(--growth-okd-color-data-visualization-category-02);--empty-star-color:var(--growth-okd-color-background-surface-pressed);--background-color:var(--growth-okd-color-background-base-secondary)"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 120,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:926"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:927"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 132,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:928"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 156,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:929"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 180,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:72",
+        "children": [
+          "3538d6a3-eaf4-44eb-9cc5-58d606223405:2263"
+        ],
+        "tag": "button",
+        "attributes": {
+          "type": "button",
+          "class": "growth-plain-button"
+        },
+        "rect": {
+          "x": 204,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:926",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 108,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:927",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 132,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:928",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 156,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:929",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "style": "font-size:24px;width:24px;height:24px;line-height:24px",
+          "role": "img",
+          "aria-hidden": "true"
+        },
+        "rect": {
+          "x": 180,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "id": "3538d6a3-eaf4-44eb-9cc5-58d606223405:2263",
+        "parentId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+        "children": [],
+        "tag": "i",
+        "attributes": {
+          "class": "icon iconfont okds-star-filled StarIcon_starIcon__jXj6A StarIcon_icon__MgLLn StarIcon_filledStar__uDLLe",
+          "role": "img",
+          "aria-hidden": "true",
+          "style": "font-size: 24px; width: 24px; height: 24px; line-height: 24px;"
+        },
+        "rect": {
+          "x": 204,
+          "y": 220.953125,
+          "width": 24,
+          "height": 24
+        }
+      }
+    ],
+    "screenshot": {
+      "key": "2febe46a-3726-43de-b3b8-b4ed78208ad1.png",
+      "mediaType": "image/png",
+      "capturedAt": "2026-10-15T03:50:16.634Z",
+      "bytes": 120452,
+      "sha256": "c7e523521be7f6ec05bcb91137098e4b3e468080134750a3ea2968a04e5d1a04"
+    },
+    "screenshotRegion": {
+      "x": 108,
+      "y": 220.953125,
+      "width": 120,
+      "height": 24
+    },
+    "gaps": [
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "EVENT_LISTENER_COVERAGE",
+        "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(1) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(1)"
+      },
+      {
+        "code": "UNSUPPORTED_CANVAS",
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > table:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(2) > div:nth-of-type(1) > canvas:nth-of-type(2)"
+      },
+      {
+        "code": "EVENT_LISTENER_COVERAGE",
+        "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+      },
+      {
+        "code": "RUNTIME_TRUNCATED",
+        "message": "Runtime evidence exceeded entry or text limits; see dropped and truncatedFields"
+      }
+    ]
+  }
+]

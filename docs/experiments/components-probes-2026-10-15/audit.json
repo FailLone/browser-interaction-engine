@@ -1,0 +1,522 @@
+{
+  "at": "2026-10-15T03:50:18.354Z",
+  "result": "passed",
+  "ruleVersion": "observable-v5",
+  "phases": [
+    {
+      "phase": "initial",
+      "observationId": "776469f6-8839-41ab-8e53-6d35009d27d2",
+      "controls": 296,
+      "components": 13,
+      "pending": 5,
+      "boundaries": [
+        {
+          "key": "dialog:okd-dialog-window",
+          "name": "dialog",
+          "region": "document",
+          "evidence": [
+            "aria-modal"
+          ]
+        }
+      ],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "close-notice",
+      "observationId": "2a7e5800-0d20-4f6a-b69e-bbde2d0e174b",
+      "controls": 287,
+      "components": 12,
+      "pending": 5,
+      "boundaries": [],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "currency-open",
+      "observationId": "7a06635d-b3a0-47cd-bfd1-6e721de974c2",
+      "controls": 287,
+      "components": 12,
+      "pending": 5,
+      "boundaries": [
+        {
+          "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+          "name": "Popup",
+          "region": "document",
+          "evidence": [
+            "positioned-choice-panel",
+            "opener-relationship"
+          ]
+        }
+      ],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "currency-search-ETH",
+      "observationId": "a281c9da-2dc4-4a13-9425-1e0b798e9c95",
+      "controls": 286,
+      "components": 12,
+      "pending": 5,
+      "boundaries": [
+        {
+          "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+          "name": "Popup",
+          "region": "document",
+          "evidence": [
+            "positioned-choice-panel",
+            "opener-relationship"
+          ]
+        }
+      ],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "currency-close-attempt",
+      "observationId": "70b67ebd-c820-4ba3-a5b3-8e4e0a2a24bc",
+      "controls": 286,
+      "components": 12,
+      "pending": 5,
+      "boundaries": [
+        {
+          "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+          "name": "Popup",
+          "region": "document",
+          "evidence": [
+            "positioned-choice-panel",
+            "opener-relationship"
+          ]
+        }
+      ],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "currency-escape",
+      "observationId": "a4bb79ba-8629-4faa-b45d-6d9d02bcd277",
+      "controls": 286,
+      "components": 12,
+      "pending": 5,
+      "boundaries": [
+        {
+          "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+          "name": "Popup",
+          "region": "document",
+          "evidence": [
+            "positioned-choice-panel",
+            "opener-relationship"
+          ]
+        }
+      ],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "currency-search-BTC",
+      "observationId": "516be927-5520-4936-8daf-29ac56c2c24f",
+      "controls": 283,
+      "components": 12,
+      "pending": 5,
+      "boundaries": [
+        {
+          "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+          "name": "Popup",
+          "region": "document",
+          "evidence": [
+            "positioned-choice-panel",
+            "opener-relationship"
+          ]
+        }
+      ],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "currency-close-current-option",
+      "observationId": "bc1858df-7f2b-47c1-904e-a2e8923ecc6d",
+      "controls": 296,
+      "components": 13,
+      "pending": 6,
+      "boundaries": [
+        {
+          "key": "dialog:okd-dialog-window",
+          "name": "dialog",
+          "region": "document",
+          "evidence": [
+            "aria-modal"
+          ]
+        }
+      ],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "close-new-notice",
+      "observationId": "fd35867b-a85b-43af-b944-0f4cdf6b1a0d",
+      "controls": 287,
+      "components": 12,
+      "pending": 5,
+      "boundaries": [],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "continue-amount-fill",
+      "observationId": "9c31eb68-bf19-429b-8fd4-756de03f6e8c",
+      "controls": 287,
+      "components": 12,
+      "pending": 5,
+      "boundaries": [],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "hover-1",
+      "observationId": "326656e3-0370-4569-b26c-2d92619efc51",
+      "controls": 287,
+      "components": 12,
+      "pending": 5,
+      "boundaries": [],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "hover-2",
+      "observationId": "5bb84a36-59a6-48d2-b732-e5cdfb4eeabd",
+      "controls": 287,
+      "components": 12,
+      "pending": 5,
+      "boundaries": [],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "hover-3",
+      "observationId": "fee0928e-5fa8-454b-8ab4-8904fb341c28",
+      "controls": 287,
+      "components": 12,
+      "pending": 5,
+      "boundaries": [],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "hover-4",
+      "observationId": "33d1ba50-c0b2-4a2b-bf63-294f664ecfef",
+      "controls": 287,
+      "components": 12,
+      "pending": 5,
+      "boundaries": [],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    },
+    {
+      "phase": "hover-5",
+      "observationId": "2febe46a-3726-43de-b3b8-b4ed78208ad1",
+      "controls": 287,
+      "components": 12,
+      "pending": 5,
+      "boundaries": [],
+      "gapCodes": [
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "UNSUPPORTED_CANVAS",
+        "EVENT_LISTENER_COVERAGE"
+      ]
+    }
+  ],
+  "attempts": [
+    {
+      "id": "3f6f0135-672b-4814-90b2-c763c153ab7d",
+      "beforeId": "776469f6-8839-41ab-8e53-6d35009d27d2",
+      "afterId": "2a7e5800-0d20-4f6a-b69e-bbde2d0e174b",
+      "status": "succeeded",
+      "kind": "click",
+      "label": "关闭",
+      "source": "dom-actions-v2",
+      "localId": "489ca49e-c720-4e65-9977-294482486683:446",
+      "risk": "interface",
+      "replayable": true
+    },
+    {
+      "id": "99229d51-5291-42d4-9f7c-800847a95393",
+      "beforeId": "2a7e5800-0d20-4f6a-b69e-bbde2d0e174b",
+      "afterId": "7a06635d-b3a0-47cd-bfd1-6e721de974c2",
+      "status": "succeeded",
+      "kind": "click",
+      "label": "BTC",
+      "source": "dom-actions-v2",
+      "localId": "489ca49e-c720-4e65-9977-294482486683:537",
+      "risk": "unknown",
+      "replayable": false
+    },
+    {
+      "id": "7cb806dc-ea77-4a47-9086-9f28905e4259",
+      "beforeId": "7a06635d-b3a0-47cd-bfd1-6e721de974c2",
+      "afterId": "a281c9da-2dc4-4a13-9425-1e0b798e9c95",
+      "status": "succeeded",
+      "kind": "fill",
+      "label": "搜索",
+      "source": "dom-actions-v2",
+      "localId": "489ca49e-c720-4e65-9977-294482486683:523",
+      "risk": "interface",
+      "replayable": true
+    },
+    {
+      "id": "6644d6cf-ce3d-4a8a-a2d1-8fc98bb0b1ad",
+      "beforeId": "a281c9da-2dc4-4a13-9425-1e0b798e9c95",
+      "afterId": "70b67ebd-c820-4ba3-a5b3-8e4e0a2a24bc",
+      "status": "succeeded",
+      "kind": "click",
+      "label": "BTC",
+      "source": "dom-actions-v2",
+      "localId": "489ca49e-c720-4e65-9977-294482486683:537",
+      "risk": "unknown",
+      "replayable": false
+    },
+    {
+      "id": "93a7653c-6821-4d3a-ad78-3954f8c3c471",
+      "beforeId": "70b67ebd-c820-4ba3-a5b3-8e4e0a2a24bc",
+      "afterId": "a4bb79ba-8629-4faa-b45d-6d9d02bcd277",
+      "status": "succeeded",
+      "kind": "press",
+      "label": "Close overlay",
+      "source": "dom-actions-v2",
+      "localId": null,
+      "risk": "interface",
+      "replayable": true
+    },
+    {
+      "id": "ad21d2db-271e-43c1-8bef-e270ab854579",
+      "beforeId": "a4bb79ba-8629-4faa-b45d-6d9d02bcd277",
+      "afterId": "516be927-5520-4936-8daf-29ac56c2c24f",
+      "status": "succeeded",
+      "kind": "fill",
+      "label": "搜索",
+      "source": "dom-actions-v2",
+      "localId": "489ca49e-c720-4e65-9977-294482486683:523",
+      "risk": "interface",
+      "replayable": true
+    },
+    {
+      "id": "1a2d4fe2-61e2-43f1-a790-e379e359b2c6",
+      "beforeId": "516be927-5520-4936-8daf-29ac56c2c24f",
+      "afterId": "bc1858df-7f2b-47c1-904e-a2e8923ecc6d",
+      "status": "succeeded",
+      "kind": "click",
+      "label": "BTC",
+      "source": "dom-actions-v2",
+      "localId": "489ca49e-c720-4e65-9977-294482486683:2317",
+      "risk": "unknown",
+      "replayable": false
+    },
+    {
+      "id": "0ea03eee-588a-4243-8713-e8fe68329e44",
+      "beforeId": "bc1858df-7f2b-47c1-904e-a2e8923ecc6d",
+      "afterId": "fd35867b-a85b-43af-b944-0f4cdf6b1a0d",
+      "status": "succeeded",
+      "kind": "click",
+      "label": "关闭",
+      "source": "dom-actions-v2",
+      "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:488",
+      "risk": "interface",
+      "replayable": true
+    },
+    {
+      "id": "3ea39ef9-d3ef-4c3d-998f-d9eee4e2ff60",
+      "beforeId": "fd35867b-a85b-43af-b944-0f4cdf6b1a0d",
+      "afterId": "9c31eb68-bf19-429b-8fd4-756de03f6e8c",
+      "status": "succeeded",
+      "kind": "fill",
+      "label": "0",
+      "source": "dom-actions-v2",
+      "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:506",
+      "risk": "interface",
+      "replayable": true
+    },
+    {
+      "id": "72a31fcf-fd74-4ded-b469-68fdcd7fb305",
+      "beforeId": "9c31eb68-bf19-429b-8fd4-756de03f6e8c",
+      "afterId": "326656e3-0370-4569-b26c-2d92619efc51",
+      "status": "succeeded",
+      "kind": "hover",
+      "label": "hover: button",
+      "source": "external-probe",
+      "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:61",
+      "risk": "unknown",
+      "replayable": false
+    },
+    {
+      "id": "418eee22-4bf2-41be-b94c-1b9dd60857bc",
+      "beforeId": "326656e3-0370-4569-b26c-2d92619efc51",
+      "afterId": "5bb84a36-59a6-48d2-b732-e5cdfb4eeabd",
+      "status": "succeeded",
+      "kind": "hover",
+      "label": "hover: button",
+      "source": "external-probe",
+      "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:62",
+      "risk": "unknown",
+      "replayable": false
+    },
+    {
+      "id": "6b42aacf-27e4-4ba0-95bc-8c9ed0fa3d21",
+      "beforeId": "5bb84a36-59a6-48d2-b732-e5cdfb4eeabd",
+      "afterId": "fee0928e-5fa8-454b-8ab4-8904fb341c28",
+      "status": "succeeded",
+      "kind": "hover",
+      "label": "hover: button",
+      "source": "external-probe",
+      "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:63",
+      "risk": "unknown",
+      "replayable": false
+    },
+    {
+      "id": "75525f6f-7c7b-479e-b262-fee11cc9bea9",
+      "beforeId": "fee0928e-5fa8-454b-8ab4-8904fb341c28",
+      "afterId": "33d1ba50-c0b2-4a2b-bf63-294f664ecfef",
+      "status": "succeeded",
+      "kind": "hover",
+      "label": "hover: button",
+      "source": "external-probe",
+      "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:64",
+      "risk": "unknown",
+      "replayable": false
+    },
+    {
+      "id": "07f41bbd-afde-4ab8-b7a1-0e39f0c82380",
+      "beforeId": "33d1ba50-c0b2-4a2b-bf63-294f664ecfef",
+      "afterId": "2febe46a-3726-43de-b3b8-b4ed78208ad1",
+      "status": "succeeded",
+      "kind": "hover",
+      "label": "hover: button",
+      "source": "external-probe",
+      "localId": "3538d6a3-eaf4-44eb-9cc5-58d606223405:65",
+      "risk": "unknown",
+      "replayable": false
+    }
+  ],
+  "rawSha256": {
+    "observations.json": "2c99f7bb1ea13d4efab33e69ef96e71b02e3b52092ec0b94f3967cca54d3e7b0",
+    "attempts.json": "dc0d9130653cf7f0dce63350e3b30e3db5695cf380ad482938a43583a0f60003",
+    "probes.json": "9305230804e024611edc4552474417d658c71bb7ebbf13fdee4ba5871f76f156",
+    "description.json": "5dbae72771f374cdbdd1c2dc458a299604902bd786a9935483625934a13ae599",
+    "rating-hover.png": "c7e523521be7f6ec05bcb91137098e4b3e468080134750a3ea2968a04e5d1a04"
+  }
+}

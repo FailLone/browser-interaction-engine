@@ -55,6 +55,10 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   parseOptions(input: unknown): S;
   createDriver(options: S, evidence: EvidenceStore): InteractionDriver<O, S>;
   signature(control: O['controls'][number]): string;
+  /** Extra binding evidence used to reject stale external identity judgments. */
+  reviewBinding?(control: O['controls'][number]): unknown;
+  /** Explicit, observation-bound experiments; never added to automatic discovery. */
+  probeAction?(kind: string, control: O['controls'][number], observation: O, session: Session<S>): ActionCandidate;
   normalize(observation: O): string;
   compare(before: O, after: O, region?: string): Diff;
   constrain(action: ActionCandidate, observation: O, session: Session<S>): ActionCandidate;

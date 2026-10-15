@@ -140,3 +140,9 @@ BrowserEngine 的 InspectionCoordinator 将已保存的观察映射为独立 Cap
 异步二进制保存不能放入同步 Persistence.transaction。未提交检查的预留 pin 会主动释放；进程崩溃留下的有限 pin 也由 storage-retained 的通用 expiresAt 支持到期回收。重启保留 pending 消费元数据并核验实际证据。生产流程与 receive/renew/complete/cancel 使用 coordinator 串行队列，避免续租、过期和完成的竞争；它不操纵独立浏览器。
 
 Capture/Inspection 不因消费者更新而改变。read queries 不触发观察或行为；只读事件可用性与消费生命周期会反映过期。长期历史记录压缩、多进程任务分发和原生异步远程持久化不在这轮扩展内。接口与限制见 [检查 API](INSPECTION-API.md)。
+
+## 组件关系与外部解释
+
+core 的 InteractionComponent/ComponentDescription 只描述分组、独立成员、来源和观察引用；不解释 DOM，也不实现调用方推理。浏览器适配器从页面声明和结构采集组关系，BrowserEvidenceQueries 组合已有历史 DOM/截图/动作证据。外部解释保存在独立记录中；旧观察和身份假设不被改写。
+
+显式 probe 通过 InteractionAdapter.probeAction 扩展点生成候选，沿用 core 的 runAction、队列和消费前检查；平台决定支持何种探测。浏览器 hover/focus 不进入自动发现，不赋予可逆或重放资格。与身份判断一样，结构、来源引用、当前版本和现场绑定校验不依赖上层是否为人工、规则程序或模型。详见 [接口与限制](COMPONENTS-AND-PROBES.md)。

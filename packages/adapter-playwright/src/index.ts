@@ -1,4 +1,4 @@
-import { canonical, id, type InteractionAdapter, type EvidenceStore, type Predicate, type InteractionScope } from '@interaction/core';
+import { canonical, id, EngineError, type InteractionAdapter, type EvidenceStore, type Predicate, type InteractionScope } from '@interaction/core';
 import { BrowserAdapter } from './browser.js';
 import { observableCanonical, compareObservations } from './model.js';
 import { sessionSchema } from './schema.js';
@@ -12,11 +12,21 @@ export type { Command } from './schema.js';
 export { compareObservations, observableCanonical } from './model.js';
 
 export class PlaywrightAdapter implements InteractionAdapter<Observation, SessionOptions> {
-  readonly ruleVersion = 'observable-v4';
+  readonly ruleVersion = 'observable-v5';
   constructor(private hooks: EngineHooks = {}) {}
   parseOptions(input: unknown) { return sessionSchema.parse(input) as SessionOptions; }
   createDriver(options: SessionOptions, evidence: EvidenceStore) { return new BrowserAdapter(options, evidence, this.hooks); }
   signature = signature;
+  reviewBinding = (control: Control) => control.reviewAttributes;
+  probeAction(kind: string, control: Control, observation: Observation, session: Session): ActionCandidate {
+    if (!['hover', 'focus'].includes(kind)) throw new EngineError('UNSUPPORTED_PROBE', 'Supported browser probes are hover and focus');
+    return { id: id(), sessionId: session.id, observationId: observation.id, stateId: observation.stateId,
+      controlId: control.identityId, localId: control.localId, kind, label: `${kind}: ${control.name || control.role}`, source: 'external-probe',
+      risk: 'unknown', replayable: false, excluded: false, sampleValidity: 'known',
+      target: { kind: 'instance', instanceScope: observation.instanceScope, instanceId: control.instanceId, evidence: [`observation:${observation.id}`, 'Explicit probe of a current node; effects are unknown'] },
+      basis: { status: 'supported', evidence: [{ source: 'browser-operation', rule: 'explicit-probe/v1', facts: { kind, effects: 'unknown' } }] },
+      preconditions: { context: observation.context, visible: control.visible, enabled: control.enabled, identityResolved: !control.hypothesisId } };
+  }
   normalize = observableCanonical;
   compare = compareObservations;
   constrain = constrain;
