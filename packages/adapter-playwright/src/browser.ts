@@ -252,6 +252,19 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   for(const list of structuralScan.candidates)for(const member of list.members)selected.add(member.element);
   const structuralMembers=new Map(structuralScan.candidates.flatMap(list=>list.members.map(member=>[member.element,{ownerInstanceId:instance(list.owner),template:list.template,slot:member.slot,rowInstanceId:instance(member.row),...(member.recordKey?{recordKey:member.recordKey}:{})}] as const)));
   const all = [...selected];
+  const reuseBindings = new Map<Element, Control['reviewReuseBinding']>();
+  const reuseBinding = (owner: Element): Control['reviewReuseBinding'] => {
+    if (reuseBindings.has(owner)) return reuseBindings.get(owner);
+    const ancestors: NonNullable<Control['reviewReuseBinding']>['ancestors'] = [];
+    let parent: Element | null = owner;
+    for (; parent && ancestors.length < 32; parent = parent.parentElement) {
+      ancestors.push({ tag: parent.tagName.toLowerCase(), selector: selector(parent),
+        attributes: Object.fromEntries(Array.from(parent.attributes).filter(a => a.name !== 'style').map(a => [a.name, a.value])),
+        label: parent.getAttribute('aria-label') || (parent.getAttribute('aria-labelledby') || '').split(/\s+/).map(id => document.getElementById(id)?.textContent || '').join(' ') });
+    }
+    const result = !parent && JSON.stringify(ancestors).length <= 16000 ? { ancestors } : undefined;
+    reuseBindings.set(owner, result); return result;
+  };
   const classificationBinding = (el: Element): Control['classificationBinding'] => {
     const nodes: NonNullable<Control['classificationBinding']>['nodes'] = [];
     const text = el.textContent || ''; let characters = text.length, truncated = text.length > 8000;
@@ -340,12 +353,15 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const reviewBinding = { parentInstanceId: instance(el.parentElement || document.documentElement),
       attributes: Object.fromEntries(['type','role','name','href','target','src','alt','title','form','formaction','formmethod','formtarget','aria-label','aria-labelledby','aria-describedby','aria-controls','aria-haspopup','popovertarget','popovertargetaction','command','commandfor','contenteditable','onclick','onchange','oninput','onkeydown','onmouseenter','onmouseover','onpointerenter'].filter(k=>el.hasAttribute(k)).map(k=>[k,el.getAttribute(k)!])),
       ...(boundForm ? {form:{instanceId:instance(boundForm),action:boundForm.action,method:boundForm.method,target:boundForm.target}} : {}) };
+    // No node IDs or geometry in this projection. Missing/bounded evidence cannot
+    // support reuse; this does not establish identity or an operation's purpose.
+    const reviewReuseBinding = visible && !list && !structuralItem && el.parentElement ? reuseBinding(el.parentElement) : undefined;
     return {
       localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey, ...(identityScope ? { identityScope } : {}), ...(liveContent ? { liveContent } : {}),
       ...(list ? { list: { instanceId: instance(list), role: list.tagName === 'SELECT' ? 'select' : 'listbox', label: label(list), selector: selector(list) } } : {}),
       ...(purposeBinding ? { purposeBinding } : {}),
       reviewAttributes: Object.fromEntries(Array.from(el.attributes).filter(a => /^data-(?!testid)|^name$/.test(a.name)).map(a => [a.name, a.value])),
-      reviewBinding, ...(structuralItem ? { structuralItem } : {}),
+      reviewBinding, reviewReuseBinding, ...(structuralItem ? { structuralItem } : {}),
       ...(!Object.values(capabilities.actionBasis).some(b => b.status === 'supported') ? { classificationBinding: classificationBinding(el) } : {}),
       region: regionKey(el.closest(regionSelector)), regionInstanceId: instance(el.closest(regionSelector) || body || document.documentElement), form: regionKey(el.closest('form')), formOwner: formOwner(el), selector: selector(el), rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
@@ -760,7 +776,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (o.overlays?.length) add('press', 'Escape');
     return actions;
   }
-  async preflight(current: Observation, action?: ActionCandidate, reviewTargetLocalIds: string[] = []): Promise<PreflightResult> {
+  async preflight(current: Observation, action?: ActionCandidate, reviewTargetLocalIds: string[] = [], reuseTargetLocalIds: string[] = []): Promise<PreflightResult> {
     let live: Awaited<ReturnType<BrowserAdapter['readDOM']>>;
     try { live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
@@ -792,6 +808,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         && preserved.every(p => preservedControlFacts(live.controls.find(c => c.localId === p.localId)) === p.facts) ? 'valid' : 'stale';
     }
     const reviewTargets = new Set([...reviewTargetLocalIds, ...(action?.localId ? [action.localId] : [])]);
+    const reuseTargets = new Set([...reuseTargetLocalIds, ...(action?.localId && action.basis?.evidence.some(e => e.rule === 'reused-control-review/v1') ? [action.localId] : [])]);
+    if ([...reuseTargets].some(id => canonical(current.controls.find(c => c.localId === id)?.reviewReuseBinding)
+      !== canonical(live.controls.find(c => c.localId === id)?.reviewReuseBinding))) return 'stale';
     const activeIds = activeInteractionIds(current);
     const escapeExit = action?.kind === 'press' && action.value === 'Escape' && !action.controlId && !action.localId && action.boundary?.intent === 'exit' && action.boundary.key === current.boundaries?.at(-1)?.key;
     const scoped = this.options.exploration === 'controls' && !!activeIds && (escapeExit || reviewTargets.size > 0 && [...reviewTargets].every(id => activeIds.has(id)));

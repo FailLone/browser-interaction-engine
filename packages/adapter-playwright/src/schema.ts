@@ -1,6 +1,6 @@
 import { inspectionOptionsSchema } from './inspection-contract.js';
 import { listPurposeReviewSchema, revokePurposeReviewSchema } from './purpose-review.js';
-import { controlReviewSchema, revokeControlReviewSchema } from './control-review.js';
+import { controlReviewSchema, revokeControlReviewSchema, reuseControlReviewsSchema } from './control-review.js';
 import { classifyControlsSchema, revokeControlClassificationSchema } from './control-classification.js';
 import { supplementDiscoverySchema } from './discovery-scan.js';
 import { z } from 'zod';
@@ -46,6 +46,7 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({type:z.literal('classifyControls'),classification:classifyControlsSchema}).strict(),
   z.object({type:z.literal('revokeControlClassification'),revocation:revokeControlClassificationSchema}).strict(),
   z.object({type:z.literal('reviewControls'),review:controlReviewSchema}).strict(),
+  z.object({type:z.literal('reuseControlReviews'),review:reuseControlReviewsSchema}).strict(),
   z.object({type:z.literal('revokeControlReview'),revocation:revokeControlReviewSchema}).strict(),
   z.object({ type: z.literal('reviewBoundaryExit'), review: boundaryExitReviewSchema }).strict(),
   z.object({ type: z.literal('reviewRegions'), review: regionReviewSchema }).strict(),

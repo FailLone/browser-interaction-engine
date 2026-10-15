@@ -14,7 +14,7 @@ import type { InspectionResult } from './inspection-types.js';
 import { InteractionEngine as CoreEngine, EngineError, type Persistence, type Predicate, type InteractionScope, type Checkpoint } from '@interaction/core';
 import { RetainedPersistence, type RetentionOptions } from '@interaction/storage-retained';
 import { subscribeEvents, projectEvent, type SubscriptionOptions, type SnapshotEvent, type DeliveryMode } from './subscription.js';
-import { BrowserAdapter, supplementDiscoverySchema, PlaywrightAdapter, commandSchema, regionReviewSchema, boundaryExitReviewSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
+import { BrowserAdapter, supplementDiscoverySchema, reuseControlReviewsSchema, PlaywrightAdapter, commandSchema, regionReviewSchema, boundaryExitReviewSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
 import { explainBrowserDiff } from './diff-details.js';
 export * from './diff-details.js';
 import { BrowserEvidenceQueries, type DomQuery, type ArtifactKind } from './evidence.js';
@@ -67,7 +67,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
         // Only commit after the bounded asynchronous preflight has returned.
         // A timed-out preflight must never write a late approval.
         const valid=await this.hook(o.sessionId,'controlReview-preflight',async()=>{
-          if(await this.driver!.preflight(o,undefined,result.value!.reviews.map(r=>r.localId))!=='valid')throw new EngineError('STALE_CONTROL_REVIEW','Control facts changed while being reviewed');
+          if(!(this.driver instanceof BrowserAdapter) || await this.driver.preflight(o,undefined,result.value!.reviews.map(r=>r.localId),result.value!.reviews.filter(r=>r.reuse).map(r=>r.localId))!=='valid')throw new EngineError('STALE_CONTROL_REVIEW','Control facts changed while being reviewed');
           return true;
         });
         if(valid.value)await this.hook(o.sessionId,'controlReview-record',()=>this.store.transaction(()=>this.controls.record(o,result.value!)));
@@ -147,9 +147,24 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     return this.enqueueMeasured(sid,async()=>{
       const o=this.observation(sid);
       if(input.observationId!==o.id)throw new EngineError('STALE_CONTROL_REVIEW','Review the latest observation');
-      if(this.activeId!==sid||!this.driver?.connected())throw new EngineError('BROWSER_UNAVAILABLE','Observe this session in a connected browser before reviewing controls');
-      if(await this.driver.preflight(o,undefined,input.reviews.map(r=>r.localId))!=='valid'){await this.capture(sid,'inspection');throw new EngineError('STALE_CONTROL_REVIEW','Control facts changed; review the new observation');}
+      if(this.activeId!==sid||!(this.driver instanceof BrowserAdapter)||!this.driver.connected())throw new EngineError('BROWSER_UNAVAILABLE','Observe this session in a connected browser before reviewing controls');
+      if(await this.driver.preflight(o,undefined,input.reviews.map(r=>r.localId),input.reviews.filter(r=>r.reuse).map(r=>r.localId))!=='valid'){await this.capture(sid,'inspection');throw new EngineError('STALE_CONTROL_REVIEW','Control facts changed; review the new observation');}
       const records=this.store.transaction(()=>this.controls.record(o,input));
+      await this.capture(sid,'inspection');
+      return records.map(r=>this.store.require<import('@interaction/adapter-playwright').ControlReviewRecord>('control-review',r.id));
+    });
+  }
+  reuseControlReviews(sid:string,input:import('@interaction/adapter-playwright').ReuseControlReviewsInput) {
+    const snapshot=structuredClone(input);
+    return this.enqueueMeasured(sid,async()=>{
+      const parsed=reuseControlReviewsSchema.parse(snapshot),o=this.observation(sid);
+      if(parsed.observationId!==o.id)throw new EngineError('STALE_CONTROL_REVIEW','Read current reuse material before deciding');
+      if(this.activeId!==sid||!(this.driver instanceof BrowserAdapter)||!this.driver.connected())throw new EngineError('BROWSER_UNAVAILABLE','Observe this session before reusing a judgment');
+      const targets=parsed.reviews.map(r=>r.localId);
+      if(await this.driver.preflight(o,undefined,targets,targets)!=='valid'){
+        await this.capture(sid,'inspection');throw new EngineError('STALE_CONTROL_REVIEW','Reuse conditions changed; read fresh material');
+      }
+      const records=this.store.transaction(()=>this.controls.reuse(o,parsed));
       await this.capture(sid,'inspection');
       return records.map(r=>this.store.require<import('@interaction/adapter-playwright').ControlReviewRecord>('control-review',r.id));
     });
@@ -382,6 +397,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       case 'classifyControls': return this.classifyControls(sessionId, command.classification);
       case 'revokeControlClassification': return this.revokeControlClassification(sessionId, command.revocation);
       case 'reviewControls': return this.reviewControls(sessionId,command.review);
+      case 'reuseControlReviews': return this.reuseControlReviews(sessionId,command.review);
       case 'revokeControlReview': return this.revokeControlReview(sessionId,command.revocation);
       case 'reviewBoundaryExit': return this.reviewBoundaryExit(sessionId, command.review);
       case 'reviewRegions': return this.reviewRegions(sessionId, command.review);

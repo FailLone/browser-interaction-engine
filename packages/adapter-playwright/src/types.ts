@@ -40,6 +40,8 @@ export interface Control extends CoreControl {
   purposeBinding?: { attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
   /** Exact control-review binding, independent of list-purpose similarity. */
   reviewBinding?: { parentInstanceId: string; attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
+  /** Conservative structural evidence for explicitly reusing a purpose in a new document. */
+  reviewReuseBinding?: { ancestors: { tag: string; selector: string; attributes: Record<string, string>; label: string }[] };
   /** Bounded subtree evidence for classifying weak candidates; truncation prevents negative classification. */
   classificationBinding?: { nodes: { instanceId: string; parentInstanceId: string; tag: string; attributes: Record<string, string> }[]; text: string; truncated: boolean };
   structuralItem?: { ownerInstanceId:string; template:string; slot:string; rowInstanceId:string; recordKey?:string };

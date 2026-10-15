@@ -1,6 +1,6 @@
 import { canonical, contextKey, EngineError, hash, id, now, type Persistence, type FrontierItem } from '@interaction/core';
-import { controlReviewSchema, revokeControlReviewSchema, controlReviewConditions, controlReviewKey,
-  type ActionCandidate, type Control, type Observation, type ControlReviewInput, type ControlReviewRecord, type ControlReviewMaterial, type RevokeControlReviewInput } from '@interaction/adapter-playwright';
+import { controlReviewSchema, revokeControlReviewSchema, reuseControlReviewsSchema, controlReviewConditions, controlReviewKey, controlReuseConditions,
+  type ActionCandidate, type Control, type Observation, type ControlReviewInput, type ControlReviewRecord, type ControlReviewMaterial, type RevokeControlReviewInput, type ReuseControlReviewsInput } from '@interaction/adapter-playwright';
 
 const rule = 'reviewed-control/v1';
 const references = (a: ActionCandidate) => a.basis?.evidence.filter(e=>e.rule===rule).map(e=>e.facts.reviewId) || [];
@@ -8,9 +8,26 @@ const references = (a: ActionCandidate) => a.basis?.evidence.filter(e=>e.rule===
 export class ControlReviews {
   constructor(private store:Persistence,private emit:(sid:string,type:string,data:unknown)=>unknown,private nonInteractive:(c:Control,o:Observation)=>boolean=()=>false) {}
   private records(sid:string) { return this.store.list<ControlReviewRecord>('control-review',sid); }
+  private sourceAvailable(r: ControlReviewRecord, seen = new Set<string>()): boolean {
+    if (seen.size >= 64 || seen.has(r.id) || ['revoked', 'superseded'].includes(r.status)) return false;
+    seen.add(r.id);
+    if (!r.reusedFrom) return true;
+    const source = this.store.get<ControlReviewRecord>('control-review', r.reusedFrom.reviewId);
+    return !!source && source.sessionId === r.sessionId && this.sourceAvailable(source, seen);
+  }
+  private reuseKey(r: ControlReviewRecord) { return hash({ businessScope: r.reuse?.businessScope, conditions: r.reuseConditions }); }
+  private reusable(r: ControlReviewRecord, c: Control, o: Observation) {
+    return r.sessionId === o.sessionId && !!r.reuse && !!r.reuseConditions && this.sourceAvailable(r)
+      && r.conditions.target.instanceId !== c.instanceId && canonical(r.reuseConditions) === canonical(controlReuseConditions(c, o, r.kind));
+  }
+  private reuseCandidates(c: Control, o: Observation, records: ControlReviewRecord[]) {
+    return records.filter(r => this.reusable(r, c, o) && o.controls.filter(other => canonical(r.reuseConditions) === canonical(controlReuseConditions(other, o, r.kind))).length === 1)
+      .map(review => ({ review, conditionKey: this.reuseKey(review), conditions: review.reuseConditions! }));
+  }
   private matches(r:ControlReviewRecord,c:Control,o:Observation) {
     const conditions=controlReviewConditions(c,o,r.kind,r.exitBoundary);
     return !!conditions && r.status==='active' && r.conditionKey===controlReviewKey(conditions)
+      && this.sourceAvailable(r) && (!r.reusedFrom || canonical(r.reuseConditions) === canonical(controlReuseConditions(c,o,r.kind)))
       && (!r.exitBoundary || o.boundaries?.at(-1)?.key===r.exitBoundary);
   }
   material(o:Observation,actions:ActionCandidate[]):ControlReviewMaterial {
@@ -21,7 +38,7 @@ export class ControlReviews {
       const reviewed=(kind:string)=>reviews.some(r=>r.kind===kind&&this.matches(r,control,o));
       const needsReview=!control.readOnly && !this.nonInteractive(control,o) && (!candidates.some(a=>a.basis?.status==='supported') && !Object.values(control.actionBasis||{}).some(b=>b.status==='supported') && !reviews.some(r=>this.matches(r,control,o))
         || candidates.some(a=>(a.basis?.status!=='supported'||a.risk==='unknown'||['operation_requires_review','navigation_requires_review'].includes(a.exclusionReason||''))&&!reviewed(a.kind)));
-      return {control,actions:candidates,reviews,needsReview};
+      return {control,actions:candidates,reviews,needsReview,reuseCandidates:this.reuseCandidates(control,o,records)};
     });
     return {sessionId:o.sessionId,observationId:o.id,url:o.url,instanceScope:o.instanceScope,context:o.context,gaps:o.gaps,controls,pendingControlIds:controls.filter(c=>c.needsReview).map(c=>c.control.localId)};
   }
@@ -38,20 +55,22 @@ export class ControlReviews {
     this.store.put('control-review-request',{id:requestId,sessionId:o.sessionId,key});
     if(channel==='event')this.emit(o.sessionId,'control.review_requested',{observationId:o.id,localIds:m.pendingControlIds});return true;
   }
-  record(o:Observation,input:ControlReviewInput) {
+  record(o:Observation,input:ControlReviewInput, provenance?: ControlReviewRecord['reusedFrom'][]) {
     const parsed=controlReviewSchema.parse(input);
     if(parsed.observationId!==o.id||o.gaps.some(g=>g.critical))throw new EngineError('STALE_CONTROL_REVIEW','Review the latest complete observation');
     if(Object.values(o.context).some(v=>v.status!=='known'))throw new EngineError('UNKNOWN_REVIEW_CONTEXT','Resolve declared context before recording a control judgment');
     const seen=new Set<string>();
     // Validate the entire batch before replacing any active judgment.
-    const records=parsed.reviews.map(review=>{
+    const records: ControlReviewRecord[]=parsed.reviews.map((review,index)=>{
       const key=canonical([review.localId,review.kind]);const c=o.controls.find(c=>c.localId===review.localId);
       if(seen.has(key)||!c?.visible)throw new EngineError('INVALID_CONTROL_REVIEW','Review distinct visible current control operations');seen.add(key);
       if(review.exitBoundary && o.boundaries?.at(-1)?.key!==review.exitBoundary)throw new EngineError('INVALID_CONTROL_REVIEW','Exit judgment must name the current boundary');
       if(review.kind==='click' && c.actionBasis?.click?.evidence.some(e=>e.facts.submitsForm===true))throw new EngineError('INVALID_CONTROL_REVIEW','A native submission cannot be reclassified by an interface judgment');
       const conditions=controlReviewConditions(c,o,review.kind,review.exitBoundary);
       if(!conditions)throw new EngineError('INVALID_CONTROL_REVIEW','Current dispatch binding is unavailable');
-      return {...review,id:id(),sessionId:o.sessionId,observationId:o.id,source:parsed.source,at:now(),status:'active' as const,conditions,conditionKey:controlReviewKey(conditions)};
+      const reuseConditions = review.reuse ? controlReuseConditions(c,o,review.kind) : undefined;
+      if(review.reuse && !reuseConditions)throw new EngineError('INVALID_CONTROL_REVIEW','Reusable purposes require complete ordinary-control evidence outside lists and active boundaries');
+      return {...review,id:id(),sessionId:o.sessionId,observationId:o.id,source:parsed.source,at:now(),status:'active' as const,conditions,conditionKey:controlReviewKey(conditions),...(reuseConditions?{reuseConditions}:{}),...(provenance?.[index]?{reusedFrom:provenance[index]}:{})};
     });
     const existing=this.records(o.sessionId);
     for(const record of records){
@@ -62,11 +81,33 @@ export class ControlReviews {
     }
     return records;
   }
+  /** Explicitly issue new instance-bound judgments, never revive old approvals. */
+  reuse(o: Observation, input: ReuseControlReviewsInput) {
+    const parsed = reuseControlReviewsSchema.parse(input);
+    if (parsed.observationId !== o.id) throw new EngineError('STALE_CONTROL_REVIEW', 'Read current reuse material before deciding');
+    const sourceRecords = this.records(o.sessionId);
+    const sources = parsed.reviews.map(ref => {
+      const c = o.controls.find(c => c.localId === ref.localId);
+      const match = c && this.reuseCandidates(c,o,sourceRecords).find(m => m.review.id === ref.reviewId && m.conditionKey === ref.conditionKey);
+      if (!match || match.review.reuse!.businessScope !== parsed.businessScope) throw new EngineError('CONTROL_REVIEW_REUSE_MISMATCH','Source, business scope or current target conditions do not match; obtain a fresh judgment');
+      return match.review;
+    });
+    const records = this.record(o, { observationId:o.id, source:parsed.source, reviews:sources.map((r,i) => ({
+      localId:parsed.reviews[i].localId,kind:r.kind,risk:r.risk,replayable:false,reason:r.reason,
+      evidence:parsed.evidence,samples:r.samples,reuse:r.reuse,
+    })) }, sources.map((r,i)=>({reviewId:r.id,conditionKey:parsed.reviews[i].conditionKey,evidence:parsed.evidence})));
+    for (const record of records) this.emit(o.sessionId,'control.review_reused',record);
+    return records;
+  }
   revoke(sid:string,input:RevokeControlReviewInput) {
     const {reviewId,source,reason}=revokeControlReviewSchema.parse(input);const r=this.store.get<ControlReviewRecord>('control-review',reviewId);
     if(!r||r.sessionId!==sid)throw new EngineError('NOT_FOUND','Control review not found');
     if(r.status==='revoked')return r;
-    r.status='revoked';r.revocation={source,reason,at:now()};this.store.put('control-review',r);this.emit(sid,'control.review_revoked',r);return r;
+    r.status='revoked';r.revocation={source,reason,at:now()};this.store.put('control-review',r);this.emit(sid,'control.review_revoked',r);
+    for(const child of this.records(sid).filter(c=>c.status==='active'&&!this.sourceAvailable(c))){
+      child.status='invalidated';child.invalidation={observationId:child.observationId,reason:'reuse_source_unavailable',at:now()};this.store.put('control-review',child);this.emit(sid,'control.review_invalidated',child);
+    }
+    return r;
   }
   reconcile(o:Observation) {
     if(o.gaps.some(g=>g.critical))return;
@@ -93,6 +134,7 @@ export class ControlReviews {
           kind:review.kind,label:c.name||`Unnamed ${c.role}`,value,risk:review.risk,replayable:review.replayable,source:'control-review',excluded:false,sampleValidity:'shape_only',
           preconditions:{context:o.context,visible:c.visible,enabled:c.enabled,identityResolved:!c.hypothesisId}};
         const evidence:NonNullable<ActionCandidate['basis']>['evidence']=[...action.basis?.evidence||[],{source:review.source,rule,facts:{reviewId:review.id,conditionKey:review.conditionKey,sourceObservationId:review.observationId,reason:review.reason,evidence:review.evidence}}];
+        if(review.reusedFrom)evidence.push({source:review.source,rule:'reused-control-review/v1',facts:{reviewId:review.id,sourceReviewId:review.reusedFrom.reviewId,conditionKey:review.reusedFrom.conditionKey,businessScope:review.reuse!.businessScope}});
         if(review.exitBoundary)evidence.push({source:review.source,rule:'declared-boundary-exit/v1',facts:{reviewId:review.id,boundaryKey:review.exitBoundary,observationId:o.id,localId:c.localId,evidence:review.evidence}});
         result.push({...action,risk:review.risk,replayable:review.replayable,source:'control-review',basis:{status:'supported',evidence}});
       }
