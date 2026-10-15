@@ -1,3 +1,4 @@
+import { RegionReviews } from './region-reviews.js';
 import { contextKey } from '@interaction/core';
 import { PageExploration } from './page-exploration.js';
 export type { PageExplorationState } from './page-exploration.js';
@@ -28,11 +29,37 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   private readonly inspections: InspectionCoordinator;
   private readonly purposeReviews: PurposeReviews;
   private readonly pages: PageExploration;
-  protected override explorationScopes(actions: ActionCandidate[], o: Observation) { return this.pages.proposals(actions, o, this.session(o.sessionId)); }
+  private readonly regions: RegionReviews;
+  private readonly regionHook?: EngineHooks['regionReview'];
+  protected override async explorationScopes(actions: ActionCandidate[], o: Observation) {
+    const session = this.session(o.sessionId);
+    if (session.options.regionExploration !== 'review') return this.pages.proposals(actions, o, session);
+    this.regions.reconcile(o);
+    if (this.regions.request(o, actions, session) && this.regionHook) {
+      const material = this.regions.material(o, actions, session);
+      const result = await this.hook(o.sessionId, 'regionReview', () => this.regionHook!(structuredClone(material), structuredClone({ session, observation: o })));
+      if (result.value !== undefined) await this.hook(o.sessionId, 'regionReview-record', () => this.store.transaction(() => this.regions.record(o, actions, session, result.value!)));
+    }
+    return [...this.pages.proposals(actions, o, session), ...this.regions.proposals(o, actions)];
+  }
+  protected override afterExplorationDecisions(sid: string) { this.regions.gate(this.observation(sid), this.session(sid)); }
+  regionReviewMaterial(sid: string) { return this.regions.material(this.observation(sid), this.actions(sid), this.session(sid)); }
+  reviewRegions(sid: string, input: import('@interaction/adapter-playwright').RegionReviewInput) {
+    return this.enqueueMeasured(sid, async () => {
+      const o = this.observation(sid);
+      if (input.observationId !== o.id) throw new EngineError('STALE_REGION_REVIEW', 'Review the latest complete observation');
+      if (this.activeId !== sid || !this.driver?.connected()) throw new EngineError('BROWSER_UNAVAILABLE', 'Observe this session in a connected browser before reviewing regions');
+      if (await this.driver.preflight?.(o) !== 'valid') { await this.capture(sid, 'inspection'); throw new EngineError('STALE_REGION_REVIEW', 'Region facts changed; review the new observation'); }
+      const record = this.store.transaction(() => this.regions.record(o, this.actions(sid), this.session(sid), input));
+      await this.capture(sid, 'inspection');
+      return this.store.require<import('@interaction/adapter-playwright').RegionReviewRecord>('region-review', record.id);
+    });
+  }
   protected override explorationCandidates(items: import('@interaction/core').FrontierItem[], o: Observation) { return this.pages.candidates(items, o, this.session(o.sessionId)); }
-  protected override explorationIdleReason(sid: string) { return this.pages.idleReason(sid, this.session(sid)); }
+  protected override explorationIdleReason(sid: string) { return this.pages.idleReason(sid, this.session(sid)) || this.regions.idleReason(sid); }
   protected override async beforeExplorationStep(sid: string): Promise<'continue' | 'changed' | 'paused'> {
     const o = this.observation(sid);
+    this.regions.gate(o, this.session(sid));
     if (!this.pages.shouldReturn(o, this.session(sid), () => this.getFrontier(sid))) return 'continue';
     // Existing boundary scheduling can execute only current exits: page members remain gated.
     if (o.boundaries?.length) return 'continue';
@@ -145,6 +172,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     });
     super({ persistence: options.persistence instanceof RetainedPersistence ? options.persistence : new RetainedPersistence(options.persistence, options.retention), adapter: new PlaywrightAdapter(options.hooks), hooks: options.hooks });
     this.pages = new PageExploration(this.store);
+    this.regions = new RegionReviews(this.store, (sid, type, data) => this.publish(sid, type, data));
+    this.regionHook = options.hooks?.regionReview;
     this.inspections = new InspectionCoordinator(this, (sid, type, data) => this.publish(sid, type, data));
     this.purposeReviews = new PurposeReviews(this.store, (sid, type, data) => this.publish(sid, type, data));
   }
@@ -155,6 +184,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   async command(sessionId: string, input: unknown) {
     const command: Command = commandSchema.parse(input);
     switch (command.type) {
+      case 'reviewRegions': return this.reviewRegions(sessionId, command.review);
       case 'observe': return this.observe(sessionId);
       case 'inspect': return this.inspect(sessionId, command.region);
       case 'execute': return this.execute(sessionId, command.actionId, command.requestId, command.value);

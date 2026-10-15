@@ -16,7 +16,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   private readonly adapter: InteractionAdapter<O, S>;
   private readonly hooks: EngineHooks<O, S>;
   protected driver?: InteractionDriver<O, S>;
-  private activeId?: string;
+  protected activeId?: string;
   private queue: Promise<unknown> = Promise.resolve();
   private runner?: Promise<void>;
   private pauseRequested = true;
@@ -35,9 +35,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   protected async captureFailed(_sessionId: string, _observationId: string, _error: unknown): Promise<void> {}
   protected async beforeAction(_sessionId: string): Promise<void> {}
   /** Composition policy runs before final constraints; it must not alter captured facts. */
+  protected afterExplorationDecisions(_sessionId: string): void {}
   protected prepareActions(actions: ActionCandidate[], _observation: O): ActionCandidate[] { return actions; }
   protected validatePreparedAction(_action: ActionCandidate, _observation: O): void {}
-  protected explorationScopes(_actions: ActionCandidate[], _observation: O): import('./types.js').ExplorationGroupProposal[] { return []; }
+  protected explorationScopes(_actions: ActionCandidate[], _observation: O): import('./types.js').ExplorationGroupProposal[] | Promise<import('./types.js').ExplorationGroupProposal[]> { return []; }
   /** Composition navigation policy runs in the queue before scheduling any automatic work. */
   protected async beforeExplorationStep(_sessionId: string): Promise<'continue' | 'changed' | 'paused'> { return 'continue'; }
   protected explorationCandidates(items: FrontierItem[], _observation: O): FrontierItem[] { return items; }
@@ -62,7 +63,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if (committed && canonical(committed) === canonical(event)) this.events.emit('event', event);
     }); return event;
   }
-  private async hook<T>(sessionId: string, name: string, fn: () => Promise<T> | T): Promise<{ value?: T; error?: string }> {
+  protected async hook<T>(sessionId: string, name: string, fn: () => Promise<T> | T): Promise<{ value?: T; error?: string }> {
     try { return { value: await timeout(Promise.resolve().then(fn), 5000, `Hook ${name} timed out`) }; }
     catch (error) { const message = String(error); this.emit(sessionId, 'hook.error', { name, message }); return { error: message }; }
   }
@@ -83,7 +84,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   decideExplorationGroup(sessionId: string, groupId: string, revision: number, decision: ExplorationGroupDecision) {
     return this.enqueueMeasured(sessionId, async () => {
       this.session(sessionId);
-      return this.store.transaction(() => this.groups.decide(sessionId, groupId, revision, decision));
+      return this.store.transaction(() => { const result = this.groups.decide(sessionId, groupId, revision, decision); this.afterExplorationDecisions(sessionId); return result; });
     });
   }
   explorationReviewMaterial(sessionId: string) {
@@ -92,7 +93,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   decideExplorationGroups(sessionId: string, resolutions: ExplorationGroupResolution[]) {
     return this.enqueueMeasured(sessionId, async () => {
       this.session(sessionId);
-      return this.store.transaction(() => this.groups.decideMany(sessionId, resolutions));
+      return this.store.transaction(() => { const result = this.groups.decideMany(sessionId, resolutions); this.afterExplorationDecisions(sessionId); return result; });
     });
   }
   private outsideBoundary(action: ActionCandidate) { return action.preconditions.blockers?.some(b => b.code === 'outside_active_boundary'); }
@@ -142,7 +143,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       this.emit(sessionId, 'session.reattached', { note: 'Interaction entry reopened; previous business state has not been restored' });
     }
   }
-  private async capture(sessionId: string, cause: O['cause'], attemptId?: string, parentId?: string): Promise<O> {
+  protected async capture(sessionId: string, cause: O['cause'], attemptId?: string, parentId?: string): Promise<O> {
     let session = this.session(sessionId); const observationId = id();
     try {
     await this.beforeCapture(sessionId, observationId);
@@ -183,11 +184,12 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if (result.error) { o.gaps.push({ code: 'ACTION_HOOK_FAILED', message: result.error }); actions = actions.map(a => ({ ...a, excluded: true, exclusionReason: 'action_hook_failed' })); }
     }
     actions = this.prepareActions(actions, o).map(a => this.constrain({ ...a, stateId: o.stateId }, o, session));
+    const internalScopes = o.gaps.some(g => g.critical) ? [] : await this.explorationScopes(actions, o);
     const scopes = await this.hook(sessionId, 'explorationScopes', async () => {
       if (o.gaps.some(g => g.critical)) return [];
       const native = this.adapter.explorationGroups?.(actions, o, session, this.store.list<ExplorationGroup>('exploration-group', sessionId)) || [];
       const custom = this.hooks.explorationScopes ? await this.hooks.explorationScopes(structuredClone(actions), ctx()) : [];
-      return validateExplorationProposals([...native, ...this.explorationScopes(actions, o), ...validateExplorationProposals(custom, actions)], actions);
+      return validateExplorationProposals([...native, ...internalScopes, ...validateExplorationProposals(custom, actions)], actions);
     });
     if (scopes.error) {
       o.gaps.push({ code: 'EXPLORATION_SCOPE_HOOK_FAILED', message: scopes.error, critical: true });
@@ -316,6 +318,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       const result = await this.hook(sessionId, decisionHookName, () => decisionHook(structuredClone(group), ctx()));
       if (result.value !== undefined) await this.hook(sessionId, `${decisionHookName}-decision`, () => this.store.transaction(() => this.groups.decide(sessionId, group.id, group.revision, result.value!)));
     }
+    this.afterExplorationDecisions(sessionId);
     let resolvedByHook = false;
     for (const hypothesis of matched.hypotheses) if (this.hooks.identity) {
       const result = await this.hook(sessionId, 'identity', () => this.hooks.identity!(structuredClone(hypothesis), ctx()));

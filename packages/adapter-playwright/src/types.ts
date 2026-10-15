@@ -32,12 +32,32 @@ export interface Control extends CoreControl {
   purposeBinding?: { attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
   actionable: { visible: boolean; enabled: boolean; editable: boolean; hitTarget: boolean | null; clickPoint?: { x: number; y: number }; occludedBy?: string; outsideScrollableArea?: boolean; unknown: string[] };
 }
+export interface RegionCandidate {
+  id: string; label: string; selector: string; parentId?: string; controlIds: string[]; rect: Rect;
+  basis: 'heading' | 'semantic' | 'layout' | 'document'; suggested?: boolean; binding: Json; evidence: ActionEvidence[];
+}
+export interface RegionReviewInput {
+  observationId: string; source: string; evidence: string[];
+  regions: { key: string; label: string; candidateIds: string[]; controlIds?: string[]; pageTraversal?: boolean }[];
+  rejectedCandidateIds?: string[];
+}
+export interface RegionReviewRecord {
+  id: string; sessionId: string; observationId: string; instanceScope: string; url: string; contextKey: string; at: string;
+  source: string; evidence: string[]; status: 'active' | 'invalidated' | 'superseded'; rejectedCandidateIds: string[];
+  regions: { key: string; label: string; controlIds: string[]; pageTraversal: boolean; anchors: { id: string; fingerprint: string }[]; status: 'active' | 'invalidated'; invalidation?: { observationId: string; reason: string } }[];
+}
+export interface RegionReviewMaterial {
+  sessionId: string; observationId: string; enabled: boolean; candidates: RegionCandidate[];
+  controls: { localId: string; label: string; role: string; actionKinds: string[] }[];
+  review?: RegionReviewRecord; unassignedControlIds: string[]; unassignedPageTraversal: boolean;
+}
 export interface Observation extends CoreObservation<Control> {
   id: ID; sessionId: ID; capturedAt: string; screenshotAt?: string;
   url: string; title: string; text: string; viewport: { width: number; height: number }; scroll: { x: number; y: number; maxY: number };
   documentId: string; controls: Control[]; regions: Region[]; context: Context;
   overlays?: Overlay[];
   navigation?: BrowserHistory;
+  regionCandidates?: RegionCandidate[];
   actionDiscovery?: { version: 'dom-actions-v2'; documentHints: ActionEvidence[] };
   screenshot?: string; gaps: Gap[]; stable: boolean;
   evidence?: BrowserEvidenceManifest;
@@ -60,6 +80,7 @@ export interface SessionOptions {
   /** Entry page first; other pages require a scoped decision. Missing on legacy sessions means all. */
   pageExploration?: 'review' | 'all';
   /** Optional observed scopes that require upper-layer decisions before automatic exploration. */
+  regionExploration?: 'off' | 'review';
   decisionScopes?: ('region' | 'branch' | 'input-space')[];
   /** Application declarations; never inferred from button labels. */
   interfaceActions?: MatchRule[];
@@ -73,5 +94,6 @@ export type Session = CoreSession<SessionOptions>;
 export type ControlIdentity = CoreIdentity<Control>;
 export type HookContext = CoreHookContext<Observation, SessionOptions>;
 export interface EngineHooks extends CoreHooks<Observation, SessionOptions> {
+  regionReview?: (material: RegionReviewMaterial, ctx: HookContext) => Promise<RegionReviewInput | undefined> | RegionReviewInput | undefined;
   samples?: (control: Control, ctx: HookContext) => Promise<(string | boolean)[] | undefined> | (string | boolean)[] | undefined;
 }

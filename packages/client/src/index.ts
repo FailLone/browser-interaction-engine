@@ -59,6 +59,8 @@ export class InteractionClient {
   scopeDiffDetails(id: string, scopeId: string) { return this.request<BrowserDiffDetails>(`/sessions/${encodeURIComponent(id)}/scopes/${encodeURIComponent(scopeId)}/diff/details`); }
   frontier(id: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.list<FrontierItemView>(id, 'frontier', options); }
   explorationGroups(id: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.list<import('@interaction/browser').ExplorationGroup>(id, 'exploration-groups', options); }
+  regionReviewMaterial(id: string) { return this.request<import('@interaction/browser').RegionReviewMaterial>(`/sessions/${encodeURIComponent(id)}/region-review`); }
+  reviewRegions(id: string, review: import('@interaction/browser').RegionReviewInput) { return this.command<import('@interaction/browser').RegionReviewRecord>(id, { type: 'reviewRegions', review: { ...review, rejectedCandidateIds: review.rejectedCandidateIds || [], regions: review.regions.map(r => ({ ...r, pageTraversal: r.pageTraversal || false })) } }); }
   explorationReviewMaterial(id: string) { return this.request<import('@interaction/browser').ExplorationReviewMaterial>(`/sessions/${encodeURIComponent(id)}/exploration-review`); }
   decideExplorationGroups(id: string, resolutions: import('@interaction/browser').ExplorationGroupResolution[]) {
     return this.command<import('@interaction/browser').ExplorationGroup[]>(id, { type: 'decideExplorationGroups', resolutions });
