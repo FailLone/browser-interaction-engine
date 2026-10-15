@@ -32,3 +32,7 @@
 已在 `9cd7bd5` 合入基线正式提交 `ea45a38`，没有复制其组件、探测或补采实现。集成测试发现基线的既有外层边界判断会阻止对话框内列表采用其浮动面板；`085c805` 只修正这处组合判断，继续使用原 popup-relations。新增真实浏览器通用用例成功滚动并逐项点击 12 个选项，外层控件仍被阻塞。
 
 合并修复后的完整回归为 **74 文件 / 538 项全部通过**；typecheck、build、smoke:built 通过。完整日志保留在 `work/integrated-scoped-full.log`，定向集成 41 项通过记录在 `work/integrated-popup-targeted.log`。这些是程序回归结果，随后使用 `work/integrated-scoped-retest-2026-10-15/` 冻结并启动新一轮独立真实页面验收。
+
+## 后续独立验收
+
+合并后的新一轮独立 5.6 / low 验收已完成：[功能样本 49/49 成功、17/17 选项有结果证据，但严格范围闭合未成立](../integrated-scoped-acceptance-2026-10-15/README.md)。该轮不改变本目录的旧快照与结论。

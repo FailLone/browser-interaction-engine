@@ -1,0 +1,30 @@
+
+> browser-interaction-engine@0.1.0 build /Users/xietian/.codex/worktrees/okx-observation-stability/browser-interaction-engine
+> node scripts/clean-build.mjs && tsc -p tsconfig.build.json && node scripts/package-build.mjs && pnpm --filter @interaction/ui build && pnpm --filter @interaction/test-site build
+
+
+> @interaction/ui@0.1.0 build /Users/xietian/.codex/worktrees/okx-observation-stability/browser-interaction-engine/apps/ui
+> vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 48 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.39 kB │ gzip:   0.31 kB
+dist/assets/index-BSVSGOmQ.css   24.51 kB │ gzip:   5.95 kB
+dist/assets/index-0GgODlLT.js   351.44 kB │ gzip: 113.38 kB
+✓ built in 596ms
+
+> @interaction/test-site@0.1.0 build /Users/xietian/.codex/worktrees/okx-observation-stability/browser-interaction-engine/apps/test-site
+> vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 29 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.37 kB │ gzip:  0.27 kB
+dist/assets/index-B3ioVGoM.css    1.50 kB │ gzip:  0.73 kB
+dist/assets/index-C539Evv4.js   226.81 kB │ gzip: 70.61 kB
+✓ built in 505ms

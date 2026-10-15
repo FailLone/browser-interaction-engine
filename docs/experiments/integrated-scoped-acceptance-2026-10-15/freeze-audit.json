@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-15T09:01:47.119042+00:00",
+  "expectedHead": "a512747e30b24a009b193db8798b0225f103b9cd",
+  "actualHead": "a512747e30b24a009b193db8798b0225f103b9cd",
+  "trackedStatus": "",
+  "trackedFilesChecked": 514,
+  "hashMismatches": [],
+  "parentAudit": "Read-only persisted collection reads after request 170; no browser actions or new decisions."
+}

@@ -1,0 +1,531 @@
+
+> browser-interaction-engine@0.1.0 test /Users/xietian/.codex/worktrees/okx-observation-stability/browser-interaction-engine
+> vitest run
+
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/okx-observation-stability/browser-interaction-engine
+
+ ✓ tests/control-exploration.test.ts (7 tests) 41830ms
+   ✓ covers the entire fixture with generic defaults, renamed/reordered=false  15798ms
+   ✓ covers the entire fixture with generic defaults, renamed/reordered=true  13906ms
+   ✓ isolates passive volatility while preserving full evidence, strict checkpoints, and live preconditions  1116ms
+   ✓ does not transfer an unresolved instance target to a replacement node  500ms
+   ✓ does not accept a volatile editable target as settled or ignore a declared read-only context  2022ms
+   ✓ keeps exclusions, disabled controls and an inadequate budget visible as incomplete coverage  729ms
+   ✓ continues traversal through newly exposed controls instead of treating a scroll as a control  7758ms
+ ✓ tests/live-content.test.ts (33 tests) 38993ms
+   ✓ finishes finite control traversal while quotes and canvas never settle (variant false)  2369ms
+   ✓ finishes finite control traversal while quotes and canvas never settle (variant true)  2032ms
+   ✓ keeps a row binding through changing passive cells and reorder, but invalidates a recycled record  825ms
+   ✓ does not infer record identity from links shared by multiple rows  363ms
+   ✓ does not suppress autonomous changes in button semantics  1676ms
+   ✓ does not suppress autonomous changes in input semantics  1653ms
+   ✓ does not suppress autonomous changes in label semantics  1665ms
+   ✓ rechecks declared business context even when the same readout qualifies as live display  718ms
+   ✓ keeps strict stateful sampling strict on a perpetually changing link  709ms
+   ✓ stops repeated preflight invalidations across resume, then recovers after a successful action  2386ms
+   ✓ ignores unrelated layout movement but validates target layout and occlusion  1127ms
+   ✓ revokes a learned live projection when a numeric readout becomes meaningful text  2079ms
+   ✓ traverses records with no links or declared keys while formatted display cells keep updating  1470ms
+   ✓ does not merge duplicate projected descriptions or remove numeric record identifiers  681ms
+   ✓ does not reset preflight failures when their fresh captures alternate between complete and incomplete  1665ms
+   ✓ tolerates a slow formatted readout without waiting for two ticks, while retaining exact link semantics  908ms
+   ✓ records chart-period toggles and rejects changed selection before another action  888ms
+   ✓ validates the chosen weak target even when passive controls are excluded from global settling  638ms
+   ✓ does not inherit coverage after rebuilding a row with only inferred description identity  1101ms
+   ✓ does not inherit coverage after rebuilding a row with only inferred shared-destination identity  1191ms
+   ✓ retains coverage for an explicitly keyed record after rebuilding its price display  910ms
+   ✓ validates native field operations against their form while preserving other forms in evidence  930ms
+   ✓ rejects a changed native dependency: sibling-value  659ms
+   ✓ rejects a changed native dependency: external-associated-field  629ms
+   ✓ rejects a changed native dependency: form-destination  631ms
+   ✓ rejects a changed native dependency: target-position  632ms
+   ✓ keeps cross-form relationships and submission validation global  870ms
+   ✓ continues stable form operations while another form never settles and reports the remaining gap  1215ms
+   ✓ budgets stale form dependencies independently, keeps the failure across resume, and clears only verified recovery  2851ms
+   ✓ does not call an action successful just because an unrelated form settled afterward  689ms
+   ✓ does not localize a declared business-context change or a newly opened modal  913ms
+   ✓ cannot reset the retry budget by rebuilding the form before every preflight  1283ms
+   ✓ does not ignore incoming relationships from controls outside the form  634ms
+ ✓ tests/ui-history.e2e.test.ts (11 tests) 24166ms
+   ✓ changes the diff and both images with the selected visit, including repeated states  2737ms
+   ✓ compares supplemental observations to their parent and keeps history pinned during SSE refresh  2162ms
+   ✓ ignores delayed history responses after selecting another visit or returning to current  2012ms
+   ✓ clears a previous session comparison and ignores its outstanding history response  2522ms
+   ✓ shows a failed history read without displaying the latest action as its diff  1792ms
+   ✓ loads the selected attempt when it is outside the dashboard first page  1920ms
+   ✓ shows readable field meaning, historical control evidence and matching screenshot regions  2195ms
+   ✓ ignores a delayed detail response after selecting another visit  1759ms
+   ✓ preserves readable changes when evidence is released, and opens full historical evidence on demand  1770ms
+   ✓ shows an explicit image failure if availability changes after the detail response  1658ms
+   ✓ keeps identity candidates inside gaps, including legacy supplements and uncertainty without changes  3467ms
+ ✓ tests/control-reviews.test.ts (22 tests) 22643ms
+   ✓ publishes deduplicated materials and executes a durable reviewed custom control without rewriting its observation  722ms
+   ✓ does not persist a late control hook result  5442ms
+   ✓ publishes queryable requests for the final caller policy and requests again after revocation  485ms
+   ✓ does not record an approval when its live preflight finishes after the hook deadline  5560ms
+   ✓ atomically rejects stale, duplicate, invisible and malformed reviews  402ms
+   ✓ invalidates replace conditions before dispatch and never revives an old judgment  591ms
+   ✓ invalidates href conditions before dispatch and never revives an old judgment  559ms
+   ✓ invalidates parent conditions before dispatch and never revives an old judgment  620ms
+   ✓ invalidates handler conditions before dispatch and never revives an old judgment  615ms
+   ✓ invalidates url conditions before dispatch and never revives an old judgment  601ms
+   ✓ invalidates context conditions before dispatch and never revives an old judgment  580ms
+   ✓ supports sampled inputs while preserving constraints, availability and native submission risk  631ms
+   ✓ binds associated form endpoints and refuses a judgment with unknown declared context  754ms
+   ✓ checks changed read-only target bindings without blocking unrelated actions  609ms
+   ✓ keeps reviewed field validation scoped while checking dependent control bindings (sameForm=false)  514ms
+   ✓ keeps reviewed field validation scoped while checking dependent control bindings (sameForm=true)  479ms
+   ✓ uses a sourced current exit, verifies its result and expires the boundary-bound review  534ms
+   ✓ supports reviewed hover without clicking and preserves occlusion and explicit exclusions  767ms
+   ✓ replaces and revokes queued judgments without resurrecting earlier approvals or erasing execution  693ms
+   ✓ serves review materials, records and revocation over HTTP with session isolation  424ms
+   ✓ keeps SQLite review history across restart but invalidates grants for the new browser document  767ms
+ ✓ tests/engine.e2e.test.ts (16 tests) 22532ms
+   ✓ Real Chromium interaction engine > tracks portal menus, persistent selector identity and cumulative parent effects  1423ms
+   ✓ Real Chromium interaction engine > matches React rebuilds and records business bindings independently  894ms
+   ✓ Real Chromium interaction engine > does not silently match duplicate labels and accepts sourced decisions  907ms
+   ✓ Real Chromium interaction engine > merges equivalent observable states but keeps separate paths  1335ms
+   ✓ Real Chromium interaction engine > returns verified, acceptable, changed, unreachable and unverified recovery results  3021ms
+   ✓ Real Chromium interaction engine > replays a checkpoint path from entry and verifies each intermediate state  1765ms
+   ✓ Real Chromium interaction engine > rejects stale observations, records gaps and executes the same request only once  1063ms
+   ✓ Real Chromium interaction engine > runs bounded DFS and preserves exclusions and remaining work  1269ms
+   ✓ Real Chromium interaction engine > serializes competing SDK commands and keeps the first source observation immutable  680ms
+   ✓ Real Chromium interaction engine > isolates hook failures and publishes checker issues without model dependencies  681ms
+   ✓ Real Chromium interaction engine > detects a reused node with changed business binding and context outside controls  808ms
+   ✓ Real Chromium interaction engine > retains unstable observations and returns an unverified checkpoint result  2162ms
+   ✓ Real Chromium interaction engine > uses reset evidence before replaying a write path and persists every recovery action  1560ms
+   ✓ Real Chromium interaction engine > validates native input constraints and replays caller supplied values  1806ms
+   ✓ Real Chromium interaction engine > stops a replay after a divergent intermediate observation  1574ms
+   ✓ Real Chromium interaction engine > starts a new visit root when reattaching a stopped session without losing its history  1543ms
+ ✓ tests/discovery-scans.test.ts (18 tests) 22161ms
+   ✓ locates omitted signals and supplements a bounded window without granting or executing an action  983ms
+   ✓ locates a depth limit and discovers a list only after bounded supplementation  375ms
+   ✓ locates a nodes limit and discovers a list only after bounded supplementation  392ms
+   ✓ reports partial sibling windows with exact owner and never calls them complete  934ms
+   ✓ locates the collection cap and expands it only to the explicitly requested bound  5588ms
+   ✓ retains the critical main-control cap even when supplementary signal scanning is requested  5681ms
+   ✓ replaces the active window rather than accumulating unbounded nodes, keeping both observations and records  2163ms
+   ✓ invalidates a supplemental window after insert and never revives it  487ms
+   ✓ invalidates a supplemental window after replace and never revives it  486ms
+   ✓ invalidates a supplemental window after reparent and never revives it  520ms
+   ✓ invalidates a supplemental window after url and never revives it  499ms
+   ✓ invalidates a supplemental window after reload and never revives it  515ms
+   ✓ retains a read-only scan through text changes but rejects a stale topology even when ordinary controls did not change  544ms
+   ✓ rechecks an active supplemental window before dispatching an otherwise unchanged native operation  455ms
+   ✓ rejects stale observations, arbitrary roots, empty evidence and invalid budgets before recording a plan  317ms
+   ✓ publishes queryable deduplicated requests and serves materials, commands and records through the SDK/HTTP  1276ms
+   ✓ keeps SQLite records across restart and invalidates the old document plan  665ms
+ ✓ tests/page-exploration.test.ts (19 tests) 20349ms
+   ✓ defaults to entry-page work before known navigation, then returns without spending the budget on the destination  1122ms
+   ✓ catches an unannounced button navigation and resumes the remaining entry-page controls  1129ms
+   ✓ uses the existing decision hook for a destination without implicitly permitting the next destination  1284ms
+   ✓ decides a pending page asynchronously through SDK/HTTP after returning to A, and only executes its selected sample  1839ms
+   ✓ can skip a static destination with no actions and retains the page-level request  1062ms
+   ✓ closes a current destination boundary before returning and never operates its unapproved content  1144ms
+   ✓ pauses with a return blocker when navigation replaced the source history entry  720ms
+   ✓ uses another observed source-page history entry only in the same declared context (changed=false)  1222ms
+   ✓ uses another observed source-page history entry only in the same declared context (changed=true)  879ms
+   ✓ explicit all retains cross-page exploration, while explicit single actions do not start a traversal  907ms
+   ✓ invalidates context-bound page decisions on business-context changes while ordinary scopes remain document-bound  902ms
+   ✓ gates same-document URL changes to /a?panel=b and verifies native return  1066ms
+   ✓ gates same-document URL changes to /a#b and verifies native return  1082ms
+   ✓ keeps an unapproved page untouched when dirty blocks the return  941ms
+   ✓ keeps an unapproved page untouched when excluded blocks the return  734ms
+   ✓ preserves the previous traversal policy for persisted legacy sessions with no page option  898ms
+   ✓ uses the actual initial redirect destination as the entry page  674ms
+   ✓ returns from a sampled page when its selected work exceeds the depth budget  901ms
+   ✓ keeps page batch decisions finite and includes the pending next destination after return  1841ms
+ ✓ tests/nonmodal-reentry.test.ts (9 tests) 15269ms
+   ✓ re-enters nested nonmodal branches from observed reveals and preserves the current draft  2051ms
+   ✓ records a no-effect entry as unverified revelation and bounds retries without counting the missing work  1482ms
+   ✓ respects current entry permissions: not-replayable  1366ms
+   ✓ respects current entry permissions: excluded  1397ms
+   ✓ does not borrow a reveal path from a different declared business context  1201ms
+   ✓ requires fresh reveal evidence after the document is replaced  1937ms
+   ✓ uses a delayed reveal observed before the next action and cites the actual later observation  2996ms
+   ✓ does not attribute a later reveal across an intervening action without replay permission  1599ms
+   ✓ does not mistake an identity decision about a visible control for an observed reveal  1238ms
+ ✓ tests/control-classifications.test.ts (24 tests) 18054ms
+   ✓ classifies a weak display with provenance, removes review noise and never counts it as execution  448ms
+   ✓ retires only an unattempted tentative container operation and keeps child operations available  646ms
+   ✓ records interaction without granting an operation or silently dismissing uncertainty  474ms
+   ✓ records probe_required without granting an operation or silently dismissing uncertainty  480ms
+   ✓ records unresolved without granting an operation or silently dismissing uncertainty  453ms
+   ✓ requires complete bounded structure and rejects stale, duplicate, hidden and evidence-free classifications  645ms
+   ✓ invalidates replace and keeps the old classification as history  543ms
+   ✓ invalidates parent and keeps the old classification as history  512ms
+   ✓ invalidates structure and keeps the old classification as history  521ms
+   ✓ invalidates text and keeps the old classification as history  513ms
+   ✓ invalidates handler and keeps the old classification as history  540ms
+   ✓ invalidates context and keeps the old classification as history  568ms
+   ✓ invalidates url and keeps the old classification as history  523ms
+   ✓ invalidates capability and keeps the old classification as history  571ms
+   ✓ rejects structure changed during review and an unknown declared context  779ms
+   ✓ lets a later supported review override a negative interpretation while preserving that interpretation as invalid history  567ms
+   ✓ does not erase executed tentative probes or unresolved observations in another context  559ms
+   ✓ preserves a supported operation added by the final caller policy after the classification hook  304ms
+   ✓ replaces and revokes classifications without reviving an old dismissal  615ms
+   ✓ runs a classification hook without granting operations and suppresses duplicate requests  394ms
+   ✓ does not persist a classification whose live preflight finishes after the hook deadline  5573ms
+   ✓ publishes queryable deduplicated requests and supports HTTP classification, revocation and session isolation  744ms
+   ✓ preserves SQLite classification history but a new document needs a fresh decision  789ms
+ ✓ tests/region-reviews.test.ts (17 tests) 16841ms
+   ✓ finds unlabelled containers, requires confirmation and separate decisions, and keeps ordinary value edits valid  1064ms
+   ✓ supports splits, merges and rejection while preserving uncovered work and atomically rejecting bad partitions  968ms
+   ✓ invalidates affected region before dispatch after replace and never revives old approval  563ms
+   ✓ invalidates affected region before dispatch after move and never revives old approval  548ms
+   ✓ invalidates affected region before dispatch after heading and never revives old approval  668ms
+   ✓ invalidates affected region before dispatch after new-control and never revives old approval  567ms
+   ✓ invalidates affected region before dispatch after context and never revives old approval  542ms
+   ✓ invalidates affected region before dispatch after reload and never revives old approval  555ms
+   ✓ keeps same-name regions separate and exposes layout-only evidence without inventing a business label  301ms
+   ✓ keeps candidate review hooks bounded and never lets a scheduling hook authorize unassigned controls  516ms
+   ✓ uses a synchronous region-review result and then the existing exploration hook in one capture  702ms
+   ✓ queries and records through SDK/HTTP, checks live facts on review and rejects old observations  622ms
+   ✓ does not persist a region decision returned after the hook deadline  5548ms
+   ✓ keeps document traversal gated until it is explicitly assigned and an all decision permits discovery  1202ms
+   ✓ retains exits and page boundaries while requiring a new region review at a destination  1550ms
+   ✓ rejects a review for an inactive session without using another session browser  621ms
+   ✓ keeps a complete fallback for controls deeper than the candidate ancestor scan  304ms
+ ✓ tests/structural-lists.test.ts (18 tests) 17046ms
+   ✓ defers nonsemantic repeated records, does other work first and executes only the caller sample  922ms
+   ✓ recognizes native list records and separates corresponding operation slots without merging identities or purposes  746ms
+   ✓ offers tentative inherited-pointer rows for review without granting clicks or sharing a single approval  781ms
+   ✓ discovers pointer-only custom rows even when the cursor is inherited and no handler is enumerated  394ms
+   ✓ retains the collection when it grows or shrinks and rejects stale batch versions  618ms
+   ✓ does not transfer a sample or control review when a virtual row node represents a new record  527ms
+   ✓ requires a new collection decision after replace and never revives the old grant  520ms
+   ✓ requires a new collection decision after label and never revives the old grant  505ms
+   ✓ requires a new collection decision after parent and never revives the old grant  579ms
+   ✓ requires a new collection decision after context and never revives the old grant  535ms
+   ✓ keeps virtual scrolling gated through an empty window and traverses all only after an explicit decision  6103ms
+   ✓ does not infer a record list from flat menu commands  666ms
+   ✓ preserves discovery in all mode without granting tentative pointer-row clicks  398ms
+   ✓ keeps nested records in their nearest collection and reports oversized discovery limits  530ms
+   ✓ invalidates changed record operations without accumulating empty decision requests or reviving approvals  706ms
+   ✓ retains a hidden collection decision so a deferred popup can be reopened without fresh approval  1913ms
+   ✓ keeps duplicate controls within a custom record ambiguous despite distinct structural slots  303ms
+ ✓ tests/list-decisions.test.ts (14 tests) 15627ms
+   ✓ requests a list decision once, explores other work and waits without counting deferred choices as covered  846ms
+   ✓ accepts an immediate all decision but prioritizes ordinary work and keeps the original risk and permissions  998ms
+   ✓ executes only explicitly sampled members, preserves remaining gaps, and can later exhaust the group  929ms
+   ✓ preserves deferred decisions and treats a failed or invalid hook as unanswered  1164ms
+   ✓ updates a growing list without repeating the request, and does not apply an old sample to a replacement business item  1020ms
+   ✓ exits a popup with deferred choices before exploring its parent, and later reenters after a decision  1769ms
+   ✓ defers list scrolling with its members, then discovers and executes virtualized choices after an all decision  4624ms
+   ✓ keeps a popup boundary when no exit works instead of dispatching parent work around the decision  529ms
+   ✓ serves durable group events and revision-checked decisions through the SDK and HTTP API  605ms
+   ✓ invalidates list ownership before dispatch and asks again for a replacement list, context or document  653ms
+   ✓ allows one explicit manual operation without implicitly approving the rest of the list  527ms
+   ✓ supports an explicit whole-session all policy and does not lift disabled or excluded members through a group decision  1383ms
+ ✓ tests/interaction-freshness.test.ts (20 tests) 15160ms
+   ✓ records and dispatches a stable modal exit despite changing background controls, retaining full before/after evidence  818ms
+   ✓ settles the active boundary while native background controls keep updating, without calling the full page stable  567ms
+   ✓ rejects a current modal exit after inside-value changes  736ms
+   ✓ rejects a current modal exit after target-name changes  739ms
+   ✓ rejects a current modal exit after target-parent changes  707ms
+   ✓ rejects a current modal exit after target-replace changes  720ms
+   ✓ rejects a current modal exit after target-disable changes  717ms
+   ✓ rejects a current modal exit after target-handler changes  721ms
+   ✓ rejects a current modal exit after occlude changes  729ms
+   ✓ rejects a current modal exit after new-modal changes  763ms
+   ✓ rejects a current modal exit after owner-replace changes  722ms
+   ✓ rejects a current modal exit after url changes  740ms
+   ✓ rejects a current modal exit after context changes  740ms
+   ✓ keeps stateful preflight strict and does not ignore an outside target  1056ms
+   ✓ does not accept an obsolete tentative target description as a current control judgment  522ms
+   ✓ returns by verified native history while unrelated destination controls change, without exploring them  918ms
+   ✓ does not use history-scoped freshness to ignore a changed modal  894ms
+   ✓ does not use history-scoped freshness to ignore a changed url  911ms
+   ✓ does not use history-scoped freshness to ignore a changed context  887ms
+   ✓ allows a current boundary Escape after background changes but does not grant whole-page stability  550ms
+ ✓ tests/reviewed-boundary-exit.test.ts (12 tests) 11572ms
+   ✓ accepts a sourced external toggle for the current boundary and verifies its actual exit  958ms
+   ✓ uses a freshly reviewed exit during checkpoint recovery without granting historical replay  808ms
+   ✓ retires unused reviewed exits after observing their boundary closed, without counting them as executed  1395ms
+   ✓ rejects stale, mismatched and unsourced exit declarations without permitting background work  1005ms
+   ✓ retires old-document exits after navigation, including when the new document has a matching boundary key (false)  749ms
+   ✓ retires old-document exits after navigation, including when the new document has a matching boundary key (true)  942ms
+   ✓ does not accept a successful no-op click as an exit, or waive pointer interception  855ms
+   ✓ does not downgrade native submission risk or declare it a reviewed boundary exit  571ms
+   ✓ bounds ineffective exit attempts even when the sourced declaration refreshes each observation  1018ms
+   ✓ does not reschedule an ineffective boundary exit just because its observation evidence changed  1008ms
+   ✓ allows another exit attempt after an intervening interaction changes the boundary  1267ms
+   ✓ uses a unique current exit instance with ambiguous historical identity, without granting replay  994ms
+ ✓ tests/navigation-return.test.ts (10 tests) 11482ms
+   ✓ returns to a known native GET entry without replaying a nonreplayable prefix, including forward history  1606ms
+   ✓ continues original-page control work through native return without claiming checkpoint equality  1349ms
+   ✓ does not turn reaching the same URL into proof that the original state was restored  1094ms
+   ✓ uses the exact native entry when multiple history entries share a URL  1104ms
+   ✓ rejects a stale native history pointer even when URL and DOM remain unchanged  691ms
+   ✓ never revisits a POST result through native history, even when the post was outside the engine  1266ms
+   ✓ respects dirty restrictions on native return  1154ms
+   ✓ respects excluded restrictions on native return  951ms
+   ✓ does not use a history entry from a replaced browser session  1074ms
+   ✓ exits a boundary that appears on native return before continuing checkpoint recovery  1193ms
+ ✓ tests/overlays.e2e.test.ts (11 tests) 11159ms
+   ✓ explores the initially open modal before parent controls and defers its close button  1069ms
+   ✓ explores the initially open aria before parent controls and defers its close button  1014ms
+   ✓ explores the initially open custom before parent controls and defers its close button  1003ms
+   ✓ explores the initially open popover before parent controls and defers its close button  994ms
+   ✓ tracks nested portalled popovers and returns to their modal before the page  2060ms
+   ✓ keeps parent exploration suspended when no operation can close a modal  641ms
+   ✓ offers an exit at the depth limit, but still respects the action budget  835ms
+   ✓ detects newly opened overlays before using an old parent action  478ms
+   ✓ closes a popover and verifies the parent checkpoint during recovery  820ms
+   ✓ recovers through nested exits without executing a blocked parent action  1328ms
+   ✓ keeps inline expanded sections outside the exclusive boundary model  877ms
+ ✓ tests/exploration-recovery.test.ts (9 tests) 10884ms
+   ✓ samples ordinary field values without duplicating the page or rewriting actual execution evidence  1396ms
+   ✓ retains distinct samples when constraints, structure, or declared business context changes  1590ms
+   ✓ keeps stateful exploration and legacy sessions on strict per-state cases  690ms
+   ✓ restores declared reversible fields locally with full verification and a durable recovery ledger  1657ms
+   ✓ stops a declared inverse on unexpected effects instead of accepting the target field alone  1045ms
+   ✓ reports the actual unknown action that blocked recovery and does not assume reload resets business state  1053ms
+   ✓ executes a configured document reset once, verifies it, and clears only reset-confirmed dirty origins  1506ms
+   ✓ does not bypass action budgets during local restoration  824ms
+   ✓ preserves boundary depth limits in representative mode while allowing verified exits  1090ms
+ ✓ tests/observation-lifecycle.test.ts (9 tests) 8951ms
+   ✓ waits through a missing body after an action and compares the rebuilt document  793ms
+   ✓ persists a partial observation after the body disappears, without false removals or retries  2107ms
+   ✓ handles an absent document element as partial evidence  700ms
+   ✓ retries transient destroyed contexts and preserves persistent capture failures  1146ms
+   ✓ keeps a boundary open until a complete observation verifies its exit  1027ms
+   ✓ preserves observation facts when post-action discovery loses the execution context  499ms
+   ✓ re-samples a transition during detailed capture without repeating the controls action  793ms
+   ✓ re-samples a transition during detailed capture without repeating the stateful action  846ms
+   ✓ keeps persistent sampling/capture changes incomplete when the original observation budget runs out  1006ms
+ ✓ tests/purpose-reuse.test.ts (11 tests) 9877ms
+   ✓ reuses one purpose judgment while executing every list item independently after an all decision  1277ms
+   ✓ keeps purpose reuse independent of pending, sample and defer traversal decisions  887ms
+   ✓ reuses for newly revealed matching members, but not changed structures, unrelated lists or submission actions  532ms
+   ✓ rejects dispatch after the current node or its dispatch attributes change, without granting historical identity  630ms
+   ✓ invalidates reuse on business context change and does not reactivate it when the context returns  639ms
+   ✓ invalidates list-owner reconstruction and document reload, and refuses unknown business context  1571ms
+   ✓ retains disabled, excluded and occluded target checks after accepting a group purpose  716ms
+   ✓ serves review material and durable records over HTTP, rejects stale input, and revokes already prepared actions  1155ms
+   ✓ retains purpose records across restart but invalidates them before use in a new browser document  733ms
+   ✓ supersedes an earlier purpose judgment so revoking its replacement cannot resurrect it  615ms
+   ✓ reuses a native-select purpose across values but detects a changed associated form endpoint before dispatch  1120ms
+ ✓ tests/frontier-recovery.test.ts (7 tests) 9227ms
+   ✓ keeps parent candidates inspectable without duplicating their frontier under an overlay  1791ms
+   ✓ preserves outer-layer work across a nested popup without creating inner-state copies  1063ms
+   ✓ omits legacy boundary-only rows consistently from API totals, reports and recovery counts without rewriting history  1091ms
+   ✓ can restore an earlier branch after Done closes settings and a later input changes  1960ms
+   ✓ treats native method=dialog dismissal as an interface operation  561ms
+   ✓ honors a dialog submitter override without treating every button inside its form as an exit  873ms
+   ✓ distinguishes form cancellation from submission and never submits a close-labelled button during recovery  1845ms
+ ✓ tests/inspection.test.ts (12 tests) 8392ms
+   ✓ publishes after persisted evidence, focuses popup scopes and compares restored parent with scope entry  1290ms
+   ✓ accepts a child scroll container, handles preexisting scroll and emits checks for style-only changes  1291ms
+   ✓ reports an initially open popup without inventing a before-entry baseline, and marks navigation/viewport changes  640ms
+   ✓ keeps finite independent leases, separates receipt from completion, bounds renewal and rejects conflicting results  536ms
+   ✓ validates required capabilities and retention before navigation, and reports truncated required data without pass  327ms
+   ✓ restores durable delivery metadata with honest cache evidence availability  368ms
+   ✓ restores durable delivery metadata with honest persistent evidence availability  382ms
+   ✓ exposes replayable inspection and immutable capture queries through HTTP and SDK  575ms
+   ✓ reports disabled, missing screenshots, capacity failures and unstable captures explicitly  1239ms
+   ✓ handles background growth and scroll normalization, supports field projections and does not reinterpret unknown schemas  683ms
+   ✓ still emits an inspection when an action changed the page and then failed  519ms
+   ✓ rechecks strict delivery guarantees after a slow preflight and before starting the action  506ms
+ ✓ tests/exploration-scopes-browser.test.ts (12 tests) 7830ms
+   ✓ keeps new browser producers opt-in and permits custom scopes over arbitrary current actions  906ms
+   ✓ selects regions by external goals, continuing permitted work while another region is deferred or skipped  652ms
+   ✓ gates a single branch entry without preapproving the newly revealed child region, and always retains its exit  871ms
+   ✓ samples an input space without enumerating its remaining values or conflating scope and execution coverage  660ms
+   ✓ checks rebuilt region ownership before dispatch, invalidates its old decision, and never reuses it after document reload  585ms
+   ✓ invalidates input constraints and branch target changes while preserving ordinary safety blockers  490ms
+   ✓ combines list and generic scope decisions and exposes skip through the SDK/HTTP protocol  758ms
+   ✓ keeps identically named regions distinct using observed owner instances  529ms
+   ✓ binds a detected popup scope to its owner even without an inner semantic region  590ms
+   ✓ rejects a previously approved target moved into a different identically named region  873ms
+   ✓ organizes scopes by exact observed region and boundary owners, with stable collections across captures  407ms
+   ✓ queries unified material and atomically applies mixed sample decisions through SDK/HTTP  506ms
+ ✓ tests/identity-lists.e2e.test.ts (9 tests) 6999ms
+   ✓ recognizes keyed list records after reorder, rebuild, insertion and return from a virtual viewport  873ms
+   ✓ recognizes semantic list records after reorder, rebuild, insertion and return from a virtual viewport  871ms
+   ✓ keeps same-item duplicate buttons ambiguous and never transfers their decision to a recycled record  683ms
+   ✓ distinguishes repeated local control keys in separate named lists and refuses duplicate declared record keys  618ms
+   ✓ does not mistake reusable slot IDs or repeated test IDs for business record keys when row evidence is missing  470ms
+   ✓ ignores editable values in row descriptions and rejects overlong labels instead of matching truncated prefixes  663ms
+   ✓ keeps parent and tab identities when an unowned floating child panel loads, updates or filters its content  1431ms
+   ✓ separates nested record descriptions while retaining their complete parent binding  650ms
+   ✓ retains an ordinary positioned record label instead of treating every positioned node as a popup  704ms
+ ✓ tests/container-scroll.test.ts (3 tests) 6169ms
+   ✓ traverses a virtual list viewport, exercises revealed inputs and returns without historical scroll recovery  5039ms
+   ✓ supports horizontal scroll and detects stale scroll positions even when text stays identical  787ms
+   ✓ does not treat clipped content or text editing scrollbars as traversal targets, and blocks an occluded viewport  342ms
+ ✓ tests/record-scope-identity.test.ts (4 tests) 5483ms
+   ✓ keeps parent record binding independent of nested panel destinations (semantic=false)  1503ms
+   ✓ keeps parent record binding independent of nested panel destinations (semantic=true)  1466ms
+   ✓ keeps parent record binding independent of nested panel destinations (semantic=css)  1447ms
+   ✓ finishes DFS instead of reopening the same menu when child destinations change  1066ms
+ ✓ tests/identity-ui.test.ts (3 tests) 6193ms
+   ✓ explains duplicate controls with exact historical screenshot positions and records an explicit independent decision  2337ms
+   ✓ keeps indistinguishable rebuilt controls pending when the reviewer explicitly lacks evidence  2023ms
+   ✓ shows an honest fallback for expired screenshots and blocks confirmation when the original control is unavailable  1832ms
+ ✓ tests/region-live-content.test.ts (7 tests) 6046ms
+   ✓ exits an obstruction and retains reviewed regions while background quotes never settle  1417ms
+   ✓ does not repeatedly request the same unassigned regions for passive quote updates  963ms
+   ✓ invalidates a reviewed region and refuses dispatch when destination changes  690ms
+   ✓ invalidates a reviewed region and refuses dispatch when explicit-label changes  693ms
+   ✓ invalidates a reviewed region and refuses dispatch when readout-meaning changes  681ms
+   ✓ invalidates a reviewed region and refuses dispatch when operation-label changes  682ms
+   ✓ still expires an externally reviewed tentative target when its raw text changes  919ms
+ ✓ tests/ui.e2e.test.ts (3 tests) 5804ms
+   ✓ exposes the actual engine through the UI and renders a traversed Market flow  2557ms
+   ✓ shows independent control coverage and allows exact current-node actions despite historical ambiguity  1918ms
+   ✓ shows evidence and explicit probes separately from observed-only elements  1329ms
+ ✓ tests/components.e2e.test.ts (5 tests) 5677ms
+   ✓ discovers a tentative custom selector and keeps its search, list and exit in one boundary  1362ms
+   ✓ provides one tentative five-member group without invented values or merged identities, over SDK and HTTP  670ms
+   ✓ records explicit hover/focus probes with before/after evidence, budgets, current-instance guards and idempotency  1851ms
+   ✓ applies popup boundaries and live target revalidation to probes  1030ms
+   ✓ keeps equivalent component state across reload without equating node identities, and includes declared values in state  731ms
+ ✓ tests/exploration-review-core.test.ts (12 tests) 5070ms
+   ✓ ignores late batch results after a hook timeout  5004ms
+ ✓ tests/exploration-scopes-core.test.ts (12 tests) 5076ms
+   ✓ cannot commit a decision returned after its hook timeout  5006ms
+ ✓ tests/action-evidence.test.ts (6 tests) 4367ms
+   ✓ separates native/declared capabilities, weak hints and current actionability  483ms
+   ✓ never automatically clicks the modal text container and preserves its identity  965ms
+   ✓ never automatically clicks the handler-modal text container and preserves its identity  917ms
+   ✓ retains tentative operations in events/frontier, skips DFS and allows an explicit non-replayable probe  724ms
+   ✓ revalidates operation evidence when a handler disappears before execution  518ms
+   ✓ accepts an external action judgment with evidence without rewriting the original observation  728ms
+ ✓ tests/exploration-scheduling.test.ts (4 tests) 3912ms
+   ✓ finishes newly revealed nonmodal controls before sibling actions dismiss them  1208ms
+   ✓ shares a failed reach across sibling work and revalidates it when the controls return  1433ms
+   ✓ retires an unattempted synthetic exit after closing the boundary without reopening it  917ms
+   ✓ names unnamed controls by role without inventing a close operation  353ms
+ ✓ tests/evidence-ui.test.ts (3 tests) 4312ms
+   ✓ opens historical event details in the UI, switches before/after, and reads DOM, screenshots and ARIA without execution  2090ms
+   ✓ shows missing detailed snapshots and events without observation references explicitly  1105ms
+   ✓ opens an inline event snapshot after transient server evidence has been released without querying it again  1116ms
+ ✓ tests/evidence-query.test.ts (6 tests) 3787ms
+   ✓ keeps detailed evidence and control meaning queryable after changes and browser shutdown (memory)  647ms
+   ✓ keeps detailed evidence and control meaning queryable after changes and browser shutdown (sqlite)  604ms
+   ✓ exposes HTTP/client queries, paginated DOM and before/after event evidence with session isolation  1071ms
+   ✓ reports capture truncation, disabled and legacy evidence without ever substituting live data  621ms
+   ✓ preserves primary observation when detailed storage fails and reports missing or corrupted evidence  420ms
+   ✓ bounds aggregate DOM data and exposes runtime drops rather than presenting a complete capture  390ms
+ ✓ tests/identity-review.test.ts (6 tests) 3975ms
+   ✓ exports historical declared context and actual screenshots without writing or borrowing future candidate evidence  1042ms
+   ✓ reports expired detailed evidence and blocks applying old decisions to recycled rows  735ms
+   ✓ makes truncated DOM and unavailable original observations explicit without preventing abstention  363ms
+   ✓ accepts real image references and guards HTTP decisions against newer observations  722ms
+   ✓ rejects live binding changes even when a caller bypasses the client review helper  565ms
+   ✓ snapshots SDK review guards and evidence before the command waits in the queue  546ms
+ ✓ tests/exploration-audit.test.ts (7 tests) 4020ms
+   ✓ reports a completed sampled scope without claiming skipped members were executed or discovery complete  719ms
+   ✓ keeps unanswered decisions pending and distinguishes explicit skip from completion evidence  631ms
+   ✓ does not turn zero pending into completion when controls are excluded or a selected member is disabled  616ms
+   ✓ requires real attempt and observation records, and never hides a failed attempt behind a later skip  530ms
+   ✓ preserves a verified historical exclusion without authorizing cases observed after invalidation  513ms
+   ✓ rejects policy exclusion with missing, invalidated or mismatched scope evidence  509ms
+   ✓ keeps budget exhaustion explicit even when the scheduler has stopped  501ms
+ ✓ tests/boundary-regressions.test.ts (5 tests) 4090ms
+   ✓ links a hidden portalled popup to its visible opener, even when another hidden opener references it  1031ms
+   ✓ recognizes an expanded positioned popup without role semantics  721ms
+   ✓ does not reopen the browser behind a boundary whose exit controls have no effect  1160ms
+   ✓ excludes background work from the external strategy while a boundary is active  477ms
+   ✓ blocks an unclassified obstruction and revalidates the target when uncovered  668ms
+ ✓ tests/frontier-ui.e2e.test.ts (1 test) 3611ms
+   ✓ shows completed parent work without legacy overlay duplicates and explains branch recovery failures  3611ms
+ ✓ tests/coverage-reconciliation.test.ts (4 tests) 3438ms
+   ✓ reconciles successful current-instance work after identity decisions and rebuilds without redispatch or rewriting history  1217ms
+   ✓ keeps equivalent repeated reviews in one case while requiring a fresh review after node replacement  826ms
+   ✓ lets the caller resolve retained historical identity evidence after the target disappears through the public API  993ms
+   ✓ never transfers coverage across pending identities, input samples, conditions, missing evidence or failed attempts  401ms
+ ✓ tests/popup-scroll-scope.test.ts (1 test) 3467ms
+   ✓ scrolls a popup viewport outside its inner list and reaches every finite option  3466ms
+ ✓ tests/snapshot-events.test.ts (5 tests) 3493ms
+   ✓ delivers isolated full snapshots without writing detailed evidence to disk or inflating the durable event log  410ms
+   ✓ reports slow subscribers without affecting other subscribers or committed execution  491ms
+   ✓ streams full snapshots over SSE with durable cursors and exposes retention status over HTTP  392ms
+   ✓ uses explicitly retained evidence for checkpoint verification and marks lost process memory unverified after restart  1082ms
+   ✓ returns verified checkpoints with persistent evidence after restart and preserves facts when evidence capacity is exhausted  1080ms
+ ✓ tests/modal-region-freshness.test.ts (5 tests) 3257ms
+   ✓ observes, reviews and exits a stable modal while unrelated region candidates keep changing  1077ms
+   ✓ rejects a modal region decision when its heading changes  559ms
+   ✓ rejects a modal region decision when its member changes  554ms
+   ✓ rejects a modal region decision when its owner changes  537ms
+   ✓ does not use modal readiness to approve a mixed page region  529ms
+ ✓ tests/exploration-ui.test.ts (1 test) 3032ms
+   ✓ shows actual recovery origins and creates generic coverage sessions without application declarations  3031ms
+ ✓ tests/hover.test.ts (4 tests) 2801ms
+   ✓ executes a reviewed hover without clicking, retains the tooltip and stable trigger identity, and counts that operation  578ms
+   ✓ does not infer hover capability or schedule pointer hints without a sourced action judgment  489ms
+   ✓ blocks occluded, unreachable and replaced hover targets while allowing an ordinary below-fold target  790ms
+   ✓ does not treat hovering a close control as an exit or permit hovering its external toggle through a boundary  943ms
+ ✓ tests/control-name.test.ts (3 tests) 2447ms
+   ✓ keeps a reviewed generic selector distinct from its changing child popup while retaining complete text  1551ms
+   ✓ preserves explicit names including hidden referenced labels, and keeps ordinary positioned descriptions  542ms
+   ✓ does not merge same-named selector instances when their child options differ  353ms
+ ✓ tests/region-review-ui.test.ts (1 test) 2543ms
+   ✓ confirms suggested regions separately from exploration and rejects stale UI drafts  2542ms
+ ✓ tests/page-exploration-ui.test.ts (1 test) 2636ms
+   ✓ shows pending destination pages and applies page permission without automatically executing them  2635ms
+ ✓ tests/exploration-review-ui.test.ts (1 test) 2382ms
+   ✓ reviews overlapping scopes together, refuses stale selections, and submits explicit samples without starting exploration  2382ms
+ ✓ tests/diff-details-http.test.ts (2 tests) 2267ms
+   ✓ serves the same historical details to HTTP, SDK, hooks and events, including after restart  1533ms
+   ✓ validates query arguments and rejects unavailable or cross-session diffs  733ms
+ ✓ tests/completion-audit.test.ts (6 tests) 2310ms
+   ✓ includes an observed control with no frontier action in the unified completion assessment  441ms
+   ✓ keeps read-only displays separate and never uses an empty action ledger as exhaustive discovery proof  371ms
+   ✓ reflects a supported external judgment without counting the judgment as execution  379ms
+   ✓ keeps action blockers, outstanding decisions and budgets visible in the unified report  378ms
+   ✓ retains exact destination skip provenance without erasing its discovery limits or authorizing another context  459ms
+ ✓ tests/frontier-coverage.test.ts (3 tests) 2264ms
+   ✓ exposes an untested input sample separately from successful work on the same control through SDK, HTTP, hooks and reports  2263ms
+ ✓ tests/composite-popup.test.ts (3 tests) 1819ms
+   ✓ includes sibling search and close controls in a floating virtual-list popup, including empty search results  1168ms
+   ✓ keeps an unrelated landmark search outside the list boundary  351ms
+ ✓ tests/inspection-ui.test.ts (1 test) 1819ms
+   ✓ shows the stored scope, baseline, required evidence and external verdict without operating the page  1818ms
+ ✓ tests/memory-browser.test.ts (2 tests) 1354ms
+   ✓ uses browser execution and HTTP evidence queries with the memory plugin  1352ms
+ ✓ tests/external-exploration-review.test.ts (2 tests) 1355ms
+   ✓ runs the external example through HTTP, deciding new regions and list samples independently  911ms
+   ✓ leaves a stale external partition paused without rewriting its observation or deciding later scopes  444ms
+ ✓ tests/diff-details.test.ts (12 tests) 44ms
+ ✓ tests/identity-matching.test.ts (17 tests) 43ms
+ ✓ tests/identity-context.e2e.test.ts (6 tests) 3804ms
+   ✓ uses distinct FAQ semantics, field descriptions and link destinations across reorder and rebuild  645ms
+   ✓ invalidates changed currency and link bindings on the same DOM instance  562ms
+   ✓ does not use truncated text, hidden popup options, input values or ordinal position as identity  573ms
+   ✓ keeps field and owned search identities when semantic or custom popup contents become visible  566ms
+   ✓ blocks applying an old review when a contextual binding changes without changing input attributes  867ms
+   ✓ does not promote descriptive slot IDs inside a collection without row semantics into record identity  560ms
+ ✓ tests/structural-record-boundaries.test.ts (3 tests) 1931ms
+   ✓ does not infer repeated records from table cells with inherited pointer cursors  831ms
+   ✓ does not infer repeated records from grid cells with inherited pointer cursors  785ms
+   ✓ retains explicit cell controls and independent nested lists inside a row  314ms
+ ✓ tests/input-reachability.test.ts (3 tests) 2034ms
+   ✓ blocks 'fill' outside the reachable scroll area and revalidates after revealing it  748ms
+   ✓ blocks 'select' outside the reachable scroll area and revalidates after revealing it  742ms
+   ✓ continues to fill an ordinary below-fold field reachable by document scrolling  544ms
+ ✓ tests/components-ui.test.ts (1 test) 1640ms
+   ✓ shows a composite group, independent members and historical evidence through public read queries  1639ms
+ ✓ tests/http.test.ts (1 test) 1230ms
+   ✓ serves the same session over HTTP, streams durable cursors and rejects invalid commands  1230ms
+ ✓ tests/reviewed-control-coverage.test.ts (1 test) 1133ms
+   ✓ counts a reviewed custom operation without inventing DOM capabilities or promoting tentative probes  1133ms
+ ✓ tests/crash.test.ts (1 test) 1118ms
+   ✓ does not repeat a real submission after the process is killed before recording its result  1117ms
+ ✓ tests/retention.test.ts (6 tests) 212ms
+ ✓ tests/architecture.test.ts (2 tests) 68ms
+ ✓ tests/frontier-scaling.test.ts (2 tests) 68ms
+ ✓ tests/core.test.ts (4 tests) 34ms
+ ✓ tests/storage-contract.test.ts (8 tests) 28ms
+ ✓ tests/store.test.ts (2 tests) 21ms
+ ✓ tests/model.test.ts (2 tests) 11ms
+ ✓ tests/frontier-comparison.test.ts (3 tests) 10ms
+ ✓ tests/observation-notice.test.ts (2 tests) 5ms
+
+ Test Files  74 passed (74)
+      Tests  538 passed (538)
+   Start at  16:30:05
+   Duration  553.54s (transform 735ms, setup 0ms, collect 22.40s, tests 520.76s, environment 6ms, prepare 2.55s)
