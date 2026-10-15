@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { ActionCandidate, IdentityHypothesis, ControlIdentity, Observation, ExplorationGroup, PurposeReview, RegionCandidate } from '@interaction/browser';
 import type { ExplorerHost, Task, ModelRequest, Decision, Scope } from './types.js';
 import { jsonSchema } from './schema.js';
-import { digest, matches, includesScope, broadScope, controlInScope } from './policy.js';
+import { digest, matches, includesScope, broadScope, controlInScope, decisionPlan } from './policy.js';
 import type { SemanticReview } from './semantic-review.js';
 
 export interface ReviewContext {
@@ -13,10 +13,12 @@ export interface ReviewContext {
   clarify(request:SemanticReview):Promise<{value:string;decision:Decision}>;
   generate<T>(purpose:string,instructions:string,state:unknown,schema:z.ZodType<T>):Promise<{value:T;decision:Decision}>;
   apply(decision:Decision,command:unknown):Promise<void>;
+  retain(groups:RetainedScope[]):Promise<void>;
   gap(reason:string,scope:Scope,required?:boolean):void;
   hasPendingAction():boolean;
 }
 export type ChoiceConstraints=Pick<ModelRequest,'allowedReductions'|'blockedOptions'>;
+export interface RetainedScope {id:string;revision:number;label:string;memberKeys:string[];actionIds:string[];historicalMemberCount:number}
 const evidence=(d:Decision)=>[`explorer-decision:${d.id}`];
 const source='explorer-plugin';
 // Execution IDs change on recapture; model evidence describes the operation, not a dispatch grant.
@@ -150,15 +152,24 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     await c.apply(d.decision,{type:'reviewControls',review:{observationId:o.id,source,reviews:[{localId:item.control.localId,kind:d.value,risk:'interface',replayable:false,reason:'Reviewed interface operation',evidence:evidence(d.decision)}]}});return true;
   }
   const material=host.explorationReviewMaterial(sid);
-  for(const group of material.groups.filter(g=>g.status==='pending' || !g.decisions.length)) {
-    const key=`group:${group.id}:${group.revision}`;if(done(key))continue;
-    // Groups retain prior observations and pre-review action cases. Only current candidates can be selected.
-    const actions=host.actions(sid);const members=group.members.filter(m=>actions.some(a=>a.id===m.actionId));
-    if(!members.length)continue;
-    if(!members.some(m=>{const action=actions.find(a=>a.id===m.actionId)!;return inCurrentBoundary(action)&&includesScope(pendingPlan,action,o);}))continue;
-    const explicit=members.some(m=>{const action=actions.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
-    const allowedReductions=task.coverageMode==='representative'&&!explicit?['sample']:[];
-    const d=await c.choose('scope-review','Choose exhaustive traversal or representative sampling of current observed members. Sampling requires the supplied user permission; every omitted member remains untested. Never skip a group based only on confidence. Program scope matching still limits execution to the selected task.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',coverageMode:task.coverageMode||'all',allowedReductions,plan:task.plan,group:{...group,members,historicalMemberCount:group.members.length-members.length}},
+  // Keeping every observed member is a fixed program rule unless the user
+  // permits sampling. It needs neither a model call nor the historical ledger.
+  const scopes=material.groups.filter(g=>g.status==='pending'||!g.decisions.length).flatMap(group=>{
+    const key=`group:${group.id}:${group.revision}`;if(done(key))return [];
+    const members=group.members.filter(m=>available.some(a=>a.id===m.actionId));
+    if(!members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return inCurrentBoundary(action)&&includesScope(pendingPlan,action,o);}))return [];
+    const explicit=members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
+    return [{group,key,members,allowedReductions:task.coverageMode==='representative'&&!explicit?['sample']:[]}];
+  });
+  const retained=scopes.filter(s=>!s.allowedReductions.length).slice(0,50);
+  if(retained.length){
+    for(const s of retained)mark(s.key);
+    await c.retain(retained.map(({group,members})=>({id:group.id,revision:group.revision,label:group.label,memberKeys:members.map(m=>m.key),actionIds:members.map(m=>m.actionId),historicalMemberCount:group.members.length-members.length})));
+    return true;
+  }
+  for(const {group,key,members,allowedReductions} of scopes) {
+    const plan=decisionPlan(task.plan);
+    const d=await c.choose('scope-review','Choose exhaustive traversal or representative sampling of current observed members. Sampling requires the supplied user permission; every omitted member remains untested. Never skip a group based only on confidence. Program scope matching still limits execution to the selected task.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',coverageMode:task.coverageMode||'all',allowedReductions,plan,group:{...group,members,historicalMemberCount:group.members.length-members.length}},
       {all:'Keep all observed members available for in-scope traversal',sample:'User explicitly permits representative sampling',defer:'Cannot proceed yet',skip:'Outside the task',uncertain:'Unable to decide'},{allowedReductions});
     const mode=d.value==='uncertain'?'defer':d.value;let memberKeys:string[]=[];
     if(mode==='sample') {

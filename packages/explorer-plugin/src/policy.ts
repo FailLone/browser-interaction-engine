@@ -24,6 +24,12 @@ function actionScope(action:ActionCandidate,o:Observation,durable:boolean):Scope
   return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(key?{stableKey:key}:{})}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};
 }
 export function scopeFor(action:ActionCandidate,o:Observation):Scope {return actionScope(action,o,true);}
+/** Model-only view: retain equality hints without repeated document/DOM fingerprints. */
+export function decisionScope(scope:Scope):Scope {return {...scope,...(scope.stableKey?{stableKey:`sha256:${digest(scope.stableKey)}`}:{})};}
+/** Accepted authority and exclusions are relevant to selection; the growing evidence ledger is not. */
+export function decisionPlan(plan:PlanItem[]) {
+  return plan.filter(i=>(i.required&&i.dispatchScope===true)||i.reason==='user_excluded').map(i=>({title:i.title,scope:decisionScope(i.scope),prerequisites:i.prerequisites.map(decisionScope),required:i.required}));
+}
 export function matches(scope:Scope,action:ActionCandidate,o:Observation) {
   const actual=scopeFor(action,o);
   return Object.entries(scope).every(([key,value])=>JSON.stringify(actual[key as keyof Scope])===JSON.stringify(value));

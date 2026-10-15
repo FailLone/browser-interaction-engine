@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { InteractionEngine } from '@interaction/browser';
 import { SqliteStore } from '@interaction/storage-sqlite';
-import { ExplorerPlugin,ExplorerStore,type Provider,type ModelRequest } from '@interaction/explorer-plugin';
+import { ExplorerPlugin,ExplorerStore,ExplorerError,type Provider,type ModelRequest } from '@interaction/explorer-plugin';
 import { createServer } from '../apps/server/src/server.js';
 import { scopeFor } from '../packages/explorer-plugin/src/policy.js';
 import { remapStoredScopes } from '../packages/explorer-plugin/src/scope-migration.js';
@@ -253,8 +253,8 @@ it('revalidates changed dispatch bindings instead of treating old success as the
  expect(task.status,JSON.stringify(task,null,2)).toBe('completed');expect(task.rounds.map(r=>f.host.list<any>(r.sessionId,'attempt').map(a=>a.action.label))).toEqual([['Alpha'],['Alpha'],['Beta']]);expect(task.usage.actions).toBe(3);
  }finally{await plugin.close();await f.close();}
 });
-it('grounds plans in accessible action names and samples only current reviewed members',async()=>{
- const f=await explorerFixture('<button type="button" onclick="this.disabled=true">Alpha</button>');const p=fakeProviders(f.url);const original=p.jev.decide;let sawRetiredMember=false;
+it('grounds plans in accessible action names and records current members when retaining scopes',async()=>{
+ const f=await explorerFixture('<button type="button" onclick="this.disabled=true">Alpha</button>');const p=fakeProviders(f.url);const original=p.jev.decide;
  p.llm.decide=async(r,s)=>{
   if(r.purpose==='initial-plan'){
    const observation=(r.state as any).material.observation;
@@ -265,16 +265,14 @@ it('grounds plans in accessible action names and samples only current reviewed m
   return original(r,s);
  };
  p.jev.decide=async(r,s)=>{
-  if(r.purpose==='scope-review'){
-   const group=(r.state as any).material.group;sawRetiredMember ||= group.historicalMemberCount>0;
-   expect(group.members.every((m:any)=>f.host.actions(group.sessionId).some(a=>a.id===m.actionId))).toBe(true);
-   return {model:'mock',value:'sample',confidence:1};
-  }
+  if(r.purpose==='scope-review')throw new Error('Explicit target retention must not call a model');
   return original(r,s);
  };
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
- try{const t=plugin.create({url:f.url,goal:'Click Alpha once',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const task=plugin.view(t.id).task;
- expect(sawRetiredMember).toBe(true);expect(task.status,JSON.stringify(task)).toBe('completed');expect(task.usage.actions).toBe(1);expect(task.plan.some(i=>i.reason==='sample_unselected')).toBe(false);
+ try{const t=plugin.create({url:f.url,goal:'Click Alpha once',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const view=plugin.view(t.id),task=view.task;
+ const retained=view.events.filter(e=>e.type==='scope.retained');expect(retained.some(e=>(e.data as any).groups.some((g:any)=>g.historicalMemberCount>0))).toBe(true);
+ for(const event of retained){const data=event.data as any,current=f.host.actions(event.sessionId!,data.sourceObservationId);expect(data.groups.every((g:any)=>g.actionIds.every((id:string)=>current.some(a=>a.id===id)))).toBe(true);}
+ expect(task.status,JSON.stringify(task)).toBe('completed');expect(task.usage.actions).toBe(1);expect(task.plan.some(i=>i.reason==='sample_unselected')).toBe(false);
  }finally{await plugin.close();await f.close();}
 });
 it('retries initial planning after a provider timeout without turning the error into an execution scope',async()=>{
@@ -286,14 +284,33 @@ it('retries initial planning after a provider timeout without turning the error 
  }finally{await plugin.close();await f.close();}
 });
 
-it.each(['sample','skip','uncertain'])('preserves all in-scope actions when JEV suggests %s without sampling permission',async(value)=>{
+it('retains all in-scope members with a program decision when sampling is not authorized',async()=>{
  const f=await explorerFixture(),p=fakeProviders(f.url),original=p.jev.decide;
- p.jev.decide=async(r,s)=>r.purpose==='scope-review'?{value,confidence:1,model:'mock'}:original(r,s);
+ p.jev.decide=async(r,s)=>{if(r.purpose==='scope-review')throw new Error('Fixed coverage must not call a model');return original(r,s);};
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,goal:'All observed buttons',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
  expect(v.task.status,JSON.stringify(v.task)).toBe('completed');expect(v.task.usage.actions).toBe(2);expect(v.decisions.filter(d=>d.actor==='llm').map(d=>d.purpose)).toEqual(['initial-plan']);
- expect(v.decisions.filter(d=>d.purpose==='scope-review').every(d=>d.answer?.value===value&&d.resolution?.value==='all')).toBe(true);
+ expect(v.decisions.filter(d=>d.purpose==='scope-review')).toHaveLength(0);expect(v.events.some(e=>e.actor==='program'&&e.type==='scope.retained'&&(e.data as any).executionAuthorized===false)).toBe(true);
  expect(v.task.plan.some(i=>i.reason==='sample_unselected'||i.reason==='scope_excluded')).toBe(false);
+ }finally{await plugin.close();await f.close();}
+});
+it('retains multiple scopes atomically and retries a stale batch without marking members executed',async()=>{
+ const f=await explorerFixture(['One','Two','Three'].map(name=>`<section aria-label="${name}"><h2>${name}</h2><button type="button" onclick="this.disabled=true">${name}</button></section>`).join(''));let rejected=false,maxBatch=0;
+ const host=new Proxy(f.host,{get(target,key){if(key==='command')return async(sid:string,command:any)=>{if(command.type==='decideExplorationGroups'){maxBatch=Math.max(maxBatch,command.resolutions.length);if(!rejected){rejected=true;throw new ExplorerError('STALE_GROUP_DECISION');}}return target.command(sid,command);};const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;}});
+ const plugin=new ExplorerPlugin(host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+  expect(rejected).toBe(true);expect(maxBatch).toBeGreaterThan(1);expect(v.task.usage.actions).toBe(1);expect(v.task.status).toBe('budget_exhausted');
+  expect(v.events.some(e=>e.type==='step.invalidated'&&(e.data as any).reason==='STALE_GROUP_DECISION')).toBe(true);expect(v.events.some(e=>e.type==='scope.retained')).toBe(true);
+  expect(v.task.plan.some(i=>i.required&&i.status==='unresolved')).toBe(true);expect(v.decisions.some(d=>d.purpose==='scope-review')).toBe(false);
+ }finally{await plugin.close();await f.close();}
+});
+it('keeps JEV sampling and action choices while omitting the historical ledger from their prompts',async()=>{
+ const f=await explorerFixture('<select aria-label="Choice"><option>A</option><option>B</option><option>C</option></select>'),p=fakeProviders(f.url),original=p.jev.decide;let requests=0,selections=0;
+ p.jev.decide=async(r,s)=>{if(['scope-review','next-action'].includes(r.purpose)){const state=(r.state as any).material;expect(state.plan).toHaveLength(1);expect(JSON.stringify(r.state)).not.toContain('historical-ledger-marker');expect(JSON.stringify(r.state).length).toBeLessThan(30000);if(r.purpose==='scope-review'){requests++;expect(state.allowedReductions).toEqual(['sample']);return {model:'mock',value:'sample',confidence:1};}selections++;for(const option of Object.values(r.options||{}) as any[])if(option.scope?.stableKey)expect(option.scope.stableKey).toMatch(/^sha256:[a-f0-9]{64}$/);}return original(r,s);};
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'Representative choices',coverageMode:'representative',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.revise(t.id,{items:[{title:'Choice scope',scope:{url:f.url},prerequisites:[],completion:'Verify selected choices',required:true,reason:'user scope'}]});
+  const saved=plugin.store.task(t.id);for(let i=0;i<400;i++)saved.plan.push({id:`history-${i}`,title:'historical-ledger-marker',scope:{url:f.url,label:`Historical ${i}`},prerequisites:[],completion:'Unverified',required:i%2===0,dispatchScope:false,status:'untested',reason:'historical-ledger-marker',evidence:[],attempts:[]});plugin.store.save(saved);
+  plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);expect(requests).toBeGreaterThan(0);expect(selections).toBeGreaterThan(0);expect(v.task.plan.some(i=>i.reason==='sample_unselected'&&i.status==='untested')).toBe(true);expect(v.task.plan.filter(i=>i.title==='historical-ledger-marker')).toHaveLength(400);
  }finally{await plugin.close();await f.close();}
 });
 it('does not grant an operation on ambiguous external-effect evidence, even if LLM would approve',async()=>{

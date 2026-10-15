@@ -5,8 +5,8 @@ import { ExplorerError, type Task, type Round, type PlanItem, type Scope, type E
 import { ExplorerStore } from './store.js';
 import { DecisionRouter } from './router.js';
 import { createTaskSchema, budgetSchema, planSchema, initialTaskSchema, plannedScopeSchema, jsonSchema } from './schema.js';
-import { digest, includesScope, keyFor, matches, permitted, scopeFor, navigationTarget, controlInScope, broadScope } from './policy.js';
-import { reviewNext, type ChoiceConstraints } from './reviews.js';
+import { digest, includesScope, keyFor, matches, permitted, scopeFor, navigationTarget, controlInScope, broadScope, decisionScope, decisionPlan } from './policy.js';
+import { reviewNext, type ChoiceConstraints, type RetainedScope } from './reviews.js';
 import { safeError } from './providers.js';
 import { POLICY_VERSION } from './decision-policy.js';
 import { semanticAnswerSchema, semanticRejection, type SemanticReview } from './semantic-review.js';
@@ -190,6 +190,13 @@ export class ExplorerPlugin {
     const round:Round={id:randomUUID(),number:task.rounds.length+1,sessionId:session.id,startedAt:now(),status:'running',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0,policyVersion:POLICY_VERSION};
     task.rounds.push(round);task.usage.rounds++;this.store.save(task);this.event(task,'round.started',{roundId:round.id,number:round.number});return round;
   }
+  private async retainScopes(task:Task,signal:AbortSignal,o:Observation,groups:RetainedScope[]) {
+    this.assert(task,signal,o.id);
+    await this.host.pinEvidence(o.sessionId,o.id,`explorer:${task.id}`);this.assert(task,signal,o.id);
+    const resolutions=groups.map(g=>({groupId:g.id,revision:g.revision,decision:{mode:'all' as const,source:'explorer-program',evidence:[`explorer-task:${task.id}:revision:${task.revision}`,`observation:${o.id}`,'coverage:all-no-sampling-authorization']}}));
+    await this.host.command(o.sessionId,{type:'decideExplorationGroups',resolutions});
+    this.event(task,'scope.retained',{sourceObservationId:o.id,resultObservationId:this.host.observation(o.sessionId).id,reason:'sampling_not_authorized',groups,mode:'all',executionAuthorized:false});this.store.save(task);
+  }
   private isolateUnverifiedNavigation(task:Task) {
     const pending=task.pendingDispatch;if(!pending)return false;
     const attempt=this.host.list<ActionAttempt>(pending.sessionId,'attempt').find(a=>a.requestId===pending.requestId);
@@ -313,7 +320,7 @@ export class ExplorerPlugin {
       choose:(p,i,s,opts,constraints)=>this.choose(task,signal,o,p,i,s,opts,constraints),generate:(p,i,s,schema)=>this.generate(task,signal,o,p,i,s,schema),
       assess:(p,s,checks)=>this.assess(task,signal,o,p,s,checks),refresh:(d,key)=>this.refreshEvidence(task,signal,o,d,key),
       clarify:request=>this.clarify(task,signal,o,request),
-      apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),gap:(reason,scope,required)=>{this.gap(task,reason,scope,required);}});for(const d of this.store.decisions(task.id).filter(d=>!knownDecisions.has(d.id)&&d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}if(reviewed)return true; } catch(error) { round.reviewed.splice(reviewedBefore); throw error; }
+      apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),retain:groups=>this.retainScopes(task,signal,o,groups),gap:(reason,scope,required)=>{this.gap(task,reason,scope,required);}});for(const d of this.store.decisions(task.id).filter(d=>!knownDecisions.has(d.id)&&d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}if(reviewed)return true; } catch(error) { round.reviewed.splice(reviewedBefore); throw error; }
     this.assert(task,signal,o.id);
     const actions=this.host.actions(sid),groups=this.host.explorationReviewMaterial(sid).groups,frontier=this.host.getFrontier(sid);
     const eligible=actions.filter(a=>!this.navigationIsUnverified(task,a,o)&&permitted(a,o,groups,frontier)&&includesScope(task.plan,a,o)&&((!round.tried.includes(keyFor(a,o))&&!this.wasCompleted(task,a,o))||this.neededEntry(task,round,a,o)));
@@ -327,8 +334,8 @@ export class ExplorerPlugin {
     if(unique.length) {
       if(round.entryPath.length>(task.sessionOptions.maxDepth||10)){this.gap(task,'depth_budget',{url:o.url});return false;}
       const batch=unique.slice().sort((a,b)=>Number(a.boundary?.intent==='exit')-Number(b.boundary?.intent==='exit')||Number(!!navigationTarget(a,o))-Number(!!navigationTarget(b,o))).slice(0,200); // Later loop iterations consume remaining cases; never mark omitted cases done.
-      const options:Record<string,unknown>=Object.fromEntries(batch.map(a=>[a.id,{label:a.label,kind:a.kind,value:a.value,scope:scopeFor(a,o),purpose:includesScope(task.plan,a,o),navigationTarget:navigationTarget(a,o),boundaryIntent:a.boundary?.intent}]));options.uncertain='No evidenced next action';
-      const selected=await this.choose(task,signal,o,'next-action','Choose the next useful in-scope action. Prefer unexplored controls and internal work before exits, and in-place operations before document navigation. Navigation destinations are captured evidence, not permission to explore beyond the task. Select uncertain if none can advance the goal.',{goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',plan:task.plan.filter(i=>i.required),remainingCandidates:unique.length,batchSize:batch.length},options);
+      const options:Record<string,unknown>=Object.fromEntries(batch.map(a=>[a.id,{label:a.label,kind:a.kind,value:a.value,scope:decisionScope(scopeFor(a,o)),purpose:includesScope(task.plan,a,o),navigationTarget:navigationTarget(a,o),boundaryIntent:a.boundary?.intent}]));options.uncertain='No evidenced next action';
+      const selected=await this.choose(task,signal,o,'next-action','Choose the next useful in-scope action. Prefer unexplored controls and internal work before exits, and in-place operations before document navigation. Navigation destinations are captured evidence, not permission to explore beyond the task. Select uncertain if none can advance the goal.',{goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',plan:decisionPlan(task.plan),remainingCandidates:unique.length,batchSize:batch.length},options);
       if(selected.value==='uncertain'){this.router.mark(selected.decision,'rejected','no_action_selected');this.gap(task,'action_selection_unresolved',{url:o.url});return false;}
       const action=batch.find(a=>a.id===selected.value)!;this.assert(task,signal,o.id,selected.decision.revision);
       const checkpoint=await this.host.createCheckpoint(sid,`explorer ${round.number}/${round.stack.length+1}`,[],[]);

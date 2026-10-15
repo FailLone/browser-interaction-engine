@@ -7,10 +7,19 @@ const envelope = z.object({id:z.string().optional(),provider:z.string().optional
 const choice = z.object({type:z.literal('choice'),choice:z.string(),confidence:probability,probabilities:z.record(z.string(),probability)});
 const noul = z.object({type:z.literal('noul'),noul:probability});
 export interface HttpConfig { endpoint: string; apiKey?: string; model: string; fetch?: typeof fetch }
+async function httpDiagnostic(response:Response) {
+  // Inspect a bounded prefix only to classify known failures. Never retain server text,
+  // codes, headers or nested metadata: any of them may echo credentials or page data.
+  const reader=response.body?.getReader();let text='';
+  try {
+    if(reader){const decoder=new TextDecoder();let bytes=0;while(bytes<65536){const part=await reader.read();if(part.done)break;const chunk=part.value.subarray(0,65536-bytes);bytes+=chunk.length;text+=decoder.decode(chunk,{stream:true});}}
+  } catch { /* The HTTP status is still useful if the body cannot be read. */ }
+  finally { if(reader){await reader.cancel().catch(()=>{});reader.releaseLock();} }
+  return {httpStatus:response.status,category:/max_tokens_exceeded|context_length_exceeded|maximum context length/i.test(text)?'context_limit':'unspecified',responseBodyRecorded:false};
+}
 async function post(config: HttpConfig, body: unknown, signal: AbortSignal): Promise<unknown> {
   const response = await (config.fetch || fetch)(config.endpoint, {method:'POST',headers:{'content-type':'application/json',...(config.apiKey ? {authorization:`Bearer ${config.apiKey}`} : {})},body:JSON.stringify(body),signal,redirect:'error'});
-  // HTTP error bodies may echo credentials; persist only the status code, never headers or error text.
-  if (!response.ok) throw new ExplorerError(`PROVIDER_HTTP_${response.status}`);
+  if (!response.ok) throw new ExplorerError(`PROVIDER_HTTP_${response.status}`,undefined,await httpDiagnostic(response));
   const text = await response.text(); if (text.length > 4 * 1024 * 1024) throw new ExplorerError('PROVIDER_RESPONSE_TOO_LARGE');
   try { return JSON.parse(text); } catch { throw new ExplorerError('PROVIDER_INVALID_JSON'); }
 }

@@ -42,9 +42,10 @@ it('integrates autonomous exploration, interleaves JEV/LLM decisions and restore
  await page.getByRole('tab',{name:'输出',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'模型输出'}).innerText()).toContain('include');
  await page.getByRole('button',{name:'返回页面证据'}).click();
  expect(await page.getByLabel('遍历范围',{exact:true}).inputValue()).toBe('all');
- await timeline.getByRole('button').filter({hasText:'决定遍历范围'}).first().click();
- await page.getByRole('tab',{name:'输出',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'模型输出'}).innerText()).toContain('sample');
- await page.getByRole('tab',{name:'决策影响',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('未获准收缩范围');
+ await timeline.getByRole('button').filter({hasText:'程序保留全部已发现成员'}).first().click();
+ expect(await page.getByLabel('探索决策详情').innerText()).toContain('无需模型调用');
+ expect(await page.getByLabel('探索决策详情').innerText()).toContain('"executionAuthorized": false');
+ expect(plugin.view(task.id).decisions.some(d=>d.purpose==='scope-review')).toBe(false);
  await page.getByRole('button',{name:'返回页面证据'}).click();
  await page.screenshot({path:join(f.dir,'explorer-ui.png'),fullPage:true});expect(errors).toEqual([]);
  const firstSession=plugin.view(task.id).task.rounds[0].sessionId;

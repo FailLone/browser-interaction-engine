@@ -119,6 +119,13 @@ it('sends independent risk questions in one JEV request and rejects incomplete b
  expect(Object.keys(body.questions)).toEqual(['interface_click','external_click']);expect(body.questions.interface_click.type).toBe('noul');expect(body.questions.external_click.instructions).toContain('Business write?');
  incomplete=true;await expect(p.decide(request,new AbortController().signal)).rejects.toMatchObject({code:'INVALID_CHECKLIST'});
 });
+it.each(['context_limit','unspecified'])('records only a safe HTTP diagnostic for %s failures',async(category)=>{
+ const fetcher=vi.fn(async()=>Response.json({error:{message:category==='context_limit'?'HTTP 400: {"detail":{"error_type":"max_tokens_exceeded"}} test-secret':'test-secret',metadata:{authorization:'Bearer test-secret'}}},{status:400}));
+ const p=jevProvider({endpoint:'https://test.invalid/decisions',model:'j',apiKey:'test-secret',fetch:fetcher as typeof fetch}),llm=provider('l','a'),f=fixture(p,llm);
+ try {await expect(f.router.decide(task(),{...req,policy:'ranking',fallbackOption:'a'},new AbortController().signal,()=>true)).rejects.toMatchObject({code:'PROVIDER_HTTP_400'});
+  expect(f.store.decisions('t')[0].output).toEqual({httpStatus:400,category,responseBodyRecorded:false});expect(JSON.stringify(f.store.decisions('t'))).not.toContain('test-secret');expect(JSON.stringify(f.store.events('t'))).not.toContain('test-secret');expect(fetcher).toHaveBeenCalledTimes(1);expect(llm.decide).not.toHaveBeenCalled();
+ }finally{f.store.close();}
+});
 it('configures per-purpose thresholds and ignores the retired grouping floor',()=>{
  const p=providersFromEnv({EXPLORER_GROUPING_THRESHOLD:'0.01',EXPLORER_CLASSIFICATION_THRESHOLD:'.91',EXPLORER_IDENTITY_THRESHOLD:'.94',EXPLORER_OPERATION_NOUL_LOW:'.05',EXPLORER_OPERATION_NOUL_HIGH:'.95'});
  expect(p.thresholds).toMatchObject({classification:.91,identity:.94});expect(p.operationProbability).toEqual({low:.05,high:.95});expect(p.groupingThreshold).toBeUndefined();
