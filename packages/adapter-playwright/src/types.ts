@@ -86,6 +86,7 @@ export interface Observation extends CoreObservation<Control> {
   documentId: string; controls: Control[]; regions: Region[]; context: Context;
   components?: BrowserComponent[];
   overlays?: Overlay[];
+  boundaryExitCandidates?: import('./boundary-exit.js').BoundaryExitCandidate[];
   navigation?: BrowserHistory;
   regionCandidates?: RegionCandidate[];
   structuralLists?: StructuralListCandidate[];
@@ -126,6 +127,7 @@ export type Session = CoreSession<SessionOptions>;
 export type ControlIdentity = CoreIdentity<Control>;
 export type HookContext = CoreHookContext<Observation, SessionOptions>;
 export interface EngineHooks extends CoreHooks<Observation, SessionOptions> {
+  boundaryExitReview?: (material: import('./boundary-exit.js').BoundaryExitMaterial, ctx: HookContext) => Promise<import('./boundary-exit.js').BoundaryExitReviewInput | undefined> | import('./boundary-exit.js').BoundaryExitReviewInput | undefined;
   controlClassification?: (material: import('./control-classification.js').ControlClassificationMaterial, ctx: HookContext) => Promise<import('./control-classification.js').ClassifyControlsInput | undefined> | import('./control-classification.js').ClassifyControlsInput | undefined;
   controlReview?: (material: import('./control-review.js').ControlReviewMaterial, ctx: HookContext) => Promise<import('./control-review.js').ControlReviewInput | undefined> | import('./control-review.js').ControlReviewInput | undefined;
   regionReview?: (material: RegionReviewMaterial, ctx: HookContext) => Promise<RegionReviewInput | undefined> | RegionReviewInput | undefined;

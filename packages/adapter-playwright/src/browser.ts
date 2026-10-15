@@ -15,6 +15,8 @@ import { now } from './util.js';
 import { collectRegionCandidates } from './region-candidates.js';
 import { discoverStructuralLists, describeStructuralLists } from './structural-lists.js';
 import type { DiscoveryScanPlan, DiscoverySnapshot } from './discovery-scan.js';
+import { collectBoundaryExits } from './collect-boundary-exits.js';
+import { dismissalReference, exitCandidateKey, hasReviewedDismissal, preservedControlFacts } from './boundary-exit.js';
 import { collectOverlays } from './overlays.js';
 import { collectLiveContent } from './live-content.js';
 import { collectActionEvidence } from './action-evidence.js';
@@ -32,12 +34,13 @@ type DOMSnapshot = {
   documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[];
   overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>;
   components?: Observation['components']; regionCandidates?: Observation['regionCandidates']; structuralLists?: Observation['structuralLists'];
+  boundaryExitCandidates?: Observation['boundaryExitCandidates'];
   actionDiscovery?: Observation['actionDiscovery']; discoveryScan?: DiscoverySnapshot;
   scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence;
 };
 
 // Runs in the page without framework knowledge or DOM mutation.
-function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan) {
+function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, exitCollector: typeof collectBoundaryExits, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
@@ -409,7 +412,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   }
   identityCollector(all.slice(0, 1500), controls);
   const components = componentCollector(all.slice(0, 1500), controls, popupRelations);
-  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, components, ...layers, discoveryScan, discoveryTopology, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
+  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, components, ...layers, boundaryExitCandidates: exitCollector(layers.overlays, instance, selector), discoveryScan, discoveryTopology, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
 
 export class BrowserAdapter implements InteractionDriver<Observation, SessionOptions> {
@@ -476,7 +479,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
     const args = `, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? discoverStructuralLists.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? describeStructuralLists.toString() : 'undefined'}, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}, ${this.discoveryPlan?.status === 'active' ? JSON.stringify(this.discoveryPlan) : 'undefined'}`;
-    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}${args}); })()`;
+    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}, ${collectBoundaryExits.toString()}${args}); })()`;
     const raw = await this.page.evaluate(source) as DOMSnapshot & { discoveryTopology: string[][]; discoveryScan: DiscoverySnapshot };
     const { discoveryTopology, ...dom } = raw;
     dom.discoveryScan.topologyKey = hash(discoveryTopology);
@@ -637,6 +640,14 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   async execute(action: ActionCandidate, control?: Control) {
     this.liveEpoch++;
     const page = this.page!;
+    if (action.kind === 'dismiss') {
+      const point = await this.validateDismissal(action);
+      await page.mouse.move(point.x, point.y);
+      await this.validateDismissal(action);
+      await page.mouse.down();
+      try { await page.mouse.up(); } catch (error) { await page.mouse.up().catch(() => {}); throw error; }
+      return;
+    }
     if (action.kind === 'history') {
       const target = historyTarget(action, await this.readHistory());
       if (!target) throw new EngineError('STALE_OBSERVATION', 'Native history no longer matches the observed return path');
@@ -763,6 +774,14 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // These invariants and declared context apply to every operation, even local ones.
     const global = (o: typeof live | Observation) => canonical({ document: o.documentId, url: o.url, scroll: o.scroll, boundaries: o.boundaries });
     if (global(live) !== global(current) || boundaryBinding(live) !== boundaryBinding(current)) return 'stale';
+    if (action?.kind === 'dismiss') {
+      if (!hasReviewedDismissal(action, current)) return 'stale';
+      const ref = dismissalReference(action)!;
+      const candidate = live.boundaryExitCandidates?.find(c => c.id === ref.facts.candidateId);
+      const preserved = ref.facts.preserved as { localId: string; facts: string }[];
+      return candidate && exitCandidateKey(candidate) === ref.facts.binding && Array.isArray(preserved)
+        && preserved.every(p => preservedControlFacts(live.controls.find(c => c.localId === p.localId)) === p.facts) ? 'valid' : 'stale';
+    }
     const reviewTargets = new Set([...reviewTargetLocalIds, ...(action?.localId ? [action.localId] : [])]);
     const activeIds = activeInteractionIds(current);
     const escapeExit = action?.kind === 'press' && action.value === 'Escape' && !action.controlId && !action.localId && action.boundary?.intent === 'exit' && action.boundary.key === current.boundaries?.at(-1)?.key;
@@ -820,7 +839,23 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (target && action?.risk !== 'interface' && target.displayedText !== live.controls.find(c => c.instanceId === target.instanceId)?.displayedText) return 'stale';
     return 'valid';
   }
+  async validateDismissal(action: ActionCandidate) {
+    const ref = dismissalReference(action);
+    const live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Dismissal validation deadline exceeded');
+    const c = live.boundaryExitCandidates?.find(c => c.id === ref?.facts.candidateId);
+    const preserved = ref?.facts.preserved as { localId: string; facts: string }[] | undefined;
+    if (!c || exitCandidateKey(c) !== ref?.facts.binding || action.value !== c.id || live.boundaries.at(-1)?.key !== c.boundaryKey
+      || live.documentId !== ref.facts.documentId || live.url !== ref.facts.url || live.gaps.some(g => g.critical)
+      || !Array.isArray(preserved) || !preserved.every(p => preservedControlFacts(live.controls.find(c => c.localId === p.localId)) === p.facts)) throw new EngineError('STALE_DISMISSAL_TARGET', 'Outside point or boundary changed');
+    for (const rule of this.options.contextRules) {
+      const locator = this.page!.locator(rule.selector);
+      const value = await locator.count() === 1 ? rule.attribute ? await locator.getAttribute(rule.attribute) : await locator.evaluate(el => 'value' in el ? String((el as HTMLInputElement).value) : el.textContent?.trim() ?? '') : null;
+      if (canonical(value) !== canonical(action.preconditions.context[rule.key]?.value)) throw new EngineError('PRECONDITIONS_CHANGED', 'Declared context changed before outside click');
+    }
+    return c.point;
+  }
   async validate(action: ActionCandidate, control?: Control) {
+    if (action.kind === 'dismiss') await this.validateDismissal(action);
     if (action.kind === 'focus' && (!control || !await this.page!.locator(control.selector).evaluate(el => el.matches('input:not([type=hidden]),textarea,select,button,a[href],[tabindex]') || (el as HTMLElement).isContentEditable))) throw new EngineError('INVALID_INPUT', 'Focus requires a focusable control');
     if (action.kind === 'history' && !historyTarget(action, await this.readHistory())) throw new EngineError('INVALID_INPUT', 'History return requires a previously observed GET entry');
     if (action.kind === 'scroll' && control) {

@@ -1,3 +1,4 @@
+import { hasReviewedDismissal } from './boundary-exit.js';
 import { nativeFormScope } from './dependencies.js';
 import { canonical, id, EngineError, type InteractionAdapter, type EvidenceStore, type Predicate, type InteractionScope } from '@interaction/core';
 import { BrowserAdapter } from './browser.js';
@@ -11,6 +12,7 @@ import { listGroups, structuralListGroups } from './list-groups.js';
 import { decisionScopes } from './decision-scopes.js';
 import type { ActionCandidate, Control, EngineHooks, Observation, Session, SessionOptions } from './types.js';
 export * from './types.js';
+export * from './boundary-exit.js';
 export * from './purpose-review.js';
 export * from './control-review.js';
 export * from './control-classification.js';
@@ -65,7 +67,7 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   returnAction(actions: ActionCandidate[], observation: Observation) {
     return actions.find(a => a.boundary?.intent === 'exit' && a.risk === 'interface' && a.basis?.status !== 'tentative' && !a.excluded
       && a.preconditions.visible && a.preconditions.enabled && !a.preconditions.blockers?.length
-      && (a.replayable && a.preconditions.identityResolved
+      && (hasReviewedDismissal(a, observation) || a.replayable && a.preconditions.identityResolved
         || a.observationId === observation.id && a.preconditions.targetResolved
           && (hasDeclaredBoundaryExit(a, observation) || hasObservedBoundaryExit(a, observation))));
   }

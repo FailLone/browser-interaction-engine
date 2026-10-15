@@ -4,9 +4,10 @@ import { controlReviewSchema, revokeControlReviewSchema } from './control-review
 import { classifyControlsSchema, revokeControlClassificationSchema } from './control-classification.js';
 import { supplementDiscoverySchema } from './discovery-scan.js';
 import { z } from 'zod';
+import { boundaryExitReviewSchema } from './boundary-exit.js';
 import { evidenceRetentionSchema, componentDescriptionSchema, explorationGroupDecisionSchema, explorationGroupResolutionsSchema } from '@interaction/core';
 export const contextSchema = z.record(z.string(), z.object({ value: z.json(), status: z.enum(['known', 'unknown']), source: z.string() }));
-const match = z.object({ role: z.string().optional(), name: z.string().optional(), stableKey: z.string().optional(), kind: z.enum(['click', 'fill', 'select', 'check', 'scroll', 'press', 'hover', 'focus', 'navigate', 'history']).optional(), urlIncludes: z.string().optional() }).strict();
+const match = z.object({ role: z.string().optional(), name: z.string().optional(), stableKey: z.string().optional(), kind: z.enum(['click', 'fill', 'select', 'check', 'scroll', 'press', 'hover', 'focus', 'navigate', 'history', 'dismiss']).optional(), urlIncludes: z.string().optional() }).strict();
 export const evidenceOptionsSchema = z.object({
     enabled: z.boolean().default(true), maxNodes: z.number().int().min(1).max(50000).default(5000),
     maxTextLength: z.number().int().min(1).max(100000).default(20000), maxHtmlLength: z.number().int().min(1).max(10000000).default(2000000),
@@ -46,6 +47,7 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({type:z.literal('revokeControlClassification'),revocation:revokeControlClassificationSchema}).strict(),
   z.object({type:z.literal('reviewControls'),review:controlReviewSchema}).strict(),
   z.object({type:z.literal('revokeControlReview'),revocation:revokeControlReviewSchema}).strict(),
+  z.object({ type: z.literal('reviewBoundaryExit'), review: boundaryExitReviewSchema }).strict(),
   z.object({ type: z.literal('reviewRegions'), review: regionReviewSchema }).strict(),
   z.object({ type: z.literal('reviewListPurpose'), review: listPurposeReviewSchema }).strict(),
   z.object({ type: z.literal('revokePurposeReview'), revocation: revokePurposeReviewSchema }).strict(),

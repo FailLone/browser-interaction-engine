@@ -1,3 +1,4 @@
+import { BoundaryExits } from './boundary-exits.js';
 import { DiscoveryScans } from './discovery-scans.js';
 import { RegionReviews } from './region-reviews.js';
 import { ControlReviews } from './control-reviews.js';
@@ -12,7 +13,7 @@ import type { InspectionResult } from './inspection-types.js';
 import { InteractionEngine as CoreEngine, EngineError, type Persistence, type Predicate, type InteractionScope, type Checkpoint } from '@interaction/core';
 import { RetainedPersistence, type RetentionOptions } from '@interaction/storage-retained';
 import { subscribeEvents, projectEvent, type SubscriptionOptions, type SnapshotEvent, type DeliveryMode } from './subscription.js';
-import { BrowserAdapter, supplementDiscoverySchema, PlaywrightAdapter, commandSchema, regionReviewSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
+import { BrowserAdapter, supplementDiscoverySchema, PlaywrightAdapter, commandSchema, regionReviewSchema, boundaryExitReviewSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
 import { explainBrowserDiff } from './diff-details.js';
 export * from './diff-details.js';
 import { BrowserEvidenceQueries, type DomQuery, type ArtifactKind } from './evidence.js';
@@ -35,6 +36,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   private readonly purposeReviews: PurposeReviews;
   private readonly pages: PageExploration;
   private readonly regions: RegionReviews;
+  private readonly boundaryExits: BoundaryExits;
+  private readonly boundaryExitHook?: EngineHooks['boundaryExitReview'];
   private readonly controls: ControlReviews;
   private readonly classifications: ControlClassifications;
   private readonly discoveryScans: DiscoveryScans;
@@ -70,7 +73,37 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       }
       reviewed=this.controls.apply(actions,o);
     }
-    return reviewed;
+    this.boundaryExits.reconcile(o);
+    if (this.boundaryExitHook && this.boundaryExits.request(o, reviewed, 'hook')) {
+      const result = await this.hook(o.sessionId, 'boundaryExitReview', () => this.boundaryExitHook!(structuredClone(this.boundaryExits.material(o, reviewed)), structuredClone({ session: this.session(o.sessionId), observation: o })));
+      if (result.value !== undefined) {
+        const valid = await this.hook(o.sessionId, 'boundaryExitReview-preflight', async () => {
+          await this.validateExitReview(o, result.value!); return true;
+        });
+        if (valid.value) await this.hook(o.sessionId, 'boundaryExitReview-record', () => this.store.transaction(() => this.boundaryExits.record(o, result.value!)));
+      }
+    }
+    return this.boundaryExits.apply(reviewed, o);
+  }
+  boundaryExitMaterial(sid: string) { return this.boundaryExits.material(this.observation(sid), this.actions(sid)); }
+  private async validateExitReview(o: Observation, input: import('@interaction/adapter-playwright').BoundaryExitReviewInput) {
+    if (input.observationId !== o.id) throw new EngineError('STALE_BOUNDARY_EXIT_REVIEW', 'Review the latest observation');
+    if (this.activeId !== o.sessionId || !(this.driver instanceof BrowserAdapter) || !this.driver.connected()) throw new EngineError('BROWSER_UNAVAILABLE', 'Observe this session before reviewing an exit');
+    const record = this.boundaryExits.prepare(o, input);
+    if (record.decision.mode === 'attempt' && await this.driver.preflight(o, this.boundaryExits.action(record, o)) !== 'valid') {
+      throw new EngineError('STALE_BOUNDARY_EXIT_REVIEW', 'Outside target, boundary or preserved conditions changed');
+    }
+  }
+
+  reviewBoundaryExit(sid: string, input: import('@interaction/adapter-playwright').BoundaryExitReviewInput) {
+    const snapshot = structuredClone(input);
+    return this.enqueueMeasured(sid, async () => {
+      const parsed = boundaryExitReviewSchema.parse(snapshot), o = this.observation(sid);
+      await this.validateExitReview(o, parsed);
+      const record = this.store.transaction(() => this.boundaryExits.record(o, parsed));
+      await this.capture(sid, 'inspection');
+      return this.store.require<import('@interaction/adapter-playwright').BoundaryExitReviewRecord>('boundary-exit-review', record.id);
+    });
   }
   discoveryScanMaterial(sid: string) { return this.discoveryScans.material(this.observation(sid)); }
   supplementDiscovery(sid: string, input: import('@interaction/adapter-playwright').SupplementDiscoveryInput) {
@@ -162,7 +195,18 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   }
   protected override explorationCandidates(items: import('@interaction/core').FrontierItem[], o: Observation) { return this.pages.candidates(items, o, this.session(o.sessionId)); }
   protected override explorationIdleReason(sid: string) { return this.pages.idleReason(sid, this.session(sid)) || this.regions.idleReason(sid, this.outstandingFrontier(sid)); }
+  protected override async runAction(sid: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: import('@interaction/core').ActionAttempt['purpose'] = 'external') {
+    const attempt = await super.runAction(sid, actionId, requestId, value, purpose);
+    this.boundaryExits.finishUnknown(attempt);
+    return attempt;
+  }
   protected override async beforeExplorationStep(sid: string): Promise<'continue' | 'changed' | 'paused'> {
+    const exitFailure = this.boundaryExits.blockingResult(sid);
+    if (exitFailure) {
+      const session = this.session(sid); session.status = 'paused'; session.stopReason = 'BOUNDARY_EXIT_UNVERIFIED'; this.store.put('session', session);
+      this.publish(sid, 'exploration.paused', { reason: session.stopReason, resultId: exitFailure.id });
+      return 'paused';
+    }
     const o = this.observation(sid);
     this.regions.gate(o, this.session(sid));
     if (!this.pages.shouldReturn(o, this.session(sid), () => this.getFrontier(sid))) return 'continue';
@@ -213,7 +257,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     this.classifications.reconcile(observation, reviewed);
     return this.classifications.apply(reviewed, observation);
   }
-  protected override validatePreparedAction(action: ActionCandidate, observation: Observation) { this.classifications.validate(action, observation); this.controls.validate(action, observation); this.purposeReviews.validate(action, observation); }
+  protected override validatePreparedAction(action: ActionCandidate, observation: Observation) { this.boundaryExits.validate(action, observation); this.classifications.validate(action, observation); this.controls.validate(action, observation); this.purposeReviews.validate(action, observation); }
   purposeReviewMaterial(sessionId: string, groupId: string) { return this.purposeReviews.material(this.observation(sessionId), this.actions(sessionId), groupId); }
   reviewListPurpose(sessionId: string, review: ListPurposeReviewInput) {
     return this.enqueueMeasured(sessionId, async () => this.store.transaction(() => this.purposeReviews.record(this.observation(sessionId), this.actions(sessionId), review)));
@@ -224,6 +268,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   override async createSession(input: unknown) { return super.createSession(validateInspectionOptions(input)); }
   protected override beforeCapture(sessionId: string, observationId: string) { return this.inspections.prepare(sessionId, observationId); }
   protected override afterCapture(observation: Observation, previous?: Observation, attemptId?: string) {
+    this.boundaryExits.finish(observation, previous, attemptId);
+    this.boundaryExits.request(observation, this.actions(observation.sessionId), 'event');
     this.discoveryScans.reconcile(observation);
     this.pages.reconcile(observation, previous, this.session(observation.sessionId));
     this.purposeReviews.reconcile(observation, this.actions(observation.sessionId));
@@ -303,6 +349,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       }
     });
     super({ persistence: options.persistence instanceof RetainedPersistence ? options.persistence : new RetainedPersistence(options.persistence, options.retention), adapter: new PlaywrightAdapter(options.hooks), hooks: options.hooks });
+    this.boundaryExits = new BoundaryExits(this.store, (sid, type, data) => this.publish(sid, type, data));
+    this.boundaryExitHook = options.hooks?.boundaryExitReview;
     this.discoveryScans = new DiscoveryScans(this.store, (sid, type, data) => this.publish(sid, type, data));
     this.pages = new PageExploration(this.store);
     this.regions = new RegionReviews(this.store, (sid, type, data) => this.publish(sid, type, data));
@@ -326,6 +374,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       case 'revokeControlClassification': return this.revokeControlClassification(sessionId, command.revocation);
       case 'reviewControls': return this.reviewControls(sessionId,command.review);
       case 'revokeControlReview': return this.revokeControlReview(sessionId,command.revocation);
+      case 'reviewBoundaryExit': return this.reviewBoundaryExit(sessionId, command.review);
       case 'reviewRegions': return this.reviewRegions(sessionId, command.review);
       case 'describeComponent': { const { type: _, ...description } = command; return this.describeComponent(sessionId, description); }
       case 'probe': return this.probe(sessionId, command.observationId, command.localId, command.kind, command.requestId);

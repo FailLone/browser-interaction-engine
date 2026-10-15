@@ -14,6 +14,9 @@ export function collectPopupRelations() {
     for (let parent = content.parentElement, depth = 0; parent && parent !== document.body && depth < 6; parent = parent.parentElement, depth++) {
       if (parent.matches('main,nav,header,footer,aside,form,dialog,[role=dialog],[role=alertdialog],[role=main],[role=navigation],[role=complementary],[aria-modal=true],[popover]')) break;
       if (parent.querySelectorAll('[role=listbox],[role=menu]').length !== 1) break;
+      // A positioned owner containing the explicit opener is not itself the popup.
+      if (content.id && Array.from(parent.querySelectorAll('[aria-controls],[aria-owns],[popovertarget]')).some(e => !content.contains(e)
+        && ['aria-controls', 'aria-owns', 'popovertarget'].some(a => e.getAttribute(a)?.split(/\s+/).includes(content.id)))) break;
       if (['absolute', 'fixed'].includes(getComputedStyle(parent).position)) {
         if (panel === content) panel = parent;
         // An enclosing positioned panel owns its sibling search field as well
