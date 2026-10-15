@@ -87,6 +87,9 @@ importers:
       '@interaction/browser':
         specifier: workspace:*
         version: link:../../packages/browser
+      '@interaction/rules':
+        specifier: workspace:*
+        version: link:../../packages/rules
       '@interaction/storage-sqlite':
         specifier: workspace:*
         version: link:../../packages/storage-sqlite
@@ -150,6 +153,9 @@ importers:
       '@interaction/browser':
         specifier: workspace:*
         version: link:../browser
+      '@interaction/rules':
+        specifier: workspace:*
+        version: link:../rules
 
   packages/core:
     dependencies:

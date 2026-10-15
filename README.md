@@ -172,6 +172,8 @@ Modal、popover 与浮动菜单建立独占交互范围，DFS 先探索当前最
 
 ## UI 检查支撑
 
+调试页的 **UI 检查 → 规则插件** 已接入遮盖、控件裁切、文字截断三个插件。创建会话时开启检查任务，选择采集记录并点击“运行选中规则”，即可查看逐控件结果、依据和历次检测记录。运行使用默认规则，读取截至所选任务的历史，不发起滚动，也不占用探索命令队列。接入、保留期限和扩展方法见 [调试页规则插件](docs/RULE-PLUGINS.md)。
+
 `main` 已提供初始/操作后检查任务、弹层范围与前后基线、常规空间证据、有限消费租约及 SDK/HTTP 接口。创建会话时传 `inspection: {}` 开启；外部检查规则与接入方式见 [UI 检查 API](docs/INSPECTION-API.md)。显式 hover/focus probe、组件关系和局部证据查询见 [复合控件与探测](docs/COMPONENTS-AND-PROBES.md)。已提供有界 DOM 文字 Range 矩形；中间态、字形像素与 iframe/Shadow DOM 取证仍为后续工作。
 
 可选的 `@interaction/rules` 插件支持按配置或上层 Agent 选择版本化规则，保存逐控件的 pass/fail/unknown/not-applicable 与严重度。首条 `sampled-occlusion` 只检查历史采样点命中，遮挡待核实时输出 warning，不将 sticky/fixed 或滚动到底直接判断为 error。规则写法、当前边界与接入示例见 [控件检查规则](docs/CONTROL-RULES.md)。

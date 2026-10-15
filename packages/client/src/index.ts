@@ -1,5 +1,7 @@
 import type { InspectionOptionsInput, InspectionResult, CaptureProfile, inspectionCapabilities, validateCaptureProfile } from '@interaction/browser';
 import type { ScrollProbeOptions } from '@interaction/browser';
+import type { RulePluginInfo, RulePluginRun, RulePluginRunRequest } from '@interaction/rules';
+export type { RulePluginInfo, RulePluginRun, RulePluginRunRequest, RulePluginResult, RuleCheck } from '@interaction/rules';
 import type { BrowserComponent, ComponentDetails, ComponentDescription, ComponentDescriptionInput } from '@interaction/browser';
 import type { BrowserDiffDetails, Command, ActionCandidate, ActionAttempt, Checkpoint, EngineEvent, FrontierItemView, BrowserFrontierCoverageGroup, Graph, Observation, Session, SessionOptions } from '@interaction/browser';
 import type { ObservationDetails, ControlDetails, RegionDetails, DomResult, DomQuery, EventContext, ArtifactKind, EvidenceOptions, EvidenceRetentionPolicy, SubscriptionOptions, BrowserEngine, evidenceCapabilities } from '@interaction/browser';
@@ -12,6 +14,9 @@ export class InteractionClient {
     if (!response.ok) throw Object.assign(new Error(result.error?.message || response.statusText), result.error || {}); return result as T;
   }
   sessions() { return this.request<Session[]>('/sessions'); }
+  rulePlugins() { return this.request<{ plugins: RulePluginInfo[]; maxHistory: number }>('/rule-plugins'); }
+  ruleRuns(id: string, inspectionId: string) { return this.request<{ items: RulePluginRun[] }>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/rule-runs`); }
+  runRules(id: string, inspectionId: string, request: RulePluginRunRequest) { return this.request<RulePluginRun>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/rule-runs`, request); }
   evidenceCapabilities() { return this.request<typeof evidenceCapabilities>('/capabilities/evidence'); }
   createSession(options: Pick<SessionOptions, 'url'> & Partial<Omit<SessionOptions, 'evidence' | 'evidenceRetention' | 'inspection'>> & { inspection?: InspectionOptionsInput; evidence?: Partial<EvidenceOptions>; evidenceRetention?: Pick<EvidenceRetentionPolicy, 'mode'> & Partial<EvidenceRetentionPolicy> }) { return this.request<Session>('/sessions', options); }
   inspectionCapabilities() { return this.request<typeof inspectionCapabilities>('/capabilities/inspection'); }
