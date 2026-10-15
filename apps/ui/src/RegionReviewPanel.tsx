@@ -22,8 +22,8 @@ export function RegionReviewPanel({ material, busy, perform }: { material: Regio
     const ids = pool.filter(id=>!omitted.includes(id)); if (!ids.length && !traversal) return;
     setDraft(old=>[...old.map(r=>traversal?{...r,pageTraversal:false}:r),{key:crypto.randomUUID(),label:label.trim()||candidates.filter(c=>selected.includes(c.id)).map(c=>c.label).join(' + '),candidateIds:selected,controlIds:ids,pageTraversal:traversal}]);setSelected([]);setOmitted([]);setLabel('');setTraversal(false);
   };
-  return <section className="region-review" aria-label="业务区域划分">
-    <h3>先确认业务区域</h3><p className="muted">候选来自容器、标题和布局线索。可合并候选，或挑选部分控件拆成多个区域；这一步只确认划分，随后再决定测哪些区域。</p>
+  return <section className="region-review" aria-label="探索区域划分">
+    <h3>先确认探索区域</h3><p className="muted">候选来自容器、标题和布局线索。可合并候选，或挑选部分控件拆成多个区域；这一步只确认划分，随后再决定测哪些区域。</p>
     <p>尚未划分 {material.unassignedControlIds.length} 个可操作控件{material.unassignedPageTraversal ? '，页面滚动也待指定所属区域' : ''}</p>
     {material.review && <details><summary>上次划分：{material.review.status === 'active' ? '含有效区域' : '已失效'}</summary>{material.review.regions.map(r=><p key={r.key}>{r.label} · {r.controlIds.length} 个控件 · {r.status === 'active' && material.review?.status==='active' ? '有效' : '需重新确认'}</p>)}</details>}
     <div className="review-toolbar"><button disabled={busy} onClick={()=>begin(false)}>开始或调整划分</button><button disabled={busy} onClick={()=>begin(true)}>采用建议生成草稿</button></div>

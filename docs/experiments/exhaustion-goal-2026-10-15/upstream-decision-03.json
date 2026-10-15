@@ -1,0 +1,24 @@
+{
+  "observationId": "00d59c80-91d8-4a8c-99e7-c5c3e6004afc",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "resolutions": [
+    {
+      "groupId": "54b10c3e-2e59-4597-978c-5624fdeb31fd",
+      "revision": 2,
+      "decision": {
+        "mode": "sample",
+        "memberKeys": [
+          "5566497422c04a385734f3007e3931eda75281ac6c763d607d05c967749b05f0"
+        ],
+        "source": "upstream-review:gpt-5.6-sol",
+        "evidence": [
+          "The selected member belongs to the current observation 00d59c80-91d8-4a8c-99e7-c5c3e6004afc; the older 1INCH member is historical and is not reused.",
+          "Current member key 5566497422c04a385734f3007e3931eda75281ac6c763d607d05c967749b05f0 resolves to localId c76ac0fc-43ab-4a95-b480-e563a8b2cb70:464, label 1INCH, click, risk interface, and excluded false.",
+          "The current node remains a visible, enabled, unobscured native button in source-currency listbox c76ac0fc-43ab-4a95-b480-e563a8b2cb70:459 with a true hit target; its approved purpose is selecting 1INCH.",
+          "The list remains a same-owner structural similarity group whose total size and business equivalence are unverified, so a one-member non-current sample remains appropriate; all unselected members remain uncovered."
+        ]
+      }
+    }
+  ]
+}

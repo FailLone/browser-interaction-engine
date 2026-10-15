@@ -80,7 +80,7 @@ export class RegionReviews {
     this.reconcile(o); const review = this.current(o.sessionId); if (!review) return [];
     return review.regions.filter(r => r.status === 'active').map(r => ({ key: `reviewed-region:${r.key}`, kind: 'reviewed-region', label: r.label,
       conditions: { regionReviewId: review.id, regionKey: r.key, anchors: r.anchors, context: review.contextKey, url: review.url },
-      collection: { key: review.id, label: '已确认业务区域', evidence: [{ source: review.source, rule: 'caller-region-partition/v1', facts: { reviewId: review.id, evidence: review.evidence } }] },
+      collection: { key: review.id, label: '已确认探索区域', evidence: [{ source: review.source, rule: 'caller-region-partition/v1', facts: { reviewId: review.id, evidence: review.evidence } }] },
       actionIds: actions.filter(a => a.localId && r.controlIds.includes(a.localId) && a.kind !== 'scroll' && a.boundary?.intent !== 'exit').map(a => a.id),
       traversalActionIds: actions.filter(a => (a.localId ? r.controlIds.includes(a.localId) : r.pageTraversal) && a.kind === 'scroll' && a.boundary?.intent !== 'exit').map(a => a.id),
       evidence: [{ source: review.source, rule: 'caller-region-partition/v1', facts: { reviewId: review.id, evidence: review.evidence, anchors: r.anchors } }],

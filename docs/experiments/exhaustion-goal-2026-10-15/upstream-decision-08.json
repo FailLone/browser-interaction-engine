@@ -1,0 +1,173 @@
+{
+  "observationId": "0d4935c4-d3aa-4293-a2cc-bd4373061d04",
+  "documentId": "7f6f1b34-e0b5-4932-9721-147d4257c542",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "source": "upstream-review:gpt-5.6-sol",
+  "resolutions": [],
+  "exitAudit": {
+    "attemptId": "7430bdb9-eadf-46d3-92c6-ebd925b48ec8",
+    "dispatchStatus": "succeeded",
+    "semanticStatus": "passed",
+    "conditions": [
+      {
+        "condition": "Trade primary rows disappear",
+        "passed": true,
+        "evidence": "Convert, Spot, Flash Earn, Agent Trade Kit, and RFQ are absent from the current visible-control inventory and screenshot."
+      },
+      {
+        "condition": "Spot nested pane disappears",
+        "passed": true,
+        "evidence": "USDT/Crypto tabs, Search, and the six Spot market rows are absent from the current visible-control inventory and screenshot."
+      },
+      {
+        "condition": "Institutional panel appears",
+        "passed": true,
+        "evidence": "Institutional :318 is aria-expanded=true and seven Institutional-owned rows :319 through :325 are visible in the screenshot and current state."
+      }
+    ],
+    "conclusion": "Top-level sibling-menu switching is now verified as a reliable way to exit one header panel while continuing header coverage. This does not establish same-button dismissal, outside-click dismissal, or Escape dismissal."
+  },
+  "structureDecision": {
+    "engineGroup": "none",
+    "mode": "individual",
+    "reason": "The seven Institutional rows have distinct labels, hrefs, and purposes, and no current similarity group exists. Preserve them as individual navigation checks rather than treating them as interchangeable or silently skipping six of them.",
+    "unattemptedMembers": [
+      {"localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:319", "label": "Institutional home", "href": "/institutional"},
+      {"localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:320", "label": "OKX Rubix", "href": "/rubix"},
+      {"localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:321", "label": "APIs", "href": "/okx-api"},
+      {"localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:322", "label": "Broker Program", "href": "/broker/home"},
+      {"localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:323", "label": "Managed Trading Sub-accounts", "href": "/managed-sub-account"},
+      {"localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:324", "label": "Historical market data", "href": "/historical-data"},
+      {"localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:325", "label": "Institutional Insights", "href": "/landingpage/institutionalinsights"}
+    ]
+  },
+  "reviews": [
+    {
+      "localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:319",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": true,
+      "source": "upstream-review:gpt-5.6-sol",
+      "reason": "Verify Institutional home arrival, then skip destination depth and history-return.",
+      "evidence": ["Visible native hyperlink with supported click evidence and href /institutional.", "Screenshot supplies the distinct label and description; current node is enabled and directly hittable."]
+    },
+    {
+      "localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:320",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": true,
+      "source": "upstream-review:gpt-5.6-sol",
+      "reason": "Verify OKX Rubix arrival, then return without destination traversal.",
+      "evidence": ["Visible native hyperlink with supported click evidence and href /rubix.", "Distinct row text describes regulated institutional digital-assets service."]
+    },
+    {
+      "localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:321",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": true,
+      "source": "upstream-review:gpt-5.6-sol",
+      "reason": "Verify APIs arrival, then return without destination traversal.",
+      "evidence": ["Visible native hyperlink with supported click evidence and href /okx-api.", "Distinct row text describes API connectivity."]
+    },
+    {
+      "localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:322",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": true,
+      "source": "upstream-review:gpt-5.6-sol",
+      "reason": "Verify Broker Program arrival, then return without destination traversal.",
+      "evidence": ["Visible native hyperlink with supported click evidence and href /broker/home.", "Distinct row text describes market depth and commissions."]
+    },
+    {
+      "localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:323",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": true,
+      "source": "upstream-review:gpt-5.6-sol",
+      "reason": "Verify Managed Trading Sub-accounts arrival, then return without destination traversal.",
+      "evidence": ["Visible native hyperlink with supported click evidence and href /managed-sub-account.", "Distinct row text identifies sub-account management."]
+    },
+    {
+      "localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:324",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": true,
+      "source": "upstream-review:gpt-5.6-sol",
+      "reason": "Verify Historical market data arrival, then return without destination traversal.",
+      "evidence": ["Visible native hyperlink with supported click evidence and href /historical-data.", "Distinct row text identifies candles, trades, and order-book data."]
+    },
+    {
+      "localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:325",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": true,
+      "source": "upstream-review:gpt-5.6-sol",
+      "reason": "Verify Institutional Insights arrival, then return without destination traversal.",
+      "evidence": ["Visible native hyperlink with supported click evidence and href /landingpage/institutionalinsights.", "Distinct row text identifies institutional research and news."]
+    },
+    {
+      "localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:326",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": true,
+      "source": "upstream-review:gpt-5.6-sol",
+      "reason": "Switch from Institutional to Learn to verify the proven sibling-menu exit pattern and inspect the next header panel.",
+      "evidence": ["Learn is a visible enabled native button with supported click action and a true hit target.", "Institutional is currently expanded; the preceding Institutional click proved a sibling header button can replace Trade/Spot with its own panel."]
+    }
+  ],
+  "lifecyclePlan": {
+    "exitCurrent": {
+      "method": "switch-to-Learn",
+      "localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:326",
+      "passConditions": [
+        "Institutional rows :319 through :325 become non-visible.",
+        "A Learn-owned panel and current Learn members become visible."
+      ]
+    },
+    "reenterInstitutional": {
+      "status": "allowed-after-Learn-observation",
+      "instruction": "Use the then-current Institutional control, not a stale localId after navigation. Require Institutional rows to reappear before recording reentry success."
+    },
+    "wholeMenuDismissal": {
+      "status": "still-unverified",
+      "reason": "Sibling switching proves replacement, not dismissal to a no-menu state.",
+      "neededEvidence": "A boundary Escape action, a concrete outside-click target, or a same-button attempt whose post-state removes the panel."
+    }
+  },
+  "nextAction": {
+    "localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:326",
+    "kind": "click",
+    "reason": "Switch to Learn. This extends verified top-level menu coverage without navigating away and supplies a second data point for the sibling-switch protocol."
+  },
+  "protocolAssessment": {
+    "solvableByProgramProtocol": [
+      "Separate action dispatch success from semantic postcondition success; require explicit postconditions for open, close, switch, and navigation.",
+      "Treat sibling header-menu switching as a reusable lifecycle strategy only after matching visible-owner replacement postconditions.",
+      "Persist reviews by stable logical identity only within the same document and rebind to a current localId; invalidate instance approvals when documentId changes.",
+      "Wait for loading regions to settle and re-observe before declaring a list empty, complete, or ready for sampling.",
+      "Discover candidate custom collections from a shared visible owner, repeated role/tag/action/href shape, and current-observation membership; never mix historical members into the active sample.",
+      "On navigation, automatically create a page boundary decision, limit destination actions, history-return, and force fresh entry-document review.",
+      "Keep skipped or unsampled members as explicit untested coverage instead of deleting them from the frontier."
+    ],
+    "requiresCurrentPageFacts": [
+      "Whether an overlay is actually open, closed, replaced, loaded, visible, or hittable.",
+      "Which current localId corresponds to a named control after re-render or return.",
+      "Whether visually similar rows truly share one owner and operation structure.",
+      "The actual href, label, selected state, accessibility state, occlusion, and scroll boundary of each current node."
+    ],
+    "requiresUpstreamPurposeJudgment": [
+      "Whether a discovered collection should be exhausted, sampled, deferred, or skipped.",
+      "Which members are representative when business purposes differ despite structural similarity.",
+      "Whether an unnamed or pointer-only custom target has enough evidence for a specific purpose.",
+      "How deeply a destination may be explored and whether persistent preference changes are in scope.",
+      "Risk and replayability where the UI evidence does not establish business side effects."
+    ]
+  },
+  "remainingWork": [
+    "All seven Institutional navigation rows remain unattempted.",
+    "The prior Spot tabs, Search, sampled BTC/USDT navigation, and five unsampled market rows remain recorded as untested.",
+    "Trade direct navigation rows remain approved but unattempted.",
+    "Whole-menu dismissal and return to a no-header-panel state remain unverified."
+  ]
+}

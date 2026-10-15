@@ -1,0 +1,281 @@
+{
+  "id": "0b358d03-82dc-4a83-8202-7a5b9bcdaeab",
+  "sessionId": "0c2ef192-9fd4-4a52-aaa6-adf8463d8037",
+  "requestId": "f5e58805-39ae-434c-8c19-8e38b62a9504",
+  "action": {
+    "id": "854ff011-c2ab-48f0-a02b-242b3f8b4a73",
+    "sessionId": "0c2ef192-9fd4-4a52-aaa6-adf8463d8037",
+    "observationId": "c040a9f2-532f-4997-86e7-f8c10e60ec70",
+    "stateId": "46e6722b-7761-4696-911d-97809369a023",
+    "controlId": "70535ef4-309d-43f7-a879-38ecaaa1a3dc",
+    "localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:307",
+    "kind": "click",
+    "label": "Open Spot sub-menu",
+    "preconditions": {
+      "context": {},
+      "visible": true,
+      "enabled": true,
+      "identityResolved": true,
+      "blockers": [],
+      "targetResolved": true
+    },
+    "basis": {
+      "status": "supported",
+      "evidence": [
+        {
+          "source": "aria",
+          "rule": "declared-activation/v1",
+          "facts": {
+            "role": "button",
+            "implementation": "unverified"
+          }
+        },
+        {
+          "source": "reviewer",
+          "rule": "sourced-control-review/v1",
+          "facts": {
+            "reviewId": "7f9ff61f-1a00-4dff-a878-716f81351c94",
+            "reason": "Use the currently expanded Spot expander as a close probe for the nested pane before trying another submenu.",
+            "evidence": [
+              "The current localId is an enabled ARIA button with supported activation, tabindex=0, a true hit target, and aria-expanded=true.",
+              "The preceding attempt successfully changed this same current-document node from aria-expanded=false to true and exposed the right pane.",
+              "The screenshot places the expander chevron on the highlighted Spot row, disambiguating it from the separate Spot navigation link localId :306."
+            ]
+          }
+        }
+      ]
+    },
+    "replayable": true,
+    "risk": "interface",
+    "source": "external-review",
+    "excluded": false,
+    "sampleValidity": "known"
+  },
+  "startedAt": "2026-10-15T04:49:29.217Z",
+  "beforeId": "c040a9f2-532f-4997-86e7-f8c10e60ec70",
+  "status": "succeeded",
+  "purpose": "external",
+  "afterId": "40177a8c-c348-4a49-ae85-95f4cead6b1f",
+  "finishedAt": "2026-10-15T04:49:31.117Z",
+  "diff": {
+    "beforeId": "c040a9f2-532f-4997-86e7-f8c10e60ec70",
+    "afterId": "40177a8c-c348-4a49-ae85-95f4cead6b1f",
+    "changes": [],
+    "gaps": [
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "7154280f-3c95-402e-8f48-c180618b1df6"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "9a52d8d1-071d-4653-8149-232abd8545ee"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "860ce3c5-09b5-4d61-90b6-6ef839a00314"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "08710782-6c57-4c8d-82ca-2e56c3f9d677"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "aebee3d2-77af-48e0-b887-61399547165e"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "87e3bfb6-5e3e-428a-afbb-43f7db4162db"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "be7ad54b-3533-473d-9830-5cf2270024aa"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "7c519bad-f5d9-4ad7-967a-6445913ab2b3"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "6efd355d-fb49-4da9-baf7-e5fef1cc8fe8"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "8c1d2f13-686f-4cf3-ae39-7c16de6c5bf0"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "3fef399d-8a9a-4562-9aa2-2e56245f6ed6"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "f02996cc-91c5-4587-93bb-2e6a293e646e"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "35ee4436-16d8-4d6e-b911-d3993309943f"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "e608d61e-e6be-4f8f-8cc4-c1124233676a"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "cc6da5bc-7ba7-46f7-9ee7-6c40f2026bae"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "426e8f91-678b-4605-9cfe-5ffadc58d91b"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "9052aeb0-d1e7-4c28-b07d-cca6e54e8fb6"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "f95a632e-cedb-41bc-8538-1d377ea5b4b9"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "ffbf2b09-bc07-41ea-b3bb-f74b5481959d"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "c8354429-a972-4134-93df-b586e63a277c"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "492e8e26-05fc-4f4e-bf8a-bf3ba2b6bbed"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "cea50cf9-56a9-4b65-857c-ad2bd120323c"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "acae85b3-a362-4e98-96de-aa514b90a113"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "5cb5cf95-fb5b-4215-891e-b5a07f0913c4"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "e49a335b-2ccc-421a-aaa5-cc192036c930"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "a5e5402a-ac69-4a64-b0af-e3e9edd06b88"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "5a78be4c-7d4d-4a71-867f-00a92d0b6a9d"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "44f17a19-1559-493c-b664-fb0a1dbd120b"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "52bcf71c-4121-49ba-8b65-92ab1acf55c5"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "7ba3e48e-c3d9-4251-8ff7-f3b05de36f4a"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "f45ff03a-c8ee-4e94-8448-cd8bbc688fcb"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "09db03a7-13b5-4efb-9be6-fcb6ee1ee3d7"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "c0d3725f-05e1-4e85-99de-8b9e581e7775"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "362d39a6-93ca-44b7-8371-0c9dc4b97bf0"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "94b308e4-9861-431d-a44e-81471ab7091a"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "807600f2-1910-427b-8e16-e8bc6a5bbab5"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "ac20b0c0-1d07-4f10-a6a3-db61013f3a4b"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "067af72c-65d8-4821-a9bc-dedb50be5b9f"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "1bf7ba4f-a84d-4b6d-99e2-98145aa37e4e"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "59e7f254-4aa2-4230-8554-f73976331937"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "1a0cc07b-89b3-4924-8164-3af102013f04"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "1ac5f49a-4e3d-4afd-a1c3-119c7450e7af"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "1de42d03-fc7c-4819-af75-f0322799ae24"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "0dd12357-87a1-41c1-992f-418302317d60"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "36208afd-a9e0-49fa-ac37-9edbd517d737"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "3cab8e21-1f72-4834-beb0-d6059e9fcde2"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "498827c7-17aa-4215-8faa-e3ff88c5b642"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "1d7aa27b-3462-45a0-8171-94496569fb47"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "7fa3fc79-d3f8-4f42-ba23-45a54d209be7"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "60f61d85-7ed6-4975-8079-65fa33b61f01"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "607146ed-393c-4862-bd9c-fd468c45bcdc"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "215cedbd-4633-47ef-84f0-f16bc2a156e1"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "bba3ae1b-35f5-4841-867a-5c80bde5889c"
+      }
+    ],
+    "attribution": "observed_during_interval"
+  },
+  "transitionId": "9daecf86-1331-4b90-9279-2ed8d18ca11f"
+}

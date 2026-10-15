@@ -1,10 +1,12 @@
-# 可审阅的业务区域候选
+# 可审阅的探索区域候选
 
-当页面没有充分的区域语义时，调用方可以先确认业务边界，再决定探索深度。引擎提供可追溯的结构建议，不根据站点名称、CSS 类名或模型推断业务目的。
+当页面没有充分的区域语义时，调用方可以先确认探索边界，再决定探索深度。引擎提供可追溯的结构建议，不根据站点名称、CSS 类名或模型推断业务目的。
+
+纯 UI 巡检也适用：区域可以只是导航、图表、表单或页脚，不要求声明业务目标。是否测试以及测试深度仍由上层决定；声明业务上下文仅用于在调用方知道条件时约束判断有效期。
 
 ## 启用与流程
 
-新会话显式设置 `regionExploration: 'review'`；默认 `off` 保持现有行为。调试页提供“先确认业务区域再探索”选项。此模式代替可选 `decisionScopes` 中的 region/branch 粒度，不允许同时开启这两项，以免确认业务区域后仍须逐个批准所有入口。similar-list、input-space、目的页以及调用方自定义范围仍各自约束操作。
+新会话显式设置 `regionExploration: 'review'`；默认 `off` 保持现有行为。调试页提供“先确认探索区域再探索”选项。此模式代替可选 `decisionScopes` 中的 region/branch 粒度，不允许同时开启这两项，以免确认探索区域后仍须逐个批准所有入口。similar-list、input-space、目的页以及调用方自定义范围仍各自约束操作。
 
 1. 观察生成候选：语义容器、附近标题、flex/grid 或边框布局，以及整页后备。返回容器实例、选择器、矩形、控件成员、父候选和来源证据；同名容器保持不同实例。
 2. `region.review_requested` 通知上层有未划分的控件或页面滚动。调用方读取材料，确认、合并、拆分或拒绝建议。
@@ -33,7 +35,7 @@ await client.reviewRegions(sessionId, {
 
 `POST /v1/sessions/:sessionId/commands` 使用 `{ type: 'reviewRegions', review }`。`regions` 每项包含：
 
-- `key` / `label`：上层指定的唯一键及业务名称。
+- `key` / `label`：上层指定的唯一键及区域名称。
 - `candidateIds`：本次观察中的一个或多个候选；多个候选取成员并集，实现合并。
 - `controlIds`：可选的明确子集。省略则采用候选中全部可操作控件；同一候选可按不同子集拆成多个区域。区域之间不得重复分配控件。
 - `pageTraversal`：默认 false，可显式将整个页面滚动归给一个区域；同一划分最多一个区域包含它。该区域选 all 才允许自动滚动，sample 不会放行遍历。也支持空 controlIds 的纯页面发现范围。
@@ -51,6 +53,10 @@ await client.reviewRegions(sessionId, {
 持久事件包括 `region.review_requested`（观察和候选引用）、`region.reviewed`（确认记录）、`region.review_invalidated`（失效区域及原因）。同一未变材料不反复通知；仅重读观察也不重复请求。通过 `GET /v1/sessions/:sessionId/region-reviews` 查询历史，或 SDK 通用 list 查询。事件引用可过期，异步消费者需重新获取材料，不可机械替换 observationId 重试。
 
 调试页支持建议草稿、修改名称、多个候选合并、按成员拆分、拒绝候选及页面滚动归属；草稿期间观察更新会禁用提交。确认后在同页的探索决策面板选择穷尽、样本或暂缓。
+
+完整的外部接入示例见 [external-exploration-review.ts](../examples/external-exploration-review.ts)。启动 API 服务后运行 `pnpm exec tsx --conditions=development examples/external-exploration-review.ts URL`，或者用 `--session SESSION_ID` 接管现有会话。示例订阅持久事件作为通知；操作者触发审阅时先暂停，读取当前划分材料，提交上层提供的 JSON 文件，再读取新产生的范围并提交决策数组，最后恢复允许范围内的探索。纯 UI 巡检可直接用布局区域，不要求业务上下文。
+
+区域文件使用上文 `RegionReviewInput`；深度文件是 `[{ groupId, revision, decision: { mode, source, evidence, memberKeys? } }]`。所有引用取自当次材料，sample 的 memberKeys 必须是该组已观察成员。空答复保留待决；defer 后可再次审阅或通过 UI/SDK 调整。目的页与列表的独立待决范围也包含在第二步材料中，区域 all 不替它们作决定。过期提交失败时保持暂停，下一轮重新审阅，绝不只替换版本号重试。结束接管会暂停浏览器并打印审计；见[完成审计的口径和边界](EXPLORATION-AUDIT.md)。
 
 ## 有效期与边界
 
