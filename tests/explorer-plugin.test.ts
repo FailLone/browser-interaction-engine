@@ -127,6 +127,27 @@ it('never replays an unknown dispatched outcome after restart',async()=>{
  plugin=new ExplorerPlugin(host,new ExplorerStore(path),fakeProviders(f.url));plugin.start(t.id);await plugin.waitForIdle();expect(dispatches).toBe(1);expect(plugin.view(t.id).task.reason).toBe('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
  }finally{await plugin.close();await f.close();}
 });
+it('isolates a terminal unknown hyperlink in a new round without replaying it or claiming coverage',async()=>{
+ const f=await explorerFixture('<a href="?destination=1">Details</a><button type="button" onclick="this.disabled=true">Independent</button>');
+ const providers=fakeProviders(f.url),original=providers.jev.decide;let unknownId:string|undefined;let links=0;const path=join(f.dir,'plugin.sqlite');
+ providers.jev.decide=async(r,s)=>{if(r.purpose==='next-action'){const link=Object.entries(r.options!).find(([,a])=>(a as any).label==='Details');if(link)return {model:'mock',value:link[0],confidence:1};}return original(r,s);};
+ const host=new Proxy(f.host,{get(target,key){if(key==='execute')return async(...args:Parameters<typeof target.execute>)=>{const a=await target.execute(...args);if(a.action.label==='Details'){links++;unknownId=a.id;return {...a,status:'unknown' as const};}return a;};if(key==='list')return (sid:string,kind:string)=>target.list<any>(sid,kind).map(x=>kind==='attempt'&&x.id===unknownId?{...x,status:'unknown'}:x);const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;}});
+ let plugin=new ExplorerPlugin(host,new ExplorerStore(path),providers);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:3,actions:10,modelRequests:100}});plugin.start(t.id);await plugin.waitForIdle();let view=plugin.view(t.id);
+ expect(links).toBe(1);expect(view.task.rounds).toHaveLength(2);expect(view.task.usage.actions).toBe(2);expect(view.task.unverifiedNavigations).toEqual([{sourceUrl:f.url,targetUrl:f.url+'?destination=1',evidence:expect.objectContaining({attemptId:unknownId,sessionId:view.task.rounds[0].sessionId})}]);
+ expect(f.host.list<any>(view.task.rounds[1].sessionId,'attempt').map(a=>a.action.label)).toEqual(['Independent']);expect(view.task.status).not.toBe('completed');expect(view.task.pendingDispatch).toBeUndefined();expect(view.task.plan.some(i=>i.scope.label==='Details'&&i.status==='unresolved')).toBe(true);expect(view.events.some(e=>e.type==='navigation.isolated')).toBe(true);
+ await plugin.close();plugin=new ExplorerPlugin(host,new ExplorerStore(path),providers);plugin.start(t.id);await plugin.waitForIdle();view=plugin.view(t.id);
+ expect(links).toBe(1);expect(view.task.usage.actions).toBe(2);expect(view.task.unverifiedNavigations).toHaveLength(1);expect(view.task.status).not.toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
+it.each(['dirty','executing','unfinished'])('keeps %s unknown hyperlink outcomes blocked',async(mode)=>{
+ const f=await explorerFixture('<a href="?destination=1">Details</a>');let dispatched=false,unknownId:string|undefined;
+ const changed=(a:any)=>({...a,status:mode==='executing'?'executing':'unknown',...(mode==='unfinished'?{finishedAt:undefined}:{})});
+ const host=new Proxy(f.host,{get(target,key){if(key==='execute')return async(...args:Parameters<typeof target.execute>)=>{const a=await target.execute(...args);dispatched=true;unknownId=a.id;return changed(a);};if(key==='session')return (sid:string)=>({...target.session(sid),...(dispatched&&mode==='dirty'?{dirty:true}:{})});if(key==='list')return (sid:string,kind:string)=>target.list<any>(sid,kind).map(x=>kind==='attempt'&&x.id===unknownId?changed(x):x);const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;}});
+ const plugin=new ExplorerPlugin(host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);expect(v.task.reason).toBe('UNKNOWN_DISPATCH_REQUIRES_REVIEW');expect(v.task.rounds).toHaveLength(1);expect(v.task.pendingDispatch).toBeDefined();expect(v.task.unverifiedNavigations).toBeUndefined();}
+ finally{await plugin.close();await f.close();}
+});
 it('keeps same-name ambiguous targets unresolved without selecting an arbitrary occurrence',async()=>{
  const f=await explorerFixture('<button type="button">Duplicate</button><button type="button">Duplicate</button>');const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
  try{const t=plugin.create({url:f.url,goal:'Ambiguity',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const task=plugin.view(t.id).task;expect(task.usage.actions).toBe(0);expect(task.plan.some(i=>i.reason==='ambiguous_scope_match')).toBe(true);expect(task.status).not.toBe('completed');

@@ -69,6 +69,8 @@ Tasks, rounds, decisions and correlated events are stored in a separate `explore
 
 On restart active tasks become paused, in-flight decisions become stale, and continuation observes again. A durable execute intent uses one request ID. Unknown outcomes are not replayed automatically. Missing public capabilities become explicit gaps. In particular, this version of the host may not expose a reviewed outside-boundary dismissal operation; failed normal/checkpoint exits remain blocked.
 
+A terminal unknown result from a supported, replayable native HTTP hyperlink in a clean session can be isolated into a fresh round. The original attempt remains unknown, its required scope remains unresolved, and the same source/destination pair cannot dispatch again, including after restart or plan edits. New rounds use new observations and reviews and share the original total budget. This continues independent work without claiming recovery or verifying the unknown navigation; other unknown operations, dirty sessions, missing outcomes and in-flight commands remain blocked. The timeline records `navigation.isolated` with the original evidence and destination. Action ranking includes the captured navigation destination so models can prefer in-page work before leaving it.
+
 `completed` means the current observed plan is verified. `exhaustive` is always false. Discovery gaps, sampled-out members and unreachable states remain separately visible.
 
 ## Debug UI and validation

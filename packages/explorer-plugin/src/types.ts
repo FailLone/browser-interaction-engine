@@ -34,6 +34,8 @@ export interface Task {
   status: TaskStatus; reason?: string; budget: Budget; usage: Budget; activeSince?: number;
   sessionOptions: Partial<SessionOptions>; plan: PlanItem[]; rounds: Round[];
   sampleExcluded: string[]; pendingDispatch?: { sessionId: string; requestId: string; actionId: string; decisionId?: string; itemIds: string[]; observationId: string };
+  /** Isolated navigation failures remain unresolved and must never be replayed by later rounds. */
+  unverifiedNavigations?: {sourceUrl:string;targetUrl:string;evidence:EvidenceRef}[];
   exhaustive: false;
   /** Absent on historical tasks; their saved scopes remain authoritative. */
   intent?: TaskIntent;

@@ -3,6 +3,15 @@ import type { ActionCandidate, Observation, ExplorationGroup, FrontierItemView }
 import type { Scope, PlanItem } from './types.js';
 const ordered=(value:unknown):unknown=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>[k,ordered(v)])):value;
 export const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(ordered(value))).digest('hex');
+/** A captured HTTP hyperlink is a navigation candidate, not proof that its destination loaded. */
+export function navigationTarget(action:ActionCandidate,o:Observation):string|undefined {
+  if(action.kind!=='click'||action.risk!=='interface'||action.basis?.status!=='supported')return;
+  const href=action.basis.evidence.find(e=>e.source==='html'&&e.rule==='hyperlink/v1')?.facts.href;
+  if(typeof href!=='string')return;
+  const control=o.controls.find(c=>c.localId===action.localId);
+  if(control?.tag!=='a'||control.reviewBinding?.attributes.download!==undefined)return;
+  try{const target=new URL(href,o.url),source=new URL(o.url);if(!['http:','https:'].includes(target.protocol)||target.origin+target.pathname+target.search===source.origin+source.pathname+source.search)return;return target.href;}catch{return;}
+}
 export function scopeFor(action:ActionCandidate,o:Observation):Scope {
   const c=o.controls.find(c=>c.localId===action.localId),r=o.regions.find(r=>r.key===c?.region);
   return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(c.stableKey?{stableKey:c.stableKey}:{})}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};

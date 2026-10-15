@@ -5,7 +5,7 @@ import { ExplorerError, type Task, type Round, type PlanItem, type Scope, type E
 import { ExplorerStore } from './store.js';
 import { DecisionRouter } from './router.js';
 import { createTaskSchema, budgetSchema, planSchema, initialTaskSchema, plannedScopeSchema, jsonSchema } from './schema.js';
-import { digest, includesScope, keyFor, matches, permitted, scopeFor } from './policy.js';
+import { digest, includesScope, keyFor, matches, permitted, scopeFor, navigationTarget } from './policy.js';
 import { reviewNext, type ChoiceConstraints } from './reviews.js';
 import { safeError } from './providers.js';
 import { POLICY_VERSION } from './decision-policy.js';
@@ -168,10 +168,28 @@ export class ExplorerPlugin {
     const round:Round={id:randomUUID(),number:task.rounds.length+1,sessionId:session.id,startedAt:now(),status:'running',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0,policyVersion:POLICY_VERSION};
     task.rounds.push(round);task.usage.rounds++;this.store.save(task);this.event(task,'round.started',{roundId:round.id,number:round.number});return round;
   }
+  private isolateUnverifiedNavigation(task:Task) {
+    const pending=task.pendingDispatch;if(!pending)return false;
+    const attempt=this.host.list<ActionAttempt>(pending.sessionId,'attempt').find(a=>a.requestId===pending.requestId);
+    if(!attempt||attempt.status!=='unknown'||!attempt.finishedAt||!attempt.action.replayable||this.host.session(pending.sessionId).dirty)return false;
+    const before=this.host.observation(pending.sessionId,attempt.beforeId),targetUrl=navigationTarget(attempt.action,before);
+    if(!targetUrl)return false;
+    const evidence={sessionId:pending.sessionId,observationId:attempt.afterId||attempt.beforeId,attemptId:attempt.id};
+    const isolated=task.unverifiedNavigations??=[];
+    if(!isolated.some(n=>n.evidence.attemptId===attempt.id))isolated.push({sourceUrl:before.url,targetUrl,evidence});
+    const round=task.rounds.find(r=>r.sessionId===pending.sessionId)!;round.status='finished';round.endedAt=now();round.reason='navigation_outcome_unverified';
+    // A fresh isolated document can explore independent work. It neither verifies
+    // the old command nor inherits its permissions, state, coverage or retry grant.
+    delete task.pendingDispatch;this.store.save(task);
+    this.event(task,'navigation.isolated',{sourceUrl:before.url,targetUrl,evidence,originalStatus:'unknown',replayAllowed:false,requiresFreshSession:true});return true;
+  }
+  private navigationIsUnverified(task:Task,a:ActionCandidate,o:Observation) {
+    const target=navigationTarget(a,o);return !!target&&task.unverifiedNavigations?.some(n=>n.sourceUrl===o.url&&n.targetUrl===target);
+  }
   private async reconcileDispatch(task:Task) {
     const intent=task.pendingDispatch;if(!intent)return;
     const attempt=this.host.list<ActionAttempt>(intent.sessionId,'attempt').find(a=>a.requestId===intent.requestId);
-    if(attempt){this.recordOutcome(task,attempt,intent.itemIds);this.store.save(task);if(attempt.status==='unknown'||attempt.status==='executing')throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');delete task.pendingDispatch;}
+    if(attempt){this.recordOutcome(task,attempt,intent.itemIds);this.store.save(task);if(attempt.status==='unknown'||attempt.status==='executing'){if(this.isolateUnverifiedNavigation(task))return;throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');}delete task.pendingDispatch;}
     else throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
   }
   private recordOutcome(task:Task,attempt:ActionAttempt,itemIds:string[]) {
@@ -236,7 +254,7 @@ export class ExplorerPlugin {
         this.assert(task,signal);const o=this.host.observation(round.sessionId);
         if(!task.plan.length)await this.initializePlan(task,signal,o);
         let acted=false;
-        try{acted=await this.step(task,round,signal);}catch(e){const code=(e as {code?:string}).code||safeError(e);if(code.startsWith('STALE')||['PRECONDITIONS_CHANGED','ACTION_BLOCKED','ACTION_EXCLUDED','IDENTITY_AMBIGUOUS','REGION_REVIEW_REQUIRED'].includes(code)){this.event(task,'step.invalidated',{reason:code});}else throw e;}
+        try{acted=await this.step(task,round,signal);}catch(e){const code=(e as {code?:string}).code||safeError(e);if(code==='UNKNOWN_DISPATCH_REQUIRES_REVIEW'&&!signal.aborted&&this.isolateUnverifiedNavigation(task)){round=await this.createRound(task,signal);continue;}if(code.startsWith('STALE')||['PRECONDITIONS_CHANGED','ACTION_BLOCKED','ACTION_EXCLUDED','IDENTITY_AMBIGUOUS','REGION_REVIEW_REQUIRED'].includes(code)){this.event(task,'step.invalidated',{reason:code});}else throw e;}
         if(signal.aborted)break;
         const fresh=this.host.observation(round.sessionId);const signature=digest({fingerprint:fresh.fingerprint,actions:this.host.session(round.sessionId).actionCount,plan:task.plan.map(i=>({scope:i.scope,status:i.status})),reviews:{regions:this.host.regionReviewMaterial(round.sessionId).unassignedControlIds,controls:this.host.controlReviewMaterial(round.sessionId).pendingControlIds,classifications:this.host.controlClassificationMaterial(round.sessionId).pendingControlIds,groups:this.host.explorationReviewMaterial(round.sessionId).groups.map(g=>({kind:g.kind,status:g.status,decision:g.decisions.at(-1)?.decision.mode}))}});
         round.noProgress=(!acted||signature===round.lastProgress)?round.noProgress+1:0;round.lastProgress=signature;this.store.save(task);
@@ -268,7 +286,7 @@ export class ExplorerPlugin {
       apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),gap:(reason,scope,required)=>{this.gap(task,reason,scope,required);}});for(const d of this.store.decisions(task.id).filter(d=>!knownDecisions.has(d.id)&&d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}if(reviewed)return true; } catch(error) { round.reviewed.splice(reviewedBefore); throw error; }
     this.assert(task,signal,o.id);
     const actions=this.host.actions(sid),groups=this.host.explorationReviewMaterial(sid).groups,frontier=this.host.getFrontier(sid);
-    const eligible=actions.filter(a=>permitted(a,o,groups,frontier)&&includesScope(task.plan,a,o)&&((!round.tried.includes(keyFor(a,o))&&!this.wasCompleted(task,a,o))||this.neededEntry(task,round,a,o)));
+    const eligible=actions.filter(a=>!this.navigationIsUnverified(task,a,o)&&permitted(a,o,groups,frontier)&&includesScope(task.plan,a,o)&&((!round.tried.includes(keyFor(a,o))&&!this.wasCompleted(task,a,o))||this.neededEntry(task,round,a,o)));
     // Same-label targets must be disambiguated by scope/role/stable key. Never choose an arbitrary occurrence.
     const counts=new Map<string,number>();for(const a of eligible){const k=keyFor(a,o);counts.set(k,(counts.get(k)||0)+1);}
     const unique=eligible.filter(a=>{if(counts.get(keyFor(a,o))===1)return true;this.gap(task,'ambiguous_scope_match',scopeFor(a,o));return false;});
@@ -278,9 +296,9 @@ export class ExplorerPlugin {
     this.store.save(task);
     if(unique.length) {
       if(round.entryPath.length>(task.sessionOptions.maxDepth||10)){this.gap(task,'depth_budget',{url:o.url});return false;}
-      const batch=unique.slice().sort((a,b)=>Number(a.boundary?.intent==='exit')-Number(b.boundary?.intent==='exit')).slice(0,200); // Later loop iterations consume remaining cases; never mark omitted cases done.
-      const options:Record<string,unknown>=Object.fromEntries(batch.map(a=>[a.id,{label:a.label,kind:a.kind,value:a.value,scope:scopeFor(a,o),purpose:includesScope(task.plan,a,o)}]));options.uncertain='No evidenced next action';
-      const selected=await this.choose(task,signal,o,'next-action','Choose the next useful in-scope action. Prefer unexplored controls and internal work before exits. Select uncertain if none can advance the goal.',{goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',plan:task.plan.filter(i=>i.required),remainingCandidates:unique.length,batchSize:batch.length},options);
+      const batch=unique.slice().sort((a,b)=>Number(a.boundary?.intent==='exit')-Number(b.boundary?.intent==='exit')||Number(!!navigationTarget(a,o))-Number(!!navigationTarget(b,o))).slice(0,200); // Later loop iterations consume remaining cases; never mark omitted cases done.
+      const options:Record<string,unknown>=Object.fromEntries(batch.map(a=>[a.id,{label:a.label,kind:a.kind,value:a.value,scope:scopeFor(a,o),purpose:includesScope(task.plan,a,o),navigationTarget:navigationTarget(a,o),boundaryIntent:a.boundary?.intent}]));options.uncertain='No evidenced next action';
+      const selected=await this.choose(task,signal,o,'next-action','Choose the next useful in-scope action. Prefer unexplored controls and internal work before exits, and in-place operations before document navigation. Navigation destinations are captured evidence, not permission to explore beyond the task. Select uncertain if none can advance the goal.',{goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',plan:task.plan.filter(i=>i.required),remainingCandidates:unique.length,batchSize:batch.length},options);
       if(selected.value==='uncertain'){this.router.mark(selected.decision,'rejected','no_action_selected');this.gap(task,'action_selection_unresolved',{url:o.url});return false;}
       const action=batch.find(a=>a.id===selected.value)!;this.assert(task,signal,o.id,selected.decision.revision);
       const checkpoint=await this.host.createCheckpoint(sid,`explorer ${round.number}/${round.stack.length+1}`,[],[]);
@@ -299,6 +317,7 @@ export class ExplorerPlugin {
     }
     // Record every remaining in-scope unavailable case, including ungrouped controls.
     for(const action of actions.filter(a=>includesScope(task.plan,a,o)==='target'&&!this.wasCompleted(task,a,o))) {
+      if(this.navigationIsUnverified(task,action,o)){this.gap(task,'unknown_action_outcome',scopeFor(action,o));continue;}
       if(round.tried.includes(keyFor(action,o)))continue;
       const sampled=frontier.find(f=>f.action.id===action.id);
       if(sampled&&['skipped','deferred'].includes(sampled.status)){const excluded=sampled.status==='skipped'||sampled.reason?.endsWith('_member_not_selected');this.gap(task,excluded?'sample_unselected':'scope_deferred',scopeFor(action,o),!excluded);continue;}
@@ -347,6 +366,15 @@ export class ExplorerPlugin {
   }
   private async finishRound(task:Task,round:Round,signal:AbortSignal) {
     const o=this.host.observation(round.sessionId);
+    for(const navigation of task.unverifiedNavigations||[]) {
+      const attempt=this.host.list<ActionAttempt>(navigation.evidence.sessionId,'attempt').find(a=>a.id===navigation.evidence.attemptId);
+      if(!attempt){this.gap(task,'unknown_action_outcome',{url:navigation.sourceUrl});continue;}
+      const source=this.host.observation(attempt.sessionId,attempt.beforeId);
+      if(includesScope(task.plan,attempt.action,source)) {
+        const item=this.gap(task,'unknown_action_outcome',scopeFor(attempt.action,source));
+        if(!item.evidence.some(e=>e.attemptId===attempt.id))item.evidence.push(navigation.evidence);
+      }
+    }
     for(const item of task.plan.filter(i=>i.required&&['pending','unresolved'].includes(i.status))) {
       if(item.resolvedBy && !task.plan.some(other=>other.id!==item.id&&other.required&&other.status!=='succeeded'&&other.status!=='excluded'&&Object.entries(item.scope).every(([k,v])=>other.scope[k as keyof Scope]===v))){item.status='succeeded';}
       else {item.status='unresolved';item.reason=item.reason||'scope_not_verified';}
