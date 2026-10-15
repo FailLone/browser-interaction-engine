@@ -14,6 +14,7 @@ export interface ReviewContext {
   generate<T>(purpose:string,instructions:string,state:unknown,schema:z.ZodType<T>):Promise<{value:T;decision:Decision}>;
   apply(decision:Decision|Decision[],command:unknown):Promise<void>;
   defer(decision:Decision,reason:string):void;
+  unchanged?(evidence:{sourceDecisionId:string;sourceObservationId:string;scope:Scope}):void;
   retain(groups:RetainedScope[]):Promise<void>;
   gap(reason:string,scope:Scope,required?:boolean):void;
   hasPendingAction():boolean;
@@ -24,6 +25,12 @@ const evidence=(d:Decision)=>[`explorer-decision:${d.id}`];
 const source='explorer-plugin';
 // Execution IDs change on recapture; model evidence describes the operation, not a dispatch grant.
 const semanticActions=(actions:ActionCandidate[])=>actions.map(({kind,label,value,basis,risk})=>({kind,label,value,basis,risk}));
+/** A translation alone adds no purpose evidence. Preserve all other facts, and never cache a grant here. */
+export function unresolvedPurposeKey(o:Observation,item:ReturnType<ExplorerHost['controlReviewMaterial']>['controls'][number],revision:number) {
+  const {x:_x,y:_y,...size}=item.control.rect;
+  return digest({protocol:'unresolved-purpose/v1',revision,instance:o.instanceScope,url:o.url,context:o.context,boundaries:o.boundaries,
+    control:{...item.control,rect:size},reviews:item.reviews.map(r=>[r.id,r.status]),actions:item.actions.map(a=>({kind:a.kind,risk:a.risk,value:a.value,basis:a.basis}))});
+}
 /** The host retains exact bindings for validation; grouping needs semantic evidence, not repeated dispatch fingerprints. */
 function regionEvidence(candidate:RegionCandidate) {
   const {binding,reuseBinding,controlIds,...description}=candidate;
@@ -122,7 +129,9 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   }
   const control=host.controlReviewMaterial(sid);
   for(const item of control.controls.filter(i=>i.needsReview&&relevantIds.has(i.control.localId))) {
-    const key=digest({type:'control',instance:o.instanceScope,control:item.control,reviews:item.reviews.map(r=>[r.id,r.status]),actions:item.actions.map(a=>({kind:a.kind,risk:a.risk,value:a.value,basis:a.basis}))});if(done(key))continue;
+    const unresolvedKey=unresolvedPurposeKey(o,item,task.revision),key=digest({type:'control',unresolvedKey,x:item.control.rect.x,y:item.control.rect.y});if(done(key))continue;
+    const previous=round.unresolvedPurposeReviews?.[unresolvedKey];
+    if(previous){mark(key);c.unchanged?.({sourceDecisionId:previous.decisionId,sourceObservationId:previous.observationId,scope:scopeForControl(item.control,o)});continue;}
     // Never turn an explicitly submitting action into an interface action.
     const supported=item.actions.filter(a=>a.risk!=='submission');
     const kinds=[...new Set([...supported.map(a=>a.kind),...Object.keys(item.control.actionBasis||{})])].filter(k=>['click','fill','select','check','press','hover'].includes(k)&&!item.actions.some(a=>a.kind===k&&a.risk==='submission')&&!item.reviews.some(r=>r.status==='active'&&r.kind===k));
@@ -152,7 +161,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
         const clarified=await c.clarify({key:`risk:${item.control.instanceId}`,purpose:'operation-clarification',parent:judged.decision,operation:true,instructions:'Resolve the remaining purpose ambiguity for one offered operation. Establish its interface effect from the captured relationship or controlled content, and separately rule out an external/business write. A popup relationship is evidence to interpret, not automatic permission. Return uncertain if either effect remains unclear.',options:{...Object.fromEntries(Object.keys(effects).map(k=>[k,`Review ${k} as interface-only if evidenced`])),uncertain:'Cannot establish a safe interface-only purpose'},evidence:{current:item.control,actions:semanticActions(item.actions),...Object.fromEntries(Object.entries(effects).map(([k,v])=>[`effect:${k}`,v]))},requiredEvidence:Object.fromEntries(Object.keys(effects).map(k=>[k,['current','actions',`effect:${k}`]]))});
         if(clarified.value!=='uncertain'){kind=clarified.value;decision=clarified.decision;}
       }
-      if(!kind){mark(key);c.gap('operation_risk_unresolved',scopeForControl(item.control,o));continue;}
+      if(!kind){mark(key);(round.unresolvedPurposeReviews??={})[unresolvedKey]={decisionId:decision.id,observationId:o.id};c.gap('operation_risk_unresolved',scopeForControl(item.control,o));continue;}
     }
     const d={value:kind,decision};mark(key);
     let samples:(string|boolean)[]|undefined;

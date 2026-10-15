@@ -2,12 +2,33 @@ import { join } from 'node:path';
 import { it,expect,vi } from 'vitest';
 import { ExplorerPlugin,ExplorerStore,type Decision } from '@interaction/explorer-plugin';
 import { semanticRejection,type SemanticReview } from '../packages/explorer-plugin/src/semantic-review.js';
-import { reviewNext,type ReviewContext } from '../packages/explorer-plugin/src/reviews.js';
+import { reviewNext,unresolvedPurposeKey,type ReviewContext } from '../packages/explorer-plugin/src/reviews.js';
 import { explorerFixture,fakeProviders,semanticPopupHtml } from './explorer-plugin-helpers.js';
 import { remapStoredReviewScopes } from '../packages/explorer-plugin/src/scope-migration.js';
 import { reviewGapChanges } from '../packages/explorer-plugin/src/review-ledger.js';
 
 const grounded={choice:'click',evidenceRefs:['current','actions','effect:click'],reason:'Captured child choice panel supports a local expansion.',interfaceOnly:true,externalWrite:false};
+
+it('invalidates unresolved purpose evidence when document, context, structure, size, action basis or task revision changes',()=>{
+ const o={instanceScope:'doc',url:'https://fixture/',context:{},boundaries:[]} as any;
+ const item={control:{instanceId:'control',name:'Unclear',rect:{x:0,y:0,width:80,height:20},reviewBinding:{attributes:{role:'button'}}},reviews:[],actions:[{id:'old',observationId:'before',kind:'click',risk:'unknown',basis:{status:'unconfirmed',evidence:[]}}]} as any;
+ const key=unresolvedPurposeKey(o,item,1),shifted=structuredClone(item);shifted.control.rect.x=20;shifted.control.rect.y=90;shifted.actions[0].id='fresh';shifted.actions[0].observationId='after';expect(unresolvedPurposeKey(o,shifted,1)).toBe(key);
+ for(const update of [(x:any)=>x.instanceScope='fresh-doc',(x:any)=>x.url='https://fixture/other',(x:any)=>x.context={tab:{status:'known',value:'Other'}},(x:any)=>x.boundaries=[{key:'dialog'}]]){const fresh=structuredClone(o);update(fresh);expect(unresolvedPurposeKey(fresh,item,1)).not.toBe(key);}
+ for(const update of [(x:any)=>x.control.name='New purpose',(x:any)=>x.control.rect.width=120,(x:any)=>x.control.reviewBinding.attributes['aria-haspopup']='menu',(x:any)=>x.actions[0].basis={status:'supported',evidence:[]},(x:any)=>x.reviews=[{id:'review',status:'revoked'}]]){const fresh=structuredClone(item);update(fresh);expect(unresolvedPurposeKey(o,fresh,1)).not.toBe(key);}
+ expect(unresolvedPurposeKey(o,item,2)).not.toBe(key);
+});
+
+it.each(['position','content'] as const)('retains an unresolved purpose after a %s change without granting an operation',async(mode)=>{
+ const change=mode==='position'?"document.getElementById('unclear').style.transform='translateY(40px)'":"document.getElementById('unclear').textContent='Changed purpose evidence'";
+ const f=await explorerFixture(`<div role="button" tabindex="0" id="unclear" style="cursor:pointer">Unclear</div><button type="button" onclick="this.disabled=true;${change}">Shift</button>`),p=fakeProviders(f.url),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>r.purpose==='control-classification'?{model:'mock',value:'interaction',confidence:1}:r.purpose==='control-risk'&&(r.state as any).material.control.stableKey==='id:unclear'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,.01]))}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:10}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),ds=v.decisions.filter(d=>d.purpose==='control-risk'&&(d.request.state as any).material.control.stableKey==='id:unclear');
+  expect(ds).toHaveLength(mode==='position'?1:2);expect(f.host.list<any>(v.task.rounds[0].sessionId,'attempt').map(a=>a.action.label)).toEqual(['Shift']);expect(v.task.status).not.toBe('completed');
+  expect(v.task.plan.some(i=>i.reason==='operation_risk_unresolved'&&i.status==='unresolved')).toBe(true);expect(v.decisions.some(d=>d.actor==='llm')).toBe(false);
+  if(mode==='position'){const event=v.events.find(e=>e.type==='review.unchanged');expect(event).toBeDefined();expect(event!.data).toMatchObject({sourceDecisionId:ds[0].id,sourceObservationId:ds[0].observationId,executionAuthorized:false,reason:'unchanged_unresolved_evidence'});expect(event!.observationId).not.toBe(ds[0].observationId);}
+ }finally{await plugin.close();await f.close();}
+});
 
 it('batches clear classifications from one observation and preserves each decision as separate evidence',async()=>{
  const f=await explorerFixture(`${Array.from({length:6},(_,i)=>`<div id="section-${i}" tabindex="0">Section ${i}</div>`).join('')}<button type="button" onclick="this.disabled=true">Ready</button>`),p=fakeProviders(f.url),original=p.jev.decide,commands:any[]=[];

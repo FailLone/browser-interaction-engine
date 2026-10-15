@@ -31,6 +31,8 @@ export interface Round {
   evidenceRefreshes?: string[];
   /** No repeated LLM interpretation of the same target and evidence within a round. */
   semanticReviews?: string[];
+  /** Unresolved purpose evidence only. These entries never carry an execution grant. */
+  unresolvedPurposeReviews?: Record<string,{decisionId:string;observationId:string}>;
   /** A freshly observed boundary visit may need its own exit despite historical coverage. */
   boundaryVisit?: {key:string;instanceScope:string;observationId:string};
   policyVersion?: string;

@@ -355,15 +355,17 @@ export class ExplorerPlugin {
     await this.reconcileReviewLedger(task,o,signal);
     const goals=task.plan.filter(i=>i.required&&i.dispatchScope===true);
     if(goals.length&&goals.every(i=>i.status==='succeeded'))return false;
-    const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id);
+    const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id),unresolvedBefore=new Set(Object.keys(round.unresolvedPurposeReviews||{}));
     try { const reviewed=await reviewNext({host:this.host,task,observation:o,
       hasPendingAction:()=>{const groups=this.host.explorationReviewMaterial(sid).groups,frontier=this.host.getFrontier(sid);return this.host.actions(sid).some(a=>!this.navigationIsUnverified(task,a,o)&&permitted(a,o,groups,frontier)&&includesScope(task.plan,a,o)&&((!round.tried.includes(this.attemptKey(round,a,o))&&(this.currentExit(a,o)||!this.wasCompleted(task,a,o)))||this.neededEntry(task,round,a,o)));},
       choose:(p,i,s,opts,constraints)=>this.choose(task,signal,o,p,i,s,opts,constraints),generate:(p,i,s,schema)=>this.generate(task,signal,o,p,i,s,schema),
       assess:(p,s,checks)=>this.assess(task,signal,o,p,s,checks),refresh:(d,key)=>this.refreshEvidence(task,signal,o,d,key),
       clarify:request=>this.clarify(task,signal,o,request),
       defer:(d,reason)=>{this.router.mark(d,'rejected',reason);this.router.effect(d,'review-deferred',{reason,sourceObservationId:o.id,executionAuthorized:false});},
+      unchanged:previous=>this.event(task,'review.unchanged',{...previous,reason:'unchanged_unresolved_evidence',executionAuthorized:false}),
       apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),retain:groups=>this.retainScopes(task,signal,o,groups),gap:(reason,scope,required)=>{this.gap(task,reason,scope,required);}});for(const d of this.store.decisions(task.id,decisionCursor).filter(d=>d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}if(reviewed)return true; } catch(error) {
       round.reviewed.splice(reviewedBefore);
+      for(const key of Object.keys(round.unresolvedPurposeReviews||{}))if(!unresolvedBefore.has(key))delete round.unresolvedPurposeReviews![key];
       // Prepared answers have no host effect if a later member aborts the pass.
       // Keep them out of completion's bookkeeping for successfully used inputs.
       const reason=(error as {code?:string}).code||'REVIEW_INTERRUPTED';

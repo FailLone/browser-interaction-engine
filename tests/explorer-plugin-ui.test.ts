@@ -5,6 +5,16 @@ import { resolve,join } from 'node:path';
 import { ExplorerPlugin,ExplorerStore } from '@interaction/explorer-plugin';
 import { createServer } from '../apps/server/src/server.js';
 import { explorerFixture,fakeProviders,semanticPopupHtml } from './explorer-plugin-helpers.js';
+it('shows unchanged unresolved evidence as a program deferral with its original model reference',async()=>{
+ const f=await explorerFixture(`<div role="button" tabindex="0" id="unclear" style="cursor:pointer">Unclear</div><button type="button" onclick="this.disabled=true;document.getElementById('unclear').style.transform='translateY(40px)'">Shift</button>`),p=fakeProviders(f.url),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>r.purpose==='control-classification'?{model:'mock',value:'interaction',confidence:1}:r.purpose==='control-risk'&&(r.state as any).material.control.stableKey==='id:unclear'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,.01]))}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p),app=await createServer(f.host,{explorer:plugin});await app.listen({host:'127.0.0.1',port:0});const origin=`http://127.0.0.1:${(app.server.address() as {port:number}).port}`;
+ const ui=await createViteServer({root:resolve('apps/ui'),logLevel:'error',server:{port:0,strictPort:false,proxy:{'/v1':origin,'/plugins':origin}}});await ui.listen();const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1500,height:1100}});
+ try{const task=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(task.id);await plugin.waitForIdle();const source=plugin.view(task.id).decisions.find(d=>d.purpose==='control-risk'&&(d.request.state as any).material.control.stableKey==='id:unclear')!;
+  await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as {port:number}).port}`);await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);
+  const node=page.getByLabel('包含模型决策的遍历路径').getByRole('button').filter({hasText:'用途证据未变，保留待测'}).first();expect(await node.innerText()).toContain('程序');await node.click();const inspector=page.getByLabel('探索决策详情');expect(await inspector.innerText()).toContain('本次未重复调用模型');expect(await inspector.innerText()).toContain(source.id);expect(await inspector.innerText()).toContain('"executionAuthorized": false');
+ }finally{await browser.close();await ui.close();await app.close();await f.close();}
+});
 it('distinguishes completed classification evidence from executed actions in the plan and inspector',async()=>{
  const f=await explorerFixture('<div id="details" tabindex="0">Details</div><button type="button" onclick="this.disabled=true">Ready</button>'),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url)),app=await createServer(f.host,{explorer:plugin});await app.listen({host:'127.0.0.1',port:0});const origin=`http://127.0.0.1:${(app.server.address() as {port:number}).port}`;
  const ui=await createViteServer({root:resolve('apps/ui'),logLevel:'error',server:{port:0,strictPort:false,proxy:{'/v1':origin,'/plugins':origin}}});await ui.listen();const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1500,height:1100}});
