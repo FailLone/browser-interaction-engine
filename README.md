@@ -174,3 +174,5 @@ Modal、popover 与浮动菜单建立独占交互范围，DFS 先探索当前最
 `main` 已提供初始/操作后检查任务、弹层范围与前后基线、常规空间证据、有限消费租约及 SDK/HTTP 接口。创建会话时传 `inspection: {}` 开启；外部检查规则与接入方式见 [UI 检查 API](docs/INSPECTION-API.md)。中间态、现场 probe、文字行与 iframe/Shadow DOM 取证仍为后续工作。
 
 浏览器新会话默认覆盖已遇到控件及其支持操作；控件计数、代表性/逐状态模式、当前节点定位、局部恢复声明和环境重置边界见 [探索与恢复](docs/EXPLORATION-RECOVERY.md)。
+
+相似列表默认先交由上层决定遍历范围：支持持久事件、`explorationGroup` hook 和 SDK/HTTP 决策，等待期间暂缓列表并继续其他工作。穷尽、指定抽样、暂缓的契约和未覆盖口径见[列表遍历决策](docs/LIST-EXPLORATION.md)。

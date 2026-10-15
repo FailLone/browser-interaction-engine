@@ -71,6 +71,8 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   explorationCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
   /** Optional structural scope for representative depth budgets; raw visit depth is retained. */
   explorationScope?(observation: O): string;
+  /** Groups repeated operations for an upper-layer traversal decision. Does not alter their capabilities or risk. */
+  explorationGroups?(actions: ActionCandidate[], observation: O, session: Session<S>, known: import('./types.js').ExplorationGroup[]): import('./types.js').ExplorationGroupProposal[];
   /** Only explicitly declared reversible operations may produce local restoration steps. */
   restorationStep?(target: O, current: O, session: Session<S>): RestorationStep | undefined;
   /** An explicitly configured environment reset, executed through the normal action ledger. */

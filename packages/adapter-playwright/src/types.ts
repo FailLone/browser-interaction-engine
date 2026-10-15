@@ -26,6 +26,8 @@ export interface Control extends CoreControl {
   /** Keyed by action kind. Optional only for observations written by older adapters. */
   actionBasis?: Record<ActionKind, ActionBasis>;
   interactionHints?: ActionEvidence[];
+  /** Observed semantic list owner. Similarity is a scheduling hint, not shared business behavior. */
+  list?: { instanceId: string; role: string; label: string; selector: string };
   actionable: { visible: boolean; enabled: boolean; editable: boolean; hitTarget: boolean | null; clickPoint?: { x: number; y: number }; occludedBy?: string; outsideScrollableArea?: boolean; unknown: string[] };
 }
 export interface Observation extends CoreObservation<Control> {
@@ -51,6 +53,8 @@ export interface SessionOptions {
   evidenceRetention?: import('@interaction/core').EvidenceRetentionPolicy;
   exclude: MatchRule[]; replayable: MatchRule[]; context: Record<string, Json>; contextRules: ContextRule[];
   exploration?: 'controls' | 'representative' | 'stateful';
+  /** New sessions defer repeated list members for an upper-layer decision. Legacy sessions without this field keep their existing policy. */
+  listExploration?: 'review' | 'all';
   /** Application declarations; never inferred from button labels. */
   interfaceActions?: MatchRule[];
   reversible?: MatchRule[];

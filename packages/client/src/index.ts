@@ -58,6 +58,10 @@ export class InteractionClient {
   eventDiffDetails(id: string, sequence: number) { return this.request<BrowserDiffDetails>(`/sessions/${encodeURIComponent(id)}/events/${sequence}/diff/details`); }
   scopeDiffDetails(id: string, scopeId: string) { return this.request<BrowserDiffDetails>(`/sessions/${encodeURIComponent(id)}/scopes/${encodeURIComponent(scopeId)}/diff/details`); }
   frontier(id: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.list<FrontierItemView>(id, 'frontier', options); }
+  explorationGroups(id: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.list<import('@interaction/browser').ExplorationGroup>(id, 'exploration-groups', options); }
+  decideExplorationGroup(id: string, groupId: string, revision: number, decision: import('@interaction/browser').ExplorationGroupDecision) {
+    return this.command<import('@interaction/browser').ExplorationGroup>(id, { type: 'decideExplorationGroup', groupId, revision, decision });
+  }
   frontierCoverage(id: string) { return this.request<BrowserFrontierCoverageGroup[]>(`/sessions/${encodeURIComponent(id)}/frontier-coverage`); }
   list<T>(id: string, resource: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.request<{ items: T[]; total: number }>(`/sessions/${id}/${resource}?${new URLSearchParams(Object.entries(options).map(([k, v]) => [k, String(v)]))}`); }
   execute(id: string, actionId: string, requestId: string, value?: Extract<Command, { type: 'execute' }>['value']) { return this.command<ActionAttempt>(id, { type: 'execute', actionId, requestId, value }); }

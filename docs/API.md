@@ -147,4 +147,6 @@ SQLite 插件使用 WAL，`entities` 保存带 kind 的结构化实体，`events
 
 ## 探索与恢复配置
 
+新会话同时默认 `listExploration: 'review'`。相似列表通过 `exploration.group_detected` 持久事件或 `hooks.explorationGroup` 提交给上层，暂缓成员及所属列表滚动，优先继续其他工作。`GET /v1/sessions/:sessionId/exploration-groups` 查询材料；`decideExplorationGroup` 命令接收 groupId、revision、decision（all/sample/defer，附 source/evidence）。未执行成员仍计入缺口；无其他工作时以 `LIST_DECISION_REQUIRED` 暂停。详见[相似列表遍历决策](LIST-EXPLORATION.md)。
+
 新浏览器会话默认 `exploration: controls`，也支持 `representative` 和 `stateful`。`report.controlCoverage` 提供独立控件操作覆盖；`target` / `preconditions.targetResolved` 区分当前节点定位与历史身份。interfaceActions、reversible 和 environmentReset 是可选应用声明。待办 sampling 标识抽样范围，superseded 标识由当前视口替代且未执行的滚动意图；恢复 diagnostics 标识业务副作用来源与恢复路径。SDK/HTTP/client 共用这些字段，旧会话不自动迁移。详见 [探索与恢复](EXPLORATION-RECOVERY.md)。

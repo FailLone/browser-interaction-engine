@@ -146,6 +146,16 @@
 
 退出退役版本的默认遍历现已结束：368 次实际动作全部 succeeded，停止原因是 `known_frontier_exhausted_with_gaps`，没有触及上限。待办仍有 1,513 条 blocked：407 条导航待审阅、958 条用途待审阅、101 条旧路径不能重放、45 条遮挡、2 条不可达；这些是待办数量，不是独立控件数。该会话未加载后续名称和悬停修复，与新版本独立实测分开记录，见 [automatic-retirement-completion.json](automatic-retirement-completion.json)。
 
+## 相似列表的上层遍历决策
+
+新增通用列表决策后，独立真实会话在开启 BTC 下拉时识别出首屏 6 个原生选项，并产生一次 `exploration.group_detected` 事件。两次额外观察及逐项用途审阅没有重复创建请求；用途审阅后的新操作样本通过一次 group_updated 留存。这里的 6 是首屏观察到的名称，累计操作样本数还包括审阅前后的条件变化，不能当作列表总长度。
+
+等待决策时，符合其他执行前提的选项与列表滚动均处于 deferred，原有遮挡和用途限制保留。上层提交 sample，仅指定当前 BTC 样本后，恰好一条列表待办变为 pending，动作计数保持不变；随后提交 defer，所有组内工作再次暂缓。当前外部金额框仍能通过已有审阅退出机制关闭下拉，关闭后金额未改变。
+
+本次仅执行了地区提示关闭、打开下拉和外部字段退出，共 3 次操作，没有选择任何列表项，不增加选币覆盖。真实材料见 [list-decision-proof.json](list-decision-proof.json) 和[待决列表截图](list-awaiting-decision.png)；自动执行、其他工作优先、虚拟列表新成员、空窗口、弹层重入及过期决策的行为由独立通用回归覆盖。完整协议见[列表遍历决策](../../LIST-EXPLORATION.md)。
+
+验证结果：完整回归 253 项 / 46 个文件通过，其中列表决策新增 14 项；typecheck、build、smoke:built 均通过。真实材料记录的生产源文件哈希与本次实现一致。
+
 ## 原始审计
 
 2026-10-15（Asia/Shanghai），测试版本为已合入 `main` 的 `e793fba`。先完成合并，再访问 https://www.okx.com/convert/btc-to-usd 。合并验证：181 项测试 / 34 个文件通过，typecheck、build、smoke:built 通过。运行环境为 Node.js 24.21.0、Playwright Chromium，1440 × 900。

@@ -4,6 +4,8 @@ import { assignState, matchIdentities } from './identity.js';
 import { recoverStore } from './recovery.js';
 import { DiffQueries } from './diff-details.js';
 import { describeFrontier, groupFrontier } from './frontier.js';
+import { ExplorationGroups } from './exploration-groups.js';
+import type { ExplorationGroup, ExplorationGroupDecision } from './types.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
 import type { EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
 import { EngineError, type ActionCandidate, type ActionAttempt, type Checkpoint, type ControlIdentity, type EngineHooks, type FrontierItem, type Graph, type IdentityHypothesis, type InteractionScope, type Issue, type Observation, type Predicate, type ReachResult, type Session, type SessionOptions, type Transition, type UIState, type Visit } from './types.js';
@@ -19,8 +21,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   private pauseRequested = true;
   private runEpoch = 0;
   private closing = false;
+  private readonly groups: ExplorationGroups;
   constructor(options: EngineOptions<O, S>) {
     this.store = options.persistence; this.adapter = options.adapter; this.hooks = options.hooks || {};
+    this.groups = new ExplorationGroups(this.store, (sid, type, data) => this.emit(sid, type, data));
     recoverStore(this.store);
   }
   /** Composition lifecycle: runs in the action queue, outside record transactions.
@@ -67,6 +71,12 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   list<T>(sessionId: string, kind: string): T[] { this.session(sessionId); return kind === 'frontier' ? this.getFrontier(sessionId) as T[] : this.store.list<T>(kind, sessionId); }
   getFrontier(sessionId: string) { this.session(sessionId); return describeFrontier(this.frontier(sessionId), this.store.list<ActionAttempt>('attempt', sessionId)); }
   frontierCoverage(sessionId: string) { return groupFrontier(this.getFrontier(sessionId)); }
+  decideExplorationGroup(sessionId: string, groupId: string, revision: number, decision: ExplorationGroupDecision) {
+    return this.enqueueMeasured(sessionId, async () => {
+      this.session(sessionId);
+      return this.store.transaction(() => this.groups.decide(sessionId, groupId, revision, decision));
+    });
+  }
   private outsideBoundary(action: ActionCandidate) { return action.preconditions.blockers?.some(b => b.code === 'outside_active_boundary'); }
   private frontier(sessionId: string) {
     // Older sessions stored background candidates once per overlay state. Keep the
@@ -85,7 +95,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   report(sessionId: string) {
     const frontier = this.list<FrontierItem>(sessionId, 'frontier'); const attempts = this.list<ActionAttempt>(sessionId, 'attempt'); const observations = this.list<O>(sessionId, 'observation');
     const counts = (items: { status: string }[]) => items.reduce<Record<string, number>>((out, i) => { out[i.status] = (out[i.status] || 0) + 1; return out; }, {});
-    return { session: this.session(sessionId), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), frontierCoverage: this.frontierCoverage(sessionId).map(({ id, controlId, kind, label, coverageStatus, counts }) => ({ id, controlId, kind, label, coverageStatus, counts })), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), exploration: this.session(sessionId).options.exploration || 'stateful', coverage: this.session(sessionId).options.exploration === 'controls' ? 'encountered control operations; values and constraints are sampled, not exhaustive combinations or business assertions' : this.session(sessionId).options.exploration === 'representative' ? 'representative operation samples only; untested starting values, field combinations and undiscovered behavior remain unknown' : 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
+    return { session: this.session(sessionId), explorationGroups: this.store.list<ExplorationGroup>('exploration-group', sessionId).map(g => ({ id: g.id, label: g.label, status: g.status, revision: g.revision, observedCases: g.members.length, mode: g.decisions.at(-1)?.decision.mode })), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), frontierCoverage: this.frontierCoverage(sessionId).map(({ id, controlId, kind, label, coverageStatus, counts }) => ({ id, controlId, kind, label, coverageStatus, counts })), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), exploration: this.session(sessionId).options.exploration || 'stateful', coverage: this.session(sessionId).options.exploration === 'controls' ? 'encountered control operations; values and constraints are sampled, not exhaustive combinations or business assertions' : this.session(sessionId).options.exploration === 'representative' ? 'representative operation samples only; untested starting values, field combinations and undiscovered behavior remain unknown' : 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
   }
   async createSession(input: unknown): Promise<Session<S>> {
     const options = this.adapter.parseOptions(input);
@@ -161,9 +171,12 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       visit.stateId = o.stateId;
     }
     actions = actions.map(a => this.constrain({ ...a, stateId: o.stateId }, o, session));
+    const proposals = o.gaps.some(g => g.critical) ? [] : this.adapter.explorationGroups?.(actions, o, session, this.store.list<ExplorationGroup>('exploration-group', sessionId)) || [];
+    let groupDiscovery: ReturnType<ExplorationGroups['discover']>;
     if (o.gaps.some(g => g.critical)) for (const identity of matched.identities) if (identity.status !== 'present') identity.status = 'unknown';
     this.store.transaction(() => {
       this.store.put('observation', o); this.store.put('state', state); this.store.put('visit', visit);
+      groupDiscovery = this.groups.discover(proposals, actions, o, a => this.frontierKey(a, o));
       for (const identity of matched.identities) this.store.put('identity', identity);
       for (const hypothesis of matched.hypotheses) { this.store.put('hypothesis', hypothesis); this.emit(sessionId, 'identity.ambiguous', hypothesis); }
       if (previous && contextKey(previous.context) !== contextKey(o.context)) for (const item of this.frontier(sessionId)) {
@@ -191,6 +204,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         const unblock = blocker?.unblock || (tentative ? 'Explicitly execute a probe, or supply an action hook with supporting evidence' : undefined);
         if (!existing) {
           const f: FrontierItem = { id: id(), sessionId, key, stateId: o.stateId, contextKey: contextKey(o.context), action, status: reason || action.excluded ? 'blocked' : 'pending', reason, unblock, depth: frontierDepth, attempts: [] };
+          f.explorationGroups = groupDiscovery.references.get(action.id);
           if (sample) f.sampling = { policy: sample.policy, evidence: sample.evidence, observationIds: [o.id] };
           this.store.put('frontier', f); frontierByKey.set(key, f);
         } else {
@@ -200,15 +214,17 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           // Only unattempted samples may move to newly observed conditions.
           if (!existing.sampling || !existing.attempts.length) {
             existing.action = action;
+            existing.explorationGroups = groupDiscovery.references.get(action.id);
             if (existing.sampling) { existing.stateId = o.stateId; existing.depth = Math.min(existing.depth, frontierDepth); }
           }
-          if (existing.status === 'pending' || existing.status === 'superseded' || temporarilyBlocked || (existing.status === 'blocked' && (existing.reason === 'identity_ambiguous' && action.preconditions.identityResolved || !!existing.recovery && !!existing.sampling && !existing.attempts.length)) || existing.status === 'needs_revalidation') {
+          if (existing.status === 'pending' || existing.status === 'deferred' || existing.status === 'superseded' || temporarilyBlocked || (existing.status === 'blocked' && (existing.reason === 'identity_ambiguous' && action.preconditions.identityResolved || !!existing.recovery && !!existing.sampling && !existing.attempts.length)) || existing.status === 'needs_revalidation') {
             existing.status = reason || action.excluded ? 'blocked' : 'pending'; existing.reason = reason; existing.unblock = unblock;
             existing.recovery = undefined;
           }
           this.store.put('frontier', existing);
         }
       }
+      this.groups.apply(sessionId, [...frontierByKey.values()]);
       if (session.options.exploration === 'controls' && this.adapter.explorationScope && !o.gaps.some(g => g.critical)) {
         const scope = this.adapter.explorationScope(o);
         const currentKeys = new Set(actions.map(a => this.frontierKey(a, o)));
@@ -247,6 +263,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     });
     await this.afterCapture(structuredClone(o), previous ? structuredClone(previous) : undefined, attemptId);
     await this.store.evidence.endObservation?.(observationId, true);
+    for (const group of groupDiscovery!.requested) if (this.hooks.explorationGroup) {
+      const result = await this.hook(sessionId, 'explorationGroup', () => this.hooks.explorationGroup!(structuredClone(group), ctx()));
+      if (result.value !== undefined) await this.hook(sessionId, 'explorationGroup-decision', () => this.store.transaction(() => this.groups.decide(sessionId, group.id, group.revision, result.value!)));
+    }
     let resolvedByHook = false;
     for (const hypothesis of matched.hypotheses) if (this.hooks.identity) {
       const result = await this.hook(sessionId, 'identity', () => this.hooks.identity!(structuredClone(hypothesis), ctx()));
@@ -813,13 +833,22 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
               return false;
             }
           }
-          if (!pending.length) { session.status = 'finished'; session.stopReason = this.frontier(sessionId).some(f => !['executed', 'superseded'].includes(f.status)) ? 'known_frontier_exhausted_with_gaps' : 'known_frontier_exhausted'; this.store.put('session', session); this.emit(sessionId, 'exploration.finished', this.report(sessionId)); return false; }
+          if (!pending.length) {
+            const waiting = this.frontier(sessionId).filter(f => f.status === 'deferred' && f.reason === 'awaiting_list_decision');
+            if (waiting.length) {
+              session.status = 'paused'; session.stopReason = 'LIST_DECISION_REQUIRED'; this.pauseRequested = true; this.store.put('session', session);
+              this.emit(sessionId, 'exploration.paused', { reason: session.stopReason, groupIds: [...new Set(waiting.flatMap(f => f.explorationGroups?.map(g => g.groupId) || []))] }); return false;
+            }
+            session.status = 'finished'; session.stopReason = this.frontier(sessionId).some(f => !['executed', 'superseded'].includes(f.status)) ? 'known_frontier_exhausted_with_gaps' : 'known_frontier_exhausted'; this.store.put('session', session); this.emit(sessionId, 'exploration.finished', this.report(sessionId)); return false;
+          }
           // Controls mode prefers unseen targets; risk breaks ties. Representative
           // mode exhausts ordinary work first. The caller may override ordering.
           const riskOrdered = !boundary && ['controls', 'representative'].includes(session.options.exploration || '');
           if (riskOrdered) pending.sort((a, b) => novelty(a) - novelty(b) || Number(a.action.risk !== 'interface') - Number(b.action.risk !== 'interface')
             || Number(b.stateId === o.stateId) - Number(a.stateId === o.stateId) || revealed(b) - revealed(a) || b.depth - a.depth);
-          const pool = riskOrdered ? pending.filter(f => novelty(f) === novelty(pending[0]) && (f.action.risk === 'interface') === (pending[0].action.risk === 'interface')) : pending;
+          if (!boundary) pending.sort((a, b) => Number(!!a.explorationGroups?.length) - Number(!!b.explorationGroups?.length));
+          const eligible = !boundary ? pending.filter(f => !!f.explorationGroups?.length === !!pending[0].explorationGroups?.length) : pending;
+          const pool = riskOrdered ? eligible.filter(f => novelty(f) === novelty(eligible[0]) && (f.action.risk === 'interface') === (eligible[0].action.risk === 'interface')) : eligible;
           let chosen = pool.find(f => f.stateId === o.stateId) || pool[0];
           if (this.hooks.choose) {
             const result = await this.hook(sessionId, 'choose', () => this.hooks.choose!(describeFrontier(structuredClone(pending), this.store.list<ActionAttempt>('attempt', sessionId)), structuredClone({ session, observation: o })));

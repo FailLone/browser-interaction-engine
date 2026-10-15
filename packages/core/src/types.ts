@@ -59,7 +59,9 @@ export interface Diff { beforeId: ID; afterId: ID; changes: Change[]; gaps: Gap[
 export interface InteractionScope { id: ID; sessionId: ID; name: string; region: string; beforeId: ID; afterId?: ID; attemptIds: ID[]; status: 'open' | 'closed' | 'interrupted'; automatic: boolean; anchors: string[]; boundaryKey?: string; parentScopeId?: ID; baseline?: 'before_entry' | 'already_open'; diff?: Diff }
 export interface FrontierItem {
   id: ID; sessionId: ID; key: string; stateId: ID; contextKey: string; action: ActionCandidate;
-  status: 'pending' | 'executing' | 'executed' | 'blocked' | 'unknown' | 'needs_revalidation' | 'superseded';
+  status: 'pending' | 'deferred' | 'executing' | 'executed' | 'blocked' | 'unknown' | 'needs_revalidation' | 'superseded';
+  /** Scheduling only: neither control identity nor execution permission. */
+  explorationGroups?: { groupId: ID; memberKey?: string }[];
   reason?: string; unblock?: string; attempts: ID[]; depth: number;
   /** Sampling groups observations, not equivalent states or successful executions. */
   sampling?: { policy: string; evidence: string[]; observationIds: ID[] };
@@ -102,10 +104,27 @@ export interface EngineEvent { sequence: number; sessionId: ID; type: string; at
 export interface Issue { id: ID; sessionId: ID; observationId: ID; source: string; severity: 'info' | 'warning' | 'error'; message: string; evidence?: string[] }
 export interface Graph { states: UIState[]; transitions: Transition[]; visits: Visit[] }
 export interface HookContext<O extends Observation = Observation, S extends SessionOptions = SessionOptions> { session: Readonly<Session<S>>; observation: Readonly<O> }
+/** Adapter-proposed structural similarity, not proof of equal business effects. */
+export interface ExplorationGroupProposal {
+  key: string; kind: 'similar-list'; label: string; actionIds: ID[]; traversalActionIds: ID[]; evidence: ActionEvidence[];
+}
+export type ExplorationGroupDecision = { source: string; evidence: string[] } & (
+  { mode: 'all' | 'defer'; memberKeys?: never } | { mode: 'sample'; memberKeys: string[] }
+);
+export interface ExplorationGroup {
+  id: ID; sessionId: ID; key: string; proposalKey: string; kind: 'similar-list'; label: string; membership: 'observed-action-cases';
+  instanceScope: string; contextKey: string; observationId: ID; revision: number;
+  status: 'pending' | 'decided'; evidence: ActionEvidence[];
+  /** Observed members only. A virtual list may contain undiscovered entries. */
+  members: { key: string; actionId: ID; observationId: ID; localId?: ID; label: string; kind: string; value?: Json; risk: ActionCandidate['risk']; excluded: boolean }[];
+  decisions: { revision: number; at: string; decision: ExplorationGroupDecision }[];
+}
 export interface EngineHooks<O extends Observation = Observation, S extends SessionOptions = SessionOptions> {
   context?: (ctx: HookContext<O, S>) => Promise<Context> | Context;
   actions?: (actions: ActionCandidate[], ctx: HookContext<O, S>) => Promise<ActionCandidate[]> | ActionCandidate[];
   choose?: (items: FrontierItemView[], ctx: HookContext<O, S>) => Promise<ID | null> | ID | null;
+  /** Called once per newly detected group. Return undefined to decide asynchronously via the durable event/command API. */
+  explorationGroup?: (group: ExplorationGroup, ctx: HookContext<O, S>) => Promise<ExplorationGroupDecision | undefined> | ExplorationGroupDecision | undefined;
   identity?: (hypothesis: IdentityHypothesis, ctx: HookContext<O, S>) => Promise<{ identityId: ID; source: string; evidence: string[] } | undefined> | { identityId: ID; source: string; evidence: string[] } | undefined;
   verify?: (checkpoint: Checkpoint, ctx: HookContext<O, S>) => Promise<{ result: 'pass' | 'fail' | 'unknown'; evidence: string[] }> | { result: 'pass' | 'fail' | 'unknown'; evidence: string[] };
   accept?: (checkpoint: Checkpoint, ctx: HookContext<O, S>) => Promise<{ accepted: boolean; evidence: string[] }> | { accepted: boolean; evidence: string[] };

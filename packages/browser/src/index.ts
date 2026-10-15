@@ -104,6 +104,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       case 'pause': return this.pause(sessionId);
       case 'stop': return this.stop(sessionId);
       case 'resolveIdentity': return this.resolveIdentity(sessionId, command.hypothesisId, command.identityId, command.source, command.evidence);
+      case 'decideExplorationGroup': return this.decideExplorationGroup(sessionId, command.groupId, command.revision, command.decision);
       case 'openScope': return this.openScope(sessionId, command.name, command.region);
       case 'closeScope': return this.closeScope(sessionId, command.scopeId);
       case 'createCheckpoint': {

@@ -73,6 +73,7 @@ const server = createServer(async (req,res)=> {
     if(req.method==='GET' && req.url==='/state') result=state();
     else if(req.method==='GET' && req.url==='/summary') result=summary();
     else if(req.method==='GET' && req.url==='/hypotheses') result=engine.list(sid,'hypothesis');
+    else if(req.method==='GET' && req.url==='/groups') result=engine.list(sid,'exploration-group');
     else if(req.method==='GET' && req.url==='/identities') result=engine.list(sid,'identity');
     else if(req.method==='GET' && req.url==='/screenshot') { const a=await engine.evidenceArtifact(sid,engine.observation(sid).id,'screenshot');res.writeHead(200,{'Content-Type':a.mediaType});res.end(a.data);return; }
     else if(req.method==='POST' && req.url==='/command') result=await engine.command(sid,data);
