@@ -96,3 +96,5 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
 }
 
 export * from './inspection-contract.js';
+
+export * from './exploration-decision-reuse.js';

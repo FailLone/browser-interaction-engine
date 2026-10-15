@@ -168,7 +168,9 @@ export interface ExplorationGroup {
   traversalKeys?: string[];
   /** Observed members only. A virtual list may contain undiscovered entries. */
   members: { key: string; actionId: ID; observationId: ID; localId?: ID; label: string; kind: string; value?: Json; risk: ActionCandidate['risk']; excluded: boolean }[];
-  decisions: { revision: number; at: string; decision: ExplorationGroupDecision }[];
+  decisions: { revision: number; at: string; decision: ExplorationGroupDecision;
+    reusedFrom?: { reviewId: string; conditionKey: string };
+    invalidation?: { observationId: string; reason: string; at: string } }[];
 }
 export interface EngineHooks<O extends Observation = Observation, S extends SessionOptions = SessionOptions> {
   context?: (ctx: HookContext<O, S>) => Promise<Context> | Context;

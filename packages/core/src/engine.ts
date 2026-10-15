@@ -5,7 +5,7 @@ import { assignState, matchIdentities } from './identity.js';
 import { recoverStore } from './recovery.js';
 import { DiffQueries } from './diff-details.js';
 import { describeFrontier, groupFrontier } from './frontier.js';
-import { ExplorationGroups, validateExplorationProposals } from './exploration-groups.js';
+import { ExplorationGroups, currentExplorationDecision, validateExplorationProposals } from './exploration-groups.js';
 import { explorationReviewMaterial } from './exploration-review.js';
 import { auditExploration } from './exploration-audit.js';
 import { reconcileCoverage } from './coverage-reconciliation.js';
@@ -96,10 +96,17 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   /** Outstanding scheduling work; equivalence never rewrites stored actions or attempts. */
   protected outstandingFrontier(sessionId: string) { const covered = this.equivalentCoverage(sessionId); return this.frontier(sessionId).filter(f => !covered.has(f.id)); }
   frontierCoverage(sessionId: string) { return groupFrontier(this.getFrontier(sessionId)); }
+  protected commitExplorationDecisions(sessionId: string, resolutions: ExplorationGroupResolution[]) {
+    const result = this.groups.decideMany(sessionId, resolutions); this.afterExplorationDecisions(sessionId); return result;
+  }
+  protected invalidateExplorationDecision(sessionId: string, groupId: string, observationId: string, reason: string) {
+    this.groups.invalidateDecision(sessionId, groupId, observationId, reason);
+  }
   decideExplorationGroup(sessionId: string, groupId: string, revision: number, decision: ExplorationGroupDecision) {
+    const snapshot = structuredClone(decision);
     return this.enqueueMeasured(sessionId, async () => {
       this.session(sessionId);
-      return this.store.transaction(() => { const result = this.groups.decide(sessionId, groupId, revision, decision); this.afterExplorationDecisions(sessionId); return result; });
+      return this.store.transaction(() => { const result = this.groups.decide(sessionId, groupId, revision, snapshot); this.afterExplorationDecisions(sessionId); return result; });
     });
   }
   explorationReviewMaterial(sessionId: string) {
@@ -111,9 +118,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       { current, hypotheses: this.store.list<IdentityHypothesis>('hypothesis', sessionId), frontier: this.frontier(sessionId) });
   }
   decideExplorationGroups(sessionId: string, resolutions: ExplorationGroupResolution[]) {
+    const snapshot = structuredClone(resolutions);
     return this.enqueueMeasured(sessionId, async () => {
       this.session(sessionId);
-      return this.store.transaction(() => { const result = this.groups.decideMany(sessionId, resolutions); this.afterExplorationDecisions(sessionId); return result; });
+      return this.store.transaction(() => { const result = this.groups.decideMany(sessionId, snapshot); this.afterExplorationDecisions(sessionId); return result; });
     });
   }
   private outsideBoundary(action: ActionCandidate) { return action.preconditions.blockers?.some(b => b.code === 'outside_active_boundary'); }
@@ -134,7 +142,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   report(sessionId: string) {
     const equivalents = this.equivalentCoverage(sessionId); const frontier = describeFrontier(this.frontier(sessionId), this.store.list<ActionAttempt>('attempt', sessionId), equivalents); const attempts = this.list<ActionAttempt>(sessionId, 'attempt'); const observations = this.list<O>(sessionId, 'observation');
     const counts = (items: { status: string }[]) => items.reduce<Record<string, number>>((out, i) => { out[i.status] = (out[i.status] || 0) + 1; return out; }, {});
-    return { session: this.session(sessionId), explorationAudit: auditExploration(this.session(sessionId), frontier, attempts, observations, this.store.list<ExplorationGroup>('exploration-group', sessionId), equivalents), explorationGroups: this.store.list<ExplorationGroup>('exploration-group', sessionId).map(g => ({ id: g.id, label: g.label, status: g.status, revision: g.revision, observedCases: g.members.length, mode: g.decisions.at(-1)?.decision.mode })), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), frontierCoverage: groupFrontier(frontier).map(({ id, controlId, kind, label, coverageStatus, counts }) => ({ id, controlId, kind, label, coverageStatus, counts })), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), exploration: this.session(sessionId).options.exploration || 'stateful', coverage: this.session(sessionId).options.exploration === 'controls' ? 'encountered control operations; values and constraints are sampled, not exhaustive combinations or business assertions' : this.session(sessionId).options.exploration === 'representative' ? 'representative operation samples only; untested starting values, field combinations and undiscovered behavior remain unknown' : 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
+    return { session: this.session(sessionId), explorationAudit: auditExploration(this.session(sessionId), frontier, attempts, observations, this.store.list<ExplorationGroup>('exploration-group', sessionId), equivalents), explorationGroups: this.store.list<ExplorationGroup>('exploration-group', sessionId).map(g => ({ id: g.id, label: g.label, status: g.status, revision: g.revision, observedCases: g.members.length, mode: currentExplorationDecision(g)?.decision.mode })), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), frontierCoverage: groupFrontier(frontier).map(({ id, controlId, kind, label, coverageStatus, counts }) => ({ id, controlId, kind, label, coverageStatus, counts })), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), exploration: this.session(sessionId).options.exploration || 'stateful', coverage: this.session(sessionId).options.exploration === 'controls' ? 'encountered control operations; values and constraints are sampled, not exhaustive combinations or business assertions' : this.session(sessionId).options.exploration === 'representative' ? 'representative operation samples only; untested starting values, field combinations and undiscovered behavior remain unknown' : 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
   }
   async createSession(input: unknown): Promise<Session<S>> {
     const options = this.adapter.parseOptions(input);
@@ -1084,7 +1092,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
               this.pauseRequested = true; this.store.put('session', session);
               this.emit(sessionId, 'exploration.paused', { reason: session.stopReason, groupIds: [...new Set(waiting.flatMap(f => f.explorationGroups?.map(g => g.groupId) || []))] }); return false;
             }
-            session.status = 'finished'; session.stopReason = (outstanding.some(f => !['executed', 'superseded'].includes(f.status)) || this.store.list<ExplorationGroup>('exploration-group', sessionId).some(g => g.status !== 'invalidated' && g.decisions.at(-1)?.decision.mode === 'skip')) ? 'known_frontier_exhausted_with_gaps' : 'known_frontier_exhausted'; this.store.put('session', session); this.emit(sessionId, 'exploration.finished', this.report(sessionId)); return false;
+            session.status = 'finished'; session.stopReason = (outstanding.some(f => !['executed', 'superseded'].includes(f.status)) || this.store.list<ExplorationGroup>('exploration-group', sessionId).some(g => g.status !== 'invalidated' && currentExplorationDecision(g)?.decision.mode === 'skip')) ? 'known_frontier_exhausted_with_gaps' : 'known_frontier_exhausted'; this.store.put('session', session); this.emit(sessionId, 'exploration.finished', this.report(sessionId)); return false;
           }
           // Controls mode prefers unseen targets; risk breaks ties. Representative
           // mode exhausts ordinary work first. The caller may override ordering.

@@ -1,3 +1,5 @@
+import { ExplorationDecisionReuse } from './exploration-decision-reuse.js';
+import { reviewExplorationDecisionReuseSchema, reuseExplorationDecisionsSchema, revokeExplorationDecisionReuseSchema } from '@interaction/adapter-playwright';
 import { scrollProbeSchema, type ScrollProbeOptions } from '@interaction/adapter-playwright';
 import { BoundaryExits } from './boundary-exits.js';
 import { continueScrollTraversal } from './scroll-traversal.js';
@@ -38,6 +40,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   private readonly purposeReviews: PurposeReviews;
   private readonly pages: PageExploration;
   private readonly regions: RegionReviews;
+  private readonly depthReuse: ExplorationDecisionReuse;
+  private readonly depthReuseHook?: EngineHooks['explorationDecisionReuse'];
   private readonly boundaryExits: BoundaryExits;
   private readonly boundaryExitHook?: EngineHooks['boundaryExitReview'];
   private readonly controls: ControlReviews;
@@ -172,7 +176,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   }
   revokeControlReview(sid:string,input:import('@interaction/adapter-playwright').RevokeControlReviewInput) {
     return this.enqueueMeasured(sid,async()=>{this.session(sid);return this.store.transaction(()=>{
-      const record=this.controls.revoke(sid,input);this.controls.retire(this.observation(sid),[]);return record;
+      const record=this.controls.revoke(sid,input);this.controls.retire(this.observation(sid),[]);this.afterExplorationDecisions(sid);return record;
     });});
   }
   protected override async explorationScopes(actions: ActionCandidate[], o: Observation) {
@@ -195,7 +199,48 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     }
     return [...this.pages.proposals(actions, o, session), ...this.regions.proposals(o, actions)];
   }
-  protected override afterExplorationDecisions(sid: string) { this.regions.gate(this.observation(sid), this.session(sid)); }
+  protected override afterExplorationDecisions(sid: string) {
+    this.depthReuse.reconcile(this.observation(sid), this.actions(sid));
+    this.regions.gate(this.observation(sid), this.session(sid));
+  }
+  explorationDecisionReuseMaterial(sid: string) { return this.depthReuse.material(this.observation(sid), this.actions(sid)); }
+  private async validateDepthReuse(o: Observation, actionIds: string[]) {
+    if (this.activeId !== o.sessionId || !(this.driver instanceof BrowserAdapter) || !this.driver.connected()) throw new EngineError('BROWSER_UNAVAILABLE', 'Observe this session in a connected browser before reusing depth decisions');
+    const ids = new Set(actionIds), targets = [...new Set(this.actions(o.sessionId).filter(a => ids.has(a.id)).flatMap(a => a.localId ? [a.localId] : []))];
+    if (await this.driver.preflight(o, undefined, targets, [], this.regions.activeReuseAnchors(o.sessionId)) !== 'valid') throw new EngineError('STALE_DEPTH_REUSE', 'Current targets or region conditions changed; observe again');
+  }
+  reviewExplorationDecisionReuse(sid: string, input: import('@interaction/adapter-playwright').ReviewExplorationDecisionReuseInput) {
+    const snapshot = structuredClone(input);
+    return this.enqueueMeasured(sid, async () => {
+      const parsed = reviewExplorationDecisionReuseSchema.parse(snapshot), o = this.observation(sid);
+      const plan = this.depthReuse.register(o, this.actions(sid), parsed, false);
+      await this.validateDepthReuse(o, plan.members.map(m => m.actionId));
+      return this.store.transaction(() => this.depthReuse.register(o, this.actions(sid), parsed));
+    });
+  }
+  private commitDepthReuse(o: Observation, input: import('@interaction/adapter-playwright').ReuseExplorationDecisionsInput) {
+    return this.store.transaction(() => {
+      const matches = this.depthReuse.plan(o, this.actions(o.sessionId), input);
+      const groups = this.commitExplorationDecisions(o.sessionId, matches.map(c => ({ groupId: c.groupId, revision: c.revision, decision: { ...c.decision, source: input.source, evidence: input.evidence } })));
+      this.depthReuse.record(o, input, matches, groups); return groups;
+    });
+  }
+  reuseExplorationDecisions(sid: string, input: import('@interaction/adapter-playwright').ReuseExplorationDecisionsInput) {
+    const snapshot = structuredClone(input);
+    return this.enqueueMeasured(sid, async () => {
+      const parsed = reuseExplorationDecisionsSchema.parse(snapshot), o = this.observation(sid);
+      const matches = this.depthReuse.plan(o, this.actions(sid), parsed);
+      await this.validateDepthReuse(o, matches.flatMap(c => c.mapping.map(m => m.actionId)));
+      return this.commitDepthReuse(o, parsed);
+    });
+  }
+  revokeExplorationDecisionReuse(sid: string, input: import('@interaction/adapter-playwright').RevokeExplorationDecisionReuseInput) {
+    const snapshot = structuredClone(input);
+    return this.enqueueMeasured(sid, async () => this.store.transaction(() => {
+      const result = this.depthReuse.revoke(this.observation(sid), this.actions(sid), revokeExplorationDecisionReuseSchema.parse(snapshot));
+      this.regions.gate(this.observation(sid), this.session(sid)); return result;
+    }));
+  }
   regionReviewMaterial(sid: string) { return this.regions.material(this.observation(sid), this.actions(sid), this.session(sid)); }
   reviewRegions(sid: string, input: import('@interaction/adapter-playwright').RegionReviewInput) {
     const snapshot = structuredClone(input);
@@ -235,7 +280,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   revokeRegionReuse(sid:string,input:import('@interaction/adapter-playwright').RevokeRegionReuseInput) {
     const snapshot=structuredClone(input);
     return this.enqueueMeasured(sid,async()=>this.store.transaction(()=>{
-      const record=this.regions.revokeReuse(this.observation(sid),snapshot);this.regions.gate(this.observation(sid),this.session(sid));return record;
+      const record=this.regions.revokeReuse(this.observation(sid),snapshot);this.depthReuse.reconcile(this.observation(sid),this.actions(sid));this.regions.gate(this.observation(sid),this.session(sid));return record;
     }));
   }
   protected override preflightAction(action:ActionCandidate,o:Observation,purpose:import('@interaction/core').ActionAttempt['purpose']) {
@@ -266,6 +311,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       return 'paused';
     }
     const o = this.observation(sid);
+    this.depthReuse.reconcile(o, this.actions(sid));
     this.regions.gate(o, this.session(sid));
     if (!this.pages.shouldReturn(o, this.session(sid), () => this.getFrontier(sid))) return 'continue';
     // Existing boundary scheduling can execute only current exits: page members remain gated.
@@ -315,7 +361,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     this.classifications.reconcile(observation, reviewed);
     return this.classifications.apply(reviewed, observation);
   }
-  protected override validatePreparedAction(action: ActionCandidate, observation: Observation, purpose:import('@interaction/core').ActionAttempt['purpose']) { this.boundaryExits.validate(action, observation); this.classifications.validate(action, observation); this.controls.validate(action, observation); this.purposeReviews.validate(action, observation); if(purpose!=='external') this.regions.validateAction(observation,action,this.session(observation.sessionId)); }
+  protected override validatePreparedAction(action: ActionCandidate, observation: Observation, purpose:import('@interaction/core').ActionAttempt['purpose']) { this.boundaryExits.validate(action, observation); this.classifications.validate(action, observation); this.controls.validate(action, observation); this.purposeReviews.validate(action, observation); if(purpose!=='external') { this.regions.validateAction(observation,action,this.session(observation.sessionId)); this.depthReuse.reconcile(observation,this.actions(observation.sessionId)); this.depthReuse.validate(action,observation); } }
   purposeReviewMaterial(sessionId: string, groupId: string) { return this.purposeReviews.material(this.observation(sessionId), this.actions(sessionId), groupId); }
   reviewListPurpose(sessionId: string, review: ListPurposeReviewInput) {
     return this.enqueueMeasured(sessionId, async () => this.store.transaction(() => this.purposeReviews.record(this.observation(sessionId), this.actions(sessionId), review)));
@@ -328,7 +374,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     return super.probe(sessionId, observationId, localId, 'scroll', requestId, scrollProbeSchema.parse(options));
   }
   protected override beforeCapture(sessionId: string, observationId: string) { return this.inspections.prepare(sessionId, observationId); }
-  protected override afterCapture(observation: Observation, previous?: Observation, attemptId?: string) {
+  protected override async afterCapture(observation: Observation, previous?: Observation, attemptId?: string) {
     const attempt = attemptId ? this.store.get<import('@interaction/core').ActionAttempt>('attempt', attemptId) : undefined;
     this.boundaryExits.finish(observation, previous, attemptId, attempt && this.driver instanceof BrowserAdapter ? this.driver.dismissalDispatch(attempt.action.id) : undefined);
     this.boundaryExits.request(observation, this.actions(observation.sessionId), 'event');
@@ -340,7 +386,20 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     this.classifications.request(observation, this.actions(observation.sessionId));
     // Publish only when the observation and final caller policy are queryable.
     this.controls.request(observation,this.actions(observation.sessionId));
-    return this.inspections.finish(observation, previous, attemptId);
+    this.depthReuse.reconcile(observation, this.actions(observation.sessionId));
+    await this.inspections.finish(observation, previous, attemptId);
+    const material = this.depthReuse.request(observation, this.actions(observation.sessionId));
+    if (material && this.depthReuseHook) {
+      const result = await this.hook(observation.sessionId, 'explorationDecisionReuse', () => this.depthReuseHook!(structuredClone(material), structuredClone({ session: this.session(observation.sessionId), observation })));
+      if (result.value !== undefined) {
+        const valid = await this.hook(observation.sessionId, 'explorationDecisionReuse-preflight', async () => {
+          const parsed = reuseExplorationDecisionsSchema.parse(result.value);
+          const matches = this.depthReuse.plan(observation, this.actions(observation.sessionId), parsed);
+          await this.validateDepthReuse(observation, matches.flatMap(c => c.mapping.map(m => m.actionId))); return parsed;
+        });
+        if (valid.value) await this.hook(observation.sessionId, 'explorationDecisionReuse-record', () => this.commitDepthReuse(observation, valid.value!));
+      }
+    }
   }
   protected override captureFailed(sessionId: string, observationId: string, error: unknown) { return this.inspections.failed(sessionId, observationId, error); }
   protected override beforeAction(sessionId: string) { return this.inspections.beforeAction(sessionId); }
@@ -416,6 +475,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     this.discoveryScans = new DiscoveryScans(this.store, (sid, type, data) => this.publish(sid, type, data));
     this.pages = new PageExploration(this.store);
     this.regions = new RegionReviews(this.store, (sid, type, data) => this.publish(sid, type, data));
+    this.depthReuse = new ExplorationDecisionReuse(this.store, (sid, type, data) => this.publish(sid, type, data), (sid, groupId, observationId, reason) => this.invalidateExplorationDecision(sid, groupId, observationId, reason));
+    this.depthReuseHook = options.hooks?.explorationDecisionReuse;
     this.classifications = new ControlClassifications(this.store, (sid,type,data)=>this.publish(sid,type,data));
     this.controls = new ControlReviews(this.store,(sid,type,data)=>this.publish(sid,type,data), (c,o)=>!!this.classifications.negative(c,o));
     this.classificationHook = options.hooks?.controlClassification;
@@ -431,6 +492,9 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   async command(sessionId: string, input: unknown) {
     const command: Command = commandSchema.parse(input);
     switch (command.type) {
+      case 'reviewExplorationDecisionReuse': return this.reviewExplorationDecisionReuse(sessionId, command.review);
+      case 'reuseExplorationDecisions': return this.reuseExplorationDecisions(sessionId, command.review);
+      case 'revokeExplorationDecisionReuse': return this.revokeExplorationDecisionReuse(sessionId, command.revocation);
       case 'supplementDiscovery': return this.supplementDiscovery(sessionId, command.scan);
       case 'classifyControls': return this.classifyControls(sessionId, command.classification);
       case 'revokeControlClassification': return this.revokeControlClassification(sessionId, command.revocation);

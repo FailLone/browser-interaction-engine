@@ -1,3 +1,4 @@
+import { currentExplorationDecision } from '@interaction/core';
 import { contextKey, type Persistence, type ExplorationGroup, type ExplorationGroupProposal, type FrontierItem } from '@interaction/core';
 import type { ActionCandidate, Observation, Session } from '@interaction/adapter-playwright';
 
@@ -41,7 +42,7 @@ export class PageExploration {
   shouldReturn(o: Observation, session: Session, frontier: () => FrontierItem[]) {
     const state = this.state(o.sessionId);
     if (!this.enabled(session) || state?.rootUrl === o.url) return false;
-    const g = this.group(o), d = g?.decisions.at(-1)?.decision;
+    const g = this.group(o), d = currentExplorationDecision(g)?.decision;
     if (d?.mode === 'all') return false;
     if (d?.mode === 'sample' && frontier().some(f => f.stateId === o.stateId && f.status === 'pending' && f.depth < session.options.maxDepth
       && f.explorationGroups?.some(r => r.groupId === g!.id && r.memberKey && d.memberKeys.includes(r.memberKey)))) return false;
@@ -63,6 +64,6 @@ export class PageExploration {
     if (!this.enabled(session)) return;
     const groups = this.store.list<ExplorationGroup>('exploration-group', sid).filter(g => g.kind === 'page' && g.binding === 'context' && g.status !== 'invalidated');
     if (groups.some(g => !g.decisions.length)) return 'PAGE_DECISION_REQUIRED';
-    if (groups.some(g => g.decisions.at(-1)?.decision.mode === 'defer')) return 'PAGE_EXPLORATION_DEFERRED';
+    if (groups.some(g => currentExplorationDecision(g)?.decision.mode === 'defer')) return 'PAGE_EXPLORATION_DEFERRED';
   }
 }

@@ -163,3 +163,23 @@ await client.command(sessionId, { type: 'resume' });
 独立回归见 `tests/exploration-scopes-core.test.ts` 和 `tests/exploration-scopes-browser.test.ts`：非浏览器单动作、业务目标选择、重叠范围、条件失效、迟到决策、异常恢复、弹层退出、输入抽样、原有安全阻塞以及 SDK/HTTP。
 
 [OKX 目标驱动实测](experiments/exploration-decisions-2026-10-15/README.md)另验证了待决期间继续其他工作、all/sample/defer/skip、金额样本、列表暂缓后自动重入，以及导航后的条件失效。实测发现并修复旧文档退出待办引发的多余返回；范围决策不提供未知退出方式的自动语义判断，默认实例绑定的旧批准也不会复活。此结果不构成全页面或全列表穷尽证明。
+
+## 已确认区域的深度决定条件复用
+
+一次 `all/sample/defer/skip` 决定仍只按原范围协议生效。新文档里的已确认区域默认待决；允许复用须另行 opt-in，再对当前映射显式接受。程序负责比较证据、映射当前操作、校验及执行；人或 LLM 负责是否深入、适用范围及是否接受复用。`businessScope` 可以只是“公开页面 UI 巡检”，不要求交易等业务目的。
+
+这一版支持 `kind: 'reviewed-region'`，且区域本身已声明同 URL/已知上下文的复用条件。其他列表、输入、分支或自定义范围仍能通过通用决定接口恢复，但暂不提供跨文档深度复用。页面范围原有的 context 绑定授权不变。
+
+1. 提交本次深度决定后，调用 `reviewExplorationDecisionReuse(sessionId, { observationId, groupId, revision, businessScope, source, evidence })` 注册其可复用条件。选择样本时，每个样本必须是当前操作；历史累积成员不能充当当前样本。决定和注册均不执行浏览器动作。
+2. 返回 A 后，重新观察并先显式复用区域划分、独立处理当前操作用途。`explorationDecisionReuseMaterial(sessionId)` 返回 `candidates`、`unavailable` 和可注册的 `reusableGroupIds`。候选包含来源决定、完整条件、当前操作 ID、成员 key、参数和是否选中；不可复用材料给出原因和 `fresh_decision` / `review_region` / `review_purpose` 路径。
+3. 接受当前候选：`reuseExplorationDecisions(sessionId, { observationId, businessScope, source, evidence, decisions: [{ reviewId, groupId, revision, conditionKey }] })`。整批先验证版本、来源链、完整操作集合及现场目标，再事务提交；一项无效整批拒绝。sample 精确映射为当前成员 key，不照搬旧 key，不靠同名或序号匹配。
+4. 再调用 `explore(sessionId)` 继续工作。独立页面、列表、输入范围、用途、身份和其他执行约束仍须满足。决定本身不产生成功记录，也不会重放旧操作。
+5. `revokeExplorationDecisionReuse(sessionId, { reviewId, source, reason })` 撤回来源。派生决定失效并重新待决，不回退到更早的批准；上游可提交新的普通深度决定后恢复。区域来源撤回及来源决定被替换也会阻断派生引用。
+
+程序比较准确 URL、已知上下文、完整区域结构与成员池、所选目标、操作种类及参数、风险、可重放声明、依据、用途来源和调用方排除条件。当前结构对应不唯一、新增操作、参数或约束变化会拒绝复用；原生和用途审阅的现场校验仍逐次执行。用途审阅只有已显式复用同一来源链时才能对应；深度复用不会替代用途判断。
+
+接受后，操作完成可能使它从当前集合消失（例如唯一输入样本已填入）。仅在同文档、本次接受之后有真实成功记录支持时，允许继续剩余获批操作；原因不明的消失、新增或变化仍使决定失效。该规则不复制覆盖率、检查结果、身份或历史状态，返回页面也不等于恢复服务器业务状态。
+
+上层可订阅持久事件 `exploration.decision_reuse_requested` 后读取材料并异步提交。也可提供 `hooks.explorationDecisionReuse(material, ctx)`，返回同一接受输入或 `undefined`；hook 超时/失败保持待决，迟到结果不写入。接受决定和 `explore` 分开，避免上游尚未准备好就开始派发。
+
+所有上述方法均有同名 client 方法及命令；只读 HTTP 地址为 `GET /v1/sessions/:sessionId/exploration-decision-reuse`。审计集合为 `exploration-decision-reviews` 和 `exploration-decision-applications`，分别保存来源注册和当前接受记录。事件还包括 `exploration.decision_reuse_registered`、`exploration.decision_reused`、`exploration.decision_reuse_revoked`、`exploration.decision_invalidated`。失效记录保留原决定与原因；报告不将失效 skip/sample 继续当作有效排除。

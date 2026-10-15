@@ -3,6 +3,11 @@ import { EngineError, type ActionCandidate, type ExplorationGroup, type Explorat
 import { explorationGroupProposalSchema, explorationGroupResolutionsSchema } from './schema.js';
 import { canonical, contextKey, hash, id, now } from './util.js';
 
+/** A withdrawn latest decision never falls back to an older grant. */
+export function currentExplorationDecision(group: ExplorationGroup | undefined) {
+  const entry = group?.decisions.at(-1); return entry?.invalidation ? undefined : entry;
+}
+
 /** Validate the whole batch before writing anything, including caller references. */
 export function validateExplorationProposals(input: unknown, actions: ActionCandidate[]): ExplorationGroupProposal[] {
   if (!Array.isArray(input)) throw new EngineError('INVALID_EXPLORATION_GROUP', 'Scope hook must return an array');
@@ -100,7 +105,7 @@ export class ExplorationGroups {
       }
       if (item.status === 'needs_revalidation') continue;
       const gates = item.explorationGroups.map(ref => {
-        const group = groups.get(ref.groupId); const decision = group?.decisions.at(-1)?.decision;
+        const group = groups.get(ref.groupId); const decision = currentExplorationDecision(group)?.decision;
         const prefix = group?.kind === 'similar-list' ? 'list' : 'exploration';
         if (!decision) return { priority: 1, reason: `awaiting_${prefix}_decision` };
         if (decision.mode === 'skip') return { priority: 0, reason: 'exploration_skipped_by_caller' };
@@ -113,6 +118,17 @@ export class ExplorationGroups {
       else continue;
       this.store.put('frontier', item);
     }
+  }
+
+  invalidateDecision(sessionId: string, groupId: string, observationId: string, reason: string) {
+    const group = this.store.get<ExplorationGroup>('exploration-group', groupId);
+    const entry = currentExplorationDecision(group);
+    if (!group || group.sessionId !== sessionId || !entry) return;
+    entry.invalidation = { observationId, reason, at: now() };
+    if (group.status !== 'invalidated') group.status = 'pending';
+    group.revision++; this.store.put('exploration-group', group);
+    this.apply(sessionId, this.store.list<FrontierItem>('frontier', sessionId));
+    this.emit(sessionId, 'exploration.decision_invalidated', { groupId, decisionRevision: entry.revision, ...entry.invalidation });
   }
 
   decide(sessionId: string, groupId: string, revision: number, input: ExplorationGroupDecision) {
@@ -131,7 +147,7 @@ export class ExplorationGroups {
       if (decision.mode === 'sample' && (new Set(decision.memberKeys).size !== decision.memberKeys.length || decision.memberKeys.some(k => !group.members.some(m => m.key === k)))) {
         throw new EngineError('INVALID_GROUP_DECISION', 'Sample members must be distinct observed members of this group');
       }
-      return { group, decision, changed: canonical(group.decisions.at(-1)?.decision) !== canonical(decision) };
+      return { group, decision, changed: canonical(currentExplorationDecision(group)?.decision) !== canonical(decision) };
     });
     for (const { group, decision, changed } of prepared) if (changed) {
       group.decisions.push({ revision: group.revision, at: now(), decision }); group.status = 'decided'; group.revision++;

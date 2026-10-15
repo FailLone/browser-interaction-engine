@@ -1,3 +1,4 @@
+import { reviewExplorationDecisionReuseSchema, reuseExplorationDecisionsSchema, revokeExplorationDecisionReuseSchema } from './exploration-decision-reuse.js';
 import { scrollProbeSchema } from './scroll-probe.js';
 import { inspectionOptionsSchema } from './inspection-contract.js';
 import { listPurposeReviewSchema, revokePurposeReviewSchema } from './purpose-review.js';
@@ -57,6 +58,9 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({type:z.literal('revokeControlReview'),revocation:revokeControlReviewSchema}).strict(),
   z.object({ type: z.literal('reviewBoundaryExit'), review: boundaryExitReviewSchema }).strict(),
   z.object({ type: z.literal('reviewRegions'), review: regionReviewSchema }).strict(),
+  z.object({ type: z.literal('reviewExplorationDecisionReuse'), review: reviewExplorationDecisionReuseSchema }).strict(),
+  z.object({ type: z.literal('reuseExplorationDecisions'), review: reuseExplorationDecisionsSchema }).strict(),
+  z.object({ type: z.literal('revokeExplorationDecisionReuse'), revocation: revokeExplorationDecisionReuseSchema }).strict(),
   z.object({ type: z.literal('reuseRegionReviews'), review: reuseRegionReviewsSchema }).strict(),
   z.object({ type: z.literal('revokeRegionReuse'), revocation: revokeRegionReuseSchema }).strict(),
   z.object({ type: z.literal('reviewListPurpose'), review: listPurposeReviewSchema }).strict(),

@@ -8,3 +8,5 @@ export { recoverStore } from './recovery.js';
 export * from './diff-details.js';
 export * from './exploration-audit.js';
 export * from './coverage-reconciliation.js';
+
+export { currentExplorationDecision } from './exploration-groups.js';
