@@ -1,5 +1,5 @@
 import type { Task, TaskView, ExplorerEvent } from './types.js';
-export interface PluginStatus {enabled:boolean;providers:Record<'jev'|'llm',{configured:boolean;name?:string;model?:string}>;owner?:string;capabilities:{missing:string[];boundaryExit:boolean}}
+export interface PluginStatus {enabled:boolean;routingVersion?:string;providers:Record<'jev'|'llm',{configured:boolean;name?:string;model?:string}>;owner?:string;capabilities:{missing:string[];boundaryExit:boolean}}
 export class ExplorerClient {
   constructor(readonly baseUrl='',readonly prefix='/plugins/explorer/v1'){}
   async request<T>(path:string,body?:unknown,signal?:AbortSignal):Promise<T>{

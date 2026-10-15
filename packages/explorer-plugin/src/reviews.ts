@@ -6,11 +6,14 @@ import { digest, matches } from './policy.js';
 
 export interface ReviewContext {
   host:ExplorerHost;task:Task;observation:Observation;
-  choose(purpose:string,instructions:string,state:unknown,options:Record<string,unknown>):Promise<{value:string;decision:Decision}>;
+  choose(purpose:string,instructions:string,state:unknown,options:Record<string,unknown>,constraints?:ChoiceConstraints):Promise<{value:string;decision:Decision}>;
+  assess(purpose:string,state:unknown,checks:NonNullable<ModelRequest['checks']>):Promise<{values:Record<string,boolean|null>;decision:Decision}>;
+  refresh(decision:Decision,key:string):Promise<boolean>;
   generate<T>(purpose:string,instructions:string,state:unknown,schema:z.ZodType<T>):Promise<{value:T;decision:Decision}>;
   apply(decision:Decision,command:unknown):Promise<void>;
   gap(reason:string,scope:Scope,required?:boolean):void;
 }
+export type ChoiceConstraints=Pick<ModelRequest,'allowedReductions'|'blockedOptions'>;
 const evidence=(d:Decision)=>[`explorer-decision:${d.id}`];
 const source='explorer-plugin';
 /** Drain one guarded review at a time; reviews may recapture and invalidate all other material. */
@@ -24,6 +27,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       const candidate=region.candidates.find(r=>r.controlIds.some(id=>region.unassignedControlIds.includes(id)));
       if(candidate) {
         const d=await c.choose('region-review','Should this observed region be an exploration scope for the task? This is grouping, not action permission.',{observationId:o.id,goal:task.goal,candidate,controls:region.controls.filter(x=>candidate.controlIds.includes(x.localId))},{include:'Recognized coherent exploration region',uncertain:'Cannot decide its role'});
+        if(d.value==='uncertain'&&await c.refresh(d.decision,`region:${o.instanceScope}:${candidate.id}`))return true;
         mark(key);
         if(d.value==='include') {
           // Preserve active reviewed regions; the existing contract replaces the partition.
@@ -37,8 +41,11 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const classifications=host.controlClassificationMaterial(sid);
   for(const item of classifications.controls.filter(i=>i.needsClassification)) {
     const key=digest({type:'classification',instance:o.instanceScope,control:item.control,reviews:item.classifications.map(r=>[r.id,r.status])});if(done(key))continue;
-    const d=await c.choose('control-classification','Classify this observed element. Classification never grants operation permission.',{observationId:o.id,goal:task.goal,item},
-      {interaction:'Evidence of an interactive control',display:'Read-only information',container:'Structural grouping',probe_required:'A bounded hover/focus observation is needed',uncertain:'Insufficient evidence'});
+    const positiveBasis=item.control.editable||Object.entries(item.control.actionBasis||{}).some(([kind,basis])=>['click','fill','select','check','press','hover'].includes(kind)&&basis.status==='supported');
+    const blockedOptions=positiveBasis||!item.control.classificationBinding||item.control.classificationBinding.truncated?['display','container']:[];
+    const d=await c.choose('control-classification','Classify this observed element using its own action basis, interaction hints and bounded subtree. Do not classify as display/container if the subtree is truncated or there is positive interaction evidence. Classification never grants operation permission.',{observationId:o.id,control:item.control,actions:item.actions},
+      {interaction:'Evidence of an interactive control',display:'Read-only information with complete evidence and no interaction basis',container:'Structural grouping with complete evidence and no own interaction basis',probe_required:'A bounded hover/focus observation is needed',uncertain:'Insufficient evidence'},{blockedOptions});
+    if(d.value==='uncertain'&&await c.refresh(d.decision,`classification:${o.instanceScope}:${item.control.instanceId}`))return true;
     mark(key);
     await c.apply(d.decision,{type:'classifyControls',classification:{observationId:o.id,source,classifications:[{localId:item.control.localId,classification:d.value==='uncertain'?'unresolved':d.value,reason:`Selected ${d.value}`,evidence:evidence(d.decision)}]}});
     if(d.value==='uncertain')c.gap('classification_unresolved',{url:o.url,label:item.control.label,role:item.control.role});
@@ -50,7 +57,9 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     const candidates=h.candidateIds.map(id=>{const identity=identities.find(x=>x.id===id);const occurrence=identity?.occurrences.at(-1);let historical:unknown;try{if(occurrence)historical=host.observation(sid,occurrence.observationId).controls.find(x=>x.localId===occurrence.localId);}catch{}return {id,occurrence,historical};});
     const options:Record<string,unknown>={independent:'Keep this occurrence independent',uncertain:'Insufficient historical evidence'};
     for(const candidate of candidates)if(candidate.historical)options[candidate.id]={decision:'same identity',historical:candidate.historical};
-    const d=await c.choose('identity-review','Judge identity using historical occurrences and current evidence. Equal labels alone do not prove identity.',{observationId:o.id,hypothesis:h,candidates,current:o.controls.filter(x=>x.hypothesisId===h.id)},options);mark(key);
+    const current=o.controls.filter(x=>x.hypothesisId===h.id);
+    const blockedOptions=candidates.filter(candidate=>{const historical=candidate.historical as Observation['controls'][number]|undefined;return !historical||current.length!==1||historical.tag!==current[0].tag||historical.role!==current[0].role||historical.stableKey!==current[0].stableKey;}).map(c=>c.id);
+    const d=await c.choose('identity-review','Judge identity using historical occurrences and current evidence. Equal labels alone do not prove identity. Keep this occurrence independent unless both structural identity and semantic continuity are established.',{observationId:o.id,hypothesis:h,candidates,current},options,{blockedOptions});mark(key);
     if(d.value==='uncertain'){c.gap('identity_unresolved',{url:o.url,label:o.controls.find(x=>x.hypothesisId===h.id)?.label});continue;}
     await c.apply(d.decision,{type:'resolveIdentity',hypothesisId:h.id,identityId:d.value==='independent'?h.provisionalIdentityId:d.value,source,evidence:evidence(d.decision),guard:{observationId:o.id,revision:h.revisions.length}});return true;
   }
@@ -59,12 +68,20 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     const key=digest({type:'control',instance:o.instanceScope,control:item.control,reviews:item.reviews.map(r=>[r.id,r.status]),actions:item.actions.map(a=>({kind:a.kind,risk:a.risk,value:a.value,basis:a.basis}))});if(done(key))continue;
     // Never turn an explicitly submitting action into an interface action.
     const supported=item.actions.filter(a=>a.risk!=='submission');
-    const kinds=[...new Set([...supported.map(a=>a.kind),...Object.keys(item.control.actionBasis||{})])].filter(k=>['click','fill','select','check','press','hover'].includes(k));
+    const kinds=[...new Set([...supported.map(a=>a.kind),...Object.keys(item.control.actionBasis||{})])].filter(k=>['click','fill','select','check','press','hover'].includes(k)&&!item.actions.some(a=>a.kind===k&&a.risk==='submission')&&!item.reviews.some(r=>r.status==='active'&&r.kind===k));
     if(!kinds.length){mark(key);c.gap('operation_basis_unconfirmed',{url:o.url,label:item.control.label,role:item.control.role});continue;}
-    const options:Record<string,unknown>={uncertain:'Risk/purpose cannot be established'};
-    for(const kind of kinds)options[kind]=`Approve ${kind} only if evidence shows an interface-only operation; never submission or external effects`;
-    const d=await c.choose('control-risk','Choose an evidenced interface-only operation, or uncertain. A native button alone does not prove business safety.',{observationId:o.id,goal:task.goal,item},options);mark(key);
-    if(d.value==='uncertain'){c.gap('operation_risk_unresolved',{url:o.url,label:item.control.label});continue;}
+    const checks:NonNullable<ModelRequest['checks']>={};
+    for(const kind of kinds){
+      checks[`interface_${kind}`]={instructions:`Does the captured evidence in material.control and material.actions positively establish that ${kind} changes only interface state (for example a local tab, expansion or input value)? A label or native element type alone is insufficient.`};
+      checks[`external_${kind}`]={instructions:`Is there evidence that ${kind} submits business data, sends a message, purchases, deletes, authenticates, or performs another external/business write? Judge this effect independently of interface changes; an action can do both.`};
+    }
+    const judged=await c.assess('control-risk',{control:item.control,actions:item.actions},checks);
+    const kind=kinds.find(k=>judged.values[`interface_${k}`]===true&&judged.values[`external_${k}`]===false);
+    if(!kind){
+      if(await c.refresh(judged.decision,`risk:${o.instanceScope}:${item.control.instanceId}`))return true;
+      mark(key);c.gap('operation_risk_unresolved',{url:o.url,label:item.control.label});continue;
+    }
+    const d={value:kind,decision:judged.decision};mark(key);
     let samples:(string|boolean)[]|undefined;
     if(['fill','press'].includes(d.value)) {
       const generated=await c.generate('input-samples','Generate a small set of harmless representative input samples compatible with the observed constraints. Do not invent credentials, personal data or submission commands.',{observationId:o.id,goal:task.goal,control:item.control,kind:d.value},z.object({samples:z.array(z.string()).min(1).max(5)}).strict());
@@ -79,8 +96,10 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     // Groups retain prior observations and pre-review action cases. Only current candidates can be selected.
     const actions=host.actions(sid);const members=group.members.filter(m=>actions.some(a=>a.id===m.actionId));
     if(!members.length){mark(key);continue;}
-    const d=await c.choose('scope-review','Choose exhaustive traversal of these current observed members, representative sampling, defer, or exclude. Follow the task; sampled-out members stay untested. Historical members are not execution candidates.',{observationId:o.id,goal:task.goal,plan:task.plan,group:{...group,members,historicalMemberCount:group.members.length-members.length}},
-      {all:'All observed members are required',sample:'Representative observed members suffice',defer:'Cannot proceed yet',skip:'Outside the task',uncertain:'Unable to decide'});
+    const explicit=members.some(m=>{const action=actions.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
+    const allowedReductions=task.coverageMode==='representative'&&!explicit?['sample']:[];
+    const d=await c.choose('scope-review','Choose exhaustive traversal or representative sampling of current observed members. Sampling requires the supplied user permission; every omitted member remains untested. Never skip a group based only on confidence. Program scope matching still limits execution to the selected task.',{observationId:o.id,goal:task.goal,coverageMode:task.coverageMode||'all',allowedReductions,plan:task.plan,group:{...group,members,historicalMemberCount:group.members.length-members.length}},
+      {all:'Keep all observed members available for in-scope traversal',sample:'User explicitly permits representative sampling',defer:'Cannot proceed yet',skip:'Outside the task',uncertain:'Unable to decide'},{allowedReductions});
     const mode=d.value==='uncertain'?'defer':d.value;let memberKeys:string[]=[];
     if(mode==='sample') {
       // Deterministic batching avoids silently discarding candidates above JEV's option limit.
@@ -131,6 +150,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(!done(key)) {
       const options:Record<string,unknown>={uncertain:'Cannot target the missing evidence'};
       for(const t of scan.discovery.targets)options[t.id]=t;
+      if(Object.keys(options).length===1){mark(key);c.gap('discovery_incomplete',{url:o.url});return false;}
       const d=await c.choose('discovery-scan','Select an observed bounded target to investigate omitted discovery evidence. The full discovery material is evidence; choose only an option offered in this batch.',{observationId:o.id,discovery:scan.discovery},options);mark(key);
       if(d.value!=='uncertain'){await c.apply(d.decision,{type:'supplementDiscovery',scan:{observationId:o.id,targetId:d.value,source,evidence:evidence(d.decision),budget:{elements:1000}}});return true;}
       c.gap('discovery_incomplete',{url:o.url});

@@ -17,7 +17,8 @@ export function fakeProviders(url:string,scope:Record<string,unknown>={url}) {
    if(r.purpose==='initial-plan')value={items:[{title:'Controls',scope,prerequisites:[],completion:'Verify observed interface actions',required:true,reason:'user goal'}]};
    else if(r.purpose==='followup-plan')value={items:state.unfinished.map((i:any)=>({title:i.title,scope:i.scope,prerequisites:i.prerequisites,completion:i.completion,required:i.required,reason:i.reason}))};
    else if(r.purpose==='input-samples')value={samples:['sample']};else value={purpose:'Choose an option',businessScope:'Fixture'};
- } else if(r.kind==='noul')value=true;
+ } else if(r.kind==='checklist')value=Object.fromEntries(Object.keys(r.checks!).map(k=>[k,k.startsWith('interface_')?.99:.01]));
+ else if(r.kind==='noul')value=true;
  else {const options=r.options!;value=Object.keys(options).find(k=>k!=='uncertain')!;if(r.purpose==='control-classification')value='display';if(r.purpose==='scope-review')value='all';if(r.purpose==='list-purpose')value='uncertain';}
  return {value,model:'mock-explicit',confidence:1};};
  return {calls,jev:{name:'mock-jev',model:'mock',decide} as Provider,llm:{name:'mock-llm',model:'mock',decide} as Provider};

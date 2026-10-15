@@ -15,11 +15,19 @@ async function post(config: HttpConfig, body: unknown, signal: AbortSignal): Pro
   try { return JSON.parse(text); } catch { throw new ExplorerError('PROVIDER_INVALID_JSON'); }
 }
 export function jevProvider(config: HttpConfig & {provider?: 'typesafe'|'openrouter'}): Provider {
-  const requestBody=(request:ModelRequest)=>({model:config.model,state:request.state,questions:{decision:{type:request.kind,instructions:request.instructions,...(request.kind==='choice'?{criteria:request.options}:{})}}});
+  const requestBody=(request:ModelRequest)=>({model:config.model,state:request.state,questions:request.kind==='checklist'
+    ?Object.fromEntries(Object.entries(request.checks||{}).map(([key,check])=>[key,{type:'noul',instructions:`${request.instructions}\n${check.instructions}`}]))
+    :{decision:{type:request.kind,instructions:request.instructions,...(request.kind==='choice'?{criteria:request.options}:{})}}});
   return {name:config.provider || 'typesafe',model:config.model,requestBody,async decide(request,signal) {
     if (request.kind === 'generate') throw new ExplorerError('UNSUPPORTED_CAPABILITY');
     if (request.kind === 'choice' && (!request.options || Object.keys(request.options).length > 255)) throw new ExplorerError('CHOICE_LIMIT');
+    if (request.kind === 'checklist' && (!request.checks || !Object.keys(request.checks).length || Object.keys(request.checks).length>100))throw new ExplorerError('INVALID_CHECKLIST');
     const raw = envelope.parse(await post(config,requestBody(request),signal));
+    if(request.kind==='checklist') {
+      if(Object.keys(raw.answers).length!==Object.keys(request.checks!).length)throw new ExplorerError('INVALID_CHECKLIST');
+      const value=Object.fromEntries(Object.keys(request.checks!).map(key=>[key,noul.parse(raw.answers[key]).noul]));
+      return {value,model:raw.model,usage:raw.usage,response:raw};
+    }
     if (request.kind === 'noul') { const a=noul.parse(raw.answers.decision); return {value:a.noul>=0.5,probability:a.noul,model:raw.model,usage:raw.usage,response:raw}; }
     const a=choice.parse(raw.answers.decision);
     const keys=Object.keys(request.options!); const returned=Object.keys(a.probabilities);
@@ -65,7 +73,11 @@ export function providersFromEnv(env: Record<string,string|undefined> = process.
   const maxOutputTokens=env.EXPLORER_LLM_MAX_OUTPUT_TOKENS?number('EXPLORER_LLM_MAX_OUTPUT_TOKENS',4096,128,65536):undefined;
   if(maxOutputTokens&&!Number.isInteger(maxOutputTokens))throw new ExplorerError('INVALID_PROVIDER_CONFIG','EXPLORER_LLM_MAX_OUTPUT_TOKENS');
   const low=number('EXPLORER_NOUL_LOW',0.1,0,1),high=number('EXPLORER_NOUL_HIGH',0.9,0,1);if(low>=high)throw new ExplorerError('INVALID_PROVIDER_CONFIG','NOUL thresholds');
-  return {jev:jev&&jevProvider({...jev,provider:vendor as 'typesafe'|'openrouter'}),llm:llm&&llmProvider({...llm,provider:llmVendor as LlmConfig['provider'],upstreamProvider:env.EXPLORER_LLM_UPSTREAM_PROVIDER,maxOutputTokens,reasoningEffort:effort as LlmConfig['reasoningEffort']}),choiceThreshold:number('EXPLORER_CHOICE_THRESHOLD',0.8,0,1),groupingThreshold:number('EXPLORER_GROUPING_THRESHOLD',0.65,0,1),noulLow:low,noulHigh:high,timeoutMs:number('EXPLORER_MODEL_TIMEOUT_MS',60000,1,300000)};
+  const legacy=number('EXPLORER_CHOICE_THRESHOLD',0.8,0,1);
+  const operationProbability={low:number('EXPLORER_OPERATION_NOUL_LOW',low,0,1),high:number('EXPLORER_OPERATION_NOUL_HIGH',high,0,1)};
+  if(operationProbability.low>=0.5||operationProbability.high<=0.5)throw new ExplorerError('INVALID_PROVIDER_CONFIG','operation probability bounds');
+  const thresholds={classification:number('EXPLORER_CLASSIFICATION_THRESHOLD',legacy,0,1),identity:number('EXPLORER_IDENTITY_THRESHOLD',legacy,0,1),evidence:number('EXPLORER_EVIDENCE_THRESHOLD',legacy,0,1),planning:number('EXPLORER_PLANNING_THRESHOLD',legacy,0,1)};
+  return {jev:jev&&jevProvider({...jev,provider:vendor as 'typesafe'|'openrouter'}),llm:llm&&llmProvider({...llm,provider:llmVendor as LlmConfig['provider'],upstreamProvider:env.EXPLORER_LLM_UPSTREAM_PROVIDER,maxOutputTokens,reasoningEffort:effort as LlmConfig['reasoningEffort']}),choiceThreshold:legacy,thresholds,operationProbability,noulLow:low,noulHigh:high,timeoutMs:number('EXPLORER_MODEL_TIMEOUT_MS',60000,1,300000)};
 }
 export function safeError(error: unknown) { return error instanceof ExplorerError ? error.code : error instanceof z.ZodError ? 'INVALID_MODEL_OUTPUT' : (error as Error)?.name==='AbortError' ? 'CANCELLED' : 'PROVIDER_UNAVAILABLE'; }
 export function validAnswer(request:ModelRequest,answer:ModelAnswer) {
@@ -74,4 +86,8 @@ export function validAnswer(request:ModelRequest,answer:ModelAnswer) {
   if(answer.probability!==undefined)probability.parse(answer.probability);
   if(request.kind==='choice' && (typeof answer.value!=='string' || !Object.hasOwn(request.options || {},answer.value)))throw new ExplorerError('INVALID_CHOICE');
   if(request.kind==='noul' && typeof answer.value!=='boolean')throw new ExplorerError('INVALID_MODEL_OUTPUT');
+  if(request.kind==='checklist') {
+    const values=z.record(z.string(),probability).parse(answer.value),keys=Object.keys(request.checks||{});
+    if(!keys.length||keys.length!==Object.keys(values).length||keys.some(key=>!Object.hasOwn(values,key)))throw new ExplorerError('INVALID_CHECKLIST');
+  }
 }

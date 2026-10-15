@@ -17,6 +17,7 @@ const engine=new InteractionEngine({persistence:new SqliteStore(resolve(director
 let fallBack=false;
 const decide=async request=>{
   if(request.kind==='generate')return {model:'explicit-smoke-mock',value:{items:[{title:'Both controls',scope:{url},prerequisites:[],completion:'Observed interface actions succeed',required:true,reason:'smoke fixture'}]}};
+  if(request.kind==='checklist')return {model:'explicit-smoke-mock',value:Object.fromEntries(Object.keys(request.checks).map(k=>[k,k.startsWith('interface_')?.99:.01]))};
   let value=Object.keys(request.options).find(k=>k!=='uncertain');
   if(request.purpose==='control-classification')value='display';
   if(request.purpose==='scope-review')value='all';
@@ -27,14 +28,14 @@ const app=await createServer(engine,{explorer:plugin});await app.listen({host:'1
 const origin=`http://127.0.0.1:${app.server.address().port}`;
 const browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1500,height:1100}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
 try {
-  const task=plugin.create({url,goal:'编译产物验收：遍历两个控件并展示 JEV → LLM',sessionOptions:{settleMs:0,observeTimeoutMs:100}});
+  const task=plugin.create({url,goal:'编译产物验收：遍历两个控件并验证 JEV 低分不转交 LLM',sessionOptions:{settleMs:0,observeTimeoutMs:100}});
   await page.goto(origin);await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);
   await page.getByRole('button',{name:'开始 / 继续探索',exact:true}).click();
   await page.waitForFunction(()=>document.querySelector('[aria-label="自主探索"]')?.textContent?.includes('当前计划完成'));
   const timeline=page.getByLabel('包含模型决策的遍历路径');await timeline.waitFor();
-  assert.ok((await timeline.innerText()).includes('转交 LLM'));
+  assert.ok(!(await timeline.innerText()).includes('转交 LLM'));
   const final=plugin.view(task.id);assert.equal(final.task.status,'completed');assert.equal(final.task.usage.actions,2);assert.deepEqual(errors,[]);
   const screenshot=resolve(directory,'dashboard.png');await page.screenshot({path:screenshot,fullPage:true});
-  const report={at:new Date().toISOString(),node:process.version,providers:'explicit mocks',compiledPlugin:'passed',compiledUI:'passed',actualBrowserActions:2,fallback:'JEV → LLM',sdkModified:false,screenshot};
+  const report={at:new Date().toISOString(),node:process.version,providers:'explicit mocks',compiledPlugin:'passed',compiledUI:'passed',actualBrowserActions:2,fallback:'none for low-confidence grouping',sdkModified:false,screenshot};
   writeFileSync(resolve(directory,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
 } finally {await browser.close();await app.close();await engine.close();await new Promise(r=>fixture.close(r));}

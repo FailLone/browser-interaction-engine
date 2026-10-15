@@ -40,13 +40,47 @@ describe('explorer provider routing',()=>{
    expect(ranked.answer.value).toBe('a');expect(ranked.decision.answer?.value).toBe('uncertain');expect(ranked.decision.resolution).toMatchObject({source:'program',value:'a',reason:'stable_candidate_order'});
    const gate=await f.router.decide(task(),{...req,purpose:'control-risk',policy:'evidence-gate'},new AbortController().signal,()=>true);
    expect(gate.answer.value).toBe('uncertain');expect(l.decide).not.toHaveBeenCalled();expect(f.store.events('t').some(e=>e.actor==='program'&&e.type==='decision.resolved')).toBe(true);
-   await f.router.decide(task(),{...req,policy:'ranking',fallbackOption:'not-an-option'},new AbortController().signal,()=>true);expect(l.decide).toHaveBeenCalledTimes(1);f.store.close();
+   await expect(f.router.decide(task(),{...req,policy:'ranking',fallbackOption:'not-an-option'},new AbortController().signal,()=>true)).rejects.toMatchObject({code:'INVALID_ROUTING_POLICY'});expect(l.decide).not.toHaveBeenCalled();f.store.close();
  });
- it('uses a separate grouping threshold while retaining strict operation and identity gates',async()=>{
-   const j=provider('j','a',.76),l=provider('l','b'),f=fixture(j,l);
-   expect((await f.router.decide(task(),{...req,policy:'grouping'},new AbortController().signal,()=>true)).answer.value).toBe('a');expect(l.decide).not.toHaveBeenCalled();
-   for(const purpose of ['control-risk','identity-review'])expect((await f.router.decide(task(),{...req,purpose},new AbortController().signal,()=>true)).answer.value).toBe('b');
-   expect(l.decide).toHaveBeenCalledTimes(2);f.store.close();
+ it('retains discovery but defers uncertain evidence and keeps identity independent without LLM',async()=>{
+   const j=provider('j','include',.2),l=provider('l','b'),f=fixture(j,l),signal=new AbortController().signal;
+   expect((await f.router.decide(task(),{...req,policy:'discovery',options:{include:'Region',uncertain:'Unknown'}},signal,()=>true)).answer.value).toBe('include');
+   j.decide=async()=>({value:'approve',confidence:.76,model:'j'});
+   expect((await f.router.decide(task(),{...req,policy:'evidence-gate',options:{approve:'Interface',uncertain:'Unknown'}},signal,()=>true)).answer.value).toBe('uncertain');
+   j.decide=async()=>({value:'same',confidence:.76,model:'j'});
+   expect((await f.router.decide(task(),{...req,policy:'identity',options:{same:'Historical identity',independent:'Separate target',uncertain:'Unknown'}},signal,()=>true)).answer.value).toBe('independent');
+   expect(l.decide).not.toHaveBeenCalled();f.store.close();
+ });
+ it('cannot use any confidence to shrink scope without explicit permission',async()=>{
+   const j=provider('j','sample',1),l=provider('l','skip'),f=fixture(j,l),signal=new AbortController().signal;
+   const request={...req,policy:'coverage' as const,options:{all:'All',sample:'Sample',skip:'Exclude',uncertain:'Unknown'}};
+   for(const value of ['sample','skip','uncertain']){j.decide=async()=>({value,confidence:1,model:'j'});const result=await f.router.decide(task(),request,signal,()=>true);expect(result.answer.value).toBe('all');expect(result.decision.answer?.value).toBe(value);}
+   j.decide=async()=>({value:'sample',confidence:.4,model:'j'});
+   expect((await f.router.decide(task(),{...request,allowedReductions:['sample']},signal,()=>true)).answer.value).toBe('sample');
+   expect(l.decide).not.toHaveBeenCalled();f.store.close();
+ });
+ it('uses calibrated overrides only for the relevant judgment and rejects contradicting evidence',async()=>{
+   const j=provider('j','display',.85),l=provider('l','display'),f=fixture(j,l),signal=new AbortController().signal;
+   f.router.providers.thresholds={classification:.9,identity:.7};
+   const request={...req,policy:'classification' as const,options:{display:'Read-only',interaction:'Possible action',uncertain:'Unknown'}};
+   expect((await f.router.decide(task(),request,signal,()=>true)).answer.value).toBe('uncertain');
+   j.decide=async()=>({value:'display',confidence:1,model:'j'});
+   expect((await f.router.decide(task(),{...request,blockedOptions:['display']},signal,()=>true)).answer.value).toBe('uncertain');
+   j.decide=async()=>({value:'interaction',confidence:.2,model:'j'});
+   expect((await f.router.decide(task(),request,signal,()=>true)).answer.value).toBe('interaction');
+   expect(l.decide).not.toHaveBeenCalled();f.store.close();
+ });
+ it('keeps atomic risk probabilities separate and leaves ambiguous evidence unresolved',async()=>{
+   const j=provider('j',{interface_click:.96,external_click:.4}),l=provider('l','click'),f=fixture(j,l);
+   const request={...req,kind:'checklist' as const,policy:'evidence-gate' as const,checks:{interface_click:{instructions:'Interface only?'},external_click:{instructions:'External effect?'}}};
+   const result=await f.router.decide(task(),request,new AbortController().signal,()=>true);
+   expect(result.answer.value).toEqual({interface_click:true,external_click:null});expect(result.decision.answer?.value).toEqual({interface_click:.96,external_click:.4});expect(result.decision.resolution?.bounds).toEqual({low:.1,high:.9});expect(l.decide).not.toHaveBeenCalled();f.store.close();
+ });
+ it('halts built-in judgments on a JEV outage instead of cascading into paid LLM calls',async()=>{
+   const j=provider('j','a',1),l=provider('l','a'),f=fixture(j,l);j.decide=async()=>{throw new ExplorerError('PROVIDER_HTTP_503');};
+   await expect(f.router.decide(task(),{...req,policy:'ranking',fallbackOption:'a'},new AbortController().signal,()=>true)).rejects.toMatchObject({code:'PROVIDER_HTTP_503'});
+   await expect(f.router.decide(task(),{...req,policy:'ranking',fallbackOption:'a'},new AbortController().signal,()=>true)).rejects.toMatchObject({code:'JEV_TEMPORARILY_UNAVAILABLE'});
+   expect(l.decide).not.toHaveBeenCalled();expect(f.store.events('t').some(e=>e.type==='decision.deferred')).toBe(true);f.store.close();
  });
  it('keeps recorded gaps unless JEV confidently requests new planning',async()=>{
    const j=provider('j','replan',.6),l=provider('l','replan'),f=fixture(j,l);const r={...req,policy:'planning-gate' as const,options:{retain:'Keep recorded gaps',replan:'Generate missing route',uncertain:'No evidence'}};
@@ -75,4 +109,18 @@ it('pins OpenRouter parameters and preserves safe input/output diagnostics on tr
  const f=fixture(undefined,p);await expect(f.router.decide(task(),{...req,kind:'generate'},new AbortController().signal,()=>true)).rejects.toMatchObject({code:'MODEL_OUTPUT_TRUNCATED'});
  expect(sent.provider).toEqual({only:['Alibaba'],allow_fallbacks:false,require_parameters:true});expect(sent.reasoning).toEqual({effort:'low'});expect(sent.max_tokens).toBe(8192);
  const decision=f.store.decisions('t')[0];expect(decision.input).toEqual(sent);expect(decision.output).toMatchObject({id:'response-id',provider:'Alibaba',content:'{"items":[',finishReason:'length'});expect(JSON.stringify(decision)).not.toContain('test-secret');expect(JSON.stringify(decision)).not.toContain('private reasoning');f.store.close();
+});
+
+it('sends independent risk questions in one JEV request and rejects incomplete batches',async()=>{
+ let body:any;let incomplete=false;
+ const p=jevProvider({endpoint:'https://test.invalid/decisions',model:'j',fetch:(async(_url,init)=>{body=JSON.parse(init!.body as string);return Response.json({model:'j',answers:{interface_click:{type:'noul',noul:.96},...(!incomplete?{external_click:{type:'noul',noul:.02}}:{})}});}) as typeof fetch});
+ const request={...req,id:'batch',kind:'checklist' as const,checks:{interface_click:{instructions:'Only interface state?'},external_click:{instructions:'Business write?'}}};
+ expect((await p.decide(request,new AbortController().signal)).value).toEqual({interface_click:.96,external_click:.02});
+ expect(Object.keys(body.questions)).toEqual(['interface_click','external_click']);expect(body.questions.interface_click.type).toBe('noul');expect(body.questions.external_click.instructions).toContain('Business write?');
+ incomplete=true;await expect(p.decide(request,new AbortController().signal)).rejects.toMatchObject({code:'INVALID_CHECKLIST'});
+});
+it('configures per-purpose thresholds and ignores the retired grouping floor',()=>{
+ const p=providersFromEnv({EXPLORER_GROUPING_THRESHOLD:'0.01',EXPLORER_CLASSIFICATION_THRESHOLD:'.91',EXPLORER_IDENTITY_THRESHOLD:'.94',EXPLORER_OPERATION_NOUL_LOW:'.05',EXPLORER_OPERATION_NOUL_HIGH:'.95'});
+ expect(p.thresholds).toMatchObject({classification:.91,identity:.94});expect(p.operationProbability).toEqual({low:.05,high:.95});expect(p.groupingThreshold).toBeUndefined();
+ expect(()=>providersFromEnv({EXPLORER_OPERATION_NOUL_LOW:'.7'})).toThrow();
 });

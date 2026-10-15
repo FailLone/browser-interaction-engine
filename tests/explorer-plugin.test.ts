@@ -65,7 +65,7 @@ it('retains sampled-out ranges and can explicitly select them for a later round'
  const f=await explorerFixture('<select aria-label="Choice" onchange="document.querySelector(\'output\').textContent=this.value"><option>A</option><option>B</option><option>C</option><option>D</option></select><output></output>');const p=fakeProviders(f.url);const original=p.jev.decide;
  p.jev.decide=async(r,s)=>r.purpose==='scope-review'?{value:(r.state as any).material.material?.group?.kind==='similar-list'?'sample':((r.state as any).material.group?.kind==='similar-list'?'sample':'all'),confidence:1,model:'mock'}:original(r,s);
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
- try{const t=plugin.create({url:f.url,goal:'Sample list',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:3}});plugin.start(t.id);await plugin.waitForIdle();let task=plugin.view(t.id).task;
+ try{const t=plugin.create({url:f.url,goal:'Sample list',coverageMode:'representative',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:3}});plugin.start(t.id);await plugin.waitForIdle();let task=plugin.view(t.id).task;
  expect(task.status,JSON.stringify(task,null,2)).toBe('completed');const untested=task.plan.filter(i=>i.status==='untested'&&i.reason==='sample_unselected');expect(untested.length).toBeGreaterThan(0);
  const item=untested.find(i=>i.scope.value==='B')||untested[0];const firstCount=task.usage.actions;const firstSid=task.rounds[0].sessionId;
  plugin.revise(t.id,{itemIds:[item.id]},true);p.jev.decide=original;plugin.start(t.id);await plugin.waitForIdle();task=plugin.view(t.id).task;
@@ -153,5 +153,35 @@ it('retries initial planning after a provider timeout without turning the error 
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,goal:'Both controls',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();let view=plugin.view(t.id);expect(view.task.reason).toBe('PROVIDER_TIMEOUT');expect(view.task.plan).toEqual([]);expect(view.task.usage.actions).toBe(0);
  plugin.start(t.id);await plugin.waitForIdle();view=plugin.view(t.id);expect(view.task.status).toBe('completed');expect(view.decisions.filter(d=>d.purpose==='initial-plan')).toHaveLength(2);expect(view.events.some(e=>e.type==='decision.effect'&&(e.data as any).kind==='plan')).toBe(true);expect(view.events.some(e=>e.type==='action.verified'&&(e.data as any).decisionId)).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});
+
+it.each(['sample','skip','uncertain'])('preserves all in-scope actions when JEV suggests %s without sampling permission',async(value)=>{
+ const f=await explorerFixture(),p=fakeProviders(f.url),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>r.purpose==='scope-review'?{value,confidence:1,model:'mock'}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'All observed buttons',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+ expect(v.task.status,JSON.stringify(v.task)).toBe('completed');expect(v.task.usage.actions).toBe(2);expect(v.decisions.filter(d=>d.actor==='llm').map(d=>d.purpose)).toEqual(['initial-plan']);
+ expect(v.decisions.filter(d=>d.purpose==='scope-review').every(d=>d.answer?.value===value&&d.resolution?.value==='all')).toBe(true);
+ expect(v.task.plan.some(i=>i.reason==='sample_unselected'||i.reason==='scope_excluded')).toBe(false);
+ }finally{await plugin.close();await f.close();}
+});
+it('does not grant an operation on ambiguous external-effect evidence, even if LLM would approve',async()=>{
+ const f=await explorerFixture(),p=fakeProviders(f.url),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>r.kind==='checklist'?{value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,k.startsWith('interface_')?.99:.5])),model:'mock'}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'All buttons',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+ expect(v.task.status).not.toBe('completed');expect(v.task.usage.actions).toBe(0);expect(v.task.plan.some(i=>i.required&&i.reason==='operation_risk_unresolved')).toBe(true);
+ expect(v.decisions.filter(d=>d.actor==='llm').map(d=>d.purpose)).toEqual(['initial-plan']);
+ const judgments=v.decisions.filter(d=>d.purpose==='control-risk');expect(judgments.length).toBeGreaterThan(0);expect(judgments.length).toBeLessThanOrEqual(4);
+ expect(v.events.filter(e=>e.type==='decision.effect'&&(e.data as any).kind==='evidence-refresh')).toHaveLength(2);
+ }finally{await plugin.close();await f.close();}
+});
+it('preserves configuration, history and total counters while starting a fresh session for old routing rules',async()=>{
+ const f=await explorerFixture(),p=fakeProviders(f.url);const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'Both buttons',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:3}});plugin.start(t.id);await plugin.waitForIdle();const old=plugin.view(t.id),sid=old.task.rounds[0].sessionId;
+ const saved=plugin.store.task(t.id);saved.status='paused';saved.rounds[0].status='paused';delete saved.rounds[0].policyVersion;plugin.store.save(saved);plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+ expect(v.task.rounds.at(-1)?.sessionId).not.toBe(sid);expect(v.task.usage.rounds).toBe(2);expect(v.task.usage.modelRequests).toBeGreaterThanOrEqual(old.task.usage.modelRequests);expect(v.events.some(e=>e.type==='routing.updated')).toBe(true);
+ expect(v.decisions.filter(d=>d.sessionId===sid)).toEqual(old.decisions);
  }finally{await plugin.close();await f.close();}
 });
