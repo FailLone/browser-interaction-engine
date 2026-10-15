@@ -196,8 +196,9 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   protected override explorationCandidates(items: import('@interaction/core').FrontierItem[], o: Observation) { return this.pages.candidates(items, o, this.session(o.sessionId)); }
   protected override explorationIdleReason(sid: string) { return this.pages.idleReason(sid, this.session(sid)) || this.regions.idleReason(sid, this.outstandingFrontier(sid)); }
   protected override async runAction(sid: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: import('@interaction/core').ActionAttempt['purpose'] = 'external') {
+    if (purpose !== 'external' && this.boundaryExits.blockingResult(sid)) throw new EngineError('BOUNDARY_EXIT_UNVERIFIED', 'Review the changed or unverified exit before automated recovery');
     const attempt = await super.runAction(sid, actionId, requestId, value, purpose);
-    this.boundaryExits.finishUnknown(attempt);
+    this.boundaryExits.finishUnknown(attempt, this.driver instanceof BrowserAdapter ? this.driver.dismissalDispatch(attempt.action.id) : undefined);
     return attempt;
   }
   protected override async beforeExplorationStep(sid: string): Promise<'continue' | 'changed' | 'paused'> {
@@ -268,7 +269,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   override async createSession(input: unknown) { return super.createSession(validateInspectionOptions(input)); }
   protected override beforeCapture(sessionId: string, observationId: string) { return this.inspections.prepare(sessionId, observationId); }
   protected override afterCapture(observation: Observation, previous?: Observation, attemptId?: string) {
-    this.boundaryExits.finish(observation, previous, attemptId);
+    const attempt = attemptId ? this.store.get<import('@interaction/core').ActionAttempt>('attempt', attemptId) : undefined;
+    this.boundaryExits.finish(observation, previous, attemptId, attempt && this.driver instanceof BrowserAdapter ? this.driver.dismissalDispatch(attempt.action.id) : undefined);
     this.boundaryExits.request(observation, this.actions(observation.sessionId), 'event');
     this.discoveryScans.reconcile(observation);
     this.pages.reconcile(observation, previous, this.session(observation.sessionId));

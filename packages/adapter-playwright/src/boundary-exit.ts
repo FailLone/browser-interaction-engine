@@ -26,7 +26,11 @@ export interface BoundaryExitReviewRecord {
   status: 'approved' | 'deferred' | 'attempted' | 'invalidated';
   candidate?: BoundaryExitCandidate; preserved?: { localId: string; facts: string }[];
 }
-export interface BoundaryExitResult {
+export interface BoundaryExitDispatch {
+  inputPhase: 'none' | 'pointer-move' | 'pointer-down' | 'click' | 'unknown';
+  closedAfterMove: boolean;
+}
+export interface BoundaryExitResult extends BoundaryExitDispatch {
   id: string; sessionId: string; reviewId: string; attemptId: string; beforeId: string; afterId?: string;
   dispatched: string; closed: boolean; parentReady: boolean; preserved: boolean;
   status: 'verified' | 'not_closed' | 'changed' | 'unverified'; evidence: string[];

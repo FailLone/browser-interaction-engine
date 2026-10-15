@@ -1,6 +1,6 @@
 import { canonical, contextKey, EngineError, hash, id, now, type Persistence, type ActionAttempt, type ActionCandidate, type InteractionScope, type FrontierItem } from '@interaction/core';
 import { boundaryExitReviewSchema, dismissalReference, exitCandidateKey, hasReviewedDismissal, preservedControlFacts,
-  type BoundaryExitMaterial, type BoundaryExitReviewInput, type BoundaryExitReviewRecord, type BoundaryExitResult, type Observation } from '@interaction/adapter-playwright';
+  type BoundaryExitDispatch, type BoundaryExitMaterial, type BoundaryExitReviewInput, type BoundaryExitReviewRecord, type BoundaryExitResult, type Observation } from '@interaction/adapter-playwright';
 
 type Episode = { id: string; sessionId: string; key: string; episodeId: string; firstObservationId: string };
 export class BoundaryExits {
@@ -77,11 +77,11 @@ export class BoundaryExits {
   action(r: BoundaryExitReviewRecord, o: Observation): ActionCandidate {
     const c = r.candidate!;
     return { id: id(), sessionId: o.sessionId, observationId: o.id, stateId: o.stateId,
-      kind: 'dismiss', value: c.id, label: 'Click reviewed outside point', risk: 'interface', replayable: false,
+      kind: 'dismiss', value: c.id, label: 'Attempt reviewed outside exit', risk: 'interface', replayable: false,
       source: 'boundary-exit-review', excluded: false, sampleValidity: 'known', preconditions: { context: o.context, visible: true, enabled: true, identityResolved: true },
       basis: { status: 'supported', evidence: [{ source: r.source, rule: 'reviewed-boundary-dismissal/v1', facts: {
         reviewId: r.id, observationId: o.id, boundaryKey: r.boundaryKey, candidateId: c.id, binding: exitCandidateKey(c),
-        documentId: o.documentId, url: o.url, preserved: r.preserved!, evidence: r.evidence,
+        documentId: o.documentId, url: o.url, point: c.point, parentOwners: c.boundaryStack.slice(0, -1).map(({ controlIds: _c, exitControlIds: _e, ...owner }) => owner), preserved: r.preserved!, evidence: r.evidence,
       } }] } };
   }
   apply(actions: ActionCandidate[], o: Observation) {
@@ -96,16 +96,16 @@ export class BoundaryExits {
     const last = this.store.list<ActionAttempt>('attempt', sid).at(-1);
     return last && this.store.list<BoundaryExitResult>('boundary-exit-result', sid).find(r => r.attemptId === last.id && ['changed', 'unverified'].includes(r.status));
   }
-  finishUnknown(a: ActionAttempt) {
+  finishUnknown(a: ActionAttempt, dispatch?: BoundaryExitDispatch) {
     const ref = dismissalReference(a.action);
     if (!ref || this.store.list<BoundaryExitResult>('boundary-exit-result', a.sessionId).some(r => r.attemptId === a.id)) return;
     const r = this.store.require<BoundaryExitReviewRecord>('boundary-exit-review', String(ref.facts.reviewId));
     r.status = 'attempted'; this.store.put('boundary-exit-review', r);
     const result: BoundaryExitResult = { id: id(), sessionId: a.sessionId, reviewId: r.id, attemptId: a.id, beforeId: a.beforeId,
-      afterId: a.afterId, dispatched: a.status, closed: false, parentReady: false, preserved: false, status: 'unverified', evidence: [a.reason || 'Post-action observation unavailable'] };
+      afterId: a.afterId, ...(dispatch || { inputPhase: 'unknown', closedAfterMove: false }), dispatched: a.status, closed: false, parentReady: false, preserved: false, status: 'unverified', evidence: [a.reason || 'Post-action observation unavailable'] };
     this.store.put('boundary-exit-result', result); this.emit(a.sessionId, 'boundary.exit_result', result);
   }
-  finish(o: Observation, before: Observation | undefined, attemptId?: string) {
+  finish(o: Observation, before: Observation | undefined, attemptId?: string, dispatch?: BoundaryExitDispatch) {
     if (!attemptId || !before) return;
     const a = this.store.require<ActionAttempt>('attempt', attemptId), ref = dismissalReference(a.action);
     if (!ref) return;
@@ -117,7 +117,7 @@ export class BoundaryExits {
       && canonical(o.boundaries?.map(b => b.key) || []) === canonical((before.boundaries || []).slice(0, -1).map(b => b.key));
     const preserved = same && r.preserved!.every(p => preservedControlFacts(o.controls.find(c => c.localId === p.localId)) === p.facts);
     const result: BoundaryExitResult = { id: id(), sessionId: o.sessionId, reviewId: r.id, attemptId, beforeId: before.id, afterId: o.id,
-      dispatched: a.status, closed, parentReady, preserved,
+      ...(dispatch || { inputPhase: 'unknown', closedAfterMove: false }), dispatched: a.status, closed, parentReady, preserved,
       status: !complete ? 'unverified' : !same || !preserved ? 'changed' : !closed ? 'not_closed' : parentReady ? 'verified' : 'unverified',
       evidence: ['Compared document, URL, declared context, boundary stack and caller-selected control facts', 'No assertion about undeclared server state'] };
     r.status = 'attempted'; this.store.put('boundary-exit-review', r); this.store.put('boundary-exit-result', result); this.emit(o.sessionId, 'boundary.exit_result', result);

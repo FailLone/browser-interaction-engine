@@ -16,7 +16,7 @@ import { collectRegionCandidates } from './region-candidates.js';
 import { discoverStructuralLists, describeStructuralLists } from './structural-lists.js';
 import type { DiscoveryScanPlan, DiscoverySnapshot } from './discovery-scan.js';
 import { collectBoundaryExits } from './collect-boundary-exits.js';
-import { dismissalReference, exitCandidateKey, hasReviewedDismissal, preservedControlFacts } from './boundary-exit.js';
+import { dismissalReference, exitCandidateKey, hasReviewedDismissal, preservedControlFacts, type BoundaryExitDispatch } from './boundary-exit.js';
 import { collectOverlays } from './overlays.js';
 import { collectLiveContent } from './live-content.js';
 import { collectActionEvidence } from './action-evidence.js';
@@ -637,15 +637,24 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const { detailDom: _, ...observation } = dom;
     return { ...observation, navigation, evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
   }
+  private lastDismissal?: BoundaryExitDispatch & { actionId: string };
+  dismissalDispatch(actionId: string): BoundaryExitDispatch | undefined {
+    if (this.lastDismissal?.actionId !== actionId) return;
+    const { actionId: _id, ...dispatch } = this.lastDismissal; return { ...dispatch };
+  }
   async execute(action: ActionCandidate, control?: Control) {
     this.liveEpoch++;
     const page = this.page!;
     if (action.kind === 'dismiss') {
-      const point = await this.validateDismissal(action);
-      await page.mouse.move(point.x, point.y);
-      await this.validateDismissal(action);
-      await page.mouse.down();
-      try { await page.mouse.up(); } catch (error) { await page.mouse.up().catch(() => {}); throw error; }
+      const dispatch = this.lastDismissal = { actionId: action.id, inputPhase: 'none', closedAfterMove: false } as NonNullable<typeof this.lastDismissal>;
+      const { point } = await this.validateDismissal(action);
+      try { await page.mouse.move(point.x, point.y); dispatch.inputPhase = 'pointer-move'; } catch (error) { dispatch.inputPhase = 'unknown'; throw error; }
+      const afterMove = await this.validateDismissal(action, true);
+      if (afterMove.closedAfterMove) { dispatch.closedAfterMove = true; return; }
+      try {
+        await page.mouse.down(); dispatch.inputPhase = 'pointer-down';
+        await page.mouse.up(); dispatch.inputPhase = 'click';
+      } catch (error) { dispatch.inputPhase = 'unknown'; await page.mouse.up().catch(() => {}); throw error; }
       return;
     }
     if (action.kind === 'history') {
@@ -839,20 +848,25 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (target && action?.risk !== 'interface' && target.displayedText !== live.controls.find(c => c.instanceId === target.instanceId)?.displayedText) return 'stale';
     return 'valid';
   }
-  async validateDismissal(action: ActionCandidate) {
+  async validateDismissal(action: ActionCandidate, acceptClosedAfterMove = false) {
     const ref = dismissalReference(action);
     const live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Dismissal validation deadline exceeded');
-    const c = live.boundaryExitCandidates?.find(c => c.id === ref?.facts.candidateId);
     const preserved = ref?.facts.preserved as { localId: string; facts: string }[] | undefined;
-    if (!c || exitCandidateKey(c) !== ref?.facts.binding || action.value !== c.id || live.boundaries.at(-1)?.key !== c.boundaryKey
-      || live.documentId !== ref.facts.documentId || live.url !== ref.facts.url || live.gaps.some(g => g.critical)
+    if (!ref || live.documentId !== ref.facts.documentId || live.url !== ref.facts.url || live.gaps.some(g => g.critical)
       || !Array.isArray(preserved) || !preserved.every(p => preservedControlFacts(live.controls.find(c => c.localId === p.localId)) === p.facts)) throw new EngineError('STALE_DISMISSAL_TARGET', 'Outside point or boundary changed');
     for (const rule of this.options.contextRules) {
       const locator = this.page!.locator(rule.selector);
       const value = await locator.count() === 1 ? rule.attribute ? await locator.getAttribute(rule.attribute) : await locator.evaluate(el => 'value' in el ? String((el as HTMLInputElement).value) : el.textContent?.trim() ?? '') : null;
       if (canonical(value) !== canonical(action.preconditions.context[rule.key]?.value)) throw new EngineError('PRECONDITIONS_CHANGED', 'Declared context changed before outside click');
     }
-    return c.point;
+    // Pointer departure can already dismiss a hover-sensitive panel. Verify the
+    // expected parent and preserved facts before omitting the now-unneeded click.
+    const parents = live.overlays.map(o => ({ key: o.key, kind: o.kind, parentKey: o.parentKey, parentRegion: o.parentRegion, instanceId: live.regions.find(r => r.key === o.key)?.instanceId }));
+    if (acceptClosedAfterMove && !live.boundaries.some(b => b.key === ref.facts.boundaryKey)
+      && canonical(parents) === canonical(ref.facts.parentOwners)) return { point: ref.facts.point as { x: number; y: number }, closedAfterMove: true };
+    const c = live.boundaryExitCandidates?.find(c => c.id === ref.facts.candidateId);
+    if (!c || exitCandidateKey(c) !== ref.facts.binding || action.value !== c.id || live.boundaries.at(-1)?.key !== c.boundaryKey) throw new EngineError('STALE_DISMISSAL_TARGET', 'Outside point or boundary changed');
+    return { point: c.point, closedAfterMove: false };
   }
   async validate(action: ActionCandidate, control?: Control) {
     if (action.kind === 'dismiss') await this.validateDismissal(action);

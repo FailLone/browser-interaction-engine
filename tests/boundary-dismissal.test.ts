@@ -83,10 +83,14 @@ it.each(['move', 'replace', 'cover', 'value', 'url'])('rejects a reviewed point 
 });
 
 it('separates boundary disappearance from changes to caller-preserved values', async () => {
-  const t = await fixture("panel.hidden=true;document.querySelector('[aria-label=Amount]').value='99'"); try {
+  const t = await fixture("panel.hidden=true;document.querySelector('[aria-label=Amount]').value='99'", {}, { interfaceActions: [{ name: 'Open' }], reversible: [{ name: 'Amount', kind: 'fill' }] }); try {
+    const checkpoint = await t.engine.createCheckpoint(t.sid, 'original amount');
     await act(t.engine, t.sid, 'Open'); const a = await approve(t); await t.engine.execute(t.sid, a.id, 'change');
     expect(t.engine.list<any>(t.sid, 'boundary-exit-result')[0]).toMatchObject({ status: 'changed', closed: true, preserved: false });
     const count = t.engine.session(t.sid).actionCount;
+    const recovery = await t.engine.reachCheckpoint(t.sid, checkpoint.id);
+    expect(recovery.status).toBe('UNVERIFIED'); expect(recovery.reason).toContain('Review the changed or unverified exit');
+    expect(await pageOf(t.engine).getByRole('textbox', { name: 'Amount' }).inputValue()).toBe('99');
     await t.engine.explore(t.sid); await t.engine.waitForIdle();
     expect(t.engine.session(t.sid)).toMatchObject({ status: 'paused', stopReason: 'BOUNDARY_EXIT_UNVERIFIED', actionCount: count });
   } finally { await t.close(); }
@@ -222,4 +226,33 @@ it('reviews an exit in the UI with a stale-draft guard and displays independent 
     await t.engine.execute(t.sid, t.engine.actions(t.sid).find(a => a.kind === 'dismiss')!.id, 'ui-approved');
     await panel.getByText(/最近结果：已验证退出/).waitFor(); expect(errors).toEqual([]);
   } finally { await browser.close(); await ui.close(); await app.close(); await t.close(); }
+});
+
+it.each(['close', 'change-value', 'replace-boundary'])('handles pointer departure before clicking: %s', async effect => {
+  const t = await fixture(); try {
+    await act(t.engine, t.sid, 'Open'); const a = await approve(t);
+    await pageOf(t.engine).evaluate(effect => {
+      (window as any).downCount = 0;
+      document.addEventListener('mousedown', () => (window as any).downCount++);
+      document.addEventListener('pointermove', () => {
+        (document.querySelector('#panel') as HTMLElement).hidden = true;
+        if (effect === 'change-value') (document.querySelector('[aria-label=Amount]') as HTMLInputElement).value = '99';
+        if (effect === 'replace-boundary') {
+          const replacement = document.createElement('div'); replacement.id = 'different'; replacement.setAttribute('role', 'dialog');
+          replacement.style.cssText = 'position:fixed;inset:0;background:white;z-index:10'; replacement.textContent = 'Another dialog'; document.body.append(replacement);
+        }
+      }, { once: true });
+    }, effect);
+    const attempt = await t.engine.execute(t.sid, a.id, 'departure');
+    expect(await pageOf(t.engine).evaluate(() => (window as any).downCount)).toBe(0);
+    const result = t.engine.boundaryExitMaterial(t.sid).results.at(-1)!;
+    expect(result.inputPhase).toBe('pointer-move');
+    if (effect === 'close') {
+      expect(attempt.status).toBe('succeeded');
+      expect(result).toMatchObject({ status: 'verified', closed: true, parentReady: true, preserved: true, closedAfterMove: true });
+    } else {
+      expect(attempt.status).toBe('failed'); expect(result).toMatchObject({ status: 'unverified', closedAfterMove: false });
+      await t.engine.explore(t.sid); await t.engine.waitForIdle(); expect(t.engine.session(t.sid).stopReason).toBe('BOUNDARY_EXIT_UNVERIFIED');
+    }
+  } finally { await t.close(); }
 });

@@ -20,6 +20,7 @@ export function BoundaryExitPanel({ material, observation, busy, perform }: {
     <h3>弹层退出审阅</h3>
     <p>空白位置只是候选。确认其用途后可批准一次尝试；执行后分别验证弹层关闭、父页面就绪和指定字段未改变。</p>
     {result && <p role="status">最近结果：{{ verified: '已验证退出', not_closed: '弹层未关闭', changed: '页面或指定字段已改变', unverified: '退出结果未验证' }[result.status]}；弹层关闭：{result.closed ? '是' : '否'}；父页面就绪：{result.parentReady ? '是' : '否'}；指定字段保留：{result.preserved ? '是' : '否'}</p>}
+    {result?.closedAfterMove && <p>指针移动后的校验已确认弹层消失，本次没有再点击。</p>}
     {material.boundary && <>
       <p>当前弹层：{material.boundary.name || material.boundary.selector}；已尝试 {material.attempts.length} 次退出。</p>
       <button disabled={busy || observation?.id !== material.observationId} onClick={() => { setDraft({ material, observation: observation! }); setCandidateId(''); setPreserved([]); setReason(''); }}>查看当前退出候选</button>
