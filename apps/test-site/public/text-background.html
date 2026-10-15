@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><title>文字与背景同色规则测试</title>
+<style>
+  html, body { background: white; color: #183046; font: 16px/1.5 Arial, sans-serif; }
+  body { margin: 24px; } main { display: grid; grid-template-columns: repeat(4, 220px); gap: 20px; }
+  section { padding: 12px; background: white; } button, label { appearance: none; border-radius: 0; box-shadow: none; border: 1px solid #ddd; background: white; color: black; font: 16px/1.5 Arial, sans-serif; padding: 10px; }
+  button { min-width: 140px; } nav { margin-bottom: 16px; } .white { color:white; background:white; }
+  .pseudo::before { content: '•'; color:black; } .overlap { position:relative; }
+  .cover { position:absolute; left:20px; top:20px; width:120px; height:25px; background:black; pointer-events:none; }
+  .sample label { display:inline-block; } .traversal .sample { display:none; }
+</style>
+<h1>文字与背景同色规则测试</h1>
+<p>白底白字、透明文字为候选缺陷；不同颜色只是本模型通过，不代表可读性达标。描边、阴影和复杂背景单独记录限制。</p>
+<nav><button id="fix" onclick="document.querySelector('#target').style.color='black'">恢复文字颜色</button>
+<button id="open" onclick="document.querySelector('dialog').showModal()">打开同色弹层</button></nav>
+<main>
+  <section><button id="target" class="white">白底白字</button><p>异常：白色文字在白色背景上</p></section>
+  <section class="sample"><button id="healthy">正常文字</button><p>正常对照</p></section>
+  <section class="sample"><button id="rounded" class="white" style="border-radius:8px">安全圆角区域</button><p>文字完全在圆角内侧的纯色区域</p></section>
+  <section class="sample"><button id="transparent" style="color:rgba(0,0,0,0)">透明文字</button><p>文字填充完全透明</p></section>
+  <section class="sample"><button id="inherited" class="white"><span>继承白色文字</span></button><p>子元素继承，背景来自父元素</p></section>
+  <section class="sample"><button id="fill" style="color:black;-webkit-text-fill-color:white">实际填充白色</button><p>使用实际 text-fill-color</p></section>
+  <section class="sample"><div style="background:white"><button id="alpha" style="background:rgba(255,255,255,.5);color:white">透明背景叠加</button></div><p>透明背景与祖先合成后仍是白色</p></section>
+  <section class="sample"><button id="alpha-healthy" style="color:rgba(0,0,0,.5)">半透明黑字</button><p>颜色有区别</p></section>
+  <section class="sample"><button id="low-contrast" style="color:rgb(254,254,254)">极低对比文字</button><p>颜色不同；本规则不评价最低对比度</p></section>
+  <section class="sample"><button id="gradient" style="background:linear-gradient(black,white);color:white">渐变背景</button><p>不支持：需要绘制结果</p></section>
+  <section class="sample" style="background:linear-gradient(black,white)"><button id="opaque-over-gradient">不透明背景</button><p>控件自己的纯色背景隔开祖先渐变</p></section>
+  <section class="sample"><button id="shadow" class="white" style="text-shadow:0 0 2px black">阴影提供线索</button><p>不支持：不能只按同色判错</p></section>
+  <section class="sample"><button id="stroke" class="white" style="-webkit-text-stroke:1px black">描边文字</button><p>不支持：描边仍可能可读</p></section>
+  <section class="sample"><button id="pseudo" class="white pseudo">生成内容</button><p>不支持：存在伪元素</p></section>
+  <section class="sample"><button id="emoji" style="background:black;color:black">🙂</button><p>彩色字形不能按 CSS 文本颜色判断</p></section>
+  <section class="sample"><button id="disabled" class="white" disabled>禁用按钮</button><p>默认不检查禁用状态</p></section>
+  <section class="sample"><button id="hidden" class="white" hidden>隐藏按钮</button><p>隐藏状态</p></section>
+  <section class="sample"><input id="field" type="checkbox"><label for="field" class="white">关联标签</label><p>检查可见 label，不用输入值替代</p></section>
+  <section class="sample overlap"><button id="covered" class="white">相交的绘制层</button><div class="cover"></div><p>pointer-events:none 仍会绘制</p></section>
+  <section class="sample"><button id="native" class="white" style="appearance:auto">原生外观</button><p>原生绘制不完全等于声明背景</p></section>
+  <section class="sample"><button id="mixed"><span>正常部分</span><span style="color:white">同色部分</span></button><p>逐个文字节点检查</p></section>
+</main>
+<dialog aria-label="同色文字弹层" style="background:white"><button id="modal-text" class="white" onclick="this.closest('dialog').close()">关闭同色弹层</button></dialog>
+<script>if(new URLSearchParams(location.search).get('mode')==='traversal') document.body.classList.add('traversal');</script>
+</html>

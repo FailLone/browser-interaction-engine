@@ -25,6 +25,7 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
   if (!document.documentElement) { result.gaps.push({ code: 'DOM_ROOT_UNAVAILABLE', message: 'No document element for detailed evidence' }); return result; }
   result.rootId = id(document.documentElement);
   result.spatialVersion = 1;
+  result.paintEnvironment = { version: 1, forcedColors: matchMedia('(forced-colors: active)').matches };
   result.textGeometry = { version: 1, coordinateSpace: 'layout-viewport-css-px', fonts: document.fonts?.status ?? 'unavailable',
     maxFragments: 4096, maxFragmentsPerNode: 128, fragments: 0, truncated: false };
   const viewport = window.visualViewport; const scrolling = document.scrollingElement;
@@ -45,6 +46,8 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
   const essential = ['display', 'visibility', 'opacity', 'position', 'z-index', 'pointer-events', 'overflow', 'overflow-x', 'overflow-y', 'color', 'background-color', 'font-size', 'font-weight', 'cursor', 'transform', 'direction', 'writing-mode', 'white-space', 'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height', 'box-sizing', 'contain', 'clip-path', 'overflow-wrap', 'text-overflow', 'font-family', 'line-height', 'background-image', 'outline', 'filter', 'isolation', 'flex', 'flex-direction', 'align-items', 'justify-content', 'gap', 'grid-template-columns',
     'translate', 'rotate', 'scale', 'zoom', 'perspective', 'clip', 'mask-image', 'content-visibility', 'will-change', 'overflow-clip-margin',
     'object-fit', 'object-position', 'content', 'image-orientation', 'object-view-box', 'offset-path',
+    'background-clip', 'background-blend-mode', 'mix-blend-mode', 'backdrop-filter', 'box-shadow', 'text-shadow',
+    '-webkit-text-fill-color', '-webkit-text-stroke-width', 'text-decoration-line', 'appearance',
     'border-top-left-radius', 'border-top-right-radius', 'border-bottom-left-radius', 'border-bottom-right-radius',
     '-webkit-line-clamp', '-webkit-box-orient', 'line-clamp', 'text-indent', 'text-transform', 'column-count', 'column-width'];
   while (stack.length && result.nodes.length < limits.maxNodes) {
@@ -85,6 +88,12 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
       const r = el.getBoundingClientRect(); record.rect = { x: r.x, y: r.y, width: r.width, height: r.height };
       const style = getComputedStyle(el); record.styles = {};
       for (const key of limits.styles === 'all' ? Array.from(style) : limits.styles === 'essential' ? essential : []) record.styles[key] = trim(style.getPropertyValue(key), limits.maxAttributeLength, `style:${key}`);
+      record.paint = { version: 1, motion: el.getAnimations().some(a => a.playState === 'running' || a.pending) ? 'running' : 'idle',
+        pseudoElements: (['before', 'after'] as const).flatMap(kind => {
+          const pseudo = getComputedStyle(el, `::${kind}`);
+          return !['none', 'normal'].includes(pseudo.content) && pseudo.display !== 'none' && pseudo.visibility === 'visible'
+            ? [{ kind, position: pseudo.position }] : [];
+        }) };
       const scrollAncestorIds: string[] = []; const clipAncestorIds: string[] = [];
       // These are DOM ancestor chains, not logical overlay ownership. Hit testing
       // is one visible center sample, never a claim of complete pixel visibility.

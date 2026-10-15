@@ -46,7 +46,7 @@ it('detects images during ordinary DFS, persists their history, and displays the
     const response = page.waitForResponse(r => r.request().method() === 'POST' && r.url().endsWith('/rule-runs'));
     await panel.getByRole('button', { name: '运行选中规则', exact: true }).click();
     const replay = await (await response).json() as RulePluginRun;
-    expect(replay.results).toHaveLength(4);
+    expect(replay.results).toHaveLength(builtinRulePlugins.length);
     expect(replay.results.every(r => r.status === 'completed')).toBe(true);
     expect(engine.session(s.id).actionCount).toBe(count);
     const first = saved.find(r => r.inspectionId === inspections[0].id)!.results[0];

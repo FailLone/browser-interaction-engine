@@ -76,5 +76,5 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('reachCheckpoint'), checkpointId: z.string() }),
 ]);
 export type Command = z.infer<typeof commandSchema>;
-export const domQuerySchema = z.object({ fields: z.preprocess(v => typeof v === 'string' ? (v ? v.split(',') : []) : v, z.array(z.enum(['tag', 'text', 'attributes', 'rect', 'styles', 'properties', 'relations', 'layout', 'textLayout', 'image'])).max(10).optional()), rootId: z.string().min(1).optional(), depth: z.coerce.number().int().min(0).max(100).default(20), offset: z.coerce.number().int().min(0).max(50000).default(0), limit: z.coerce.number().int().min(1).max(5000).default(1000) }).strict();
+export const domQuerySchema = z.object({ fields: z.preprocess(v => typeof v === 'string' ? (v ? v.split(',') : []) : v, z.array(z.enum(['tag', 'text', 'attributes', 'rect', 'styles', 'properties', 'relations', 'layout', 'textLayout', 'image', 'paint'])).max(11).optional()), rootId: z.string().min(1).optional(), depth: z.coerce.number().int().min(0).max(100).default(20), offset: z.coerce.number().int().min(0).max(50000).default(0), limit: z.coerce.number().int().min(1).max(5000).default(1000) }).strict();
 export const artifactKindSchema = z.enum(['screenshot', 'fullPageScreenshot', 'details']);

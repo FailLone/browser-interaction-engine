@@ -1,0 +1,619 @@
+{
+  "sessionId": "1e210961-86fc-4b76-8a73-72dee528e724",
+  "targetUrl": "http://127.0.0.1:4174/text-background.html?mode=traversal",
+  "status": "finished",
+  "stopReason": "known_frontier_exhausted",
+  "actionCount": 4,
+  "captureCount": 6,
+  "automaticRunCount": 6,
+  "replayWithoutActions": true,
+  "replayReportEqual": true,
+  "ui": {
+    "url": "http://127.0.0.1:4186/",
+    "pluginCount": 5,
+    "matchVisible": true,
+    "pageErrors": []
+  },
+  "records": [
+    {
+      "inspectionId": "e2f0f4cf-8797-4ebd-abba-68304c973f9f",
+      "origin": "automatic",
+      "checks": [
+        {
+          "label": "恢复文字颜色",
+          "code": "TEXT_BACKGROUND_DISTINCT",
+          "severity": "info",
+          "verdict": "pass",
+          "observationStatus": "current",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:93",
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "channelDifference": 255,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:5"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "打开同色弹层",
+          "code": "TEXT_BACKGROUND_DISTINCT",
+          "severity": "info",
+          "verdict": "pass",
+          "observationStatus": "current",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:95",
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "channelDifference": 255,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:6"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "白底白字",
+          "code": "TEXT_BACKGROUND_MATCH",
+          "severity": "warning",
+          "verdict": "unknown",
+          "observationStatus": "current",
+          "issueId": "rule-issue:3da06d785febe6b6ce767cba3549daa7e11fcfe15ef7ca954d5272f6b2f82c20",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:98",
+              "foreground": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "channelDifference": 0,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:8"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "inspectionId": "ea429b38-7217-4f74-962d-d8f7075c7057",
+      "origin": "automatic",
+      "checks": [
+        {
+          "label": "恢复文字颜色",
+          "code": "TEXT_BACKGROUND_DISTINCT",
+          "severity": "info",
+          "verdict": "pass",
+          "observationStatus": "current",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:93",
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "channelDifference": 255,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:5"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "打开同色弹层",
+          "code": "TEXT_BACKGROUND_DISTINCT",
+          "severity": "info",
+          "verdict": "pass",
+          "observationStatus": "current",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:95",
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "channelDifference": 255,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:6"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "白底白字",
+          "code": "TEXT_BACKGROUND_MATCH",
+          "severity": "warning",
+          "verdict": "unknown",
+          "observationStatus": "current",
+          "issueId": "rule-issue:3da06d785febe6b6ce767cba3549daa7e11fcfe15ef7ca954d5272f6b2f82c20",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:98",
+              "foreground": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "channelDifference": 0,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:8"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "inspectionId": "e243e9a6-227f-45b3-8c1a-0c84e54f1b4d",
+      "origin": "automatic",
+      "checks": [
+        {
+          "label": "恢复文字颜色",
+          "code": "TEXT_BACKGROUND_DISTINCT",
+          "severity": "info",
+          "verdict": "pass",
+          "observationStatus": "current",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:93",
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "channelDifference": 255,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:5"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "打开同色弹层",
+          "code": "TEXT_BACKGROUND_DISTINCT",
+          "severity": "info",
+          "verdict": "pass",
+          "observationStatus": "current",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:95",
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "channelDifference": 255,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:6"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "白底白字",
+          "code": "TEXT_BACKGROUND_RESTORED",
+          "severity": "info",
+          "verdict": "pass",
+          "observationStatus": "current",
+          "issueId": "rule-issue:3da06d785febe6b6ce767cba3549daa7e11fcfe15ef7ca954d5272f6b2f82c20",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:98",
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "channelDifference": 255,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:8"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "inspectionId": "b569ecc2-f07d-4d14-b08b-5345b79e6d80",
+      "origin": "automatic",
+      "checks": [
+        {
+          "label": "关闭同色弹层",
+          "code": "TEXT_BACKGROUND_MATCH",
+          "severity": "warning",
+          "verdict": "unknown",
+          "observationStatus": "current",
+          "issueId": "rule-issue:a719543a4a65ce981a9297597dc00dfcb384eca3bf362544ec0f3ec848318918",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:163",
+              "foreground": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "channelDifference": 0,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:49"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "inspectionId": "f95dc484-9a22-44e2-a5b1-416dde287c1d",
+      "origin": "automatic",
+      "checks": [
+        {
+          "label": "恢复文字颜色",
+          "code": "TEXT_BACKGROUND_DISTINCT",
+          "severity": "info",
+          "verdict": "pass",
+          "observationStatus": "current",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:93",
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "channelDifference": 255,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:5"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "打开同色弹层",
+          "code": "TEXT_BACKGROUND_DISTINCT",
+          "severity": "info",
+          "verdict": "pass",
+          "observationStatus": "current",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:95",
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "channelDifference": 255,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:6"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "白底白字",
+          "code": "TEXT_BACKGROUND_RESTORED",
+          "severity": "info",
+          "verdict": "pass",
+          "observationStatus": "current",
+          "issueId": "rule-issue:3da06d785febe6b6ce767cba3549daa7e11fcfe15ef7ca954d5272f6b2f82c20",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:98",
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "channelDifference": 255,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:8"
+              ]
+            }
+          ]
+        },
+        {
+          "code": "TEXT_BACKGROUND_TARGET_UNOBSERVED",
+          "severity": "warning",
+          "verdict": "unknown",
+          "observationStatus": "historical",
+          "issueId": "rule-issue:a719543a4a65ce981a9297597dc00dfcb384eca3bf362544ec0f3ec848318918"
+        }
+      ]
+    },
+    {
+      "inspectionId": "4ab456cb-5729-4077-a9da-068787b9c8c8",
+      "origin": "automatic",
+      "checks": [
+        {
+          "label": "恢复文字颜色",
+          "code": "TEXT_BACKGROUND_DISTINCT",
+          "severity": "info",
+          "verdict": "pass",
+          "observationStatus": "current",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:93",
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "channelDifference": 255,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:5"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "打开同色弹层",
+          "code": "TEXT_BACKGROUND_DISTINCT",
+          "severity": "info",
+          "verdict": "pass",
+          "observationStatus": "current",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:95",
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "channelDifference": 255,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:6"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "白底白字",
+          "code": "TEXT_BACKGROUND_RESTORED",
+          "severity": "info",
+          "verdict": "pass",
+          "observationStatus": "current",
+          "issueId": "rule-issue:3da06d785febe6b6ce767cba3549daa7e11fcfe15ef7ca954d5272f6b2f82c20",
+          "samples": [
+            {
+              "textNodeId": "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:98",
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": [
+                255,
+                255,
+                255,
+                1
+              ],
+              "compositedForeground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "channelDifference": 255,
+              "backgroundNodeIds": [
+                "3dd7bb77-a155-475f-85e0-88e5ce4e1d1d:8"
+              ]
+            }
+          ]
+        },
+        {
+          "code": "TEXT_BACKGROUND_TARGET_UNOBSERVED",
+          "severity": "warning",
+          "verdict": "unknown",
+          "observationStatus": "historical",
+          "issueId": "rule-issue:a719543a4a65ce981a9297597dc00dfcb384eca3bf362544ec0f3ec848318918"
+        }
+      ]
+    }
+  ]
+}

@@ -30,6 +30,7 @@ export interface DomNodeEvidence {
   tag?: string; text?: string; attributes?: Record<string, string>; rect?: Rect;
   styles?: Record<string, string>; properties?: Record<string, Json>;
   layout?: LayoutEvidence;
+  paint?: { version: 1; motion: 'running' | 'idle'; pseudoElements: { kind: 'before' | 'after'; position: string }[] };
   /** Browser intrinsic dimensions are density-corrected CSS px, not file pixels. */
   image?: { version: 1; currentSrc: string; complete: boolean; naturalWidth: number; naturalHeight: number; loadEpoch: number;
     contentBox?: { width: number; height: number }; motion: 'running' | 'idle' };
@@ -44,6 +45,7 @@ export interface DomEvidence {
   html: string; htmlTruncated: boolean; nodesTruncated: boolean; gaps: Gap[];
   regionRoots: Record<string, string>;
   spatialVersion?: 1; environment?: PageEnvironment;
+  paintEnvironment?: { version: 1; forcedColors: boolean };
   textGeometry?: { version: 1; coordinateSpace: 'layout-viewport-css-px'; fonts: 'loaded' | 'loading' | 'unavailable';
     maxFragments: number; maxFragmentsPerNode: number; fragments: number; truncated: boolean };
   page: { url: string; title: string; baseURI: string; language: string; characterSet: string; readyState: string; doctype: string; activeNodeId?: string; metadata: Record<string, string>[] };
@@ -82,6 +84,7 @@ export const evidenceCapabilities = {
   optional: ['full-page-screenshot', 'all-computed-styles'],
   textGeometry: { version: 1, kind: 'bounded-dom-text-range-boxes', maxFragments: 4096, maxFragmentsPerNode: 128, paintedGlyphs: false },
   imageGeometry: { version: 1, kind: 'html-image-intrinsic-and-content-box', pixelAnalysis: false },
+  textPaint: { version: 1, kind: 'computed-colors-and-paint-guards', pixelAnalysis: false },
   unsupported: ['shadow-dom-contents', 'iframe-dom', 'javascript-heap', 'complete-event-listeners', 'network-bodies', 'business-intent-inference'],
   queriesChangePage: false,
   explicitProbes: ['hover', 'focus', 'scroll'],

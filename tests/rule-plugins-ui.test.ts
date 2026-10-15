@@ -27,10 +27,10 @@ it('selects installed plugins, shows warnings, keeps saved runs on reload and is
     const panel = page.getByRole('region', { name: '规则插件', exact: true });
     await panel.getByRole('button', { name: '运行选中规则' }).click();
     await panel.getByText('文字可能被直接裁断', { exact: true }).waitFor();
-    expect(await panel.locator('.rule-result').count()).toBe(4);
+    expect(await panel.locator('.rule-result').count()).toBe(5);
     expect(await panel.innerText()).toContain('1 项警告');
     expect(engine.session(session.id).actionCount).toBe(count);
-    for (const name of ['控件遮盖', '控件裁切', '文字截断', '图片拉伸']) await panel.getByRole('checkbox', { name, exact: false }).uncheck();
+    for (const name of ['控件遮盖', '控件裁切', '文字截断', '图片拉伸', '文字与背景同色']) await panel.getByRole('checkbox', { name, exact: false }).uncheck();
     expect(await panel.getByRole('button', { name: '运行选中规则' }).isDisabled()).toBe(true);
     await panel.getByRole('checkbox', { name: '文字截断', exact: false }).check();
     await panel.getByRole('button', { name: '运行选中规则' }).click();

@@ -6,6 +6,14 @@ const verdicts = { pass: '通过', fail: '发现问题', unknown: '未判定', '
 const severities = { info: '信息', warning: '警告', error: '错误' };
 const lifecycle: Record<string, string> = { pending: '等待后续观察', suspected: '疑似问题', confirmed: '已确认', resolved: '已恢复', unverified: '无法继续核验' };
 const descriptions: Record<string, string> = {
+  TEXT_BACKGROUND_MATCH: '纯色模型中，文字合成颜色与背景相同；是否违反要求仍待判断',
+  TEXT_BACKGROUND_REQUIREMENT_FAILED: '文字与背景同色，违反已声明的颜色区分要求',
+  TEXT_BACKGROUND_DISTINCT: '文字颜色与纯色背景不同；不代表对比度或可读性达标',
+  TEXT_BACKGROUND_MATCH_ALLOWED: '明确配置允许此文字与背景同色', TEXT_BACKGROUND_RESTORED: '同一段文字的颜色已与背景区分',
+  TEXT_BACKGROUND_UNSUPPORTED: '背景或文字绘制超出纯色模型支持范围', TEXT_BACKGROUND_UNAVAILABLE: '颜色、文字或绘制证据不足',
+  TEXT_BACKGROUND_RECHECK_UNAVAILABLE: '当前证据无法复查原有的文字同色记录',
+  TEXT_BACKGROUND_BASELINE_CHANGED: '原文字绑定已变化；当前文字单独检查',
+  TEXT_BACKGROUND_TARGET_UNOBSERVED: '保留此前文字同色记录；当前范围未观察到原目标',
   IMAGE_NON_UNIFORM_SCALING: '已测得图片非等比缩放；尚未提供是否允许变形的要求',
   IMAGE_ASPECT_RATIO_REQUIREMENT_FAILED: '图片被非等比拉伸，违反已声明的保形要求',
   IMAGE_ASPECT_RATIO_PRESERVED: '当前图片缩放保持比例', IMAGE_ASPECT_RATIO_RESTORED: '同一图片的缩放比例已恢复',

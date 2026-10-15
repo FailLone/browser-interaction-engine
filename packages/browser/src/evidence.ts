@@ -7,7 +7,7 @@ interface Reader {
   observation(sessionId: string, observationId: string): Observation;
   actions(sessionId: string, observationId: string): ActionCandidate[];
 }
-export interface DomQuery { rootId?: string; depth?: number; offset?: number; limit?: number; fields?: ('tag' | 'text' | 'attributes' | 'rect' | 'styles' | 'properties' | 'relations' | 'layout' | 'textLayout' | 'image')[] }
+export interface DomQuery { rootId?: string; depth?: number; offset?: number; limit?: number; fields?: ('tag' | 'text' | 'attributes' | 'rect' | 'styles' | 'properties' | 'relations' | 'layout' | 'textLayout' | 'image' | 'paint')[] }
 export type ArtifactKind = 'screenshot' | 'fullPageScreenshot' | 'details';
 /** All methods read committed records. They never consult a browser or latest state. */
 export class BrowserEvidenceQueries {

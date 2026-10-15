@@ -21,7 +21,7 @@ const engine = new BrowserEngine({ persistence: new MemoryStore() }), app = awai
 try {
   await app.listen({ host: '127.0.0.1', port: 0 });
   const client = new InteractionClient(`http://127.0.0.1:${app.server.address().port}`);
-  const { plugins } = await client.rulePlugins(); assert.equal(plugins.length, 4);
+  const { plugins } = await client.rulePlugins();
   const plugin = plugins.find(p => p.id === 'image-aspect-ratio'); assert.ok(plugin);
   const s = await client.createSession({ url: `http://127.0.0.1:${fixture.address().port}/image-aspect-ratio.html`, headless: true,
     viewport: { width: 1100, height: 800 }, settleMs: 60, inspection: {}, maxActions: 15, pageExploration: 'all', evidenceRetention: { mode: 'persistent' } });

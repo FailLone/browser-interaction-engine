@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { RuleCheck } from './types.js';
 import { imageResourceBindingSchema } from './image-aspect-ratio.js';
+import { labelTextBindingSchema } from './text-background.js';
 
 /** Future integration contract only. Providers propose; the host must separately
  * verify authority, scope, binding and conflicts before accepting a requirement. */
@@ -56,10 +57,17 @@ export const imageAspectRatioRequirementProposalSchema = requirementProposalBase
 }).strict();
 export type ImageAspectRatioRequirementProposal = z.infer<typeof imageAspectRatioRequirementProposalSchema>;
 
+export const textBackgroundRequirementProposalSchema = requirementProposalBaseSchema.extend({
+  ruleId: z.literal('text-background'), ruleVersion: z.literal('1.0.0'),
+  requirement: z.enum(['distinct-solid-label-colors', 'allow-matching-label-colors']), label: labelTextBindingSchema,
+}).strict();
+export type TextBackgroundRequirementProposal = z.infer<typeof textBackgroundRequirementProposalSchema>;
+
 /** Built-in proposals only. The discriminant prevents cross-rule requirements
  * and unknown versions from being silently reinterpreted. */
 export const ruleRequirementProposalSchema = z.discriminatedUnion('ruleId', [
   occlusionRequirementProposalSchema, clippingRequirementProposalSchema, textRequirementProposalSchema, imageAspectRatioRequirementProposalSchema,
+  textBackgroundRequirementProposalSchema,
 ]);
 export type RuleRequirementProposal = z.infer<typeof ruleRequirementProposalSchema>;
 
@@ -79,6 +87,7 @@ export type OcclusionRequirementProvider = RuleRequirementProvider<OcclusionRequ
 export type ClippingRequirementProvider = RuleRequirementProvider<ClippingRequirementProposal>;
 export type TextRequirementProvider = RuleRequirementProvider<TextRequirementProposal>;
 export type ImageAspectRatioRequirementProvider = RuleRequirementProvider<ImageAspectRatioRequirementProposal>;
+export type TextBackgroundRequirementProvider = RuleRequirementProvider<TextBackgroundRequirementProposal>;
 
 // No provider registry, document reader, model invocation, conflict resolver or
 // acceptance evaluator is supplied in v1. Neither RuleRunner nor a tracker calls

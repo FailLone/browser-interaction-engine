@@ -1,5 +1,7 @@
 export * from './types.js';
 export * from './plugins.js';
+export { textBackgroundRule, textBackgroundOptionsSchema, labelTextBindingSchema, type TextBackgroundOptions } from './text-background.js';
+export { TextBackgroundTracker, observedTextBackgroundRule, observedTextBackgroundOptionsSchema, type ObservedTextBackgroundOptions } from './observed-text-background.js';
 export { imageAspectRatioRule, imageAspectRatioOptionsSchema, imageResourceBindingSchema, type ImageAspectRatioOptions } from './image-aspect-ratio.js';
 export { ImageAspectRatioTracker, imageAspectRatioTrackerOptionsSchema, type ImageAspectRatioTrackerOptions } from './observed-image-aspect-ratio.js';
 export { RuleRunner, toInspectionResults } from './runner.js';

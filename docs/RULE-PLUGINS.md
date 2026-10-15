@@ -14,7 +14,7 @@
 
 ## 证据与结果
 
-- 四个内置插件是 `observed-occlusion`、`observed-clipping`、`observed-text-truncation`、`image-aspect-ratio`，版本均为 `1.0.0`，以默认设置创建各自的历史跟踪器。图片规则检查普通 DOM 图片，不要求图片具有交互能力；详情见 [图片拉伸规则](IMAGE-ASPECT-RATIO-RULE.md)。
+- 五个内置插件是 `observed-occlusion`、`observed-clipping`、`observed-text-truncation`、`image-aspect-ratio`、`observed-text-background`，版本均为 `1.0.0`，以默认设置创建各自的历史跟踪器。图片规则检查普通 DOM 图片，不要求图片具有交互能力；详情见 [图片拉伸规则](IMAGE-ASPECT-RATIO-RULE.md)。文字颜色规则使用有界纯色模型，不是可读性或 WCAG 认证；详情见 [文字同色规则](TEXT-BACKGROUND-RULE.md)。
 - 手动检查从会话首条任务重放到所选任务，保留最后任务的完整规则报告。每次最多重放 500 条；超过上限显式拒绝，不静默截掉基线。
 - 自动检查每个会话、每版配置持有独立跟踪器，按序增量处理每条任务。启用时补处理历史，重启时重建跟踪状态，已有结果不覆盖、不重复写入。更改配置或关闭检查后，旧任务迟到的结果不会写入。状态中的“已处理”不表示所有规则通过，插件失败会单独显示。
 - 手动重放使用独立跟踪器。服务把报告中的 issue ID 绑定到会话、插件版本、首次采集和控件身份，使独立重放能关联同一问题。
