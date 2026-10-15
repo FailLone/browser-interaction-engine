@@ -13,6 +13,8 @@ export interface LayoutEvidence {
   box: { padding: string[]; border: string[]; margin: string[] };
   scrollAncestorIds: string[]; clipAncestorIds: string[];
   hitSample?: { x: number; y: number; topNodeId?: string; withinSubtree: boolean };
+  /** Center plus four inset corners; sampled pointer reachability, not pixel occlusion. */
+  hitSamples?: { x: number; y: number; topNodeId?: string; withinSubtree: boolean }[];
 }
 export interface PageEnvironment {
   layoutViewport: { width: number; height: number; clientWidth: number; clientHeight: number };
@@ -70,6 +72,6 @@ export const evidenceCapabilities = {
   optional: ['full-page-screenshot', 'all-computed-styles'],
   unsupported: ['shadow-dom-contents', 'iframe-dom', 'javascript-heap', 'complete-event-listeners', 'network-bodies', 'business-intent-inference'],
   queriesChangePage: false,
-  explicitProbes: ['hover', 'focus'],
+  explicitProbes: ['hover', 'focus', 'scroll'],
   probeEffects: 'unknown',
 } as const;

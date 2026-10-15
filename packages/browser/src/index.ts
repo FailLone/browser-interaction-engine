@@ -1,3 +1,4 @@
+import { scrollProbeSchema, type ScrollProbeOptions } from '@interaction/adapter-playwright';
 import { DiscoveryScans } from './discovery-scans.js';
 import { RegionReviews } from './region-reviews.js';
 import { ControlReviews } from './control-reviews.js';
@@ -221,6 +222,9 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     return this.enqueueMeasured(sessionId, async () => { this.session(sessionId); return this.store.transaction(() => this.purposeReviews.revoke(sessionId, revocation)); });
   }
   override async createSession(input: unknown) { return super.createSession(validateInspectionOptions(input)); }
+  scrollProbe(sessionId: string, observationId: string, localId: string, options: ScrollProbeOptions, requestId: string) {
+    return super.probe(sessionId, observationId, localId, 'scroll', requestId, scrollProbeSchema.parse(options));
+  }
   protected override beforeCapture(sessionId: string, observationId: string) { return this.inspections.prepare(sessionId, observationId); }
   protected override afterCapture(observation: Observation, previous?: Observation, attemptId?: string) {
     this.discoveryScans.reconcile(observation);
@@ -327,6 +331,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       case 'revokeControlReview': return this.revokeControlReview(sessionId,command.revocation);
       case 'reviewRegions': return this.reviewRegions(sessionId, command.review);
       case 'describeComponent': { const { type: _, ...description } = command; return this.describeComponent(sessionId, description); }
+      case 'scrollProbe': return this.scrollProbe(sessionId, command.observationId, command.localId, command.options, command.requestId);
       case 'probe': return this.probe(sessionId, command.observationId, command.localId, command.kind, command.requestId);
       case 'observe': return this.observe(sessionId);
       case 'inspect': return this.inspect(sessionId, command.region);

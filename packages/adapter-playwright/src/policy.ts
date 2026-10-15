@@ -1,3 +1,4 @@
+import { traversalScrollSchema } from './scroll-containers.js';
 import { EngineError } from '@interaction/core';
 import type { ActionCandidate, Observation, Session } from './types.js';
 import { ruleMatches } from './util.js';
@@ -39,19 +40,23 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
   let declaredExit = false;
   action.preconditions.blockers = [];
   action.boundary = undefined;
+  const scroll = action.kind === 'scroll' && action.source === 'scroll-traversal' ? traversalScrollSchema.parse(action.value) : undefined;
+  const scrollContainer = scroll && scroll.documentId === observation.documentId ? observation.scrollContainers?.find(c => c.nodeId === scroll.containerNodeId) : undefined;
+  if (scroll && !scrollContainer) throw new EngineError('STALE_TARGET', 'Scroll traversal requires a captured container');
   if (active) {
     // Some popups close through an external toggle without DOM ownership hints.
     // This is a sourced intent for this observation, not evidence of an exit.
     declaredExit = hasDeclaredBoundaryExit(action, observation);
     const exit = action.kind === 'press' && action.value === 'Escape' && !control || action.kind === 'click' && !!control && active.exitControlIds.includes(control.localId) || declaredExit;
-    const inside = !!control && active.controlIds.includes(control.localId);
+    const inside = !!control && active.controlIds.includes(control.localId) || !!scrollContainer && scrollContainer.boundaryKey === active.key;
     if (inside || exit) action.boundary = { key: active.key, intent: exit ? 'exit' : 'interact' };
     else action.preconditions.blockers.push({ code: 'outside_active_boundary', boundaryKey: active.key, evidence: active.evidence, unblock: `Close and verify exit from ${active.name} before interacting with its parent` });
   }
   if (control) {
+    const controlledProbe = action.kind === 'scroll' && action.source === 'external-probe';
     if (control.readiness?.status === 'unstable') action.preconditions.blockers.push({ code: 'interaction_unstable', evidence: [control.readiness.reason], unblock: 'Wait for this operation’s dependencies to settle; other independently validated work may continue' });
-    if (control.actionable.outsideScrollableArea) action.preconditions.blockers.push({ code: 'outside_scrollable_area', evidence: ['target-outside-scrollable-viewport'], unblock: 'Make the control reachable in the viewport' });
-    else if (['click', 'check', 'scroll', 'hover'].includes(action.kind) && control.actionable.hitTarget === false) action.preconditions.blockers.push({ code: 'pointer_intercepted', evidence: [control.actionable.occludedBy || 'hit-test-failed'], unblock: 'Remove the obstruction and observe again' });
+    if (!controlledProbe && control.actionable.outsideScrollableArea) action.preconditions.blockers.push({ code: 'outside_scrollable_area', evidence: ['target-outside-scrollable-viewport'], unblock: 'Make the control reachable in the viewport' });
+    else if (!controlledProbe && ['click', 'check', 'scroll', 'hover'].includes(action.kind) && control.actionable.hitTarget === false) action.preconditions.blockers.push({ code: 'pointer_intercepted', evidence: [control.actionable.occludedBy || 'hit-test-failed'], unblock: 'Remove the obstruction and observe again' });
   }
   if (control && action.kind === 'fill' && !control.editable) action.preconditions.blockers.push({ code: 'not_editable', evidence: ['observed-editable=false'], unblock: 'Wait until the field is editable and observe again' });
   if (!['click', 'fill', 'select', 'check', 'scroll', 'press', 'hover', 'focus', 'history'].includes(action.kind)) throw new EngineError('INVALID_PLUGIN_ACTION', 'Unsupported browser action kind');
@@ -64,7 +69,7 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
   if (action.risk !== 'submission' && action.basis.status === 'supported' && session.options.interfaceActions?.some(rule => ruleMatches(rule, action, control, observation.url))) {
     action.risk = 'interface'; action.replayable = true;
   }
-  if (declaredExit || action.kind === 'history' || control?.identityScope === 'instance') action.replayable = false;
+  if (scroll || declaredExit || action.kind === 'history' || control?.identityScope === 'instance') action.replayable = false;
   if (action.source === 'external-probe') { action.risk = 'unknown'; action.replayable = false; }
   return action;
 }

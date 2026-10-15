@@ -40,6 +40,8 @@ for await (const event of client.events(session.id)) {
 
 完整可执行的外部示例见 [external-inspector.ts](../examples/external-inspector.ts)，Popover 规则见 [popup-inspector.ts](../examples/popup-inspector.ts)。启动服务后执行 `pnpm exec tsx --conditions=development examples/external-inspector.ts <页面URL>`，在调试 UI 中操作该会话。示例规则明确要求弹层容纳在视口内、不扩大页面滚动范围；不将此预期硬编码进引擎。
 
+需要可配置规则注册和逐控件结果时，可使用独立的 [控件规则插件](CONTROL-RULES.md) 及 [rule-inspector.ts](../examples/rule-inspector.ts)。检查结果支持单独的 `not-applicable`、可选 `severity`（info/warning/error）和 JSON `details`；规则未知结论映射为 `inconclusive`，旧字段和状态仍可用。
+
 ## 检查时机与范围
 
 每次启用检查的观察采集都生成新的 Capture 和 Inspection，包含初始、动作后（包括动作失败但获得操作后观察）、主动 observe、预检发现变化、导航及恢复采集。颜色/几何改变即使没有改变 UIState，仍生成新任务。当前没有后台连续监听；未采集的自主变化不会被宣称已经记录。
@@ -64,10 +66,10 @@ for await (const event of client.events(session.id)) {
 | 空间 | layout viewport CSS 像素下的 rect、client/scroll/offset、offsetParent、四边 padding/border/margin；变换后的包围矩形不是任意形状的精确覆盖区域 |
 | 样式 | essential 组增加宽高/min/max、盒模型、布局、字体、颜色/背景、裁剪等；可按原 evidence.styles 开启 all。computed color 不是经过所有背景、透明和滤镜合成后的最终像素颜色 |
 | 关系 | DOM 祖先、滚动及裁剪候选祖先、标签/ARIA 关系、独立逻辑 overlay 关系；关系目标可能超出采集预算，显式 not_captured |
-| 命中 | 可见交集中心点的 hitSample，不能据此证明完整可见、完全遮挡或完整裁剪 |
+| 命中 | 保留可见交集中心点的 hitSample；新增可选 hitSamples（中心及四个内缩角）。五点采样也不能证明完整可见、完全遮挡或完整裁剪 |
 | 图像/ARIA/运行记录 | 沿用现有不可变 artifacts；组件各有时间戳，不承诺截图与 DOM 原子一致。图片像素可按 PNG 尺寸、视口与 DPR 对齐；全页截图沿用旧可选证据接口 |
 
-`capture.profile` 是本次使用的 required/optional 能力要求。能力声明限定主文档 light DOM；iframe/shadow 内部、文字行矩形、伪元素、完整遮挡、受控现场 probe 和中间态采集都未支持。发现 iframe/shadow 等仍保留缺口。当前提供内置版本化采集器描述，不开放任意网页脚本或自定义采集器执行接口。
+`capture.profile` 是本次使用的 required/optional 能力要求。能力声明限定主文档 light DOM；iframe/shadow 内部、文字行矩形、伪元素、完整遮挡和中间态采集都未支持。显式 hover/focus 及受控 scroll probe 作为动作命令执行，查询仍只读；滚动恢复用法见 [控件规则](CONTROL-RULES.md#主动滚动恢复规则)。发现 iframe/shadow 等仍保留缺口。当前提供内置版本化采集器描述，不开放任意网页脚本或自定义采集器执行接口。
 
 支持、采集完整度、现在是否还能读取分别由 capabilities、component.status/quality、availability 表达。未知 required 能力在打开浏览器之前拒绝；未知 optional 能力记录 unsupported。运行时截断、禁用、超时或存储失败形成 incomplete。未知协议/组件版本通过 compatibility 单独报告，不作为成功验证。
 
@@ -99,6 +101,8 @@ for await (const event of client.events(session.id)) {
 
 默认异步检查不阻塞页面操作。已注册消费者在 ready 发布前分别固定当前快照和已有对照快照，有限保护仍计入原证据容量预算。关闭 scope 前暂存基线保护，避免入口基线在固定前被 TTL 清理；暂存 pin 也有过期时间，进程崩溃不会永久遗留锁定。
 
+`ObservedOcclusionTracker` 按 `inspection.sequence` 消费这些历史任务，使用 `identityId`、业务上下文与 `focus.scopeId` 追踪同一问题。它只需要 `captureDetails`，不会查询当前页面或提交动作；消费者晚于探索处理也可以复查。输出仍通过 `completeInspection` 保存，每次报告是独立修订，旧结果不改写。示例：[observed-occlusion-inspector.ts](../examples/observed-occlusion-inspector.ts)。
+
 消费者 ID 在创建会话时声明。后接入者可按事件游标/任务游标续读，但不会追溯创建新消费者的租约。未注册消费者可以只读尚可用的证据，不能假设存在消费保护。
 
 - 事件重放为至少一次，检查程序按 inspectionId + ruleId/ruleVersion 去重。传输游标、receive、complete 三者独立。
@@ -111,7 +115,7 @@ for await (const event of client.events(session.id)) {
 
 ## 后续扩展
 
-Capture 预留 phase（settled/intermediate/timeout）、segmentId、sampleIndex、timeWindow、samplingGaps 和可选 observationId。当前生产者只生成 settled/timeout，capabilities 明确不支持 intermediate；闪烁、白屏和瞬时滚动条尚未采集。受控 probe、等待外部检查、文字行、iframe/Shadow DOM、自定义采集器和过程录制继续按 [计划](UI-INSPECTION-PLAN.md) 的 P4 与后续里程碑实施。
+Capture 预留 phase（settled/intermediate/timeout）、segmentId、sampleIndex、timeWindow、samplingGaps 和可选 observationId。当前生产者只生成 settled/timeout，capabilities 明确不支持 intermediate；闪烁、白屏和瞬时滚动条尚未采集。更通用的 probe、等待外部检查、文字行、iframe/Shadow DOM、自定义采集器和过程录制继续按 [计划](UI-INSPECTION-PLAN.md) 的 P4 与后续里程碑实施。
 
 ## 首轮验证记录
 

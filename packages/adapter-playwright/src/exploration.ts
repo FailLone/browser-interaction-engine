@@ -33,7 +33,7 @@ export function explorationCase(action: ActionCandidate, o: Observation): Explor
 export function controlCase(action: ActionCandidate, o: Observation): ExplorationCase | undefined {
   if (!action.controlId && ['scroll', 'press'].includes(action.kind)) return {
     key: hash({ url: o.url, boundaries: o.boundaries?.map(b => b.key) || [], kind: action.kind,
-      viewport: action.kind === 'scroll' ? o.scroll : undefined }), policy: 'browser-controls-live-v2',
+      viewport: action.kind === 'scroll' ? (action.source === 'scroll-traversal' ? action.value : o.scroll) : undefined }), policy: 'browser-controls-live-v3',
     evidence: ['Traversal operation grouped by interaction scope and viewport, independent of form values'],
   };
   const c = o.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Observed occlusion</title>
+<style>
+body { margin:0; min-height:1600px }
+#modal { position:fixed; top:30px; left:30px; width:420px; height:500px; background:white; border:2px solid #555; }
+#scroller { position:absolute; top:40px; left:0; width:400px; height:420px; overflow:auto; }
+#content { position:relative; height:1200px; width:100%; }
+#target { position:absolute; top:360px; left:40px; width:160px; height:35px; }
+#cover { position:absolute; top:370px; left:0; width:300px; height:90px; background:#aaa; z-index:4; pointer-events:auto; }
+#side { position:absolute; left:460px; top:40px; width:250px; height:200px; overflow:auto }
+#side > div { height:800px }
+</style>
+<div id="modal" role="dialog" aria-modal="true" aria-label="Test modal">
+  <div id="scroller" aria-label="Modal content"><div id="content"><button id="target" data-testid="target">Target</button></div></div>
+  <div id="cover">Cover</div>
+</div>
+<div id="side" aria-label="Unrelated"><div>Unrelated content</div></div>
+<script>
+const mode = new URLSearchParams(location.search).get('mode');
+const modal = document.getElementById('modal'), scroller = document.getElementById('scroller');
+const content = document.getElementById('content'), target = document.getElementById('target'), cover = document.getElementById('cover');
+if (mode === 'horizontal') {
+  content.style.width='1200px'; content.style.height='420px'; target.style.top='100px'; target.style.left='340px'; target.style.width='35px';
+  cover.style.left='330px'; cover.style.top='40px'; cover.style.width='70px'; cover.style.height='300px';
+}
+if (mode === 'nested') {
+  const outer = document.createElement('div'); outer.id='outer'; outer.setAttribute('aria-label','Outer content');
+  outer.style.cssText='position:absolute;left:0;top:40px;width:415px;height:450px;overflow:auto';
+  const wrap=document.createElement('div'); wrap.style.cssText='position:relative;height:1000px';
+  scroller.style.top='0'; wrap.append(scroller); outer.append(wrap); modal.prepend(outer);
+}
+if (mode === 'persistent') { target.style.position='sticky'; target.style.top='360px'; target.style.marginLeft='40px'; }
+if (mode === 'root-modal') { modal.style.overflow='auto'; scroller.style.overflow='visible'; scroller.style.height='1200px'; }
+if (mode === 'no-movement') scroller.addEventListener('scroll',()=>scroller.scrollTo(0,0));
+if (mode === 'rebuild' || mode === 'rebind' || mode === 'grow') scroller.addEventListener('scroll', () => {
+  if (mode === 'rebuild') target.replaceWith(target.cloneNode(true));
+  if (mode === 'rebind') target.dataset.recordId = 'different-record';
+  if (mode === 'grow') content.style.height='1500px';
+}, {once:true});
+if (mode === 'page') { modal.removeAttribute('aria-modal'); modal.removeAttribute('role'); modal.style.position='absolute'; cover.style.position='fixed'; cover.style.top='402px'; cover.style.left='32px'; }
+window.closeModal = () => { modal.hidden=true; };
+window.openModal = () => { modal.hidden=false; };
+</script></html>

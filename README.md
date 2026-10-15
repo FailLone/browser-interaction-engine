@@ -49,6 +49,7 @@ pnpm report
 packages/core/                纯 SDK：图、身份、待办、队列、探索、恢复、hook、事件
 packages/adapter-playwright/  Web 模型、DOM 观察/定位、浏览器操作及原生输入规则
 packages/browser/             浏览器 SDK 的组合入口，不选择默认存储
+packages/rules/               可配置控件检查插件：规则注册、目标绑定、逐控件证据与结论
 packages/storage-retained/    证据生命周期插件：TTL、预算、固定与可用性
 packages/storage-memory/      内存记录和二进制证据插件
 packages/storage-sqlite/      SQLite 记录和文件证据插件
@@ -172,6 +173,12 @@ Modal、popover 与浮动菜单建立独占交互范围，DFS 先探索当前最
 ## UI 检查支撑
 
 `main` 已提供初始/操作后检查任务、弹层范围与前后基线、常规空间证据、有限消费租约及 SDK/HTTP 接口。创建会话时传 `inspection: {}` 开启；外部检查规则与接入方式见 [UI 检查 API](docs/INSPECTION-API.md)。显式 hover/focus probe、组件关系和局部证据查询见 [复合控件与探测](docs/COMPONENTS-AND-PROBES.md)。中间态、文字行与 iframe/Shadow DOM 取证仍为后续工作。
+
+可选的 `@interaction/rules` 插件支持按配置或上层 Agent 选择版本化规则，保存逐控件的 pass/fail/unknown/not-applicable 与严重度。首条 `sampled-occlusion` 只检查历史采样点命中，遮挡待核实时输出 warning，不将 sticky/fixed 或滚动到底直接判断为 error。规则写法、当前边界与接入示例见 [控件检查规则](docs/CONTROL-RULES.md)。
+
+推荐使用 `ObservedOcclusionTracker` 跟随正常探索进行异步复查：通过逻辑控件身份、业务上下文和弹层打开周期关联历史警告，核对实际祖先滚动位置，再记录恢复或继续待确认。只有调用方明确声明某控件在各观测位置必须满足五点指针要求，且相关滚动后的可比证据仍失败，才升级为该约定下的 error。规则不会发起动作或恢复滚动位置。探索器已支持页面、modal 内部和嵌套容器的双轴滚动。见 [持续复查示例](examples/observed-occlusion-inspector.ts)。
+
+显式调用 `scroll-recovery` 可探测双轴和嵌套滚动，验证同一控件是否恢复命中并尝试恢复原位置；经过确认的恢复为 warning，有明确当前操作要求且五点被挡、无可用滚动路径时为限定范围的 error。有限探测失败、目标变化和恢复位置失败保留 unknown。见 [主动检查示例](examples/scroll-recovery-inspector.ts)。
 
 浏览器新会话默认覆盖已遇到控件及其支持操作；控件计数、代表性/逐状态模式、当前节点定位、局部恢复声明和环境重置边界见 [探索与恢复](docs/EXPLORATION-RECOVERY.md)。
 

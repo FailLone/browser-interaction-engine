@@ -25,6 +25,7 @@
     "experiment:identity": "tsx --conditions=development scripts/identity-blind-experiment.ts"
   },
   "dependencies": {
+    "@interaction/rules": "workspace:*",
     "@interaction/core": "workspace:*",
     "@interaction/adapter-playwright": "workspace:*",
     "@interaction/storage-memory": "workspace:*",

@@ -549,12 +549,13 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     this.pauseRequested = true;
     return this.enqueue(async () => { const s = this.session(sessionId); s.mode = 'manual'; if (s.status === 'running') s.status = 'paused'; this.store.put('session', s); return this.runAction(sessionId, actionId, requestId, value); });
   }
-  probe(sessionId: string, observationId: string, localId: string, kind: string, requestId: string) {
+  probe(sessionId: string, observationId: string, localId: string, kind: string, requestId: string, parameters?: ActionCandidate['value']) {
     if (![observationId, localId, kind, requestId].every(v => typeof v === 'string' && v.trim())) throw new EngineError('INVALID_INPUT', 'Probe requires observation, target, kind and request ID');
+    const probeParameters = parameters === undefined ? undefined : structuredClone(parameters);
     this.pauseRequested = true;
     return this.enqueue(async () => {
       const session = this.session(sessionId);
-      const actionId = `probe:${hash({ sessionId, observationId, localId, kind })}`;
+      const actionId = `probe:${hash({ sessionId, observationId, localId, kind, ...(probeParameters === undefined ? {} : { parameters: probeParameters }) })}`;
       // A completed request remains repeatable even after its observation is stale.
       if (this.store.request(sessionId, requestId)) return this.runAction(sessionId, actionId, requestId);
       const o = this.observation(sessionId);
@@ -562,7 +563,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       const control = o.controls.find(c => c.localId === localId);
       if (!control) throw new EngineError('TARGET_MISSING', 'Probe target is absent from the observation');
       if (!this.adapter.probeAction) throw new EngineError('UNSUPPORTED_PROBE', 'Adapter does not support probes');
-      const action = this.constrain({ ...this.adapter.probeAction(kind, control, o, session), id: actionId }, o, session);
+      const action = this.constrain({ ...this.adapter.probeAction(kind, control, o, session, probeParameters), id: actionId }, o, session);
       if (!this.store.get('action', actionId)) this.store.put('action', action);
       session.mode = 'manual'; if (session.status === 'running') session.status = 'paused'; this.store.put('session', session);
       return this.runAction(sessionId, actionId, requestId);
