@@ -95,6 +95,13 @@ it('leaves absent targets unresolved instead of inferring completion',async()=>{
  try{const t=plugin.create({url:f.url,goal:'Missing',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const task=plugin.view(t.id).task;expect(task.status).not.toBe('completed');expect(task.usage.actions).toBe(0);expect(task.plan.some(i=>i.required&&i.status==='unresolved')).toBe(true);
  }finally{await plugin.close();await f.close();}
 });
+it('audits newly revealed controls when the opening action consumes the last action budget',async()=>{
+ const f=await explorerFixture('<button id="open" type="button" onclick="document.querySelector(\'dialog\').showModal()">Open</button><dialog aria-label="New scope"><button type="button">New operation</button><button type="button" onclick="document.querySelector(\'dialog\').close()">Close</button></dialog>');const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:1}});plugin.start(t.id);await plugin.waitForIdle();const view=plugin.view(t.id);
+  expect(view.task.status).toBe('budget_exhausted');expect(view.task.usage.actions).toBe(1);expect(view.task.plan.some(i=>i.required&&i.scope.label==='New operation'&&i.status==='unresolved')).toBe(true);
+  expect(view.events.some(e=>e.type==='scope.audit'&&(e.data as any).pendingReview)).toBe(true);expect(view.task.plan.find(i=>i.dispatchScope)?.status).not.toBe('succeeded');
+ }finally{await plugin.close();await f.close();}
+});
 it('explores a nested dialog and verifies return before continuing the parent branch',async()=>{
  const f=await explorerFixture('<button id="open" type="button" onclick="document.querySelector(\'dialog\').showModal()">Open</button><button id="sibling" type="button" onclick="this.disabled=true">Sibling</button><dialog aria-label="Options"><button id="inner" type="button" onclick="this.disabled=true">Inner</button><button id="close" type="button" onclick="document.querySelector(\'dialog\').close()">Close</button></dialog>');
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
@@ -132,6 +139,17 @@ it.each(['close','noop','changed'])('reviews an outside exit and verifies its %s
  if(effect==='noop')expect(v.task.status).not.toBe('completed');
  }finally{await plugin.close();await f.close();}
 });
+it('preserves real parent fields rather than default null/empty fields on a large page',async()=>{
+ const f=await explorerFixture(`<style>#outside{position:fixed;inset:0;background:#eee}#fields{position:absolute;top:20px;left:10px;z-index:1}#panel{position:absolute;top:100px;left:100px;width:200px;height:160px;background:white;z-index:2}</style><div id="outside"></div>${Array.from({length:125},(_,i)=>`<button type="button">Static ${i}</button>`).join('')}<div id="fields"><input aria-label="Amount" value="42"><input aria-label="Unchecked" type="checkbox"><select aria-label="Empty choice"></select><select aria-label="Selected choice"><option selected>A</option></select><input aria-label="Read only" value="retained" readonly></div><div id="panel" role="listbox" aria-label="Options"><button type="button" onclick="this.disabled=true">Inside</button></div><script>document.addEventListener('click',e=>{if(e.target.id==='outside')panel.hidden=true})</script>`);
+ const providers=fakeProviders(f.url),original=providers.jev.decide;providers.jev.decide=async(r,s)=>{const a=await original(r,s);if(r.purpose==='boundary-exit-risk'&&(r.state as any).material.candidate.selector!=='#outside')return {...a,value:{interface_exit:.01,external_exit:.5}};return a;};
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),providers);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:300},budget:{rounds:1,actions:3,modelRequests:30}});plugin.start(t.id);await plugin.waitForIdle();const view=plugin.view(t.id),sid=view.task.rounds[0].sessionId;
+  const exits=f.host.list<any>(sid,'boundary-exit-result');expect(exits.map(x=>x.status),JSON.stringify({reason:view.task.reason,plan:view.task.plan})).toEqual(['verified']);
+  const judgment=view.decisions.find(d=>d.purpose==='boundary-exit-risk'&&d.status==='applied')!;const fields=(judgment.request.state as any).material.preserved;
+  expect(fields.map((c:any)=>c.name).sort()).toEqual(['Amount','Empty choice','Read only','Selected choice','Unchecked']);expect(fields.find((c:any)=>c.name==='Unchecked').checked).toBe(false);expect(fields.find((c:any)=>c.name==='Empty choice').selected).toEqual([]);
+  expect(view.task.plan.some(i=>i.reason==='boundary_preservation_limit')).toBe(false);expect(view.task.usage.actions).toBe(3);expect(view.task.status).not.toBe('completed');expect(view.task.plan.some(i=>i.required&&i.scope.label?.startsWith('Static ')&&i.status!=='succeeded')).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});
 it('never replays an unknown dispatched outcome after restart',async()=>{
  const f=await explorerFixture();const path=join(f.dir,'plugin.sqlite');let unknownId:string|undefined;let dispatches=0;
  const host=new Proxy(f.host,{get(target,key){if(key==='execute')return async(...args:Parameters<typeof target.execute>)=>{dispatches++;const attempt=await target.execute(...args);unknownId=attempt.id;return {...attempt,status:'unknown' as const};};if(key==='list')return (sid:string,kind:string)=>target.list<any>(sid,kind).map(x=>kind==='attempt'&&x.id===unknownId?{...x,status:'unknown'}:x);const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;}});
@@ -139,6 +157,20 @@ it('never replays an unknown dispatched outcome after restart',async()=>{
  try{const t=plugin.create({url:f.url,goal:'Unknown test',sessionOptions:{settleMs:0,observeTimeoutMs:100}});plugin.start(t.id);await plugin.waitForIdle();expect(plugin.view(t.id).task.pendingDispatch).toBeDefined();expect(dispatches).toBe(1);await plugin.close();
  plugin=new ExplorerPlugin(host,new ExplorerStore(path),fakeProviders(f.url));plugin.start(t.id);await plugin.waitForIdle();expect(dispatches).toBe(1);expect(plugin.view(t.id).task.reason).toBe('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
  }finally{await plugin.close();await f.close();}
+});
+it('retries a required interface exit after a real browser restart without resetting history or totals',async()=>{
+ const server=httpServer((_req,res)=>{res.setHeader('Content-Type','text/html');res.end('<!doctype html><main><h1>Page</h1><button id="sibling" type="button" onclick="this.disabled=true">Sibling</button><dialog aria-label="Notice"><button type="button" onclick="document.querySelector(\'dialog\').close()">Close</button></dialog></main><script>document.querySelector("dialog").showModal()</script>');});await new Promise<void>(r=>server.listen(0,'127.0.0.1',r));
+ const url=`http://127.0.0.1:${(server.address() as {port:number}).port}/`,dir=mkdtempSync(join(tmpdir(),'explorer-reattach-')),path=join(dir,'plugin.sqlite');
+ let host=new InteractionEngine({persistence:new SqliteStore(join(dir,'engine'))});const providers=fakeProviders(url),original=providers.jev.decide;
+ let notified=false,notify!:()=>void;const waiting=new Promise<void>(resolve=>notify=resolve);
+ providers.jev.decide=async(r,s)=>{const oid=(r.state as any).observationId;if(!notified&&host.sessions().length&&oid&&!host.observation(host.sessions()[0].id,oid).boundaries?.length){notified=true;notify();return new Promise(()=>{});}return original(r,s);};
+ let plugin=new ExplorerPlugin(host,new ExplorerStore(path),providers);
+ try{const task=plugin.create({url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,modelRequests:100}});plugin.start(task.id);await waiting;await plugin.pause(task.id);const before=plugin.view(task.id),sid=before.task.rounds[0].sessionId,priorInstance=host.observation(sid).instanceScope;
+  expect(host.list<any>(sid,'attempt').map(a=>a.action.label)).toEqual(['Close']);await plugin.close();await host.close();
+  host=new InteractionEngine({persistence:new SqliteStore(join(dir,'engine'))});plugin=new ExplorerPlugin(host,new ExplorerStore(path),providers);plugin.start(task.id);await plugin.waitForIdle();const after=plugin.view(task.id);
+  expect(host.observation(sid).instanceScope).not.toBe(priorInstance);expect(after.task.rounds).toHaveLength(1);expect(after.task.status,JSON.stringify(after.task)).toBe('completed');expect(host.list<any>(sid,'attempt').map(a=>a.action.label)).toEqual(['Close','Close','Sibling']);
+  expect(after.task.usage.actions).toBe(3);expect(after.task.usage.modelRequests).toBeGreaterThan(before.task.usage.modelRequests);expect(after.events.some(e=>e.type==='round.reattached'&&(e.data as any).attemptCacheReset)).toBe(true);
+ }finally{await plugin.close();await host.close();await new Promise<void>(r=>server.close(()=>r()));rmSync(dir,{recursive:true,force:true});}
 });
 it('isolates a terminal unknown hyperlink in a new round without replaying it or claiming coverage',async()=>{
  const f=await explorerFixture('<a href="?destination=1">Details</a><button type="button" onclick="this.disabled=true">Independent</button>');

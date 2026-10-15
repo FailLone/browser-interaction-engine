@@ -209,7 +209,12 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     const exits=host.boundaryExitMaterial(sid);
     // Preserve parent inputs/selections. A geometric outside point is not itself
     // an approval, and a successful click is not a verified cancellation.
-    const preserved=o.controls.filter(control=>control.visible&&!boundaryIds?.has(control.localId)&&(control.editable||control.checked!==undefined||control.selected!==undefined));
+    // Every browser control has checked:null and selected:[] defaults. Their presence
+    // does not make a link/button stateful; retain actual fields, including empty,
+    // unchecked and read-only fields, as well as observed selections.
+    const preserved=o.controls.filter(control=>control.visible&&!boundaryIds?.has(control.localId)&&(
+      control.editable||['input','textarea','select'].includes(control.tag)||typeof control.checked==='boolean'||control.selected?.length>0||
+      ['textbox','combobox','listbox','slider','spinbutton','checkbox','radio','switch'].includes(control.role)));
     if(preserved.length>100){c.gap('boundary_preservation_limit',{url:o.url});return false;}
     for(const candidate of exits.candidates.filter(x=>!x.attempted)) {
       const key=`boundary-exit:${exits.episodeId}:${digest(candidate)}`;if(done(key))continue;

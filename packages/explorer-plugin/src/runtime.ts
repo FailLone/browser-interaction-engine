@@ -5,7 +5,7 @@ import { ExplorerError, type Task, type Round, type PlanItem, type Scope, type E
 import { ExplorerStore } from './store.js';
 import { DecisionRouter } from './router.js';
 import { createTaskSchema, budgetSchema, planSchema, initialTaskSchema, plannedScopeSchema, jsonSchema } from './schema.js';
-import { digest, includesScope, keyFor, matches, permitted, scopeFor, navigationTarget } from './policy.js';
+import { digest, includesScope, keyFor, matches, permitted, scopeFor, navigationTarget, controlInScope, broadScope } from './policy.js';
 import { reviewNext, type ChoiceConstraints } from './reviews.js';
 import { safeError } from './providers.js';
 import { POLICY_VERSION } from './decision-policy.js';
@@ -269,7 +269,7 @@ export class ExplorerPlugin {
     try {
       await this.reconcileDispatch(task);
       let round=task.rounds.at(-1);
-      if(round&&round.status==='paused'&&round.policyVersion===POLICY_VERSION&&this.host.session(round.sessionId).actionCount<this.host.session(round.sessionId).options.maxActions) {round.status='running';const before=this.host.observation(round.sessionId);const fresh=await this.host.observe(round.sessionId);if(fresh.instanceScope!==before.instanceScope){round.stack=[];round.entryPath=[];round.reentries=[];round.reviewed=[];this.event(task,'round.reattached',{businessStateRestored:false});}this.store.save(task);}
+      if(round&&round.status==='paused'&&round.policyVersion===POLICY_VERSION&&this.host.session(round.sessionId).actionCount<this.host.session(round.sessionId).options.maxActions) {round.status='running';const before=this.host.observation(round.sessionId);const fresh=await this.host.observe(round.sessionId);if(fresh.instanceScope!==before.instanceScope){round.stack=[];round.entryPath=[];round.reentries=[];round.reviewed=[];round.tried=[];round.noProgress=0;delete round.lastProgress;this.event(task,'round.reattached',{businessStateRestored:false,attemptCacheReset:true,unknownOutcomesRetained:true});}this.store.save(task);}
       else {if(round&&round.policyVersion!==POLICY_VERSION){round.status='finished';round.endedAt=now();this.event(task,'routing.updated',{from:round.policyVersion||'legacy',to:POLICY_VERSION,newSessionRequired:true});}round=await this.createRound(task,signal);}
       while(!signal.aborted) {
         this.assert(task,signal);const o=this.host.observation(round.sessionId);
@@ -395,6 +395,9 @@ export class ExplorerPlugin {
   }
   private async finishRound(task:Task,round:Round,signal:AbortSignal) {
     const o=this.host.observation(round.sessionId);
+    // A budget boundary can arrive immediately after an action, before the next step
+    // discovers/reviews its results. Success of that action is not scope completion.
+    const incomplete=this.auditRemainingScopes(task,round,o);
     for(const navigation of task.unverifiedNavigations||[]) {
       const attempt=this.host.list<ActionAttempt>(navigation.evidence.sessionId,'attempt').find(a=>a.id===navigation.evidence.attemptId);
       if(!attempt){this.gap(task,'unknown_action_outcome',{url:navigation.sourceUrl});continue;}
@@ -405,7 +408,7 @@ export class ExplorerPlugin {
       }
     }
     for(const item of task.plan.filter(i=>i.required&&['pending','unresolved'].includes(i.status))) {
-      if(item.resolvedBy && !task.plan.some(other=>other.id!==item.id&&other.required&&other.status!=='succeeded'&&other.status!=='excluded'&&Object.entries(item.scope).every(([k,v])=>other.scope[k as keyof Scope]===v))){item.status='succeeded';}
+      if(!incomplete.has(item.id)&&item.resolvedBy && !task.plan.some(other=>other.id!==item.id&&other.required&&other.status!=='succeeded'&&other.status!=='excluded'&&Object.entries(item.scope).every(([k,v])=>other.scope[k as keyof Scope]===v))){item.status='succeeded';}
       else {item.status='unresolved';item.reason=item.reason||'scope_not_verified';}
     }
     round.status='finished';round.endedAt=now();const remaining=task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status));
@@ -431,5 +434,33 @@ export class ExplorerPlugin {
       this.router.effect(followup.decision,'followup-plan',{proposals:followup.value.items,plan:task.plan});
     }
     this.store.save(task);return false;
+  }
+  private auditRemainingScopes(task:Task,round:Round,o:Observation) {
+    const incomplete=new Set<string>(),actions=this.host.actions(o.sessionId),groups=this.host.explorationReviewMaterial(o.sessionId).groups,frontier=this.host.getFrontier(o.sessionId);
+    const scopes=task.plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='succeeded'&&!(i.scope.kind&&(i.scope.label||i.scope.stableKey||i.scope.value!==undefined)));
+    if(!scopes.length)return incomplete;
+    const regions=this.host.regionReviewMaterial(o.sessionId),classifications=this.host.controlClassificationMaterial(o.sessionId),reviews=this.host.controlReviewMaterial(o.sessionId),hypotheses=this.host.list<IdentityHypothesis>(o.sessionId,'hypothesis'),scan=this.host.discoveryScanMaterial(o.sessionId);
+    for(const item of scopes) {
+      const pending=actions.filter(a=>matches(item.scope,a,o)&&includesScope(task.plan,a,o)==='target'&&!this.wasCompleted(task,a,o)&&!round.tried.includes(keyFor(a,o)));
+      for(const action of pending) {
+        const f=frontier.find(x=>x.action.id===action.id);
+        if(f?.status==='skipped'||f?.reason?.endsWith('_member_not_selected')){this.gap(task,'sample_unselected',scopeFor(action,o),false);continue;}
+        this.gap(task,this.navigationIsUnverified(task,action,o)?'unknown_action_outcome':permitted(action,o,groups,frontier)?'operation_not_executed':action.exclusionReason||action.preconditions.blockers?.[0]?.code||'operation_unavailable',scopeFor(action,o));
+      }
+      const controls=new Set(o.controls.filter(c=>c.visible&&c.enabled&&controlInScope(item.scope,c,o,actions)&&!task.plan.some(excluded=>excluded.reason==='user_excluded'&&controlInScope(excluded.scope,c,o,actions))).map(c=>c.localId));
+      const obligations={
+        notAtScope:!!item.scope.url&&item.scope.url!==o.url,
+        criticalGaps:o.gaps.filter(g=>g.critical).map(g=>g.code),
+        regions:regions.enabled?regions.unassignedControlIds.filter(id=>controls.has(id)):[],
+        pageTraversal:regions.enabled&&broadScope(item.scope)&&regions.unassignedPageTraversal,
+        classifications:classifications.pendingControlIds.filter(id=>controls.has(id)),
+        operations:reviews.pendingControlIds.filter(id=>controls.has(id)),
+        identities:hypotheses.filter(h=>h.status==='pending'&&controls.has(h.localId)).map(h=>h.id),
+        discovery:broadScope(item.scope)&&!!scan.discovery&&(scan.discovery.signal.omitted>0||scan.discovery.structural.omittedLocations>0),
+      };
+      if(Object.values(obligations).some(v=>Array.isArray(v)?v.length:!!v))incomplete.add(item.id);
+      this.event(task,'scope.audit',{itemId:item.id,observationId:o.id,obligations,pendingActions:pending.map(a=>a.id),pendingReview:incomplete.has(item.id)});
+    }
+    return incomplete;
   }
 }
