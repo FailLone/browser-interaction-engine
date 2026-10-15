@@ -4,7 +4,7 @@ import { assignState, matchIdentities } from './identity.js';
 import { recoverStore } from './recovery.js';
 import { DiffQueries } from './diff-details.js';
 import { describeFrontier, groupFrontier } from './frontier.js';
-import { ExplorationGroups } from './exploration-groups.js';
+import { ExplorationGroups, validateExplorationProposals } from './exploration-groups.js';
 import type { ExplorationGroup, ExplorationGroupDecision } from './types.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
 import type { EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
@@ -167,14 +167,25 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if (result.value) actions = result.value;
       if (result.error) { o.gaps.push({ code: 'ACTION_HOOK_FAILED', message: result.error }); actions = actions.map(a => ({ ...a, excluded: true, exclusionReason: 'action_hook_failed' })); }
     }
+    actions = this.prepareActions(actions, o).map(a => this.constrain({ ...a, stateId: o.stateId }, o, session));
+    const scopes = await this.hook(sessionId, 'explorationScopes', async () => {
+      if (o.gaps.some(g => g.critical)) return [];
+      const native = this.adapter.explorationGroups?.(actions, o, session, this.store.list<ExplorationGroup>('exploration-group', sessionId)) || [];
+      const custom = this.hooks.explorationScopes ? await this.hooks.explorationScopes(structuredClone(actions), ctx()) : [];
+      return validateExplorationProposals([...native, ...validateExplorationProposals(custom, actions)], actions);
+    });
+    if (scopes.error) {
+      o.gaps.push({ code: 'EXPLORATION_SCOPE_HOOK_FAILED', message: scopes.error, critical: true });
+      actions = actions.map(a => ({ ...a, excluded: true, exclusionReason: 'exploration_scope_hook_failed' }));
+    }
+    const proposals = scopes.value || [];
     // Discovery is fallible too; preserve captured facts and include late gaps in
     // state equivalence instead of discarding the entire post-action observation.
     if (this.adapter.normalize(o) !== o.canonical) {
       state = assignState(o, this.store.list<UIState>('state', sessionId), value => this.adapter.normalize(value as O));
       visit.stateId = o.stateId;
     }
-    actions = this.prepareActions(actions, o).map(a => this.constrain({ ...a, stateId: o.stateId }, o, session));
-    const proposals = o.gaps.some(g => g.critical) ? [] : this.adapter.explorationGroups?.(actions, o, session, this.store.list<ExplorationGroup>('exploration-group', sessionId)) || [];
+    actions = actions.map(a => ({ ...a, stateId: o.stateId }));
     let groupDiscovery: ReturnType<ExplorationGroups['discover']>;
     if (o.gaps.some(g => g.critical)) for (const identity of matched.identities) if (identity.status !== 'present') identity.status = 'unknown';
     this.store.transaction(() => {
@@ -211,7 +222,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           if (sample) f.sampling = { policy: sample.policy, evidence: sample.evidence, observationIds: [o.id] };
           this.store.put('frontier', f); frontierByKey.set(key, f);
         } else {
-          const temporarilyBlocked = existing.status === 'blocked' && (!!existing.action.preconditions.blockers?.length || existing.reason === 'action_basis_unconfirmed');
+          const temporarilyBlocked = existing.status === 'blocked' && (!!existing.action.preconditions.blockers?.length || ['action_basis_unconfirmed', 'exploration_scope_hook_failed'].includes(existing.reason || ''));
           if (existing.sampling && !existing.sampling.observationIds.includes(o.id)) existing.sampling.observationIds.push(o.id);
           // A recorded attempt stays attached to its actual source observation.
           // Only unattempted samples may move to newly observed conditions.
@@ -220,7 +231,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
             existing.explorationGroups = groupDiscovery.references.get(action.id);
             if (existing.sampling) { existing.stateId = o.stateId; existing.depth = Math.min(existing.depth, frontierDepth); }
           }
-          if (existing.status === 'pending' || existing.status === 'deferred' || existing.status === 'superseded' || temporarilyBlocked || (existing.status === 'blocked' && (existing.reason === 'identity_ambiguous' && action.preconditions.identityResolved || !!existing.recovery && !!existing.sampling && !existing.attempts.length)) || existing.status === 'needs_revalidation') {
+          if (existing.status === 'pending' || existing.status === 'deferred' || existing.status === 'skipped' || existing.status === 'superseded' || temporarilyBlocked || (existing.status === 'blocked' && (existing.reason === 'identity_ambiguous' && action.preconditions.identityResolved || !!existing.recovery && !!existing.sampling && !existing.attempts.length)) || existing.status === 'needs_revalidation') {
             existing.status = reason || action.excluded ? 'blocked' : 'pending'; existing.reason = reason; existing.unblock = unblock;
             existing.recovery = undefined;
           }
@@ -266,9 +277,11 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     });
     await this.afterCapture(structuredClone(o), previous ? structuredClone(previous) : undefined, attemptId);
     await this.store.evidence.endObservation?.(observationId, true);
-    for (const group of groupDiscovery!.requested) if (this.hooks.explorationGroup) {
-      const result = await this.hook(sessionId, 'explorationGroup', () => this.hooks.explorationGroup!(structuredClone(group), ctx()));
-      if (result.value !== undefined) await this.hook(sessionId, 'explorationGroup-decision', () => this.store.transaction(() => this.groups.decide(sessionId, group.id, group.revision, result.value!)));
+    const decisionHook = this.hooks.explorationDecision || this.hooks.explorationGroup;
+    const decisionHookName = this.hooks.explorationDecision ? 'explorationDecision' : 'explorationGroup';
+    for (const group of groupDiscovery!.requested) if (decisionHook) {
+      const result = await this.hook(sessionId, decisionHookName, () => decisionHook(structuredClone(group), ctx()));
+      if (result.value !== undefined) await this.hook(sessionId, `${decisionHookName}-decision`, () => this.store.transaction(() => this.groups.decide(sessionId, group.id, group.revision, result.value!)));
     }
     let resolvedByHook = false;
     for (const hypothesis of matched.hypotheses) if (this.hooks.identity) {
@@ -838,9 +851,12 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
             }
           }
           if (!pending.length) {
-            const waiting = this.frontier(sessionId).filter(f => f.status === 'deferred' && f.reason === 'awaiting_list_decision');
+            const waiting = this.frontier(sessionId).filter(f => f.status === 'deferred' && ['awaiting_list_decision', 'awaiting_exploration_decision', 'list_deferred_by_caller', 'exploration_deferred_by_caller'].includes(f.reason || ''));
             if (waiting.length) {
-              session.status = 'paused'; session.stopReason = 'LIST_DECISION_REQUIRED'; this.pauseRequested = true; this.store.put('session', session);
+              session.status = 'paused';
+              session.stopReason = waiting.some(f => f.reason === 'awaiting_exploration_decision') ? 'EXPLORATION_DECISION_REQUIRED'
+                : waiting.some(f => f.reason === 'awaiting_list_decision') ? 'LIST_DECISION_REQUIRED' : 'EXPLORATION_DEFERRED';
+              this.pauseRequested = true; this.store.put('session', session);
               this.emit(sessionId, 'exploration.paused', { reason: session.stopReason, groupIds: [...new Set(waiting.flatMap(f => f.explorationGroups?.map(g => g.groupId) || []))] }); return false;
             }
             session.status = 'finished'; session.stopReason = this.frontier(sessionId).some(f => !['executed', 'superseded'].includes(f.status)) ? 'known_frontier_exhausted_with_gaps' : 'known_frontier_exhausted'; this.store.put('session', session); this.emit(sessionId, 'exploration.finished', this.report(sessionId)); return false;
@@ -877,6 +893,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
               return true;
             }
           }
+          // Recovery captures can replace or defer the chosen scope. A decision
+          // made before recovery is not permission under newly observed conditions.
+          if (this.owned<FrontierItem>('frontier', chosen.id, sessionId).status !== 'pending') return true;
           const action = this.actions(sessionId).find(a => this.frontierKey(a) === chosen.key);
           if (!action) { chosen.status = 'blocked'; chosen.reason = 'action_no_longer_available'; this.store.put('frontier', chosen); return true; }
           try { await this.runAction(sessionId, action.id, id(), undefined, 'exploration'); }

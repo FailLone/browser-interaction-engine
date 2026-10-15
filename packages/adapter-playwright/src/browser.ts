@@ -124,8 +124,8 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     // Duplicate controls within one item still share this key and stay ambiguous.
     return localKey ? `item:${JSON.stringify([bindings, localKey])}` : undefined;
   };
-  const regions = [...document.querySelectorAll(regionSelector)].map(el => ({ key: regionKey(el), label: label(el) || el.getAttribute('name') || role(el), role: role(el), selector: selector(el), parentKey: regionKey(el.parentElement?.closest(regionSelector) ?? null), rect: rect(el), text: ((el as HTMLElement).innerText || el.textContent || '').slice(0, 8000) }));
-  regions.unshift({ key: 'document', label: document.title, role: 'document', selector: 'body', parentKey: '', rect: rect(body), text: bodyText.slice(0, 8000) });
+  const regions: Region[] = [...document.querySelectorAll(regionSelector)].map(el => ({ key: regionKey(el), instanceId: instance(el), label: label(el) || el.getAttribute('name') || role(el), role: role(el), selector: selector(el), parentKey: regionKey(el.parentElement?.closest(regionSelector) ?? null), rect: rect(el), text: ((el as HTMLElement).innerText || el.textContent || '').slice(0, 8000) }));
+  regions.unshift({ key: 'document', instanceId: document.documentElement ? instance(body || document.documentElement) : undefined, label: document.title, role: 'document', selector: 'body', parentKey: '', rect: rect(body), text: bodyText.slice(0, 8000) });
   const query = 'a[href],button,input:not([type=hidden]),select,textarea,summary,[role=button],[role=link],[role=menuitem],[role=menuitemcheckbox],[role=menuitemradio],[role=option],[role=tab],[role=checkbox],[role=radio],[role=switch],[role=combobox],[role=dialog],[role=alertdialog],dialog,[popover],[aria-expanded],[onclick],[tabindex],[contenteditable]:not([contenteditable=false])';
   const selected = new Set(document.querySelectorAll(query));
   // Document roots host event delegation and focus management. Preserve those
@@ -179,7 +179,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey,
       ...(list ? { list: { instanceId: instance(list), role: list.tagName === 'SELECT' ? 'select' : 'listbox', label: label(list), selector: selector(list) } } : {}),
       ...(purposeBinding ? { purposeBinding } : {}),
-      region: regionKey(el.closest(regionSelector)), form: regionKey(el.closest('form')), selector: selector(el), rect: r,
+      region: regionKey(el.closest(regionSelector)), regionInstanceId: instance(el.closest(regionSelector) || body || document.documentElement), form: regionKey(el.closest('form')), selector: selector(el), rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
       checked: ['checkbox', 'radio'].includes(type) ? e.checked : el.hasAttribute('aria-checked') ? el.getAttribute('aria-checked') === 'true' : null,
       selected: el.tagName === 'SELECT' ? [...(el as HTMLSelectElement).selectedOptions].map(o => o.value) : el.getAttribute('aria-selected') === 'true' ? [name] : [],
@@ -211,6 +211,11 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       if (el.getAttribute('aria-selected') === 'true' && el.tagName !== 'SELECT') control.selected = [control.name];
     });
   });
+  // Detected overlays may introduce regions outside the native semantic selectors.
+  for (const region of regions) if (!region.instanceId) {
+    const owners = document.querySelectorAll(region.selector);
+    if (owners.length === 1) region.instanceId = instance(owners[0]);
+  }
   return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, ...layers, actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
 
@@ -506,6 +511,12 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (live.controls.some(c => canonical(c.list) !== canonical(listOwners.get(c.instanceId)))) return 'stale';
     const purposeBindings = new Map(current.controls.map(c => [c.instanceId, c.purposeBinding]));
     if (live.controls.some(c => canonical(c.purposeBinding) !== canonical(purposeBindings.get(c.instanceId)))) return 'stale';
+    if (this.options.decisionScopes?.length) {
+      const owners = (regions: Region[]) => regions.map(({ key, instanceId, role, label, selector, parentKey }) => ({ key, instanceId, role, label, selector, parentKey }));
+      if (canonical(owners(live.regions)) !== canonical(owners(current.regions))) return 'stale';
+      const bindings = new Map(current.controls.map(c => [c.instanceId, c.regionInstanceId]));
+      if (live.controls.some(c => c.regionInstanceId !== bindings.get(c.instanceId))) return 'stale';
+    }
     const changed = this.options.exploration === 'controls' ? interactionProjection(live) !== interactionProjection(current)
       : liveCanonical !== current.canonical || live.controls.some((c, i) => c.instanceId !== current.controls[i]?.instanceId);
     if (changed) {

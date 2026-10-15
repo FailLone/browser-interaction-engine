@@ -4,7 +4,7 @@ import type { BrowserEvidenceManifest, EvidenceOptions } from './evidence-types.
 export * from './evidence-types.js';
 export * from '@interaction/core';
 export interface Rect { x: number; y: number; width: number; height: number }
-export interface Region { key: string; label: string; role: string; selector: string; parentKey?: string; rect: Rect; text: string }
+export interface Region { key: string; instanceId?: string; label: string; role: string; selector: string; parentKey?: string; rect: Rect; text: string }
 export interface Overlay { key: string; name: string; kind: 'modal' | 'dialog' | 'popover' | 'menu' | 'listbox'; selector: string; parentKey?: string; parentRegion: string; evidence: string[]; controlIds: string[]; exitControlIds: string[] }
 /** Browser navigation evidence; not a claim that the page/business state is equal. */
 export interface BrowserHistory {
@@ -14,7 +14,7 @@ export interface BrowserHistory {
 export interface Control extends CoreControl {
   localId: ID; instanceId: ID; identityId?: ID; hypothesisId?: ID;
   tag: string; role: string; name: string; label: string; stableKey?: string;
-  region: string; form: string; selector: string; rect: Rect;
+  region: string; regionInstanceId?: string; form: string; selector: string; rect: Rect;
   value: string; displayedText: string; checked: boolean | null; selected: string[];
   visible: boolean; enabled: boolean; editable: boolean; readOnly?: boolean;
   expanded: boolean | null; controls: string | null;
@@ -57,6 +57,8 @@ export interface SessionOptions {
   exploration?: 'controls' | 'representative' | 'stateful';
   /** New sessions defer repeated list members for an upper-layer decision. Legacy sessions without this field keep their existing policy. */
   listExploration?: 'review' | 'all';
+  /** Optional observed scopes that require upper-layer decisions before automatic exploration. */
+  decisionScopes?: ('region' | 'branch' | 'input-space')[];
   /** Application declarations; never inferred from button labels. */
   interfaceActions?: MatchRule[];
   reversible?: MatchRule[];

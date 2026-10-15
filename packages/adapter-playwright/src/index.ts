@@ -7,6 +7,7 @@ import { constrain, hasDeclaredBoundaryExit, hasObservedBoundaryExit } from './p
 import { controlCase, explorationCase, restorationStep } from './exploration.js';
 import { historyReturn } from './navigation.js';
 import { listGroups } from './list-groups.js';
+import { decisionScopes } from './decision-scopes.js';
 import type { ActionCandidate, Control, EngineHooks, Observation, Session, SessionOptions } from './types.js';
 export * from './types.js';
 export * from './purpose-review.js';
@@ -26,7 +27,7 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   explorationCase(a: ActionCandidate, o: Observation, s: Session) { return s.options.exploration === 'controls' ? controlCase(a, o) : explorationCase(a, o); }
   explorationScope(o: Observation) { return canonical({ url: o.url, boundaries: o.boundaries?.map(b => b.key) || [] }); }
   restorationStep = restorationStep;
-  explorationGroups = listGroups;
+  explorationGroups(...args: Parameters<typeof listGroups>) { return [...listGroups(...args), ...decisionScopes(args[0], args[1], args[2])]; }
   returnToObservation = historyReturn;
   testPredicate(predicate: Predicate, observation: Observation): 'pass' | 'fail' | 'unknown' {
     if (predicate.target === 'url') return observation.url === predicate.equals ? 'pass' : 'fail';

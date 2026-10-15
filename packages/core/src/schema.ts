@@ -2,8 +2,15 @@ import { z } from 'zod';
 export const explorationGroupDecisionSchema = z.intersection(z.object({ source: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1) }), z.discriminatedUnion('mode', [
   z.object({ mode: z.literal('all'), memberKeys: z.never().optional() }),
   z.object({ mode: z.literal('defer'), memberKeys: z.never().optional() }),
+  z.object({ mode: z.literal('skip'), memberKeys: z.never().optional() }),
   z.object({ mode: z.literal('sample'), memberKeys: z.array(z.string().min(1)).min(1).max(10000) }),
 ]));
+export const explorationGroupProposalSchema = z.object({
+  key: z.string().trim().min(1), kind: z.string().trim().min(1), label: z.string().trim().min(1),
+  actionIds: z.array(z.string().min(1)), traversalActionIds: z.array(z.string().min(1)),
+  conditions: z.json().optional(),
+  evidence: z.array(z.object({ source: z.string().min(1), rule: z.string().min(1), facts: z.record(z.string(), z.json()) })).min(1),
+}).strict();
 export const evidenceRetentionSchema = z.preprocess(input => {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return input;
   const value = input as Record<string, unknown>;

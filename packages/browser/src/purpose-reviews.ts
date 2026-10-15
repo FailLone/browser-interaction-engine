@@ -9,6 +9,7 @@ export class PurposeReviews {
   material(o: Observation, actions: ActionCandidate[], groupId: string): PurposeReviewMaterial {
     const group = this.store.get<ExplorationGroup>('exploration-group', groupId);
     if (!group || group.sessionId !== o.sessionId) throw new EngineError('NOT_FOUND', 'Exploration group not found');
+    if (group.kind !== 'similar-list' || group.status === 'invalidated') throw new EngineError('INVALID_PURPOSE_REVIEW', 'List purpose reuse requires a current similar-list group');
     if (group.observationId !== o.id) throw new EngineError('STALE_PURPOSE_REVIEW', 'Observe the list in the current document before reviewing');
     const current = new Set(group.members.filter(m => m.observationId === o.id).map(m => m.actionId));
     const conditions = new Map<string, PurposeReviewMaterial['conditions'][number]>();
@@ -94,7 +95,7 @@ export class PurposeReviews {
     const observations = new Map<string, Observation>([[o.id, o]]); const retired: string[] = [];
     this.store.transaction(() => {
       for (const item of this.store.list<FrontierItem>('frontier', o.sessionId)) {
-        if (item.attempts.length || !['pending', 'deferred', 'needs_revalidation'].includes(item.status) && !(item.status === 'blocked' && item.reason === 'operation_requires_review')) continue;
+        if (item.attempts.length || !['pending', 'deferred', 'skipped', 'needs_revalidation'].includes(item.status) && !(item.status === 'blocked' && item.reason === 'operation_requires_review')) continue;
         const oldRefs = refs(item.action);
         let reason = oldRefs.some(r => typeof r !== 'string' || reviews.get(r)?.status !== 'active') ? 'purpose_review_invalidated' : undefined;
         const replacements = current.get(key(item.action)) || [];

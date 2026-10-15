@@ -147,8 +147,10 @@ SQLite 插件使用 WAL，`entities` 保存带 kind 的结构化实体，`events
 
 ## 探索与恢复配置
 
-新会话同时默认 `listExploration: 'review'`。相似列表通过 `exploration.group_detected` 持久事件或 `hooks.explorationGroup` 提交给上层，暂缓成员及所属列表滚动，优先继续其他工作。`GET /v1/sessions/:sessionId/exploration-groups` 查询材料；`decideExplorationGroup` 命令接收 groupId、revision、decision（all/sample/defer，附 source/evidence）。未执行成员仍计入缺口；无其他工作时以 `LIST_DECISION_REQUIRED` 暂停。详见[相似列表遍历决策](LIST-EXPLORATION.md)。
+新会话同时默认 `listExploration: 'review'`。相似列表通过 `exploration.group_detected` 持久事件或 `hooks.explorationGroup` 提交给上层，暂缓成员及所属列表滚动，优先继续其他工作。`GET /v1/sessions/:sessionId/exploration-groups` 查询材料；`decideExplorationGroup` 命令接收 groupId、revision、decision（all/sample/defer/skip，附 source/evidence）。未执行成员仍计入缺口；无其他工作时以 `LIST_DECISION_REQUIRED` 暂停。详见[相似列表遍历决策](LIST-EXPLORATION.md)。
 
-用途审阅复用与 all/sample/defer 独立。`GET /v1/sessions/:sessionId/exploration-groups/:groupId/purpose-material` 输出当前条件与成员，上层通过 `reviewListPurpose` 命令提交用途、业务范围、来源和依据，再 observe 使新候选使用判断。`GET /v1/sessions/:sessionId/purpose-reviews` 查询持久记录；`revokePurposeReview` 撤销后会拦截尚未派发的动作。相应 SDK 方法同名，记录、失效与撤销都有 `purpose.review_*` 事件。每项仍校验当前目标并保留独立执行记录，条件变化后不复用；详情见[用途审阅复用](LIST-EXPLORATION.md#穷尽与用途审阅复用可以同时启用)。
+通用范围复用以上查询、事件与命令：`hooks.explorationScopes` 提出任意 kind 的当前动作范围，`hooks.explorationDecision` 返回决策（优先于兼容 hook）。浏览器 `decisionScopes` 可选 region/branch/input-space，默认不启用。`skip` 为本轮不测，状态 skipped；`defer` 在其他工作结束后以 EXPLORATION_DEFERRED 暂停。通用范围条件失效会发布 exploration.group_invalidated，旧决策不可重用。完整语义见[通用探索决策](EXPLORATION-DECISIONS.md)。
+
+用途审阅复用与探索决策独立。`GET /v1/sessions/:sessionId/exploration-groups/:groupId/purpose-material` 输出当前条件与成员，上层通过 `reviewListPurpose` 命令提交用途、业务范围、来源和依据，再 observe 使新候选使用判断。`GET /v1/sessions/:sessionId/purpose-reviews` 查询持久记录；`revokePurposeReview` 撤销后会拦截尚未派发的动作。相应 SDK 方法同名，记录、失效与撤销都有 `purpose.review_*` 事件。每项仍校验当前目标并保留独立执行记录，条件变化后不复用；详情见[用途审阅复用](LIST-EXPLORATION.md#穷尽与用途审阅复用可以同时启用)。
 
 新浏览器会话默认 `exploration: controls`，也支持 `representative` 和 `stateful`。`report.controlCoverage` 提供独立控件操作覆盖；`target` / `preconditions.targetResolved` 区分当前节点定位与历史身份。interfaceActions、reversible 和 environmentReset 是可选应用声明。待办 sampling 标识抽样范围，superseded 标识由当前视口替代且未执行的滚动意图；恢复 diagnostics 标识业务副作用来源与恢复路径。SDK/HTTP/client 共用这些字段，旧会话不自动迁移。详见 [探索与恢复](EXPLORATION-RECOVERY.md)。

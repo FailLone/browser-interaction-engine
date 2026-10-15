@@ -1,5 +1,7 @@
 # 相似列表的遍历决策
 
+列表现已作为[通用探索范围决策](EXPLORATION-DECISIONS.md)的一个内置场景；统一 hook 为 `explorationDecision`，原 `explorationGroup` 保留兼容。
+
 新建浏览器会话默认 `listExploration: 'review'`。识别一组相似选项后，引擎先通知调用方，把该组的自动遍历暂缓，继续其他可执行工作。等待不会自动超时变成穷尽，也不会把列表记为已覆盖。已有会话未保存此配置时保留旧行为；调用方可以显式设置 `listExploration: 'all'`，在会话级决定直接遍历。
 
 ## 首版识别范围
@@ -41,10 +43,11 @@ await client.command(sessionId, { type: 'resume' });
 | all | 允许调度此组已发现及后续发现的同结构操作样本 | 仍逐项执行和验证，未发现总量不宣称完成 |
 | sample | 仅允许指定 `memberKeys`；必须是该组中已观察到且不重复的键 | 其余为 deferred / list_member_not_selected，保留未覆盖 |
 | defer | 暂缓整个组，可在之后修改决策 | deferred / list_deferred_by_caller，保留未覆盖 |
+| skip | 上层明确决定本轮不测，可后续修改 | skipped / exploration_skipped_by_caller，保留未覆盖 |
 
 所有决策必须包含 source 和非空 evidence。抽样时，成员的 observationId 可以帮助区分当前可见项与历史项；键对应精确操作样本，不是模糊的名称、位置或行号。样本决定不会自动允许继续滚动以穷尽列表。
 
-待决项目为 `deferred / awaiting_list_decision`，现有其他阻塞原因保持原样。`choose` hook 只收到当前可调度任务，无法通过选择一个暂缓 ID 绕过决策。没有其他可执行工作且仍有待决项目时，会话暂停为 `LIST_DECISION_REQUIRED`；明确抽样或暂缓后，未执行成员仍使完成报告保留缺口。已经批准的列表在非弹层调度中排在普通工作之后。
+待决项目为 `deferred / awaiting_list_decision`，现有其他阻塞原因保持原样。`choose` hook 只收到当前可调度任务，无法通过选择一个暂缓 ID 绕过决策。没有其他可执行工作且仍有待决项目时，会话暂停为 `LIST_DECISION_REQUIRED`；明确暂缓且没有其他工作时，以 `EXPLORATION_DEFERRED` 暂停；抽样或 skip 可结束，未执行成员仍使完成报告保留缺口。已经批准的列表在非弹层调度中排在普通工作之后。
 
 活动弹层不能绕过：列表暂缓后可以执行当前搜索或退出操作，确认关闭后才探索父页面；不存在有效出口时保留 `ACTIVE_BOUNDARY_BLOCKED`。之后批准穷尽时，使用既有入口与恢复机制尝试重新进入，不因列表决策直接取得恢复资格。
 
