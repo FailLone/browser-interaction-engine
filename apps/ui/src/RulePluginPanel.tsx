@@ -8,8 +8,10 @@ const lifecycle: Record<string, string> = { pending: '等待后续观察', suspe
 const descriptions: Record<string, string> = {
   OBSERVED_POINT_REACHABLE: '已检查的点击采样点可达', SAMPLE_REACHABLE: '点击采样点可达',
   OCCLUSION_SUSPECTED: '控件可能被遮盖，等待后续观察', OCCLUSION_STILL_OBSERVED: '后续采集中仍然观察到遮盖',
+  OBSERVED_POINTER_REQUIREMENT_FAILED: '相关滚动后，全部点击采样点仍被遮挡，违反已声明的可点击要求',
   OCCLUSION_RECOVERED_AFTER_SCROLL: '滚动后，原有遮盖已恢复', OCCLUSION_NO_LONGER_OBSERVED: '本次采集中未再观察到原有遮盖',
   CONTROL_BOX_UNCLIPPED: '控件边界未被裁切', CONTROL_CLIPPING_SUSPECTED: '控件边界可能被容器裁切',
+  CLIPPING_REQUIREMENT_FAILED: '控件被非滚动容器裁切，违反已声明的完整显示要求',
   SCROLL_CLIP_RECHECK_PENDING: '控件位于可滚动区域，等待后续复核', VIEWPORT_RECHECK_PENDING: '控件未完全进入视口，等待后续复核',
   CLIPPING_NO_LONGER_OBSERVED: '本次采集中未再观察到原有裁切',
   DOM_TEXT_BOXES_FIT: '已采集的文字边界完整', TEXT_HARD_CLIP_SUSPECTED: '文字可能被直接裁断',
@@ -26,9 +28,10 @@ const descriptions: Record<string, string> = {
 
 function Check({ check, labels }: { check: RuleCheck; labels: Record<string, string> }) {
   const phase = typeof check.facts?.lifecycle === 'string' ? lifecycle[check.facts.lifecycle] : undefined;
-  return <li className={`rule-check ${check.severity}`}>
+  return <li className={`rule-check rule-severity-${check.severity}`}>
     <div><b>{check.target ? labels[check.target.nodeId] || '未命名控件' : '检查范围'}</b><span>{verdicts[check.verdict]} · {severities[check.severity]}{phase && ` · ${phase}`}</span></div>
     <p>{descriptions[check.code] || (check.verdict === 'unknown' ? '当前证据不足以确定结果，请查看检测依据。' : check.actual)}</p>
+    {check.verdict === 'fail' && <p>判断依据：{check.expected}</p>}
     <details><summary>检测依据</summary><p>{check.actual}</p><pre>{JSON.stringify(check, null, 2)}</pre></details>
   </li>;
 }
@@ -83,7 +86,7 @@ export function RulePluginPanel({ api, sessionId, inspectionId }: { api: Interac
   return <section className="rule-plugins" aria-label="规则插件">
     <h3>规则插件</h3>
     <p className="muted">检查当前所选任务，并利用此前的探索记录复核。检测只读取已保存的证据，不滚动或操作页面；探索可以继续。</p>
-    <p className="muted">当前使用默认判断，尚未接入项目规范或 agent 裁决。待核验不等于通过，单个采样通过也不代表整个页面无问题。</p>
+    <p className="muted">按已安装规则的配置检查；项目规范和 agent 提案尚未接入自动裁决。待核验不等于通过，单个采样通过也不代表整个页面无问题。</p>
     {loading ? <p role="status">正在加载规则与检测记录…</p> : <>
       <fieldset disabled={busy} className="rule-choices"><legend>选择检查规则</legend>{plugins.map(plugin => <label key={plugin.id}>
         <input type="checkbox" checked={selected.includes(plugin.id)} onChange={e => setSelected(old => e.target.checked ? [...old, plugin.id] : old.filter(id => id !== plugin.id))} />

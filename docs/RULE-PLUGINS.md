@@ -47,6 +47,31 @@ HTTP 对应：
 
 ## 验证
 
+### 主动植入缺陷的演示
+
+测试页 `apps/test-site/rule-defects.html` 同时包含持续遮盖、容器裁切、文字硬截断，以及正常按钮和省略号对照。“修复全部缺陷”会保留原控件实例，修复前三种缺陷。
+
+```sh
+pnpm build
+pnpm demo:rule-defects
+```
+
+演示调试页默认在 `http://127.0.0.1:4185`，测试页在 `http://127.0.0.1:4186/rule-defects.html`。也可用 `RULE_FIXTURE_URL` 指定已经启动的测试站中的该页面。`RULE_DEMO_PORT` 和 `RULE_DEMO_DATA_DIR` 分别覆盖调试端口和数据目录。演示会创建专用会话，保存初始检查，执行一次正常探索滚动并再次检查，然后保持服务供查看。
+
+选择演示会话 → **UI 检查**，可以查看并重新运行已保存的错误案例；从 **操作候选** 执行“修复全部缺陷”，再选择新采集进行检查，可以验证错误解除。
+
+| 案例 | 首次检查 | 相关滚动后 | 修复后 |
+| --- | --- | --- | --- |
+| 确认测试订单按钮持续被挡 | warning | error：违反明确的采样可点击要求 | pass / resolved |
+| 保存测试设置按钮被裁切 | error：违反明确的完整显示要求 | error | pass / resolved |
+| 文字硬截断 | warning | warning | pass / resolved |
+| 正常按钮 | pass | pass | pass |
+| 省略号对照 | info / unknown | info / unknown | info / unknown |
+
+`examples/rule-defect-plugins.ts` 由宿主显式绑定这个会话中两个控件的逻辑身份，给已有的遮盖和裁切跟踪器传入带理由、来源的 `requirements`。这不是从测试页文字自动生成要求，也没有实现项目规范或 agent 提案执行。普通服务的默认插件仍把这两类异常保留为 warning；文字规则仍不执行外部要求。
+
+`tests/rule-defects-ui.test.ts` 从真实页面取证，验证上述分级、两个 error 的 UI 展示、正常对照、默认策略不升级、修复后同一问题 ID 的解除，以及修复后的历史错误仍可查看。规则检测不增加动作数或改变滚动位置；演示中的滚动和修复由正常探索动作完成。
+
 `tests/rule-plugins.test.ts` 覆盖普通探索滚动后的恢复、检查前后动作数和位置、历史截止点、并发重试、插件失败隔离、会话绑定、重放上限、重启持久化与缺证。
 
 `tests/rule-plugins-ui.test.ts` 覆盖规则选择、警告展示、空选择禁用、刷新后结果保留、不同任务间迟到结果隔离。原有外部消费者结果仍由 `tests/inspection-ui.test.ts` 验证。
