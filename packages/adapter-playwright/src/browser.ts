@@ -176,10 +176,14 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const boundForm = (el as HTMLInputElement).form;
     const purposeBinding = list ? { attributes: Object.fromEntries(['type', 'role', 'href', 'target', 'form', 'formaction', 'formmethod', 'formtarget', 'aria-controls', 'aria-haspopup'].filter(k => el.hasAttribute(k)).map(k => [k, el.getAttribute(k)!])),
       ...(boundForm ? { form: { instanceId: instance(boundForm), action: boundForm.action, method: boundForm.method, target: boundForm.target } } : {}) } : undefined;
+    const reviewBinding = { parentInstanceId: instance(el.parentElement || document.documentElement),
+      attributes: Object.fromEntries(['type','role','name','href','target','src','alt','title','form','formaction','formmethod','formtarget','aria-label','aria-labelledby','aria-describedby','aria-controls','aria-haspopup','popovertarget','popovertargetaction','command','commandfor','contenteditable','onclick','onchange','oninput','onkeydown','onmouseenter','onmouseover','onpointerenter'].filter(k=>el.hasAttribute(k)).map(k=>[k,el.getAttribute(k)!])),
+      ...(boundForm ? {form:{instanceId:instance(boundForm),action:boundForm.action,method:boundForm.method,target:boundForm.target}} : {}) };
     return {
       localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey,
       ...(list ? { list: { instanceId: instance(list), role: list.tagName === 'SELECT' ? 'select' : 'listbox', label: label(list), selector: selector(list) } } : {}),
       ...(purposeBinding ? { purposeBinding } : {}),
+      reviewBinding,
       region: regionKey(el.closest(regionSelector)), regionInstanceId: instance(el.closest(regionSelector) || body || document.documentElement), form: regionKey(el.closest('form')), selector: selector(el), rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
       checked: ['checkbox', 'radio'].includes(type) ? e.checked : el.hasAttribute('aria-checked') ? el.getAttribute('aria-checked') === 'true' : null,
@@ -498,7 +502,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (o.overlays?.length) add('press', 'Escape');
     return actions;
   }
-  async preflight(current: Observation): Promise<'valid' | 'stale' | 'context_changed'> {
+  async preflight(current: Observation, targetLocalIds: string[] = []): Promise<'valid' | 'stale' | 'context_changed'> {
     let live: Awaited<ReturnType<BrowserAdapter['readDOM']>>;
     try { live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
@@ -513,6 +517,15 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (live.controls.some(c => canonical(c.list) !== canonical(listOwners.get(c.instanceId)))) return 'stale';
     const purposeBindings = new Map(current.controls.map(c => [c.instanceId, c.purposeBinding]));
     if (live.controls.some(c => canonical(c.purposeBinding) !== canonical(purposeBindings.get(c.instanceId)))) return 'stale';
+    const reviewTargets = new Set(targetLocalIds);
+    const reviewedControls = new Map(current.controls.map(c=>[c.instanceId,c]));
+    // Passive read-only labels may refresh continuously. They are evidence,
+    // not a reason to reject another target; explicitly reviewed/acted targets
+    // still require their complete binding even when read-only.
+    if (live.controls.some(c=>{
+      const before=reviewedControls.get(c.instanceId);
+      return (!c.readOnly||!before?.readOnly||reviewTargets.has(c.localId))&&canonical(c.reviewBinding)!==canonical(before?.reviewBinding);
+    })) return 'stale';
     if (this.options.decisionScopes?.length) {
       const owners = (regions: Region[]) => regions.map(({ key, instanceId, role, label, selector, parentKey }) => ({ key, instanceId, role, label, selector, parentKey }));
       if (canonical(owners(live.regions)) !== canonical(owners(current.regions))) return 'stale';

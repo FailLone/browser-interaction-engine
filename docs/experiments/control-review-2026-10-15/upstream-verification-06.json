@@ -1,0 +1,120 @@
+{
+  "observationId": "7a354194-1184-4ba3-addb-37e996bd00cd",
+  "source": "gpt-5.6-sol/low",
+  "returnVerification": {
+    "passed": true,
+    "evidence": [
+      "The current URL is https://www.okx.com/convert/btc-to-usd and the title is ‘BTC to USD | Convert Bitcoin to US Dollar | OKX’.",
+      "The screenshot shows the BTC/USD heading, BTC source selector, USD target selector, and BTC-denominated popular conversions.",
+      "The current documentId is 298e347b-ca46-4452-b326-2013291b9152, distinct from destination documentId 641dc4e1-d266-43c9-948f-5d56dd327574 and from the earlier root document, so this is a newly observed returned document.",
+      "Attempt c4356aa8-1a03-4354-b796-e30acc3ff606 is a succeeded history action from observation 308e9aeb-e861-430e-b1b9-2a8b83eaf397 to the current observation."
+    ]
+  },
+  "destinationBoundaryAudit": {
+    "passed": true,
+    "conclusion": "On the 1INCH destination, the executed interaction sequence was limited to the reviewed modal Close followed by browser history return; no destination business control was executed.",
+    "evidence": [
+      "The 1INCH selection arrived at destination observation 8db2bb08-eb25-4590-bf29-f253f0bfe41b and destination page scope fc222048-c522-4423-9b7e-815d31385c91 was decided skip.",
+      "Attempt 4926c0e0-0e8a-4f10-9551-6bd7098defcc executed Close on the destination and succeeded, producing observation ce160ced-0fc8-4dfa-a2b6-ac13222e9c85.",
+      "destination-after-close.json shows the destination remained https://www.okx.com/convert/1inch-to-usd after Close, with the regional dialog absent.",
+      "The next executed attempt was history return c4356aa8-1a03-4354-b796-e30acc3ff606; the summary contains no executed calculator, chart, FAQ, navigation, preference, Wallet, or other business action between destination arrival and return."
+    ]
+  },
+  "reviewInvalidation": {
+    "passed": true,
+    "allPriorApprovalsInvalidated": true,
+    "reviews": [
+      {
+        "id": "10f71d60-b927-4150-a34a-28a6b4883db4",
+        "purpose": "initial BTC-page modal Close",
+        "status": "invalidated"
+      },
+      {
+        "id": "767c3eab-2075-4dc1-80ec-1c6166060c32",
+        "purpose": "BTC currency-list entrance",
+        "status": "invalidated"
+      },
+      {
+        "id": "580ec328-c906-4b91-9fc7-c71ddb1f0b80",
+        "purpose": "1INCH list member",
+        "status": "invalidated"
+      },
+      {
+        "id": "c3187043-6a0a-4ca7-9fef-898712fcde9b",
+        "purpose": "destination modal Close",
+        "status": "invalidated"
+      }
+    ],
+    "conclusion": "No prior control approval authorizes an action in returned document 298e347b-ca46-4452-b326-2013291b9152."
+  },
+  "attempts": [
+    {
+      "ordinal": 1,
+      "attemptId": "85acb774-aec2-4cbc-a2b3-cc4e3c5794a2",
+      "kind": "click",
+      "label": "Close",
+      "page": "BTC-to-USD entry",
+      "status": "succeeded",
+      "effect": "Dismissed the initial regional dialog."
+    },
+    {
+      "ordinal": 2,
+      "attemptId": "f789e050-157d-4558-8cde-c745c7156fe9",
+      "kind": "click",
+      "label": "BTC",
+      "page": "BTC-to-USD entry",
+      "status": "succeeded",
+      "effect": "Opened the source-currency list, verified by visible list controls."
+    },
+    {
+      "ordinal": 3,
+      "attemptId": "586e1efb-021e-423f-8005-a2eb00cb4bce",
+      "kind": "click",
+      "label": "1INCH",
+      "page": "BTC-to-USD entry list",
+      "status": "succeeded",
+      "effect": "Selected the sole sampled member and navigated to the 1INCH-to-USD destination."
+    },
+    {
+      "ordinal": 4,
+      "attemptId": "4926c0e0-0e8a-4f10-9551-6bd7098defcc",
+      "kind": "click",
+      "label": "Close",
+      "page": "1INCH-to-USD destination",
+      "status": "succeeded",
+      "effect": "Dismissed the destination regional dialog; no business control was used."
+    },
+    {
+      "ordinal": 5,
+      "attemptId": "c4356aa8-1a03-4354-b796-e30acc3ff606",
+      "kind": "history",
+      "label": "Return to observed page",
+      "page": "1INCH-to-USD destination to BTC-to-USD entry",
+      "status": "succeeded",
+      "effect": "Returned to a fresh BTC-to-USD document."
+    }
+  ],
+  "acceptance": {
+    "type": "partial-flow",
+    "passed": true,
+    "covered": [
+      "Modal dismissal on the initial root document.",
+      "Opening the source-currency chooser.",
+      "Sampling exactly one non-current currency member.",
+      "Verifying destination arrival without business-depth exploration.",
+      "Closing the destination modal and returning by history to the root URL."
+    ],
+    "notCovered": [
+      "Exhaustive entry-page UI coverage.",
+      "The unsampled currencies in the virtual list.",
+      "Target-currency chooser, calculator amounts, direction swap, chart ranges, FAQs, carousels, header menus, footer links, page scrolling, and other root-page controls.",
+      "Any destination-page business behavior beyond arrival and exit."
+    ]
+  },
+  "gaps": [
+    "The returned BTC page immediately shows a new regional dialog. Its current Close control belongs to document 298e347b-ca46-4452-b326-2013291b9152 and requires a fresh review before entry-page exploration resumes.",
+    "The session is paused after exactly five succeeded attempts, which prevents the pending ‘Don’t show for 7 days’ preference action from running without review.",
+    "A new control-review material and screenshot are required for the returned document; old localIds and approvals must not be rebound automatically across documents.",
+    "Completion of this round establishes only the guarded A-to-B-to-A workflow. The requested whole entry-page inspection remains unfinished and must continue from a newly reviewed returned document."
+  ]
+}

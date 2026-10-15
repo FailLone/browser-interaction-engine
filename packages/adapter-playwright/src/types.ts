@@ -30,6 +30,8 @@ export interface Control extends CoreControl {
   list?: { instanceId: string; role: string; label: string; selector: string };
   /** Dispatch-related DOM facts used to bound an external purpose judgment. */
   purposeBinding?: { attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
+  /** Exact control-review binding, independent of list-purpose similarity. */
+  reviewBinding?: { parentInstanceId: string; attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
   actionable: { visible: boolean; enabled: boolean; editable: boolean; hitTarget: boolean | null; clickPoint?: { x: number; y: number }; occludedBy?: string; outsideScrollableArea?: boolean; unknown: string[] };
 }
 export interface RegionCandidate {
@@ -94,6 +96,7 @@ export type Session = CoreSession<SessionOptions>;
 export type ControlIdentity = CoreIdentity<Control>;
 export type HookContext = CoreHookContext<Observation, SessionOptions>;
 export interface EngineHooks extends CoreHooks<Observation, SessionOptions> {
+  controlReview?: (material: import('./control-review.js').ControlReviewMaterial, ctx: HookContext) => Promise<import('./control-review.js').ControlReviewInput | undefined> | import('./control-review.js').ControlReviewInput | undefined;
   regionReview?: (material: RegionReviewMaterial, ctx: HookContext) => Promise<RegionReviewInput | undefined> | RegionReviewInput | undefined;
   samples?: (control: Control, ctx: HookContext) => Promise<(string | boolean)[] | undefined> | (string | boolean)[] | undefined;
 }

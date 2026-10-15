@@ -11,6 +11,7 @@ import { decisionScopes } from './decision-scopes.js';
 import type { ActionCandidate, Control, EngineHooks, Observation, Session, SessionOptions } from './types.js';
 export * from './types.js';
 export * from './purpose-review.js';
+export * from './control-review.js';
 export { sessionSchema, commandSchema, regionReviewSchema, predicateSchema, domQuerySchema, artifactKindSchema } from './schema.js';
 export type { Command } from './schema.js';
 export { compareObservations, observableCanonical } from './model.js';

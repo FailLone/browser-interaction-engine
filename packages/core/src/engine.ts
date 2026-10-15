@@ -38,6 +38,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   /** Composition policy runs before final constraints; it must not alter captured facts. */
   protected afterExplorationDecisions(_sessionId: string): void {}
   protected prepareActions(actions: ActionCandidate[], _observation: O): ActionCandidate[] { return actions; }
+  /** Reviewed capabilities precede caller action policy, which may still veto them. */
+  protected async reviewActions(actions: ActionCandidate[], _observation: O): Promise<ActionCandidate[]> { return actions; }
   protected validatePreparedAction(_action: ActionCandidate, _observation: O): void {}
   protected explorationScopes(_actions: ActionCandidate[], _observation: O): import('./types.js').ExplorationGroupProposal[] | Promise<import('./types.js').ExplorationGroupProposal[]> { return []; }
   /** Composition navigation policy runs in the queue before scheduling any automatic work. */
@@ -174,6 +176,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       try { actions = (await this.driver!.discover(o, session, (name, fn) => this.hook(sessionId, name, fn))).map(a => this.constrain(a, o, session)); }
       catch (error) { o.gaps.push({ code: 'ACTION_DISCOVERY_FAILED', message: String(error), critical: true }); }
     }
+    actions = (await this.reviewActions(actions, o)).map(a => this.constrain(a, o, session));
     if (this.hooks.actions) {
       const result = await this.hook(sessionId, 'actions', async () => {
         const proposed = await this.hooks.actions!(structuredClone(actions), ctx());
@@ -391,7 +394,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (original.excluded && original.exclusionReason !== 'input_sample_required') throw new EngineError('ACTION_EXCLUDED', original.exclusionReason || 'Action excluded');
     if (original.basis?.status === 'tentative' && purpose !== 'external') throw new EngineError('ACTION_BLOCKED', 'action_basis_unconfirmed');
     if (!this.targetResolved(original, current)) throw new EngineError('IDENTITY_AMBIGUOUS', 'Resolve the identity before acting');
-    const preflight = await this.driver!.preflight(current);
+    const preflight = await this.driver!.preflight(current, original.localId ? [original.localId] : []);
     if (preflight !== 'valid') {
       const fresh = await this.capture(sessionId, 'external');
       throw new EngineError(preflight === 'context_changed' ? 'PRECONDITIONS_CHANGED' : 'STALE_OBSERVATION', 'Interaction source changed before execution', { observationId: fresh.id, actions: this.actions(sessionId) });

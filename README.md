@@ -175,6 +175,8 @@ Modal、popover 与浮动菜单建立独占交互范围，DFS 先探索当前最
 
 浏览器新会话默认覆盖已遇到控件及其支持操作；控件计数、代表性/逐状态模式、当前节点定位、局部恢复声明和环境重置边界见 [探索与恢复](docs/EXPLORATION-RECOVERY.md)。
 
+上层可通过持久事件、`controlReview` hook 或 SDK/HTTP 审阅未知控件的当前操作，提供来源、用途证据及样本；支持替换、撤销及条件变化失效，独立于探索深度决定。见[控件审阅](docs/CONTROL-REVIEW.md)。
+
 报告 `explorationAudit` 区分实际成功、明确不测、待决、待执行、阻塞和过时意图，并保留判断依据。当前范围已处理不等于发现完整，更不等于整页所有行为均已验证；见[操作审计](docs/EXPLORATION-AUDIT.md)。
 
 新浏览器会话默认先覆盖入口页面；跳到其他页面后交由上层决定，未批准时尝试沿已验证历史返回。DFS 不会默认在 B 消耗剩余预算，允许 B 也不会自动允许 C。可用 `pageExploration: 'all'` 显式启用跨页探索；调试页提供页面范围选择和目的页决策。见[页面范围](docs/EXPLORATION-DECISIONS.md#页面范围优先于-dfs-顺序)。

@@ -1,0 +1,51 @@
+{
+  "observationId": "8db2bb08-eb25-4590-bf29-f253f0bfe41b",
+  "source": "gpt-5.6-sol/low",
+  "scopeDecision": {
+    "groupId": "fc222048-c522-4423-9b7e-815d31385c91",
+    "revision": 1,
+    "decision": {
+      "mode": "skip",
+      "source": "gpt-5.6-sol/low",
+      "evidence": [
+        "The current page scope is the observed 1INCH-to-USD destination at https://www.okx.com/convert/1inch-to-usd, while the declared root and inspection target is https://www.okx.com/convert/btc-to-usd.",
+        "The screenshot and current title show ‘1INCH/USD: Convert 1inch (1INCH) to US Dollar (USD)’, proving arrival at the sampled destination rather than a mere list-state update on the BTC page.",
+        "The source-currency sampling goal is satisfied by verifying the route and page content changed to 1INCH; inspecting the destination's 207 page members would exceed the required entry-page scope.",
+        "Skip preserves the destination page as intentionally untested beyond arrival and permits returning to the root page without silently treating its business controls as covered."
+      ]
+    }
+  },
+  "reviews": [
+    {
+      "localId": "641dc4e1-d266-43c9-948f-5d56dd327574:530",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": false,
+      "reason": "Dismiss the current destination-page regional-availability dialog only to unblock history return to the BTC-to-USD entry page. This approval does not extend to destination-page business controls.",
+      "evidence": [
+        "The screenshot shows the regional-availability dialog as the active modal over the 1INCH destination page.",
+        "Current :530 is a visible, enabled native button named Close inside dialog:okd-dialog-window, with a supported click action and confirmed hit target.",
+        "The action has boundary intent exit and no current blockers.",
+        "The adjacent ‘Don’t show for 7 days’ checkbox is unchecked and is unnecessary for dismissal, so the Close button is the least persistent exit action."
+      ]
+    }
+  ],
+  "nextAction": {
+    "localId": "641dc4e1-d266-43c9-948f-5d56dd327574:530",
+    "kind": "click",
+    "reason": "Close only the current modal, verify it disappeared, then perform the engine's history return to the BTC-to-USD root. Do not interact with any 1INCH page business control before returning."
+  },
+  "verified": [
+    "The sampled 1INCH action dispatched successfully from observation db92c383-bd0b-4cc9-a862-6f8fa7d9799c.",
+    "Navigation is semantically verified: URL is now https://www.okx.com/convert/1inch-to-usd, documentId changed from d2e0e1b0-7347-4e93-8c5d-c83573853e3d to 641dc4e1-d266-43c9-948f-5d56dd327574, and the screenshot/title/body identify 1INCH-to-USD.",
+    "The prior source list closed during navigation; its Search and currency rows became hidden or disappeared.",
+    "All three earlier reviews are invalidated in upstream-state-05: Close review 10f71d60-b927-4150-a34a-28a6b4883db4, BTC entrance review 767c3eab-2075-4dc1-80ec-1c6166060c32, and 1INCH member review 580ec328-c906-4b91-9fc7-c71ddb1f0b80.",
+    "The revision-2 similar-list decision selected only reviewed 1INCH member a7b473ea536e3872feae738bc04f890060cc78c8785d8910c57c02bfb54447fc; the other listed currencies were not executed."
+  ],
+  "unresolved": [
+    "Do not check destination checkbox :527; it changes the persistent ‘Don’t show for 7 days’ preference and is outside the exit-only purpose.",
+    "Do not click ‘Go to OKX Wallet’ :529 or any calculator, chart, FAQ, conversion, navigation, or account control on the destination page.",
+    "Close dispatch success must be followed by disappearance of the dialog before issuing history return.",
+    "After returning, require a fresh observation of the BTC-to-USD entry document. No localId or review from either prior BTC document or this 1INCH document may be reused automatically."
+  ]
+}
