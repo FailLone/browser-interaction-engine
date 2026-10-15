@@ -33,7 +33,8 @@ export async function checkRuleFrame(engine: InteractionEngine, states: ReturnTy
       const targetLabels = Object.fromEntries(report.checks.flatMap(check => {
         const target = check.target;
         const control = target?.captureId === task.captureId ? controls.find(c => c.localId === target.nodeId) : undefined;
-        return target && control ? [[target.nodeId, control.name || control.role || control.tag]] : [];
+        const label = control ? control.name || control.role || control.tag : check.facts?.label;
+        return target?.captureId === task.captureId && typeof label === 'string' ? [[target.nodeId, label]] : [];
       }));
       state.result = { plugin: pluginInfo(state.plugin), status: 'completed', report, targetLabels };
     } catch (e) { state.result = { plugin: pluginInfo(state.plugin), status: 'failed', error: e instanceof Error ? e.message : String(e) }; }

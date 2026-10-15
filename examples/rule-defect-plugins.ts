@@ -12,7 +12,7 @@ export function ruleDefectPlugins(baseline: Observation): readonly RulePlugin[] 
   };
   const blocked = identity('blocked-button'), clipped = identity('clipped-button');
   return builtinRulePlugins.map<RulePlugin>(plugin => {
-    if (plugin.id === 'observed-text-truncation') return plugin;
+    if (!['observed-occlusion', 'observed-clipping'].includes(plugin.id)) return plugin;
     return { ...plugin, description: `${plugin.description} 本演示会话另有明确的测试约定。`, create: () => {
       const ordinary = plugin.create();
       const strict = plugin.id === 'observed-occlusion' ? new ObservedOcclusionTracker({ requirements: [{

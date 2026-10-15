@@ -31,7 +31,7 @@ it('runs all installed plugins, persists results, deduplicates retries and uses 
       const count = engine.session(sid).actionCount;
       const initial = await app.inject({ method: 'POST', url: url(sid, first.id), payload: { requestId: 'first', plugins: selections } });
       expect(initial.statusCode).toBe(200); const run = initial.json<RulePluginRun>();
-      expect(run.results.map(r => r.status)).toEqual(['completed', 'completed', 'completed']);
+      expect(run.results.map(r => r.status)).toEqual(selections.map(() => 'completed'));
       const warning = check(run, 'OCCLUSION_SUSPECTED')!;
       expect(warning).toMatchObject({ severity: 'warning', verdict: 'unknown' });
       expect(engine.session(sid).actionCount).toBe(count);
@@ -114,7 +114,7 @@ it('keeps saved runs after restart and reports missing historical evidence hones
     expect((await app.inject({ method: 'GET', url: url(s.id, task.id) })).json().items).toEqual([saved]);
     expect((await app.inject({ method: 'POST', url: url(s.id, task.id), payload: request })).json()).toEqual(saved);
     const rerun = (await app.inject({ method: 'POST', url: url(s.id, task.id), payload: { ...request, requestId: 'after-restart' } })).json<RulePluginRun>();
-    expect(rerun.results).toHaveLength(3);
+    expect(rerun.results).toHaveLength(selections.length);
     for (const result of rerun.results) {
       expect(result.status).toBe('completed');
       if (result.status === 'completed') expect(result.report).toMatchObject({ verdict: 'unknown' });

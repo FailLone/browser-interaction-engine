@@ -4,6 +4,16 @@ import type { Region } from './types.js';
 /** Runs in the same evaluation as the control observation. Never executes page markup. */
 export function collectEvidence(limits: EvidenceOptions, regions: Region[]): DomEvidence {
   const tracker = (window as any).__interactionEvidenceTracker;
+  // A reload of the same URL and dimensions can contain a different picture.
+  // Observe native resource completion without fetching or modifying the page.
+  if (!tracker.imageLoadEpochs) {
+    tracker.imageLoadEpochs = new WeakMap<HTMLImageElement, number>();
+    const loaded = (event: Event) => {
+      if (event.target instanceof HTMLImageElement) tracker.imageLoadEpochs.set(event.target, (tracker.imageLoadEpochs.get(event.target) ?? 0) + 1);
+    };
+    document.addEventListener('load', loaded, { capture: true, passive: true });
+    document.addEventListener('error', loaded, { capture: true, passive: true });
+  }
   const id = (node: Node): string => {
     if (!tracker.ids.has(node)) tracker.ids.set(node, `${tracker.documentId}:${++tracker.counter}`);
     return tracker.ids.get(node);
@@ -34,6 +44,7 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
   let characters = 0; let sizeLimited = false;
   const essential = ['display', 'visibility', 'opacity', 'position', 'z-index', 'pointer-events', 'overflow', 'overflow-x', 'overflow-y', 'color', 'background-color', 'font-size', 'font-weight', 'cursor', 'transform', 'direction', 'writing-mode', 'white-space', 'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height', 'box-sizing', 'contain', 'clip-path', 'overflow-wrap', 'text-overflow', 'font-family', 'line-height', 'background-image', 'outline', 'filter', 'isolation', 'flex', 'flex-direction', 'align-items', 'justify-content', 'gap', 'grid-template-columns',
     'translate', 'rotate', 'scale', 'zoom', 'perspective', 'clip', 'mask-image', 'content-visibility', 'will-change', 'overflow-clip-margin',
+    'object-fit', 'object-position', 'content', 'image-orientation', 'object-view-box', 'offset-path',
     'border-top-left-radius', 'border-top-right-radius', 'border-bottom-left-radius', 'border-bottom-right-radius',
     '-webkit-line-clamp', '-webkit-box-orient', 'line-clamp', 'text-indent', 'text-transform', 'column-count', 'column-width'];
   while (stack.length && result.nodes.length < limits.maxNodes) {
@@ -103,6 +114,18 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
         }) : undefined,
       };
       record.properties = {};
+      if (el instanceof HTMLImageElement) {
+        const edges = (axis: string[]) => axis.reduce((sum, side) => sum + parseFloat(style.getPropertyValue(`padding-${side}`)) + parseFloat(style.getPropertyValue(`border-${side}-width`)), 0);
+        const width = parseFloat(style.width) - (style.boxSizing === 'border-box' ? edges(['left', 'right']) : 0);
+        const height = parseFloat(style.height) - (style.boxSizing === 'border-box' ? edges(['top', 'bottom']) : 0);
+        let moving = false;
+        for (let ancestor: Element | null = el; ancestor; ancestor = ancestor.parentElement) {
+          moving ||= ancestor.getAnimations().some(a => a.playState === 'running' || a.pending);
+        }
+        record.image = { version: 1, currentSrc: trim(el.currentSrc, limits.maxAttributeLength, 'image:currentSrc'),
+          complete: el.complete, naturalWidth: el.naturalWidth, naturalHeight: el.naturalHeight, loadEpoch: tracker.imageLoadEpochs.get(el) ?? 0,
+          ...(Number.isFinite(width) && Number.isFinite(height) ? { contentBox: { width, height } } : {}), motion: moving ? 'running' : 'idle' };
+      }
       for (const key of ['value', 'checked', 'indeterminate', 'selected', 'selectedIndex', 'disabled', 'readOnly', 'required', 'type', 'tabIndex', 'contentEditable', 'href', 'action', 'method', 'target', 'validationMessage']) {
         const value = (el as any)[key];
         if (typeof value === 'string') record.properties[key] = trim(value, limits.maxTextLength, `property:${key}`);

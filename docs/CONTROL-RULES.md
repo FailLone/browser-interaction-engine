@@ -1,5 +1,7 @@
 # 可配置的控件检查规则
 
+新增的 [图片拉伸规则](IMAGE-ASPECT-RATIO-RULE.md) 使用同一只读运行器的 `DomRule` 入口，检查非交互图片；原有 `ControlRule` 默认目标保持为控件。
+
 `@interaction/rules` 是已有 Inspection 协议的消费者插件。它读不可变 Capture，按配置运行已注册规则，输出并保存逐控件结果。core 不引入检查策略，BrowserEngine 不默认执行规则，也不调用模型。可运行入口是 [rule-inspector.ts](../examples/rule-inspector.ts)。
 
 此设计延续 ui-sentinel 的规则概念：**规则 = 适用条件 + 预期 + 检查方法 + 证据要求**，具有稳定 ID 和版本；规则与本次目标绑定分开。参考原项目的 `docs/rules-and-rule-library.md`、`src/rules/types.ts` 和 UIK-D002/UIK-D010。那些文档中的审批、学习与发布流程是原项目的工作约定，本插件没有移植这些流程。

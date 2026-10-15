@@ -1,5 +1,7 @@
 export * from './types.js';
 export * from './plugins.js';
+export { imageAspectRatioRule, imageAspectRatioOptionsSchema, imageResourceBindingSchema, type ImageAspectRatioOptions } from './image-aspect-ratio.js';
+export { ImageAspectRatioTracker, imageAspectRatioTrackerOptionsSchema, type ImageAspectRatioTrackerOptions } from './observed-image-aspect-ratio.js';
 export { RuleRunner, toInspectionResults } from './runner.js';
 export { sampledOcclusionRule } from './sampled-occlusion.js';
 export { textTruncationRule, textTruncationOptionsSchema, textTruncationDefaultPolicy, type TextTruncationOptions } from './text-truncation.js';

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   clippingRequirementProposalSchema, occlusionRequirementProposalSchema, textRequirementProposalSchema,
   requirementProposalBaseSchema, requirementSourceSchema, ruleRequirementProposalSchema,
+  imageAspectRatioRequirementProposalSchema,
   clippedControlOptionsSchema, observedClippingOptionsSchema, observedOcclusionOptionsSchema,
   textTruncationOptionsSchema, observedTextTruncationOptionsSchema, sampledOcclusionRule, scrollRecoveryOptionsSchema,
   type ClippingRequirementProvider, type OcclusionRequirementProvider, type TextRequirementProvider,
@@ -20,8 +21,10 @@ const cases = [
   { ruleId: 'observed-occlusion', requirement: 'sampled-pointer-at-observed-position', schema: occlusionRequirementProposalSchema },
   { ruleId: 'clipped-control', requirement: 'unclipped-by-nonscroll-container', schema: clippingRequirementProposalSchema },
   { ruleId: 'text-truncation', requirement: 'full-text-inline', schema: textRequirementProposalSchema },
+  { ruleId: 'image-aspect-ratio', requirement: 'preserve-aspect-ratio', schema: imageAspectRatioRequirementProposalSchema },
 ];
-const proposal = (entry: typeof cases[number]) => ({ ...envelope, ruleId: entry.ruleId, ruleVersion: '1.0.0', requirement: entry.requirement });
+const proposal = (entry: typeof cases[number]) => ({ ...envelope, ruleId: entry.ruleId, ruleVersion: '1.0.0', requirement: entry.requirement,
+  ...(entry.ruleId === 'image-aspect-ratio' ? { resource: { currentSrc: 'https://fixture.test/image.png', naturalWidth: 200, naturalHeight: 100, loadEpoch: 0 } } : {}) });
 
 it.each(cases)('preserves $ruleId provenance and target binding through its own and shared validator', entry => {
   for (const source of [envelope.source,
@@ -78,7 +81,7 @@ it('keeps common source claims strict and bounded without inferring authority', 
   expect(requirementProposalBaseSchema.safeParse({ ...envelope, reason: 'x'.repeat(4001) }).success).toBe(false);
 });
 
-it('exports discoverable JSON schemas and provider types for all three rules', () => {
+it('exports discoverable JSON schemas and provider types for the installed rules', () => {
   const schema = z.toJSONSchema(ruleRequirementProposalSchema);
   expect(schema.oneOf?.map(branch => typeof branch === 'object' ? branch.properties?.ruleId : undefined))
     .toEqual(cases.map(entry => ({ type: 'string', const: entry.ruleId })));

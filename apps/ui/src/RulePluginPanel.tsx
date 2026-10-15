@@ -6,6 +6,15 @@ const verdicts = { pass: '通过', fail: '发现问题', unknown: '未判定', '
 const severities = { info: '信息', warning: '警告', error: '错误' };
 const lifecycle: Record<string, string> = { pending: '等待后续观察', suspected: '疑似问题', confirmed: '已确认', resolved: '已恢复', unverified: '无法继续核验' };
 const descriptions: Record<string, string> = {
+  IMAGE_NON_UNIFORM_SCALING: '已测得图片非等比缩放；尚未提供是否允许变形的要求',
+  IMAGE_ASPECT_RATIO_REQUIREMENT_FAILED: '图片被非等比拉伸，违反已声明的保形要求',
+  IMAGE_ASPECT_RATIO_PRESERVED: '当前图片缩放保持比例', IMAGE_ASPECT_RATIO_RESTORED: '同一图片的缩放比例已恢复',
+  IMAGE_DISTORTION_ALLOWED: '已明确允许此图片变形', IMAGE_NOT_RENDERED: '图片当前未渲染',
+  IMAGE_LOADING: '采集时图片尚未加载完成', IMAGE_RESOURCE_UNAVAILABLE: '未取得已加载图片的原始尺寸',
+  IMAGE_EVIDENCE_UNAVAILABLE: '图片尺寸、样式或祖先证据不完整', IMAGE_MOTION_UNSETTLED: '采集时图片或祖先元素仍有动画',
+  IMAGE_FORMAT_UNSUPPORTED: '矢量图片或资源类型不明，超出当前检查范围',
+  IMAGE_RENDERING_UNSUPPORTED: '当前绘制方式超出规则支持范围',
+  IMAGE_FINDING_NOT_RECHECKED: '保留此前的拉伸记录；当前未复查同一图片及资源',
   OBSERVED_POINT_REACHABLE: '已检查的点击采样点可达', SAMPLE_REACHABLE: '点击采样点可达',
   OCCLUSION_SUSPECTED: '本次采集的点击采样点被遮挡', OCCLUSION_STILL_OBSERVED: '后续采集中仍然观察到遮盖',
   OBSERVED_POINTER_REQUIREMENT_FAILED: '相关滚动后，全部点击采样点仍被遮挡，违反已声明的可点击要求',
@@ -32,7 +41,7 @@ const descriptions: Record<string, string> = {
   OCCLUSION_BASELINE_CHANGED: '原遮挡记录缺少可比较的后续证据；当前采样结果单独记录',
   CLIPPING_BASELINE_CHANGED: '原裁切记录缺少可比较的后续证据；当前几何结果单独记录',
   TEXT_BASELINE_CHANGED: '原文字记录缺少可比较的后续证据；当前文字结果单独记录',
-  NO_TARGETS: '没有可检查的控件',
+  NO_TARGETS: '没有符合此规则的检查对象',
 };
 
 function Check({ check, labels }: { check: RuleCheck; labels: Record<string, string> }) {
@@ -41,8 +50,9 @@ function Check({ check, labels }: { check: RuleCheck; labels: Record<string, str
   const statusLabel = status === 'historical' ? '历史记录 · 当前未复查' : status === 'unsupported' ? '检查范围受限' : status === 'current' && check.verdict === 'unknown' ? '当前观察' : undefined;
   const history = check.facts?.lastObservedFinding;
   const historicalLabel = history && typeof history === 'object' && !Array.isArray(history) && typeof history.label === 'string' ? history.label : undefined;
+  const ownLabel = typeof check.facts?.label === 'string' ? check.facts.label : undefined;
   return <li className={`rule-check rule-severity-${check.severity}`}>
-    <div><b>{check.target ? labels[check.target.nodeId] || historicalLabel || '未命名控件' : historicalLabel || '检查范围'}</b><span>{statusLabel || verdicts[check.verdict]} · {severities[check.severity]}{!statusLabel && phase && ` · ${phase}`}</span></div>
+    <div><b>{ownLabel || (check.target ? labels[check.target.nodeId] || historicalLabel || '未命名控件' : historicalLabel || '检查范围')}</b><span>{statusLabel || verdicts[check.verdict]} · {severities[check.severity]}{!statusLabel && phase && ` · ${phase}`}</span></div>
     <p>{descriptions[check.code] || (check.verdict === 'unknown' ? '当前证据不足以确定结果，请查看检测依据。' : check.actual)}</p>
     {check.verdict === 'fail' && <p>判断依据：{check.expected}</p>}
     <details><summary>检测依据</summary><p>{check.actual}</p><pre>{JSON.stringify(check, null, 2)}</pre></details>

@@ -1,0 +1,1626 @@
+{
+  "sessionId": "d44d0fa9-1923-4ccb-a072-b46c6ae59361",
+  "actionCount": 6,
+  "status": "finished",
+  "stopReason": "known_frontier_exhausted",
+  "captures": 8,
+  "automaticCompleted": 8,
+  "reports": [
+    {
+      "inspectionId": "644d9e59-4f79-4e0b-9abf-9c22c9c3636f",
+      "captureId": "capture:4815706c-520a-46bf-9927-67505d5e8770",
+      "history": {
+        "count": 1,
+        "firstSequence": 4,
+        "lastSequence": 4
+      },
+      "results": [
+        {
+          "status": "completed",
+          "plugin": "image-aspect-ratio",
+          "verdict": "unknown",
+          "severity": "warning",
+          "checks": [
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "压扁的图片",
+              "observationStatus": "current",
+              "issueId": "image-issue:99ac1c0a8d901c397797b5eb4625ffc2ebbd4b559882c70ab35ebf641e2b53ba",
+              "stretchRatio": 2
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "正常比例",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比留白",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比裁切",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "原始尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比缩小",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "包含边框内边距",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "旋转",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "父元素拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:70d9e772b17700bc8063097d3025a0eca0284d0649780c110030ac01bef8995e",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "倾斜变形",
+              "observationStatus": "current",
+              "issueId": "image-issue:5d3961d4c123555bb3d4c5f00a0a3840096bf886540519d02016550bd2c63f6b",
+              "stretchRatio": 1.4361850656135091
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "相互抵消的缩放",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "布局与变换抵消",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "留白后再拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:c1e625176897adb01e76071f087e402c37bf6bdca464e521aa826c43eb5c7f46",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "二倍密度图片",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "小数尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "镜像",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "隐藏图片",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "透明祖先",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_FORMAT_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "矢量资源",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RESOURCE_UNAVAILABLE",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "损坏资源",
+              "observationStatus": "unavailable"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "三维变换",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "独立缩放属性",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "弹层内压扁图片",
+              "observationStatus": "current"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "inspectionId": "7de7542a-1cb0-42c8-aa59-4c20c3dafe55",
+      "captureId": "capture:c0b0d102-a68a-4f6b-bdba-f1bc76d3b067",
+      "history": {
+        "count": 2,
+        "firstSequence": 4,
+        "lastSequence": 11
+      },
+      "results": [
+        {
+          "status": "completed",
+          "plugin": "image-aspect-ratio",
+          "verdict": "unknown",
+          "severity": "warning",
+          "checks": [
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "压扁的图片",
+              "observationStatus": "current",
+              "issueId": "image-issue:99ac1c0a8d901c397797b5eb4625ffc2ebbd4b559882c70ab35ebf641e2b53ba",
+              "stretchRatio": 2
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "正常比例",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比留白",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比裁切",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "原始尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比缩小",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "包含边框内边距",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "旋转",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "父元素拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:70d9e772b17700bc8063097d3025a0eca0284d0649780c110030ac01bef8995e",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "倾斜变形",
+              "observationStatus": "current",
+              "issueId": "image-issue:5d3961d4c123555bb3d4c5f00a0a3840096bf886540519d02016550bd2c63f6b",
+              "stretchRatio": 1.4361850656135091
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "相互抵消的缩放",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "布局与变换抵消",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "留白后再拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:c1e625176897adb01e76071f087e402c37bf6bdca464e521aa826c43eb5c7f46",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "二倍密度图片",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "小数尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "镜像",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "隐藏图片",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "透明祖先",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_FORMAT_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "矢量资源",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RESOURCE_UNAVAILABLE",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "损坏资源",
+              "observationStatus": "unavailable"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "三维变换",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "独立缩放属性",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "弹层内压扁图片",
+              "observationStatus": "current"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "inspectionId": "0f214bba-81e4-4482-b38a-77fab0d9c556",
+      "captureId": "capture:8a8d09ed-2b69-4cd4-8f90-0b1521cf834f",
+      "history": {
+        "count": 3,
+        "firstSequence": 4,
+        "lastSequence": 20
+      },
+      "results": [
+        {
+          "status": "completed",
+          "plugin": "image-aspect-ratio",
+          "verdict": "unknown",
+          "severity": "warning",
+          "checks": [
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "压扁的图片",
+              "observationStatus": "current",
+              "issueId": "image-issue:99ac1c0a8d901c397797b5eb4625ffc2ebbd4b559882c70ab35ebf641e2b53ba",
+              "stretchRatio": 2
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "正常比例",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比留白",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比裁切",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "原始尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比缩小",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "包含边框内边距",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "旋转",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "父元素拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:70d9e772b17700bc8063097d3025a0eca0284d0649780c110030ac01bef8995e",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "倾斜变形",
+              "observationStatus": "current",
+              "issueId": "image-issue:5d3961d4c123555bb3d4c5f00a0a3840096bf886540519d02016550bd2c63f6b",
+              "stretchRatio": 1.4361850656135091
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "相互抵消的缩放",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "布局与变换抵消",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "留白后再拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:c1e625176897adb01e76071f087e402c37bf6bdca464e521aa826c43eb5c7f46",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "二倍密度图片",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "小数尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "镜像",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "隐藏图片",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "透明祖先",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_FORMAT_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "矢量资源",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RESOURCE_UNAVAILABLE",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "损坏资源",
+              "observationStatus": "unavailable"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "三维变换",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "独立缩放属性",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "弹层内压扁图片",
+              "observationStatus": "current"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "inspectionId": "21c506b9-64f7-4736-ab8f-8c89afaee3fc",
+      "captureId": "capture:8c4e2e55-5ff2-4fbc-9b07-0553a652173b",
+      "history": {
+        "count": 4,
+        "firstSequence": 4,
+        "lastSequence": 28
+      },
+      "results": [
+        {
+          "status": "completed",
+          "plugin": "image-aspect-ratio",
+          "verdict": "unknown",
+          "severity": "warning",
+          "checks": [
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "压扁的图片",
+              "observationStatus": "current",
+              "issueId": "image-issue:99ac1c0a8d901c397797b5eb4625ffc2ebbd4b559882c70ab35ebf641e2b53ba",
+              "stretchRatio": 2
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "正常比例",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比留白",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比裁切",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "原始尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比缩小",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "包含边框内边距",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "旋转",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "父元素拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:70d9e772b17700bc8063097d3025a0eca0284d0649780c110030ac01bef8995e",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "倾斜变形",
+              "observationStatus": "current",
+              "issueId": "image-issue:5d3961d4c123555bb3d4c5f00a0a3840096bf886540519d02016550bd2c63f6b",
+              "stretchRatio": 1.4361850656135091
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "相互抵消的缩放",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "布局与变换抵消",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "留白后再拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:c1e625176897adb01e76071f087e402c37bf6bdca464e521aa826c43eb5c7f46",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "二倍密度图片",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "小数尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "镜像",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "隐藏图片",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "透明祖先",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_FORMAT_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "矢量资源",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RESOURCE_UNAVAILABLE",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "损坏资源",
+              "observationStatus": "unavailable"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "三维变换",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "独立缩放属性",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "弹层内压扁图片",
+              "observationStatus": "current"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "inspectionId": "b6a75d16-3071-4b7e-bd6d-09dc5a29cde7",
+      "captureId": "capture:ca093f7d-b816-452b-809e-559d2d05e608",
+      "history": {
+        "count": 5,
+        "firstSequence": 4,
+        "lastSequence": 36
+      },
+      "results": [
+        {
+          "status": "completed",
+          "plugin": "image-aspect-ratio",
+          "verdict": "unknown",
+          "severity": "warning",
+          "checks": [
+            {
+              "code": "IMAGE_ASPECT_RATIO_RESTORED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "压扁的图片",
+              "observationStatus": "current",
+              "issueId": "image-issue:99ac1c0a8d901c397797b5eb4625ffc2ebbd4b559882c70ab35ebf641e2b53ba",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "正常比例",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比留白",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比裁切",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "原始尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比缩小",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "包含边框内边距",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "旋转",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "父元素拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:70d9e772b17700bc8063097d3025a0eca0284d0649780c110030ac01bef8995e",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "倾斜变形",
+              "observationStatus": "current",
+              "issueId": "image-issue:5d3961d4c123555bb3d4c5f00a0a3840096bf886540519d02016550bd2c63f6b",
+              "stretchRatio": 1.4361850656135091
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "相互抵消的缩放",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "布局与变换抵消",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "留白后再拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:c1e625176897adb01e76071f087e402c37bf6bdca464e521aa826c43eb5c7f46",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "二倍密度图片",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "小数尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "镜像",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "隐藏图片",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "透明祖先",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_FORMAT_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "矢量资源",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RESOURCE_UNAVAILABLE",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "损坏资源",
+              "observationStatus": "unavailable"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "三维变换",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "独立缩放属性",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "弹层内压扁图片",
+              "observationStatus": "current"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "inspectionId": "c7b22d40-687d-4950-a102-e28daced9639",
+      "captureId": "capture:f39491da-5558-417e-b63b-70c5b2d30ce9",
+      "history": {
+        "count": 6,
+        "firstSequence": 4,
+        "lastSequence": 44
+      },
+      "results": [
+        {
+          "status": "completed",
+          "plugin": "image-aspect-ratio",
+          "verdict": "unknown",
+          "severity": "warning",
+          "checks": [
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "压扁的图片",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "正常比例",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比留白",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比裁切",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "原始尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比缩小",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "包含边框内边距",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "旋转",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "父元素拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:70d9e772b17700bc8063097d3025a0eca0284d0649780c110030ac01bef8995e",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "倾斜变形",
+              "observationStatus": "current",
+              "issueId": "image-issue:5d3961d4c123555bb3d4c5f00a0a3840096bf886540519d02016550bd2c63f6b",
+              "stretchRatio": 1.4361850656135091
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "相互抵消的缩放",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "布局与变换抵消",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "留白后再拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:c1e625176897adb01e76071f087e402c37bf6bdca464e521aa826c43eb5c7f46",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "二倍密度图片",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "小数尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "镜像",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "隐藏图片",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "透明祖先",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_FORMAT_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "矢量资源",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RESOURCE_UNAVAILABLE",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "损坏资源",
+              "observationStatus": "unavailable"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "三维变换",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "独立缩放属性",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "弹层内压扁图片",
+              "observationStatus": "current"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "inspectionId": "0408b9f5-02ef-4e65-9eac-760cb3c05d4f",
+      "captureId": "capture:1fb2afdb-926d-448e-95b6-4f2abf4403a4",
+      "history": {
+        "count": 7,
+        "firstSequence": 4,
+        "lastSequence": 57
+      },
+      "results": [
+        {
+          "status": "completed",
+          "plugin": "image-aspect-ratio",
+          "verdict": "unknown",
+          "severity": "warning",
+          "checks": [
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "压扁的图片",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "正常比例",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "等比留白",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "等比裁切",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "原始尺寸",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "等比缩小",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "包含边框内边距",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "旋转",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "父元素拉伸",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "倾斜变形",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "相互抵消的缩放",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "布局与变换抵消",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "留白后再拉伸",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "二倍密度图片",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "小数尺寸",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "镜像",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "隐藏图片",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "透明祖先",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "矢量资源",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "损坏资源",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "三维变换",
+              "observationStatus": "current"
+            },
+            {
+              "code": "OUTSIDE_ACTIVE_SCOPE",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "独立缩放属性",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "弹层内压扁图片",
+              "observationStatus": "current",
+              "issueId": "image-issue:ce55da425bcb76ca5a9a6d9d01d9d806dbb37e7227d1869a4fafb8ab2c75656a",
+              "stretchRatio": 2
+            },
+            {
+              "code": "IMAGE_FINDING_NOT_RECHECKED",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "父元素拉伸",
+              "observationStatus": "historical",
+              "issueId": "image-issue:70d9e772b17700bc8063097d3025a0eca0284d0649780c110030ac01bef8995e",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_FINDING_NOT_RECHECKED",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "倾斜变形",
+              "observationStatus": "historical",
+              "issueId": "image-issue:5d3961d4c123555bb3d4c5f00a0a3840096bf886540519d02016550bd2c63f6b",
+              "stretchRatio": 1.4361850656135091
+            },
+            {
+              "code": "IMAGE_FINDING_NOT_RECHECKED",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "留白后再拉伸",
+              "observationStatus": "historical",
+              "issueId": "image-issue:c1e625176897adb01e76071f087e402c37bf6bdca464e521aa826c43eb5c7f46",
+              "stretchRatio": 1.5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "inspectionId": "004da6df-433c-4a1a-9e4d-fdc9e8ffcbef",
+      "captureId": "capture:43c020d7-68fd-440d-b071-7686b3a94ec1",
+      "history": {
+        "count": 8,
+        "firstSequence": 4,
+        "lastSequence": 68
+      },
+      "results": [
+        {
+          "status": "completed",
+          "plugin": "image-aspect-ratio",
+          "verdict": "unknown",
+          "severity": "warning",
+          "checks": [
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "压扁的图片",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "正常比例",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比留白",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比裁切",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "原始尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "等比缩小",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "包含边框内边距",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "旋转",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "父元素拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:70d9e772b17700bc8063097d3025a0eca0284d0649780c110030ac01bef8995e",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "倾斜变形",
+              "observationStatus": "current",
+              "issueId": "image-issue:5d3961d4c123555bb3d4c5f00a0a3840096bf886540519d02016550bd2c63f6b",
+              "stretchRatio": 1.4361850656135091
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "相互抵消的缩放",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "布局与变换抵消",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NON_UNIFORM_SCALING",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "留白后再拉伸",
+              "observationStatus": "current",
+              "issueId": "image-issue:c1e625176897adb01e76071f087e402c37bf6bdca464e521aa826c43eb5c7f46",
+              "stretchRatio": 1.5
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "二倍密度图片",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "小数尺寸",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_ASPECT_RATIO_PRESERVED",
+              "verdict": "pass",
+              "severity": "info",
+              "label": "镜像",
+              "observationStatus": "current",
+              "stretchRatio": 1
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "隐藏图片",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "透明祖先",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_FORMAT_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "矢量资源",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RESOURCE_UNAVAILABLE",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "损坏资源",
+              "observationStatus": "unavailable"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "三维变换",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_RENDERING_UNSUPPORTED",
+              "verdict": "unknown",
+              "severity": "info",
+              "label": "独立缩放属性",
+              "observationStatus": "unsupported"
+            },
+            {
+              "code": "IMAGE_NOT_RENDERED",
+              "verdict": "not-applicable",
+              "severity": "info",
+              "label": "弹层内压扁图片",
+              "observationStatus": "current"
+            },
+            {
+              "code": "IMAGE_FINDING_NOT_RECHECKED",
+              "verdict": "unknown",
+              "severity": "warning",
+              "label": "弹层内压扁图片",
+              "observationStatus": "historical",
+              "issueId": "image-issue:ce55da425bcb76ca5a9a6d9d01d9d806dbb37e7227d1869a4fafb8ab2c75656a",
+              "stretchRatio": 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

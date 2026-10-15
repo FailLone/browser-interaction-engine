@@ -3,6 +3,8 @@ import type { CaptureReader, RuleReport } from './types.js';
 import { ObservedOcclusionTracker, observedOcclusionRule } from './observed-occlusion.js';
 import { ClippedControlTracker, observedClippingRule } from './observed-clipping.js';
 import { TextTruncationTracker, observedTextTruncationRule } from './observed-text-truncation.js';
+import { imageAspectRatioRule } from './image-aspect-ratio.js';
+import { ImageAspectRatioTracker } from './observed-image-aspect-ratio.js';
 
 export interface RulePluginInfo {
   id: string;
@@ -61,4 +63,5 @@ export const builtinRulePlugins: readonly RulePlugin[] = [
   { ...observedOcclusionRule, name: '控件遮盖', description: '检查点击采样点是否被遮挡，结合探索记录复核。', create: () => new ObservedOcclusionTracker() },
   { ...observedClippingRule, name: '控件裁切', description: '检查控件边界是否被容器裁切，区分可滚动范围。', create: () => new ClippedControlTracker() },
   { ...observedTextTruncationRule, name: '文字截断', description: '检查控件文字的裁切与省略；省略号本身不判为错误。', create: () => new TextTruncationTracker() },
+  { ...imageAspectRatioRule, effects: 'read-history', name: '图片拉伸', description: '检查图片是否被非等比拉伸，区分等比裁切与明确允许的变形。', create: () => new ImageAspectRatioTracker() },
 ];

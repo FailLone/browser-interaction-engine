@@ -1,4 +1,4 @@
-import type { Control, DomEvidence, DomNodeEvidence, Json, Observation } from '@interaction/adapter-playwright';
+import type { Control, DetailSnapshot, DomEvidence, DomNodeEvidence, Json, Observation } from '@interaction/adapter-playwright';
 import type { BrowserEngine, Capture, Inspection } from '@interaction/browser';
 
 export type RuleVerdict = 'pass' | 'fail' | 'unknown' | 'not-applicable';
@@ -13,15 +13,16 @@ export interface RuleAssessment {
   facts?: Record<string, Json>;
   nextSteps?: string[];
 }
-export interface RuleContext {
+export interface DomRuleContext {
   readonly inspection: Inspection;
   readonly capture: Capture;
   readonly observation: Observation;
   readonly dom: DomEvidence;
-  readonly control: Control;
+  readonly snapshot: DetailSnapshot;
   readonly node: DomNodeEvidence;
   readonly signal: AbortSignal;
 }
+export interface RuleContext extends DomRuleContext { readonly control: Control }
 export interface RuleMetadata {
   id: string;
   version: string;
@@ -30,17 +31,26 @@ export interface RuleMetadata {
   requiredCapabilities: string[];
   /** JSON Schema for config/agent discovery; configure() remains the validator. */
   optionsSchema?: Record<string, Json>;
+  targetKind?: 'control' | 'dom-element';
+  targetTags?: string[];
 }
 /** Trusted host code only. Context contains frozen historical facts, never a live page. */
 export interface ControlRule extends RuleMetadata {
+  targetKind?: 'control';
   configure(options: unknown): (context: RuleContext) => RuleAssessment | Promise<RuleAssessment>;
+}
+/** Passive DOM targets such as images need not be interactive controls. */
+export interface DomRule extends RuleMetadata {
+  targetKind: 'dom-element';
+  targetTags: string[];
+  configure(options: unknown): (context: DomRuleContext) => RuleAssessment | Promise<RuleAssessment>;
 }
 export interface RuleSelection {
   ruleId: string;
   ruleVersion: string;
   enabled?: boolean;
   options?: Record<string, Json>;
-  /** Omit to inspect all observed controls. An explicit empty list selects none. */
+  /** Omit to inspect the rule's default targets. An explicit empty list selects none. */
   targets?: { captureId: string; nodeId: string }[];
 }
 export interface RuleCheck extends RuleAssessment {

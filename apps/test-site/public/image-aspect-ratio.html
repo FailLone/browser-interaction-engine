@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><title>图片拉伸规则测试</title>
+<style>
+  body { font: 15px/1.6 system-ui; margin: 24px; background: #f5f7fa; color: #172b43; }
+  main { display: grid; grid-template-columns: repeat(4, 220px); gap: 16px; }
+  figure { margin: 0; padding: 16px; background: white; border: 1px solid #cdd6e1; }
+  img { width: 160px; height: 80px; vertical-align: middle; }
+  .square { width: 80px; height: 80px; } figcaption { margin-top: 12px; }
+  button { margin: 12px 8px 12px 0; padding: 10px; }
+  @keyframes pulse { from { transform: scaleX(1); } to { transform: scaleX(2); } }
+</style>
+<h1>图片拉伸规则测试</h1>
+<p>原图为 200 × 100，蓝色图形为正圆。压扁、拉伸和倾斜为异常样本；等比缩放、裁切和旋转为正常对照。页面文字不构成检测要求。</p>
+<nav><button id="fix" onclick="document.querySelector('#distorted').style.width='160px'">恢复异常图片比例</button>
+<button id="replace" onclick="document.querySelector('#distorted').replaceWith(document.querySelector('#distorted').cloneNode())">重建异常图片节点</button>
+<button id="open" onclick="document.querySelector('dialog').showModal()">打开图片弹层</button></nav>
+<main>
+  <figure><img id="distorted" class="square" src="/aspect-ratio-2x1.png" alt="压扁的图片"><figcaption>异常：原始 2:1，显示 1:1</figcaption></figure>
+  <figure><img id="healthy" src="/aspect-ratio-2x1.png" alt="正常比例"><figcaption>正常：等比缩放</figcaption></figure>
+  <figure><img id="contain" class="square" style="object-fit:contain" src="/aspect-ratio-2x1.png" alt="等比留白"><figcaption>正常：contain 留白</figcaption></figure>
+  <figure><img id="cover" class="square" style="object-fit:cover" src="/aspect-ratio-2x1.png" alt="等比裁切"><figcaption>正常：cover 裁切，不是拉伸</figcaption></figure>
+  <figure><img id="none" class="square" style="object-fit:none" src="/aspect-ratio-2x1.png" alt="原始尺寸"><figcaption>正常：none</figcaption></figure>
+  <figure><img id="scale-down" class="square" style="object-fit:scale-down" src="/aspect-ratio-2x1.png" alt="等比缩小"><figcaption>正常：scale-down</figcaption></figure>
+  <figure><img id="padding" style="box-sizing:border-box;width:200px;height:120px;padding:10px;border:10px solid #cdd6e1" src="/aspect-ratio-2x1.png" alt="包含边框内边距"><figcaption>正常：内容仍为 160 × 80</figcaption></figure>
+  <figure><img id="rotate" style="transform:rotate(20deg)" src="/aspect-ratio-2x1.png" alt="旋转"><figcaption>正常：旋转不改变形状</figcaption></figure>
+  <figure><div style="transform:scaleX(1.5)"><img id="ancestor" src="/aspect-ratio-2x1.png" alt="父元素拉伸"></div><figcaption>异常：父元素拉伸</figcaption></figure>
+  <figure><img id="shear" style="transform:skewX(20deg)" src="/aspect-ratio-2x1.png" alt="倾斜变形"><figcaption>异常：斜切破坏形状</figcaption></figure>
+  <figure><div style="transform:scaleX(2)"><img id="cancel" style="transform:scaleX(.5)" src="/aspect-ratio-2x1.png" alt="相互抵消的缩放"></div><figcaption>正常：父子缩放相互抵消</figcaption></figure>
+  <figure><img id="compensate" class="square" style="transform:scaleX(2)" src="/aspect-ratio-2x1.png" alt="布局与变换抵消"><figcaption>正常：布局压缩被变换恢复</figcaption></figure>
+  <figure><img id="contain-stretch" class="square" style="object-fit:contain;transform:scaleX(1.5)" src="/aspect-ratio-2x1.png" alt="留白后再拉伸"><figcaption>异常：contain 后仍被变换拉伸</figcaption></figure>
+  <figure><img id="density" style="width:100px;height:50px" srcset="/aspect-ratio-2x1.png 2x" alt="二倍密度图片"><figcaption>正常：使用浏览器密度修正后的原始尺寸</figcaption></figure>
+  <figure><img id="fractional" style="width:100.5px;height:50.25px" src="/aspect-ratio-2x1.png" alt="小数尺寸"><figcaption>正常：小数像素</figcaption></figure>
+  <figure><img id="flip" style="transform:scaleX(-1)" src="/aspect-ratio-2x1.png" alt="镜像"><figcaption>正常：镜像不改变比例</figcaption></figure>
+  <figure><img id="hidden" class="square" style="display:none" src="/aspect-ratio-2x1.png" alt="隐藏图片"><figcaption>不适用：未显示</figcaption></figure>
+  <figure style="opacity:0"><img id="transparent" class="square" src="/aspect-ratio-2x1.png" alt="透明祖先"></figure>
+  <figure><img id="vector" class="square" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='100'%3E%3Ccircle cx='100' cy='50' r='35'/%3E%3C/svg%3E" alt="矢量资源"><figcaption>范围限制：SVG 内部另有比例规则</figcaption></figure>
+  <figure><img id="broken" src="data:image/png;base64,broken" alt="损坏资源"><figcaption>证据不足：无法加载</figcaption></figure>
+  <figure><img id="three-d" style="transform:rotateY(45deg)" src="/aspect-ratio-2x1.png" alt="三维变换"><figcaption>范围限制：3D 变换</figcaption></figure>
+  <figure><img id="independent" style="scale:2 1" src="/aspect-ratio-2x1.png" alt="独立缩放属性"><figcaption>范围限制：独立 scale 属性</figcaption></figure>
+</main>
+<dialog aria-label="图片弹层"><img id="modal-image" class="square" src="/aspect-ratio-2x1.png" alt="弹层内压扁图片"><button onclick="this.closest('dialog').close()">关闭图片弹层</button></dialog>
+</html>

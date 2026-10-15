@@ -46,7 +46,7 @@ it('detects real fixture defects with sourced errors, preserves default warnings
     expect(target(first, 'observed-clipping', '保存测试设置')).toMatchObject({ code: 'CLIPPING_REQUIREMENT_FAILED', severity: 'error', verdict: 'fail' });
     expect(target(first, 'observed-occlusion', '确认测试订单')).toMatchObject({ code: 'OCCLUSION_SUSPECTED', severity: 'warning' });
     expect(target(first, 'observed-text-truncation', '确认并保存本次测试配置')).toMatchObject({ code: 'TEXT_HARD_CLIP_SUSPECTED', severity: 'warning' });
-    for (const p of builtinRulePlugins) expect(target(first, p.id, '正常测试按钮').verdict).toBe('pass');
+    for (const p of builtinRulePlugins.filter(p => p.id !== 'image-aspect-ratio')) expect(target(first, p.id, '正常测试按钮').verdict).toBe('pass');
     expect(target(first, 'observed-text-truncation', '这是一段允许省略的测试说明')).toMatchObject({ code: 'TEXT_ELISION_OBSERVED', severity: 'info', verdict: 'unknown' });
     await panel.getByText('控件被非滚动容器裁切，违反已声明的完整显示要求', { exact: true }).waitFor();
 

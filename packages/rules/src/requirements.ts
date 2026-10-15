@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { RuleCheck } from './types.js';
+import { imageResourceBindingSchema } from './image-aspect-ratio.js';
 
 /** Future integration contract only. Providers propose; the host must separately
  * verify authority, scope, binding and conflicts before accepting a requirement. */
@@ -49,10 +50,16 @@ export const textRequirementProposalSchema = requirementProposalBaseSchema.exten
 }).strict();
 export type TextRequirementProposal = z.infer<typeof textRequirementProposalSchema>;
 
+export const imageAspectRatioRequirementProposalSchema = requirementProposalBaseSchema.extend({
+  ruleId: z.literal('image-aspect-ratio'), ruleVersion: z.literal('1.0.0'),
+  requirement: z.enum(['preserve-aspect-ratio', 'allow-distortion']), resource: imageResourceBindingSchema,
+}).strict();
+export type ImageAspectRatioRequirementProposal = z.infer<typeof imageAspectRatioRequirementProposalSchema>;
+
 /** Built-in proposals only. The discriminant prevents cross-rule requirements
  * and unknown versions from being silently reinterpreted. */
 export const ruleRequirementProposalSchema = z.discriminatedUnion('ruleId', [
-  occlusionRequirementProposalSchema, clippingRequirementProposalSchema, textRequirementProposalSchema,
+  occlusionRequirementProposalSchema, clippingRequirementProposalSchema, textRequirementProposalSchema, imageAspectRatioRequirementProposalSchema,
 ]);
 export type RuleRequirementProposal = z.infer<typeof ruleRequirementProposalSchema>;
 
@@ -71,6 +78,7 @@ export interface RuleRequirementProvider<TProposal = RuleRequirementProposal> {
 export type OcclusionRequirementProvider = RuleRequirementProvider<OcclusionRequirementProposal>;
 export type ClippingRequirementProvider = RuleRequirementProvider<ClippingRequirementProposal>;
 export type TextRequirementProvider = RuleRequirementProvider<TextRequirementProposal>;
+export type ImageAspectRatioRequirementProvider = RuleRequirementProvider<ImageAspectRatioRequirementProposal>;
 
 // No provider registry, document reader, model invocation, conflict resolver or
 // acceptance evaluator is supplied in v1. Neither RuleRunner nor a tracker calls
