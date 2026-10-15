@@ -39,11 +39,17 @@ export interface Control extends CoreControl {
   purposeBinding?: { attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
   /** Exact control-review binding, independent of list-purpose similarity. */
   reviewBinding?: { parentInstanceId: string; attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
+  structuralItem?: { ownerInstanceId:string; template:string; slot:string; rowInstanceId:string; recordKey?:string };
   actionable: { visible: boolean; enabled: boolean; editable: boolean; hitTarget: boolean | null; clickPoint?: { x: number; y: number }; occludedBy?: string; outsideScrollableArea?: boolean; unknown: string[] };
 }
 export interface RegionCandidate {
   id: string; label: string; selector: string; parentId?: string; controlIds: string[]; rect: Rect;
   basis: 'heading' | 'semantic' | 'layout' | 'document'; suggested?: boolean; binding: Json; evidence: ActionEvidence[];
+}
+export interface StructuralListCandidate {
+  ownerInstanceId:string; ownerSelector:string; label:string; template:string; binding:Json;
+  members:{localId:string;rowInstanceId:string;slot:string;recordKey?:string}[];
+  traversalLocalIds:string[]; evidence:ActionEvidence[];
 }
 export interface RegionReviewInput {
   observationId: string; source: string; evidence: string[];
@@ -67,6 +73,7 @@ export interface Observation extends CoreObservation<Control> {
   overlays?: Overlay[];
   navigation?: BrowserHistory;
   regionCandidates?: RegionCandidate[];
+  structuralLists?: StructuralListCandidate[];
   actionDiscovery?: { version: 'dom-actions-v2'; documentHints: ActionEvidence[] };
   screenshot?: string; gaps: Gap[]; stable: boolean;
   evidence?: BrowserEvidenceManifest;

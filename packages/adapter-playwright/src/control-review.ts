@@ -27,7 +27,7 @@ export function controlReviewConditions(c: Control, o: Observation, kind: string
   const { valid: _valid, ...constraints } = c.constraints;
   return { version: 'control-review/v1' as const, instanceScope:o.instanceScope,url:o.url,context:o.context,
     target:{instanceId:c.instanceId,tag:c.tag,role:c.role,name:c.name,label:c.label,stableKey:c.stableKey,
-      region:c.region,regionInstanceId:c.regionInstanceId,form:c.form,list:c.list,readOnly:c.readOnly,constraints,
+      region:c.region,regionInstanceId:c.regionInstanceId,form:c.form,list:c.list,structuralItem:c.structuralItem,readOnly:c.readOnly,constraints,
       binding:c.reviewBinding,basis:c.actionBasis?.[kind]},kind,exitBoundary };
 }
 export type ControlReviewConditions = NonNullable<ReturnType<typeof controlReviewConditions>>;

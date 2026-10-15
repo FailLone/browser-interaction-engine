@@ -15,6 +15,8 @@
 
 整批先验证再事务保存。观察过期、关键采集缺口、未知的已声明上下文、隐藏/不存在的目标、重复目标操作或无效退出边界都会拒绝。提交前验证浏览器当前事实，提交后重新观察；若条件已经变化，返回的记录可能已经失效，必须检查状态。
 
+控件模式中，若整批目标都属于当前最上层的已观察独占边界，现场校验比较该边界内的交互条件；背景行情控件独立刷新不会使稳定的弹层目标过期。仍精确比较每个目标的当前事实、弹层所有者及成员、相关列表、区域审阅绑定、URL、历史位置和声明上下文。弹层内值变化、节点替换、目标遮挡、新弹层等仍拒绝；混合背景目标的批次和 stateful 模式继续使用完整范围。完整观察和严格恢复检查不因这个派发范围缩小而改变。
+
 SDK 提供 `controlReviewMaterial`、`controlReviews`、`reviewControls`、`revokeControlReview`。撤销输入为 `{reviewId, source, reason}`。HTTP 用 `GET /v1/sessions/:id/control-review` 读取材料，`GET /v1/sessions/:id/control-reviews` 分页查记录；向原命令接口提交 `{type:'reviewControls', review}` 或 `{type:'revokeControlReview', revocation}`。
 
 ## 进程内 hook

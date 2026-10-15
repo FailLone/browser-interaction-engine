@@ -127,6 +127,8 @@ export interface ExplorationGroupProposal {
   key: string; kind: string; label: string; actionIds: ID[]; traversalActionIds: ID[]; evidence: ActionEvidence[];
   /** Stable key identifies the scope; changing these conditions requires a fresh decision. */
   conditions?: Json;
+  /** Producers with independent collection evidence may lower the initial list threshold; explicit 1 also permits an empty list with traversal. */
+  minimumMembers?: number;
 }
 export type ExplorationGroupDecision = { source: string; evidence: string[] } & (
   { mode: 'all' | 'defer' | 'skip'; memberKeys?: never } | { mode: 'sample'; memberKeys: string[] }

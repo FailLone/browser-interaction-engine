@@ -38,7 +38,7 @@ export function collectRegionCandidates(controls: Control[], elements: Element[]
       // traversal. Raw names remain in the observation/review material; quote
       // ticks must not invalidate an otherwise unchanged region partition.
       members: ids.map(id => { const c = byId.get(id)!; const target = elementById.get(id)!; return { id, ancestry: ancestry(target), tag: c.tag, role: c.role, name: memberName(c),
-        stableKey: c.stableKey || null, actions: c.actions, actionBasis: c.actionBasis || null, region: c.regionInstanceId || null, list: c.list || null, purposeBinding: c.purposeBinding || null,
+        stableKey: c.stableKey || null, actions: c.actions, actionBasis: c.actionBasis || null, region: c.regionInstanceId || null, list: c.list || null, purposeBinding: c.purposeBinding || null, structuralItem: c.structuralItem || null,
         constraints: { ...c.constraints, valid: undefined }, options: c.options.map(o => ({ value: o.value, label: o.label, disabled: o.disabled })) }; }) };
     candidates.push({ id: instance(el), label: title || (root ? '未细分页面' : `${el.tagName.toLowerCase()} 容器`), selector: selector(el),
       controlIds: ids, rect: { x: box.x, y: box.y, width: box.width, height: box.height },

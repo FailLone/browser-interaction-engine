@@ -1,0 +1,93 @@
+{
+  "observationId": "c11aea8d-bef2-4700-b669-809801fbe97f",
+  "source": "gpt-5.6-sol/low",
+  "status": "partial_flow_verified_not_returned",
+  "successfulAttempts": [
+    {
+      "label": "Close",
+      "kind": "click",
+      "attemptId": "17d671ac-6a73-4de2-a5fe-7bb9acebe870",
+      "scope": "entry-page regional dialog"
+    },
+    {
+      "label": "Trade",
+      "kind": "click",
+      "attemptId": "2c02839d-d4b1-40d6-bdcc-4664d8431a28",
+      "scope": "entry-page header menu"
+    },
+    {
+      "label": "Open Spot sub-menu",
+      "kind": "click",
+      "attemptId": "2298618f-d46c-4270-8d95-815465bc2e8e",
+      "scope": "entry-page Trade menu"
+    },
+    {
+      "label": "BTC/USDTLast price81,050.924h change-2.99%",
+      "kind": "click",
+      "attemptId": "45ea88af-80f6-4e1b-beca-c600063c57be",
+      "scope": "sampled Spot market row"
+    }
+  ],
+  "marketListVerification": {
+    "groupId": "9a409447-e4c7-48db-b1b0-5dae5c9b6714",
+    "decisionRevision": 3,
+    "currentRecordedRevisionAfterNavigation": 5,
+    "selectedMemberKey": "0e60bef099983a8234f35aec942936d3d8569006a0db015f7f0b13615cb2e793",
+    "selectedLocalId": "8db932be-0b2a-4b0f-b370-2e402b66ccc2:2337",
+    "selectedHref": "/trade-spot/btc-usdt",
+    "selectedStatus": "succeeded",
+    "unselected": [
+      "ETH/USDT",
+      "UNI/USDT",
+      "LINK/USDT",
+      "AVAX/USDT",
+      "USDC/USDT"
+    ],
+    "conclusion": "The real six-row Spot list was sampled once. The selected current-at-decision BTC member succeeded; the other five have no attemptIds and are policy-excluded by the sample decision, so they remain unexecuted and individually uncovered. Revision 5 is the later historical record after navigation; it does not replace the revision-3 decision key used for the successful sample."
+  },
+  "destinationVerification": {
+    "documentId": "107ed6e0-b3fa-40ae-b9b0-db0b739d1852",
+    "url": "https://www.okx.com/trade-spot/btc-usdt#workspaceId=1792043267332",
+    "pageGroupId": "59f1e7ba-67de-439b-9273-300a5f0ec748",
+    "pageDecisionRevision": 1,
+    "pageCurrentRevision": 3,
+    "pageDecision": "skip",
+    "conclusion": "Arrival at B is verified by URL, title, new document scope, and screenshot. The page skip remains current. There are no successful B-page attempts, so no trading or other business control was explored."
+  },
+  "closeVerification": {
+    "localId": "107ed6e0-b3fa-40ae-b9b0-db0b739d1852:208",
+    "identityId": "ed9a1b56-3e51-4840-a48e-b5d942154e31",
+    "stableKey": "testid:okd-button",
+    "bindingIn08": {
+      "observationId": "7e458caf-bafd-4b87-acc5-6bced031d223",
+      "parentInstanceId": "107ed6e0-b3fa-40ae-b9b0-db0b739d1852:206",
+      "type": "button",
+      "actionId": "7a3a3a8e-459c-4a76-bdb2-3bd18fe01885",
+      "stateId": "6e06c236-e409-4cb9-83be-805847e31fd5"
+    },
+    "bindingIn09": {
+      "observationId": "c11aea8d-bef2-4700-b669-809801fbe97f",
+      "parentInstanceId": "107ed6e0-b3fa-40ae-b9b0-db0b739d1852:206",
+      "type": "button",
+      "currentActionCountForControl": 0
+    },
+    "provenFacts": [
+      "The Close node retains the same document-local localId, identityId, stableKey, parent binding, type, rectangle, and visible/enabled/hittable state between materials 08 and 09.",
+      "The observationId changed between 08 and 09, the title price changed from 80,803.6 to 80,881.9, and the visible BTC/USDT market row changed from last price 80,803.6 / -3.27% / $657.20M turnover to 80,881.9 / -3.12% / $657.97M turnover.",
+      "Both Close approval attempts ended with STALE_CONTROL_REVIEW before dispatch. The successful attempt list remains exactly four and actionCount remains 4.",
+      "The modal is still visible in screenshot 09, and page A has not been restored."
+    ],
+    "inference": "The changing live market values and observation/state snapshots are a plausible cause of whole-observation freshness invalidation even though the Close node binding itself appears stable. The supplied materials prove correlation, not that market updates are the sole causal mechanism."
+  },
+  "completion": {
+    "entryPageReturned": false,
+    "wholePageAuditComplete": false,
+    "reason": "The flow is stopped on skipped destination page B behind the still-open modal. Entry-page controls and structural groups outside this sampled Trade→Spot path remain pending or undiscovered; explicit exclusions are not coverage."
+  },
+  "nextRequiredWork": [
+    "Do not issue a third observation-bound Close review retry under the same validation behavior.",
+    "Adjust the exit-action freshness protocol so unrelated dynamic background updates do not invalidate a still-identical modal Close target, while continuing to validate the target's document, dialog boundary, identity/binding, visibility, enabled state, hit target, and exit intent immediately before dispatch.",
+    "After that protocol change, close the modal once, prove it disappeared, use browser history to return to BTC-to-USD, and obtain a fresh A-page observation.",
+    "Resume the full entry-page audit from fresh material; do not treat this sampled path or the B-page skip as whole-page completion."
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "observationId": "5213e6fb-eb95-401f-ac81-e8ebe742a3f4",
+  "source": "gpt-5.6-sol/low",
+  "scope": "post-return entry-page chart-period verification only",
+  "conclusions": [
+    {
+      "claim": "The sampled 1h operation was dispatched successfully after the history return and the new-A Close operation.",
+      "status": "verified",
+      "evidence": [
+        "The session is paused at actionCount 8, one action beyond the batch-10 count of 7.",
+        "The latest recorded attempt is label 1h, kind click, status succeeded, before observation 380ecc61-663f-4e20-b540-b45209a4f697 and after observation 5213e6fb-eb95-401f-ac81-e8ebe742a3f4.",
+        "The after observation remains at https://www.okx.com/convert/btc-to-usd on document b7389b07-1803-420c-8b9d-2808d9fc38e8 and is stable."
+      ]
+    },
+    {
+      "claim": "The 1h period is selected and the previously selected 24h period is no longer selected.",
+      "status": "verified",
+      "evidence": [
+        "Current control b7389b07-1803-420c-8b9d-2808d9fc38e8:586 has role tab, name 1h, selected [\"1h\"], tabindex 0, and is visible.",
+        "Current control b7389b07-1803-420c-8b9d-2808d9fc38e8:587 has role tab, name 24h, selected [], tabindex -1, and is visible.",
+        "The batch-11 screenshot visibly highlights 1h while 24h is unhighlighted; batch 10 showed the inverse selection state."
+      ]
+    },
+    {
+      "claim": "A visible chart presentation remains present after the period switch and its visible plotted presentation differs from the pre-click screenshot.",
+      "status": "partially_verified",
+      "evidence": [
+        "Both batch-10 and batch-11 screenshots show the BTC to USD conversion chart area below the period tabs.",
+        "The visible plotted segment and axis presentation in batch 11 are not identical to the batch-10 screenshot, consistent with a period switch.",
+        "The observation reports multiple UNSUPPORTED_CANVAS gaps, so the engine cannot inspect chart internals or associate plotted values with the selected period."
+      ]
+    },
+    {
+      "claim": "Exploration continued on returned entry page A after the destination-page exit.",
+      "status": "verified",
+      "evidence": [
+        "The earlier verified flow returned by native history to BTC-to-USD and then closed the new-A region prompt.",
+        "The subsequent 1h click produced a new observation on the same returned A URL and document without navigation to another page.",
+        "No business submission, login, wallet, preference, or destination-page operation was added by this chart-period check."
+      ]
+    }
+  ],
+  "notVerified": [
+    "The numerical accuracy, completeness, rendering correctness, or business meaning of data drawn inside the chart canvases.",
+    "That every visible plot change was caused solely by the 1h selection rather than live market-data or rendering updates.",
+    "Individual behavior of 24h, 1W, 1M, 1Y, or 2Y; the scope decision intentionally executed only the 1h sample.",
+    "Full restoration of all entry-page state that existed before navigation.",
+    "Exhaustive UI coverage of entry page A."
+  ],
+  "remainingBlockersAndGaps": [
+    {
+      "type": "capability",
+      "detail": "Canvas internals are outside current coverage, preventing value-level or series-level chart assertions. Pixel comparison can show presentation change but cannot prove data correctness."
+    },
+    {
+      "type": "discovery",
+      "detail": "Structural-list discovery reports 17 oversized row templates skipped; additional list candidates may remain undiscovered."
+    },
+    {
+      "type": "protocol",
+      "detail": "Delegated and addEventListener handlers are not enumerated, so appearance or pointer behavior alone still cannot establish operation purpose for unknown controls."
+    },
+    {
+      "type": "coverage",
+      "detail": "The audit remains incomplete: 153 cases await decisions, 26 are pending, 234 are blocked, and 560 are not attempted. These counts include current and historical cases and do not establish that the remaining entry-page work is exhausted."
+    },
+    {
+      "type": "waiting",
+      "detail": "Any further action requires a new, current-document purpose review or an applicable structural-scope decision; old-document approvals must not be reused."
+    }
+  ],
+  "overall": "The post-return A flow is locally accepted through one safe chart-period interaction: 1h became selected, 24h became unselected, the chart remained visible, and the session stayed on BTC-to-USD. This is a local interaction verification, not chart-data validation or whole-page completion."
+}

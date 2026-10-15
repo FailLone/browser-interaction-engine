@@ -58,7 +58,7 @@ export class ExplorationGroups {
       const traversal = proposal.traversalActionIds.filter(aid => byAction.get(aid)!.boundary?.intent !== 'exit');
       const members = new Map(memberActions.map(a => [keyOf(a), { key: keyOf(a), actionId: a.id, observationId: o.id, localId: a.localId, label: a.label, kind: a.kind, value: a.value, risk: a.risk, excluded: a.excluded }]));
       // A known virtual list remains known when filtering leaves one or zero members.
-      if (!group && (proposal.kind === 'similar-list' ? members.size < 2 : proposal.binding !== 'context' && !members.size && !traversal.length)) continue;
+      if (!group && (proposal.kind === 'similar-list' ? members.size < (proposal.minimumMembers ?? 2) && (proposal.minimumMembers !== 1 || !traversal.length) : proposal.binding !== 'context' && !members.size && !traversal.length)) continue;
       const created = !group;
       group ??= { id: id(), sessionId: o.sessionId, key, proposalKey: proposal.key, kind: proposal.kind, label: proposal.label, conditions: proposal.conditions, binding: proposal.binding,
         membership: 'observed-action-cases', instanceScope: o.instanceScope, contextKey: contextKey(o.context), observationId: o.id, revision: 1,
