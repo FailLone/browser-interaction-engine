@@ -28,9 +28,27 @@ export class DecisionRouter {
         validAnswer(req,answer);if(validate)validate(answer.value);
         d.status='returned';this.store.decision(d);this.event(d,'decision.returned',{answer});
         if(actor==='jev') {
-          const uncertain=req.kind==='choice' ? typeof answer.confidence!=='number' || answer.confidence<(this.providers.choiceThreshold??0.8) || answer.value==='uncertain'
+          const threshold=req.policy==='grouping'?(this.providers.groupingThreshold??0.65):(this.providers.choiceThreshold??0.8);
+          const uncertain=req.kind==='choice' ? typeof answer.confidence!=='number' || answer.confidence<threshold || answer.value==='uncertain'
             : typeof answer.probability!=='number' || (answer.probability>(this.providers.noulLow??0.1) && answer.probability<(this.providers.noulHigh??0.9));
-          if(uncertain){d.status='rejected';d.reason='jev_uncertain';this.store.decision(d);this.event(d,'decision.fallback',{reason:d.reason});fallback=d.id;continue;}
+          // Ranking already-admissible candidates is not an authorization decision. A tie
+          // need not be resolved by an expensive model; the scheduler can use stable order.
+          if(req.kind==='choice'&&req.policy==='ranking') {
+            const value=answer.value==='uncertain'?req.fallbackOption:answer.value;
+            if(typeof value==='string'&&value!=='uncertain'&&Object.hasOwn(req.options||{},value)){
+              d.resolution={source:answer.value==='uncertain'?'program':'jev',value,reason:answer.value==='uncertain'?'stable_candidate_order':'jev_ranking_only'};
+              this.store.decision(d);this.resolutionEvent(d);return {answer:{...answer,value},decision:d};
+            }
+          }
+          // Lack of evidence is a valid conservative result, not a request to invent a grant.
+          if(req.kind==='choice'&&req.policy==='evidence-gate'&&answer.value==='uncertain'){
+            d.resolution={source:'jev',value:answer.value,reason:'evidence_missing'};this.store.decision(d);this.resolutionEvent(d);return {answer,decision:d};
+          }
+          if(req.kind==='choice'&&req.policy==='planning-gate'&&(uncertain||answer.value==='retain')&&Object.hasOwn(req.options||{},'retain')){
+            d.resolution={source:answer.value==='retain'?'jev':'program',value:'retain',reason:'retain_recorded_gaps'};this.store.decision(d);this.resolutionEvent(d);return {answer:{...answer,value:'retain'},decision:d};
+          }
+          if(uncertain){d.status='rejected';d.reason=answer.value==='uncertain'?'jev_no_choice':'jev_low_confidence';this.store.decision(d);this.event(d,'decision.fallback',{reason:d.reason,confidence:answer.confidence,probability:answer.probability,threshold});fallback=d.id;continue;}
+          d.resolution={source:'jev',value:answer.value,reason:req.policy==='grouping'?'jev_grouping':'jev_confident',threshold};this.store.decision(d);
         }
         return {answer,decision:d};
       } catch(error) {
@@ -46,5 +64,6 @@ export class DecisionRouter {
   }
   mark(d:Decision,status:Decision['status'],reason?:string){d.status=status;d.reason=reason;this.store.decision(d);this.event(d,`decision.${status}`,{reason});}
   effect(d:Decision,kind:string,data:unknown){this.event(d,'decision.effect',{kind,details:data});}
+  private resolutionEvent(d:Decision){this.store.event({taskId:d.taskId,actor:'program',type:'decision.resolved',sessionId:d.sessionId,observationId:d.observationId,decisionId:d.id,data:d.resolution});}
   private event(d:Decision,type:string,data:unknown){this.store.event({taskId:d.taskId,actor:d.actor,type,sessionId:d.sessionId,observationId:d.observationId,decisionId:d.id,data});}
 }

@@ -22,7 +22,7 @@ const decide=async request=>{
   if(request.purpose==='scope-review')value='all';
   return {value,model:'explicit-smoke-mock',confidence:1};
 };
-const plugin=new ExplorerPlugin(engine,new ExplorerStore(resolve(directory,'explorer.sqlite')),{jev:{name:'mock-jev',model:'smoke',decide:async request=>{if(request.purpose==='next-action'&&!fallBack){fallBack=true;return {value:'uncertain',model:'mock-jev',confidence:1};}return decide(request);}},llm:{name:'mock-llm',model:'smoke',decide}});
+const plugin=new ExplorerPlugin(engine,new ExplorerStore(resolve(directory,'explorer.sqlite')),{jev:{name:'mock-jev',model:'smoke',decide:async request=>{if(request.purpose==='region-review'&&!fallBack){fallBack=true;return {value:'include',model:'mock-jev',confidence:.5};}return decide(request);}},llm:{name:'mock-llm',model:'smoke',decide}});
 const app=await createServer(engine,{explorer:plugin});await app.listen({host:'127.0.0.1',port:0});
 const origin=`http://127.0.0.1:${app.server.address().port}`;
 const browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1500,height:1100}});const errors=[];page.on('pageerror',e=>errors.push(e.message));

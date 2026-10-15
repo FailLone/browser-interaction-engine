@@ -107,7 +107,11 @@ export class ExplorerPlugin {
       if(!Object.keys(finalists).length)throw new ExplorerError('NO_CANDIDATE');
       return this.choose(task,signal,o,purpose,instructions,{material:state,shortlistedFrom:candidates.length},{...finalists,uncertain:'Evidence is insufficient'});
     }
-    const result=await this.decide(task,signal,{kind:'choice',purpose,instructions,state:{observationId:o.id,material:state},options});return {value:result.answer.value as string,decision:result.decision};
+    const category=purpose.split(':')[0]; // Batched candidate ranking keeps the same routing policy.
+    const ranking=['next-action','sample-selection'].includes(category);
+    const policy=ranking?'ranking':['region-review','scope-review'].includes(category)?'grouping':['control-risk','list-purpose'].includes(category)?'evidence-gate':category==='followup-strategy'?'planning-gate':undefined;
+    const fallbackOption=ranking?entries.find(([key])=>!['uncertain','none'].includes(key)&&!key.startsWith('none-'))?.[0]:undefined;
+    const result=await this.decide(task,signal,{kind:'choice',purpose,instructions,state:{observationId:o.id,material:state},options,policy,fallbackOption});return {value:result.answer.value as string,decision:result.decision};
   }
   private async generate<T>(task:Task,signal:AbortSignal,o:Observation,purpose:string,instructions:string,state:unknown,schema:z.ZodType<T>) {
     const result=await this.decide(task,signal,{kind:'generate',purpose,instructions,state:{observationId:o.id,material:state},schema:jsonSchema(schema)},v=>schema.parse(v));return {value:schema.parse(result.answer.value),decision:result.decision};
@@ -182,7 +186,7 @@ export class ExplorerPlugin {
     const reviewedBefore=round.reviewed.length,knownDecisions=new Set(this.store.decisions(task.id).map(d=>d.id));
     try { const reviewed=await reviewNext({host:this.host,task,observation:o,
       choose:(p,i,s,opts)=>this.choose(task,signal,o,p,i,s,opts),generate:(p,i,s,schema)=>this.generate(task,signal,o,p,i,s,schema),
-      apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),gap:(reason,scope,required)=>{this.gap(task,reason,scope,required);}});for(const d of this.store.decisions(task.id).filter(d=>!knownDecisions.has(d.id)&&d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.answer?.value,executionAuthorized:false});}if(reviewed)return true; } catch(error) { round.reviewed.splice(reviewedBefore); throw error; }
+      apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),gap:(reason,scope,required)=>{this.gap(task,reason,scope,required);}});for(const d of this.store.decisions(task.id).filter(d=>!knownDecisions.has(d.id)&&d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}if(reviewed)return true; } catch(error) { round.reviewed.splice(reviewedBefore); throw error; }
     this.assert(task,signal,o.id);
     const actions=this.host.actions(sid),groups=this.host.explorationReviewMaterial(sid).groups,frontier=this.host.getFrontier(sid);
     const eligible=actions.filter(a=>permitted(a,o,groups,frontier)&&includesScope(task.plan,a,o)&&((!round.tried.includes(keyFor(a,o))&&!this.wasCompleted(task,a,o))||this.neededEntry(task,round,a,o)));
@@ -268,19 +272,24 @@ export class ExplorerPlugin {
     const audit=this.host.report(round.sessionId);
     this.event(task,'round.audit',{roundId:round.id,remaining:remaining.map(i=>i.id),explorationAudit:audit.explorationAudit,completionAudit:audit.completionAudit});
     if(!remaining.length){for(const d of this.store.decisions(task.id).filter(d=>d.status==='returned'))this.router.mark(d,'applied','used_in_plan_or_review');task.status='completed';task.reason='current_plan_verified';this.event(task,'task.completed',{exhaustive:false,untested:task.plan.filter(i=>!i.required).length});this.store.save(task);return true;}
-    const followup=await this.generate(task,signal,o,'followup-plan','Explain unresolved scopes and propose exact semantic scopes/prerequisite operations for the next round. kind and value describe an executable operation, not a desired state; expected results belong in completion. Return only plans grounded in these unfinished items or observed evidence. Never mark them successful or count unselected samples as covered. Do not add unrelated tasks.',{goal:task.goal,unfinished:remaining,observation:{url:o.url,regions:o.regions.map(r=>({label:r.label,role:r.role})),controls:o.controls.map(c=>({label:c.name,role:c.role})),actions:this.host.actions(round.sessionId).map(a=>scopeFor(a,o))}},planSchema);
-    this.assert(task,signal,o.id);this.router.mark(followup.decision,'applied');
-    // Enrich existing obligations; the model cannot silently discard a failed obligation or enlarge the user's selected scope.
-    for(const proposed of followup.value.items) {
-      const matched=remaining.find(i=>i.title===proposed.title&&digest(i.scope)===digest(proposed.scope));
-      if(matched){matched.prerequisites=proposed.prerequisites;matched.completion=proposed.completion;matched.reason=proposed.reason;}
-      else {const item=this.newItem({...proposed,required:false});item.status='untested';item.reason=`proposed_followup: ${proposed.reason}`;task.plan.push(item);}
-    }
-    this.router.effect(followup.decision,'followup-plan',{proposals:followup.value.items,plan:task.plan});
     const signature=digest(remaining.map(i=>({scope:i.scope,status:i.status})).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))));
     round.reason=signature;const stalled=task.rounds.filter(r=>r.reason===signature).length>=3;
     const permanent=remaining.some(i=>i.reason.startsWith('missing_capability:')||i.reason==='unknown_action_outcome');
     if(stalled||permanent){task.status='blocked';task.reason=permanent?'capability_or_unknown_outcome':'no_new_evidence';this.store.save(task);return true;}
+    const followupState={goal:task.goal,unfinished:remaining,observation:{url:o.url,regions:o.regions.map(r=>({label:r.label,role:r.role})),controls:o.controls.map(c=>({label:c.name,role:c.role})),actions:this.host.actions(round.sessionId).map(a=>scopeFor(a,o))}};
+    const strategy=await this.choose(task,signal,o,'followup-strategy','Do the recorded unfinished targets need NEW semantic scopes or prerequisite operations? Retain existing targets for retries, missing evidence, capability gaps and blocked controls. Request generation only when observed evidence identifies a missing route or prerequisite that the existing plan cannot express. Do not request prose merely to restate existing gaps.',followupState,{retain:'Existing recorded scopes and prerequisites suffice; keep their gaps and evidence',replan:'Observed evidence requires a new scope or prerequisite plan',uncertain:'No evidence that a new plan would resolve the gap'});
+    this.assert(task,signal,o.id);this.router.mark(strategy.decision,'applied');this.router.effect(strategy.decision,'followup-strategy',{strategy:strategy.value,remaining:remaining.map(i=>i.id),requiresNewPlan:strategy.value==='replan'});
+    if(strategy.value==='replan') {
+      const followup=await this.generate(task,signal,o,'followup-plan','Propose only NEW semantic scopes or prerequisite operations required by the observed evidence. Omit empty scope fields; do not copy whole stored items, statuses, IDs or evidence fields. kind and value describe executable operations, not desired states; expected results belong in completion. Never mark targets successful or count unselected samples as covered. Do not add unrelated tasks.',followupState,planSchema);
+      this.assert(task,signal,o.id);this.router.mark(followup.decision,'applied');
+      // Enrich existing obligations; the model cannot silently discard a failed obligation or enlarge the user's selected scope.
+      for(const proposed of followup.value.items) {
+        const matched=remaining.find(i=>i.title===proposed.title&&digest(i.scope)===digest(proposed.scope));
+        if(matched){matched.prerequisites=proposed.prerequisites;matched.completion=proposed.completion;matched.reason=proposed.reason;}
+        else {const item=this.newItem({...proposed,required:false});item.status='untested';item.reason=`proposed_followup: ${proposed.reason}`;task.plan.push(item);}
+      }
+      this.router.effect(followup.decision,'followup-plan',{proposals:followup.value.items,plan:task.plan});
+    }
     this.store.save(task);return false;
   }
 }

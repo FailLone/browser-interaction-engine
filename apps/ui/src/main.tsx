@@ -81,7 +81,7 @@ function App() {
   return <div className="shell">
     <aside className="sidebar"><div className="brand"><span className="brand-mark">↗</span><div>Interaction Atlas<small>浏览器交互探索引擎 · V0.1</small></div></div>
       <div className="sidebar-label">探索工作区</div><label>起始网址<input value={url} onChange={e => setUrl(e.target.value)} /></label>
-      <ExplorerWorkspace url={url} onSession={setSessionId}>
+      <ExplorerWorkspace url={url} sessionId={sessionId} onSession={setSessionId}>
       <div className="form-row"><label>动作预算<input type="number" min="1" value={maxActions} onChange={e => setMaxActions(Number(e.target.value))} /></label><label className="check"><input type="checkbox" checked={inspectionEnabled} onChange={e => setInspectionEnabled(e.target.checked)} />生成 UI 检查任务</label><label className="check"><input type="checkbox" checked={headless} onChange={e => setHeadless(e.target.checked)} />无界面运行</label></div>
       <label>页面范围<select aria-label="页面范围" value={pageExploration} onChange={e => setPageExploration(e.target.value as typeof pageExploration)}><option value="review">优先入口页，其他页面另行决定</option><option value="all">允许继续探索所有跳转页面</option></select></label>
       <label className="check"><input type="checkbox" checked={regionExploration === 'review'} onChange={e=>setRegionExploration(e.target.checked ? 'review' : 'off')} />先确认探索区域再探索</label>

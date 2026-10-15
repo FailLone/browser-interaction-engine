@@ -7,7 +7,7 @@ import { createServer } from '../apps/server/src/server.js';
 import { explorerFixture,fakeProviders } from './explorer-plugin-helpers.js';
 it('integrates autonomous exploration, interleaves JEV/LLM decisions and restores task history',async()=>{
  const f=await explorerFixture();const providers=fakeProviders(f.url);const original=providers.jev.decide;let uncertain=false;
- providers.jev.decide=async(r,s)=>{if(r.purpose==='next-action'&&!uncertain){uncertain=true;return {value:'uncertain',confidence:1,model:'mock-jev'};}return original(r,s);};
+ providers.jev.decide=async(r,s)=>{if(r.purpose==='region-review'&&!uncertain){uncertain=true;return {value:'include',confidence:.5,model:'mock-jev'};}return original(r,s);};
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(join(f.dir,'plugin.sqlite')),providers);const app=await createServer(f.host,{explorer:plugin});await app.listen({host:'127.0.0.1',port:0});const origin=`http://127.0.0.1:${(app.server.address() as {port:number}).port}`;
  const ui=await createViteServer({root:resolve('apps/ui'),logLevel:'error',server:{port:0,strictPort:false,proxy:{'/v1':origin,'/plugins':origin}}});await ui.listen();const browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1500,height:1100}});const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  try{const task=plugin.create({url:f.url,goal:'UI acceptance',sessionOptions:{settleMs:0,observeTimeoutMs:100}});await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as {port:number}).port}`);await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);await page.getByRole('button',{name:'开始 / 继续探索',exact:true}).click();
@@ -20,6 +20,25 @@ it('integrates autonomous exploration, interleaves JEV/LLM decisions and restore
  await page.getByRole('tab',{name:'决策影响',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('已生成探索计划');
  await page.getByRole('button',{name:'返回页面证据'}).click();expect(await page.getByLabel('探索决策详情').count()).toBe(0);
  await page.screenshot({path:join(f.dir,'explorer-ui.png'),fullPage:true});expect(errors).toEqual([]);
- await page.reload();await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);await page.getByLabel('包含模型决策的遍历路径').waitFor();expect(await page.getByLabel('包含模型决策的遍历路径').innerText()).toContain('转交 LLM');
+ const firstSession=plugin.view(task.id).task.rounds[0].sessionId;
+ plugin.revise(task.id,{goal:'Second round'});plugin.start(task.id);await plugin.waitForIdle(task.id);
+ const secondSession=plugin.view(task.id).task.rounds[1].sessionId;
+ await page.reload();await page.getByRole('button').filter({hasText:firstSession.slice(0,8)}).click();await timeline.waitFor();
+ await page.waitForFunction(id=>document.querySelector<HTMLSelectElement>('[aria-label="探索任务"]')?.value===id,task.id);
+ expect(await page.locator('.session-item.selected').innerText()).toContain(firstSession.slice(0,8));
+ expect(await timeline.innerText()).toContain('转交 LLM');expect(await timeline.innerText()).toContain('本轮模型调用');
+ const firstDecisions=plugin.view(task.id).decisions.filter(d=>d.sessionId===firstSession);
+ expect(await timeline.getByRole('button').filter({hasText:'请求判断'}).count()).toBe(firstDecisions.length);
+ await timeline.getByRole('button').filter({hasText:'查看最近调用'}).click();await page.getByLabel('探索决策详情').waitFor();
+ await page.getByRole('button').filter({hasText:secondSession.slice(0,8)}).click();
+ await page.waitForFunction(id=>document.querySelector('.session-item.selected')?.textContent?.includes(id),secondSession.slice(0,8));
+ expect(await page.getByLabel('探索决策详情').count()).toBe(0);
+ expect(await timeline.getByRole('button').filter({hasText:'请求判断'}).count()).toBe(plugin.view(task.id).decisions.filter(d=>d.sessionId===secondSession).length);
+ await f.host.stop(secondSession);const ordinary=await f.host.createSession({url:f.url,settleMs:0,observeTimeoutMs:100});await page.reload();
+ await page.getByRole('button').filter({hasText:firstSession.slice(0,8)}).click();await timeline.waitFor();
+ await timeline.getByRole('button').filter({hasText:'查看最近调用'}).click();await page.getByLabel('探索决策详情').waitFor();
+ await page.getByRole('button').filter({hasText:ordinary.id.slice(0,8)}).click();
+ await page.waitForFunction(()=>!document.querySelector('[aria-label="探索决策详情"]')&&!document.querySelector('[aria-label="包含模型决策的遍历路径"]'));
+ expect(await page.getByLabel('探索任务',{exact:true}).inputValue()).toBe('');expect(errors).toEqual([]);
  }finally{await browser.close();await ui.close();await app.close();await f.close();}
 });

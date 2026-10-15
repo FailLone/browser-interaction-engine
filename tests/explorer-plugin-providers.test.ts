@@ -34,6 +34,25 @@ describe('explorer provider routing',()=>{
    const j:Provider={name:'j',model:'j',decide:vi.fn(async()=>({value:true,model:'j',probability:.95}))};const l=provider('l',false);const f=fixture(j,l);const r={...req,kind:'noul' as const};
    expect((await f.router.decide(task(),r,new AbortController().signal,()=>true)).answer.value).toBe(true);expect(l.decide).not.toHaveBeenCalled();j.decide=async()=>({value:true,model:'j',probability:.5});expect((await f.router.decide(task(),r,new AbortController().signal,()=>true)).answer.value).toBe(false);f.store.close();
  });
+ it('keeps ranking ties and missing operation evidence away from LLM without rewriting the model answer',async()=>{
+   const j=provider('j','uncertain',.4),l=provider('l','b'),f=fixture(j,l);
+   const ranked=await f.router.decide(task(),{...req,policy:'ranking',fallbackOption:'a'},new AbortController().signal,()=>true);
+   expect(ranked.answer.value).toBe('a');expect(ranked.decision.answer?.value).toBe('uncertain');expect(ranked.decision.resolution).toMatchObject({source:'program',value:'a',reason:'stable_candidate_order'});
+   const gate=await f.router.decide(task(),{...req,purpose:'control-risk',policy:'evidence-gate'},new AbortController().signal,()=>true);
+   expect(gate.answer.value).toBe('uncertain');expect(l.decide).not.toHaveBeenCalled();expect(f.store.events('t').some(e=>e.actor==='program'&&e.type==='decision.resolved')).toBe(true);
+   await f.router.decide(task(),{...req,policy:'ranking',fallbackOption:'not-an-option'},new AbortController().signal,()=>true);expect(l.decide).toHaveBeenCalledTimes(1);f.store.close();
+ });
+ it('uses a separate grouping threshold while retaining strict operation and identity gates',async()=>{
+   const j=provider('j','a',.76),l=provider('l','b'),f=fixture(j,l);
+   expect((await f.router.decide(task(),{...req,policy:'grouping'},new AbortController().signal,()=>true)).answer.value).toBe('a');expect(l.decide).not.toHaveBeenCalled();
+   for(const purpose of ['control-risk','identity-review'])expect((await f.router.decide(task(),{...req,purpose},new AbortController().signal,()=>true)).answer.value).toBe('b');
+   expect(l.decide).toHaveBeenCalledTimes(2);f.store.close();
+ });
+ it('keeps recorded gaps unless JEV confidently requests new planning',async()=>{
+   const j=provider('j','replan',.6),l=provider('l','replan'),f=fixture(j,l);const r={...req,policy:'planning-gate' as const,options:{retain:'Keep recorded gaps',replan:'Generate missing route',uncertain:'No evidence'}};
+   expect((await f.router.decide(task(),r,new AbortController().signal,()=>true)).answer.value).toBe('retain');
+   j.decide=async()=>({value:'replan',confidence:.95,model:'j'});expect((await f.router.decide(task(),r,new AbortController().signal,()=>true)).answer.value).toBe('replan');expect(l.decide).not.toHaveBeenCalled();f.store.close();
+ });
 });
 it('matches documented JEV wire formats for both endpoints and validates distributions',async()=>{
  for(const vendor of ['typesafe','openrouter'] as const){let body:any,auth='';const f=vi.fn(async(_url:any,init:any)=>{body=JSON.parse(init.body);auth=init.headers.authorization;return Response.json({model:'jev-version',answers:{decision:{type:'choice',choice:'a',confidence:.9,probabilities:{a:.9,b:.05,uncertain:.05}}},usage:{input_tokens:15,output_tokens:3}});});

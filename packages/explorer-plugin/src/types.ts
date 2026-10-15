@@ -27,14 +27,15 @@ export interface Task {
   exhaustive: false;
 }
 export type DecisionKind = 'choice' | 'noul' | 'generate';
-export interface ModelRequest { id: string; purpose: string; kind: DecisionKind; instructions: string; state: unknown; options?: Record<string, unknown>; schema?: Record<string, unknown> }
+export interface ModelRequest { id: string; purpose: string; kind: DecisionKind; instructions: string; state: unknown; options?: Record<string, unknown>; schema?: Record<string, unknown>; policy?: 'ranking'|'grouping'|'evidence-gate'|'planning-gate'; fallbackOption?: string }
 export interface ModelAnswer { value: unknown; model: string; confidence?: number; probability?: number; probabilities?: Record<string, number>; usage?: Record<string, number>; response?: Record<string, unknown> }
 export interface Provider { name: string; model: string; requestBody?(request: ModelRequest): Record<string, unknown>; decide(request: ModelRequest, signal: AbortSignal): Promise<ModelAnswer> }
-export interface Providers { jev?: Provider; llm?: Provider; choiceThreshold?: number; noulLow?: number; noulHigh?: number; timeoutMs?: number }
+export interface Providers { jev?: Provider; llm?: Provider; choiceThreshold?: number; groupingThreshold?: number; noulLow?: number; noulHigh?: number; timeoutMs?: number }
 export interface Decision {
   id: string; taskId: string; revision: number; roundId?: string; sessionId?: string; observationId?: string;
   actor: 'jev' | 'llm'; purpose: string; provider: string; model: string; request: ModelRequest;
   input?: Record<string, unknown>; output?: Record<string, unknown>;
+  resolution?: {source:'program'|'jev';value:unknown;reason:string;threshold?:number};
   status: 'requested' | 'returned' | 'applied' | 'rejected' | 'stale' | 'cancelled' | 'failed';
   startedAt: string; elapsedMs?: number; answer?: ModelAnswer; reason?: string; fallbackFrom?: string;
 }

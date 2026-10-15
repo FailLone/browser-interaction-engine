@@ -65,7 +65,7 @@ export function providersFromEnv(env: Record<string,string|undefined> = process.
   const maxOutputTokens=env.EXPLORER_LLM_MAX_OUTPUT_TOKENS?number('EXPLORER_LLM_MAX_OUTPUT_TOKENS',4096,128,65536):undefined;
   if(maxOutputTokens&&!Number.isInteger(maxOutputTokens))throw new ExplorerError('INVALID_PROVIDER_CONFIG','EXPLORER_LLM_MAX_OUTPUT_TOKENS');
   const low=number('EXPLORER_NOUL_LOW',0.1,0,1),high=number('EXPLORER_NOUL_HIGH',0.9,0,1);if(low>=high)throw new ExplorerError('INVALID_PROVIDER_CONFIG','NOUL thresholds');
-  return {jev:jev&&jevProvider({...jev,provider:vendor as 'typesafe'|'openrouter'}),llm:llm&&llmProvider({...llm,provider:llmVendor as LlmConfig['provider'],upstreamProvider:env.EXPLORER_LLM_UPSTREAM_PROVIDER,maxOutputTokens,reasoningEffort:effort as LlmConfig['reasoningEffort']}),choiceThreshold:number('EXPLORER_CHOICE_THRESHOLD',0.8,0,1),noulLow:low,noulHigh:high,timeoutMs:number('EXPLORER_MODEL_TIMEOUT_MS',60000,1,300000)};
+  return {jev:jev&&jevProvider({...jev,provider:vendor as 'typesafe'|'openrouter'}),llm:llm&&llmProvider({...llm,provider:llmVendor as LlmConfig['provider'],upstreamProvider:env.EXPLORER_LLM_UPSTREAM_PROVIDER,maxOutputTokens,reasoningEffort:effort as LlmConfig['reasoningEffort']}),choiceThreshold:number('EXPLORER_CHOICE_THRESHOLD',0.8,0,1),groupingThreshold:number('EXPLORER_GROUPING_THRESHOLD',0.65,0,1),noulLow:low,noulHigh:high,timeoutMs:number('EXPLORER_MODEL_TIMEOUT_MS',60000,1,300000)};
 }
 export function safeError(error: unknown) { return error instanceof ExplorerError ? error.code : error instanceof z.ZodError ? 'INVALID_MODEL_OUTPUT' : (error as Error)?.name==='AbortError' ? 'CANCELLED' : 'PROVIDER_UNAVAILABLE'; }
 export function validAnswer(request:ModelRequest,answer:ModelAnswer) {

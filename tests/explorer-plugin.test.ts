@@ -38,6 +38,27 @@ it('continues remaining scopes in a fresh round without resetting total budget o
  expect(task.status,JSON.stringify(task,null,2)).toBe('completed');expect(task.rounds).toHaveLength(2);expect(task.usage.actions).toBe(2);
  const actions=task.rounds.map(r=>f.host.list<any>(r.sessionId,'attempt').map(a=>a.action.label));expect(actions).toEqual([['Alpha'],['Beta']]);
  expect(task.plan.find(i=>i.scope.label==='Alpha')?.resolvedBy?.sessionId).toBe(task.rounds[0].sessionId);
+ expect(providers.calls.some(r=>r.purpose==='followup-strategy')).toBe(true);expect(providers.calls.some(r=>r.purpose==='followup-plan')).toBe(false);
+ }finally{await plugin.close();await f.close();}
+});
+it('traverses admissible actions on JEV ranking ties without LLM fallback or out-of-scope execution',async()=>{
+ const f=await explorerFixture();const p=fakeProviders(f.url,{url:f.url,label:'Alpha',kind:'click'});const original=p.jev.decide;
+ p.jev.decide=async(r,s)=>r.purpose==='next-action'?{value:'uncertain',confidence:.4,model:'mock-jev'}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'Only Alpha',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+ expect(v.task.status).toBe('completed');expect(v.decisions.filter(d=>d.actor==='llm').map(d=>d.purpose)).toEqual(['initial-plan']);
+ expect(f.host.list<any>(v.task.rounds[0].sessionId,'attempt').filter(a=>a.purpose==='external').map(a=>a.action.label)).toEqual(['Alpha']);
+ expect(v.decisions.find(d=>d.purpose==='next-action')?.resolution).toMatchObject({source:'program',reason:'stable_candidate_order'});
+ }finally{await plugin.close();await f.close();}
+});
+it('generates a follow-up plan only after JEV identifies a need for new planning',async()=>{
+ const f=await explorerFixture();const p=fakeProviders(f.url);const original=p.jev.decide;
+ p.jev.decide=async(r,s)=>r.purpose==='followup-strategy'?{value:'replan',confidence:.95,model:'mock-jev'}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'Both buttons across rounds',sessionOptions:{maxActions:1,settleMs:0,observeTimeoutMs:100},budget:{rounds:3,actions:5}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+ expect(v.task.status).toBe('completed');expect(v.task.usage.actions).toBe(2);
+ const strategy=v.decisions.findIndex(d=>d.purpose==='followup-strategy'),generation=v.decisions.findIndex(d=>d.purpose==='followup-plan');
+ expect(strategy).toBeGreaterThan(-1);expect(generation).toBeGreaterThan(strategy);expect(v.decisions[generation].actor).toBe('llm');
  }finally{await plugin.close();await f.close();}
 });
 it('retains sampled-out ranges and can explicitly select them for a later round',async()=>{
