@@ -190,3 +190,18 @@ it('returns from a sampled page when its selected work exceeds the depth budget'
     expect(t.engine.getFrontier(t.sessionId).find(f => f.action.label === 'Selected B')).toMatchObject({ status: 'blocked', reason: 'depth_budget', coverage: { executionStatus: 'not_attempted' } });
   } finally { await t.close(); }
 });
+
+it('keeps page batch decisions finite and includes the pending next destination after return', async () => {
+  const t = await fixture({ '/a': '<a href="/b">To B</a>', '/b': '<a href="/c">To C</a><input aria-label="B work">', '/c': '<h1>Static C</h1>' });
+  try {
+    await explore(t); const material = t.engine.explorationReviewMaterial(t.sessionId);
+    expect(material.groups.filter(g => g.kind === 'page')).toHaveLength(1);
+    const before = attempts(t).length;
+    await t.engine.decideExplorationGroups(t.sessionId, material.groups.map(g => ({ groupId: g.id, revision: g.revision, decision: { ...reason, mode: 'all' } })));
+    expect(attempts(t)).toHaveLength(before);
+    await explore(t); const later = t.engine.explorationReviewMaterial(t.sessionId);
+    const c = later.groups.find(g => (g.conditions as { url?: string })?.url?.endsWith('/c'))!;
+    expect(c).toMatchObject({ status: 'pending', kind: 'page', members: [] });
+    expect(t.engine.observation(t.sessionId).url).toContain('/b'); expect(t.engine.session(t.sessionId).stopReason).toBe('PAGE_DECISION_REQUIRED');
+  } finally { await t.close(); }
+});

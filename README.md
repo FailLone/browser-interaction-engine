@@ -177,6 +177,8 @@ Modal、popover 与浮动菜单建立独占交互范围，DFS 先探索当前最
 
 新浏览器会话默认先覆盖入口页面；跳到其他页面后交由上层决定，未批准时尝试沿已验证历史返回。DFS 不会默认在 B 消耗剩余预算，允许 B 也不会自动允许 C。可用 `pageExploration: 'all'` 显式启用跨页探索；调试页提供页面范围选择和目的页决策。见[页面范围](docs/EXPLORATION-DECISIONS.md#页面范围优先于-dfs-顺序)。
 
+上层可读取统一范围材料，按观察来源查看入口与重叠约束，用一次版本绑定的批量决定选择穷尽、样本、暂缓或本轮不测。支持 `explorationReview` hook、SDK/HTTP 以及调试页“范围决策”；任一版本过期整批拒绝，未来新范围独立决定。见[批量审阅协议](docs/EXPLORATION-DECISIONS.md#统一审阅材料与批量决定)。
+
 通用探索决策允许上层按业务目标选择深入、指定样本、暂缓或本轮跳过。支持自定义范围 hook，以及可选区域、入口分支和输入样本识别；条件变化需新决策，跳过不计覆盖。见[通用探索决策](docs/EXPLORATION-DECISIONS.md)。
 
 相似列表默认先交由上层决定遍历范围：支持持久事件、`explorationGroup` hook 和 SDK/HTTP 决策，等待期间暂缓列表并继续其他工作。穷尽、指定抽样、暂缓的契约和未覆盖口径见[列表遍历决策](docs/LIST-EXPLORATION.md)。

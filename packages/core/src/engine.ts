@@ -5,7 +5,8 @@ import { recoverStore } from './recovery.js';
 import { DiffQueries } from './diff-details.js';
 import { describeFrontier, groupFrontier } from './frontier.js';
 import { ExplorationGroups, validateExplorationProposals } from './exploration-groups.js';
-import type { ExplorationGroup, ExplorationGroupDecision } from './types.js';
+import { explorationReviewMaterial } from './exploration-review.js';
+import type { ExplorationGroup, ExplorationGroupDecision, ExplorationGroupResolution } from './types.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
 import type { EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
 import { EngineError, type ActionCandidate, type ActionAttempt, type Checkpoint, type ControlIdentity, type EngineHooks, type FrontierItem, type Graph, type IdentityHypothesis, type InteractionScope, type Issue, type Observation, type Predicate, type ReachResult, type Session, type SessionOptions, type Transition, type UIState, type Visit } from './types.js';
@@ -83,6 +84,15 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     return this.enqueueMeasured(sessionId, async () => {
       this.session(sessionId);
       return this.store.transaction(() => this.groups.decide(sessionId, groupId, revision, decision));
+    });
+  }
+  explorationReviewMaterial(sessionId: string) {
+    return explorationReviewMaterial(sessionId, this.observation(sessionId).id, this.store.list<ExplorationGroup>('exploration-group', sessionId));
+  }
+  decideExplorationGroups(sessionId: string, resolutions: ExplorationGroupResolution[]) {
+    return this.enqueueMeasured(sessionId, async () => {
+      this.session(sessionId);
+      return this.store.transaction(() => this.groups.decideMany(sessionId, resolutions));
     });
   }
   private outsideBoundary(action: ActionCandidate) { return action.preconditions.blockers?.some(b => b.code === 'outside_active_boundary'); }
@@ -286,7 +296,23 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     await this.store.evidence.endObservation?.(observationId, true);
     const decisionHook = this.hooks.explorationDecision || this.hooks.explorationGroup;
     const decisionHookName = this.hooks.explorationDecision ? 'explorationDecision' : 'explorationGroup';
-    for (const group of groupDiscovery!.requested) if (decisionHook) {
+    if (groupDiscovery!.requested.length) {
+      const requestedGroupIds = groupDiscovery!.requested.map(g => g.id);
+      // Durable references avoid duplicating every historical member in the event log.
+      this.emit(sessionId, 'exploration.review_requested', { observationId: o.id, requestedGroupIds,
+        groups: groupDiscovery!.requested.map(g => ({ groupId: g.id, revision: g.revision })) });
+      if (this.hooks.explorationReview) {
+        const material = explorationReviewMaterial(sessionId, o.id, this.store.list<ExplorationGroup>('exploration-group', sessionId), requestedGroupIds);
+        const result = await this.hook(sessionId, 'explorationReview', () => this.hooks.explorationReview!(structuredClone(material), ctx()));
+        if (result.value !== undefined) await this.hook(sessionId, 'explorationReview-decision', () => {
+          if (!Array.isArray(result.value) || result.value.some(r => !material.groups.some(g => g.id === r?.groupId && g.revision === r?.revision))) {
+            throw new EngineError('INVALID_GROUP_DECISION', 'Review decisions must reference the presented scope versions');
+          }
+          if (result.value.length) return this.store.transaction(() => this.groups.decideMany(sessionId, result.value!));
+        });
+      }
+    }
+    for (const group of groupDiscovery!.requested) if (!this.hooks.explorationReview && decisionHook) {
       const result = await this.hook(sessionId, decisionHookName, () => decisionHook(structuredClone(group), ctx()));
       if (result.value !== undefined) await this.hook(sessionId, `${decisionHookName}-decision`, () => this.store.transaction(() => this.groups.decide(sessionId, group.id, group.revision, result.value!)));
     }

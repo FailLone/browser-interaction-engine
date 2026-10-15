@@ -13,6 +13,7 @@
 - `binding`：默认 `instance`，绑定当前文档/实例；显式 `context` 允许同声明上下文和条件下跨文档保留调度决定，适用于页面范围授权，不代表操作语义相同。
 - `conditions`：可选 JSON 条件，如测试目标版本、目标对象、结构版本。条件改变，需要新的决策。
 - `evidence`：非空观察依据，结构与 ActionEvidence 一致。
+- `collection`：可选的审阅整理依据 `{ key, label, evidence }`，只组织展示，不共享身份、业务效果或授权。保持来源稳定，不放入每次变化的 observationId；来源改变会增加范围版本。
 
 调用方每次根据当前观察提出范围；同一 kind/key 在同一批中不能重复。动作必须来自本次候选且在组内不重复。允许同一动作同时属于不同范围，所有范围均允许时才可自动执行。已识别的边界退出动作不进入范围，避免范围等待本身封死退出路径。
 
@@ -74,7 +75,7 @@ const engine = new BrowserEngine({
 1. 当前页面的普通工作优先于已知离页入口。无法从候选预知的按钮导航，在动作后的观察中识别。
 2. 到达其他 URL 后，产生 `kind: 'page'` 的范围请求，沿用 `explorationDecision`、持久事件及 `decideExplorationGroup` 命令。未获准前，不自动操作目的页业务控件。
 3. 没有决定、defer、skip，或指定样本已无当前可执行项（包括深度上限阻塞）时，先退出目的页的活动弹层，再尝试原生历史返回来源页，继续允许的工作。有效出口仍可执行；没有有效出口则保留 ACTIVE_BOUNDARY_BLOCKED。
-4. all 允许深入该页面，但 B 通往的 C 会有独立请求。sample 只放行选中的已观察操作样本，defer 留待后续，skip 保留未测。调试页支持允许、暂缓和本轮不测；指定样本通过 hook/SDK/HTTP 提交。
+4. all 允许深入该页面，但 B 通往的 C 会有独立请求。sample 只放行选中的已观察操作样本，defer 留待后续，skip 保留未测。调试页目的页面板支持允许、暂缓和本轮不测；“范围决策”页及 hook/SDK/HTTP 也支持指定样本。
 
 ```ts
 const session = await engine.createSession({
@@ -95,6 +96,40 @@ const session = await engine.createSession({
 
 显式单项 execute 属于上层接管，不自动遍历或返回，也不代表批准整个页面。已持久化但缺少 pageExploration 字段的旧会话保持原行为，不做静默迁移。独立回归覆盖意外跳转、B → C、同文档 URL 变化、异步抽样、弹层退出、受阻返回、上下文失效、旧会话和调试界面。
 
+## 统一审阅材料与批量决定
+
+`engine.explorationReviewMaterial(sessionId)`、同名 client 方法或 `GET /v1/sessions/:sessionId/exploration-review` 返回只读快照，不观察页面、不执行操作。响应包含：
+
+- `observationId`：查询时最新观察。
+- `groups`：本会话所有未失效范围的完整材料，包括早先页面的待决请求；每组自带 `observationId`，不保证目标仍在当前页面或仍可操作。
+- `collections`：整理组的名称、来源证据及 `groupIds`。浏览器按准确 URL、文档实例、直接所属区域及边界节点整理；同名区域不会因此合并。调用方可在 proposal 中提供带依据的 collection；声明的 key、label 或 evidence 不一致则分开，无声明时只按 kind 展示。返回的 collection key 是整理依据的摘要，不是可提交决定的范围 ID。
+- `overlaps`：共享精确动作键的 `groupIds` / `caseKeys`。涉及的范围须共同允许该操作；caseKeys 也可能含发现用的遍历动作，不能直接作为 sample 成员，应选择各组 `members[].key`。
+- `requestedGroupIds`：同步 hook 本次新发现的范围；普通查询为空。
+
+这解决已发现入口的审阅组织和逐条提交成本，不表示引擎已理解无语义业务区域、相同功能或未知目的地。一个 document 整理组可能仍包含大量不同业务链接；上层可以选择其中一部分，不能仅凭同组就推断用途相同。
+
+`hooks.explorationReview(material, ctx)` 在一次观察产生新范围时调用一次，拿到完整材料及本次新范围 IDs，优先于 `explorationDecision` 和兼容别名 `explorationGroup`。可返回显式 `{ groupId, revision, decision }[]`，也可返回 undefined 或空数组，交给异步消费者。它只能决定当次材料包含的范围版本；不存在的组、过期版本、无效样本会拒绝整批。超时和异常保持原决策，迟到结果无效，不回退到逐范围 hook。仅增加成员或材料更新不重复调用该 hook，消费者应监听 group_updated 并重新查询。
+
+发现新范围时同时发布持久 `exploration.review_requested`，包含 observationId、requestedGroupIds 及新范围 ID/版本，避免事件重复携带所有历史成员。事件引用不是永久材料快照；异步消费者重新查询并审阅当前版本。既有单范围 detected/updated/decided/invalidated 事件继续保留。
+
+```ts
+const material = await client.explorationReviewMaterial(sessionId);
+// 上层按测试目标选择明确的范围；可为不同范围选择不同 mode。
+const selected = material.groups.filter(g => selectedGroupIds.has(g.id));
+if (selected.length) {
+  await client.decideExplorationGroups(sessionId, selected.map(g => ({
+    groupId: g.id, revision: g.revision,
+    decision: { mode: 'defer', source: 'test-plan', evidence: ['当前先完成转换器，导航稍后决定'] },
+  })));
+}
+```
+
+批量命令为 `{ type: 'decideExplorationGroups', resolutions }`，返回同顺序的最新范围数组。单次 1–1000 个范围 ID，不允许重复。先校验全部归属、版本、有效性和样本，再在一个存储事务中写入，并统一更新重叠待办；任一失败整批不写入，也不发布部分决定。成功发布各组原有事件及 `exploration.groups_decided`（原始 resolutions 和 changedGroupIds）。所有决定完全相同时仍可产生批次审计事件，但不重复增加组版本。旧单范围命令保留。
+
+一次批量 all **只批准列出的范围**；未来新范围、B 通往的 C 都需独立决定。同一已批准范围的后续成员仍遵守原 all 语义。决定本身不启动探索，也不改变用途风险、身份、重放或恢复许可。版本过期应重新读取材料并判断，不能直接替换 revision 自动重试。
+
+调试页的“范围决策”按来源展示范围、样本、依据和重叠约束，可一次选择多个范围，提交穷尽、指定样本、暂缓或本轮不测。所选版本在后台变化后禁止提交，提示重新选择；新增范围不会自动加入已有选择。操作历史和覆盖率仍按实际执行记录。
+
 ## 材料、异步接入与失效
 
 沿用 `client.explorationGroups(sessionId)` / `GET /v1/sessions/:sessionId/exploration-groups` 查询全部类型，返回条件、版本、成员材料和历史决策。成员是已观察的操作样本，不是业务对象总数或已发现路径总数。
@@ -109,7 +144,7 @@ await client.decideExplorationGroup(sessionId, group.id, group.revision, {
 await client.command(sessionId, { type: 'resume' });
 ```
 
-命令仍是 `{ type: 'decideExplorationGroup', groupId, revision, decision }`。提交决策本身不操作浏览器或自动恢复探索。revision 必须匹配；新成员或新决策都可能改变版本，过期返回 STALE_GROUP_DECISION，应重新读取材料判断。
+命令仍是 `{ type: 'decideExplorationGroup', groupId, revision, decision }`。提交决策本身不操作浏览器或自动恢复探索。revision 必须匹配；新成员、新遍历项、整理依据变化或新决策都可能改变版本，过期返回 STALE_GROUP_DECISION，应重新读取材料判断。
 
 通用范围默认绑定文档/实例范围、声明上下文及 conditions。默认 binding 下文档或上下文改变，或同 kind/key 的 conditions 改变时，旧组标为 invalidated，旧未执行待办保留为 superseded / exploration_scope_invalidated；不能计为覆盖。对失效组提交决策返回 EXPLORATION_SCOPE_INVALIDATED。重新回到旧条件也创建新请求，不复活旧批准。浏览器区域节点重建在派发前检测，重新观察后要求新决策。
 

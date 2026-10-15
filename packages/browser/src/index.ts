@@ -162,6 +162,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       case 'pause': return this.pause(sessionId);
       case 'stop': return this.stop(sessionId);
       case 'resolveIdentity': return this.resolveIdentity(sessionId, command.hypothesisId, command.identityId, command.source, command.evidence);
+      case 'decideExplorationGroups': return this.decideExplorationGroups(sessionId, command.resolutions);
       case 'decideExplorationGroup': return this.decideExplorationGroup(sessionId, command.groupId, command.revision, command.decision);
       case 'reviewListPurpose': return this.reviewListPurpose(sessionId, command.review);
       case 'revokePurposeReview': return this.revokePurposeReview(sessionId, command.revocation);

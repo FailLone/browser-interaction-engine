@@ -75,6 +75,7 @@ const server = createServer(async (req,res)=> {
     else if(req.method==='GET' && req.url==='/summary') result=summary();
     else if(req.method==='GET' && req.url==='/report') result=engine.report(sid);
     else if(req.method==='GET' && req.url==='/hypotheses') result=engine.list(sid,'hypothesis');
+    else if(req.method==='GET' && req.url==='/exploration-review') result=engine.explorationReviewMaterial(sid);
     else if(req.method==='GET' && req.url==='/groups') result=engine.list(sid,'exploration-group');
     else if(req.method==='GET' && req.url?.startsWith('/purpose-material?')) result=engine.purposeReviewMaterial(sid,new URL(req.url,'http://localhost').searchParams.get('groupId') || '');
     else if(req.method==='GET' && req.url==='/purpose-reviews') result=engine.list(sid,'purpose-review');

@@ -1,7 +1,7 @@
 import { inspectionOptionsSchema } from './inspection-contract.js';
 import { listPurposeReviewSchema, revokePurposeReviewSchema } from './purpose-review.js';
 import { z } from 'zod';
-import { evidenceRetentionSchema, explorationGroupDecisionSchema } from '@interaction/core';
+import { evidenceRetentionSchema, explorationGroupDecisionSchema, explorationGroupResolutionsSchema } from '@interaction/core';
 export const contextSchema = z.record(z.string(), z.object({ value: z.json(), status: z.enum(['known', 'unknown']), source: z.string() }));
 const match = z.object({ role: z.string().optional(), name: z.string().optional(), stableKey: z.string().optional(), kind: z.enum(['click', 'fill', 'select', 'check', 'scroll', 'press', 'hover', 'navigate', 'history']).optional(), urlIncludes: z.string().optional() }).strict();
 export const evidenceOptionsSchema = z.object({
@@ -38,6 +38,7 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('execute'), actionId: z.string(), requestId: z.string().min(1), value: z.union([z.string(), z.boolean(), z.number()]).optional() }),
   z.object({ type: z.literal('explore') }), z.object({ type: z.literal('pause') }), z.object({ type: z.literal('resume') }), z.object({ type: z.literal('stop') }),
   z.object({ type: z.literal('resolveIdentity'), hypothesisId: z.string(), identityId: z.string(), source: z.string().min(1), evidence: z.array(z.string()).min(1) }),
+  z.object({ type: z.literal('decideExplorationGroups'), resolutions: explorationGroupResolutionsSchema }).strict(),
   z.object({ type: z.literal('decideExplorationGroup'), groupId: z.string().min(1), revision: z.number().int().positive(), decision: explorationGroupDecisionSchema }).strict(),
   z.object({ type: z.literal('openScope'), name: z.string().min(1), region: z.string() }),
   z.object({ type: z.literal('closeScope'), scopeId: z.string() }),

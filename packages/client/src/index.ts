@@ -59,6 +59,10 @@ export class InteractionClient {
   scopeDiffDetails(id: string, scopeId: string) { return this.request<BrowserDiffDetails>(`/sessions/${encodeURIComponent(id)}/scopes/${encodeURIComponent(scopeId)}/diff/details`); }
   frontier(id: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.list<FrontierItemView>(id, 'frontier', options); }
   explorationGroups(id: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.list<import('@interaction/browser').ExplorationGroup>(id, 'exploration-groups', options); }
+  explorationReviewMaterial(id: string) { return this.request<import('@interaction/browser').ExplorationReviewMaterial>(`/sessions/${encodeURIComponent(id)}/exploration-review`); }
+  decideExplorationGroups(id: string, resolutions: import('@interaction/browser').ExplorationGroupResolution[]) {
+    return this.command<import('@interaction/browser').ExplorationGroup[]>(id, { type: 'decideExplorationGroups', resolutions });
+  }
   purposeReviewMaterial(id: string, groupId: string) { return this.request<import('@interaction/browser').PurposeReviewMaterial>(`/sessions/${encodeURIComponent(id)}/exploration-groups/${encodeURIComponent(groupId)}/purpose-material`); }
   purposeReviews(id: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.list<import('@interaction/browser').PurposeReview>(id, 'purpose-reviews', options); }
   reviewListPurpose(id: string, review: import('@interaction/browser').ListPurposeReviewInput) { return this.command<import('@interaction/browser').PurposeReview>(id, { type: 'reviewListPurpose', review }); }

@@ -1,3 +1,4 @@
+import { reviewCollection } from './review-collection.js';
 import { canonical, contextKey, type ExplorationGroup, type ExplorationGroupProposal } from '@interaction/core';
 import type { ActionCandidate, Observation, Session } from './types.js';
 
@@ -16,7 +17,7 @@ export function listGroups(actions: ActionCandidate[], o: Observation, session: 
       basis: basis?.status, submitsForm: basis?.evidence.some(e => e.facts.submitsForm === true), rules: basis?.evidence.map(e => [e.source, e.rule]) });
     let group = groups.get(key);
     if (!group) {
-      group = { key, kind: 'similar-list', label: c.list.label || 'Similar list choices', actionIds: [],
+      group = { key, kind: 'similar-list', collection: reviewCollection(o, o.regions.find(r => c.regionInstanceId ? r.instanceId === c.regionInstanceId : r.key === (c.region || 'document')), o.regions.find(r => r.key === action.boundary?.key)), label: c.list.label || 'Similar list choices', actionIds: [],
         traversalActionIds: actions.filter(a => a.kind === 'scroll' && controls.get(a.localId || '')?.list?.instanceId === c.list!.instanceId).map(a => a.id),
         evidence: [{ source: 'adapter-playwright', rule: 'semantic-list-similarity/v1', facts: { observationId: o.id, ownerInstanceId: c.list.instanceId,
           ownerSelector: c.list.selector, ownerRole: c.list.role, operation: action.kind, memberRole: c.role, memberTag: c.tag,
@@ -32,7 +33,7 @@ export function listGroups(actions: ActionCandidate[], o: Observation, session: 
     const owner = previous.evidence.find(e => e.rule === 'semantic-list-similarity/v1')?.facts.ownerInstanceId;
     const traversalActionIds = actions.filter(a => a.kind === 'scroll' && controls.get(a.localId || '')?.list?.instanceId === owner).map(a => a.id);
     if (typeof owner === 'string' && traversalActionIds.length) groups.set(previous.proposalKey, { key: previous.proposalKey, kind: previous.kind,
-      label: previous.label, actionIds: [], traversalActionIds, evidence: previous.evidence });
+      label: previous.label, collection: previous.collection, actionIds: [], traversalActionIds, evidence: previous.evidence });
   }
   return [...groups.values()];
 }

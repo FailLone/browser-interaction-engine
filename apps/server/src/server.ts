@@ -72,6 +72,7 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
   app.post('/v1/sessions/:sessionId/evidence-retention/unpin', async request => { const body = z.object({ owner: z.string().min(1).max(200) }).strict().parse(request.body); return engine.unpinEvidence(sid(request), body.owner); });
   app.post('/v1/sessions/:sessionId/checkpoints/:checkpointId/release-evidence', async request => engine.releaseCheckpointEvidence(sid(request), (request.params as any).checkpointId));
   app.get('/v1/sessions/:sessionId/actions', async request => engine.actions(sid(request), (request.query as any).observationId));
+  app.get('/v1/sessions/:sessionId/exploration-review', async (request, reply) => { reply.header('Cache-Control', 'no-store'); return engine.explorationReviewMaterial(sid(request)); });
   app.get('/v1/sessions/:sessionId/exploration-groups/:groupId/purpose-material', async request => engine.purposeReviewMaterial(sid(request), (request.params as any).groupId));
   app.get('/v1/sessions/:sessionId/graph', async request => engine.getGraph(sid(request)));
   app.get('/v1/sessions/:sessionId/frontier-coverage', async request => engine.frontierCoverage(sid(request)));

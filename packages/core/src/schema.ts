@@ -5,8 +5,10 @@ export const explorationGroupDecisionSchema = z.intersection(z.object({ source: 
   z.object({ mode: z.literal('skip'), memberKeys: z.never().optional() }),
   z.object({ mode: z.literal('sample'), memberKeys: z.array(z.string().min(1)).min(1).max(10000) }),
 ]));
+export const explorationGroupResolutionsSchema = z.array(z.object({ groupId: z.string().min(1), revision: z.number().int().positive(), decision: explorationGroupDecisionSchema }).strict()).min(1).max(1000);
 export const explorationGroupProposalSchema = z.object({
   binding: z.enum(['instance', 'context']).optional(),
+  collection: z.object({ key: z.string().trim().min(1), label: z.string().trim().min(1), evidence: z.array(z.object({ source: z.string().min(1), rule: z.string().min(1), facts: z.record(z.string(), z.json()) })).min(1) }).strict().optional(),
   key: z.string().trim().min(1), kind: z.string().trim().min(1), label: z.string().trim().min(1),
   actionIds: z.array(z.string().min(1)), traversalActionIds: z.array(z.string().min(1)),
   conditions: z.json().optional(),

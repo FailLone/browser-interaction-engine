@@ -104,8 +104,21 @@ export interface EngineEvent { sequence: number; sessionId: ID; type: string; at
 export interface Issue { id: ID; sessionId: ID; observationId: ID; source: string; severity: 'info' | 'warning' | 'error'; message: string; evidence?: string[] }
 export interface Graph { states: UIState[]; transitions: Transition[]; visits: Visit[] }
 export interface HookContext<O extends Observation = Observation, S extends SessionOptions = SessionOptions> { session: Readonly<Session<S>>; observation: Readonly<O> }
+/** Review organization only: never shared identity, business behavior or inherited permission. */
+export interface ExplorationCollection { key: string; label: string; evidence: ActionEvidence[] }
+export interface ExplorationGroupResolution { groupId: ID; revision: number; decision: ExplorationGroupDecision }
+export interface ExplorationReviewMaterial {
+  sessionId: ID; observationId: ID;
+  /** All non-invalidated groups, including earlier pages; membership is observed, not exhaustive. */
+  groups: ExplorationGroup[];
+  collections: (ExplorationCollection & { groupIds: ID[] })[];
+  overlaps: { groupIds: ID[]; caseKeys: string[] }[];
+  /** New scopes in this notification. Read-only queries leave this empty. */
+  requestedGroupIds: ID[];
+}
 /** Observed exploration scope, not proof of equal business effects or permission to execute. */
 export interface ExplorationGroupProposal {
+  collection?: ExplorationCollection;
   /** Context-bound scheduling scopes survive document changes; they grant no target or replay permission. */
   binding?: 'instance' | 'context';
   key: string; kind: string; label: string; actionIds: ID[]; traversalActionIds: ID[]; evidence: ActionEvidence[];
@@ -116,6 +129,7 @@ export type ExplorationGroupDecision = { source: string; evidence: string[] } & 
   { mode: 'all' | 'defer' | 'skip'; memberKeys?: never } | { mode: 'sample'; memberKeys: string[] }
 );
 export interface ExplorationGroup {
+  collection?: ExplorationCollection;
   binding?: 'instance' | 'context';
   id: ID; sessionId: ID; key: string; proposalKey: string; kind: string; label: string; membership: 'observed-action-cases';
   instanceScope: string; contextKey: string; observationId: ID; revision: number;
@@ -133,6 +147,8 @@ export interface EngineHooks<O extends Observation = Observation, S extends Sess
   choose?: (items: FrontierItemView[], ctx: HookContext<O, S>) => Promise<ID | null> | ID | null;
   /** Propose scopes over current actions on each capture; may include a single branch or operation. */
   explorationScopes?: (actions: ActionCandidate[], ctx: HookContext<O, S>) => Promise<ExplorationGroupProposal[]> | ExplorationGroupProposal[];
+  /** One review per capture with new scopes. Takes precedence over the individual decision hooks. */
+  explorationReview?: (material: ExplorationReviewMaterial, ctx: HookContext<O, S>) => Promise<ExplorationGroupResolution[] | undefined> | ExplorationGroupResolution[] | undefined;
   /** General decision hook. Takes precedence over the compatibility explorationGroup hook. */
   explorationDecision?: (group: ExplorationGroup, ctx: HookContext<O, S>) => Promise<ExplorationGroupDecision | undefined> | ExplorationGroupDecision | undefined;
   /** Called once per newly detected group. Return undefined to decide asynchronously via the durable event/command API. */

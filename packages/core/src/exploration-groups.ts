@@ -1,6 +1,6 @@
 import type { Persistence } from './ports.js';
-import { EngineError, type ActionCandidate, type ExplorationGroup, type ExplorationGroupDecision, type ExplorationGroupProposal, type FrontierItem, type Observation } from './types.js';
-import { explorationGroupDecisionSchema, explorationGroupProposalSchema } from './schema.js';
+import { EngineError, type ActionCandidate, type ExplorationGroup, type ExplorationGroupDecision, type ExplorationGroupProposal, type ExplorationGroupResolution, type FrontierItem, type Observation } from './types.js';
+import { explorationGroupProposalSchema, explorationGroupResolutionsSchema } from './schema.js';
 import { canonical, contextKey, hash, id, now } from './util.js';
 
 /** Validate the whole batch before writing anything, including caller references. */
@@ -66,15 +66,18 @@ export class ExplorationGroups {
       const existing = new Map(group.members.map(m => [m.key, m]));
       const added = [...members.keys()].filter(k => !existing.has(k));
       const traversalKeys = new Set(group.traversalKeys || []);
+      const addedTraversalKeys = traversal.map(aid => keyOf(byAction.get(aid)!)).filter(k => !traversalKeys.has(k));
+      const collectionChanged = canonical(group.collection) !== canonical(proposal.collection);
       for (const aid of traversal) traversalKeys.add(keyOf(byAction.get(aid)!));
       for (const [key, member] of members) existing.set(key, member);
+      group.collection = proposal.collection;
       group.members = [...existing.values()]; group.observationId = o.id; group.traversalKeys = [...traversalKeys];
-      if (!created && added.length) group.revision++;
+      if (!created && (added.length || addedTraversalKeys.length || collectionChanged)) group.revision++;
       this.store.put('exploration-group', group); groups.set(key, group);
       for (const a of memberActions) addRef(a.id, group.id, keyOf(a));
       for (const aid of traversal) addRef(aid, group.id);
       if (created) { known.push(group); requested.push(group); this.emit(o.sessionId, 'exploration.group_detected', group); }
-      else if (added.length) this.emit(o.sessionId, 'exploration.group_updated', { groupId: group.id, revision: group.revision, observationId: o.id, addedMemberKeys: added });
+      else if (added.length || addedTraversalKeys.length || collectionChanged) this.emit(o.sessionId, 'exploration.group_updated', { groupId: group.id, revision: group.revision, observationId: o.id, addedMemberKeys: added, addedTraversalKeys, collectionChanged });
     }
     // Omitting a previously declared scope is not approval of its still-observed
     // members. Producers must keep proposing it to enroll newly observed members.
@@ -113,20 +116,34 @@ export class ExplorationGroups {
   }
 
   decide(sessionId: string, groupId: string, revision: number, input: ExplorationGroupDecision) {
-    const group = this.store.get<ExplorationGroup>('exploration-group', groupId);
-    if (!group || group.sessionId !== sessionId) throw new EngineError('NOT_FOUND', 'Exploration group not found');
-    if (group.status === 'invalidated') throw new EngineError('EXPLORATION_SCOPE_INVALIDATED', 'Scope conditions changed; decide the newly observed scope');
-    if (group.revision !== revision) throw new EngineError('STALE_GROUP_DECISION', 'Read the latest group revision before deciding');
-    const decision = explorationGroupDecisionSchema.parse(input);
-    if (decision.mode === 'sample' && (new Set(decision.memberKeys).size !== decision.memberKeys.length || decision.memberKeys.some(k => !group.members.some(m => m.key === k)))) {
-      throw new EngineError('INVALID_GROUP_DECISION', 'Sample members must be distinct observed members of this group');
+    return this.decideMany(sessionId, [{ groupId, revision, decision: input }], false)[0];
+  }
+
+  /** Validate every reference before any write, then apply the combined gates once. */
+  decideMany(sessionId: string, input: ExplorationGroupResolution[], batchEvent = true) {
+    const resolutions = explorationGroupResolutionsSchema.parse(input);
+    if (new Set(resolutions.map(r => r.groupId)).size !== resolutions.length) throw new EngineError('INVALID_GROUP_DECISION', 'A scope can occur only once in a decision batch');
+    const prepared = resolutions.map(({ groupId, revision, decision }) => {
+      const group = this.store.get<ExplorationGroup>('exploration-group', groupId);
+      if (!group || group.sessionId !== sessionId) throw new EngineError('NOT_FOUND', 'Exploration group not found');
+      if (group.status === 'invalidated') throw new EngineError('EXPLORATION_SCOPE_INVALIDATED', 'Scope conditions changed; decide the newly observed scope');
+      if (group.revision !== revision) throw new EngineError('STALE_GROUP_DECISION', 'Read the latest group revision before deciding');
+      if (decision.mode === 'sample' && (new Set(decision.memberKeys).size !== decision.memberKeys.length || decision.memberKeys.some(k => !group.members.some(m => m.key === k)))) {
+        throw new EngineError('INVALID_GROUP_DECISION', 'Sample members must be distinct observed members of this group');
+      }
+      return { group, decision, changed: canonical(group.decisions.at(-1)?.decision) !== canonical(decision) };
+    });
+    for (const { group, decision, changed } of prepared) if (changed) {
+      group.decisions.push({ revision: group.revision, at: now(), decision }); group.status = 'decided'; group.revision++;
+      this.store.put('exploration-group', group);
     }
-    if (canonical(group.decisions.at(-1)?.decision) === canonical(decision)) return group;
-    group.decisions.push({ revision: group.revision, at: now(), decision }); group.status = 'decided'; group.revision++;
-    this.store.put('exploration-group', group);
-    this.apply(sessionId, this.store.list<FrontierItem>('frontier', sessionId));
-    this.emit(sessionId, 'exploration.group_decided', { groupId, revision: group.revision, decision });
-    this.emit(sessionId, 'frontier.updated', { groupId });
-    return group;
+    const changed = prepared.filter(p => p.changed);
+    if (changed.length) this.apply(sessionId, this.store.list<FrontierItem>('frontier', sessionId));
+    for (const { group, decision } of changed) {
+      this.emit(sessionId, 'exploration.group_decided', { groupId: group.id, revision: group.revision, decision });
+      this.emit(sessionId, 'frontier.updated', { groupId: group.id });
+    }
+    if (batchEvent) this.emit(sessionId, 'exploration.groups_decided', { resolutions, changedGroupIds: changed.map(p => p.group.id) });
+    return prepared.map(p => p.group);
   }
 }

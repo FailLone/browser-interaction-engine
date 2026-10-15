@@ -168,3 +168,41 @@ it('rejects a previously approved target moved into a different identically name
     await explore(t); expect(attempts(t).filter(a => a.action.label === 'Work')).toEqual([]);
   } finally { await t.close(); }
 });
+
+it('organizes scopes by exact observed region and boundary owners, with stable collections across captures', async () => {
+  const t = await fixture('<section aria-label="Same"><a href="/first">First</a></section><section aria-label="Same"><a href="/second">Second</a></section>', {}, { decisionScopes: ['region', 'branch'] });
+  try {
+    const initial = t.engine.explorationReviewMaterial(t.sid);
+    expect(initial.collections).toHaveLength(2); expect(initial.collections.map(c => c.label)).toEqual(['Same', 'Same']);
+    expect(initial.collections.every(c => c.groupIds.length === 2)).toBe(true);
+    expect(initial.overlaps).toHaveLength(2);
+    await t.engine.observe(t.sid); const next = t.engine.explorationReviewMaterial(t.sid);
+    expect(next.collections).toEqual(initial.collections); expect(next.groups.map(g => g.revision)).toEqual(initial.groups.map(g => g.revision));
+    const selection = new Set(initial.collections[0].groupIds);
+    await t.engine.decideExplorationGroups(t.sid, initial.groups.filter(g => selection.has(g.id)).map(g => ({ groupId: g.id, revision: g.revision, decision: { ...reason, mode: 'all' } })));
+    const frontier = t.engine.getFrontier(t.sid);
+    expect(frontier.find(f => f.action.label === 'First')?.status).toBe('pending');
+    expect(frontier.find(f => f.action.label === 'Second')?.reason).toBe('awaiting_exploration_decision');
+    expect(attempts(t)).toEqual([]);
+  } finally { await t.close(); }
+});
+
+it('queries unified material and atomically applies mixed sample decisions through SDK/HTTP', async () => {
+  const t = await fixture('<select aria-label="Choice"><option>A</option><option>B</option><option>C</option></select>', {}, { decisionScopes: ['input-space'] });
+  const api = await createApi(t.engine); await api.listen({ host: '127.0.0.1', port: 0 });
+  const address = `http://127.0.0.1:${(api.server.address() as { port: number }).port}`;
+  const client = new InteractionClient(address);
+  try {
+    const material = await client.explorationReviewMaterial(t.sid); const input = material.groups.find(g => g.kind === 'input-space')!;
+    expect(material.collections).toHaveLength(1); expect(material.collections[0].groupIds).toHaveLength(2);
+    expect((await fetch(`${address}/v1/sessions/${t.sid}/exploration-review`)).headers.get('cache-control')).toBe('no-store');
+    const batch = material.groups.map(g => ({ groupId: g.id, revision: g.revision, decision: g.id === input.id ? { ...reason, mode: 'sample' as const, memberKeys: [g.members.find(m => m.value === 'B')!.key] } : { ...reason, mode: 'all' as const } }));
+    await expect(client.decideExplorationGroups(t.sid, [batch[0], { ...batch[1], revision: 999 }])).rejects.toMatchObject({ code: 'STALE_GROUP_DECISION' });
+    expect((await client.explorationReviewMaterial(t.sid)).groups.every(g => g.status === 'pending')).toBe(true);
+    const malformed = await fetch(`${address}/v1/sessions/${t.sid}/commands`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'decideExplorationGroups', resolutions: [] }) });
+    expect(malformed.status).toBe(400);
+    expect(await client.decideExplorationGroups(t.sid, batch)).toHaveLength(2); expect(attempts(t)).toEqual([]);
+    await explore(t); expect(attempts(t).map(a => a.action.value)).toEqual(['B']);
+    expect(t.engine.getFrontier(t.sid).filter(f => f.action.value !== 'B').every(f => f.coverage.executionStatus === 'not_attempted')).toBe(true);
+  } finally { await api.close(); await t.close(); }
+});
