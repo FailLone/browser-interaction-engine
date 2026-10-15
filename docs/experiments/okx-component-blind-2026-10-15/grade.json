@@ -1,0 +1,156 @@
+{
+  "inputHashVerified": true,
+  "cases": 10,
+  "conservativeContractMatches": 10,
+  "rawCommandAccepted": 0,
+  "rawOutputIssue": "The judge cited real image:<observationId> evidence, but identityDecisionCommand accepts only target/timeline/current/candidate-N refs.",
+  "normalization": "Only rejected image refs removed in memory for a dry run; no model retry and no decisions applied.",
+  "limitations": "One component observed before and after reload, not ten independent semantic-recognition samples. Semantic recognition is reviewed separately, not automatically scored as historical identity accuracy.",
+  "rows": [
+    {
+      "caseId": "2602dc1e",
+      "candidateCount": 4,
+      "allSimultaneous": true,
+      "decision": "independent",
+      "expectedConservativeDecision": "independent",
+      "matchesConservativeContract": true,
+      "rejectedRefs": [
+        "image:f320f9bc-7f57-4eb3-a3de-233588cf56a9"
+      ],
+      "allRejectedRefsAreRealImages": true,
+      "rawCommandStatus": "Error: 请引用有效的证据编号",
+      "normalizedDryRun": "valid independent resolution command; not executed"
+    },
+    {
+      "caseId": "c65b249b",
+      "candidateCount": 9,
+      "allSimultaneous": false,
+      "decision": "uncertain",
+      "expectedConservativeDecision": "uncertain",
+      "matchesConservativeContract": true,
+      "rejectedRefs": [
+        "image:5206d01c-3902-4a51-8541-9e8e8036d82c",
+        "image:45956aef-9834-4e6a-9719-afca3a071925"
+      ],
+      "allRejectedRefsAreRealImages": true,
+      "rawCommandStatus": "Error: 请引用有效的证据编号",
+      "normalizedDryRun": "uncertain; no command"
+    },
+    {
+      "caseId": "256ae876",
+      "candidateCount": 4,
+      "allSimultaneous": true,
+      "decision": "independent",
+      "expectedConservativeDecision": "independent",
+      "matchesConservativeContract": true,
+      "rejectedRefs": [
+        "image:f320f9bc-7f57-4eb3-a3de-233588cf56a9"
+      ],
+      "allRejectedRefsAreRealImages": true,
+      "rawCommandStatus": "Error: 请引用有效的证据编号",
+      "normalizedDryRun": "valid independent resolution command; not executed"
+    },
+    {
+      "caseId": "eea986b6",
+      "candidateCount": 4,
+      "allSimultaneous": true,
+      "decision": "independent",
+      "expectedConservativeDecision": "independent",
+      "matchesConservativeContract": true,
+      "rejectedRefs": [
+        "image:f320f9bc-7f57-4eb3-a3de-233588cf56a9"
+      ],
+      "allRejectedRefsAreRealImages": true,
+      "rawCommandStatus": "Error: 请引用有效的证据编号",
+      "normalizedDryRun": "valid independent resolution command; not executed"
+    },
+    {
+      "caseId": "865bd4e5",
+      "candidateCount": 9,
+      "allSimultaneous": false,
+      "decision": "uncertain",
+      "expectedConservativeDecision": "uncertain",
+      "matchesConservativeContract": true,
+      "rejectedRefs": [
+        "image:5206d01c-3902-4a51-8541-9e8e8036d82c",
+        "image:45956aef-9834-4e6a-9719-afca3a071925"
+      ],
+      "allRejectedRefsAreRealImages": true,
+      "rawCommandStatus": "Error: 请引用有效的证据编号",
+      "normalizedDryRun": "uncertain; no command"
+    },
+    {
+      "caseId": "dc2234c2",
+      "candidateCount": 9,
+      "allSimultaneous": false,
+      "decision": "uncertain",
+      "expectedConservativeDecision": "uncertain",
+      "matchesConservativeContract": true,
+      "rejectedRefs": [
+        "image:5206d01c-3902-4a51-8541-9e8e8036d82c",
+        "image:45956aef-9834-4e6a-9719-afca3a071925"
+      ],
+      "allRejectedRefsAreRealImages": true,
+      "rawCommandStatus": "Error: 请引用有效的证据编号",
+      "normalizedDryRun": "uncertain; no command"
+    },
+    {
+      "caseId": "7d43cd47",
+      "candidateCount": 4,
+      "allSimultaneous": true,
+      "decision": "independent",
+      "expectedConservativeDecision": "independent",
+      "matchesConservativeContract": true,
+      "rejectedRefs": [
+        "image:f320f9bc-7f57-4eb3-a3de-233588cf56a9"
+      ],
+      "allRejectedRefsAreRealImages": true,
+      "rawCommandStatus": "Error: 请引用有效的证据编号",
+      "normalizedDryRun": "valid independent resolution command; not executed"
+    },
+    {
+      "caseId": "22307932",
+      "candidateCount": 4,
+      "allSimultaneous": true,
+      "decision": "independent",
+      "expectedConservativeDecision": "independent",
+      "matchesConservativeContract": true,
+      "rejectedRefs": [
+        "image:f320f9bc-7f57-4eb3-a3de-233588cf56a9"
+      ],
+      "allRejectedRefsAreRealImages": true,
+      "rawCommandStatus": "Error: 请引用有效的证据编号",
+      "normalizedDryRun": "valid independent resolution command; not executed"
+    },
+    {
+      "caseId": "8b3219ad",
+      "candidateCount": 9,
+      "allSimultaneous": false,
+      "decision": "uncertain",
+      "expectedConservativeDecision": "uncertain",
+      "matchesConservativeContract": true,
+      "rejectedRefs": [
+        "image:5206d01c-3902-4a51-8541-9e8e8036d82c",
+        "image:45956aef-9834-4e6a-9719-afca3a071925"
+      ],
+      "allRejectedRefsAreRealImages": true,
+      "rawCommandStatus": "Error: 请引用有效的证据编号",
+      "normalizedDryRun": "uncertain; no command"
+    },
+    {
+      "caseId": "22db32fb",
+      "candidateCount": 9,
+      "allSimultaneous": false,
+      "decision": "uncertain",
+      "expectedConservativeDecision": "uncertain",
+      "matchesConservativeContract": true,
+      "rejectedRefs": [
+        "image:5206d01c-3902-4a51-8541-9e8e8036d82c",
+        "image:45956aef-9834-4e6a-9719-afca3a071925"
+      ],
+      "allRejectedRefsAreRealImages": true,
+      "rawCommandStatus": "Error: 请引用有效的证据编号",
+      "normalizedDryRun": "uncertain; no command"
+    }
+  ]
+}

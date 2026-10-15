@@ -1,0 +1,135 @@
+{
+  "overview": {
+    "componentType": "五段星级评分/投票控件（高置信度识别为星级控件；各星按钮对应的精确提交值仍是推断）",
+    "grouping": "所有目标都属于页面标题“BTC/USD：将 Bitcoin (BTC) 兑换为 美元 (USD)”下方的同一个五按钮逻辑组件。单次观察内，它们是同一 RatingStar 容器中的五个不同 DOM button 节点，不是同一当前节点。f320… 与 4595… 使用同一 documentId，且 4595… 是其后续当前观察；5206… 使用新的 documentId，表示刷新/重建后的另一组五个当前节点。跨 documentId 的相同序位只能视为可能的历史对应，不能与同一逻辑组件或同一当前 DOM 节点混为一谈。",
+    "confidence": {
+      "componentRecognition": "high",
+      "ordinalValueMapping": "medium",
+      "crossRefreshIdentity": "low"
+    },
+    "evidence": [
+      "三张截图均在“Bitcoin 兑 美元”下显示五个相邻星形及数值 4.7；前四星为实心，第五星为部分填充。",
+      "DOM 中每项均为 24×24 的 button，支持 click，五项同属 class=RatingStar_ratingContainer__7L-Nd 的 120×24 父容器。",
+      "父容器变量名包含 filled-star-color 与 empty-star-color；五按钮按 x=108/132/156/180/204 排列。",
+      "每个按钮都有 pointer cursor 和 handlerProperty，但处理器 purpose 明确为 unknown。",
+      "同一观察中的按钮有不同 localId、不同 selector 序位和不同子节点，因此是独立当前 DOM 节点。"
+    ],
+    "limitations": [
+      "按钮的可访问名称、label、value 均为空，checked 为 null，也没有显式的 1–5 值或 aria-checked/aria-pressed。",
+      "未记录点击后的状态、提交值、网络请求、提示或可逆性；不能断言一次点击只是预览、立即投票，还是还需后续确认。",
+      "事件监听覆盖不完整，运行时证据被截断，材料还声明 canvas 内部不在覆盖范围。",
+      "f320… 与 5206… 截图存在居中的地区限制弹窗和遮罩；相应目标被报告为 hitTarget=false 且被遮挡，不能据其坐标安全点击。",
+      "刷新前后没有稳定业务键、组件实例键或框架节点连续性证据；相同坐标、selector 序位、外观和名称不足以证明历史身份。"
+    ]
+  },
+  "decisions": [
+    {
+      "caseId": "2602dc1e",
+      "visibleMeaning": "五颗星中的第 1 颗；视觉上属于 4.7 评分显示旁的星级评分/投票组件。",
+      "proposedValue": 1,
+      "valueBasis": "推断：左到右第 1 个星形按钮通常表示 1 星。显式证据仅证明它是第一个可点击按钮和星形外观，DOM 未声明 value=1。",
+      "decision": "independent",
+      "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "candidate-4", "image:f320f9bc-7f57-4eb3-a3de-233588cf56a9"],
+      "reason": "列出的四个候选与目标处于同一 observationId 和同一父容器，但 localId 分别为 :62–:65；目标是 :61，且五者是父容器的五个不同子 button。因此可排除所有列出候选为同一当前节点。它们仍是同一逻辑评分组件的其他档位。",
+      "missingEvidence": ["显式 1 星语义或值", "点击处理器业务效果", "无遮挡且可命中的目标状态"]
+    },
+    {
+      "caseId": "c65b249b",
+      "visibleMeaning": "五颗星中的第 5 颗；视觉上属于 4.7 评分显示旁的星级评分/投票组件。",
+      "proposedValue": 5,
+      "valueBasis": "推断：左到右第 5 个星形按钮通常表示 5 星。显式证据仅证明它是第五个可点击按钮和星形外观，DOM 未声明 value=5。",
+      "decision": "uncertain",
+      "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "candidate-4", "candidate-5", "candidate-6", "candidate-7", "candidate-8", "candidate-9", "image:5206d01c-3902-4a51-8541-9e8e8036d82c", "image:45956aef-9834-4e6a-9719-afca3a071925"],
+      "reason": "可排除 candidate-6–9：它们是 5206… 同一当前观察中的其他 localId。candidate-5 是刷新前第五序位，最像历史对应，但其 documentId/localId 已改变；现有证据只有相同序位、坐标、selector 形状和外观，契约明确这些不足以证明 same，也没有证据排除 candidate-5。",
+      "missingEvidence": ["跨刷新稳定业务键或组件项键", "框架实例/节点连续性映射", "显式 5 星值", "点击效果", "无遮挡命中证据"]
+    },
+    {
+      "caseId": "256ae876",
+      "visibleMeaning": "五颗星中的第 3 颗，属于同一星级评分/投票组件。",
+      "proposedValue": 3,
+      "valueBasis": "推断：左到右第 3 个星形按钮通常表示 3 星；没有显式 value 或可访问名称。",
+      "decision": "independent",
+      "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "candidate-4", "image:f320f9bc-7f57-4eb3-a3de-233588cf56a9"],
+      "reason": "目标 localId=:63；所有候选是同一观察、同一父容器内的 :61、:62、:64、:65 四个兄弟按钮，故均不是同一当前 DOM 节点。",
+      "missingEvidence": ["显式 3 星语义或值", "点击效果", "无遮挡命中证据"]
+    },
+    {
+      "caseId": "eea986b6",
+      "visibleMeaning": "五颗星中的第 4 颗，属于同一星级评分/投票组件。",
+      "proposedValue": 4,
+      "valueBasis": "推断：左到右第 4 个星形按钮通常表示 4 星；没有显式 value 或可访问名称。",
+      "decision": "independent",
+      "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "candidate-4", "image:f320f9bc-7f57-4eb3-a3de-233588cf56a9"],
+      "reason": "目标 localId=:64；所有候选是同一观察中 :61、:62、:63、:65 的不同兄弟按钮，可排除为同一当前节点。",
+      "missingEvidence": ["显式 4 星语义或值", "点击效果", "无遮挡命中证据"]
+    },
+    {
+      "caseId": "865bd4e5",
+      "visibleMeaning": "刷新后五颗星中的第 1 颗，属于同一星级评分/投票组件。",
+      "proposedValue": 1,
+      "valueBasis": "推断：左到右第 1 个星形按钮通常表示 1 星；没有显式 value 或可访问名称。",
+      "decision": "uncertain",
+      "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "candidate-4", "candidate-5", "candidate-6", "candidate-7", "candidate-8", "candidate-9", "image:5206d01c-3902-4a51-8541-9e8e8036d82c", "image:45956aef-9834-4e6a-9719-afca3a071925"],
+      "reason": "candidate-6–9 是当前观察中的其他节点，可排除；candidate-1 是刷新前第一序位的潜在历史对应。相同序位/坐标/外观不足以确认 same，又无证据排除它。",
+      "missingEvidence": ["跨刷新稳定业务键或连续性映射", "显式 1 星值", "点击效果", "无遮挡命中证据"]
+    },
+    {
+      "caseId": "dc2234c2",
+      "visibleMeaning": "刷新后五颗星中的第 3 颗，属于同一星级评分/投票组件。",
+      "proposedValue": 3,
+      "valueBasis": "推断：左到右第 3 个星形按钮通常表示 3 星；没有显式 value 或可访问名称。",
+      "decision": "uncertain",
+      "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "candidate-4", "candidate-5", "candidate-6", "candidate-7", "candidate-8", "candidate-9", "image:5206d01c-3902-4a51-8541-9e8e8036d82c", "image:45956aef-9834-4e6a-9719-afca3a071925"],
+      "reason": "candidate-6、7、8、9 是当前其他兄弟节点；candidate-3 是刷新前第三序位的潜在历史对应，但只有序位、坐标、外观和 selector 形状相同，无法确认或排除。",
+      "missingEvidence": ["跨刷新稳定业务键或连续性映射", "显式 3 星值", "点击效果", "无遮挡命中证据"]
+    },
+    {
+      "caseId": "7d43cd47",
+      "visibleMeaning": "五颗星中的第 5 颗，属于同一星级评分/投票组件。",
+      "proposedValue": 5,
+      "valueBasis": "推断：左到右第 5 个星形按钮通常表示 5 星；没有显式 value 或可访问名称。",
+      "decision": "independent",
+      "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "candidate-4", "image:f320f9bc-7f57-4eb3-a3de-233588cf56a9"],
+      "reason": "目标 localId=:65；候选为同一观察内 :61–:64 的四个不同兄弟按钮，可排除为同一当前节点。",
+      "missingEvidence": ["显式 5 星语义或值", "点击效果", "无遮挡命中证据"]
+    },
+    {
+      "caseId": "22307932",
+      "visibleMeaning": "五颗星中的第 2 颗，属于同一星级评分/投票组件。",
+      "proposedValue": 2,
+      "valueBasis": "推断：左到右第 2 个星形按钮通常表示 2 星；没有显式 value 或可访问名称。",
+      "decision": "independent",
+      "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "candidate-4", "image:f320f9bc-7f57-4eb3-a3de-233588cf56a9"],
+      "reason": "目标 localId=:62；候选为同一观察内 :61、:63、:64、:65 的四个不同兄弟按钮，可排除为同一当前节点。",
+      "missingEvidence": ["显式 2 星语义或值", "点击效果", "无遮挡命中证据"]
+    },
+    {
+      "caseId": "8b3219ad",
+      "visibleMeaning": "刷新后五颗星中的第 4 颗，属于同一星级评分/投票组件。",
+      "proposedValue": 4,
+      "valueBasis": "推断：左到右第 4 个星形按钮通常表示 4 星；没有显式 value 或可访问名称。",
+      "decision": "uncertain",
+      "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "candidate-4", "candidate-5", "candidate-6", "candidate-7", "candidate-8", "candidate-9", "image:5206d01c-3902-4a51-8541-9e8e8036d82c", "image:45956aef-9834-4e6a-9719-afca3a071925"],
+      "reason": "candidate-6、7、8、9 是当前其他节点；candidate-4 是刷新前第四序位的潜在历史对应。缺少超越 DOM 槽位和外观的连续性证据，无法确认或排除。",
+      "missingEvidence": ["跨刷新稳定业务键或连续性映射", "显式 4 星值", "点击效果", "无遮挡命中证据"]
+    },
+    {
+      "caseId": "22db32fb",
+      "visibleMeaning": "刷新后五颗星中的第 2 颗，属于同一星级评分/投票组件。",
+      "proposedValue": 2,
+      "valueBasis": "推断：左到右第 2 个星形按钮通常表示 2 星；没有显式 value 或可访问名称。",
+      "decision": "uncertain",
+      "evidenceRefs": ["target", "candidate-1", "candidate-2", "candidate-3", "candidate-4", "candidate-5", "candidate-6", "candidate-7", "candidate-8", "candidate-9", "image:5206d01c-3902-4a51-8541-9e8e8036d82c", "image:45956aef-9834-4e6a-9719-afca3a071925"],
+      "reason": "candidate-6–9 是当前其他兄弟节点；candidate-2 是刷新前第二序位的潜在历史对应。相同序位、坐标、外观和 selector 形状不能单独证明 same，也无排除证据。",
+      "missingEvidence": ["跨刷新稳定业务键或连续性映射", "显式 2 星值", "点击效果", "无遮挡命中证据"]
+    }
+  ],
+  "suggestedEvidenceImprovements": [
+    "为每个星按钮采集 aria-label（如“1 星”）、显式 value/data-rating、aria-checked 或 aria-pressed，并记录组件当前选择值。",
+    "采集稳定的组件实例 ID 与每个评分项的业务键；刷新前后记录框架 key/hydration 标识或由应用提供的 identity token。",
+    "记录受控的 hover、focus、click 前后 DOM/视觉差异及事件 payload，但在实际执行前先关闭遮挡弹窗并重新验证 hit target。",
+    "补齐 addEventListener/委托事件证据，说明点击是否即时提交、是否需要登录、是否可撤销及失败反馈。",
+    "对刷新建立明确的导航/刷新因果时间线，并保留刷新前后组件状态与业务数据映射。",
+    "将遮挡层及其 z-index、命中测试结果与目标截图绑定，避免用被遮挡坐标驱动自动点击。"
+  ]
+}
