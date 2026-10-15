@@ -170,3 +170,15 @@ it('exposes proposal-only interfaces and refuses to silently execute requirement
     expect(runner.catalog()[0].optionsSchema).toBeDefined();
   });
 });
+
+it('retains the original clipped text when a changed label establishes a new baseline', async () => {
+  await setup('hard-x', async (e, sid, node, id) => {
+    const tracker = new TextTruncationTracker(), first = target(await tracker.run(e, latest(e, sid)), id);
+    expect(first.facts!.lastObservedFinding).toMatchObject({ code: 'TEXT_HARD_CLIP_SUSPECTED', severity: 'warning', facts: { cuts: first.facts!.cuts } });
+    await pageOf(e).locator('#target').evaluate(el => el.textContent = 'OK'); await e.observe(sid);
+    const changed = target(await tracker.run(e, latest(e, sid)), id);
+    expect(changed).toMatchObject({ code: 'TEXT_BASELINE_CHANGED', verdict: 'unknown', facts: { lastObservedFinding: first.facts!.lastObservedFinding, currentObservation: { verdict: 'pass', code: 'DOM_TEXT_BOXES_FIT' } } });
+    await pageOf(e).locator('#target').evaluate(el => el.remove()); await e.observe(sid);
+    expect(target(await tracker.run(e, latest(e, sid)), id).facts!.lastObservedFinding).toEqual(first.facts!.lastObservedFinding);
+  });
+});

@@ -1,3 +1,4 @@
+import { currentCaptureOnly, findingSnapshot } from './finding-history.js';
 import { canonical, type Control, type DomEvidence, type Json } from '@interaction/adapter-playwright';
 import type { Inspection } from '@interaction/browser';
 import type { CaptureReader, ControlRule, RuleCheck, RuleReport, RuleSelection } from './types.js';
@@ -14,7 +15,7 @@ export interface ObservedControlOptions {
   relatedNodeIds?: (check: RuleCheck, dom: DomEvidence) => string[];
 }
 type Sample = { instanceId: string; binding: string; captureId: string; scroll: { nodeId: string; left: number; top: number }[] };
-type Track = { id: string; key: string; identityId: string; firstCaptureId: string; revision: number;
+type Track = { id: string; key: string; identityId: string; firstCaptureId: string; label: string; lastObservedFinding?: Json; revision: number;
   lifecycle: 'pending' | 'suspected' | 'confirmed' | 'resolved' | 'unverified'; warning: boolean; sample?: Sample; evidence: string[] };
 const json = (value: unknown): Json => JSON.parse(JSON.stringify(value));
 function sample(c: Control, dom: DomEvidence, captureId: string, extraBinding?: unknown, relatedNodeIds: string[] = []): Sample {
@@ -52,17 +53,22 @@ export class ObservedControlTracker {
     const o = source.details?.observation, dom = source.details?.snapshot?.dom;
     const scenario = o && canonical([o.documentId, o.url, o.context, inspection.focus.scopeId, inspection.focus.regionKey]);
     const tracks = structuredClone(this.tracks), visited = new Set<string>(), checks: RuleCheck[] = [];
-    const revise = (track: Track, check: RuleCheck, current?: Sample) => {
+    const revise = (track: Track, check: RuleCheck, current?: Sample, currentObservation?: RuleCheck) => {
       const prior = track.sample;
       const changes = current && prior ? current.scroll.flatMap(after => {
         const before = prior.scroll.find(s => s.nodeId === after.nodeId);
         return before && (Math.abs(before.left - after.left) > .5 || Math.abs(before.top - after.top) > .5) ? [{ nodeId: after.nodeId, before, after }] : [];
       }) : [];
+      if (current && ['suspected', 'confirmed'].includes(track.lifecycle) && (check.severity === 'warning' || check.severity === 'error')) {
+        track.lastObservedFinding = findingSnapshot(check, inspection.captureId, track.label);
+      }
       track.revision++; track.sample = current;
       track.evidence = [...new Set([...track.evidence, inspection.captureId])].slice(-32);
       checks.push({ ...check, evidence: [...new Set([track.firstCaptureId, ...track.evidence, ...check.evidence])], facts: {
         ...check.facts, identityId: track.identityId, issueId: track.id, revision: track.revision, lifecycle: track.lifecycle,
         firstCaptureId: track.firstCaptureId, attribution: 'observed_during_interval', ancestorScrollChanges: json(changes),
+        ...(track.lastObservedFinding ? { lastObservedFinding: track.lastObservedFinding } : {}),
+        ...(currentObservation ? { currentObservation: findingSnapshot(currentObservation, inspection.captureId, o?.controls.find(c => c.localId === currentObservation.target?.nodeId)?.name ?? track.label) } : {}),
         ...(prior ? { previousCaptureId: prior.captureId } : {}),
       } });
     };
@@ -74,26 +80,35 @@ export class ObservedControlTracker {
       const c = o?.controls.find(c => c.localId === check.target?.nodeId);
       if (!c || !o || !dom) { checks.push(check); continue; }
       const key = canonical([scenario, c.identityId]); const track = tracks.get(key);
-      if (track) visited.add(key);
       const reliableIdentity = c.identityId && !c.hypothesisId && o.controls.filter(n => n.identityId === c.identityId).length === 1;
-      const measurable = reliableIdentity && this.options.codes.measurable.includes(check.code);
+      if (!reliableIdentity) {
+        if (track && !visited.has(key) && track.lifecycle !== 'resolved') {
+          visited.add(key);
+          track.lifecycle = 'unverified';
+          revise(track, unavailable(track, this.options.codes.unavailable, 'IDENTITY_UNCERTAIN'));
+        }
+        checks.push(currentCaptureOnly(check));
+        continue;
+      }
+      if (track) visited.add(key);
+      const measurable = this.options.codes.measurable.includes(check.code);
       if (!measurable) {
         if (track && track.lifecycle !== 'resolved') {
           track.lifecycle = 'unverified';
-          revise(track, unavailable(track, this.options.codes.unavailable, reliableIdentity ? check.actual : 'IDENTITY_UNCERTAIN', check.target));
+          revise(track, unavailable(track, this.options.codes.unavailable, check.actual, check.target));
         } else checks.push(check);
         continue;
       }
       const current = sample(c, dom, inspection.captureId, this.options.binding?.(c, dom, check), this.options.relatedNodeIds?.(check, dom));
       if (!track && check.verdict === 'pass') { checks.push(check); continue; }
       if (!track && tracks.size >= this.options.maxTracked) throw new Error('TRACKER_CAPACITY_EXCEEDED');
-      const active: Track = track ?? { id: crypto.randomUUID(), key, identityId: c.identityId!, firstCaptureId: inspection.captureId,
+      const active: Track = track ?? { id: crypto.randomUUID(), key, identityId: c.identityId!, firstCaptureId: inspection.captureId, label: c.name,
         lifecycle: 'pending', warning: false, revision: 0, evidence: [] };
       if (!track) { tracks.set(key, active); visited.add(key); }
       const prior = active.sample;
       if (track && (!prior || prior.instanceId !== current.instanceId || prior.binding !== current.binding)) {
         active.lifecycle = 'unverified';
-        revise(active, unavailable(active, this.options.codes.baseline, 'Instance or business binding changed, or the preceding evidence was unavailable; establish a fresh baseline', check.target), current);
+        revise(active, unavailable(active, this.options.codes.baseline, 'Instance or business binding changed, or the preceding evidence was unavailable; establish a fresh baseline', check.target), current, check);
         continue;
       }
       active.lifecycle = check.verdict === 'pass' ? 'resolved' : check.verdict === 'fail' ? 'confirmed' : check.severity === 'warning' ? 'suspected' : 'pending';

@@ -1,3 +1,4 @@
+import { hasRelevantGaps } from './evidence-dependencies.js';
 import { z } from 'zod';
 import type { DomNodeEvidence, Json, Rect } from '@interaction/adapter-playwright';
 import type { ControlRule, RuleAssessment, RuleContext } from './types.js';
@@ -45,7 +46,7 @@ function assess(context: RuleContext, options: z.output<typeof clippedControlOpt
   const env = dom.environment;
   if (dom.spatialVersion !== 1 || !env || !node.rect || env.coordinateSpace !== 'layout-viewport-css-px') return result('unknown', 'GEOMETRY_UNAVAILABLE', 'Compatible captured geometry is missing');
   // Old captures remain readable, but cannot certify the newer geometry contract.
-  if (chain.some(n => !n.layout?.clipping || n.layout.clipping.version !== 1 || !n.styles || !n.rect || n.gaps.length)) return result('unknown', 'CLIP_EVIDENCE_UNAVAILABLE', 'Clipping metadata, ancestor styles or geometry is missing or truncated');
+  if (chain.some(n => !n.layout?.clipping || n.layout.clipping.version !== 1 || !n.styles || !n.rect || hasRelevantGaps(n))) return result('unknown', 'CLIP_EVIDENCE_UNAVAILABLE', 'Clipping metadata, ancestor styles or geometry is missing or truncated');
   const visual = env.visualViewport;
   if (visual && (visual.scale !== 1 || visual.offsetLeft !== 0 || visual.offsetTop !== 0)) return result('unknown', 'VISUAL_VIEWPORT_UNSUPPORTED', 'Pinch zoom or an offset visual viewport requires a different geometry model');
   // Native modal/popover/fullscreen roots escape ancestor clipping. Their own

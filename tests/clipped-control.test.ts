@@ -175,3 +175,13 @@ it('does not partly revise issues when the tracker capacity is exceeded',async()
     expect(targetCheck(await tracker.run({captureDetails:async()=>source},task),id).facts!.revision).toBe(2);
   });
 });
+
+it('preserves confirmed clipping bounds separately from unavailable current evidence', async () => {
+  await setup('default', async (e, sid, node, id) => {
+    const tracker = new ClippedControlTracker({ rule: requirement(id) });
+    const confirmed = targetCheck(await tracker.run(e, latest(e, sid)), id);
+    expect(confirmed.facts!.lastObservedFinding).toMatchObject({ verdict: 'fail', severity: 'error', code: 'CLIPPING_REQUIREMENT_FAILED', facts: { rectangularIntersectionRatio: .5 } });
+    await pageOf(e).locator('#target').evaluate(el => el.remove()); await e.observe(sid);
+    expect(targetCheck(await tracker.run(e, latest(e, sid)), id)).toMatchObject({ code: 'CLIPPING_TARGET_UNOBSERVED', verdict: 'unknown', facts: { lastObservedFinding: confirmed.facts!.lastObservedFinding } });
+  });
+});

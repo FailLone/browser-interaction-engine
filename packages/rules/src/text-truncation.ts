@@ -1,3 +1,4 @@
+import { hasRelevantGaps } from './evidence-dependencies.js';
 import { z } from 'zod';
 import type { DomNodeEvidence, Json, Rect } from '@interaction/adapter-playwright';
 import type { ControlRule, RuleAssessment, RuleContext } from './types.js';
@@ -47,6 +48,10 @@ function assess(context: RuleContext, options: z.output<typeof textTruncationOpt
   if (inspection.focus.confidence !== 'observed') return result('unknown', 'info', 'SCOPE_UNKNOWN', 'The current interaction scope is not established');
   const active = observation.overlays?.at(-1);
   if (active && !active.controlIds.includes(control.localId)) return result('not-applicable', 'info', 'OUTSIDE_ACTIVE_SCOPE', 'Control is outside the active interaction boundary');
+  if ((['input', 'textarea', 'select'].includes(control.tag) || fieldRoles.includes(control.role)) && hasRelevantGaps(node, ['aria-labelledby'])) {
+    issues.push('LABEL_RELATION_INCOMPLETE');
+    return result('unknown', 'info', 'TEXT_RECHECK_UNAVAILABLE', 'A required DOM label relation is missing or truncated');
+  }
   if (!roots.length) return result('not-applicable', 'info', 'NO_DOM_LABEL', 'No supported DOM label is associated with this control; values and placeholders are outside coverage');
   if (dom.textGeometry?.version !== 1 || dom.textGeometry.coordinateSpace !== 'layout-viewport-css-px' || dom.spatialVersion !== 1 || !dom.environment) {
     return result('unknown', 'info', 'TEXT_GEOMETRY_UNAVAILABLE', 'Compatible text geometry is absent from this capture');
@@ -68,7 +73,7 @@ function assess(context: RuleContext, options: z.output<typeof textTruncationOpt
     if (['script', 'style', 'template', 'noscript', 'input', 'textarea', 'select'].includes(n.tag ?? '')) return;
     if (!root && (otherControls.has(id) || ['dialog', 'menu', 'listbox', 'tooltip'].includes(n.attributes?.role ?? '') || n.attributes?.popover !== undefined)) return;
     if (n.styles?.display === 'none' || ['hidden', 'collapse'].includes(n.styles?.visibility ?? '') || n.styles?.opacity === '0' || n.attributes?.hidden !== undefined) return;
-    if (n.gaps.length) issues.push('LABEL_EVIDENCE_INCOMPLETE');
+    if (hasRelevantGaps(n)) issues.push('LABEL_EVIDENCE_INCOMPLETE');
     for (const child of n.children) { if (walked > 512) break; visit(child); }
   };
   for (const root of roots) visit(root, true);
@@ -77,7 +82,7 @@ function assess(context: RuleContext, options: z.output<typeof textTruncationOpt
   for (const text of texts.slice(0, 64)) {
     textIds.push(text.id);
     if (context.signal.aborted) { issues.push('RULE_ABORTED'); break; }
-    if (text.gaps.length || text.textLayout?.version !== 1 || text.textLayout.status !== 'captured') { issues.push('TEXT_FRAGMENTS_UNAVAILABLE'); continue; }
+    if (hasRelevantGaps(text) || text.textLayout?.version !== 1 || text.textLayout.status !== 'captured') { issues.push('TEXT_FRAGMENTS_UNAVAILABLE'); continue; }
     const chain: DomNodeEvidence[] = []; const seen = new Set<string>();
     let parent = text.parentId;
     while (parent && !seen.has(parent)) {
@@ -91,7 +96,7 @@ function assess(context: RuleContext, options: z.output<typeof textTruncationOpt
     let unsupported = false;
     for (const p of effective) {
       const s = p.styles, l = p.layout;
-      if (!s || !p.rect || !l?.offset || l.clipping?.version !== 1 || p.gaps.length) { issues.push('TEXT_ANCESTOR_EVIDENCE_MISSING'); unsupported = true; break; }
+      if (!s || !p.rect || !l?.offset || l.clipping?.version !== 1 || hasRelevantGaps(p)) { issues.push('TEXT_ANCESTOR_EVIDENCE_MISSING'); unsupported = true; break; }
       if (![...Object.values(p.rect), ...Object.values(l.client)].every(Number.isFinite) || p.rect.width < 0 || p.rect.height < 0 || l.client.width < 0 || l.client.height < 0) {
         issues.push('INVALID_TEXT_CLIP_RECT'); unsupported = true; break;
       }

@@ -59,7 +59,7 @@ await reader.completeInspection(inspection.sessionId, inspection.id, 'rules', to
 
 `sampled-occlusion@1.0.0` 检查采集时控件与视口交集的中心点命中：
 
-- 正常禁用（默认）、隐藏、inert、视口外或已观察到的 modal 背景为不适用；modal 的逻辑子弹层控件继续检查。
+- 正常禁用（默认）、隐藏、inert、视口外或当前活动交互边界之外的控件为本次不适用；modal 背景保留专门原因，活动边界内的逻辑子弹层控件继续检查。这不是背景控件健康或永久豁免的结论。
 - 命中自身或后代时，只给该采样点 pass。透明装饰可能透传指针，即使有视觉遮挡也可能得到此结果。
 - 命中别的节点时输出 `unknown + warning`，记录实际 blocker、其 fixed/sticky 祖先、所属 overlay、tooltip 线索和建议补证步骤。没有因 CSS 定位方式直接给 warning/fail 的严重度判定。
 - blocker、样本或兼容的几何证据缺失时 unknown。没有自动滚动、自动关闭弹层、像素可读性判断或“永久不可达”的 error。
@@ -377,3 +377,13 @@ const proposal = ruleRequirementProposalSchema.parse({
 旧的显式配置继续按原有语义工作：遮盖的 requirements 位于 `ObservedOcclusionTracker` 参数顶层，裁剪的 requirements 位于静态规则参数或 `ClippedControlTracker.rule` 中；它们由宿主明确提供，满足各自证据条件时仍可产生 error。它们不会自动认证来源，所声明的要求是否正确仍由调用方负责。新提案使用不同的严格结构，直接传入这些旧入口会被拒绝；即使额外补上旧配置的 kind 字段，也不会剥掉提案状态后自动采用。文字规则仍不执行外部要求。
 
 `tests/rule-requirements.test.ts` 验证三类提案的来源、目标绑定、版本隔离、文字接口兼容性及配置边界。三条规则原有浏览器测试继续验证：默认疑点保持 warning/unknown，既有显式要求仍能按原条件产生 error。
+
+## 规则证据与历史异常的区分
+
+几何规则按实际依赖判断证据是否足够。已关闭的条件弹层可能让 `aria-controls` 指向不存在的节点；这不否定已经采集的矩形、样式、命中点或文字片段。已知但不依赖的 DOM 关系缺口不再阻止检查；字段截断、未知缺口、缺失几何仍保持 unknown。输入控件依赖 `aria-labelledby` 获取可见标签时，该关系缺失仍是文字证据不足。
+
+单帧检查与跨帧关联分开。逻辑身份尚不确定时，仍检查当前 Capture 的控件，并记录 `facts.tracking = current-capture-only`；不套用该身份的要求，也不把这个检查当成历史问题的恢复。已有历史问题保留独立的无法复核结果，一帧内只修订一次，不把多个同名实例拼接起来。
+
+跟踪器为已观察的 warning/error 保存有界的 `facts.lastObservedFinding`，包含当时的 Capture、目标、名称、判定与原始命中/裁切事实。目标消失、活动范围关闭、证据缺失或基线改变时，当前结论仍可能 unknown，但不会抹掉这份异常。基线变化时的独立单帧判断保存在 `facts.currentObservation`，不能据此宣称旧问题恢复。历史 error 也不自动表示当前页面仍违反要求。
+
+以上字段由规则输出，现有调试页的“检测依据”可以查看。它们没有引入主动滚动、额外采集、补检调度或模型执行；遍历结束也不会把剩余 unknown 自动升级为 error 或 pass。
