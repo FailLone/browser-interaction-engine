@@ -249,12 +249,14 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           f.status = 'superseded'; f.reason = 'traversal_position_changed'; f.unblock = undefined; f.recovery = undefined; this.store.put('frontier', f);
         }
         // Untried exits (including reviewed controls) are traversal work, not a
-        // reason to reopen a boundary already observed closed in this document.
+        // reason to reopen a closed boundary or return to its old document.
         // Keep the records unexecuted; retiring an intent is not control coverage.
-        for (const f of this.frontier(sessionId)) if (!f.attempts.length && f.action.boundary?.intent === 'exit'
-          && this.observation(sessionId, f.action.observationId).instanceScope === o.instanceScope
-          && !o.boundaries?.some(b => b.key === f.action.boundary!.key)) {
-          f.status = 'superseded'; f.reason = 'boundary_already_exited'; f.unblock = undefined; f.recovery = undefined; this.store.put('frontier', f);
+        for (const f of this.frontier(sessionId)) if (!f.attempts.length && f.action.boundary?.intent === 'exit') {
+          const documentChanged = this.observation(sessionId, f.action.observationId).instanceScope !== o.instanceScope;
+          if (!documentChanged && o.boundaries?.some(b => b.key === f.action.boundary!.key)) continue;
+          if (f.status === 'superseded' && ['boundary_already_exited', 'boundary_document_changed'].includes(f.reason || '')) continue;
+          f.status = 'superseded'; f.reason = documentChanged ? 'boundary_document_changed' : 'boundary_already_exited';
+          f.unblock = undefined; f.recovery = undefined; this.store.put('frontier', f);
         }
       }
       session = this.session(sessionId); session.currentObservationId = o.id; this.store.put('session', session);

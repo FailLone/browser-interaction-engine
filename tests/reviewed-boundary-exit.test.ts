@@ -105,6 +105,39 @@ it('rejects stale, mismatched and unsourced exit declarations without permitting
   } finally { await t.close(); }
 });
 
+it.each([false, true])('retires old-document exits after navigation, including when the new document has a matching boundary key (%s)', async sameBoundary => {
+  const panel = (contents: string) => `<div id="panel" role="listbox" style="position:absolute;top:150px;left:30px;width:250px;height:150px;background:white;z-index:10">${contents}</div>`;
+  const server = createServer((req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.end(req.url === '/next'
+      ? `<h1>Destination</h1>${sameBoundary ? panel('<button type="button" onclick="panel.remove()">Close</button>') : ''}`
+      : `<button type="button">Dismiss</button>${panel('<a href="/next">Continue</a>')}`);
+  });
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  const t = await testEngine(`http://127.0.0.1:${(server.address() as { port: number }).port}`, {
+    exploration: 'controls', contextRules: [], decisionScopes: ['region'],
+  }, { actions: (actions, { observation: o }) => actions.map(a => a.label === 'Dismiss' && o.boundaries?.length
+    ? declaration(a, o.id, o.boundaries.at(-1)!.key) : a) });
+  try {
+    const before = t.engine.observation(t.sessionId);
+    const unused = t.engine.getFrontier(t.sessionId).filter(f => f.action.boundary?.intent === 'exit');
+    expect(unused.some(f => f.action.label === 'Dismiss')).toBe(true);
+    expect(unused.some(f => f.action.kind === 'press')).toBe(true);
+    await act(t.engine, t.sessionId, 'Continue');
+    const after = t.engine.observation(t.sessionId);
+    expect(after.instanceScope).not.toBe(before.instanceScope);
+    if (sameBoundary) expect(after.boundaries![0].key).toBe(before.boundaries![0].key);
+    for (const old of unused) expect(t.engine.getFrontier(t.sessionId).find(f => f.id === old.id)).toMatchObject({
+      status: 'superseded', reason: 'boundary_document_changed', attempts: [], coverage: { executionStatus: 'not_attempted' },
+    });
+    if (sameBoundary) expect(t.engine.getFrontier(t.sessionId).some(f => f.action.label === 'Close' && f.status === 'pending')).toBe(true);
+    await t.engine.explore(t.sessionId); await t.engine.waitForIdle();
+    expect(t.engine.list<ActionAttempt>(t.sessionId, 'attempt').map(a => a.action.label)).toEqual(sameBoundary ? ['Continue', 'Close'] : ['Continue']);
+    expect(t.engine.list(t.sessionId, 'reach')).toEqual([]);
+    expect(t.engine.observation(t.sessionId).url).toContain('/next');
+  } finally { await t.close(); await new Promise<void>(resolve => server.close(() => resolve())); }
+});
+
 it('does not accept a successful no-op click as an exit, or waive pointer interception', async () => {
   const t = await fixture({ actions: (actions, { observation: o }) => actions.map(a => ['Choices', 'No effect'].includes(a.label) && o.boundaries?.length
     ? declaration(a, o.id, o.boundaries.at(-1)!.key) : a) });

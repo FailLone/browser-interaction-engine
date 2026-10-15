@@ -90,4 +90,6 @@ await client.command(sessionId, { type: 'resume' });
 
 遍历决定不授予用途风险、重放、恢复或身份许可。已有列表用途审阅复用保持独立，不能用通用 region/branch 组来申请列表用途授权。每次目标验证、实际尝试、效果检查和覆盖率记录仍独立进行。
 
-验收见 `tests/exploration-scopes-core.test.ts` 和 `tests/exploration-scopes-browser.test.ts`：非浏览器单动作、业务目标选择、重叠范围、条件失效、迟到决策、异常恢复、弹层退出、输入抽样、原有安全阻塞以及 SDK/HTTP。该轮验证使用独立测试页，不构成 OKX 全页面或全列表穷尽证明。
+独立回归见 `tests/exploration-scopes-core.test.ts` 和 `tests/exploration-scopes-browser.test.ts`：非浏览器单动作、业务目标选择、重叠范围、条件失效、迟到决策、异常恢复、弹层退出、输入抽样、原有安全阻塞以及 SDK/HTTP。
+
+[OKX 目标驱动实测](experiments/exploration-decisions-2026-10-15/README.md)另验证了待决期间继续其他工作、all/sample/defer/skip、金额样本、列表暂缓后自动重入，以及导航后的条件失效。实测发现并修复旧文档退出待办引发的多余返回；范围决策不提供未知退出方式的自动语义判断，跨文档的旧批准也不会复活。此结果不构成全页面或全列表穷尽证明。

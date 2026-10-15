@@ -1,15 +1,16 @@
 import { BrowserEngine, type ActionCandidate, type Control, type Observation, type ActionAttempt, type ReachResult } from '@interaction/browser';
 import { SqliteStore } from '@interaction/storage-sqlite';
 import { createServer } from 'node:http';
-import { mkdirSync, writeFileSync, appendFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, appendFileSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
 // Generic local workbench: site knowledge lives only in sourced review records.
-// Usage: pnpm exec tsx --conditions=development scripts/exploration-workbench.ts URL OUTPUT_DIRECTORY
-const [url, output = 'work/exploration-workbench'] = process.argv.slice(2);
+// Usage: pnpm exec tsx --conditions=development scripts/exploration-workbench.ts URL OUTPUT_DIRECTORY [OPTIONS_JSON]
+const [url, output = 'work/exploration-workbench', optionsPath] = process.argv.slice(2);
 if (!url || !/^https?:\/\//.test(url)) throw new Error('Supply an HTTP(S) URL and optional output directory');
 const directory = resolve(output); mkdirSync(directory, { recursive: true });
+const options = optionsPath ? JSON.parse(readFileSync(resolve(optionsPath), 'utf8')) : {};
 type Review = { id: string; at: string; observationId: string; instanceScope: string; instanceId: string; binding: string; kind: string; risk: 'interface' | 'unknown'; replayable: boolean; reason: string; evidence: string[]; samples?: string[]; exitBoundary?: string };
 const reviews: Review[] = [];
 const binding = (c: Control) => JSON.stringify([c.stableKey, c.role, c.label || c.name, c.region, c.form, c.constraints.type]);
@@ -43,9 +44,9 @@ const engine = new BrowserEngine({ persistence: new SqliteStore(directory), hook
     return result;
   },
 } });
-const session = await engine.createSession({ url, headless: true, maxActions: 10000, maxDepth: 100, maxDurationMs: 86400000,
+const session = await engine.createSession({ headless: true, maxActions: 10000, maxDepth: 100, maxDurationMs: 86400000,
   actionTimeoutMs: 15000, settleMs: 300, observeTimeoutMs: 10000,
-  evidenceRetention: { mode: 'persistent', ttlMs: 0, maxBytes: 20 * 1024 ** 3, maxObservations: 100000 } });
+  evidenceRetention: { mode: 'persistent', ttlMs: 0, maxBytes: 20 * 1024 ** 3, maxObservations: 100000 }, ...options, url });
 const sid = session.id;
 function state() {
   const o = engine.observation(sid);
@@ -72,6 +73,7 @@ const server = createServer(async (req,res)=> {
     let result: unknown;
     if(req.method==='GET' && req.url==='/state') result=state();
     else if(req.method==='GET' && req.url==='/summary') result=summary();
+    else if(req.method==='GET' && req.url==='/report') result=engine.report(sid);
     else if(req.method==='GET' && req.url==='/hypotheses') result=engine.list(sid,'hypothesis');
     else if(req.method==='GET' && req.url==='/groups') result=engine.list(sid,'exploration-group');
     else if(req.method==='GET' && req.url?.startsWith('/purpose-material?')) result=engine.purposeReviewMaterial(sid,new URL(req.url,'http://localhost').searchParams.get('groupId') || '');
