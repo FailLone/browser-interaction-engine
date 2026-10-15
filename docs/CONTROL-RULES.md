@@ -169,11 +169,32 @@ await client.completeInspection(sessionId, inspection.id, consumerId, toInspecti
 | 可比目标仍被挡，没有明确当前位置要求或没有相关偏移变化 | unknown/warning | suspected |
 | 前后五点都被挡、相关祖先实际滚动、可比性通过，且该 identityId 有明确当前位置要求 | fail/error，限定于已声明的五点合同 | confirmed |
 | 已确认的同一失败仍持续 | 保留 fail/error | confirmed |
-| 移出视口、被裁剪、禁用、缺证、身份不明、作用范围/上下文改变或 DOM 重建 | unknown/warning，不将消失当作修复 | unverified |
+| 比较基线中断，但当前完整五点仍被挡 | 当前 unknown/warning，另记 continuity | suspected |
+| 移出视口、被裁剪、禁用、缺证、身份不明或作用范围/上下文改变 | 保留历史记录，不将消失当作修复 | unverified |
+| DOM 重建或绑定变化后采样通过 | 独立当前 pass，旧异常仍为历史记录；不推断恢复 | unverified（旧记录） |
 
 error **不是**“无法通过任何滚动恢复”的证明，也不是整个控件所有像素/键盘交互不可用。仅重复看到遮挡、滚到端点或有限位置尝试失败不能证明永久阻挡。要求“任意时刻都可操作”的产品契约必须由调用方提供；未配置时不产生 error。
 
 每个问题有 issueId 和递增 revision，保留首次证据与最近 32 份证据引用、确认时的引用；报告包含当前采样和用于复查的实际偏移差。关闭警告不删除历史报告。未能复查时保留历史 confirmedAt，当前结果不会假装重新验证了此前错误。
+
+### 当前事实、历史记录与检查限制
+
+三个历史跟踪器分别表达本次检查和历史比较。`facts.observationStatus` 是附加的机器可读状态，不改变 `verdict` 的四态合同：
+
+| 状态 | 含义 |
+| --- | --- |
+| `current` | 本次采集得到了可用判定；warning 仍可能因产品要求未接入而保持 unknown |
+| `historical` | 保留 `lastObservedFinding` 的原始异常与采集，当前不能据此确认恢复；不隐含人工任务或自动重新打开弹层 |
+| `unsupported` | 当前方法的覆盖前提无法满足，例如目标大于视口；不能当作通过或不适用 |
+| `unavailable` | 当前无法比较，且没有已保存的异常事实可供保留 |
+
+旧结果与没有历史跟踪的普通 pass 可以不带该字段；缺省不能推断为 `current`。原有 `facts.lifecycle` 表示历史问题状态，不能替代观察状态或违规结论。
+
+基线中断后，如果当前仍观察到遮挡、控件裁切或文字硬截断，主结果直接保留当前规则的 code/verdict/severity，`facts.continuity` 单独说明中断原因。此时不输出无效的前后滚动比较。已有明确控件裁切要求且当前违反时，仍报告 error。遮挡规则的 error 继续要求相关滚动和可比样本，不因丢失基线而放宽。
+
+如果替换后的控件或新文字当前通过，会单独输出当前检查，并保留旧异常的历史记录。连续多次看到新文字完整，不能证明旧文字恢复。反之，已经有可比证据解决的异常，不会因为后续健康控件重建而重新出现。`lastObservedFinding` 的目标标签、证据与绑定始终来自实际异常采集。
+
+完整视口检查遇到大于视口的目标返回 `TARGET_EXCEEDS_VIEWPORT`；遮挡检查的目标大于实际裁切容器时返回 `TARGET_EXCEEDS_CLIP_BOUNDS`；裁切检查中仅受滚动边界影响、但目标比容器更大时返回 `TARGET_EXCEEDS_SCROLLPORT`。这些结果标记 `unsupported` 和 `recheck: requires-viewport-or-layout-change`，不要求无期限等待滚动，也不按 `#root`、按钮名称或标签类型豁免。仍能完整放入容器、只是容器当前部分位于屏幕外的目标继续保持普通复查状态。非滚动容器中的可测裁切继续正常报告。
 
 tracker 在消费者内存中维护状态，默认最多 500 个已跟踪问题（可配 1–1000，包括已解决问题）；满额抛出 TRACKER_CAPACITY_EXCEEDED，不静默丢弃警告。调用内部串行化、最近任务重送幂等、较旧任务和跨会话调用明确拒绝。重启消费者应使用新 tracker 按顺序重放保留的历史检查，缺失历史不推断恢复。不是跨进程持久化状态服务；报告通过原 Inspection 协议持久保存。底层快照的长期可读性仍取决于租约和留存配置。
 
@@ -195,6 +216,7 @@ tracker 在消费者内存中维护状态，默认最多 500 个已跟踪问题�
 | --- | --- |
 | 控件矩形完整位于已验证的裁剪区域和视口内 | pass / info，仅限矩形几何 |
 | 部分或全部位于页面视口外 | unknown / info，等待普通探索观察 |
+| 目标尺寸超过视口，或仅受滚动裁剪但尺寸超过容器 | unknown / info，明确检查能力限制，滚动无法满足完整检查条件 |
 | 被 `overflow: auto/scroll` 边界裁剪 | unknown / info，正常滚动待复查 |
 | 被 `overflow: hidden/clip` 边界裁剪 | unknown / warning，设计意图未确认 |
 | 上一行且违反调用方明确声明的控件要求 | fail / error，限当前位置、当前要求 |

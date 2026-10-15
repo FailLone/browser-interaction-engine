@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import './rule-plugins.css';
 import type { InteractionClient, RulePluginInfo, RulePluginRun, RulePluginRunRequest, RulePluginResult, RuleCheck, RuleAutomation } from '@interaction/client';
 
-const verdicts = { pass: '通过', fail: '发现问题', unknown: '待核验', 'not-applicable': '不适用' };
+const verdicts = { pass: '通过', fail: '发现问题', unknown: '未判定', 'not-applicable': '不适用' };
 const severities = { info: '信息', warning: '警告', error: '错误' };
 const lifecycle: Record<string, string> = { pending: '等待后续观察', suspected: '疑似问题', confirmed: '已确认', resolved: '已恢复', unverified: '无法继续核验' };
 const descriptions: Record<string, string> = {
   OBSERVED_POINT_REACHABLE: '已检查的点击采样点可达', SAMPLE_REACHABLE: '点击采样点可达',
-  OCCLUSION_SUSPECTED: '控件可能被遮盖，等待后续观察', OCCLUSION_STILL_OBSERVED: '后续采集中仍然观察到遮盖',
+  OCCLUSION_SUSPECTED: '本次采集的点击采样点被遮挡', OCCLUSION_STILL_OBSERVED: '后续采集中仍然观察到遮盖',
   OBSERVED_POINTER_REQUIREMENT_FAILED: '相关滚动后，全部点击采样点仍被遮挡，违反已声明的可点击要求',
   OCCLUSION_RECOVERED_AFTER_SCROLL: '滚动后，原有遮盖已恢复', OCCLUSION_NO_LONGER_OBSERVED: '本次采集中未再观察到原有遮盖',
   CONTROL_BOX_UNCLIPPED: '控件边界未被裁切', CONTROL_CLIPPING_SUSPECTED: '控件边界可能被容器裁切',
@@ -23,13 +23,26 @@ const descriptions: Record<string, string> = {
   EVIDENCE_UNAVAILABLE: '保存的证据不可用，无法判断', EVIDENCE_INCOMPLETE: '采集证据不完整，无法判断',
   OCCLUSION_RECHECK_UNAVAILABLE: '遮盖复核所需的命中或几何证据不足', CLIP_EVIDENCE_UNAVAILABLE: '裁切边界、样式或几何证据不完整',
   TEXT_RECHECK_UNAVAILABLE: '文字或几何证据不完整，无法确认是否完整显示',
+  TARGET_EXCEEDS_VIEWPORT: '目标大于视口，单靠滚动无法满足完整检查条件',
+  TARGET_EXCEEDS_CLIP_BOUNDS: '目标大于可见裁切区域，当前方法无法完整检查',
+  TARGET_EXCEEDS_SCROLLPORT: '目标大于滚动容器，单靠滚动无法完整显示',
+  OCCLUSION_TARGET_UNOBSERVED: '保留此前的遮挡记录；当前范围未观察到原目标',
+  CLIPPING_TARGET_UNOBSERVED: '保留此前的裁切记录；当前范围未观察到原目标',
+  TEXT_TARGET_UNOBSERVED: '保留此前的文字裁断记录；当前范围未观察到原目标',
+  OCCLUSION_BASELINE_CHANGED: '原遮挡记录缺少可比较的后续证据；当前采样结果单独记录',
+  CLIPPING_BASELINE_CHANGED: '原裁切记录缺少可比较的后续证据；当前几何结果单独记录',
+  TEXT_BASELINE_CHANGED: '原文字记录缺少可比较的后续证据；当前文字结果单独记录',
   NO_TARGETS: '没有可检查的控件',
 };
 
 function Check({ check, labels }: { check: RuleCheck; labels: Record<string, string> }) {
   const phase = typeof check.facts?.lifecycle === 'string' ? lifecycle[check.facts.lifecycle] : undefined;
+  const status = check.facts?.observationStatus;
+  const statusLabel = status === 'historical' ? '历史记录 · 当前未复查' : status === 'unsupported' ? '检查范围受限' : status === 'current' && check.verdict === 'unknown' ? '当前观察' : undefined;
+  const history = check.facts?.lastObservedFinding;
+  const historicalLabel = history && typeof history === 'object' && !Array.isArray(history) && typeof history.label === 'string' ? history.label : undefined;
   return <li className={`rule-check rule-severity-${check.severity}`}>
-    <div><b>{check.target ? labels[check.target.nodeId] || '未命名控件' : '检查范围'}</b><span>{verdicts[check.verdict]} · {severities[check.severity]}{phase && ` · ${phase}`}</span></div>
+    <div><b>{check.target ? labels[check.target.nodeId] || historicalLabel || '未命名控件' : historicalLabel || '检查范围'}</b><span>{statusLabel || verdicts[check.verdict]} · {severities[check.severity]}{!statusLabel && phase && ` · ${phase}`}</span></div>
     <p>{descriptions[check.code] || (check.verdict === 'unknown' ? '当前证据不足以确定结果，请查看检测依据。' : check.actual)}</p>
     {check.verdict === 'fail' && <p>判断依据：{check.expected}</p>}
     <details><summary>检测依据</summary><p>{check.actual}</p><pre>{JSON.stringify(check, null, 2)}</pre></details>
@@ -46,7 +59,7 @@ function Result({ result }: { result: RulePluginResult }) {
   const checks = (items: RuleCheck[]) => <ul className="rule-checks">{items.map((check, i) => <Check key={i} check={check} labels={targetLabels} />)}</ul>;
   return <section className="rule-result" aria-label={`${result.plugin.name}结果`}>
     <h4>{result.plugin.name} · {verdicts[report.verdict]}</h4>
-    <p className="rule-counts">{errors} 项错误 · {warnings} 项警告 · {report.checks.filter(c => c.verdict === 'unknown').length} 项待核验 · {report.checks.filter(c => c.verdict === 'pass').length} 项通过 · {report.checks.filter(c => c.verdict === 'not-applicable').length} 项不适用</p>
+    <p className="rule-counts">{errors} 项错误 · {warnings} 项警告 · {report.checks.filter(c => c.verdict === 'unknown').length} 项未判定 · {report.checks.filter(c => c.verdict === 'pass').length} 项通过 · {report.checks.filter(c => c.verdict === 'not-applicable').length} 项不适用</p>
     {checks(attention)}
     {!!others.length && <details><summary>通过与不适用的结果（{others.length}）</summary>{checks(others)}</details>}
   </section>;
@@ -104,7 +117,7 @@ export function RulePluginPanel({ api, sessionId, inspectionId, revision }: { ap
   return <section className="rule-plugins" aria-label="规则插件">
     <h3>规则插件</h3>
     <p className="muted">检查当前所选任务，并利用此前的探索记录复核。检测只读取已保存的证据，不滚动或操作页面；探索可以继续。</p>
-    <p className="muted">按已安装规则的配置检查；项目规范和 agent 提案尚未接入自动裁决。待核验不等于通过，单个采样通过也不代表整个页面无问题。</p>
+    <p className="muted">按已安装规则的配置检查；项目规范和 agent 提案尚未接入自动裁决。“未判定”包含已观察到但尚未判定违规的警告、历史记录和检查范围限制，并非都在等待后续观察。单个采样通过也不代表整个页面无问题。</p>
     <p role="status">自动检查：{automation ? ({ watching: '等待新的采集', checking: '正在处理采集', paused: '已关闭', failed: '处理失败' }[automation.status]) : '未开启'}{automation?.enabled && ` · 已处理 ${automation.completedCount} 条采集 · ${automation.plugins.length} 个规则`}</p>
     {automation?.error && <p role="alert">{automation.error}</p>}
     {loading ? <p role="status">正在加载规则与检测记录…</p> : <>

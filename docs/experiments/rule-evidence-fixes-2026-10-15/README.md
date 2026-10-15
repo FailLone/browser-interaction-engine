@@ -35,3 +35,31 @@
 4173 服务已更新到合并版本，重新创建会话 `15b0b4fc-ecf6-47cd-b82d-6aa5560cfdae` 检查 4174 原测试页：32 动作、34 Capture、34 次自动检测，三个插件全部完成，三处预设缺陷均被检出。最后仍为 3 warning、5 unknown、40 pass、1 not-applicable；停止原因仍为已知操作前沿处理完但存在缺口。
 
 完整结果保存于本地 `work/exploration-rule-checks/final-merged-run.json`，精简结果追加在 `acceptance.json` 的 `finalMergedRun`。前面的 UI 截图对应第一次规则修复实测，未把它当成最终合并会话截图。
+
+## 当前判断与历史追踪分离修复
+
+分支 `codex/rule-observation-status` 修复规则本身的两个问题：基线中断不再覆盖当前异常结论；目标大于视口或滚动容器时明确报告检查能力限制，不再提出无法满足的滚动复查条件。没有修改探索器。
+
+`facts.observationStatus` 区分当前观察、历史记录、检查限制与不可用状态；比较中断原因在 `facts.continuity` 中单独记录。当前仍有可测异常时保留当前 code/verdict/severity；绑定已变化且当前通过时，当前 pass 独立输出，旧异常继续保留。增加异常自身的比较样本，防止连续两次看到替换后的短文字就把原文字问题标为恢复。已经通过可比证据解决的问题，也不会因之后的健康控件重建而重新变成历史警告。
+
+超大目标没有按 `#root` 或标签类型忽略，真实超大按钮同样报告 unsupported。判断使用容器自身尺寸，不能把暂时移出屏幕的容器误认为永久太小。可测的非滚动容器裁切仍报告 warning/error。调试页只同步展示这些规则字段，并将 unknown 的泛称改为“未判定”。
+
+### 同证据对照与服务验证
+
+旧会话中间快照已超过 cache 的 5 分钟保留期，不能再据其缺失证据声称完整回放成功。因此重新遍历 4174 原测试页，创建持久证据会话 `fdf5e4e8-fa4a-419a-9271-55d969787bb7`：32 次动作、34 帧采集、34 次自动检查，三个插件全部完成。
+
+将同一批完整新证据分别交给修复前（`503589e`）与修复后的规则，最后结果如下：
+
+| 目标及规则 | 修复前 | 修复后 |
+| --- | --- | --- |
+| Reset interface 遮挡 | OCCLUSION_BASELINE_CHANGED | OCCLUSION_SUSPECTED，current/warning |
+| Submit test order 文字 | TEXT_BASELINE_CHANGED | TEXT_HARD_CLIP_SUSPECTED，current/warning |
+| Done 控件裁切 | CLIPPING_TARGET_UNOBSERVED | 相同历史原因，明确 historical/warning 并保留原裁切证据 |
+| #root 遮挡 | OCCLUSION_RECHECK_UNAVAILABLE | TARGET_EXCEEDS_VIEWPORT，unsupported |
+| #root 控件裁切 | VIEWPORT_RECHECK_PENDING | TARGET_EXCEEDS_VIEWPORT，unsupported |
+
+最终仍有 5 条 unknown：2 项当前警告、1 项历史警告、2 项检查限制。没有通过删除记录、改为 pass 或推断产品要求来降低计数。默认 error 仍为 0。原有 Reset 操作缺口及遍历停止原因保留。
+
+最终构建后的 4173 服务再次通过 HTTP 重放该会话全部 34 帧，保存新的独立手动检测记录，并核验动作数仍为 32。完整运行、对照、快照与最终 HTTP 结果分别位于本地 `work/exploration-rule-checks/observation-status-{run,comparison,captures,final-replay}.json`；精简证据追加在 `acceptance.json` 的 `observationStatusFix`。旧自动报告没有被覆盖。
+
+新增 12 项规则回归覆盖三规则的范围切换、当前显式要求失败、按钮/普通容器过大、滚动容器大小与屏幕位置区别、旧文字恢复保护、已解决问题不被重建重新打开。相关规则、插件、自动调度与 UI 共 12 文件、148 项测试分批通过；类型检查、构建、编译后 smoke 通过。UI 回归验证弹窗关闭后仍显示 Done 的历史警告。本节验收没有复用旧截图作为新结果，也没有将分批验证表述为全仓测试。

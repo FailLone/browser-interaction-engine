@@ -1,4 +1,4 @@
-import { currentCaptureOnly, findingSnapshot } from './finding-history.js';
+import { currentCaptureOnly, findingSnapshot, observationStatus } from './finding-history.js';
 import { canonical, type Control, type DomEvidence, type Json } from '@interaction/adapter-playwright';
 import type { Inspection } from '@interaction/browser';
 import type { CaptureReader, ControlRule, RuleCheck, RuleReport, RuleSelection } from './types.js';
@@ -16,7 +16,7 @@ export interface ObservedControlOptions {
 }
 type Sample = { instanceId: string; binding: string; captureId: string; scroll: { nodeId: string; left: number; top: number }[] };
 type Track = { id: string; key: string; identityId: string; firstCaptureId: string; label: string; lastObservedFinding?: Json; revision: number;
-  lifecycle: 'pending' | 'suspected' | 'confirmed' | 'resolved' | 'unverified'; warning: boolean; sample?: Sample; evidence: string[] };
+  lifecycle: 'pending' | 'suspected' | 'confirmed' | 'resolved' | 'unverified'; warning: boolean; sample?: Sample; findingSample?: Sample; evidence: string[] };
 const json = (value: unknown): Json => JSON.parse(JSON.stringify(value));
 function sample(c: Control, dom: DomEvidence, captureId: string, extraBinding?: unknown, relatedNodeIds: string[] = []): Sample {
   const nodes = new Map(dom.nodes.map(n => [n.id, n])); const node = nodes.get(c.localId)!;
@@ -61,12 +61,14 @@ export class ObservedControlTracker {
       }) : [];
       if (current && ['suspected', 'confirmed'].includes(track.lifecycle) && (check.severity === 'warning' || check.severity === 'error')) {
         track.lastObservedFinding = findingSnapshot(check, inspection.captureId, track.label);
+        track.findingSample = current;
       }
       track.revision++; track.sample = current;
       track.evidence = [...new Set([...track.evidence, inspection.captureId])].slice(-32);
       checks.push({ ...check, evidence: [...new Set([track.firstCaptureId, ...track.evidence, ...check.evidence])], facts: {
         ...check.facts, identityId: track.identityId, issueId: track.id, revision: track.revision, lifecycle: track.lifecycle,
         firstCaptureId: track.firstCaptureId, attribution: 'observed_during_interval', ancestorScrollChanges: json(changes),
+        observationStatus: observationStatus(!!current && track.lifecycle !== 'unverified', !!track.lastObservedFinding),
         ...(track.lastObservedFinding ? { lastObservedFinding: track.lastObservedFinding } : {}),
         ...(currentObservation ? { currentObservation: findingSnapshot(currentObservation, inspection.captureId, o?.controls.find(c => c.localId === currentObservation.target?.nodeId)?.name ?? track.label) } : {}),
         ...(prior ? { previousCaptureId: prior.captureId } : {}),
@@ -95,7 +97,7 @@ export class ObservedControlTracker {
       if (!measurable) {
         if (track && track.lifecycle !== 'resolved') {
           track.lifecycle = 'unverified';
-          revise(track, unavailable(track, this.options.codes.unavailable, check.actual, check.target));
+          revise(track, unavailable(track, this.options.codes.unavailable, check.actual, check.target), undefined, check);
         } else checks.push(check);
         continue;
       }
@@ -106,16 +108,39 @@ export class ObservedControlTracker {
         lifecycle: 'pending', warning: false, revision: 0, evidence: [] };
       if (!track) { tracks.set(key, active); visited.add(key); }
       const prior = active.sample;
-      if (track && (!prior || prior.instanceId !== current.instanceId || prior.binding !== current.binding)) {
-        active.lifecycle = 'unverified';
-        revise(active, unavailable(active, this.options.codes.baseline, 'Instance or business binding changed, or the preceding evidence was unavailable; establish a fresh baseline', check.target), current, check);
+      const sameBinding = (other: Sample | undefined) => other && other.instanceId === current.instanceId && other.binding === current.binding;
+      if (active.lifecycle === 'resolved' && check.verdict === 'pass' && !sameBinding(prior)) {
+        // A healthy replacement does not reopen an already resolved finding.
+        active.sample = current;
+        checks.push({ ...check, facts: { ...check.facts, observationStatus: 'current', tracking: 'current-capture-only' } });
+        continue;
+      }
+      // A new label/instance fitting twice still does not resolve the old label.
+      const historicalMismatch = check.verdict === 'pass' && active.lifecycle !== 'resolved' && active.warning && !sameBinding(active.findingSample);
+      if (track && (!sameBinding(prior) || historicalMismatch)) {
+        const continuity = { status: 'baseline-changed', code: this.options.codes.baseline,
+          reason: historicalMismatch ? 'FINDING_BINDING_CHANGED' : !prior ? 'PREVIOUS_SAMPLE_UNAVAILABLE' : 'INSTANCE_OR_BINDING_CHANGED',
+          previousCaptureId: prior?.captureId ?? null };
+        // Do not generate scroll comparisons across an invalid baseline.
+        active.sample = undefined;
+        if (check.severity === 'warning' || check.severity === 'error') {
+          active.lifecycle = check.verdict === 'fail' ? 'confirmed' : 'suspected';
+          active.warning = true; active.label = c.name;
+          revise(active, { ...check, facts: { ...check.facts, continuity } }, current);
+        } else {
+          active.lifecycle = 'unverified';
+          revise(active, { ...unavailable(active, this.options.codes.baseline,
+            'The historical finding cannot be compared with this observation; the current assessment is independent'),
+            facts: { continuity } }, current, check);
+          checks.push({ ...check, facts: { ...check.facts, observationStatus: 'current', continuity, tracking: 'current-capture-only' } });
+        }
         continue;
       }
       active.lifecycle = check.verdict === 'pass' ? 'resolved' : check.verdict === 'fail' ? 'confirmed' : check.severity === 'warning' ? 'suspected' : 'pending';
       active.warning ||= check.severity === 'warning' || check.severity === 'error';
       if (active.warning && active.lifecycle === 'pending') {
         active.lifecycle = 'unverified';
-        revise(active, { ...check, severity: 'warning', actual: 'Full recovery of the prior warning remains unverified at this observation' }, current);
+        revise(active, { ...check, severity: 'warning', actual: 'Full recovery of the prior warning remains unverified at this observation' }, current, check);
         continue;
       }
       // Repetition, an action label or a scroll endpoint never adds an error.

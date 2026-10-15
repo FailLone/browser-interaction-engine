@@ -35,6 +35,11 @@ it('creates an automatically checked session from the UI and shows a historical 
     await panel.getByText('控件边界可能被容器裁切', { exact: true }).waitFor();
     expect(await panel.getByRole('region', { name: '控件裁切结果' }).innerText()).toContain('Done');
     expect(await panel.innerText()).toContain('遍历自动检测已保存');
+    const last = engine.listInspections(sid, { limit: 500 }).items.at(-1)!;
+    await page.getByRole('button', { name: `查看 #${last.sequence}`, exact: true }).click();
+    const historical = panel.getByRole('region', { name: '控件裁切结果' }).locator('.rule-check').filter({ has: page.locator('b').filter({ hasText: /^Done$/ }) });
+    await historical.getByText('历史记录 · 当前未复查 · 警告', { exact: true }).waitFor();
+    expect(await historical.innerText()).toContain('保留此前的裁切记录');
     expect(posts.some(p => p.endsWith('/rule-runs'))).toBe(false);
     await page.reload(); await page.locator('.session-item').first().click();
     await page.getByRole('button', { name: 'UI 检查', exact: true }).click();

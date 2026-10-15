@@ -41,8 +41,8 @@ export function InspectionPanel({ api, sessionId, observationId, revision }: { a
     <h3>UI 检查任务</h3><p className="muted">每条任务对应一次已保存的采集。建议范围之外的页面环境仍可查询；数据完整不代表 UI 已通过检查。</p>
     {error && <div role="alert" className="gap">{error}</div>}
     {!!summary.length && <details className="rule-summary" open><summary>检测记录概览（{summary.length} 条采集{summaryMore ? '，仅显示最近 500 条' : ''}）</summary>
-      <p className="muted">按采集统计，同一问题可能多次出现；待核验包含需要后续证据的警告。</p>
-      <div style={{ maxHeight: 240, overflow: 'auto' }}><table><thead><tr><th>采集</th><th>错误</th><th>警告</th><th>待核验</th><th>规则失败</th></tr></thead><tbody>{summary.map(row => <tr key={row.inspectionId}>
+      <p className="muted">按采集统计，同一问题可能多次出现；未判定包含当前警告、历史记录与检查范围限制。</p>
+      <div style={{ maxHeight: 240, overflow: 'auto' }}><table><thead><tr><th>采集</th><th>错误</th><th>警告</th><th>未判定</th><th>规则失败</th></tr></thead><tbody>{summary.map(row => <tr key={row.inspectionId}>
         <td><button onClick={() => { if (!items.some(i => i.id === row.inspectionId)) setAfter(row.sequence - 1); setSelected(row.inspectionId); }}>查看 #{row.sequence}</button></td><td>{row.errors}</td><td>{row.warnings}</td><td>{row.unknown}</td><td>{row.failedPlugins}</td>
       </tr>)}</tbody></table></div>
     </details>}

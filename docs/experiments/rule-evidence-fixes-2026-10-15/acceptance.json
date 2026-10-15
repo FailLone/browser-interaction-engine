@@ -408,5 +408,88 @@
   },
   "mergeCommit": "1f068e1",
   "traversalFix": "a6ed79a",
-  "testFixtureFix": "334f0a3"
+  "testFixtureFix": "334f0a3",
+  "observationStatusFix": {
+    "sessionId": "fdf5e4e8-fa4a-419a-9271-55d969787bb7",
+    "captures": 34,
+    "actions": 32,
+    "before": [
+      {
+        "rule": "observed-occlusion",
+        "label": "Reset interface",
+        "code": "OCCLUSION_BASELINE_CHANGED"
+      },
+      {
+        "rule": "observed-occlusion",
+        "label": "#root",
+        "code": "OCCLUSION_RECHECK_UNAVAILABLE"
+      },
+      {
+        "rule": "observed-clipping",
+        "label": "#root",
+        "code": "VIEWPORT_RECHECK_PENDING"
+      },
+      {
+        "rule": "observed-clipping",
+        "label": "Done",
+        "code": "CLIPPING_TARGET_UNOBSERVED"
+      },
+      {
+        "rule": "observed-text-truncation",
+        "label": "Submit test order",
+        "code": "TEXT_BASELINE_CHANGED"
+      }
+    ],
+    "after": [
+      {
+        "rule": "observed-occlusion",
+        "label": "Reset interface",
+        "code": "OCCLUSION_SUSPECTED",
+        "status": "current",
+        "lifecycle": "suspected"
+      },
+      {
+        "rule": "observed-occlusion",
+        "label": "#root",
+        "code": "TARGET_EXCEEDS_VIEWPORT",
+        "status": "unsupported"
+      },
+      {
+        "rule": "observed-clipping",
+        "label": "#root",
+        "code": "TARGET_EXCEEDS_VIEWPORT",
+        "status": "unsupported"
+      },
+      {
+        "rule": "observed-clipping",
+        "label": "Done",
+        "code": "CLIPPING_TARGET_UNOBSERVED",
+        "status": "historical",
+        "lifecycle": "unverified"
+      },
+      {
+        "rule": "observed-text-truncation",
+        "label": "Submit test order",
+        "code": "TEXT_HARD_CLIP_SUSPECTED",
+        "status": "current",
+        "lifecycle": "suspected"
+      }
+    ],
+    "baselineCommit": "503589ebfc24a4ea87508b4cb1272de40c2d2d58",
+    "finalReplayRunId": "rule-run:5ab82204fa2367da9d9f48768f3597f0e9a902212f1030ce5d571546328f4f6d",
+    "sourceSnapshotRetention": "persistent",
+    "classification": {
+      "currentWarnings": 2,
+      "historicalWarnings": 1,
+      "unsupported": 2
+    },
+    "validation": {
+      "newRegressionTests": 12,
+      "distinctRelatedTestsPassedInBatches": 148,
+      "typecheck": "passed",
+      "build": "passed",
+      "compiledSmoke": "passed"
+    },
+    "note": "Old session cache snapshots had expired. Comparison uses the same 34 newly retained captures for both implementations, without browser actions."
+  }
 }

@@ -71,6 +71,15 @@ function assess(context: RuleContext, options: z.output<typeof clippedControlOpt
   if (!Number.isFinite(r.x + r.y + r.width + r.height) || r.width <= 0 || r.height <= 0) return result('unknown', 'GEOMETRY_UNAVAILABLE', 'No finite positive-area target box');
   const viewport: Bounds = { left: 0, top: 0, right: env.layoutViewport.clientWidth, bottom: env.layoutViewport.clientHeight };
   const outside = (a: Bounds, b: Bounds) => a.left < b.left - tolerance || a.top < b.top - tolerance || a.right > b.right + tolerance || a.bottom > b.bottom + tolerance;
+  // No selector/tag exemption: even a genuine interactive target may be larger
+  // than the viewport. This rule cannot certify it, and scrolling cannot make
+  // its whole box fit. Keep the limitation explicit rather than waiting forever.
+  if (r.width > viewport.right + 2 * tolerance || r.height > viewport.bottom + 2 * tolerance) return result('unknown', 'TARGET_EXCEEDS_VIEWPORT',
+    'The target is larger than the captured viewport; scrolling alone cannot satisfy full-view coverage', {
+      facts: { identityId: control.identityId ?? null, observationStatus: 'unsupported', recheck: 'requires-viewport-or-layout-change',
+        targetRect: json(r), viewportBounds: json(viewport), coverage: 'full-view-control-box-check-unavailable' },
+      nextSteps: ['Use a rule that supports partial-view targets, or reassess after a viewport or layout change'],
+    });
   if (outside(original, viewport)) return result('unknown', 'VIEWPORT_RECHECK_PENDING', 'The control extends outside the viewport; wait for an ordinary exploration observation', {
     facts: { identityId: control.identityId ?? null, geometry: 'viewport-partial-or-outside', viewportIntersectionRatio: area(intersect(original, viewport)) / area(original) },
   });
@@ -110,7 +119,14 @@ function assess(context: RuleContext, options: z.output<typeof clippedControlOpt
   const extra = { facts, evidence: [...evidence, ...new Set(clips.map(c => `node:${capture.documentId}:${c.nodeId}`))] };
   if (!clips.length) return result('pass', 'CONTROL_BOX_UNCLIPPED', 'No clipping of the control border box was established within rectangular coverage', extra);
   const hardClip = clips.some(c => !c.scrollable);
-  if (!hardClip) return result('unknown', 'SCROLL_CLIP_RECHECK_PENDING', 'The control intersects a scrolling viewport edge; ordinary scrolling may reveal it', extra);
+  if (!hardClip) {
+    const oversized = clips.some(c => c.axis === 'x' ? r.width > c.bounds.right - c.bounds.left + 2 * tolerance : r.height > c.bounds.bottom - c.bounds.top + 2 * tolerance);
+    if (oversized) return result('unknown', 'TARGET_EXCEEDS_SCROLLPORT', 'The target is larger than a scrolling container; scrolling alone cannot reveal its full box', {
+      ...extra, facts: { ...facts, observationStatus: 'unsupported', recheck: 'requires-viewport-or-layout-change' },
+      nextSteps: ['Use a rule that supports partial-view targets, or reassess after a container or target layout change'],
+    });
+    return result('unknown', 'SCROLL_CLIP_RECHECK_PENDING', 'The control intersects a scrolling viewport edge; ordinary scrolling may reveal it', extra);
+  }
   const requirement = !control.hypothesisId && observation.controls.filter(c => c.identityId === control.identityId).length === 1
     ? options.requirements.find(r => r.identityId === control.identityId) : undefined;
   if (requirement) return result('fail', 'CLIPPING_REQUIREMENT_FAILED', 'A non-scroll-UI overflow edge clips the control at this observation; permanent unreachability is not established', {
