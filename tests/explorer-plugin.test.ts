@@ -126,3 +126,11 @@ it('grounds plans in accessible action names and samples only current reviewed m
  expect(sawRetiredMember).toBe(true);expect(task.status,JSON.stringify(task)).toBe('completed');expect(task.usage.actions).toBe(1);expect(task.plan.some(i=>i.reason==='sample_unselected')).toBe(false);
  }finally{await plugin.close();await f.close();}
 });
+it('retries initial planning after a provider timeout without turning the error into an execution scope',async()=>{
+ const f=await explorerFixture();const p=fakeProviders(f.url);const original=p.llm.decide;let fail=true;
+ p.llm.decide=async(r,s)=>{if(fail){fail=false;const {ExplorerError}=await import('@interaction/explorer-plugin');throw new ExplorerError('PROVIDER_TIMEOUT');}return original(r,s);};
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'Both controls',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();let view=plugin.view(t.id);expect(view.task.reason).toBe('PROVIDER_TIMEOUT');expect(view.task.plan).toEqual([]);expect(view.task.usage.actions).toBe(0);
+ plugin.start(t.id);await plugin.waitForIdle();view=plugin.view(t.id);expect(view.task.status).toBe('completed');expect(view.decisions.filter(d=>d.purpose==='initial-plan')).toHaveLength(2);expect(view.events.some(e=>e.type==='decision.effect'&&(e.data as any).kind==='plan')).toBe(true);expect(view.events.some(e=>e.type==='action.verified'&&(e.data as any).decisionId)).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});

@@ -50,3 +50,10 @@ it('rejects model-invented operation kinds instead of persisting unmatchable pla
  for(const kind of ['button','state','enabled','clicked-once'])expect(planSchema.safeParse(plan(kind)).success).toBe(false);
  expect(planSchema.safeParse(plan('click')).success).toBe(true);
 });
+it('pins OpenRouter parameters and preserves safe input/output diagnostics on truncation',async()=>{
+ let sent:any;const response={id:'response-id',provider:'Alibaba',model:'actual',choices:[{finish_reason:'length',message:{content:'{"items":[',reasoning:'private reasoning'}}],usage:{completion_tokens:8192}};
+ const p=llmProvider({endpoint:'https://test.invalid/completions',model:'alias',provider:'openrouter',upstreamProvider:'Alibaba',maxOutputTokens:8192,reasoningEffort:'low',apiKey:'test-secret',fetch:(async(_u,init)=>{sent=JSON.parse(init!.body as string);return Response.json(response);}) as typeof fetch});
+ const f=fixture(undefined,p);await expect(f.router.decide(task(),{...req,kind:'generate'},new AbortController().signal,()=>true)).rejects.toMatchObject({code:'MODEL_OUTPUT_TRUNCATED'});
+ expect(sent.provider).toEqual({only:['Alibaba'],allow_fallbacks:false,require_parameters:true});expect(sent.reasoning).toEqual({effort:'low'});expect(sent.max_tokens).toBe(8192);
+ const decision=f.store.decisions('t')[0];expect(decision.input).toEqual(sent);expect(decision.output).toMatchObject({id:'response-id',provider:'Alibaba',content:'{"items":[',finishReason:'length'});expect(JSON.stringify(decision)).not.toContain('test-secret');expect(JSON.stringify(decision)).not.toContain('private reasoning');f.store.close();
+});

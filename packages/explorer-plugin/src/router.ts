@@ -17,13 +17,13 @@ export class DecisionRouter {
       if(signal.aborted || !current())throw new ExplorerError('CANCELLED');
       this.reserve(task);
       const round=task.rounds.at(-1); const d:Decision={id:randomUUID(),taskId:task.id,revision:task.revision,roundId:round?.id,sessionId:round?.sessionId,
-        observationId:(req.state as {observationId?:string})?.observationId,actor,purpose:req.purpose,provider:provider.name,model:provider.model,request:req,status:'requested',startedAt:new Date().toISOString(),fallbackFrom:fallback};
+        observationId:(req.state as {observationId?:string})?.observationId,actor,purpose:req.purpose,provider:provider.name,model:provider.model,request:req,input:provider.requestBody?.(req),status:'requested',startedAt:new Date().toISOString(),fallbackFrom:fallback};
       this.store.decision(d);this.event(d,'decision.requested',{purpose:d.purpose,provider:d.provider,model:d.model,fallbackFrom:fallback});
       const controller=new AbortController();let timer:ReturnType<typeof setTimeout>|undefined;let onAbort:()=>void=()=>{};
       try {
         const abort=new Promise<never>((_,reject)=>{onAbort=()=>{controller.abort();reject(new ExplorerError('CANCELLED'));};signal.addEventListener('abort',onAbort,{once:true});timer=setTimeout(()=>{controller.abort();reject(new ExplorerError('PROVIDER_TIMEOUT'));},this.providers.timeoutMs??60000);});
         const answer=await Promise.race([provider.decide(req,controller.signal),abort]);
-        d.elapsedMs=Date.now()-Date.parse(d.startedAt);d.answer=answer;d.model=answer.model;
+        d.elapsedMs=Date.now()-Date.parse(d.startedAt);d.answer=answer;d.output=answer.response;d.model=answer.model;
         if(signal.aborted || !current()){d.status='stale';d.reason='decision_context_changed';this.store.decision(d);this.event(d,'decision.stale',{});throw new ExplorerError('STALE_DECISION');}
         validAnswer(req,answer);if(validate)validate(answer.value);
         d.status='returned';this.store.decision(d);this.event(d,'decision.returned',{answer});
@@ -34,6 +34,7 @@ export class DecisionRouter {
         }
         return {answer,decision:d};
       } catch(error) {
+        if(error instanceof ExplorerError&&error.response)d.output=error.response;
         const code=safeError(error);if(d.status!=='stale'){d.status=signal.aborted?'cancelled':'failed';d.reason=code;d.elapsedMs=Date.now()-Date.parse(d.startedAt);this.store.decision(d);this.event(d,`decision.${d.status}`,{reason:code});}
         if(signal.aborted || ['CANCELLED','STALE_DECISION','BUDGET_EXHAUSTED'].includes(code))throw error;
         if(actor==='llm')throw new ExplorerError(code);
@@ -44,5 +45,6 @@ export class DecisionRouter {
     throw new ExplorerError('CONFIGURATION_REQUIRED');
   }
   mark(d:Decision,status:Decision['status'],reason?:string){d.status=status;d.reason=reason;this.store.decision(d);this.event(d,`decision.${status}`,{reason});}
+  effect(d:Decision,kind:string,data:unknown){this.event(d,'decision.effect',{kind,details:data});}
   private event(d:Decision,type:string,data:unknown){this.store.event({taskId:d.taskId,actor:d.actor,type,sessionId:d.sessionId,observationId:d.observationId,decisionId:d.id,data});}
 }

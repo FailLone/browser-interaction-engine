@@ -14,6 +14,11 @@ it('integrates autonomous exploration, interleaves JEV/LLM decisions and restore
  await page.waitForFunction(()=>document.querySelector('[aria-label="自主探索"]')?.textContent?.includes('当前计划完成'));
  const timeline=page.getByLabel('包含模型决策的遍历路径');await timeline.waitFor();expect(await timeline.innerText()).toContain('JEV');expect(await timeline.innerText()).toContain('LLM');expect(await timeline.innerText()).toContain('转交 LLM');
  await timeline.getByRole('button').filter({hasText:'请求判断'}).first().click();await page.getByLabel('探索决策详情').waitFor();expect(await page.getByLabel('探索决策详情').innerText()).toContain('mock-llm');
+ expect(await page.getByLabel('探索决策详情').evaluate(el=>!!el.closest('.evidence'))).toBe(true);expect(await timeline.getByLabel('探索决策详情').count()).toBe(0);
+ expect(await page.getByRole('tabpanel',{name:'模型输入'}).innerText()).toContain('UI acceptance');
+ await page.getByRole('tab',{name:'输出',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'模型输出'}).innerText()).toContain('items');
+ await page.getByRole('tab',{name:'决策影响',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('已生成探索计划');
+ await page.getByRole('button',{name:'返回页面证据'}).click();expect(await page.getByLabel('探索决策详情').count()).toBe(0);
  await page.screenshot({path:join(f.dir,'explorer-ui.png'),fullPage:true});expect(errors).toEqual([]);
  await page.reload();await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);await page.getByLabel('包含模型决策的遍历路径').waitFor();expect(await page.getByLabel('包含模型决策的遍历路径').innerText()).toContain('转交 LLM');
  }finally{await browser.close();await ui.close();await app.close();await f.close();}
