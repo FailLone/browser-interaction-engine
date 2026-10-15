@@ -25,12 +25,12 @@ const session = await engine.createSession({ headless: true, maxActions: 10000, 
 const sid = session.id;
 function state() {
   const o = engine.observation(sid);
-  return { session: engine.session(sid), observation: o, actions: engine.actions(sid), reviews: engine.list<ControlReviewRecord>(sid,'control-review') };
+  return { session: engine.session(sid), observation: o, actions: engine.actions(sid), reviews: engine.list<ControlReviewRecord>(sid,'control-review'), classifications: engine.list(sid,'control-classification') };
 }
 function summary() {
   const r = engine.report(sid); const frontier = engine.getFrontier(sid); const attempts = engine.list<ActionAttempt>(sid, 'attempt'); const recoveries = engine.list<ReachResult>(sid, 'reach');
   const counts = (rows: {status:string}[]) => rows.reduce((out,r)=>{out[r.status]=(out[r.status]||0)+1;return out},{} as Record<string,number>);
-  return { session: r.session, explorationAudit:r.explorationAudit, controls: r.controlCoverage, frontierCounts: counts(frontier), frontier,
+  return { session: r.session, explorationAudit:r.explorationAudit, completionAudit:r.completionAudit, controls: r.controlCoverage, frontierCounts: counts(frontier), frontier,
     attempts: attempts.map(a=>({id:a.id,label:a.action.label,kind:a.action.kind,status:a.status,reason:a.reason,purpose:a.purpose,beforeId:a.beforeId,afterId:a.afterId})), recoveries };
 }
 const snapshot = () => { writeFileSync(resolve(directory,'state.json'),JSON.stringify(state(),null,2)); writeFileSync(resolve(directory,'summary.json'),JSON.stringify(summary(),null,2)); };
@@ -51,6 +51,7 @@ const server = createServer(async (req,res)=> {
     else if(req.method==='GET' && req.url==='/report') result=engine.report(sid);
     else if(req.method==='GET' && req.url==='/hypotheses') result=engine.list(sid,'hypothesis');
     else if(req.method==='GET' && req.url==='/control-review') result=engine.controlReviewMaterial(sid);
+    else if(req.method==='GET' && req.url==='/control-classification') result=engine.controlClassificationMaterial(sid);
     else if(req.method==='GET' && req.url==='/region-review') result=engine.regionReviewMaterial(sid);
     else if(req.method==='GET' && req.url==='/exploration-review') result=engine.explorationReviewMaterial(sid);
     else if(req.method==='GET' && req.url==='/groups') result=engine.list(sid,'exploration-group');

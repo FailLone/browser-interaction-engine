@@ -1,0 +1,91 @@
+{
+  "source": "gpt-5.6-sol/low",
+  "classificationObservationId": "b687545c-cb9d-4ad7-a6b9-e604ba95a0ed",
+  "currentObservationId": "21a32504-56bf-4d0f-aa5d-aa56998a5b51",
+  "findings": [
+    {
+      "claim": "All five submitted classifications were saved and remain active.",
+      "status": "verified",
+      "evidence": [
+        "classification-response-02.json contains five records, each with status active, source gpt-5.6-sol/low, and observationId b687545c-cb9d-4ad7-a6b9-e604ba95a0ed.",
+        "The records retain the submitted categories: two container, one probe_required, one interaction, and one unresolved.",
+        "The later classification material continues to associate these records with their exact current-document identities."
+      ]
+    },
+    {
+      "claim": "The two wrapper containers moved out of the unconfirmed count without becoming successful coverage.",
+      "status": "verified",
+      "evidence": [
+        "The prior report counted 35 unconfirmed items; upstream-report-03 counts 33 unconfirmed and 2 containers.",
+        "The Home wrapper is reported as classification container, status observed_only, operations [].",
+        "The Calculator wrapper is reported as classification container, status observed_only, operations [].",
+        "The current classification pending list no longer contains wrapper localIds :273 or :275."
+      ]
+    },
+    {
+      "claim": "The Home and Calculator child hyperlinks remain supported, unexecuted navigation controls.",
+      "status": "verified",
+      "evidence": [
+        "The classified wrapper subtrees retain distinct child anchors :274 with href=/ and :276 with href=/convert.",
+        "The current audit reports separate Home and Calculator link actions as blocked for navigation_requires_review.",
+        "Both link coverage items are actionable and incomplete with click succeeded=false and no attempt IDs.",
+        "Container classification of the parent wrappers did not classify, retire, approve, or execute these child links."
+      ]
+    },
+    {
+      "claim": "probe_required, interaction, and unresolved classifications did not generate operations or automatic probes.",
+      "status": "verified",
+      "evidence": [
+        "The classified 4.7 candidate remains a control-coverage item with no operations and no attempt.",
+        "The Chat with us classification material still shows actions=[] and actionBasis={}.",
+        "The unresolved footer remains observed_only with operations [].",
+        "The session actionCount remains 1 after classification."
+      ]
+    },
+    {
+      "claim": "Only the modal Close was actually executed.",
+      "status": "verified",
+      "evidence": [
+        "The exploration audit reports succeeded=1 and actionCount=1.",
+        "The succeeded case is Close with one attempt ID a67b3bc4-5bc2-493a-a995-63fb40f00f60.",
+        "No classified candidate has an execution attempt."
+      ]
+    },
+    {
+      "claim": "The two retired cases are pre-existing boundary-exit candidates, not actions retired by container classification.",
+      "status": "verified",
+      "evidence": [
+        "Retired case one is Close/click from observation eecd1e67-532b-4dc3-ab16-de55938e78d5 with reason boundary_already_exited.",
+        "Retired case two is Close overlay/press from observation 65c6c5dc-15d3-4fa1-ae0b-788c4f4549e8 with reason boundary_already_exited.",
+        "Both retired cases have no attempt IDs.",
+        "The Home and Calculator wrappers had actions=[] and actionBasis={} before classification and are now represented as observed_only containers with operations []; there were no wrapper actions to retire."
+      ]
+    },
+    {
+      "claim": "Classification preserved the original observation record and generated a later observation rather than rewriting the original evidence.",
+      "status": "verified_from_material_lineage",
+      "evidence": [
+        "All classification records bind to the original classification observation b687545c-cb9d-4ad7-a6b9-e604ba95a0ed and retain its captured conditions and subtrees.",
+        "The post-classification material is a separate observation 21a32504-56bf-4d0f-aa5d-aa56998a5b51.",
+        "Coverage items list both observation IDs, demonstrating accumulation of observations rather than replacement of the original record."
+      ]
+    },
+    {
+      "claim": "Classification did not clear discovery limitations or outstanding audit work.",
+      "status": "verified",
+      "evidence": [
+        "The observation still reports STRUCTURAL_LIST_SCAN_TRUNCATED, multiple UNSUPPORTED_CANVAS gaps, and EVENT_LISTENER_COVERAGE.",
+        "The exploration audit remains blocked with discoveryComplete=false.",
+        "Current counts still include 159 awaiting_decision, 15 pending, 28 blocked, and 204 notAttempted.",
+        "Control coverage remains incomplete: 203 actionable, only 1 covered, and 202 incomplete."
+      ]
+    }
+  ],
+  "issues": [],
+  "limits": [
+    "The change from 35 to 33 unconfirmed items reflects two active container classifications; it is not successful interaction coverage.",
+    "No inference is made that probe_required was probed, that interaction was executed, or that unresolved was resolved.",
+    "This verification proposes no new action, control review, classification, or scope decision."
+  ],
+  "overall": "The classification behavior matches the protocol. Two non-action wrapper candidates moved from unconfirmed to container while their supported child links remained unexecuted. The other three classifications produced no action or automatic probe. ActionCount remains one for the modal Close; the two retired audit cases are older boundary-exit candidates and are unrelated to container classification. No issue was found in the reviewed materials."
+}

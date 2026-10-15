@@ -61,6 +61,10 @@ export class InteractionClient {
   explorationGroups(id: string, options: { offset?: number; limit?: number; status?: string } = {}) { return this.list<import('@interaction/browser').ExplorationGroup>(id, 'exploration-groups', options); }
   regionReviewMaterial(id: string) { return this.request<import('@interaction/browser').RegionReviewMaterial>(`/sessions/${encodeURIComponent(id)}/region-review`); }
   controlReviewMaterial(id:string) {return this.request<import('@interaction/browser').ControlReviewMaterial>(`/sessions/${encodeURIComponent(id)}/control-review`);}
+  controlClassificationMaterial(id:string) {return this.request<import('@interaction/browser').ControlClassificationMaterial>(`/sessions/${encodeURIComponent(id)}/control-classification`);}
+  controlClassifications(id:string,options:{offset?:number;limit?:number;status?:string}={}) {return this.list<import('@interaction/browser').ControlClassificationRecord>(id,'control-classifications',options);}
+  classifyControls(id:string,classification:import('@interaction/browser').ClassifyControlsInput) {return this.command<import('@interaction/browser').ControlClassificationRecord[]>(id,{type:'classifyControls',classification});}
+  revokeControlClassification(id:string,revocation:import('@interaction/browser').RevokeControlClassificationInput) {return this.command<import('@interaction/browser').ControlClassificationRecord>(id,{type:'revokeControlClassification',revocation});}
   controlReviews(id:string,options:{offset?:number;limit?:number;status?:string}={}) {return this.list<import('@interaction/browser').ControlReviewRecord>(id,'control-reviews',options);}
   reviewControls(id:string,review:import('@interaction/browser').ControlReviewInput) {return this.command<import('@interaction/browser').ControlReviewRecord[]>(id,{type:'reviewControls',review:{...review,reviews:review.reviews.map(r=>({...r,replayable:r.replayable??false}))}});}
   revokeControlReview(id:string,revocation:import('@interaction/browser').RevokeControlReviewInput) {return this.command<import('@interaction/browser').ControlReviewRecord>(id,{type:'revokeControlReview',revocation});}

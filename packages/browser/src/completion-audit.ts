@@ -1,5 +1,5 @@
 import { contextKey, hash, type ExplorationAudit, type ExplorationGroup } from '@interaction/core';
-import type { Observation } from '@interaction/adapter-playwright';
+import type { Observation, ControlClassificationRecord } from '@interaction/adapter-playwright';
 import type { ControlCoverage } from './control-coverage.js';
 
 export interface BrowserCompletionAudit {
@@ -8,6 +8,7 @@ export interface BrowserCompletionAudit {
   exhaustive: false;
   recordedActions: Pick<ExplorationAudit, 'status' | 'counts' | 'pendingGroupIds' | 'stopReasons'>;
   controls: ControlCoverage['counts'];
+  controlClassifications: ControlClassificationRecord[];
   unconfirmedControls: { id: string; label: string; role: string; controlIds: string[]; observationIds: string[] }[];
   /** URL plus declared context; document instances remain separately traceable. */
   scopes: { key: string; url: string; contextKey: string; observationIds: string[]; instanceScopes: string[]; unconfirmedControlIds: string[]; gapIds: string[];
@@ -18,7 +19,7 @@ export interface BrowserCompletionAudit {
 }
 
 /** Read-only synthesis: a finished action ledger never attests exhaustive browser discovery. */
-export function auditBrowserCompletion(audit: ExplorationAudit, coverage: ControlCoverage, observations: Observation[], currentObservationId?: string, groups: ExplorationGroup[] = []): BrowserCompletionAudit {
+export function auditBrowserCompletion(audit: ExplorationAudit, coverage: ControlCoverage, observations: Observation[], currentObservationId?: string, groups: ExplorationGroup[] = [], classifications: ControlClassificationRecord[] = []): BrowserCompletionAudit {
   const scopes = new Map<string, BrowserCompletionAudit['scopes'][number]>();
   const scopeByObservation = new Map<string, string>();
   const gaps = new Map<string, BrowserCompletionAudit['gaps'][number]>();
@@ -62,6 +63,6 @@ export function auditBrowserCompletion(audit: ExplorationAudit, coverage: Contro
   });
   return { unit: 'observed_browser_scope', status: audit.status === 'complete' ? 'unverified' : audit.status, exhaustive: false,
     recordedActions: { status: audit.status, counts: { ...audit.counts }, pendingGroupIds: [...audit.pendingGroupIds], stopReasons: [...audit.stopReasons] },
-    controls: { ...coverage.counts }, unconfirmedControls, scopes: [...scopes.values()], gaps: [...gaps.values()],
+    controls: { ...coverage.counts }, controlClassifications: structuredClone(classifications), unconfirmedControls, scopes: [...scopes.values()], gaps: [...gaps.values()],
     limitation: 'All recorded observations, including destinations, remain traceable. Scope exclusions are not execution coverage and do not erase discovery gaps. Unknown controls, adapter limits, unobserved behavior, input combinations and business results have no exhaustive discovery proof. Historical gaps do not by themselves authorize or require revisiting excluded pages.' };
 }

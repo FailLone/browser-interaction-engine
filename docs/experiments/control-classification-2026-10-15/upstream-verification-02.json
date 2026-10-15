@@ -1,0 +1,43 @@
+{
+  "observationId": "b687545c-cb9d-4ad7-a6b9-e604ba95a0ed",
+  "source": "gpt-5.6-sol/low",
+  "findings": [
+    {
+      "claim": "The regional modal was exited and the session remains on entry page A.",
+      "status": "verified",
+      "evidence": [
+        "The fresh observation has URL https://www.okx.com/convert/btc-to-usd and document 9c69ee4b-299e-439f-ba7f-8b66eab83e32.",
+        "boundaries and overlays are both empty.",
+        "The screenshot shows the unobscured BTC/USD entry page.",
+        "The session actionCount is 1, consistent with only the prior Close operation."
+      ]
+    },
+    {
+      "claim": "The classification batch is bounded to current-document evidence and contains no operation approval.",
+      "status": "verified",
+      "evidence": [
+        "Every classification localId belongs to current observation b687545c-cb9d-4ad7-a6b9-e604ba95a0ed and current document 9c69ee4b-299e-439f-ba7f-8b66eab83e32.",
+        "The two container decisions have complete subtrees and no supported or tentative action basis on the wrapper nodes.",
+        "The uncertain rating is retained as probe_required; the truncated footer aggregate is retained as unresolved.",
+        "The chat widget is classified interaction only; no click, hover, control review, or scope decision is supplied."
+      ]
+    }
+  ],
+  "negativeClassificationRationale": [
+    "Only the Home and Calculator wrapper divs are classified noninteractive, because their complete subtrees expose distinct child anchors and the wrappers have no action basis.",
+    "No display classification is submitted in this batch: other apparent labels either have pointer signals with ambiguous tooltip/rating behavior, tentative handler evidence, supported actions, or insufficient/truncated subtrees.",
+    "Nested child links under the two containers remain independent controls and are not covered or retired by the wrapper classification."
+  ],
+  "notAuthorized": [
+    "No browser action is approved or requested.",
+    "Classification does not count as successful interaction coverage.",
+    "The interaction classification for Chat with us does not authorize opening chat.",
+    "probe_required does not authorize a probe; a later bounded probe needs its own current evidence and operation decision.",
+    "No classification or approval is inherited from an earlier document or run."
+  ],
+  "remainingLimits": [
+    "The observation still reports structural-list scan truncation, unsupported Canvas internals, and incomplete delegated/event-listener coverage.",
+    "Supported native controls and links remain outside negative classification and require independent purpose and scope decisions before execution.",
+    "The rest of the pending candidates remain unclassified; this small batch does not reduce the full-page inspection objective."
+  ]
+}

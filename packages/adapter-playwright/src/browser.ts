@@ -151,6 +151,23 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   for(const list of structuralScan.candidates)for(const member of list.members)selected.add(member.element);
   const structuralMembers=new Map(structuralScan.candidates.flatMap(list=>list.members.map(member=>[member.element,{ownerInstanceId:instance(list.owner),template:list.template,slot:member.slot,rowInstanceId:instance(member.row),...(member.recordKey?{recordKey:member.recordKey}:{})}] as const)));
   const all = [...selected];
+  const classificationBinding = (el: Element): Control['classificationBinding'] => {
+    const nodes: NonNullable<Control['classificationBinding']>['nodes'] = [];
+    const text = el.textContent || ''; let characters = text.length, truncated = text.length > 8000;
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_ELEMENT);
+    let next: Element | null = el;
+    while (next && nodes.length < 200 && characters <= 16000) {
+      const attributes: Record<string, string> = {};
+      for (const a of [...next.attributes].sort((a,b) => a.name.localeCompare(b.name))) {
+        characters += a.name.length + a.value.length;
+        if (a.value.length > 1000 || characters > 16000) { truncated = true; break; }
+        attributes[a.name] = a.value;
+      }
+      nodes.push({ instanceId: instance(next), parentInstanceId: instance(next.parentElement || document.documentElement), tag: next.tagName.toLowerCase(), attributes });
+      next = walker.nextNode() as Element | null;
+    }
+    return { nodes, text: text.slice(0, 8000), truncated: truncated || !!next };
+  };
   const unnamedScrolls = new Set<Element>();
   const controls = all.slice(0, 1500).map(el => {
     const e = el as HTMLInputElement;
@@ -193,6 +210,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       ...(list ? { list: { instanceId: instance(list), role: list.tagName === 'SELECT' ? 'select' : 'listbox', label: label(list), selector: selector(list) } } : {}),
       ...(purposeBinding ? { purposeBinding } : {}),
       reviewBinding, ...(structuralItem?{structuralItem}:{}),
+      ...(!Object.values(capabilities.actionBasis).some(b => b.status === 'supported') ? { classificationBinding: classificationBinding(el) } : {}),
       region: regionKey(el.closest(regionSelector)), regionInstanceId: instance(el.closest(regionSelector) || body || document.documentElement), form: regionKey(el.closest('form')), selector: selector(el), rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
       checked: ['checkbox', 'radio'].includes(type) ? e.checked : el.hasAttribute('aria-checked') ? el.getAttribute('aria-checked') === 'true' : null,
