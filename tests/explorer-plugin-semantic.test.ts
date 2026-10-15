@@ -4,8 +4,45 @@ import { ExplorerPlugin,ExplorerStore,type Decision } from '@interaction/explore
 import { semanticRejection,type SemanticReview } from '../packages/explorer-plugin/src/semantic-review.js';
 import { reviewNext,type ReviewContext } from '../packages/explorer-plugin/src/reviews.js';
 import { explorerFixture,fakeProviders,semanticPopupHtml } from './explorer-plugin-helpers.js';
+import { remapStoredReviewScopes } from '../packages/explorer-plugin/src/scope-migration.js';
+import { reviewGapChanges } from '../packages/explorer-plugin/src/review-ledger.js';
 
 const grounded={choice:'click',evidenceRefs:['current','actions','effect:click'],reason:'Captured child choice panel supports a local expansion.',interfaceOnly:true,externalWrite:false};
+
+it('remaps a uniquely evidenced legacy review gap and closes it with fresh classification, not an invented action',async()=>{
+ const f=await explorerFixture('<div id="unclear" tabindex="0">Details</div><button type="button" onclick="this.disabled=true">Ready</button>'),p=fakeProviders(f.url),original=p.jev.decide;let clarified=false;
+ p.jev.decide=async(r,s)=>r.purpose==='control-classification'?{model:'mock',value:clarified?'container':'uncertain',confidence:1}:r.purpose==='control-risk'&&(r.state as any).material.control.name==='Details'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,.01]))}:original(r,s);
+ p.llm.decide=async(r,s)=>r.purpose==='classification-clarification'?{model:'mock',value:{choice:'uncertain',reason:'Evidence is insufficient',evidenceRefs:[],interfaceOnly:null,externalWrite:null}}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:1}});plugin.start(t.id);await plugin.waitForIdle();const saved=plugin.store.task(t.id),gap=saved.plan.find(i=>i.reason==='classification_unresolved'&&i.scope.label==='Details')!;expect(gap).toBeDefined();
+  gap.scope={url:f.url,label:'',role:'generic'};const originalEvidence=structuredClone(gap.evidence);plugin.store.save(saved);clarified=true;
+  plugin.extendBudget(t.id,{rounds:1,actions:2,durationMs:60000,modelRequests:100});plugin.start(t.id);await plugin.waitForIdle();const view=plugin.view(t.id),current=view.task.plan.find(i=>i.id===gap.id)!;
+  expect(current.scope).toMatchObject({label:'Details',stableKey:'id:unclear'});expect(current.status,JSON.stringify(view.task)).toBe('succeeded');expect(current.reviewResolvedBy).toMatchObject({sessionId:view.task.rounds[1].sessionId,classification:'container'});
+  expect(current.resolvedBy).toBeUndefined();expect(current.attempts).toEqual([]);expect(current.evidence).toEqual(expect.arrayContaining(originalEvidence));expect(view.task.usage.actions).toBe(1);expect(f.host.list(view.task.rounds[1].sessionId,'attempt')).toEqual([]);
+  expect(view.events.some(e=>e.type==='review.resolved'&&(e.data as any).itemId===gap.id&&(e.data as any).executed===false)).toBe(true);expect(view.task.status).toBe('completed');
+  plugin.revise(t.id,{itemIds:[gap.id]},true);expect(plugin.view(t.id).task.plan.find(i=>i.id===gap.id)?.reviewResolvedBy).toBeUndefined();
+ }finally{await plugin.close();await f.close();}
+});
+
+it.each(['ambiguous','missing-source','different-source-target','selected-authority'] as const)('does not guess a legacy gap target when %s',mode=>{
+ const control={visible:true,localId:'one',name:'Details',label:'',role:'generic',stableKey:'id:one'};
+ const gap={id:'gap',reason:'classification_unresolved',scope:{url:'http://fixture/',label:'',role:'generic'},dispatchScope:mode==='selected-authority',evidence:[{sessionId:'s',observationId:'a'},{sessionId:'s',observationId:'b'}]};const task={plan:[gap]} as any,before=structuredClone(task);
+ const host={observation:(_sid:string,id:string)=>{if(mode==='missing-source'&&id==='b')throw new Error('Absent');return {url:'http://fixture/',regions:[],controls:mode==='ambiguous'?[control,{...control,localId:'two',stableKey:'id:two'}]:[{...control,stableKey:mode==='different-source-target'&&id==='b'?'id:two':'id:one'}]};}} as any;
+ expect(remapStoredReviewScopes(task,host)).toEqual([]);expect(task).toEqual(before);
+});
+
+it.each(['current','revoked','interaction','ambiguous','missing-material','hidden-revoked','hidden-invalidated'] as const)('reconciles %s classification evidence without granting an action',mode=>{
+ const control={visible:!mode.startsWith('hidden'),localId:'one',name:'Details',label:'',role:'generic',actionBasis:{}};
+ const o={id:'now',sessionId:'s',url:'http://fixture/',regions:[],gaps:[],controls:mode==='ambiguous'?[control,{...control,localId:'two'}]:[control]} as any;
+ const record={id:'r',classification:mode==='interaction'?'interaction':'container',status:mode.includes('revoked')?'revoked':mode==='hidden-invalidated'?'invalidated':'active'};
+ const item={id:'gap',required:true,status:'succeeded',reason:'classification_unresolved',scope:{url:o.url,label:'Details'},reviewResolvedBy:{sessionId:'s',observationId:'before',classificationId:'old',classification:'container'}};
+ const host={actions:()=>[],list:()=>[{...record,id:'old'}],controlClassificationMaterial:()=>({observationId:o.id,controls:mode==='missing-material'?[]:[{control,needsClassification:mode!=='current',classifications:[record]}]}),controlReviewMaterial:()=>({observationId:o.id,controls:[{control,needsReview:false}]})} as any;
+ const changes=reviewGapChanges({plan:[item]} as any,o,host);
+ if(mode==='current')expect(changes).toEqual([{itemId:'gap',proof:{sessionId:'s',observationId:'now',classificationId:'r',classification:'container'}}]);
+ else if(mode==='hidden-invalidated')expect(changes).toEqual([]);
+ else{expect(changes).toHaveLength(1);expect(changes[0].itemId).toBe('gap');expect(changes[0].proof).toBeUndefined();}
+ expect(item.reviewResolvedBy.classificationId).toBe('old');
+});
 
 it('keeps named controls with empty explicit labels as distinct, selectable follow-up scopes',async()=>{
  const f=await explorerFixture(`${['Alpha','Beta'].map(name=>`<div role="button" tabindex="0" style="cursor:pointer" id="${name}" onclick="this.setAttribute('aria-disabled','true')">${name}</div>`).join('')}<button type="button" onclick="this.disabled=true">Ready</button>`),p=fakeProviders(f.url),original=p.jev.decide;

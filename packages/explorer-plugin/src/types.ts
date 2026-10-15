@@ -17,6 +17,8 @@ export interface PlanItem {
   id: string; title: string; scope: Scope; prerequisites: Scope[]; completion: string;
   status: 'pending' | 'succeeded' | 'blocked' | 'unresolved' | 'untested' | 'excluded';
   required: boolean; reason: string; evidence: EvidenceRef[]; resolvedBy?: EvidenceRef;
+  /** Classification evidence closes a review obligation, never an executed action. */
+  reviewResolvedBy?: EvidenceRef & {classificationId:string;classification:'display'|'container'};
   /** An obligation or gap is not execution authority. Only accepted plan scopes authorize dispatch. */
   dispatchScope?: boolean;
   attempts: { roundId: string; outcome: string; evidence?: EvidenceRef }[];

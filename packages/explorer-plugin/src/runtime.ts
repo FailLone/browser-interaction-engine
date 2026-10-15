@@ -10,7 +10,8 @@ import { reviewNext, type ChoiceConstraints, type RetainedScope } from './review
 import { safeError } from './providers.js';
 import { POLICY_VERSION } from './decision-policy.js';
 import { semanticAnswerSchema, semanticRejection, type SemanticReview } from './semantic-review.js';
-import { remapStoredScopes } from './scope-migration.js';
+import { remapStoredScopes, remapStoredReviewScopes } from './scope-migration.js';
+import { reviewGapChanges } from './review-ledger.js';
 
 const requiredCapabilities: (keyof ExplorerHost)[]=['sessions','session','createSession','observation','observe','actions','execute','command','getFrontier','report','list','regionReviewMaterial','explorationReviewMaterial','controlClassificationMaterial','controlReviewMaterial','purposeReviewMaterial','discoveryScanMaterial','createCheckpoint','reachCheckpoint','pause','stop','pinEvidence','unpinEvidence'];
 const now=()=>new Date().toISOString();
@@ -68,7 +69,7 @@ export class ExplorerPlugin {
     if(input.goal!==undefined)task.goal=z.string().trim().max(20000).parse(input.goal);
     if(!task.goal&&!input.items&&!supplement&&task.coverageMode!=='all')throw new ExplorerError('EXHAUSTIVE_REQUIRES_ALL');
     if(input.items){const items=z.array(plannedScopeSchema).min(1).max(100).parse(input.items);task.plan=items.map(x=>this.newItem(x));task.intent={version:1,mode:'targeted',source:'user'};}
-    else if(supplement){task.intent={version:1,mode:'targeted',source:'user'};if(!input.itemIds?.length||input.itemIds.some(id=>!task.plan.some(i=>i.id===id)))throw new ExplorerError('INVALID_SCOPE');const ids=new Set(input.itemIds);for(const item of task.plan){item.required=ids.has(item.id);item.dispatchScope=item.required;if(item.required){item.status='pending';delete item.resolvedBy;}}}
+    else if(supplement){task.intent={version:1,mode:'targeted',source:'user'};if(!input.itemIds?.length||input.itemIds.some(id=>!task.plan.some(i=>i.id===id)))throw new ExplorerError('INVALID_SCOPE');const ids=new Set(input.itemIds);for(const item of task.plan){item.required=ids.has(item.id);item.dispatchScope=item.required;if(item.required){item.status='pending';delete item.resolvedBy;delete item.reviewResolvedBy;}}}
     else {task.plan=[];delete task.intent;}
     if(task.pendingDispatch)throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
     const round=task.rounds.at(-1);if(round){round.status='finished';round.endedAt=now();}
@@ -103,6 +104,7 @@ export class ExplorerPlugin {
     if(required && task.plan.length && !task.plan.some(i=>i.required&&i.dispatchScope===true&&Object.entries(i.scope).every(([k,v])=>scope[k as keyof Scope]===undefined||scope[k as keyof Scope]===v)))required=false;
     const key=JSON.stringify({reason,scope});let item=task.plan.find(i=>JSON.stringify({reason:i.reason,scope:i.scope})===key);
     if(!item){item={id:randomUUID(),title:reason,scope,prerequisites:[...prerequisites],completion:'Obtain fresh evidence and verify the requested operation',status:required?'unresolved':reason==='scope_excluded'?'excluded':'untested',required,dispatchScope:false,reason,evidence:[],attempts:[]};task.plan.push(item);}
+    if(item.reviewResolvedBy){const previous=item.reviewResolvedBy;delete item.reviewResolvedBy;delete item.resolvedBy;item.status=item.required?'unresolved':'untested';this.event(task,'review.reopened',{itemId:item.id,previous,reason:'new_unresolved_evidence'});}
     const r=task.rounds.at(-1);if(r){try{const o=this.host.observation(r.sessionId);if(!item.evidence.some(e=>e.observationId===o.id))item.evidence.push({sessionId:r.sessionId,observationId:o.id});}catch{item.reason+=':evidence_unavailable';}}
     this.store.save(task);return item;
   }
@@ -119,6 +121,18 @@ export class ExplorerPlugin {
       const item=this.gap(task,`missing_capability:${code}`,{url:o.url});
       item.completion='Obtain host-supported evidence for the unsupported content; unrelated successful actions cannot verify this scope.';
       this.event(task,'scope.unsupported',{itemId:item.id,observationId:o.id,limitations:o.gaps.filter(g=>g.code===code),executionAuthorized:false});
+    }
+    this.store.save(task);
+  }
+  private async reconcileReviewLedger(task:Task,o:Observation,signal:AbortSignal) {
+    const changes=reviewGapChanges(task,o,this.host),revision=task.revision;if(!changes.length)return;
+    if(changes.some(c=>c.proof))await this.host.pinEvidence(o.sessionId,o.id,`explorer:${task.id}`);
+    if(signal.aborted||task.status!=='running'||task.revision!==revision)throw new ExplorerError('CANCELLED');
+    if(this.host.observation(o.sessionId).id!==o.id)throw new ExplorerError('STALE_DECISION');
+    for(const change of changes) {
+      const item=task.plan.find(i=>i.id===change.itemId)!;
+      if(change.proof){item.reviewResolvedBy=change.proof;item.status='succeeded';item.evidence.push({sessionId:o.sessionId,observationId:o.id});this.event(task,'review.resolved',{itemId:item.id,proof:change.proof,executed:false});}
+      else{const previous=item.reviewResolvedBy;delete item.reviewResolvedBy;delete item.resolvedBy;item.status='unresolved';this.event(task,'review.reopened',{itemId:item.id,previous,reason:change.reason||'current_classification_not_verified'});}
     }
     this.store.save(task);
   }
@@ -293,7 +307,7 @@ export class ExplorerPlugin {
   private async run(task:Task,signal:AbortSignal) {
     try {
       await this.reconcileDispatch(task);
-      const remapped=remapStoredScopes(task,this.host);
+      const remapped=[...remapStoredScopes(task,this.host),...remapStoredReviewScopes(task,this.host)];
       if(remapped.length){this.store.save(task);this.event(task,'scope.remapped',{changes:remapped,executionAuthorized:false,historicalResultsUnchanged:true});}
       let round=task.rounds.at(-1);
       // Extending aggregate time cannot change a previously created host session.
@@ -336,6 +350,7 @@ export class ExplorerPlugin {
     if(this.host.list<BoundaryExitResult>(sid,'boundary-exit-result').some(r=>['changed','unverified'].includes(r.status)&&!verifiedExits.has(r.id)))throw new ExplorerError('BOUNDARY_EXIT_UNVERIFIED');
     await this.retainHostLimitations(task,o,signal);
     if(o.gaps.some(g=>g.critical)){this.gap(task,'observation_incomplete',{url:o.url});return false;}
+    await this.reconcileReviewLedger(task,o,signal);
     const goals=task.plan.filter(i=>i.required&&i.dispatchScope===true);
     if(goals.length&&goals.every(i=>i.status==='succeeded'))return false;
     const reviewedBefore=round.reviewed.length,knownDecisions=new Set(this.store.decisions(task.id).map(d=>d.id));
@@ -458,6 +473,7 @@ export class ExplorerPlugin {
     // A budget boundary can arrive immediately after an action, before the next step
     // discovers/reviews its results. Success of that action is not scope completion.
     await this.retainHostLimitations(task,o,signal);
+    await this.reconcileReviewLedger(task,o,signal);
     const incomplete=this.auditRemainingScopes(task,round,o);
     for(const navigation of task.unverifiedNavigations||[]) {
       const attempt=this.host.list<ActionAttempt>(navigation.evidence.sessionId,'attempt').find(a=>a.id===navigation.evidence.attemptId);
