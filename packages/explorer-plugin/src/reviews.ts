@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { ActionCandidate, IdentityHypothesis, ControlIdentity, Observation, ExplorationGroup, PurposeReview } from '@interaction/browser';
+import type { ActionCandidate, IdentityHypothesis, ControlIdentity, Observation, ExplorationGroup, PurposeReview, RegionCandidate } from '@interaction/browser';
 import type { ExplorerHost, Task, ModelRequest, Decision, Scope } from './types.js';
 import { jsonSchema } from './schema.js';
 import { digest, matches, includesScope, broadScope, controlInScope } from './policy.js';
@@ -16,13 +16,24 @@ export interface ReviewContext {
 export type ChoiceConstraints=Pick<ModelRequest,'allowedReductions'|'blockedOptions'>;
 const evidence=(d:Decision)=>[`explorer-decision:${d.id}`];
 const source='explorer-plugin';
+/** The host retains exact bindings for validation; grouping needs semantic evidence, not repeated dispatch fingerprints. */
+function regionEvidence(candidate:RegionCandidate) {
+  const {binding,reuseBinding,controlIds,...description}=candidate;
+  const facts=binding as Record<string,unknown>;
+  return {...description,memberCount:controlIds.length,structure:Object.fromEntries(['tag','role','heading','label','layout','border','semantic','root'].filter(k=>facts[k]!==undefined).map(k=>[k,facts[k]]))};
+}
 /** Drain one guarded review at a time; reviews may recapture and invalidate all other material. */
 export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const {host,task,observation:o}=c;const sid=o.sessionId;const round=task.rounds.at(-1)!;
   const done=(key:string)=>round.reviewed.includes(key);const mark=(key:string)=>round.reviewed.push(key);
   const available=host.actions(sid);
+  const boundary=o.boundaries?.at(-1),overlay=o.overlays?.find(b=>b.key===boundary?.key);
+  const boundaryIds=overlay?new Set(overlay.controlIds):undefined;
+  const inCurrentBoundary=(action:ActionCandidate)=>!boundary||action.boundary?.key===boundary.key;
   const pendingPlan=task.plan.filter(i=>i.status!=='succeeded');
   const relevant=(control:Observation['controls'][number])=>{
+    // Background obligations remain in the plan. Review them after the active boundary exits.
+    if(boundaryIds&&!boundaryIds.has(control.localId))return false;
     if(available.some(a=>a.localId===control.localId&&includesScope(pendingPlan,a,o)))return true;
     if(task.plan.some(i=>!i.required&&i.reason==='user_excluded'&&controlInScope(i.scope,control,o,available)))return false;
     return pendingPlan.some(i=>i.required&&i.dispatchScope===true&&[i.scope,...i.prerequisites].some(scope=>controlInScope(scope,control,o,available)));
@@ -30,18 +41,24 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const relevantIds=new Set(o.controls.filter(relevant).map(c=>c.localId));
   const region=host.regionReviewMaterial(sid);
   const broad=pendingPlan.some(i=>i.required&&i.dispatchScope===true&&broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url));
-  if(region.enabled&&(region.unassignedControlIds.some(id=>relevantIds.has(id))||(region.unassignedPageTraversal&&broad))) {
+  if(region.enabled&&(region.unassignedControlIds.some(id=>relevantIds.has(id))||(!boundary&&region.unassignedPageTraversal&&broad))) {
     const key=digest({type:'regions',instance:o.instanceScope,candidates:region.candidates,unassigned:region.unassignedControlIds,review:region.review&&{id:region.review.id,regions:region.review.regions.map(r=>r.status)}});
     if(!done(key)) {
-      const candidate=region.candidates.find(r=>r.controlIds.some(id=>relevantIds.has(id)&&region.unassignedControlIds.includes(id)));
+      const boundaryInstance=o.regions.find(r=>r.key===boundary?.key)?.instanceId;
+      const candidates=region.candidates.filter(r=>r.controlIds.some(id=>relevantIds.has(id)&&region.unassignedControlIds.includes(id)));
+      const strength={heading:3,semantic:2,layout:1,document:0};
+      const candidate=candidates.sort((a,b)=>Number(b.id===boundaryInstance)-Number(a.id===boundaryInstance)
+        ||(boundaryIds?a.controlIds.filter(id=>!boundaryIds.has(id)).length-b.controlIds.filter(id=>!boundaryIds.has(id)).length:0)
+        ||strength[b.basis]-strength[a.basis]||b.controlIds.length-a.controlIds.length)[0];
       if(candidate) {
-        const d=await c.choose('region-review','Should this observed region be an exploration scope for the task? This is grouping, not action permission.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',candidate,controls:region.controls.filter(x=>candidate.controlIds.includes(x.localId))},{include:'Recognized coherent exploration region',uncertain:'Cannot decide its role'});
+        const d=await c.choose('region-review','Should this observed region be an exploration scope for the task? This is grouping, not action permission. Exact structural bindings remain with the host for fresh validation.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',candidate:regionEvidence(candidate),controls:region.controls.filter(x=>candidate.controlIds.includes(x.localId))},{include:'Recognized coherent exploration region',uncertain:'Cannot decide its role'});
         if(d.value==='uncertain'&&await c.refresh(d.decision,`region:${o.instanceScope}:${candidate.id}`))return true;
         mark(key);
         if(d.value==='include') {
-          // Preserve active reviewed regions; the existing contract replaces the partition.
+          // Prefer the public incremental contract so unrelated region decisions remain valid.
+          const incremental=region.review&&region.delta?.canUpdate;
           const existing=region.review?.regions.filter(r=>r.status==='active').map(r=>({key:r.key,label:r.label,candidateIds:r.anchors.map(a=>a.id),controlIds:r.controlIds,pageTraversal:r.pageTraversal})) || [];
-          await c.apply(d.decision,{type:'reviewRegions',review:{observationId:o.id,source,evidence:evidence(d.decision),regions:[...existing,{key:`explorer:${candidate.id}`,label:candidate.label,candidateIds:[candidate.id],controlIds:candidate.controlIds.filter(id=>region.unassignedControlIds.includes(id)),pageTraversal:region.unassignedPageTraversal}],rejectedCandidateIds:region.review?.rejectedCandidateIds||[]}});return true;
+          await c.apply(d.decision,{type:'reviewRegions',review:{observationId:o.id,source,evidence:evidence(d.decision),...(incremental?{update:{baseReviewId:region.review!.id}}:{}),regions:[...(incremental?[]:existing),{key:`explorer:${candidate.id}`,label:candidate.label,candidateIds:[candidate.id],controlIds:candidate.controlIds.filter(id=>region.unassignedControlIds.includes(id)),pageTraversal:!boundary&&region.unassignedPageTraversal}],rejectedCandidateIds:region.review?.rejectedCandidateIds||[]}});return true;
         }
         c.gap('region_unresolved',{url:o.url,region:candidate.label});
       } else {mark(key);c.gap('region_partition_unavailable',{url:o.url});}
@@ -52,7 +69,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     const key=digest({type:'classification',instance:o.instanceScope,control:item.control,reviews:item.classifications.map(r=>[r.id,r.status])});if(done(key))continue;
     const positiveBasis=item.control.editable||Object.entries(item.control.actionBasis||{}).some(([kind,basis])=>['click','fill','select','check','press','hover'].includes(kind)&&basis.status==='supported');
     const blockedOptions=positiveBasis||!item.control.classificationBinding||item.control.classificationBinding.truncated?['display','container']:[];
-    const d=await c.choose('control-classification','Classify this observed element using its own action basis, interaction hints and bounded subtree. Do not classify as display/container if the subtree is truncated or there is positive interaction evidence. Classification never grants operation permission.',{observationId:o.id,control:item.control,actions:item.actions},
+    const d=await c.choose('control-classification','Classify this observed element using its own action basis, interaction hints and bounded subtree. Interactive descendants do not make a dialog or section itself an interaction; focusability alone does not establish its own operation. Do not classify as display/container if the subtree is truncated or there is positive interaction evidence. Classification never grants operation permission.',{observationId:o.id,control:item.control,actions:item.actions},
       {interaction:'Evidence of an interactive control',display:'Read-only information with complete evidence and no interaction basis',container:'Structural grouping with complete evidence and no own interaction basis',probe_required:'A bounded hover/focus observation is needed',uncertain:'Insufficient evidence'},{blockedOptions});
     if(d.value==='uncertain'&&await c.refresh(d.decision,`classification:${o.instanceScope}:${item.control.instanceId}`))return true;
     mark(key);
@@ -104,7 +121,8 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     const key=`group:${group.id}:${group.revision}`;if(done(key))continue;
     // Groups retain prior observations and pre-review action cases. Only current candidates can be selected.
     const actions=host.actions(sid);const members=group.members.filter(m=>actions.some(a=>a.id===m.actionId));
-    if(!members.length||!members.some(m=>includesScope(pendingPlan,actions.find(a=>a.id===m.actionId)!,o))){mark(key);continue;}
+    if(!members.length)continue;
+    if(!members.some(m=>{const action=actions.find(a=>a.id===m.actionId)!;return inCurrentBoundary(action)&&includesScope(pendingPlan,action,o);}))continue;
     const explicit=members.some(m=>{const action=actions.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
     const allowedReductions=task.coverageMode==='representative'&&!explicit?['sample']:[];
     const d=await c.choose('scope-review','Choose exhaustive traversal or representative sampling of current observed members. Sampling requires the supplied user permission; every omitted member remains untested. Never skip a group based only on confidence. Program scope matching still limits execution to the selected task.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',coverageMode:task.coverageMode||'all',allowedReductions,plan:task.plan,group:{...group,members,historicalMemberCount:group.members.length-members.length}},
@@ -130,7 +148,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     return true;
   }
   // Purpose evidence is reviewed proactively, even if DFS would never pause here.
-  for(const group of material.groups.filter(g=>g.kind==='similar-list'&&g.members.some(m=>available.some(a=>a.id===m.actionId&&includesScope(pendingPlan,a,o))))) {
+  for(const group of material.groups.filter(g=>g.kind==='similar-list'&&g.members.some(m=>available.some(a=>a.id===m.actionId&&inCurrentBoundary(a)&&includesScope(pendingPlan,a,o))))) {
     const p=host.purposeReviewMaterial(sid,group.id);
     const active=host.list<PurposeReview>(sid,'purpose-review').filter(r=>r.status==='active');
     for(const condition of p.conditions) {
@@ -151,6 +169,8 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(d.value==='uncertain'){c.gap('probe_unresolved',{url:o.url,label:item.control.label});continue;}
     await c.apply(d.decision,{type:'probe',observationId:o.id,localId:item.control.localId,kind:d.value,requestId:crypto.randomUUID()});return true;
   }
+  // Page-wide discovery can wait; it must not starve an already observed modal's work/exit.
+  if(boundary)return false;
   const scan=host.discoveryScanMaterial(sid);
   if(scan.discovery && (scan.discovery.signal.omitted>0 || scan.discovery.structural.omittedLocations>0)) {
     const key=`scan:${scan.discovery.topologyKey}:${scan.discovery.supplement?.targetId||''}`;

@@ -103,6 +103,22 @@ it('explores a nested dialog and verifies return before continuing the parent br
  expect(task.status,JSON.stringify(task,null,2)).toBe('completed');
  }finally{await plugin.close();await f.close();}
 });
+it('reviews the active dialog before background controls and resumes background work after exit',async()=>{
+ const f=await explorerFixture('<div tabindex="0" aria-label="Background information">Background information</div><button id="sibling" type="button" onclick="this.disabled=true">Sibling</button><dialog aria-label="Options"><button id="inner" type="button" onclick="this.disabled=true">Inner</button><button id="close" type="button" onclick="document.querySelector(\'dialog\').close()">Close</button></dialog><script>document.querySelector("dialog").showModal()</script>');
+ const providers=fakeProviders(f.url);const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),providers);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,modelRequests:100}});plugin.start(t.id);await plugin.waitForIdle();const view=plugin.view(t.id),sid=view.task.rounds[0].sessionId;
+ const attempts=f.host.list<any>(sid,'attempt').filter(a=>a.status==='succeeded');const labels=attempts.map(a=>a.action.label);
+ expect(labels,JSON.stringify({task:view.task,decisions:view.decisions.map(d=>({purpose:d.purpose,status:d.status,reason:d.reason}))},null,2)).toEqual(expect.arrayContaining(['Inner','Close','Sibling']));
+ expect(labels.indexOf('Inner')).toBeLessThan(labels.indexOf('Close'));expect(labels.indexOf('Close')).toBeLessThan(labels.indexOf('Sibling'));
+ const backgroundReview=view.decisions.find(d=>d.purpose==='control-classification'&&(d.request.state as any).material.control.name==='Background information');
+ expect(backgroundReview).toBeDefined();expect(f.host.observation(sid,backgroundReview!.observationId).boundaries).toHaveLength(0);
+ for(const d of view.decisions.filter(d=>d.purpose==='control-classification')){const o=f.host.observation(sid,d.observationId);if(o.boundaries?.length)expect(o.overlays?.find(b=>b.key===o.boundaries!.at(-1)!.key)?.controlIds).toContain((d.request.state as any).material.control.localId);}
+ const regions=view.decisions.filter(d=>d.purpose==='region-review');expect(regions.length).toBeGreaterThan(1);
+ expect((regions[0].request.state as any).material.controls.map((c:any)=>c.name||c.label)).not.toContain('Sibling');
+ for(const d of regions){const material=(d.request.state as any).material;expect(material.candidate).not.toHaveProperty('binding');expect(material.candidate).not.toHaveProperty('reuseBinding');expect(material.candidate.memberCount).toBeGreaterThanOrEqual(material.controls.length);}
+ expect(view.task.status,JSON.stringify(view.task,null,2)).toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
 it('never replays an unknown dispatched outcome after restart',async()=>{
  const f=await explorerFixture();const path=join(f.dir,'plugin.sqlite');let unknownId:string|undefined;let dispatches=0;
  const host=new Proxy(f.host,{get(target,key){if(key==='execute')return async(...args:Parameters<typeof target.execute>)=>{dispatches++;const attempt=await target.execute(...args);unknownId=attempt.id;return {...attempt,status:'unknown' as const};};if(key==='list')return (sid:string,kind:string)=>target.list<any>(sid,kind).map(x=>kind==='attempt'&&x.id===unknownId?{...x,status:'unknown'}:x);const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;}});
