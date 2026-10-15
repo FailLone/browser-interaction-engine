@@ -17,6 +17,10 @@ export function collectRegionCandidates(controls: Control[], elements: Element[]
   }
   const candidates: RegionCandidate[] = [];
   const ancestry = (el: Element) => { const path: string[] = []; for (let p: Element | null = el; p && p !== document.documentElement; p = p.parentElement) path.push(`${instance(p)}:${p.tagName}`); return path; };
+  // Aggregate text of a passive/tentative container is evidence, not the name
+  // of an established operation. Keep explicit labels and record bindings;
+  // reviewed operations separately retain their exact target conditions.
+  const memberName = (c: Control) => c.liveContent?.name ?? (c.label || (Object.values(c.actionBasis || {}).some(b => b.status === 'supported') ? c.name : undefined));
   for (const [el, ids] of ownership) {
     if (candidates.length >= 500) break;
     const style = getComputedStyle(el), box = el.getBoundingClientRect();
@@ -30,7 +34,10 @@ export function collectRegionCandidates(controls: Control[], elements: Element[]
     const title = clean(el.getAttribute('aria-label')) || clean((el.getAttribute('aria-labelledby') || '').split(/\s+/).map(id => document.getElementById(id)?.textContent).join(' ')) || clean(heading?.textContent);
     const facts = { tag: el.tagName.toLowerCase(), role: el.getAttribute('role') || '', heading: heading ? { instanceId: instance(heading), text: clean(heading.textContent) } : null,
       label: title, ancestry: ancestry(el), layout: style.display, border, semantic, root,
-      members: ids.map(id => { const c = byId.get(id)!; const target = elementById.get(id)!; return { id, ancestry: ancestry(target), tag: c.tag, role: c.role, name: c.name,
+      // Share the collector's evidenced passive-readout projection with control
+      // traversal. Raw names remain in the observation/review material; quote
+      // ticks must not invalidate an otherwise unchanged region partition.
+      members: ids.map(id => { const c = byId.get(id)!; const target = elementById.get(id)!; return { id, ancestry: ancestry(target), tag: c.tag, role: c.role, name: memberName(c),
         stableKey: c.stableKey || null, actions: c.actions, actionBasis: c.actionBasis || null, region: c.regionInstanceId || null, list: c.list || null, purposeBinding: c.purposeBinding || null,
         constraints: { ...c.constraints, valid: undefined }, options: c.options.map(o => ({ value: o.value, label: o.label, disabled: o.disabled })) }; }) };
     candidates.push({ id: instance(el), label: title || (root ? '未细分页面' : `${el.tagName.toLowerCase()} 容器`), selector: selector(el),

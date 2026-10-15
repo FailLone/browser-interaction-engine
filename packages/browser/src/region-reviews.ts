@@ -44,7 +44,9 @@ export class RegionReviews {
     if (session.options.regionExploration !== 'review' || o.gaps.some(g => g.critical)) return false;
     const material = this.material(o, actions, session);
     const key = hash({ document: o.instanceScope, url: o.url, context: o.context, candidates: material.candidates.map(c => [c.id, c.binding]),
-      controls: material.controls, review: material.review && { regions: material.review.regions, rejected: material.review.rejectedCandidateIds }, unassigned: material.unassignedControlIds, pageTraversal: material.unassignedPageTraversal });
+      // Candidate bindings already validate semantic names. Raw material labels
+      // also contain passive readouts and must not re-trigger the same request.
+      controls: material.controls.map(({ localId, role, actionKinds }) => ({ localId, role, actionKinds })), review: material.review && { regions: material.review.regions, rejected: material.review.rejectedCandidateIds }, unassigned: material.unassignedControlIds, pageTraversal: material.unassignedPageTraversal });
     const old = this.store.get<{ id: string; sessionId: string; key: string }>('region-review-request', `region-request:${o.sessionId}`);
     if (old?.key === key || !material.unassignedControlIds.length && !material.unassignedPageTraversal) return false;
     this.store.put('region-review-request', { id: `region-request:${o.sessionId}`, sessionId: o.sessionId, key });
