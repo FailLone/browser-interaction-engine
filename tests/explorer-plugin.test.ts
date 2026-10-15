@@ -139,6 +139,17 @@ it('audits newly revealed controls when the opening action consumes the last act
   expect(view.events.some(e=>e.type==='scope.audit'&&(e.data as any).pendingReview)).toBe(true);expect(view.task.plan.find(i=>i.dispatchScope)?.status).not.toBe('succeeded');
  }finally{await plugin.close();await f.close();}
 });
+it.each([true,false])('reopens the recorded entry path after an action budget boundary (selected supplement: %s)',async(supplement)=>{
+ const f=await explorerFixture('<button type="button" onclick="document.querySelector(\'dialog\').showModal()">Open</button><button type="button">Unrelated</button><dialog aria-label="New scope"><button type="button" onclick="this.disabled=true">New operation</button><button type="button" onclick="document.querySelector(\'dialog\').close()">Close</button></dialog>');const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:1}});plugin.start(t.id);await plugin.waitForIdle();let task=plugin.view(t.id).task;
+  const target=task.plan.find(i=>i.scope.label==='New operation'&&i.status==='unresolved')!;expect(target).toBeDefined();
+  expect(task.plan.filter(i=>i.scope.label==='Unrelated').every(i=>!i.prerequisites.length)).toBe(true);
+  if(supplement)plugin.revise(t.id,{itemIds:[target.id]},true);plugin.extendBudget(t.id,{rounds:1,actions:2,durationMs:60000,modelRequests:80});plugin.start(t.id);await plugin.waitForIdle();task=plugin.view(t.id).task;
+  expect(task.plan.find(i=>i.id===target.id)?.status,JSON.stringify(task)).toBe('succeeded');
+  expect(f.host.list<any>(task.rounds.at(-1)!.sessionId,'attempt').map(a=>a.action.label)).toEqual(['Open','New operation']);
+  expect(task.usage.actions).toBe(3);expect(task.plan.find(i=>i.id===target.id)?.prerequisites.map(s=>s.label)).toEqual(['Open']);
+ }finally{await plugin.close();await f.close();}
+});
 it('explores a nested dialog and verifies return before continuing the parent branch',async()=>{
  const f=await explorerFixture('<button id="open" type="button" onclick="document.querySelector(\'dialog\').showModal()">Open</button><button id="sibling" type="button" onclick="this.disabled=true">Sibling</button><dialog aria-label="Options"><button id="inner" type="button" onclick="this.disabled=true">Inner</button><button id="close" type="button" onclick="document.querySelector(\'dialog\').close()">Close</button></dialog>');
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));

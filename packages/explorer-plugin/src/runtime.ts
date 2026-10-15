@@ -98,10 +98,10 @@ export class ExplorerPlugin {
     for(const item of task.plan)if(item.dispatchScope===undefined)item.dispatchScope=approved.has(item.id);
     this.store.save(task);this.event(task,'plan.authority_restored',{approvedItemIds:[...approved],recordOnly:task.plan.filter(i=>!i.dispatchScope).map(i=>i.id)});
   }
-  private gap(task:Task,reason:string,scope:Scope,required=true) {
+  private gap(task:Task,reason:string,scope:Scope,required=true,prerequisites:Scope[]=[]) {
     if(required && task.plan.length && !task.plan.some(i=>i.required&&i.dispatchScope===true&&Object.entries(i.scope).every(([k,v])=>scope[k as keyof Scope]===undefined||scope[k as keyof Scope]===v)))required=false;
     const key=JSON.stringify({reason,scope});let item=task.plan.find(i=>JSON.stringify({reason:i.reason,scope:i.scope})===key);
-    if(!item){item={id:randomUUID(),title:reason,scope,prerequisites:[],completion:'Obtain fresh evidence and verify the requested operation',status:required?'unresolved':reason==='scope_excluded'?'excluded':'untested',required,dispatchScope:false,reason,evidence:[],attempts:[]};task.plan.push(item);}
+    if(!item){item={id:randomUUID(),title:reason,scope,prerequisites:[...prerequisites],completion:'Obtain fresh evidence and verify the requested operation',status:required?'unresolved':reason==='scope_excluded'?'excluded':'untested',required,dispatchScope:false,reason,evidence:[],attempts:[]};task.plan.push(item);}
     const r=task.rounds.at(-1);if(r){try{const o=this.host.observation(r.sessionId);if(!item.evidence.some(e=>e.observationId===o.id))item.evidence.push({sessionId:r.sessionId,observationId:o.id});}catch{item.reason+=':evidence_unavailable';}}
     this.store.save(task);return item;
   }
@@ -349,11 +349,12 @@ export class ExplorerPlugin {
     }
     // Record every remaining in-scope unavailable case, including ungrouped controls.
     for(const action of actions.filter(a=>includesScope(task.plan,a,o)==='target'&&!this.wasCompleted(task,a,o))) {
-      if(this.navigationIsUnverified(task,action,o)){this.gap(task,'unknown_action_outcome',scopeFor(action,o));continue;}
+      const path=this.pathForAction(round,action,o);
+      if(this.navigationIsUnverified(task,action,o)){this.gap(task,'unknown_action_outcome',scopeFor(action,o),true,path);continue;}
       if(round.tried.includes(keyFor(action,o)))continue;
       const sampled=frontier.find(f=>f.action.id===action.id);
-      if(sampled&&['skipped','deferred'].includes(sampled.status)){const excluded=sampled.status==='skipped'||sampled.reason?.endsWith('_member_not_selected');this.gap(task,excluded?'sample_unselected':'scope_deferred',scopeFor(action,o),!excluded);continue;}
-      if(!permitted(action,o,groups,frontier))this.gap(task,action.exclusionReason||action.preconditions.blockers?.[0]?.code||'operation_unavailable',scopeFor(action,o));
+      if(sampled&&['skipped','deferred'].includes(sampled.status)){const excluded=sampled.status==='skipped'||sampled.reason?.endsWith('_member_not_selected');this.gap(task,excluded?'sample_unselected':'scope_deferred',scopeFor(action,o),!excluded,path);continue;}
+      if(!permitted(action,o,groups,frontier))this.gap(task,action.exclusionReason||action.preconditions.blockers?.[0]?.code||'operation_unavailable',scopeFor(action,o),true,path);
     }
     const frame=[...round.stack].reverse().find(f=>{
       if(f.stateId===o.stateId||f.recoveryTried)return false;
@@ -372,9 +373,17 @@ export class ExplorerPlugin {
     return false;
   }
   private entryKey(task:Task,a:ActionCandidate,o:Observation) {return digest({scope:scopeFor(a,o),pending:task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status)).map(i=>i.id).sort()});}
+  private pathForAction(round:Round,a:ActionCandidate,o:Observation) {
+    // A background sibling already belonged to an earlier frame. Opening the
+    // current dialog must not become a prerequisite for that sibling.
+    return round.stack.find(frame=>frame.remaining.some(scope=>matches(scope,a,o)))?.path||round.entryPath;
+  }
   private neededEntry(task:Task,r:Round,a:ActionCandidate,o:Observation) {
     if(r.reentries.includes(this.entryKey(task,a,o)))return false;
-    const actions=this.host.actions(o.sessionId);return task.plan.some(i=>i.required&&i.dispatchScope===true&&!['succeeded','excluded'].includes(i.status)&&i.prerequisites.some(p=>matches(p,a,o))&&!actions.some(candidate=>matches(i.scope,candidate,o)&&candidate.preconditions.visible&&!candidate.preconditions.blockers?.length));
+    const actions=this.host.actions(o.sessionId);return task.plan.some(i=>i.required&&!['succeeded','excluded'].includes(i.status)
+      &&(i.dispatchScope===true||task.plan.some(grant=>grant.required&&grant.dispatchScope===true&&grant.status!=='excluded'&&Object.entries(grant.scope).every(([key,value])=>i.scope[key as keyof Scope]===value)))
+      &&i.prerequisites.some(p=>matches(p,a,o))&&!!includesScope(task.plan,a,o)
+      &&!actions.some(candidate=>matches(i.scope,candidate,o)&&candidate.preconditions.visible&&!candidate.preconditions.blockers?.length));
   }
   private wasCompleted(task:Task,action:ActionCandidate,o:Observation) {
     // Prior completion is a scheduling reference only, never a new engine success or grant.
@@ -446,9 +455,10 @@ export class ExplorerPlugin {
     for(const item of scopes) {
       const pending=actions.filter(a=>matches(item.scope,a,o)&&includesScope(task.plan,a,o)==='target'&&!this.wasCompleted(task,a,o)&&!round.tried.includes(keyFor(a,o)));
       for(const action of pending) {
+        const path=this.pathForAction(round,action,o);
         const f=frontier.find(x=>x.action.id===action.id);
-        if(f?.status==='skipped'||f?.reason?.endsWith('_member_not_selected')){this.gap(task,'sample_unselected',scopeFor(action,o),false);continue;}
-        this.gap(task,this.navigationIsUnverified(task,action,o)?'unknown_action_outcome':permitted(action,o,groups,frontier)?'operation_not_executed':action.exclusionReason||action.preconditions.blockers?.[0]?.code||'operation_unavailable',scopeFor(action,o));
+        if(f?.status==='skipped'||f?.reason?.endsWith('_member_not_selected')){this.gap(task,'sample_unselected',scopeFor(action,o),false,path);continue;}
+        this.gap(task,this.navigationIsUnverified(task,action,o)?'unknown_action_outcome':permitted(action,o,groups,frontier)?'operation_not_executed':action.exclusionReason||action.preconditions.blockers?.[0]?.code||'operation_unavailable',scopeFor(action,o),true,path);
       }
       const controls=new Set(o.controls.filter(c=>c.visible&&c.enabled&&controlInScope(item.scope,c,o,actions)&&!task.plan.some(excluded=>excluded.reason==='user_excluded'&&controlInScope(excluded.scope,c,o,actions))).map(c=>c.localId));
       const obligations={
