@@ -1,0 +1,29 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine
+
+ ❯ tests/region-live-content.test.ts (7 tests | 1 failed) 6332ms
+   × exits an obstruction and retains reviewed regions while background quotes never settle 1589ms
+     → Interaction source changed before execution
+   ✓ does not repeatedly request the same unassigned regions for passive quote updates  1035ms
+   ✓ invalidates a reviewed region and refuses dispatch when destination changes  742ms
+   ✓ invalidates a reviewed region and refuses dispatch when explicit-label changes  699ms
+   ✓ invalidates a reviewed region and refuses dispatch when readout-meaning changes  701ms
+   ✓ invalidates a reviewed region and refuses dispatch when operation-label changes  716ms
+   ✓ still expires an externally reviewed tentative target when its raw text changes  850ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/region-live-content.test.ts > exits an obstruction and retains reviewed regions while background quotes never settle
+EngineError: Interaction source changed before execution
+ ❯ BrowserEngine.runAction packages/core/src/engine.ts:485:13
+
+ ❯ BrowserEngine.runAction packages/browser/src/index.ts:256:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  21:19:20
+   Duration  7.16s (transform 300ms, setup 0ms, collect 673ms, tests 6.33s, environment 0ms, prepare 37ms)
+
