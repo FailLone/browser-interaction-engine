@@ -7,6 +7,8 @@ export interface EvidenceOptions {
 }
 export interface LayoutEvidence {
   coordinateSpace: 'layout-viewport-css-px';
+  /** Additive geometry evidence; absence in historical captures means unverified. */
+  clipping?: { version: 1; topLayer: boolean; fragmentCount: number };
   client: { width: number; height: number; left: number; top: number };
   scroll: { width: number; height: number; left: number; top: number };
   offset?: { width: number; height: number; left: number; top: number; parentId?: string };

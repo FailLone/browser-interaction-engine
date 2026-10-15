@@ -184,3 +184,73 @@ tracker 在消费者内存中维护状态，默认最多 500 个已跟踪问题�
 `scrollContainers` 补充观测目录最多扫描 5000 个元素、保留 128 个可到达容器；超限或不支持的书写方向会记录缺口。该目录用于根滚动和证据比较，元素滚动候选继续使用探索器的控件发现与预算。iframe、Shadow DOM 和任意自定义滚动实现不保证覆盖；可到达性是有限采样，不声称穷尽所有滚动位置。
 
 `tests/observed-occlusion.test.ts` 验证实际 modal/嵌套/横向探索滚动、被动警告修订、显式要求下升级、历史读取不发起动作、DOM 重建/绑定变化/懒加载/移出视口/弹层关闭/缺证的保守处理、身份和过期容器保护。
+
+## 裁剪规则 clipped-control
+
+`clipped-control@1.0.0` 是第二类控件规则，检查控件 border box 与祖先矩形裁剪区域的关系。它与遮盖规则独立：另一个元素盖住按钮不会被算作裁剪；按钮未被任何元素遮挡，也可能被祖先 `overflow` 切掉一半。
+
+| 当前证据 | 默认结论 |
+| --- | --- |
+| 控件矩形完整位于已验证的裁剪区域和视口内 | pass / info，仅限矩形几何 |
+| 部分或全部位于页面视口外 | unknown / info，等待普通探索观察 |
+| 被 `overflow: auto/scroll` 边界裁剪 | unknown / info，正常滚动待复查 |
+| 被 `overflow: hidden/clip` 边界裁剪 | unknown / warning，设计意图未确认 |
+| 上一行且违反调用方明确声明的控件要求 | fail / error，限当前位置、当前要求 |
+| 当前弹层之外、隐藏、禁用或没有已知操作 | not-applicable，禁用控件可显式纳入 |
+| 复杂裁剪、旧版或不完整证据 | unknown，不用缺失信息证明通过 |
+
+静态调用可加入已有 RuleRunner，与遮盖规则一起选择或独立运行：
+
+```ts
+import { RuleRunner, clippedControlRule } from '@interaction/rules';
+const runner = new RuleRunner([clippedControlRule]);
+const reports = await runner.run(client, inspection, [{
+  ruleId: 'clipped-control', ruleVersion: '1.0.0',
+  options: { tolerancePx: 1, includeDisabled: false },
+}]);
+```
+
+规则目录提供 JSON Schema；配置验证为严格模式，容差限制在 0–2 CSS px。静态报告保存控件矩形、可见矩形交集、裁剪祖先 ID、各轴 overflow、面积比例及捕获引用。比例表示矩形几何交集，不是像素可见度，也不证明文字完整或按钮可操作。
+
+如有明确产品要求，可按已确认的控件 identityId 配置：
+
+```ts
+const options = { requirements: [{
+  identityId: target.identityId,
+  kind: 'unclipped-by-nonscroll-container',
+  reason: '提交按钮不能被非滚动容器裁掉',
+  evidence: ['product-requirement:submit-button-visibility'],
+}] };
+```
+
+这种要求只对当前可观察的 `hidden/clip` 裁剪产生 error。`hidden` 仍可能被程序滚动，改变布局也可能解除裁剪，因此不宣称永远无法访问。视口外或普通滚动边界仍然待复查；不会因为重复观察、滚动到底或按钮名称而升级。
+
+### 跟随正常探索复查
+
+```ts
+import { ClippedControlTracker, toInspectionResults } from '@interaction/rules';
+const tracker = new ClippedControlTracker({ rule: options, maxTracked: 500 });
+// 按 inspection.sequence 顺序投递；也可在探索结束后消费历史积压。
+const report = await tracker.run(client, inspection);
+await client.completeInspection(sessionId, inspection.id, consumerId, toInspectionResults([report]));
+```
+
+持续报告的规则 ID 是 `observed-clipping@1.0.0`。它复用静态规则，并增加 issueId、revision、生命周期和历史捕获引用。初次普通滚动裁剪是 pending，非滚动裁剪是 suspected；配置要求被违反时是 confirmed；可比控件恢复完整矩形时是 resolved。此前已有 warning 的控件后来只部分进入滚动区域，仍保留待验证警告。
+
+关联要求同一会话、文档、URL、业务上下文、弹层周期、逻辑身份及 DOM 实例与业务绑定。缺失、离开视口/弹层、身份歧义和节点重建进入 unverified。证据中断或实例改变后的第一次观测只建立新基线，不能直接关闭历史问题；随后仍需一份可比的完整证据。允许同一实例的布局修正恢复完整，因此不会把尺寸变化一律当作错误。
+
+报告记录 DOM 祖先的实际双轴位置变化，不以“发生过 scroll 动作”替代位置证据，也不将同时发生的滚动和恢复当作因果证明。检查器只读保存的 Capture，不调用 observe、滚动、恢复或暂停探索，检查完成不是进一步探索的前置条件。有限租约和证据缺失仍按通用检查协议处理。
+
+Tracker 在内存中保留有界状态；每个实例只接受一个会话的递增任务，相邻同一任务重试返回相同报告，倒序任务拒绝，超过容量明确报错且不提交部分修订。重启后需要按序重放仍可用的历史 Capture；不宣称自动恢复内存状态。运行入口见 [clipped-control-inspector.ts](../examples/clipped-control-inspector.ts)。
+
+### v1 的几何范围
+
+支持主文档 light DOM 中轴对齐、单片段矩形控件的双轴和嵌套 overflow 裁剪，使用 client 边界排除边框/滚动条。新快照在 layout 中增加可选 `clipping.version: 1`，保存原生 top-layer 状态和片段数，并补充相关 computed styles；旧 Capture 不修改，缺新字段时返回 unknown。
+
+原生 modal、Popover 和 fullscreen 的 top-layer 祖先外部裁剪不计入，其自身内部裁剪仍检查。普通 role、tooltip 名称或高 z-index 不构成豁免。依据 [CSS Top Layer](https://www.w3.org/TR/css-position-4/#top-layer) 的祖先隔离关系，并通过真实 Chromium 场景验证。
+
+固定定位可以脱离普通祖先 overflow；绝对定位遇到不能确定的包含块关系时返回 unknown，而不是直接按 DOM 父链判错。参照 [CSS overflow 与包含块](https://www.w3.org/TR/CSS2/visufx.html#overflow-clipping)。Transforms/zoom、clip-path、mask、非默认 containment、圆角裁剪、扩展 overflow-clip-margin、body overflow 传播、复杂绝对定位和多片段盒子暂不作确定判断；矩形边界的依据见 [CSS Overflow](https://www.w3.org/TR/css-overflow-3/#overflow-properties)。iframe、Shadow DOM、文字截断和像素遮挡不在本规则范围。
+
+`tests/clipped-control.test.ts` 覆盖上述基础通过/失败/待定场景、边框、嵌套/双轴滚动、原生弹层、普通元素遮盖、被取消的滚动、身份/实例变化、历史积压与旧证据兼容。
+
+编译后运行 `node scripts/smoke-clipped-control.mjs`，可复现真实 Chromium + HTTP 的配置要求、顶层弹窗内外裁剪、普通滚动后恢复和报告保存检查。

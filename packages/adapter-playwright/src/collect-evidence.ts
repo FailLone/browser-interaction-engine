@@ -30,7 +30,9 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
   const stack: { node: Node; parentId?: string }[] = [{ node: document.documentElement }];
   const byId = new Map<string, DomNodeEvidence>();
   let characters = 0; let sizeLimited = false;
-  const essential = ['display', 'visibility', 'opacity', 'position', 'z-index', 'pointer-events', 'overflow', 'overflow-x', 'overflow-y', 'color', 'background-color', 'font-size', 'font-weight', 'cursor', 'transform', 'direction', 'writing-mode', 'white-space', 'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height', 'box-sizing', 'contain', 'clip-path', 'overflow-wrap', 'text-overflow', 'font-family', 'line-height', 'background-image', 'outline', 'filter', 'isolation', 'flex', 'flex-direction', 'align-items', 'justify-content', 'gap', 'grid-template-columns'];
+  const essential = ['display', 'visibility', 'opacity', 'position', 'z-index', 'pointer-events', 'overflow', 'overflow-x', 'overflow-y', 'color', 'background-color', 'font-size', 'font-weight', 'cursor', 'transform', 'direction', 'writing-mode', 'white-space', 'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height', 'box-sizing', 'contain', 'clip-path', 'overflow-wrap', 'text-overflow', 'font-family', 'line-height', 'background-image', 'outline', 'filter', 'isolation', 'flex', 'flex-direction', 'align-items', 'justify-content', 'gap', 'grid-template-columns',
+    'translate', 'rotate', 'scale', 'zoom', 'perspective', 'clip', 'mask-image', 'content-visibility', 'will-change', 'overflow-clip-margin',
+    'border-top-left-radius', 'border-top-right-radius', 'border-bottom-left-radius', 'border-bottom-right-radius'];
   while (stack.length && result.nodes.length < limits.maxNodes) {
     const { node, parentId } = stack.pop()!;
     if (node.nodeType !== Node.ELEMENT_NODE && node.nodeType !== Node.TEXT_NODE) continue;
@@ -61,6 +63,7 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
       const hit = inView ? document.elementFromPoint(x, y) : null;
       record.layout = {
         coordinateSpace: 'layout-viewport-css-px',
+        clipping: { version: 1, topLayer: el.matches(':modal, :popover-open, :fullscreen'), fragmentCount: el.getClientRects().length },
         client: { width: el.clientWidth, height: el.clientHeight, left: el.clientLeft, top: el.clientTop },
         scroll: { width: el.scrollWidth, height: el.scrollHeight, left: el.scrollLeft, top: el.scrollTop },
         offset: el instanceof HTMLElement ? { width: el.offsetWidth, height: el.offsetHeight, left: el.offsetLeft, top: el.offsetTop, parentId: el.offsetParent ? id(el.offsetParent) : undefined } : undefined,

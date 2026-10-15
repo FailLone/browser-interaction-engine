@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Control clipping fixtures</title>
+<style>
+body { margin:20px }
+#clip { position:relative; width:220px; height:100px; overflow:hidden; border:6px solid #888 }
+#content { position:relative; height:400px }
+#target { position:absolute; top:80px; left:20px; width:120px; height:40px; box-sizing:border-box }
+#background { margin-top:30px }
+</style>
+<div id="frame"><div id="clip" aria-label="Content"><div id="content"><button id="target" data-testid="target">Target</button></div></div></div>
+<button id="background">Background</button>
+<script>
+const mode = new URLSearchParams(location.search).get('mode');
+const clip = document.getElementById('clip'), content = document.getElementById('content'), target = document.getElementById('target');
+if (mode === 'healthy' || mode === 'covered') target.style.top='20px';
+if (mode === 'covered') {
+  const cover=document.createElement('div'); cover.style.cssText='position:fixed;inset:0;background:#aaa;z-index:20'; document.body.append(cover);
+}
+if (mode === 'clip') clip.style.overflow='clip';
+if (mode === 'horizontal') { clip.style.overflow='auto'; content.style.width='700px'; content.style.height='80px'; target.style.top='20px'; target.style.left='200px'; }
+if (['scroll','rebuild','rebind','cancel'].includes(mode)) clip.style.overflow='auto';
+if (mode === 'rebuild') clip.addEventListener('scroll',()=>target.replaceWith(target.cloneNode(true)),{once:true});
+if (mode === 'rebind') clip.addEventListener('scroll',()=>target.dataset.recordId='another-record',{once:true});
+if (mode === 'cancel') clip.addEventListener('scroll',()=>clip.scrollTop=0);
+if (mode === 'fixed') { target.style.position='fixed'; target.style.top='180px'; }
+if (mode === 'absolute-escape') { content.style.position='static'; clip.style.position='static'; }
+if (mode === 'offscreen') clip.style.marginTop='900px';
+if (mode === 'disabled') target.disabled=true;
+if (mode === 'hidden') target.hidden=true;
+if (mode === 'transform') clip.style.transform='scale(.8)';
+if (mode === 'zoom') clip.style.zoom='1.25';
+if (mode === 'mask') clip.style.clipPath='circle(30%)';
+if (mode === 'rounded') clip.style.borderRadius='35px';
+if (mode === 'clip-margin') { clip.style.overflow='clip'; clip.style.overflowClipMargin='30px'; }
+if (mode === 'nested') {
+  const outer=document.createElement('div'); outer.id='outer'; outer.style.cssText='width:160px;height:120px;overflow:hidden;position:relative;border:4px solid';
+  clip.replaceWith(outer); outer.append(clip); target.style.left='140px';
+}
+if (mode === 'modal') {
+  const frame=document.getElementById('frame'); frame.setAttribute('role','dialog'); frame.setAttribute('aria-modal','true'); frame.setAttribute('aria-label','Clipping dialog');
+  frame.style.cssText='position:fixed;left:40px;top:40px;width:300px;height:200px;background:white';
+}
+if (mode === 'svg') {
+  content.innerHTML='<svg id="target" role="button" aria-label="Target" width="120" height="40"><rect width="120" height="40" /></svg>';
+}
+if (mode === 'fragments') {
+  content.innerHTML='<a id="target" href="#" style="position:static;display:inline;width:auto;height:auto">Target with several words that wrap across multiple lines of this small container</a>';
+}
+if (mode?.startsWith('native-modal') || mode?.startsWith('popover')) {
+  const nativeModal=mode.startsWith('native-modal');
+  const layer=document.createElement(nativeModal?'dialog':'div');
+  layer.id='layer'; layer.style.cssText='position:fixed;inset:auto;left:280px;top:180px;width:240px;height:120px;margin:0;padding:10px;border:0';
+  if(!nativeModal) layer.setAttribute('popover','manual');
+  clip.append(layer); layer.append(target); target.style.position='static';
+  if(mode.endsWith('-clipped')) { layer.style.overflow='hidden'; target.style.position='absolute'; target.style.top='120px'; }
+  if(nativeModal) layer.showModal(); else layer.showPopover();
+  // showModal focuses the button and can scroll even overflow:hidden. Establish
+  // the intended clipped fixture position after that native focus behavior.
+  if(mode.endsWith('-clipped')) layer.scrollTop=0;
+}
+</script></html>

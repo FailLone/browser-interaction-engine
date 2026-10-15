@@ -178,6 +178,8 @@ Modal、popover 与浮动菜单建立独占交互范围，DFS 先探索当前最
 
 推荐使用 `ObservedOcclusionTracker` 跟随正常探索进行异步复查：通过逻辑控件身份、业务上下文和弹层打开周期关联历史警告，核对实际祖先滚动位置，再记录恢复或继续待确认。只有调用方明确声明某控件在各观测位置必须满足五点指针要求，且相关滚动后的可比证据仍失败，才升级为该约定下的 error。规则不会发起动作或恢复滚动位置。探索器已支持页面、modal 内部和嵌套容器的双轴滚动。见 [持续复查示例](examples/observed-occlusion-inspector.ts)。
 
+`clipped-control` 检查控件是否被祖先容器的矩形边界裁剪。普通滚动中的部分可见保持待复查；`hidden/clip` 裁剪先报 warning，有明确身份绑定要求时才报 error。`ClippedControlTracker` 可随探索快照持续跟踪，只有同一控件的可比证据恢复完整才关闭问题；移出视口、缺证和重建不会直接消除警告。见 [裁剪检查示例](examples/clipped-control-inspector.ts) 与 [规则范围](docs/CONTROL-RULES.md#裁剪规则-clipped-control)。
+
 显式调用 `scroll-recovery` 可探测双轴和嵌套滚动，验证同一控件是否恢复命中并尝试恢复原位置；经过确认的恢复为 warning，有明确当前操作要求且五点被挡、无可用滚动路径时为限定范围的 error。有限探测失败、目标变化和恢复位置失败保留 unknown。见 [主动检查示例](examples/scroll-recovery-inspector.ts)。
 
 浏览器新会话默认覆盖已遇到控件及其支持操作；控件计数、代表性/逐状态模式、当前节点定位、局部恢复声明和环境重置边界见 [探索与恢复](docs/EXPLORATION-RECOVERY.md)。
