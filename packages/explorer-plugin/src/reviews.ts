@@ -126,13 +126,15 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     let kind=kinds.find(k=>judged.values[`interface_${k}`]===true&&judged.values[`external_${k}`]===false);
     let decision=judged.decision;
     if(!kind){
-      if(await c.refresh(judged.decision,`risk:${o.instanceScope}:${item.control.instanceId}`))return true;
+      const uncertain=kinds.filter(k=>judged.values[`interface_${k}`]!==false&&judged.values[`external_${k}`]!==true);
+      // Refresh missing evidence once, not a confident veto. Rejection retains the
+      // coverage gap; repeating the same question cannot supply an operation grant.
+      if(uncertain.length&&await c.refresh(judged.decision,`risk:${o.instanceScope}:${item.control.instanceId}`))return true;
       // Missing semantics can be interpreted; a confident veto or missing structural evidence cannot.
       const observed=o.controls.find(control=>control.localId===item.control.localId);
       const controlledIds=(observed?.controls||'').split(/\s+/).filter(Boolean);
       const controlled=o.controls.filter(control=>controlledIds.includes(control.reviewAttributes?.id||''));
-      const effects=Object.fromEntries(kinds.flatMap(k=>{
-        if(judged.values[`interface_${k}`]===false||judged.values[`external_${k}`]===true)return [];
+      const effects=Object.fromEntries(uncertain.flatMap(k=>{
         const structure=item.control.actionBasis?.[k]?.evidence.filter(e=>e.source==='dom-structure')||[];
         return structure.length||(k==='click'&&controlled.length)?[[k,{structure,controlled}]]:[];
       }));
