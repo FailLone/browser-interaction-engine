@@ -102,3 +102,27 @@ it('revalidates changed dispatch bindings instead of treating old success as the
  expect(task.status,JSON.stringify(task,null,2)).toBe('completed');expect(task.rounds.map(r=>f.host.list<any>(r.sessionId,'attempt').map(a=>a.action.label))).toEqual([['Alpha'],['Alpha'],['Beta']]);expect(task.usage.actions).toBe(3);
  }finally{await plugin.close();await f.close();}
 });
+it('grounds plans in accessible action names and samples only current reviewed members',async()=>{
+ const f=await explorerFixture('<button type="button" onclick="this.disabled=true">Alpha</button>');const p=fakeProviders(f.url);const original=p.jev.decide;let sawRetiredMember=false;
+ p.llm.decide=async(r,s)=>{
+  if(r.purpose==='initial-plan'){
+   const observation=(r.state as any).material.observation;
+   expect(observation.controls[0].label).toBe('Alpha');
+   const scope=observation.actions.find((a:any)=>a.label==='Alpha'&&a.kind==='click');expect(scope).toBeDefined();
+   return {model:'mock',value:{items:[{title:'Click Alpha',scope,prerequisites:[],completion:'Verify click',required:true,reason:'Observed action'}]}};
+  }
+  return original(r,s);
+ };
+ p.jev.decide=async(r,s)=>{
+  if(r.purpose==='scope-review'){
+   const group=(r.state as any).material.group;sawRetiredMember ||= group.historicalMemberCount>0;
+   expect(group.members.every((m:any)=>f.host.actions(group.sessionId).some(a=>a.id===m.actionId))).toBe(true);
+   return {model:'mock',value:'sample',confidence:1};
+  }
+  return original(r,s);
+ };
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'Click Alpha once',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const task=plugin.view(t.id).task;
+ expect(sawRetiredMember).toBe(true);expect(task.status,JSON.stringify(task)).toBe('completed');expect(task.usage.actions).toBe(1);expect(task.plan.some(i=>i.reason==='sample_unselected')).toBe(false);
+ }finally{await plugin.close();await f.close();}
+});

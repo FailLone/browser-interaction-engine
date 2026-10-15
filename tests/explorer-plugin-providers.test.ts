@@ -44,3 +44,9 @@ it('sends structured generation through LLM and keeps configuration secrets serv
  const result=await p.decide({...req,id:'id',kind:'generate',schema:{type:'object'}},new AbortController().signal);expect(result.value).toEqual({items:[]});expect(sent.messages[0].content).toContain('untrusted');
  expect(providersFromEnv({EXPLORER_JEV_API_KEY:'j'}).jev?.name).toBe('typesafe');expect(()=>providersFromEnv({EXPLORER_NOUL_LOW:'.9',EXPLORER_NOUL_HIGH:'.1'})).toThrow();
 });
+it('rejects model-invented operation kinds instead of persisting unmatchable plans',async()=>{
+ const {planSchema}=await import('../packages/explorer-plugin/src/schema.js');
+ const plan=(kind:string)=>({items:[{title:'Alpha',scope:{label:'Alpha',kind},prerequisites:[],completion:'Observe result',required:true,reason:'Goal'}]});
+ for(const kind of ['button','state','enabled','clicked-once'])expect(planSchema.safeParse(plan(kind)).success).toBe(false);
+ expect(planSchema.safeParse(plan('click')).success).toBe(true);
+});

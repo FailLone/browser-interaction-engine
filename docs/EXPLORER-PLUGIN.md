@@ -44,4 +44,6 @@ JEV 支持 TypeSafe SystemOne 和 OpenRouter Decisions；LLM 使用兼容 Chat C
 
 复验入口为 `pnpm test:explorer`、`pnpm typecheck`、`pnpm build`、`pnpm smoke:explorer`。编译验收报告与截图写入 `.data/explorer-smoke-*`。
 
-真实服务联调尚待提供商配置。详细嵌入方式、独立接口和存储约定见 [插件 API 与接入说明](../packages/explorer-plugin/README.md)。
+随后使用与 ui-sentinel 相同的 OpenRouter 配置完成真实服务联调：JEV 请求模型 `typesafe/jev-1.13`，实际返回 `typesafe/jev-1.13-20260917`；LLM 为 `deepseek/deepseek-v4.1-flash`。本地单按钮任务完成 1 次实际操作，并观察到禁用状态；真实触发了 JEV 不确定 → LLM 转交。
+
+联调修正了计划中的操作类型约束、可访问控件名称，以及抽样误选历史成员的问题；插件专项增加至 23 项通过。密钥只保存在被 Git 忽略的本地文件中。该验证覆盖接口和简单操作闭环，不代表复杂站点已完成真实模型验收。详细嵌入方式、独立接口和存储约定见 [插件 API 与接入说明](../packages/explorer-plugin/README.md)。

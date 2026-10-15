@@ -76,13 +76,16 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const material=host.explorationReviewMaterial(sid);
   for(const group of material.groups.filter(g=>g.status==='pending' || !g.decisions.length)) {
     const key=`group:${group.id}:${group.revision}`;if(done(key))continue;
-    const d=await c.choose('scope-review','Choose exhaustive traversal of these observed members, representative sampling, defer, or exclude. Follow the task; sampled-out members stay untested.',{observationId:o.id,goal:task.goal,plan:task.plan,group},
+    // Groups retain prior observations and pre-review action cases. Only current candidates can be selected.
+    const actions=host.actions(sid);const members=group.members.filter(m=>actions.some(a=>a.id===m.actionId));
+    if(!members.length){mark(key);continue;}
+    const d=await c.choose('scope-review','Choose exhaustive traversal of these current observed members, representative sampling, defer, or exclude. Follow the task; sampled-out members stay untested. Historical members are not execution candidates.',{observationId:o.id,goal:task.goal,plan:task.plan,group:{...group,members,historicalMemberCount:group.members.length-members.length}},
       {all:'All observed members are required',sample:'Representative observed members suffice',defer:'Cannot proceed yet',skip:'Outside the task',uncertain:'Unable to decide'});
     const mode=d.value==='uncertain'?'defer':d.value;let memberKeys:string[]=[];
     if(mode==='sample') {
       // Deterministic batching avoids silently discarding candidates above JEV's option limit.
-      for(let offset=0;offset<group.members.length;offset+=200) {
-        const options:Record<string,unknown>=Object.fromEntries(group.members.slice(offset,offset+200).map(m=>[m.key,{label:m.label,kind:m.kind,value:m.value}]));
+      for(let offset=0;offset<members.length;offset+=200) {
+        const options:Record<string,unknown>=Object.fromEntries(members.slice(offset,offset+200).map(m=>[m.key,{label:m.label,kind:m.kind,value:m.value,risk:m.risk}]));
         options.none='No representative needed from this batch';options.uncertain='Cannot choose';
         const sample=await c.choose('sample-selection','Select one representative from this batch, or none. Each batch is reviewed; no omitted member counts as covered.',{observationId:o.id,goal:task.goal,groupLabel:group.label,batch:offset/200},options);
         if(!['none','uncertain'].includes(sample.value))memberKeys.push(sample.value);
@@ -91,7 +94,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     mark(key);
     const finalMode=mode==='sample'&&!memberKeys.length?'defer':mode;
     await c.apply(d.decision,{type:'decideExplorationGroup',groupId:group.id,revision:group.revision,decision:{mode:finalMode,...(finalMode==='sample'?{memberKeys}:{}),source,evidence:evidence(d.decision)}});
-    for(const member of group.members)if(finalMode==='skip'||(finalMode==='sample'&&!memberKeys.includes(member.key))) {
+    for(const member of members)if(finalMode==='skip'||(finalMode==='sample'&&!memberKeys.includes(member.key))) {
       const action=host.actions(sid).find(a=>a.id===member.actionId);
       if(action){const s={url:o.url,label:action.label,kind:action.kind,...(action.value===undefined?{}:{value:action.value as string|boolean|number})};c.gap(finalMode==='skip'?'scope_excluded':'sample_unselected',s,false);}
     }
