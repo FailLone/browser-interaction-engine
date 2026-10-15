@@ -73,7 +73,7 @@ await client.reuseControlReviews(sessionId, {
 // HTTP: { type: 'reuseControlReviews', review: 上面的输入 }
 ```
 
-接受前检查整批匹配关系、当前观察和浏览器现场事实；创建全新的 `ControlReviewRecord`，绑定当前节点与当前文档。新记录保存 `reusedFrom` 来源链，发布 `control.review_recorded` 和 `control.review_reused`。新记录沿用用途与输入样本，但 `replayable` 固定为 false；不继承重放、历史身份、区域/页面批准、all/sample 决定或检查结果。提交后重新观察，调用方仍需核对返回记录是否 active，并独立处理探索门控。
+接受前检查整批匹配关系、当前观察和浏览器现场事实；创建全新的 `ControlReviewRecord`，绑定当前节点与当前文档。新记录保存 `reusedFrom` 来源链，发布 `control.review_recorded` 和 `control.review_reused`。新记录沿用用途与输入样本，但 `replayable` 固定为 false；不继承重放、历史身份、区域/页面批准、all/sample 决定或检查结果。提交后重新观察，调用方仍需核对返回记录是否 active，并独立处理探索门控。这里的区域深度门控约束自动遍历；显式单项 `execute` 沿用既有上层接管语义，仍校验用途、当前目标和风险，不能用它测试 DFS 是否继承区域决定。
 
 当前比较条件包括准确 URL、全部声明上下文、操作类型、目标名称/标签/角色、定位结构、数据绑定、原生操作依据、输入约束、表单端点，以及祖先标签、选择器、属性和显式标签。只去除节点实例 ID 和几何；祖先内联 style 不作用途等价条件。值、选中状态、几何、禁用、遮挡与原生输入有效性仍由现有现场执行检查处理。每次使用派生批准，还会验证祖先结构绑定；变化就失效，不自动接受新条件。
 
