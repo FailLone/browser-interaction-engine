@@ -1,5 +1,6 @@
 import { RegionReviews } from './region-reviews.js';
 import { ControlReviews } from './control-reviews.js';
+import { ControlClassifications } from './control-classifications.js';
 import { contextKey, type ExplorationGroup } from '@interaction/core';
 import { PageExploration } from './page-exploration.js';
 export type { PageExplorationState } from './page-exploration.js';
@@ -34,11 +35,25 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   private readonly pages: PageExploration;
   private readonly regions: RegionReviews;
   private readonly controls: ControlReviews;
+  private readonly classifications: ControlClassifications;
+  private readonly classificationHook?: EngineHooks['controlClassification'];
   private readonly controlHook?: EngineHooks['controlReview'];
   private readonly regionHook?: EngineHooks['regionReview'];
   protected override async reviewActions(actions: ActionCandidate[], o: Observation) {
     this.controls.reconcile(o);
     let reviewed=this.controls.apply(actions,o);
+    this.classifications.reconcile(o, reviewed);
+    if (this.classificationHook && this.classifications.request(o, reviewed, 'hook')) {
+      const material = this.classifications.material(o, reviewed);
+      const result = await this.hook(o.sessionId, 'controlClassification', () => this.classificationHook!(structuredClone(material), structuredClone({ session: this.session(o.sessionId), observation: o })));
+      if (result.value !== undefined) {
+        const valid = await this.hook(o.sessionId, 'controlClassification-preflight', async () => {
+          if (await this.driver!.preflight(o, undefined, result.value!.classifications.map(c => c.localId)) !== 'valid') throw new EngineError('STALE_CONTROL_CLASSIFICATION', 'Classification facts changed');
+          return true;
+        });
+        if (valid.value) await this.hook(o.sessionId, 'controlClassification-record', () => this.store.transaction(() => this.classifications.record(o, reviewed, result.value!)));
+      }
+    }
     if(this.controlHook&&this.controls.request(o,reviewed,'hook')){
       const material=this.controls.material(o,reviewed);
       const result=await this.hook(o.sessionId,'controlReview',()=>this.controlHook!(structuredClone(material),structuredClone({session:this.session(o.sessionId),observation:o})));
@@ -54,6 +69,25 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       reviewed=this.controls.apply(actions,o);
     }
     return reviewed;
+  }
+  controlClassificationMaterial(sid: string) { return this.classifications.material(this.observation(sid), this.actions(sid)); }
+  classifyControls(sid: string, input: import('@interaction/adapter-playwright').ClassifyControlsInput) {
+    return this.enqueueMeasured(sid, async () => {
+      const o = this.observation(sid);
+      if (input.observationId !== o.id) throw new EngineError('STALE_CONTROL_CLASSIFICATION', 'Classify the latest observation');
+      if (this.activeId !== sid || !this.driver?.connected()) throw new EngineError('BROWSER_UNAVAILABLE', 'Observe this session before classifying controls');
+      if (await this.driver.preflight(o, undefined, input.classifications.map(c => c.localId)) !== 'valid') { await this.capture(sid, 'inspection'); throw new EngineError('STALE_CONTROL_CLASSIFICATION', 'Target facts changed; classify the new observation'); }
+      const records = this.store.transaction(() => this.classifications.record(o, this.actions(sid), input));
+      await this.capture(sid, 'inspection');
+      return records.map(r => this.store.require<import('@interaction/adapter-playwright').ControlClassificationRecord>('control-classification', r.id));
+    });
+  }
+  revokeControlClassification(sid: string, input: import('@interaction/adapter-playwright').RevokeControlClassificationInput) {
+    return this.enqueueMeasured(sid, async () => {
+      this.session(sid); const record = this.store.transaction(() => this.classifications.revoke(sid, input));
+      if (this.activeId === sid && this.driver?.connected()) await this.capture(sid, 'inspection');
+      return record;
+    });
   }
   controlReviewMaterial(sid:string) { return this.controls.material(this.observation(sid),this.actions(sid)); }
   reviewControls(sid:string,input:import('@interaction/adapter-playwright').ControlReviewInput) {
@@ -144,8 +178,12 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     this.publish(sid, 'exploration.page_returned', { ...updated.lastReturn, stateRestored: false });
     return 'changed';
   }
-  protected override prepareActions(actions: ActionCandidate[], observation: Observation) { return this.purposeReviews.apply(actions, observation); }
-  protected override validatePreparedAction(action: ActionCandidate, observation: Observation) { this.controls.validate(action, observation); this.purposeReviews.validate(action, observation); }
+  protected override prepareActions(actions: ActionCandidate[], observation: Observation) {
+    const reviewed = this.purposeReviews.apply(actions, observation);
+    this.classifications.reconcile(observation, reviewed);
+    return this.classifications.apply(reviewed, observation);
+  }
+  protected override validatePreparedAction(action: ActionCandidate, observation: Observation) { this.classifications.validate(action, observation); this.controls.validate(action, observation); this.purposeReviews.validate(action, observation); }
   purposeReviewMaterial(sessionId: string, groupId: string) { return this.purposeReviews.material(this.observation(sessionId), this.actions(sessionId), groupId); }
   reviewListPurpose(sessionId: string, review: ListPurposeReviewInput) {
     return this.enqueueMeasured(sessionId, async () => this.store.transaction(() => this.purposeReviews.record(this.observation(sessionId), this.actions(sessionId), review)));
@@ -159,6 +197,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     this.pages.reconcile(observation, previous, this.session(observation.sessionId));
     this.purposeReviews.reconcile(observation, this.actions(observation.sessionId));
     this.controls.retire(observation,this.actions(observation.sessionId));
+    this.classifications.retire(observation);
+    this.classifications.request(observation, this.actions(observation.sessionId));
     // Publish only when the observation and final caller policy are queryable.
     this.controls.request(observation,this.actions(observation.sessionId));
     return this.inspections.finish(observation, previous, attemptId);
@@ -193,11 +233,11 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   private subscriptions = new Set<ReturnType<typeof subscribeEvents>>();
   private readonly evidenceQueries = new BrowserEvidenceQueries(this);
   override frontierCoverage(sessionId: string) { return withFrontierStates(super.frontierCoverage(sessionId), id => this.store.get<Observation>('observation', id)); }
-  controlCoverage(sessionId: string) { return describeControlCoverage(this.list<Observation>(sessionId, 'observation'), this.list(sessionId, 'attempt'), this.list(sessionId, 'action'), this.list(sessionId, 'hypothesis')); }
+  controlCoverage(sessionId: string) { return describeControlCoverage(this.list<Observation>(sessionId, 'observation'), this.list(sessionId, 'attempt'), this.list(sessionId, 'action'), this.classifications.records(sessionId), this.list(sessionId, 'hypothesis')); }
   override report(sessionId: string) {
     const report = super.report(sessionId), controlCoverage = this.controlCoverage(sessionId);
     return { ...report, pageExploration: this.pages.state(sessionId), controlCoverage,
-      completionAudit: auditBrowserCompletion(report.explorationAudit, controlCoverage, this.list<Observation>(sessionId, 'observation'), report.session.currentObservationId, this.list<ExplorationGroup>(sessionId, 'exploration-group')) };
+      completionAudit: auditBrowserCompletion(report.explorationAudit, controlCoverage, this.list<Observation>(sessionId, 'observation'), report.session.currentObservationId, this.list<ExplorationGroup>(sessionId, 'exploration-group'), this.classifications.records(sessionId)) };
   }
   observationDetails(sessionId: string, observationId: string) { return this.evidenceQueries.details(sessionId, observationId); }
   controlDetails(sessionId: string, observationId: string, controlId: string) { return this.evidenceQueries.control(sessionId, observationId, controlId); }
@@ -233,7 +273,9 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     super({ persistence: options.persistence instanceof RetainedPersistence ? options.persistence : new RetainedPersistence(options.persistence, options.retention), adapter: new PlaywrightAdapter(options.hooks), hooks: options.hooks });
     this.pages = new PageExploration(this.store);
     this.regions = new RegionReviews(this.store, (sid, type, data) => this.publish(sid, type, data));
-    this.controls = new ControlReviews(this.store,(sid,type,data)=>this.publish(sid,type,data));
+    this.classifications = new ControlClassifications(this.store, (sid,type,data)=>this.publish(sid,type,data));
+    this.controls = new ControlReviews(this.store,(sid,type,data)=>this.publish(sid,type,data), (c,o)=>!!this.classifications.negative(c,o));
+    this.classificationHook = options.hooks?.controlClassification;
     this.controlHook = options.hooks?.controlReview;
     this.regionHook = options.hooks?.regionReview;
     this.inspections = new InspectionCoordinator(this, (sid, type, data) => this.publish(sid, type, data));
@@ -246,6 +288,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   async command(sessionId: string, input: unknown) {
     const command: Command = commandSchema.parse(input);
     switch (command.type) {
+      case 'classifyControls': return this.classifyControls(sessionId, command.classification);
+      case 'revokeControlClassification': return this.revokeControlClassification(sessionId, command.revocation);
       case 'reviewControls': return this.reviewControls(sessionId,command.review);
       case 'revokeControlReview': return this.revokeControlReview(sessionId,command.revocation);
       case 'reviewRegions': return this.reviewRegions(sessionId, command.review);

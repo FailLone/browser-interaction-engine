@@ -39,3 +39,5 @@
 `status` 保留操作审计的 in_progress / awaiting_decision / blocked；操作账本 complete 时，统一状态为 **unverified**，`exhaustive` 始终为 false。即使当前没有未知控件或已记录限制，也缺少“所有可能入口均已发现”的证明，不能自动升级为整页完成。历史关键缺口不会仅凭汇总被重新当作当前派发阻塞；原操作审计和每次现场校验仍独立执行。
 
 当前没有对任意网站的发现完整性证明，也不将“未知控件”自动解释为可交互或不可交互。否定分类、主动发现、受控补采、业务断言及明确范围下的完整性证明仍属后续能力。这个报告不替代上游的用途和深度决定，也不修改调度或已有记录。
+
+候选的上层分类另存于 `completionAudit.controlClassifications`，包括有效、失效、撤销和被替换的历史记录。控件统计新增 display / containers，与原生 readOnly 和执行覆盖分开；同一汇总身份的其他未确认文档/条件不会被当前分类覆盖。弱候选退役带分类来源，不计成功；见[分类协议](CONTROL-CLASSIFICATION.md)。

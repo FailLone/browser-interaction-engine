@@ -1,6 +1,7 @@
 import { inspectionOptionsSchema } from './inspection-contract.js';
 import { listPurposeReviewSchema, revokePurposeReviewSchema } from './purpose-review.js';
 import { controlReviewSchema, revokeControlReviewSchema } from './control-review.js';
+import { classifyControlsSchema, revokeControlClassificationSchema } from './control-classification.js';
 import { z } from 'zod';
 import { evidenceRetentionSchema, explorationGroupDecisionSchema, explorationGroupResolutionsSchema } from '@interaction/core';
 export const contextSchema = z.record(z.string(), z.object({ value: z.json(), status: z.enum(['known', 'unknown']), source: z.string() }));
@@ -38,6 +39,8 @@ export const sessionSchema = z.object({
 }).strict().refine(o => o.regionExploration !== 'review' || !o.decisionScopes.some(s => s === 'region' || s === 'branch'), 'Reviewed regions replace optional region/branch producers; select one scope granularity');
 export const predicateSchema = z.object({ target: z.enum(['url', 'context', 'control']), key: z.string().optional(), identityId: z.string().optional(), field: z.enum(['value', 'checked', 'visible', 'enabled']).optional(), equals: z.json() }).strict();
 export const commandSchema = z.discriminatedUnion('type', [
+  z.object({type:z.literal('classifyControls'),classification:classifyControlsSchema}).strict(),
+  z.object({type:z.literal('revokeControlClassification'),revocation:revokeControlClassificationSchema}).strict(),
   z.object({type:z.literal('reviewControls'),review:controlReviewSchema}).strict(),
   z.object({type:z.literal('revokeControlReview'),revocation:revokeControlReviewSchema}).strict(),
   z.object({ type: z.literal('reviewRegions'), review: regionReviewSchema }).strict(),

@@ -1,0 +1,61 @@
+{
+  "observationId": "b687545c-cb9d-4ad7-a6b9-e604ba95a0ed",
+  "source": "gpt-5.6-sol/low",
+  "classifications": [
+    {
+      "localId": "9c69ee4b-299e-439f-ba7f-8b66eab83e32:273",
+      "classification": "container",
+      "reason": "This generic breadcrumb wrapper contains the actual Home hyperlink as a distinct child. The wrapper itself has no supported or tentative action basis, so it should be treated as a container while the child link remains independently discoverable and reviewable.",
+      "evidence": [
+        "The complete, untruncated classification subtree contains exactly the wrapper div :273 and child anchor :274.",
+        "Child :274 has href=/, rel=noopener, and target=_self, which identifies the nested navigation control.",
+        "The wrapper has actions=[] and actionBasis={}, with only a pointer-cursor hint.",
+        "The screenshot shows Home as a breadcrumb item; classification as container does not classify or authorize its child anchor."
+      ]
+    },
+    {
+      "localId": "9c69ee4b-299e-439f-ba7f-8b66eab83e32:275",
+      "classification": "container",
+      "reason": "This generic breadcrumb wrapper contains the actual Calculator hyperlink as a distinct child. The wrapper itself has no supported or tentative action basis, so it should be treated as a container while the child link remains independently discoverable and reviewable.",
+      "evidence": [
+        "The complete, untruncated classification subtree contains exactly the wrapper div :275 and child anchor :276.",
+        "Child :276 has href=/convert, rel=noopener, and target=_self, which identifies the nested navigation control.",
+        "The wrapper has actions=[] and actionBasis={}, with only a pointer-cursor hint.",
+        "The screenshot shows Calculator as a breadcrumb item; classification as container does not classify or authorize its child anchor."
+      ]
+    },
+    {
+      "localId": "9c69ee4b-299e-439f-ba7f-8b66eab83e32:472",
+      "classification": "probe_required",
+      "reason": "The visible 4.7 rating score could be passive text or a rating/review entry point. Its one-node subtree and pointer cursor do not establish purpose, so a bounded current-page probe would be required before classifying it as display or interaction.",
+      "evidence": [
+        "The complete subtree contains only a span with class RatingVote_ratingScore__WLmIO and text 4.7.",
+        "The node has actions=[] and actionBasis={}.",
+        "Its only interaction hint is pointer-cursor, which the classification protocol says is insufficient by itself.",
+        "The screenshot places 4.7 beside rating stars but does not reveal whether it opens rating details or merely displays a score."
+      ]
+    },
+    {
+      "localId": "9c69ee4b-299e-439f-ba7f-8b66eab83e32:967",
+      "classification": "interaction",
+      "reason": "This fixed, hittable widget is presented as a chat entry point. Classification as interaction records its likely role but does not create an action or approve opening chat.",
+      "evidence": [
+        "The current node id is ok-cs-button and its complete subtree contains ok-cs-icon, ok-cs-label, and cs-loader-spin children.",
+        "The node carries data-hover-label=Chat with us and data-unread-label=New messages.",
+        "It is visible with a 52 by 52 rectangle, has a hit target, and appears as the floating support widget in the screenshot.",
+        "The node has no supported action basis; therefore this classification alone supplies no dispatch grant."
+      ]
+    },
+    {
+      "localId": "9c69ee4b-299e-439f-ba7f-8b66eab83e32:136",
+      "classification": "unresolved",
+      "reason": "The footer candidate aggregates extensive content and many independent links, but its classification subtree is truncated and it also carries a tentative click-handler signal of unknown purpose. The current material cannot safely distinguish a passive landmark/container from a separately actionable footer surface.",
+      "evidence": [
+        "The node is a footer with role contentinfo and spans the complete footer area.",
+        "Its captured subtree includes many nested anchors and navigation sections rather than one coherent operation.",
+        "classificationBinding.truncated is true, so the protocol forbids a negative display/container conclusion from this material.",
+        "The candidate has a tentative click action based only on a handler property whose purpose is unknown."
+      ]
+    }
+  ]
+}

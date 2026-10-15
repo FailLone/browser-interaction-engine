@@ -6,7 +6,7 @@ const rule = 'reviewed-control/v1';
 const references = (a: ActionCandidate) => a.basis?.evidence.filter(e=>e.rule===rule).map(e=>e.facts.reviewId) || [];
 /** Instance-bound external judgments. No native capability, identity or result is rewritten. */
 export class ControlReviews {
-  constructor(private store:Persistence,private emit:(sid:string,type:string,data:unknown)=>unknown) {}
+  constructor(private store:Persistence,private emit:(sid:string,type:string,data:unknown)=>unknown,private nonInteractive:(c:Control,o:Observation)=>boolean=()=>false) {}
   private records(sid:string) { return this.store.list<ControlReviewRecord>('control-review',sid); }
   private matches(r:ControlReviewRecord,c:Control,o:Observation) {
     const conditions=controlReviewConditions(c,o,r.kind,r.exitBoundary);
@@ -19,7 +19,7 @@ export class ControlReviews {
       const candidates=actions.filter(a=>a.localId===control.localId);
       const reviews=records.filter(r=>r.conditions.target.instanceId===control.instanceId && r.conditions.instanceScope===o.instanceScope);
       const reviewed=(kind:string)=>reviews.some(r=>r.kind===kind&&this.matches(r,control,o));
-      const needsReview=!control.readOnly && (!candidates.some(a=>a.basis?.status==='supported') && !Object.values(control.actionBasis||{}).some(b=>b.status==='supported') && !reviews.some(r=>this.matches(r,control,o))
+      const needsReview=!control.readOnly && !this.nonInteractive(control,o) && (!candidates.some(a=>a.basis?.status==='supported') && !Object.values(control.actionBasis||{}).some(b=>b.status==='supported') && !reviews.some(r=>this.matches(r,control,o))
         || candidates.some(a=>(a.basis?.status!=='supported'||a.risk==='unknown'||['operation_requires_review','navigation_requires_review'].includes(a.exclusionReason||''))&&!reviewed(a.kind)));
       return {control,actions:candidates,reviews,needsReview};
     });

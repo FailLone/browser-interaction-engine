@@ -18,7 +18,7 @@ export interface ExplorationAudit {
   limitation: string;
 }
 
-const retiredReasons = new Set(['traversal_position_changed', 'boundary_already_exited', 'boundary_document_changed', 'exploration_scope_invalidated', 'purpose_review_invalidated', 'purpose_review_replaced', 'control_review_invalidated', 'control_review_replaced']);
+const retiredReasons = new Set(['traversal_position_changed', 'boundary_already_exited', 'boundary_document_changed', 'exploration_scope_invalidated', 'purpose_review_invalidated', 'purpose_review_replaced', 'control_review_invalidated', 'control_review_replaced', 'control_classified_noninteractive']);
 
 /** Explain actual execution separately from scheduling decisions. Does not change the frontier. */
 export function auditExploration(session: Session, frontier: FrontierItem[], attempts: ActionAttempt[], observations: Observation[], groups: ExplorationGroup[], equivalents = new Map<string, EquivalentCoverage>()): ExplorationAudit {

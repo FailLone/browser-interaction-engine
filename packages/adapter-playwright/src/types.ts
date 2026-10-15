@@ -39,6 +39,8 @@ export interface Control extends CoreControl {
   purposeBinding?: { attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
   /** Exact control-review binding, independent of list-purpose similarity. */
   reviewBinding?: { parentInstanceId: string; attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
+  /** Bounded subtree evidence for classifying weak candidates; truncation prevents negative classification. */
+  classificationBinding?: { nodes: { instanceId: string; parentInstanceId: string; tag: string; attributes: Record<string, string> }[]; text: string; truncated: boolean };
   structuralItem?: { ownerInstanceId:string; template:string; slot:string; rowInstanceId:string; recordKey?:string };
   actionable: { visible: boolean; enabled: boolean; editable: boolean; hitTarget: boolean | null; clickPoint?: { x: number; y: number }; occludedBy?: string; outsideScrollableArea?: boolean; unknown: string[] };
 }
@@ -110,6 +112,7 @@ export type Session = CoreSession<SessionOptions>;
 export type ControlIdentity = CoreIdentity<Control>;
 export type HookContext = CoreHookContext<Observation, SessionOptions>;
 export interface EngineHooks extends CoreHooks<Observation, SessionOptions> {
+  controlClassification?: (material: import('./control-classification.js').ControlClassificationMaterial, ctx: HookContext) => Promise<import('./control-classification.js').ClassifyControlsInput | undefined> | import('./control-classification.js').ClassifyControlsInput | undefined;
   controlReview?: (material: import('./control-review.js').ControlReviewMaterial, ctx: HookContext) => Promise<import('./control-review.js').ControlReviewInput | undefined> | import('./control-review.js').ControlReviewInput | undefined;
   regionReview?: (material: RegionReviewMaterial, ctx: HookContext) => Promise<RegionReviewInput | undefined> | RegionReviewInput | undefined;
   samples?: (control: Control, ctx: HookContext) => Promise<(string | boolean)[] | undefined> | (string | boolean)[] | undefined;
