@@ -18,10 +18,12 @@ import { collectPopupRelations } from './popup-relations.js';
 import { collectComponents } from './components.js';
 import { evidenceOptionsSchema } from './schema.js';
 import { RuntimeRecorder } from './runtime-evidence.js';
+import { scrollProbeInPage, scrollProbeSchema } from './scroll-probe.js';
+import { collectScrollContainers, traversalScrollInPage, traversalScrollSchema } from './scroll-containers.js';
 import type { BrowserEvidenceManifest, DetailSnapshot, DomEvidence, EvidenceOptions } from './evidence-types.js';
 
 // Runs in the page without framework knowledge or DOM mutation.
-function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions) {
+function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, scrollCollector: typeof collectScrollContainers, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
@@ -157,7 +159,10 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   const layers = overlayCollector(controls, regions, popupRelations);
   identityCollector(all.slice(0, 1500), controls);
   const components = componentCollector(all.slice(0, 1500), controls, popupRelations);
-  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, components, ...layers, actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
+  const scrolling = scrollCollector(layers.overlays);
+  if (scrolling.truncated) gaps.push({ code: 'SCROLL_SCAN_TRUNCATED', message: 'Scroll discovery is limited to 5000 elements and 128 reachable containers' });
+  if (scrolling.unsupported) gaps.push({ code: 'SCROLL_WRITING_MODE_UNSUPPORTED', message: 'Automatic scroll traversal supports horizontal-tb, LTR containers only' });
+  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, components, scrollContainers: scrolling.containers, ...layers, actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
 
 export class BrowserAdapter implements InteractionDriver<Observation, SessionOptions> {
@@ -189,8 +194,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
     const args = detailed ? `, ${collectEvidence.toString()}, ${JSON.stringify(this.options.evidence)}` : '';
-    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}${args}); })()`;
-    return this.page.evaluate(source) as Promise<{ documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[]; components: NonNullable<Observation['components']>; overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>; actionDiscovery?: Observation['actionDiscovery']; scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence }>;
+    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}, ${collectScrollContainers.toString()}${args}); })()`;
+    return this.page.evaluate(source) as Promise<{ documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[]; components: NonNullable<Observation['components']>; scrollContainers?: Observation['scrollContainers']; overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>; actionDiscovery?: Observation['actionDiscovery']; scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence }>;
   }
   async capture(observationId: string) {
     if (!this.page) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
@@ -203,7 +208,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         dom = await timeout(this.readDOM(), Math.max(1, deadline - Date.now()), 'DOM capture deadline exceeded');
         lastError = undefined;
         const incomplete = dom.gaps.some(g => ['DOM_ROOT_UNAVAILABLE', 'DOCUMENT_LOADING'].includes(g.code));
-        const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
+        const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, scrollContainers: dom.scrollContainers, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
         if (key !== previous || incomplete) { previous = key; unchangedSince = Date.now(); }
         const interactive = interactionProjection(dom);
         if (interactive !== previousInteraction || incomplete) { previousInteraction = interactive; interactionSince = Date.now(); }
@@ -291,6 +296,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   }
   async execute(action: ActionCandidate, control?: Control) {
     const page = this.page!;
+    if (action.kind === 'scroll' && action.source === 'external-probe') { await this.controlledScroll(action, control, true); return; }
+    if (action.kind === 'scroll' && action.source === 'scroll-traversal') { await this.traversalScroll(action, true); return; }
     if (action.kind === 'scroll') { await page.mouse.wheel(0, Number(action.value ?? 600)); return; }
     if (action.kind === 'press' && !control) { await page.keyboard.press(String(action.value || 'Escape')); return; }
     if (!control) throw new EngineError('TARGET_MISSING', 'A current control is required');
@@ -357,8 +364,23 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         else add(kind, undefined, c);
       }
     }
-    if (o.scroll.y < o.scroll.maxY) add('scroll', Math.round(o.viewport.height * 0.75));
-    if (o.scroll.y > 0) add('scroll', -Math.round(o.viewport.height * 0.75));
+    for (const c of o.scrollContainers ?? []) {
+      if (c.boundaryKey !== o.overlays?.at(-1)?.key) continue;
+      const destinations = [
+        ...(c.top < c.maxTop ? [[c.left, Math.min(c.maxTop, c.top + c.height * .75)]] : []),
+        ...(c.top > 0 && c.maxTop > 0 ? [[c.left, Math.max(0, c.top - c.height * .75)]] : []),
+        ...(c.left < c.maxLeft ? [[Math.min(c.maxLeft, c.left + c.width * .75), c.top]] : []),
+        ...(c.left > 0 && c.maxLeft > 0 ? [[Math.max(0, c.left - c.width * .75), c.top]] : []),
+      ];
+      for (const [left, top] of destinations) {
+        const value = { documentId: o.documentId, containerNodeId: c.nodeId, left, top, expectedLeft: c.left, expectedTop: c.top,
+          width: c.width, height: c.height, maxLeft: c.maxLeft, maxTop: c.maxTop };
+        actions.push(constrain({ id: id(), sessionId: session.id, observationId: o.id, stateId: o.stateId, kind: 'scroll', value,
+          label: `Scroll ${c.name}`, source: 'scroll-traversal', risk: 'interface', replayable: false, excluded: false, sampleValidity: 'known',
+          preconditions: { context: o.context, visible: true, enabled: true, identityResolved: true },
+          basis: { status: 'supported', evidence: [{ source: 'adapter-playwright', rule: 'container-scroll/v1', facts: value }] } }, o, session));
+      }
+    }
     if (o.overlays?.length) add('press', 'Escape');
     return actions;
   }
@@ -372,7 +394,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       : liveCanonical !== current.canonical || live.controls.some((c, i) => c.instanceId !== current.controls[i]?.instanceId);
     const bindingsChanged = live.controls.some(c => { const old = current.controls.find(p => p.instanceId === c.instanceId); return old && canonical(old.reviewAttributes || {}) !== canonical(c.reviewAttributes || {}); });
     const componentBinding = (components: Observation['components']) => (components || []).map(({ id, kind, name, parentId, members }) => ({ id, kind, name, parentId, members }));
-    if (changed || bindingsChanged || canonical(componentBinding(live.components)) !== canonical(componentBinding(current.components))) {
+    if (changed || bindingsChanged || canonical(live.scrollContainers) !== canonical(current.scrollContainers) || canonical(componentBinding(live.components)) !== canonical(componentBinding(current.components))) {
       return 'stale';
     }
     // Context rules must be re-read even when their DOM node is not an interactive control.
@@ -385,11 +407,35 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     return 'valid';
   }
   async validate(action: ActionCandidate, control?: Control) {
+    if (action.kind === 'scroll' && action.source === 'scroll-traversal') await this.traversalScroll(action, false);
+    if (action.kind === 'scroll' && action.source === 'external-probe') await this.controlledScroll(action, control, false);
     if (action.kind === 'focus' && (!control || !await this.page!.locator(control.selector).evaluate(el => el.matches('input:not([type=hidden]),textarea,select,button,a[href],[tabindex]') || (el as HTMLElement).isContentEditable))) throw new EngineError('INVALID_INPUT', 'Focus requires a focusable control');
     if (action.kind === 'fill' && typeof action.value !== 'string' && typeof action.value !== 'number') throw new EngineError('INVALID_INPUT', 'Fill requires text or a number');
     if (action.kind === 'check' && typeof action.value !== 'boolean') throw new EngineError('INVALID_INPUT', 'Check requires a boolean');
     if (action.kind === 'select' && !control?.options.some(o => o.value === action.value && !o.disabled)) throw new EngineError('INVALID_INPUT', 'Select value is not an enabled option');
     if (action.kind === 'fill' && control) { const validation = await this.validateInput(control, String(action.value)); if (!validation.valid) throw new EngineError('INVALID_INPUT', validation.reason); }
+  }
+  private async traversalScroll(action: ActionCandidate, perform: boolean) {
+    const options = traversalScrollSchema.parse(action.value);
+    const live = await this.readDOM(); const active = live.overlays.at(-1);
+    const container = live.scrollContainers?.find(c => c.nodeId === options.containerNodeId);
+    if (!container || live.documentId !== options.documentId) throw new EngineError('STALE_TARGET', 'Scroll container is no longer available');
+    if (container.boundaryKey !== active?.key || action.boundary?.key !== active?.key) throw new EngineError('ACTION_BLOCKED', 'Scroll container is outside the active boundary');
+    const target = this.page!.locator(container.selector);
+    if (await target.count() !== 1) throw new EngineError('TARGET_AMBIGUOUS', 'Scroll container is not unique');
+    await target.evaluate(traversalScrollInPage, { options, boundarySelector: active?.selector, perform });
+  }
+  private async controlledScroll(action: ActionCandidate, control: Control | undefined, perform: boolean) {
+    if (!control) throw new EngineError('TARGET_MISSING', 'A current control is required for a scroll probe');
+    const options = scrollProbeSchema.parse(action.value);
+    const target = this.page!.locator(control.selector);
+    if (await target.count() !== 1) throw new EngineError('TARGET_AMBIGUOUS', 'Scroll probe target is not unique');
+    // Resolve the active scope from a fresh read; no caller-supplied selector can relax it.
+    const live = await this.readDOM();
+    const active = live.overlays.at(-1);
+    if (active?.key !== action.boundary?.key) throw new EngineError('ACTION_BLOCKED', 'Scroll probe scope changed before execution');
+    if (active && !active.controlIds.includes(control.localId)) throw new EngineError('ACTION_BLOCKED', 'outside_active_boundary');
+    await target.evaluate(scrollProbeInPage, { options, instanceId: control.instanceId, boundarySelector: active?.selector, perform });
   }
   async reopen() {
     const storageState = await this.context!.storageState(); await this.close();

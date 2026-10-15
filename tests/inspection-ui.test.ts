@@ -19,8 +19,11 @@ it('shows the stored scope, baseline, required evidence and external verdict wit
     await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as any).port}`);
     await page.locator('.session-item').first().click(); await page.getByRole('button', { name: 'UI 检查', exact: true }).click();
     await page.getByText('checker · 等待检查', { exact: false }).waitFor();
-    await engine.completeInspection(s.id, inspection.id, 'checker', [{ ruleId: 'containment', ruleVersion: '1', status: 'fail', message: '弹层超出视口' }]);
+    await engine.completeInspection(s.id, inspection.id, 'checker', [{ ruleId: 'containment', ruleVersion: '1', status: 'fail', severity: 'error', message: '弹层超出视口', details: { checks: [{ code: 'POPUP_OUTSIDE_VIEWPORT' }] } }]);
     await page.getByText('弹层超出视口', { exact: false }).waitFor();
+    expect(await page.locator('.inspection-panel').innerText()).toContain('发现问题 · 错误');
+    await page.getByText('逐控件规则结果 · containment', { exact: true }).click();
+    await page.getByText('POPUP_OUTSIDE_VIEWPORT', { exact: false }).waitFor();
     expect(await page.locator('.inspection-panel').innerText()).toContain('进入弹层前：可比较');
     expect(await page.locator('.inspection-panel').innerText()).toContain('采集完整');
     await page.getByLabel('选择检查任务').selectOption(engine.listInspections(s.id).items[0].id);

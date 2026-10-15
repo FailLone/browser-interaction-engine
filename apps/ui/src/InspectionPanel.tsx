@@ -5,7 +5,8 @@ import type { Inspection } from '@interaction/browser';
 const reasons: Record<string, string> = { initial: '首次进入', scope_entered: '打开弹层', scope_exited: '关闭弹层', after_action: '操作后', navigation: '页面跳转', observed_update: '发现页面变化', environment_changed: '视口变化', manual: '主动采集' };
 const roles: Record<string, string> = { previous: '上次采集', scopeEntry: '进入弹层前', actionBefore: '操作前' };
 const deliveryStatus: Record<string, string> = { pending: '等待检查', completed: '检查完成', expired: '租约已过期', unavailable: '证据不可用', cancelled: '已取消' };
-const verdicts: Record<string, string> = { pass: '通过', fail: '发现问题', inconclusive: '无法判断', unsupported: '不适用或不支持' };
+const verdicts: Record<string, string> = { pass: '通过', fail: '发现问题', inconclusive: '无法判断', unsupported: '不适用或不支持', 'not-applicable': '不适用' };
+const severities = { info: '信息', warning: '警告', error: '错误' };
 
 export function InspectionPanel({ api, sessionId, observationId, revision }: { api: InteractionClient; sessionId: string; observationId?: string; revision?: number }) {
   const [items, setItems] = useState<Inspection[]>([]); const [selected, setSelected] = useState('');
@@ -42,7 +43,7 @@ export function InspectionPanel({ api, sessionId, observationId, revision }: { a
         <h4>对照快照</h4>{record.inspection.baselines.map(b => <p key={b.role}>{roles[b.role]}：{b.comparison === 'comparable' ? '可比较' : b.comparison === 'incomparable' ? '环境不同' : '不可用'} {b.reason && `（${b.reason}）`}</p>)}
         <h4>证据可用性</h4>{capture?.availability.map(a => <p key={a.kind}>{a.kind}：{a.availability.status === 'available' ? '可查询' : '不可查询'}{a.availability.reason && `（${a.availability.reason}）`}</p>)}
         <h4>检查程序</h4>{!record.deliveries.length && <p className="muted">未注册检查程序。上层可查询此任务；可查询期限由会话的证据保留设置决定。</p>}
-        {record.deliveries.map(d => <div key={d.id}><b>{d.consumerId} · {deliveryStatus[d.status]}</b><p>证据保护截止：{new Date(d.leaseUntil).toLocaleString()}</p>{d.reason && <p>{d.reason}</p>}{d.results?.map(r => <p key={`${r.ruleId}:${r.ruleVersion}`}>{verdicts[r.status]} · {r.message}</p>)}</div>)}
+        {record.deliveries.map(d => <div key={d.id}><b>{d.consumerId} · {deliveryStatus[d.status]}</b><p>证据保护截止：{new Date(d.leaseUntil).toLocaleString()}</p>{d.reason && <p>{d.reason}</p>}{d.results?.map(r => <div key={`${r.ruleId}:${r.ruleVersion}`}><p>{verdicts[r.status]}{r.severity && ` · ${severities[r.severity]}`} · {r.message}</p>{r.details !== undefined && <details><summary>逐控件规则结果 · {r.ruleId}</summary><pre>{JSON.stringify(r.details, null, 2)}</pre></details>}</div>)}</div>)}
         <details><summary>检查记录与空间数据</summary><pre>{JSON.stringify({ inspection: record.inspection, capture: capture?.capture, environment: capture?.details?.snapshot?.dom?.environment }, null, 2)}</pre></details>
       </>}
     </>}

@@ -1,4 +1,5 @@
 import { inspectionOptionsSchema } from './inspection-contract.js';
+import { scrollProbeSchema } from './scroll-probe.js';
 import { z } from 'zod';
 import { evidenceRetentionSchema, componentDescriptionSchema } from '@interaction/core';
 export const contextSchema = z.record(z.string(), z.object({ value: z.json(), status: z.enum(['known', 'unknown']), source: z.string() }));
@@ -27,6 +28,7 @@ export const sessionSchema = z.object({
 }).strict();
 export const predicateSchema = z.object({ target: z.enum(['url', 'context', 'control']), key: z.string().optional(), identityId: z.string().optional(), field: z.enum(['value', 'checked', 'visible', 'enabled']).optional(), equals: z.json() }).strict();
 export const commandSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('scrollProbe'), observationId: z.string().min(1), localId: z.string().min(1), options: scrollProbeSchema, requestId: z.string().trim().min(1) }).strict(),
   z.object({ type: z.literal('probe'), observationId: z.string().min(1), localId: z.string().min(1), kind: z.enum(['hover', 'focus']), requestId: z.string().trim().min(1) }).strict(),
   componentDescriptionSchema.extend({ type: z.literal('describeComponent') }),
   z.object({ type: z.literal('observe') }),

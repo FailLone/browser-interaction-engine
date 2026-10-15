@@ -4,6 +4,7 @@ import { InteractionEngine as CoreEngine, EngineError, type Persistence, type Pr
 import { RetainedPersistence, type RetentionOptions } from '@interaction/storage-retained';
 import { subscribeEvents, projectEvent, type SubscriptionOptions, type SnapshotEvent, type DeliveryMode } from './subscription.js';
 import { PlaywrightAdapter, commandSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
+import { scrollProbeSchema, type ScrollProbeOptions } from '@interaction/adapter-playwright';
 import { explainBrowserDiff } from './diff-details.js';
 export * from './diff-details.js';
 import { BrowserEvidenceQueries, type DomQuery, type ArtifactKind } from './evidence.js';
@@ -22,6 +23,9 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   declare readonly store: RetainedPersistence;
   private readonly inspections: InspectionCoordinator;
   override async createSession(input: unknown) { return super.createSession(validateInspectionOptions(input)); }
+  scrollProbe(sessionId: string, observationId: string, localId: string, options: ScrollProbeOptions, requestId: string) {
+    return super.probe(sessionId, observationId, localId, 'scroll', requestId, scrollProbeSchema.parse(options));
+  }
   protected override beforeCapture(sessionId: string, observationId: string) { return this.inspections.prepare(sessionId, observationId); }
   protected override afterCapture(observation: Observation, previous?: Observation, attemptId?: string) { return this.inspections.finish(observation, previous, attemptId); }
   protected override captureFailed(sessionId: string, observationId: string, error: unknown) { return this.inspections.failed(sessionId, observationId, error); }
@@ -98,6 +102,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   async command(sessionId: string, input: unknown) {
     const command: Command = commandSchema.parse(input);
     switch (command.type) {
+      case 'scrollProbe': return this.scrollProbe(sessionId, command.observationId, command.localId, command.options, command.requestId);
       case 'describeComponent': { const { type: _, ...description } = command; return this.describeComponent(sessionId, description); }
       case 'probe': return this.probe(sessionId, command.observationId, command.localId, command.kind, command.requestId);
       case 'observe': return this.observe(sessionId);

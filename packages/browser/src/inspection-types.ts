@@ -24,8 +24,11 @@ export interface Inspection {
   baselines: InspectionBaseline[]; requirements: CaptureProfile; quality: Capture['quality'];
 }
 export interface InspectionResult {
-  ruleId: string; ruleVersion: string; status: 'pass' | 'fail' | 'inconclusive' | 'unsupported';
+  ruleId: string; ruleVersion: string; status: 'pass' | 'fail' | 'inconclusive' | 'unsupported' | 'not-applicable';
   message: string; nodeIds?: string[]; evidence?: string[];
+  severity?: 'info' | 'warning' | 'error';
+  /** Optional structured rule report; historical facts remain in the referenced capture. */
+  details?: import('@interaction/adapter-playwright').Json;
 }
 export interface InspectionDelivery {
   id: string; sessionId: string; inspectionId: string; captureId: string; consumerId: string;

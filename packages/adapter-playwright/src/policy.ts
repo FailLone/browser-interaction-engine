@@ -1,6 +1,7 @@
 import { EngineError } from '@interaction/core';
 import type { ActionCandidate, Observation, Session } from './types.js';
 import { ruleMatches } from './util.js';
+import { traversalScrollSchema } from './scroll-containers.js';
 export function constrain(action: ActionCandidate, observation: Observation, session: Session) {
   const control = observation.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
   if (session.options.exploration === 'controls' && control?.hypothesisId) {
@@ -12,9 +13,12 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
   const active = observation.overlays?.at(-1);
   action.preconditions.blockers = [];
   action.boundary = undefined;
+  const scroll = action.kind === 'scroll' && action.source === 'scroll-traversal' ? traversalScrollSchema.parse(action.value) : undefined;
+  const scrollContainer = scroll && scroll.documentId === observation.documentId ? observation.scrollContainers?.find(c => c.nodeId === scroll.containerNodeId) : undefined;
+  if (scroll && !scrollContainer) throw new EngineError('STALE_TARGET', 'Scroll traversal requires a captured container');
   if (active) {
     const exit = action.kind === 'press' && action.value === 'Escape' && !control || !!control && ['click', 'press', 'check'].includes(action.kind) && active.exitControlIds.includes(control.localId);
-    const inside = !!control && active.controlIds.includes(control.localId);
+    const inside = !!control && active.controlIds.includes(control.localId) || !!scrollContainer && scrollContainer.boundaryKey === active.key;
     if (inside || exit) action.boundary = { key: active.key, intent: exit ? 'exit' : 'interact' };
     else action.preconditions.blockers.push({ code: 'outside_active_boundary', boundaryKey: active.key, evidence: active.evidence, unblock: `Close and verify exit from ${active.name} before interacting with its parent` });
   }
@@ -30,6 +34,7 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
   if (action.risk !== 'submission' && action.basis.status === 'supported' && session.options.interfaceActions?.some(rule => ruleMatches(rule, action, control, observation.url))) {
     action.risk = 'interface'; action.replayable = true;
   }
-  if (['hover', 'focus'].includes(action.kind)) { action.risk = 'unknown'; action.replayable = false; }
+  if (['hover', 'focus'].includes(action.kind) || action.source === 'external-probe') { action.risk = 'unknown'; action.replayable = false; }
+  if (scroll) action.replayable = false;
   return action;
 }

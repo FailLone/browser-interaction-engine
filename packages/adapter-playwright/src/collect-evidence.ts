@@ -30,7 +30,7 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
   const stack: { node: Node; parentId?: string }[] = [{ node: document.documentElement }];
   const byId = new Map<string, DomNodeEvidence>();
   let characters = 0; let sizeLimited = false;
-  const essential = ['display', 'visibility', 'opacity', 'position', 'z-index', 'pointer-events', 'overflow', 'overflow-x', 'overflow-y', 'color', 'background-color', 'font-size', 'font-weight', 'cursor', 'transform', 'direction', 'white-space', 'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height', 'box-sizing', 'contain', 'clip-path', 'overflow-wrap', 'text-overflow', 'font-family', 'line-height', 'background-image', 'outline', 'filter', 'isolation', 'flex', 'flex-direction', 'align-items', 'justify-content', 'gap', 'grid-template-columns'];
+  const essential = ['display', 'visibility', 'opacity', 'position', 'z-index', 'pointer-events', 'overflow', 'overflow-x', 'overflow-y', 'color', 'background-color', 'font-size', 'font-weight', 'cursor', 'transform', 'direction', 'writing-mode', 'white-space', 'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height', 'box-sizing', 'contain', 'clip-path', 'overflow-wrap', 'text-overflow', 'font-family', 'line-height', 'background-image', 'outline', 'filter', 'isolation', 'flex', 'flex-direction', 'align-items', 'justify-content', 'gap', 'grid-template-columns'];
   while (stack.length && result.nodes.length < limits.maxNodes) {
     const { node, parentId } = stack.pop()!;
     if (node.nodeType !== Node.ELEMENT_NODE && node.nodeType !== Node.TEXT_NODE) continue;
@@ -67,6 +67,12 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
         box: { padding: ['top', 'right', 'bottom', 'left'].map(side => style.getPropertyValue(`padding-${side}`)), border: ['top', 'right', 'bottom', 'left'].map(side => style.getPropertyValue(`border-${side}-width`)), margin: ['top', 'right', 'bottom', 'left'].map(side => style.getPropertyValue(`margin-${side}`)) },
         scrollAncestorIds, clipAncestorIds,
         hitSample: inView ? { x, y, topNodeId: hit ? id(hit) : undefined, withinSubtree: !!hit && el.contains(hit) } : undefined,
+        hitSamples: inView ? [[.5, .5], [.2, .2], [.8, .2], [.2, .8], [.8, .8]].map(([fx, fy]) => {
+          const px = Math.max(0, r.left) + (Math.min(innerWidth, r.right) - Math.max(0, r.left)) * fx;
+          const py = Math.max(0, r.top) + (Math.min(innerHeight, r.bottom) - Math.max(0, r.top)) * fy;
+          const top = document.elementFromPoint(px, py);
+          return { x: px, y: py, topNodeId: top ? id(top) : undefined, withinSubtree: !!top && el.contains(top) };
+        }) : undefined,
       };
       record.properties = {};
       for (const key of ['value', 'checked', 'indeterminate', 'selected', 'selectedIndex', 'disabled', 'readOnly', 'required', 'type', 'tabIndex', 'contentEditable', 'href', 'action', 'method', 'target', 'validationMessage']) {

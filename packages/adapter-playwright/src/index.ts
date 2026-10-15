@@ -4,6 +4,8 @@ import { observableCanonical, compareObservations } from './model.js';
 import { sessionSchema } from './schema.js';
 import { signature } from './util.js';
 import { constrain } from './policy.js';
+import { scrollProbeSchema } from './scroll-probe.js';
+export { scrollProbeSchema, type ScrollProbeOptions } from './scroll-probe.js';
 import { controlCase, explorationCase, restorationStep } from './exploration.js';
 import type { ActionCandidate, Control, EngineHooks, Observation, Session, SessionOptions } from './types.js';
 export * from './types.js';
@@ -12,15 +14,19 @@ export type { Command } from './schema.js';
 export { compareObservations, observableCanonical } from './model.js';
 
 export class PlaywrightAdapter implements InteractionAdapter<Observation, SessionOptions> {
-  readonly ruleVersion = 'observable-v5';
+  readonly ruleVersion = 'observable-v6';
   constructor(private hooks: EngineHooks = {}) {}
   parseOptions(input: unknown) { return sessionSchema.parse(input) as SessionOptions; }
   createDriver(options: SessionOptions, evidence: EvidenceStore) { return new BrowserAdapter(options, evidence, this.hooks); }
   signature = signature;
   reviewBinding = (control: Control) => control.reviewAttributes;
-  probeAction(kind: string, control: Control, observation: Observation, session: Session): ActionCandidate {
-    if (!['hover', 'focus'].includes(kind)) throw new EngineError('UNSUPPORTED_PROBE', 'Supported browser probes are hover and focus');
+  probeAction(kind: string, control: Control, observation: Observation, session: Session, parameters?: ActionCandidate['value']): ActionCandidate {
+    if (!['hover', 'focus', 'scroll'].includes(kind)) throw new EngineError('UNSUPPORTED_PROBE', 'Supported browser probes are hover, focus and controlled scroll');
+    const value = kind === 'scroll' ? scrollProbeSchema.parse(parameters) : undefined;
+    if (kind !== 'scroll' && parameters !== undefined) throw new EngineError('INVALID_INPUT', 'This probe does not accept parameters');
+    if (value && value.documentId !== observation.documentId) throw new EngineError('STALE_OBSERVATION', 'Scroll probe document does not match');
     return { id: id(), sessionId: session.id, observationId: observation.id, stateId: observation.stateId,
+      ...(value ? { value } : {}),
       controlId: control.identityId, localId: control.localId, kind, label: `${kind}: ${control.name || control.role}`, source: 'external-probe',
       risk: 'unknown', replayable: false, excluded: false, sampleValidity: 'known',
       target: { kind: 'instance', instanceScope: observation.instanceScope, instanceId: control.instanceId, evidence: [`observation:${observation.id}`, 'Explicit probe of a current node; effects are unknown'] },

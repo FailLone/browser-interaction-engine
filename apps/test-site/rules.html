@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Control rule fixtures</title>
+<style>
+  body { margin: 0; min-height: 1200px; }
+  #target { position: absolute; left: 40px; top: 520px; width: 180px; height: 40px; }
+  #cover { position: fixed; bottom: 0; left: 0; width: 300px; height: 120px; z-index: 10; background: #ddd; }
+  #cover span { display: block; width: 100%; height: 100%; }
+  #panel { position: fixed; left: 20px; top: 500px; width: 260px; height: 90px; z-index: 20; background: #eee; }
+</style>
+<button id="target"><span>Target</span></button>
+<button disabled style="position:absolute;left:400px;top:20px">Disabled</button>
+<div id="cover"><span>Cover</span></div>
+<script>
+  const mode = new URLSearchParams(location.search).get('mode');
+  const cover = document.getElementById('cover');
+  const target = document.getElementById('target');
+  if (mode === 'healthy' || mode === 'modal' || mode === 'popover' || mode?.startsWith('nested-')) cover.remove();
+  if (mode === 'pointer-transparent') cover.style.pointerEvents = 'none';
+  if (mode === 'non-scrollable') document.body.style.minHeight = '600px';
+  if (mode === 'endpoint') { target.style.top = '1160px'; scrollTo(0, 10000); }
+  if (mode === 'sticky') { cover.style.position = 'sticky'; cover.style.top = '0'; cover.style.bottom = 'auto'; scrollTo(0, 500); }
+  if (mode === 'tooltip') cover.setAttribute('role', 'tooltip');
+  if (mode === 'modal' || mode === 'popover' || mode?.startsWith('nested-')) {
+    const panel = document.createElement('div'); panel.id = 'panel';
+    panel.innerHTML = '<button id="inside">Inside</button>';
+    if (mode !== 'popover') { panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true'); }
+    else { panel.setAttribute('popover', 'manual'); panel.style.margin = '0'; }
+    document.body.append(panel);
+    if (mode === 'popover') panel.showPopover();
+    if (mode?.startsWith('nested-')) {
+      const child = document.createElement('div'); child.id = 'child';
+      child.style.cssText = 'position:fixed;left:400px;top:50px;width:200px;height:100px;margin:0;background:white;z-index:30';
+      child.innerHTML = '<button>Child</button>';
+      document.getElementById('inside').setAttribute('aria-controls', 'child');
+      document.getElementById('inside').setAttribute('aria-expanded', 'true');
+      if (mode === 'nested-modal') { child.setAttribute('role', 'dialog'); child.setAttribute('aria-modal', 'true'); }
+      else child.setAttribute('popover', 'manual');
+      document.body.append(child);
+      if (mode === 'nested-popover') child.showPopover();
+    }
+  }
+</script>
+</html>

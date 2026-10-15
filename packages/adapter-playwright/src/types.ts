@@ -7,6 +7,10 @@ export interface Rect { x: number; y: number; width: number; height: number }
 export interface Region { key: string; label: string; role: string; selector: string; parentKey?: string; rect: Rect; text: string }
 export interface Overlay { key: string; name: string; kind: 'modal' | 'dialog' | 'popover' | 'menu' | 'listbox'; selector: string; parentKey?: string; parentRegion: string; evidence: string[]; controlIds: string[]; exitControlIds: string[] }
 export interface BrowserComponent extends InteractionComponent { rootNodeId: string; rect: Rect }
+export interface ScrollContainer {
+  nodeId: string; selector: string; name: string; root: boolean; boundaryKey?: string;
+  left: number; top: number; maxLeft: number; maxTop: number; width: number; height: number;
+}
 export interface Control extends CoreControl {
   localId: ID; instanceId: ID; identityId?: ID; hypothesisId?: ID;
   tag: string; role: string; name: string; label: string; stableKey?: string;
@@ -29,11 +33,12 @@ export interface Observation extends CoreObservation<Control> {
   url: string; title: string; text: string; viewport: { width: number; height: number }; scroll: { x: number; y: number; maxY: number };
   documentId: string; controls: Control[]; regions: Region[]; context: Context;
   components?: BrowserComponent[];
+  scrollContainers?: ScrollContainer[];
   overlays?: Overlay[];
   actionDiscovery?: { version: 'dom-actions-v2'; documentHints: ActionEvidence[] };
   screenshot?: string; gaps: Gap[]; stable: boolean;
   evidence?: BrowserEvidenceManifest;
-  stateId: ID; visitId: ID; fingerprint: string; canonical: string; ruleVersion: 'observable-v1' | 'observable-v2' | 'observable-v3' | 'observable-v4' | 'observable-v5';
+  stateId: ID; visitId: ID; fingerprint: string; canonical: string; ruleVersion: 'observable-v1' | 'observable-v2' | 'observable-v3' | 'observable-v4' | 'observable-v5' | 'observable-v6';
   cause: 'initial' | 'action' | 'inspection' | 'recovery' | 'external';
 }
 export interface ContextRule { key: string; selector: string; attribute?: string; required?: boolean }
