@@ -7,6 +7,19 @@ import { explorerFixture,fakeProviders,semanticPopupHtml } from './explorer-plug
 
 const grounded={choice:'click',evidenceRefs:['current','actions','effect:click'],reason:'Captured child choice panel supports a local expansion.',interfaceOnly:true,externalWrite:false};
 
+it('drains distinct ambiguous control reviews before declaring no progress on an unchanged page',async()=>{
+ const f=await explorerFixture(`${Array.from({length:6},(_,i)=>`<div role="button" aria-label="Ambiguous" tabindex="0" style="cursor:pointer" id="ambiguous-${i}">Ambiguous</div>`).join('')}<button type="button" id="ready" onclick="this.disabled=true">Ready</button>`),p=fakeProviders(f.url),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>r.purpose==='control-classification'?{model:'mock',value:'interaction',confidence:1}:r.purpose==='control-risk'&&(r.state as any).material.control.label==='Ambiguous'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,.01]))}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:1}});plugin.start(t.id);await plugin.waitForIdle();const view=plugin.view(t.id),sid=view.task.rounds[0].sessionId;
+  const reviews=view.decisions.filter(d=>d.purpose==='control-risk'&&(d.request.state as any).material.control.label==='Ambiguous');
+  expect(new Set(reviews.map(d=>(d.request.state as any).material.control.instanceId)).size,JSON.stringify(view.decisions.map(d=>({p:d.purpose,s:d.status,target:(d.request.state as any).material?.control?.label})))).toBe(6);
+  expect(f.host.list<any>(sid,'attempt').map(a=>a.action.label)).toEqual(['Ready']);
+  expect(view.task.plan.some(i=>i.reason==='operation_risk_unresolved'&&i.status==='unresolved')).toBe(true);expect(view.task.status).not.toBe('completed');
+  expect(view.decisions.some(d=>d.actor==='llm')).toBe(false);
+ }finally{await plugin.close();await f.close();}
+});
+
 it('counts identity resolutions as progress so several pending identities do not end the round early',async()=>{
  const f=await explorerFixture(['A','B','C','D','E'].map(name=>`<button type="button" id="${name}" onclick="this.disabled=true">${name}</button>`).join('')),resolved=new Set<string>();
  const hypotheses=(sid:string)=>f.host.observation(sid).controls.filter(c=>c.tag==='button').map(c=>({id:`pending:${c.stableKey}`,localId:c.localId,status:resolved.has(`pending:${c.stableKey}`)?'resolved':'pending',candidateIds:[],provisionalIdentityId:c.identityId,revisions:[]}));
