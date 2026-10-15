@@ -1,0 +1,17 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine
+
+ ✓ tests/boundary-regressions.test.ts (5 tests) 4311ms
+   ✓ links a hidden portalled popup to its visible opener, even when another hidden opener references it  1114ms
+   ✓ recognizes an expanded positioned popup without role semantics  736ms
+   ✓ does not reopen the browser behind a boundary whose exit controls have no effect  1214ms
+   ✓ excludes background work from the external strategy while a boundary is active  531ms
+   ✓ blocks an unclassified obstruction and revalidates the target when uncovered  682ms
+ ✓ tests/popup-scroll-scope.test.ts (1 test) 3680ms
+   ✓ scrolls a popup viewport outside its inner list and reaches every finite option  3680ms
+
+ Test Files  2 passed (2)
+      Tests  6 passed (6)
+   Start at  21:44:31
+   Duration  9.29s (transform 317ms, setup 0ms, collect 1.01s, tests 7.99s, environment 0ms, prepare 74ms)
+
