@@ -29,7 +29,9 @@ export class ExplorerStore {
   tasks(): Task[] { return (this.db.prepare('SELECT json FROM tasks ORDER BY rowid').all() as {json:string}[]).map(r => JSON.parse(r.json)); }
   task(id: string): Task { const r = this.db.prepare('SELECT json FROM tasks WHERE id=?').get(id) as {json:string} | undefined; if (!r) throw new ExplorerError('NOT_FOUND'); return JSON.parse(r.json); }
   decision(value: Decision) { this.db.prepare('INSERT INTO decisions VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET json=excluded.json').run(value.id, value.taskId, JSON.stringify(value)); }
-  decisions(id: string): Decision[] { return (this.db.prepare('SELECT json FROM decisions WHERE task_id=? ORDER BY rowid').all(id) as {json:string}[]).map(r => JSON.parse(r.json)); }
+  /** Updates keep their rowid, so a review pass can read only decisions it inserted. */
+  decisionCursor(id: string): number { return (this.db.prepare('SELECT COALESCE(MAX(rowid),0) AS cursor FROM decisions WHERE task_id=?').get(id) as {cursor:number}).cursor; }
+  decisions(id: string, after = 0): Decision[] { return (this.db.prepare('SELECT json FROM decisions WHERE task_id=? AND rowid>? ORDER BY rowid').all(id, after) as {json:string}[]).map(r => JSON.parse(r.json)); }
   event(event: Omit<ExplorerEvent, 'sequence' | 'at'>) {
     const at = new Date().toISOString();
     const result = this.db.prepare('INSERT INTO events(task_id,json) VALUES(?,?)').run(event.taskId, JSON.stringify({...event, at}));

@@ -353,13 +353,13 @@ export class ExplorerPlugin {
     await this.reconcileReviewLedger(task,o,signal);
     const goals=task.plan.filter(i=>i.required&&i.dispatchScope===true);
     if(goals.length&&goals.every(i=>i.status==='succeeded'))return false;
-    const reviewedBefore=round.reviewed.length,knownDecisions=new Set(this.store.decisions(task.id).map(d=>d.id));
+    const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id);
     try { const reviewed=await reviewNext({host:this.host,task,observation:o,
       hasPendingAction:()=>{const groups=this.host.explorationReviewMaterial(sid).groups,frontier=this.host.getFrontier(sid);return this.host.actions(sid).some(a=>!this.navigationIsUnverified(task,a,o)&&permitted(a,o,groups,frontier)&&includesScope(task.plan,a,o)&&((!round.tried.includes(keyFor(a,o))&&!this.wasCompleted(task,a,o))||this.neededEntry(task,round,a,o)));},
       choose:(p,i,s,opts,constraints)=>this.choose(task,signal,o,p,i,s,opts,constraints),generate:(p,i,s,schema)=>this.generate(task,signal,o,p,i,s,schema),
       assess:(p,s,checks)=>this.assess(task,signal,o,p,s,checks),refresh:(d,key)=>this.refreshEvidence(task,signal,o,d,key),
       clarify:request=>this.clarify(task,signal,o,request),
-      apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),retain:groups=>this.retainScopes(task,signal,o,groups),gap:(reason,scope,required)=>{this.gap(task,reason,scope,required);}});for(const d of this.store.decisions(task.id).filter(d=>!knownDecisions.has(d.id)&&d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}if(reviewed)return true; } catch(error) { round.reviewed.splice(reviewedBefore); throw error; }
+      apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),retain:groups=>this.retainScopes(task,signal,o,groups),gap:(reason,scope,required)=>{this.gap(task,reason,scope,required);}});for(const d of this.store.decisions(task.id,decisionCursor).filter(d=>d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}if(reviewed)return true; } catch(error) { round.reviewed.splice(reviewedBefore); throw error; }
     this.assert(task,signal,o.id);
     const actions=this.host.actions(sid),groups=this.host.explorationReviewMaterial(sid).groups,frontier=this.host.getFrontier(sid);
     const fresh=new Set<string>();
