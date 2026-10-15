@@ -42,7 +42,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   protected prepareActions(actions: ActionCandidate[], _observation: O): ActionCandidate[] { return actions; }
   /** Reviewed capabilities precede caller action policy, which may still veto them. */
   protected async reviewActions(actions: ActionCandidate[], _observation: O): Promise<ActionCandidate[]> { return actions; }
-  protected validatePreparedAction(_action: ActionCandidate, _observation: O): void {}
+  protected validatePreparedAction(_action: ActionCandidate, _observation: O, _purpose: ActionAttempt['purpose']): void {}
+  protected preflightAction(action: ActionCandidate, observation: O, _purpose: ActionAttempt['purpose']) { return this.driver!.preflight(observation, action); }
   protected explorationScopes(_actions: ActionCandidate[], _observation: O): import('./types.js').ExplorationGroupProposal[] | Promise<import('./types.js').ExplorationGroupProposal[]> { return []; }
   /** Composition navigation policy runs in the queue before scheduling any automatic work. */
   protected async beforeExplorationStep(_sessionId: string): Promise<'continue' | 'changed' | 'paused'> { return 'continue'; }
@@ -471,7 +472,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (original.excluded && original.exclusionReason !== 'input_sample_required') throw new EngineError('ACTION_EXCLUDED', original.exclusionReason || 'Action excluded');
     if (original.basis?.status === 'tentative' && purpose !== 'external') throw new EngineError('ACTION_BLOCKED', 'action_basis_unconfirmed');
     if (!this.targetResolved(original, current)) throw new EngineError('IDENTITY_AMBIGUOUS', 'Resolve the identity before acting');
-    const preflight = await this.driver!.preflight(current, original);
+    const preflight = await this.preflightAction(original, current, purpose);
     if (preflight !== 'valid') {
       const fresh = await this.capture(sessionId, 'external');
       if (typeof preflight === 'object' && preflight.scopeKey && preflight.evidence?.length && session.options.exploration === 'controls'
@@ -500,7 +501,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (control && (!control.visible || !control.enabled)) throw new EngineError('ACTION_BLOCKED', 'Control is not visible or enabled');
     await this.driver!.validate(action, control);
     await this.beforeAction(sessionId);
-    this.validatePreparedAction(action, current);
+    this.validatePreparedAction(action, current, purpose);
     const attempt: ActionAttempt = { id: id(), sessionId, requestId, action, startedAt: now(), beforeId: current.id, status: 'executing', purpose };
     const started = Date.now();
     this.store.transaction(() => {

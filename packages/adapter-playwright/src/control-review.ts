@@ -8,18 +8,39 @@ export const controlJudgmentSchema = z.object({
   risk: z.enum(['interface', 'unknown']), replayable: z.boolean().default(false),
   reason: text, evidence: z.array(text).min(1).max(100),
   samples: z.array(z.union([z.string(), z.boolean()])).min(1).max(100).optional(), exitBoundary: text.optional(),
+  reuse: z.object({ binding: z.literal('same-url-context'), businessScope: text }).strict().optional(),
 }).strict().superRefine((v, ctx) => {
   if (v.samples && (['click', 'hover'].includes(v.kind) || v.samples.some(s => typeof s !== (v.kind === 'check' ? 'boolean' : 'string')))) {
     ctx.addIssue({code:'custom',message:'Samples must match the operation: check uses booleans; fill/select/press use strings'});
   }
   if (v.kind === 'press' && !v.samples?.length) ctx.addIssue({code:'custom',message:'A key operation requires explicit key samples'});
   if (v.exitBoundary && (v.kind !== 'click' || v.risk !== 'interface')) ctx.addIssue({code:'custom',message:'A boundary exit requires an interface click'});
+  if (v.reuse && (v.risk !== 'interface' || v.exitBoundary)) ctx.addIssue({code:'custom',message:'Only interface purposes without boundary exit grants may be reusable'});
 });
 export const controlReviewSchema = z.object({observationId:text,source:text,reviews:z.array(controlJudgmentSchema).min(1).max(500)}).strict();
 export const revokeControlReviewSchema = z.object({reviewId:text,source:text,reason:text}).strict();
 export type ControlJudgment = z.infer<typeof controlJudgmentSchema>;
 export type ControlReviewInput = z.input<typeof controlReviewSchema>;
 export type RevokeControlReviewInput = z.infer<typeof revokeControlReviewSchema>;
+export const reuseControlReviewsSchema = z.object({
+  observationId: text, source: text, businessScope: text, evidence: z.array(text).min(1).max(100),
+  reviews: z.array(z.object({ reviewId: text, localId: text, conditionKey: text }).strict()).min(1).max(500),
+}).strict();
+export type ReuseControlReviewsInput = z.infer<typeof reuseControlReviewsSchema>;
+
+/** A comparison, not an identity claim. Mutable UI values still require live validation. */
+export function controlReuseConditions(c: Control, o: Observation, kind: string) {
+  const exact = controlReviewConditions(c, o, kind);
+  if (!exact || !c.reviewReuseBinding || !c.visible || c.list || c.structuralItem || o.boundaries?.length
+    || c.actionBasis?.[kind]?.evidence.some(e => e.facts.submitsForm === true)) return;
+  const { instanceId: _instance, regionInstanceId: _region, binding, ...target } = exact.target;
+  const { parentInstanceId: _parent, form, ...attributes } = binding;
+  return { version: 'control-review-reuse/v1' as const, url: o.url, context: o.context, kind,
+    target: { ...target, selector: c.selector, reviewAttributes: c.reviewAttributes || {},
+      binding: { ...attributes, form: form && { action: form.action, method: form.method, target: form.target } },
+      ancestry: c.reviewReuseBinding } };
+}
+export type ControlReuseConditions = NonNullable<ReturnType<typeof controlReuseConditions>>;
 
 /** Exact observed target and dispatch conditions; values/selection/geometry are validated separately. */
 export function controlReviewConditions(c: Control, o: Observation, kind: string, exitBoundary?: string) {
@@ -36,9 +57,12 @@ export interface ControlReviewRecord extends ControlJudgment {
   id:string;sessionId:string;observationId:string;source:string;at:string;
   status:'active'|'invalidated'|'revoked'|'superseded';conditions:ControlReviewConditions;conditionKey:string;
   replacedBy?:string;invalidation?:{observationId:string;reason:string;at:string};revocation?:{source:string;reason:string;at:string};
+  reuseConditions?: ControlReuseConditions;
+  reusedFrom?: { reviewId: string; conditionKey: string; evidence: string[] };
 }
 export interface ControlReviewMaterial {
   sessionId:string;observationId:string;url:string;instanceScope:string;context:Observation['context'];gaps:Observation['gaps'];
-  controls:{control:Control;actions:ActionCandidate[];reviews:ControlReviewRecord[];needsReview:boolean}[];
+  controls:{control:Control;actions:ActionCandidate[];reviews:ControlReviewRecord[];needsReview:boolean;
+    reuseCandidates?: { review: ControlReviewRecord; conditionKey: string; conditions: ControlReuseConditions }[] }[];
   pendingControlIds:string[];
 }

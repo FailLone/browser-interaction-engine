@@ -5,6 +5,9 @@ export function collectRegionCandidates(controls: Control[], elements: Element[]
   const clean = (s: string | null | undefined) => (s || '').replace(/\s+/g, ' ').trim().slice(0, 160);
   const byId = new Map(controls.filter(c => c.visible).map(c => [c.instanceId, c]));
   const elementById = new Map(elements.map(el => [instance(el), el]));
+  for (const el of elements) for (let p=el.parentElement;p;p=p.parentElement) {
+    if(elementById.has(instance(p))) break; elementById.set(instance(p),p);
+  }
   const ownership = new Map<Element, string[]>();
   if (document.body) ownership.set(document.body, [...byId.keys()]);
   for (const el of elements) {
@@ -16,11 +19,50 @@ export function collectRegionCandidates(controls: Control[], elements: Element[]
     }
   }
   const candidates: RegionCandidate[] = [];
+  const reuseSources = new Map<string,{el:Element;ids:string[];facts:object;heading?:Element}>();
   const ancestry = (el: Element) => { const path: string[] = []; for (let p: Element | null = el; p && p !== document.documentElement; p = p.parentElement) path.push(`${instance(p)}:${p.tagName}`); return path; };
   // Aggregate text of a passive/tentative container is evidence, not the name
   // of an established operation. Keep explicit labels and record bindings;
   // reviewed operations separately retain their exact target conditions.
   const memberName = (c: Control) => c.liveContent?.name ?? (c.label || (Object.values(c.actionBasis || {}).some(b => b.status === 'supported') ? c.name : undefined));
+  // Reuse describes structure, not historical identity. Keep full attributes and
+  // explicit labels, but not geometry, inline styles or mutable control properties.
+  const pathCache = new Map<Element, object[] | undefined>();
+  const path = (el: Element | undefined): object[] | undefined => {
+    if (!el) return;
+    if (pathCache.has(el)) return pathCache.get(el);
+    const nodes: object[] = [];
+    for (let p: Element | null = el; p; p = p.parentElement) {
+      if (nodes.length >= 32) { pathCache.set(el, undefined); return; }
+      nodes.push({ tag:p.tagName.toLowerCase(), selector:selector(p),
+        attributes:Object.fromEntries([...p.attributes].filter(a=>a.name!=='style').map(a=>[a.name,a.value])),
+        label:[p.getAttribute('aria-label') || '', (p.getAttribute('aria-labelledby') || '').split(/\s+/).map(id=>document.getElementById(id)?.textContent || '').join(' ')] });
+    }
+    const result = JSON.stringify(nodes).length <= 16000 ? nodes : undefined;
+    pathCache.set(el,result); return result;
+  };
+  const reusable = (el:Element, ids:string[], facts:object, heading?:Element) => {
+    const anchor = path(el); if (!anchor || ids.length>500) return;
+    const members = ids.map(id=>{
+      const c=byId.get(id)!, target=elementById.get(id)!;
+      const ancestry=path(target), form='form' in target ? (target as HTMLInputElement).form : null;
+      const owner=c.structuralItem && elementById.get(c.structuralItem.ownerInstanceId);
+      const row=c.structuralItem && elementById.get(c.structuralItem.rowInstanceId);
+      // List owners/rows may not themselves be controls; locate only observed
+      // instances from the current DOM inventory, never guess their identity.
+      const structural=c.structuralItem && { template:c.structuralItem.template,slot:c.structuralItem.slot,recordKey:c.structuralItem.recordKey,
+        owner:path(owner || undefined),row:path(row || undefined) };
+      if (!ancestry || form && !path(form) || structural && (!structural.owner || !structural.row)) return;
+      return { ancestry, tag:c.tag,role:c.role,name:memberName(c),stableKey:c.stableKey,actions:c.actions,actionBasis:c.actionBasis,
+        region:c.region,form:form?{ancestry:path(form),action:form.action,method:form.method,target:form.target}:null,
+        list:c.list&&{role:c.list.role,label:c.list.label,selector:c.list.selector},structural,
+        constraints:{...c.constraints,valid:undefined},options:c.options.map(o=>({value:o.value,label:o.label,disabled:o.disabled})) };
+    });
+    if (members.some(m=>!m)) return;
+    const value={version:'region-structure-reuse/v1',anchor,heading:heading?{path:path(heading),text:heading.textContent}:null,facts,members};
+    if (heading && !value.heading?.path || JSON.stringify(value).length>100000) return;
+    return JSON.parse(JSON.stringify(value));
+  };
   for (const [el, ids] of ownership) {
     if (candidates.length >= 500) break;
     const style = getComputedStyle(el), box = el.getBoundingClientRect();
@@ -40,6 +82,7 @@ export function collectRegionCandidates(controls: Control[], elements: Element[]
       members: ids.map(id => { const c = byId.get(id)!; const target = elementById.get(id)!; return { id, ancestry: ancestry(target), tag: c.tag, role: c.role, name: memberName(c),
         stableKey: c.stableKey || null, actions: c.actions, actionBasis: c.actionBasis || null, region: c.regionInstanceId || null, list: c.list || null, purposeBinding: c.purposeBinding || null, structuralItem: c.structuralItem || null,
         constraints: { ...c.constraints, valid: undefined }, options: c.options.map(o => ({ value: o.value, label: o.label, disabled: o.disabled })) }; }) };
+    reuseSources.set(instance(el),{el,ids,facts:{tag:facts.tag,role:facts.role,label:facts.label,layout:style.display,border,semantic,root},heading});
     candidates.push({ id: instance(el), label: title || (root ? '未细分页面' : `${el.tagName.toLowerCase()} 容器`), selector: selector(el),
       controlIds: ids, rect: { x: box.x, y: box.y, width: box.width, height: box.height },
       basis: root ? 'document' : title ? 'heading' : semantic ? 'semantic' : 'layout', binding: JSON.parse(JSON.stringify(facts)),
@@ -51,6 +94,7 @@ export function collectRegionCandidates(controls: Control[], elements: Element[]
   for (const c of candidates) { const key = JSON.stringify(c.controlIds.slice().sort()); const old = unique.get(key); if (!old || score(c) > score(old)) unique.set(key, c); }
   const result = [...unique.values()];
   for (const c of result) c.parentId = result.filter(p => p.id !== c.id && p.controlIds.length > c.controlIds.length && c.controlIds.every(id => p.controlIds.includes(id))).sort((a,b) => a.controlIds.length - b.controlIds.length)[0]?.id;
+  for (const c of result) { const source=reuseSources.get(c.id)!; c.reuseBinding=reusable(source.el,source.ids,source.facts,source.heading); }
   for (const c of result) c.suggested = !result.some(other => other.parentId === c.id);
   return result;
 }

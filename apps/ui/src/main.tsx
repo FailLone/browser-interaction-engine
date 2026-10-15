@@ -1,3 +1,4 @@
+import { BoundaryExitPanel } from './BoundaryExitPanel.js';
 import { RegionReviewPanel } from './RegionReviewPanel.js';
 import { ObservationNotice } from './ObservationNotice.js';
 import { ExplorationReviewPanel } from './ExplorationReviewPanel.js';
@@ -13,7 +14,7 @@ import { FrontierPanel } from './FrontierPanel.js';
 import { IdentityPanel } from './IdentityPanel.js';
 import { identitySummary } from './identity-summary.js';
 import { RecoveryDetails } from './RecoveryDetails.js';
-import type { ExplorationAudit, RegionReviewMaterial, ExplorationReviewMaterial, ControlCoverage, EvidenceDelivery, DeliveryMode, SnapshotEventData, ActionCandidate, ActionAttempt, Checkpoint, Command, EngineEvent, BrowserFrontierCoverageGroup, Graph, IdentityHypothesis, InteractionScope, Issue, Observation, ReachResult, Session } from '@interaction/browser';
+import type { BoundaryExitMaterial, ExplorationAudit, RegionReviewMaterial, ExplorationReviewMaterial, ControlCoverage, EvidenceDelivery, DeliveryMode, SnapshotEventData, ActionCandidate, ActionAttempt, Checkpoint, Command, EngineEvent, BrowserFrontierCoverageGroup, Graph, IdentityHypothesis, InteractionScope, Issue, Observation, ReachResult, Session } from '@interaction/browser';
 import './style.css';
 import { VisitDiff } from './VisitDiff.js';
 import { DiffExplanation } from './DiffExplanation.js';
@@ -31,6 +32,7 @@ function App() {
   const [automaticRules, setAutomaticRules] = useState(true);
   const [exploration, setExploration] = useState<'controls' | 'representative' | 'stateful'>('controls');
   const [regionExploration, setRegionExploration] = useState<'off' | 'review'>('off');
+  const [exitMaterial, setExitMaterial] = useState<BoundaryExitMaterial>();
   const [regionMaterial, setRegionMaterial] = useState<RegionReviewMaterial>();
   const [pageExploration, setPageExploration] = useState<'review' | 'all'>('review');
   const [reviewMaterial, setReviewMaterial] = useState<ExplorationReviewMaterial>();
@@ -55,9 +57,9 @@ function App() {
   const refresh = useCallback(async () => {
     const id = selected.current; const version = ++refreshVersion.current; setSessions(await api.sessions()); if (!id) return;
     try {
-      const [s, o, g, a, f, attempts, h, cp, scopes, issues, reaches, report, reviewMaterial, regionMaterial] = await Promise.all([api.session(id), api.observation(id), api.graph(id), api.actions(id), api.frontierCoverage(id), api.list<ActionAttempt>(id, 'attempts', { limit: 1000 }), listAll<IdentityHypothesis>(api, id, 'hypotheses'), api.list<Checkpoint>(id, 'checkpoints', { limit: 1000 }), api.list<InteractionScope>(id, 'scopes', { limit: 1000 }), api.list<Issue>(id, 'issues', { limit: 1000 }), api.list<ReachResult>(id, 'recoveries', { limit: 1000 }), api.report(id), api.explorationReviewMaterial(id), api.regionReviewMaterial(id)]);
+      const [s, o, g, a, f, attempts, h, cp, scopes, issues, reaches, report, reviewMaterial, regionMaterial, exitMaterial] = await Promise.all([api.session(id), api.observation(id), api.graph(id), api.actions(id), api.frontierCoverage(id), api.list<ActionAttempt>(id, 'attempts', { limit: 1000 }), listAll<IdentityHypothesis>(api, id, 'hypotheses'), api.list<Checkpoint>(id, 'checkpoints', { limit: 1000 }), api.list<InteractionScope>(id, 'scopes', { limit: 1000 }), api.list<Issue>(id, 'issues', { limit: 1000 }), api.list<ReachResult>(id, 'recoveries', { limit: 1000 }), api.report(id), api.explorationReviewMaterial(id), api.regionReviewMaterial(id), api.boundaryExitMaterial(id)]);
       if (selected.current !== id || version !== refreshVersion.current) return;
-      setRegionMaterial(regionMaterial); setReviewMaterial(reviewMaterial); setSession(s); setCoverage(report.controlCoverage); setAudit(report.explorationAudit); setCompletion(report.completionAudit); setCurrent(o); setGraph(g); setActions(a); setFrontierGroups(f); setAttempts(attempts.items); setHypotheses(h); setCheckpoints(cp.items); setScopes(scopes.items); setIssues(issues.items); setRecovery(reaches.items.at(-1));
+      setExitMaterial(exitMaterial); setRegionMaterial(regionMaterial); setReviewMaterial(reviewMaterial); setSession(s); setCoverage(report.controlCoverage); setAudit(report.explorationAudit); setCompletion(report.completionAudit); setCurrent(o); setGraph(g); setActions(a); setFrontierGroups(f); setAttempts(attempts.items); setHypotheses(h); setCheckpoints(cp.items); setScopes(scopes.items); setIssues(issues.items); setRecovery(reaches.items.at(-1));
     } catch (e) { setError(String(e)); }
   }, []);
   useEffect(() => { void refresh(); }, [refresh]);
@@ -113,6 +115,7 @@ function App() {
         {tab === 'diff' && <VisitDiff api={api} sessionId={sessionId} visit={shownVisit} parentObservationId={parentObservationId} attempt={shownAttempt} statusText={statusText} />}
         {tab === 'identity' && <IdentityPanel key={sessionId} api={api} sessionId={sessionId} hypotheses={hypotheses} current={current?.sessionId === sessionId ? current : undefined} disabled={busy} resolve={(hypothesisId, identityId, evidence) => perform({ type: 'resolveIdentity', hypothesisId, identityId, source: 'human-ui', evidence })} />}
         {tab === 'checkpoints' && <><label className="check"><input type="checkbox" checked={retainCheckpoint} onChange={e => setRetainCheckpoint(e.target.checked)} />固定检查点详细证据</label><button onClick={() => { const name = prompt('检查点名称', `检查点 ${checkpoints.length + 1}`); if (name) void perform({ type: 'createCheckpoint', name, predicates: [], acceptable: [], retainEvidence: retainCheckpoint }); }} disabled={busy}>＋ 保存当前检查点</button>{checkpoints.map(cp => <div className="data-row" key={cp.id}><b>{cp.name}</b><span className="mono">{short(cp.stateId)}</span><span>{cp.path.length} 步路径</span>{cp.evidenceKeys?.length && <button disabled={busy} onClick={() => { void api.releaseCheckpointEvidence(sessionId, cp.id).then(() => refresh()).catch(e => setError(String(e))); }}>解除证据固定</button>}<button disabled={busy} onClick={() => perform({ type: 'reachCheckpoint', checkpointId: cp.id })}>到达并验证</button></div>)}{recovery && <div className="recovery"><h3>{recovery.status}</h3><p>{recovery.reason}</p><RecoveryDetails diagnostics={recovery.diagnostics} /><JsonView value={recovery.checks} /></div>}</>}
+        {tab === 'review' && exitMaterial?.sessionId === sessionId && <BoundaryExitPanel key={`boundary-exit:${sessionId}`} material={exitMaterial} observation={current} busy={busy} perform={perform} />}
         {tab === 'review' && regionMaterial?.sessionId === sessionId && <RegionReviewPanel key={`region-partition:${sessionId}`} material={regionMaterial} busy={busy} perform={perform} />}
         {tab === 'review' && reviewMaterial?.sessionId === sessionId && <ExplorationReviewPanel key={`exploration-review:${sessionId}`} material={reviewMaterial} busy={busy} decide={perform} />}
         {tab === 'scopes' && <><button disabled={busy} onClick={() => perform({ type: 'openScope', name: `手动流程 ${scopes.length + 1}`, region: 'document' })}>＋ 开启页面流程范围</button>{scopes.map(s => <div className="scope-card" key={s.id}><div className="data-row"><b>{s.name}</b><span>{s.status} · {s.attemptIds.length} 次操作</span>{s.status === 'open' && !s.boundaryKey && <button disabled={busy} onClick={() => perform({ type: 'closeScope', scopeId: s.id })}>结束并比较</button>}</div><small>父区域：{s.region}</small>{s.diff && <ScopeDetails sessionId={sessionId} scope={s} />}</div>)}</>}

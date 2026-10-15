@@ -23,6 +23,18 @@ it('confirms suggested regions separately from exploration and rejects stale UI 
     const scopes=page.getByRole('region',{name:'探索范围决策'});await scopes.getByRole('checkbox',{name:'选择范围：金额区'}).waitFor();
     expect(t.engine.session(t.sessionId).actionCount).toBe(0);expect(t.engine.regionReviewMaterial(t.sessionId).review?.regions).toHaveLength(2);
     await scopes.getByRole('checkbox',{name:'选择范围：金额区'}).check();await scopes.getByRole('button',{name:'穷尽所选范围',exact:true}).click();
+    await expect.poll(()=>t.engine.explorationReviewMaterial(t.sessionId).groups.find(g=>g.label==='金额区')?.decisions.at(-1)?.decision.mode).toBe('all');
+    const kept=t.engine.explorationReviewMaterial(t.sessionId).groups.find(g=>g.label==='金额区')!;
+    await pageOf(t.engine).evaluate(()=>document.querySelector('button')!.parentElement!.insertAdjacentHTML('beforeend','<button>季线</button>'));await t.engine.observe(t.sessionId);
+    await partition.getByText('图表区：新增 1，移出 0，成员变化 0').waitFor();await partition.getByRole('button',{name:'只补审变化区域'}).click();
+    expect(await partition.locator('.region-draft .data-row').count()).toBe(1);expect(await partition.locator('.region-draft').getByText('4 个控件',{exact:true}).count()).toBe(1);
+    expect(await partition.locator('.retained-regions').textContent()).toContain('金额区');
+    await partition.getByRole('button',{name:'确认补审并保留其他区域'}).click();
+    await expect.poll(()=>t.engine.regionReviewMaterial(t.sessionId).unassignedControlIds.length).toBe(0);
+    await expect.poll(()=>t.engine.explorationReviewMaterial(t.sessionId).groups.find(g=>g.label==='图表区')?.decisions).toEqual([]);
+    const groups=t.engine.explorationReviewMaterial(t.sessionId).groups;
+    expect(groups.find(g=>g.label==='金额区')).toMatchObject({id:kept.id,decisions:kept.decisions});
+    expect(groups.find(g=>g.label==='图表区')?.decisions).toEqual([]);
     await page.getByRole('button',{name:'▶ DFS 探索',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.runbar .badge')?.textContent==='已暂停');
     expect(t.engine.session(t.sessionId).actionCount).toBe(2);expect(errors).toEqual([]);
   }finally{await browser.close();await ui.close();await api.close();await t.close();await new Promise<void>(r=>fixture.close(()=>r()));}

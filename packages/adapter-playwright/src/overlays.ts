@@ -66,7 +66,10 @@ export function collectOverlays(controls: Control[], regions: Region[], describe
       const lists = [...panel.querySelectorAll('[role=menu],[role=listbox]')].filter(visible);
       const chrome = controls.some(c => {
         const e = elements.get(c.localId);
-        return c.visible && c.actions.length && e && panel.contains(e) && !list.contains(e) && !e.contains(list) && containsRect(panel, e);
+        // An external opener is not chrome of the floating panel. Promoting its
+        // positioned owner would keep a false boundary after the child closes.
+        const opensList = e && !!list.id && ['aria-controls', 'aria-owns', 'popovertarget'].some(a => e.getAttribute(a)?.split(/\s+/).includes(list.id));
+        return c.visible && c.actions.length && e && !opensList && panel.contains(e) && !list.contains(e) && !e.contains(list) && containsRect(panel, e);
       });
       if (lists.length === 1 && lists[0] === list && chrome) {
         candidates.delete(list); add(panel, details.kind, 'composite-popup-panel');

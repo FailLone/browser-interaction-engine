@@ -1,0 +1,64 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine
+
+ ✓ tests/nonmodal-reentry.test.ts (9 tests) 16302ms
+   ✓ re-enters nested nonmodal branches from observed reveals and preserves the current draft  2365ms
+   ✓ records a no-effect entry as unverified revelation and bounds retries without counting the missing work  1597ms
+   ✓ respects current entry permissions: not-replayable  1448ms
+   ✓ respects current entry permissions: excluded  1406ms
+   ✓ does not borrow a reveal path from a different declared business context  1235ms
+   ✓ requires fresh reveal evidence after the document is replaced  1980ms
+   ✓ uses a delayed reveal observed before the next action and cites the actual later observation  3276ms
+   ✓ does not attribute a later reveal across an intervening action without replay permission  1566ms
+   ✓ does not mistake an identity decision about a visible control for an observed reveal  1429ms
+ ✓ tests/overlays.e2e.test.ts (11 tests) 11201ms
+   ✓ explores the initially open modal before parent controls and defers its close button  1086ms
+   ✓ explores the initially open aria before parent controls and defers its close button  1028ms
+   ✓ explores the initially open custom before parent controls and defers its close button  1014ms
+   ✓ explores the initially open popover before parent controls and defers its close button  989ms
+   ✓ tracks nested portalled popovers and returns to their modal before the page  2096ms
+   ✓ keeps parent exploration suspended when no operation can close a modal  633ms
+   ✓ offers an exit at the depth limit, but still respects the action budget  796ms
+   ✓ detects newly opened overlays before using an old parent action  478ms
+   ✓ closes a popover and verifies the parent checkpoint during recovery  823ms
+   ✓ recovers through nested exits without executing a blocked parent action  1335ms
+   ✓ keeps inline expanded sections outside the exclusive boundary model  885ms
+ ✓ tests/reviewed-boundary-exit.test.ts (12 tests) 10588ms
+   ✓ accepts a sourced external toggle for the current boundary and verifies its actual exit  1010ms
+   ✓ uses a freshly reviewed exit during checkpoint recovery without granting historical replay  772ms
+   ✓ retires unused reviewed exits after observing their boundary closed, without counting them as executed  1271ms
+   ✓ rejects stale, mismatched and unsourced exit declarations without permitting background work  951ms
+   ✓ retires old-document exits after navigation, including when the new document has a matching boundary key (false)  740ms
+   ✓ retires old-document exits after navigation, including when the new document has a matching boundary key (true)  769ms
+   ✓ does not accept a successful no-op click as an exit, or waive pointer interception  773ms
+   ✓ does not downgrade native submission risk or declare it a reviewed boundary exit  482ms
+   ✓ bounds ineffective exit attempts even when the sourced declaration refreshes each observation  884ms
+   ✓ does not reschedule an ineffective boundary exit just because its observation evidence changed  901ms
+   ✓ allows another exit attempt after an intervening interaction changes the boundary  1150ms
+   ✓ uses a unique current exit instance with ambiguous historical identity, without granting replay  884ms
+ ✓ tests/boundary-dismissal.test.ts (20 tests) 19881ms
+   ✓ closes a deferred chooser through a reviewed point and continues the original chart sample  1479ms
+   ✓ reports a dispatched no-op as not_closed and does not reapprove the same failed point  813ms
+   ✓ rejects a reviewed point before dispatch when move changes  756ms
+   ✓ rejects a reviewed point before dispatch when replace changes  765ms
+   ✓ rejects a reviewed point before dispatch when cover changes  781ms
+   ✓ rejects a reviewed point before dispatch when value changes  845ms
+   ✓ rejects a reviewed point before dispatch when url changes  890ms
+   ✓ separates boundary disappearance from changes to caller-preserved values  1097ms
+   ✓ supports the HTTP/SDK review workflow and rejects stale input without writing a judgment  1064ms
+   ✓ calls the review hook with evidence and preserves defer without authorizing an outside click  788ms
+   ✓ requires fresh approval when the same chooser is reopened  1293ms
+   ✓ revalidates after pointer movement before issuing any click  925ms
+   ✓ offers nested exits only inside the parent and verifies that the parent remains open  964ms
+   ✓ accepts an upper hook approval and executes the resulting current action  661ms
+   ✓ never grants historical replay through broad caller interface or replay rules  782ms
+   ✓ records unknown verification and stops exploration when post-action capture fails  923ms
+   ✓ reviews an exit in the UI with a stale-draft guard and displays independent verification results  2435ms
+   ✓ handles pointer departure before clicking: close  785ms
+   ✓ handles pointer departure before clicking: change-value  900ms
+   ✓ handles pointer departure before clicking: replace-boundary  934ms
+
+ Test Files  4 passed (4)
+      Tests  52 passed (52)
+   Start at  18:04:01
+   Duration  60.70s (transform 509ms, setup 0ms, collect 2.10s, tests 57.97s, environment 0ms, prepare 157ms)
