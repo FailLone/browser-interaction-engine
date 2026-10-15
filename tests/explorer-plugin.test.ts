@@ -12,6 +12,20 @@ import { scopeFor } from '../packages/explorer-plugin/src/policy.js';
 import { remapStoredScopes } from '../packages/explorer-plugin/src/scope-migration.js';
 
 const repeatedRecords=()=>`<section aria-label="Records">${['Alpha','Beta','Gamma'].map(name=>`<article data-key="${name}"><span>${name}</span><button type="button" onclick="this.disabled=true">Visit ${name}</button></article>`).join('')}</section>`;
+it.each(['whole-page','targeted','after-last-action'] as const)('retains host coverage limitations for %s without treating other successes as coverage',async(mode)=>{
+ const f=await explorerFixture(mode==='after-last-action'?`<button type="button" onclick="this.disabled=true;document.querySelector('main').appendChild(document.createElement('canvas'))">Ready</button>`:`<canvas id="chart"></canvas><button type="button" onclick="this.disabled=true">Ready</button>`),p=fakeProviders(f.url,{url:f.url,label:'Ready',kind:'click'}),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,...(mode==='targeted'?{goal:'Click Ready'}:{}),sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:mode==='after-last-action'?1:10}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),sid=v.task.rounds[0].sessionId;
+  expect(f.host.observation(sid).gaps.some(g=>g.code==='UNSUPPORTED_CANVAS'&&!g.critical)).toBe(true);
+  expect(f.host.list<any>(sid,'attempt').map(a=>a.action.label)).toEqual(['Ready']);
+  const gap=v.task.plan.find(i=>i.reason==='missing_capability:UNSUPPORTED_CANVAS');
+  if(mode==='targeted'){expect(v.task.status).toBe('completed');expect(gap).toBeUndefined();}
+  else{expect(v.task.status).not.toBe('completed');expect(gap).toMatchObject({required:true,status:'unresolved',dispatchScope:false,attempts:[]});expect(gap!.resolvedBy).toBeUndefined();
+   const event=v.events.find(e=>e.type==='scope.unsupported')!;expect(event).toBeDefined();expect((event.data as any).limitations.some((g:any)=>g.code==='UNSUPPORTED_CANVAS')).toBe(true);
+   expect(f.host.observation(sid,gap!.evidence[0].observationId).gaps.some(g=>g.code==='UNSUPPORTED_CANVAS')).toBe(true);
+  }
+ }finally{await plugin.close();await f.close();}
+});
+
 it('matches repeated records across fresh documents without treating history as a new execution',async()=>{
  const f=await explorerFixture(repeatedRecords());const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
  try{const t=plugin.create({url:f.url,sessionOptions:{maxActions:1,settleMs:0,observeTimeoutMs:100},budget:{rounds:4,actions:5,modelRequests:200}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);

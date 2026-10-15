@@ -5,6 +5,16 @@ import { resolve,join } from 'node:path';
 import { ExplorerPlugin,ExplorerStore } from '@interaction/explorer-plugin';
 import { createServer } from '../apps/server/src/server.js';
 import { explorerFixture,fakeProviders,semanticPopupHtml } from './explorer-plugin-helpers.js';
+it('shows unsupported coverage as a program node with source evidence, not executed coverage',async()=>{
+ const f=await explorerFixture('<canvas id="chart"></canvas><button type="button" onclick="this.disabled=true">Ready</button>'),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url)),app=await createServer(f.host,{explorer:plugin});await app.listen({host:'127.0.0.1',port:0});const origin=`http://127.0.0.1:${(app.server.address() as {port:number}).port}`;
+ const ui=await createViteServer({root:resolve('apps/ui'),logLevel:'error',server:{port:0,strictPort:false,proxy:{'/v1':origin,'/plugins':origin}}});await ui.listen();const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1500,height:1100}});
+ try{const task=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(task.id);await plugin.waitForIdle();
+  await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as {port:number}).port}`);await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);
+  await page.getByLabel('包含模型决策的遍历路径').getByRole('button').filter({hasText:'保留宿主无法验证的范围'}).click();
+  const inspector=page.getByLabel('探索决策详情');expect(await inspector.innerText()).toContain('其他控件的执行成功不能替代这部分验证');expect(await inspector.innerText()).toContain('UNSUPPORTED_CANVAS');expect(await inspector.innerText()).toContain('observationId');expect(await inspector.innerText()).toContain('无需模型调用');
+  const row=page.locator('.explorer-plan-item').filter({hasText:'当前宿主能力不足：画布内部'});expect(await row.innerText()).toContain('待确认');expect(await row.innerText()).not.toContain('有实际执行证据');
+ }finally{await browser.close();await ui.close();await app.close();await f.close();}
+});
 it('shows a semantic LLM handoff, grounded input/output and the resulting accepted review',async()=>{
  const f=await explorerFixture(semanticPopupHtml),providers=fakeProviders(f.url,{url:f.url,label:'Picker',kind:'click'}),original=providers.jev.decide;
  providers.jev.decide=async(r,s)=>r.purpose==='control-classification'?{model:'mock',value:'interaction',confidence:1}:r.purpose==='control-risk'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,.5]))}:original(r,s);
