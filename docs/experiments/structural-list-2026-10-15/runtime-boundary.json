@@ -1,0 +1,8 @@
+{
+  "changedAfterRuntimeStart": [
+    "packages/adapter-playwright/src/browser.ts",
+    "packages/adapter-playwright/src/util.ts",
+    "packages/adapter-playwright/src/structural-lists.ts"
+  ],
+  "reason": "Final regressions added hidden-list retention, action-capability filtering, ordinary-label exclusion, and preserved existing/ambiguous identities; live run was not restarted."
+}

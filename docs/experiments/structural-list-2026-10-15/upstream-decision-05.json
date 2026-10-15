@@ -1,0 +1,54 @@
+{
+  "observationId": "f29293da-8add-476a-9e2e-737e6c670367",
+  "source": "gpt-5.6-sol/low",
+  "reviews": [
+    {
+      "localId": "8db932be-0b2a-4b0f-b370-2e402b66ccc2:2337",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": false,
+      "reason": "Use the BTC/USDT market row as one representative navigation sample from the six-row Spot market list. It verifies that a real row reaches its named spot-market destination; page B must then be skipped and exited without business interaction.",
+      "evidence": [
+        "The current screenshot visibly shows six uniformly rendered rows under the expanded Spot sub-menu, each with a trading pair, last price, and 24h change.",
+        "Current :2337 is a visible, enabled, hittable anchor named BTC/USDT with declared hyperlink activation support.",
+        "Its current href is /trade-spot/btc-usdt, matching the visible BTC/USDT row and making the expected destination independently checkable.",
+        "BTC/USDT is the first visible row and is sufficient to test the common row-navigation behavior without exhaustively visiting six destination pages."
+      ]
+    }
+  ],
+  "resolutions": [
+    {
+      "groupId": "9a409447-e4c7-48db-b1b0-5dae5c9b6714",
+      "revision": 1,
+      "decision": {
+        "mode": "defer",
+        "source": "gpt-5.6-sol/low",
+        "evidence": [
+          "All six current members share one structural owner, one repeated row template, the same anchor-click operation, and /trade-spot/<pair> href shape; they form one business-function range of Spot market navigation rows.",
+          "The six current destinations differ only by market pair: BTC/USDT, ETH/USDT, UNI/USDT, LINK/USDT, AVAX/USDT, and USDC/USDT.",
+          "The intended final decision is sample of one BTC/USDT member, not all and not skip, because the entry-page audit should verify real navigation while avoiding exhaustive traversal of equivalent destination pages.",
+          "Persisting the BTC/USDT control review can change the group revision and member key, so no current member key is submitted in this batch."
+        ]
+      }
+    }
+  ],
+  "scopeIntent": {
+    "groupId": "9a409447-e4c7-48db-b1b0-5dae5c9b6714",
+    "currentRevision": 1,
+    "intendedModeAfterRefresh": "sample",
+    "intendedLocalId": "8db932be-0b2a-4b0f-b370-2e402b66ccc2:2337",
+    "currentMemberKeyForAuditOnly": "647f3bbacb10f4d48b10f37791ea718c69a7d7250f75745c193beea2f7654309",
+    "reason": "Re-observe after recording the review, then select only the refreshed member whose observationId is current and whose localId/href still identify BTC/USDT at /trade-spot/btc-usdt. The other five rows remain unexecuted and uncovered."
+  },
+  "nextAction": {
+    "localId": "8db932be-0b2a-4b0f-b370-2e402b66ccc2:2337",
+    "kind": "review-only",
+    "reason": "Persist this control-purpose review, refresh the material, and request a new decision for the resulting exact group revision and member key before any click."
+  },
+  "unresolved": [
+    "No market row is approved for execution in this batch; the current BTC member key is recorded only for audit and must not be reused after the review changes group evidence.",
+    "The five unselected members remain explicitly unexecuted and uncovered; sampling one row does not claim coverage of their individual destinations or market data.",
+    "After the refreshed sample is executed, verify the reached URL matches BTC/USDT, make a current page-scope skip decision for B, and return to entry page A without interacting with B business controls.",
+    "Search, USDT/Crypto tabs, scrolling, and unrelated page controls remain pending for later entry-page review."
+  ]
+}

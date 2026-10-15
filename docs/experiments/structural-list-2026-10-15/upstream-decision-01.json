@@ -1,0 +1,32 @@
+{
+  "observationId": "34187870-8309-4ca6-9719-6b5eb4326161",
+  "source": "gpt-5.6-sol/low",
+  "reviews": [
+    {
+      "localId": "8db932be-0b2a-4b0f-b370-2e402b66ccc2:581",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": false,
+      "reason": "Dismiss the active regional-availability dialog so the header Trade control can be observed and used without modal interception. Approval is limited to this dialog instance and does not authorize Trade or Spot in advance.",
+      "evidence": [
+        "The screenshot shows the regional-availability dialog centered over and dimming the BTC-to-USD page.",
+        "Current :581 is a visible, enabled native button named Close inside dialog:okd-dialog-window.",
+        "Its click is supported by native-button/v1, has a confirmed hit target, no blockers, and boundary intent exit.",
+        "The current Trade control :495 is outside the active dialog boundary and pointer-intercepted, so closing the dialog is a necessary prerequisite rather than optional cleanup."
+      ]
+    }
+  ],
+  "nextAction": {
+    "localId": "8db932be-0b2a-4b0f-b370-2e402b66ccc2:581",
+    "kind": "click",
+    "reason": "Close the current modal once, then obtain a fresh screenshot and control review proving the dialog is absent and the current Trade button is hittable before approving Trade."
+  },
+  "resolutions": [],
+  "unresolved": [
+    "Trade :495 is visible in the document but currently blocked by outside_active_boundary and pointer_intercepted; it is deliberately not pre-approved.",
+    "Spot and its market rows are not currently visible. Their identities, owners, purposes, and any structural-list group cannot be decided until Trade is opened and Spot is then opened in later observations.",
+    "The current scopes include multiple new repeated-record groups and footer groups, but none is needed for the immediate Trade-to-Spot path. They remain pending for later whole-page review rather than being skipped to reduce the frontier.",
+    "Do not check the ‘Don’t show for 7 days’ preference or choose ‘Go to OKX Wallet’; neither is required to reach Trade and both exceed this batch's exit-only purpose.",
+    "When real Spot market rows appear, inspect the current structural groupId/revision and business labels before choosing all, sample, defer, or skip. If sampled navigation reaches a market page B, verify arrival, do not explore B, and return to entry page A."
+  ]
+}

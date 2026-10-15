@@ -12,6 +12,7 @@ export const explorationGroupProposalSchema = z.object({
   key: z.string().trim().min(1), kind: z.string().trim().min(1), label: z.string().trim().min(1),
   actionIds: z.array(z.string().min(1)), traversalActionIds: z.array(z.string().min(1)),
   conditions: z.json().optional(),
+  minimumMembers: z.number().int().min(1).max(100).optional(),
   evidence: z.array(z.object({ source: z.string().min(1), rule: z.string().min(1), facts: z.record(z.string(), z.json()) })).min(1),
 }).strict();
 export const evidenceRetentionSchema = z.preprocess(input => {

@@ -6,7 +6,9 @@ import { ruleMatches, signature } from './util.js';
 
 function shape(c: Control) {
   const { valid: _valid, ...constraints } = c.constraints;
-  return { signature: signature(c), visible: c.visible, enabled: c.enabled, editable: c.editable, constraints, options: c.options, list: c.list, purposeBinding: c.purposeBinding };
+  const item=c.structuralItem;
+  const structuralItem=item?{ownerInstanceId:item.ownerInstanceId,template:item.template,slot:item.slot,recordKey:item.recordKey,...(item.recordKey?{}:{rowInstanceId:item.rowInstanceId})}:undefined;
+  return { signature: signature(c), visible: c.visible, enabled: c.enabled, editable: c.editable, constraints, options: c.options, list: c.list, purposeBinding: c.purposeBinding, structuralItem };
 }
 
 /** Deliberate representative sampling, not a proof that other values are irrelevant. */

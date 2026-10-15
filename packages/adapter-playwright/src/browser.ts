@@ -11,6 +11,7 @@ import type { ActionCandidate, Context, Control, Gap, Observation, Region, Sessi
 import { EngineError } from './types.js';
 import { now } from './util.js';
 import { collectRegionCandidates } from './region-candidates.js';
+import { discoverStructuralLists, describeStructuralLists } from './structural-lists.js';
 import { collectOverlays } from './overlays.js';
 import { collectActionEvidence } from './action-evidence.js';
 import { collectEvidence } from './collect-evidence.js';
@@ -21,7 +22,7 @@ import type { BrowserHistory } from './types.js';
 import type { BrowserEvidenceManifest, DetailSnapshot, DomEvidence, EvidenceOptions } from './evidence-types.js';
 
 // Runs in the page without framework knowledge or DOM mutation.
-function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, candidateCollector: typeof collectRegionCandidates | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions) {
+function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, candidateCollector: typeof collectRegionCandidates | undefined, listCollector:typeof discoverStructuralLists|undefined, listDescription:typeof describeStructuralLists|undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
@@ -145,6 +146,9 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   // A bounded supplemental scan finds scroll viewports, handlers and cursor hints.
   // Inherited pointer cursors do not turn every descendant into another target.
   for (const el of elements.slice(0, 5000)) if (el !== body && el !== document.documentElement && !selected.has(el) && (scrollViewport(el) || typeof (el as HTMLElement).onclick === 'function' || getComputedStyle(el).cursor === 'pointer' && (!el.parentElement || getComputedStyle(el.parentElement).cursor !== 'pointer'))) selected.add(el);
+  const structuralScan=listCollector?.(elements.slice(0,5000),selected,instance,selector,actionCollector)||{candidates:[],limits:{templatesTruncated:0,collectionsTruncated:false}};
+  for(const list of structuralScan.candidates)for(const member of list.members)selected.add(member.element);
+  const structuralMembers=new Map(structuralScan.candidates.flatMap(list=>list.members.map(member=>[member.element,{ownerInstanceId:instance(list.owner),template:list.template,slot:member.slot,rowInstanceId:instance(member.row),...(member.recordKey?{recordKey:member.recordKey}:{})}] as const)));
   const all = [...selected];
   const unnamedScrolls = new Set<Element>();
   const controls = all.slice(0, 1500).map(el => {
@@ -155,6 +159,10 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const semanticRole = role(el);
     const type = el.tagName === 'INPUT' ? e.type : el.tagName.toLowerCase();
     const capabilities = actionCollector(el);
+    const structuralItem=structuralMembers.get(el);
+    if(structuralItem&&!capabilities.actions.length&&style.cursor==='pointer'){
+      capabilities.actions.push('click');capabilities.actionBasis.click={status:'tentative',evidence:[{source:'dom',rule:'repeated-record-probe/v1',facts:{...structuralItem,meaning:'Repeated custom pointer record; click purpose remains unconfirmed'}}]};
+    }
     const scroll = scrollViewport(el);
     // Virtualized descendants change as the viewport moves. They are not the
     // identity/name of an otherwise unnamed scroll viewport.
@@ -183,7 +191,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey,
       ...(list ? { list: { instanceId: instance(list), role: list.tagName === 'SELECT' ? 'select' : 'listbox', label: label(list), selector: selector(list) } } : {}),
       ...(purposeBinding ? { purposeBinding } : {}),
-      reviewBinding,
+      reviewBinding, ...(structuralItem?{structuralItem}:{}),
       region: regionKey(el.closest(regionSelector)), regionInstanceId: instance(el.closest(regionSelector) || body || document.documentElement), form: regionKey(el.closest('form')), selector: selector(el), rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
       checked: ['checkbox', 'radio'].includes(type) ? e.checked : el.hasAttribute('aria-checked') ? el.getAttribute('aria-checked') === 'true' : null,
@@ -195,12 +203,13 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     };
   });
   const gaps: { code: string; message: string; selector?: string; critical?: boolean }[] = [];
+  if(structuralScan.limits.templatesTruncated||structuralScan.limits.collectionsTruncated)gaps.push({code:'STRUCTURAL_LIST_SCAN_TRUNCATED',message:`Repeated-record discovery skipped ${structuralScan.limits.templatesTruncated} oversized row templates; collection limit reached: ${structuralScan.limits.collectionsTruncated}`});
   if (!body) gaps.push({ code: 'DOM_ROOT_UNAVAILABLE', message: 'Document body is absent; the page may be navigating or rebuilding', critical: true });
   if (document.readyState === 'loading') gaps.push({ code: 'DOCUMENT_LOADING', message: 'Document parsing is still in progress', critical: true });
   for (const el of document.querySelectorAll('iframe,canvas,input[type=file]')) gaps.push({ code: `UNSUPPORTED_${el.tagName === 'INPUT' ? 'FILE_INPUT' : el.tagName}`, message: `${el.tagName} internals are outside V0.1 coverage`, selector: selector(el) });
   for (const el of elements) if (el.shadowRoot) gaps.push({ code: 'UNSUPPORTED_SHADOW_DOM', message: 'Shadow root contents were not collected', selector: selector(el) });
   for (const c of controls) if (c.tag === 'input' && ['color', 'range'].includes(c.constraints.type)) gaps.push({ code: 'UNSUPPORTED_INPUT_TYPE', message: `No V0.1 operation for input type ${c.constraints.type}`, selector: c.selector });
-  if (elements.length > 5000) gaps.push({ code: 'SIGNAL_SCAN_TRUNCATED', message: 'Supplemental scroll-viewport, property-handler and cursor scan limited to 5000 elements; semantic selectors are collected separately' });
+  if (elements.length > 5000) gaps.push({ code: 'SIGNAL_SCAN_TRUNCATED', message: 'Supplemental repeated-record, scroll-viewport, property-handler and cursor scan limited to 5000 elements; semantic selectors are collected separately' });
   gaps.push({ code: 'EVENT_LISTENER_COVERAGE', message: 'Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation.' });
   if (all.length > controls.length) gaps.push({ code: 'TRUNCATED', message: `${all.length - controls.length} controls omitted`, critical: true });
   if (bodyText.length > 50000) gaps.push({ code: 'TEXT_TRUNCATED', message: 'Visible text was truncated to 50000 characters' });
@@ -217,11 +226,20 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     });
   });
   // Detected overlays may introduce regions outside the native semantic selectors.
+  for(const c of controls)if(c.structuralItem){
+    const item=c.structuralItem;
+    if(c.stableKey?.startsWith('item:'))continue; // Preserve established nested record identity.
+    const el=all[controls.indexOf(c)];
+    const localKey=el.getAttribute('data-testid')||el.getAttribute('name')||(c.role==='link'&&item.recordKey?.startsWith('["href",')?'record-link':JSON.stringify([c.role,c.label||c.name,c.constraints.type]));
+    // A corresponding DOM slot organizes decisions; it is not proof that two
+    // same-named controls in one record have distinct historical identities.
+    c.stableKey=item.recordKey?`structural-item:${JSON.stringify([item.ownerInstanceId,item.recordKey,localKey])}`:undefined;
+  }
   for (const region of regions) if (!region.instanceId) {
     const owners = document.querySelectorAll(region.selector);
     if (owners.length === 1) region.instanceId = instance(owners[0]);
   }
-  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, ...layers, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
+  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, ...layers, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
 
 export class BrowserAdapter implements InteractionDriver<Observation, SessionOptions> {
@@ -279,8 +297,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
     const args = detailed ? `, ${collectEvidence.toString()}, ${JSON.stringify(this.options.evidence)}` : '';
-    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}${args}); })()`;
-    return this.page.evaluate(source) as Promise<{ documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[]; overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>; regionCandidates?: Observation['regionCandidates']; actionDiscovery?: Observation['actionDiscovery']; scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence }>;
+    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}, ${this.options.listExploration!==undefined?discoverStructuralLists.toString():'undefined'}, ${this.options.listExploration!==undefined?describeStructuralLists.toString():'undefined'}${args}); })()`;
+    return this.page.evaluate(source) as Promise<{ documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[]; overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>; regionCandidates?: Observation['regionCandidates']; structuralLists?:Observation['structuralLists']; actionDiscovery?: Observation['actionDiscovery']; scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence }>;
   }
   async capture(observationId: string) {
     if (!this.page) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
@@ -300,7 +318,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
           const incomplete = dom.gaps.some(g => ['DOM_ROOT_UNAVAILABLE', 'DOCUMENT_LOADING'].includes(g.code));
           const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
           if (key !== previous || incomplete) { previous = key; unchangedSince = Date.now(); }
-          const interactive = interactionProjection(dom) + canonical(dom.regionCandidates?.map(c => [c.id, c.binding]));
+          const interactive = interactionProjection(dom) + canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) + canonical(dom.structuralLists);
           if (interactive !== previousInteraction || incomplete) { previousInteraction = interactive; interactionSince = Date.now(); }
           interactionStable = !incomplete && Date.now() - interactionSince >= this.options.settleMs;
           if (!incomplete && Date.now() - unchangedSince >= this.options.settleMs) { stable = true; break; }
@@ -315,8 +333,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if (this.options.evidence.enabled && dom && !lastError) {
         try {
           const detailed = await timeout(this.readDOM(true), this.options.observeTimeoutMs, 'Detailed DOM capture deadline exceeded');
-          if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId || canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(detailed.regionCandidates?.map(c => [c.id, c.binding]))) {
-            interactionStable &&= interactionProjection(dom) === interactionProjection(detailed) && canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) === canonical(detailed.regionCandidates?.map(c => [c.id, c.binding]));
+          if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId || canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(detailed.regionCandidates?.map(c => [c.id, c.binding])) || canonical(dom.structuralLists) !== canonical(detailed.structuralLists)) {
+            interactionStable &&= interactionProjection(dom) === interactionProjection(detailed) && canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) === canonical(detailed.regionCandidates?.map(c => [c.id, c.binding])) && canonical(dom.structuralLists) === canonical(detailed.structuralLists);
             stable = false;
             const critical = !(this.options.exploration === 'controls' && interactionStable);
             dom = detailed;
@@ -512,6 +530,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       catch { return 'stale'; }
     }
     if (canonical(live.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(current.regionCandidates?.map(c => [c.id, c.binding]))) return 'stale';
+    if(canonical(live.structuralLists)!==canonical(current.structuralLists))return 'stale';
     const liveCanonical = observableCanonical({ ...current, ...live, context: current.context, gaps: current.gaps });
     const listOwners = new Map(current.controls.map(c => [c.instanceId, c.list]));
     if (live.controls.some(c => canonical(c.list) !== canonical(listOwners.get(c.instanceId)))) return 'stale';
