@@ -40,6 +40,7 @@ export class ExplorerPlugin {
   start(id:string) {
     if(this.closed)throw new ExplorerError('PLUGIN_CLOSED');if(this.active)throw new ExplorerError('ENGINE_OWNED');
     const task=this.store.task(id);if(task.status==='completed')throw new ExplorerError('PLAN_ALREADY_COMPLETE');
+    this.restoreDispatchScopes(task);
     const missing=this.capabilities().missing;if(missing.length){task.status='blocked';task.reason=`missing_capability:${missing.join(',')}`;this.store.save(task);return task;}
     if(this.host.sessions().some(s=>s.status==='running'))throw new ExplorerError('ENGINE_BUSY');
     if(!this.router.providers.jev){task.status='configuration_required';task.reason='jev_required_for_judgments';this.store.save(task);return task;}
@@ -65,7 +66,7 @@ export class ExplorerPlugin {
     if(supplement)task.coverageMode='all'; // Explicitly selected gaps must not be sampled out again.
     if(input.goal)task.goal=z.string().trim().min(1).max(20000).parse(input.goal);
     if(input.items){const items=z.array(plannedScopeSchema).min(1).max(100).parse(input.items);task.plan=items.map(x=>this.newItem(x));}
-    else if(supplement){if(!input.itemIds?.length||input.itemIds.some(id=>!task.plan.some(i=>i.id===id)))throw new ExplorerError('INVALID_SCOPE');const ids=new Set(input.itemIds);for(const item of task.plan){item.required=ids.has(item.id);if(item.required){item.status='pending';delete item.resolvedBy;}}}
+    else if(supplement){if(!input.itemIds?.length||input.itemIds.some(id=>!task.plan.some(i=>i.id===id)))throw new ExplorerError('INVALID_SCOPE');const ids=new Set(input.itemIds);for(const item of task.plan){item.required=ids.has(item.id);item.dispatchScope=item.required;if(item.required){item.status='pending';delete item.resolvedBy;}}}
     else task.plan=[];
     if(task.pendingDispatch)throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
     const round=task.rounds.at(-1);if(round){round.status='finished';round.endedAt=now();}
@@ -84,11 +85,21 @@ export class ExplorerPlugin {
   private elapsed(task:Task){return task.usage.durationMs+(task.activeSince?Date.now()-task.activeSince:0);}
   private checkBudget(task:Task){this.syncUsage(task);if(task.usage.actions>=task.budget.actions||this.elapsed(task)>=task.budget.durationMs)throw new ExplorerError('BUDGET_EXHAUSTED');}
   private assert(task:Task,signal:AbortSignal,observationId?:string,revision=task.revision){if(signal.aborted||task.status!=='running'||task.revision!==revision)throw new ExplorerError('CANCELLED');if(observationId&&this.host.observation(task.rounds.at(-1)!.sessionId).id!==observationId)throw new ExplorerError('STALE_DECISION');this.checkBudget(task);}
-  private newItem(x:Pick<PlanItem,'title'|'scope'|'prerequisites'|'completion'|'required'|'reason'>):PlanItem{return {...x,id:randomUUID(),status:x.required?'pending':'untested',evidence:[],attempts:[]};}
+  private newItem(x:Pick<PlanItem,'title'|'scope'|'prerequisites'|'completion'|'required'|'reason'>,dispatchScope=true):PlanItem{return {...x,dispatchScope,id:randomUUID(),status:x.required?'pending':'untested',evidence:[],attempts:[]};}
+  private restoreDispatchScopes(task:Task) {
+    if(!task.plan.some(i=>i.dispatchScope===undefined))return;
+    // Restore only the last explicit plan snapshot; accumulated gap/derived rows are not grants.
+    let snapshot:PlanItem[]|undefined,cursor=0;
+    for(;;){const events=this.store.events(task.id,cursor,1000);if(!events.length)break;for(const e of events){const data=e.data as {kind?:string;details?:{items?:PlanItem[]};plan?:PlanItem[]};if(e.type==='plan.revised')snapshot=data.plan;else if(e.type==='decision.effect'&&data.kind==='plan')snapshot=data.details?.items;}cursor=events.at(-1)!.sequence;}
+    if(!snapshot)throw new ExplorerError('PLAN_REVIEW_REQUIRED');
+    const approved=new Set(snapshot.filter(i=>i.required&&i.dispatchScope!==false).map(i=>i.id));
+    for(const item of task.plan)if(item.dispatchScope===undefined)item.dispatchScope=approved.has(item.id);
+    this.store.save(task);this.event(task,'plan.authority_restored',{approvedItemIds:[...approved],recordOnly:task.plan.filter(i=>!i.dispatchScope).map(i=>i.id)});
+  }
   private gap(task:Task,reason:string,scope:Scope,required=true) {
-    if(required && task.plan.length && !task.plan.some(i=>i.required&&Object.entries(i.scope).every(([k,v])=>scope[k as keyof Scope]===undefined||scope[k as keyof Scope]===v)))required=false;
+    if(required && task.plan.length && !task.plan.some(i=>i.required&&i.dispatchScope===true&&Object.entries(i.scope).every(([k,v])=>scope[k as keyof Scope]===undefined||scope[k as keyof Scope]===v)))required=false;
     const key=JSON.stringify({reason,scope});let item=task.plan.find(i=>JSON.stringify({reason:i.reason,scope:i.scope})===key);
-    if(!item){item={id:randomUUID(),title:reason,scope,prerequisites:[],completion:'Obtain fresh evidence and verify the requested operation',status:required?'unresolved':reason==='scope_excluded'?'excluded':'untested',required,reason,evidence:[],attempts:[]};task.plan.push(item);}
+    if(!item){item={id:randomUUID(),title:reason,scope,prerequisites:[],completion:'Obtain fresh evidence and verify the requested operation',status:required?'unresolved':reason==='scope_excluded'?'excluded':'untested',required,dispatchScope:false,reason,evidence:[],attempts:[]};task.plan.push(item);}
     const r=task.rounds.at(-1);if(r){try{const o=this.host.observation(r.sessionId);if(!item.evidence.some(e=>e.observationId===o.id))item.evidence.push({sessionId:r.sessionId,observationId:o.id});}catch{item.reason+=':evidence_unavailable';}}
     this.store.save(task);return item;
   }
@@ -159,7 +170,12 @@ export class ExplorerPlugin {
     for(const item of task.plan.filter(i=>itemIds.includes(i.id))) {
       if(!item.attempts.some(x=>x.evidence?.attemptId===attempt.id))item.attempts.push({roundId:round.id,outcome:attempt.status,evidence:ref});
       item.evidence.push(ref);
-      if(attempt.status==='succeeded'&&attempt.afterId){item.resolvedBy=ref;if(item.scope.kind&&item.scope.label)item.status='succeeded';}
+      if(attempt.status==='succeeded'&&attempt.afterId){
+        item.resolvedBy=ref;
+        const before=this.host.observation(attempt.sessionId,attempt.beforeId);
+        const concrete=item.scope.kind&&(item.scope.label||item.scope.stableKey||item.scope.value!==undefined);
+        if(concrete&&this.host.actions(attempt.sessionId,before.id).filter(a=>matches(item.scope,a,before)).length===1)item.status='succeeded';
+      }
       else {item.status=attempt.status==='unknown'?'unresolved':'blocked';item.reason=attempt.status==='unknown'?'unknown_action_outcome':attempt.reason||attempt.status;}
     }
     this.syncUsage(task);this.event(task,'action.verified',{decisionId:task.pendingDispatch?.decisionId,attemptId:attempt.id,status:attempt.status,afterId:attempt.afterId});
@@ -173,7 +189,7 @@ export class ExplorerPlugin {
       while(!signal.aborted) {
         this.assert(task,signal);const o=this.host.observation(round.sessionId);
         if(!task.plan.length) {
-          const initial=await this.generate(task,signal,o,'initial-plan','Translate the user goal into a compact plan of at most 8 semantic scopes and prerequisite operations. Prefer page/region groups for broad goals; the runtime expands each scope into individual action cases, so do not enumerate every control or option. Use a per-action scope when the user explicitly targets one operation. Prefer the supplied exact action scopes; omit unknown fields instead of inventing names. Use observed labels/roles/region display labels and exact URLs, not selectors or old control IDs. kind is an operation such as click, never button/state/enabled. value is an action input, never its expected outcome. Put desired outcomes in completion; do not create a second operation for verifying the same action. A broad scope means its observed cases must be audited; only allow representative subsets when coverageMode explicitly permits them. Completion is verification of supported interaction, not arbitrary business assertions.',{goal:task.goal,url:task.url,coverageMode:task.coverageMode||'all',observation:{url:o.url,regions:o.regions.map(r=>({label:r.label,role:r.role})),controls:o.controls.map(c=>({label:c.name,role:c.role,region:o.regions.find(r=>r.key===c.region)?.label})),actions:this.host.actions(round.sessionId).map(a=>scopeFor(a,o)),text:o.text.slice(0,12000)}},planSchema);
+          const initial=await this.generate(task,signal,o,'initial-plan','Translate the user goal into a compact plan of at most 8 semantic scopes and prerequisite operations. Prefer page/region groups for broad goals; the runtime expands each scope into individual action cases, so do not enumerate every control or option. Use a per-action scope when the user explicitly targets one operation. Prefer the supplied exact action scopes. Preserve control names and input values explicitly given in the user goal, including targets revealed by an earlier prerequisite; these are semantic targets to bind against fresh observations, not evidence that a control already exists. Keep prerequisite operations for hidden targets. Omit other unknown fields instead of inventing names. Use observed or user-supplied labels, observed roles/region display labels and exact URLs, not selectors or old control IDs. kind is an operation such as click, never button/state/enabled. value is an action input, never its expected outcome. Put desired outcomes in completion; do not create a second operation for verifying the same action. A broad scope means its observed cases must be audited; only allow representative subsets when coverageMode explicitly permits them. Completion is verification of supported interaction, not arbitrary business assertions.',{goal:task.goal,url:task.url,coverageMode:task.coverageMode||'all',observation:{url:o.url,regions:o.regions.map(r=>({label:r.label,role:r.role})),controls:o.controls.map(c=>({label:c.name,role:c.role,region:o.regions.find(r=>r.key===c.region)?.label})),actions:this.host.actions(round.sessionId).map(a=>scopeFor(a,o)),text:o.text.slice(0,12000)}},planSchema);
           this.assert(task,signal,o.id);task.plan=initial.value.items.map(x=>this.newItem(x));this.router.mark(initial.decision,'applied');this.router.effect(initial.decision,'plan',{revision:task.revision,items:task.plan});this.store.save(task);
         }
         let acted=false;
@@ -200,6 +216,8 @@ export class ExplorerPlugin {
   private async step(task:Task,round:Round,signal:AbortSignal):Promise<boolean> {
     const sid=round.sessionId,o=this.host.observation(sid);this.assert(task,signal);
     if(o.gaps.some(g=>g.critical)){this.gap(task,'observation_incomplete',{url:o.url});return false;}
+    const goals=task.plan.filter(i=>i.required&&i.dispatchScope===true);
+    if(goals.length&&goals.every(i=>i.status==='succeeded'))return false;
     const reviewedBefore=round.reviewed.length,knownDecisions=new Set(this.store.decisions(task.id).map(d=>d.id));
     try { const reviewed=await reviewNext({host:this.host,task,observation:o,
       choose:(p,i,s,opts,constraints)=>this.choose(task,signal,o,p,i,s,opts,constraints),generate:(p,i,s,schema)=>this.generate(task,signal,o,p,i,s,schema),
@@ -212,7 +230,7 @@ export class ExplorerPlugin {
     const counts=new Map<string,number>();for(const a of eligible){const k=keyFor(a,o);counts.set(k,(counts.get(k)||0)+1);}
     const unique=eligible.filter(a=>{if(counts.get(keyFor(a,o))===1)return true;this.gap(task,'ambiguous_scope_match',scopeFor(a,o));return false;});
     for(const candidate of unique.filter(a=>includesScope(task.plan,a,o)==='target')) {
-      if(!task.plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,candidate,o)))task.plan.push(this.newItem({title:`${candidate.kind} ${candidate.label}`,scope:scopeFor(candidate,o),prerequisites:[...round.entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'}));
+      if(!task.plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,candidate,o)))task.plan.push(this.newItem({title:`${candidate.kind} ${candidate.label}`,scope:scopeFor(candidate,o),prerequisites:[...round.entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false));
     }
     this.store.save(task);
     if(unique.length) {
@@ -228,7 +246,7 @@ export class ExplorerPlugin {
       if(round.stack.at(-1)?.stateId!==o.stateId)round.stack.push({checkpointId:checkpoint.id,observationId:o.id,stateId:o.stateId,used:[],path:[...round.entryPath],remaining:unique.filter(a=>a.id!==action.id&&includesScope(task.plan,a,o)==='target').map(a=>scopeFor(a,o))});
       const reentry=this.neededEntry(task,round,action,o);if(reentry)round.reentries.push(this.entryKey(task,action,o));
       const purpose=reentry?'prerequisite':includesScope(task.plan,action,o);const items=task.plan.filter(i=>i.required&&matches(i.scope,action,o));
-      if(purpose==='target'&&!items.some(i=>i.scope.kind&&i.scope.label)) {const leaf=this.newItem({title:`${action.kind} ${action.label}`,scope:scopeFor(action,o),prerequisites:[...round.entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'});task.plan.push(leaf);items.push(leaf);}
+      if(purpose==='target'&&!items.some(i=>i.scope.kind&&i.scope.label)) {const leaf=this.newItem({title:`${action.kind} ${action.label}`,scope:scopeFor(action,o),prerequisites:[...round.entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false);task.plan.push(leaf);items.push(leaf);}
       const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,decisionId:selected.decision.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id};
       round.tried.push(keyFor(action,o));this.store.save(task);this.router.mark(selected.decision,'applied');this.router.effect(selected.decision,'action',{requestId,actionId:action.id,label:action.label,kind:action.kind,purpose,itemIds:items.map(i=>i.id)});this.event(task,'action.dispatch',{requestId,actionId:action.id,purpose,decisionId:selected.decision.id});
       try {const attempt=await this.host.execute(sid,action.id,requestId);this.recordOutcome(task,attempt,items.map(i=>i.id));if(attempt.status==='succeeded'&&attempt.afterId){const after=this.host.observation(sid,attempt.afterId);if(after.url!==o.url||(after.boundaries?.length||0)>(o.boundaries?.length||0)||after.controls.some(c=>c.visible&&!c.readOnly&&c.actions.length>0&&!o.controls.some(before=>before.instanceId===c.instanceId&&before.visible)))round.entryPath.push(scopeFor(action,o));else if((after.boundaries?.length||0)<(o.boundaries?.length||0))round.entryPath.pop();}
@@ -243,7 +261,11 @@ export class ExplorerPlugin {
       if(sampled&&['skipped','deferred'].includes(sampled.status)){const excluded=sampled.status==='skipped'||sampled.reason?.endsWith('_member_not_selected');this.gap(task,excluded?'sample_unselected':'scope_deferred',scopeFor(action,o),!excluded);continue;}
       if(!permitted(action,o,groups,frontier))this.gap(task,action.exclusionReason||action.preconditions.blockers?.[0]?.code||'operation_unavailable',scopeFor(action,o));
     }
-    const frame=[...round.stack].reverse().find(f=>f.stateId!==o.stateId&&!f.recoveryTried&&f.remaining.some(scope=>!task.plan.some(i=>i.status==='succeeded'&&i.scope.kind&&digest(i.scope)===digest(scope))));
+    const frame=[...round.stack].reverse().find(f=>{
+      if(f.stateId===o.stateId||f.recoveryTried)return false;
+      const source=this.host.observation(sid,f.observationId),actions=this.host.actions(sid,source.id);
+      return f.remaining.some(scope=>{const candidates=actions.filter(a=>matches(scope,a,source));return !candidates.length||candidates.some(a=>!this.wasCompleted(task,a,source));});
+    });
     if(frame) {
       const decision=await this.choose(task,signal,o,'recovery-selection','Should the explorer return to this previously observed checkpoint to investigate remaining branches?',{checkpointId:frame.checkpointId,sourceObservationId:frame.observationId,goal:task.goal},{recover:'Use the host verified checkpoint recovery',uncertain:'Cannot justify recovery'});
       frame.recoveryTried=true;if(decision.value==='uncertain'){this.gap(task,'recovery_unresolved',{url:o.url});return false;}
@@ -258,7 +280,7 @@ export class ExplorerPlugin {
   private entryKey(task:Task,a:ActionCandidate,o:Observation) {return digest({scope:scopeFor(a,o),pending:task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status)).map(i=>i.id).sort()});}
   private neededEntry(task:Task,r:Round,a:ActionCandidate,o:Observation) {
     if(r.reentries.includes(this.entryKey(task,a,o)))return false;
-    const actions=this.host.actions(o.sessionId);return task.plan.some(i=>i.required&&!['succeeded','excluded'].includes(i.status)&&i.prerequisites.some(p=>matches(p,a,o))&&!actions.some(candidate=>matches(i.scope,candidate,o)&&candidate.preconditions.visible&&!candidate.preconditions.blockers?.length));
+    const actions=this.host.actions(o.sessionId);return task.plan.some(i=>i.required&&i.dispatchScope===true&&!['succeeded','excluded'].includes(i.status)&&i.prerequisites.some(p=>matches(p,a,o))&&!actions.some(candidate=>matches(i.scope,candidate,o)&&candidate.preconditions.visible&&!candidate.preconditions.blockers?.length));
   }
   private wasCompleted(task:Task,action:ActionCandidate,o:Observation) {
     // Prior completion is a scheduling reference only, never a new engine success or grant.
@@ -272,7 +294,7 @@ export class ExplorerPlugin {
       const before=this.host.observation(attempt.sessionId,attempt.beforeId);
       if(digest(before.context)!==digest(o.context))return false;
       const old=before.controls.find(c=>c.localId===attempt.action.localId);
-      const currentActions=this.host.actions(o.sessionId).filter(a=>matches(item.scope,a,o));
+      const currentActions=this.host.actions(o.sessionId,o.id).filter(a=>matches(item.scope,a,o));
       if(currentActions.length!==1)return false;
       const current=o.controls.find(c=>c.localId===currentActions[0].localId);
       if(!old||!current)return false;
@@ -304,7 +326,7 @@ export class ExplorerPlugin {
       for(const proposed of followup.value.items) {
         const matched=remaining.find(i=>i.title===proposed.title&&digest(i.scope)===digest(proposed.scope));
         if(matched){matched.prerequisites=proposed.prerequisites;matched.completion=proposed.completion;matched.reason=proposed.reason;}
-        else {const item=this.newItem({...proposed,required:false});item.status='untested';item.reason=`proposed_followup: ${proposed.reason}`;task.plan.push(item);}
+        else {const item=this.newItem({...proposed,required:false},false);item.status='untested';item.reason=`proposed_followup: ${proposed.reason}`;task.plan.push(item);}
       }
       this.router.effect(followup.decision,'followup-plan',{proposals:followup.value.items,plan:task.plan});
     }

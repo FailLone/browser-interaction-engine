@@ -185,3 +185,32 @@ it('preserves configuration, history and total counters while starting a fresh s
  expect(v.decisions.filter(d=>d.sessionId===sid)).toEqual(old.decisions);
  }finally{await plugin.close();await f.close();}
 });
+
+it.each([true,false])('finishes the exact settings flow without recovery or touching unrelated controls (named select: %s)',async(namedSelect)=>{
+ const f=await explorerFixture('<button type="button" aria-controls="settings" onclick="document.querySelector(\'dialog\').showModal()">Other settings</button><button type="button" onclick="this.textContent=\'WRONG\'">Unrelated</button><select aria-label="Unrelated choice"><option>AAA</option><option>BBB</option></select><div style="height:1500px"></div><dialog id="settings" aria-label="Other settings"><select aria-label="Time in force"><option>GTC</option><option>IOC</option></select><button type="button" onclick="document.querySelector(\'dialog\').close()">Done</button></dialog>');
+ const p=fakeProviders(f.url),original=p.jev.decide;
+ const scopes=[{url:f.url,label:'Other settings',role:'button',kind:'click'},{url:f.url,...(namedSelect?{label:'Time in force',role:'combobox'}:{}),kind:'select',value:'IOC'},{url:f.url,label:'Done',role:'button',kind:'click'}];
+ p.llm.decide=async()=>({model:'mock',value:{items:scopes.map((scope,index)=>({title:scope.label||'Select IOC',scope,prerequisites:index?[scopes[index-1]]:[],completion:'Observe the requested transition',required:true,reason:'Explicit user target'}))}});
+ p.jev.decide=async(r,s)=>r.purpose==='recovery-selection'?{model:'mock',value:'uncertain',confidence:.6}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'Open settings, select IOC, close settings only',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,modelRequests:30}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+ expect(v.task.status,JSON.stringify(v.task)).toBe('completed');expect(v.task.usage.actions).toBe(3);
+ const attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');expect(attempts.map(a=>[a.action.label,a.action.value])).toEqual([['Other settings',undefined],['Time in force','IOC'],['Done',undefined]]);
+ expect(v.decisions.some(d=>d.purpose==='recovery-selection')).toBe(false);
+ expect(v.decisions.filter(d=>d.purpose==='control-risk').every(d=>!JSON.stringify(d.request.state).includes('Unrelated'))).toBe(true);
+ expect(v.task.plan.filter(i=>i.dispatchScope).map(i=>i.scope.label)).toEqual(['Other settings',namedSelect?'Time in force':undefined,'Done']);
+ expect(v.task.plan.filter(i=>i.required&&i.status!=='succeeded')).toEqual([]);
+ }finally{await plugin.close();await f.close();}
+});
+it('restores legacy authority from the original plan, never from a page gap or derived outside target',async()=>{
+ const f=await explorerFixture(),p=fakeProviders(f.url,{url:f.url,label:'Alpha',kind:'click'}),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'Only Alpha',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:2}});plugin.start(t.id);await plugin.waitForIdle();const saved=plugin.store.task(t.id);
+ const originalId=saved.plan[0].id;saved.status='paused';saved.rounds[0].status='paused';
+ saved.plan.push({...structuredClone(saved.plan[0]),id:'legacy-gap',scope:{url:f.url},status:'unresolved',reason:'recovery_unresolved',resolvedBy:undefined,attempts:[],evidence:[]});
+ saved.plan.push({...structuredClone(saved.plan[0]),id:'legacy-outside',scope:{url:f.url,label:'Beta',kind:'click'},status:'pending',reason:'observed_in_scope',resolvedBy:undefined,attempts:[],evidence:[]});
+ for(const item of saved.plan)delete item.dispatchScope;plugin.store.save(saved);plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+ expect(v.task.plan.find(i=>i.id===originalId)?.dispatchScope).toBe(true);expect(v.task.plan.find(i=>i.id==='legacy-gap')?.dispatchScope).toBe(false);expect(v.task.plan.find(i=>i.id==='legacy-outside')?.dispatchScope).toBe(false);
+ expect(v.task.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt')).map(a=>a.action.label)).toEqual(['Alpha']);
+ expect(v.events.some(e=>e.type==='plan.authority_restored')).toBe(true);expect(v.task.plan.find(i=>i.id==='legacy-gap')?.status).toBe('unresolved');
+ }finally{await plugin.close();await f.close();}
+});

@@ -11,6 +11,16 @@ export function matches(scope:Scope,action:ActionCandidate,o:Observation) {
   const actual=scopeFor(action,o);
   return Object.entries(scope).every(([key,value])=>JSON.stringify(actual[key as keyof Scope])===JSON.stringify(value));
 }
+/** Only page/region scopes imply discovery navigation; an unnamed operation is still bounded. */
+export const broadScope=(scope:Scope)=>!scope.label&&!scope.role&&!scope.stableKey&&!scope.kind&&scope.value===undefined;
+export function controlInScope(scope:Scope,control:Observation['controls'][number],o:Observation,actions:ActionCandidate[]) {
+  if(actions.some(a=>a.localId===control.localId&&matches(scope,a,o)))return true;
+  // A named target may need classification before candidates exist. An operation-only
+  // target must bind to a real candidate; dropping kind/value would match the entire page.
+  if((scope.kind||scope.value!==undefined)&&!scope.label&&!scope.stableKey)return false;
+  const actual:Scope={url:o.url,region:o.regions.find(r=>r.key===control.region)?.label,label:control.name||control.label,role:control.role,stableKey:control.stableKey};
+  return Object.entries(scope).filter(([key])=>!['kind','value'].includes(key)).every(([key,value])=>actual[key as keyof Scope]===value);
+}
 export function keyFor(action:ActionCandidate,o:Observation){return digest({scope:scopeFor(action,o),context:o.context,...(action.kind==='scroll'?{position:action.value}:{})});}
 export function permitted(action:ActionCandidate,o:Observation,groups:ExplorationGroup[],frontier:FrontierItemView[]) {
   if(o.gaps.some(g=>g.critical))return false;
@@ -26,11 +36,12 @@ export function permitted(action:ActionCandidate,o:Observation,groups:Exploratio
   return true;
 }
 export function includesScope(plan:PlanItem[],action:ActionCandidate,o:Observation):'target'|'prerequisite'|undefined {
-  if(action.kind==='scroll'&&!plan.some(i=>i.required&&i.scope.kind==='scroll'&&matches(i.scope,action,o))&&plan.some(i=>i.required&&!i.scope.label&&(!i.scope.url||i.scope.url===o.url)))return 'prerequisite';
-  if(o.boundaries?.length&&action.boundary?.intent==='exit'&&!plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o)))return 'prerequisite';
-  const explicit=plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&i.status!=='excluded'&&matches(i.scope,action,o));
+  const allowed=plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='excluded');
+  if(action.kind==='scroll'&&!allowed.some(i=>i.scope.kind==='scroll'&&matches(i.scope,action,o))&&allowed.some(i=>broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url)))return 'prerequisite';
+  if(o.boundaries?.length&&action.boundary?.intent==='exit'&&!allowed.some(i=>i.scope.label&&i.scope.kind&&matches(i.scope,action,o)))return 'prerequisite';
+  const explicit=allowed.some(i=>i.scope.label&&i.scope.kind&&matches(i.scope,action,o));
   if(!explicit&&plan.some(i=>!i.required&&['untested','excluded'].includes(i.status)&&matches(i.scope,action,o)))return;
-  if(plan.some(i=>i.required&&i.status!=='excluded'&&matches(i.scope,action,o)))return 'target';
-  if(plan.some(i=>i.required&&!['succeeded','excluded'].includes(i.status)&&i.prerequisites.some(p=>matches(p,action,o))))return 'prerequisite';
+  if(allowed.some(i=>matches(i.scope,action,o)))return 'target';
+  if(allowed.some(i=>i.status!=='succeeded'&&i.prerequisites.some(p=>matches(p,action,o))))return 'prerequisite';
   if(o.boundaries?.length&&action.boundary?.intent==='exit')return 'prerequisite';
 }

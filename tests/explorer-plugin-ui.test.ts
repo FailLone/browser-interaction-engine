@@ -22,7 +22,7 @@ it('integrates autonomous exploration, interleaves JEV/LLM decisions and restore
  await timeline.getByRole('button').filter({hasText:'识别探索区域'}).first().click();
  await page.getByRole('tab',{name:'决策影响',exact:true}).click();
  expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('不排除候选');
- expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('evidence-routing-v2');
+ expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('evidence-routing-v3');
  await page.getByRole('tab',{name:'输出',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'模型输出'}).innerText()).toContain('include');
  await page.getByRole('button',{name:'返回页面证据'}).click();
  expect(await page.getByLabel('遍历范围',{exact:true}).inputValue()).toBe('all');

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { ActionCandidate, IdentityHypothesis, ControlIdentity, Observation, ExplorationGroup, PurposeReview } from '@interaction/browser';
 import type { ExplorerHost, Task, ModelRequest, Decision, Scope } from './types.js';
 import { jsonSchema } from './schema.js';
-import { digest, matches } from './policy.js';
+import { digest, matches, includesScope, broadScope, controlInScope } from './policy.js';
 
 export interface ReviewContext {
   host:ExplorerHost;task:Task;observation:Observation;
@@ -20,11 +20,19 @@ const source='explorer-plugin';
 export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const {host,task,observation:o}=c;const sid=o.sessionId;const round=task.rounds.at(-1)!;
   const done=(key:string)=>round.reviewed.includes(key);const mark=(key:string)=>round.reviewed.push(key);
+  const available=host.actions(sid);
+  const pendingPlan=task.plan.filter(i=>i.status!=='succeeded');
+  const relevant=(control:Observation['controls'][number])=>{
+    if(available.some(a=>a.localId===control.localId&&includesScope(pendingPlan,a,o)))return true;
+    return pendingPlan.some(i=>i.required&&i.dispatchScope===true&&[i.scope,...i.prerequisites].some(scope=>controlInScope(scope,control,o,available)));
+  };
+  const relevantIds=new Set(o.controls.filter(relevant).map(c=>c.localId));
   const region=host.regionReviewMaterial(sid);
-  if(region.enabled&&(region.unassignedControlIds.length||region.unassignedPageTraversal)) {
+  const broad=pendingPlan.some(i=>i.required&&i.dispatchScope===true&&broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url));
+  if(region.enabled&&(region.unassignedControlIds.some(id=>relevantIds.has(id))||(region.unassignedPageTraversal&&broad))) {
     const key=digest({type:'regions',instance:o.instanceScope,candidates:region.candidates,unassigned:region.unassignedControlIds,review:region.review&&{id:region.review.id,regions:region.review.regions.map(r=>r.status)}});
     if(!done(key)) {
-      const candidate=region.candidates.find(r=>r.controlIds.some(id=>region.unassignedControlIds.includes(id)));
+      const candidate=region.candidates.find(r=>r.controlIds.some(id=>relevantIds.has(id)&&region.unassignedControlIds.includes(id)));
       if(candidate) {
         const d=await c.choose('region-review','Should this observed region be an exploration scope for the task? This is grouping, not action permission.',{observationId:o.id,goal:task.goal,candidate,controls:region.controls.filter(x=>candidate.controlIds.includes(x.localId))},{include:'Recognized coherent exploration region',uncertain:'Cannot decide its role'});
         if(d.value==='uncertain'&&await c.refresh(d.decision,`region:${o.instanceScope}:${candidate.id}`))return true;
@@ -39,7 +47,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     }
   }
   const classifications=host.controlClassificationMaterial(sid);
-  for(const item of classifications.controls.filter(i=>i.needsClassification)) {
+  for(const item of classifications.controls.filter(i=>i.needsClassification&&relevantIds.has(i.control.localId))) {
     const key=digest({type:'classification',instance:o.instanceScope,control:item.control,reviews:item.classifications.map(r=>[r.id,r.status])});if(done(key))continue;
     const positiveBasis=item.control.editable||Object.entries(item.control.actionBasis||{}).some(([kind,basis])=>['click','fill','select','check','press','hover'].includes(kind)&&basis.status==='supported');
     const blockedOptions=positiveBasis||!item.control.classificationBinding||item.control.classificationBinding.truncated?['display','container']:[];
@@ -51,7 +59,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(d.value==='uncertain')c.gap('classification_unresolved',{url:o.url,label:item.control.label,role:item.control.role});
     return true;
   }
-  for(const h of host.list<IdentityHypothesis>(sid,'hypothesis').filter(h=>h.status==='pending'&&o.controls.some(x=>x.hypothesisId===h.id))) {
+  for(const h of host.list<IdentityHypothesis>(sid,'hypothesis').filter(h=>h.status==='pending'&&o.controls.some(x=>x.hypothesisId===h.id&&relevantIds.has(x.localId)))) {
     const key=`identity:${h.id}`;if(done(key))continue;
     const identities=host.list<ControlIdentity>(sid,'identity');
     const candidates=h.candidateIds.map(id=>{const identity=identities.find(x=>x.id===id);const occurrence=identity?.occurrences.at(-1);let historical:unknown;try{if(occurrence)historical=host.observation(sid,occurrence.observationId).controls.find(x=>x.localId===occurrence.localId);}catch{}return {id,occurrence,historical};});
@@ -64,7 +72,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     await c.apply(d.decision,{type:'resolveIdentity',hypothesisId:h.id,identityId:d.value==='independent'?h.provisionalIdentityId:d.value,source,evidence:evidence(d.decision),guard:{observationId:o.id,revision:h.revisions.length}});return true;
   }
   const control=host.controlReviewMaterial(sid);
-  for(const item of control.controls.filter(i=>i.needsReview)) {
+  for(const item of control.controls.filter(i=>i.needsReview&&relevantIds.has(i.control.localId))) {
     const key=digest({type:'control',instance:o.instanceScope,control:item.control,reviews:item.reviews.map(r=>[r.id,r.status]),actions:item.actions.map(a=>({kind:a.kind,risk:a.risk,value:a.value,basis:a.basis}))});if(done(key))continue;
     // Never turn an explicitly submitting action into an interface action.
     const supported=item.actions.filter(a=>a.risk!=='submission');
@@ -95,7 +103,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     const key=`group:${group.id}:${group.revision}`;if(done(key))continue;
     // Groups retain prior observations and pre-review action cases. Only current candidates can be selected.
     const actions=host.actions(sid);const members=group.members.filter(m=>actions.some(a=>a.id===m.actionId));
-    if(!members.length){mark(key);continue;}
+    if(!members.length||!members.some(m=>includesScope(pendingPlan,actions.find(a=>a.id===m.actionId)!,o))){mark(key);continue;}
     const explicit=members.some(m=>{const action=actions.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
     const allowedReductions=task.coverageMode==='representative'&&!explicit?['sample']:[];
     const d=await c.choose('scope-review','Choose exhaustive traversal or representative sampling of current observed members. Sampling requires the supplied user permission; every omitted member remains untested. Never skip a group based only on confidence. Program scope matching still limits execution to the selected task.',{observationId:o.id,goal:task.goal,coverageMode:task.coverageMode||'all',allowedReductions,plan:task.plan,group:{...group,members,historicalMemberCount:group.members.length-members.length}},
@@ -121,7 +129,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     return true;
   }
   // Purpose evidence is reviewed proactively, even if DFS would never pause here.
-  for(const group of material.groups.filter(g=>g.kind==='similar-list')) {
+  for(const group of material.groups.filter(g=>g.kind==='similar-list'&&g.members.some(m=>available.some(a=>a.id===m.actionId&&includesScope(pendingPlan,a,o))))) {
     const p=host.purposeReviewMaterial(sid,group.id);
     const active=host.list<PurposeReview>(sid,'purpose-review').filter(r=>r.status==='active');
     for(const condition of p.conditions) {
@@ -136,9 +144,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   // Probe only classified targets; each probe remains subject to host preflight.
   const classified=host.controlClassificationMaterial(sid);
   for(const item of classified.controls)if(item.classifications.some(r=>r.status==='active'&&r.classification==='probe_required')) {
-    const region=o.regions.find(r=>r.key===item.control.region)?.label;
-    const actual={url:o.url,label:item.control.label,role:item.control.role,stableKey:item.control.stableKey,region};
-    if(!task.plan.some(p=>p.required&&[p.scope,...p.prerequisites].some(scope=>Object.entries(scope).filter(([key])=>!['kind','value'].includes(key)).every(([key,value])=>actual[key as keyof typeof actual]===value))))continue;
+    if(!relevant(item.control))continue;
     const key=`probe:${o.instanceScope}:${item.control.instanceId}`;if(done(key))continue;
     const d=await c.choose('probe-selection','Choose a bounded observation probe if it can reveal interaction evidence.',{observationId:o.id,control:item.control},{hover:'Observe hover effect',focus:'Observe focus effect',uncertain:'Cannot select a useful probe'});mark(key);
     if(d.value==='uncertain'){c.gap('probe_unresolved',{url:o.url,label:item.control.label});continue;}
