@@ -1,0 +1,40 @@
+{
+  "observationId": "b9d44a7d-ea4d-444b-a459-858971dd64ac",
+  "source": "gpt-5.6-sol/low",
+  "reviews": [],
+  "resolutions": [
+    {
+      "groupId": "88cb2b82-ff08-4935-b594-09452bda94e9",
+      "revision": 3,
+      "decision": {
+        "mode": "sample",
+        "memberKeys": [
+          "563a776e3e9e1c12fd4979b3c20feab61ef038bd6d48b48a285c1e994a3db85c"
+        ],
+        "source": "gpt-5.6-sol/low",
+        "evidence": [
+          "The current header Spot group is 88cb2b82-ff08-4935-b594-09452bda94e9 at revision 3 after the defer decision and BTC/USDT review.",
+          "Member key 563a776e3e9e1c12fd4979b3c20feab61ef038bd6d48b48a285c1e994a3db85c belongs to current observation b9d44a7d-ea4d-444b-a459-858971dd64ac, localId :2331, and the reviewed BTC/USDT action.",
+          "The active review is bound to the same header structural owner and href /trade-spot/btc-usdt; the current control remains visible, enabled, hittable, target-resolved, and blocker-free.",
+          "The screenshot still shows the same six-row Spot market list, so one representative navigation sample remains appropriate without exhaustive destination traversal.",
+          "The other five current members have empty attemptIds and remain awaiting a group decision; this sample does not mark their destinations executed or individually covered."
+        ]
+      }
+    }
+  ],
+  "nextAction": {
+    "localId": "108031c4-7000-484a-a895-6d16978f3cf5:2331",
+    "kind": "click",
+    "reason": "Execute only the selected current BTC/USDT member. Verify arrival at /trade-spot/btc-usdt, then apply a fresh page-scope skip on B, use only a necessary exit control, and return to BTC-to-USD."
+  },
+  "verified": [
+    "Session actionCount remains 3 and the successful attempts are only Close, Trade, and Open Spot sub-menu; no market row has been clicked.",
+    "The prior BTC key b9937fb26544db2b50295ae408c50c675d0232f177c774ab4bae1a65ebc0a749 belongs to the earlier observation and is not selected.",
+    "ETH/USDT, UNI/USDT, LINK/USDT, AVAX/USDT, and USDC/USDT all have empty attemptIds."
+  ],
+  "unresolved": [
+    "The five unselected destinations remain unexecuted and individually uncovered after sampling.",
+    "Destination B scope and any exit-only control require fresh B-page evidence; no trading or preference operation is authorized.",
+    "The rest of the entry-page audit remains pending after return to A."
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "sourceChangedAfterStart": [],
+  "note": "Package and workbench runtime source hashes are compared with the implementation exported for review; documents/tests are not runtime inputs."
+}

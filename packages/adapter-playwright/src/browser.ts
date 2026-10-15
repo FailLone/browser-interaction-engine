@@ -4,6 +4,7 @@ import type { EvidenceStore, InteractionDriver, HookInvoker } from '@interaction
 import { canonical, timeout, hash } from '@interaction/core';
 import { observableCanonical } from './model.js';
 import { interactionProjection } from './exploration.js';
+import { activeInteractionIds, interactionScope, boundaryBinding, targetFacts } from './interaction-scope.js';
 import type { Session, EngineHooks } from './types.js';
 import { constrain } from './policy.js';
 import { id } from './util.js';
@@ -318,7 +319,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
           const incomplete = dom.gaps.some(g => ['DOM_ROOT_UNAVAILABLE', 'DOCUMENT_LOADING'].includes(g.code));
           const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
           if (key !== previous || incomplete) { previous = key; unchangedSince = Date.now(); }
-          const interactive = interactionProjection(dom) + canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) + canonical(dom.structuralLists);
+          const scoped = interactionScope(dom);
+          const interactive = interactionProjection(scoped) + boundaryBinding(dom) + canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) + canonical(scoped.structuralLists);
           if (interactive !== previousInteraction || incomplete) { previousInteraction = interactive; interactionSince = Date.now(); }
           interactionStable = !incomplete && Date.now() - interactionSince >= this.options.settleMs;
           if (!incomplete && Date.now() - unchangedSince >= this.options.settleMs) { stable = true; break; }
@@ -334,7 +336,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         try {
           const detailed = await timeout(this.readDOM(true), this.options.observeTimeoutMs, 'Detailed DOM capture deadline exceeded');
           if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId || canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(detailed.regionCandidates?.map(c => [c.id, c.binding])) || canonical(dom.structuralLists) !== canonical(detailed.structuralLists)) {
-            interactionStable &&= interactionProjection(dom) === interactionProjection(detailed) && canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) === canonical(detailed.regionCandidates?.map(c => [c.id, c.binding])) && canonical(dom.structuralLists) === canonical(detailed.structuralLists);
+            interactionStable &&= interactionProjection(interactionScope(dom)) === interactionProjection(interactionScope(detailed)) && boundaryBinding(dom) === boundaryBinding(detailed) && canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) === canonical(detailed.regionCandidates?.map(c => [c.id, c.binding])) && canonical(interactionScope(dom).structuralLists) === canonical(interactionScope(detailed).structuralLists);
             stable = false;
             const critical = !(this.options.exploration === 'controls' && interactionStable);
             dom = detailed;
@@ -358,7 +360,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (captureRetries) gaps.push({ code: 'EVIDENCE_CAPTURE_RETRIED', message: `Re-sampled after ${captureRetries} change(s) during detailed capture; the browser action was not repeated` });
     if (lastError) gaps.push({ code: 'DOM_CAPTURE_FAILED', message: lastError, critical: true });
     if (!stable) gaps.push({ code: 'UNSTABLE', message: 'Page did not settle within the observation budget', critical: !(this.options.exploration === 'controls' && interactionStable) });
-    if (!stable && this.options.exploration === 'controls' && interactionStable) gaps.push({ code: 'INTERACTION_STABLE', message: 'Supported interactive controls settled; passive display changes remain in the full observation' });
+    if (!stable && this.options.exploration === 'controls' && interactionStable) gaps.push({ code: 'INTERACTION_STABLE', message: 'Current interaction controls settled; other display changes remain in the full observation' });
     const context: Context = Object.fromEntries(Object.entries(this.options.context).map(([k, value]) => [k, { value, status: 'known', source: 'declared' }]));
     for (const rule of this.options.contextRules) {
       try {
@@ -520,41 +522,58 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (o.overlays?.length) add('press', 'Escape');
     return actions;
   }
-  async preflight(current: Observation, targetLocalIds: string[] = []): Promise<'valid' | 'stale' | 'context_changed'> {
+  async preflight(current: Observation, targetLocalIds: string[] = [], action?: ActionCandidate): Promise<'valid' | 'stale' | 'context_changed'> {
     let live: Awaited<ReturnType<BrowserAdapter['readDOM']>>;
     try { live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
     if (live.gaps.some(g => g.critical)) return 'stale';
+    let liveHistory: BrowserHistory | undefined;
     if (current.navigation) {
-      try { if (canonical(historyPosition(current.navigation)) !== canonical(historyPosition(await this.readHistory(live.documentId)))) return 'stale'; }
+      try { liveHistory=await this.readHistory(live.documentId);if (canonical(historyPosition(current.navigation)) !== canonical(historyPosition(liveHistory))) return 'stale'; }
       catch { return 'stale'; }
     }
-    if (canonical(live.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(current.regionCandidates?.map(c => [c.id, c.binding]))) return 'stale';
-    if(canonical(live.structuralLists)!==canonical(current.structuralLists))return 'stale';
-    const liveCanonical = observableCanonical({ ...current, ...live, context: current.context, gaps: current.gaps });
-    const listOwners = new Map(current.controls.map(c => [c.instanceId, c.list]));
-    if (live.controls.some(c => canonical(c.list) !== canonical(listOwners.get(c.instanceId)))) return 'stale';
-    const purposeBindings = new Map(current.controls.map(c => [c.instanceId, c.purposeBinding]));
-    if (live.controls.some(c => canonical(c.purposeBinding) !== canonical(purposeBindings.get(c.instanceId)))) return 'stale';
-    const reviewTargets = new Set(targetLocalIds);
-    const reviewedControls = new Map(current.controls.map(c=>[c.instanceId,c]));
-    // Passive read-only labels may refresh continuously. They are evidence,
-    // not a reason to reject another target; explicitly reviewed/acted targets
-    // still require their complete binding even when read-only.
-    if (live.controls.some(c=>{
-      const before=reviewedControls.get(c.instanceId);
-      return (!c.readOnly||!before?.readOnly||reviewTargets.has(c.localId))&&canonical(c.reviewBinding)!==canonical(before?.reviewBinding);
-    })) return 'stale';
-    if (this.options.decisionScopes?.length) {
-      const owners = (regions: Region[]) => regions.map(({ key, instanceId, role, label, selector, parentKey }) => ({ key, instanceId, role, label, selector, parentKey }));
-      if (canonical(owners(live.regions)) !== canonical(owners(current.regions))) return 'stale';
-      const bindings = new Map(current.controls.map(c => [c.instanceId, c.regionInstanceId]));
-      if (live.controls.some(c => c.regionInstanceId !== bindings.get(c.instanceId))) return 'stale';
-    }
-    const changed = this.options.exploration === 'controls' ? interactionProjection(live) !== interactionProjection(current)
-      : liveCanonical !== current.canonical || live.controls.some((c, i) => c.instanceId !== current.controls[i]?.instanceId);
-    if (changed) {
-      return 'stale';
+    // A native history return dispatches no DOM control. It still binds the exact
+    // observed document, URL, history entries and declared context; it is not a
+    // claim that the destination has returned to a prior UI or business state.
+    const returning=!!action&&action.observationId===current.id&&!!historyTarget(action,current.navigation)&&!!historyTarget(action,liveHistory);
+    if(returning){
+      if(current.documentId!==live.documentId||current.url!==live.url||current.boundaries?.length||live.boundaries.length)return 'stale';
+    } else {
+      if (canonical(live.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(current.regionCandidates?.map(c => [c.id, c.binding]))) return 'stale';
+      const activeIds=activeInteractionIds(current);
+      const escapeExit=action?.kind==='press'&&action.value==='Escape'&&!action.controlId&&!action.localId&&action.boundary?.intent==='exit'&&action.boundary.key===current.boundaries?.at(-1)?.key;
+      const scoped=this.options.exploration==='controls'&&!!activeIds&&(escapeExit||targetLocalIds.length>0&&targetLocalIds.every(id=>activeIds.has(id)));
+      if(boundaryBinding(live)!==boundaryBinding(current))return 'stale';
+      // All current target facts remain exact, including weak/custom operation targets.
+      if(targetLocalIds.some(id=>canonical(targetFacts(current.controls.find(c=>c.localId===id)))!==canonical(targetFacts(live.controls.find(c=>c.localId===id)))))return 'stale';
+      const relevantCurrent=scoped?interactionScope(current):current;
+      const relevantLive=scoped?interactionScope(live):live;
+      if(canonical(relevantLive.structuralLists)!==canonical(relevantCurrent.structuralLists))return 'stale';
+      const liveCanonical = observableCanonical({ ...current, ...live, context: current.context, gaps: current.gaps });
+      const listOwners = new Map(relevantCurrent.controls.map(c => [c.instanceId, c.list]));
+      if (relevantLive.controls.some(c => canonical(c.list) !== canonical(listOwners.get(c.instanceId)))) return 'stale';
+      const purposeBindings = new Map(relevantCurrent.controls.map(c => [c.instanceId, c.purposeBinding]));
+      if (relevantLive.controls.some(c => canonical(c.purposeBinding) !== canonical(purposeBindings.get(c.instanceId)))) return 'stale';
+      const reviewTargets = new Set(targetLocalIds);
+      const reviewedControls = new Map(relevantCurrent.controls.map(c=>[c.instanceId,c]));
+      // Passive read-only labels may refresh continuously. They are evidence,
+      // not a reason to reject another target; explicitly reviewed/acted targets
+      // still require their complete binding even when read-only.
+      if (relevantLive.controls.some(c=>{
+        const before=reviewedControls.get(c.instanceId);
+        return (!c.readOnly||!before?.readOnly||reviewTargets.has(c.localId))&&canonical(c.reviewBinding)!==canonical(before?.reviewBinding);
+      })) return 'stale';
+      if (this.options.decisionScopes?.length) {
+        const owners = (regions: Region[]) => regions.map(({ key, instanceId, role, label, selector, parentKey }) => ({ key, instanceId, role, label, selector, parentKey }));
+        if (canonical(owners(live.regions)) !== canonical(owners(current.regions))) return 'stale';
+        const bindings = new Map(current.controls.map(c => [c.instanceId, c.regionInstanceId]));
+        if (live.controls.some(c => c.regionInstanceId !== bindings.get(c.instanceId))) return 'stale';
+      }
+      const changed = this.options.exploration === 'controls' ? interactionProjection(relevantLive) !== interactionProjection(relevantCurrent)
+        : liveCanonical !== current.canonical || live.controls.some((c, i) => c.instanceId !== current.controls[i]?.instanceId);
+      if (changed) {
+        return 'stale';
+      }
     }
     // Context rules must be re-read even when their DOM node is not an interactive control.
     for (const rule of this.options.contextRules) {

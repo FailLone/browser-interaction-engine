@@ -394,7 +394,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (original.excluded && original.exclusionReason !== 'input_sample_required') throw new EngineError('ACTION_EXCLUDED', original.exclusionReason || 'Action excluded');
     if (original.basis?.status === 'tentative' && purpose !== 'external') throw new EngineError('ACTION_BLOCKED', 'action_basis_unconfirmed');
     if (!this.targetResolved(original, current)) throw new EngineError('IDENTITY_AMBIGUOUS', 'Resolve the identity before acting');
-    const preflight = await this.driver!.preflight(current, original.localId ? [original.localId] : []);
+    const preflight = await this.driver!.preflight(current, original.localId ? [original.localId] : [], original);
     if (preflight !== 'valid') {
       const fresh = await this.capture(sessionId, 'external');
       throw new EngineError(preflight === 'context_changed' ? 'PRECONDITIONS_CHANGED' : 'STALE_OBSERVATION', 'Interaction source changed before execution', { observationId: fresh.id, actions: this.actions(sessionId) });

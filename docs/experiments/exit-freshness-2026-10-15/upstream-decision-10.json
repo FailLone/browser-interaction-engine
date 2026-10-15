@@ -1,0 +1,40 @@
+{
+  "observationId": "380ecc61-663f-4e20-b540-b45209a4f697",
+  "source": "gpt-5.6-sol/low",
+  "reviews": [],
+  "resolutions": [
+    {
+      "groupId": "5a31cbe0-82a0-47c0-bf22-14163473df4d",
+      "revision": 2,
+      "decision": {
+        "mode": "sample",
+        "memberKeys": [
+          "806a3e4113d3e781c25332e0f69af4ba2911cf07d002f87287097e2f0eb326e0"
+        ],
+        "source": "gpt-5.6-sol/low",
+        "evidence": [
+          "The current screenshot shows one chart-period tab row with 1h, 24h, 1W, 1M, 1Y, and 2Y; 24h is currently selected.",
+          "All six current-observation members share owner localId b7389b07-1803-420c-8b9d-2808d9fc38e8:592 and the same tab interaction structure, supporting treatment as one similar functional range.",
+          "The current 1h member is visible, enabled, hittable, unselected, and has supported ARIA tab activation with no blocker.",
+          "Selecting one unselected period is sufficient for a bounded check of the common chart-period switching interaction; it does not establish coverage of the other five periods individually."
+        ]
+      }
+    }
+  ],
+  "nextAction": {
+    "localId": "b7389b07-1803-420c-8b9d-2808d9fc38e8:586",
+    "kind": "click",
+    "reason": "Click the current 1h chart-period tab as the sole sample. Verify that selection moves from 24h to 1h and that the chart/time range changes while the BTC-to-USD URL and current document remain on entry page A."
+  },
+  "verified": [
+    "The returned entry page A is currently visible without the region prompt, and the observation is stable with no modal blocker.",
+    "The 1h target is a chart-period tab rather than a navigation link, preference control, login, wallet, or transaction submission control.",
+    "No new control-purpose review is required for this current tab action, so the current revision-2 member key can be used without a review-only refresh cycle."
+  ],
+  "unresolved": [
+    "After execution, a fresh observation is required to confirm the 1h selected state and chart response; dispatch success alone is not proof of the UI effect.",
+    "The remaining 24h, 1W, 1M, 1Y, and 2Y members are not executed by this sample decision and must not be reported as individually covered.",
+    "Other pending entry-page controls and structural groups remain in the full-page inspection scope.",
+    "Chart canvas internals and any controls whose purpose is not established by the current materials remain unresolved."
+  ]
+}
