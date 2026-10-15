@@ -17,10 +17,15 @@ export const evidenceOptionsSchema = z.object({
   }).strict().prefault({});
 export const regionReviewSchema = z.object({
   observationId: z.string().min(1), source: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1),
-  regions: z.array(z.object({ key: z.string().trim().min(1), label: z.string().trim().min(1), candidateIds: z.array(z.string().min(1)).min(1), controlIds: z.array(z.string().min(1)).optional(), pageTraversal: z.boolean().default(false) }).strict()).max(500),
+  regions: z.array(z.object({ key: z.string().trim().min(1), label: z.string().trim().min(1), candidateIds: z.array(z.string().min(1)).min(1), controlIds: z.array(z.string().min(1)).optional(), pageTraversal: z.boolean().default(false), reuse: z.object({ binding: z.literal('same-url-context'), businessScope: z.string().trim().min(1) }).strict().optional() }).strict()).max(500),
   rejectedCandidateIds: z.array(z.string().min(1)).optional(),
   update: z.object({ baseReviewId: z.string().min(1), removeRegionKeys: z.array(z.string().min(1)).max(500).default([]) }).strict().optional(),
 }).strict();
+export const reuseRegionReviewsSchema = z.object({
+  observationId: z.string().min(1), baseReviewId: z.string().min(1), source: z.string().trim().min(1), businessScope: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1).max(100),
+  regions: z.array(z.object({reviewId:z.string().min(1),regionKey:z.string().min(1),conditionKey:z.string().min(1)}).strict()).min(1).max(500),
+}).strict();
+export const revokeRegionReuseSchema = z.object({reviewId:z.string().min(1),regionKey:z.string().min(1),source:z.string().trim().min(1),reason:z.string().trim().min(1)}).strict();
 export const sessionSchema = z.object({
   url: z.url().refine(v => ['http:', 'https:'].includes(new URL(v).protocol), 'Only HTTP(S) URLs are supported'),
   headless: z.boolean().default(false), viewport: z.object({ width: z.number().int().min(320).max(3840), height: z.number().int().min(240).max(2160) }).default({ width: 1440, height: 900 }),
@@ -50,6 +55,8 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({type:z.literal('revokeControlReview'),revocation:revokeControlReviewSchema}).strict(),
   z.object({ type: z.literal('reviewBoundaryExit'), review: boundaryExitReviewSchema }).strict(),
   z.object({ type: z.literal('reviewRegions'), review: regionReviewSchema }).strict(),
+  z.object({ type: z.literal('reuseRegionReviews'), review: reuseRegionReviewsSchema }).strict(),
+  z.object({ type: z.literal('revokeRegionReuse'), revocation: revokeRegionReuseSchema }).strict(),
   z.object({ type: z.literal('reviewListPurpose'), review: listPurposeReviewSchema }).strict(),
   z.object({ type: z.literal('revokePurposeReview'), revocation: revokePurposeReviewSchema }).strict(),
   z.object({ type: z.literal('probe'), observationId: z.string().min(1), localId: z.string().min(1), kind: z.enum(['hover', 'focus']), requestId: z.string().trim().min(1) }).strict(),

@@ -776,7 +776,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (o.overlays?.length) add('press', 'Escape');
     return actions;
   }
-  async preflight(current: Observation, action?: ActionCandidate, reviewTargetLocalIds: string[] = [], reuseTargetLocalIds: string[] = []): Promise<PreflightResult> {
+  async preflight(current: Observation, action?: ActionCandidate, reviewTargetLocalIds: string[] = [], reuseTargetLocalIds: string[] = [], regionReuseCandidateIds: string[] = []): Promise<PreflightResult> {
     let live: Awaited<ReturnType<BrowserAdapter['readDOM']>>;
     try { live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
@@ -807,6 +807,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       return candidate && exitCandidateKey(candidate) === ref.facts.binding && Array.isArray(preserved)
         && preserved.every(p => preservedControlFacts(live.controls.find(c => c.localId === p.localId)) === p.facts) ? 'valid' : 'stale';
     }
+    if (regionReuseCandidateIds.some(id=>canonical(current.regionCandidates?.find(c=>c.id===id)?.reuseBinding)
+      !== canonical(live.regionCandidates?.find(c=>c.id===id)?.reuseBinding))) return 'stale';
     const reviewTargets = new Set([...reviewTargetLocalIds, ...(action?.localId ? [action.localId] : [])]);
     const reuseTargets = new Set([...reuseTargetLocalIds, ...(action?.localId && action.basis?.evidence.some(e => e.rule === 'reused-control-review/v1') ? [action.localId] : [])]);
     if ([...reuseTargets].some(id => canonical(current.controls.find(c => c.localId === id)?.reviewReuseBinding)

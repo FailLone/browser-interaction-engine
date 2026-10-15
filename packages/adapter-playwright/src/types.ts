@@ -52,15 +52,28 @@ export interface Control extends CoreControl {
 export interface RegionCandidate {
   id: string; label: string; selector: string; parentId?: string; controlIds: string[]; rect: Rect;
   basis: 'heading' | 'semantic' | 'layout' | 'document'; suggested?: boolean; binding: Json; evidence: ActionEvidence[];
+  /** Bounded, instance-independent evidence; absent means no reusable partition proof. */
+  reuseBinding?: Json;
 }
 export interface StructuralListCandidate {
   ownerInstanceId:string; ownerSelector:string; label:string; template:string; binding:Json;
   members:{localId:string;rowInstanceId:string;slot:string;recordKey?:string}[];
   traversalLocalIds:string[]; evidence:ActionEvidence[];
 }
+export interface RegionReusePolicy { binding: 'same-url-context'; businessScope: string }
+export interface RegionReuseConditions { version: 'region-review-reuse/v1'; url: string; context: Context; anchors: { binding: Json; selectedIndices: number[] }[]; pageTraversal: boolean }
+export interface ReuseRegionReviewsInput {
+  observationId: string; baseReviewId: string; source: string; businessScope: string; evidence: string[];
+  regions: { reviewId: string; regionKey: string; conditionKey: string }[];
+}
+export interface RevokeRegionReuseInput { reviewId: string; regionKey: string; source: string; reason: string }
+export interface RegionReuseCandidate {
+  reviewId: string; regionKey: string; label: string; businessScope: string; conditionKey: string; conditions: RegionReuseConditions;
+  candidateIds: string[]; controlIds: string[]; pageTraversal: boolean;
+}
 export interface RegionReviewInput {
   observationId: string; source: string; evidence: string[];
-  regions: { key: string; label: string; candidateIds: string[]; controlIds?: string[]; pageTraversal?: boolean }[];
+  regions: { key: string; label: string; candidateIds: string[]; controlIds?: string[]; pageTraversal?: boolean; reuse?: RegionReusePolicy }[];
   rejectedCandidateIds?: string[];
   /** Omit for a full replacement. A patch explicitly replaces/removes only named regions. */
   update?: { baseReviewId: string; removeRegionKeys?: string[] };
@@ -69,7 +82,7 @@ export interface RegionReviewRecord {
   id: string; sessionId: string; observationId: string; instanceScope: string; url: string; contextKey: string; at: string;
   source: string; evidence: string[]; status: 'active' | 'invalidated' | 'superseded'; rejectedCandidateIds: string[];
   baseReviewId?: string;
-  regions: { key: string; label: string; controlIds: string[]; pageTraversal: boolean; anchors: { id: string; fingerprint: string }[]; reviewId?: string; status: 'active' | 'invalidated'; invalidation?: { observationId: string; reason: string } }[];
+  regions: { key: string; label: string; controlIds: string[]; pageTraversal: boolean; anchors: { id: string; fingerprint: string }[]; reviewId?: string; reuse?: RegionReusePolicy; reuseConditions?: RegionReuseConditions; reusedFrom?: { reviewId: string; regionKey: string; conditionKey: string; evidence: string[] }; reuseRevocation?: { source: string; reason: string; at: string }; status: 'active' | 'invalidated'; invalidation?: { observationId: string; reason: string } }[];
 }
 export interface RegionReviewDelta {
   baseReviewId: string; canUpdate: boolean; unchangedRegionKeys: string[];
@@ -80,7 +93,7 @@ export interface RegionReviewDelta {
 export interface RegionReviewMaterial {
   sessionId: string; observationId: string; enabled: boolean; candidates: RegionCandidate[];
   controls: { localId: string; label: string; role: string; actionKinds: string[] }[];
-  review?: RegionReviewRecord; delta?: RegionReviewDelta; unassignedControlIds: string[]; unassignedPageTraversal: boolean;
+  review?: RegionReviewRecord; delta?: RegionReviewDelta; reuseCandidates?: RegionReuseCandidate[]; unassignedControlIds: string[]; unassignedPageTraversal: boolean;
 }
 export interface Observation extends CoreObservation<Control> {
   id: ID; sessionId: ID; capturedAt: string; screenshotAt?: string;

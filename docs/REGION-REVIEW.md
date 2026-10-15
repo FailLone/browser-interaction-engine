@@ -96,3 +96,48 @@ controls 模式下，完整划分提交若本次使用和拒绝的所有候选�
 没有已确认操作的容器，其后代汇总正文不充当区域成员的操作名称；显式标签、记录身份、祖先关系和操作证据仍参与绑定。这样列表项或只有点击线索的表格行不会因正文刷新而使整个页面待重新确认。区域批准不确认该容器的用途；若上层审阅并执行它，控件用途记录和目标预检仍验证原始名称与当前执行条件。
 
 布局候选仅表示共同容器，不能证明同一业务功能。候选基于现有主文档控件，最多 500 个容器、每个控件向上检查 24 层；整页后备仍覆盖已观察控件。该机制不新增未知事件操作、iframe/Shadow DOM 或视觉识别。深层结构可由整页后备与显式成员子集划分，但后备锚点绑定较宽，会更保守地失效。虚拟列表窗口或展开后新增控件仍要求重新确认，可通过局部补审保留无变化区域；尚无自动批准结构演化、跨文档补审或区域内部无变化成员的细分批准契约。多个划分共用同一宽锚点时，锚点变化可能让它们一起失效。未声明的服务器状态无法被此机制监控。
+
+## 返回页面后的显式划分复用
+
+普通补审仍绑定当前文档。上层可在最初确认某个区域时声明它的划分判断允许引用：
+
+```ts
+await client.reviewRegions(sessionId, {
+  observationId: material.observationId, source: 'ui-inspector',
+  evidence: ['检查完整容器、成员及 UI 范围'],
+  regions: [{ key: 'navigation', label: '导航', candidateIds: [candidateId],
+    controlIds: selectedControlIds,
+    reuse: { binding: 'same-url-context', businessScope: '公开页面的 UI 巡检范围' } }],
+});
+```
+
+`businessScope` 由上层声明，纯 UI 巡检也适用。账号、业务对象和服务端条件若影响划分含义，须提供已知 `context`；描述文字不能证明未声明的业务状态。
+
+返回相同准确 URL、相同已知声明上下文后，或当前节点重建后，`regionReviewMaterial(...).reuseCandidates` 提供源记录、区域键、适用范围、完整条件、当前候选/成员映射与 `conditionKey`。未声明 reuse 的旧记录不能直接引用。候选只是一份可供上层检查的材料，不恢复旧划分或旧 all/sample/defer/skip。
+
+```ts
+const material = await client.regionReviewMaterial(sessionId);
+const selected = material.reuseCandidates!.find(c => c.regionKey === 'navigation')!;
+const current = await client.reuseRegionReviews(sessionId, {
+  observationId: material.observationId, baseReviewId: material.review!.id,
+  source: 'ui-inspector', businessScope: selected.businessScope,
+  evidence: ['核对当前容器、完整成员池和原选定子集，范围仍适用'],
+  regions: [{ reviewId: selected.reviewId, regionKey: selected.regionKey,
+    conditionKey: selected.conditionKey }],
+});
+// 检查 current 及最新材料，然后独立决定新探索组的深度。
+```
+
+整批先验证准确观察、当前划分版本、来源和条件，再检查浏览器现场事实。引擎自行映射当前候选及原先明确选择的成员子集；调用方不能用引用接口偷偷添加成员或改变名称。歧义、重叠、来源撤销和条件不匹配整批拒绝。当前仍有其他有效区域时，将复用区域加入当前划分并保留无变化区域的既有决定；新文档中的旧划分已经失效，只创建此次明确选择的区域，其余控件仍待划分。
+
+新的区域保存 `reusedFrom`，绑定当前文档、当前候选和成员，产生新的**待决**探索组。先前的区域 all/sample/defer/skip、控件用途、身份、重放和检查结果均不继承。页面滚动即使被复用区域包含，也须新的 all 才允许自动遍历；列表和目的页门控继续独立。显式单项 execute 仍是上层接管，不可用它验证 DFS 是否受区域深度门控。
+
+当前比较完整候选成员池及原选择子集，包含容器/成员定位结构、祖先属性和显式标签、标题、操作依据、输入约束、选项、表单端点和列表记录绑定。只移除文档/节点实例与几何；不固定当前值、选中值和内联 style，容器计算布局仍参与比较。现有被动行情读数投影保持适用，原材料仍完整留存。当前最多 500 个成员、每条路径 32 层/16,000 字符、每个候选 100,000 字符；超出或相关证据不全时没有可复用证明。锚点宽于所选子集时，其他成员变化也会阻止复用；不会擅自缩小验证依赖。
+
+活动弹层、未知声明上下文、关键观察缺口、跨 URL 或跨会话不支持本协议。普通区域可以包含列表成员，但其独立列表用途与深度判断不随区域划分继承。新成员、记录重绑定、结构或业务条件变化后必须重新审阅。
+
+可通过 `revokeRegionReuse(sessionId, {reviewId, regionKey, source, reason})` 撤回来源。撤回会使该来源及仍有效的派生区域失效、退役对应探索组，阻止已准备的自动操作；其他无关区域保留。当前兼容划分中明确替换/移除某个区域也会撤回该区域的旧复用来源。由于文档变化、接受复用或保留未变区域而产生的历史 partition `superseded` 仅表示版本迭代，不等于撤回；具体可用性检查区域级撤回标记及最多 64 层来源链。SQLite 保留这些证据，重启后仍须重新取材和显式接受。
+
+SDK/HTTP 命令为 `reuseRegionReviews`（`review` 参数）与 `revokeRegionReuse`（`revocation` 参数）。持久事件新增 `region.review_reused`、`region.reuse_revoked`；`region.review_requested` 提供候选引用，查询和 `regionReview` hook 可读取完整候选。异步消费者暂停探索、等待空闲、读取最新材料后提交；不要在 hook 内等待同一队列命令，可返回 undefined 交给异步处理。尚无专用复用 UI 面板，当前通过 SDK/HTTP 接入。
+
+此能力复用的是划分判断。探索深度决定复用、依赖驱动结果复用、最小必要证据和自动接受结构变化继续作为独立后续项。

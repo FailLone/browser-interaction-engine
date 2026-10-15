@@ -14,7 +14,7 @@ import type { InspectionResult } from './inspection-types.js';
 import { InteractionEngine as CoreEngine, EngineError, type Persistence, type Predicate, type InteractionScope, type Checkpoint } from '@interaction/core';
 import { RetainedPersistence, type RetentionOptions } from '@interaction/storage-retained';
 import { subscribeEvents, projectEvent, type SubscriptionOptions, type SnapshotEvent, type DeliveryMode } from './subscription.js';
-import { BrowserAdapter, supplementDiscoverySchema, reuseControlReviewsSchema, PlaywrightAdapter, commandSchema, regionReviewSchema, boundaryExitReviewSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
+import { BrowserAdapter, supplementDiscoverySchema, reuseControlReviewsSchema, reuseRegionReviewsSchema, PlaywrightAdapter, commandSchema, regionReviewSchema, boundaryExitReviewSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
 import { explainBrowserDiff } from './diff-details.js';
 export * from './diff-details.js';
 import { BrowserEvidenceQueries, type DomQuery, type ArtifactKind } from './evidence.js';
@@ -181,7 +181,16 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     if (this.regions.request(o, actions, session) && this.regionHook) {
       const material = this.regions.material(o, actions, session);
       const result = await this.hook(o.sessionId, 'regionReview', () => this.regionHook!(structuredClone(material), structuredClone({ session, observation: o })));
-      if (result.value !== undefined) await this.hook(o.sessionId, 'regionReview-record', () => this.store.transaction(() => this.regions.record(o, actions, session, result.value!)));
+      if (result.value !== undefined) {
+        const prepared=await this.hook(o.sessionId,'regionReview-preflight',async()=>{
+          const input=regionReviewSchema.parse(result.value);
+          const anchors=[...input.regions.filter(r=>r.reuse).flatMap(r=>r.candidateIds),...this.regions.activeReuseAnchors(o.sessionId)];
+          // New opt-in evidence must still describe the live browser after the hook.
+          if(anchors.length && (!(this.driver instanceof BrowserAdapter) || await this.driver.preflight(o,undefined,[],[],anchors)!=='valid')) throw new EngineError('STALE_REGION_REVIEW','Reusable region facts changed');
+          return input;
+        });
+        if(prepared.value) await this.hook(o.sessionId, 'regionReview-record', () => this.store.transaction(() => this.regions.record(o, actions, session, prepared.value!)));
+      }
     }
     return [...this.pages.proposals(actions, o, session), ...this.regions.proposals(o, actions)];
   }
@@ -203,11 +212,36 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       // the whole-page check, even when an individual region selects fewer members.
       const scopedTargets = !review.update && active?.key === o.boundaries?.at(-1)?.key && targets.length > 0
         && anchors.every(id => candidates.has(id)) && targets.every(id => activeIds.has(id)) && !review.regions.some(r => r.pageTraversal) ? targets : undefined;
-      if (await this.driver.preflight?.(o, undefined, scopedTargets) !== 'valid') { await this.capture(sid, 'inspection'); throw new EngineError('STALE_REGION_REVIEW', 'Region facts changed; review the new observation'); }
+      if (!(this.driver instanceof BrowserAdapter) || await this.driver.preflight(o, undefined, scopedTargets, [], [...review.regions.filter(r=>r.reuse).flatMap(r=>r.candidateIds),...this.regions.activeReuseAnchors(sid)]) !== 'valid') { await this.capture(sid, 'inspection'); throw new EngineError('STALE_REGION_REVIEW', 'Region facts changed; review the new observation'); }
       const record = this.store.transaction(() => this.regions.record(o, this.actions(sid), this.session(sid), review));
       await this.capture(sid, 'inspection');
       return this.store.require<import('@interaction/adapter-playwright').RegionReviewRecord>('region-review', record.id);
     });
+  }
+  reuseRegionReviews(sid:string,input:import('@interaction/adapter-playwright').ReuseRegionReviewsInput) {
+    const snapshot=structuredClone(input);
+    return this.enqueueMeasured(sid,async()=>{
+      const parsed=reuseRegionReviewsSchema.parse(snapshot),o=this.observation(sid),session=this.session(sid);
+      const plan=this.regions.reusePlan(o,this.actions(sid),session,parsed);
+      if(this.activeId!==sid || !(this.driver instanceof BrowserAdapter) || !this.driver.connected()) throw new EngineError('BROWSER_UNAVAILABLE','Observe this session in a connected browser before reusing regions');
+      if(await this.driver.preflight(o,undefined,[],[],[...plan.matches.flatMap(c=>c.candidateIds),...this.regions.activeReuseAnchors(sid)])!=='valid') {
+        await this.capture(sid,'inspection');throw new EngineError('STALE_REGION_REVIEW','Region reuse facts changed; read fresh material');
+      }
+      const record=this.store.transaction(()=>this.regions.acceptReuse(o,this.actions(sid),session,parsed));
+      await this.capture(sid,'inspection');return this.store.require<import('@interaction/adapter-playwright').RegionReviewRecord>('region-review',record.id);
+    });
+  }
+  revokeRegionReuse(sid:string,input:import('@interaction/adapter-playwright').RevokeRegionReuseInput) {
+    const snapshot=structuredClone(input);
+    return this.enqueueMeasured(sid,async()=>this.store.transaction(()=>{
+      const record=this.regions.revokeReuse(this.observation(sid),snapshot);this.regions.gate(this.observation(sid),this.session(sid));return record;
+    }));
+  }
+  protected override preflightAction(action:ActionCandidate,o:Observation,purpose:import('@interaction/core').ActionAttempt['purpose']) {
+    if(this.driver instanceof BrowserAdapter && purpose!=='external' && action.boundary?.intent!=='exit' && action.kind!=='history') {
+      return this.driver.preflight(o,action,[],[],this.regions.reuseAnchors(o,action));
+    }
+    return super.preflightAction(action,o,purpose);
   }
   protected override explorationCandidates(items: import('@interaction/core').FrontierItem[], o: Observation) {
     const session = this.session(o.sessionId);
@@ -280,7 +314,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     this.classifications.reconcile(observation, reviewed);
     return this.classifications.apply(reviewed, observation);
   }
-  protected override validatePreparedAction(action: ActionCandidate, observation: Observation) { this.boundaryExits.validate(action, observation); this.classifications.validate(action, observation); this.controls.validate(action, observation); this.purposeReviews.validate(action, observation); }
+  protected override validatePreparedAction(action: ActionCandidate, observation: Observation, purpose:import('@interaction/core').ActionAttempt['purpose']) { this.boundaryExits.validate(action, observation); this.classifications.validate(action, observation); this.controls.validate(action, observation); this.purposeReviews.validate(action, observation); if(purpose!=='external') this.regions.validateAction(observation,action,this.session(observation.sessionId)); }
   purposeReviewMaterial(sessionId: string, groupId: string) { return this.purposeReviews.material(this.observation(sessionId), this.actions(sessionId), groupId); }
   reviewListPurpose(sessionId: string, review: ListPurposeReviewInput) {
     return this.enqueueMeasured(sessionId, async () => this.store.transaction(() => this.purposeReviews.record(this.observation(sessionId), this.actions(sessionId), review)));
@@ -401,6 +435,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       case 'revokeControlReview': return this.revokeControlReview(sessionId,command.revocation);
       case 'reviewBoundaryExit': return this.reviewBoundaryExit(sessionId, command.review);
       case 'reviewRegions': return this.reviewRegions(sessionId, command.review);
+      case 'reuseRegionReviews': return this.reuseRegionReviews(sessionId, command.review);
+      case 'revokeRegionReuse': return this.revokeRegionReuse(sessionId, command.revocation);
       case 'describeComponent': { const { type: _, ...description } = command; return this.describeComponent(sessionId, description); }
       case 'probe': return this.probe(sessionId, command.observationId, command.localId, command.kind, command.requestId);
       case 'observe': return this.observe(sessionId);
