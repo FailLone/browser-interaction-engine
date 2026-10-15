@@ -24,6 +24,11 @@ function actionScope(action:ActionCandidate,o:Observation,durable:boolean):Scope
   return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(key?{stableKey:key}:{})}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};
 }
 export function scopeFor(action:ActionCandidate,o:Observation):Scope {return actionScope(action,o,true);}
+/** Review gaps bind to the observed control, including controls without an explicit label or an action yet. */
+export function scopeForControl(c:Observation['controls'][number],o:Observation):Scope {
+  const label=c.name||c.label,region=o.regions.find(r=>r.key===c.region)?.label,stableKey=scopeControlKey(c);
+  return {url:o.url,...(region?{region}:{}),...(label?{label}:{}),...(c.role?{role:c.role}:{}),...(stableKey?{stableKey}:{})};
+}
 /** Model-only view: retain equality hints without repeated document/DOM fingerprints. */
 export function decisionScope(scope:Scope):Scope {return {...scope,...(scope.stableKey?{stableKey:`sha256:${digest(scope.stableKey)}`}:{})};}
 /** Accepted authority and exclusions are relevant to selection; the growing evidence ledger is not. */

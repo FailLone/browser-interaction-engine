@@ -61,6 +61,8 @@ All endpoints are under `/plugins/explorer/v1`:
 
 Plan scopes match exact URL, region label, control label, role, stable key, operation kind and optional value. Prerequisites use the same format. Ambiguous matches stay unresolved. A plan completion description is guidance; verification currently means successful supported interaction with a subsequent host observation, not arbitrary business assertions.
 
+Unresolved control reviews use the observed accessible name (falling back to its explicit label), region, role and durable control key. Empty labels are omitted, and distinct same-name controls keep separate gaps when evidence provides distinct keys. These scopes can be selected for a later round without copying local control IDs or granting operation permission. Older gaps whose source controls were already merged remain unresolved; the plugin does not guess a target or rewrite historical success.
+
 ## Durable execution and coverage
 
 Default totals are 3 rounds, 300 actions, 30 active minutes and 300 provider requests. Individual sessions default to 100 actions, capped by the task's remaining allowance. Recovery actions count through the host action ledger. Pauses do not consume duration; waiting for providers does. Already-dispatched host operations settle before ownership is released. A host recovery command may finish after the duration deadline; no further operation is dispatched afterwards.

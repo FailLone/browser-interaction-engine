@@ -7,6 +7,22 @@ import { explorerFixture,fakeProviders,semanticPopupHtml } from './explorer-plug
 
 const grounded={choice:'click',evidenceRefs:['current','actions','effect:click'],reason:'Captured child choice panel supports a local expansion.',interfaceOnly:true,externalWrite:false};
 
+it('keeps named controls with empty explicit labels as distinct, selectable follow-up scopes',async()=>{
+ const f=await explorerFixture(`${['Alpha','Beta'].map(name=>`<div role="button" tabindex="0" style="cursor:pointer" id="${name}" onclick="this.setAttribute('aria-disabled','true')">${name}</div>`).join('')}<button type="button" onclick="this.disabled=true">Ready</button>`),p=fakeProviders(f.url),original=p.jev.decide;
+ let permit=false;
+ p.jev.decide=async(r,s)=>r.purpose==='control-classification'?{model:'mock',value:'interaction',confidence:1}:r.purpose==='control-risk'&&!permit&&['Alpha','Beta'].includes((r.state as any).material.control.name)?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,.01]))}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:1}});plugin.start(t.id);await plugin.waitForIdle();const before=plugin.view(t.id),gaps=before.task.plan.filter(i=>i.reason==='operation_risk_unresolved');
+  const risk=before.decisions.filter(d=>d.purpose==='control-risk'&&['Alpha','Beta'].includes((d.request.state as any).material.control.name));expect(risk.map(d=>(d.request.state as any).material.control.label)).toEqual(['','']);
+  expect(gaps.map(i=>i.scope.label).sort()).toEqual(['Alpha','Beta']);expect(new Set(gaps.map(i=>i.scope.stableKey)).size).toBe(2);
+  const selected=gaps.find(i=>i.scope.label==='Alpha')!;permit=true;plugin.revise(t.id,{itemIds:[selected.id]},true);plugin.extendBudget(t.id,{rounds:1,actions:2,durationMs:60000,modelRequests:100});plugin.start(t.id);await plugin.waitForIdle();const after=plugin.view(t.id),sid=after.task.rounds.at(-1)!.sessionId;
+  expect(f.host.list<any>(sid,'attempt').map(a=>a.action.label)).toEqual(['Alpha']);
+  expect(after.task.plan.find(i=>i.id===selected.id)?.status).toBe('succeeded');
+  expect(after.task.plan.find(i=>i.id===gaps.find(i=>i.scope.label==='Beta')!.id)?.status).toBe('unresolved');
+  expect(after.decisions.slice(before.decisions.length).filter(d=>d.purpose==='control-risk').map(d=>(d.request.state as any).material.control.name)).toEqual(['Alpha']);
+ }finally{await plugin.close();await f.close();}
+});
+
 it.each(['uncertain','denied-interface','external-write'] as const)('drains distinct %s reviews before declaring no progress, refreshing only uncertainty',async(mode)=>{
  const f=await explorerFixture(`${Array.from({length:6},(_,i)=>`<div role="button" aria-label="Ambiguous" tabindex="0" style="cursor:pointer" id="ambiguous-${i}">Ambiguous</div>`).join('')}<button type="button" id="ready" onclick="this.disabled=true">Ready</button>`),p=fakeProviders(f.url),original=p.jev.decide;
  p.jev.decide=async(r,s)=>r.purpose==='control-classification'?{model:'mock',value:'interaction',confidence:1}:r.purpose==='control-risk'&&(r.state as any).material.control.label==='Ambiguous'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,mode==='denied-interface'?.01:mode==='external-write'&&k.startsWith('external_')?.99:.5]))}:original(r,s);
@@ -18,6 +34,7 @@ it.each(['uncertain','denied-interface','external-write'] as const)('drains dist
   expect(view.events.filter(e=>e.type==='decision.effect'&&(e.data as any).kind==='evidence-refresh')).toHaveLength(mode==='uncertain'?6:0);
   expect(f.host.list<any>(sid,'attempt').map(a=>a.action.label)).toEqual(['Ready']);
   expect(view.task.plan.some(i=>i.reason==='operation_risk_unresolved'&&i.status==='unresolved')).toBe(true);expect(view.task.status).not.toBe('completed');
+  expect(new Set(view.task.plan.filter(i=>i.reason==='operation_risk_unresolved').map(i=>i.scope.stableKey)).size).toBe(6);
   expect(view.decisions.some(d=>d.actor==='llm')).toBe(false);
  }finally{await plugin.close();await f.close();}
 });

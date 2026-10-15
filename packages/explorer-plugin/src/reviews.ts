@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { ActionCandidate, IdentityHypothesis, ControlIdentity, Observation, ExplorationGroup, PurposeReview, RegionCandidate } from '@interaction/browser';
 import type { ExplorerHost, Task, ModelRequest, Decision, Scope } from './types.js';
 import { jsonSchema } from './schema.js';
-import { digest, matches, includesScope, broadScope, controlInScope, decisionPlan } from './policy.js';
+import { digest, matches, includesScope, broadScope, controlInScope, decisionPlan, scopeForControl } from './policy.js';
 import type { SemanticReview } from './semantic-review.js';
 
 export interface ReviewContext {
@@ -85,7 +85,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     }
     mark(key);
     await c.apply(d.decision,{type:'classifyControls',classification:{observationId:o.id,source,classifications:[{localId:item.control.localId,classification:d.value==='uncertain'?'unresolved':d.value,reason:`Selected ${d.value}`,evidence:evidence(d.decision)}]}});
-    if(d.value==='uncertain')c.gap('classification_unresolved',{url:o.url,label:item.control.label,role:item.control.role});
+    if(d.value==='uncertain')c.gap('classification_unresolved',scopeForControl(item.control,o));
     return true;
   }
   for(const h of host.list<IdentityHypothesis>(sid,'hypothesis').filter(h=>h.status==='pending'&&o.controls.some(x=>x.hypothesisId===h.id&&relevantIds.has(x.localId)))) {
@@ -104,10 +104,10 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       const allowed=Object.fromEntries(Object.entries(options).filter(([id])=>!blockedOptions.includes(id)));
       d=await c.clarify({key:`identity:${h.id}`,purpose:'identity-clarification',parent:d.decision,instructions:'Compare the current occurrence with compatible historical occurrences. Merge only with positive structural identity AND semantic continuity. Equal names or historical execution success do not prove identity or current coverage. Prefer independent if no match is established.',options:allowed,evidence:{current,...Object.fromEntries(compatible.map(candidate=>[`historical:${candidate.id}`,candidate]))},requiredEvidence:{independent:['current'],...Object.fromEntries(compatible.map(candidate=>[candidate.id,['current',`historical:${candidate.id}`]]))}});
       // An uncertain interpretation must not prevent testing an independently bound current occurrence.
-      if(d.value==='uncertain'){c.gap('identity_unresolved',{url:o.url,label:current[0]?.label});d={value:'independent',decision:d.decision};}
+      if(d.value==='uncertain'){for(const control of current)c.gap('identity_unresolved',scopeForControl(control,o));d={value:'independent',decision:d.decision};}
     }
     mark(key);
-    if(d.value==='uncertain'){c.gap('identity_unresolved',{url:o.url,label:o.controls.find(x=>x.hypothesisId===h.id)?.label});continue;}
+    if(d.value==='uncertain'){for(const control of current)c.gap('identity_unresolved',scopeForControl(control,o));continue;}
     await c.apply(d.decision,{type:'resolveIdentity',hypothesisId:h.id,identityId:d.value==='independent'?h.provisionalIdentityId:d.value,source,evidence:evidence(d.decision),guard:{observationId:o.id,revision:h.revisions.length}});return true;
   }
   const control=host.controlReviewMaterial(sid);
@@ -116,7 +116,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     // Never turn an explicitly submitting action into an interface action.
     const supported=item.actions.filter(a=>a.risk!=='submission');
     const kinds=[...new Set([...supported.map(a=>a.kind),...Object.keys(item.control.actionBasis||{})])].filter(k=>['click','fill','select','check','press','hover'].includes(k)&&!item.actions.some(a=>a.kind===k&&a.risk==='submission')&&!item.reviews.some(r=>r.status==='active'&&r.kind===k));
-    if(!kinds.length){mark(key);c.gap('operation_basis_unconfirmed',{url:o.url,label:item.control.label,role:item.control.role});continue;}
+    if(!kinds.length){mark(key);c.gap('operation_basis_unconfirmed',scopeForControl(item.control,o));continue;}
     const checks:NonNullable<ModelRequest['checks']>={};
     for(const kind of kinds){
       checks[`interface_${kind}`]={instructions:`Does the captured evidence in material.control and material.actions positively establish that ${kind} changes only interface state (for example a local tab, expansion or input value)? A label or native element type alone is insufficient.`};
@@ -142,7 +142,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
         const clarified=await c.clarify({key:`risk:${item.control.instanceId}`,purpose:'operation-clarification',parent:judged.decision,operation:true,instructions:'Resolve the remaining purpose ambiguity for one offered operation. Establish its interface effect from the captured relationship or controlled content, and separately rule out an external/business write. A popup relationship is evidence to interpret, not automatic permission. Return uncertain if either effect remains unclear.',options:{...Object.fromEntries(Object.keys(effects).map(k=>[k,`Review ${k} as interface-only if evidenced`])),uncertain:'Cannot establish a safe interface-only purpose'},evidence:{current:item.control,actions:semanticActions(item.actions),...Object.fromEntries(Object.entries(effects).map(([k,v])=>[`effect:${k}`,v]))},requiredEvidence:Object.fromEntries(Object.keys(effects).map(k=>[k,['current','actions',`effect:${k}`]]))});
         if(clarified.value!=='uncertain'){kind=clarified.value;decision=clarified.decision;}
       }
-      if(!kind){mark(key);c.gap('operation_risk_unresolved',{url:o.url,label:item.control.label});continue;}
+      if(!kind){mark(key);c.gap('operation_risk_unresolved',scopeForControl(item.control,o));continue;}
     }
     const d={value:kind,decision};mark(key);
     let samples:(string|boolean)[]|undefined;
@@ -212,7 +212,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(!relevant(item.control))continue;
     const key=`probe:${o.instanceScope}:${item.control.instanceId}`;if(done(key))continue;
     const d=await c.choose('probe-selection','Choose a bounded observation probe if it can reveal interaction evidence.',{observationId:o.id,control:item.control},{hover:'Observe hover effect',focus:'Observe focus effect',uncertain:'Cannot select a useful probe'});mark(key);
-    if(d.value==='uncertain'){c.gap('probe_unresolved',{url:o.url,label:item.control.label});continue;}
+    if(d.value==='uncertain'){c.gap('probe_unresolved',scopeForControl(item.control,o));continue;}
     await c.apply(d.decision,{type:'probe',observationId:o.id,localId:item.control.localId,kind:d.value,requestId:crypto.randomUUID()});return true;
   }
   // Page-wide discovery can wait; it must not starve an already observed modal's work/exit.
