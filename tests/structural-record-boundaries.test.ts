@@ -41,12 +41,13 @@ it.each(['table', 'grid'] as const)('does not infer repeated records from %s cel
 });
 
 it('retains explicit cell controls and independent nested lists inside a row', async () => {
-  const t = await fixture(`<table><tr style="cursor:pointer"><td><button type="button">First</button></td><td><button type="button">Second</button></td><td><button type="button">Third</button></td><td>
+  const t = await fixture(`<table><tr style="cursor:pointer"><td><button type="button">First</button></td><td><button type="button">Second</button></td><td><button type="button">Third</button></td><td onclick="window.direct=true">Direct cell</td><td>
     <ul aria-label="Attachments"><li data-key="a"><button type="button">Open</button></li><li data-key="b"><button type="button">Open</button></li></ul>
     </td></tr></table>`);
   try {
     const o = t.engine.observation(t.sessionId);
     expect(o.controls.filter(c => c.role === 'button').map(c => c.name)).toEqual(['First', 'Second', 'Third', 'Open', 'Open']);
+    expect(o.controls.find(c => c.name === 'Direct cell')?.actions).toContain('click');
     expect(o.structuralLists?.filter(g => g.members.length).map(g => g.members.map(m => o.controls.find(c => c.localId === m.localId)!.name))).toEqual([['Open', 'Open']]);
   } finally { await t.close(); }
 });
