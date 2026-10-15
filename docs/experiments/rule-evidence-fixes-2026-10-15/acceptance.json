@@ -377,5 +377,36 @@
         }
       }
     }
-  ]
+  ],
+  "finalMergedRun": {
+    "sessionId": "15b0b4fc-ecf6-47cd-b82d-6aa5560cfdae",
+    "actions": 32,
+    "captures": 34,
+    "automaticRuns": 34,
+    "stopReason": "known_frontier_exhausted_with_gaps",
+    "detected": [
+      [
+        "Reset interface",
+        "OCCLUSION_SUSPECTED"
+      ],
+      [
+        "Submit test order",
+        "TEXT_HARD_CLIP_SUSPECTED"
+      ],
+      [
+        "Done",
+        "CONTROL_CLIPPING_SUSPECTED"
+      ]
+    ],
+    "finalCounts": {
+      "pass": 40,
+      "unknown": 5,
+      "fail": 0,
+      "not-applicable": 1
+    },
+    "warnings": 3
+  },
+  "mergeCommit": "1f068e1",
+  "traversalFix": "a6ed79a",
+  "testFixtureFix": "334f0a3"
 }
