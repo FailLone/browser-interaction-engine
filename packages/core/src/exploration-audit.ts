@@ -1,3 +1,4 @@
+import { currentExplorationDecision } from './exploration-groups.js';
 import type { ActionAttempt, ExplorationGroup, FrontierItem, Observation, Session } from './types.js';
 import { canonical, contextKey } from './util.js';
 import type { EquivalentCoverage } from './coverage-reconciliation.js';
@@ -33,7 +34,7 @@ export function auditExploration(session: Session, frontier: FrontierItem[], att
       if (!g) { invalidReference = true; continue; }
       // An arbitrary/stale reference cannot erase an untested case from the audit.
       if (ref.memberKey ? ref.memberKey !== f.key || !g.members.some(m => m.key === ref.memberKey) : !g.traversalKeys?.includes(f.key)) { invalidReference = true; continue; }
-      const d = g.decisions.at(-1);
+      const d = currentExplorationDecision(g);
       const observed = byObservation.get(f.action.observationId);
       const invalidated = g.invalidation && byObservation.get(g.invalidation.observationId);
       // Archived decisions explain historical non-execution only. They grant no
@@ -87,7 +88,7 @@ export function auditExploration(session: Session, frontier: FrontierItem[], att
   });
   const counts: ExplorationAudit['counts'] = { succeeded: 0, covered_equivalent: 0, policy_excluded: 0, awaiting_decision: 0, pending: 0, blocked: 0, retired: 0, notAttempted: 0 };
   for (const c of cases) { counts[c.disposition]++; if (!c.attemptIds.length) counts.notAttempted++; }
-  const pendingGroupIds = groups.filter(g => g.sessionId === session.id && g.status !== 'invalidated' && (!g.decisions.length || g.decisions.at(-1)?.decision.mode === 'defer')).map(g => g.id);
+  const pendingGroupIds = groups.filter(g => g.sessionId === session.id && g.status !== 'invalidated' && (!currentExplorationDecision(g) || currentExplorationDecision(g)?.decision.mode === 'defer')).map(g => g.id);
   const current = session.currentObservationId && byObservation.get(session.currentObservationId);
   const stopReasons: string[] = [];
   if (!current) stopReasons.push('current_observation_missing');

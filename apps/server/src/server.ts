@@ -29,6 +29,7 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
   app.post('/v1/sessions/:sessionId/commands', async request => {
     const result = await engine.command(sid(request), request.body);
     if (result && 'options' in result) return { ...result, options: { ...result.options, storageState: result.options.storageState ? '[configured]' : undefined } };
+    if (result && 'session' in result) return { ...result, session: { ...result.session, options: { ...result.session.options, storageState: result.session.options.storageState ? '[configured]' : undefined } } };
     return result;
   });
   const iid = (request: any) => request.params.inspectionId as string;
@@ -85,7 +86,12 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
   app.get('/v1/sessions/:sessionId/control-review',async(request,reply)=>{reply.header('Cache-Control','no-store');return engine.controlReviewMaterial(sid(request));});
   app.get('/v1/sessions/:sessionId/discovery-scan',async(request,reply)=>{reply.header('Cache-Control','no-store');return engine.discoveryScanMaterial(sid(request));});
   app.get('/v1/sessions/:sessionId/control-classification',async(request,reply)=>{reply.header('Cache-Control','no-store');return engine.controlClassificationMaterial(sid(request));});
+  app.get('/v1/sessions/:sessionId/exploration-decision-reuse', async (request, reply) => { reply.header('Cache-Control', 'no-store'); return engine.explorationDecisionReuseMaterial(sid(request)); });
   app.get('/v1/sessions/:sessionId/exploration-review', async (request, reply) => { reply.header('Cache-Control', 'no-store'); return engine.explorationReviewMaterial(sid(request)); });
+  app.get('/v1/sessions/:sessionId/interventions', async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const query = z.object({ since: z.string().min(1).optional() }).strict().parse(request.query); return engine.interventionMaterial(sid(request), query.since);
+  });
   app.get('/v1/sessions/:sessionId/exploration-groups/:groupId/purpose-material', async request => engine.purposeReviewMaterial(sid(request), (request.params as any).groupId));
   app.get('/v1/sessions/:sessionId/graph', async request => engine.getGraph(sid(request)));
   app.get('/v1/sessions/:sessionId/frontier-coverage', async request => engine.frontierCoverage(sid(request)));
@@ -108,7 +114,8 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
     return engine.eventDiffDetails(sid(request), sequence);
   });
   app.get('/v1/sessions/:sessionId/path', async request => { const q = request.query as Record<string, string>; if (!q.from || !q.to) throw new EngineError('INVALID_REQUEST', 'from and to state IDs are required'); return { path: engine.navigationPath(sid(request), q.from, q.to) }; });
-  const collections: Record<string, string> = { observations: 'observation', states: 'state', visits: 'visit', attempts: 'attempt', frontier: 'frontier', identities: 'identity', hypotheses: 'hypothesis', scopes: 'scope', checkpoints: 'checkpoint', issues: 'issue', recoveries: 'reach', 'exploration-groups': 'exploration-group', 'purpose-reviews': 'purpose-review', 'region-reviews': 'region-review', 'boundary-exit-reviews': 'boundary-exit-review', 'boundary-exit-results': 'boundary-exit-result', 'control-reviews':'control-review', 'control-classifications':'control-classification', 'discovery-scans':'discovery-scan' };
+  const collections: Record<string, string> = { observations: 'observation', states: 'state', visits: 'visit', attempts: 'attempt', frontier: 'frontier', identities: 'identity', hypotheses: 'hypothesis', scopes: 'scope', checkpoints: 'checkpoint', issues: 'issue', recoveries: 'reach', 'exploration-groups': 'exploration-group', 'exploration-decision-reviews': 'exploration-decision-review', 'exploration-decision-applications': 'exploration-decision-application', 'purpose-reviews': 'purpose-review', 'region-reviews': 'region-review', 'boundary-exit-reviews': 'boundary-exit-review', 'boundary-exit-results': 'boundary-exit-result', 'control-reviews':'control-review', 'control-classifications':'control-classification', 'discovery-scans':'discovery-scan' };
+  Object.assign(collections, { 'intervention-responses': 'intervention-response', continuations: 'continuation' });
   for (const [resource, kind] of Object.entries(collections)) app.get(`/v1/sessions/:sessionId/${resource}`, async request => {
     const query = request.query as Record<string, string>; let items = engine.list<any>(sid(request), kind);
     if (query.status) items = items.filter(i => i.status === query.status);

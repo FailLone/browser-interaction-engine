@@ -25,13 +25,14 @@ export function ExplorationReviewPanel({ material, busy, decide }: { material: E
     {material.collections.map(c => <details className="review-collection" key={c.key} open={material.collections.length < 5}>
       <summary>{c.label} · {c.groupIds.length} 个范围</summary>
       <button disabled={busy} onClick={() => setSelected(old => ({ ...old, ...Object.fromEntries(c.groupIds.map(id => [id, groups.get(id)!.revision])) }))}>选择此组当前 {c.groupIds.length} 项</button>
-      {c.groupIds.map(id => { const g = groups.get(id)!; const overlaps = material.overlaps.filter(o => o.groupIds.includes(id));
-        return <div className="review-scope" key={id}><label className="review-scope-title"><input type="checkbox" aria-label={`选择范围：${g.label}`} checked={selected[id] !== undefined} disabled={busy} onChange={e => setSelected(old => { const next = { ...old }; if (e.target.checked) next[id] = g.revision; else delete next[id]; return next; })} /><b>{g.label}</b><span className="badge">{g.decisions.length ? status[g.decisions.at(-1)!.decision.mode] : '等待决定'}</span></label>
+      {c.groupIds.map(id => { const g = groups.get(id)!; const overlaps = material.overlaps.filter(o => o.groupIds.includes(id)); const latest = g.decisions.at(-1);
+        return <div className="review-scope" key={id}><label className="review-scope-title"><input type="checkbox" aria-label={`选择范围：${g.label}`} checked={selected[id] !== undefined} disabled={busy} onChange={e => setSelected(old => { const next = { ...old }; if (e.target.checked) next[id] = g.revision; else delete next[id]; return next; })} /><b>{g.label}</b><span className="badge">{latest?.invalidation ? '等待重新决定' : latest ? status[latest.decision.mode] : '等待决定'}</span></label>
           <small>{g.kind} · 版本 {g.revision} · 已观察 {g.members.length} 个操作样本{g.observationId !== material.observationId ? ' · 来自较早观察' : ''}</small>
+          {latest?.invalidation && <p role="status">原决定已失效，请重新确认。原因：{latest.invalidation.reason}</p>}
           {!!overlaps.length && <p className="muted">重叠约束：{[...new Set(overlaps.flatMap(o => o.groupIds.filter(other => other !== id)))].map(other => groups.get(other)!.label).join('、')}</p>}
           <details><summary>查看样本与判断依据</summary><p className="muted">样本仅包含已发现的操作，不代表全部业务组合。勾选样本后同时选择所属范围，再提交“仅测所选样本”。</p>
             {g.members.map(m => <label className="review-sample" key={m.key}><input type="checkbox" aria-label={`样本：${g.label}：${m.label || m.kind}：${m.key}`} disabled={busy} checked={samples[id]?.includes(m.key) || false} onChange={e => setSamples(old => ({ ...old, [id]: e.target.checked ? [...old[id] || [], m.key] : (old[id] || []).filter(key => key !== m.key) }))} />{m.label || m.kind} · {m.kind}{m.value !== undefined ? ` · ${JSON.stringify(m.value)}` : ''}{m.excluded ? ' · 当前不可执行' : ''}</label>)}
-            <pre>{JSON.stringify({ conditions: g.conditions, scopeEvidence: g.evidence, collectionEvidence: c.evidence }, null, 2)}</pre>
+            <pre>{JSON.stringify({ conditions: g.conditions, scopeEvidence: g.evidence, collectionEvidence: c.evidence, latestDecision: latest }, null, 2)}</pre>
           </details>
         </div>;
       })}

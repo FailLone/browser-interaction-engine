@@ -55,6 +55,7 @@ const server = createServer(async (req,res)=> {
     else if(req.method==='GET' && req.url==='/control-classification') result=engine.controlClassificationMaterial(sid);
     else if(req.method==='GET' && req.url==='/boundary-exit') result=engine.boundaryExitMaterial(sid);
     else if(req.method==='GET' && req.url==='/region-review') result=engine.regionReviewMaterial(sid);
+    else if(req.method==='GET' && req.url==='/exploration-decision-reuse') result=engine.explorationDecisionReuseMaterial(sid);
     else if(req.method==='GET' && req.url==='/exploration-review') result=engine.explorationReviewMaterial(sid);
     else if(req.method==='GET' && req.url==='/groups') result=engine.list(sid,'exploration-group');
     else if(req.method==='GET' && req.url?.startsWith('/purpose-material?')) result=engine.purposeReviewMaterial(sid,new URL(req.url,'http://localhost').searchParams.get('groupId') || '');

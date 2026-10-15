@@ -198,6 +198,8 @@ Modal、popover 与浮动菜单建立独占交互范围，DFS 先探索当前最
 
 上层可读取统一范围材料，按观察来源查看入口与重叠约束，用一次版本绑定的批量决定选择穷尽、样本、暂缓或本轮不测。支持 `explorationReview` hook、SDK/HTTP 以及调试页“范围决策”；任一版本过期整批拒绝，未来新范围独立决定。见[批量审阅协议](docs/EXPLORATION-DECISIONS.md#统一审阅材料与批量决定)。
 
+用途、范围、身份、退出、恢复及发现缺口也可通过统一“上游待办”处理：`interventionMaterial` 提供依赖与证据，`respondToIntervention` 绑定当前条件提交答复，`continueExploration` 重新观察和验证后继续已获准工作。慢速上游审阅、人工修复、迟到答案和重启中断均保留记录；业务恢复需要调用方验证器。见[协议与调用示例](docs/INTERVENTIONS.md)。
+
 对于缺少语义区域的页面，可启用 `regionExploration: 'review'`，先按容器、标题和布局审阅探索区域，再选择探索深度。支持合并、拆分、拒绝和结构变化失效；调试页可生成划分草稿。见[区域候选审阅](docs/REGION-REVIEW.md)。
 
 通用探索决策允许上层按业务目标选择深入、指定样本、暂缓或本轮跳过。支持自定义范围 hook，以及可选区域、入口分支和输入样本识别；条件变化需新决策，跳过不计覆盖。见[通用探索决策](docs/EXPLORATION-DECISIONS.md)。

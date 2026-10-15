@@ -19,7 +19,7 @@ export function CompletionSummary({ audit }: { audit: BrowserCompletionAudit }) 
     <details><summary>按页面范围查看缺口</summary>{audit.scopes.map(s => {
       const gaps = limits.filter(g => g.scopeKey === s.key);
       return <div key={s.key}><b>{s.url}</b><p>{s.instanceScopes.length} 个文档 · {s.observationIds.length} 次观察 · 未确认控件 {s.unconfirmedControlIds.length}</p>
-        {s.pageDecisions.map(g => { const d = g.decisions.at(-1); return <p key={g.id}>页面决定：{d ? `${{all:'穷尽该范围',sample:'指定样本',skip:'不深入',defer:'暂缓'}[d.decision.mode]} · ${d.decision.source} · 版本 ${d.revision}` : '等待上层决定'}{g.status === 'invalidated' ? '（已失效的历史决定）' : ''}</p>; })}
+        {s.pageDecisions.map(g => { const d = g.decisions.at(-1); return <p key={g.id}>页面决定：{d?.invalidation ? '原决定已失效，等待上层重新决定' : d ? `${{all:'穷尽该范围',sample:'指定样本',skip:'不深入',defer:'暂缓'}[d.decision.mode]} · ${d.decision.source} · 版本 ${d.revision}` : '等待上层决定'}{g.status === 'invalidated' ? '（已失效的历史决定）' : ''}</p>; })}
         {gaps.length ? <ul>{gaps.map(g => <li key={g.id}>{g.code} · {g.current ? '当前仍有' : '历史记录'} · 出现在 {g.observationIds.length} 次观察{g.criticalObservationIds.length ? `，其中 ${g.criticalObservationIds.length} 次为关键缺口` : ''}</li>)}</ul>
           : <p>没有已记录的限制；仍不等于发现完整。</p>}</div>;
     })}</details>

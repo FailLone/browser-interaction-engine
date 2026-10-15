@@ -10,7 +10,7 @@ export function PageScopePanel({ groups, busy, decide }: { groups: ExplorationGr
     <div className="page-scope-content"><p className="muted">未决定的页面先保留待测，系统尝试返回来源页面。调整决定后，点击 DFS 探索继续。</p>
       {pages.map(g => <div className="action-row" key={g.id}><div className="action-label"><b>{g.label}</b>
         <small>{g.conditions && typeof g.conditions === 'object' && !Array.isArray(g.conditions) ? String(g.conditions.url || '') : ''}</small></div>
-        <span className="badge">{g.decisions.length ? labels[g.decisions.at(-1)!.decision.mode] : '等待决定'}</span>
+        <span className="badge">{g.decisions.at(-1)?.invalidation ? '等待重新决定' : g.decisions.length ? labels[g.decisions.at(-1)!.decision.mode] : '等待决定'}</span>
         {(['all', 'defer', 'skip'] as const).map(mode => <button key={mode} disabled={busy} aria-label={`${labels[mode]}：${g.label}`} onClick={() => void decide({
           type: 'decideExplorationGroup', groupId: g.id, revision: g.revision,
           decision: { mode, source: 'debug-ui', evidence: [`用户选择${labels[mode]}：${g.label}；范围版本 ${g.revision}`] },

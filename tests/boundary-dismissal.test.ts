@@ -109,6 +109,23 @@ it('supports the HTTP/SDK review workflow and rejects stale input without writin
   } finally { await app.close(); await t.close(); }
 });
 
+it('rechecks the original exit contract after an external UI repair without requiring a business verifier', async () => {
+  const t = await fixture("panel.hidden=true;document.querySelector('[aria-label=Amount]').value='99'", {}, { interfaceActions: [{ name: 'Open' }] });
+  try {
+    await act(t.engine, t.sid, 'Open'); const exit = await approve(t); await t.engine.execute(t.sid, exit.id, 'changed-ui');
+    const original = t.engine.boundaryExitMaterial(t.sid).results.at(-1)!;
+    expect(original.status).toBe('changed'); expect(t.engine.session(t.sid).dirty).toBe(false);
+    const start = () => t.engine.continueExploration(t.sid, { requestId: crypto.randomUUID(), observationId: t.engine.observation(t.sid).id, source: 'upper', evidence: ['Validate the restored UI'] });
+    expect((await start()).continuation.status).toBe('needs_review');
+    await pageOf(t.engine).getByLabel('Amount', { exact: true }).fill('42');
+    const resumed = await start(); await t.engine.waitForIdle();
+    expect(resumed.continuation.status).toBe('started');
+    expect(resumed.continuation.checks.some(c => c.name === 'original-exit-contract' && c.result === 'pass')).toBe(true);
+    expect(t.engine.boundaryExitMaterial(t.sid).results.find(r => r.id === original.id)?.status).toBe('changed');
+    expect(t.engine.session(t.sid).actionCount).toBe(2); expect(t.engine.blockingBoundaryExit(t.sid)).toBeUndefined();
+  } finally { await t.close(); }
+});
+
 it('calls the review hook with evidence and preserves defer without authorizing an outside click', async () => {
   let calls = 0;
   const t = await fixture('panel.hidden=true', { boundaryExitReview: material => { calls++; return { observationId: material.observationId, boundaryKey: material.boundary!.key, source: 'hook', evidence: ['Leave chooser pending'], decision: { mode: 'defer' } }; } });

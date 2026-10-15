@@ -147,6 +147,10 @@ export type Session = CoreSession<SessionOptions>;
 export type ControlIdentity = CoreIdentity<Control>;
 export type HookContext = CoreHookContext<Observation, SessionOptions>;
 export interface EngineHooks extends CoreHooks<Observation, SessionOptions> {
+  /** Caller-owned verifier for externally restored business state. The engine
+   * still verifies live UI expectations and never rewrites historical outcomes. */
+  verifyExternalRecovery?: (material: import('./interventions.js').ExternalRecoveryVerification, ctx: HookContext) => Promise<{ result: 'pass' | 'fail' | 'unknown'; evidence: string[] }> | { result: 'pass' | 'fail' | 'unknown'; evidence: string[] };
+  explorationDecisionReuse?: (material: import('./exploration-decision-reuse.js').ExplorationDecisionReuseMaterial, ctx: HookContext) => Promise<import('./exploration-decision-reuse.js').ReuseExplorationDecisionsInput | undefined> | import('./exploration-decision-reuse.js').ReuseExplorationDecisionsInput | undefined;
   boundaryExitReview?: (material: import('./boundary-exit.js').BoundaryExitMaterial, ctx: HookContext) => Promise<import('./boundary-exit.js').BoundaryExitReviewInput | undefined> | import('./boundary-exit.js').BoundaryExitReviewInput | undefined;
   controlClassification?: (material: import('./control-classification.js').ControlClassificationMaterial, ctx: HookContext) => Promise<import('./control-classification.js').ClassifyControlsInput | undefined> | import('./control-classification.js').ClassifyControlsInput | undefined;
   controlReview?: (material: import('./control-review.js').ControlReviewMaterial, ctx: HookContext) => Promise<import('./control-review.js').ControlReviewInput | undefined> | import('./control-review.js').ControlReviewInput | undefined;
