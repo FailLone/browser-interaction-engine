@@ -9,7 +9,7 @@ import { createServer } from '../dist/apps/server/src/server.js';
 
 const fixture = createFixture((_request, response) => {
   response.setHeader('Content-Type', 'text/html');
-  response.end('<title>Compiled runtime fixture</title><button id="open" aria-expanded="false" onclick="this.setAttribute(\'aria-expanded\',\'true\')">Open</button>');
+  response.end('<title>Compiled runtime fixture</title><div role="group" aria-label="Smoke controls"><button id="open" aria-expanded="false" onclick="this.setAttribute(\'aria-expanded\',\'true\')">Open</button><button id="probe" onmouseenter="this.dataset.hovered=\'true\'">Probe</button></div>');
 });
 fixture.listen(0, '127.0.0.1'); await once(fixture, 'listening');
 const engine = new InteractionEngine({ persistence: new SqliteStore(resolve('.data', `build-smoke-${Date.now()}`)) });
@@ -42,6 +42,18 @@ try {
   assert.ok(capture.details.snapshot.dom.environment.scrollingElement);
   const completed = await (await fetch(`${base}/v1/sessions/${session.id}/inspections/${inspection.id}/complete`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ consumerId: 'smoke', results: [] }) })).json();
   assert.equal(completed.status, 'completed');
-  const result = { inspectionContract: 'passed', at: new Date().toISOString(), node: process.version, compiledAPI: 'passed', staticUI: 'passed', chromiumExecution: 'passed', historicalEvidence: 'passed', snapshotDelivery: 'passed', cachedEvidence: 'passed', attemptId: attempt.id };
+  const groups = await (await fetch(`${base}/v1/sessions/${session.id}/observations/${attempt.afterId}/components`)).json();
+  const group = groups.components.find(c => c.name === 'Smoke controls'); assert.equal(group.members.length, 2);
+  const component = await (await fetch(`${base}/v1/sessions/${session.id}/observations/${attempt.afterId}/components/${encodeURIComponent(group.id)}`)).json();
+  assert.ok(component.subtree.nodes.some(n => n.attributes?.id === 'probe'));
+  const command = async body => (await fetch(`${base}/v1/sessions/${session.id}/commands`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })).json();
+  const described = await command({ type: 'describeComponent', observationId: attempt.afterId, componentId: group.id, kind: 'group', members: group.members, source: 'compiled-smoke', reason: 'The fixture declares this group', evidence: [{ observationId: attempt.afterId, componentId: group.id }] });
+  assert.equal(described.source, 'compiled-smoke');
+  const probeCommand = { type: 'probe', observationId: attempt.afterId, localId: component.members.find(m => m.name === 'Probe').localId, kind: 'hover', requestId: 'compiled-probe-once' };
+  const probe = await command(probeCommand); assert.equal(probe.status, 'succeeded'); assert.equal(probe.action.replayable, false);
+  assert.equal((await command(probeCommand)).id, probe.id);
+  const probed = await (await fetch(`${base}/v1/sessions/${session.id}/observations/${probe.afterId}/components/${encodeURIComponent(group.id)}`)).json();
+  assert.equal(probed.members.find(m => m.name === 'Probe').node.attributes['data-hovered'], 'true');
+  const result = { componentContract: 'passed', probeContract: 'passed', inspectionContract: 'passed', at: new Date().toISOString(), node: process.version, compiledAPI: 'passed', staticUI: 'passed', chromiumExecution: 'passed', historicalEvidence: 'passed', snapshotDelivery: 'passed', cachedEvidence: 'passed', attemptId: attempt.id };
   writeFileSync(resolve('docs/build-smoke.json'), JSON.stringify(result, null, 2)); console.log(result);
 } finally { await app.close(); await engine.close(); await new Promise(r => fixture.close(r)); }

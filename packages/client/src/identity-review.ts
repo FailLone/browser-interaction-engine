@@ -89,14 +89,16 @@ export async function prepareIdentityReview(api: InteractionClient, sessionId: s
     if (e.control && e.control.identityId !== identityId) { e.gaps.push('历史控件与候选身份不一致'); delete e.control; }
     const simultaneous = occurrence?.observationId === h.observationId;
     const unavailable = !e.control ? '历史证据不可用' : simultaneous ? '同次观察同时存在，不能合并' : current.controls.some(c => c.identityId === identityId && c.localId !== h.localId) ? '当前被另一控件占用' : undefined;
-    const comparisons: IdentityReview['candidates'][number]['comparisons'] = (['name', 'role', 'region', 'stableKey', 'instanceId', 'value'] as const).map(field => ({ field, target: target.control?.[field] ?? null, candidate: e.control?.[field] ?? null }));
+    const comparisons: IdentityReview['candidates'][number]['comparisons'] = (['name', 'role', 'region', 'stableKey', 'identityContext', 'instanceId', 'value'] as const).map(field => ({ field, target: target.control?.[field] ?? null, candidate: e.control?.[field] ?? null }));
     comparisons.push({ field: 'declaredAttributes', target: target.node?.attributes ?? null, candidate: e.node?.attributes ?? null });
     return { identityId, exhibit: e, simultaneous, unavailable, comparisons };
   }));
   const currentControl = current.controls.find(c => c.instanceId === target.control?.instanceId);
   const currentDetails = currentControl ? await api.controlDetails(sessionId, current.id, currentControl.localId).catch(() => undefined) : undefined;
   const declared = (node: IdentityExhibit['node']) => Object.fromEntries(Object.entries(node?.attributes || {}).filter(([k]) => /^data-(?!testid)|^name$/.test(k)));
-  const bindingChanged = !!currentControl && (currentControl.stableKey !== target.control?.stableKey || (target.node && currentDetails?.node ? JSON.stringify(declared(target.node)) !== JSON.stringify(declared(currentDetails.node)) : false));
+  const bindingChanged = !!currentControl && (currentControl.stableKey !== target.control?.stableKey ||
+    currentControl.identityContext?.scope !== target.control?.identityContext?.scope || currentControl.identityContext?.binding !== target.control?.identityContext?.binding ||
+    (target.node && currentDetails?.node ? JSON.stringify(declared(target.node)) !== JSON.stringify(declared(currentDetails.node)) : false));
   const visit = visits[originIndex];
   const attempt = visit?.viaAttemptId ? (await listAll<ActionAttempt>(api, sessionId, 'attempts')).find(a => a.id === visit.viaAttemptId) : undefined;
   const origin = await read(h.observationId);
@@ -112,6 +114,7 @@ export async function prepareIdentityReview(api: InteractionClient, sessionId: s
       'independent：有证据排除列出的所有候选，单独追踪；不证明不存在未收集的历史对应。',
       'uncertain：缺少区分证据，保留待确认并列出缺失信息。不要猜测，也不要用单独记录掩盖未知的历史对应。',
       'candidate-N 引用包含该候选的观察时间、控件、DOM 及缺失信息；历史候选只取歧义发生时或之前的最近观察。',
+      '有效证据引用为 target、timeline、current、candidate-N，以及 images 中存在且未标记 unavailable 的 image:<observationId>。',
     ],
     timeline: { ref: 'timeline', cause: origin?.cause, previousObservationId: attempt?.beforeId || visits[originIndex - 1]?.observationId,
       action: attempt && { id: attempt.id, beforeId: attempt.beforeId, afterId: attempt.afterId, status: attempt.status, action: attempt.action },
@@ -133,7 +136,8 @@ export async function includeIdentityImages(api: InteractionClient, review: Iden
 }
 export function identityDecisionCommand(review: IdentityReview, decision: IdentityDecision, source: string): Extract<Command, { type: 'resolveIdentity' }> | undefined {
   if (!decision.reason.trim()) throw new Error('请填写判断理由');
-  const refs = new Set(['target', 'timeline', 'current', ...review.candidates.map(c => c.exhibit.ref)]);
+  const refs = new Set(['target', 'timeline', 'current', ...review.candidates.map(c => c.exhibit.ref),
+    ...Object.entries(review.images).filter(([, image]) => image.status !== 'unavailable').map(([id]) => `image:${id}`)]);
   if (!decision.evidenceRefs.length || decision.evidenceRefs.some(ref => !refs.has(ref))) throw new Error('请引用有效的证据编号');
   if (decision.decision === 'uncertain') {
     if (!decision.missingEvidence?.some(s => s.trim())) throw new Error('请说明还缺少什么信息');
@@ -145,5 +149,6 @@ export function identityDecisionCommand(review: IdentityReview, decision: Identi
   if (decision.decision !== 'same' && decision.decision !== 'independent') throw new Error('未知的判断类型');
   if (!source.trim()) throw new Error('缺少判断来源');
   return { type: 'resolveIdentity', hypothesisId: review.hypothesis.id, identityId: decision.decision === 'independent' ? review.hypothesis.provisionalIdentityId : candidate!.identityId, source,
+    guard: { observationId: review.current.observationId, revision: review.hypothesis.revisions.length },
     evidence: [decision.reason.trim(), `证据：${decision.evidenceRefs.join(', ')}；目标观察：${review.target.observationId}`] };
 }

@@ -14,11 +14,14 @@ export type ActionKind = string;
 export interface Control {
   localId: ID; instanceId: ID; identityId?: ID; hypothesisId?: ID;
   role: string; name: string; label: string; stableKey?: string;
+  /** Adapter-observed semantic scope/binding, never a node index or coordinate. */
+  identityContext?: { scope?: string; binding?: string; evidence: string[] };
   region: string; visible: boolean; enabled: boolean;
 }
 export interface Observation<C extends Control = Control> {
   id: ID; sessionId: ID; capturedAt: string;
   instanceScope: string; controls: C[]; regions: Region[]; context: Context;
+  components?: InteractionComponent[];
   boundaries?: InteractionBoundary[];
   gaps: Gap[]; stable: boolean;
   stateId: ID; visitId: ID; fingerprint: string; canonical: string; ruleVersion: string;
@@ -35,6 +38,21 @@ export interface IdentityHypothesis {
   provisionalIdentityId: ID; candidateIds: ID[]; evidence: string[]; conflicts: string[];
   status: 'pending' | 'resolved'; revisions: { identityId: ID; source: string; evidence: string[]; at: string }[];
 }
+/** Optimistic guard for an external judgment; independent of its author. */
+export interface IdentityReviewGuard { observationId: ID; revision: number }
+export interface ComponentMember { localId: ID; role: string; name?: string; value?: Json; selected?: boolean }
+/** An observed grouping, not a merger of its members' identities. IDs are instance-scoped. */
+export interface InteractionComponent {
+  id: ID; kind: string; name: string; parentId?: ID;
+  members: ComponentMember[]; basis: ActionBasis;
+}
+export interface EvidenceReference { observationId: ID; localId?: ID; componentId?: ID }
+export interface ComponentDescriptionInput {
+  observationId: ID; componentId: ID; kind: string; name?: string;
+  members: ComponentMember[]; source: string; reason: string; evidence: EvidenceReference[];
+}
+/** External interpretation retained separately from immutable observed facts. */
+export interface ComponentDescription extends ComponentDescriptionInput { id: ID; sessionId: ID; createdAt: string }
 export interface ActionCandidate {
   id: ID; sessionId: ID; observationId: ID; stateId: ID; controlId?: ID; localId?: ID;
   kind: ActionKind; label: string; value?: Json;

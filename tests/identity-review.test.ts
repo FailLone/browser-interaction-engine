@@ -80,3 +80,49 @@ it('makes truncated DOM and unavailable original observations explicit without p
     expect(identityDecisionCommand(missing, { decision: 'uncertain', reason: 'Original evidence unavailable', missingEvidence: ['original control and DOM'], evidenceRefs: ['target'] }, 'test')).toBeUndefined();
   }, { evidence: { enabled: true, maxNodes: 5, maxTextLength: 20000, maxHtmlLength: 1000000, maxDomCharacters: 4000000, maxAttributeLength: 4000, maxRuntimeEntries: 100, styles: 'none', accessibility: false, fullPageScreenshot: false } });
 });
+
+it('accepts real image references and guards HTTP decisions against newer observations', async () => {
+  await reviewFixture(async (t, api) => {
+    const h = t.engine.list<IdentityHypothesis>(t.sessionId, 'hypothesis')[0];
+    const review = await prepareIdentityReview(api, t.sessionId, h.id);
+    const decision = { decision: 'independent' as const, reason: 'Distinct simultaneous target', evidenceRefs: [`image:${review.target.observationId}`] };
+    const command = identityDecisionCommand(review, decision, 'external-rule')!;
+    expect(command.guard).toEqual({ observationId: review.current.observationId, revision: 0 });
+    expect(() => identityDecisionCommand(review, { ...decision, evidenceRefs: ['image:invented'] }, 'external-rule')).toThrow('有效的证据');
+    const unavailable = structuredClone(review); unavailable.images[review.target.observationId!].status = 'unavailable';
+    expect(() => identityDecisionCommand(unavailable, decision, 'external-rule')).toThrow('有效的证据');
+    await api.observe(t.sessionId);
+    await expect(api.command(t.sessionId, command)).rejects.toMatchObject({ code: 'STALE_IDENTITY_REVIEW' });
+    expect(t.engine.store.require<IdentityHypothesis>('hypothesis', h.id).status).toBe('pending');
+    const fresh = await prepareIdentityReview(api, t.sessionId, h.id);
+    await api.command(t.sessionId, identityDecisionCommand(fresh, decision, 'external-rule')!);
+    expect(t.engine.store.require<IdentityHypothesis>('hypothesis', h.id).status).toBe('resolved');
+    await expect(api.command(t.sessionId, command)).rejects.toMatchObject({ code: 'STALE_IDENTITY_REVIEW' });
+    expect(t.engine.store.require<IdentityHypothesis>('hypothesis', h.id).revisions).toHaveLength(1);
+  });
+});
+
+it('rejects live binding changes even when a caller bypasses the client review helper', async () => {
+  await reviewFixture(async (t, api) => {
+    const h = t.engine.list<IdentityHypothesis>(t.sessionId, 'hypothesis')[0];
+    const o = t.engine.observation(t.sessionId); const target = o.controls.find(c => c.localId === h.localId)!;
+    await pageOf(t.engine).locator(target.selector).evaluate(el => el.setAttribute('data-operation-key', 'changed-operation'));
+    const command = { type: 'resolveIdentity' as const, hypothesisId: h.id, identityId: h.provisionalIdentityId, source: 'direct-http', evidence: ['old target'] };
+    await expect(api.command(t.sessionId, command)).rejects.toMatchObject({ code: 'STALE_IDENTITY_REVIEW' });
+    // After a fresh capture, the original hypothesis is still bound to the old attributes.
+    await expect(t.engine.resolveIdentity(t.sessionId, h.id, h.provisionalIdentityId, 'direct-sdk', ['old target'])).rejects.toMatchObject({ code: 'STALE_IDENTITY_REVIEW' });
+    expect(t.engine.store.require<IdentityHypothesis>('hypothesis', h.id).revisions).toHaveLength(0);
+    expect(t.engine.store.events(t.sessionId).filter(e => e.type === 'identity.resolved')).toHaveLength(0);
+  });
+});
+
+it('snapshots SDK review guards and evidence before the command waits in the queue', async () => {
+  await reviewFixture(async t => {
+    const h = t.engine.list<IdentityHypothesis>(t.sessionId, 'hypothesis')[0];
+    const guard = { observationId: t.engine.observation(t.sessionId).id, revision: 0 }; const evidence = ['Original reviewed evidence'];
+    const pending = t.engine.resolveIdentity(t.sessionId, h.id, h.provisionalIdentityId, 'sdk-reviewer', evidence, guard);
+    guard.observationId = 'changed-by-caller'; evidence[0] = 'changed-by-caller';
+    const result = await pending;
+    expect(result.revisions[0].evidence).toEqual(['Original reviewed evidence']);
+  });
+});

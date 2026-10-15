@@ -1,0 +1,287 @@
+{
+  "date": "2026-10-15",
+  "url": "https://www.okx.com/zh-hans/convert/btc-to-usd",
+  "baseline": "722a8c7",
+  "inputSha256": "c2882e2770f589774ae16e5d8c203c326f1263358a74352f58cdc3f131e1f346",
+  "method": "Same captured controls; frozen baseline matcher/signature compared with current matcher plus observed contextual evidence.",
+  "phases": [
+    {
+      "phase": "initial",
+      "capturedAt": "2026-10-15T03:15:03.711Z",
+      "observationId": "e00ae826-3d01-48b4-87b1-963afd6c90a5",
+      "controls": 296,
+      "before": {
+        "currentPending": 37,
+        "cumulativePending": 37,
+        "actionablePending": 28
+      },
+      "after": {
+        "currentPending": 5,
+        "cumulativePending": 5,
+        "actionablePending": 5
+      }
+    },
+    {
+      "phase": "repeat-1",
+      "capturedAt": "2026-10-15T03:15:05.569Z",
+      "observationId": "f1d3c0cc-32c8-483b-98dd-eeb3aec297bd",
+      "controls": 296,
+      "before": {
+        "currentPending": 43,
+        "cumulativePending": 43,
+        "actionablePending": 31
+      },
+      "after": {
+        "currentPending": 6,
+        "cumulativePending": 6,
+        "actionablePending": 5
+      }
+    },
+    {
+      "phase": "repeat-2",
+      "capturedAt": "2026-10-15T03:15:07.369Z",
+      "observationId": "610d4cbf-ab0b-490e-a5ee-4ef89b7bce6a",
+      "controls": 296,
+      "before": {
+        "currentPending": 43,
+        "cumulativePending": 43,
+        "actionablePending": 31
+      },
+      "after": {
+        "currentPending": 6,
+        "cumulativePending": 6,
+        "actionablePending": 5
+      }
+    },
+    {
+      "phase": "close-region-notice",
+      "capturedAt": "2026-10-15T03:15:09.387Z",
+      "observationId": "8d518fb1-e709-4f48-bcc5-7a90a096354d",
+      "controls": 287,
+      "before": {
+        "currentPending": 40,
+        "cumulativePending": 43,
+        "actionablePending": 29
+      },
+      "after": {
+        "currentPending": 5,
+        "cumulativePending": 6,
+        "actionablePending": 5
+      }
+    },
+    {
+      "phase": "btc-2",
+      "capturedAt": "2026-10-15T03:15:13.155Z",
+      "observationId": "f3491ac3-f739-45fb-bb54-8c0520c9a12e",
+      "controls": 287,
+      "before": {
+        "currentPending": 40,
+        "cumulativePending": 43,
+        "actionablePending": 29
+      },
+      "after": {
+        "currentPending": 5,
+        "cumulativePending": 6,
+        "actionablePending": 5
+      }
+    },
+    {
+      "phase": "usd-100",
+      "capturedAt": "2026-10-15T03:15:17.140Z",
+      "observationId": "e6dfb72e-b778-400b-b2a9-850067d11abd",
+      "controls": 287,
+      "before": {
+        "currentPending": 40,
+        "cumulativePending": 43,
+        "actionablePending": 29
+      },
+      "after": {
+        "currentPending": 5,
+        "cumulativePending": 6,
+        "actionablePending": 5
+      }
+    },
+    {
+      "phase": "faq-open",
+      "capturedAt": "2026-10-15T03:15:20.685Z",
+      "observationId": "b177451f-30d0-4ee5-9729-531ca6c92b5e",
+      "controls": 287,
+      "before": {
+        "currentPending": 40,
+        "cumulativePending": 43,
+        "actionablePending": 29
+      },
+      "after": {
+        "currentPending": 5,
+        "cumulativePending": 6,
+        "actionablePending": 5
+      }
+    },
+    {
+      "phase": "faq-close",
+      "capturedAt": "2026-10-15T03:15:24.261Z",
+      "observationId": "eaa90b24-8050-4ffd-a861-872cb7b854c9",
+      "controls": 287,
+      "before": {
+        "currentPending": 40,
+        "cumulativePending": 43,
+        "actionablePending": 29
+      },
+      "after": {
+        "currentPending": 5,
+        "cumulativePending": 6,
+        "actionablePending": 5
+      }
+    },
+    {
+      "phase": "external-currency-open",
+      "capturedAt": "2026-10-15T03:15:26.866Z",
+      "observationId": "8cfdc56a-b67f-4ee6-ac17-19b09f5a1bcb",
+      "controls": 287,
+      "before": {
+        "currentPending": 40,
+        "cumulativePending": 43,
+        "actionablePending": 29
+      },
+      "after": {
+        "currentPending": 5,
+        "cumulativePending": 6,
+        "actionablePending": 5
+      }
+    },
+    {
+      "phase": "external-search-ETH",
+      "capturedAt": "2026-10-15T03:15:28.931Z",
+      "observationId": "dbb72089-15bf-4f20-bb1c-39762d9d8dad",
+      "controls": 286,
+      "before": {
+        "currentPending": 40,
+        "cumulativePending": 43,
+        "actionablePending": 29
+      },
+      "after": {
+        "currentPending": 5,
+        "cumulativePending": 6,
+        "actionablePending": 5
+      }
+    },
+    {
+      "phase": "external-currency-close",
+      "capturedAt": "2026-10-15T03:15:30.759Z",
+      "observationId": "e288ae57-a9a1-4777-8b56-50a6f3c5112c",
+      "controls": 286,
+      "before": {
+        "currentPending": 40,
+        "cumulativePending": 43,
+        "actionablePending": 29
+      },
+      "after": {
+        "currentPending": 5,
+        "cumulativePending": 6,
+        "actionablePending": 5
+      }
+    },
+    {
+      "phase": "reload",
+      "capturedAt": "2026-10-15T03:15:33.787Z",
+      "observationId": "623eb3f8-98f7-4242-a169-13f5f8f2d38c",
+      "controls": 296,
+      "before": {
+        "currentPending": 43,
+        "cumulativePending": 86,
+        "actionablePending": 31
+      },
+      "after": {
+        "currentPending": 6,
+        "cumulativePending": 12,
+        "actionablePending": 5
+      }
+    }
+  ],
+  "checks": {
+    "oneToOneAssignment": "passed on every replayed observation",
+    "numericTargetValues": "BTC=2 and USD=100 observed after engine fills",
+    "amountIdentityContinuity": "passed through fills, popup/search and reload",
+    "faqIdentityAfterReload": "passed for all 10 FAQ controls",
+    "searchInteraction": "external browser probe; existing outside_active_boundary limitation retained"
+  },
+  "scope": "Public converter, FAQ and currency popup only; no voting, login, registration or transaction; no exhaustive traversal claim.",
+  "remaining": [
+    {
+      "role": "button",
+      "name": "",
+      "actions": [
+        "click"
+      ],
+      "visible": true,
+      "identityContext": {
+        "scope": "[\"heading\",\"BTC/USD：将 Bitcoin (BTC) 兑换为 美元 (USD)\"]",
+        "evidence": [
+          "semantic-ancestor-scope/v1"
+        ]
+      }
+    },
+    {
+      "role": "button",
+      "name": "",
+      "actions": [
+        "click"
+      ],
+      "visible": true,
+      "identityContext": {
+        "scope": "[\"heading\",\"BTC/USD：将 Bitcoin (BTC) 兑换为 美元 (USD)\"]",
+        "evidence": [
+          "semantic-ancestor-scope/v1"
+        ]
+      }
+    },
+    {
+      "role": "button",
+      "name": "",
+      "actions": [
+        "click"
+      ],
+      "visible": true,
+      "identityContext": {
+        "scope": "[\"heading\",\"BTC/USD：将 Bitcoin (BTC) 兑换为 美元 (USD)\"]",
+        "evidence": [
+          "semantic-ancestor-scope/v1"
+        ]
+      }
+    },
+    {
+      "role": "button",
+      "name": "",
+      "actions": [
+        "click"
+      ],
+      "visible": true,
+      "identityContext": {
+        "scope": "[\"heading\",\"BTC/USD：将 Bitcoin (BTC) 兑换为 美元 (USD)\"]",
+        "evidence": [
+          "semantic-ancestor-scope/v1"
+        ]
+      }
+    },
+    {
+      "role": "button",
+      "name": "",
+      "actions": [
+        "click"
+      ],
+      "visible": true,
+      "identityContext": {
+        "scope": "[\"heading\",\"BTC/USD：将 Bitcoin (BTC) 兑换为 美元 (USD)\"]",
+        "evidence": [
+          "semantic-ancestor-scope/v1"
+        ]
+      }
+    },
+    {
+      "role": "generic",
+      "name": "",
+      "actions": [],
+      "visible": false
+    }
+  ]
+}

@@ -1,10 +1,11 @@
 import { EvidenceImage } from './EvidenceImage.js';
+import { Components } from './Components.js';
 import React, { useEffect, useState } from 'react';
 import type { InteractionClient } from '@interaction/client';
 import type { ControlDetails, DomResult, EventContext, Gap, ObservationDetails, EvidenceDelivery } from '@interaction/browser';
 
 const relationNames: Record<string, string> = { before: '操作前', after: '操作后', observation: '关联观察', actionSource: '操作来源', currentAtEvent: '事件发生时' };
-const views = [['controls', '控件详情'], ['dom', 'DOM / HTML'], ['images', '截图'], ['aria', 'ARIA'], ['runtime', '页面与运行记录'], ['gaps', '采集缺口'], ['json', '完整 JSON']];
+const views = [['controls', '控件详情'], ['components', '复合控件'], ['dom', 'DOM / HTML'], ['images', '截图'], ['aria', 'ARIA'], ['runtime', '页面与运行记录'], ['gaps', '采集缺口'], ['json', '完整 JSON']];
 const json = (value: unknown) => JSON.stringify(value, null, 2);
 function Json({ value }: { value: unknown }) { return <pre>{json(value)}</pre>; }
 function Section({ title, value }: { title: string; value: unknown }) { return <details className="evidence-section"><summary>{title}</summary><Json value={value} /></details>; }
@@ -64,6 +65,7 @@ function ObservationEvidence({ api, sessionId, details, delivered }: { api: Inte
     {!delivered && <RetentionControls api={api} sessionId={sessionId} observationId={o.id} />}
     <nav className="evidence-views" aria-label="详细证据分类">{views.map(([key, label]) => <button key={key} aria-pressed={view === key} onClick={() => setView(key)}>{label}</button>)}</nav>
     {view === 'controls' && (delivered ? <><p className="muted">事件快照中的控件与操作；详情和 DOM 使用已交付内容，图片引用仍受服务端留存限制。</p><Json value={{ controls: o.controls, actions: details.actions, context: o.context }} /></> : <Controls api={api} sessionId={sessionId} details={details} openDom={id => { setRootId(id); setView('dom'); }} />)}
+    {view === 'components' && (delivered ? <Json value={{ components: o.components, nodes: snapshot?.dom?.nodes }} /> : <Components api={api} sessionId={sessionId} observation={o} openDom={id => { setRootId(id); setView('dom'); }} />)}
     {view === 'dom' && <>{delivered ? <Json value={snapshot?.dom?.nodes} /> : <><DomTree key={rootId || 'document'} api={api} sessionId={sessionId} observationId={o.id} rootId={rootId} /><button disabled={!rootId} onClick={() => setRootId(undefined)}>查看整个文档</button></>}<details className="evidence-section"><summary>原始 HTML{snapshot?.dom?.htmlTruncated ? '（采集已截断）' : ''}</summary><pre>{snapshot?.dom?.html ?? '此观察没有保存 HTML'}</pre></details></>}
     {view === 'images' && <div className="evidence-images">{(['screenshot', 'fullPageScreenshot'] as const).map(kind => {
       const artifact = o.evidence?.artifacts[kind]; const present = !!artifact || kind === 'screenshot' && !!o.screenshot;

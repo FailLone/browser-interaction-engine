@@ -58,6 +58,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   override report(sessionId: string) { return { ...super.report(sessionId), controlCoverage: this.controlCoverage(sessionId) }; }
   observationDetails(sessionId: string, observationId: string) { return this.evidenceQueries.details(sessionId, observationId); }
   controlDetails(sessionId: string, observationId: string, controlId: string) { return this.evidenceQueries.control(sessionId, observationId, controlId); }
+  componentDetails(sessionId: string, observationId: string, componentId: string) { return this.evidenceQueries.component(sessionId, observationId, componentId); }
   regionDetails(sessionId: string, observationId: string, key: string) { return this.evidenceQueries.region(sessionId, observationId, key); }
   dom(sessionId: string, observationId: string, query: DomQuery = {}) { return this.evidenceQueries.dom(sessionId, observationId, query); }
   eventContext(sessionId: string, sequence: number) { return this.evidenceQueries.eventContext(sessionId, sequence); }
@@ -97,13 +98,15 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   async command(sessionId: string, input: unknown) {
     const command: Command = commandSchema.parse(input);
     switch (command.type) {
+      case 'describeComponent': { const { type: _, ...description } = command; return this.describeComponent(sessionId, description); }
+      case 'probe': return this.probe(sessionId, command.observationId, command.localId, command.kind, command.requestId);
       case 'observe': return this.observe(sessionId);
       case 'inspect': return this.inspect(sessionId, command.region);
       case 'execute': return this.execute(sessionId, command.actionId, command.requestId, command.value);
       case 'explore': case 'resume': return this.explore(sessionId);
       case 'pause': return this.pause(sessionId);
       case 'stop': return this.stop(sessionId);
-      case 'resolveIdentity': return this.resolveIdentity(sessionId, command.hypothesisId, command.identityId, command.source, command.evidence);
+      case 'resolveIdentity': return this.resolveIdentity(sessionId, command.hypothesisId, command.identityId, command.source, command.evidence, command.guard);
       case 'openScope': return this.openScope(sessionId, command.name, command.region);
       case 'closeScope': return this.closeScope(sessionId, command.scopeId);
       case 'createCheckpoint': {

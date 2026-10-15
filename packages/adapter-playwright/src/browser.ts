@@ -13,12 +13,15 @@ import { now } from './util.js';
 import { collectOverlays } from './overlays.js';
 import { collectActionEvidence } from './action-evidence.js';
 import { collectEvidence } from './collect-evidence.js';
+import { collectIdentityContexts } from './identity-context.js';
+import { collectPopupRelations } from './popup-relations.js';
+import { collectComponents } from './components.js';
 import { evidenceOptionsSchema } from './schema.js';
 import { RuntimeRecorder } from './runtime-evidence.js';
 import type { BrowserEvidenceManifest, DetailSnapshot, DomEvidence, EvidenceOptions } from './evidence-types.js';
 
 // Runs in the page without framework knowledge or DOM mutation.
-function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions) {
+function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
@@ -95,6 +98,8 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   regions.unshift({ key: 'document', label: document.title, role: 'document', selector: 'body', parentKey: '', rect: rect(body), text: bodyText.slice(0, 8000) });
   const query = 'a[href],button,input:not([type=hidden]),select,textarea,summary,[role=button],[role=link],[role=menuitem],[role=menuitemcheckbox],[role=menuitemradio],[role=option],[role=tab],[role=checkbox],[role=radio],[role=switch],[role=combobox],[role=dialog],[role=alertdialog],dialog,[popover],[aria-expanded],[onclick],[tabindex],[contenteditable]:not([contenteditable=false])';
   const selected = new Set(document.querySelectorAll(query));
+  const popupRelations = popupCollector();
+  for (const relation of popupRelations) if (relation.trigger) selected.add(relation.trigger);
   // Document roots host event delegation and focus management. Preserve those
   // signals separately instead of making the entire document an action target.
   const documentRoots = [document.documentElement, body].filter((el): el is HTMLElement => !!el);
@@ -110,9 +115,16 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const r = rect(el); const style = getComputedStyle(el);
     const visible = r.width > 0 && r.height > 0 && style.visibility !== 'hidden' && style.display !== 'none' && !el.closest('[hidden],[inert]');
     const enabled = !e.disabled && !el.matches(':disabled') && el.getAttribute('aria-disabled') !== 'true' && !el.closest('[inert]');
-    const semanticRole = role(el); const name = label(el) || clean(el.textContent) || clean(el.getAttribute('title')) || clean(el.getAttribute('placeholder')) || (['submit', 'button'].includes(e.type) ? e.value : '');
+    const popupRelation = popupRelations.find(p => p.trigger === el);
+    const ownText = popupRelation ? Array.from(el.children).filter(child => child !== popupRelation.panel).map(child => child.textContent).join(' ') : el.textContent;
+    const semanticRole = role(el); const name = label(el) || clean(ownText) || clean(el.getAttribute('title')) || clean(el.getAttribute('placeholder')) || (['submit', 'button'].includes(e.type) ? e.value : '');
     const type = el.tagName === 'INPUT' ? e.type : el.tagName.toLowerCase();
     const capabilities = actionCollector(el);
+    if (popupRelation && !capabilities.actions.length) {
+      capabilities.actions.push('click');
+      capabilities.actionBasis.click = { status: 'tentative', evidence: [{ source: 'dom-structure', rule: 'positioned-choice-popup-trigger/v1',
+        facts: { contentRole: popupRelation.content.getAttribute('role') || '', relation: 'positioned-child-panel-with-sibling-title', purpose: 'unverified' } }] };
+    }
     const editable = enabled && !e.readOnly && el.getAttribute('aria-readonly') !== 'true' && capabilities.actions.includes('fill');
     const x = Math.max(0, Math.min(innerWidth - 1, r.x + r.width / 2)); const y = Math.max(0, Math.min(innerHeight - 1, r.y + r.height / 2));
     const hit = document.elementFromPoint(x, y);
@@ -121,6 +133,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const stableKey = scopedControlKey(el, name, type);
     return {
       localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey,
+      reviewAttributes: Object.fromEntries(Array.from(el.attributes).filter(a => /^data-(?!testid)|^name$/.test(a.name)).map(a => [a.name, a.value])),
       region: regionKey(el.closest(regionSelector)), form: regionKey(el.closest('form')), selector: selector(el), rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
       checked: ['checkbox', 'radio'].includes(type) ? e.checked : el.hasAttribute('aria-checked') ? el.getAttribute('aria-checked') === 'true' : null,
@@ -141,8 +154,10 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   gaps.push({ code: 'EVENT_LISTENER_COVERAGE', message: 'Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation.' });
   if (all.length > controls.length) gaps.push({ code: 'TRUNCATED', message: `${all.length - controls.length} controls omitted`, critical: true });
   if (bodyText.length > 50000) gaps.push({ code: 'TEXT_TRUNCATED', message: 'Visible text was truncated to 50000 characters' });
-  const layers = overlayCollector(controls, regions);
-  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, ...layers, actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
+  const layers = overlayCollector(controls, regions, popupRelations);
+  identityCollector(all.slice(0, 1500), controls);
+  const components = componentCollector(all.slice(0, 1500), controls, popupRelations);
+  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, components, ...layers, actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
 
 export class BrowserAdapter implements InteractionDriver<Observation, SessionOptions> {
@@ -174,8 +189,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
     const args = detailed ? `, ${collectEvidence.toString()}, ${JSON.stringify(this.options.evidence)}` : '';
-    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}${args}); })()`;
-    return this.page.evaluate(source) as Promise<{ documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[]; overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>; actionDiscovery?: Observation['actionDiscovery']; scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence }>;
+    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}${args}); })()`;
+    return this.page.evaluate(source) as Promise<{ documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[]; components: NonNullable<Observation['components']>; overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>; actionDiscovery?: Observation['actionDiscovery']; scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence }>;
   }
   async capture(observationId: string) {
     if (!this.page) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
@@ -215,7 +230,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     }
     // Keep the last successful evidence, or an explicitly incomplete record when
     // the execution context never became readable. Never replay the action here.
-    dom ??= { documentId: `unavailable:${id()}`, url: this.page.url(), title: '', text: '', controls: [], regions: [], overlays: [], boundaries: [], scroll: { x: 0, y: 0, maxY: 0 }, gaps: [] };
+    dom ??= { documentId: `unavailable:${id()}`, url: this.page.url(), title: '', text: '', controls: [], regions: [], components: [], overlays: [], boundaries: [], scroll: { x: 0, y: 0, maxY: 0 }, gaps: [] };
     const capturedAt = now(); const gaps = [...dom.gaps, ...this.gaps.splice(0)];
     if (lastError) gaps.push({ code: 'DOM_CAPTURE_FAILED', message: lastError, critical: true });
     if (!stable) gaps.push({ code: 'UNSTABLE', message: 'Page did not settle within the observation budget', critical: !(this.options.exploration === 'controls' && interactionStable) });
@@ -291,6 +306,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       else if (control.checked !== action.value) await target.click(clickOptions);
     } else if (action.kind === 'press') await target.press(String(action.value));
     else if (action.kind === 'click') await target.click(clickOptions);
+    else if (action.kind === 'hover') await target.hover(clickOptions);
+    else if (action.kind === 'focus') await target.focus();
     else throw new EngineError('UNSUPPORTED_ACTION', `Unsupported browser action: ${action.kind}`);
   }
   async validateInput(control: Control, value: string) {
@@ -313,7 +330,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       const interfaceAction = !submitsForm && (boundaryExit || ['fill', 'select', 'check', 'scroll', 'press'].includes(kind) || c?.expanded !== null && c?.expanded !== undefined || ['menuitem', 'option', 'tab', 'link'].includes(c?.role || '') || c?.tag === 'summary');
       const risk = submitsForm ? 'submission' : interfaceAction ? 'interface' : 'unknown';
       const basis: NonNullable<ActionCandidate['basis']> = c ? c.actionBasis?.[kind] || { status: 'tentative', evidence: [{ source: 'adapter-playwright', rule: 'missing-operation-evidence/v1', facts: { kind } }] } : { status: 'supported', evidence: [{ source: 'adapter-playwright', rule: kind === 'scroll' ? 'viewport-scroll/v1' : 'overlay-escape-probe/v1', facts: kind === 'scroll' ? { y: o.scroll.y, maxY: o.scroll.maxY } : { key: 'Escape', boundary: o.overlays?.at(-1)?.key || '', effect: 'unknown' } }] };
-      const a: ActionCandidate = { id: id(), sessionId: o.sessionId, observationId: o.id, stateId: o.stateId, controlId: c?.identityId, localId: c?.localId, kind, value, label: c?.name || (kind === 'scroll' ? 'Scroll page' : 'Close overlay'), preconditions: { context: o.context, visible: true, enabled: true, identityResolved: true }, basis, replayable: interfaceAction && basis.status !== 'tentative', risk: basis.status === 'tentative' ? 'unknown' : risk, source: 'dom-actions-v2', excluded: !!blocked, exclusionReason: blocked, sampleValidity };
+      const a: ActionCandidate = { id: id(), sessionId: o.sessionId, observationId: o.id, stateId: o.stateId, controlId: c?.identityId, localId: c?.localId, kind, value, label: c ? c.name || `Unnamed ${c.role || c.tag}` : kind === 'scroll' ? 'Scroll page' : 'Try Escape on overlay', preconditions: { context: o.context, visible: true, enabled: true, identityResolved: true }, basis, replayable: interfaceAction && basis.status !== 'tentative', risk: basis.status === 'tentative' ? 'unknown' : risk, source: 'dom-actions-v2', excluded: !!blocked, exclusionReason: blocked, sampleValidity };
       actions.push(constrain(a, o, session));
     };
     for (const c of o.controls.filter(c => c.visible)) {
@@ -353,7 +370,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const liveCanonical = observableCanonical({ ...current, ...live, context: current.context, gaps: current.gaps });
     const changed = this.options.exploration === 'controls' ? interactionProjection(live) !== interactionProjection(current)
       : liveCanonical !== current.canonical || live.controls.some((c, i) => c.instanceId !== current.controls[i]?.instanceId);
-    if (changed) {
+    const bindingsChanged = live.controls.some(c => { const old = current.controls.find(p => p.instanceId === c.instanceId); return old && canonical(old.reviewAttributes || {}) !== canonical(c.reviewAttributes || {}); });
+    const componentBinding = (components: Observation['components']) => (components || []).map(({ id, kind, name, parentId, members }) => ({ id, kind, name, parentId, members }));
+    if (changed || bindingsChanged || canonical(componentBinding(live.components)) !== canonical(componentBinding(current.components))) {
       return 'stale';
     }
     // Context rules must be re-read even when their DOM node is not an interactive control.
@@ -366,6 +385,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     return 'valid';
   }
   async validate(action: ActionCandidate, control?: Control) {
+    if (action.kind === 'focus' && (!control || !await this.page!.locator(control.selector).evaluate(el => el.matches('input:not([type=hidden]),textarea,select,button,a[href],[tabindex]') || (el as HTMLElement).isContentEditable))) throw new EngineError('INVALID_INPUT', 'Focus requires a focusable control');
     if (action.kind === 'fill' && typeof action.value !== 'string' && typeof action.value !== 'number') throw new EngineError('INVALID_INPUT', 'Fill requires text or a number');
     if (action.kind === 'check' && typeof action.value !== 'boolean') throw new EngineError('INVALID_INPUT', 'Check requires a boolean');
     if (action.kind === 'select' && !control?.options.some(o => o.value === action.value && !o.disabled)) throw new EngineError('INVALID_INPUT', 'Select value is not an enabled option');
