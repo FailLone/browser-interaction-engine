@@ -132,6 +132,20 @@
 
 另一个运行退出退役修复的默认遍历再次到达完整币种列表底部，按实际列表归属复核仍为 821 个选项；退出后 244 条未尝试出口已退役，无遗留待执行的旧出口。法币搜索无结果时补充当前清空样本及外部点击退出声明后，继续遍历。这个长会话未加载最后的名称修复，与上面的新版本选择批次分别记录。
 
+## 悬停说明与网站错误页的继续验证
+
+浏览器适配器和工作台增加带来源审阅的 `hover` 操作，沿用当前节点、可达性、遮挡和弹层检查。关闭按钮的退出资格限定为 click，悬停不会误获退出权限。标准 `role=tooltip` 内容从父控件后备名称排除；没有把所有 pointer 元素自动升级为悬停候选。
+
+独立回归覆盖原生悬停显示说明且不触发点击、保持原观察和覆盖记录、未审阅目标不自动执行、遮挡/不可达/节点替换保护、视口外正常目标滚动到位，以及关闭按钮悬停不退出弹层。完整 239 项测试 / 45 文件、typecheck、build、smoke:built 通过。
+
+真实页面逐项验证了 24h low、24h high、All-time high、All-time low、Market cap、Circulating supply 六个说明，以及换算框信息图标的更新时间说明。七个探测均经引擎执行；后续样式、文字和截图确认显示，移开指针后确认消失，金额没有因统计说明操作改变。详见 [reviewed-hover.json](reviewed-hover.json)、[统计说明截图](statistics-hover.png)和[更新时间截图](information-hover.png)。
+
+这也暴露了未修复的名称问题：六个 CSS 提示没有标准 tooltip 语义，显示时说明文字进入父控件后备名称，六个目标均产生身份变化。此问题不能靠反复人工合并掩盖。后续需要基于有证据的说明归属及显示/隐藏关系隔离内容，同时保护真实业务标签变化；当前只证明标准语义提示的名称稳定，不能宣称实际六个目标的身份已修复。
+
+选币批次的新增快照记录 33 个正常完成的选择与返回，另有 ALAB 在首次到达网站错误页后，经一次审阅的原生 Reload 操作恢复，留存观察核对了 ALAB/USD 标签并返回来源，共 34 个选择分支得到上述验证。33 个正常分支中 6 次严格旧检查点恢复通过、27 次未通过；ALAB 的严格恢复也未通过。原错误页、审阅和恢复证据均保留，见 [currency-selection-continuation.json](currency-selection-continuation.json) 和[错误页截图](alab-site-error.png)。后续批次继续运行，821 个观察到的选项仍不等于全部选完。
+
+退出退役版本的默认遍历现已结束：368 次实际动作全部 succeeded，停止原因是 `known_frontier_exhausted_with_gaps`，没有触及上限。待办仍有 1,513 条 blocked：407 条导航待审阅、958 条用途待审阅、101 条旧路径不能重放、45 条遮挡、2 条不可达；这些是待办数量，不是独立控件数。该会话未加载后续名称和悬停修复，与新版本独立实测分开记录，见 [automatic-retirement-completion.json](automatic-retirement-completion.json)。
+
 ## 原始审计
 
 2026-10-15（Asia/Shanghai），测试版本为已合入 `main` 的 `e793fba`。先完成合并，再访问 https://www.okx.com/convert/btc-to-usd 。合并验证：181 项测试 / 34 个文件通过，typecheck、build、smoke:built 通过。运行环境为 Node.js 24.21.0、Playwright Chromium，1440 × 900。

@@ -43,17 +43,17 @@ export function constrain(action: ActionCandidate, observation: Observation, ses
     // Some popups close through an external toggle without DOM ownership hints.
     // This is a sourced intent for this observation, not evidence of an exit.
     declaredExit = hasDeclaredBoundaryExit(action, observation);
-    const exit = action.kind === 'press' && action.value === 'Escape' && !control || !!control && active.exitControlIds.includes(control.localId) || declaredExit;
+    const exit = action.kind === 'press' && action.value === 'Escape' && !control || action.kind === 'click' && !!control && active.exitControlIds.includes(control.localId) || declaredExit;
     const inside = !!control && active.controlIds.includes(control.localId);
     if (inside || exit) action.boundary = { key: active.key, intent: exit ? 'exit' : 'interact' };
     else action.preconditions.blockers.push({ code: 'outside_active_boundary', boundaryKey: active.key, evidence: active.evidence, unblock: `Close and verify exit from ${active.name} before interacting with its parent` });
   }
   if (control) {
     if (control.actionable.outsideScrollableArea) action.preconditions.blockers.push({ code: 'outside_scrollable_area', evidence: ['target-outside-scrollable-viewport'], unblock: 'Make the control reachable in the viewport' });
-    else if (['click', 'check', 'scroll'].includes(action.kind) && control.actionable.hitTarget === false) action.preconditions.blockers.push({ code: 'pointer_intercepted', evidence: [control.actionable.occludedBy || 'hit-test-failed'], unblock: 'Remove the obstruction and observe again' });
+    else if (['click', 'check', 'scroll', 'hover'].includes(action.kind) && control.actionable.hitTarget === false) action.preconditions.blockers.push({ code: 'pointer_intercepted', evidence: [control.actionable.occludedBy || 'hit-test-failed'], unblock: 'Remove the obstruction and observe again' });
   }
   if (control && action.kind === 'fill' && !control.editable) action.preconditions.blockers.push({ code: 'not_editable', evidence: ['observed-editable=false'], unblock: 'Wait until the field is editable and observe again' });
-  if (!['click', 'fill', 'select', 'check', 'scroll', 'press', 'history'].includes(action.kind)) throw new EngineError('INVALID_PLUGIN_ACTION', 'Unsupported browser action kind');
+  if (!['click', 'fill', 'select', 'check', 'scroll', 'press', 'hover', 'history'].includes(action.kind)) throw new EngineError('INVALID_PLUGIN_ACTION', 'Unsupported browser action kind');
   if (action.kind === 'history' && (session.dirty || !historyTarget(action, observation.navigation))) {
     action.preconditions.blockers.push({ code: 'unverified_history_return', evidence: ['History return requires a previously observed GET entry in this browser session and no unresolved business effects'], unblock: 'Observe a valid return target and resolve business state requirements' });
   }

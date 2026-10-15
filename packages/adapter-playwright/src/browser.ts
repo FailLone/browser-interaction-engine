@@ -62,7 +62,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       acceptNode(node) {
         if (node.nodeType === Node.TEXT_NODE) return NodeFilter.FILTER_ACCEPT;
         const child = node as Element;
-        if (independentScopes?.has(child) || child.matches('script,style,[hidden],[aria-hidden=true],dialog,[role=dialog],[role=alertdialog],[role=menu],[role=listbox],[role=grid],[role=tree],[role=tabpanel],[popover]')) return NodeFilter.FILTER_REJECT;
+        if (independentScopes?.has(child) || child.matches('script,style,[hidden],[aria-hidden=true],dialog,[role=dialog],[role=alertdialog],[role=menu],[role=listbox],[role=grid],[role=tree],[role=tabpanel],[role=tooltip],[popover]')) return NodeFilter.FILTER_REJECT;
         const style = getComputedStyle(child);
         return style.display === 'none' || style.visibility === 'hidden' ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_SKIP;
       },
@@ -415,7 +415,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         return el && (window as any).__interactionEvidenceTracker?.ids.get(el) === instanceId
           && (delta.x !== 0 && el.scrollLeft !== before.x || delta.y !== 0 && el.scrollTop !== before.y);
       }, { selector: control.selector, instanceId: control.instanceId, before, delta }, { timeout: this.options.actionTimeoutMs });
-    } else if (action.kind === 'fill') await target.fill(String(action.value ?? ''));
+    } else if (action.kind === 'hover') await target.hover(clickOptions);
+    else if (action.kind === 'fill') await target.fill(String(action.value ?? ''));
     else if (action.kind === 'select') await target.selectOption(String(action.value));
     else if (action.kind === 'check') {
       if (control.tag === 'input') await target.setChecked(Boolean(action.value), clickOptions);

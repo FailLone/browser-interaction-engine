@@ -1,0 +1,2301 @@
+{
+  "snapshotAt": "2026-10-15T00:17:05.447772+00:00",
+  "sessionId": "38394526-c548-49c6-8b74-ef2687fc3eae",
+  "runtimeCommit": "05a10ea",
+  "manifestOptionNames": 821,
+  "normalSelectionsAndReturns": 33,
+  "recoveredSiteErrorBranches": 1,
+  "branches": [
+    {
+      "index": 0,
+      "name": "BTC",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "06a8b270-8a6a-4bf2-9912-b396a7ba954e",
+      "filteredObservationId": "6d05f671-a8e9-49aa-9fa5-17d375db73e2",
+      "destinationObservationId": "d9e9418d-2aa0-4df9-adce-8bf8bf3693ad",
+      "destinationUrl": "https://www.okx.com/convert/btc-to-usd",
+      "selectedLabel": {
+        "localId": "e3d26732-8435-4fa3-9df0-51876f771fa5:467",
+        "name": "BTC",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "aa79ab0a-1370-4dc2-9e7f-911f68679235",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "68566d6e-8bdf-4aff-9684-6a07072656b7",
+          "status": "succeeded",
+          "beforeId": "0c0ab453-b41b-4eeb-8503-01074b15cd8d",
+          "afterId": "dd04dbc8-2c6f-434b-9618-ab9d613b01df",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "04c1cab0-79fb-43ea-8d42-1a0494fc9def:466",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "d2afa416-83b4-4e8a-bf58-cccce9efcfaf",
+          "status": "succeeded",
+          "beforeId": "dd04dbc8-2c6f-434b-9618-ab9d613b01df",
+          "afterId": "6d05f671-a8e9-49aa-9fa5-17d375db73e2",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "BTC",
+            "localId": "04c1cab0-79fb-43ea-8d42-1a0494fc9def:452",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "2c987513-f260-483c-8d24-fda7559a46e7",
+          "status": "succeeded",
+          "beforeId": "d95762b7-f86b-4220-b675-bb3e32a676bf",
+          "afterId": "d9e9418d-2aa0-4df9-adce-8bf8bf3693ad",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "04c1cab0-79fb-43ea-8d42-1a0494fc9def:2349",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "name": "0G",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "aa79ab0a-1370-4dc2-9e7f-911f68679235",
+      "filteredObservationId": "797f3de6-252e-4877-b7d4-06c8810b9fe8",
+      "destinationObservationId": "8a3b3211-2728-48c2-8ed5-47037f18877d",
+      "destinationUrl": "https://www.okx.com/convert/0g-to-usd",
+      "selectedLabel": {
+        "localId": "f43266ea-21f5-468d-9b70-0df5325feca3:468",
+        "name": "0G",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "20695998-66f8-4013-85c1-0f9e7559011a",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "a7c0c62f-5aa1-452e-b95c-95bcb82c3a4b",
+          "status": "succeeded",
+          "beforeId": "3bd0b9ca-3021-43e3-a87a-4544724e7ffa",
+          "afterId": "1b2208ec-25b5-41f9-a804-61b4287200fd",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "e3d26732-8435-4fa3-9df0-51876f771fa5:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "dbe350f3-beec-4b87-be41-2e89bee53d87",
+          "status": "succeeded",
+          "beforeId": "1b2208ec-25b5-41f9-a804-61b4287200fd",
+          "afterId": "797f3de6-252e-4877-b7d4-06c8810b9fe8",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "0G",
+            "localId": "e3d26732-8435-4fa3-9df0-51876f771fa5:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "2993d0bb-f0d9-40ef-be57-2211b6c51d0f",
+          "status": "succeeded",
+          "beforeId": "87c61757-5326-42ce-a051-8181daa1a798",
+          "afterId": "8a3b3211-2728-48c2-8ed5-47037f18877d",
+          "action": {
+            "kind": "click",
+            "label": "0G",
+            "value": null,
+            "localId": "e3d26732-8435-4fa3-9df0-51876f771fa5:455",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "name": "1INCH",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "20695998-66f8-4013-85c1-0f9e7559011a",
+      "filteredObservationId": "15648f82-bafa-40cd-a83a-23d8138ace1b",
+      "destinationObservationId": "4db5e9d1-9a5f-46fb-819a-4bfc50bab825",
+      "destinationUrl": "https://www.okx.com/convert/1inch-to-usd",
+      "selectedLabel": {
+        "localId": "5c5158b8-3b6c-4926-96ed-a72207ba824a:468",
+        "name": "1INCH",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "7a399892-0378-4429-9358-7292dec2d15a",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "1add8580-205f-40ae-84b3-2243e831d1e3",
+          "status": "succeeded",
+          "beforeId": "b35f0573-ac1a-4613-afdb-c4cd1c9b8f61",
+          "afterId": "c9e388e8-768e-40f1-a3c5-ae670b795a8e",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "88eddbb5-ce40-4429-b2a9-4fc3d06fed58:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "edc45bc9-a3b8-4c65-ab6c-d5f396a11f72",
+          "status": "succeeded",
+          "beforeId": "c9e388e8-768e-40f1-a3c5-ae670b795a8e",
+          "afterId": "15648f82-bafa-40cd-a83a-23d8138ace1b",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "1INCH",
+            "localId": "88eddbb5-ce40-4429-b2a9-4fc3d06fed58:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "4f460a7d-2e99-4304-bfed-9ade678b1e5d",
+          "status": "succeeded",
+          "beforeId": "54f62abe-4dcc-44e0-b2d8-5477f87308dd",
+          "afterId": "4db5e9d1-9a5f-46fb-819a-4bfc50bab825",
+          "action": {
+            "kind": "click",
+            "label": "1INCH",
+            "value": null,
+            "localId": "88eddbb5-ce40-4429-b2a9-4fc3d06fed58:456",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "name": "2Z",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "7a399892-0378-4429-9358-7292dec2d15a",
+      "filteredObservationId": "c3f32f8b-80e6-44e8-8c23-9e5f1022ee39",
+      "destinationObservationId": "59083654-841b-4342-a84c-f8ac3df689a4",
+      "destinationUrl": "https://www.okx.com/convert/2z-to-usd",
+      "selectedLabel": {
+        "localId": "c77aff11-1a70-4c39-937b-3d64dacd2ffb:468",
+        "name": "2Z",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "2046550a-d588-42d9-83f9-2fb018acc417",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "de257c00-2c3a-4a68-9d1f-88c1163f3904",
+          "status": "succeeded",
+          "beforeId": "80ef71f1-9969-49a0-a3fb-a865b8cdc04c",
+          "afterId": "150151e8-a3e6-45f1-a14e-8129dec99726",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "a47fc6d9-64eb-47c8-a46b-f0a5439c3fa9:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "9afb6d8a-31ef-4141-9dc0-550bdd5691d9",
+          "status": "succeeded",
+          "beforeId": "150151e8-a3e6-45f1-a14e-8129dec99726",
+          "afterId": "c3f32f8b-80e6-44e8-8c23-9e5f1022ee39",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "2Z",
+            "localId": "a47fc6d9-64eb-47c8-a46b-f0a5439c3fa9:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "b777cea2-77e4-400d-aa05-bada4e3133ed",
+          "status": "succeeded",
+          "beforeId": "1a6acc60-e774-48a5-9320-71818e924a7e",
+          "afterId": "59083654-841b-4342-a84c-f8ac3df689a4",
+          "action": {
+            "kind": "click",
+            "label": "2Z",
+            "value": null,
+            "localId": "a47fc6d9-64eb-47c8-a46b-f0a5439c3fa9:457",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "name": "A",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "2046550a-d588-42d9-83f9-2fb018acc417",
+      "filteredObservationId": "b92f5eba-a392-44d2-a297-d8cc63391f25",
+      "destinationObservationId": "77ecfcc8-82b5-452d-897a-d2dcee5c5174",
+      "destinationUrl": "https://www.okx.com/convert/a-to-usd",
+      "selectedLabel": {
+        "localId": "f6cccdf7-1c2b-4ec2-aaa9-256d5e733658:468",
+        "name": "A",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "cb5a912c-863c-47aa-8a7d-c747ab784608",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "9e54ae8f-b0cc-4635-8db7-eed9cf728829",
+          "status": "succeeded",
+          "beforeId": "ae422039-2f0e-4c3c-b9c7-ed3549df66cd",
+          "afterId": "f56168e4-8a99-41db-9abd-48c3a5ab99cf",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "6a2aa9df-778c-4b63-8fdb-29423c375d0a:461",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "439f0db4-b59b-43d7-8d0d-3f98df0e567c",
+          "status": "succeeded",
+          "beforeId": "f56168e4-8a99-41db-9abd-48c3a5ab99cf",
+          "afterId": "b92f5eba-a392-44d2-a297-d8cc63391f25",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "A",
+            "localId": "6a2aa9df-778c-4b63-8fdb-29423c375d0a:447",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "f3f111ba-3cce-4943-a2e1-33de373ac89d",
+          "status": "succeeded",
+          "beforeId": "6a08b9e0-7a7e-4c2b-8c58-1800ce52c8e4",
+          "afterId": "77ecfcc8-82b5-452d-897a-d2dcee5c5174",
+          "action": {
+            "kind": "click",
+            "label": "A",
+            "value": null,
+            "localId": "6a2aa9df-778c-4b63-8fdb-29423c375d0a:452",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "name": "AAOI",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "cb5a912c-863c-47aa-8a7d-c747ab784608",
+      "filteredObservationId": "1a4f978e-677b-4fa2-a988-cfaadb4aefe2",
+      "destinationObservationId": "06e79978-a9d5-47c3-98c1-51f8d2669ae4",
+      "destinationUrl": "https://www.okx.com/convert/aaoi-to-usd",
+      "selectedLabel": {
+        "localId": "2452ac83-1370-458d-a865-64b254a65ffa:468",
+        "name": "AAOI",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "fd888bcb-bc7c-4286-89b7-8c1a536126d7",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "d050b60f-caa1-44c3-88ef-03daa1a74e12",
+          "status": "succeeded",
+          "beforeId": "854e2e5a-b1e4-445d-8150-8817c9f1d661",
+          "afterId": "6c407978-5eb4-4e41-9ef8-87a5e6cdb650",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "d6f19838-bccf-42da-9f22-dc6b7bc252ef:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "1c42952b-15f9-4b6e-ba5c-bb870362fc77",
+          "status": "succeeded",
+          "beforeId": "6c407978-5eb4-4e41-9ef8-87a5e6cdb650",
+          "afterId": "1a4f978e-677b-4fa2-a988-cfaadb4aefe2",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AAOI",
+            "localId": "d6f19838-bccf-42da-9f22-dc6b7bc252ef:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "86ab59ff-0b6f-4161-a559-3a61e99856c0",
+          "status": "succeeded",
+          "beforeId": "a5a954cd-30df-4b08-b5d8-9e84d86dd1d9",
+          "afterId": "06e79978-a9d5-47c3-98c1-51f8d2669ae4",
+          "action": {
+            "kind": "click",
+            "label": "AAOI",
+            "value": null,
+            "localId": "d6f19838-bccf-42da-9f22-dc6b7bc252ef:459",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "name": "AAPL",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "fd888bcb-bc7c-4286-89b7-8c1a536126d7",
+      "filteredObservationId": "73561d57-5f46-4759-83fb-531abbdfc583",
+      "destinationObservationId": "ed7ce4ad-81f1-4303-9381-063c46d2150e",
+      "destinationUrl": "https://www.okx.com/convert/aapl-to-usd",
+      "selectedLabel": {
+        "localId": "11ec9223-738c-493f-8f60-798671492a0a:469",
+        "name": "AAPL",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "afb1d766-d1fa-429c-8d02-ad63f3e719a8",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "d856656f-301a-4922-b01c-79a8c8708fa7",
+          "status": "succeeded",
+          "beforeId": "43a5b67b-37c5-41f0-9929-c1a9d1be8bf1",
+          "afterId": "f60ecea7-c081-4b59-b6fb-d7cf376f7437",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "4fd3d1f9-0b77-4375-9fed-df8724db7aed:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "0955250c-00ce-43ef-be92-198b69ad7820",
+          "status": "succeeded",
+          "beforeId": "f60ecea7-c081-4b59-b6fb-d7cf376f7437",
+          "afterId": "73561d57-5f46-4759-83fb-531abbdfc583",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AAPL",
+            "localId": "4fd3d1f9-0b77-4375-9fed-df8724db7aed:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "03130d24-5052-4418-800f-8e7a1cd085cd",
+          "status": "succeeded",
+          "beforeId": "3a28fd5d-7b95-42df-8bb5-31cb44011aed",
+          "afterId": "ed7ce4ad-81f1-4303-9381-063c46d2150e",
+          "action": {
+            "kind": "click",
+            "label": "AAPL",
+            "value": null,
+            "localId": "4fd3d1f9-0b77-4375-9fed-df8724db7aed:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "name": "AAVE",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "afb1d766-d1fa-429c-8d02-ad63f3e719a8",
+      "filteredObservationId": "9684316c-06bb-4fc1-bab0-4f26c5f30c42",
+      "destinationObservationId": "43276397-8ff8-4928-8a80-57aedb7cfefa",
+      "destinationUrl": "https://www.okx.com/convert/aave-to-usd",
+      "selectedLabel": {
+        "localId": "5e8033cd-d299-466b-aa04-6c90fdf19bf8:459",
+        "name": "AAVE",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "f976aabd-1428-4f4d-a07e-98e6103cd4e4",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "c65a312c-36d9-4fbf-a027-1d2a4a3ca72a",
+          "status": "succeeded",
+          "beforeId": "340d9eff-dced-4e40-aba6-75c7e29dfbf9",
+          "afterId": "65e5b870-1a41-434c-be38-596417eaf95b",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "44968e6f-f1be-4cf3-a481-d7eb92c038b0:461",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "40426fba-f3ac-493c-93ff-853e123ac2d1",
+          "status": "succeeded",
+          "beforeId": "65e5b870-1a41-434c-be38-596417eaf95b",
+          "afterId": "9684316c-06bb-4fc1-bab0-4f26c5f30c42",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AAVE",
+            "localId": "44968e6f-f1be-4cf3-a481-d7eb92c038b0:447",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "f9b9aaa0-8906-43f5-b8ea-fbc77151e893",
+          "status": "succeeded",
+          "beforeId": "6426a613-860a-42f4-b16a-8629a9d64f7b",
+          "afterId": "43276397-8ff8-4928-8a80-57aedb7cfefa",
+          "action": {
+            "kind": "click",
+            "label": "AAVE",
+            "value": null,
+            "localId": "44968e6f-f1be-4cf3-a481-d7eb92c038b0:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "name": "ACA",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "f976aabd-1428-4f4d-a07e-98e6103cd4e4",
+      "filteredObservationId": "19e1c73b-7b9f-4689-82c4-d6783df49d8f",
+      "destinationObservationId": "16c6ca67-eb58-4204-bae7-8c9ab9bd63ef",
+      "destinationUrl": "https://www.okx.com/convert/aca-to-usd",
+      "selectedLabel": {
+        "localId": "b527479b-7e7a-4c5c-82ca-ca605def49b4:459",
+        "name": "ACA",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "7c97a633-c6e0-492c-9cfb-2f4595493dac",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "527bfa65-95d7-43b2-b7ae-1abc929d4016",
+          "status": "succeeded",
+          "beforeId": "f076689e-2bc8-44c4-91c4-4a5e72a60aaf",
+          "afterId": "dffc1911-c3a0-4b16-9249-157c3d7322a1",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "4220d26f-2251-4432-b6af-d3d41c77aa82:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "084e6138-b266-47a4-a332-42ac3bd63719",
+          "status": "succeeded",
+          "beforeId": "dffc1911-c3a0-4b16-9249-157c3d7322a1",
+          "afterId": "19e1c73b-7b9f-4689-82c4-d6783df49d8f",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "ACA",
+            "localId": "4220d26f-2251-4432-b6af-d3d41c77aa82:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "c61a54e5-bc69-4d14-905f-7851fb3a9bdb",
+          "status": "succeeded",
+          "beforeId": "20e9872f-c88f-44c1-b088-afcc9b06d389",
+          "afterId": "16c6ca67-eb58-4204-bae7-8c9ab9bd63ef",
+          "action": {
+            "kind": "click",
+            "label": "ACA",
+            "value": null,
+            "localId": "4220d26f-2251-4432-b6af-d3d41c77aa82:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "name": "ACE",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "7c97a633-c6e0-492c-9cfb-2f4595493dac",
+      "filteredObservationId": "3e1917ff-d95e-479e-a155-71bff88ac96f",
+      "destinationObservationId": "b385abe9-590c-4925-a66c-6ddc25bf4ed8",
+      "destinationUrl": "https://www.okx.com/convert/ace-to-usd",
+      "selectedLabel": {
+        "localId": "b0061780-9b30-4f69-853e-a3880f96cae1:460",
+        "name": "ACE",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "9670be4e-5c76-49df-9960-e8fb402f3895",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "ec98d8a6-78e9-4f16-a3e3-e6cbbfeb786d",
+          "status": "succeeded",
+          "beforeId": "8d61baec-b0f7-44ac-8a1f-5914e6990dbe",
+          "afterId": "47db040b-a49a-46e9-b54a-96a1b33fa35f",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "46090827-dc83-48c4-a317-976c1e6df702:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "760067bd-796f-45ca-9d29-26f93fccf8c5",
+          "status": "succeeded",
+          "beforeId": "47db040b-a49a-46e9-b54a-96a1b33fa35f",
+          "afterId": "3e1917ff-d95e-479e-a155-71bff88ac96f",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "ACE",
+            "localId": "46090827-dc83-48c4-a317-976c1e6df702:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "78bb553c-35ea-474f-a357-39798109e7bd",
+          "status": "succeeded",
+          "beforeId": "04db126c-c015-4c64-9766-d1c4b36de19d",
+          "afterId": "b385abe9-590c-4925-a66c-6ddc25bf4ed8",
+          "action": {
+            "kind": "click",
+            "label": "ACE",
+            "value": null,
+            "localId": "46090827-dc83-48c4-a317-976c1e6df702:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "name": "ACH",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "9670be4e-5c76-49df-9960-e8fb402f3895",
+      "filteredObservationId": "5b862e50-6cdb-4235-9297-b80f6561abfb",
+      "destinationObservationId": "e13b75d6-308c-4bf1-bb84-7c352e544fd8",
+      "destinationUrl": "https://www.okx.com/convert/ach-to-usd",
+      "selectedLabel": {
+        "localId": "69e5ba87-52bb-4ec4-b325-d248feb6c3af:468",
+        "name": "ACH",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "b7c09d8f-781b-46a7-89db-22913640e166",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "1aaf6c1d-ffb3-4bdf-bf0b-9926afd6d9ab",
+          "status": "succeeded",
+          "beforeId": "f6e94f3f-6666-4734-a064-aa559351b296",
+          "afterId": "d8a09334-7ea2-42fc-9549-f7ee8e8a5249",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "0c0e22f4-fc6b-4b60-9bfe-4fd40a6fecdc:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "14ff191d-9300-4a14-89f0-39973aa47c72",
+          "status": "succeeded",
+          "beforeId": "d8a09334-7ea2-42fc-9549-f7ee8e8a5249",
+          "afterId": "5b862e50-6cdb-4235-9297-b80f6561abfb",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "ACH",
+            "localId": "0c0e22f4-fc6b-4b60-9bfe-4fd40a6fecdc:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "03451dd3-4256-4926-bf0c-3a50be00db3a",
+          "status": "succeeded",
+          "beforeId": "b4164d89-58a4-427a-a6e7-164ed1cff28a",
+          "afterId": "e13b75d6-308c-4bf1-bb84-7c352e544fd8",
+          "action": {
+            "kind": "click",
+            "label": "ACH",
+            "value": null,
+            "localId": "0c0e22f4-fc6b-4b60-9bfe-4fd40a6fecdc:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "name": "ACN",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "b7c09d8f-781b-46a7-89db-22913640e166",
+      "filteredObservationId": "7917175c-5fe8-45ca-bf60-5a7fdf97791d",
+      "destinationObservationId": "a6db7441-3fe2-417e-9e2b-861233624fea",
+      "destinationUrl": "https://www.okx.com/convert/acn-to-usd",
+      "selectedLabel": {
+        "localId": "4f3f99f1-8b71-4039-9750-d4976f884e1d:459",
+        "name": "ACN",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "dd18827f-09d1-405e-a34c-c5ffada7d142",
+      "returnStatus": "REACHED_VERIFIED",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "9f802578-aba4-4752-80cc-5472204132e0",
+          "status": "succeeded",
+          "beforeId": "4247fa39-cc11-4703-a1d3-2af8055908d4",
+          "afterId": "f8422868-e3d7-44b3-b95f-c16101950499",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "bb87f9ad-7e64-47b4-9e13-ebe599e3680e:300",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "cb9f5862-5bd1-4d45-89bb-5e06fdab0362",
+          "status": "succeeded",
+          "beforeId": "f8422868-e3d7-44b3-b95f-c16101950499",
+          "afterId": "7917175c-5fe8-45ca-bf60-5a7fdf97791d",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "ACN",
+            "localId": "bb87f9ad-7e64-47b4-9e13-ebe599e3680e:286",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "5e2600e1-38a5-4c23-bd36-9b1d322b81c7",
+          "status": "succeeded",
+          "beforeId": "13b645eb-eea2-4af0-bfb2-7857be755aac",
+          "afterId": "a6db7441-3fe2-417e-9e2b-861233624fea",
+          "action": {
+            "kind": "click",
+            "label": "ACN",
+            "value": null,
+            "localId": "bb87f9ad-7e64-47b4-9e13-ebe599e3680e:2083",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "name": "ACT",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "dd18827f-09d1-405e-a34c-c5ffada7d142",
+      "filteredObservationId": "b8f26744-823c-4677-86ea-194455b9d58a",
+      "destinationObservationId": "70f42298-281d-4455-850f-5d1ba0259a34",
+      "destinationUrl": "https://www.okx.com/convert/act-to-usd",
+      "selectedLabel": {
+        "localId": "88f920ba-ea40-4a6e-afd9-703035cf7406:513",
+        "name": "ACT",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "02623376-7fba-4ec3-80c9-593e37ec6a50",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "8699d286-d739-4a9c-818f-1a5f8b46700f",
+          "status": "succeeded",
+          "beforeId": "ae90dd07-9e67-4a6a-9a12-a58bc5c7e0a6",
+          "afterId": "53d54c8f-2963-4b7d-a9ba-7c2bd261990d",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "7b71b410-bf8e-4b00-9931-4133361d3632:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "d95e6bad-e87e-45cb-882a-185cb0630a55",
+          "status": "succeeded",
+          "beforeId": "53d54c8f-2963-4b7d-a9ba-7c2bd261990d",
+          "afterId": "b8f26744-823c-4677-86ea-194455b9d58a",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "ACT",
+            "localId": "7b71b410-bf8e-4b00-9931-4133361d3632:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "f5aa2beb-8457-4875-8e9e-7918bba943a3",
+          "status": "succeeded",
+          "beforeId": "356f0c33-263b-4556-89a3-be449bd6fb60",
+          "afterId": "70f42298-281d-4455-850f-5d1ba0259a34",
+          "action": {
+            "kind": "click",
+            "label": "ACT",
+            "value": null,
+            "localId": "7b71b410-bf8e-4b00-9931-4133361d3632:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "name": "ACU",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "02623376-7fba-4ec3-80c9-593e37ec6a50",
+      "filteredObservationId": "b4ae4d72-1de5-45a0-9c93-7ac111da5c63",
+      "destinationObservationId": "51c8c27e-4895-44f2-a664-4162aad0d943",
+      "destinationUrl": "https://www.okx.com/convert/acu-to-usd",
+      "selectedLabel": {
+        "localId": "93b05cdc-5856-4f06-bb0a-d920088eaec6:459",
+        "name": "ACU",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "2eb4da27-2e31-4486-a46a-8db724f43299",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "3e7470c0-6e30-4f7a-a48e-5f4ab53238cb",
+          "status": "succeeded",
+          "beforeId": "990ec352-7e0d-48af-b9fc-aa1ffca5c589",
+          "afterId": "f44d05d5-a320-4f04-ac50-0b8ea6674f3d",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "aa564383-354e-432e-bf5f-077d60c3b030:466",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "8b14d67c-0171-4710-8fff-2725ebdc179a",
+          "status": "succeeded",
+          "beforeId": "f44d05d5-a320-4f04-ac50-0b8ea6674f3d",
+          "afterId": "b4ae4d72-1de5-45a0-9c93-7ac111da5c63",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "ACU",
+            "localId": "aa564383-354e-432e-bf5f-077d60c3b030:452",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "c328d898-0155-480a-8a5a-4ed2b722bda3",
+          "status": "succeeded",
+          "beforeId": "53bf0630-9bbd-4465-8dfa-9e378e868d75",
+          "afterId": "51c8c27e-4895-44f2-a664-4162aad0d943",
+          "action": {
+            "kind": "click",
+            "label": "ACU",
+            "value": null,
+            "localId": "aa564383-354e-432e-bf5f-077d60c3b030:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 14,
+      "name": "ADA",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "2eb4da27-2e31-4486-a46a-8db724f43299",
+      "filteredObservationId": "aa3c5e49-5113-4af1-b0f6-4bb8d75209ef",
+      "destinationObservationId": "467f67ca-c26f-47cd-9ebd-156cbc8c614e",
+      "destinationUrl": "https://www.okx.com/convert/ada-to-usd",
+      "selectedLabel": {
+        "localId": "ff84c48e-6d07-4ca6-ae7b-84daeff60bf4:459",
+        "name": "ADA",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "2c066e6f-d1bd-42cc-b62f-0947aff9c478",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "5d0d480a-df98-4b21-a33e-00ae4bb0bead",
+          "status": "succeeded",
+          "beforeId": "ef0d4e38-2e7c-4147-afed-13708cb1004d",
+          "afterId": "d68ce3f6-80a2-4758-ae73-e800d1ef52ae",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "1572528e-edcc-4fbc-889b-435236dda471:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "b4747c43-eee8-42c5-9254-6f0daaa615f1",
+          "status": "succeeded",
+          "beforeId": "d68ce3f6-80a2-4758-ae73-e800d1ef52ae",
+          "afterId": "aa3c5e49-5113-4af1-b0f6-4bb8d75209ef",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "ADA",
+            "localId": "1572528e-edcc-4fbc-889b-435236dda471:450",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "5cc715d0-8cf6-4b18-a295-16a3657d10fa",
+          "status": "succeeded",
+          "beforeId": "db80e8de-cac9-4ffa-8a7e-b649380d40bd",
+          "afterId": "467f67ca-c26f-47cd-9ebd-156cbc8c614e",
+          "action": {
+            "kind": "click",
+            "label": "ADA",
+            "value": null,
+            "localId": "1572528e-edcc-4fbc-889b-435236dda471:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 15,
+      "name": "ADBE",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "2c066e6f-d1bd-42cc-b62f-0947aff9c478",
+      "filteredObservationId": "4be02f37-2048-43da-87bd-a7e5ab474043",
+      "destinationObservationId": "c61fe7e3-97d0-43f8-b946-e013e5dd52ea",
+      "destinationUrl": "https://www.okx.com/convert/adbe-to-usd",
+      "selectedLabel": {
+        "localId": "027c2b93-85b2-463a-a326-6ab466662075:469",
+        "name": "ADBE",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "306f5529-819b-4497-9ada-45d4ef05e4eb",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "b1cba43f-83ef-4359-ac84-8ebcc7d29e9e",
+          "status": "succeeded",
+          "beforeId": "aeef271e-f55c-49aa-8862-42870c7d80ee",
+          "afterId": "bad3517d-b408-40a1-ac30-1e78ff985b24",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "c5f7028c-f12e-402d-ab97-18fe80663c1c:462",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "c145b2ac-38da-45c8-b600-3815765846c7",
+          "status": "succeeded",
+          "beforeId": "bad3517d-b408-40a1-ac30-1e78ff985b24",
+          "afterId": "4be02f37-2048-43da-87bd-a7e5ab474043",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "ADBE",
+            "localId": "c5f7028c-f12e-402d-ab97-18fe80663c1c:448",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "74e2515f-6746-41bc-a9f2-57407edd89ae",
+          "status": "succeeded",
+          "beforeId": "9e1332a3-8f3a-46c2-b346-6dbe06268a86",
+          "afterId": "c61fe7e3-97d0-43f8-b946-e013e5dd52ea",
+          "action": {
+            "kind": "click",
+            "label": "ADBE",
+            "value": null,
+            "localId": "c5f7028c-f12e-402d-ab97-18fe80663c1c:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 16,
+      "name": "AEDZ",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "306f5529-819b-4497-9ada-45d4ef05e4eb",
+      "filteredObservationId": "e901d876-5575-4795-8df3-071f486e0635",
+      "destinationObservationId": "332bbd5d-df76-4ebe-a3bc-67fc6eb5fe42",
+      "destinationUrl": "https://www.okx.com/convert/aedz-to-usd",
+      "selectedLabel": {
+        "localId": "83d2ffd0-e2cd-42d8-8cca-fb87de4336a7:468",
+        "name": "AEDZ",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "1ce43d49-e3bd-42a8-a307-bb9a5392cf86",
+      "returnStatus": "REACHED_VERIFIED",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "bd7d4b80-360e-4c83-a9cc-9bb96b3f215f",
+          "status": "succeeded",
+          "beforeId": "65640e91-1211-452d-8871-b767aea95fa0",
+          "afterId": "2cc3136c-c969-4931-8be1-8df6987fd470",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "33375cdd-e72f-42f6-a94d-2786f48754ba:466",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "494ab888-7fd3-460a-9234-3d35967b3a3d",
+          "status": "succeeded",
+          "beforeId": "2cc3136c-c969-4931-8be1-8df6987fd470",
+          "afterId": "e901d876-5575-4795-8df3-071f486e0635",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AEDZ",
+            "localId": "33375cdd-e72f-42f6-a94d-2786f48754ba:452",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "79626856-d1d5-4433-acb3-8cfb07e79491",
+          "status": "succeeded",
+          "beforeId": "88d071fd-7c3b-4d98-af8a-f98af1488341",
+          "afterId": "332bbd5d-df76-4ebe-a3bc-67fc6eb5fe42",
+          "action": {
+            "kind": "click",
+            "label": "AEDZ",
+            "value": null,
+            "localId": "33375cdd-e72f-42f6-a94d-2786f48754ba:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 17,
+      "name": "AEHR",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "1ce43d49-e3bd-42a8-a307-bb9a5392cf86",
+      "filteredObservationId": "b9d8256a-9a2f-47db-9d84-c64a5797dd2a",
+      "destinationObservationId": "4a2ba092-c359-4248-9c2f-51fd5f66941f",
+      "destinationUrl": "https://www.okx.com/convert/aehr-to-usd",
+      "selectedLabel": {
+        "localId": "ace0c2bd-a4ee-4555-a9df-0df5be6e3348:460",
+        "name": "AEHR",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "ce63faf8-3887-45b1-bf3b-2abe8272b9d0",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "c4ef004b-d32c-4c16-a4f4-211bbea6a93a",
+          "status": "succeeded",
+          "beforeId": "522c6098-8d22-4528-afec-fc6561d28818",
+          "afterId": "a051e1fc-c2e0-4287-91a2-ae89d95adf59",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "778e4263-d4dc-4832-8597-5018d269d22b:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "b5606104-467d-49d3-af60-ca3bf3a20aef",
+          "status": "succeeded",
+          "beforeId": "a051e1fc-c2e0-4287-91a2-ae89d95adf59",
+          "afterId": "b9d8256a-9a2f-47db-9d84-c64a5797dd2a",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AEHR",
+            "localId": "778e4263-d4dc-4832-8597-5018d269d22b:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "4a5b49c6-c50e-4b49-b40c-4ab0f093544d",
+          "status": "succeeded",
+          "beforeId": "36cec9c1-f95e-4266-bd95-52b3793e353c",
+          "afterId": "4a2ba092-c359-4248-9c2f-51fd5f66941f",
+          "action": {
+            "kind": "click",
+            "label": "AEHR",
+            "value": null,
+            "localId": "778e4263-d4dc-4832-8597-5018d269d22b:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 18,
+      "name": "AEON",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "ce63faf8-3887-45b1-bf3b-2abe8272b9d0",
+      "filteredObservationId": "1def5345-533e-408e-8ca3-e5a53b18dd26",
+      "destinationObservationId": "62fe0fb4-0b7c-4e68-a581-a6d920063557",
+      "destinationUrl": "https://www.okx.com/convert/aeon-to-usd",
+      "selectedLabel": {
+        "localId": "bb933d64-1b3a-49b7-adbd-a864b064ebd8:459",
+        "name": "AEON",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "469b60f0-121b-43dc-8767-c62980d9d5c1",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "49efd4f6-df96-434b-9269-efd34018659c",
+          "status": "succeeded",
+          "beforeId": "4b689a6c-bb8c-4986-8da9-a98d35e2193d",
+          "afterId": "4cbf6d4c-6586-425e-be6b-4130f6198310",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "c5fe7209-c6fb-425f-b8a2-0e3c68fd453a:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "e6e1bcea-6a07-4920-a47a-57391a1b8654",
+          "status": "succeeded",
+          "beforeId": "4cbf6d4c-6586-425e-be6b-4130f6198310",
+          "afterId": "1def5345-533e-408e-8ca3-e5a53b18dd26",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AEON",
+            "localId": "c5fe7209-c6fb-425f-b8a2-0e3c68fd453a:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "551ee337-bbd5-4057-a088-74cb4d3791e5",
+          "status": "succeeded",
+          "beforeId": "c3a9ea5a-6064-444f-9d10-21adf2e881b9",
+          "afterId": "62fe0fb4-0b7c-4e68-a581-a6d920063557",
+          "action": {
+            "kind": "click",
+            "label": "AEON",
+            "value": null,
+            "localId": "c5fe7209-c6fb-425f-b8a2-0e3c68fd453a:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 19,
+      "name": "AERGO",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "469b60f0-121b-43dc-8767-c62980d9d5c1",
+      "filteredObservationId": "72bb06ab-4698-4d25-a1bb-44b6dce81527",
+      "destinationObservationId": "3a50404e-299f-45dc-a78f-1183df043a04",
+      "destinationUrl": "https://www.okx.com/convert/aergo-to-usd",
+      "selectedLabel": {
+        "localId": "472afdbb-51fb-4f3c-bdf0-2d5f4aaa934d:469",
+        "name": "AERGO",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "a44292ff-c930-46c3-9c4b-bd17e23eb3bc",
+      "returnStatus": "REACHED_VERIFIED",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "425fb267-a7da-4f8b-92ba-7b57dd5da677",
+          "status": "succeeded",
+          "beforeId": "b9820094-a676-4099-b521-7554314ecc3f",
+          "afterId": "d668e907-c7d4-4b5a-9b45-20d44cb230ab",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "b05acd10-f250-4fd2-8e59-b4ab53760927:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "acb3db43-8cbb-4807-b9c6-46333b7858d9",
+          "status": "succeeded",
+          "beforeId": "d668e907-c7d4-4b5a-9b45-20d44cb230ab",
+          "afterId": "72bb06ab-4698-4d25-a1bb-44b6dce81527",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AERGO",
+            "localId": "b05acd10-f250-4fd2-8e59-b4ab53760927:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "31893a04-e88c-461d-b77b-4a9dd077a4d2",
+          "status": "succeeded",
+          "beforeId": "60abc109-b3ce-4219-89ea-370e60363e35",
+          "afterId": "3a50404e-299f-45dc-a78f-1183df043a04",
+          "action": {
+            "kind": "click",
+            "label": "AERGO",
+            "value": null,
+            "localId": "b05acd10-f250-4fd2-8e59-b4ab53760927:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 20,
+      "name": "AERO",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "a44292ff-c930-46c3-9c4b-bd17e23eb3bc",
+      "filteredObservationId": "61b1265a-ff74-442f-a9b6-4c6c6dd57c78",
+      "destinationObservationId": "c1123049-b7c3-401a-b207-6078629055eb",
+      "destinationUrl": "https://www.okx.com/convert/aero-to-usd",
+      "selectedLabel": {
+        "localId": "d9eb0801-6942-4b50-ada9-0ffb1c3257e6:468",
+        "name": "AERO",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "b905da5f-3c02-4667-abe8-b9f3ad9a48f8",
+      "returnStatus": "REACHED_VERIFIED",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "39cc1b7d-2d56-4e59-9a77-0dd5b82e47d5",
+          "status": "succeeded",
+          "beforeId": "cc349cf4-b3e0-4fbf-9c63-d20134b69dd6",
+          "afterId": "15689340-81f6-4029-8c48-5dacf1368d32",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "5ac392ae-cbab-4d50-8b0e-41c31d7ab34c:461",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "51aa293d-c73f-4192-b863-884a88bde9cd",
+          "status": "succeeded",
+          "beforeId": "15689340-81f6-4029-8c48-5dacf1368d32",
+          "afterId": "61b1265a-ff74-442f-a9b6-4c6c6dd57c78",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AERO",
+            "localId": "5ac392ae-cbab-4d50-8b0e-41c31d7ab34c:447",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "4c535eb8-40be-4f33-b053-b2d3df24fc4d",
+          "status": "succeeded",
+          "beforeId": "5d9528ac-230f-4568-b8b4-588e9348177b",
+          "afterId": "c1123049-b7c3-401a-b207-6078629055eb",
+          "action": {
+            "kind": "click",
+            "label": "AERO",
+            "value": null,
+            "localId": "5ac392ae-cbab-4d50-8b0e-41c31d7ab34c:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 21,
+      "name": "AEVO",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "b905da5f-3c02-4667-abe8-b9f3ad9a48f8",
+      "filteredObservationId": "a43ccf57-d99b-4631-a1d1-ba12cd14e77d",
+      "destinationObservationId": "f6123682-00e0-4583-8e38-b17fc600aad8",
+      "destinationUrl": "https://www.okx.com/convert/aevo-to-usd",
+      "selectedLabel": {
+        "localId": "0cfb6773-749f-4c3c-8841-863a49fbfa63:468",
+        "name": "AEVO",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "f19ff7d0-9e82-4b1f-90bb-83014a52d098",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "7f25a24e-1801-46b6-8d3d-b4bd9bef3492",
+          "status": "succeeded",
+          "beforeId": "abb1eb0b-5b22-4bd1-b760-8b7999ba4108",
+          "afterId": "84a2d616-3024-4ed3-9f4a-5f27d9af36bc",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "d2d14c6b-78ee-4942-8efc-4788a2b61c9b:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "2e3a7bf5-3f52-450a-8147-f40aa23ab8e5",
+          "status": "succeeded",
+          "beforeId": "84a2d616-3024-4ed3-9f4a-5f27d9af36bc",
+          "afterId": "a43ccf57-d99b-4631-a1d1-ba12cd14e77d",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AEVO",
+            "localId": "d2d14c6b-78ee-4942-8efc-4788a2b61c9b:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "cfdf482d-870f-48b4-bc3c-fe51bd8a98af",
+          "status": "succeeded",
+          "beforeId": "3d06822b-f8f7-4553-a4f5-c31e4783cbd6",
+          "afterId": "f6123682-00e0-4583-8e38-b17fc600aad8",
+          "action": {
+            "kind": "click",
+            "label": "AEVO",
+            "value": null,
+            "localId": "d2d14c6b-78ee-4942-8efc-4788a2b61c9b:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 22,
+      "name": "AGLD",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "f19ff7d0-9e82-4b1f-90bb-83014a52d098",
+      "filteredObservationId": "1f0c6182-b85c-41c0-b14b-7580881e7583",
+      "destinationObservationId": "41070485-b6dc-4233-aa32-13cf7ae5b7a6",
+      "destinationUrl": "https://www.okx.com/convert/agld-to-usd",
+      "selectedLabel": {
+        "localId": "39717daf-df91-4cd2-91bb-7145446f9f02:468",
+        "name": "AGLD",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "cf96364d-2b22-4d67-8ef1-d2efe1ed3847",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "02f1804b-f995-497f-a7c4-bfa648be568b",
+          "status": "succeeded",
+          "beforeId": "8bf377a3-7b76-4507-9c56-db38039e4cb8",
+          "afterId": "7764aa6c-329d-4b94-90a2-8d248e9f85b8",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "20d235d1-2752-4197-af29-d3db6372cd9b:466",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "ab08a6b1-c15c-4c02-90c0-d24931c39126",
+          "status": "succeeded",
+          "beforeId": "7764aa6c-329d-4b94-90a2-8d248e9f85b8",
+          "afterId": "1f0c6182-b85c-41c0-b14b-7580881e7583",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AGLD",
+            "localId": "20d235d1-2752-4197-af29-d3db6372cd9b:449",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "028d935e-a528-43f6-9e9a-e0de1cd57164",
+          "status": "succeeded",
+          "beforeId": "5acba077-eccf-4162-b9d3-76b5d23d6852",
+          "afterId": "41070485-b6dc-4233-aa32-13cf7ae5b7a6",
+          "action": {
+            "kind": "click",
+            "label": "AGLD",
+            "value": null,
+            "localId": "20d235d1-2752-4197-af29-d3db6372cd9b:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 23,
+      "name": "AI",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "cf96364d-2b22-4d67-8ef1-d2efe1ed3847",
+      "filteredObservationId": "00ad71d6-8808-4fbd-a5ac-a4b2a840b6e7",
+      "destinationObservationId": "88a8467c-8380-4632-82ad-f89b44450962",
+      "destinationUrl": "https://www.okx.com/convert/ai-to-usd",
+      "selectedLabel": {
+        "localId": "742a8d73-c6db-453e-a16c-1a9685a6211f:468",
+        "name": "AI",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "437c3388-2a72-4ccb-82db-faa1de64151f",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "73c49c83-d1e5-41f3-a158-d6d979057a1c",
+          "status": "succeeded",
+          "beforeId": "389a3526-eb1b-42dc-a282-e54bd9116099",
+          "afterId": "cd282021-679a-4fa5-a40b-dae79ec085ce",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "6e631fa3-82d5-42c2-954c-f617abdd33b4:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "8d59d62f-bd9a-48a0-ae7f-98562672f336",
+          "status": "succeeded",
+          "beforeId": "cd282021-679a-4fa5-a40b-dae79ec085ce",
+          "afterId": "00ad71d6-8808-4fbd-a5ac-a4b2a840b6e7",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AI",
+            "localId": "6e631fa3-82d5-42c2-954c-f617abdd33b4:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "3b77e4ce-8f22-499c-bb97-7006792f00b3",
+          "status": "succeeded",
+          "beforeId": "48376f86-ef9d-492e-82c9-bacee6a82786",
+          "afterId": "88a8467c-8380-4632-82ad-f89b44450962",
+          "action": {
+            "kind": "click",
+            "label": "AI",
+            "value": null,
+            "localId": "6e631fa3-82d5-42c2-954c-f617abdd33b4:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 24,
+      "name": "AI16Z",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "437c3388-2a72-4ccb-82db-faa1de64151f",
+      "filteredObservationId": "20ded302-27c7-4726-94f0-0d467ecbb05a",
+      "destinationObservationId": "9d80aa98-074e-4b9c-b325-61cfc57509bc",
+      "destinationUrl": "https://www.okx.com/convert/ai16z-to-usd",
+      "selectedLabel": {
+        "localId": "bc8d847f-a9ea-40bd-8e6a-6d68974c1035:469",
+        "name": "AI16Z",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "e7bec85b-5610-4409-a542-1845fa5c6d1a",
+      "returnStatus": "REACHED_VERIFIED",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "9100290e-ce76-44ab-932a-ec5356018fc8",
+          "status": "succeeded",
+          "beforeId": "357e0c87-54d2-40c7-abc8-eba38636c907",
+          "afterId": "db8e8db9-f694-428c-8cc7-62ffecc2fad2",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "28012339-7a15-4516-9c03-5c193a084a4e:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "6c71e5a6-68b4-4a74-98b6-3ee2568b939a",
+          "status": "succeeded",
+          "beforeId": "db8e8db9-f694-428c-8cc7-62ffecc2fad2",
+          "afterId": "20ded302-27c7-4726-94f0-0d467ecbb05a",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AI16Z",
+            "localId": "28012339-7a15-4516-9c03-5c193a084a4e:450",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "8398c8b3-e256-49e8-adbc-737ef74f7b6a",
+          "status": "succeeded",
+          "beforeId": "115b5350-6860-49e0-8f5c-cba23a87aabb",
+          "afterId": "9d80aa98-074e-4b9c-b325-61cfc57509bc",
+          "action": {
+            "kind": "click",
+            "label": "AI16Z",
+            "value": null,
+            "localId": "28012339-7a15-4516-9c03-5c193a084a4e:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 25,
+      "name": "AIDOGE",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "e7bec85b-5610-4409-a542-1845fa5c6d1a",
+      "filteredObservationId": "801cab95-a12e-4af8-9a74-50d4537c79e6",
+      "destinationObservationId": "b44ca018-7613-4fb0-8be0-00d9e01b7a00",
+      "destinationUrl": "https://www.okx.com/convert/aidoge-to-usd",
+      "selectedLabel": {
+        "localId": "a79ef04d-e9ee-4963-8752-66a8b0a9c5c2:468",
+        "name": "AIDOGE",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "85312d3f-55c1-49b0-b455-fe5eff605950",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "0e2db23c-cb60-4abd-9131-3e9c98866ea9",
+          "status": "succeeded",
+          "beforeId": "fca65ecd-5b66-43a6-86c2-b4aedfc88908",
+          "afterId": "e59ef9cd-f659-40f5-87b4-544d9ed4b8b8",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "357c2b0d-c0c0-4b56-81ef-1b0220ef879e:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "a5a69dfb-2ac7-418c-8bdb-161653f21247",
+          "status": "succeeded",
+          "beforeId": "e59ef9cd-f659-40f5-87b4-544d9ed4b8b8",
+          "afterId": "801cab95-a12e-4af8-9a74-50d4537c79e6",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AIDOGE",
+            "localId": "357c2b0d-c0c0-4b56-81ef-1b0220ef879e:450",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "6ff62ee1-2df0-462a-99ff-880d17b1b403",
+          "status": "succeeded",
+          "beforeId": "8abb2681-7258-4a62-81fd-2d551f9d2dd3",
+          "afterId": "b44ca018-7613-4fb0-8be0-00d9e01b7a00",
+          "action": {
+            "kind": "click",
+            "label": "AIDOGE",
+            "value": null,
+            "localId": "357c2b0d-c0c0-4b56-81ef-1b0220ef879e:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 26,
+      "name": "AIXBT",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "85312d3f-55c1-49b0-b455-fe5eff605950",
+      "filteredObservationId": "a702927a-49ac-4596-9d9d-e86541d538f3",
+      "destinationObservationId": "fdac8164-3473-4d3a-b2a6-3a2f473d9038",
+      "destinationUrl": "https://www.okx.com/convert/aixbt-to-usd",
+      "selectedLabel": {
+        "localId": "e93eaa28-5daf-44fd-86d3-ce9069a799d0:468",
+        "name": "AIXBT",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "0061188b-fe5d-4242-97f2-82b181863792",
+      "returnStatus": "REACHED_VERIFIED",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "a35f7a94-b1d3-41ed-808a-18041b1a99d3",
+          "status": "succeeded",
+          "beforeId": "22e936c4-6d63-4448-b2b2-e5aa402a0a5b",
+          "afterId": "148a3013-4214-4db0-892b-c9797b15c948",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "645e794c-caf1-4819-95d3-04247c0077dc:466",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "c691b591-e1e0-49b3-bc46-88faddecff34",
+          "status": "succeeded",
+          "beforeId": "148a3013-4214-4db0-892b-c9797b15c948",
+          "afterId": "a702927a-49ac-4596-9d9d-e86541d538f3",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AIXBT",
+            "localId": "645e794c-caf1-4819-95d3-04247c0077dc:449",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "e5f95a72-c790-4b53-abea-9b69c2cbb7e4",
+          "status": "succeeded",
+          "beforeId": "1517d775-6c94-435b-b0d8-8c27799b7f08",
+          "afterId": "fdac8164-3473-4d3a-b2a6-3a2f473d9038",
+          "action": {
+            "kind": "click",
+            "label": "AIXBT",
+            "value": null,
+            "localId": "645e794c-caf1-4819-95d3-04247c0077dc:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 27,
+      "name": "AKE",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "0061188b-fe5d-4242-97f2-82b181863792",
+      "filteredObservationId": "01e2cc24-305f-40ba-9ca0-b90087785264",
+      "destinationObservationId": "cb9722a4-2277-4cfd-a60f-ac2df03ad6bb",
+      "destinationUrl": "https://www.okx.com/convert/ake-to-usd",
+      "selectedLabel": {
+        "localId": "d841e3b0-42c1-4b02-9546-d48af5db7be2:468",
+        "name": "AKE",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "06042b54-0253-416d-93ee-614c00a9f217",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "69da0190-cb23-49d5-a5e6-b5aca5013a64",
+          "status": "succeeded",
+          "beforeId": "131cab6a-6b39-44b8-be50-f9c8e9f527ea",
+          "afterId": "8bf5b7c3-8024-48df-8eb4-29bbab38b5c0",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "b722b5bf-284b-4d99-9a49-84f3bd20e858:467",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "927ef5e2-fb1a-4084-83db-cf72435fe2ed",
+          "status": "succeeded",
+          "beforeId": "8bf5b7c3-8024-48df-8eb4-29bbab38b5c0",
+          "afterId": "01e2cc24-305f-40ba-9ca0-b90087785264",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "AKE",
+            "localId": "b722b5bf-284b-4d99-9a49-84f3bd20e858:453",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "070c7e7b-a691-4796-a668-0d0c57030983",
+          "status": "succeeded",
+          "beforeId": "89a33500-a9cf-4f20-98ee-514be71bdd67",
+          "afterId": "cb9722a4-2277-4cfd-a60f-ac2df03ad6bb",
+          "action": {
+            "kind": "click",
+            "label": "AKE",
+            "value": null,
+            "localId": "b722b5bf-284b-4d99-9a49-84f3bd20e858:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 29,
+      "name": "ALCH",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "6bb80e9c-d370-422e-bd37-c23792b27a98",
+      "filteredObservationId": "a60c8ff9-c59f-4d53-9e35-ff392faaf723",
+      "destinationObservationId": "cf2fc051-3ba6-42c2-bffe-d1421ab00816",
+      "destinationUrl": "https://www.okx.com/convert/alch-to-usd",
+      "selectedLabel": {
+        "localId": "923044e5-4b0a-4e31-8882-0b8fdd6e9974:459",
+        "name": "ALCH",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "f63a1aea-f069-47ca-93ca-d87984d9f264",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "7d5215d8-bd0c-4ca4-a07b-2177ea072074",
+          "status": "succeeded",
+          "beforeId": "bb266f0f-9c80-48e1-a6b5-b3c0f6301b4a",
+          "afterId": "8b43ed14-eec2-41fe-ae39-68cf20b562b3",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "2eca705d-1e52-40c9-a2e6-c90562e61876:466",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "3f4d028c-136d-4008-a35d-ab36441266a8",
+          "status": "succeeded",
+          "beforeId": "8b43ed14-eec2-41fe-ae39-68cf20b562b3",
+          "afterId": "a60c8ff9-c59f-4d53-9e35-ff392faaf723",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "ALCH",
+            "localId": "2eca705d-1e52-40c9-a2e6-c90562e61876:452",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "51b0414f-ac71-45ac-8975-044e014ed2cc",
+          "status": "succeeded",
+          "beforeId": "c0c69c90-3f57-4323-b1c9-d1f87eb1415c",
+          "afterId": "cf2fc051-3ba6-42c2-bffe-d1421ab00816",
+          "action": {
+            "kind": "click",
+            "label": "ALCH",
+            "value": null,
+            "localId": "2eca705d-1e52-40c9-a2e6-c90562e61876:2243",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 30,
+      "name": "ALCX",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "f63a1aea-f069-47ca-93ca-d87984d9f264",
+      "filteredObservationId": "4462977e-fd45-41db-917c-b72a7c09c261",
+      "destinationObservationId": "928a45a4-8301-4394-917e-818513c4fc13",
+      "destinationUrl": "https://www.okx.com/convert/alcx-to-usd",
+      "selectedLabel": {
+        "localId": "40e923fa-eaed-41ce-b312-b28da9cfdb85:468",
+        "name": "ALCX",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "27ed80d0-8047-4186-907d-69804029c3d6",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "d21765b4-155f-421e-8f7c-ee1c9d01305e",
+          "status": "succeeded",
+          "beforeId": "f58ff204-a90c-4f66-9106-e288ac3814ec",
+          "afterId": "5b2f63dc-21b2-433a-91eb-1f668563ffca",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "f49d5e92-17ad-4a2c-8c09-062c5283ea05:300",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "ee014676-bea7-4bef-902f-18520148f2f3",
+          "status": "succeeded",
+          "beforeId": "5b2f63dc-21b2-433a-91eb-1f668563ffca",
+          "afterId": "4462977e-fd45-41db-917c-b72a7c09c261",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "ALCX",
+            "localId": "f49d5e92-17ad-4a2c-8c09-062c5283ea05:286",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "83026217-dbf1-40be-9f4f-0a240d6f1bc4",
+          "status": "succeeded",
+          "beforeId": "077920f2-c88f-48c3-bffd-6e31f4814167",
+          "afterId": "928a45a4-8301-4394-917e-818513c4fc13",
+          "action": {
+            "kind": "click",
+            "label": "ALCX",
+            "value": null,
+            "localId": "f49d5e92-17ad-4a2c-8c09-062c5283ea05:2084",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 31,
+      "name": "ALGO",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "27ed80d0-8047-4186-907d-69804029c3d6",
+      "filteredObservationId": "859e2bd6-7788-4296-aa96-66d592b756dc",
+      "destinationObservationId": "ea3c1d49-53a8-4960-a6c2-1def27c2f022",
+      "destinationUrl": "https://www.okx.com/convert/algo-to-usd",
+      "selectedLabel": {
+        "localId": "8bb4b60c-c89c-4fa3-8d5a-07ffe5ade2f4:459",
+        "name": "ALGO",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "9411d98f-d7f7-4abd-a156-1022acc8f388",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "f81a4abc-cff5-4cde-863c-72886e55aabc",
+          "status": "succeeded",
+          "beforeId": "d78632af-2f08-4191-ae50-74f3316f0b67",
+          "afterId": "bb7390f5-d44a-44cd-bcda-7c2b89f5d1a7",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "50c85f14-46d1-44b9-80ec-d17bce1a9447:466",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "e8401104-43e4-4fd2-a354-16191faa3655",
+          "status": "succeeded",
+          "beforeId": "bb7390f5-d44a-44cd-bcda-7c2b89f5d1a7",
+          "afterId": "859e2bd6-7788-4296-aa96-66d592b756dc",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "ALGO",
+            "localId": "50c85f14-46d1-44b9-80ec-d17bce1a9447:452",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "98e27a6c-423c-4027-8d19-772d69ac5094",
+          "status": "succeeded",
+          "beforeId": "b354a6c3-b774-4aa6-b050-6c984a07fbea",
+          "afterId": "ea3c1d49-53a8-4960-a6c2-1def27c2f022",
+          "action": {
+            "kind": "click",
+            "label": "ALGO",
+            "value": null,
+            "localId": "50c85f14-46d1-44b9-80ec-d17bce1a9447:2249",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 32,
+      "name": "ALLO",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "9411d98f-d7f7-4abd-a156-1022acc8f388",
+      "filteredObservationId": "85af7203-7cfa-4af2-9e94-af2f1f216b29",
+      "destinationObservationId": "65d6ceb7-194e-4533-8eed-47bce915bd8d",
+      "destinationUrl": "https://www.okx.com/convert/allo-to-usd",
+      "selectedLabel": {
+        "localId": "bfefb62d-6c5c-44ea-9a5e-cb321b0cb5fc:468",
+        "name": "ALLO",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "bdba37d9-affd-4862-b3fa-1b2766897db2",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "b5c82a05-b9fe-4901-b8e2-6ec095951cf3",
+          "status": "succeeded",
+          "beforeId": "0bc14fe9-ad3d-4923-8d2a-ae4baa4a7e3e",
+          "afterId": "dbb9a144-7af2-480d-96f5-33f1dabd1d67",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "f41c46df-4c4f-4565-b81b-42c15c57eac6:300",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "c9e33577-be79-4216-b6f5-fbc86b84c74c",
+          "status": "succeeded",
+          "beforeId": "dbb9a144-7af2-480d-96f5-33f1dabd1d67",
+          "afterId": "85af7203-7cfa-4af2-9e94-af2f1f216b29",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "ALLO",
+            "localId": "f41c46df-4c4f-4565-b81b-42c15c57eac6:286",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "0cd1232d-341c-42e5-b47f-30c2d441322b",
+          "status": "succeeded",
+          "beforeId": "101461dc-f986-42be-b820-22cfd23427c6",
+          "afterId": "65d6ceb7-194e-4533-8eed-47bce915bd8d",
+          "action": {
+            "kind": "click",
+            "label": "ALLO",
+            "value": null,
+            "localId": "f41c46df-4c4f-4565-b81b-42c15c57eac6:2083",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "index": 33,
+      "name": "ALPHA",
+      "status": "selected_label_and_return_observed",
+      "sourceObservationId": "bdba37d9-affd-4862-b3fa-1b2766897db2",
+      "filteredObservationId": "effbb619-0217-4394-8b8b-23fd2fc33245",
+      "destinationObservationId": "b0a74fe2-1a94-4908-8cc1-e162dc24bb36",
+      "destinationUrl": "https://www.okx.com/convert/alpha-to-usd",
+      "selectedLabel": {
+        "localId": "02a7ec24-0303-4100-b719-25722d84c91d:468",
+        "name": "ALPHA",
+        "counterName": "USD"
+      },
+      "returnedObservationId": "f65529b3-0691-46eb-99f2-7265737b3965",
+      "returnStatus": "UNREACHABLE",
+      "returnDiagnostic": null,
+      "attempts": [
+        {
+          "phase": "open-selector",
+          "id": "2c87620d-b656-4099-8ff8-4c6301b906cf",
+          "status": "succeeded",
+          "beforeId": "891a18fb-a1b1-4fa1-b1e4-05dc104688e2",
+          "afterId": "cf3913a2-c4c3-4c43-85fa-575581e9da2e",
+          "action": {
+            "kind": "click",
+            "label": "BTC",
+            "value": null,
+            "localId": "294c9bdd-2c1b-47a6-9f87-3dc11429a48c:301",
+            "boundary": null
+          }
+        },
+        {
+          "phase": "filter-option",
+          "id": "d8ceb3df-e41b-4df5-b627-f7396ab769b0",
+          "status": "succeeded",
+          "beforeId": "cf3913a2-c4c3-4c43-85fa-575581e9da2e",
+          "afterId": "effbb619-0217-4394-8b8b-23fd2fc33245",
+          "action": {
+            "kind": "fill",
+            "label": "Search",
+            "value": "ALPHA",
+            "localId": "294c9bdd-2c1b-47a6-9f87-3dc11429a48c:287",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        },
+        {
+          "phase": "select-option",
+          "id": "8ce6d929-32b0-4043-9363-3eb60deb0a0d",
+          "status": "succeeded",
+          "beforeId": "fc011c28-d55d-481d-9cd2-55c464318fc1",
+          "afterId": "b0a74fe2-1a94-4908-8cc1-e162dc24bb36",
+          "action": {
+            "kind": "click",
+            "label": "ALPHA",
+            "value": null,
+            "localId": "294c9bdd-2c1b-47a6-9f87-3dc11429a48c:2083",
+            "boundary": {
+              "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+              "intent": "interact"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "siteErrorRecovery": {
+    "index": 28,
+    "name": "ALAB",
+    "status": "site_error_then_selected_labels_observed_after_reload_and_return",
+    "originalChoiceAttempt": {
+      "phase": "select-option",
+      "id": "0916555c-b5fe-43bf-a27f-0ae1c5574647",
+      "status": "succeeded",
+      "beforeId": "fbdf3101-5297-4073-a2a6-41374d3c9355",
+      "afterId": "e3489b27-3cc7-45a4-9297-a6776e7936a5",
+      "action": {
+        "kind": "click",
+        "label": "ALAB",
+        "value": null,
+        "localId": "f1b0ab8c-8eff-4477-81dc-4634d5c2a2c7:2083",
+        "boundary": {
+          "key": "overlay:html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+          "intent": "interact"
+        }
+      }
+    },
+    "initialErrorObservation": "a731fa49-c5fe-4860-b2fc-bc223e820da0",
+    "errorScreenshot": "alab-site-error.png",
+    "reloadAttempt": {
+      "id": "59e3c7ce-ad86-41b9-88d0-d86d3842e44a",
+      "status": "succeeded",
+      "beforeId": "e712cc0c-dbc9-447e-9d7c-6695fecc4fe7",
+      "afterId": "9d3d1bd0-f53f-454d-849c-e52f824b4255"
+    },
+    "review": {
+      "id": "163c99de-448e-499d-b1d9-a83fdb607ffa",
+      "at": "2026-10-15T00:12:47.550Z",
+      "observationId": "a731fa49-c5fe-4860-b2fc-bc223e820da0",
+      "instanceScope": "d38b2065-f469-4734-bb9a-6fa710b4b2ab",
+      "instanceId": "d38b2065-f469-4734-bb9a-6fa710b4b2ab:296",
+      "binding": "[\"testid:okd-button\",\"button\",\"Reload\",\"document\",\"document\",\"button\"]",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": false,
+      "reason": "The captured page shows an error and suggests refreshing; one current native Reload retry is allowed for this public unauthenticated GET page. No selection success is inferred.",
+      "evidence": [
+        "alab-blocked.png inspected visually",
+        "alab-blocked-state.json current native Reload button and GET navigation entry"
+      ]
+    },
+    "selectedLabelsAfterReload": [
+      {
+        "localId": "b5e8677c-32ea-4482-99f1-84392b608035:460",
+        "name": "ALAB",
+        "role": "generic",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)"
+      },
+      {
+        "localId": "b5e8677c-32ea-4482-99f1-84392b608035:461",
+        "name": "USD",
+        "role": "generic",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1)"
+      }
+    ],
+    "returnedObservationId": "6bb80e9c-d370-422e-bd37-c23792b27a98",
+    "returnStatus": "UNREACHABLE",
+    "returnedUrl": "https://www.okx.com/convert/btc-to-usd",
+    "dirty": false
+  },
+  "activeContinuation": [
+    {
+      "index": 5,
+      "phase": "source",
+      "status": null,
+      "error": null,
+      "name": "AMAT",
+      "manifestIndex": 34
+    }
+  ],
+  "limitations": [
+    "Snapshot only; remaining option names are not counted as selected.",
+    "A successful return to the root URL with no active boundary is recorded separately from strict checkpoint restoration.",
+    "A destination with missing or ambiguous expected controls is preserved for review; the runner may continue other branches only after verifying the source is usable again.",
+    "ALAB first reached the website error page; an explicitly reviewed current Reload click recovered the expected labels, with both error and recovery retained."
+  ]
+}
