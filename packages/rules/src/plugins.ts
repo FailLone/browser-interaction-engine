@@ -31,6 +31,30 @@ export interface RulePluginRun {
   completedAt: string;
   history: { count: number; firstSequence: number; lastSequence: number };
   results: RulePluginResult[];
+  origin?: 'manual' | 'automatic';
+  automationRevision?: number;
+}
+
+export interface RuleAutomationInput { enabled: boolean; plugins: RulePluginSelection[] }
+export interface RuleAutomation extends RuleAutomationInput {
+  id: string;
+  sessionId: string;
+  revision: number;
+  status: 'watching' | 'checking' | 'paused' | 'failed';
+  completedCount: number;
+  lastSequence: number;
+  updatedAt: string;
+  error?: string;
+}
+export interface RuleRunSummary {
+  inspectionId: string;
+  sequence: number;
+  errors: number;
+  warnings: number;
+  unknown: number;
+  failedPlugins: number;
+  runId: string;
+  origin?: 'manual' | 'automatic';
 }
 
 export const builtinRulePlugins: readonly RulePlugin[] = [

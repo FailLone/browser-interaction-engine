@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { InteractionClient } from '@interaction/client';
+import type { InteractionClient, RuleRunSummary } from '@interaction/client';
 import type { Inspection } from '@interaction/browser';
 import { RulePluginPanel } from './RulePluginPanel.js';
 
@@ -15,6 +15,12 @@ export function InspectionPanel({ api, sessionId, observationId, revision }: { a
   const [record, setRecord] = useState<Awaited<ReturnType<InteractionClient['inspection']>>>();
   const [capture, setCapture] = useState<Awaited<ReturnType<InteractionClient['captureDetails']>>>();
   const [error, setError] = useState('');
+  const [summary, setSummary] = useState<RuleRunSummary[]>([]); const [summaryMore, setSummaryMore] = useState(false);
+  useEffect(() => {
+    let active = true;
+    void api.ruleRunSummary(sessionId).then(result => { if (active) { setSummary(result.items); setSummaryMore(result.hasMore); } }).catch(e => { if (active) setError(String(e)); });
+    return () => { active = false; };
+  }, [api, sessionId, revision]);
   useEffect(() => {
     let active = true; setError('');
     void api.listInspections(sessionId, { after, limit: 50 }).then(page => {
@@ -22,7 +28,7 @@ export function InspectionPanel({ api, sessionId, observationId, revision }: { a
       setSelected(id => page.items.some(i => i.id === id) ? id : page.items.at(-1)?.id || '');
     }).catch(e => { if (active) setError(String(e)); });
     return () => { active = false; };
-  }, [api, sessionId, observationId, after]);
+  }, [api, sessionId, observationId, after, revision]);
   useEffect(() => {
     let active = true; setRecord(undefined); setCapture(undefined); setError('');
     if (selected) void api.inspection(sessionId, selected).then(async result => {
@@ -34,10 +40,16 @@ export function InspectionPanel({ api, sessionId, observationId, revision }: { a
   return <div className="inspection-panel">
     <h3>UI 检查任务</h3><p className="muted">每条任务对应一次已保存的采集。建议范围之外的页面环境仍可查询；数据完整不代表 UI 已通过检查。</p>
     {error && <div role="alert" className="gap">{error}</div>}
+    {!!summary.length && <details className="rule-summary" open><summary>检测记录概览（{summary.length} 条采集{summaryMore ? '，仅显示最近 500 条' : ''}）</summary>
+      <p className="muted">按采集统计，同一问题可能多次出现；待核验包含需要后续证据的警告。</p>
+      <div style={{ maxHeight: 240, overflow: 'auto' }}><table><thead><tr><th>采集</th><th>错误</th><th>警告</th><th>待核验</th><th>规则失败</th></tr></thead><tbody>{summary.map(row => <tr key={row.inspectionId}>
+        <td><button onClick={() => { if (!items.some(i => i.id === row.inspectionId)) setAfter(row.sequence - 1); setSelected(row.inspectionId); }}>查看 #{row.sequence}</button></td><td>{row.errors}</td><td>{row.warnings}</td><td>{row.unknown}</td><td>{row.failedPlugins}</td>
+      </tr>)}</tbody></table></div>
+    </details>}
     {!items.length ? <p className="empty">此会话还没有检查任务。创建会话时开启“生成 UI 检查任务”。</p> : <>
       <label>选择检查任务<select aria-label="选择检查任务" value={selected} onChange={e => setSelected(e.target.value)}>{items.slice().reverse().map(i => <option key={i.id} value={i.id}>#{i.sequence} · {i.reasons.map(r => reasons[r]).join('、')} · {i.focus.kind === 'overlay' ? '弹层' : '页面'}</option>)}</select></label>
       <div><button disabled={after === 0} onClick={() => setAfter(0)}>回到第一页</button><button disabled={!more} onClick={() => setAfter(next)}>下一页</button></div>
-      {selected && <RulePluginPanel key={`${sessionId}:${selected}`} api={api} sessionId={sessionId} inspectionId={selected} />}
+      {selected && <RulePluginPanel key={`${sessionId}:${selected}`} api={api} sessionId={sessionId} inspectionId={selected} revision={revision} />}
       {record && <>
         <p>建议检查：<b>{record.inspection.focus.regionKey}</b> · {record.inspection.focus.confidence === 'observed' ? '范围已识别' : '范围不确定'}</p>
         <p>必需数据：<b>{record.inspection.quality.status === 'complete' ? '采集完整' : '采集不完整'}</b> · {capture?.capture.phase === 'timeout' ? '等待稳定超时' : '稳定状态采集'}</p>

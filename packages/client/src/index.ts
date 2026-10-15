@@ -1,7 +1,7 @@
 import type { InspectionOptionsInput, InspectionResult, CaptureProfile, inspectionCapabilities, validateCaptureProfile } from '@interaction/browser';
 import type { ScrollProbeOptions } from '@interaction/browser';
-import type { RulePluginInfo, RulePluginRun, RulePluginRunRequest } from '@interaction/rules';
-export type { RulePluginInfo, RulePluginRun, RulePluginRunRequest, RulePluginResult, RuleCheck } from '@interaction/rules';
+import type { RulePluginInfo, RulePluginRun, RulePluginRunRequest, RuleAutomation, RuleAutomationInput, RuleRunSummary } from '@interaction/rules';
+export type { RulePluginInfo, RulePluginRun, RulePluginRunRequest, RulePluginResult, RuleCheck, RuleAutomation, RuleRunSummary } from '@interaction/rules';
 import type { BrowserComponent, ComponentDetails, ComponentDescription, ComponentDescriptionInput } from '@interaction/browser';
 import type { BrowserDiffDetails, Command, ActionCandidate, ActionAttempt, Checkpoint, EngineEvent, FrontierItemView, BrowserFrontierCoverageGroup, Graph, Observation, Session, SessionOptions } from '@interaction/browser';
 import type { ObservationDetails, ControlDetails, RegionDetails, DomResult, DomQuery, EventContext, ArtifactKind, EvidenceOptions, EvidenceRetentionPolicy, SubscriptionOptions, BrowserEngine, evidenceCapabilities } from '@interaction/browser';
@@ -15,6 +15,9 @@ export class InteractionClient {
   }
   sessions() { return this.request<Session[]>('/sessions'); }
   rulePlugins() { return this.request<{ plugins: RulePluginInfo[]; maxHistory: number }>('/rule-plugins'); }
+  ruleAutomation(id: string) { return this.request<{ automation: RuleAutomation | null }>(`/sessions/${encodeURIComponent(id)}/rule-automation`); }
+  setRuleAutomation(id: string, input: RuleAutomationInput) { return this.request<RuleAutomation>(`/sessions/${encodeURIComponent(id)}/rule-automation`, input); }
+  ruleRunSummary(id: string) { return this.request<{ items: RuleRunSummary[]; hasMore: boolean }>(`/sessions/${encodeURIComponent(id)}/rule-run-summary`); }
   ruleRuns(id: string, inspectionId: string) { return this.request<{ items: RulePluginRun[] }>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/rule-runs`); }
   runRules(id: string, inspectionId: string, request: RulePluginRunRequest) { return this.request<RulePluginRun>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/rule-runs`, request); }
   evidenceCapabilities() { return this.request<typeof evidenceCapabilities>('/capabilities/evidence'); }

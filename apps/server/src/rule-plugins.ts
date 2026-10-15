@@ -2,7 +2,10 @@ import { createHash } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { EngineError, type InteractionEngine } from '@interaction/browser';
-import { builtinRulePlugins, type CaptureReader, type RulePlugin, type RulePluginInfo, type RulePluginResult, type RulePluginRun, type RulePluginRunRequest } from '@interaction/rules';
+import { builtinRulePlugins, type RulePlugin, type RulePluginRun, type RulePluginRunRequest } from '@interaction/rules';
+
+import { createRuleStates, checkRuleFrame, pluginInfo as info } from './rule-execution.js';
+import { registerRuleAutomation } from './rule-automation.js';
 
 const kind = 'rule-plugin-run';
 const maxHistory = 500;
@@ -10,15 +13,15 @@ const requestSchema = z.object({
   requestId: z.string().min(1).max(200),
   plugins: z.array(z.object({ id: z.string().min(1).max(100), version: z.string().min(1).max(100) }).strict()).min(1).max(20),
 }).strict().refine(r => new Set(r.plugins.map(p => p.id)).size === r.plugins.length, 'Select each plugin only once');
-const info = (p: RulePlugin): RulePluginInfo => ({ id: p.id, version: p.version, name: p.name, description: p.description, effects: p.effects });
 
-/** On-demand debug host; never joins the engine command queue or gets a live page. */
+/** Installed rule host; never joins the engine command queue or gets a live page. */
 export function registerRulePlugins(app: FastifyInstance, engine: InteractionEngine, installed: readonly RulePlugin[] = builtinRulePlugins) {
   const registry = new Map<string, RulePlugin>();
   for (const plugin of installed) {
     if (!plugin.id || !plugin.version || plugin.effects !== 'read-history' || registry.has(plugin.id)) throw new Error(`Invalid or duplicate rule plugin: ${plugin.id}`);
     registry.set(plugin.id, plugin);
   }
+  registerRuleAutomation(app, engine, registry);
   const inflight = new Map<string, { signature: string; promise: Promise<RulePluginRun> }>();
   const path = '/v1/sessions/:sessionId/inspections/:inspectionId/rule-runs';
   app.get('/v1/rule-plugins', async () => ({ plugins: [...registry.values()].map(info), maxHistory }));
@@ -53,42 +56,9 @@ export function registerRulePlugins(app: FastifyInstance, engine: InteractionEng
 
     async function execute(input: RulePluginRunRequest): Promise<RulePluginRun> {
       const startedAt = new Date().toISOString();
-      const states = plugins.map(plugin => {
-        try { return { plugin, tracker: plugin.create(), result: undefined as RulePluginResult | undefined }; }
-        catch (e) { return { plugin, tracker: undefined, result: { plugin: info(plugin), status: 'failed', error: String(e) } as RulePluginResult }; }
-      });
-      for (const task of history) {
-        // One immutable evidence read per frame, shared across plugins, bounded to this replay.
-        let source: ReturnType<CaptureReader['captureDetails']> | undefined;
-        const reader: CaptureReader = { captureDetails: async (sid, cid) => {
-          if (sid !== sessionId || cid !== task.captureId) throw new Error('PLUGIN_CAPTURE_OUT_OF_SCOPE');
-          source ??= engine.captureDetails(sid, cid);
-          return structuredClone(await source);
-        } };
-        for (const state of states) {
-          if (!state.tracker || state.result?.status === 'failed') continue;
-          try {
-            const report = await state.tracker.run(reader, structuredClone(task));
-            if (report.inspectionId !== task.id || report.captureId !== task.captureId || report.ruleId !== state.plugin.id || report.ruleVersion !== state.plugin.version) throw new Error('PLUGIN_REPORT_BINDING_MISMATCH');
-            if (task.id === inspectionId) {
-              // Trackers use process-local issue IDs. Bind saved findings to the same
-              // origin and identity so independent replays keep a stable issue ID.
-              for (const check of report.checks) {
-                const facts = check.facts;
-                if (facts?.issueId && facts.firstCaptureId && facts.identityId) facts.issueId = `rule-issue:${createHash('sha256').update(JSON.stringify([sessionId, state.plugin.id, state.plugin.version, facts.firstCaptureId, facts.identityId])).digest('hex')}`;
-              }
-              const controls = engine.observation(sessionId, task.observationId).controls;
-              const targetLabels = Object.fromEntries(report.checks.flatMap(check => {
-                const target = check.target;
-                const control = target?.captureId === task.captureId ? controls.find(c => c.localId === target.nodeId) : undefined;
-                return target && control ? [[target.nodeId, control.name || control.role || control.tag]] : [];
-              }));
-              state.result = { plugin: info(state.plugin), status: 'completed', report, targetLabels };
-            }
-          } catch (e) { state.result = { plugin: info(state.plugin), status: 'failed', error: e instanceof Error ? e.message : String(e) }; }
-        }
-      }
-      const run: RulePluginRun = { schemaVersion: 1, id, sessionId, inspectionId, captureId: inspection.captureId, request: input,
+      const states = createRuleStates(plugins);
+      for (const task of history) await checkRuleFrame(engine, states, task);
+      const run: RulePluginRun = { schemaVersion: 1, origin: 'manual', id, sessionId, inspectionId, captureId: inspection.captureId, request: input,
         startedAt, completedAt: new Date().toISOString(), history: { count: history.length, firstSequence: history[0].sequence, lastSequence: inspection.sequence },
         results: states.map(s => s.result ?? { plugin: info(s.plugin), status: 'failed', error: 'PLUGIN_NO_RESULT' }) };
       engine.store.put(kind, run);

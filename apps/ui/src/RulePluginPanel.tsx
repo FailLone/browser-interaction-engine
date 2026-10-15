@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './rule-plugins.css';
-import type { InteractionClient, RulePluginInfo, RulePluginRun, RulePluginRunRequest, RulePluginResult, RuleCheck } from '@interaction/client';
+import type { InteractionClient, RulePluginInfo, RulePluginRun, RulePluginRunRequest, RulePluginResult, RuleCheck, RuleAutomation } from '@interaction/client';
 
 const verdicts = { pass: '通过', fail: '发现问题', unknown: '待核验', 'not-applicable': '不适用' };
 const severities = { info: '信息', warning: '警告', error: '错误' };
@@ -53,13 +53,14 @@ function Result({ result }: { result: RulePluginResult }) {
 }
 
 /** The parent keys this component by session and inspection, keeping async results scoped. */
-export function RulePluginPanel({ api, sessionId, inspectionId }: { api: InteractionClient; sessionId: string; inspectionId: string }) {
+export function RulePluginPanel({ api, sessionId, inspectionId, revision }: { api: InteractionClient; sessionId: string; inspectionId: string; revision?: number }) {
   const [plugins, setPlugins] = useState<RulePluginInfo[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [runs, setRuns] = useState<RulePluginRun[]>([]);
   const [activeRun, setActiveRun] = useState('');
   const [loading, setLoading] = useState(true); const [busy, setBusy] = useState(false); const [error, setError] = useState('');
   const [reload, setReload] = useState(0);
+  const [automation, setAutomation] = useState<RuleAutomation | null>(null);
   const mounted = useRef(false);
   const retry = useRef<RulePluginRunRequest | undefined>(undefined);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
@@ -71,6 +72,23 @@ export function RulePluginPanel({ api, sessionId, inspectionId }: { api: Interac
     }).catch(e => { if (active) setError(String(e)); }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [api, sessionId, inspectionId, reload]);
+  useEffect(() => {
+    let active = true;
+    void Promise.all([api.ruleAutomation(sessionId), api.ruleRuns(sessionId, inspectionId)]).then(([state, history]) => {
+      if (!active) return;
+      setAutomation(state.automation); setRuns(history.items);
+      setActiveRun(id => history.items.some(r => r.id === id) ? id : history.items[0]?.id || '');
+    }).catch(e => { if (active) setError(String(e)); });
+    return () => { active = false; };
+  }, [api, sessionId, inspectionId, revision, reload]);
+  const configure = async (enabled: boolean) => {
+    setBusy(true); setError('');
+    try {
+      const result = await api.setRuleAutomation(sessionId, { enabled, plugins: plugins.filter(p => selected.includes(p.id)).map(({ id, version }) => ({ id, version })) });
+      if (mounted.current) setAutomation(result);
+    } catch (e) { if (mounted.current) setError(String(e)); }
+    finally { if (mounted.current) setBusy(false); }
+  };
   const run = async () => {
     const choices = plugins.filter(p => selected.includes(p.id)).map(({ id, version }) => ({ id, version }));
     const request = retry.current && JSON.stringify(retry.current.plugins) === JSON.stringify(choices) ? retry.current : { requestId: crypto.randomUUID(), plugins: choices };
@@ -87,6 +105,8 @@ export function RulePluginPanel({ api, sessionId, inspectionId }: { api: Interac
     <h3>规则插件</h3>
     <p className="muted">检查当前所选任务，并利用此前的探索记录复核。检测只读取已保存的证据，不滚动或操作页面；探索可以继续。</p>
     <p className="muted">按已安装规则的配置检查；项目规范和 agent 提案尚未接入自动裁决。待核验不等于通过，单个采样通过也不代表整个页面无问题。</p>
+    <p role="status">自动检查：{automation ? ({ watching: '等待新的采集', checking: '正在处理采集', paused: '已关闭', failed: '处理失败' }[automation.status]) : '未开启'}{automation?.enabled && ` · 已处理 ${automation.completedCount} 条采集 · ${automation.plugins.length} 个规则`}</p>
+    {automation?.error && <p role="alert">{automation.error}</p>}
     {loading ? <p role="status">正在加载规则与检测记录…</p> : <>
       <fieldset disabled={busy} className="rule-choices"><legend>选择检查规则</legend>{plugins.map(plugin => <label key={plugin.id}>
         <input type="checkbox" checked={selected.includes(plugin.id)} onChange={e => setSelected(old => e.target.checked ? [...old, plugin.id] : old.filter(id => id !== plugin.id))} />
@@ -94,11 +114,13 @@ export function RulePluginPanel({ api, sessionId, inspectionId }: { api: Interac
       </label>)}</fieldset>
       {!plugins.length && <p>当前服务未安装规则插件。</p>}
       <button disabled={busy || !selected.length} onClick={() => void run()}>{busy ? '正在检测…' : '运行选中规则'}</button>
+      <button disabled={busy || !selected.length} onClick={() => void configure(true)}>自动检查使用选中规则</button>
+      {automation?.enabled && <button disabled={busy} onClick={() => void configure(false)}>关闭自动检查</button>}
     </>}
     {error && <div role="alert" className="gap">{error} <button disabled={busy} onClick={() => setReload(n => n + 1)}>重新加载</button></div>}
     {busy && <p role="status">正在读取历史采集。离开此页后，可返回查看已保存的结果。</p>}
     {!!runs.length && <label>检测记录<select aria-label="选择检测记录" value={activeRun} onChange={e => setActiveRun(e.target.value)}>{runs.map((r, i) => <option key={r.id} value={r.id}>{new Date(r.completedAt).toLocaleString()} · {r.results.length} 个规则{i === 0 ? ' · 最近一次' : ''}</option>)}</select></label>}
-    {current && <div className="rule-run-results"><p>本次检测已保存 · 共读取 {current.history.count} 条采集（#{current.history.firstSequence}—#{current.history.lastSequence}）</p>{current.results.map(result => <Result key={result.plugin.id} result={result} />)}<details><summary>完整检测记录</summary><pre>{JSON.stringify(current, null, 2)}</pre></details></div>}
+    {current && <div className="rule-run-results"><p>{current.origin === 'automatic' ? '遍历自动检测' : '手动检测'}已保存 · 共读取 {current.history.count} 条采集（#{current.history.firstSequence}—#{current.history.lastSequence}）</p>{current.results.map(result => <Result key={result.plugin.id} result={result} />)}<details><summary>完整检测记录</summary><pre>{JSON.stringify(current, null, 2)}</pre></details></div>}
     {!loading && !runs.length && <p className="muted">此任务尚未运行规则检测。</p>}
   </section>;
 }
