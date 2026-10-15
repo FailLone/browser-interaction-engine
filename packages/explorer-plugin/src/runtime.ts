@@ -84,6 +84,7 @@ export class ExplorerPlugin {
   async close(){if(this.closed)return;this.closed=true;if(this.active)await this.pause(this.active.task.id);this.host.events.off('event',this.onEvent);this.store.close();}
   private event(task:Task,type:string,data:unknown){const round=task.rounds.at(-1);let observationId:string|undefined;try{if(round)observationId=this.host.observation(round.sessionId).id;}catch{}return this.store.event({taskId:task.id,type,actor:'program',sessionId:round?.sessionId,observationId,data});}
   private syncUsage(task:Task) {for(const r of task.rounds){try{const actions=this.host.session(r.sessionId).actionCount;task.usage.actions+=Math.max(0,actions-r.actions);r.actions=actions;}catch{/* Missing historical host data remains a recorded gap. */}}}
+  private sessionTimeExhausted(round:Round) {const s=this.host.session(round.sessionId);return s.elapsedMs>=s.options.maxDurationMs;}
   private elapsed(task:Task){return task.usage.durationMs+(task.activeSince?Date.now()-task.activeSince:0);}
   private checkBudget(task:Task){this.syncUsage(task);if(task.usage.actions>=task.budget.actions||this.elapsed(task)>=task.budget.durationMs)throw new ExplorerError('BUDGET_EXHAUSTED');}
   private assert(task:Task,signal:AbortSignal,observationId?:string,revision=task.revision){if(signal.aborted||task.status!=='running'||task.revision!==revision)throw new ExplorerError('CANCELLED');if(observationId&&this.host.observation(task.rounds.at(-1)!.sessionId).id!==observationId)throw new ExplorerError('STALE_DECISION');this.checkBudget(task);}
@@ -279,22 +280,28 @@ export class ExplorerPlugin {
       const remapped=remapStoredScopes(task,this.host);
       if(remapped.length){this.store.save(task);this.event(task,'scope.remapped',{changes:remapped,executionAuthorized:false,historicalResultsUnchanged:true});}
       let round=task.rounds.at(-1);
+      // Extending aggregate time cannot change a previously created host session.
+      if(round?.status==='paused'&&round.policyVersion===POLICY_VERSION&&this.sessionTimeExhausted(round)&&await this.finishRound(task,round,signal,true))return;
       if(round&&round.status==='paused'&&round.policyVersion===POLICY_VERSION&&this.host.session(round.sessionId).actionCount<this.host.session(round.sessionId).options.maxActions) {round.status='running';const before=this.host.observation(round.sessionId);const fresh=await this.host.observe(round.sessionId);if(fresh.instanceScope!==before.instanceScope){round.stack=[];round.entryPath=[];round.reentries=[];round.reviewed=[];round.tried=[];round.noProgress=0;delete round.lastProgress;this.event(task,'round.reattached',{businessStateRestored:false,attemptCacheReset:true,unknownOutcomesRetained:true});}this.store.save(task);}
       else {if(round&&round.policyVersion!==POLICY_VERSION){round.status='finished';round.endedAt=now();this.event(task,'routing.updated',{from:round.policyVersion||'legacy',to:POLICY_VERSION,newSessionRequired:true});}round=await this.createRound(task,signal);}
       while(!signal.aborted) {
-        this.assert(task,signal);const o=this.host.observation(round.sessionId);
+        this.assert(task,signal);
+        if(this.sessionTimeExhausted(round)){if(await this.finishRound(task,round,signal,true))break;round=await this.createRound(task,signal);continue;}
+        const o=this.host.observation(round.sessionId);
         if(!task.plan.length)await this.initializePlan(task,signal,o);
         let acted=false;
-        try{acted=await this.step(task,round,signal);}catch(e){const code=(e as {code?:string}).code||safeError(e);if(code==='UNKNOWN_DISPATCH_REQUIRES_REVIEW'&&!signal.aborted&&this.isolateUnverifiedNavigation(task)){round=await this.createRound(task,signal);continue;}if(code.startsWith('STALE')||['PRECONDITIONS_CHANGED','ACTION_BLOCKED','ACTION_EXCLUDED','IDENTITY_AMBIGUOUS','REGION_REVIEW_REQUIRED'].includes(code)){this.event(task,'step.invalidated',{reason:code});}else throw e;}
+        try{acted=await this.step(task,round,signal);}catch(e){const code=(e as {code?:string}).code||safeError(e);
+          if(code==='BUDGET_EXHAUSTED'&&!task.pendingDispatch&&this.sessionTimeExhausted(round)){this.assert(task,signal);if(await this.finishRound(task,round,signal,true))break;round=await this.createRound(task,signal);continue;}
+          if(code==='UNKNOWN_DISPATCH_REQUIRES_REVIEW'&&!signal.aborted&&this.isolateUnverifiedNavigation(task)){round=await this.createRound(task,signal);continue;}if(code.startsWith('STALE')||['PRECONDITIONS_CHANGED','ACTION_BLOCKED','ACTION_EXCLUDED','IDENTITY_AMBIGUOUS','REGION_REVIEW_REQUIRED'].includes(code)){this.event(task,'step.invalidated',{reason:code});}else throw e;}
         if(signal.aborted)break;
         // Draining distinct reviews is progress even when the DOM and deduplicated
         // gap rows stay unchanged. Bounded per-target refreshes must reach later work.
         const fresh=this.host.observation(round.sessionId);const signature=digest({fingerprint:fresh.fingerprint,actions:this.host.session(round.sessionId).actionCount,plan:task.plan.map(i=>({scope:i.scope,status:i.status})),reviewProgress:{completed:round.reviewed,refreshed:round.evidenceRefreshes||[],clarified:round.semanticReviews||[]},reviews:{identities:this.host.list<IdentityHypothesis>(round.sessionId,'hypothesis').filter(h=>h.status==='pending').map(h=>({id:h.id,revision:h.revisions.length})),regions:this.host.regionReviewMaterial(round.sessionId).unassignedControlIds,controls:this.host.controlReviewMaterial(round.sessionId).pendingControlIds,classifications:this.host.controlClassificationMaterial(round.sessionId).pendingControlIds,groups:this.host.explorationReviewMaterial(round.sessionId).groups.map(g=>({kind:g.kind,status:g.status,decision:g.decisions.at(-1)?.decision.mode}))}});
         round.noProgress=(!acted||signature===round.lastProgress)?round.noProgress+1:0;round.lastProgress=signature;this.store.save(task);
-        const sessionBudget=this.host.session(round.sessionId).actionCount>=this.host.session(round.sessionId).options.maxActions;
+        const sessionTime=this.sessionTimeExhausted(round),sessionBudget=sessionTime||this.host.session(round.sessionId).actionCount>=this.host.session(round.sessionId).options.maxActions;
         if(acted&&!sessionBudget&&round.noProgress<3)continue;
         if(!acted&&round.noProgress<3&&!sessionBudget){await this.host.observe(round.sessionId);continue;}
-        const finished=await this.finishRound(task,round,signal);
+        const finished=await this.finishRound(task,round,signal,sessionTime);
         if(finished)break;
         round=await this.createRound(task,signal);
       }
@@ -414,8 +421,12 @@ export class ExplorerPlugin {
       return digest(shape(old))===digest(shape(current));
     }catch{return false;}
   }
-  private async finishRound(task:Task,round:Round,signal:AbortSignal) {
+  private async finishRound(task:Task,round:Round,signal:AbortSignal,hostTimeLimit=false) {
     const o=this.host.observation(round.sessionId);
+    if(hostTimeLimit&&!task.plan.length){
+      round.status='finished';round.endedAt=now();round.reason='host_time_limit_before_planning';
+      const s=this.host.session(round.sessionId);this.event(task,'round.session_limit',{reason:'host_time_limit',elapsedMs:s.elapsedMs,maxDurationMs:s.options.maxDurationMs,planInitialized:false,totalBudgetUnchanged:true});this.store.save(task);return false;
+    }
     // A budget boundary can arrive immediately after an action, before the next step
     // discovers/reviews its results. Success of that action is not scope completion.
     const incomplete=this.auditRemainingScopes(task,round,o);
@@ -439,7 +450,9 @@ export class ExplorerPlugin {
     const signature=digest(remaining.map(i=>({scope:i.scope,status:i.status})).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))));
     round.reason=signature;const stalled=task.rounds.filter(r=>r.reason===signature).length>=3;
     const permanent=remaining.some(i=>i.reason.startsWith('missing_capability:')||i.reason==='unknown_action_outcome');
-    if(stalled||permanent){task.status='blocked';task.reason=permanent?'capability_or_unknown_outcome':'no_new_evidence';this.store.save(task);return true;}
+    const independent=incomplete.size>0||remaining.some(i=>i.scope.kind&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome');
+    if(stalled||(permanent&&(!hostTimeLimit||!independent))){task.status='blocked';task.reason=permanent?'capability_or_unknown_outcome':'no_new_evidence';this.store.save(task);return true;}
+    if(hostTimeLimit){const s=this.host.session(round.sessionId);this.event(task,'round.session_limit',{reason:'host_time_limit',elapsedMs:s.elapsedMs,maxDurationMs:s.options.maxDurationMs,remaining:remaining.map(i=>i.id),unknownOutcomesRetained:true,totalBudgetUnchanged:true});this.store.save(task);return false;}
     const followupState={goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',unfinished:remaining,observation:{url:o.url,regions:o.regions.map(r=>({label:r.label,role:r.role})),controls:o.controls.map(c=>({label:c.name,role:c.role})),actions:this.host.actions(round.sessionId).map(a=>scopeFor(a,o))}};
     const strategy=await this.choose(task,signal,o,'followup-strategy','Do the recorded unfinished targets need NEW semantic scopes or prerequisite operations? Retain existing targets for retries, missing evidence, capability gaps and blocked controls. Request generation only when observed evidence identifies a missing route or prerequisite that the existing plan cannot express. Do not request prose merely to restate existing gaps.',followupState,{retain:'Existing recorded scopes and prerequisites suffice; keep their gaps and evidence',replan:'Observed evidence requires a new scope or prerequisite plan',uncertain:'No evidence that a new plan would resolve the gap'});
     this.assert(task,signal,o.id);this.router.mark(strategy.decision,'applied');this.router.effect(strategy.decision,'followup-strategy',{strategy:strategy.value,remaining:remaining.map(i=>i.id),requiresNewPlan:strategy.value==='replan'});

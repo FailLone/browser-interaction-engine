@@ -10,8 +10,8 @@ const reasonText=(reason?:string)=>reason?reasons[reason]||reason:'';
 const events:Record<string,string>={'task.created':'创建任务','task.paused':'任务暂停','task.stopped':'任务停止','budget.extended':'预算已追加','round.reattached':'重新观察会话','recovery.reentry_required':'需要重新进入区域','decision.effect':'应用影响','decision.resolved':'按调度规则处理','decision.requested':'请求判断','decision.returned':'返回判断','decision.applied':'采用判断','decision.rejected':'未采用判断','decision.fallback':'转交 LLM','decision.failed':'调用失败','decision.stale':'结果过期','decision.cancelled':'取消判断','round.started':'开始新一轮','round.audit':'本轮审计','action.dispatch':'准备执行','action.verified':'验证执行结果','action.started':'执行操作','action.succeeded':'操作成功','observation.created':'页面观察','task.completed':'当前计划完成','task.halted':'保存并暂停','recovery.result':'返回验证','plan.revised':'补测计划已调整'};
 Object.assign(events,{'session.released':'释放已完成的会话','intent.resolved':'已确定探索类型','plan.initialized':'程序建立全页范围','plan.authority_restored':'已核对原始计划范围','decision.deferred':'保留并暂停','routing.updated':'判断规则已更新'});
 Object.assign(events,{'navigation.isolated':'保留未知跳转，换会话继续其他范围'});
-Object.assign(events,{'boundary.exit_verified':'核验弹层关闭与父页面状态','scope.audit':'检查剩余范围','scope.remapped':'根据原始证据更新补测范围标识','scope.retained':'程序保留全部已发现成员'});
-Object.assign(reasons,{operation_not_executed:'尚未执行，保留待测',sampling_not_authorized:'按当前范围保留全部已发现成员；执行仍需通过范围、用途和宿主校验。'});
+Object.assign(events,{'boundary.exit_verified':'核验弹层关闭与父页面状态','scope.audit':'检查剩余范围','scope.remapped':'根据原始证据更新补测范围标识','scope.retained':'程序保留全部已发现成员','round.session_limit':'会话时限已到，保留未完成范围'});
+Object.assign(reasons,{operation_not_executed:'尚未执行，保留待测',sampling_not_authorized:'按当前范围保留全部已发现成员；执行仍需通过范围、用途和宿主校验。',host_time_limit:'当前会话的时限已用尽，未完成范围已保留。新会话仍受任务总预算约束，未知结果保持不变。'});
 const purposes:Record<string,string>={'task-intent':'判断任务类型','initial-plan':'理解任务与生成范围','region-review':'识别探索区域','control-classification':'判断控件类型','identity-review':'判断控件身份','control-risk':'判断操作用途','input-samples':'生成输入样本','scope-review':'决定遍历范围','sample-selection':'选择代表样本','list-purpose':'判断列表用途','purpose-description':'描述列表用途','probe-selection':'选择观察试探','discovery-scan':'补充发现','next-action':'选择下一步','recovery-selection':'判断返回路径','followup-plan':'提出补测计划','followup-strategy':'判断是否需要新计划'};
 Object.assign(purposes,{'boundary-exit-risk':'判断弹层外部退出方式'});
 Object.assign(reasons,{BOUNDARY_EXIT_UNVERIFIED:'弹层退出后的状态未通过核验',boundary_exit_unresolved:'尚未找到可验证的弹层退出方式',boundary_preservation_limit:'待保护的父页面字段超过单次核验上限'});
@@ -154,7 +154,7 @@ export function ExplorerInspector({children}:{children:ReactNode}) {
           {decision.fallbackFrom&&<p className="explorer-inspector-meta">转交来源：{decision.fallbackFrom}</p>}
         </>}
       </div>
-    </>:<div className="explorer-inspector-body">{selected.type==='navigation.isolated'&&<p>原链接的执行结果仍未确认，不计为成功，也不会自动重试。后续轮次使用新的会话和审阅探索其他范围，总预算继续累计。</p>}{selected.type==='scope.retained'&&<p>{reasonText('sampling_not_authorized')} 此步骤由程序处理，无需模型调用。</p>}<pre>{pretty(selected.data)}</pre></div>}
+    </>:<div className="explorer-inspector-body">{selected.type==='navigation.isolated'&&<p>原链接的执行结果仍未确认，不计为成功，也不会自动重试。后续轮次使用新的会话和审阅探索其他范围，总预算继续累计。</p>}{selected.type==='scope.retained'&&<p>{reasonText('sampling_not_authorized')} 此步骤由程序处理，无需模型调用。</p>}{selected.type==='round.session_limit'&&<p>{reasonText('host_time_limit')} 此步骤由程序处理，无需模型调用。</p>}<pre>{pretty(selected.data)}</pre></div>}
     {selected.sessionId&&selected.observationId&&<div className="explorer-inspector-footer"><a href={`/v1/sessions/${encodeURIComponent(selected.sessionId)}/evidence/${encodeURIComponent(selected.observationId)}`} target="_blank" rel="noreferrer">打开当时的页面证据 ↗</a><p className="explorer-inspector-meta">观察 {selected.observationId} · 记录顺序 {selected.sequence}</p></div>}
   </div>;
 }
