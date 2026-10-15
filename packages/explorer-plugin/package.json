@@ -1,0 +1,51 @@
+{
+  "name": "@interaction/explorer-plugin",
+  "version": "0.1.0",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./server": {
+      "development": "./src/server.ts",
+      "types": "./dist/server.d.ts",
+      "default": "./dist/server.js"
+    },
+    "./client": {
+      "development": "./src/client.ts",
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    },
+    "./ui": {
+      "development": "./src/ui.tsx",
+      "types": "./dist/ui.d.ts",
+      "default": "./dist/ui.js"
+    }
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "zod": "^4.1.12"
+  },
+  "peerDependencies": {
+    "@interaction/browser": "workspace:*",
+    "fastify": "^5.6.2",
+    "react": "^19.2.0"
+  },
+  "peerDependenciesMeta": {
+    "fastify": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=24 <25"
+  }
+}

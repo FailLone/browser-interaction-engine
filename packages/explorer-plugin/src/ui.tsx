@@ -1,0 +1,56 @@
+import React,{createContext,useContext,useEffect,useRef,useState,type ReactNode} from 'react';
+import { ExplorerClient,type PluginStatus } from './client.js';
+import type { Task,TaskView,ExplorerEvent,Decision } from './types.js';
+const api=new ExplorerClient();
+const C=createContext<{status?:PluginStatus;tasks:Task[];view?:TaskView;select:(id:string)=>void;refresh:()=>Promise<void>}>({tasks:[],select:()=>{},refresh:async()=>{}});
+const names:Record<string,string>={idle:'待开始',running:'探索中',paused:'已暂停',stopped:'已停止',completed:'当前计划完成',blocked:'存在阻塞',budget_exhausted:'预算用尽',configuration_required:'需要配置服务',pending:'待执行',succeeded:'已验证',unresolved:'待确认',untested:'未测',excluded:'已排除',requested:'正在调用',returned:'已返回',applied:'已采用',rejected:'未采用',stale:'已过期',cancelled:'已取消',failed:'调用失败'};
+const reasons:Record<string,string>={current_plan_verified:'当前计划内的操作已验证',llm_required_for_planning:'需要配置 LLM 才能生成计划',CONFIGURATION_REQUIRED:'需要配置可用的模型服务',BUDGET_EXHAUSTED:'总预算用尽',ROUND_BUDGET_EXHAUSTED:'轮次预算用尽',sample_unselected:'未选入代表样本',observed_in_scope:'当前范围内发现',scope_deferred:'范围暂缓',scope_not_verified:'目标尚未验证',unknown_action_outcome:'执行结果尚未确认',UNKNOWN_DISPATCH_REQUIRES_REVIEW:'需先核实上次执行结果',operation_basis_unconfirmed:'操作依据未确认',checkpoint_unverified:'返回路径尚未验证',ACTIVE_SESSION:'请先停止当前普通会话',user_paused:'已由用户暂停',user_stopped:'已由用户停止',process_restarted:'服务重启后等待继续',no_new_evidence:'连续探索未获得新证据',plan_revised:'计划已调整'};
+const reasonText=(reason?:string)=>reason?reasons[reason]||reason:'';
+const events:Record<string,string>={'task.created':'创建任务','task.paused':'任务暂停','task.stopped':'任务停止','budget.extended':'预算已追加','round.reattached':'重新观察会话','recovery.reentry_required':'需要重新进入区域','decision.requested':'请求判断','decision.returned':'返回判断','decision.applied':'采用判断','decision.rejected':'未采用判断','decision.fallback':'转交 LLM','decision.failed':'调用失败','decision.stale':'结果过期','decision.cancelled':'取消判断','round.started':'开始新一轮','round.audit':'本轮审计','action.dispatch':'准备执行','action.verified':'验证执行结果','action.started':'执行操作','action.succeeded':'操作成功','observation.created':'页面观察','task.completed':'当前计划完成','task.halted':'保存并暂停','recovery.result':'返回验证','plan.revised':'补测计划已调整'};
+const purposes:Record<string,string>={'initial-plan':'制定探索计划','region-review':'识别探索区域','control-classification':'判断控件类型','identity-review':'判断控件身份','control-risk':'判断操作用途','input-samples':'生成输入样本','scope-review':'决定遍历范围','sample-selection':'选择代表样本','list-purpose':'判断列表用途','purpose-description':'描述列表用途','probe-selection':'选择观察试探','discovery-scan':'补充发现','next-action':'选择下一步','recovery-selection':'判断返回路径','followup-plan':'提出补测计划'};
+export function ExplorerProvider({children}:{children:ReactNode}) {
+  const [status,setStatus]=useState<PluginStatus>();const [tasks,setTasks]=useState<Task[]>([]);const [id,setId]=useState('');const [view,setView]=useState<TaskView>();const selected=useRef('');selected.current=id;
+  const refresh=async()=>{const s=await api.status();setStatus(s);setTasks(await api.tasks());if(selected.current){const current=selected.current,v=await api.task(current);let cursor=v.events.at(-1)?.sequence||0;for(;;){const next=await api.events(current,cursor);if(!next.length)break;v.events.push(...next);cursor=next.at(-1)!.sequence;if(next.length<500)break;}if(selected.current===current)setView(v);}};
+  useEffect(()=>{let dead=false;let timer:ReturnType<typeof setTimeout>;let available=false;const tick=async()=>{try{if(!dead){await refresh();available=true;}}catch{if(!dead)setStatus(undefined);}if(!dead&&available)timer=setTimeout(tick,1200);};void tick();return()=>{dead=true;clearTimeout(timer);};},[]);
+  useEffect(()=>{setView(undefined);void refresh().catch(()=>{});},[id]);
+  return <C.Provider value={{status,tasks,view,select:setId,refresh}}>{children}</C.Provider>;
+}
+export function ExplorerPanel({url,onSession}:{url:string;onSession:(id:string)=>void}) {
+  const {status,tasks,view,select,refresh}=useContext(C);const [goal,setGoal]=useState('探索当前页面的主要交互，选择代表样本并记录未完成范围');const [error,setError]=useState('');const [busy,setBusy]=useState(false);const [picked,setPicked]=useState<string[]>([]);const [limits,setLimits]=useState({rounds:3,actions:300,minutes:30,modelRequests:300});const [editing,setEditing]=useState('');
+  useEffect(()=>{if(view?.task)setGoal(view.task.goal);},[view?.task.id]);
+  useEffect(()=>{const sid=view?.task.rounds.at(-1)?.sessionId;if(sid)onSession(sid);},[view?.task.id,view?.task.rounds.at(-1)?.sessionId]);
+  if(!status?.enabled)return null;const task=view?.task;
+  const run=async(fn:()=>Promise<unknown>)=>{setBusy(true);setError('');try{await fn();await refresh();}catch(e){setError(String(e));}finally{setBusy(false);}};
+  const command=(name:string,data?:Record<string,unknown>)=>run(()=>api.command(task!.id,name,data));
+  return <section className="panel explorer-plugin" aria-label="自主探索插件" style={{padding:16,marginBottom:16}}>
+    <div className="panel-title"><h2>自主探索插件</h2><span>JEV {status.providers.jev.configured?'已配置':'未配置'} · LLM {status.providers.llm.configured?'已配置':'未配置'}</span></div>
+    <label>探索目标<textarea aria-label="自主探索目标" value={goal} onChange={e=>setGoal(e.target.value)}/></label>
+    <div className="buttons" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:12}}>{([['rounds','最多轮次'],['actions','总动作数'],['minutes','总分钟数'],['modelRequests','模型请求数']] as const).map(([key,label])=><label key={key}>{label}<input aria-label={label} type="number" min={1} value={limits[key]} onChange={e=>setLimits({...limits,[key]:Number(e.target.value)})}/></label>)}</div>
+    <div className="buttons"><button disabled={busy} onClick={()=>void run(async()=>{const t=await api.create({goal,url,budget:{rounds:limits.rounds,actions:limits.actions,durationMs:limits.minutes*60000,modelRequests:limits.modelRequests}});select(t.id);})}>创建自主探索任务</button>
+      <select aria-label="探索任务" value={task?.id||''} onChange={e=>{select(e.target.value);setPicked([]);}}><option value="">选择任务</option>{tasks.map(t=><option key={t.id} value={t.id}>{t.goal.slice(0,40)} · {names[t.status]}</option>)}</select></div>
+    {error&&<p role="alert">{error}</p>}
+    {task&&<><p role="status"><b>{names[task.status]}</b> · {reasonText(task.reason)} · 已用 {task.usage.rounds}/{task.budget.rounds} 轮，{task.usage.actions}/{task.budget.actions} 次动作，{task.usage.modelRequests}/{task.budget.modelRequests} 次模型调用，{((task.usage.durationMs+(task.activeSince?Date.now()-task.activeSince:0))/60000).toFixed(1)}/{Math.ceil(task.budget.durationMs/60000)} 分钟</p>
+      <div className="buttons"><button disabled={busy||task.status==='running'||task.status==='completed'} onClick={()=>void command('resume')}>开始 / 继续探索</button><button disabled={busy||task.status!=='running'} onClick={()=>void command('pause')}>暂停 / 接管插件</button><button disabled={busy} onClick={()=>void command('stop')}>停止插件</button><button disabled={busy||task.status==='running'} onClick={()=>void command('replan',{goal})}>按新目标重新规划</button><button disabled={busy||task.status==='running'} onClick={()=>void command('extend-budget',{budget:{rounds:limits.rounds,actions:limits.actions,durationMs:limits.minutes*60000,modelRequests:limits.modelRequests}})}>追加上方预算</button></div>
+      <p>当前计划完成不代表全站穷尽。历史依据与本轮实际执行分别记录；未选样本仍为未测。</p>
+      {task.rounds.map(r=><button key={r.id} onClick={()=>onSession(r.sessionId)}>第 {r.number} 轮 · {r.actions} 次操作 · {r.status==='running'?'进行中':r.status==='paused'?'已暂停':'已结束'}</button>)}
+      <details open><summary>探索计划与未完成范围（{task.plan.filter(i=>i.status!=='succeeded').length}）</summary>
+      {task.plan.map(i=><div className="data-row" key={i.id}><label><input type="checkbox" checked={picked.includes(i.id)} disabled={task.status==='running'} onChange={e=>setPicked(e.target.checked?[...picked,i.id]:picked.filter(x=>x!==i.id))}/>{i.title}</label><b>{names[i.status]}</b><small>{reasonText(i.reason)} · {i.required?'计划内':'待选择'}{i.resolvedBy?' · 有实际执行证据':''}</small><details><summary>范围、前置条件与证据</summary><pre>{JSON.stringify({scope:i.scope,prerequisites:i.prerequisites,completion:i.completion,evidence:i.evidence,resolvedBy:i.resolvedBy,history:i.attempts},null,2)}</pre></details></div>)}
+      <button disabled={busy||!picked.length||task.status==='running'} onClick={()=>void command('continue-scope',{itemIds:picked})}>将所选范围设为补测计划</button><small>设置后点击“开始 / 继续探索”；沿用剩余总预算。</small></details>
+      <details><summary>调整计划范围</summary><button disabled={task.status==='running'} onClick={()=>setEditing(JSON.stringify(task.plan.map(({title,scope,prerequisites,completion,required,reason})=>({title,scope,prerequisites,completion,required,reason})),null,2))}>载入当前计划</button><textarea aria-label="编辑探索计划" rows={8} value={editing} onChange={e=>setEditing(e.target.value)}/><button disabled={busy||!editing||task.status==='running'} onClick={()=>void run(()=>api.command(task.id,'replan',{items:JSON.parse(editing)}))}>保存调整</button></details>
+    </>}
+  </section>;
+}
+export function ExplorerTraversal({sessionId,children,onInspect}:{sessionId:string;children:ReactNode;onInspect:(observationId:string)=>void}) {
+  const {status,view}=useContext(C);const [selected,setSelected]=useState<ExplorerEvent>();
+  useEffect(()=>setSelected(undefined),[view?.task.id]);
+  if(!status?.enabled||!view||!view.task.rounds.some(r=>r.sessionId===sessionId))return <>{children}</>;
+  const decision=selected?.decisionId?view.decisions.find(d=>d.id===selected.decisionId):undefined;
+  const visible=view.events.filter(e=>e.actor!=='engine'||['action.started','action.succeeded','action.failed','action.unknown','observation.created','checkpoint.result'].includes(e.type));
+  return <div aria-label="包含模型决策的遍历路径">{visible.map(e=><button className="visit" style={{borderLeft:`3px solid ${e.actor==='jev'?'#2b725e':e.actor==='llm'?'#7560a2':'#dce5df'}`}} key={e.sequence} onClick={()=>{setSelected(e);if(e.sessionId===sessionId&&e.observationId)onInspect(e.observationId);}}><span className="visit-line"><b>{e.actor==='engine'||e.actor==='program'?'程序':e.actor.toUpperCase()}</b> · {events[e.type]||e.type}</span><small>{new Date(e.at).toLocaleTimeString()} · {purposes[(e.data as {purpose?:string})?.purpose||'']||((e.data as {label?:string})?.label)||''}</small></button>)}
+    {selected&&<div className="explorer-decision" role="region" aria-label="探索决策详情"><button onClick={()=>setSelected(undefined)}>关闭详情</button><b>{events[selected.type]||selected.type}</b>
+      {decision&&<><p>{decision.actor.toUpperCase()} · {decision.provider} / {decision.model} · {names[decision.status]} · {decision.elapsedMs??'…'} ms</p><p>{decision.answer?.confidence===undefined?'':`置信度 ${decision.answer.confidence}`}{decision.answer?.probability===undefined?'':` 概率 ${decision.answer.probability}`}</p>{decision.fallbackFrom&&<p>转交来源：{decision.fallbackFrom}</p>}<pre>{JSON.stringify({reason:decision.reason,result:decision.answer,input:decision.request},null,2)}</pre></>}
+      {!decision&&<pre>{JSON.stringify(selected.data,null,2)}</pre>}
+      {selected.sessionId&&selected.observationId&&<a href={`/v1/sessions/${encodeURIComponent(selected.sessionId)}/evidence/${encodeURIComponent(selected.observationId)}`} target="_blank" rel="noreferrer">打开当时的页面证据</a>}
+    </div>}
+  </div>;
+}

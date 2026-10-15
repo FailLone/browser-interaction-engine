@@ -31,7 +31,8 @@
     "scripts/**/*.ts",
     "tests/**/*.ts",
     "examples/**/*.ts",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    "packages/**/*.tsx"
   ],
   "exclude": [
     "node_modules",

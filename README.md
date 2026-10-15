@@ -1,8 +1,12 @@
 # 浏览器交互探索引擎 · V0.1
 
-输入网址，得到可以查询、继续探索和验证到达结果的交互图。界面名称为 **Interaction Atlas**。项目已迁到 `~/Projects/browser-interaction-engine`。core 是独立于 Web 的 SDK，浏览器执行通过 Playwright 适配器接入；没有模型调用、提示词、模型管理或 Agent。
+输入网址，得到可以查询、继续探索和验证到达结果的交互图。界面名称为 **Interaction Atlas**。项目已迁到 `~/Projects/browser-interaction-engine`。core 是独立于 Web 的 SDK，浏览器执行通过 Playwright 适配器接入；SDK 不包含模型调用、提示词、模型管理或 Agent。
 
 ![调试界面](docs/screenshots/dashboard.png)
+
+## 可选自主探索插件
+
+独立的 `@interaction/explorer-plugin` 通过现有公开接口实现 JEV 优先决策、LLM 生成与回退、未完成范围记录、跨轮补测和调试时间线。默认关闭；启用与服务配置见 [插件说明](docs/EXPLORER-PLUGIN.md) 和 [.env.explorer.example](.env.explorer.example)。SDK、core、适配器和原有客户端保持模型无关。
 
 ## 详细证据与快照订阅
 

@@ -1,3 +1,5 @@
+import { registerExplorer } from '@interaction/explorer-plugin/server';
+import type { ExplorerPlugin } from '@interaction/explorer-plugin';
 import { inspectionCapabilities, validateCaptureProfile, inspectionConsumerSchema, completeInspectionSchema, inspectionPageSchema } from '@interaction/browser';
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
@@ -6,7 +8,7 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { InteractionEngine, EngineError, artifactKindSchema, domQuerySchema, evidenceCapabilities, type EngineEvent } from '@interaction/browser';
 
-export async function createServer(engine: InteractionEngine, options: { uiDirectory?: string; logger?: boolean } = {}) {
+export async function createServer(engine: InteractionEngine, options: { uiDirectory?: string; logger?: boolean; explorer?: ExplorerPlugin } = {}) {
   const app = Fastify({ logger: options.logger ?? false, bodyLimit: 1024 * 1024 });
   const streams = new Set<import('node:http').ServerResponse>();
   app.addHook('preClose', async () => { for (const stream of streams) stream.end(); });
@@ -15,6 +17,7 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
     if (error instanceof EngineError) return reply.code(error.code === 'NOT_FOUND' ? 404 : ['INVALID_QUERY', 'INVALID_REQUEST'].includes(error.code) ? 400 : 409).send({ error: { code: error.code, message: error.message, details: error.details } });
     return reply.code(500).send({ error: { code: 'INTERNAL_ERROR', message: error instanceof Error ? error.message : String(error) } });
   });
+  if (options.explorer) await registerExplorer(app, options.explorer);
   app.get('/v1/health', async () => ({ status: 'ok', version: '0.1.0', modelIndependent: true }));
   app.get('/v1/capabilities/evidence', async () => evidenceCapabilities);
   app.get('/v1/capabilities/inspection', async () => inspectionCapabilities);
@@ -141,6 +144,6 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
     reply.raw.on('close', () => { subscription.close(); clearInterval(heartbeat); streams.delete(reply.raw); });
   });
   const ui = options.uiDirectory || resolve('apps/ui/dist');
-  if (existsSync(ui)) { await app.register(fastifyStatic, { root: ui }); app.setNotFoundHandler((request, reply) => request.url.startsWith('/v1/') ? reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Unknown API route' } }) : reply.sendFile('index.html')); }
+  if (existsSync(ui)) { await app.register(fastifyStatic, { root: ui }); app.setNotFoundHandler((request, reply) => (request.url.startsWith('/v1/') || request.url.startsWith('/plugins/')) ? reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Unknown API route' } }) : reply.sendFile('index.html')); }
   return app;
 }

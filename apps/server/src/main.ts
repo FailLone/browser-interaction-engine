@@ -1,9 +1,11 @@
+import { ExplorerPlugin, ExplorerStore, providersFromEnv } from '@interaction/explorer-plugin';
 import { SqliteStore } from '@interaction/storage-sqlite';
 import { resolve } from 'node:path';
 import { InteractionEngine } from '@interaction/browser';
 import { createServer } from './server.js';
 const engine = new InteractionEngine({ persistence: new SqliteStore(resolve(process.env.INTERACTION_DATA_DIR || '.data')) });
-const app = await createServer(engine, { logger: true });
+const explorer = process.env.EXPLORER_ENABLED === 'true' ? new ExplorerPlugin(engine, new ExplorerStore(resolve(process.env.EXPLORER_DATABASE || '.data/plugins/explorer.sqlite')), providersFromEnv()) : undefined;
+const app = await createServer(engine, { logger: true, explorer });
 await app.listen({ host: '127.0.0.1', port: Number(process.env.PORT || 4173) });
 let closing = false;
 const close = async () => { if (closing) return; closing = true; await app.close(); await engine.close(); process.exit(0); };

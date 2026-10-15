@@ -20,6 +20,9 @@ importers:
       '@interaction/core':
         specifier: workspace:*
         version: link:packages/core
+      '@interaction/explorer-plugin':
+        specifier: workspace:*
+        version: link:packages/explorer-plugin
       '@interaction/rules':
         specifier: workspace:*
         version: link:packages/rules
@@ -87,6 +90,9 @@ importers:
       '@interaction/browser':
         specifier: workspace:*
         version: link:../../packages/browser
+      '@interaction/explorer-plugin':
+        specifier: workspace:*
+        version: link:../../packages/explorer-plugin
       '@interaction/storage-sqlite':
         specifier: workspace:*
         version: link:../../packages/storage-sqlite
@@ -114,6 +120,9 @@ importers:
       '@interaction/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@interaction/explorer-plugin':
+        specifier: workspace:*
+        version: link:../../packages/explorer-plugin
       react:
         specifier: ^19.2.0
         version: 19.3.0
@@ -156,6 +165,24 @@ importers:
       '@noble/hashes':
         specifier: ^2.0.1
         version: 2.4.0
+      zod:
+        specifier: ^4.1.12
+        version: 4.6.7
+
+  packages/explorer-plugin:
+    dependencies:
+      '@interaction/browser':
+        specifier: workspace:*
+        version: link:../browser
+      better-sqlite3:
+        specifier: ^12.4.1
+        version: 12.11.1
+      fastify:
+        specifier: ^5.6.2
+        version: 5.12.7
+      react:
+        specifier: ^19.2.0
+        version: 19.3.0
       zod:
         specifier: ^4.1.12
         version: 4.6.7

@@ -22,7 +22,9 @@
     "browser:install": "playwright install chromium",
     "example:core": "tsx --conditions=development examples/core-memory.ts",
     "test:core": "vitest run tests/core.test.ts tests/storage-contract.test.ts tests/architecture.test.ts tests/retention.test.ts tests/identity-matching.test.ts",
-    "experiment:identity": "tsx --conditions=development scripts/identity-blind-experiment.ts"
+    "experiment:identity": "tsx --conditions=development scripts/identity-blind-experiment.ts",
+    "smoke:explorer": "node scripts/smoke-explorer.mjs",
+    "test:explorer": "vitest run tests/explorer-plugin-providers.test.ts tests/explorer-plugin.test.ts tests/explorer-plugin-ui.test.ts"
   },
   "dependencies": {
     "@interaction/rules": "workspace:*",
@@ -32,7 +34,8 @@
     "@interaction/storage-sqlite": "workspace:*",
     "@interaction/browser": "workspace:*",
     "@interaction/client": "workspace:*",
-    "@interaction/storage-retained": "workspace:*"
+    "@interaction/storage-retained": "workspace:*",
+    "@interaction/explorer-plugin": "workspace:*"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",

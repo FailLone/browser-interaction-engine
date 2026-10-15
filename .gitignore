@@ -10,3 +10,5 @@ work/
 .env.*
 !.env.example
 .auth/
+
+!.env.explorer.example
