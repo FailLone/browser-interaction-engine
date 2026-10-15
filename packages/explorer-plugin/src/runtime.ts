@@ -162,7 +162,7 @@ export class ExplorerPlugin {
     }
     this.assert(task,signal);
     // Fresh sessions have no inherited grants. Cap every session by the remaining aggregate budget.
-    const session=await this.host.createSession({...task.sessionOptions,url:task.url,headless:task.sessionOptions.headless??true,exploration:'controls',listExploration:'review',pageExploration:'review',regionExploration:'review',
+    const session=await this.host.createSession({...task.sessionOptions,url:task.url,headless:task.sessionOptions.headless??true,observeTimeoutMs:task.sessionOptions.observeTimeoutMs??10000,exploration:'controls',listExploration:'review',pageExploration:'review',regionExploration:'review',
       maxActions:Math.min(task.sessionOptions.maxActions||100,task.budget.actions-task.usage.actions),maxDurationMs:Math.max(1,Math.floor(task.budget.durationMs-this.elapsed(task))),
       evidenceRetention:{mode:'persistent',ttlMs:0,...(task.evidenceBudget||{maxBytes:1024**3,maxObservations:1000})}});
     const round:Round={id:randomUUID(),number:task.rounds.length+1,sessionId:session.id,startedAt:now(),status:'running',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0,policyVersion:POLICY_VERSION};
