@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { RuleCheck } from './types.js';
 import { imageResourceBindingSchema } from './image-aspect-ratio.js';
 import { labelTextBindingSchema } from './text-background.js';
+import { imageSourceBindingSchema } from './image-resource.js';
 
 /** Future integration contract only. Providers propose; the host must separately
  * verify authority, scope, binding and conflicts before accepting a requirement. */
@@ -63,11 +64,18 @@ export const textBackgroundRequirementProposalSchema = requirementProposalBaseSc
 }).strict();
 export type TextBackgroundRequirementProposal = z.infer<typeof textBackgroundRequirementProposalSchema>;
 
+export const imageResourceRequirementProposalSchema = requirementProposalBaseSchema.extend({
+  ruleId: z.literal('image-resource'), ruleVersion: z.literal('1.0.0'),
+  requirement: z.enum(['no-image-load-error', 'allow-unavailable-image']), resource: imageSourceBindingSchema,
+}).strict();
+export type ImageResourceRequirementProposal = z.infer<typeof imageResourceRequirementProposalSchema>;
+
 /** Built-in proposals only. The discriminant prevents cross-rule requirements
  * and unknown versions from being silently reinterpreted. */
 export const ruleRequirementProposalSchema = z.discriminatedUnion('ruleId', [
   occlusionRequirementProposalSchema, clippingRequirementProposalSchema, textRequirementProposalSchema, imageAspectRatioRequirementProposalSchema,
   textBackgroundRequirementProposalSchema,
+  imageResourceRequirementProposalSchema,
 ]);
 export type RuleRequirementProposal = z.infer<typeof ruleRequirementProposalSchema>;
 
@@ -88,6 +96,7 @@ export type ClippingRequirementProvider = RuleRequirementProvider<ClippingRequir
 export type TextRequirementProvider = RuleRequirementProvider<TextRequirementProposal>;
 export type ImageAspectRatioRequirementProvider = RuleRequirementProvider<ImageAspectRatioRequirementProposal>;
 export type TextBackgroundRequirementProvider = RuleRequirementProvider<TextBackgroundRequirementProposal>;
+export type ImageResourceRequirementProvider = RuleRequirementProvider<ImageResourceRequirementProposal>;
 
 // No provider registry, document reader, model invocation, conflict resolver or
 // acceptance evaluator is supplied in v1. Neither RuleRunner nor a tracker calls

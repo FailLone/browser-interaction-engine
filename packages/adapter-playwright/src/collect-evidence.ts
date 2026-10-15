@@ -124,6 +124,8 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
       };
       record.properties = {};
       if (el instanceof HTMLImageElement) {
+        const resource = (window as any).__interactionImageResources?.read(el);
+        if (resource) resource.sourceKey = trim(resource.sourceKey, Math.min(20000, limits.maxTextLength), 'image:sourceKey');
         const edges = (axis: string[]) => axis.reduce((sum, side) => sum + parseFloat(style.getPropertyValue(`padding-${side}`)) + parseFloat(style.getPropertyValue(`border-${side}-width`)), 0);
         const width = parseFloat(style.width) - (style.boxSizing === 'border-box' ? edges(['left', 'right']) : 0);
         const height = parseFloat(style.height) - (style.boxSizing === 'border-box' ? edges(['top', 'bottom']) : 0);
@@ -132,6 +134,7 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
           moving ||= ancestor.getAnimations().some(a => a.playState === 'running' || a.pending);
         }
         record.image = { version: 1, currentSrc: trim(el.currentSrc, limits.maxAttributeLength, 'image:currentSrc'),
+          ...(resource ? { resource } : {}),
           complete: el.complete, naturalWidth: el.naturalWidth, naturalHeight: el.naturalHeight, loadEpoch: tracker.imageLoadEpochs.get(el) ?? 0,
           ...(Number.isFinite(width) && Number.isFinite(height) ? { contentBox: { width, height } } : {}), motion: moving ? 'running' : 'idle' };
       }

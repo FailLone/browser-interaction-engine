@@ -33,6 +33,7 @@ export interface DomNodeEvidence {
   paint?: { version: 1; motion: 'running' | 'idle'; pseudoElements: { kind: 'before' | 'after'; position: string }[] };
   /** Browser intrinsic dimensions are density-corrected CSS px, not file pixels. */
   image?: { version: 1; currentSrc: string; complete: boolean; naturalWidth: number; naturalHeight: number; loadEpoch: number;
+    resource?: { version: 1; sourceKey: string; hasSource: boolean; event: 'load' | 'error' | 'unobserved'; eventSequence: number };
     contentBox?: { width: number; height: number }; motion: 'running' | 'idle' };
   /** Range boxes of non-whitespace DOM text; layout evidence, not painted glyphs. */
   textLayout?: { version: 1; status: 'captured' | 'truncated' | 'unavailable' | 'skipped';
@@ -84,6 +85,7 @@ export const evidenceCapabilities = {
   optional: ['full-page-screenshot', 'all-computed-styles'],
   textGeometry: { version: 1, kind: 'bounded-dom-text-range-boxes', maxFragments: 4096, maxFragmentsPerNode: 128, paintedGlyphs: false },
   imageGeometry: { version: 1, kind: 'html-image-intrinsic-and-content-box', pixelAnalysis: false },
+  imageResource: { version: 1, kind: 'native-image-events-and-source-binding', activeRequests: false },
   textPaint: { version: 1, kind: 'computed-colors-and-paint-guards', pixelAnalysis: false },
   unsupported: ['shadow-dom-contents', 'iframe-dom', 'javascript-heap', 'complete-event-listeners', 'network-bodies', 'business-intent-inference'],
   queriesChangePage: false,

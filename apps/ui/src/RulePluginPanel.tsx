@@ -6,6 +6,14 @@ const verdicts = { pass: '通过', fail: '发现问题', unknown: '未判定', '
 const severities = { info: '信息', warning: '警告', error: '错误' };
 const lifecycle: Record<string, string> = { pending: '等待后续观察', suspected: '疑似问题', confirmed: '已确认', resolved: '已恢复', unverified: '无法继续核验' };
 const descriptions: Record<string, string> = {
+  IMAGE_RESOURCE_LOAD_FAILED: '已记录到当前资源的原生加载失败；替代表达是否足够仍待判断',
+  IMAGE_RESOURCE_REQUIREMENT_FAILED: '图片发生加载失败，违反已声明的资源要求',
+  IMAGE_RESOURCE_AVAILABLE: '图片资源已可用；不代表图片内容或替代方案正确',
+  IMAGE_RESOURCE_PENDING: '图片仍在加载或等待按需加载，暂不判错', IMAGE_SOURCE_ABSENT: '未配置图片资源，是否需要图片由上层要求决定',
+  IMAGE_UNAVAILABILITY_ALLOWED: '明确配置允许此图片不可用', IMAGE_RESOURCE_RESTORED: '同一图片位置和资源已在后续重试中加载成功',
+  IMAGE_RESOURCE_NOT_RECHECKED: '保留此前加载失败记录；尚未验证原资源恢复，换图不等于原图恢复',
+  IMAGE_RESOURCE_EVIDENCE_MISSING: '图片资源或原生事件证据不完整', IMAGE_RESOURCE_STATE_UNCERTAIN: '当前尺寸和事件不足以确定图片加载状态',
+  IMAGE_RESOURCE_RENDERING_UNSUPPORTED: 'CSS 替换内容等绘制方式超出资源检查范围',
   TEXT_BACKGROUND_MATCH: '纯色模型中，文字合成颜色与背景相同；是否违反要求仍待判断',
   TEXT_BACKGROUND_REQUIREMENT_FAILED: '文字与背景同色，违反已声明的颜色区分要求',
   TEXT_BACKGROUND_DISTINCT: '文字颜色与纯色背景不同；不代表对比度或可读性达标',

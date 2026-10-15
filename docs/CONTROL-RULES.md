@@ -4,6 +4,8 @@
 
 [文字与背景同色规则](TEXT-BACKGROUND-RULE.md) 继续使用控件规则入口，对可见 DOM 标签建立纯色合成模型，并复用同一文字绑定下的历史复核。
 
+[图片资源加载规则](IMAGE-RESOURCE-RULE.md) 通过原生资源事件区分失败、加载中和无来源，检查普通 DOM 图片；复核不发起重试，替代图的语义合理性留给上层。
+
 `@interaction/rules` 是已有 Inspection 协议的消费者插件。它读不可变 Capture，按配置运行已注册规则，输出并保存逐控件结果。core 不引入检查策略，BrowserEngine 不默认执行规则，也不调用模型。可运行入口是 [rule-inspector.ts](../examples/rule-inspector.ts)。
 
 此设计延续 ui-sentinel 的规则概念：**规则 = 适用条件 + 预期 + 检查方法 + 证据要求**，具有稳定 ID 和版本；规则与本次目标绑定分开。参考原项目的 `docs/rules-and-rule-library.md`、`src/rules/types.ts` 和 UIK-D002/UIK-D010。那些文档中的审批、学习与发布流程是原项目的工作约定，本插件没有移植这些流程。

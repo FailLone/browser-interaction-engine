@@ -23,6 +23,7 @@ import { collectOverlays } from './overlays.js';
 import { collectLiveContent } from './live-content.js';
 import { collectActionEvidence } from './action-evidence.js';
 import { collectEvidence } from './collect-evidence.js';
+import { installImageResourceEvidence } from './image-resource-evidence.js';
 import { collectIdentityContexts } from './identity-context.js';
 import { collectPopupRelations } from './popup-relations.js';
 import { collectComponents } from './components.js';
@@ -468,6 +469,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     });
     this.recorder = new RuntimeRecorder(this.options.evidence.maxRuntimeEntries, this.options.evidence.maxTextLength);
     if (this.options.evidence.enabled) this.recorder.attach(this.page);
+    if (this.options.evidence.enabled) await this.page.addInitScript(`(() => { const __name = fn => fn; (${installImageResourceEvidence.toString()})(); })()`);
     this.page.setDefaultTimeout(this.options.actionTimeoutMs);
     this.context.on('page', async p => { if (p !== this.page) { this.gaps.push({ code: 'UNSUPPORTED_NEW_TAB', message: `New tab blocked: ${p.url()}`, critical: true }); await p.close().catch(() => {}); } });
     this.page.on('dialog', async dialog => { this.gaps.push({ code: 'UNSUPPORTED_NATIVE_DIALOG', message: `${dialog.type()}: ${dialog.message()}; dismissed`, critical: true }); await dialog.dismiss().catch(() => {}); });

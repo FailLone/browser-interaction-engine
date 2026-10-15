@@ -4,7 +4,7 @@ import {
   clippingRequirementProposalSchema, occlusionRequirementProposalSchema, textRequirementProposalSchema,
   requirementProposalBaseSchema, requirementSourceSchema, ruleRequirementProposalSchema,
   imageAspectRatioRequirementProposalSchema,
-  textBackgroundRequirementProposalSchema,
+  textBackgroundRequirementProposalSchema, imageResourceRequirementProposalSchema,
   clippedControlOptionsSchema, observedClippingOptionsSchema, observedOcclusionOptionsSchema,
   textTruncationOptionsSchema, observedTextTruncationOptionsSchema, sampledOcclusionRule, scrollRecoveryOptionsSchema,
   type ClippingRequirementProvider, type OcclusionRequirementProvider, type TextRequirementProvider,
@@ -24,9 +24,11 @@ const cases = [
   { ruleId: 'text-truncation', requirement: 'full-text-inline', schema: textRequirementProposalSchema },
   { ruleId: 'image-aspect-ratio', requirement: 'preserve-aspect-ratio', schema: imageAspectRatioRequirementProposalSchema },
   { ruleId: 'text-background', requirement: 'distinct-solid-label-colors', schema: textBackgroundRequirementProposalSchema },
+  { ruleId: 'image-resource', requirement: 'no-image-load-error', schema: imageResourceRequirementProposalSchema },
 ];
 const proposal = (entry: typeof cases[number]) => ({ ...envelope, ruleId: entry.ruleId, ruleVersion: '1.0.0', requirement: entry.requirement,
   ...(entry.ruleId === 'image-aspect-ratio' ? { resource: { currentSrc: 'https://fixture.test/image.png', naturalWidth: 200, naturalHeight: 100, loadEpoch: 0 } } : {}),
+  ...(entry.ruleId === 'image-resource' ? { resource: { currentSrc: 'https://fixture.test/image.png', sourceKey: 'source' } } : {}),
   ...(entry.ruleId === 'text-background' ? { label: [{ nodeId: 'text', text: 'Label' }] } : {}) });
 
 it.each(cases)('preserves $ruleId provenance and target binding through its own and shared validator', entry => {
