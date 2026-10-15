@@ -1,6 +1,6 @@
 import { ExplorerError, type Decision, type ModelAnswer, type ModelRequest, type Providers } from './types.js';
 
-export const POLICY_VERSION = 'evidence-routing-v3';
+export const POLICY_VERSION = 'evidence-routing-v4';
 
 /** Confidence never authorizes scope reduction. Each result keeps the raw answer in the ledger. */
 export function resolveJudgment(req:ModelRequest, answer:ModelAnswer, providers:Providers):Decision['resolution'] {
@@ -25,6 +25,10 @@ export function resolveJudgment(req:ModelRequest, answer:ModelAnswer, providers:
   if(req.kind!=='choice')return;
   const selected=answer.value as string;
   const uncertain=selected==='uncertain'||selected==='none'||selected.startsWith('none-');
+  if(policy==='task-intent') {
+    const threshold=floor('planning');
+    return confident(threshold)?resolve(selected,'task_intent_classified',threshold):resolve('uncertain','task_intent_needs_interpretation',threshold);
+  }
   if(policy==='ranking') {
     const value=uncertain?req.fallbackOption:selected;
     if(!value||!Object.hasOwn(req.options||{},value)||value==='uncertain')throw new ExplorerError('INVALID_ROUTING_POLICY');

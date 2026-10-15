@@ -6,14 +6,15 @@
 
 The workspace supplies the package. Use Node 24 and `pnpm install`. The existing server loads it only when `EXPLORER_ENABLED=true`. Copy the values from `.env.explorer.example` into your server environment; the server does not automatically read `.env` files. Then run `pnpm dev`, or `pnpm build` followed by `pnpm start`.
 
-Keep keys on the server. `/plugins/explorer/v1/status` exposes only provider names, model names, configured flags and host capabilities. Without LLM configuration the UI remains available; planning stops with `configuration_required`. There is no implicit mock provider.
+Keep keys on the server. `/plugins/explorer/v1/status` exposes only provider names, model names, configured flags and host capabilities. A blank task and a written task that JEV recognizes as unrestricted current-page exhaustion can start with JEV alone. LLM configuration is required only when the task needs structured interpretation, new inputs or new planning; a missing provider then saves the task with `configuration_required`. There is no implicit mock provider.
 
 JEV configuration uses `EXPLORER_JEV_PROVIDER=typesafe|openrouter`, `EXPLORER_JEV_ENDPOINT` (full URL), `EXPLORER_JEV_MODEL` and `EXPLORER_JEV_API_KEY`. LLM configuration uses `EXPLORER_LLM_ENDPOINT` (full chat/completions URL), `EXPLORER_LLM_MODEL` and `EXPLORER_LLM_API_KEY`. Custom local endpoints may omit a key. For OpenRouter, `EXPLORER_LLM_PROVIDER=openrouter` enables explicit routing; `EXPLORER_LLM_UPSTREAM_PROVIDER` pins the upstream with fallback disabled and parameter support required. `EXPLORER_LLM_REASONING_EFFORT` accepts none/low/medium/high; `EXPLORER_LLM_MAX_OUTPUT_TOKENS` sets the completion budget. The example matches ui-sentinel’s current Alibaba route with low reasoning and uses 8192 tokens for structured exploration plans. See [OpenRouter routing](https://openrouter.ai/docs/guides/routing/provider-selection). The LLM endpoint must support JSON-object responses. Responses are also validated locally; unsupported formats fail explicitly.
 
-JEV uses typed Choice and Noul judgments according to [TypeSafe's API](https://docs.typesafe.ai/api). Its [confidence](https://docs.typesafe.ai/confidence) summarizes the option distribution; it is not measured correctness. Routing is versioned (`evidence-routing-v3`) and depends on the decision's consequences:
+JEV uses typed Choice and Noul judgments according to [TypeSafe's API](https://docs.typesafe.ai/api). Its [confidence](https://docs.typesafe.ai/confidence) summarizes the option distribution; it is not measured correctness. Routing is versioned (`evidence-routing-v4`) and depends on the decision's consequences:
 
 | Decision | Program policy |
 | --- | --- |
+| Task type | Blank input uses a program-created full-page root. Written instructions go to JEV first: confidently exhaustive creates the same root without LLM; confidently unsupported stops with a recorded reason; targeted/constraint-bearing or uncertain requests ask LLM for a strict structured task. The planning threshold applies to accepting a task classification. |
 | Next action / sample / bounded probe / discovery target | Rank already offered candidates without a confidence cutoff; ties use stable order. Scope and host preflight still apply; other targets remain pending. |
 | Region grouping | An `include` result groups observed controls without excluding any or granting permission. Uncertainty refreshes observation once, then remains a gap. |
 | Scope reduction | `all` retains observed members. `sample` is accepted only with the user's explicit `coverageMode: representative` and no explicitly required individual target. `skip`, `defer`, or uncertain proposals cannot remove members: the program retains the group and the plan matcher limits actual execution. |
@@ -24,9 +25,9 @@ JEV uses typed Choice and Noul judgments according to [TypeSafe's API](https://d
 | Round completion | Program execution evidence, observed candidates and outstanding gaps determine current-plan completion. A model confidence score cannot mark coverage complete. |
 | New planning | JEV first checks whether new scopes/prerequisites are needed. Only a sufficiently supported `replan` result requests generation. Otherwise preserve existing gaps. |
 
-`EXPLORER_CLASSIFICATION_THRESHOLD`, `EXPLORER_IDENTITY_THRESHOLD`, `EXPLORER_EVIDENCE_THRESHOLD`, and `EXPLORER_PLANNING_THRESHOLD` configure separate Choice gates. Until a labeled evaluation establishes better settings, their conservative initial value remains 0.8 (or the legacy `EXPLORER_CHOICE_THRESHOLD` default). These gates now control conservative acceptance/defer behavior, **not escalation to LLM**. `EXPLORER_GROUPING_THRESHOLD` is retired and ignored. Operation checks use `EXPLORER_OPERATION_NOUL_LOW/HIGH` (initially 0.1/0.9; legacy `EXPLORER_NOUL_LOW/HIGH` remain defaults). These are probability bounds and must straddle 0.5. None of these initial values is asserted to be optimal or calibrated.
+`EXPLORER_CLASSIFICATION_THRESHOLD`, `EXPLORER_IDENTITY_THRESHOLD`, `EXPLORER_EVIDENCE_THRESHOLD`, and `EXPLORER_PLANNING_THRESHOLD` configure separate Choice gates. Until a labeled evaluation establishes better settings, their conservative initial value remains 0.8 (or the legacy `EXPLORER_CHOICE_THRESHOLD` default). During traversal these gates control conservative acceptance/defer behavior, **not escalation to LLM**; task-type classification separately requests structured interpretation when uncertain. `EXPLORER_GROUPING_THRESHOLD` is retired and ignored. Operation checks use `EXPLORER_OPERATION_NOUL_LOW/HIGH` (initially 0.1/0.9; legacy `EXPLORER_NOUL_LOW/HIGH` remain defaults). These are probability bounds and must straddle 0.5. None of these initial values is asserted to be optimal or calibrated.
 
-Initial plans, new input samples and new purpose descriptions still require LLM generation. Follow-up generation occurs only when JEV identifies missing planning. Built-in typed decisions never switch to LLM just because confidence is low, evidence is missing, or JEV is unavailable. A JEV service failure saves and pauses the task; its 30-second circuit prevents immediate repeat calls. Unclassified custom router requests retain the legacy fallback contract. A request has a 60-second configurable deadline. Observation refreshes, batched questions, raw answers, actual model versions, policy versions, thresholds and program resolutions remain auditable. A batched risk check counts as one model request, with all returned numeric usage recorded. There is no hidden HTTP retry.
+Structured target plans, extracted constraints, new input samples and new purpose descriptions require LLM generation. Unrestricted exhaustive exploration does not need an initial LLM plan. Follow-up generation occurs only when JEV identifies missing planning. Traversal judgments do not switch to LLM just because confidence is low or evidence is missing. Task-type uncertainty explicitly requests structured interpretation; a JEV outage never switches providers. A JEV service failure saves and pauses the task; its 30-second circuit prevents immediate repeat calls. Unclassified custom router requests retain the legacy fallback contract. A request has a 60-second configurable deadline. Observation refreshes, batched questions, raw answers, actual model versions, policy versions, thresholds and program resolutions remain auditable. A batched risk check counts as one model request, with all returned numeric usage recorded. There is no hidden HTTP retry.
 
 Tune gates against labeled examples of each judgment: missed in-scope controls, incorrect scope exclusions, incorrect operation permissions, ambiguity and changed observations. Track false exclusions, false grants, unresolved coverage, calls and actual cost on held-out examples; LLM agreement alone is not ground truth. Revalidate after changing model versions or prompts. Mock-provider regressions prove scheduling/guard behavior, not JEV accuracy.
 
@@ -50,7 +51,7 @@ The plugin uses manual single-step execution, public review commands and checkpo
 
 All endpoints are under `/plugins/explorer/v1`:
 
-- `GET /status`, `GET /tasks`, `POST /tasks` (`goal`, `url`, optional `coverageMode`, `budget` and bounded `sessionOptions`).
+- `GET /status`, `GET /tasks`, `POST /tasks` (`url`, optional `goal`, `coverageMode`, `budget` and bounded `sessionOptions`). Omitted, empty or whitespace-only `goal` selects default exhaustive exploration with `coverageMode: all`.
 - `GET /tasks/:id` returns the task, decisions and first event page.
 - `GET /tasks/:id/events?after=0&limit=500` provides durable cursor pagination.
 - `POST /tasks/:id/commands` accepts `start`, `resume`, `pause`, `stop`, `replan`, `continue-scope`, `extend-budget`.
@@ -78,6 +79,34 @@ Tests use explicitly injected mock providers and real local Playwright pages. No
 
 Older tasks without `coverageMode` default to full traversal for future reviews; existing recorded untested samples remain untested. Old decision records are not rewritten. When resuming a paused round made under an older policy version, the plugin starts a fresh session for current reviews and permissions; total budgets are not reset. The debug sidebar exposes the coverage choice and the decision inspector separates the raw model answer from the actual program resolution.
 
-Execution authority is separate from the unfinished ledger. Only accepted initial/user-reviewed scopes have `dispatchScope: true`; discovered action rows, follow-up suggestions and gaps are records, not new grants. Selecting a gap explicitly for a later round grants that selected scope. Old tasks restore authority from the last persisted initial/revised plan snapshot, never from accumulated page-level gaps. If that snapshot is unavailable they require replanning. Reviews target controls relevant to authorized scopes or prerequisites. Once all explicit goals have execution evidence, the scheduler audits completion before attempting recovery; checkpoint matching uses semantic scopes and the source observation rather than exact equality of scope objects with different optional fields.
+Execution authority is separate from the unfinished ledger. Only program-created exhaustive roots or accepted initial/user-reviewed scopes have `dispatchScope: true`; discovered action rows, follow-up suggestions and gaps are records, not new grants. Selecting a gap explicitly for a later round grants that selected scope. Old tasks restore authority from the last persisted initial/revised plan snapshot, never from accumulated page-level gaps. If that snapshot is unavailable they require replanning. Reviews target controls relevant to authorized scopes or prerequisites. Once all explicit goals have execution evidence, the scheduler audits completion before attempting recovery; checkpoint matching uses semantic scopes and the source observation rather than exact equality of scope objects with different optional fields.
 
 An operation-only scope (for example `kind: select, value: IOC`) must bind to a current candidate before control review; it never implies page-wide scanning or scrolling. User-named future controls remain semantic targets with prerequisites until observed. Unique concrete operation scopes can complete immediately on successful dispatch and subsequent observation; broad scopes still require auditing all observed cases. Completed scopes no longer request unrelated reviews.
+
+## Task intent and default exhaustion
+
+`plugin.create({url})` needs no natural-language task and no initial model call. After observing the initial page (including redirects), the program creates the authoritative root `{url: observation.url}`. It covers new controls, menus and dialogs appearing at that same URL. This is current-page interaction exploration, not automatic whole-site navigation or visual-defect inspection. `exhaustive: false` still means that finishing the recorded scope is not a proof of absolute site exhaustion.
+
+For nonempty instructions, the `task-intent` JEV Choice returns `exhaustive`, `targeted`, `unsupported` or `uncertain`. Only confident unrestricted `exhaustive` directly creates the root. Specific operations, regional scopes and explicit exclusions need a structured plan; unclear classifications also use this interpretation path. Unsupported classifications stop without executing. UI events preserve the JEV answer, routing choice, resulting intent, source and program-created scope. A natural-language classification can be mistaken; recorded intent is visible for review and these thresholds are provisional.
+
+When needed, one LLM generation returns a strict discriminated schema (`initialTaskSchema`, exported by the plugin):
+
+```json
+{"mode":"exhaustive","boundary":"current-page","exclusions":[]}
+```
+
+```json
+{"mode":"exhaustive","boundary":"current-page","exclusions":[{"scope":{"label":"Delete","kind":"click"},"instruction":"do not click Delete"}]}
+```
+
+```json
+{"mode":"targeted","items":[{"title":"Open settings","scope":{"label":"Other settings","kind":"click"},"prerequisites":[],"completion":"Dialog appears","required":true,"reason":"Requested operation"}]}
+```
+
+The other variant is `{"mode":"unsupported","reason":"..."}`. Unknown variants/fields, empty target plans, page-wide exclusions and exclusion quotes absent from the user's instruction are rejected before execution. Exclusions are constraints, remain visibly untested, and override automatic navigation/exit candidates. A model cannot supply an `items` subset for an exhaustive root. Both exhaustive paths require full coverage mode; representative sampling must be an explicitly targeted task, not a silent interpretation of exhaustion.
+
+The original goal remains unchanged (blank stays blank). `Task.intent` persists version 1, mode and source (`default`, `jev`, `llm` or `user`); exhaustive intent also carries its actual page URL and exclusions. Clearing the task and replanning restores the program default. Explicit plan edits or selected-range supplementation become targeted intent. Historical tasks retain their existing plans and do not gain invented intent metadata. All resumes and revisions preserve accumulated budgets.
+
+The sidebar starts empty and explains its default. The timeline shows “判断任务类型”, “程序建立全页范围” and structured intent effects alongside model requests. “LLM 0 次” is accurate for JEV/program-only runs; input generation or shared-purpose descriptions may still require LLM later.
+
+Task-type-triggered generation records `Decision.triggeredBy`, linking the LLM input/output back to the JEV classification. This is a deliberate generation request rather than the router's legacy confidence fallback. Starting a new task releases idle/paused sessions belonging to completed plugin tasks through public `stop`; ordinary and unfinished sessions remain protected.

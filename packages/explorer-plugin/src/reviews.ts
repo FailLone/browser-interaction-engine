@@ -24,6 +24,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const pendingPlan=task.plan.filter(i=>i.status!=='succeeded');
   const relevant=(control:Observation['controls'][number])=>{
     if(available.some(a=>a.localId===control.localId&&includesScope(pendingPlan,a,o)))return true;
+    if(task.plan.some(i=>!i.required&&i.reason==='user_excluded'&&controlInScope(i.scope,control,o,available)))return false;
     return pendingPlan.some(i=>i.required&&i.dispatchScope===true&&[i.scope,...i.prerequisites].some(scope=>controlInScope(scope,control,o,available)));
   };
   const relevantIds=new Set(o.controls.filter(relevant).map(c=>c.localId));
@@ -34,7 +35,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(!done(key)) {
       const candidate=region.candidates.find(r=>r.controlIds.some(id=>relevantIds.has(id)&&region.unassignedControlIds.includes(id)));
       if(candidate) {
-        const d=await c.choose('region-review','Should this observed region be an exploration scope for the task? This is grouping, not action permission.',{observationId:o.id,goal:task.goal,candidate,controls:region.controls.filter(x=>candidate.controlIds.includes(x.localId))},{include:'Recognized coherent exploration region',uncertain:'Cannot decide its role'});
+        const d=await c.choose('region-review','Should this observed region be an exploration scope for the task? This is grouping, not action permission.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',candidate,controls:region.controls.filter(x=>candidate.controlIds.includes(x.localId))},{include:'Recognized coherent exploration region',uncertain:'Cannot decide its role'});
         if(d.value==='uncertain'&&await c.refresh(d.decision,`region:${o.instanceScope}:${candidate.id}`))return true;
         mark(key);
         if(d.value==='include') {
@@ -92,7 +93,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     const d={value:kind,decision:judged.decision};mark(key);
     let samples:(string|boolean)[]|undefined;
     if(['fill','press'].includes(d.value)) {
-      const generated=await c.generate('input-samples','Generate a small set of harmless representative input samples compatible with the observed constraints. Do not invent credentials, personal data or submission commands.',{observationId:o.id,goal:task.goal,control:item.control,kind:d.value},z.object({samples:z.array(z.string()).min(1).max(5)}).strict());
+      const generated=await c.generate('input-samples','Generate a small set of harmless representative input samples compatible with the observed constraints. Do not invent credentials, personal data or submission commands.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',control:item.control,kind:d.value},z.object({samples:z.array(z.string()).min(1).max(5)}).strict());
       samples=generated.value.samples;
       await c.apply(generated.decision,{type:'reviewControls',review:{observationId:o.id,source,reviews:[{localId:item.control.localId,kind:d.value,risk:'interface',replayable:false,samples,reason:'Generated bounded input samples',evidence:[...evidence(d.decision),...evidence(generated.decision)]}]}});return true;
     }
@@ -106,7 +107,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(!members.length||!members.some(m=>includesScope(pendingPlan,actions.find(a=>a.id===m.actionId)!,o))){mark(key);continue;}
     const explicit=members.some(m=>{const action=actions.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
     const allowedReductions=task.coverageMode==='representative'&&!explicit?['sample']:[];
-    const d=await c.choose('scope-review','Choose exhaustive traversal or representative sampling of current observed members. Sampling requires the supplied user permission; every omitted member remains untested. Never skip a group based only on confidence. Program scope matching still limits execution to the selected task.',{observationId:o.id,goal:task.goal,coverageMode:task.coverageMode||'all',allowedReductions,plan:task.plan,group:{...group,members,historicalMemberCount:group.members.length-members.length}},
+    const d=await c.choose('scope-review','Choose exhaustive traversal or representative sampling of current observed members. Sampling requires the supplied user permission; every omitted member remains untested. Never skip a group based only on confidence. Program scope matching still limits execution to the selected task.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',coverageMode:task.coverageMode||'all',allowedReductions,plan:task.plan,group:{...group,members,historicalMemberCount:group.members.length-members.length}},
       {all:'Keep all observed members available for in-scope traversal',sample:'User explicitly permits representative sampling',defer:'Cannot proceed yet',skip:'Outside the task',uncertain:'Unable to decide'},{allowedReductions});
     const mode=d.value==='uncertain'?'defer':d.value;let memberKeys:string[]=[];
     if(mode==='sample') {
@@ -114,7 +115,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       for(let offset=0;offset<members.length;offset+=200) {
         const options:Record<string,unknown>=Object.fromEntries(members.slice(offset,offset+200).map(m=>[m.key,{label:m.label,kind:m.kind,value:m.value,risk:m.risk}]));
         options.none='No representative needed from this batch';options.uncertain='Cannot choose';
-        const sample=await c.choose('sample-selection','Select one representative from this batch, or none. Each batch is reviewed; no omitted member counts as covered.',{observationId:o.id,goal:task.goal,groupLabel:group.label,batch:offset/200},options);
+        const sample=await c.choose('sample-selection','Select one representative from this batch, or none. Each batch is reviewed; no omitted member counts as covered.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',groupLabel:group.label,batch:offset/200},options);
         if(!['none','uncertain'].includes(sample.value))memberKeys.push(sample.value);
       }
     }
@@ -134,7 +135,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     const active=host.list<PurposeReview>(sid,'purpose-review').filter(r=>r.status==='active');
     for(const condition of p.conditions) {
       const key=`purpose:${condition.key}`;if(done(key)||active.some(r=>r.conditionKey===condition.key))continue;
-      const d=await c.choose('list-purpose','Can one interface-only business purpose be established for these members? If not, keep per-control review.',{observationId:o.id,goal:task.goal,condition},{approve:'Shared interface-only purpose established',uncertain:'No shared purpose established'});mark(key);
+      const d=await c.choose('list-purpose','Can one interface-only business purpose be established for these members? If not, keep per-control review.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',condition},{approve:'Shared interface-only purpose established',uncertain:'No shared purpose established'});mark(key);
       if(d.value==='approve') {
         const generated=await c.generate('purpose-description','Describe only the evidenced list purpose and business scope.',{observationId:o.id,condition},z.object({purpose:z.string().min(1),businessScope:z.string().min(1)}).strict());
         await c.apply(generated.decision,{type:'reviewListPurpose',review:{...generated.value,groupId:group.id,revision:group.revision,observationId:o.id,conditionKey:condition.key,source,evidence:[...evidence(d.decision),...evidence(generated.decision)],risk:'interface',reuse:'matching-list-members'}});return true;

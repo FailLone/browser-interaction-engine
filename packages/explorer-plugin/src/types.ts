@@ -7,6 +7,12 @@ export interface Budget { rounds: number; actions: number; durationMs: number; m
 export interface EvidenceRef { sessionId: string; observationId: string; attemptId?: string }
 /** Exact semantic constraints; no old session control IDs or arbitrary selectors. */
 export interface Scope { stableKey?: string; url?: string; region?: string; label?: string; role?: string; kind?: string; value?: string | boolean | number }
+export interface ScopeExclusion { scope: Scope; instruction: string }
+/** Executable task meaning, separate from natural-language intent and the changing coverage ledger. */
+export type TaskIntent =
+  | { version:1; mode:'exhaustive'; source:'default'|'jev'|'llm'; boundary:'current-page'; url:string; exclusions:ScopeExclusion[] }
+  | { version:1; mode:'targeted'; source:'llm'|'user' }
+  | { version:1; mode:'unsupported'; source:'jev'|'llm'; reason:string };
 export interface PlanItem {
   id: string; title: string; scope: Scope; prerequisites: Scope[]; completion: string;
   status: 'pending' | 'succeeded' | 'blocked' | 'unresolved' | 'untested' | 'excluded';
@@ -29,12 +35,14 @@ export interface Task {
   sessionOptions: Partial<SessionOptions>; plan: PlanItem[]; rounds: Round[];
   sampleExcluded: string[]; pendingDispatch?: { sessionId: string; requestId: string; actionId: string; decisionId?: string; itemIds: string[]; observationId: string };
   exhaustive: false;
+  /** Absent on historical tasks; their saved scopes remain authoritative. */
+  intent?: TaskIntent;
   /** Only a user setting permits representative sampling. Missing on older tasks means all. */
   coverageMode?: 'all' | 'representative';
 }
 export type DecisionKind = 'choice' | 'noul' | 'checklist' | 'generate';
-export type DecisionPolicy = 'ranking'|'discovery'|'coverage'|'classification'|'identity'|'evidence-gate'|'planning-gate'|'recovery'|'grouping';
-export interface ModelRequest { id: string; purpose: string; kind: DecisionKind; instructions: string; state: unknown; options?: Record<string, unknown>; schema?: Record<string, unknown>; policy?: DecisionPolicy; fallbackOption?: string; allowedReductions?: string[]; blockedOptions?: string[]; checks?: Record<string, {instructions:string}> }
+export type DecisionPolicy = 'ranking'|'discovery'|'coverage'|'classification'|'identity'|'evidence-gate'|'planning-gate'|'recovery'|'grouping'|'task-intent';
+export interface ModelRequest { id: string; triggeredBy?: string; purpose: string; kind: DecisionKind; instructions: string; state: unknown; options?: Record<string, unknown>; schema?: Record<string, unknown>; policy?: DecisionPolicy; fallbackOption?: string; allowedReductions?: string[]; blockedOptions?: string[]; checks?: Record<string, {instructions:string}> }
 export interface ModelAnswer { value: unknown; model: string; confidence?: number; probability?: number; probabilities?: Record<string, number>; usage?: Record<string, number>; response?: Record<string, unknown> }
 export interface Provider { name: string; model: string; requestBody?(request: ModelRequest): Record<string, unknown>; decide(request: ModelRequest, signal: AbortSignal): Promise<ModelAnswer> }
 export interface Providers {
@@ -47,6 +55,7 @@ export interface Providers {
 export interface Decision {
   id: string; taskId: string; revision: number; roundId?: string; sessionId?: string; observationId?: string;
   actor: 'jev' | 'llm'; purpose: string; provider: string; model: string; request: ModelRequest;
+  triggeredBy?: string;
   input?: Record<string, unknown>; output?: Record<string, unknown>;
   resolution?: {source:'program'|'jev';value:unknown;reason:string;threshold?:number;bounds?:{low:number;high:number};policy?:DecisionPolicy;policyVersion?:string};
   status: 'requested' | 'returned' | 'applied' | 'rejected' | 'stale' | 'cancelled' | 'failed';

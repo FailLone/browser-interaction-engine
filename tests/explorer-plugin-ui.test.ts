@@ -11,9 +11,9 @@ it('integrates autonomous exploration, interleaves JEV/LLM decisions and restore
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(join(f.dir,'plugin.sqlite')),providers);const app=await createServer(f.host,{explorer:plugin});await app.listen({host:'127.0.0.1',port:0});const origin=`http://127.0.0.1:${(app.server.address() as {port:number}).port}`;
  const ui=await createViteServer({root:resolve('apps/ui'),logLevel:'error',server:{port:0,strictPort:false,proxy:{'/v1':origin,'/plugins':origin}}});await ui.listen();const browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1500,height:1100}});const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  try{const task=plugin.create({url:f.url,goal:'UI acceptance',sessionOptions:{settleMs:0,observeTimeoutMs:100}});await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as {port:number}).port}`);await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);await page.getByRole('button',{name:'开始 / 继续探索',exact:true}).click();
- await page.waitForFunction(()=>document.querySelector('[aria-label="自主探索"]')?.textContent?.includes('当前计划完成'));
+ await page.waitForFunction(()=>document.querySelector('.explorer-task-status strong')?.textContent==='当前计划完成');
  const timeline=page.getByLabel('包含模型决策的遍历路径');await timeline.waitFor();expect(await timeline.innerText()).toContain('JEV');expect(await timeline.innerText()).toContain('LLM');expect(await timeline.innerText()).not.toContain('转交 LLM');
- await timeline.getByRole('button').filter({hasText:'请求判断'}).first().click();await page.getByLabel('探索决策详情').waitFor();expect(await page.getByLabel('探索决策详情').innerText()).toContain('mock-llm');
+ await timeline.getByRole('button').filter({hasText:'LLM'}).filter({hasText:'请求判断'}).first().click();await page.getByLabel('探索决策详情').waitFor();expect(await page.getByLabel('探索决策详情').innerText()).toContain('mock-llm');
  expect(await page.getByLabel('探索决策详情').evaluate(el=>!!el.closest('.evidence'))).toBe(true);expect(await timeline.getByLabel('探索决策详情').count()).toBe(0);
  expect(await page.getByRole('tabpanel',{name:'模型输入'}).innerText()).toContain('UI acceptance');
  await page.getByRole('tab',{name:'输出',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'模型输出'}).innerText()).toContain('items');
@@ -22,7 +22,7 @@ it('integrates autonomous exploration, interleaves JEV/LLM decisions and restore
  await timeline.getByRole('button').filter({hasText:'识别探索区域'}).first().click();
  await page.getByRole('tab',{name:'决策影响',exact:true}).click();
  expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('不排除候选');
- expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('evidence-routing-v3');
+ expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('evidence-routing-v4');
  await page.getByRole('tab',{name:'输出',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'模型输出'}).innerText()).toContain('include');
  await page.getByRole('button',{name:'返回页面证据'}).click();
  expect(await page.getByLabel('遍历范围',{exact:true}).inputValue()).toBe('all');
@@ -51,5 +51,22 @@ it('integrates autonomous exploration, interleaves JEV/LLM decisions and restore
  await page.getByRole('button').filter({hasText:ordinary.id.slice(0,8)}).click();
  await page.waitForFunction(()=>!document.querySelector('[aria-label="探索决策详情"]')&&!document.querySelector('[aria-label="包含模型决策的遍历路径"]'));
  expect(await page.getByLabel('探索任务',{exact:true}).inputValue()).toBe('');expect(errors).toEqual([]);
+ }finally{await browser.close();await ui.close();await app.close();await f.close();}
+});
+it('creates blank exhaustive tasks without LLM and shows JEV task classification for written exhaustive requests',async()=>{
+ const f=await explorerFixture(),providers=fakeProviders(f.url),original=providers.jev.decide;
+ providers.jev.decide=async(r,s)=>r.purpose==='task-intent'?{model:'mock',value:'exhaustive',confidence:.99}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(join(f.dir,'plugin.sqlite')),{jev:providers.jev});const app=await createServer(f.host,{explorer:plugin});await app.listen({host:'127.0.0.1',port:0});const origin=`http://127.0.0.1:${(app.server.address() as {port:number}).port}`;
+ const ui=await createViteServer({root:resolve('apps/ui'),logLevel:'error',server:{port:0,strictPort:false,proxy:{'/v1':origin,'/plugins':origin}}});await ui.listen();const browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1500,height:1100}});const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ try{await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as {port:number}).port}`);await page.getByLabel('自主探索目标').waitFor();expect(await page.getByLabel('自主探索目标').inputValue()).toBe('');expect(await page.getByLabel('遍历范围',{exact:true}).isDisabled()).toBe(true);await page.getByLabel('起始网址',{exact:true}).fill(f.url);
+ await page.getByRole('button',{name:'＋ 创建探索任务',exact:true}).click();await page.getByRole('button',{name:'开始 / 继续探索',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.explorer-task-status strong')?.textContent==='当前计划完成');
+ const first=plugin.tasks()[0];expect(first.intent).toMatchObject({mode:'exhaustive',source:'default'});expect(plugin.view(first.id).decisions.every(d=>d.actor==='jev')).toBe(true);
+ const timeline=page.getByLabel('包含模型决策的遍历路径');expect(await timeline.innerText()).toContain('LLM 0 次');await timeline.getByRole('button').filter({hasText:'程序建立全页范围'}).click();expect(await page.getByLabel('探索决策详情').innerText()).toContain('"llmRequired": false');
+ await page.getByLabel('自主探索目标').fill('尽可能穷尽当前页面');await page.getByRole('button',{name:'＋ 创建探索任务',exact:true}).click();
+ await page.waitForFunction(()=>document.querySelector('.explorer-task-status strong')?.textContent==='待开始');
+ const second=plugin.tasks().find(t=>t.goal==='尽可能穷尽当前页面')!;expect(second).toBeDefined();expect(await page.getByLabel('探索任务',{exact:true}).inputValue()).toBe(second.id);
+ await page.getByRole('button',{name:'开始 / 继续探索',exact:true}).click();
+ try{await page.waitForFunction(()=>document.querySelector('.explorer-task-status strong')?.textContent==='当前计划完成');}catch(error){throw new Error(JSON.stringify({ui:await page.getByLabel('自主探索',{exact:true}).innerText(),tasks:plugin.tasks().map(t=>({id:t.id,status:t.status,reason:t.reason,rounds:t.rounds.length})),sessions:f.host.sessions().map(s=>({id:s.id,status:s.status})),error:String(error)}));}
+ expect(await page.getByLabel('自主探索',{exact:true}).innerText()).toContain('来源：JEV');expect(await timeline.innerText()).toContain('LLM 0 次');await timeline.getByRole('button').filter({hasText:'判断任务类型'}).first().click();await page.getByRole('tab',{name:'决策影响',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('program-root');expect(errors).toEqual([]);
  }finally{await browser.close();await ui.close();await app.close();await f.close();}
 });

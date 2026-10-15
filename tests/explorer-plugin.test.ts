@@ -130,7 +130,7 @@ it('grounds plans in accessible action names and samples only current reviewed m
    const observation=(r.state as any).material.observation;
    expect(observation.controls[0].label).toBe('Alpha');
    const scope=observation.actions.find((a:any)=>a.label==='Alpha'&&a.kind==='click');expect(scope).toBeDefined();
-   return {model:'mock',value:{items:[{title:'Click Alpha',scope,prerequisites:[],completion:'Verify click',required:true,reason:'Observed action'}]}};
+   return {model:'mock',value:{mode:'targeted',items:[{title:'Click Alpha',scope,prerequisites:[],completion:'Verify click',required:true,reason:'Observed action'}]}};
   }
   return original(r,s);
  };
@@ -190,7 +190,7 @@ it.each([true,false])('finishes the exact settings flow without recovery or touc
  const f=await explorerFixture('<button type="button" aria-controls="settings" onclick="document.querySelector(\'dialog\').showModal()">Other settings</button><button type="button" onclick="this.textContent=\'WRONG\'">Unrelated</button><select aria-label="Unrelated choice"><option>AAA</option><option>BBB</option></select><div style="height:1500px"></div><dialog id="settings" aria-label="Other settings"><select aria-label="Time in force"><option>GTC</option><option>IOC</option></select><button type="button" onclick="document.querySelector(\'dialog\').close()">Done</button></dialog>');
  const p=fakeProviders(f.url),original=p.jev.decide;
  const scopes=[{url:f.url,label:'Other settings',role:'button',kind:'click'},{url:f.url,...(namedSelect?{label:'Time in force',role:'combobox'}:{}),kind:'select',value:'IOC'},{url:f.url,label:'Done',role:'button',kind:'click'}];
- p.llm.decide=async()=>({model:'mock',value:{items:scopes.map((scope,index)=>({title:scope.label||'Select IOC',scope,prerequisites:index?[scopes[index-1]]:[],completion:'Observe the requested transition',required:true,reason:'Explicit user target'}))}});
+ p.llm.decide=async()=>({model:'mock',value:{mode:'targeted',items:scopes.map((scope,index)=>({title:scope.label||'Select IOC',scope,prerequisites:index?[scopes[index-1]]:[],completion:'Observe the requested transition',required:true,reason:'Explicit user target'}))}});
  p.jev.decide=async(r,s)=>r.purpose==='recovery-selection'?{model:'mock',value:'uncertain',confidence:.6}:original(r,s);
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,goal:'Open settings, select IOC, close settings only',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,modelRequests:30}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
@@ -212,5 +212,75 @@ it('restores legacy authority from the original plan, never from a page gap or d
  expect(v.task.plan.find(i=>i.id===originalId)?.dispatchScope).toBe(true);expect(v.task.plan.find(i=>i.id==='legacy-gap')?.dispatchScope).toBe(false);expect(v.task.plan.find(i=>i.id==='legacy-outside')?.dispatchScope).toBe(false);
  expect(v.task.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt')).map(a=>a.action.label)).toEqual(['Alpha']);
  expect(v.events.some(e=>e.type==='plan.authority_restored')).toBe(true);expect(v.task.plan.find(i=>i.id==='legacy-gap')?.status).toBe('unresolved');
+ }finally{await plugin.close();await f.close();}
+});
+
+it.each([undefined,'','   '])('defaults an omitted or blank task to program-owned exhaustive coverage without LLM (%s)',async(goal)=>{
+ const f=await explorerFixture(),p=fakeProviders(f.url),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),{jev:p.jev});
+ try{const t=plugin.create({url:f.url,...(goal===undefined?{}:{goal}),sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+ expect(v.task.status,JSON.stringify(v.task)).toBe('completed');expect(v.task.intent).toMatchObject({mode:'exhaustive',source:'default',boundary:'current-page',url:f.url,exclusions:[]});expect(v.task.goal).toBe('');expect(v.task.usage.actions).toBe(2);
+ expect(v.decisions.every(d=>d.actor==='jev')).toBe(true);expect(v.decisions.some(d=>d.purpose==='task-intent'||d.purpose==='initial-plan')).toBe(false);
+ expect(v.events.some(e=>e.type==='plan.initialized'&&e.actor==='program')).toBe(true);expect(v.task.plan.filter(i=>i.dispatchScope).map(i=>i.scope)).toEqual([{url:f.url}]);
+ }finally{await plugin.close();await f.close();}
+});
+it('uses JEV alone to recognize a written exhaustive task and discovers controls absent at startup',async()=>{
+ const f=await explorerFixture('<button type="button" onclick="this.disabled=true;const b=document.createElement(\'button\');b.type=\'button\';b.textContent=\'Revealed\';b.onclick=()=>b.disabled=true;document.querySelector(\'main\').append(b)">Expand</button>');
+ const p=fakeProviders(f.url),original=p.jev.decide;p.jev.decide=async(r,s)=>r.purpose==='task-intent'?{value:'exhaustive',confidence:.95,model:'mock'}:r.purpose==='scope-review'?{value:'sample',confidence:1,model:'mock'}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),{jev:p.jev});
+ try{const t=plugin.create({url:f.url,goal:'尽可能穷尽当前页面所有 UI 交互',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+ expect(v.task.status,JSON.stringify(v.task)).toBe('completed');expect(v.task.intent).toMatchObject({mode:'exhaustive',source:'jev'});expect(v.decisions.filter(d=>d.purpose==='task-intent')).toHaveLength(1);expect(v.decisions.some(d=>d.actor==='llm')).toBe(false);
+ expect(f.host.list<any>(v.task.rounds[0].sessionId,'attempt').map(a=>a.action.label)).toEqual(['Expand','Revealed']);expect(v.task.plan.filter(i=>i.dispatchScope).map(i=>i.scope)).toEqual([{url:f.url}]);
+ expect(v.events.some(e=>e.type==='decision.effect'&&(e.data as any).kind==='task-route'&&(e.data as any).details.next==='program-root')).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});
+it.each([{value:'targeted',confidence:1},{value:'uncertain',confidence:1},{value:'exhaustive',confidence:.4},{value:'unsupported',confidence:.4}])('generates a typed target plan when JEV cannot establish unrestricted exhaustion (%s)',async(judgment)=>{
+ const f=await explorerFixture(),p=fakeProviders(f.url,{url:f.url,label:'Alpha',kind:'click'}),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>r.purpose==='task-intent'?{...judgment,model:'mock'}:original(r,s);const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'Only Alpha',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+ expect(v.task.status).toBe('completed');expect(v.task.intent).toMatchObject({mode:'targeted',source:'llm'});expect(v.decisions.slice(0,2).map(d=>[d.actor,d.purpose])).toEqual([['jev','task-intent'],['llm','initial-plan']]);expect(v.decisions.filter(d=>d.actor==='llm')).toHaveLength(1);expect(v.decisions[1].triggeredBy).toBe(v.decisions[0].id);
+ expect(f.host.list<any>(v.task.rounds[0].sessionId,'attempt').map(a=>a.action.label)).toEqual(['Alpha']);expect(v.events.some(e=>e.type==='decision.effect'&&(e.data as any).kind==='intent')).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});
+it('understands structured exhaustive intent with quoted exclusions without letting the model enumerate the root',async()=>{
+ const f=await explorerFixture(),p=fakeProviders(f.url);p.llm.decide=async()=>({model:'mock',value:{mode:'exhaustive',boundary:'current-page',exclusions:[{scope:{label:'Beta',kind:'click'},instruction:'不要操作 Beta'}]}});
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'穷尽页面，但不要操作 Beta',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+ expect(v.task.status,JSON.stringify(v.task)).toBe('completed');expect(v.task.intent).toMatchObject({mode:'exhaustive',source:'llm'});expect(v.task.plan.filter(i=>i.dispatchScope).map(i=>i.scope)).toEqual([{url:f.url}]);expect(v.task.plan.find(i=>i.reason==='user_excluded')).toMatchObject({status:'excluded',required:false,dispatchScope:false});
+ expect(f.host.list<any>(v.task.rounds[0].sessionId,'attempt').map(a=>a.action.label)).toEqual(['Alpha']);
+ expect(v.decisions.filter(d=>d.purpose==='control-risk').every(d=>!(d.request.state as any).material.control.label.includes('Beta'))).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});
+it.each([
+ {mode:'exhaustive',boundary:'current-page',exclusions:[],items:[]},
+ {mode:'exhaustive',boundary:'current-page',exclusions:[{scope:{},instruction:'穷尽当前页面'}]},
+ {mode:'exhaustive',boundary:'current-page',exclusions:[{scope:{label:'Beta'},instruction:'made up exclusion'}]},
+ {mode:'targeted',items:[]},
+ {items:[]},
+])('rejects ambiguous or ungrounded structured intent before executing (%s)',async(value)=>{
+ const f=await explorerFixture(),p=fakeProviders(f.url);p.llm.decide=async()=>({model:'mock',value});const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'穷尽当前页面',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);expect(v.task.status).not.toBe('completed');expect(v.task.usage.actions).toBe(0);expect(v.task.plan).toEqual([]);expect(v.decisions.find(d=>d.actor==='llm')?.status).not.toBe('applied');
+ }finally{await plugin.close();await f.close();}
+});
+it('halts an unsupported JEV classification without LLM or action dispatch',async()=>{
+ const f=await explorerFixture(),p=fakeProviders(f.url);p.jev.decide=async()=>({model:'mock',value:'unsupported',confidence:.99});const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),{jev:p.jev});
+ try{const t=plugin.create({url:f.url,goal:'穷尽整个网站并审查所有视觉缺陷',sessionOptions:{settleMs:0,observeTimeoutMs:100}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);expect(v.task.reason).toBe('TASK_SCOPE_UNSUPPORTED');expect(v.task.intent).toMatchObject({mode:'unsupported',source:'jev'});expect(v.task.usage.actions).toBe(0);expect(v.decisions).toHaveLength(1);
+ }finally{await plugin.close();await f.close();}
+});
+it('allows clearing a goal to switch to default exhaustion and preserves cumulative usage',async()=>{
+ const f=await explorerFixture(),p=fakeProviders(f.url,{url:f.url,label:'Alpha',kind:'click'}),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,goal:'Only Alpha',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:3}});plugin.start(t.id);await plugin.waitForIdle();const before=plugin.view(t.id);plugin.revise(t.id,{goal:'   ',coverageMode:'all'});delete plugin.router.providers.llm;
+ plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);expect(v.task.status).toBe('completed');expect(v.task.intent).toMatchObject({mode:'exhaustive',source:'default'});expect(v.task.goal).toBe('');expect(v.task.usage.actions).toBeGreaterThan(before.task.usage.actions);expect(v.decisions.filter(d=>d.actor==='llm')).toHaveLength(1);
+ }finally{await plugin.close();await f.close();}
+});
+it('preserves a default exhaustive root and its budgets after storage restart',async()=>{
+ const f=await explorerFixture(),p=fakeProviders(f.url),path=join(f.dir,'default.sqlite');let plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),{jev:p.jev});
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100,maxActions:1},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const before=plugin.view(t.id);await plugin.close();plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),{jev:p.jev});plugin.extendBudget(t.id,{rounds:1,actions:2,durationMs:10000,modelRequests:30});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+ expect(v.task.status,JSON.stringify(v.task)).toBe('completed');expect(v.task.intent).toEqual(before.task.intent);expect(v.task.usage.actions).toBe(2);expect(v.task.usage.modelRequests).toBeGreaterThan(before.task.usage.modelRequests);expect(v.events.filter(e=>e.type==='plan.initialized')).toHaveLength(1);expect(v.decisions.some(d=>d.actor==='llm')).toBe(false);
+ }finally{await plugin.close();await f.close();}
+});
+
+it('does not release an ordinary idle session when starting a new default task',async()=>{
+ const f=await explorerFixture(),p=fakeProviders(f.url),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),{jev:p.jev});
+ try{const ordinary=await f.host.createSession({url:f.url,settleMs:0,observeTimeoutMs:100});const t=plugin.create({url:f.url});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);expect(v.task.reason).toBe('ACTIVE_SESSION');expect(v.task.usage.actions).toBe(0);expect(f.host.session(ordinary.id).status).toBe('idle');expect(v.events.some(e=>e.type==='session.released')).toBe(false);
  }finally{await plugin.close();await f.close();}
 });

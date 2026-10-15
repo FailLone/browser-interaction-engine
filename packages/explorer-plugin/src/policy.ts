@@ -36,6 +36,7 @@ export function permitted(action:ActionCandidate,o:Observation,groups:Exploratio
   return true;
 }
 export function includesScope(plan:PlanItem[],action:ActionCandidate,o:Observation):'target'|'prerequisite'|undefined {
+  if(plan.some(i=>!i.required&&i.reason==='user_excluded'&&matches(i.scope,action,o)))return;
   const allowed=plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='excluded');
   if(action.kind==='scroll'&&!allowed.some(i=>i.scope.kind==='scroll'&&matches(i.scope,action,o))&&allowed.some(i=>broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url)))return 'prerequisite';
   if(o.boundaries?.length&&action.boundary?.intent==='exit'&&!allowed.some(i=>i.scope.label&&i.scope.kind&&matches(i.scope,action,o)))return 'prerequisite';

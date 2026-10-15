@@ -20,8 +20,8 @@ export class DecisionRouter {
       if(signal.aborted || !current())throw new ExplorerError('CANCELLED');
       this.reserve(task);
       const round=task.rounds.at(-1); const d:Decision={id:randomUUID(),taskId:task.id,revision:task.revision,roundId:round?.id,sessionId:round?.sessionId,
-        observationId:(req.state as {observationId?:string})?.observationId,actor,purpose:req.purpose,provider:provider.name,model:provider.model,request:req,input:provider.requestBody?.(req),status:'requested',startedAt:new Date().toISOString(),fallbackFrom:fallback};
-      this.store.decision(d);this.event(d,'decision.requested',{purpose:d.purpose,provider:d.provider,model:d.model,fallbackFrom:fallback});
+        observationId:(req.state as {observationId?:string})?.observationId,actor,purpose:req.purpose,provider:provider.name,model:provider.model,request:req,input:provider.requestBody?.(req),triggeredBy:req.triggeredBy,status:'requested',startedAt:new Date().toISOString(),fallbackFrom:fallback};
+      this.store.decision(d);this.event(d,'decision.requested',{purpose:d.purpose,provider:d.provider,model:d.model,fallbackFrom:fallback,triggeredBy:req.triggeredBy});
       const controller=new AbortController();let timer:ReturnType<typeof setTimeout>|undefined;let onAbort:()=>void=()=>{};
       try {
         const abort=new Promise<never>((_,reject)=>{onAbort=()=>{controller.abort();reject(new ExplorerError('CANCELLED'));};signal.addEventListener('abort',onAbort,{once:true});timer=setTimeout(()=>{controller.abort();reject(new ExplorerError('PROVIDER_TIMEOUT'));},this.providers.timeoutMs??60000);});

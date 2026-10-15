@@ -16,9 +16,10 @@ const url=`http://127.0.0.1:${fixture.address().port}/`;
 const engine=new InteractionEngine({persistence:new SqliteStore(resolve(directory,'engine'))});
 let fallBack=false;
 const decide=async request=>{
-  if(request.kind==='generate')return {model:'explicit-smoke-mock',value:{items:[{title:'Both controls',scope:{url},prerequisites:[],completion:'Observed interface actions succeed',required:true,reason:'smoke fixture'}]}};
+  if(request.kind==='generate')return {model:'explicit-smoke-mock',value:{mode:'targeted',items:[{title:'Both controls',scope:{url},prerequisites:[],completion:'Observed interface actions succeed',required:true,reason:'smoke fixture'}]}};
   if(request.kind==='checklist')return {model:'explicit-smoke-mock',value:Object.fromEntries(Object.keys(request.checks).map(k=>[k,k.startsWith('interface_')?.99:.01]))};
   let value=Object.keys(request.options).find(k=>k!=='uncertain');
+  if(request.purpose==='task-intent')value='targeted';
   if(request.purpose==='control-classification')value='display';
   if(request.purpose==='scope-review')value='all';
   return {value,model:'explicit-smoke-mock',confidence:1};
