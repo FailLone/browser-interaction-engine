@@ -1,0 +1,3 @@
+
+> browser-interaction-engine@0.1.0 typecheck /Users/xietian/.codex/worktrees/okx-observation-stability/browser-interaction-engine
+> tsc --noEmit && tsc -p packages/core/tsconfig.json

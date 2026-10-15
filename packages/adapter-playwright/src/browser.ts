@@ -528,7 +528,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
           const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.pressed, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
           if (key !== previous || incomplete) { previous = key; unchangedSince = Date.now(); }
           const scoped = interactionScope(dom);
-          const interactive = interactionProjection(scoped) + boundaryBinding(dom) + canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) + canonical(scoped.structuralLists);
+          const interactive = interactionProjection(scoped) + boundaryBinding(dom) + canonical(scoped.regionCandidates?.map(c => [c.id, c.binding])) + canonical(scoped.structuralLists);
           if (interactive !== previousInteraction || incomplete) { previousInteraction = interactive; interactionSince = Date.now(); }
           interactionStable = !incomplete && Date.now() - interactionSince >= this.options.settleMs;
           if (!incomplete && Date.now() - unchangedSince >= this.options.settleMs) { stable = true; break; }
@@ -544,7 +544,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         try {
           const detailed = await timeout(this.readDOM(true), this.options.observeTimeoutMs, 'Detailed DOM capture deadline exceeded');
           if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId || canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(detailed.regionCandidates?.map(c => [c.id, c.binding])) || canonical(dom.structuralLists) !== canonical(detailed.structuralLists)) {
-            interactionStable &&= interactionProjection(interactionScope(dom)) === interactionProjection(interactionScope(detailed)) && boundaryBinding(dom) === boundaryBinding(detailed) && canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) === canonical(detailed.regionCandidates?.map(c => [c.id, c.binding])) && canonical(interactionScope(dom).structuralLists) === canonical(interactionScope(detailed).structuralLists);
+            interactionStable &&= interactionProjection(interactionScope(dom)) === interactionProjection(interactionScope(detailed)) && boundaryBinding(dom) === boundaryBinding(detailed) && canonical(interactionScope(dom).regionCandidates?.map(c => [c.id, c.binding])) === canonical(interactionScope(detailed).regionCandidates?.map(c => [c.id, c.binding])) && canonical(interactionScope(dom).structuralLists) === canonical(interactionScope(detailed).structuralLists);
             stable = false;
             const critical = !(this.options.exploration === 'controls' && (interactionStable || readyDependencies(detailed).size > 0));
             dom = detailed;
@@ -590,7 +590,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     }
     let screenshot: string | undefined; let screenshotAt: string | undefined;
     const saveImage = async (key: string, fullPage = false) => {
-      const data = await this.page!.screenshot({ timeout: this.options.actionTimeoutMs, fullPage }); const at = now();
+      // Hiding carets can leave an empty style attribute on inputs after capture,
+      // invalidating the very subtree evidence we just collected.
+      const data = await this.page!.screenshot({ timeout: this.options.actionTimeoutMs, fullPage, caret: 'initial' }); const at = now();
       await this.evidence.put(key, { data, mediaType: 'image/png' });
       // Hash the exact bytes rather than their JSON representation.
       return { key, mediaType: 'image/png', capturedAt: at, bytes: data.length, sha256: createHash('sha256').update(data).digest('hex') };
@@ -761,7 +763,6 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // These invariants and declared context apply to every operation, even local ones.
     const global = (o: typeof live | Observation) => canonical({ document: o.documentId, url: o.url, scroll: o.scroll, boundaries: o.boundaries });
     if (global(live) !== global(current) || boundaryBinding(live) !== boundaryBinding(current)) return 'stale';
-    if (canonical(live.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(current.regionCandidates?.map(c => [c.id, c.binding]))) return 'stale';
     const reviewTargets = new Set([...reviewTargetLocalIds, ...(action?.localId ? [action.localId] : [])]);
     const activeIds = activeInteractionIds(current);
     const escapeExit = action?.kind === 'press' && action.value === 'Escape' && !action.controlId && !action.localId && action.boundary?.intent === 'exit' && action.boundary.key === current.boundaries?.at(-1)?.key;
@@ -769,6 +770,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if ([...reviewTargets].some(id => (scoped || reviewTargetLocalIds.includes(id)) && canonical(targetFacts(current.controls.find(c => c.localId === id))) !== canonical(targetFacts(live.controls.find(c => c.localId === id))))) return 'stale';
     const relevantCurrent = scoped ? interactionScope(current) : current;
     const relevantLive = scoped ? interactionScope(live) : live;
+    if (canonical(relevantLive.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(relevantCurrent.regionCandidates?.map(c => [c.id, c.binding]))) return 'stale';
     if (canonical(relevantLive.structuralLists) !== canonical(relevantCurrent.structuralLists)) return 'stale';
     const reviewedControls = new Map(current.controls.map(c => [c.instanceId, c]));
     // Preserve control-review bindings within the operation's validated dependencies.

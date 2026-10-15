@@ -87,7 +87,11 @@ export function collectOverlays(controls: Control[], regions: Region[], describe
   }
   for (const relation of popupRelations) {
     const { content, panel } = relation;
-    if (panel !== content && visible(content) && visible(panel) && ![...candidates.keys()].some(root => root !== content && root.contains(content))) {
+    // An outer dialog does not absorb an independently observed child popup.
+    // Only avoid a second boundary when composite discovery already replaced
+    // this content with its panel; preserve explicitly nested popup candidates.
+    const alreadyCombined = [...compositePanels.keys()].some(root => root.contains(content));
+    if (panel !== content && visible(content) && visible(panel) && (candidates.has(content) || !alreadyCombined)) {
       candidates.delete(content);
       const kind = content.getAttribute('role') as 'listbox' | 'menu';
       add(panel, kind, 'positioned-choice-panel'); compositePanels.set(panel, kind);

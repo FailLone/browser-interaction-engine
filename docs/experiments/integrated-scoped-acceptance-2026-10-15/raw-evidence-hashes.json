@@ -1,0 +1,17 @@
+{
+  "localArtifactRoot": "/Users/xietian/.codex/worktrees/okx-observation-stability/browser-interaction-engine/work/integrated-scoped-retest-2026-10-15",
+  "files": {
+    "responses/163.json": "d131f2acf403adc0ea37653f17f0fe8878913a625af7eb72b91fd4ca199ad416",
+    "responses/165.json": "9f47634de8de52ee6e85b860e28dfed4480c7d6c27c9babf1d2162e74e46d1f7",
+    "responses/167.json": "c89a94c9491735d91145319bb1e1ac9f439dfc737ef9d5b66d3a2252ecb9baab",
+    "responses/170.json": "180ad8c3db2cd01149d823ddd02df4c71a5b625c26965a7e24d302ccd38665b6",
+    "parent-audit/observations.json": "191fb41844b7db9d674093fa3cb0d18e6330a82a07c5c9b48010d3828ec47a6b",
+    "parent-audit/frontier.json": "3f0c30c749e6a2006004232bfcb0dec657c17b17943b5fd7d7eb065ca626e984",
+    "parent-audit/identities.json": "735410cdbc29c7b8abc1dd4a4412c67625f6d381a2a60f565949102ebc1af54a",
+    "call-ledger.jsonl": "99afed3fc64551fd30593848edc6dcfd00d32be74794c57706677a8cc1827f4c",
+    "start.ts": "9bbe901a4b2cf59cf6b29cd9b8393841b8c46642ffae676324d094bcae4e65b7",
+    "agent-instructions.txt": "e3cbab688e2073303491e183d0c60257881081f74e5c9c116cb1c9bcd0610059",
+    "experiment-contract.json": "a05a7a4b9aa20bb90b5155910be480338f3b08ddce3542c341f3a63bef2029a6",
+    "freeze.json": "30ba382737b4dc4c61fbaf6c4612cc3e00962acbe6c0b1753150554c0e190b83"
+  }
+}
