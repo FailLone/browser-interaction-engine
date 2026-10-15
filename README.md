@@ -170,17 +170,25 @@ HTTP 调用方通过命令提交选择、输入、裁决和检查点条件；自
 
 ### 弹层优先探索
 
-Modal、popover 与浮动菜单建立独占交互范围，DFS 先探索当前最内层范围，验证关闭后才继续父页面。调试界面显示范围链与受阻原因；无法退出时暂停并保留待办。规则、事件和本地测试入口见 [弹层优先探索](docs/INTERACTION-BOUNDARIES.md)。
+Modal、popover 与浮动菜单建立独占交互范围，DFS 先探索当前最内层范围，验证关闭后才继续父页面。调试界面显示范围链与受阻原因；无法退出时暂停并保留待办。规则、事件和本地测试入口见 [弹层优先探索](docs/INTERACTION-BOUNDARIES.md)。 自定义面板还可通过 hook、SDK/HTTP 或调试页审阅外部点击候选，执行后分别验证关闭与指定字段保留，见[上层审阅的弹层退出](docs/BOUNDARY-EXITS.md)。
 
 差异详情查询与上层集成：见 [docs/DIFF-DETAILS.md](docs/DIFF-DETAILS.md)。支持按观察、动作、事件或流程一次读取前后控件、身份依据、操作、业务上下文及截图引用；调试页面同步提供解释和定位。
 
 ## UI 检查支撑
 
-`main` 已提供初始/操作后检查任务、弹层范围与前后基线、常规空间证据、有限消费租约及 SDK/HTTP 接口。创建会话时传 `inspection: {}` 开启；外部检查规则与接入方式见 [UI 检查 API](docs/INSPECTION-API.md)。显式 hover/focus probe、组件关系和局部证据查询见 [复合控件与探测](docs/COMPONENTS-AND-PROBES.md)。中间态、文字行与 iframe/Shadow DOM 取证仍为后续工作。
+调试页的 **UI 检查 → 规则插件** 已接入遮盖、控件裁切、文字截断三个插件。创建会话默认开启“遍历时自动检查规则”，每条采集在后台按序检查，结果概览可回看已关闭弹层中的问题；也可选择插件组合或手动运行。规则只读取保存的证据，不发起滚动，也不占用探索命令队列。原测试页 `http://127.0.0.1:4174/` 已包含三种布局缺陷，`/?defects=off` 可关闭。接入、保留期限和扩展方法见 [调试页规则插件](docs/RULE-PLUGINS.md)。
+
+`main` 已提供初始/操作后检查任务、弹层范围与前后基线、常规空间证据、有限消费租约及 SDK/HTTP 接口。创建会话时传 `inspection: {}` 开启；外部检查规则与接入方式见 [UI 检查 API](docs/INSPECTION-API.md)。显式 hover/focus probe、组件关系和局部证据查询见 [复合控件与探测](docs/COMPONENTS-AND-PROBES.md)。已提供有界 DOM 文字 Range 矩形；中间态、字形像素与 iframe/Shadow DOM 取证仍为后续工作。
 
 可选的 `@interaction/rules` 插件支持按配置或上层 Agent 选择版本化规则，保存逐控件的 pass/fail/unknown/not-applicable 与严重度。首条 `sampled-occlusion` 只检查历史采样点命中，遮挡待核实时输出 warning，不将 sticky/fixed 或滚动到底直接判断为 error。规则写法、当前边界与接入示例见 [控件检查规则](docs/CONTROL-RULES.md)。
 
 推荐使用 `ObservedOcclusionTracker` 跟随正常探索进行异步复查：通过逻辑控件身份、业务上下文和弹层打开周期关联历史警告，核对实际祖先滚动位置，再记录恢复或继续待确认。只有调用方明确声明某控件在各观测位置必须满足五点指针要求，且相关滚动后的可比证据仍失败，才升级为该约定下的 error。规则不会发起动作或恢复滚动位置。探索器已支持页面、modal 内部和嵌套容器的双轴滚动。见 [持续复查示例](examples/observed-occlusion-inspector.ts)。
+
+`clipped-control` 检查控件是否被祖先容器的矩形边界裁剪。普通滚动中的部分可见保持待复查；`hidden/clip` 裁剪先报 warning，有明确身份绑定要求时才报 error。`ClippedControlTracker` 可随探索快照持续跟踪，只有同一控件的可比证据恢复完整才关闭问题；移出视口、缺证和重建不会直接消除警告。见 [裁剪检查示例](examples/clipped-control-inspector.ts) 与 [规则范围](docs/CONTROL-RULES.md#裁剪规则-clipped-control)。
+
+`text-truncation` 检查控件的 DOM 标签文字：硬截断先报 warning，实际溢出且配置 ellipsis/line-clamp 时记录 info，普通滚动保持待复查。`TextTruncationTracker` 使用后续探索快照核验同一控件、同一标签文字，不主动滚动。见 [文字检查示例](examples/text-truncation-inspector.ts) 与 [文字规则及扩展接口](docs/CONTROL-RULES.md#文字截断规则-text-truncation)。
+
+三条规则共用[要求提案接口](docs/CONTROL-RULES.md#要求提案接口)，统一来源、理由、证据和目标绑定。项目规范与 Agent 判断暂只提供接口；新提案不自动变成生效要求。遮盖、裁剪的既有显式 `requirements` 配置仍按各自证据条件参与 error 判定，文字规则暂不执行外部要求。
 
 显式调用 `scroll-recovery` 可探测双轴和嵌套滚动，验证同一控件是否恢复命中并尝试恢复原位置；经过确认的恢复为 warning，有明确当前操作要求且五点被挡、无可用滚动路径时为限定范围的 error。有限探测失败、目标变化和恢复位置失败保留 unknown。见 [主动检查示例](examples/scroll-recovery-inspector.ts)。
 
@@ -193,6 +201,8 @@ Modal、popover 与浮动菜单建立独占交互范围，DFS 先探索当前最
 新浏览器会话默认先覆盖入口页面；跳到其他页面后交由上层决定，未批准时尝试沿已验证历史返回。DFS 不会默认在 B 消耗剩余预算，允许 B 也不会自动允许 C。可用 `pageExploration: 'all'` 显式启用跨页探索；调试页提供页面范围选择和目的页决策。见[页面范围](docs/EXPLORATION-DECISIONS.md#页面范围优先于-dfs-顺序)。
 
 上层可读取统一范围材料，按观察来源查看入口与重叠约束，用一次版本绑定的批量决定选择穷尽、样本、暂缓或本轮不测。支持 `explorationReview` hook、SDK/HTTP 以及调试页“范围决策”；任一版本过期整批拒绝，未来新范围独立决定。见[批量审阅协议](docs/EXPLORATION-DECISIONS.md#统一审阅材料与批量决定)。
+
+用途、范围、身份、退出、恢复及发现缺口也可通过统一“上游待办”处理：`interventionMaterial` 提供依赖与证据，`respondToIntervention` 绑定当前条件提交答复，`continueExploration` 重新观察和验证后继续已获准工作。慢速上游审阅、人工修复、迟到答案和重启中断均保留记录；业务恢复需要调用方验证器。见[协议与调用示例](docs/INTERVENTIONS.md)。
 
 对于缺少语义区域的页面，可启用 `regionExploration: 'review'`，先按容器、标题和布局审阅探索区域，再选择探索深度。支持合并、拆分、拒绝和结构变化失效；调试页可生成划分草稿。见[区域候选审阅](docs/REGION-REVIEW.md)。
 

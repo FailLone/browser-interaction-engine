@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>规则缺陷实验室</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 24px; font: 15px/1.6 system-ui, sans-serif; color: #203c32; background: #f3f6f1; }
+  main { max-width: 1100px; margin: auto; }
+  h1 { font-size: 26px; margin: 0; } h2 { font-size: 17px; margin: 0 0 6px; }
+  header { margin-bottom: 18px; } p { margin: 6px 0 14px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  section { padding: 18px; background: white; border: 1px solid #d7e1d5; }
+  button { padding: 8px 14px; border: 1px solid #53826b; background: #eef5ec; color: #203c32; font: 15px/22px system-ui, sans-serif; cursor: pointer; }
+  #repair { background: #265c44; color: white; margin-right: 16px; }
+  .requirement { font-size: 13px; color: #5c705c; min-height: 42px; }
+  #occlusion-stage { position: relative; height: 220px; width: 330px; }
+  #occlusion-scroller { position: absolute; inset: 0; overflow: auto; background: #f6f6ef; }
+  #occlusion-content { position: relative; height: 850px; }
+  #blocked-button { position: sticky; top: 70px; margin-left: 32px; width: 210px; height: 42px; }
+  #cover { position: absolute; left: 24px; top: 60px; width: 240px; height: 64px; z-index: 3; background: #a86c50; color: white; display: grid; place-items: center; }
+  #clip-box { position: relative; width: 290px; height: 72px; overflow: hidden; border: 2px solid #b87559; }
+  #clipped-button { position: absolute; top: 52px; left: 16px; width: 220px; height: 44px; }
+  #truncated-button, #ellipsis-button { display: block; width: 120px; overflow: hidden; white-space: nowrap; text-align: left; }
+  #ellipsis-button { text-overflow: ellipsis; margin-top: 14px; }
+  .fixed #cover { display: none; }
+  .fixed #clipped-button { top: 12px; }
+  .fixed #truncated-button { width: 360px; }
+  #status { font-size: 13px; }
+  footer { margin-top: 18px; font-size: 13px; color: #5c705c; }
+  @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+</style>
+<main>
+  <header>
+    <h1>规则缺陷实验室</h1>
+    <p>有意加入三种视觉缺陷，并保留正常按钮和合理省略作为对照。</p>
+    <button id="repair" type="button">修复全部缺陷</button><output id="status">缺陷已开启</output>
+  </header>
+  <div class="grid">
+    <section aria-labelledby="occlusion-heading">
+      <h2 id="occlusion-heading">① 持续遮盖</h2>
+      <p class="requirement">测试约定：下方按钮在观察位置应有可点击点。滚动此区域后再次检查。</p>
+      <div id="occlusion-stage">
+        <div id="occlusion-scroller" aria-label="遮盖测试滚动区"><div id="occlusion-content"><button id="blocked-button" data-testid="blocked-button">确认测试订单</button></div></div>
+        <div id="cover">遮挡层 · 覆盖按钮</div>
+      </div>
+    </section>
+    <section aria-labelledby="clipping-heading">
+      <h2 id="clipping-heading">② 按钮被裁切</h2>
+      <p class="requirement">测试约定：下方按钮应完整位于容器内，不得被不可见的边界裁掉。</p>
+      <div id="clip-box"><button id="clipped-button" data-testid="clipped-button">保存测试设置</button></div>
+    </section>
+    <section aria-labelledby="text-heading">
+      <h2 id="text-heading">③ 文字被硬截断</h2>
+      <p class="requirement">按钮文字被直接裁断，没有省略提示。当前文字规则会报 warning。</p>
+      <button id="truncated-button" data-testid="truncated-button">确认并保存本次测试配置</button>
+    </section>
+    <section aria-labelledby="healthy-heading">
+      <h2 id="healthy-heading">④ 正常对照</h2>
+      <p class="requirement">完整按钮应通过；省略文本只记录信息，不应被判成 error。</p>
+      <button id="healthy-button" data-testid="healthy-button">正常测试按钮</button>
+      <button id="ellipsis-button" data-testid="ellipsis-button">这是一段允许省略的测试说明</button>
+    </section>
+  </div>
+  <footer>此页不提交业务数据。页面描述用于解释案例；只有宿主显式配置的测试约定才参与 error 判定。</footer>
+</main>
+<script>
+  function repair() {
+    document.body.classList.add('fixed');
+    document.getElementById('status').textContent = '缺陷已修复；正常省略仍保留';
+  }
+  document.getElementById('repair').addEventListener('click', repair);
+  if (new URLSearchParams(location.search).get('fixed') === '1') repair();
+</script>
+</html>

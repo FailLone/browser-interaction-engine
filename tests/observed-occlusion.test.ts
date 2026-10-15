@@ -175,3 +175,28 @@ it('discovers scoped traversal, rejects stale containers and lets DFS scroll wit
     expect(await pageOf(e).evaluate(()=>scrollY)).toBe(0);
   });
 });
+
+it('keeps confirmed historical evidence when the current target disappears', async () => {
+  await setup('persistent', async (e, sid, id) => {
+    const tracker = new ObservedOcclusionTracker(requirement(id));
+    await tracker.run(e, latest(e, sid)); await scroll(e, sid);
+    const confirmed = targetCheck(await tracker.run(e, latest(e, sid)), id);
+    expect(confirmed.facts!.lastObservedFinding).toMatchObject({ captureId: latest(e, sid).captureId, label: 'Target', verdict: 'fail', severity: 'error', code: 'OBSERVED_POINTER_REQUIREMENT_FAILED' });
+    await pageOf(e).locator('#target').evaluate(el => el.remove()); await e.observe(sid);
+    const missing = targetCheck(await tracker.run(e, latest(e, sid)), id);
+    expect(missing).toMatchObject({ verdict: 'unknown', facts: { lifecycle: 'unverified', lastObservedFinding: confirmed.facts!.lastObservedFinding } });
+    expect(missing.target).toBeUndefined();
+  });
+});
+
+it('does not create background warnings for an active non-modal dialog', async () => {
+  await setup('modal', async (e, sid) => {
+    const task = latest(e, sid), source = await e.captureDetails(sid, task.captureId);
+    const active = source.details!.observation.overlays!.at(-1)!;
+    active.kind = 'dialog';
+    const outside = source.details!.observation.controls.filter(c => c.visible && c.enabled && !active.controlIds.includes(c.localId));
+    expect(outside.length).toBeGreaterThan(0);
+    const report = await new ObservedOcclusionTracker().run({ captureDetails: async () => source }, task);
+    for (const c of outside) expect(report.checks.find(check => check.target?.nodeId === c.localId)).toMatchObject({ verdict: 'not-applicable', code: 'OUTSIDE_ACTIVE_SCOPE' });
+  });
+});

@@ -7,6 +7,8 @@ export interface EvidenceOptions {
 }
 export interface LayoutEvidence {
   coordinateSpace: 'layout-viewport-css-px';
+  /** Additive geometry evidence; absence in historical captures means unverified. */
+  clipping?: { version: 1; topLayer: boolean; fragmentCount: number };
   client: { width: number; height: number; left: number; top: number };
   scroll: { width: number; height: number; left: number; top: number };
   offset?: { width: number; height: number; left: number; top: number; parentId?: string };
@@ -28,6 +30,14 @@ export interface DomNodeEvidence {
   tag?: string; text?: string; attributes?: Record<string, string>; rect?: Rect;
   styles?: Record<string, string>; properties?: Record<string, Json>;
   layout?: LayoutEvidence;
+  paint?: { version: 1; motion: 'running' | 'idle'; pseudoElements: { kind: 'before' | 'after'; position: string }[] };
+  /** Browser intrinsic dimensions are density-corrected CSS px, not file pixels. */
+  image?: { version: 1; currentSrc: string; complete: boolean; naturalWidth: number; naturalHeight: number; loadEpoch: number;
+    resource?: { version: 1; sourceKey: string; hasSource: boolean; event: 'load' | 'error' | 'unobserved'; eventSequence: number };
+    contentBox?: { width: number; height: number }; motion: 'running' | 'idle' };
+  /** Range boxes of non-whitespace DOM text; layout evidence, not painted glyphs. */
+  textLayout?: { version: 1; status: 'captured' | 'truncated' | 'unavailable' | 'skipped';
+    start: number; end: number; rects: Rect[]; reason?: string };
   relations?: Record<string, string[]>;
   gaps: Gap[];
 }
@@ -36,6 +46,9 @@ export interface DomEvidence {
   html: string; htmlTruncated: boolean; nodesTruncated: boolean; gaps: Gap[];
   regionRoots: Record<string, string>;
   spatialVersion?: 1; environment?: PageEnvironment;
+  paintEnvironment?: { version: 1; forcedColors: boolean };
+  textGeometry?: { version: 1; coordinateSpace: 'layout-viewport-css-px'; fonts: 'loaded' | 'loading' | 'unavailable';
+    maxFragments: number; maxFragmentsPerNode: number; fragments: number; truncated: boolean };
   page: { url: string; title: string; baseURI: string; language: string; characterSet: string; readyState: string; doctype: string; activeNodeId?: string; metadata: Record<string, string>[] };
 }
 export interface NetworkEvidence {
@@ -70,6 +83,10 @@ export const evidenceCapabilities = {
   version: 1,
   stored: ['page-metadata', 'controls', 'component-groups', 'text', 'dom-tree', 'html', 'attributes', 'live-properties', 'label-and-aria-relations', 'computed-styles', 'page-environment', 'box-and-scroll-metrics', 'ancestor-chains', 'sampled-hit-targets', 'viewport-screenshot', 'aria-snapshot', 'network-metadata', 'console', 'page-errors', 'frame-inventory'],
   optional: ['full-page-screenshot', 'all-computed-styles'],
+  textGeometry: { version: 1, kind: 'bounded-dom-text-range-boxes', maxFragments: 4096, maxFragmentsPerNode: 128, paintedGlyphs: false },
+  imageGeometry: { version: 1, kind: 'html-image-intrinsic-and-content-box', pixelAnalysis: false },
+  imageResource: { version: 1, kind: 'native-image-events-and-source-binding', activeRequests: false },
+  textPaint: { version: 1, kind: 'computed-colors-and-paint-guards', pixelAnalysis: false },
   unsupported: ['shadow-dom-contents', 'iframe-dom', 'javascript-heap', 'complete-event-listeners', 'network-bodies', 'business-intent-inference'],
   queriesChangePage: false,
   explicitProbes: ['hover', 'focus', 'scroll'],

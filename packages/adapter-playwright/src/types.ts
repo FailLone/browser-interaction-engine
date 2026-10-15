@@ -44,6 +44,8 @@ export interface Control extends CoreControl {
   purposeBinding?: { attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
   /** Exact control-review binding, independent of list-purpose similarity. */
   reviewBinding?: { parentInstanceId: string; attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
+  /** Conservative structural evidence for explicitly reusing a purpose in a new document. */
+  reviewReuseBinding?: { ancestors: { tag: string; selector: string; attributes: Record<string, string>; label: string }[] };
   /** Bounded subtree evidence for classifying weak candidates; truncation prevents negative classification. */
   classificationBinding?: { nodes: { instanceId: string; parentInstanceId: string; tag: string; attributes: Record<string, string> }[]; text: string; truncated: boolean };
   structuralItem?: { ownerInstanceId:string; template:string; slot:string; rowInstanceId:string; recordKey?:string };
@@ -54,26 +56,48 @@ export interface Control extends CoreControl {
 export interface RegionCandidate {
   id: string; label: string; selector: string; parentId?: string; controlIds: string[]; rect: Rect;
   basis: 'heading' | 'semantic' | 'layout' | 'document'; suggested?: boolean; binding: Json; evidence: ActionEvidence[];
+  /** Bounded, instance-independent evidence; absent means no reusable partition proof. */
+  reuseBinding?: Json;
 }
 export interface StructuralListCandidate {
   ownerInstanceId:string; ownerSelector:string; label:string; template:string; binding:Json;
   members:{localId:string;rowInstanceId:string;slot:string;recordKey?:string}[];
   traversalLocalIds:string[]; evidence:ActionEvidence[];
 }
+export interface RegionReusePolicy { binding: 'same-url-context'; businessScope: string }
+export interface RegionReuseConditions { version: 'region-review-reuse/v1'; url: string; context: Context; anchors: { binding: Json; selectedIndices: number[] }[]; pageTraversal: boolean }
+export interface ReuseRegionReviewsInput {
+  observationId: string; baseReviewId: string; source: string; businessScope: string; evidence: string[];
+  regions: { reviewId: string; regionKey: string; conditionKey: string }[];
+}
+export interface RevokeRegionReuseInput { reviewId: string; regionKey: string; source: string; reason: string }
+export interface RegionReuseCandidate {
+  reviewId: string; regionKey: string; label: string; businessScope: string; conditionKey: string; conditions: RegionReuseConditions;
+  candidateIds: string[]; controlIds: string[]; pageTraversal: boolean;
+}
 export interface RegionReviewInput {
   observationId: string; source: string; evidence: string[];
-  regions: { key: string; label: string; candidateIds: string[]; controlIds?: string[]; pageTraversal?: boolean }[];
+  regions: { key: string; label: string; candidateIds: string[]; controlIds?: string[]; pageTraversal?: boolean; reuse?: RegionReusePolicy }[];
   rejectedCandidateIds?: string[];
+  /** Omit for a full replacement. A patch explicitly replaces/removes only named regions. */
+  update?: { baseReviewId: string; removeRegionKeys?: string[] };
 }
 export interface RegionReviewRecord {
   id: string; sessionId: string; observationId: string; instanceScope: string; url: string; contextKey: string; at: string;
   source: string; evidence: string[]; status: 'active' | 'invalidated' | 'superseded'; rejectedCandidateIds: string[];
-  regions: { key: string; label: string; controlIds: string[]; pageTraversal: boolean; anchors: { id: string; fingerprint: string }[]; status: 'active' | 'invalidated'; invalidation?: { observationId: string; reason: string } }[];
+  baseReviewId?: string;
+  regions: { key: string; label: string; controlIds: string[]; pageTraversal: boolean; anchors: { id: string; fingerprint: string }[]; reviewId?: string; reuse?: RegionReusePolicy; reuseConditions?: RegionReuseConditions; reusedFrom?: { reviewId: string; regionKey: string; conditionKey: string; evidence: string[] }; reuseRevocation?: { source: string; reason: string; at: string }; status: 'active' | 'invalidated'; invalidation?: { observationId: string; reason: string } }[];
+}
+export interface RegionReviewDelta {
+  baseReviewId: string; canUpdate: boolean; unchangedRegionKeys: string[];
+  changedRegions: { key: string; label: string; reason: string; baselineAvailable: boolean;
+    addedControlIds: string[]; removedControlIds: string[]; changedControlIds: string[];
+    changedCandidateIds: string[]; missingCandidateIds: string[] }[];
 }
 export interface RegionReviewMaterial {
   sessionId: string; observationId: string; enabled: boolean; candidates: RegionCandidate[];
   controls: { localId: string; label: string; role: string; actionKinds: string[] }[];
-  review?: RegionReviewRecord; unassignedControlIds: string[]; unassignedPageTraversal: boolean;
+  review?: RegionReviewRecord; delta?: RegionReviewDelta; reuseCandidates?: RegionReuseCandidate[]; unassignedControlIds: string[]; unassignedPageTraversal: boolean;
 }
 export interface Observation extends CoreObservation<Control> {
   id: ID; sessionId: ID; capturedAt: string; screenshotAt?: string;
@@ -82,6 +106,7 @@ export interface Observation extends CoreObservation<Control> {
   components?: BrowserComponent[];
   scrollContainers?: ScrollContainer[];
   overlays?: Overlay[];
+  boundaryExitCandidates?: import('./boundary-exit.js').BoundaryExitCandidate[];
   navigation?: BrowserHistory;
   regionCandidates?: RegionCandidate[];
   structuralLists?: StructuralListCandidate[];
@@ -122,6 +147,11 @@ export type Session = CoreSession<SessionOptions>;
 export type ControlIdentity = CoreIdentity<Control>;
 export type HookContext = CoreHookContext<Observation, SessionOptions>;
 export interface EngineHooks extends CoreHooks<Observation, SessionOptions> {
+  /** Caller-owned verifier for externally restored business state. The engine
+   * still verifies live UI expectations and never rewrites historical outcomes. */
+  verifyExternalRecovery?: (material: import('./interventions.js').ExternalRecoveryVerification, ctx: HookContext) => Promise<{ result: 'pass' | 'fail' | 'unknown'; evidence: string[] }> | { result: 'pass' | 'fail' | 'unknown'; evidence: string[] };
+  explorationDecisionReuse?: (material: import('./exploration-decision-reuse.js').ExplorationDecisionReuseMaterial, ctx: HookContext) => Promise<import('./exploration-decision-reuse.js').ReuseExplorationDecisionsInput | undefined> | import('./exploration-decision-reuse.js').ReuseExplorationDecisionsInput | undefined;
+  boundaryExitReview?: (material: import('./boundary-exit.js').BoundaryExitMaterial, ctx: HookContext) => Promise<import('./boundary-exit.js').BoundaryExitReviewInput | undefined> | import('./boundary-exit.js').BoundaryExitReviewInput | undefined;
   controlClassification?: (material: import('./control-classification.js').ControlClassificationMaterial, ctx: HookContext) => Promise<import('./control-classification.js').ClassifyControlsInput | undefined> | import('./control-classification.js').ClassifyControlsInput | undefined;
   controlReview?: (material: import('./control-review.js').ControlReviewMaterial, ctx: HookContext) => Promise<import('./control-review.js').ControlReviewInput | undefined> | import('./control-review.js').ControlReviewInput | undefined;
   regionReview?: (material: RegionReviewMaterial, ctx: HookContext) => Promise<RegionReviewInput | undefined> | RegionReviewInput | undefined;

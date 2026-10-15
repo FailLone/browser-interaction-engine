@@ -1,0 +1,35 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine
+
+ ✓ tests/region-review-reuse.test.ts (25 tests) 21099ms
+   ✓ reuses A boundaries explicitly after a new document without inheriting depth or operation purpose  1367ms
+   ✓ maps selected subsets of merged anchors exactly and never adds unselected current members  723ms
+   ✓ preserves an independent current region and its decision when reusing a rebuilt sibling  723ms
+   ✓ does not offer a region reuse candidate after label changes  570ms
+   ✓ does not offer a region reuse candidate after ancestor changes  571ms
+   ✓ does not offer a region reuse candidate after added changes  578ms
+   ✓ does not offer a region reuse candidate after removed changes  566ms
+   ✓ does not offer a region reuse candidate after member-label changes  562ms
+   ✓ does not offer a region reuse candidate after href changes  575ms
+   ✓ does not offer a region reuse candidate after form changes  592ms
+   ✓ does not offer a region reuse candidate after layout changes  561ms
+   ✓ does not offer a region reuse candidate after url changes  710ms
+   ✓ does not offer a region reuse candidate after context changes  569ms
+   ✓ rejects an entire malformed batch or stale base without replacing any partition  729ms
+   ✓ validates live structural evidence at initial opt-in, reuse, and prepared automated dispatch  1325ms
+   ✓ revokes a three-record source chain immediately without reviving prior scope decisions  1163ms
+   ✓ withdraws reuse sources on an explicit current-region replace  697ms
+   ✓ withdraws reuse sources on an explicit current-region remove  682ms
+   ✓ requires opt-in, complete bounded evidence and known context, and refuses active boundaries  1006ms
+   ✓ retains proof across SQLite restart, serves SDK/HTTP reuse, and isolates sessions  1446ms
+   ✓ keeps list depth independent and rejects changed record bindings within a reusable region  942ms
+   ✓ requires a new depth decision for an explicitly reused page traversal partition  1883ms
+   ✓ does not guess a same-named duplicate owner or silently retain a live-changed opted-in sibling  1140ms
+   ✓ respects rejected current candidates even when a historical boundary would otherwise match  834ms
+   ✓ contains malformed region hook results and exposes reuse candidates without automatic acceptance  584ms
+
+ Test Files  1 passed (1)
+      Tests  25 passed (25)
+   Start at  21:07:07
+   Duration  22.99s (transform 326ms, setup 0ms, collect 734ms, tests 21.10s, environment 0ms, prepare 36ms)
+

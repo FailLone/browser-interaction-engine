@@ -4,6 +4,16 @@ import type { Region } from './types.js';
 /** Runs in the same evaluation as the control observation. Never executes page markup. */
 export function collectEvidence(limits: EvidenceOptions, regions: Region[]): DomEvidence {
   const tracker = (window as any).__interactionEvidenceTracker;
+  // A reload of the same URL and dimensions can contain a different picture.
+  // Observe native resource completion without fetching or modifying the page.
+  if (!tracker.imageLoadEpochs) {
+    tracker.imageLoadEpochs = new WeakMap<HTMLImageElement, number>();
+    const loaded = (event: Event) => {
+      if (event.target instanceof HTMLImageElement) tracker.imageLoadEpochs.set(event.target, (tracker.imageLoadEpochs.get(event.target) ?? 0) + 1);
+    };
+    document.addEventListener('load', loaded, { capture: true, passive: true });
+    document.addEventListener('error', loaded, { capture: true, passive: true });
+  }
   const id = (node: Node): string => {
     if (!tracker.ids.has(node)) tracker.ids.set(node, `${tracker.documentId}:${++tracker.counter}`);
     return tracker.ids.get(node);
@@ -15,6 +25,9 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
   if (!document.documentElement) { result.gaps.push({ code: 'DOM_ROOT_UNAVAILABLE', message: 'No document element for detailed evidence' }); return result; }
   result.rootId = id(document.documentElement);
   result.spatialVersion = 1;
+  result.paintEnvironment = { version: 1, forcedColors: matchMedia('(forced-colors: active)').matches };
+  result.textGeometry = { version: 1, coordinateSpace: 'layout-viewport-css-px', fonts: document.fonts?.status ?? 'unavailable',
+    maxFragments: 4096, maxFragmentsPerNode: 128, fragments: 0, truncated: false };
   const viewport = window.visualViewport; const scrolling = document.scrollingElement;
   result.environment = {
     layoutViewport: { width: innerWidth, height: innerHeight, clientWidth: document.documentElement.clientWidth, clientHeight: document.documentElement.clientHeight },
@@ -30,7 +43,13 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
   const stack: { node: Node; parentId?: string }[] = [{ node: document.documentElement }];
   const byId = new Map<string, DomNodeEvidence>();
   let characters = 0; let sizeLimited = false;
-  const essential = ['display', 'visibility', 'opacity', 'position', 'z-index', 'pointer-events', 'overflow', 'overflow-x', 'overflow-y', 'color', 'background-color', 'font-size', 'font-weight', 'cursor', 'transform', 'direction', 'writing-mode', 'white-space', 'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height', 'box-sizing', 'contain', 'clip-path', 'overflow-wrap', 'text-overflow', 'font-family', 'line-height', 'background-image', 'outline', 'filter', 'isolation', 'flex', 'flex-direction', 'align-items', 'justify-content', 'gap', 'grid-template-columns'];
+  const essential = ['display', 'visibility', 'opacity', 'position', 'z-index', 'pointer-events', 'overflow', 'overflow-x', 'overflow-y', 'color', 'background-color', 'font-size', 'font-weight', 'cursor', 'transform', 'direction', 'writing-mode', 'white-space', 'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height', 'box-sizing', 'contain', 'clip-path', 'overflow-wrap', 'text-overflow', 'font-family', 'line-height', 'background-image', 'outline', 'filter', 'isolation', 'flex', 'flex-direction', 'align-items', 'justify-content', 'gap', 'grid-template-columns',
+    'translate', 'rotate', 'scale', 'zoom', 'perspective', 'clip', 'mask-image', 'content-visibility', 'will-change', 'overflow-clip-margin',
+    'object-fit', 'object-position', 'content', 'image-orientation', 'object-view-box', 'offset-path',
+    'background-clip', 'background-blend-mode', 'mix-blend-mode', 'backdrop-filter', 'box-shadow', 'text-shadow',
+    '-webkit-text-fill-color', '-webkit-text-stroke-width', 'text-decoration-line', 'appearance',
+    'border-top-left-radius', 'border-top-right-radius', 'border-bottom-left-radius', 'border-bottom-right-radius',
+    '-webkit-line-clamp', '-webkit-box-orient', 'line-clamp', 'text-indent', 'text-transform', 'column-count', 'column-width'];
   while (stack.length && result.nodes.length < limits.maxNodes) {
     const { node, parentId } = stack.pop()!;
     if (node.nodeType !== Node.ELEMENT_NODE && node.nodeType !== Node.TEXT_NODE) continue;
@@ -39,7 +58,29 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
       if (value.length > max) record.gaps.push({ code: 'FIELD_TRUNCATED', message: `${field} exceeds ${max} characters`, reference: record.id });
       return value.slice(0, max);
     };
-    if (node.nodeType === Node.TEXT_NODE) record.text = trim(node.textContent || '', limits.maxTextLength, 'text');
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent || '';
+      record.text = trim(text, limits.maxTextLength, 'text');
+      const start = text.search(/\S/), end = text.trimEnd().length;
+      const geometry = result.textGeometry;
+      record.textLayout = { version: 1, status: 'skipped', start: Math.max(0, start), end, rects: [] };
+      if (start >= 0 && !node.parentElement?.closest('head,script,style,noscript,template,input,textarea,select')) {
+        if (text.length > limits.maxTextLength || geometry.fragments >= geometry.maxFragments) {
+          record.textLayout.status = 'truncated'; record.textLayout.reason = 'Text or fragment budget exceeded'; geometry.truncated = true;
+        } else try {
+          const range = document.createRange(); range.setStart(node, start); range.setEnd(node, end);
+          const rects = range.getClientRects(), budget = Math.min(geometry.maxFragmentsPerNode, geometry.maxFragments - geometry.fragments);
+          for (let i = 0; i < Math.min(rects.length, budget); i++) {
+            const r = rects[i]; record.textLayout.rects.push({ x: r.x, y: r.y, width: r.width, height: r.height });
+          }
+          geometry.fragments += record.textLayout.rects.length;
+          record.textLayout.status = rects.length > budget ? 'truncated' : 'captured';
+          if (rects.length > budget) { geometry.truncated = true; record.textLayout.reason = 'Text fragment budget exceeded'; }
+        } catch {
+          record.textLayout.status = 'unavailable'; record.textLayout.reason = 'Range geometry could not be read';
+        }
+      }
+    }
     else {
       const el = node as HTMLElement;
       record.tag = el.tagName.toLowerCase(); record.attributes = {};
@@ -47,6 +88,12 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
       const r = el.getBoundingClientRect(); record.rect = { x: r.x, y: r.y, width: r.width, height: r.height };
       const style = getComputedStyle(el); record.styles = {};
       for (const key of limits.styles === 'all' ? Array.from(style) : limits.styles === 'essential' ? essential : []) record.styles[key] = trim(style.getPropertyValue(key), limits.maxAttributeLength, `style:${key}`);
+      record.paint = { version: 1, motion: el.getAnimations().some(a => a.playState === 'running' || a.pending) ? 'running' : 'idle',
+        pseudoElements: (['before', 'after'] as const).flatMap(kind => {
+          const pseudo = getComputedStyle(el, `::${kind}`);
+          return !['none', 'normal'].includes(pseudo.content) && pseudo.display !== 'none' && pseudo.visibility === 'visible'
+            ? [{ kind, position: pseudo.position }] : [];
+        }) };
       const scrollAncestorIds: string[] = []; const clipAncestorIds: string[] = [];
       // These are DOM ancestor chains, not logical overlay ownership. Hit testing
       // is one visible center sample, never a claim of complete pixel visibility.
@@ -61,6 +108,7 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
       const hit = inView ? document.elementFromPoint(x, y) : null;
       record.layout = {
         coordinateSpace: 'layout-viewport-css-px',
+        clipping: { version: 1, topLayer: el.matches(':modal, :popover-open, :fullscreen'), fragmentCount: el.getClientRects().length },
         client: { width: el.clientWidth, height: el.clientHeight, left: el.clientLeft, top: el.clientTop },
         scroll: { width: el.scrollWidth, height: el.scrollHeight, left: el.scrollLeft, top: el.scrollTop },
         offset: el instanceof HTMLElement ? { width: el.offsetWidth, height: el.offsetHeight, left: el.offsetLeft, top: el.offsetTop, parentId: el.offsetParent ? id(el.offsetParent) : undefined } : undefined,
@@ -75,6 +123,21 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
         }) : undefined,
       };
       record.properties = {};
+      if (el instanceof HTMLImageElement) {
+        const resource = (window as any).__interactionImageResources?.read(el);
+        if (resource) resource.sourceKey = trim(resource.sourceKey, Math.min(20000, limits.maxTextLength), 'image:sourceKey');
+        const edges = (axis: string[]) => axis.reduce((sum, side) => sum + parseFloat(style.getPropertyValue(`padding-${side}`)) + parseFloat(style.getPropertyValue(`border-${side}-width`)), 0);
+        const width = parseFloat(style.width) - (style.boxSizing === 'border-box' ? edges(['left', 'right']) : 0);
+        const height = parseFloat(style.height) - (style.boxSizing === 'border-box' ? edges(['top', 'bottom']) : 0);
+        let moving = false;
+        for (let ancestor: Element | null = el; ancestor; ancestor = ancestor.parentElement) {
+          moving ||= ancestor.getAnimations().some(a => a.playState === 'running' || a.pending);
+        }
+        record.image = { version: 1, currentSrc: trim(el.currentSrc, limits.maxAttributeLength, 'image:currentSrc'),
+          ...(resource ? { resource } : {}),
+          complete: el.complete, naturalWidth: el.naturalWidth, naturalHeight: el.naturalHeight, loadEpoch: tracker.imageLoadEpochs.get(el) ?? 0,
+          ...(Number.isFinite(width) && Number.isFinite(height) ? { contentBox: { width, height } } : {}), motion: moving ? 'running' : 'idle' };
+      }
       for (const key of ['value', 'checked', 'indeterminate', 'selected', 'selectedIndex', 'disabled', 'readOnly', 'required', 'type', 'tabIndex', 'contentEditable', 'href', 'action', 'method', 'target', 'validationMessage']) {
         const value = (el as any)[key];
         if (typeof value === 'string') record.properties[key] = trim(value, limits.maxTextLength, `property:${key}`);
@@ -108,6 +171,9 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
     for (let child = node.lastChild; child; child = child.previousSibling) stack.push({ node: child, parentId: record.id });
   }
   result.nodesTruncated = stack.length > 0 || sizeLimited;
+  // Reading layout can start a previously unused font load. Keep either end's
+  // unsettled state rather than reporting the initial "loaded" value as settled.
+  if (document.fonts?.status === 'loading') result.textGeometry.fonts = 'loading';
   if (result.nodesTruncated) result.gaps.push({ code: 'DOM_TREE_TRUNCATED', message: `DOM exceeded its node (${limits.maxNodes}) or character (${limits.maxDomCharacters}) budget; missing children and relationship targets may be outside the captured range` });
   return result;
 }

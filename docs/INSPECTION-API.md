@@ -65,11 +65,14 @@ for await (const event of client.events(session.id)) {
 | 节点 | 捕获到的 element/text、属性、live properties、语义关系；包括没有操作候选的容器及文本 |
 | 空间 | layout viewport CSS 像素下的 rect、client/scroll/offset、offsetParent、四边 padding/border/margin；变换后的包围矩形不是任意形状的精确覆盖区域 |
 | 样式 | essential 组增加宽高/min/max、盒模型、布局、字体、颜色/背景、裁剪等；可按原 evidence.styles 开启 all。computed color 不是经过所有背景、透明和滤镜合成后的最终像素颜色 |
+| 文字 | 可选 `textGeometry.version: 1` 和 text 节点 `textLayout` 保存 DOM Range 矩形、原始文本偏移及字体加载状态；每节点最多 128 个片段、整次最多 4096 个。局部预算不足记录 truncated，不把缺失片段当作完整；矩形不证明字形实际被绘制或省略号出现 |
 | 关系 | DOM 祖先、滚动及裁剪候选祖先、标签/ARIA 关系、独立逻辑 overlay 关系；关系目标可能超出采集预算，显式 not_captured |
 | 命中 | 保留可见交集中心点的 hitSample；新增可选 hitSamples（中心及四个内缩角）。五点采样也不能证明完整可见、完全遮挡或完整裁剪 |
 | 图像/ARIA/运行记录 | 沿用现有不可变 artifacts；组件各有时间戳，不承诺截图与 DOM 原子一致。图片像素可按 PNG 尺寸、视口与 DPR 对齐；全页截图沿用旧可选证据接口 |
 
-`capture.profile` 是本次使用的 required/optional 能力要求。能力声明限定主文档 light DOM；iframe/shadow 内部、文字行矩形、伪元素、完整遮挡和中间态采集都未支持。显式 hover/focus 及受控 scroll probe 作为动作命令执行，查询仍只读；滚动恢复用法见 [控件规则](CONTROL-RULES.md#主动滚动恢复规则)。发现 iframe/shadow 等仍保留缺口。当前提供内置版本化采集器描述，不开放任意网页脚本或自定义采集器执行接口。
+`capture.profile` 是本次使用的 required/optional 能力要求。能力声明限定主文档 light DOM；iframe/shadow 内部、字形像素、伪元素、完整遮挡和中间态采集都未支持。显式 hover/focus 及受控 scroll probe 作为动作命令执行，查询仍只读；滚动恢复用法见 [控件规则](CONTROL-RULES.md#主动滚动恢复规则)。发现 iframe/shadow 等仍保留缺口。当前提供内置版本化采集器描述，不开放任意网页脚本或自定义采集器执行接口。
+
+文字几何是 `web.layout` 的可选扩展；旧 Capture 没有这些字段时保持原样。文字规则另外检查每个目标的片段完整度及字体状态，不能只凭组件 captured 宣称文字已完整采集。
 
 支持、采集完整度、现在是否还能读取分别由 capabilities、component.status/quality、availability 表达。未知 required 能力在打开浏览器之前拒绝；未知 optional 能力记录 unsupported。运行时截断、禁用、超时或存储失败形成 incomplete。未知协议/组件版本通过 compatibility 单独报告，不作为成功验证。
 
@@ -93,7 +96,7 @@ for await (const event of client.events(session.id)) {
 | completeInspection | POST `/sessions/s/inspections/i/complete` | body 为 `{consumerId, results}`；空 results 表示仅确认完成，报告由外部保存 |
 | observe(s) | POST `/sessions/s/commands`，`{type:'observe'}` | 显式新采集，产生新记录；旧查询永不补写现场数据 |
 
-`fields` 支持 tag/text/attributes/rect/styles/properties/relations/layout，SDK 使用数组，HTTP 使用逗号分隔；节点的 id/parentId/children/nodeType/gaps 始终保留。省略 fields 返回所有已捕获字段。offset 游标必须与同一个 capture/root/depth 配套使用。
+`fields` 支持 tag/text/attributes/rect/styles/properties/relations/layout/textLayout，SDK 使用数组，HTTP 使用逗号分隔；节点的 id/parentId/children/nodeType/gaps 始终保留。省略 fields 返回所有已捕获字段。offset 游标必须与同一个 capture/root/depth 配套使用。
 
 旧 observationDetails、controlDetails、regionDetails、dom、eventContext、evidenceArtifact 均保持可用；没有 Capture 的旧观察不伪造新采集。一个节点应由 capture + documentId + nodeId 定位，identityId 仅作为另外的控件身份线索。
 
@@ -115,7 +118,7 @@ for await (const event of client.events(session.id)) {
 
 ## 后续扩展
 
-Capture 预留 phase（settled/intermediate/timeout）、segmentId、sampleIndex、timeWindow、samplingGaps 和可选 observationId。当前生产者只生成 settled/timeout，capabilities 明确不支持 intermediate；闪烁、白屏和瞬时滚动条尚未采集。更通用的 probe、等待外部检查、文字行、iframe/Shadow DOM、自定义采集器和过程录制继续按 [计划](UI-INSPECTION-PLAN.md) 的 P4 与后续里程碑实施。
+Capture 预留 phase（settled/intermediate/timeout）、segmentId、sampleIndex、timeWindow、samplingGaps 和可选 observationId。当前生产者只生成 settled/timeout，capabilities 明确不支持 intermediate；闪烁、白屏和瞬时滚动条尚未采集。更通用的 probe、等待外部检查、字形级文字取证、iframe/Shadow DOM、自定义采集器和过程录制继续按 [计划](UI-INSPECTION-PLAN.md) 的 P4 与后续里程碑实施。
 
 ## 首轮验证记录
 

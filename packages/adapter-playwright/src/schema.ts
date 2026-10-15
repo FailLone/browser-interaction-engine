@@ -1,13 +1,15 @@
+import { reviewExplorationDecisionReuseSchema, reuseExplorationDecisionsSchema, revokeExplorationDecisionReuseSchema } from './exploration-decision-reuse.js';
 import { scrollProbeSchema } from './scroll-probe.js';
 import { inspectionOptionsSchema } from './inspection-contract.js';
 import { listPurposeReviewSchema, revokePurposeReviewSchema } from './purpose-review.js';
-import { controlReviewSchema, revokeControlReviewSchema } from './control-review.js';
+import { controlReviewSchema, revokeControlReviewSchema, reuseControlReviewsSchema } from './control-review.js';
 import { classifyControlsSchema, revokeControlClassificationSchema } from './control-classification.js';
 import { supplementDiscoverySchema } from './discovery-scan.js';
 import { z } from 'zod';
+import { boundaryExitReviewSchema } from './boundary-exit.js';
 import { evidenceRetentionSchema, componentDescriptionSchema, explorationGroupDecisionSchema, explorationGroupResolutionsSchema } from '@interaction/core';
 export const contextSchema = z.record(z.string(), z.object({ value: z.json(), status: z.enum(['known', 'unknown']), source: z.string() }));
-const match = z.object({ role: z.string().optional(), name: z.string().optional(), stableKey: z.string().optional(), kind: z.enum(['click', 'fill', 'select', 'check', 'scroll', 'press', 'hover', 'focus', 'navigate', 'history']).optional(), urlIncludes: z.string().optional() }).strict();
+const match = z.object({ role: z.string().optional(), name: z.string().optional(), stableKey: z.string().optional(), kind: z.enum(['click', 'fill', 'select', 'check', 'scroll', 'press', 'hover', 'focus', 'navigate', 'history', 'dismiss']).optional(), urlIncludes: z.string().optional() }).strict();
 export const evidenceOptionsSchema = z.object({
     enabled: z.boolean().default(true), maxNodes: z.number().int().min(1).max(50000).default(5000),
     maxTextLength: z.number().int().min(1).max(100000).default(20000), maxHtmlLength: z.number().int().min(1).max(10000000).default(2000000),
@@ -17,9 +19,15 @@ export const evidenceOptionsSchema = z.object({
   }).strict().prefault({});
 export const regionReviewSchema = z.object({
   observationId: z.string().min(1), source: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1),
-  regions: z.array(z.object({ key: z.string().trim().min(1), label: z.string().trim().min(1), candidateIds: z.array(z.string().min(1)).min(1), controlIds: z.array(z.string().min(1)).optional(), pageTraversal: z.boolean().default(false) }).strict()).max(500),
-  rejectedCandidateIds: z.array(z.string().min(1)).default([]),
+  regions: z.array(z.object({ key: z.string().trim().min(1), label: z.string().trim().min(1), candidateIds: z.array(z.string().min(1)).min(1), controlIds: z.array(z.string().min(1)).optional(), pageTraversal: z.boolean().default(false), reuse: z.object({ binding: z.literal('same-url-context'), businessScope: z.string().trim().min(1) }).strict().optional() }).strict()).max(500),
+  rejectedCandidateIds: z.array(z.string().min(1)).optional(),
+  update: z.object({ baseReviewId: z.string().min(1), removeRegionKeys: z.array(z.string().min(1)).max(500).default([]) }).strict().optional(),
 }).strict();
+export const reuseRegionReviewsSchema = z.object({
+  observationId: z.string().min(1), baseReviewId: z.string().min(1), source: z.string().trim().min(1), businessScope: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1).max(100),
+  regions: z.array(z.object({reviewId:z.string().min(1),regionKey:z.string().min(1),conditionKey:z.string().min(1)}).strict()).min(1).max(500),
+}).strict();
+export const revokeRegionReuseSchema = z.object({reviewId:z.string().min(1),regionKey:z.string().min(1),source:z.string().trim().min(1),reason:z.string().trim().min(1)}).strict();
 export const sessionSchema = z.object({
   url: z.url().refine(v => ['http:', 'https:'].includes(new URL(v).protocol), 'Only HTTP(S) URLs are supported'),
   headless: z.boolean().default(false), viewport: z.object({ width: z.number().int().min(320).max(3840), height: z.number().int().min(240).max(2160) }).default({ width: 1440, height: 900 }),
@@ -40,14 +48,21 @@ export const sessionSchema = z.object({
   storageState: z.union([z.string(), z.object({ cookies: z.array(z.unknown()), origins: z.array(z.unknown()) })]).optional(),
 }).strict().refine(o => o.regionExploration !== 'review' || !o.decisionScopes.some(s => s === 'region' || s === 'branch'), 'Reviewed regions replace optional region/branch producers; select one scope granularity');
 export const predicateSchema = z.object({ target: z.enum(['url', 'context', 'control']), key: z.string().optional(), identityId: z.string().optional(), field: z.enum(['value', 'checked', 'visible', 'enabled']).optional(), equals: z.json() }).strict();
-export const commandSchema = z.discriminatedUnion('type', [
+const baseCommandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('scrollProbe'), observationId: z.string().min(1), localId: z.string().min(1), options: scrollProbeSchema, requestId: z.string().trim().min(1) }).strict(),
   z.object({type:z.literal('supplementDiscovery'),scan:supplementDiscoverySchema}).strict(),
   z.object({type:z.literal('classifyControls'),classification:classifyControlsSchema}).strict(),
   z.object({type:z.literal('revokeControlClassification'),revocation:revokeControlClassificationSchema}).strict(),
   z.object({type:z.literal('reviewControls'),review:controlReviewSchema}).strict(),
+  z.object({type:z.literal('reuseControlReviews'),review:reuseControlReviewsSchema}).strict(),
   z.object({type:z.literal('revokeControlReview'),revocation:revokeControlReviewSchema}).strict(),
+  z.object({ type: z.literal('reviewBoundaryExit'), review: boundaryExitReviewSchema }).strict(),
   z.object({ type: z.literal('reviewRegions'), review: regionReviewSchema }).strict(),
+  z.object({ type: z.literal('reviewExplorationDecisionReuse'), review: reviewExplorationDecisionReuseSchema }).strict(),
+  z.object({ type: z.literal('reuseExplorationDecisions'), review: reuseExplorationDecisionsSchema }).strict(),
+  z.object({ type: z.literal('revokeExplorationDecisionReuse'), revocation: revokeExplorationDecisionReuseSchema }).strict(),
+  z.object({ type: z.literal('reuseRegionReviews'), review: reuseRegionReviewsSchema }).strict(),
+  z.object({ type: z.literal('revokeRegionReuse'), revocation: revokeRegionReuseSchema }).strict(),
   z.object({ type: z.literal('reviewListPurpose'), review: listPurposeReviewSchema }).strict(),
   z.object({ type: z.literal('revokePurposeReview'), revocation: revokePurposeReviewSchema }).strict(),
   z.object({ type: z.literal('probe'), observationId: z.string().min(1), localId: z.string().min(1), kind: z.enum(['hover', 'focus']), requestId: z.string().trim().min(1) }).strict(),
@@ -64,6 +79,23 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('createCheckpoint'), name: z.string().min(1), predicates: z.array(predicateSchema).default([]), acceptable: z.array(predicateSchema).default([]), retainEvidence: z.boolean().optional() }),
   z.object({ type: z.literal('reachCheckpoint'), checkpointId: z.string() }),
 ]);
+export const interventionResponseSchema = z.object({
+  requestId: z.string().trim().min(1), interventionId: z.string().min(1), conditionKey: z.string().min(1),
+  command: baseCommandSchema.refine(c => ['observe', 'reviewRegions', 'reuseRegionReviews', 'reviewControls', 'reuseControlReviews', 'classifyControls',
+    'reviewBoundaryExit', 'decideExplorationGroup', 'decideExplorationGroups', 'reuseExplorationDecisions', 'reviewListPurpose',
+    'resolveIdentity', 'supplementDiscovery', 'probe', 'scrollProbe', 'reachCheckpoint'].includes(c.type), 'Use a supported intervention response; execution and exploration are separate'),
+}).strict();
+export const continuationSchema = z.object({
+  requestId: z.string().trim().min(1), observationId: z.string().min(1), source: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1).max(100),
+  recovery: z.object({
+    url: z.url(), context: contextSchema, boundaryKeys: z.array(z.string()).max(100), predicates: z.array(predicateSchema).max(100),
+  }).strict().optional(),
+}).strict();
+export const commandSchema = z.discriminatedUnion('type', [
+  ...baseCommandSchema.options,
+  z.object({ type: z.literal('respondToIntervention'), response: interventionResponseSchema }).strict(),
+  z.object({ type: z.literal('continueExploration'), continuation: continuationSchema }).strict(),
+]);
 export type Command = z.infer<typeof commandSchema>;
-export const domQuerySchema = z.object({ fields: z.preprocess(v => typeof v === 'string' ? (v ? v.split(',') : []) : v, z.array(z.enum(['tag', 'text', 'attributes', 'rect', 'styles', 'properties', 'relations', 'layout'])).max(8).optional()), rootId: z.string().min(1).optional(), depth: z.coerce.number().int().min(0).max(100).default(20), offset: z.coerce.number().int().min(0).max(50000).default(0), limit: z.coerce.number().int().min(1).max(5000).default(1000) }).strict();
+export const domQuerySchema = z.object({ fields: z.preprocess(v => typeof v === 'string' ? (v ? v.split(',') : []) : v, z.array(z.enum(['tag', 'text', 'attributes', 'rect', 'styles', 'properties', 'relations', 'layout', 'textLayout', 'image', 'paint'])).max(11).optional()), rootId: z.string().min(1).optional(), depth: z.coerce.number().int().min(0).max(100).default(20), offset: z.coerce.number().int().min(0).max(50000).default(0), limit: z.coerce.number().int().min(1).max(5000).default(1000) }).strict();
 export const artifactKindSchema = z.enum(['screenshot', 'fullPageScreenshot', 'details']);

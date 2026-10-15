@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { Inspection, InspectionResult } from '@interaction/browser';
 import type { Json } from '@interaction/adapter-playwright';
-import type { CaptureReader, ControlRule, RuleAssessment, RuleCheck, RuleMetadata, RuleReport, RuleSelection } from './types.js';
+import type { CaptureReader, ControlRule, DomRule, RuleAssessment, RuleCheck, RuleMetadata, RuleReport, RuleSelection } from './types.js';
 
 const selectionSchema = z.array(z.object({
   ruleId: z.string().min(1).max(200), ruleVersion: z.string().min(1).max(100), enabled: z.boolean().optional(),
@@ -22,15 +22,16 @@ function freeze<T>(value: T): T {
 }
 
 export class RuleRunner {
-  private readonly rules = new Map<string, ControlRule>();
+  private readonly rules = new Map<string, ControlRule | DomRule>();
   private readonly timeoutMs: number;
-  constructor(rules: ControlRule[], options: { timeoutMs?: number } = {}) {
+  constructor(rules: (ControlRule | DomRule)[], options: { timeoutMs?: number } = {}) {
     this.timeoutMs = options.timeoutMs ?? 5000;
     if (!Number.isFinite(this.timeoutMs) || this.timeoutMs < 1 || this.timeoutMs > 60000) throw new Error('Rule timeout must be between 1 and 60000 ms');
     for (const rule of rules) {
-      const metadata = z.object({ id: z.string().min(1).max(200), version: z.string().min(1).max(100), name: z.string(), description: z.string(), requiredCapabilities: z.array(z.string().min(1)), optionsSchema: z.record(z.string(), z.json()).optional() }).parse(rule);
+      const metadata = z.object({ id: z.string().min(1).max(200), version: z.string().min(1).max(100), name: z.string(), description: z.string(), requiredCapabilities: z.array(z.string().min(1)), optionsSchema: z.record(z.string(), z.json()).optional(), targetKind: z.enum(['control', 'dom-element']).optional(), targetTags: z.array(z.string().regex(/^[a-z][a-z0-9-]*$/)).min(1).max(32).optional() }).parse(rule);
+      if (metadata.targetKind === 'dom-element' && !metadata.targetTags?.length) throw new Error('DOM rules require targetTags');
       if (this.rules.has(rule.id)) throw new Error(`Duplicate rule ID: ${rule.id}`);
-      this.rules.set(rule.id, { ...freeze(metadata), configure: rule.configure.bind(rule) });
+      this.rules.set(rule.id, { ...freeze(metadata), configure: rule.configure.bind(rule) } as ControlRule | DomRule);
     }
   }
   catalog(): RuleMetadata[] {
@@ -70,9 +71,11 @@ export class RuleRunner {
       } else if (capture.quality.status !== 'complete' || !dom || !observation || dom.nodesTruncated || !observation.stable) {
         checks = [unknown('EVIDENCE_INCOMPLETE', 'Required evidence is incomplete, truncated or unsettled')];
       } else {
-        const targets = selection.targets ?? observation.controls.map(c => ({ captureId: capture.id, nodeId: c.localId }));
-        if (targets.length > 1000) checks = [unknown('TARGET_BUDGET_EXCEEDED', 'More than 1000 controls; select an explicit bounded set of targets')];
-        else if (!targets.length) checks = [{ verdict: 'not-applicable', severity: 'info', code: 'NO_TARGETS', expected: 'At least one selected control', actual: 'No controls were selected', evidence: [] }];
+        const targets = selection.targets ?? (rule.targetKind === 'dom-element'
+          ? dom.nodes.filter(n => n.nodeType === 'element' && rule.targetTags.includes(n.tag ?? '')).map(n => ({ captureId: capture.id, nodeId: n.id }))
+          : observation.controls.map(c => ({ captureId: capture.id, nodeId: c.localId })));
+        if (targets.length > 1000) checks = [unknown('TARGET_BUDGET_EXCEEDED', 'More than 1000 targets; select an explicit bounded set')];
+        else if (!targets.length) checks = [{ verdict: 'not-applicable', severity: 'info', code: 'NO_TARGETS', expected: 'At least one selected target', actual: 'No matching targets were selected', evidence: [] }];
         else {
           const controls = new Map(observation.controls.map(c => [c.localId, c]));
           const nodes = new Map(dom.nodes.map(n => [n.id, n]));
@@ -85,12 +88,13 @@ export class RuleRunner {
                 for (const target of targets) {
                   if (abort.signal.aborted) break;
                   const control = controls.get(target.nodeId); const node = nodes.get(target.nodeId);
-                  if (target.captureId !== capture.id || !control || !node) {
-                    completed.push(unknown('TARGET_UNAVAILABLE', `Target ${target.captureId}/${target.nodeId} is not a control in this capture`)); continue;
+                  if (target.captureId !== capture.id || !node || (rule.targetKind === 'dom-element'
+                    ? node.nodeType !== 'element' || !rule.targetTags.includes(node.tag ?? '') : !control)) {
+                    completed.push(unknown('TARGET_UNAVAILABLE', `Target ${target.captureId}/${target.nodeId} is not an eligible target in this capture`)); continue;
                   }
                   const binding = { captureId: capture.id, documentId: capture.documentId, nodeId: node.id };
                   try {
-                    const result = assessmentSchema.parse(await evaluate(Object.freeze({ inspection: task, capture, observation, dom, control, node, signal: abort.signal })));
+                    const result = assessmentSchema.parse(await evaluate(Object.freeze({ inspection: task, capture, observation, snapshot: source.details!.snapshot!, dom, control: control!, node, signal: abort.signal })));
                     completed.push({ ...result, target: binding });
                   } catch (error) {
                     completed.push({ ...unknown('RULE_ERROR', String(error)), target: binding });

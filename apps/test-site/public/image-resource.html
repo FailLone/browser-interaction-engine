@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><title>图片资源规则测试</title>
+<style>
+body{font:16px system-ui;background:#f5f7f9;color:#173346;margin:24px}button{appearance:none;background:white;color:#173346;border:1px solid #aaa;padding:12px;margin-right:12px}
+.grid{display:grid;grid-template-columns:repeat(5,180px);gap:16px;margin:24px 0}figure{margin:0;background:white;padding:10px}img{display:block;width:140px;height:70px;object-fit:contain;background:#e9eef1}figcaption{margin-top:8px;font-size:12px}
+.traversal .sample{display:none}dialog{background:white;border:1px solid #aaa}dialog img{margin-bottom:16px}
+</style>
+<h1>图片资源加载测试</h1><p>加载失败是检测信号；缺少资源、替代图和加载中需要分别处理。</p>
+<button id="retry">重试原图片</button><button id="fallback">使用替代图</button><button id="open">打开缺图弹层</button>
+<div class="grid">
+<figure><img id="broken" src="/image-resource-missing.png" alt="加载失败的图片"><figcaption>原资源失败</figcaption></figure>
+<figure class="sample"><img id="healthy" src="/aspect-ratio-2x1.png" alt="正常图片"><figcaption>正常资源</figcaption></figure>
+<figure class="sample"><img id="corrupt" src="data:image/png;base64,bm90LWFuLWltYWdl" alt="损坏的数据图片"><figcaption>数据损坏</figcaption></figure>
+<figure class="sample"><img id="absent" alt="未配置图片"><figcaption>没有 src</figcaption></figure>
+<figure class="sample"><img id="empty" src="" alt="空来源"><figcaption>空 src</figcaption></figure>
+<figure class="sample"><img id="vector" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='0' height='0'%3E%3C/svg%3E" alt="零固有尺寸矢量图"><figcaption>加载成功但没有正的固有尺寸</figcaption></figure>
+<figure class="sample"><picture><source media="(min-width:1px)" srcset="/image-resource-picture-missing.png"><img id="picture" src="/aspect-ratio-2x1.png" alt="picture 实际选中失败"><figcaption>不能用后备 src 判断</figcaption></picture></figure>
+<figure class="sample"><picture><source media="(max-width:1px)" srcset="/image-resource-inactive.png"><img id="picture-good" src="/aspect-ratio-2x1.png" alt="picture 正常后备"></picture><figcaption>未选择的失败候选不算失败</figcaption></figure>
+<figure class="sample"><img id="responsive" src="/aspect-ratio-2x1.png" srcset="/image-resource-responsive-missing.png 1x" alt="srcset 失败"><figcaption>按实际选择检查</figcaption></figure>
+<figure class="sample"><img id="decorative" src="/image-resource-decorative-missing.png" alt=""><figcaption>空 alt 不能自动声明允许失败</figcaption></figure>
+<figure class="sample"><img id="css" src="/image-resource-css-missing.png" style="content:url('/aspect-ratio-2x1.png')" alt="CSS 替换内容"><figcaption>另行判断</figcaption></figure>
+<img id="hidden" style="display:none" src="/image-resource-hidden.png" alt="隐藏图片">
+</div>
+<dialog id="modal" aria-label="图片资源弹层"><img id="modal-image" src="/image-resource-modal-missing.png" alt="弹层缺图"><button id="close">关闭图片弹层</button></dialog>
+<div class="sample" style="margin-top:12000px"><img id="lazy" loading="lazy" src="/image-resource-lazy.png" alt="等待按需加载"></div>
+<script>
+if(new URLSearchParams(location.search).get('mode')==='traversal')document.body.classList.add('traversal');
+document.querySelector('#retry').onclick=()=>{const img=document.querySelector('#broken');img.setAttribute('src',img.getAttribute('src'))};
+document.querySelector('#fallback').onclick=()=>{document.querySelector('#broken').src='/aspect-ratio-2x1.png'};
+document.querySelector('#open').onclick=()=>document.querySelector('#modal').showModal();
+document.querySelector('#close').onclick=()=>document.querySelector('#modal').close();
+</script></html>

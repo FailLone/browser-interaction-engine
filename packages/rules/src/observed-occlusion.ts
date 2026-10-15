@@ -1,3 +1,5 @@
+import { currentCaptureOnly, findingSnapshot, observationStatus } from './finding-history.js';
+import { hasRelevantGaps } from './evidence-dependencies.js';
 import { z } from 'zod';
 import { canonical, type Control, type DomEvidence, type DomNodeEvidence, type Json, type Observation } from '@interaction/adapter-playwright';
 import type { Inspection } from '@interaction/browser';
@@ -6,7 +8,8 @@ import { RuleRunner } from './runner.js';
 import { sampledOcclusionRule } from './sampled-occlusion.js';
 
 export const observedOcclusionOptionsSchema = z.object({
-  /** Applies only to the named logical controls, not every button on the page. */
+  /** Explicit host requirements for named controls. Provider proposals are not
+   * accepted here and do not automatically become effective requirements. */
   requirements: z.array(z.object({
     identityId: z.string().min(1), kind: z.literal('sampled-pointer-at-observed-position'),
     reason: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1),
@@ -23,16 +26,18 @@ interface Sample {
 }
 interface Track {
   id: string; key: string; identityId: string; lifecycle: Lifecycle; revision: number;
-  firstCaptureId: string; evidence: string[]; confirmedAt?: string; sample?: Sample;
+  firstCaptureId: string; label: string; lastObservedFinding?: Json; evidence: string[]; confirmedAt?: string; sample?: Sample; findingSample?: Sample;
 }
 const json = (v: unknown): Json => JSON.parse(JSON.stringify(v)) as Json;
 const shape = (s: Sample) => canonical(s.scroll.map(({ left: _, top: __, ...c }) => c));
 const binding = (c: Control) => canonical([c.stableKey, c.identityContext, c.tag, c.role, c.name, c.region, c.reviewAttributes,
   c.value, c.checked, c.selected, c.enabled, c.visible, c.expanded]);
+const comparableSamples = (prior: Sample | undefined, current: Sample) => prior && prior.instanceId === current.instanceId &&
+  prior.binding === current.binding && prior.geometry === current.geometry && shape(prior) === shape(current);
 
 function sample(inspection: Inspection, o: Observation, dom: DomEvidence, control: Control): Sample {
   const nodes = new Map(dom.nodes.map(n => [n.id, n])); const node = nodes.get(control.localId);
-  if (!node?.layout || !node.rect || node.gaps.length || !dom.environment || dom.spatialVersion !== 1) throw new Error('TARGET_EVIDENCE_MISSING');
+  if (!node?.layout || !node.rect || hasRelevantGaps(node) || !dom.environment || dom.spatialVersion !== 1) throw new Error('TARGET_EVIDENCE_MISSING');
   const hits = node.layout.hitSamples;
   if (hits?.length !== 5 || hits.some(h => !h.topNodeId || !nodes.has(h.topNodeId))) throw new Error('HIT_GRID_INCOMPLETE');
   const active = o.overlays?.at(-1);
@@ -42,16 +47,21 @@ function sample(inspection: Inspection, o: Observation, dom: DomEvidence, contro
   while (ancestor.id !== root) {
     if (seen.has(ancestor.id) || !ancestor.parentId || !nodes.has(ancestor.parentId)) throw new Error('ANCESTOR_CHAIN_INCOMPLETE');
     seen.add(ancestor.id); ancestor = nodes.get(ancestor.parentId)!;
-    if (ancestor.gaps.length) throw new Error('ANCESTOR_EVIDENCE_INCOMPLETE');
+    if (hasRelevantGaps(ancestor)) throw new Error('ANCESTOR_EVIDENCE_INCOMPLETE');
   }
   seen.add(ancestor.id);
   // An offscreen/clipped target is not proof that an obstruction disappeared.
   const r = node.rect, env = dom.environment;
   let left = 0, top = 0, right = env.layoutViewport.width, bottom = env.layoutViewport.height;
+  if (r.width > right || r.height > bottom) throw new Error('TARGET_EXCEEDS_VIEWPORT');
   for (const id of node.layout.clipAncestorIds) {
     if (id === env.scrollingElement?.nodeId) continue;
     const p = nodes.get(id);
-    if (!p?.rect || !p.styles || !p.layout || p.gaps.length) throw new Error('CLIP_EVIDENCE_MISSING');
+    if (!p?.rect || !p.styles || !p.layout || hasRelevantGaps(p)) throw new Error('CLIP_EVIDENCE_MISSING');
+    // Compare against each container's own capacity, not its current viewport
+    // intersection: an ancestor scroll can reveal a partly offscreen container.
+    if (['auto', 'scroll', 'hidden', 'clip'].includes(p.styles['overflow-x']) && r.width > p.layout.client.width ||
+      ['auto', 'scroll', 'hidden', 'clip'].includes(p.styles['overflow-y']) && r.height > p.layout.client.height) throw new Error('TARGET_EXCEEDS_CLIP_BOUNDS');
     if (['auto', 'scroll', 'hidden', 'clip'].includes(p.styles['overflow-x'])) { left = Math.max(left, p.rect.x + p.layout.client.left); right = Math.min(right, p.rect.x + p.layout.client.left + p.layout.client.width); }
     if (['auto', 'scroll', 'hidden', 'clip'].includes(p.styles['overflow-y'])) { top = Math.max(top, p.rect.y + p.layout.client.top); bottom = Math.min(bottom, p.rect.y + p.layout.client.top + p.layout.client.height); }
     if (p.styles['clip-path'] !== 'none' || /paint/.test(p.styles.contain)) throw new Error('COMPLEX_CLIP_UNVERIFIED');
@@ -59,7 +69,7 @@ function sample(inspection: Inspection, o: Observation, dom: DomEvidence, contro
   if (r.width <= 0 || r.height <= 0 || r.x < left || r.y < top || r.x + r.width > right || r.y + r.height > bottom) throw new Error('TARGET_NOT_FULLY_IN_VIEW');
   const scroll = node.layout.scrollAncestorIds.filter(id => seen.has(id)).map(id => {
     const n = nodes.get(id);
-    if (!n?.layout || !n.styles || n.gaps.length) throw new Error('SCROLL_EVIDENCE_MISSING');
+    if (!n?.layout || !n.styles || hasRelevantGaps(n)) throw new Error('SCROLL_EVIDENCE_MISSING');
     const root = env.scrollingElement?.nodeId === id ? env.scrollingElement : undefined;
     return { nodeId: id, left: root?.scrollLeft ?? n.layout.scroll.left, top: root?.scrollTop ?? n.layout.scroll.top,
       width: root?.clientWidth ?? n.layout.client.width, height: root?.clientHeight ?? n.layout.client.height,
@@ -103,14 +113,22 @@ export class ObservedOcclusionTracker {
     // Work on a copy: a capacity or evidence failure cannot partly commit revisions.
     const tracks = structuredClone(this.tracks); const checks: RuleCheck[] = []; const visited = new Set<string>();
     const scenario = o && canonical([o.documentId, o.url, o.context, inspection.focus.scopeId, inspection.focus.regionKey]);
-    const revise = (track: Track, result: RuleAssessment, current?: Sample, target?: RuleCheck['target'], moved: string[] = []) => {
+    const revise = (track: Track, result: RuleAssessment, current?: Sample, target?: RuleCheck['target'], moved: string[] = [], currentObservation?: RuleCheck) => {
       const prior = track.sample;
+      if (current?.blocked && (result.code === 'OCCLUSION_SUSPECTED' || result.code === 'OBSERVED_POINTER_REQUIREMENT_FAILED' || result.code === 'OCCLUSION_STILL_OBSERVED' && result.severity === 'warning')) {
+        track.lastObservedFinding = findingSnapshot({ ...result, target, facts: { ...result.facts, sample: json(current) } }, inspection.captureId, track.label);
+        track.findingSample = current;
+      }
       track.revision++;
       track.evidence = [...new Set([...track.evidence, inspection.captureId])].slice(-32);
       if (current) track.sample = current;
       checks.push({ ...result, target, evidence: [...new Set([track.firstCaptureId, ...(track.confirmedAt ? [track.confirmedAt] : []), ...track.evidence, ...result.evidence])],
         facts: { ...result.facts, issueId: track.id, identityId: track.identityId, lifecycle: track.lifecycle, revision: track.revision,
-          firstCaptureId: track.firstCaptureId, ...(track.confirmedAt ? { confirmedAt: track.confirmedAt } : {}),
+          firstCaptureId: track.firstCaptureId,
+          observationStatus: observationStatus(!!current && track.lifecycle !== 'unverified', !!track.lastObservedFinding),
+          ...(track.lastObservedFinding ? { lastObservedFinding: track.lastObservedFinding } : {}),
+          ...(currentObservation ? { currentObservation: findingSnapshot(currentObservation, inspection.captureId, o?.controls.find(c => c.localId === currentObservation.target?.nodeId)?.name ?? track.label) } : {}),
+          ...(track.confirmedAt ? { confirmedAt: track.confirmedAt } : {}),
           changedScrollContainers: moved, attribution: 'observed_during_interval', coverage: 'five-pointer-samples; fully-in-view; not-whole-control',
           ...(prior && current ? { comparison: json({ beforeCaptureId: prior.captureId, beforeObservationId: prior.observationId,
             sameInstance: prior.instanceId === current.instanceId, scrollChanges: moved.map(nodeId => ({ nodeId,
@@ -122,45 +140,84 @@ export class ObservedOcclusionTracker {
       if (!control || !dom || !o) { checks.push(check); continue; }
       const key = canonical([scenario, control.identityId]);
       const track = tracks.get(key);
-      if (track) visited.add(key);
       const result = (verdict: RuleAssessment['verdict'], severity: RuleAssessment['severity'], code: string, actual: string): RuleAssessment => ({
         verdict, severity, code, actual, expected: 'A comparable five-point pointer sample of the same logical control', evidence: [inspection.captureId],
       });
       let current: Sample | undefined; let reason = check.code;
-      if (!control.identityId || control.hypothesisId || o.controls.filter(c => c.identityId === control.identityId).length !== 1) reason = 'IDENTITY_UNCERTAIN';
-      else if (check.verdict === 'pass' || check.code === 'SAMPLE_INTERCEPTED') {
+      const reliableIdentity = control.identityId && !control.hypothesisId && o.controls.filter(c => c.identityId === control.identityId).length === 1;
+      if (check.verdict === 'pass' || check.code === 'SAMPLE_INTERCEPTED') {
         try { current = sample(inspection, o, dom, control); } catch (error) { reason = String(error); }
       }
+      const currentCheck: RuleCheck = current ? {
+        ...result(current.reachable ? 'pass' : 'unknown', current.reachable ? 'info' : 'warning', current.reachable ? 'OBSERVED_POINT_REACHABLE' : 'OCCLUSION_SUSPECTED',
+          current.reachable ? 'At least one captured point reaches the target' : 'Five captured points are blocked; impact and requirements remain unverified'),
+        target: check.target, facts: { sample: json(current), coverage: 'five-pointer-samples; not-whole-control' },
+      } : { ...check, ...(reason !== check.code ? { verdict: 'unknown' as const, code: 'OCCLUSION_RECHECK_UNAVAILABLE', actual: reason } : {}) };
+      if (['Error: TARGET_EXCEEDS_VIEWPORT', 'Error: TARGET_EXCEEDS_CLIP_BOUNDS'].includes(reason)) {
+        currentCheck.code = reason.slice('Error: '.length);
+        currentCheck.actual = 'The target is larger than the captured viewport or clipping bounds; scrolling alone cannot satisfy full-view coverage';
+        currentCheck.facts = { ...currentCheck.facts, observationStatus: 'unsupported',
+          recheck: 'requires-viewport-or-layout-change', coverage: 'full-view-five-point-check-unavailable',
+          sampledObservation: findingSnapshot(check, inspection.captureId, control.name) };
+        currentCheck.nextSteps = ['Use a rule that supports partial-view targets, or reassess after a viewport or layout change'];
+      }
+      if (!reliableIdentity) {
+        // A capture can be assessed without claiming it is the previous component.
+        if (track && !visited.has(key) && track.lifecycle !== 'resolved') {
+          visited.add(key);
+          track.lifecycle = 'unverified'; track.sample = undefined;
+          revise(track, result('unknown', 'warning', 'OCCLUSION_RECHECK_UNAVAILABLE', 'IDENTITY_UNCERTAIN'));
+        }
+        checks.push(currentCaptureOnly(currentCheck));
+        continue;
+      }
+      if (track) visited.add(key);
       if (!current) {
         if (track && track.lifecycle !== 'resolved') {
           track.lifecycle = 'unverified'; track.sample = undefined;
-          revise(track, result('unknown', 'warning', 'OCCLUSION_RECHECK_UNAVAILABLE', reason), undefined, check.target);
-        } else checks.push({ ...check, ...(reason !== check.code ? { verdict: 'unknown' as const, code: 'OCCLUSION_RECHECK_UNAVAILABLE', actual: reason } : {}) });
+          revise(track, result('unknown', 'warning', 'OCCLUSION_RECHECK_UNAVAILABLE', reason), undefined, check.target, [], currentCheck);
+        } else checks.push(currentCheck);
         continue;
       }
       if (!track) {
         if (current.reachable) { checks.push({ ...result('pass', 'info', 'OBSERVED_POINT_REACHABLE', 'At least one captured point reaches the target'), target: check.target }); continue; }
         if (tracks.size >= this.options.maxTracked) throw new Error('TRACKER_CAPACITY_EXCEEDED');
         const created: Track = { id: crypto.randomUUID(), key, identityId: control.identityId!, lifecycle: 'suspected', revision: 0,
-          firstCaptureId: inspection.captureId, evidence: [], sample: current };
+          firstCaptureId: inspection.captureId, label: control.name, evidence: [], sample: current };
         tracks.set(key, created); visited.add(key);
-        revise(created, result('unknown', 'warning', 'OCCLUSION_SUSPECTED', 'Five points are blocked; later comparable evidence is needed'), current, check.target);
+        revise(created, currentCheck, current, check.target);
         continue;
       }
       const prior = track.sample;
-      const comparable = prior && prior.instanceId === current.instanceId && prior.binding === current.binding && prior.geometry === current.geometry && shape(prior) === shape(current);
-      if (!comparable) {
-        track.lifecycle = 'unverified';
-        revise(track, result('unknown', 'warning', 'OCCLUSION_BASELINE_CHANGED', prior?.instanceId !== current.instanceId && prior ? 'Logical identity matched, but its DOM instance was rebuilt; no scroll recovery is inferred' : 'Comparable target, geometry or prior evidence is missing; establish a new baseline'), current, check.target);
+      if (track.lifecycle === 'resolved' && current.reachable && !comparableSamples(prior, current)) {
+        track.sample = current;
+        checks.push({ ...currentCheck, facts: { ...currentCheck.facts, observationStatus: 'current', tracking: 'current-capture-only' } });
         continue;
       }
-      const moved = current.scroll.filter((c, i) => Math.abs(c.left - prior.scroll[i].left) > .5 || Math.abs(c.top - prior.scroll[i].top) > .5).map(c => c.nodeId);
+      const historicalMismatch = current.reachable && track.lifecycle !== 'resolved' && !comparableSamples(track.findingSample, current);
+      if (!comparableSamples(prior, current) || historicalMismatch) {
+        const continuity = { status: 'baseline-changed', code: 'OCCLUSION_BASELINE_CHANGED',
+          reason: historicalMismatch ? 'FINDING_BINDING_OR_GEOMETRY_CHANGED' : !prior ? 'PREVIOUS_SAMPLE_UNAVAILABLE' : 'INSTANCE_BINDING_OR_GEOMETRY_CHANGED',
+          previousCaptureId: prior?.captureId ?? null };
+        track.sample = undefined;
+        if (current.blocked) {
+          track.lifecycle = 'suspected'; track.label = control.name;
+          revise(track, { ...currentCheck, facts: { ...currentCheck.facts, continuity } }, current, check.target);
+        } else {
+          track.lifecycle = 'unverified';
+          revise(track, { ...result('unknown', 'warning', 'OCCLUSION_BASELINE_CHANGED',
+            'The historical finding cannot be compared with this observation; the current assessment is independent'), facts: { continuity } }, current, undefined, [], currentCheck);
+          checks.push({ ...currentCheck, facts: { ...currentCheck.facts, observationStatus: 'current', continuity, tracking: 'current-capture-only' } });
+        }
+        continue;
+      }
+      const moved = current.scroll.filter((c, i) => Math.abs(c.left - prior!.scroll[i].left) > .5 || Math.abs(c.top - prior!.scroll[i].top) > .5).map(c => c.nodeId);
       const requirement = this.options.requirements.find(r => r.identityId === control.identityId);
       if (current.reachable) {
         track.lifecycle = 'resolved';
         revise(track, result('pass', 'info', moved.length ? 'OCCLUSION_RECOVERED_AFTER_SCROLL' : 'OCCLUSION_NO_LONGER_OBSERVED',
           moved.length ? 'The same target has a reachable sample after an ancestor scroll position changed; causality is not established' : 'The same target now has a reachable sample; the original obstruction remains historical evidence'), current, check.target, moved);
-      } else if (requirement && prior.blocked && moved.length) {
+      } else if (requirement && prior!.blocked && moved.length) {
         track.lifecycle = 'confirmed'; track.confirmedAt = inspection.captureId;
         revise(track, { ...result('fail', 'error', 'OBSERVED_POINTER_REQUIREMENT_FAILED', 'All five points remain blocked after a relevant scroll. The declared requirement at this observed position failed; permanent unreachability is not established'),
           expected: requirement.reason, evidence: [inspection.captureId, ...requirement.evidence] }, current, check.target, moved);

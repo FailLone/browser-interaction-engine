@@ -17,10 +17,13 @@ import { now } from './util.js';
 import { collectRegionCandidates } from './region-candidates.js';
 import { discoverStructuralLists, describeStructuralLists } from './structural-lists.js';
 import type { DiscoveryScanPlan, DiscoverySnapshot } from './discovery-scan.js';
+import { collectBoundaryExits } from './collect-boundary-exits.js';
+import { dismissalReference, exitCandidateKey, hasReviewedDismissal, preservedControlFacts, type BoundaryExitDispatch } from './boundary-exit.js';
 import { collectOverlays } from './overlays.js';
 import { collectLiveContent } from './live-content.js';
 import { collectActionEvidence } from './action-evidence.js';
 import { collectEvidence } from './collect-evidence.js';
+import { installImageResourceEvidence } from './image-resource-evidence.js';
 import { collectIdentityContexts } from './identity-context.js';
 import { collectPopupRelations } from './popup-relations.js';
 import { collectComponents } from './components.js';
@@ -34,12 +37,13 @@ type DOMSnapshot = {
   documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[];
   overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>;
   components?: Observation['components']; regionCandidates?: Observation['regionCandidates']; structuralLists?: Observation['structuralLists'];
+  boundaryExitCandidates?: Observation['boundaryExitCandidates'];
   actionDiscovery?: Observation['actionDiscovery']; discoveryScan?: DiscoverySnapshot;
   scroll: Observation['scroll']; scrollContainers?: Observation['scrollContainers']; gaps: Gap[]; detailDom?: DomEvidence;
 };
 
 // Runs in the page without framework knowledge or DOM mutation.
-function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, scrollCollector: typeof collectScrollContainers, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan) {
+function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, scrollCollector: typeof collectScrollContainers, exitCollector: typeof collectBoundaryExits, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
@@ -251,6 +255,19 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   for(const list of structuralScan.candidates)for(const member of list.members)selected.add(member.element);
   const structuralMembers=new Map(structuralScan.candidates.flatMap(list=>list.members.map(member=>[member.element,{ownerInstanceId:instance(list.owner),template:list.template,slot:member.slot,rowInstanceId:instance(member.row),...(member.recordKey?{recordKey:member.recordKey}:{})}] as const)));
   const all = [...selected];
+  const reuseBindings = new Map<Element, Control['reviewReuseBinding']>();
+  const reuseBinding = (owner: Element): Control['reviewReuseBinding'] => {
+    if (reuseBindings.has(owner)) return reuseBindings.get(owner);
+    const ancestors: NonNullable<Control['reviewReuseBinding']>['ancestors'] = [];
+    let parent: Element | null = owner;
+    for (; parent && ancestors.length < 32; parent = parent.parentElement) {
+      ancestors.push({ tag: parent.tagName.toLowerCase(), selector: selector(parent),
+        attributes: Object.fromEntries(Array.from(parent.attributes).filter(a => a.name !== 'style').map(a => [a.name, a.value])),
+        label: parent.getAttribute('aria-label') || (parent.getAttribute('aria-labelledby') || '').split(/\s+/).map(id => document.getElementById(id)?.textContent || '').join(' ') });
+    }
+    const result = !parent && JSON.stringify(ancestors).length <= 16000 ? { ancestors } : undefined;
+    reuseBindings.set(owner, result); return result;
+  };
   const classificationBinding = (el: Element): Control['classificationBinding'] => {
     const nodes: NonNullable<Control['classificationBinding']>['nodes'] = [];
     const text = el.textContent || ''; let characters = text.length, truncated = text.length > 8000;
@@ -339,12 +356,15 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const reviewBinding = { parentInstanceId: instance(el.parentElement || document.documentElement),
       attributes: Object.fromEntries(['type','role','name','href','target','src','alt','title','form','formaction','formmethod','formtarget','aria-label','aria-labelledby','aria-describedby','aria-controls','aria-haspopup','popovertarget','popovertargetaction','command','commandfor','contenteditable','onclick','onchange','oninput','onkeydown','onmouseenter','onmouseover','onpointerenter'].filter(k=>el.hasAttribute(k)).map(k=>[k,el.getAttribute(k)!])),
       ...(boundForm ? {form:{instanceId:instance(boundForm),action:boundForm.action,method:boundForm.method,target:boundForm.target}} : {}) };
+    // No node IDs or geometry in this projection. Missing/bounded evidence cannot
+    // support reuse; this does not establish identity or an operation's purpose.
+    const reviewReuseBinding = visible && !list && !structuralItem && el.parentElement ? reuseBinding(el.parentElement) : undefined;
     return {
       localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey, ...(identityScope ? { identityScope } : {}), ...(liveContent ? { liveContent } : {}),
       ...(list ? { list: { instanceId: instance(list), role: list.tagName === 'SELECT' ? 'select' : 'listbox', label: label(list), selector: selector(list) } } : {}),
       ...(purposeBinding ? { purposeBinding } : {}),
       reviewAttributes: Object.fromEntries(Array.from(el.attributes).filter(a => /^data-(?!testid)|^name$/.test(a.name)).map(a => [a.name, a.value])),
-      reviewBinding, ...(structuralItem ? { structuralItem } : {}),
+      reviewBinding, reviewReuseBinding, ...(structuralItem ? { structuralItem } : {}),
       ...(!Object.values(capabilities.actionBasis).some(b => b.status === 'supported') ? { classificationBinding: classificationBinding(el) } : {}),
       region: regionKey(el.closest(regionSelector)), regionInstanceId: instance(el.closest(regionSelector) || body || document.documentElement), form: regionKey(el.closest('form')), formOwner: formOwner(el), selector: selector(el), rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
@@ -414,7 +434,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   const scrollSurfaces = scrollCollector(layers.overlays);
   if (scrollSurfaces.truncated) gaps.push({ code: 'SCROLL_CONTAINERS_TRUNCATED', message: 'Scroll container inventory was truncated' });
   if (scrollSurfaces.unsupported) gaps.push({ code: 'SCROLL_WRITING_MODE_UNSUPPORTED', message: 'Scroll traversal supports horizontal-tb, ltr containers' });
-  return { scrollContainers: scrollSurfaces.containers, documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, components, ...layers, discoveryScan, discoveryTopology, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
+  return { scrollContainers: scrollSurfaces.containers, documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, components, ...layers, boundaryExitCandidates: exitCollector(layers.overlays, instance, selector), discoveryScan, discoveryTopology, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
 
 export class BrowserAdapter implements InteractionDriver<Observation, SessionOptions> {
@@ -449,6 +469,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     });
     this.recorder = new RuntimeRecorder(this.options.evidence.maxRuntimeEntries, this.options.evidence.maxTextLength);
     if (this.options.evidence.enabled) this.recorder.attach(this.page);
+    if (this.options.evidence.enabled) await this.page.addInitScript(`(() => { const __name = fn => fn; (${installImageResourceEvidence.toString()})(); })()`);
     this.page.setDefaultTimeout(this.options.actionTimeoutMs);
     this.context.on('page', async p => { if (p !== this.page) { this.gaps.push({ code: 'UNSUPPORTED_NEW_TAB', message: `New tab blocked: ${p.url()}`, critical: true }); await p.close().catch(() => {}); } });
     this.page.on('dialog', async dialog => { this.gaps.push({ code: 'UNSUPPORTED_NATIVE_DIALOG', message: `${dialog.type()}: ${dialog.message()}; dismissed`, critical: true }); await dialog.dismiss().catch(() => {}); });
@@ -481,7 +502,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
     const args = `, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? discoverStructuralLists.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? describeStructuralLists.toString() : 'undefined'}, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}, ${this.discoveryPlan?.status === 'active' ? JSON.stringify(this.discoveryPlan) : 'undefined'}`;
-    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}, ${collectScrollContainers.toString()}${args}); })()`;
+    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}, ${collectScrollContainers.toString()}, ${collectBoundaryExits.toString()}${args}); })()`;
     const raw = await this.page.evaluate(source) as DOMSnapshot & { discoveryTopology: string[][]; discoveryScan: DiscoverySnapshot };
     const { discoveryTopology, ...dom } = raw;
     dom.discoveryScan.topologyKey = hash(discoveryTopology);
@@ -639,11 +660,28 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const { detailDom: _, ...observation } = dom;
     return { ...observation, navigation, evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
   }
+  private lastDismissal?: BoundaryExitDispatch & { actionId: string };
+  dismissalDispatch(actionId: string): BoundaryExitDispatch | undefined {
+    if (this.lastDismissal?.actionId !== actionId) return;
+    const { actionId: _id, ...dispatch } = this.lastDismissal; return { ...dispatch };
+  }
   async execute(action: ActionCandidate, control?: Control) {
     this.liveEpoch++;
     const page = this.page!;
     if (action.kind === 'scroll' && action.source === 'scroll-traversal') return this.traversalScroll(action, true);
     if (action.kind === 'scroll' && action.source === 'external-probe') return this.controlledScroll(action, control, true);
+    if (action.kind === 'dismiss') {
+      const dispatch = this.lastDismissal = { actionId: action.id, inputPhase: 'none', closedAfterMove: false } as NonNullable<typeof this.lastDismissal>;
+      const { point } = await this.validateDismissal(action);
+      try { await page.mouse.move(point.x, point.y); dispatch.inputPhase = 'pointer-move'; } catch (error) { dispatch.inputPhase = 'unknown'; throw error; }
+      const afterMove = await this.validateDismissal(action, true);
+      if (afterMove.closedAfterMove) { dispatch.closedAfterMove = true; return; }
+      try {
+        await page.mouse.down(); dispatch.inputPhase = 'pointer-down';
+        await page.mouse.up(); dispatch.inputPhase = 'click';
+      } catch (error) { dispatch.inputPhase = 'unknown'; await page.mouse.up().catch(() => {}); throw error; }
+      return;
+    }
     if (action.kind === 'history') {
       const target = historyTarget(action, await this.readHistory());
       if (!target) throw new EngineError('STALE_OBSERVATION', 'Native history no longer matches the observed return path');
@@ -764,7 +802,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (o.overlays?.length) add('press', 'Escape');
     return actions;
   }
-  async preflight(current: Observation, action?: ActionCandidate, reviewTargetLocalIds: string[] = []): Promise<PreflightResult> {
+  async preflight(current: Observation, action?: ActionCandidate, reviewTargetLocalIds: string[] = [], reuseTargetLocalIds: string[] = [], regionReuseCandidateIds: string[] = []): Promise<PreflightResult> {
     let live: Awaited<ReturnType<BrowserAdapter['readDOM']>>;
     try { live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
@@ -787,7 +825,20 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // These invariants and declared context apply to every operation, even local ones.
     const global = (o: typeof live | Observation) => canonical({ document: o.documentId, url: o.url, scroll: o.scroll, boundaries: o.boundaries });
     if (global(live) !== global(current) || boundaryBinding(live) !== boundaryBinding(current)) return 'stale';
+    if (action?.kind === 'dismiss') {
+      if (!hasReviewedDismissal(action, current)) return 'stale';
+      const ref = dismissalReference(action)!;
+      const candidate = live.boundaryExitCandidates?.find(c => c.id === ref.facts.candidateId);
+      const preserved = ref.facts.preserved as { localId: string; facts: string }[];
+      return candidate && exitCandidateKey(candidate) === ref.facts.binding && Array.isArray(preserved)
+        && preserved.every(p => preservedControlFacts(live.controls.find(c => c.localId === p.localId)) === p.facts) ? 'valid' : 'stale';
+    }
+    if (regionReuseCandidateIds.some(id=>canonical(current.regionCandidates?.find(c=>c.id===id)?.reuseBinding)
+      !== canonical(live.regionCandidates?.find(c=>c.id===id)?.reuseBinding))) return 'stale';
     const reviewTargets = new Set([...reviewTargetLocalIds, ...(action?.localId ? [action.localId] : [])]);
+    const reuseTargets = new Set([...reuseTargetLocalIds, ...(action?.localId && action.basis?.evidence.some(e => e.rule === 'reused-control-review/v1') ? [action.localId] : [])]);
+    if ([...reuseTargets].some(id => canonical(current.controls.find(c => c.localId === id)?.reviewReuseBinding)
+      !== canonical(live.controls.find(c => c.localId === id)?.reviewReuseBinding))) return 'stale';
     const activeIds = activeInteractionIds(current);
     const escapeExit = action?.kind === 'press' && action.value === 'Escape' && !action.controlId && !action.localId && action.boundary?.intent === 'exit' && action.boundary.key === current.boundaries?.at(-1)?.key;
     const scoped = this.options.exploration === 'controls' && !!activeIds && (escapeExit || reviewTargets.size > 0 && [...reviewTargets].every(id => activeIds.has(id)));
@@ -844,9 +895,30 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (target && action?.risk !== 'interface' && target.displayedText !== live.controls.find(c => c.instanceId === target.instanceId)?.displayedText) return 'stale';
     return 'valid';
   }
+  async validateDismissal(action: ActionCandidate, acceptClosedAfterMove = false) {
+    const ref = dismissalReference(action);
+    const live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Dismissal validation deadline exceeded');
+    const preserved = ref?.facts.preserved as { localId: string; facts: string }[] | undefined;
+    if (!ref || live.documentId !== ref.facts.documentId || live.url !== ref.facts.url || live.gaps.some(g => g.critical)
+      || !Array.isArray(preserved) || !preserved.every(p => preservedControlFacts(live.controls.find(c => c.localId === p.localId)) === p.facts)) throw new EngineError('STALE_DISMISSAL_TARGET', 'Outside point or boundary changed');
+    for (const rule of this.options.contextRules) {
+      const locator = this.page!.locator(rule.selector);
+      const value = await locator.count() === 1 ? rule.attribute ? await locator.getAttribute(rule.attribute) : await locator.evaluate(el => 'value' in el ? String((el as HTMLInputElement).value) : el.textContent?.trim() ?? '') : null;
+      if (canonical(value) !== canonical(action.preconditions.context[rule.key]?.value)) throw new EngineError('PRECONDITIONS_CHANGED', 'Declared context changed before outside click');
+    }
+    // Pointer departure can already dismiss a hover-sensitive panel. Verify the
+    // expected parent and preserved facts before omitting the now-unneeded click.
+    const parents = live.overlays.map(o => ({ key: o.key, kind: o.kind, parentKey: o.parentKey, parentRegion: o.parentRegion, instanceId: live.regions.find(r => r.key === o.key)?.instanceId }));
+    if (acceptClosedAfterMove && !live.boundaries.some(b => b.key === ref.facts.boundaryKey)
+      && canonical(parents) === canonical(ref.facts.parentOwners)) return { point: ref.facts.point as { x: number; y: number }, closedAfterMove: true };
+    const c = live.boundaryExitCandidates?.find(c => c.id === ref.facts.candidateId);
+    if (!c || exitCandidateKey(c) !== ref.facts.binding || action.value !== c.id || live.boundaries.at(-1)?.key !== c.boundaryKey) throw new EngineError('STALE_DISMISSAL_TARGET', 'Outside point or boundary changed');
+    return { point: c.point, closedAfterMove: false };
+  }
   async validate(action: ActionCandidate, control?: Control) {
     if (action.kind === 'scroll' && action.source === 'scroll-traversal') return this.traversalScroll(action, false);
     if (action.kind === 'scroll' && action.source === 'external-probe') return this.controlledScroll(action, control, false);
+    if (action.kind === 'dismiss') await this.validateDismissal(action);
     if (action.kind === 'focus' && (!control || !await this.page!.locator(control.selector).evaluate(el => el.matches('input:not([type=hidden]),textarea,select,button,a[href],[tabindex]') || (el as HTMLElement).isContentEditable))) throw new EngineError('INVALID_INPUT', 'Focus requires a focusable control');
     if (action.kind === 'history' && !historyTarget(action, await this.readHistory())) throw new EngineError('INVALID_INPUT', 'History return requires a previously observed GET entry');
     if (action.kind === 'scroll' && control) {

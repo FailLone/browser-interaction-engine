@@ -1,6 +1,8 @@
+export { traversalScrollSchema } from './scroll-containers.js';
 import { scrollProbeSchema } from './scroll-probe.js';
 export { scrollProbeSchema } from './scroll-probe.js';
 export type { ScrollProbeOptions } from './scroll-probe.js';
+import { hasReviewedDismissal } from './boundary-exit.js';
 import { nativeFormScope } from './dependencies.js';
 import { canonical, id, EngineError, type InteractionAdapter, type EvidenceStore, type Predicate, type InteractionScope } from '@interaction/core';
 import { BrowserAdapter } from './browser.js';
@@ -14,12 +16,15 @@ import { listGroups, structuralListGroups } from './list-groups.js';
 import { decisionScopes } from './decision-scopes.js';
 import type { ActionCandidate, Control, EngineHooks, Observation, Session, SessionOptions } from './types.js';
 export * from './types.js';
+export * from './boundary-exit.js';
 export * from './purpose-review.js';
 export * from './control-review.js';
 export * from './control-classification.js';
 export * from './discovery-scan.js';
+export * from './interventions.js';
+export { interventionResponseSchema, continuationSchema } from './schema.js';
 export { BrowserAdapter } from './browser.js';
-export { sessionSchema, commandSchema, regionReviewSchema, predicateSchema, domQuerySchema, artifactKindSchema } from './schema.js';
+export { sessionSchema, commandSchema, regionReviewSchema, reuseRegionReviewsSchema, revokeRegionReuseSchema, predicateSchema, domQuerySchema, artifactKindSchema } from './schema.js';
 export type { Command } from './schema.js';
 export { compareObservations, observableCanonical } from './model.js';
 
@@ -72,7 +77,7 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   returnAction(actions: ActionCandidate[], observation: Observation) {
     return actions.find(a => a.boundary?.intent === 'exit' && a.risk === 'interface' && a.basis?.status !== 'tentative' && !a.excluded
       && a.preconditions.visible && a.preconditions.enabled && !a.preconditions.blockers?.length
-      && (a.replayable && a.preconditions.identityResolved
+      && (hasReviewedDismissal(a, observation) || a.replayable && a.preconditions.identityResolved
         || a.observationId === observation.id && a.preconditions.targetResolved
           && (hasDeclaredBoundaryExit(a, observation) || hasObservedBoundaryExit(a, observation))));
   }
@@ -93,3 +98,5 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
 }
 
 export * from './inspection-contract.js';
+
+export * from './exploration-decision-reuse.js';

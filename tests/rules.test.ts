@@ -35,7 +35,7 @@ it.each(['healthy', 'pointer-transparent'])('passes only the sampled hit for %s,
   });
 });
 
-it.each(['fixed', 'sticky', 'endpoint', 'non-scrollable', 'tooltip', 'popover'])('keeps %s interception unresolved instead of inventing a permanent defect', async mode => {
+it.each(['fixed', 'sticky', 'endpoint', 'non-scrollable', 'tooltip'])('keeps %s interception unresolved instead of inventing a permanent defect', async mode => {
   await withFixture(mode, async (engine, inspection) => {
     const [report] = await runner.run(engine, inspection, targetPlan(engine, inspection));
     expect(report).toMatchObject({ verdict: 'unknown', severity: 'warning' });
@@ -44,6 +44,16 @@ it.each(['fixed', 'sticky', 'endpoint', 'non-scrollable', 'tooltip', 'popover'])
     if (mode === 'endpoint') {
       const o = engine.observation(inspection.sessionId); expect(o.scroll.y).toBe(o.scroll.maxY);
     }
+  });
+});
+
+it('limits a capture to the active popover without treating its background as healthy', async () => {
+  await withFixture('popover', async (engine, inspection) => {
+    expect(engine.observation(inspection.sessionId).overlays?.at(-1)?.kind).toBe('popover');
+    const [background] = await runner.run(engine, inspection, targetPlan(engine, inspection));
+    expect(background.checks[0]).toMatchObject({ verdict: 'not-applicable', code: 'OUTSIDE_ACTIVE_SCOPE' });
+    const [inside] = await runner.run(engine, inspection, targetPlan(engine, inspection, 'Inside'));
+    expect(inside.verdict).toBe('pass');
   });
 });
 

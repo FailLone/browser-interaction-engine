@@ -1,0 +1,13 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine
+
+ ✓ tests/scroll-traversal.test.ts (3 tests) 12639ms
+   ✓ traverses both ends from the middle of a page without abandoning the reverse sweep  4166ms
+   ✓ traverses both ends from the middle of a vertical-container without abandoning the reverse sweep  5162ms
+   ✓ traverses both ends from the middle of a horizontal-container without abandoning the reverse sweep  3310ms
+ ✓ tests/scroll-traversal-order.test.ts (9 tests) 10ms
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  19:43:54
+   Duration  13.57s (transform 276ms, setup 0ms, collect 663ms, tests 12.65s, environment 0ms, prepare 68ms)

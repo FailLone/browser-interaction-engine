@@ -15,6 +15,7 @@
     }
   },
   "dependencies": {
+    "@interaction/rules": "workspace:*",
     "@interaction/browser": "workspace:*"
   }
 }

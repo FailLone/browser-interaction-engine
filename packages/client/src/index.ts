@@ -1,5 +1,7 @@
 import type { InspectionOptionsInput, InspectionResult, CaptureProfile, inspectionCapabilities, validateCaptureProfile } from '@interaction/browser';
 import type { ScrollProbeOptions } from '@interaction/browser';
+import type { RulePluginInfo, RulePluginRun, RulePluginRunRequest, RuleAutomation, RuleAutomationInput, RuleRunSummary } from '@interaction/rules';
+export type { RulePluginInfo, RulePluginRun, RulePluginRunRequest, RulePluginResult, RuleCheck, RuleAutomation, RuleRunSummary } from '@interaction/rules';
 import type { BrowserComponent, ComponentDetails, ComponentDescription, ComponentDescriptionInput } from '@interaction/browser';
 import type { BrowserDiffDetails, Command, ActionCandidate, ActionAttempt, Checkpoint, EngineEvent, FrontierItemView, BrowserFrontierCoverageGroup, Graph, Observation, Session, SessionOptions } from '@interaction/browser';
 import type { ObservationDetails, ControlDetails, RegionDetails, DomResult, DomQuery, EventContext, ArtifactKind, EvidenceOptions, EvidenceRetentionPolicy, SubscriptionOptions, BrowserEngine, evidenceCapabilities } from '@interaction/browser';
@@ -12,6 +14,12 @@ export class InteractionClient {
     if (!response.ok) throw Object.assign(new Error(result.error?.message || response.statusText), result.error || {}); return result as T;
   }
   sessions() { return this.request<Session[]>('/sessions'); }
+  rulePlugins() { return this.request<{ plugins: RulePluginInfo[]; maxHistory: number }>('/rule-plugins'); }
+  ruleAutomation(id: string) { return this.request<{ automation: RuleAutomation | null }>(`/sessions/${encodeURIComponent(id)}/rule-automation`); }
+  setRuleAutomation(id: string, input: RuleAutomationInput) { return this.request<RuleAutomation>(`/sessions/${encodeURIComponent(id)}/rule-automation`, input); }
+  ruleRunSummary(id: string) { return this.request<{ items: RuleRunSummary[]; hasMore: boolean }>(`/sessions/${encodeURIComponent(id)}/rule-run-summary`); }
+  ruleRuns(id: string, inspectionId: string) { return this.request<{ items: RulePluginRun[] }>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/rule-runs`); }
+  runRules(id: string, inspectionId: string, request: RulePluginRunRequest) { return this.request<RulePluginRun>(`/sessions/${encodeURIComponent(id)}/inspections/${encodeURIComponent(inspectionId)}/rule-runs`, request); }
   evidenceCapabilities() { return this.request<typeof evidenceCapabilities>('/capabilities/evidence'); }
   createSession(options: Pick<SessionOptions, 'url'> & Partial<Omit<SessionOptions, 'evidence' | 'evidenceRetention' | 'inspection'>> & { inspection?: InspectionOptionsInput; evidence?: Partial<EvidenceOptions>; evidenceRetention?: Pick<EvidenceRetentionPolicy, 'mode'> & Partial<EvidenceRetentionPolicy> }) { return this.request<Session>('/sessions', options); }
   inspectionCapabilities() { return this.request<typeof inspectionCapabilities>('/capabilities/inspection'); }
@@ -77,9 +85,21 @@ export class InteractionClient {
   revokeControlClassification(id:string,revocation:import('@interaction/browser').RevokeControlClassificationInput) {return this.command<import('@interaction/browser').ControlClassificationRecord>(id,{type:'revokeControlClassification',revocation});}
   controlReviews(id:string,options:{offset?:number;limit?:number;status?:string}={}) {return this.list<import('@interaction/browser').ControlReviewRecord>(id,'control-reviews',options);}
   reviewControls(id:string,review:import('@interaction/browser').ControlReviewInput) {return this.command<import('@interaction/browser').ControlReviewRecord[]>(id,{type:'reviewControls',review:{...review,reviews:review.reviews.map(r=>({...r,replayable:r.replayable??false}))}});}
+  reuseControlReviews(id:string,review:import('@interaction/browser').ReuseControlReviewsInput) {return this.command<import('@interaction/browser').ControlReviewRecord[]>(id,{type:'reuseControlReviews',review});}
   revokeControlReview(id:string,revocation:import('@interaction/browser').RevokeControlReviewInput) {return this.command<import('@interaction/browser').ControlReviewRecord>(id,{type:'revokeControlReview',revocation});}
-  reviewRegions(id: string, review: import('@interaction/browser').RegionReviewInput) { return this.command<import('@interaction/browser').RegionReviewRecord>(id, { type: 'reviewRegions', review: { ...review, rejectedCandidateIds: review.rejectedCandidateIds || [], regions: review.regions.map(r => ({ ...r, pageTraversal: r.pageTraversal || false })) } }); }
+  boundaryExitMaterial(id: string) { return this.request<import('@interaction/browser').BoundaryExitMaterial>(`/sessions/${encodeURIComponent(id)}/boundary-exit`); }
+  reviewBoundaryExit(id: string, review: import('@interaction/browser').BoundaryExitReviewInput) { return this.command<import('@interaction/browser').BoundaryExitReviewRecord>(id, { type: 'reviewBoundaryExit', review: { ...review, decision: review.decision.mode === 'attempt' ? { ...review.decision, preserveControlIds: review.decision.preserveControlIds || [] } : review.decision } }); }
+  reuseRegionReviews(id:string,review:import('@interaction/browser').ReuseRegionReviewsInput) { return this.command<import('@interaction/browser').RegionReviewRecord>(id,{type:'reuseRegionReviews',review}); }
+  revokeRegionReuse(id:string,revocation:import('@interaction/browser').RevokeRegionReuseInput) { return this.command<import('@interaction/browser').RegionReviewRecord>(id,{type:'revokeRegionReuse',revocation}); }
+  reviewRegions(id: string, review: import('@interaction/browser').RegionReviewInput) { return this.command<import('@interaction/browser').RegionReviewRecord>(id, { type: 'reviewRegions', review: { ...review, update: review.update && { ...review.update, removeRegionKeys: review.update.removeRegionKeys || [] }, regions: review.regions.map(r => ({ ...r, pageTraversal: r.pageTraversal || false })) } }); }
+  explorationDecisionReuseMaterial(id: string) { return this.request<import('@interaction/browser').ExplorationDecisionReuseMaterial>(`/sessions/${encodeURIComponent(id)}/exploration-decision-reuse`); }
+  reviewExplorationDecisionReuse(id: string, review: import('@interaction/browser').ReviewExplorationDecisionReuseInput) { return this.command<import('@interaction/browser').ExplorationDecisionReuseRecord>(id, { type: 'reviewExplorationDecisionReuse', review }); }
+  reuseExplorationDecisions(id: string, review: import('@interaction/browser').ReuseExplorationDecisionsInput) { return this.command<import('@interaction/browser').ExplorationGroup[]>(id, { type: 'reuseExplorationDecisions', review }); }
+  revokeExplorationDecisionReuse(id: string, revocation: import('@interaction/browser').RevokeExplorationDecisionReuseInput) { return this.command<import('@interaction/browser').ExplorationDecisionReuseRecord>(id, { type: 'revokeExplorationDecisionReuse', revocation }); }
   explorationReviewMaterial(id: string) { return this.request<import('@interaction/browser').ExplorationReviewMaterial>(`/sessions/${encodeURIComponent(id)}/exploration-review`); }
+  interventionMaterial(id: string, since?: string) { return this.request<import('@interaction/browser').InterventionMaterial>(`/sessions/${encodeURIComponent(id)}/interventions${since ? `?${new URLSearchParams({ since })}` : ''}`); }
+  respondToIntervention(id: string, response: import('@interaction/browser').InterventionResponseInput) { return this.command<Awaited<ReturnType<BrowserEngine['respondToIntervention']>>>(id, { type: 'respondToIntervention', response: response as Extract<Command, { type: 'respondToIntervention' }>['response'] }); }
+  continueExploration(id: string, continuation: import('@interaction/browser').ContinueExplorationInput) { return this.command<Awaited<ReturnType<BrowserEngine['continueExploration']>>>(id, { type: 'continueExploration', continuation }); }
   decideExplorationGroups(id: string, resolutions: import('@interaction/browser').ExplorationGroupResolution[]) {
     return this.command<import('@interaction/browser').ExplorationGroup[]>(id, { type: 'decideExplorationGroups', resolutions });
   }

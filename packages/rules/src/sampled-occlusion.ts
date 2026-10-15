@@ -21,8 +21,9 @@ function assess(context: RuleContext, includeDisabled: boolean): RuleAssessment 
   if (!control.visible || (!includeDisabled && !control.enabled) || chain.some(n => n.attributes?.inert !== undefined)) {
     return result('not-applicable', 'INACTIVE_CONTROL', 'Control is hidden, disabled or inside an inert subtree');
   }
-  // Only a known modal outside the target's subtree justifies this exception.
-  // Menus, tooltips, popovers and fixed/sticky positioning are not blanket exemptions.
+  // Preserve the modal-specific explanation. Other active boundaries are
+  // capture-scoped exclusions below, never proof of background health.
+  // Tooltip roles and fixed/sticky positioning alone confer no exemption.
   if (context.inspection.focus.confidence !== 'observed') return result('unknown', 'SCOPE_UNKNOWN', 'Current interaction scope is not established');
   const overlays = observation.overlays ?? [];
   const modal = overlays.filter(o => o.kind === 'modal').at(-1);
@@ -36,6 +37,8 @@ function assess(context: RuleContext, includeDisabled: boolean): RuleAssessment 
     return false;
   });
   if (modal && dom.regionRoots[modal.key] && !belongsToModal) return result('not-applicable', 'MODAL_BACKGROUND', 'Control belongs to the background of an observed modal', { evidence: [...evidence, `overlay:${modal.key}`] });
+  const active = overlays.at(-1);
+  if (active && !active.controlIds.includes(control.localId)) return result('not-applicable', 'OUTSIDE_ACTIVE_SCOPE', 'Control is outside the active interaction boundary');
   const viewport = dom.environment?.layoutViewport; const rect = node.rect;
   if (!viewport || !rect || dom.spatialVersion !== 1) return result('unknown', 'GEOMETRY_UNAVAILABLE', 'Compatible geometry is missing');
   if (rect.width <= 0 || rect.height <= 0 || rect.x >= viewport.width || rect.y >= viewport.height || rect.x + rect.width <= 0 || rect.y + rect.height <= 0) {
