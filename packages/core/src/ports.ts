@@ -42,7 +42,7 @@ export interface InteractionDriver<O extends Observation, S extends SessionOptio
   connected(): boolean;
   capture(observationId: string): Promise<ObservationData<O>>;
   discover(observation: O, session: Session<S>, invoke: HookInvoker): Promise<ActionCandidate[]>;
-  preflight(observation: O, action?: ActionCandidate): Promise<PreflightResult>;
+  preflight(observation: O, action?: ActionCandidate, reviewTargetLocalIds?: string[]): Promise<PreflightResult>;
   validate(action: ActionCandidate, control?: O['controls'][number]): Promise<void>;
   execute(action: ActionCandidate, control?: O['controls'][number]): Promise<void>;
   reopen(): Promise<void>;

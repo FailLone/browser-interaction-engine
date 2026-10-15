@@ -1,0 +1,49 @@
+{
+  "observationId": "fb3ffc96-e822-4802-80bd-06b7220d1847",
+  "source": "gpt-5.6-sol/low",
+  "reviews": [
+    {
+      "localId": "d2e0e1b0-7347-4e93-8c5d-c83573853e3d:584",
+      "kind": "click",
+      "risk": "interface",
+      "replayable": false,
+      "reason": "Select 1INCH as one non-current representative from the source-currency chooser. This tests that the chooser can change the source asset and, if it navigates to a 1INCH conversion URL, only arrival and return are in scope; the destination page must not be explored further.",
+      "evidence": [
+        "The screenshot shows an open source-currency popup beneath the BTC selector with visible rows BTC, 0G, 1INCH, 2Z, and A.",
+        "The current :584 node is a visible and enabled native button named 1INCH inside listbox owner :575.",
+        "The node has a supported native-button click action, a confirmed hit target, and no current blockers.",
+        "BTC is visibly selected with a checkmark, while 1INCH is a distinct non-current row, so selecting 1INCH exercises a real state change rather than reselecting the current value.",
+        "The list contains a search field and a virtual scroll area with maxY 40810, demonstrating a very large currency collection for which exhaustive traversal is disproportionate to entry-page UI coverage."
+      ]
+    }
+  ],
+  "scopeDecision": {
+    "groupId": "242c8775-1340-42d1-851c-6e65c03e8c6e",
+    "revision": 1,
+    "decision": {
+      "mode": "sample",
+      "sampleKeys": [
+        "18532811e03183ce401ef52b4a85b739e887116f8e4280dc6c08463d2157dbec"
+      ],
+      "source": "gpt-5.6-sol/low",
+      "evidence": [
+        "All six currently observed rows share listbox owner :575, native button structure, and click operation, which supports treating them as a structural similar-list for interaction sampling.",
+        "The virtual list has maxY 40810, so the six observed rows are only a viewport slice and exhaustive traversal would not be appropriate for this entry-page inspection.",
+        "1INCH is visible, hittable, and differs from the currently selected BTC, making it a useful finite sample of the select-and-update or select-and-navigate behavior.",
+        "Sampling one member validates the list interaction pattern without claiming coverage of the unselected currencies or their business-specific destination content."
+      ]
+    }
+  },
+  "nextAction": {
+    "localId": "d2e0e1b0-7347-4e93-8c5d-c83573853e3d:584",
+    "kind": "click",
+    "reason": "Persist this member review first. Because that review may change the group revision and member key, do not execute revision-1 sample key yet; re-observe scopes and confirm the current 1INCH member before applying the refreshed sample decision."
+  },
+  "unresolved": [
+    "The list is genuinely open: visible rows and Search are present in the screenshot, the click diff changed the list controls from hidden to visible, and a visible scrollable list container appeared.",
+    "The revision-1 sample key is provisional because recording the 1INCH purpose review can revise the group. A later decision must use a member whose observationId matches the then-current material and must recheck label, localId, owner, operation, and purpose.",
+    "Unselected BTC, 0G, 2Z, A, and AAOI remain untested. Sampling 1INCH does not mark them covered.",
+    "The list search input :578 is a separate interaction and remains untested; if tested later, use a real bounded query such as 1INCH rather than the generated value ‘example’.",
+    "If selecting 1INCH changes the URL or document, treat that as a destination page boundary, verify arrival, decide page skip, return to the BTC-to-USD entry page, and require fresh controls for the returned document."
+  ]
+}

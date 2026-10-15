@@ -6,6 +6,7 @@ import { DiffQueries } from './diff-details.js';
 import { describeFrontier, groupFrontier } from './frontier.js';
 import { ExplorationGroups, validateExplorationProposals } from './exploration-groups.js';
 import { explorationReviewMaterial } from './exploration-review.js';
+import { auditExploration } from './exploration-audit.js';
 import type { ExplorationGroup, ExplorationGroupDecision, ExplorationGroupResolution } from './types.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
 import type { EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
@@ -16,7 +17,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   private readonly adapter: InteractionAdapter<O, S>;
   private readonly hooks: EngineHooks<O, S>;
   protected driver?: InteractionDriver<O, S>;
-  private activeId?: string;
+  protected activeId?: string;
   private queue: Promise<unknown> = Promise.resolve();
   private runner?: Promise<void>;
   private pauseRequested = true;
@@ -35,9 +36,12 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   protected async captureFailed(_sessionId: string, _observationId: string, _error: unknown): Promise<void> {}
   protected async beforeAction(_sessionId: string): Promise<void> {}
   /** Composition policy runs before final constraints; it must not alter captured facts. */
+  protected afterExplorationDecisions(_sessionId: string): void {}
   protected prepareActions(actions: ActionCandidate[], _observation: O): ActionCandidate[] { return actions; }
+  /** Reviewed capabilities precede caller action policy, which may still veto them. */
+  protected async reviewActions(actions: ActionCandidate[], _observation: O): Promise<ActionCandidate[]> { return actions; }
   protected validatePreparedAction(_action: ActionCandidate, _observation: O): void {}
-  protected explorationScopes(_actions: ActionCandidate[], _observation: O): import('./types.js').ExplorationGroupProposal[] { return []; }
+  protected explorationScopes(_actions: ActionCandidate[], _observation: O): import('./types.js').ExplorationGroupProposal[] | Promise<import('./types.js').ExplorationGroupProposal[]> { return []; }
   /** Composition navigation policy runs in the queue before scheduling any automatic work. */
   protected async beforeExplorationStep(_sessionId: string): Promise<'continue' | 'changed' | 'paused'> { return 'continue'; }
   protected explorationCandidates(items: FrontierItem[], _observation: O): FrontierItem[] { return items; }
@@ -62,7 +66,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if (committed && canonical(committed) === canonical(event)) this.events.emit('event', event);
     }); return event;
   }
-  private async hook<T>(sessionId: string, name: string, fn: () => Promise<T> | T): Promise<{ value?: T; error?: string }> {
+  protected async hook<T>(sessionId: string, name: string, fn: () => Promise<T> | T): Promise<{ value?: T; error?: string }> {
     try { return { value: await timeout(Promise.resolve().then(fn), 5000, `Hook ${name} timed out`) }; }
     catch (error) { const message = String(error); this.emit(sessionId, 'hook.error', { name, message }); return { error: message }; }
   }
@@ -83,7 +87,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   decideExplorationGroup(sessionId: string, groupId: string, revision: number, decision: ExplorationGroupDecision) {
     return this.enqueueMeasured(sessionId, async () => {
       this.session(sessionId);
-      return this.store.transaction(() => this.groups.decide(sessionId, groupId, revision, decision));
+      return this.store.transaction(() => { const result = this.groups.decide(sessionId, groupId, revision, decision); this.afterExplorationDecisions(sessionId); return result; });
     });
   }
   explorationReviewMaterial(sessionId: string) {
@@ -92,7 +96,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   decideExplorationGroups(sessionId: string, resolutions: ExplorationGroupResolution[]) {
     return this.enqueueMeasured(sessionId, async () => {
       this.session(sessionId);
-      return this.store.transaction(() => this.groups.decideMany(sessionId, resolutions));
+      return this.store.transaction(() => { const result = this.groups.decideMany(sessionId, resolutions); this.afterExplorationDecisions(sessionId); return result; });
     });
   }
   private outsideBoundary(action: ActionCandidate) { return action.preconditions.blockers?.some(b => b.code === 'outside_active_boundary'); }
@@ -113,7 +117,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   report(sessionId: string) {
     const frontier = this.list<FrontierItem>(sessionId, 'frontier'); const attempts = this.list<ActionAttempt>(sessionId, 'attempt'); const observations = this.list<O>(sessionId, 'observation');
     const counts = (items: { status: string }[]) => items.reduce<Record<string, number>>((out, i) => { out[i.status] = (out[i.status] || 0) + 1; return out; }, {});
-    return { session: this.session(sessionId), explorationGroups: this.store.list<ExplorationGroup>('exploration-group', sessionId).map(g => ({ id: g.id, label: g.label, status: g.status, revision: g.revision, observedCases: g.members.length, mode: g.decisions.at(-1)?.decision.mode })), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), frontierCoverage: this.frontierCoverage(sessionId).map(({ id, controlId, kind, label, coverageStatus, counts }) => ({ id, controlId, kind, label, coverageStatus, counts })), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), exploration: this.session(sessionId).options.exploration || 'stateful', coverage: this.session(sessionId).options.exploration === 'controls' ? 'encountered control operations; values and constraints are sampled, not exhaustive combinations or business assertions' : this.session(sessionId).options.exploration === 'representative' ? 'representative operation samples only; untested starting values, field combinations and undiscovered behavior remain unknown' : 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
+    return { session: this.session(sessionId), explorationAudit: auditExploration(this.session(sessionId), frontier, attempts, observations, this.store.list<ExplorationGroup>('exploration-group', sessionId)), explorationGroups: this.store.list<ExplorationGroup>('exploration-group', sessionId).map(g => ({ id: g.id, label: g.label, status: g.status, revision: g.revision, observedCases: g.members.length, mode: g.decisions.at(-1)?.decision.mode })), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), frontierCoverage: this.frontierCoverage(sessionId).map(({ id, controlId, kind, label, coverageStatus, counts }) => ({ id, controlId, kind, label, coverageStatus, counts })), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), exploration: this.session(sessionId).options.exploration || 'stateful', coverage: this.session(sessionId).options.exploration === 'controls' ? 'encountered control operations; values and constraints are sampled, not exhaustive combinations or business assertions' : this.session(sessionId).options.exploration === 'representative' ? 'representative operation samples only; untested starting values, field combinations and undiscovered behavior remain unknown' : 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
   }
   async createSession(input: unknown): Promise<Session<S>> {
     const options = this.adapter.parseOptions(input);
@@ -142,7 +146,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       this.emit(sessionId, 'session.reattached', { note: 'Interaction entry reopened; previous business state has not been restored' });
     }
   }
-  private async capture(sessionId: string, cause: O['cause'], attemptId?: string, parentId?: string): Promise<O> {
+  protected async capture(sessionId: string, cause: O['cause'], attemptId?: string, parentId?: string): Promise<O> {
     let session = this.session(sessionId); const observationId = id();
     try {
     await this.beforeCapture(sessionId, observationId);
@@ -172,6 +176,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       try { actions = (await this.driver!.discover(o, session, (name, fn) => this.hook(sessionId, name, fn))).map(a => this.constrain(a, o, session)); }
       catch (error) { o.gaps.push({ code: 'ACTION_DISCOVERY_FAILED', message: String(error), critical: true }); }
     }
+    actions = (await this.reviewActions(actions, o)).map(a => this.constrain(a, o, session));
     if (this.hooks.actions) {
       const result = await this.hook(sessionId, 'actions', async () => {
         const proposed = await this.hooks.actions!(structuredClone(actions), ctx());
@@ -183,11 +188,12 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if (result.error) { o.gaps.push({ code: 'ACTION_HOOK_FAILED', message: result.error }); actions = actions.map(a => ({ ...a, excluded: true, exclusionReason: 'action_hook_failed' })); }
     }
     actions = this.prepareActions(actions, o).map(a => this.constrain({ ...a, stateId: o.stateId }, o, session));
+    const internalScopes = o.gaps.some(g => g.critical) ? [] : await this.explorationScopes(actions, o);
     const scopes = await this.hook(sessionId, 'explorationScopes', async () => {
       if (o.gaps.some(g => g.critical)) return [];
       const native = this.adapter.explorationGroups?.(actions, o, session, this.store.list<ExplorationGroup>('exploration-group', sessionId)) || [];
       const custom = this.hooks.explorationScopes ? await this.hooks.explorationScopes(structuredClone(actions), ctx()) : [];
-      return validateExplorationProposals([...native, ...this.explorationScopes(actions, o), ...validateExplorationProposals(custom, actions)], actions);
+      return validateExplorationProposals([...native, ...internalScopes, ...validateExplorationProposals(custom, actions)], actions);
     });
     if (scopes.error) {
       o.gaps.push({ code: 'EXPLORATION_SCOPE_HOOK_FAILED', message: scopes.error, critical: true });
@@ -336,6 +342,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       const result = await this.hook(sessionId, decisionHookName, () => decisionHook(structuredClone(group), ctx()));
       if (result.value !== undefined) await this.hook(sessionId, `${decisionHookName}-decision`, () => this.store.transaction(() => this.groups.decide(sessionId, group.id, group.revision, result.value!)));
     }
+    this.afterExplorationDecisions(sessionId);
     let resolvedByHook = false;
     for (const hypothesis of matched.hypotheses) if (this.hooks.identity) {
       const result = await this.hook(sessionId, 'identity', () => this.hooks.identity!(structuredClone(hypothesis), ctx()));

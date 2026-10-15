@@ -68,6 +68,8 @@ const engine = new BrowserEngine({
 
 列表继续默认 `listExploration: 'review'`，由原生 select/listbox 生产 `similar-list`。其至少两个成员的初次识别规则保持不变；通用范围支持单成员。列表与通用范围可重叠，`listExploration: 'all'` 只关闭列表待决机制，不会批准其他范围。列表详情及用途审阅见[列表协议](LIST-EXPLORATION.md)。
 
+无语义容器可另选 `regionExploration: 'review'`，先确认业务区域再使用本协议的探索决定；它代替可选 region/branch 粒度，列表、输入样本和目的页约束仍独立。见[区域候选审阅](REGION-REVIEW.md)。
+
 ## 页面范围优先于 DFS 顺序
 
 新浏览器会话默认 `pageExploration: 'review'`。入口页面是首次完整初始观察的实际 URL（包括启动重定向后的落地地址）。DFS 只决定已获准范围内的顺序，不代表沿所有链接继续深入。

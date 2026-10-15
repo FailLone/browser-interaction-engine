@@ -1,0 +1,4765 @@
+{
+  "url": "https://www.okx.com/convert/btc-to-usd",
+  "sessionId": "85ed02cc-5e0c-414a-bf15-28951234219b",
+  "baselineCommit": "48ad958bc40d99ecf5648c31e89f68eed7a02ed6",
+  "sourceSha256": {
+    "apps/server/src/server.ts": "916d71fe739bf36ca9595a6375976720514d26c871ed96793d0884b980045b75",
+    "apps/ui/src/RegionReviewPanel.tsx": "9b041bf6d9fa94ff2289b2534d3500e617860082b982a32115c73a0def6ff5e2",
+    "apps/ui/src/main.tsx": "45382407f8934ea70eb1e8eff772fb1583d219e19d2b70a75f50fc28c8f369a2",
+    "apps/ui/src/style.css": "7171512c54df5c8cc02b4a727f6869d24fc9241d2d78ad709e1cff75c5762392",
+    "packages/adapter-playwright/src/browser.ts": "97a4131905a7b30716c731a8c915b6dde06b4d212c4cb6f5f4a97133c53daca1",
+    "packages/adapter-playwright/src/index.ts": "d0e160dc0923b1311160c9e5bbe8ca35a3664c15dee56b6948dfad5f8c56cba2",
+    "packages/adapter-playwright/src/region-candidates.ts": "0ddb5e0bacdd374fa77b37ea906571d50db9db8daac04e53cf318a7883a4860c",
+    "packages/adapter-playwright/src/schema.ts": "f8218ef6d576e22b5be1f7b9d689c7250d1ad796334f89c1a89944cc87d9db51",
+    "packages/adapter-playwright/src/types.ts": "c1931f4ebcc317dc568445371952c4df7a6389b28c28a3dab95caa0e999f0055",
+    "packages/browser/src/index.ts": "32ff140e8b8510706156da1e949d6423eecab0cef2a5b980a774efecef9ff722",
+    "packages/browser/src/region-reviews.ts": "0fc2fbac5c7a69a2bc427967204e06dad14e4034b02b50d66bbaa87d82420110",
+    "packages/client/src/index.ts": "0210dcb6df01dc85f06a13ef8a19e8dce8bfc00111adf5f5d9950360faba8008",
+    "packages/core/src/engine.ts": "dad368f41c4e6dd5e190e1c897fb4fa73c67743aabed9ec4969f11f799ff105c",
+    "scripts/exploration-workbench.ts": "3515ffa1eb757c5e2f32763ccf131e99eb8281f5f13be9cef8df46c4b047cfa3",
+    "tests/region-review-ui.test.ts": "d2f2361440b37f6d893ce72d4216cb1586fae6a4e8db025f7b511dd584a05880",
+    "tests/region-reviews.test.ts": "ab3977412e1706fbb4aa413463ef226b1434b64d854bd39192bd413a650a1ed3"
+  },
+  "rawDirectory": "work/region-review-acceptance-final",
+  "rawSha256": {
+    "after.png": "68f881f294c3e8a8ccfb13df038d31318b7ee65225caef3ef9f19cc36b5b71ad",
+    "close-dialog.json": "c0590c60e40e1ced46864b40726a098de5dfbc79c7e35b04e32e5609303b06ec",
+    "connection.json": "d4986811c9148ab95bffc0802bb6d9d9d25fe99c498722fc63d6de9e9f250b50",
+    "decision-input.json": "63d3de590932905160e087bc84e5f465c850db435fdcfeaa9509ea09122362ba",
+    "decision-result.json": "10ac23df9b862db1a5340a7e34244eacb92eb410f24475265e773bb45067bad3",
+    "engine.sqlite": "f51fe68cc6b8a215779ebe11e4a51005977307567376e586d8a93f189f1e6a7e",
+    "engine.sqlite-shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+    "engine.sqlite-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "initial.json": "c4aac9d0e40948f31fb00b2ca55b4cc5ea76dca52f43d1324d4f9d4762245b2c",
+    "material-after.json": "88cdcf9ae8aee4c3c1f468859836f6cdb2843715d0598cf0b5f22425cdcb3a7b",
+    "material-before.json": "5a535d1d4739ff43793857afe276f2bdaaad2ecc8d6d0ca1cfa93f26f7fe88b0",
+    "options.json": "f7ba1803ef2c90d02ae024ef0065a119ba581403a77bd3bf29373390b9a710a5",
+    "progress.jsonl": "8a47b14456fcdfb6d84a0e2def598e5ec1b6859a5702c7b91e5f9b492c58709f",
+    "review-input.json": "620dc92df4011479d1c1acb2016d658d59c93de10dc1bd0bebf83fbc2066e87b",
+    "review-result.json": "dddf617d1b13cf207a3af7ff9759614ab0f313455e53395870010296fc29dca7",
+    "scope-after.json": "ed8538a2f30650136c41cd0c9e0563fa8528a2f3aa9745dda745d90e7b2ad31a",
+    "scope-material.json": "9157273f257c12fe5893cc5de750a4ed7efab65e85b085eaa86456d963f4e035",
+    "state-after.json": "700d29e8b6f221084867afdd0d1e5d552f3c2d5ed463705a07af9847bff6be70",
+    "state-before.json": "13851198fb36d3e01a1496af04a3baa40a222be546d111e81529179fc2d0cb66",
+    "state.json": "77f25320f27d1c391781c0733e12da99ff0759e8d32204777b2fe6b2d9cb29e8",
+    "summary-after.json": "0f3941ae2a3c96f70a85fb523724fe38c2dc39b9cc44ef6be598ae796ac05ad4",
+    "summary.json": "82ce0a547a5e27d95af731c1b80f180edc7d5658722929bf73b18f62e2305c27"
+  },
+  "options": {
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "headless": true,
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "maxActions": 8,
+    "maxDepth": 30,
+    "maxDurationMs": 600000,
+    "actionTimeoutMs": 15000,
+    "settleMs": 300,
+    "observeTimeoutMs": 10000,
+    "evidence": {
+      "enabled": true,
+      "maxNodes": 5000,
+      "maxTextLength": 20000,
+      "maxHtmlLength": 2000000,
+      "maxDomCharacters": 4000000,
+      "maxAttributeLength": 4000,
+      "maxRuntimeEntries": 200,
+      "styles": "essential",
+      "accessibility": true,
+      "fullPageScreenshot": false
+    },
+    "evidenceRetention": {
+      "mode": "persistent",
+      "ttlMs": 0,
+      "maxBytes": 1073741824,
+      "maxObservations": 100
+    },
+    "exclude": [],
+    "replayable": [],
+    "context": {},
+    "exploration": "controls",
+    "listExploration": "review",
+    "pageExploration": "review",
+    "regionExploration": "review",
+    "decisionScopes": [],
+    "interfaceActions": [],
+    "reversible": [],
+    "environmentReset": "none",
+    "contextRules": []
+  },
+  "candidateCount": 61,
+  "controllableCount": 203,
+  "candidates": [
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:4",
+      "label": "未细分页面",
+      "basis": "document",
+      "parentId": null,
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:427",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:428",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:429",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:430",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:444",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:452",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:459",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:597",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:598",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:473",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:474",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:475",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:476",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:477",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:482",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:62",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:63",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:64",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:65",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:66",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:67",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:68",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:69",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:70",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:71",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:73",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:74",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:75",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:76",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:77",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:78",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:82",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:83",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:85",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:87",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:88",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:89",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:90",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:91",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:92",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:93",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:94",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:95",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:96",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:97",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:98",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:99",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:100",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:101",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:102",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:103",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:104",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:105",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:106",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:107",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:108",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:109",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:110",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:111",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:112",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:113",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:114",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:115",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:116",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:117",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:118",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:119",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:120",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:121",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:122",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:123",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:124",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:125",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:126",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:127",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:128",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:129",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:130",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:131",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:132",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:133",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:134",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:135",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:136",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:137",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:138",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:139",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:140",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:141",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:142",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:143",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:144",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:145",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:146",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:147",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:148",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:149",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:150",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:151",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:152",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:153",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:154",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:155",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:156",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:157",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:158",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:159",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:160",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:161",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:162",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:163",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:164",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:165",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:166",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:167",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:168",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:169",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:170",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:171",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:172",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:173",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:174",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:484",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:485",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:486",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:487",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:488",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:489",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:490",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:491",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:492",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:493",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:494",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:495",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:496",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:497",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:498",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:499",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:500",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:501",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:502",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:503",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:504",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:505",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:506",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:507",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:508",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:509",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:510",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:511",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:512",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:513",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:514",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:515",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:516",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:517",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:518",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:519",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:520",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:521",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:522",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:523",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:524",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:525",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:526",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:527",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:528",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:529",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:530",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:531",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:532",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:533",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:534",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:535",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:536",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:537",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:538",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:539",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:609",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:610",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:611",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:612",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:613",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:614",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:615",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:616",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:540",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:297",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:546",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:547",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:548",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:549",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:617",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:618",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:550",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:551",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:552",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:553",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:283",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:284",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:285",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:286",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:287",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:288",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:289",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:290",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:291",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:663",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:664",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:620",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:292",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:293",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:294",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:295",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:379",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:554",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:665"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": false,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:297",
+      "label": "header 容器",
+      "basis": "semantic",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:4",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:427",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:428",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:429",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:430",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:444",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:452",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:459",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:597",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:598",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:473",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:474",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:475",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:476",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:477",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:482",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:297",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:546",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:547",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:548",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:549",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:617",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:618",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:550",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:551",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:552",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:553"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": true,
+            "layout": false,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:561",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:297",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:428",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:429",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:430",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:444",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:452",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:459",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:597",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:598",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:473",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:474",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:475",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:476",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:477",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:482",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:546",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:547",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:548",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:549",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:617",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:618",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:550",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:551",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:552",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:553"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:562",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:422",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:429",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:430",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:444",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:452",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:459",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:546",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:547",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:548",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:549"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:422",
+      "label": "Main menu",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:561",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:429",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:430",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:444",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:452",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:459",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:597",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:598",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:473",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:474",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:475",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:476",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:477",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:482",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:546",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:547",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:548",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:549",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:617",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:618",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:550",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:551",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:552",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:553"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": true,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:546",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:562",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:430",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:546"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:547",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:562",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:444",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:547"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:548",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:562",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:452",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:548"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:549",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:562",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:459",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:549"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:617",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:597",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:598",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": true,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:617",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:422",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:597",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:598",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:617",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:618",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:565",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:422",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:473",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:474"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:550",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:566",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:475",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:550"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:566",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:422",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:475",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:476",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:477",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:482",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:550",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:551",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:552",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:553"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:551",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:566",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:476",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:551"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:552",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:566",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:477",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:552"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:553",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:566",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:482",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:553"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:283",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:307",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:62",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:283"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:307",
+      "label": "div 容器",
+      "basis": "semantic",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:4",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:62",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:63",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:283",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:284"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": true,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:284",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:307",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:63",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:284"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:314",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:316",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:64",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:65",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:66",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:67",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:68"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:316",
+      "label": "BTC/USD: Convert Bitcoin (BTC) to US Dollar (USD)",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:317",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:64",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:65",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:66",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:67",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:68",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:285"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": false,
+            "border": false,
+            "heading": "BTC/USD: Convert Bitcoin (BTC) to US Dollar (USD)",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:317",
+      "label": "Bitcoin (BTC) to US Dollar (USD) price statistics",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:318",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:64",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:65",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:66",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:67",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:68",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:69",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:285",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:286",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:287",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:288",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:289",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:290",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:291"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": false,
+            "border": false,
+            "heading": "Bitcoin (BTC) to US Dollar (USD) price statistics",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:318",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:4",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:64",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:65",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:66",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:67",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:68",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:69",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:285",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:286",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:287",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:288",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:289",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:290",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:291",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:663",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:664",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:620"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630",
+      "label": "BTC/USD markets",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:317",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": false,
+            "border": false,
+            "heading": "BTC/USD markets",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:320",
+      "label": "Bitcoin (BTC) to US Dollar (USD) price statistics",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:317",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:69",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:286",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:287",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:288",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:289",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:290",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:291"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": false,
+            "border": false,
+            "heading": "Bitcoin (BTC) to US Dollar (USD) price statistics",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:631",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:632",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:663"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:632",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:663",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:664"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+      "label": "Crypto calculator",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:318",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:663",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:664",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:620"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": false,
+            "border": true,
+            "heading": "Crypto calculator",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:640",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:632",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:664"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:324",
+      "label": "BTC/USD conversion tables",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:4",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:70",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:71",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:73",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:74"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": false,
+            "border": false,
+            "heading": "BTC/USD conversion tables",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:326",
+      "label": "Convert US Dollar to Bitcoin",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:324",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:71"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "Convert US Dollar to Bitcoin",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:333",
+      "label": "See how to convert fiat to crypto in just 3 steps",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:324",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:73",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:74"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": false,
+            "border": false,
+            "heading": "See how to convert fiat to crypto in just 3 steps",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:75",
+      "label": "What is today's exchange rate for 1 BTC to USD?",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:75"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "What is today's exchange rate for 1 BTC to USD?",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:4",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:75",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:76",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:77",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:78",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:82",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:83",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:85",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:87",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:88",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:89"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:76",
+      "label": "How did the BTC to USD exchange rate change over the past 24 hours?",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:76"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "How did the BTC to USD exchange rate change over the past 24 hours?",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:77",
+      "label": "How many Bitcoin are there in total?",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:77"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "How many Bitcoin are there in total?",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:78",
+      "label": "Where can I learn more about trading?",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:78"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "Where can I learn more about trading?",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:82",
+      "label": "Is it safe to convert BTC to USD on OKX?",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:82"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "Is it safe to convert BTC to USD on OKX?",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:83",
+      "label": "Where can I find more information about Bitcoin (BTC)?",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:83"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "Where can I find more information about Bitcoin (BTC)?",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:85",
+      "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:85"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "I have some questions about buying cryptocurrency. Who can I speak to?",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:87",
+      "label": "How much is $1 worth of Bitcoin today?",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:87"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "How much is $1 worth of Bitcoin today?",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:88",
+      "label": "How much is 1 Bitcoin worth in USD today?",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:88"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "How much is 1 Bitcoin worth in USD today?",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:89",
+      "label": "How can I convert BTC to USD using the crypto calculator?",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:89"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "How can I convert BTC to USD using the crypto calculator?",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:348",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:350",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:90",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:91",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:92",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:93",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:94",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:95",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:96",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:97",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:98",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:99",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:100",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:101",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:102",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:103",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:104",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:105",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:106",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:107",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:108"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:350",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:352",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:90",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:91",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:92",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:93",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:94",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:95",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:96",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:97",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:98",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:99",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:100",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:101",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:102",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:103",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:104",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:105",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:106",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:107",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:108",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:109",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:110",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:111",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:112",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:113",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:114",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:115",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:116",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:117",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:118",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:119",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:120",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:121",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:122",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:123",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:124",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:125",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:126",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:127",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:128",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:129",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:130",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:131",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:132",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:133",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:134",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:135",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:136",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:137",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:138",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:139",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:140",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:141",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:142",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:143",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:144",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:145",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:146"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:352",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:4",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:90",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:91",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:92",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:93",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:94",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:95",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:96",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:97",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:98",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:99",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:100",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:101",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:102",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:103",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:104",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:105",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:106",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:107",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:108",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:109",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:110",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:111",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:112",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:113",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:114",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:115",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:116",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:117",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:118",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:119",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:120",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:121",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:122",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:123",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:124",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:125",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:126",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:127",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:128",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:129",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:130",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:131",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:132",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:133",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:134",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:135",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:136",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:137",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:138",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:139",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:140",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:141",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:142",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:143",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:144",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:145",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:146",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:147",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:148",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:149",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:150",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:151",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:152",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:153",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:292",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:293",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:294"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:353",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:350",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:109",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:110",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:111",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:112",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:113",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:114",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:115",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:116",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:117",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:118",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:119",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:120",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:121",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:122",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:123",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:124",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:125",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:126",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:127"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:355",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:350",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:128",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:129",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:130",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:131",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:132",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:133",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:134",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:135",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:136",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:137",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:138",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:139",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:140",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:141",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:142",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:143",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:144",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:145",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:146"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:292",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:359",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:147",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:292"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:359",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:352",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:147",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:148",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:149",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:292",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:293",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:294"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:293",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:359",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:148",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:293"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:294",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:359",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:149",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:294"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:369",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:4",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:154",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:155",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:156",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:157",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:158",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:159",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:160",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:161",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:162",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:163",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:164",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:165",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:166",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:167",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:168",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:169",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:170",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:171",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:172",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:173",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:174",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:295"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:295",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:369",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:155",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:156",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:157",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:158",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:159",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:160",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:161",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:162",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:163",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:164",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:165",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:166",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:167",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:168",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:169",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:170",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:171",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:172",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:173",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:295"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:379",
+      "label": "footer 容器",
+      "basis": "semantic",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:4",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:484",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:485",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:486",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:487",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:488",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:489",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:490",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:491",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:492",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:493",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:494",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:495",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:496",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:497",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:498",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:499",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:500",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:501",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:502",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:503",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:504",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:505",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:506",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:507",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:508",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:509",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:510",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:511",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:512",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:513",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:514",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:515",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:516",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:517",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:518",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:519",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:520",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:521",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:522",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:523",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:524",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:525",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:526",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:527",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:528",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:529",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:530",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:531",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:532",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:533",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:534",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:535",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:536",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:537",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:538",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:539",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:609",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:610",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:611",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:612",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:613",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:614",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:615",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:616",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:540",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:379",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:554"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": true,
+            "layout": false,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:424",
+      "label": "OKX directory",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:573",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:485",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:486",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:487",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:488",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:489",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:490",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:491",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:492",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:493",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:494",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:495",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:496",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:497",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:498",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:499",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:500",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:501",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:502",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:503",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:504",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:505",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:506",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:507",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:508",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:509",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:510",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:511",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:512",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:513",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:514",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:515",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:516",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:517",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:518",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:519",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:520",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:521",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:522",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:523",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:524",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:525",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:526",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:527",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:528",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:529",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:530",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:531",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:532",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:533",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:534",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:535",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:536",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:537",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:538"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": true,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:573",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:379",
+      "suggested": false,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:485",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:486",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:487",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:488",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:489",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:490",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:491",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:492",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:493",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:494",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:495",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:496",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:497",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:498",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:499",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:500",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:501",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:502",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:503",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:504",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:505",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:506",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:507",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:508",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:509",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:510",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:511",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:512",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:513",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:514",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:515",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:516",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:517",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:518",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:519",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:520",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:521",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:522",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:523",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:524",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:525",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:526",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:527",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:528",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:529",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:530",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:531",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:532",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:533",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:534",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:535",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:536",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:537",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:538",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:539"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:425",
+      "label": "Community",
+      "basis": "heading",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:379",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:609",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:610",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:611",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:612",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:613",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:614",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:615",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:616",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:540"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": true,
+            "layout": false,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:395",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:320",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:286",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:287"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:399",
+      "label": "div 容器",
+      "basis": "layout",
+      "parentId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:320",
+      "suggested": true,
+      "controlIds": [
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:288",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:289",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:290",
+        "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:291"
+      ],
+      "evidence": [
+        {
+          "source": "dom",
+          "rule": "structural-region-candidate/v1",
+          "facts": {
+            "semantic": false,
+            "layout": true,
+            "border": false,
+            "heading": "",
+            "meaning": "Observed container and descendants; business boundary requires caller review"
+          }
+        }
+      ]
+    }
+  ],
+  "reviewInput": {
+    "observationId": "871dd6d5-c827-4e78-93ae-b411c0fea1c1",
+    "source": "okx-region-acceptance",
+    "evidence": [
+      "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+    ],
+    "regions": [
+      {
+        "key": "chart",
+        "label": "Chart intervals",
+        "candidateIds": [
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630"
+        ]
+      },
+      {
+        "key": "calculator",
+        "label": "Calculator",
+        "candidateIds": [
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636"
+        ]
+      }
+    ]
+  },
+  "reviewResult": {
+    "id": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+    "sessionId": "85ed02cc-5e0c-414a-bf15-28951234219b",
+    "observationId": "871dd6d5-c827-4e78-93ae-b411c0fea1c1",
+    "instanceScope": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "at": "2026-10-15T04:15:20.464Z",
+    "source": "okx-region-acceptance",
+    "evidence": [
+      "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+    ],
+    "regions": [
+      {
+        "key": "chart",
+        "label": "Chart intervals",
+        "controlIds": [
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604"
+        ],
+        "pageTraversal": false,
+        "anchors": [
+          {
+            "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630",
+            "fingerprint": "9db20013cd6c253221607980169ce78d26a571549c87ced436ef79f12a223f76"
+          }
+        ],
+        "status": "active"
+      },
+      {
+        "key": "calculator",
+        "label": "Calculator",
+        "controlIds": [
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608"
+        ],
+        "pageTraversal": false,
+        "anchors": [
+          {
+            "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+            "fingerprint": "fbe02e2f30ab2fb3bd4199a647b0f69d11af892d2f1e892954420a72838e02c7"
+          }
+        ],
+        "status": "active"
+      }
+    ],
+    "rejectedCandidateIds": [],
+    "status": "active"
+  },
+  "scopeMaterial": {
+    "sessionId": "85ed02cc-5e0c-414a-bf15-28951234219b",
+    "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+    "groups": [
+      {
+        "id": "e80158ee-a0d3-42bb-991a-1c49c802b0af",
+        "sessionId": "85ed02cc-5e0c-414a-bf15-28951234219b",
+        "key": "5f62cf568520ef36237d54d683e29939a355e6e35971b21fcf24d51ef201c98d",
+        "proposalKey": "reviewed-region:chart",
+        "kind": "reviewed-region",
+        "label": "Chart intervals",
+        "conditions": {
+          "regionReviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+          "regionKey": "chart",
+          "anchors": [
+            {
+              "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630",
+              "fingerprint": "9db20013cd6c253221607980169ce78d26a571549c87ced436ef79f12a223f76"
+            }
+          ],
+          "context": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "url": "https://www.okx.com/convert/btc-to-usd"
+        },
+        "membership": "observed-action-cases",
+        "instanceScope": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f",
+        "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+        "revision": 1,
+        "status": "pending",
+        "evidence": [
+          {
+            "source": "okx-region-acceptance",
+            "rule": "caller-region-partition/v1",
+            "facts": {
+              "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+              "evidence": [
+                "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+              ],
+              "anchors": [
+                {
+                  "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630",
+                  "fingerprint": "9db20013cd6c253221607980169ce78d26a571549c87ced436ef79f12a223f76"
+                }
+              ]
+            }
+          }
+        ],
+        "members": [
+          {
+            "key": "da3eb986dd79cd363b2c0fd31325a6fb4adddc60f9698b8531ce931fcb394518",
+            "actionId": "a051bd35-6448-4842-ad1b-1b9f2e7887bf",
+            "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+            "label": "1h",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "e3040943d5de192a6bedf758afce797c83ee0ee7621d45f0aa46922d88c69fbb",
+            "actionId": "e630e069-aa22-4d47-ba78-14e36580bf22",
+            "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+            "label": "24h",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "b868776058f1faf2efdeba59c9af5b547b312bc162ed656059021f3cda2d233b",
+            "actionId": "a3426581-b26a-4896-8d25-f3a8bf22f39d",
+            "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+            "label": "1W",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "525c86508ca512276c421b8dab5af2e57a90786d35a48616318dd16dbf3050bf",
+            "actionId": "0d7c629d-7a04-4b8a-8e57-84cf47f6821d",
+            "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+            "label": "1M",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "f28d913db0e98fc5c90f4f0182d13186d8d9b85806ac93a8a49c22f937301886",
+            "actionId": "543debb2-d8ff-41c7-b74b-19d4ecdc5265",
+            "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+            "label": "1Y",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "e0c0350a13fba6178b7a09d60249594016f8e96e5fe9e308ec9a0558adf81730",
+            "actionId": "12fcfe24-3cf7-4fe2-9eaa-20e99efba14e",
+            "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604",
+            "label": "2Y",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": false
+          }
+        ],
+        "decisions": [],
+        "collection": {
+          "key": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+          "label": "已确认业务区域",
+          "evidence": [
+            {
+              "source": "okx-region-acceptance",
+              "rule": "caller-region-partition/v1",
+              "facts": {
+                "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+                "evidence": [
+                  "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+                ]
+              }
+            }
+          ]
+        },
+        "traversalKeys": []
+      },
+      {
+        "id": "6a2165f9-6154-4640-acfe-af44a5e16094",
+        "sessionId": "85ed02cc-5e0c-414a-bf15-28951234219b",
+        "key": "f1188c8bcb8cefdc92ee4acd7a3b213b6ab2da0765e2a545e407dec6d08143c6",
+        "proposalKey": "reviewed-region:calculator",
+        "kind": "reviewed-region",
+        "label": "Calculator",
+        "conditions": {
+          "regionReviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+          "regionKey": "calculator",
+          "anchors": [
+            {
+              "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+              "fingerprint": "fbe02e2f30ab2fb3bd4199a647b0f69d11af892d2f1e892954420a72838e02c7"
+            }
+          ],
+          "context": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "url": "https://www.okx.com/convert/btc-to-usd"
+        },
+        "membership": "observed-action-cases",
+        "instanceScope": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f",
+        "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+        "revision": 1,
+        "status": "pending",
+        "evidence": [
+          {
+            "source": "okx-region-acceptance",
+            "rule": "caller-region-partition/v1",
+            "facts": {
+              "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+              "evidence": [
+                "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+              ],
+              "anchors": [
+                {
+                  "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+                  "fingerprint": "fbe02e2f30ab2fb3bd4199a647b0f69d11af892d2f1e892954420a72838e02c7"
+                }
+              ]
+            }
+          }
+        ],
+        "members": [
+          {
+            "key": "09adf4d6d675cc76cfce466731e2809dde58245a10aff4be62d4783b77bff07a",
+            "actionId": "c3258d41-0088-4a81-924a-57f99ecd671e",
+            "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+            "label": "0",
+            "kind": "fill",
+            "value": "example",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "31aaf9d047c59652141ed13486e488528578aa1b071537f4db3c75ec11d0aa3a",
+            "actionId": "b044dc64-9a59-4277-a4aa-db002a096a0f",
+            "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+            "label": "Unnamed button",
+            "kind": "click",
+            "risk": "unknown",
+            "excluded": true
+          },
+          {
+            "key": "30ae68825ff04b2468e5e3c6dafb55ba0afe0b6794eff65a19d3680af006e5e4",
+            "actionId": "94c39b6d-053e-424a-adea-225bf2f0e787",
+            "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+            "label": "0",
+            "kind": "fill",
+            "value": "example",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "def9412085ec594d8cd88b9091a8348e7835c1c65fd5981ab22b3dd4e053df48",
+            "actionId": "8ad28712-6310-4122-a73d-33f19c024d28",
+            "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608",
+            "label": "Convert BTC to USD",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": true
+          }
+        ],
+        "decisions": [],
+        "collection": {
+          "key": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+          "label": "已确认业务区域",
+          "evidence": [
+            {
+              "source": "okx-region-acceptance",
+              "rule": "caller-region-partition/v1",
+              "facts": {
+                "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+                "evidence": [
+                  "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+                ]
+              }
+            }
+          ]
+        },
+        "traversalKeys": []
+      }
+    ],
+    "collections": [
+      {
+        "key": "a53e25f4d81631aec179d6a492f6b01c62966a3a54bc7dde496ac448a6d71848",
+        "label": "已确认业务区域",
+        "evidence": [
+          {
+            "source": "okx-region-acceptance",
+            "rule": "caller-region-partition/v1",
+            "facts": {
+              "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+              "evidence": [
+                "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+              ]
+            }
+          }
+        ],
+        "groupIds": [
+          "e80158ee-a0d3-42bb-991a-1c49c802b0af",
+          "6a2165f9-6154-4640-acfe-af44a5e16094"
+        ]
+      }
+    ],
+    "overlaps": [],
+    "requestedGroupIds": []
+  },
+  "decisionInput": [
+    {
+      "groupId": "e80158ee-a0d3-42bb-991a-1c49c802b0af",
+      "revision": 1,
+      "decision": {
+        "source": "okx-region-acceptance",
+        "reason": "Run one observed public chart interval sample; leave calculator deferred for separate business planning.",
+        "evidence": [
+          "The current chart region exposes six interval tabs; choose only 1W. No amount input or conversion was selected."
+        ],
+        "mode": "sample",
+        "memberKeys": [
+          "b868776058f1faf2efdeba59c9af5b547b312bc162ed656059021f3cda2d233b"
+        ]
+      }
+    },
+    {
+      "groupId": "6a2165f9-6154-4640-acfe-af44a5e16094",
+      "revision": 1,
+      "decision": {
+        "source": "okx-region-acceptance",
+        "reason": "Run one observed public chart interval sample; leave calculator deferred for separate business planning.",
+        "evidence": [
+          "The current chart region exposes six interval tabs; choose only 1W. No amount input or conversion was selected."
+        ],
+        "mode": "defer"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "id": "e80158ee-a0d3-42bb-991a-1c49c802b0af",
+      "sessionId": "85ed02cc-5e0c-414a-bf15-28951234219b",
+      "key": "5f62cf568520ef36237d54d683e29939a355e6e35971b21fcf24d51ef201c98d",
+      "proposalKey": "reviewed-region:chart",
+      "kind": "reviewed-region",
+      "label": "Chart intervals",
+      "conditions": {
+        "regionReviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+        "regionKey": "chart",
+        "anchors": [
+          {
+            "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630",
+            "fingerprint": "9db20013cd6c253221607980169ce78d26a571549c87ced436ef79f12a223f76"
+          }
+        ],
+        "context": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "url": "https://www.okx.com/convert/btc-to-usd"
+      },
+      "membership": "observed-action-cases",
+      "instanceScope": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f",
+      "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+      "revision": 2,
+      "status": "decided",
+      "evidence": [
+        {
+          "source": "okx-region-acceptance",
+          "rule": "caller-region-partition/v1",
+          "facts": {
+            "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+            "evidence": [
+              "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+            ],
+            "anchors": [
+              {
+                "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630",
+                "fingerprint": "9db20013cd6c253221607980169ce78d26a571549c87ced436ef79f12a223f76"
+              }
+            ]
+          }
+        }
+      ],
+      "members": [
+        {
+          "key": "da3eb986dd79cd363b2c0fd31325a6fb4adddc60f9698b8531ce931fcb394518",
+          "actionId": "a051bd35-6448-4842-ad1b-1b9f2e7887bf",
+          "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+          "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+          "label": "1h",
+          "kind": "click",
+          "risk": "interface",
+          "excluded": false
+        },
+        {
+          "key": "e3040943d5de192a6bedf758afce797c83ee0ee7621d45f0aa46922d88c69fbb",
+          "actionId": "e630e069-aa22-4d47-ba78-14e36580bf22",
+          "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+          "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+          "label": "24h",
+          "kind": "click",
+          "risk": "interface",
+          "excluded": false
+        },
+        {
+          "key": "b868776058f1faf2efdeba59c9af5b547b312bc162ed656059021f3cda2d233b",
+          "actionId": "a3426581-b26a-4896-8d25-f3a8bf22f39d",
+          "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+          "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+          "label": "1W",
+          "kind": "click",
+          "risk": "interface",
+          "excluded": false
+        },
+        {
+          "key": "525c86508ca512276c421b8dab5af2e57a90786d35a48616318dd16dbf3050bf",
+          "actionId": "0d7c629d-7a04-4b8a-8e57-84cf47f6821d",
+          "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+          "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+          "label": "1M",
+          "kind": "click",
+          "risk": "interface",
+          "excluded": false
+        },
+        {
+          "key": "f28d913db0e98fc5c90f4f0182d13186d8d9b85806ac93a8a49c22f937301886",
+          "actionId": "543debb2-d8ff-41c7-b74b-19d4ecdc5265",
+          "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+          "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+          "label": "1Y",
+          "kind": "click",
+          "risk": "interface",
+          "excluded": false
+        },
+        {
+          "key": "e0c0350a13fba6178b7a09d60249594016f8e96e5fe9e308ec9a0558adf81730",
+          "actionId": "12fcfe24-3cf7-4fe2-9eaa-20e99efba14e",
+          "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+          "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604",
+          "label": "2Y",
+          "kind": "click",
+          "risk": "interface",
+          "excluded": false
+        }
+      ],
+      "decisions": [
+        {
+          "revision": 1,
+          "at": "2026-10-15T04:15:52.516Z",
+          "decision": {
+            "source": "okx-region-acceptance",
+            "evidence": [
+              "The current chart region exposes six interval tabs; choose only 1W. No amount input or conversion was selected."
+            ],
+            "mode": "sample",
+            "memberKeys": [
+              "b868776058f1faf2efdeba59c9af5b547b312bc162ed656059021f3cda2d233b"
+            ]
+          }
+        }
+      ],
+      "collection": {
+        "key": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+        "label": "已确认业务区域",
+        "evidence": [
+          {
+            "source": "okx-region-acceptance",
+            "rule": "caller-region-partition/v1",
+            "facts": {
+              "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+              "evidence": [
+                "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+              ]
+            }
+          }
+        ]
+      },
+      "traversalKeys": []
+    },
+    {
+      "id": "6a2165f9-6154-4640-acfe-af44a5e16094",
+      "sessionId": "85ed02cc-5e0c-414a-bf15-28951234219b",
+      "key": "f1188c8bcb8cefdc92ee4acd7a3b213b6ab2da0765e2a545e407dec6d08143c6",
+      "proposalKey": "reviewed-region:calculator",
+      "kind": "reviewed-region",
+      "label": "Calculator",
+      "conditions": {
+        "regionReviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+        "regionKey": "calculator",
+        "anchors": [
+          {
+            "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+            "fingerprint": "fbe02e2f30ab2fb3bd4199a647b0f69d11af892d2f1e892954420a72838e02c7"
+          }
+        ],
+        "context": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "url": "https://www.okx.com/convert/btc-to-usd"
+      },
+      "membership": "observed-action-cases",
+      "instanceScope": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f",
+      "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+      "revision": 2,
+      "status": "decided",
+      "evidence": [
+        {
+          "source": "okx-region-acceptance",
+          "rule": "caller-region-partition/v1",
+          "facts": {
+            "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+            "evidence": [
+              "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+            ],
+            "anchors": [
+              {
+                "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+                "fingerprint": "fbe02e2f30ab2fb3bd4199a647b0f69d11af892d2f1e892954420a72838e02c7"
+              }
+            ]
+          }
+        }
+      ],
+      "members": [
+        {
+          "key": "09adf4d6d675cc76cfce466731e2809dde58245a10aff4be62d4783b77bff07a",
+          "actionId": "c3258d41-0088-4a81-924a-57f99ecd671e",
+          "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+          "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+          "label": "0",
+          "kind": "fill",
+          "value": "example",
+          "risk": "interface",
+          "excluded": false
+        },
+        {
+          "key": "31aaf9d047c59652141ed13486e488528578aa1b071537f4db3c75ec11d0aa3a",
+          "actionId": "b044dc64-9a59-4277-a4aa-db002a096a0f",
+          "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+          "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+          "label": "Unnamed button",
+          "kind": "click",
+          "risk": "unknown",
+          "excluded": true
+        },
+        {
+          "key": "30ae68825ff04b2468e5e3c6dafb55ba0afe0b6794eff65a19d3680af006e5e4",
+          "actionId": "94c39b6d-053e-424a-adea-225bf2f0e787",
+          "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+          "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+          "label": "0",
+          "kind": "fill",
+          "value": "example",
+          "risk": "interface",
+          "excluded": false
+        },
+        {
+          "key": "def9412085ec594d8cd88b9091a8348e7835c1c65fd5981ab22b3dd4e053df48",
+          "actionId": "8ad28712-6310-4122-a73d-33f19c024d28",
+          "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+          "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608",
+          "label": "Convert BTC to USD",
+          "kind": "click",
+          "risk": "interface",
+          "excluded": true
+        }
+      ],
+      "decisions": [
+        {
+          "revision": 1,
+          "at": "2026-10-15T04:15:52.516Z",
+          "decision": {
+            "source": "okx-region-acceptance",
+            "evidence": [
+              "The current chart region exposes six interval tabs; choose only 1W. No amount input or conversion was selected."
+            ],
+            "mode": "defer"
+          }
+        }
+      ],
+      "collection": {
+        "key": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+        "label": "已确认业务区域",
+        "evidence": [
+          {
+            "source": "okx-region-acceptance",
+            "rule": "caller-region-partition/v1",
+            "facts": {
+              "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+              "evidence": [
+                "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+              ]
+            }
+          }
+        ]
+      },
+      "traversalKeys": []
+    }
+  ],
+  "scopesAfter": {
+    "sessionId": "85ed02cc-5e0c-414a-bf15-28951234219b",
+    "observationId": "07455896-e7f2-4297-9897-1654885d4255",
+    "groups": [
+      {
+        "id": "e80158ee-a0d3-42bb-991a-1c49c802b0af",
+        "sessionId": "85ed02cc-5e0c-414a-bf15-28951234219b",
+        "key": "5f62cf568520ef36237d54d683e29939a355e6e35971b21fcf24d51ef201c98d",
+        "proposalKey": "reviewed-region:chart",
+        "kind": "reviewed-region",
+        "label": "Chart intervals",
+        "conditions": {
+          "regionReviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+          "regionKey": "chart",
+          "anchors": [
+            {
+              "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630",
+              "fingerprint": "9db20013cd6c253221607980169ce78d26a571549c87ced436ef79f12a223f76"
+            }
+          ],
+          "context": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "url": "https://www.okx.com/convert/btc-to-usd"
+        },
+        "membership": "observed-action-cases",
+        "instanceScope": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f",
+        "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "observationId": "07455896-e7f2-4297-9897-1654885d4255",
+        "revision": 2,
+        "status": "decided",
+        "evidence": [
+          {
+            "source": "okx-region-acceptance",
+            "rule": "caller-region-partition/v1",
+            "facts": {
+              "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+              "evidence": [
+                "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+              ],
+              "anchors": [
+                {
+                  "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630",
+                  "fingerprint": "9db20013cd6c253221607980169ce78d26a571549c87ced436ef79f12a223f76"
+                }
+              ]
+            }
+          }
+        ],
+        "members": [
+          {
+            "key": "da3eb986dd79cd363b2c0fd31325a6fb4adddc60f9698b8531ce931fcb394518",
+            "actionId": "8400afb8-d782-4e7f-9b6d-22c6bc247921",
+            "observationId": "07455896-e7f2-4297-9897-1654885d4255",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+            "label": "1h",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "e3040943d5de192a6bedf758afce797c83ee0ee7621d45f0aa46922d88c69fbb",
+            "actionId": "58a854e2-5fd3-4e76-b820-d3f92985b196",
+            "observationId": "07455896-e7f2-4297-9897-1654885d4255",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+            "label": "24h",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "b868776058f1faf2efdeba59c9af5b547b312bc162ed656059021f3cda2d233b",
+            "actionId": "ddcacbe3-1823-4bb3-bc35-d3e3f68c8bd4",
+            "observationId": "07455896-e7f2-4297-9897-1654885d4255",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+            "label": "1W",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "525c86508ca512276c421b8dab5af2e57a90786d35a48616318dd16dbf3050bf",
+            "actionId": "f344b879-c93f-4a77-adc9-998772390173",
+            "observationId": "07455896-e7f2-4297-9897-1654885d4255",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+            "label": "1M",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "f28d913db0e98fc5c90f4f0182d13186d8d9b85806ac93a8a49c22f937301886",
+            "actionId": "7944a1c0-b980-4635-8c0b-45333ff258e7",
+            "observationId": "07455896-e7f2-4297-9897-1654885d4255",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+            "label": "1Y",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "e0c0350a13fba6178b7a09d60249594016f8e96e5fe9e308ec9a0558adf81730",
+            "actionId": "88106381-759d-440d-ac2d-91abe8c5a671",
+            "observationId": "07455896-e7f2-4297-9897-1654885d4255",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604",
+            "label": "2Y",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": false
+          }
+        ],
+        "decisions": [
+          {
+            "revision": 1,
+            "at": "2026-10-15T04:15:52.516Z",
+            "decision": {
+              "source": "okx-region-acceptance",
+              "evidence": [
+                "The current chart region exposes six interval tabs; choose only 1W. No amount input or conversion was selected."
+              ],
+              "mode": "sample",
+              "memberKeys": [
+                "b868776058f1faf2efdeba59c9af5b547b312bc162ed656059021f3cda2d233b"
+              ]
+            }
+          }
+        ],
+        "collection": {
+          "key": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+          "label": "已确认业务区域",
+          "evidence": [
+            {
+              "source": "okx-region-acceptance",
+              "rule": "caller-region-partition/v1",
+              "facts": {
+                "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+                "evidence": [
+                  "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+                ]
+              }
+            }
+          ]
+        },
+        "traversalKeys": []
+      },
+      {
+        "id": "6a2165f9-6154-4640-acfe-af44a5e16094",
+        "sessionId": "85ed02cc-5e0c-414a-bf15-28951234219b",
+        "key": "f1188c8bcb8cefdc92ee4acd7a3b213b6ab2da0765e2a545e407dec6d08143c6",
+        "proposalKey": "reviewed-region:calculator",
+        "kind": "reviewed-region",
+        "label": "Calculator",
+        "conditions": {
+          "regionReviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+          "regionKey": "calculator",
+          "anchors": [
+            {
+              "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+              "fingerprint": "fbe02e2f30ab2fb3bd4199a647b0f69d11af892d2f1e892954420a72838e02c7"
+            }
+          ],
+          "context": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "url": "https://www.okx.com/convert/btc-to-usd"
+        },
+        "membership": "observed-action-cases",
+        "instanceScope": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f",
+        "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "observationId": "07455896-e7f2-4297-9897-1654885d4255",
+        "revision": 2,
+        "status": "decided",
+        "evidence": [
+          {
+            "source": "okx-region-acceptance",
+            "rule": "caller-region-partition/v1",
+            "facts": {
+              "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+              "evidence": [
+                "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+              ],
+              "anchors": [
+                {
+                  "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+                  "fingerprint": "fbe02e2f30ab2fb3bd4199a647b0f69d11af892d2f1e892954420a72838e02c7"
+                }
+              ]
+            }
+          }
+        ],
+        "members": [
+          {
+            "key": "09adf4d6d675cc76cfce466731e2809dde58245a10aff4be62d4783b77bff07a",
+            "actionId": "86605284-6a72-4e61-a156-204195edb8fc",
+            "observationId": "07455896-e7f2-4297-9897-1654885d4255",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+            "label": "0",
+            "kind": "fill",
+            "value": "example",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "31aaf9d047c59652141ed13486e488528578aa1b071537f4db3c75ec11d0aa3a",
+            "actionId": "8075dde3-a31a-4acb-93d9-0ba30f0972ad",
+            "observationId": "07455896-e7f2-4297-9897-1654885d4255",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+            "label": "Unnamed button",
+            "kind": "click",
+            "risk": "unknown",
+            "excluded": true
+          },
+          {
+            "key": "30ae68825ff04b2468e5e3c6dafb55ba0afe0b6794eff65a19d3680af006e5e4",
+            "actionId": "1bcccaec-f669-4d04-86cf-e5fd4d65787f",
+            "observationId": "07455896-e7f2-4297-9897-1654885d4255",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+            "label": "0",
+            "kind": "fill",
+            "value": "example",
+            "risk": "interface",
+            "excluded": false
+          },
+          {
+            "key": "def9412085ec594d8cd88b9091a8348e7835c1c65fd5981ab22b3dd4e053df48",
+            "actionId": "cb73a4dc-b442-494d-b5ba-c56d9d69b801",
+            "observationId": "07455896-e7f2-4297-9897-1654885d4255",
+            "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608",
+            "label": "Convert BTC to USD",
+            "kind": "click",
+            "risk": "interface",
+            "excluded": true
+          }
+        ],
+        "decisions": [
+          {
+            "revision": 1,
+            "at": "2026-10-15T04:15:52.516Z",
+            "decision": {
+              "source": "okx-region-acceptance",
+              "evidence": [
+                "The current chart region exposes six interval tabs; choose only 1W. No amount input or conversion was selected."
+              ],
+              "mode": "defer"
+            }
+          }
+        ],
+        "collection": {
+          "key": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+          "label": "已确认业务区域",
+          "evidence": [
+            {
+              "source": "okx-region-acceptance",
+              "rule": "caller-region-partition/v1",
+              "facts": {
+                "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+                "evidence": [
+                  "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+                ]
+              }
+            }
+          ]
+        },
+        "traversalKeys": []
+      }
+    ],
+    "collections": [
+      {
+        "key": "a53e25f4d81631aec179d6a492f6b01c62966a3a54bc7dde496ac448a6d71848",
+        "label": "已确认业务区域",
+        "evidence": [
+          {
+            "source": "okx-region-acceptance",
+            "rule": "caller-region-partition/v1",
+            "facts": {
+              "reviewId": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+              "evidence": [
+                "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+              ]
+            }
+          }
+        ],
+        "groupIds": [
+          "e80158ee-a0d3-42bb-991a-1c49c802b0af",
+          "6a2165f9-6154-4640-acfe-af44a5e16094"
+        ]
+      }
+    ],
+    "overlaps": [],
+    "requestedGroupIds": []
+  },
+  "reviewAfter": {
+    "id": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+    "sessionId": "85ed02cc-5e0c-414a-bf15-28951234219b",
+    "observationId": "871dd6d5-c827-4e78-93ae-b411c0fea1c1",
+    "instanceScope": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "at": "2026-10-15T04:15:20.464Z",
+    "source": "okx-region-acceptance",
+    "evidence": [
+      "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+    ],
+    "regions": [
+      {
+        "key": "chart",
+        "label": "Chart intervals",
+        "controlIds": [
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604"
+        ],
+        "pageTraversal": false,
+        "anchors": [
+          {
+            "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630",
+            "fingerprint": "9db20013cd6c253221607980169ce78d26a571549c87ced436ef79f12a223f76"
+          }
+        ],
+        "status": "active"
+      },
+      {
+        "key": "calculator",
+        "label": "Calculator",
+        "controlIds": [
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608"
+        ],
+        "pageTraversal": false,
+        "anchors": [
+          {
+            "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+            "fingerprint": "fbe02e2f30ab2fb3bd4199a647b0f69d11af892d2f1e892954420a72838e02c7"
+          }
+        ],
+        "status": "active"
+      }
+    ],
+    "rejectedCandidateIds": [],
+    "status": "active"
+  },
+  "unassignedControlIds": [
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:427",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:428",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:429",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:430",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:444",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:452",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:459",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:597",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:598",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:473",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:474",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:475",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:476",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:477",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:482",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:62",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:63",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:64",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:65",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:66",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:67",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:68",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:69",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:70",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:71",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:73",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:74",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:75",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:76",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:77",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:78",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:82",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:83",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:85",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:87",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:88",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:89",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:90",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:91",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:92",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:93",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:94",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:95",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:96",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:97",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:98",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:99",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:100",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:101",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:102",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:103",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:104",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:105",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:106",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:107",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:108",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:109",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:110",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:111",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:112",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:113",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:114",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:115",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:116",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:117",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:118",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:119",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:120",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:121",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:122",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:123",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:124",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:125",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:126",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:127",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:128",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:129",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:130",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:131",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:132",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:133",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:134",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:135",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:136",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:137",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:138",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:139",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:140",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:141",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:142",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:143",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:144",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:145",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:146",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:147",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:148",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:149",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:150",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:151",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:152",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:153",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:154",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:155",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:156",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:157",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:158",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:159",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:160",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:161",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:162",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:163",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:164",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:165",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:166",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:167",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:168",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:169",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:170",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:171",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:172",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:173",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:174",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:484",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:485",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:486",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:487",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:488",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:489",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:490",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:491",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:492",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:493",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:494",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:495",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:496",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:497",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:498",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:499",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:500",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:501",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:502",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:503",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:504",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:505",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:506",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:507",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:508",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:509",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:510",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:511",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:512",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:513",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:514",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:515",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:516",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:517",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:518",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:519",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:520",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:521",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:522",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:523",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:524",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:525",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:526",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:527",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:528",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:529",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:530",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:531",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:532",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:533",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:534",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:535",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:536",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:537",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:538",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:539",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:609",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:610",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:611",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:612",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:613",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:614",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:615",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:616",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:540",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:297",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:618",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:295",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:379",
+    "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:554"
+  ],
+  "unassignedPageTraversal": true,
+  "before": {
+    "id": "871dd6d5-c827-4e78-93ae-b411c0fea1c1",
+    "instanceScope": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "context": {},
+    "controls": [
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+        "name": "1h",
+        "role": "tab",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+        "name": "24h",
+        "role": "tab",
+        "value": "",
+        "selected": [
+          "24h"
+        ],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+        "name": "1W",
+        "role": "tab",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+        "name": "1M",
+        "role": "tab",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+        "name": "1Y",
+        "role": "tab",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604",
+        "name": "2Y",
+        "role": "tab",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+        "name": "0",
+        "role": "textbox",
+        "value": "1",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+        "name": "",
+        "role": "button",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+        "name": "0",
+        "role": "textbox",
+        "value": "81,038.4",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608",
+        "name": "Convert BTC to USD",
+        "role": "link",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      }
+    ]
+  },
+  "after": {
+    "id": "07455896-e7f2-4297-9897-1654885d4255",
+    "instanceScope": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "context": {},
+    "controls": [
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+        "name": "1h",
+        "role": "tab",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+        "name": "24h",
+        "role": "tab",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+        "name": "1W",
+        "role": "tab",
+        "value": "",
+        "selected": [
+          "1W"
+        ],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+        "name": "1M",
+        "role": "tab",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+        "name": "1Y",
+        "role": "tab",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604",
+        "name": "2Y",
+        "role": "tab",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+        "name": "0",
+        "role": "textbox",
+        "value": "1",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+        "name": "",
+        "role": "button",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+        "name": "0",
+        "role": "textbox",
+        "value": "81,038.4",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "localId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608",
+        "instanceId": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608",
+        "name": "Convert BTC to USD",
+        "role": "link",
+        "value": "",
+        "selected": [],
+        "visible": true,
+        "enabled": true
+      }
+    ]
+  },
+  "sessionAfter": {
+    "id": "85ed02cc-5e0c-414a-bf15-28951234219b",
+    "options": {
+      "url": "https://www.okx.com/convert/btc-to-usd",
+      "headless": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "maxActions": 8,
+      "maxDepth": 30,
+      "maxDurationMs": 600000,
+      "actionTimeoutMs": 15000,
+      "settleMs": 300,
+      "observeTimeoutMs": 10000,
+      "evidence": {
+        "enabled": true,
+        "maxNodes": 5000,
+        "maxTextLength": 20000,
+        "maxHtmlLength": 2000000,
+        "maxDomCharacters": 4000000,
+        "maxAttributeLength": 4000,
+        "maxRuntimeEntries": 200,
+        "styles": "essential",
+        "accessibility": true,
+        "fullPageScreenshot": false
+      },
+      "evidenceRetention": {
+        "mode": "persistent",
+        "ttlMs": 0,
+        "maxBytes": 1073741824,
+        "maxObservations": 100
+      },
+      "exclude": [],
+      "replayable": [],
+      "context": {},
+      "exploration": "controls",
+      "listExploration": "review",
+      "pageExploration": "review",
+      "regionExploration": "review",
+      "decisionScopes": [],
+      "interfaceActions": [],
+      "reversible": [],
+      "environmentReset": "none",
+      "contextRules": []
+    },
+    "createdAt": "2026-10-15T04:14:30.538Z",
+    "status": "paused",
+    "actionCount": 2,
+    "elapsedMs": 8201,
+    "mode": "dfs",
+    "dirty": false,
+    "currentObservationId": "07455896-e7f2-4297-9897-1654885d4255",
+    "stopReason": "REGION_REVIEW_REQUIRED"
+  },
+  "frontierCounts": {
+    "blocked": 173,
+    "deferred": 28,
+    "executed": 2,
+    "superseded": 1
+  },
+  "attempts": [
+    {
+      "id": "d1144c77-eca8-4b30-914b-380674ba898a",
+      "label": "Close",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "external",
+      "beforeId": "b2c5c1e0-7790-46b1-9860-3d2dba85304d",
+      "afterId": "871dd6d5-c827-4e78-93ae-b411c0fea1c1"
+    },
+    {
+      "id": "0d7bf042-0d0e-4b8b-a0d3-fc8011117dd9",
+      "label": "1W",
+      "kind": "click",
+      "status": "succeeded",
+      "purpose": "exploration",
+      "beforeId": "c27c6377-6767-4a70-8c19-2fdae1cf6ac0",
+      "afterId": "07455896-e7f2-4297-9897-1654885d4255"
+    }
+  ],
+  "events": [
+    {
+      "sequence": 1,
+      "type": "region.review_requested",
+      "at": "2026-10-15T04:14:34.920Z",
+      "data": {
+        "observationId": "b2c5c1e0-7790-46b1-9860-3d2dba85304d",
+        "candidateIds": [
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:4",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:297",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:561",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:562",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:422",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:546",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:547",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:548",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:549",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:617",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:565",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:550",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:566",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:551",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:552",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:553",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:283",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:307",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:284",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:314",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:316",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:317",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:318",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:320",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:631",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:632",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:640",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:324",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:326",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:333",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:75",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:76",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:77",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:78",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:82",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:83",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:85",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:87",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:88",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:89",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:348",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:350",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:352",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:353",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:355",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:292",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:359",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:293",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:294",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:369",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:295",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:379",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:424",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:573",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:425",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:426",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:595",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:395",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:399"
+        ],
+        "unassignedControlIds": [
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:427",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:428",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:429",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:430",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:444",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:452",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:459",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:597",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:598",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:473",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:474",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:475",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:476",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:477",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:482",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:62",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:63",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:64",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:65",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:66",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:67",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:68",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:69",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:70",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:71",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:73",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:74",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:75",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:76",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:77",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:78",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:82",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:83",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:85",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:87",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:88",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:89",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:90",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:91",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:92",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:93",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:94",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:95",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:96",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:97",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:98",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:99",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:100",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:101",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:102",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:103",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:104",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:105",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:106",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:107",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:108",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:109",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:110",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:111",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:112",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:113",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:114",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:115",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:116",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:117",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:118",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:119",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:120",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:121",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:122",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:123",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:124",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:125",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:126",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:127",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:128",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:129",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:130",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:131",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:132",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:133",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:134",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:135",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:136",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:137",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:138",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:139",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:140",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:141",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:142",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:143",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:144",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:145",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:146",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:147",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:148",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:149",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:150",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:151",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:152",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:153",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:154",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:155",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:156",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:157",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:158",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:159",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:160",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:161",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:162",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:163",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:164",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:165",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:166",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:167",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:168",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:169",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:170",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:171",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:172",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:173",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:174",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:484",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:485",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:486",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:487",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:488",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:489",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:490",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:491",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:492",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:493",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:494",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:495",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:496",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:497",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:498",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:499",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:500",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:501",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:502",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:503",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:504",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:505",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:506",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:507",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:508",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:509",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:510",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:511",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:512",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:513",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:514",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:515",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:516",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:517",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:518",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:519",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:520",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:521",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:522",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:523",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:524",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:525",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:526",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:527",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:528",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:529",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:530",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:531",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:532",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:533",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:534",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:535",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:536",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:537",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:538",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:539",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:609",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:610",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:611",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:612",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:613",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:614",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:615",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:616",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:540",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:541",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:542",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:543",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:297",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:618",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:295",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:379",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:554"
+        ],
+        "unassignedPageTraversal": true
+      }
+    },
+    {
+      "sequence": 72,
+      "type": "region.review_requested",
+      "at": "2026-10-15T04:14:58.258Z",
+      "data": {
+        "observationId": "871dd6d5-c827-4e78-93ae-b411c0fea1c1",
+        "candidateIds": [
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:4",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:297",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:561",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:562",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:422",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:546",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:547",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:548",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:549",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:617",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:565",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:550",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:566",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:551",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:552",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:553",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:283",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:307",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:284",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:314",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:316",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:317",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:318",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:320",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:631",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:632",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:640",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:324",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:326",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:333",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:75",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:76",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:77",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:78",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:82",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:83",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:85",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:87",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:88",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:89",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:348",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:350",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:352",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:353",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:355",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:292",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:359",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:293",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:294",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:369",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:295",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:379",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:424",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:573",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:425",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:395",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:399"
+        ],
+        "unassignedControlIds": [
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:427",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:428",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:429",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:430",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:444",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:452",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:459",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:597",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:598",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:473",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:474",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:475",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:476",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:477",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:482",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:62",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:63",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:64",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:65",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:66",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:67",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:68",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:69",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:70",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:71",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:73",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:74",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:75",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:76",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:77",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:78",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:82",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:83",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:85",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:87",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:88",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:89",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:90",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:91",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:92",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:93",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:94",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:95",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:96",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:97",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:98",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:99",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:100",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:101",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:102",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:103",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:104",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:105",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:106",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:107",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:108",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:109",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:110",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:111",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:112",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:113",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:114",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:115",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:116",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:117",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:118",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:119",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:120",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:121",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:122",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:123",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:124",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:125",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:126",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:127",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:128",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:129",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:130",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:131",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:132",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:133",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:134",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:135",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:136",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:137",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:138",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:139",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:140",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:141",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:142",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:143",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:144",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:145",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:146",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:147",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:148",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:149",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:150",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:151",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:152",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:153",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:154",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:155",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:156",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:157",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:158",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:159",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:160",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:161",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:162",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:163",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:164",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:165",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:166",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:167",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:168",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:169",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:170",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:171",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:172",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:173",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:174",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:484",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:485",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:486",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:487",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:488",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:489",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:490",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:491",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:492",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:493",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:494",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:495",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:496",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:497",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:498",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:499",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:500",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:501",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:502",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:503",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:504",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:505",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:506",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:507",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:508",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:509",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:510",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:511",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:512",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:513",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:514",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:515",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:516",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:517",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:518",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:519",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:520",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:521",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:522",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:523",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:524",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:525",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:526",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:527",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:528",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:529",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:530",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:531",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:532",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:533",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:534",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:535",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:536",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:537",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:538",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:539",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:609",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:610",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:611",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:612",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:613",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:614",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:615",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:616",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:540",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:297",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:618",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:295",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:379",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:554"
+        ],
+        "unassignedPageTraversal": true
+      }
+    },
+    {
+      "sequence": 89,
+      "type": "region.reviewed",
+      "at": "2026-10-15T04:15:20.464Z",
+      "data": {
+        "id": "19752008-60e5-4c3f-8764-fc1c725dfdc4",
+        "sessionId": "85ed02cc-5e0c-414a-bf15-28951234219b",
+        "observationId": "871dd6d5-c827-4e78-93ae-b411c0fea1c1",
+        "instanceScope": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f",
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "at": "2026-10-15T04:15:20.464Z",
+        "source": "okx-region-acceptance",
+        "evidence": [
+          "Observed heading BTC/USD markets contains six interval tabs; Crypto calculator contains two amount textboxes, its selector and conversion link. Confirm these two containers as separate review regions."
+        ],
+        "regions": [
+          {
+            "key": "chart",
+            "label": "Chart intervals",
+            "controlIds": [
+              "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:599",
+              "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:600",
+              "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:601",
+              "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:602",
+              "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:603",
+              "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:604"
+            ],
+            "pageTraversal": false,
+            "anchors": [
+              {
+                "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630",
+                "fingerprint": "9db20013cd6c253221607980169ce78d26a571549c87ced436ef79f12a223f76"
+              }
+            ],
+            "status": "active"
+          },
+          {
+            "key": "calculator",
+            "label": "Calculator",
+            "controlIds": [
+              "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:605",
+              "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:606",
+              "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:607",
+              "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:608"
+            ],
+            "pageTraversal": false,
+            "anchors": [
+              {
+                "id": "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+                "fingerprint": "fbe02e2f30ab2fb3bd4199a647b0f69d11af892d2f1e892954420a72838e02c7"
+              }
+            ],
+            "status": "active"
+          }
+        ],
+        "rejectedCandidateIds": [],
+        "status": "active"
+      }
+    },
+    {
+      "sequence": 90,
+      "type": "region.review_requested",
+      "at": "2026-10-15T04:15:22.436Z",
+      "data": {
+        "observationId": "9748c234-d0d5-491c-9c8d-c52532fada3e",
+        "candidateIds": [
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:4",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:297",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:561",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:562",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:422",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:546",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:547",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:548",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:549",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:617",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:565",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:550",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:566",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:551",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:552",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:553",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:283",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:307",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:284",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:314",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:316",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:317",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:318",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:630",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:320",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:631",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:632",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:636",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:640",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:324",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:326",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:333",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:75",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:336",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:76",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:77",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:78",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:82",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:83",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:85",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:87",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:88",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:89",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:348",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:350",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:352",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:353",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:355",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:292",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:359",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:293",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:294",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:369",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:295",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:379",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:424",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:573",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:425",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:395",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:399"
+        ],
+        "unassignedControlIds": [
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:427",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:428",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:429",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:430",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:444",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:452",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:459",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:597",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:598",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:473",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:474",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:475",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:476",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:477",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:482",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:62",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:63",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:64",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:65",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:66",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:67",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:68",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:69",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:70",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:71",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:73",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:74",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:75",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:76",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:77",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:78",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:82",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:83",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:85",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:87",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:88",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:89",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:90",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:91",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:92",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:93",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:94",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:95",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:96",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:97",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:98",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:99",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:100",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:101",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:102",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:103",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:104",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:105",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:106",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:107",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:108",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:109",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:110",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:111",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:112",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:113",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:114",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:115",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:116",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:117",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:118",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:119",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:120",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:121",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:122",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:123",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:124",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:125",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:126",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:127",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:128",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:129",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:130",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:131",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:132",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:133",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:134",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:135",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:136",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:137",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:138",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:139",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:140",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:141",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:142",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:143",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:144",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:145",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:146",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:147",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:148",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:149",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:150",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:151",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:152",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:153",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:154",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:155",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:156",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:157",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:158",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:159",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:160",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:161",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:162",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:163",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:164",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:165",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:166",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:167",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:168",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:169",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:170",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:171",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:172",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:173",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:174",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:484",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:485",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:486",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:487",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:488",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:489",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:490",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:491",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:492",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:493",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:494",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:495",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:496",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:497",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:498",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:499",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:500",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:501",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:502",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:503",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:504",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:505",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:506",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:507",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:508",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:509",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:510",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:511",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:512",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:513",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:514",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:515",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:516",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:517",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:518",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:519",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:520",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:521",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:522",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:523",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:524",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:525",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:526",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:527",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:528",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:529",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:530",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:531",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:532",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:533",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:534",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:535",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:536",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:537",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:538",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:539",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:609",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:610",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:611",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:612",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:613",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:614",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:615",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:616",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:540",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:297",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:618",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:619",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:295",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:379",
+          "d7d71837-18f5-4cdf-bdf5-b538d52d9d4f:554"
+        ],
+        "unassignedPageTraversal": true
+      }
+    },
+    {
+      "sequence": 101,
+      "type": "exploration.group_decided",
+      "at": "2026-10-15T04:15:52.517Z",
+      "data": {
+        "groupId": "e80158ee-a0d3-42bb-991a-1c49c802b0af",
+        "revision": 2,
+        "decision": {
+          "source": "okx-region-acceptance",
+          "evidence": [
+            "The current chart region exposes six interval tabs; choose only 1W. No amount input or conversion was selected."
+          ],
+          "mode": "sample",
+          "memberKeys": [
+            "b868776058f1faf2efdeba59c9af5b547b312bc162ed656059021f3cda2d233b"
+          ]
+        }
+      }
+    },
+    {
+      "sequence": 103,
+      "type": "exploration.group_decided",
+      "at": "2026-10-15T04:15:52.517Z",
+      "data": {
+        "groupId": "6a2165f9-6154-4640-acfe-af44a5e16094",
+        "revision": 2,
+        "decision": {
+          "source": "okx-region-acceptance",
+          "evidence": [
+            "The current chart region exposes six interval tabs; choose only 1W. No amount input or conversion was selected."
+          ],
+          "mode": "defer"
+        }
+      }
+    },
+    {
+      "sequence": 105,
+      "type": "exploration.groups_decided",
+      "at": "2026-10-15T04:15:52.517Z",
+      "data": {
+        "resolutions": [
+          {
+            "groupId": "e80158ee-a0d3-42bb-991a-1c49c802b0af",
+            "revision": 1,
+            "decision": {
+              "source": "okx-region-acceptance",
+              "evidence": [
+                "The current chart region exposes six interval tabs; choose only 1W. No amount input or conversion was selected."
+              ],
+              "mode": "sample",
+              "memberKeys": [
+                "b868776058f1faf2efdeba59c9af5b547b312bc162ed656059021f3cda2d233b"
+              ]
+            }
+          },
+          {
+            "groupId": "6a2165f9-6154-4640-acfe-af44a5e16094",
+            "revision": 1,
+            "decision": {
+              "source": "okx-region-acceptance",
+              "evidence": [
+                "The current chart region exposes six interval tabs; choose only 1W. No amount input or conversion was selected."
+              ],
+              "mode": "defer"
+            }
+          }
+        ],
+        "changedGroupIds": [
+          "e80158ee-a0d3-42bb-991a-1c49c802b0af",
+          "6a2165f9-6154-4640-acfe-af44a5e16094"
+        ]
+      }
+    },
+    {
+      "sequence": 124,
+      "type": "exploration.paused",
+      "at": "2026-10-15T04:16:09.986Z",
+      "data": {
+        "reason": "REGION_REVIEW_REQUIRED"
+      }
+    }
+  ]
+}

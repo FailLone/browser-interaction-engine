@@ -1,5 +1,6 @@
 import { inspectionOptionsSchema } from './inspection-contract.js';
 import { listPurposeReviewSchema, revokePurposeReviewSchema } from './purpose-review.js';
+import { controlReviewSchema, revokeControlReviewSchema } from './control-review.js';
 import { z } from 'zod';
 import { evidenceRetentionSchema, explorationGroupDecisionSchema, explorationGroupResolutionsSchema } from '@interaction/core';
 export const contextSchema = z.record(z.string(), z.object({ value: z.json(), status: z.enum(['known', 'unknown']), source: z.string() }));
@@ -11,6 +12,11 @@ export const evidenceOptionsSchema = z.object({
     maxAttributeLength: z.number().int().min(1).max(100000).default(4000), maxRuntimeEntries: z.number().int().min(1).max(5000).default(200),
     styles: z.enum(['none', 'essential', 'all']).default('essential'), accessibility: z.boolean().default(true), fullPageScreenshot: z.boolean().default(false),
   }).strict().prefault({});
+export const regionReviewSchema = z.object({
+  observationId: z.string().min(1), source: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1),
+  regions: z.array(z.object({ key: z.string().trim().min(1), label: z.string().trim().min(1), candidateIds: z.array(z.string().min(1)).min(1), controlIds: z.array(z.string().min(1)).optional(), pageTraversal: z.boolean().default(false) }).strict()).max(500),
+  rejectedCandidateIds: z.array(z.string().min(1)).default([]),
+}).strict();
 export const sessionSchema = z.object({
   url: z.url().refine(v => ['http:', 'https:'].includes(new URL(v).protocol), 'Only HTTP(S) URLs are supported'),
   headless: z.boolean().default(false), viewport: z.object({ width: z.number().int().min(320).max(3840), height: z.number().int().min(240).max(2160) }).default({ width: 1440, height: 900 }),
@@ -23,14 +29,18 @@ export const sessionSchema = z.object({
   exploration: z.enum(['controls', 'representative', 'stateful']).default('controls'),
   listExploration: z.enum(['review', 'all']).default('review'),
   pageExploration: z.enum(['review', 'all']).default('review'),
+  regionExploration: z.enum(['off', 'review']).default('off'),
   decisionScopes: z.array(z.enum(['region', 'branch', 'input-space'])).default([]),
   interfaceActions: z.array(match).default([]), reversible: z.array(match).default([]),
   environmentReset: z.enum(['none', 'document-reload']).default('none'),
   contextRules: z.array(z.object({ key: z.string().min(1), selector: z.string().min(1), attribute: z.string().optional(), required: z.boolean().optional() })).default([]),
   storageState: z.union([z.string(), z.object({ cookies: z.array(z.unknown()), origins: z.array(z.unknown()) })]).optional(),
-}).strict();
+}).strict().refine(o => o.regionExploration !== 'review' || !o.decisionScopes.some(s => s === 'region' || s === 'branch'), 'Reviewed regions replace optional region/branch producers; select one scope granularity');
 export const predicateSchema = z.object({ target: z.enum(['url', 'context', 'control']), key: z.string().optional(), identityId: z.string().optional(), field: z.enum(['value', 'checked', 'visible', 'enabled']).optional(), equals: z.json() }).strict();
 export const commandSchema = z.discriminatedUnion('type', [
+  z.object({type:z.literal('reviewControls'),review:controlReviewSchema}).strict(),
+  z.object({type:z.literal('revokeControlReview'),revocation:revokeControlReviewSchema}).strict(),
+  z.object({ type: z.literal('reviewRegions'), review: regionReviewSchema }).strict(),
   z.object({ type: z.literal('reviewListPurpose'), review: listPurposeReviewSchema }).strict(),
   z.object({ type: z.literal('revokePurposeReview'), revocation: revokePurposeReviewSchema }).strict(),
   z.object({ type: z.literal('observe') }),

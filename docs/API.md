@@ -147,6 +147,8 @@ SQLite 插件使用 WAL，`entities` 保存带 kind 的结构化实体，`events
 
 ## 探索与恢复配置
 
+未知控件可通过 `controlReview` hook 或 SDK/HTTP 提交带来源的持久操作审阅。`control.review_requested` 通知上层读取当前材料；审阅支持替换、撤销及条件变化失效，独立于探索范围批准。完整字段及限制见[控件审阅协议](CONTROL-REVIEW.md)。
+
 新会话同时默认 `listExploration: 'review'`。相似列表通过 `exploration.group_detected` 持久事件或 `hooks.explorationGroup` 提交给上层，暂缓成员及所属列表滚动，优先继续其他工作。`GET /v1/sessions/:sessionId/exploration-groups` 查询材料；`decideExplorationGroup` 命令接收 groupId、revision、decision（all/sample/defer/skip，附 source/evidence）。未执行成员仍计入缺口；无其他工作时以 `LIST_DECISION_REQUIRED` 暂停。详见[相似列表遍历决策](LIST-EXPLORATION.md)。
 
 通用范围复用以上查询、事件与命令：`hooks.explorationScopes` 提出任意 kind 的当前动作范围，`hooks.explorationDecision` 返回决策（优先于兼容 hook）。浏览器 `decisionScopes` 可选 region/branch/input-space，默认不启用。`skip` 为本轮不测，状态 skipped；`defer` 在其他工作结束后以 EXPLORATION_DEFERRED 暂停。通用范围条件失效会发布 exploration.group_invalidated，旧决策不可重用。完整语义见[通用探索决策](EXPLORATION-DECISIONS.md)。

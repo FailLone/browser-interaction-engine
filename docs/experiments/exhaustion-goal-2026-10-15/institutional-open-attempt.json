@@ -1,0 +1,542 @@
+{
+  "id": "7430bdb9-eadf-46d3-92c6-ebd925b48ec8",
+  "sessionId": "0c2ef192-9fd4-4a52-aaa6-adf8463d8037",
+  "requestId": "b047b695-ef48-4c3d-b8d0-629046c16127",
+  "action": {
+    "id": "f66dd544-577f-4819-921e-4b11793d806e",
+    "sessionId": "0c2ef192-9fd4-4a52-aaa6-adf8463d8037",
+    "observationId": "6843bd0d-e5cc-4fbb-91af-9e876640a5eb",
+    "stateId": "46e6722b-7761-4696-911d-97809369a023",
+    "controlId": "4a193278-89ab-42df-b5a7-4679fd9d6e02",
+    "localId": "7f6f1b34-e0b5-4932-9721-147d4257c542:318",
+    "kind": "click",
+    "label": "Institutional",
+    "preconditions": {
+      "context": {},
+      "visible": true,
+      "enabled": true,
+      "identityResolved": true,
+      "blockers": [],
+      "targetResolved": true
+    },
+    "basis": {
+      "status": "supported",
+      "evidence": [
+        {
+          "source": "html",
+          "rule": "native-button/v1",
+          "facts": {
+            "tag": "button",
+            "type": "button",
+            "submitsForm": false
+          }
+        },
+        {
+          "source": "reviewer",
+          "rule": "sourced-control-review/v1",
+          "facts": {
+            "reviewId": "6a1e8a79-ad40-4248-97b6-ecd49e58b00a",
+            "reason": "Use Institutional as a distinct header-menu switch probe to exit the stuck Trade/Spot panel while continuing independent entry-page coverage.",
+            "evidence": [
+              "Institutional is a visible enabled native button with supported click action and a true hit target.",
+              "It is a different top-level menu owner from Trade, so opening it can be verified by replacement of the Trade/Spot panel rather than by the unreliable Spot expanded flag alone."
+            ]
+          }
+        }
+      ]
+    },
+    "replayable": true,
+    "risk": "interface",
+    "source": "external-review",
+    "excluded": false,
+    "sampleValidity": "known"
+  },
+  "startedAt": "2026-10-15T04:51:17.521Z",
+  "beforeId": "6843bd0d-e5cc-4fbb-91af-9e876640a5eb",
+  "status": "succeeded",
+  "purpose": "external",
+  "afterId": "0d4935c4-d3aa-4293-a2cc-bd4373061d04",
+  "finishedAt": "2026-10-15T04:51:20.117Z",
+  "diff": {
+    "beforeId": "6843bd0d-e5cc-4fbb-91af-9e876640a5eb",
+    "afterId": "0d4935c4-d3aa-4293-a2cc-bd4373061d04",
+    "changes": [
+      {
+        "controlId": "b6d073bd-055e-40c6-b6f7-bf3c4f021533",
+        "kind": "disappeared",
+        "before": "ConvertQuick conversion, zero trading fees, no slippage"
+      },
+      {
+        "controlId": "afe4c384-feb7-4b20-85d8-d0d4d62c2bc4",
+        "kind": "disappeared",
+        "before": "SpotBuy and sell crypto with ease"
+      },
+      {
+        "controlId": "70535ef4-309d-43f7-a879-38ecaaa1a3dc",
+        "kind": "changed",
+        "field": "visible",
+        "before": true,
+        "after": false
+      },
+      {
+        "controlId": "70535ef4-309d-43f7-a879-38ecaaa1a3dc",
+        "kind": "changed",
+        "field": "expanded",
+        "before": true,
+        "after": false
+      },
+      {
+        "controlId": "0692c355-198a-4fec-80c6-7733e18c504f",
+        "kind": "disappeared",
+        "before": "USDT"
+      },
+      {
+        "controlId": "c35529fd-7301-4814-97d4-a6356d23f458",
+        "kind": "disappeared",
+        "before": "Crypto"
+      },
+      {
+        "controlId": "37aa9859-d2da-4eea-9a38-a3a97d1a71da",
+        "kind": "disappeared",
+        "before": "Search"
+      },
+      {
+        "controlId": "9dcb38bc-5b4a-4bb3-b75b-a90c4ca663bd",
+        "kind": "disappeared",
+        "before": "BTC/USDTLast price81,592.024h change-2.58%"
+      },
+      {
+        "controlId": "1a113f47-f501-4d29-84e0-7c77d06fbc26",
+        "kind": "disappeared",
+        "before": "ETH/USDTLast price2,382.4824h change-5.28%"
+      },
+      {
+        "controlId": "cb6d8f24-ab2e-4e64-b2fb-3362c53a0ef9",
+        "kind": "disappeared",
+        "before": "UNI/USDTLast price7.02824h change-6.31%"
+      },
+      {
+        "controlId": "2816217d-462e-4e04-8224-eefccec8df18",
+        "kind": "disappeared",
+        "before": "LINK/USDTLast price12.24324h change-6.10%"
+      },
+      {
+        "controlId": "86b4ed64-dc7b-4bb2-831b-56033b3a1f53",
+        "kind": "disappeared",
+        "before": "AVAX/USDTLast price9.71724h change-6.03%"
+      },
+      {
+        "controlId": "e1242812-a09f-4a98-8f97-70b81beb5964",
+        "kind": "disappeared",
+        "before": "USDC/USDTLast price1.0011724h change+0.03%"
+      },
+      {
+        "controlId": "436953ed-8dcb-49f2-80d6-314a8b98359c",
+        "kind": "disappeared",
+        "before": "Flash EarnEarn rewards on new listings, spot, futures, and more trading campaigns"
+      },
+      {
+        "controlId": "89f80c20-b976-4fcd-b0b4-4d49ca631ed8",
+        "kind": "changed",
+        "field": "visible",
+        "before": true,
+        "after": false
+      },
+      {
+        "controlId": "4863c0aa-c51e-4a8c-96c8-61695f622816",
+        "kind": "disappeared",
+        "before": "Trade to EarnTrade, climb leaderboards, and share new token rewards."
+      },
+      {
+        "controlId": "e867c5ff-9f3b-48b3-9e99-3c90fd35be90",
+        "kind": "disappeared",
+        "before": "Stake to EarnSubscribe to receive new crypto airdrops with your assets"
+      },
+      {
+        "controlId": "0f7a8798-b615-440b-93f8-896a6713a635",
+        "kind": "disappeared",
+        "before": "Agent Trade KitAutomate your trades with AI agents and community-built skills"
+      },
+      {
+        "controlId": "803c67a7-7554-4563-9c6d-2b62d8e4ca15",
+        "kind": "changed",
+        "field": "visible",
+        "before": true,
+        "after": false
+      },
+      {
+        "controlId": "44a4dcb9-9c6a-41d1-b60c-45f3df6e538c",
+        "kind": "disappeared",
+        "before": "Agent Trade KitBuild AI agents to automate any trading strategy"
+      },
+      {
+        "controlId": "93d61242-39d6-43ab-ab0f-a900212b0ee2",
+        "kind": "disappeared",
+        "before": "AI Builder ProgramEverything a Builder needs, all in one place"
+      },
+      {
+        "controlId": "e50a5e46-3ab8-4f74-b584-55253c1dfcba",
+        "kind": "disappeared",
+        "before": "SkillsDiscover and install trading skills"
+      },
+      {
+        "controlId": "7ee46b64-9aae-4923-a164-d40c51203363",
+        "kind": "disappeared",
+        "before": "RFQCustom multi-leg strategies and block trades"
+      },
+      {
+        "controlId": "4a193278-89ab-42df-b5a7-4679fd9d6e02",
+        "kind": "changed",
+        "field": "expanded",
+        "before": false,
+        "after": true
+      },
+      {
+        "controlId": "7154280f-3c95-402e-8f48-c180618b1df6",
+        "kind": "disappeared",
+        "before": ""
+      },
+      {
+        "controlId": "9a52d8d1-071d-4653-8149-232abd8545ee",
+        "kind": "disappeared",
+        "before": ""
+      },
+      {
+        "controlId": "860ce3c5-09b5-4d61-90b6-6ef839a00314",
+        "kind": "disappeared",
+        "before": ""
+      },
+      {
+        "controlId": "08710782-6c57-4c8d-82ca-2e56c3f9d677",
+        "kind": "disappeared",
+        "before": ""
+      },
+      {
+        "controlId": "aebee3d2-77af-48e0-b887-61399547165e",
+        "kind": "disappeared",
+        "before": ""
+      },
+      {
+        "controlId": "87e3bfb6-5e3e-428a-afbb-43f7db4162db",
+        "kind": "disappeared",
+        "before": ""
+      },
+      {
+        "controlId": "be7ad54b-3533-473d-9830-5cf2270024aa",
+        "kind": "disappeared",
+        "before": ""
+      },
+      {
+        "controlId": "149bdb9d-1b01-461c-a8fc-ec7f266437f3",
+        "kind": "changed",
+        "field": "displayedText",
+        "before": "Skip to main contentMarketsTradeTrading instrumentsConvertQuick conversion, zero trading fees, no slippageSpotBuy and sell crypto with easeUSDTCryptoBTC/USDTLast price81,592.024h change-2.58%ETH/USDTLast price2,382.4824h change-5.28%UNI/USDTLast price7.02824h change-6.31%LINK/USDTLast price12.24324h change-6.10%AVAX/USDTLast price9.71724h change-6.03%USDC/USDTLast price1.0011724h change+0.03%Powerful toolsFlash EarnEarn rewards on new listings, spot, futures, and more trading campaignsTrade to E",
+        "after": "Skip to main contentMarketsTradeTrading instrumentsConvertQuick conversion, zero trading fees, no slippageSpotBuy and sell crypto with easePowerful toolsFlash EarnEarn rewards on new listings, spot, futures, and more trading campaignsTrade to EarnTrade, climb leaderboards, and share new token rewards.Stake to EarnSubscribe to receive new crypto airdrops with your assetsAgent Trade KitAutomate your trades with AI agents and community-built skillsAgent Trade KitBuild AI agents to automate any trad"
+      },
+      {
+        "controlId": "f9c33e1f-733b-4887-ad80-af50c40d3e9c",
+        "kind": "disappeared",
+        "before": "TradeTrading instrumentsConvertQuick conversion, zero trading fees, no slippageSpotBuy and sell crypto with easeUSDTCryptoBTC/USDTLast price81,592.024h change-2.58%ETH/USDTLast price2,382.4824h change-5.28%UNI/USDTLast price7.02824h change-6.31%LINK/USDTLast price12.24324h change-6.10%AVAX/USDTLast price9.71724h change-6.03%USDC/USDTLast price1.0011724h change+0.03%Powerful toolsFlash EarnEarn rewards on new listings, spot, futures, and more trading campaignsAgent Trade KitAutomate your trades w"
+      },
+      {
+        "controlId": "ca1dfb0f-c9e9-45c1-a290-7b236e0097f1",
+        "kind": "disappeared",
+        "before": "SpotBuy and sell crypto with easeUSDTCryptoBTC/USDTLast price81,592.024h change-2.58%ETH/USDTLast price2,382.4824h change-5.28%UNI/USDTLast price7.02824h change-6.31%LINK/USDTLast price12.24324h change-6.10%AVAX/USDTLast price9.71724h change-6.03%USDC/USDTLast price1.0011724h change+0.03%"
+      },
+      {
+        "controlId": "1bf7ba4f-a84d-4b6d-99e2-98145aa37e4e",
+        "kind": "disappeared",
+        "before": ""
+      },
+      {
+        "controlId": "7984882b-88a2-4e33-8500-90b0434bee92",
+        "kind": "disappeared",
+        "before": "Scrollable generic"
+      },
+      {
+        "controlId": "6aaf5a68-9d9a-477d-933c-dc6947a47168",
+        "kind": "disappeared",
+        "before": "Institutional"
+      },
+      {
+        "controlId": "e9011e1e-7156-442e-b3fe-341f527a50af",
+        "kind": "appeared",
+        "after": ""
+      },
+      {
+        "controlId": "06d9d95c-753a-4651-8cfb-12a5ea9b362f",
+        "kind": "appeared",
+        "after": ""
+      },
+      {
+        "controlId": "2ec1bf3a-4b99-43fb-955b-f8e81059c60a",
+        "kind": "appeared",
+        "after": ""
+      },
+      {
+        "controlId": "8bb564c7-8cbe-48be-a1af-f83a82bcda0d",
+        "kind": "appeared",
+        "after": ""
+      },
+      {
+        "controlId": "fac0cd4a-9b7a-4051-bb54-f5fd252cd636",
+        "kind": "appeared",
+        "after": ""
+      },
+      {
+        "controlId": "66e56ee2-72fb-41f3-8cb1-36b74dcd8b3a",
+        "kind": "appeared",
+        "after": ""
+      },
+      {
+        "controlId": "dea4a9f1-0bf6-408e-b7bf-516443c853b9",
+        "kind": "appeared",
+        "after": ""
+      },
+      {
+        "controlId": "a7bdd196-f3bf-4e9b-9042-831e8ddaa12c",
+        "kind": "appeared",
+        "after": ""
+      },
+      {
+        "controlId": "279152be-5b44-41d3-891d-dd231955aca3",
+        "kind": "appeared",
+        "after": ""
+      },
+      {
+        "controlId": "56f3eb1e-39b5-4bf8-930a-f0dc4e087a86",
+        "kind": "appeared",
+        "after": ""
+      },
+      {
+        "controlId": "dc4756d6-d064-473b-8ce1-6e950b2ad0ce",
+        "kind": "appeared",
+        "after": "Institutional homeThe world’s most powerful suite of crypto trading solutions"
+      },
+      {
+        "controlId": "356a7dbc-d917-4041-b378-34f41f0f35f6",
+        "kind": "appeared",
+        "after": "OKX RubixDigital assets-as-a-service for regulated institutions"
+      },
+      {
+        "controlId": "4b0deb48-0585-4a87-8161-0967013bbc27",
+        "kind": "appeared",
+        "after": "APIsSeamless and ultra-low latency API connectivity"
+      },
+      {
+        "controlId": "d403094f-0f12-48a2-bffe-e99da782e7a3",
+        "kind": "appeared",
+        "after": "Broker ProgramAccess world-class market depth with high commissions"
+      },
+      {
+        "controlId": "e260ec95-1c19-419c-bb9f-083488507d60",
+        "kind": "appeared",
+        "after": "Managed Trading Sub-accountsManage sub-accounts, trade easily and safely with more profits"
+      },
+      {
+        "controlId": "968c7b48-5bab-49d9-9ce5-fa4c7c23b4df",
+        "kind": "appeared",
+        "after": "Historical market dataCandlesticks, aggregate trades, order book data and more"
+      },
+      {
+        "controlId": "7b468a62-fb23-4f5f-8fd4-b508572a5b25",
+        "kind": "appeared",
+        "after": "Institutional InsightsOur latest institutional trading research, news, and more"
+      },
+      {
+        "controlId": "70bf6567-ceb7-4e55-8e01-2a7f853c1da5",
+        "kind": "appeared",
+        "after": "Trade"
+      },
+      {
+        "controlId": "4bdd6630-f6d8-467d-93b0-18b71aa36830",
+        "kind": "appeared",
+        "after": "InstitutionalInstitutional homeThe world’s most powerful suite of crypto trading solutionsOKX RubixDigital assets-as-a-service for regulated institutionsAPIsSeamless and ultra-low latency API connectivityBroker ProgramAccess world-class market depth with high commissionsManaged Trading Sub-accountsManage sub-accounts, trade easily and safely with more profitsHistorical market dataCandlesticks, aggregate trades, order book data and moreInstitutional InsightsOur latest institutional trading resear"
+      }
+    ],
+    "gaps": [
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "7c519bad-f5d9-4ad7-967a-6445913ab2b3"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "6efd355d-fb49-4da9-baf7-e5fef1cc8fe8"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "8c1d2f13-686f-4cf3-ae39-7c16de6c5bf0"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "3fef399d-8a9a-4562-9aa2-2e56245f6ed6"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "f02996cc-91c5-4587-93bb-2e6a293e646e"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "35ee4436-16d8-4d6e-b911-d3993309943f"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "e608d61e-e6be-4f8f-8cc4-c1124233676a"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "cc6da5bc-7ba7-46f7-9ee7-6c40f2026bae"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "426e8f91-678b-4605-9cfe-5ffadc58d91b"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "9052aeb0-d1e7-4c28-b07d-cca6e54e8fb6"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "f95a632e-cedb-41bc-8538-1d377ea5b4b9"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "ffbf2b09-bc07-41ea-b3bb-f74b5481959d"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "c8354429-a972-4134-93df-b586e63a277c"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "492e8e26-05fc-4f4e-bf8a-bf3ba2b6bbed"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "cea50cf9-56a9-4b65-857c-ad2bd120323c"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "acae85b3-a362-4e98-96de-aa514b90a113"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "5cb5cf95-fb5b-4215-891e-b5a07f0913c4"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "e49a335b-2ccc-421a-aaa5-cc192036c930"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "a5e5402a-ac69-4a64-b0af-e3e9edd06b88"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "5a78be4c-7d4d-4a71-867f-00a92d0b6a9d"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "44f17a19-1559-493c-b664-fb0a1dbd120b"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "52bcf71c-4121-49ba-8b65-92ab1acf55c5"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "7ba3e48e-c3d9-4251-8ff7-f3b05de36f4a"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "f45ff03a-c8ee-4e94-8448-cd8bbc688fcb"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "09db03a7-13b5-4efb-9be6-fcb6ee1ee3d7"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "c0d3725f-05e1-4e85-99de-8b9e581e7775"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "362d39a6-93ca-44b7-8371-0c9dc4b97bf0"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "94b308e4-9861-431d-a44e-81471ab7091a"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "807600f2-1910-427b-8e16-e8bc6a5bbab5"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "ac20b0c0-1d07-4f10-a6a3-db61013f3a4b"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "067af72c-65d8-4821-a9bc-dedb50be5b9f"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "59e7f254-4aa2-4230-8554-f73976331937"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "1a0cc07b-89b3-4924-8164-3af102013f04"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "1ac5f49a-4e3d-4afd-a1c3-119c7450e7af"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "1de42d03-fc7c-4819-af75-f0322799ae24"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "0dd12357-87a1-41c1-992f-418302317d60"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "36208afd-a9e0-49fa-ac37-9edbd517d737"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "3cab8e21-1f72-4834-beb0-d6059e9fcde2"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "498827c7-17aa-4215-8faa-e3ff88c5b642"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "1d7aa27b-3462-45a0-8171-94496569fb47"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "7fa3fc79-d3f8-4f42-ba23-45a54d209be7"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "60f61d85-7ed6-4975-8079-65fa33b61f01"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "607146ed-393c-4862-bd9c-fd468c45bcdc"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "215cedbd-4633-47ef-84f0-f16bc2a156e1"
+      },
+      {
+        "code": "IDENTITY_UNCERTAIN",
+        "message": "bba3ae1b-35f5-4841-867a-5c80bde5889c"
+      }
+    ],
+    "attribution": "observed_during_interval"
+  },
+  "transitionId": "65dc70e7-5bf1-4287-b1c1-9a1d805c8289"
+}

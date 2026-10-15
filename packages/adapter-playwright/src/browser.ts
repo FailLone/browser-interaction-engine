@@ -11,6 +11,7 @@ import { id } from './util.js';
 import type { ActionCandidate, Context, Control, Gap, Observation, Region, SessionOptions } from './types.js';
 import { EngineError } from './types.js';
 import { now } from './util.js';
+import { collectRegionCandidates } from './region-candidates.js';
 import { collectOverlays } from './overlays.js';
 import { collectLiveContent } from './live-content.js';
 import { collectActionEvidence } from './action-evidence.js';
@@ -22,7 +23,7 @@ import type { BrowserHistory } from './types.js';
 import type { BrowserEvidenceManifest, DetailSnapshot, DomEvidence, EvidenceOptions } from './evidence-types.js';
 
 // Runs in the page without framework knowledge or DOM mutation.
-function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0) {
+function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, candidateCollector: typeof collectRegionCandidates | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
@@ -277,10 +278,14 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const boundForm = (el as HTMLInputElement).form;
     const purposeBinding = list ? { attributes: Object.fromEntries(['type', 'role', 'href', 'target', 'form', 'formaction', 'formmethod', 'formtarget', 'aria-controls', 'aria-haspopup'].filter(k => el.hasAttribute(k)).map(k => [k, el.getAttribute(k)!])),
       ...(boundForm ? { form: { instanceId: instance(boundForm), action: boundForm.action, method: boundForm.method, target: boundForm.target } } : {}) } : undefined;
+    const reviewBinding = { parentInstanceId: instance(el.parentElement || document.documentElement),
+      attributes: Object.fromEntries(['type','role','name','href','target','src','alt','title','form','formaction','formmethod','formtarget','aria-label','aria-labelledby','aria-describedby','aria-controls','aria-haspopup','popovertarget','popovertargetaction','command','commandfor','contenteditable','onclick','onchange','oninput','onkeydown','onmouseenter','onmouseover','onpointerenter'].filter(k=>el.hasAttribute(k)).map(k=>[k,el.getAttribute(k)!])),
+      ...(boundForm ? {form:{instanceId:instance(boundForm),action:boundForm.action,method:boundForm.method,target:boundForm.target}} : {}) };
     return {
       localId: instance(el), instanceId: instance(el), tag: el.tagName.toLowerCase(), role: semanticRole, name, label: label(el), stableKey, ...(identityScope ? { identityScope } : {}), ...(liveContent ? { liveContent } : {}),
       ...(list ? { list: { instanceId: instance(list), role: list.tagName === 'SELECT' ? 'select' : 'listbox', label: label(list), selector: selector(list) } } : {}),
       ...(purposeBinding ? { purposeBinding } : {}),
+      reviewBinding,
       region: regionKey(el.closest(regionSelector)), regionInstanceId: instance(el.closest(regionSelector) || body || document.documentElement), form: regionKey(el.closest('form')), formOwner: formOwner(el), selector: selector(el), rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
       checked: ['checkbox', 'radio'].includes(type) ? e.checked : el.hasAttribute('aria-checked') ? el.getAttribute('aria-checked') === 'true' : null,
@@ -319,7 +324,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const owners = document.querySelectorAll(region.selector);
     if (owners.length === 1) region.instanceId = instance(owners[0]);
   }
-  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, ...layers, actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
+  return { documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, ...layers, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
 
 export class BrowserAdapter implements InteractionDriver<Observation, SessionOptions> {
@@ -377,9 +382,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (!this.page || this.page.isClosed()) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
-    const args = `, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}`;
+    const args = `, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}`;
     const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}${args}); })()`;
-    return this.page.evaluate(source) as Promise<{ documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[]; overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>; actionDiscovery?: Observation['actionDiscovery']; scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence }>;
+    return this.page.evaluate(source) as Promise<{ documentId: string; url: string; title: string; text: string; controls: Control[]; regions: Region[]; overlays: NonNullable<Observation['overlays']>; boundaries: NonNullable<Observation['boundaries']>; regionCandidates?: Observation['regionCandidates']; actionDiscovery?: Observation['actionDiscovery']; scroll: Observation['scroll']; gaps: Gap[]; detailDom?: DomEvidence }>;
   }
   async capture(observationId: string) {
     if (!this.page) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
@@ -420,7 +425,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
           const incomplete = dom.gaps.some(g => ['DOM_ROOT_UNAVAILABLE', 'DOCUMENT_LOADING'].includes(g.code));
           const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.pressed, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
           if (key !== previous || incomplete) { previous = key; unchangedSince = Date.now(); }
-          const interactive = interactionProjection(dom);
+          const interactive = interactionProjection(dom) + canonical(dom.regionCandidates?.map(c => [c.id, c.binding]));
           if (interactive !== previousInteraction || incomplete) { previousInteraction = interactive; interactionSince = Date.now(); }
           interactionStable = !incomplete && Date.now() - interactionSince >= this.options.settleMs;
           if (!incomplete && Date.now() - unchangedSince >= this.options.settleMs) { stable = true; break; }
@@ -435,8 +440,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if (this.options.evidence.enabled && dom && !lastError) {
         try {
           const detailed = await timeout(this.readDOM(true), this.options.observeTimeoutMs, 'Detailed DOM capture deadline exceeded');
-          if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId) {
-            interactionStable &&= interactionProjection(dom) === interactionProjection(detailed);
+          if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId || canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(detailed.regionCandidates?.map(c => [c.id, c.binding]))) {
+            interactionStable &&= interactionProjection(dom) === interactionProjection(detailed) && canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) === canonical(detailed.regionCandidates?.map(c => [c.id, c.binding]));
             stable = false;
             const critical = !(this.options.exploration === 'controls' && (interactionStable || readyDependencies(detailed).size > 0));
             dom = detailed;
@@ -629,7 +634,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (o.overlays?.length) add('press', 'Escape');
     return actions;
   }
-  async preflight(current: Observation, action?: ActionCandidate): Promise<PreflightResult> {
+  async preflight(current: Observation, action?: ActionCandidate, reviewTargetLocalIds: string[] = []): Promise<PreflightResult> {
     let live: Awaited<ReturnType<BrowserAdapter['readDOM']>>;
     try { live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
@@ -641,6 +646,15 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // These invariants and declared context apply to every operation, even local ones.
     const global = (o: typeof live | Observation) => canonical({ document: o.documentId, url: o.url, scroll: o.scroll, boundaries: o.boundaries });
     if (global(live) !== global(current)) return 'stale';
+    if (canonical(live.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(current.regionCandidates?.map(c => [c.id, c.binding]))) return 'stale';
+    const reviewTargets = new Set([...reviewTargetLocalIds, ...(action?.localId ? [action.localId] : [])]);
+    const reviewedControls = new Map(current.controls.map(c => [c.instanceId, c]));
+    // Preserve control-review bindings within the operation's validated dependencies.
+    // Passive read-only background labels remain evidence, not global prerequisites.
+    const reviewBindingsChanged = (controls: Control[]) => controls.some(c => {
+      const before = reviewedControls.get(c.instanceId);
+      return (!c.readOnly || !before?.readOnly || reviewTargets.has(c.localId)) && canonical(c.reviewBinding) !== canonical(before?.reviewBinding);
+    });
     for (const rule of this.options.contextRules) {
       const locator = this.page!.locator(rule.selector);
       let observed: string | null = null;
@@ -660,10 +674,12 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       // A replaced target/owner has no continuous local scope. Treat it as global
       // invalidation so repeated rebuilds cannot acquire a fresh retry budget.
       if (!next || nativeFormScope(next, action!.kind) !== scopeKey) return 'stale';
-      if (dependencyProjection(current, target, action!.kind) !== dependencyProjection(live, next, action!.kind)) {
+      if (dependencyProjection(current, target, action!.kind) !== dependencyProjection(live, next, action!.kind)
+        || reviewBindingsChanged(live.controls.filter(c => c.formOwner?.instanceId === scopeKey))) {
         return { status: 'stale', scopeKey, evidence: ['native-form-dependencies-changed', `target:${target.instanceId}`, `form:${scopeKey}`] };
       }
     } else {
+      if (reviewBindingsChanged(live.controls)) return 'stale';
       const listOwners = new Map(current.controls.map(c => [c.instanceId, c.list]));
       if (live.controls.some(c => canonical(c.list) !== canonical(listOwners.get(c.instanceId)))) return 'stale';
       const purposeBindings = new Map(current.controls.map(c => [c.instanceId, c.purposeBinding]));
