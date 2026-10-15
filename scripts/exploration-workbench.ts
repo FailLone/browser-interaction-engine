@@ -51,6 +51,7 @@ const server = createServer(async (req,res)=> {
     else if(req.method==='GET' && req.url==='/report') result=engine.report(sid);
     else if(req.method==='GET' && req.url==='/hypotheses') result=engine.list(sid,'hypothesis');
     else if(req.method==='GET' && req.url==='/control-review') result=engine.controlReviewMaterial(sid);
+    else if(req.method==='GET' && req.url==='/discovery-scan') result=engine.discoveryScanMaterial(sid);
     else if(req.method==='GET' && req.url==='/control-classification') result=engine.controlClassificationMaterial(sid);
     else if(req.method==='GET' && req.url==='/region-review') result=engine.regionReviewMaterial(sid);
     else if(req.method==='GET' && req.url==='/exploration-review') result=engine.explorationReviewMaterial(sid);

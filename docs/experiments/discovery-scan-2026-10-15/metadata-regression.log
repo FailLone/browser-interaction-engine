@@ -1,0 +1,37 @@
+
+> browser-interaction-engine@0.1.0 test /Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine
+> vitest run tests/discovery-scans.test.ts tests/completion-audit.test.ts
+
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine
+
+ ✓ tests/discovery-scans.test.ts (18 tests) 21903ms
+   ✓ locates omitted signals and supplements a bounded window without granting or executing an action  1007ms
+   ✓ locates a depth limit and discovers a list only after bounded supplementation  396ms
+   ✓ locates a nodes limit and discovers a list only after bounded supplementation  408ms
+   ✓ reports partial sibling windows with exact owner and never calls them complete  944ms
+   ✓ locates the collection cap and expands it only to the explicitly requested bound  5616ms
+   ✓ retains the critical main-control cap even when supplementary signal scanning is requested  5583ms
+   ✓ replaces the active window rather than accumulating unbounded nodes, keeping both observations and records  2115ms
+   ✓ invalidates a supplemental window after insert and never revives it  499ms
+   ✓ invalidates a supplemental window after replace and never revives it  487ms
+   ✓ invalidates a supplemental window after reparent and never revives it  482ms
+   ✓ invalidates a supplemental window after url and never revives it  485ms
+   ✓ invalidates a supplemental window after reload and never revives it  480ms
+   ✓ retains a read-only scan through text changes but rejects a stale topology even when ordinary controls did not change  508ms
+   ✓ rechecks an active supplemental window before dispatching an otherwise unchanged native operation  425ms
+   ✓ rejects stale observations, arbitrary roots, empty evidence and invalid budgets before recording a plan  341ms
+   ✓ publishes queryable deduplicated requests and serves materials, commands and records through the SDK/HTTP  1201ms
+   ✓ keeps SQLite records across restart and invalidates the old document plan  673ms
+ ✓ tests/completion-audit.test.ts (6 tests) 2321ms
+   ✓ includes an observed control with no frontier action in the unified completion assessment  425ms
+   ✓ keeps read-only displays separate and never uses an empty action ledger as exhaustive discovery proof  395ms
+   ✓ reflects a supported external judgment without counting the judgment as execution  395ms
+   ✓ keeps action blockers, outstanding decisions and budgets visible in the unified report  361ms
+   ✓ retains exact destination skip provenance without erasing its discovery limits or authorizing another context  473ms
+
+ Test Files  2 passed (2)
+      Tests  24 passed (24)
+   Start at  15:53:15
+   Duration  25.53s (transform 282ms, setup 0ms, collect 935ms, tests 24.22s, environment 0ms, prepare 77ms)
+

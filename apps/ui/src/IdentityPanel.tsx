@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { prepareIdentityReview, includeIdentityImages, identityDecisionCommand, type IdentityReview, type IdentityExhibit, type InteractionClient } from '@interaction/client';
 import type { Control, ControlIdentity, IdentityHypothesis, Observation } from '@interaction/browser';
+import { identitySummary } from './identity-summary.js';
 
 type Props = {
   api: InteractionClient; sessionId: string; hypotheses: IdentityHypothesis[]; current?: Observation; disabled: boolean;
@@ -55,13 +56,16 @@ export function IdentityPanel({ api, sessionId, hypotheses, current, disabled, r
     })().catch(() => { if (!cancelled) setError('控件记录加载失败，请重试后再确认。'); }).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [api, sessionId, current?.id, retry]);
-  const ordered = [...hypotheses].sort((a, b) => Number(a.status === 'resolved') - Number(b.status === 'resolved'));
+  const currentIds = new Set(current?.controls.map(c => c.hypothesisId));
+  const ordered = [...hypotheses].sort((a, b) => Number(a.status === 'resolved') - Number(b.status === 'resolved') || Number(currentIds.has(b.id)) - Number(currentIds.has(a.id)));
   const active = ordered.find(h => h.id === selected) || ordered[0];
   useEffect(() => { if (active && selected !== active.id) setSelected(active.id); }, [active?.id, selected]);
   const pending = hypotheses.filter(h => h.status === 'pending').length;
+  const summary = identitySummary(hypotheses, current);
   return <section className="identity-panel" aria-label="控件身份确认">
-    <div className="identity-intro"><h3>帮系统认清：这是哪个控件？</h3><p>“身份歧义”表示系统看到了相似控件，无法确定它们是否是同一个。请先对照当时的截图，再决定单独记录，还是沿用已有控件的记录。</p><p>确认前，相关操作会暂缓；看不准可以先留待确认，继续查看其他控件。</p></div>
+    <div className="identity-intro"><h3>帮系统认清：这是哪个控件？</h3><p>“身份歧义”表示系统看到了相似控件，无法确定它们是否是同一个。请先对照当时的截图，再决定单独记录，还是沿用已有控件的记录。</p><p>待确认会限制依赖历史身份的恢复与重放。当前节点能否操作，请查看操作候选；看不准可以先留待确认。</p></div>
     <div className="identity-counts"><b>{pending} 项待确认</b><span>{hypotheses.length - pending} 项已确认</span></div>
+    <p className="identity-notice">当前观察：{summary.current ?? '—'} 项，其中有操作能力：{summary.actionable ?? '—'} 项；历史待确认：{summary.historical ?? '—'} 项。历史记录继续保留，以上数量不代表实际受阻操作数。</p>
     {error && <div role="alert" className="identity-notice">{error}<button onClick={() => setRetry(n => n + 1)}>重新加载控件</button></div>}
     {!active ? <div className="empty">当前没有需要确认的控件。</div> : <div className="identity-workbench">
       <nav className="identity-cases" aria-label="待确认与已确认的控件">{ordered.map(h => {

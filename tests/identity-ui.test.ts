@@ -87,6 +87,8 @@ it('keeps indistinguishable rebuilt controls pending when the reviewer explicitl
     const h = all.find(x => x.observationId === newer.id)!;
     await openIdentity(page, url);
     await page.getByRole('navigation', { name: '待确认与已确认的控件' }).getByRole('button', { name: new RegExp(`控件 ${all.indexOf(h) + 1} ·`) }).click();
+    expect(await page.locator('.identity-panel').innerText()).toContain('当前观察：2 项');
+    expect(await page.locator('.identity-panel').innerText()).toContain('历史待确认：2 项');
     const candidateNumber = h.candidateIds.indexOf(prior.provisionalIdentityId) + 1;
     const option = page.getByRole('radio', { name: new RegExp(`这是候选 ${candidateNumber}「`) });
     await option.waitFor();

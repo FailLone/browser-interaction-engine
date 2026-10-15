@@ -9,6 +9,7 @@ export interface BrowserCompletionAudit {
   recordedActions: Pick<ExplorationAudit, 'status' | 'counts' | 'pendingGroupIds' | 'stopReasons'>;
   controls: ControlCoverage['counts'];
   controlClassifications: ControlClassificationRecord[];
+  discovery: { observationId: string; current: boolean; scan: NonNullable<Observation['discoveryScan']> }[];
   unconfirmedControls: { id: string; label: string; role: string; controlIds: string[]; observationIds: string[] }[];
   /** URL plus declared context; document instances remain separately traceable. */
   scopes: { key: string; url: string; contextKey: string; observationIds: string[]; instanceScopes: string[]; unconfirmedControlIds: string[]; gapIds: string[];
@@ -63,6 +64,7 @@ export function auditBrowserCompletion(audit: ExplorationAudit, coverage: Contro
   });
   return { unit: 'observed_browser_scope', status: audit.status === 'complete' ? 'unverified' : audit.status, exhaustive: false,
     recordedActions: { status: audit.status, counts: { ...audit.counts }, pendingGroupIds: [...audit.pendingGroupIds], stopReasons: [...audit.stopReasons] },
+    discovery: observations.flatMap(o => o.discoveryScan ? [{ observationId: o.id, current: o.id === currentObservationId, scan: structuredClone(o.discoveryScan) }] : []),
     controls: { ...coverage.counts }, controlClassifications: structuredClone(classifications), unconfirmedControls, scopes: [...scopes.values()], gaps: [...gaps.values()],
     limitation: 'All recorded observations, including destinations, remain traceable. Scope exclusions are not execution coverage and do not erase discovery gaps. Unknown controls, adapter limits, unobserved behavior, input combinations and business results have no exhaustive discovery proof. Historical gaps do not by themselves authorize or require revisiting excluded pages.' };
 }

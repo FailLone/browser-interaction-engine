@@ -1,7 +1,7 @@
 import type { Control, Overlay, Region } from './types.js';
 
 /** Serialized into the page. Semantic evidence is preferred to styling heuristics. */
-export function collectOverlays(controls: Control[], regions: Region[], describeControls?: (roots: Element[]) => void) {
+export function collectOverlays(controls: Control[], regions: Region[], describeControls?: (roots: Element[]) => void, popupRelations: { content: Element; panel: Element; trigger?: Element }[] = []) {
   const visible = (el: Element) => {
     const r = el.getBoundingClientRect(); const s = getComputedStyle(el);
     return r.width > 0 && r.height > 0 && s.display !== 'none' && s.visibility !== 'hidden' && !el.closest('[hidden]');
@@ -85,6 +85,14 @@ export function collectOverlays(controls: Control[], regions: Region[], describe
       compositePanels.set(prior.element, prior.kind);
     }
   }
+  for (const relation of popupRelations) {
+    const { content, panel } = relation;
+    if (panel !== content && visible(content) && visible(panel) && ![...candidates.keys()].some(root => root !== content && root.contains(content))) {
+      candidates.delete(content);
+      const kind = content.getAttribute('role') as 'listbox' | 'menu';
+      add(panel, kind, 'positioned-choice-panel'); compositePanels.set(panel, kind);
+    }
+  }
   tracker.compositePopupPanels = [...compositePanels].map(([element, kind]) => ({ element, kind }));
   // Conservative fallback for custom dialogs: require a fixed viewport backdrop and
   // a visible interactive panel. Do not infer a modal from a class name or z-index alone.
@@ -134,15 +142,21 @@ export function collectOverlays(controls: Control[], regions: Region[], describe
   }
   const overlays: Overlay[] = order.map(el => {
     const key = keys.get(el)!; const details = candidates.get(el)!;
+    const relation = popupRelations.find(p => p.panel === el || p.content === el);
     const opener = controls.find(c => {
       const e = elements.get(c.localId);
-      return c.visible && e && !el.contains(e) && el.id && e.getAttribute('popovertargetaction') !== 'hide' && [e.getAttribute('aria-controls'), e.getAttribute('aria-owns'), e.getAttribute('popovertarget')].some(ids => ids?.split(/\s+/).includes(el.id));
+      return c.visible && e && !el.contains(e) && (e === relation?.trigger || !!el.id && e.getAttribute('popovertargetaction') !== 'hide' && [e.getAttribute('aria-controls'), e.getAttribute('aria-owns'), e.getAttribute('popovertarget')].some(ids => ids?.split(/\s+/).includes(el.id)));
     });
     const openerEl = opener && elements.get(opener.localId);
     const parent = [...order].reverse().find(p => p !== el && (p.contains(el) || !!openerEl && p.contains(openerEl)));
-    const controlIds = controls.filter(c => elements.get(c.localId) && el.contains(elements.get(c.localId)!)).map(c => c.localId);
+    const controlIds = controls.filter(c => {
+      const e = elements.get(c.localId); if (!e) return false;
+      const ownsList = relation?.content.id && e.matches('input,[role=combobox]') && e.getAttribute('aria-controls')?.split(/\s+/).includes(relation.content.id);
+      return el.contains(e) || ownsList;
+    }).map(c => c.localId);
     const exitControlIds = controls.filter(c => {
       const e = elements.get(c.localId); if (!e) return false;
+      if (e === relation?.trigger && c.actions.includes('click')) return true;
       if (e.getAttribute('popovertarget') === el.id && ['hide', 'toggle'].includes(e.getAttribute('popovertargetaction') || 'toggle')) return true;
       if (e.getAttribute('commandfor') === el.id && ['close', 'request-close', 'hide-popover', 'toggle-popover'].includes(e.getAttribute('command') || '')) return true;
       if (!controlIds.includes(c.localId) || !c.actions.includes('click')) return false;

@@ -39,7 +39,7 @@ core 的 `Observation` 只要求控件、区域、上下文、时间、缺口和
 
 平台通过泛型扩展观察和会话选项。例如 Web 观察追加 URL、DOM 实例、视口、滚动、截图引用和原生约束；计数器观察只追加 `count`。`ActionCandidate.kind` 为适配器定义的字符串，`value` 可为 JSON 对象；core 不识别 click、fill 或 select。
 
-core 负责保留历史并应用确定性的身份关联流程。具体语义签名、状态规范化、字段差异和谓词解释由适配器提供；core 负责确认指纹及规范化内容、更新图和待办。默认浏览器适配器使用 `observable-v2`，把弹层范围和可操作性证据纳入观察等价；旧观察保留原始规则版本。
+core 负责保留历史并应用确定性的身份关联流程。具体语义签名、状态规范化、字段差异和谓词解释由适配器提供；core 负责确认指纹及规范化内容、更新图和待办。默认浏览器适配器使用 `observable-v6`，将弹层、可操作性、组件语义和动态显示投影纳入观察等价；旧观察保留原始规则版本。
 
 ## 交互适配器
 
@@ -140,3 +140,9 @@ BrowserEngine 的 InspectionCoordinator 将已保存的观察映射为独立 Cap
 异步二进制保存不能放入同步 Persistence.transaction。未提交检查的预留 pin 会主动释放；进程崩溃留下的有限 pin 也由 storage-retained 的通用 expiresAt 支持到期回收。重启保留 pending 消费元数据并核验实际证据。生产流程与 receive/renew/complete/cancel 使用 coordinator 串行队列，避免续租、过期和完成的竞争；它不操纵独立浏览器。
 
 Capture/Inspection 不因消费者更新而改变。read queries 不触发观察或行为；只读事件可用性与消费生命周期会反映过期。长期历史记录压缩、多进程任务分发和原生异步远程持久化不在这轮扩展内。接口与限制见 [检查 API](INSPECTION-API.md)。
+
+## 组件关系与外部解释
+
+core 的 InteractionComponent/ComponentDescription 只描述分组、独立成员、来源和观察引用；不解释 DOM，也不实现调用方推理。浏览器适配器从页面声明和结构采集组关系，BrowserEvidenceQueries 组合已有历史 DOM/截图/动作证据。外部解释保存在独立记录中；旧观察和身份假设不被改写。
+
+显式 probe 通过 InteractionAdapter.probeAction 扩展点生成候选，沿用 core 的 runAction、队列和消费前检查；平台决定支持何种探测。浏览器 hover/focus 不进入自动发现，不赋予可逆或重放资格。与身份判断一样，结构、来源引用、当前版本和现场绑定校验不依赖上层是否为人工、规则程序或模型。详见 [接口与限制](COMPONENTS-AND-PROBES.md)。
