@@ -286,7 +286,7 @@ it('validates native field operations against their form while preserving other 
     expect((await act(t.engine, t.sessionId, 'Target', 'fill', 'ok')).status).toBe('succeeded');
     expect(t.engine.observation(t.sessionId).controls.find(c => c.name === 'Other')!.value).toBe('20');
     await pageOf(t.engine).getByLabel('Other').evaluate(el => { el.setAttribute('form', 'first'); });
-    await expect(act(t.engine, t.sessionId, 'Target', 'fill', 'again')).rejects.toMatchObject({ code: 'ACTION_DEPENDENCIES_CHANGED' });
+    await expect(act(t.engine, t.sessionId, 'Target', 'fill', 'again')).rejects.toMatchObject({ code: 'STALE_OBSERVATION' });
     expect(await pageOf(t.engine).getByLabel('Target').inputValue()).toBe('ok');
   } finally { await t.close(); }
 });
@@ -298,7 +298,7 @@ it.each(['sibling-value', 'external-associated-field', 'form-destination', 'targ
     if (change === 'external-associated-field') await pageOf(t.engine).getByLabel('External').fill('20');
     if (change === 'form-destination') await pageOf(t.engine).locator('form').evaluate(el => { el.setAttribute('action', '/different'); });
     if (change === 'target-position') await pageOf(t.engine).getByLabel('Target').evaluate(el => { (el as HTMLElement).style.marginLeft = '20px'; });
-    await expect(act(t.engine, t.sessionId, 'Target', 'fill', 'ok')).rejects.toMatchObject({ code: 'ACTION_DEPENDENCIES_CHANGED' });
+    await expect(act(t.engine, t.sessionId, 'Target', 'fill', 'ok')).rejects.toMatchObject({ code: 'STALE_OBSERVATION' });
     expect(t.engine.session(t.sessionId).actionCount).toBe(0);
   } finally { await t.close(); }
 });
@@ -383,6 +383,31 @@ it('does not localize a declared business-context change or a newly opened modal
     await expect(act(t.engine, t.sessionId, 'Target', 'fill', 'ok')).rejects.toMatchObject({ code: 'STALE_OBSERVATION' });
     expect(t.engine.session(t.sessionId).validationFailures).toBeUndefined();
     expect(t.engine.session(t.sessionId).observationFailures?.count).toBe(2);
+    expect(t.engine.session(t.sessionId).actionCount).toBe(0);
+  } finally { await t.close(); }
+});
+
+it('cannot reset the retry budget by rebuilding the form before every preflight', async () => {
+  const t = await fixture('<form><label><input type="checkbox">Rebuilt</label></form>');
+  try {
+    const driver = (t.engine as any).driver, read = driver.preflight.bind(driver);
+    const spy = vi.spyOn(driver, 'preflight').mockImplementation(async (o: any, action: any) => {
+      await pageOf(t.engine).locator('form').evaluate(el => { el.replaceWith(el.cloneNode(true)); });
+      return read(o, action);
+    });
+    await t.engine.explore(t.sessionId); await t.engine.waitForIdle();
+    expect(spy).toHaveBeenCalledTimes(3);
+    expect(t.engine.session(t.sessionId)).toMatchObject({ stopReason: 'OBSERVATION_NO_PROGRESS', actionCount: 0, observationFailures: { count: 3 } });
+    expect(t.engine.session(t.sessionId).validationFailures).toBeUndefined();
+  } finally { vi.restoreAllMocks(); await t.close(); }
+});
+
+it('does not ignore incoming relationships from controls outside the form', async () => {
+  const t = await fixture('<form id="owner"><input id="target" aria-label="Target"></form><input aria-label="Controller" aria-controls="target" value="10">');
+  try {
+    expect(t.engine.observation(t.sessionId).controls.find(c => c.name === 'Target')!.formOwner?.isolated).toBe(false);
+    await pageOf(t.engine).getByLabel('Controller').fill('20');
+    await expect(act(t.engine, t.sessionId, 'Target', 'fill', 'ok')).rejects.toMatchObject({ code: 'STALE_OBSERVATION' });
     expect(t.engine.session(t.sessionId).actionCount).toBe(0);
   } finally { await t.close(); }
 });

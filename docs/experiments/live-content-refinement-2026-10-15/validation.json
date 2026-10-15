@@ -1,0 +1,49 @@
+{
+  "base": "48ad958",
+  "branch": "fix/live-content-exploration",
+  "node": "24.21.0",
+  "fullTests": {
+    "exitCode": 0,
+    "files": 55,
+    "passed": 357,
+    "failed": 0,
+    "durationSeconds": 381.85
+  },
+  "typecheck": {
+    "exitCode": 0
+  },
+  "build": {
+    "exitCode": 0
+  },
+  "smoke": {
+    "exitCode": 0
+  },
+  "logSha256": {
+    "fullTests": "6b462344110677342b9b4d0e356678a17ec739825d355caadd74d2807bfd7e99",
+    "typecheck": "344009f306ec56db7407866ca528b28afbd2125de02df072c721ba18a86157fb",
+    "build": "8d5cdad8859e075e7cec5c0f4e1a5dea69721dc9f54f43e2a438dce0a931aad7",
+    "smoke": "5296b7f1d73d9aa51375faefdc3d4017bce17838b79c965c8c9a5d1c7cff0639"
+  },
+  "sourceFiles": [
+    "apps/ui/src/ObservationNotice.tsx",
+    "apps/ui/src/main.tsx",
+    "packages/adapter-playwright/src/browser.ts",
+    "packages/adapter-playwright/src/dependencies.ts",
+    "packages/adapter-playwright/src/exploration.ts",
+    "packages/adapter-playwright/src/index.ts",
+    "packages/adapter-playwright/src/live-content.ts",
+    "packages/adapter-playwright/src/model.ts",
+    "packages/adapter-playwright/src/policy.ts",
+    "packages/adapter-playwright/src/types.ts",
+    "packages/adapter-playwright/src/util.ts",
+    "packages/core/src/engine.ts",
+    "packages/core/src/identity.ts",
+    "packages/core/src/ports.ts",
+    "packages/core/src/types.ts",
+    "tests/identity-matching.test.ts",
+    "tests/live-content.test.ts",
+    "tests/observation-lifecycle.test.ts",
+    "tests/observation-notice.test.ts"
+  ],
+  "sourceSha256": "c693eae14560ceb24f2e26a79a234f7702b9ef3c59b84ca42a174680c42591d5"
+}

@@ -208,15 +208,23 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   for (const el of elements.slice(0, 5000)) if (el !== body && el !== document.documentElement && !selected.has(el) && (scrollViewport(el) || typeof (el as HTMLElement).onclick === 'function' || getComputedStyle(el).cursor === 'pointer' && (!el.parentElement || getComputedStyle(el.parentElement).cursor !== 'pointer'))) selected.add(el);
   const all = [...selected];
   const unnamedScrolls = new Set<Element>();
+  const ownerOf = (el: Element) => 'form' in el ? (el as HTMLInputElement).form : el.closest('form');
+  const incomingRelations = new Set<HTMLFormElement>();
+  for (const source of document.querySelectorAll('[aria-controls],[aria-owns],[aria-labelledby],[aria-describedby]')) {
+    for (const attribute of ['aria-controls', 'aria-owns', 'aria-labelledby', 'aria-describedby']) for (const key of (source.getAttribute(attribute) || '').split(/\s+/).filter(Boolean)) {
+      const target = document.getElementById(key), owner = target && ownerOf(target);
+      if (owner && owner !== ownerOf(source)) incomingRelations.add(owner);
+    }
+  }
   const formOwners = new Map<HTMLFormElement, NonNullable<Control['formOwner']>>();
   const formOwner = (el: Element) => {
-    const form = 'form' in el ? (el as HTMLInputElement).form : el.closest('form');
+    const form = ownerOf(el);
     if (!form) return;
     if (!formOwners.has(form)) {
       // Cross-form ARIA relationships and enclosing records defeat local ownership.
       // Keep those cases global; native .form includes externally associated fields.
       const members = [...form.elements, ...form.querySelectorAll('*')];
-      const external = [form, ...members].some(node => ['aria-controls', 'aria-owns', 'aria-labelledby', 'aria-describedby'].some(attribute =>
+      const external = incomingRelations.has(form) || [form, ...members].some(node => node.matches('[aria-controls],[aria-owns],[aria-describedby]') || ['aria-controls', 'aria-owns', 'aria-labelledby', 'aria-describedby'].some(attribute =>
         (node.getAttribute(attribute) || '').split(/\s+/).filter(Boolean).some(key => { const ref = document.getElementById(key); return !ref || !form.contains(ref); })));
       formOwners.set(form, { key: regionKey(form), instanceId: instance(form), action: form.action, method: form.method, target: form.target,
         isolated: !external && !form.closest(itemSelector) });
@@ -637,7 +645,10 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const scopeKey = this.options.exploration === 'controls' && action?.risk === 'interface' && target ? nativeFormScope(target, action.kind) : undefined;
     if (scopeKey && target) {
       const next = live.controls.find(c => c.instanceId === target.instanceId);
-      if (!next || nativeFormScope(next, action!.kind) !== scopeKey || dependencyProjection(current, target, action!.kind) !== dependencyProjection(live, next, action!.kind)) {
+      // A replaced target/owner has no continuous local scope. Treat it as global
+      // invalidation so repeated rebuilds cannot acquire a fresh retry budget.
+      if (!next || nativeFormScope(next, action!.kind) !== scopeKey) return 'stale';
+      if (dependencyProjection(current, target, action!.kind) !== dependencyProjection(live, next, action!.kind)) {
         return { status: 'stale', scopeKey, evidence: ['native-form-dependencies-changed', `target:${target.instanceId}`, `form:${scopeKey}`] };
       }
     } else {

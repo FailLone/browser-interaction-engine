@@ -25,7 +25,8 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   actionObservationReady(action: ActionCandidate, before: Observation, after: Observation) {
     if (!after.gaps.some(g => g.code === 'PARTIAL_INTERACTION_READY')) return true;
     const target = before.controls.find(c => c.localId === action.localId);
-    return !!target && !!after.controls.find(c => c.instanceId === target.instanceId && !c.readiness);
+    const scope = this.validationScope(action, before);
+    return !!target && !!scope && !!after.controls.find(c => c.instanceId === target.instanceId && !c.readiness && nativeFormScope(c, action.kind) === scope);
   }
   constructor(private hooks: EngineHooks = {}) {}
   parseOptions(input: unknown) { return sessionSchema.parse(input) as SessionOptions; }

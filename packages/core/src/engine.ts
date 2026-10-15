@@ -455,7 +455,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         && !fresh.gaps.some(g => g.critical) && this.adapter.validationScope?.(original, current) === preflight.scopeKey
         && canonical(fresh.context) === canonical(current.context)) {
         const blocked = this.validationFailure(sessionId, preflight.scopeKey, fresh.id, preflight.evidence);
-        throw new EngineError(blocked ? 'ACTION_DEPENDENCIES_BLOCKED' : 'ACTION_DEPENDENCIES_CHANGED', 'This operation’s dependencies changed before dispatch; independent work may continue', { observationId: fresh.id, scopeKey: preflight.scopeKey });
+        throw new EngineError(blocked ? 'ACTION_DEPENDENCIES_BLOCKED' : 'STALE_OBSERVATION', 'This operation’s dependencies changed before dispatch; independent work may continue', { observationId: fresh.id, scopeKey: preflight.scopeKey });
       }
       if (this.observationFailure(sessionId, 'stale', fresh.id)) throw new EngineError('OBSERVATION_NO_PROGRESS', 'Repeated source invalidation without an executed action; inspect changing targets or context before continuing', { observationId: fresh.id });
       throw new EngineError(preflight === 'context_changed' ? 'PRECONDITIONS_CHANGED' : 'STALE_OBSERVATION', 'Interaction source changed before execution', { observationId: fresh.id, actions: this.actions(sessionId) });
@@ -1017,7 +1017,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           if (!action) { chosen.status = 'blocked'; chosen.reason = 'action_no_longer_available'; this.store.put('frontier', chosen); return true; }
           try { await this.runAction(sessionId, action.id, id(), undefined, 'exploration'); }
           catch (error) {
-            if (error instanceof EngineError && ['ACTION_DEPENDENCIES_CHANGED', 'ACTION_DEPENDENCIES_BLOCKED'].includes(error.code)) {
+            if (error instanceof EngineError && error.code === 'ACTION_DEPENDENCIES_BLOCKED') {
               // No dispatch occurred. The failed scope has its own durable budget;
               // refreshed independent samples remain eligible in this run.
               return true;
