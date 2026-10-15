@@ -1,4 +1,5 @@
 import { BoundaryExits } from './boundary-exits.js';
+import { continueScrollTraversal } from './scroll-traversal.js';
 import { DiscoveryScans } from './discovery-scans.js';
 import { RegionReviews } from './region-reviews.js';
 import { ControlReviews } from './control-reviews.js';
@@ -193,7 +194,13 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       return this.store.require<import('@interaction/adapter-playwright').RegionReviewRecord>('region-review', record.id);
     });
   }
-  protected override explorationCandidates(items: import('@interaction/core').FrontierItem[], o: Observation) { return this.pages.candidates(items, o, this.session(o.sessionId)); }
+  protected override explorationCandidates(items: import('@interaction/core').FrontierItem[], o: Observation) {
+    const session = this.session(o.sessionId);
+    const eligible = this.pages.candidates(items, o, session);
+    return session.options.exploration === 'controls'
+      ? continueScrollTraversal(eligible, o, this.list(o.sessionId, 'attempt'), id => this.store.get<Observation>('observation', id))
+      : eligible;
+  }
   protected override explorationIdleReason(sid: string) { return this.pages.idleReason(sid, this.session(sid)) || this.regions.idleReason(sid, this.outstandingFrontier(sid)); }
   protected override async runAction(sid: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: import('@interaction/core').ActionAttempt['purpose'] = 'external') {
     if (purpose !== 'external' && this.boundaryExits.blockingResult(sid)) throw new EngineError('BOUNDARY_EXIT_UNVERIFIED', 'Review the changed or unverified exit before automated recovery');
