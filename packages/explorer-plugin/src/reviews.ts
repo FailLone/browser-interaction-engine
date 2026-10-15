@@ -12,7 +12,8 @@ export interface ReviewContext {
   refresh(decision:Decision,key:string):Promise<boolean>;
   clarify(request:SemanticReview):Promise<{value:string;decision:Decision}>;
   generate<T>(purpose:string,instructions:string,state:unknown,schema:z.ZodType<T>):Promise<{value:T;decision:Decision}>;
-  apply(decision:Decision,command:unknown):Promise<void>;
+  apply(decision:Decision|Decision[],command:unknown):Promise<void>;
+  defer(decision:Decision,reason:string):void;
   retain(groups:RetainedScope[]):Promise<void>;
   gap(reason:string,scope:Scope,required?:boolean):void;
   hasPendingAction():boolean;
@@ -29,7 +30,7 @@ function regionEvidence(candidate:RegionCandidate) {
   const facts=binding as Record<string,unknown>;
   return {...description,memberCount:controlIds.length,structure:Object.fromEntries(['tag','role','heading','label','layout','border','semantic','root'].filter(k=>facts[k]!==undefined).map(k=>[k,facts[k]]))};
 }
-/** Drain one guarded review at a time; reviews may recapture and invalidate all other material. */
+/** Submit one guarded review command at a time; it may recapture and invalidate all other material. */
 export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const {host,task,observation:o}=c;const sid=o.sessionId;const round=task.rounds.at(-1)!;
   const done=(key:string)=>round.reviewed.includes(key);const mark=(key:string)=>round.reviewed.push(key);
@@ -72,22 +73,31 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     }
   }
   const classifications=host.controlClassificationMaterial(sid);
+  const classificationBatch:{key:string;localId:string;value:string;decision:Decision}[]=[];
+  const flushClassifications=async()=>{
+    for(const entry of classificationBatch)mark(entry.key);
+    await c.apply(classificationBatch.map(entry=>entry.decision),{type:'classifyControls',classification:{observationId:o.id,source,classifications:classificationBatch.map(entry=>({localId:entry.localId,classification:entry.value,reason:`Selected ${entry.value}`,evidence:evidence(entry.decision)}))}});
+    return true;
+  };
   for(const item of classifications.controls.filter(i=>i.needsClassification&&relevantIds.has(i.control.localId))) {
     const key=digest({type:'classification',instance:o.instanceScope,control:item.control,reviews:item.classifications.map(r=>[r.id,r.status])});if(done(key))continue;
     const positiveBasis=item.control.editable||Object.entries(item.control.actionBasis||{}).some(([kind,basis])=>['click','fill','select','check','press','hover'].includes(kind)&&basis.status==='supported');
     const blockedOptions=positiveBasis||!item.control.classificationBinding||item.control.classificationBinding.truncated?['display','container']:[];
     let d=await c.choose('control-classification','Classify this observed element using its own action basis, interaction hints and bounded subtree. Interactive descendants do not make a dialog or section itself an interaction; focusability alone does not establish its own operation. Do not classify as display/container if the subtree is truncated or there is positive interaction evidence. Classification never grants operation permission.',{observationId:o.id,control:item.control,actions:item.actions},
       {interaction:'Evidence of an interactive control',display:'Read-only information with complete evidence and no interaction basis',container:'Structural grouping with complete evidence and no own interaction basis',probe_required:'A bounded hover/focus observation is needed',uncertain:'Insufficient evidence'},{blockedOptions});
+    // A refresh would invalidate the prepared entries. Commit only their clear
+    // classifications, then revisit this uncertain target with the new capture.
+    if(d.value==='uncertain'&&classificationBatch.length){c.defer(d.decision,'classification_batch_recapture');return flushClassifications();}
     if(d.value==='uncertain'&&await c.refresh(d.decision,`classification:${o.instanceScope}:${item.control.instanceId}`))return true;
     if(d.value==='uncertain'&&item.control.classificationBinding&&!item.control.classificationBinding.truncated) {
       const options=Object.fromEntries(Object.entries({interaction:'Possible interaction; still requires operation review',display:'Read-only information',container:'Structural grouping',probe_required:'Needs bounded observation',uncertain:'Insufficient evidence'}).filter(([key])=>!blockedOptions.includes(key)));
       d=await c.clarify({key:`classification:${item.control.instanceId}`,purpose:'classification-clarification',parent:d.decision,instructions:'Resolve the remaining element classification ambiguity. Interactive descendants do not make their container actionable. No classification grants operation permission.',options,evidence:{current:item.control,actions:semanticActions(item.actions)},requiredEvidence:Object.fromEntries(Object.keys(options).filter(k=>k!=='uncertain').map(k=>[k,['current','actions']]))});
     }
-    mark(key);
-    await c.apply(d.decision,{type:'classifyControls',classification:{observationId:o.id,source,classifications:[{localId:item.control.localId,classification:d.value==='uncertain'?'unresolved':d.value,reason:`Selected ${d.value}`,evidence:evidence(d.decision)}]}});
-    if(d.value==='uncertain')c.gap('classification_unresolved',scopeForControl(item.control,o));
-    return true;
+    classificationBatch.push({key,localId:item.control.localId,value:d.value==='uncertain'?'unresolved':d.value,decision:d.decision});
+    if(d.value==='uncertain'){await flushClassifications();c.gap('classification_unresolved',scopeForControl(item.control,o));return true;}
+    if(classificationBatch.length>=5)return flushClassifications();
   }
+  if(classificationBatch.length)return flushClassifications();
   for(const h of host.list<IdentityHypothesis>(sid,'hypothesis').filter(h=>h.status==='pending'&&o.controls.some(x=>x.hypothesisId===h.id&&relevantIds.has(x.localId)))) {
     const key=`identity:${h.id}`;if(done(key))continue;
     const identities=host.list<ControlIdentity>(sid,'identity');

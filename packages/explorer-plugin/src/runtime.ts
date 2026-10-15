@@ -197,9 +197,10 @@ export class ExplorerPlugin {
     if(rejection)this.router.mark(result.decision,'rejected',rejection);
     return {value:rejection?'uncertain':result.value.choice,decision:rejection?request.parent:result.decision};
   }
-  private async apply(task:Task,signal:AbortSignal,o:Observation,d:Decision,command:unknown) {
-    try{this.assert(task,signal,o.id,d.revision);await this.host.command(o.sessionId,command);this.router.mark(d,'applied');this.router.effect(d,'review',{command,resultObservationId:this.host.observation(o.sessionId).id});this.syncUsage(task);this.store.save(task);}
-    catch(e){this.router.mark(d,(e as {code?:string}).code?.includes('STALE')?'stale':'rejected',(e as {code?:string}).code||'HOST_COMMAND_REJECTED');throw e;}
+  private async apply(task:Task,signal:AbortSignal,o:Observation,decisions:Decision|Decision[],command:unknown) {
+    const batch=Array.isArray(decisions)?decisions:[decisions];
+    try{for(const d of batch)this.assert(task,signal,o.id,d.revision);await this.host.command(o.sessionId,command);for(const d of batch){this.router.mark(d,'applied');this.router.effect(d,'review',{command,resultObservationId:this.host.observation(o.sessionId).id,...(batch.length>1?{decisionIds:batch.map(d=>d.id)}:{})});}this.syncUsage(task);this.store.save(task);}
+    catch(e){for(const d of batch)this.router.mark(d,(e as {code?:string}).code?.includes('STALE')?'stale':'rejected',(e as {code?:string}).code||'HOST_COMMAND_REJECTED');throw e;}
   }
   private async createRound(task:Task,signal:AbortSignal) {
     this.assert(task,signal);if(task.usage.rounds>=task.budget.rounds)throw new ExplorerError('ROUND_BUDGET_EXHAUSTED');
@@ -359,7 +360,15 @@ export class ExplorerPlugin {
       choose:(p,i,s,opts,constraints)=>this.choose(task,signal,o,p,i,s,opts,constraints),generate:(p,i,s,schema)=>this.generate(task,signal,o,p,i,s,schema),
       assess:(p,s,checks)=>this.assess(task,signal,o,p,s,checks),refresh:(d,key)=>this.refreshEvidence(task,signal,o,d,key),
       clarify:request=>this.clarify(task,signal,o,request),
-      apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),retain:groups=>this.retainScopes(task,signal,o,groups),gap:(reason,scope,required)=>{this.gap(task,reason,scope,required);}});for(const d of this.store.decisions(task.id,decisionCursor).filter(d=>d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}if(reviewed)return true; } catch(error) { round.reviewed.splice(reviewedBefore); throw error; }
+      defer:(d,reason)=>{this.router.mark(d,'rejected',reason);this.router.effect(d,'review-deferred',{reason,sourceObservationId:o.id,executionAuthorized:false});},
+      apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),retain:groups=>this.retainScopes(task,signal,o,groups),gap:(reason,scope,required)=>{this.gap(task,reason,scope,required);}});for(const d of this.store.decisions(task.id,decisionCursor).filter(d=>d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}if(reviewed)return true; } catch(error) {
+      round.reviewed.splice(reviewedBefore);
+      // Prepared answers have no host effect if a later member aborts the pass.
+      // Keep them out of completion's bookkeeping for successfully used inputs.
+      const reason=(error as {code?:string}).code||'REVIEW_INTERRUPTED';
+      for(const d of this.store.decisions(task.id,decisionCursor).filter(d=>d.status==='returned'))this.router.mark(d,signal.aborted?'cancelled':reason.includes('STALE')?'stale':'rejected',reason);
+      throw error;
+    }
     this.assert(task,signal,o.id);
     const actions=this.host.actions(sid),groups=this.host.explorationReviewMaterial(sid).groups,frontier=this.host.getFrontier(sid);
     const fresh=new Set<string>();
