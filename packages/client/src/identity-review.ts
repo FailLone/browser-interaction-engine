@@ -89,14 +89,16 @@ export async function prepareIdentityReview(api: InteractionClient, sessionId: s
     if (e.control && e.control.identityId !== identityId) { e.gaps.push('历史控件与候选身份不一致'); delete e.control; }
     const simultaneous = occurrence?.observationId === h.observationId;
     const unavailable = !e.control ? '历史证据不可用' : simultaneous ? '同次观察同时存在，不能合并' : current.controls.some(c => c.identityId === identityId && c.localId !== h.localId) ? '当前被另一控件占用' : undefined;
-    const comparisons: IdentityReview['candidates'][number]['comparisons'] = (['name', 'role', 'region', 'stableKey', 'instanceId', 'value'] as const).map(field => ({ field, target: target.control?.[field] ?? null, candidate: e.control?.[field] ?? null }));
+    const comparisons: IdentityReview['candidates'][number]['comparisons'] = (['name', 'role', 'region', 'stableKey', 'identityContext', 'instanceId', 'value'] as const).map(field => ({ field, target: target.control?.[field] ?? null, candidate: e.control?.[field] ?? null }));
     comparisons.push({ field: 'declaredAttributes', target: target.node?.attributes ?? null, candidate: e.node?.attributes ?? null });
     return { identityId, exhibit: e, simultaneous, unavailable, comparisons };
   }));
   const currentControl = current.controls.find(c => c.instanceId === target.control?.instanceId);
   const currentDetails = currentControl ? await api.controlDetails(sessionId, current.id, currentControl.localId).catch(() => undefined) : undefined;
   const declared = (node: IdentityExhibit['node']) => Object.fromEntries(Object.entries(node?.attributes || {}).filter(([k]) => /^data-(?!testid)|^name$/.test(k)));
-  const bindingChanged = !!currentControl && (currentControl.stableKey !== target.control?.stableKey || (target.node && currentDetails?.node ? JSON.stringify(declared(target.node)) !== JSON.stringify(declared(currentDetails.node)) : false));
+  const bindingChanged = !!currentControl && (currentControl.stableKey !== target.control?.stableKey ||
+    currentControl.identityContext?.scope !== target.control?.identityContext?.scope || currentControl.identityContext?.binding !== target.control?.identityContext?.binding ||
+    (target.node && currentDetails?.node ? JSON.stringify(declared(target.node)) !== JSON.stringify(declared(currentDetails.node)) : false));
   const visit = visits[originIndex];
   const attempt = visit?.viaAttemptId ? (await listAll<ActionAttempt>(api, sessionId, 'attempts')).find(a => a.id === visit.viaAttemptId) : undefined;
   const origin = await read(h.observationId);

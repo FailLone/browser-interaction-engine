@@ -116,3 +116,46 @@ it('matches a large keyed list without repeatedly recomputing semantic signature
   expect(calls).toBe(1500); expect(result.hypotheses).toHaveLength(0);
   expect(next.controls.map(c => c.identityId)).toEqual(first.controls.toReversed().map(c => c.identityId));
 });
+
+it('refines shared component keys by distinct semantics across rebuild, reorder, removal and return', () => {
+  const t = tracker();
+  const first = t.observe([control('a', 'accordion', 'Question A'), control('b', 'accordion', 'Question B')]);
+  expect(t.hypotheses).toHaveLength(0);
+  const next = t.observe([control('b2', 'accordion', 'Question B'), control('a2', 'accordion', 'Question A')]);
+  expect(next.controls.map(c => c.identityId)).toEqual(first.controls.toReversed().map(c => c.identityId));
+  expect(t.observe([control('a3', 'accordion', 'Question A')]).controls[0].identityId).toBe(first.controls[0].identityId);
+  expect(t.observe([control('b3', 'accordion', 'Question B')]).controls[0].identityId).toBe(first.controls[1].identityId);
+  expect(t.hypotheses).toHaveLength(0);
+});
+
+it('does not discard anonymous alternatives while refining a shared key', () => {
+  const t = tracker();
+  t.observe([control('a', 'shared', ''), control('b', 'shared', 'Question B')]);
+  const next = t.observe([control('c', 'shared', 'Question A')]);
+  expect(next.controls[0].hypothesisId).toBeDefined();
+});
+
+it('keeps a unique stable key when its displayed name changes', () => {
+  const t = tracker(); const first = t.observe([control('a', 'toggle', 'Show')]);
+  expect(t.observe([control('b', 'toggle', 'Hide')]).controls[0].identityId).toBe(first.controls[0].identityId);
+});
+
+it('keeps contextual bindings separate, including a recycled instance', () => {
+  const t = tracker();
+  const contextual = (instance: string, binding: string) => ({ ...control(instance, undefined, '0'), identityContext: { scope: 'Calculator', binding, evidence: ['local-field-text'] } });
+  const first = t.observe([contextual('a', 'BTC'), contextual('b', 'USD')]);
+  expect(t.hypotheses).toHaveLength(0);
+  const next = t.observe([contextual('b2', 'USD'), contextual('a2', 'BTC')]);
+  expect(next.controls.map(c => c.identityId)).toEqual(first.controls.toReversed().map(c => c.identityId));
+  expect(t.observe([contextual('a2', 'ETH')]).controls[0].identityId).not.toBe(first.controls[0].identityId);
+});
+
+it('does not carry a resolved contextual judgment into a new binding on the same node', () => {
+  const t = tracker();
+  const field = (instance: string, binding: string) => ({ ...control(instance, 'amount', '0'), identityContext: { binding, evidence: ['field-description'] } });
+  const first = t.observe([field('a', 'BTC'), field('b', 'BTC')]);
+  t.resolve(t.hypotheses[0]);
+  const changed = t.observe([field('a', 'ETH')]);
+  expect(changed.controls[0].identityId).not.toBe(first.controls[0].identityId);
+  expect(changed.controls[0].hypothesisId).toBeUndefined();
+});

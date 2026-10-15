@@ -12,7 +12,7 @@ export type { Command } from './schema.js';
 export { compareObservations, observableCanonical } from './model.js';
 
 export class PlaywrightAdapter implements InteractionAdapter<Observation, SessionOptions> {
-  readonly ruleVersion = 'observable-v3';
+  readonly ruleVersion = 'observable-v4';
   constructor(private hooks: EngineHooks = {}) {}
   parseOptions(input: unknown) { return sessionSchema.parse(input) as SessionOptions; }
   createDriver(options: SessionOptions, evidence: EvidenceStore) { return new BrowserAdapter(options, evidence, this.hooks); }

@@ -29,7 +29,7 @@ export interface Observation extends CoreObservation<Control> {
   actionDiscovery?: { version: 'dom-actions-v2'; documentHints: ActionEvidence[] };
   screenshot?: string; gaps: Gap[]; stable: boolean;
   evidence?: BrowserEvidenceManifest;
-  stateId: ID; visitId: ID; fingerprint: string; canonical: string; ruleVersion: 'observable-v1' | 'observable-v2' | 'observable-v3';
+  stateId: ID; visitId: ID; fingerprint: string; canonical: string; ruleVersion: 'observable-v1' | 'observable-v2' | 'observable-v3' | 'observable-v4';
   cause: 'initial' | 'action' | 'inspection' | 'recovery' | 'external';
 }
 export interface ContextRule { key: string; selector: string; attribute?: string; required?: boolean }

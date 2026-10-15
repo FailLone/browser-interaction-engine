@@ -14,6 +14,8 @@ export type ActionKind = string;
 export interface Control {
   localId: ID; instanceId: ID; identityId?: ID; hypothesisId?: ID;
   role: string; name: string; label: string; stableKey?: string;
+  /** Adapter-observed semantic scope/binding, never a node index or coordinate. */
+  identityContext?: { scope?: string; binding?: string; evidence: string[] };
   region: string; visible: boolean; enabled: boolean;
 }
 export interface Observation<C extends Control = Control> {
