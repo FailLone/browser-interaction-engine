@@ -121,7 +121,7 @@ export function ExplorerTraversal({sessionId,children,onInspect}:{sessionId:stri
   })}</div>;
 }
 const effectNames:Record<string,string>={'task-route':'已选择任务处理方式',intent:'已识别结构化任务',plan:'已生成探索计划',review:'已应用审阅决定','review-input':'已作为审阅依据',action:'已派发页面操作',recovery:'已尝试并验证返回路径','followup-plan':'已更新补测建议','followup-strategy':'已选择补测方式','evidence-refresh':'已补充页面观察'};
-Object.assign(effectNames,{'semantic-escalation':'转交 LLM 澄清歧义','semantic-validation':'核对结构化结论与证据引用','review-deferred':'暂缓采纳，待新观察后重新判断'});
+Object.assign(effectNames,{'semantic-escalation':'转交 LLM 澄清歧义','semantic-validation':'核对结构化结论与证据引用','review-deferred':'暂缓采纳，待新观察后重新判断','recovery-deferred':'未确认返回依据，保留未完成分支'});
 const pretty=(value:unknown)=>JSON.stringify(value,null,2);
 
 /** Replaces the right-hand evidence panel while a model/program node is selected. */

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import type { ActionCandidate, ActionAttempt, Observation, EngineEvent, BoundaryExitResult, ContinuationRecord, IdentityHypothesis } from '@interaction/browser';
-import { ExplorerError, type Task, type Round, type PlanItem, type Scope, type ExplorerHost, type Providers, type Decision, type ModelRequest } from './types.js';
+import { ExplorerError, type Task, type Round, type Frame, type PlanItem, type Scope, type ExplorerHost, type Providers, type Decision, type ModelRequest } from './types.js';
 import { ExplorerStore } from './store.js';
 import { DecisionRouter } from './router.js';
 import { createTaskSchema, budgetSchema, planSchema, initialTaskSchema, plannedScopeSchema, jsonSchema } from './schema.js';
@@ -347,6 +347,7 @@ export class ExplorerPlugin {
   }
   private async step(task:Task,round:Round,signal:AbortSignal):Promise<boolean> {
     const sid=round.sessionId,o=this.host.observation(sid);this.assert(task,signal);
+    this.trackBoundary(round,o);
     const verifiedExits=new Set(this.host.list<ContinuationRecord>(sid,'continuation').flatMap(r=>r.verifiedRecovery?.boundaryResultId||[]));
     if(this.host.list<BoundaryExitResult>(sid,'boundary-exit-result').some(r=>['changed','unverified'].includes(r.status)&&!verifiedExits.has(r.id)))throw new ExplorerError('BOUNDARY_EXIT_UNVERIFIED');
     await this.retainHostLimitations(task,o,signal);
@@ -356,7 +357,7 @@ export class ExplorerPlugin {
     if(goals.length&&goals.every(i=>i.status==='succeeded'))return false;
     const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id);
     try { const reviewed=await reviewNext({host:this.host,task,observation:o,
-      hasPendingAction:()=>{const groups=this.host.explorationReviewMaterial(sid).groups,frontier=this.host.getFrontier(sid);return this.host.actions(sid).some(a=>!this.navigationIsUnverified(task,a,o)&&permitted(a,o,groups,frontier)&&includesScope(task.plan,a,o)&&((!round.tried.includes(keyFor(a,o))&&!this.wasCompleted(task,a,o))||this.neededEntry(task,round,a,o)));},
+      hasPendingAction:()=>{const groups=this.host.explorationReviewMaterial(sid).groups,frontier=this.host.getFrontier(sid);return this.host.actions(sid).some(a=>!this.navigationIsUnverified(task,a,o)&&permitted(a,o,groups,frontier)&&includesScope(task.plan,a,o)&&((!round.tried.includes(this.attemptKey(round,a,o))&&(this.currentExit(a,o)||!this.wasCompleted(task,a,o)))||this.neededEntry(task,round,a,o)));},
       choose:(p,i,s,opts,constraints)=>this.choose(task,signal,o,p,i,s,opts,constraints),generate:(p,i,s,schema)=>this.generate(task,signal,o,p,i,s,schema),
       assess:(p,s,checks)=>this.assess(task,signal,o,p,s,checks),refresh:(d,key)=>this.refreshEvidence(task,signal,o,d,key),
       clarify:request=>this.clarify(task,signal,o,request),
@@ -374,7 +375,7 @@ export class ExplorerPlugin {
     const fresh=new Set<string>();
     const eligible=actions.filter(a=>{
       if(this.navigationIsUnverified(task,a,o)||!permitted(a,o,groups,frontier)||!includesScope(task.plan,a,o))return false;
-      if(!round.tried.includes(keyFor(a,o))&&!this.wasCompleted(task,a,o)){fresh.add(a.id);return true;}
+      if(!round.tried.includes(this.attemptKey(round,a,o))&&(this.currentExit(a,o)||!this.wasCompleted(task,a,o))){fresh.add(a.id);return true;}
       return this.neededEntry(task,round,a,o);
     });
     // Same-label targets must be disambiguated by scope/role/stable key. Never choose an arbitrary occurrence.
@@ -405,33 +406,38 @@ export class ExplorerPlugin {
       const purpose=reentry?'prerequisite':includesScope(task.plan,action,o);const items=task.plan.filter(i=>i.required&&!i.reason.startsWith('missing_capability:')&&matches(i.scope,action,o));
       if(purpose==='target'&&!items.some(i=>i.scope.kind&&i.scope.label)) {const leaf=this.newItem({title:`${action.kind} ${action.label}`,scope:scopeFor(action,o),prerequisites:[...round.entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false);task.plan.push(leaf);items.push(leaf);}
       const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,decisionId:selected.decision.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id};
-      round.tried.push(keyFor(action,o));this.store.save(task);this.router.mark(selected.decision,'applied');this.router.effect(selected.decision,'action',{requestId,actionId:action.id,label:action.label,kind:action.kind,purpose,itemIds:items.map(i=>i.id)});this.event(task,'action.dispatch',{requestId,actionId:action.id,purpose,decisionId:selected.decision.id});
-      try {const attempt=await this.host.execute(sid,action.id,requestId);this.recordOutcome(task,attempt,items.map(i=>i.id));if(attempt.status==='succeeded'&&attempt.afterId){const after=this.host.observation(sid,attempt.afterId);if(after.url!==o.url||(after.boundaries?.length||0)>(o.boundaries?.length||0)||after.controls.some(c=>c.visible&&!c.readOnly&&c.actions.length>0&&!o.controls.some(before=>before.instanceId===c.instanceId&&before.visible)))round.entryPath.push(scopeFor(action,o));else if((after.boundaries?.length||0)<(o.boundaries?.length||0))round.entryPath.pop();}
+      const attemptKey=this.attemptKey(round,action,o);round.tried.push(attemptKey);this.store.save(task);this.router.mark(selected.decision,'applied');this.router.effect(selected.decision,'action',{requestId,actionId:action.id,label:action.label,kind:action.kind,purpose,itemIds:items.map(i=>i.id)});this.event(task,'action.dispatch',{requestId,actionId:action.id,purpose,decisionId:selected.decision.id});
+      try {const attempt=await this.host.execute(sid,action.id,requestId);this.recordOutcome(task,attempt,items.map(i=>i.id));if(attempt.status==='succeeded'&&attempt.afterId){const after=this.host.observation(sid,attempt.afterId);this.trackBoundary(round,after);if(after.url!==o.url||(after.boundaries?.length||0)>(o.boundaries?.length||0)||after.controls.some(c=>c.visible&&!c.readOnly&&c.actions.length>0&&!o.controls.some(before=>before.instanceId===c.instanceId&&before.visible)))round.entryPath.push(scopeFor(action,o));else if((after.boundaries?.length||0)<(o.boundaries?.length||0))round.entryPath.pop();}
       if(attempt.status==='unknown'||attempt.status==='executing')throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');delete task.pendingDispatch;this.store.save(task);
       if(action.kind==='dismiss') {
         const result=this.host.list<BoundaryExitResult>(sid,'boundary-exit-result').find(r=>r.attemptId===attempt.id);this.event(task,'boundary.exit_verified',{attemptId:attempt.id,result});
         if(!result||['changed','unverified'].includes(result.status))throw new ExplorerError('BOUNDARY_EXIT_UNVERIFIED');
       }}
-      catch(e){const attempt=this.host.list<ActionAttempt>(sid,'attempt').find(a=>a.requestId===requestId);if(attempt){this.recordOutcome(task,attempt,items.map(i=>i.id));if(!['unknown','executing'].includes(attempt.status))delete task.pendingDispatch;}else {delete task.pendingDispatch;round.tried=round.tried.filter(k=>k!==keyFor(action,o));}this.store.save(task);throw e;}
+      catch(e){const attempt=this.host.list<ActionAttempt>(sid,'attempt').find(a=>a.requestId===requestId);if(attempt){this.recordOutcome(task,attempt,items.map(i=>i.id));if(!['unknown','executing'].includes(attempt.status))delete task.pendingDispatch;}else {delete task.pendingDispatch;round.tried=round.tried.filter(k=>k!==attemptKey);}this.store.save(task);throw e;}
       return true;
     }
     // Record every remaining in-scope unavailable case, including ungrouped controls.
     for(const action of actions.filter(a=>includesScope(task.plan,a,o)==='target'&&!this.wasCompleted(task,a,o))) {
       const path=this.pathForAction(round,action,o);
       if(this.navigationIsUnverified(task,action,o)){this.gap(task,'unknown_action_outcome',scopeFor(action,o),true,path);continue;}
-      if(round.tried.includes(keyFor(action,o)))continue;
+      if(round.tried.includes(this.attemptKey(round,action,o)))continue;
       const sampled=frontier.find(f=>f.action.id===action.id);
       if(sampled&&['skipped','deferred'].includes(sampled.status)){const excluded=sampled.status==='skipped'||sampled.reason?.endsWith('_member_not_selected');this.gap(task,excluded?'sample_unselected':'scope_deferred',scopeFor(action,o),!excluded,path);continue;}
       if(!permitted(action,o,groups,frontier))this.gap(task,action.exclusionReason||action.preconditions.blockers?.[0]?.code||'operation_unavailable',scopeFor(action,o),true,path);
     }
-    const frame=[...round.stack].reverse().find(f=>{
-      if(f.stateId===o.stateId||f.recoveryTried)return false;
-      const source=this.host.observation(sid,f.observationId),actions=this.host.actions(sid,source.id);
-      return f.remaining.some(scope=>{const candidates=actions.filter(a=>matches(scope,a,source));return !candidates.length||candidates.some(a=>!this.wasCompleted(task,a,source));});
-    });
-    if(frame) {
-      const decision=await this.choose(task,signal,o,'recovery-selection','Should the explorer return to this previously observed checkpoint to investigate remaining branches?',{checkpointId:frame.checkpointId,sourceObservationId:frame.observationId,goal:task.goal},{recover:'Use the host verified checkpoint recovery',uncertain:'Cannot justify recovery'});
-      frame.recoveryTried=true;if(decision.value==='uncertain'){this.gap(task,'recovery_unresolved',{url:o.url});return false;}
+    let recovery:{frame:Frame;source:Observation;remaining:Scope[]}|undefined;
+    for(const frame of [...round.stack].reverse()) {
+      if(frame.stateId===o.stateId||frame.recoveryTried)continue;
+      const source=this.host.observation(sid,frame.observationId),historicalActions=this.host.actions(sid,source.id);
+      const remaining=frame.remaining.filter(scope=>{const candidates=historicalActions.filter(a=>matches(scope,a,source));return !candidates.length||candidates.some(a=>!this.wasCompleted(task,a,source));});
+      if(remaining.length){recovery={frame,source,remaining};break;}
+    }
+    if(recovery) {
+      const {frame,source,remaining}=recovery;
+      const describe=(snapshot:Observation)=>({observationId:snapshot.id,url:snapshot.url,context:snapshot.context,boundaries:snapshot.boundaries?.map(b=>({name:b.name,region:b.region})),visibleControls:snapshot.controls.filter(c=>c.visible).length,regions:snapshot.regions.slice(0,30).map(r=>({label:r.label,role:r.role})),totalRegions:snapshot.regions.length,criticalGaps:snapshot.gaps.filter(g=>g.critical).map(g=>g.code)});
+      const unfinishedTargets=remaining.slice(0,50).map(scope=>{const current=actions.filter(a=>matches(scope,a,o));return {scope:decisionScope(scope),historicalEvidenceOnly:true,currentOccurrences:current.length,currentlyExecutable:current.some(a=>permitted(a,o,groups,frontier)),currentBlockers:[...new Set(current.flatMap(a=>a.preconditions.blockers?.map(b=>b.code)||[]))]};});
+      const decision=await this.choose(task,signal,o,'recovery-selection','Judge whether attempting host-verified restoration to the supplied historical state would help reach still-required targets that are absent or unavailable now. Compare current and target observations, accepted scopes, and unfinished targets. Historical evidence is not current permission or execution success. The host must find and verify an allowed return path; this judgment cannot authorize business writes, invent a route, or waive an active boundary. Choose uncertain when usefulness cannot be established.',{checkpointId:frame.checkpointId,sourceObservationId:frame.observationId,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',plan:decisionPlan(task.plan),current:describe(o),target:describe(source),unfinishedTargets,totalUnfinishedTargets:remaining.length,omittedTargets:Math.max(0,remaining.length-unfinishedTargets.length),entryPrerequisites:frame.path.map(decisionScope),businessStateDirty:this.host.session(sid).dirty},{recover:'Attempt host-verified checkpoint recovery for the evidenced unfinished targets',uncertain:'Cannot justify recovery'});
+      frame.recoveryTried=true;if(decision.value==='uncertain'){this.router.mark(decision.decision,'rejected','recovery_not_justified');this.router.effect(decision.decision,'recovery-deferred',{checkpointId:frame.checkpointId,sourceObservationId:source.id,unfinishedTargets:remaining.length,executionAuthorized:false});this.gap(task,'recovery_unresolved',{url:o.url});return false;}
       this.assert(task,signal,o.id);const result=await this.host.reachCheckpoint(sid,frame.checkpointId);this.router.mark(decision.decision,'applied');this.router.effect(decision.decision,'recovery',{checkpointId:frame.checkpointId,result});this.syncUsage(task);this.event(task,'recovery.result',result);
       if(result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'){round.stack=round.stack.slice(0,round.stack.indexOf(frame));round.entryPath=[...frame.path];return true;}
       if(frame.path.length){for(const item of task.plan.filter(i=>i.required&&i.status!=='succeeded'&&frame.remaining.some(scope=>digest(scope)===digest(i.scope))))item.prerequisites=[...frame.path];this.event(task,'recovery.reentry_required',{prerequisites:frame.path,remaining:frame.remaining});return true;}
@@ -439,6 +445,14 @@ export class ExplorerPlugin {
       if(o.boundaries?.length&&!this.capabilities().boundaryExit)this.gap(task,'missing_capability:boundaryExitReview',{url:o.url});
     }
     return false;
+  }
+  private currentExit(a:ActionCandidate,o:Observation) {return a.boundary?.intent==='exit'&&a.boundary.key===o.boundaries?.at(-1)?.key;}
+  private trackBoundary(round:Round,o:Observation) {
+    const boundary=o.boundaries?.at(-1);if(!boundary){delete round.boundaryVisit;return;}
+    if(round.boundaryVisit?.key!==boundary.key||round.boundaryVisit.instanceScope!==o.instanceScope)round.boundaryVisit={key:boundary.key,instanceScope:o.instanceScope,observationId:o.id};
+  }
+  private attemptKey(round:Round,a:ActionCandidate,o:Observation) {
+    return this.currentExit(a,o)?digest({protocol:'boundary-exit-visit/v1',visit:round.boundaryVisit||{key:a.boundary!.key,instanceScope:o.instanceScope,observationId:o.id},operation:keyFor(a,o)}):keyFor(a,o);
   }
   private entryKey(task:Task,a:ActionCandidate,o:Observation) {return digest({scope:scopeFor(a,o),pending:task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status)).map(i=>i.id).sort()});}
   private pathForAction(round:Round,a:ActionCandidate,o:Observation) {
@@ -475,6 +489,7 @@ export class ExplorerPlugin {
   }
   private async finishRound(task:Task,round:Round,signal:AbortSignal,hostTimeLimit=false) {
     const o=this.host.observation(round.sessionId);
+    this.trackBoundary(round,o);
     if(hostTimeLimit&&!task.plan.length){
       round.status='finished';round.endedAt=now();round.reason='host_time_limit_before_planning';
       const s=this.host.session(round.sessionId);this.event(task,'round.session_limit',{reason:'host_time_limit',elapsedMs:s.elapsedMs,maxDurationMs:s.options.maxDurationMs,planInitialized:false,totalBudgetUnchanged:true});this.store.save(task);return false;
@@ -530,7 +545,7 @@ export class ExplorerPlugin {
     if(!scopes.length)return incomplete;
     const regions=this.host.regionReviewMaterial(o.sessionId),classifications=this.host.controlClassificationMaterial(o.sessionId),reviews=this.host.controlReviewMaterial(o.sessionId),hypotheses=this.host.list<IdentityHypothesis>(o.sessionId,'hypothesis'),scan=this.host.discoveryScanMaterial(o.sessionId);
     for(const item of scopes) {
-      const pending=actions.filter(a=>matches(item.scope,a,o)&&includesScope(task.plan,a,o)==='target'&&!this.wasCompleted(task,a,o)&&!round.tried.includes(keyFor(a,o)));
+      const pending=actions.filter(a=>matches(item.scope,a,o)&&includesScope(task.plan,a,o)==='target'&&(this.currentExit(a,o)||!this.wasCompleted(task,a,o))&&!round.tried.includes(this.attemptKey(round,a,o)));
       for(const action of pending) {
         const path=this.pathForAction(round,action,o);
         const f=frontier.find(x=>x.action.id===action.id);

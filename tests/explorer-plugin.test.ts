@@ -12,6 +12,29 @@ import { scopeFor } from '../packages/explorer-plugin/src/policy.js';
 import { remapStoredScopes } from '../packages/explorer-plugin/src/scope-migration.js';
 
 const repeatedRecords=()=>`<section aria-label="Records">${['Alpha','Beta','Gamma'].map(name=>`<article data-key="${name}"><span>${name}</span><button type="button" onclick="this.disabled=true">Visit ${name}</button></article>`).join('')}</section>`;
+it.each(['same-document','new-document'] as const)('exits a reappearing boundary in %s even when its close operation succeeded earlier',async(mode)=>{
+ const f=await explorerFixture(`<div id="gate" role="dialog" aria-modal="true" style="position:fixed;inset:0;background:white;z-index:10"><button type="button" id="close" onclick="document.querySelector('#gate').hidden=true">Close</button></div><button type="button" id="next" onclick="${mode==='same-document'?`this.disabled=true;document.querySelector('#gate').hidden=false`:`sessionStorage.setItem('next-done','yes');location.reload()`}">Next</button><button type="button" id="last" onclick="this.disabled=true">Last</button><script>if(sessionStorage.getItem('next-done'))document.querySelector('#next').disabled=true</script>`),p=fakeProviders(f.url),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:300},budget:{rounds:1,actions:12}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');
+  expect(attempts.map(a=>a.action.label)).toEqual(['Close','Next','Close','Last']);expect(attempts.every(a=>a.status==='succeeded')).toBe(true);expect(v.task.status).toBe('completed');expect(v.decisions.some(d=>d.purpose==='recovery-selection')).toBe(false);expect(v.task.usage.actions).toBe(4);
+ }finally{await plugin.close();await f.close();}
+});
+
+it('does not repeat an ineffective exit while the same boundary remains observed',async()=>{
+ const f=await explorerFixture('<div id="gate" role="dialog" aria-modal="true"><button type="button" id="close">Close</button></div>'),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:12}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');expect(attempts.filter(a=>a.action.label==='Close')).toHaveLength(1);expect(v.task.usage.actions).toBeLessThan(12);expect(v.task.status).not.toBe('completed');}
+ finally{await plugin.close();await f.close();}
+});
+
+it('grounds recovery judgments in both observations and the unfinished branch before verified restoration',async()=>{
+ const f=await explorerFixture(`<div id="choices">${['First','Second'].map(name=>`<button type="button" onclick="document.querySelector('#choices').hidden=true">${name}</button>`).join('')}</div>`),p=fakeProviders(f.url),original=p.jev.decide,requests:any[]=[];
+ p.jev.decide=async(r,s)=>{if(r.purpose!=='recovery-selection')return original(r,s);const m=(r.state as any).material;requests.push(m);return {model:'mock',confidence:1,value:m.current?.observationId!==m.target?.observationId&&m.target?.url===f.url&&m.unfinishedTargets?.some((x:any)=>x.scope.label==='Second'&&x.currentlyExecutable===false)?'recover':'uncertain'};};
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:10}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');
+  expect(attempts.filter(a=>a.action.kind==='click').map(a=>a.action.label)).toEqual(['First','Second']);expect(v.task.status).toBe('completed');expect(requests).toHaveLength(1);expect(requests[0].goal).not.toBe('');expect(requests[0].unfinishedTargets.every((x:any)=>x.historicalEvidenceOnly)).toBe(true);
+  expect(v.events.some(e=>e.type==='recovery.result'&&['REACHED_VERIFIED','REACHED_ACCEPTABLE'].includes((e.data as any).status))).toBe(true);expect(v.decisions.some(d=>d.actor==='llm')).toBe(false);
+ }finally{await plugin.close();await f.close();}
+});
+
 it('finishes available new controls before replaying an entry and still returns for its unfinished child',async()=>{
  const f=await explorerFixture(`<button id="open" type="button" onclick="document.getElementById('menu').hidden=false">Open</button><div id="menu" hidden>${['First','Second'].map(name=>`<button type="button" onclick="this.disabled=true;document.getElementById('menu').hidden=true">${name}</button>`).join('')}</div><button type="button" onclick="this.disabled=true;document.getElementById('menu').hidden=true">Outside</button>`),p=fakeProviders(f.url),original=p.jev.decide;
  p.jev.decide=async(r,s)=>{if(r.purpose==='next-action'){const options=Object.entries(r.options!) as [string,any][];const selected=['Open','First','Outside','Second'].map(label=>options.find(([,o])=>o.label===label)).find(Boolean)!;return {model:'mock',value:selected[0],confidence:1};}return original(r,s);};
