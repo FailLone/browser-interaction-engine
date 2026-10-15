@@ -5,7 +5,9 @@ import { MemoryStore } from '@interaction/storage-memory';
 import { pageOf } from './helpers.js';
 
 const reason = { source: 'test-plan', evidence: ['Current container heading and native control semantics'] };
-const records = `<section><h2>Records</h2><a href="/record">Instrument <span id="quote">$10.00</span></a>
+// Quote widths may change across ticks. Keep the target on its own line so this
+// fixture tests passive text updates, not a genuinely displaced click target.
+const records = `<section><h2>Records</h2><a href="/record" style="display:block">Instrument <span id="quote">$10.00</span></a>
 <button type="button" id="inspect" onclick="window.inspections=(window.inspections||0)+1">Inspect 1</button></section>`;
 const background = `<ul><li>North <span data-readout>$10.00</span><a href="/north">Details</a></li></ul>
 <table><tr onclick="window.rowCalls=(window.rowCalls||0)+1"><td>South</td><td data-readout>$10.00</td><td><a href="/south">Details</a></td></tr></table>`;
@@ -44,6 +46,7 @@ it('exits an obstruction and retains reviewed regions while background quotes ne
     const after = t.engine.observation(t.sid);
     expect(after.controls.find(c => c.tag === 'a')!.displayedText).not.toBe(before.controls.find(c => c.tag === 'a')!.displayedText);
     expect(after.controls.find(c => c.tag === 'a')!.liveContent?.name).toBe('Instrument');
+    expect(after.controls.find(c => c.name === 'Inspect 1')!.rect).toEqual(before.controls.find(c => c.name === 'Inspect 1')!.rect);
     expect(t.engine.regionReviewMaterial(t.sid).review?.regions[0].status).toBe('active');
     const currentGroup = t.engine.explorationReviewMaterial(t.sid).groups.find(g => g.id === group.id)!;
     expect(currentGroup.revision).toBe(approved.revision);
