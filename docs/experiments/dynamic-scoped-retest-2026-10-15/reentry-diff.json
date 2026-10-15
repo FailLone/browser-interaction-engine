@@ -1,0 +1,141 @@
+[
+  {
+    "id": "af140885-0b85-4909-85cd-4556f52cf009",
+    "file": "121.json",
+    "time": "2026-10-15T08:03:00.062Z",
+    "controls": 327,
+    "gaps": [],
+    "parts": {
+      "scope": {
+        "hash": "2d63daba9db0d02df0075c5fa04aa62dbc83ae7d815b0a517a599617f7ae06d9",
+        "diff": []
+      },
+      "boundary": {
+        "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "diff": []
+      },
+      "regions": {
+        "hash": "f90905c08e2db46f6c42054014150a7eb3398be5d4a32ca460100c650fee1965",
+        "diff": []
+      },
+      "lists": {
+        "hash": "e832f42a0974c5886c0f1a582c98ed996947b7e51346d15d80356a2616a3716c",
+        "diff": []
+      }
+    }
+  },
+  {
+    "id": "99ee65af-d4eb-42c5-91d2-05b0c19e0bab",
+    "file": "126.json",
+    "time": "2026-10-15T08:03:57.308Z",
+    "controls": 327,
+    "gaps": [],
+    "parts": {
+      "scope": {
+        "hash": "2d63daba9db0d02df0075c5fa04aa62dbc83ae7d815b0a517a599617f7ae06d9",
+        "diff": []
+      },
+      "boundary": {
+        "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "diff": []
+      },
+      "regions": {
+        "hash": "6dbdfeca8a2c52b5c36bf456154aaf4b8f0b2e85810b16e7e2b5d76037284c7e",
+        "diff": [
+          {
+            "path": ".0.1.members.247.stableKey",
+            "before": "item:[[[\"table\",\"[\\\"record-instance\\\",\\\"25150919-955b-4e79-91d8-c41185a0c2b3:4979\\\",\\\"[\\\\\\\"item-description\\\\\\\",\\\\\\\"GLDxDEX|\\\\\\\"]\\\"]\"]],\"[\\\"generic\\\",\\\"$379.92\\\",\\\"td\\\"]\"]",
+            "after": "item:[[[\"table\",\"[\\\"record-instance\\\",\\\"25150919-955b-4e79-91d8-c41185a0c2b3:4979\\\",\\\"[\\\\\\\"item-description\\\\\\\",\\\\\\\"GLDxDEX|\\\\\\\"]\\\"]\"]],\"[\\\"generic\\\",\\\"$380.16\\\",\\\"td\\\"]\"]"
+          },
+          {
+            "path": ".0.1.members.247.actionBasis.click.evidence.0.facts.recordKey",
+            "before": "[\"description\",\"$379.92\"]",
+            "after": "[\"description\",\"$380.16\"]"
+          },
+          {
+            "path": ".0.1.members.247.structuralItem.recordKey",
+            "before": "[\"description\",\"$379.92\"]",
+            "after": "[\"description\",\"$380.16\"]"
+          }
+        ]
+      },
+      "lists": {
+        "hash": "ddf133908bb8bf664382d1239b86b64e2392a04ea759a31ae00afcc7db8e6025",
+        "diff": [
+          {
+            "path": ".9.members.0.recordKey",
+            "before": "[\"description\",\"$379.92\"]",
+            "after": "[\"description\",\"$380.16\"]"
+          },
+          {
+            "path": ".9.evidence.0.facts.members.0.recordKey",
+            "before": "[\"description\",\"$379.92\"]",
+            "after": "[\"description\",\"$380.16\"]"
+          },
+          {
+            "path": ".12.members.0.recordKey",
+            "before": "[\"description\",\"$0.37762\"]",
+            "after": "[\"description\",\"$0.37768\"]"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "90d9b6c0-c0b6-400d-9577-62e292374897",
+    "file": "129.json",
+    "time": "2026-10-15T08:04:12.632Z",
+    "controls": 327,
+    "gaps": [],
+    "parts": {
+      "scope": {
+        "hash": "2d63daba9db0d02df0075c5fa04aa62dbc83ae7d815b0a517a599617f7ae06d9",
+        "diff": []
+      },
+      "boundary": {
+        "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "diff": []
+      },
+      "regions": {
+        "hash": "af91f0adcd78a8923e47c52c242d9835bbc6bf7de0f86357f08472db4229267e",
+        "diff": [
+          {
+            "path": ".0.1.members.247.stableKey",
+            "before": "item:[[[\"table\",\"[\\\"record-instance\\\",\\\"25150919-955b-4e79-91d8-c41185a0c2b3:4979\\\",\\\"[\\\\\\\"item-description\\\\\\\",\\\\\\\"GLDxDEX|\\\\\\\"]\\\"]\"]],\"[\\\"generic\\\",\\\"$380.16\\\",\\\"td\\\"]\"]",
+            "after": "item:[[[\"table\",\"[\\\"record-instance\\\",\\\"25150919-955b-4e79-91d8-c41185a0c2b3:4979\\\",\\\"[\\\\\\\"item-description\\\\\\\",\\\\\\\"GLDxDEX|\\\\\\\"]\\\"]\"]],\"[\\\"generic\\\",\\\"$379.44\\\",\\\"td\\\"]\"]"
+          },
+          {
+            "path": ".0.1.members.247.actionBasis.click.evidence.0.facts.recordKey",
+            "before": "[\"description\",\"$380.16\"]",
+            "after": "[\"description\",\"$379.44\"]"
+          },
+          {
+            "path": ".0.1.members.247.structuralItem.recordKey",
+            "before": "[\"description\",\"$380.16\"]",
+            "after": "[\"description\",\"$379.44\"]"
+          }
+        ]
+      },
+      "lists": {
+        "hash": "8aafcb724d26d63765783bd3a1f6fec5be1de8edc1ecfa665402a61581c56d9e",
+        "diff": [
+          {
+            "path": ".9.members.0.recordKey",
+            "before": "[\"description\",\"$380.16\"]",
+            "after": "[\"description\",\"$379.44\"]"
+          },
+          {
+            "path": ".9.evidence.0.facts.members.0.recordKey",
+            "before": "[\"description\",\"$380.16\"]",
+            "after": "[\"description\",\"$379.44\"]"
+          },
+          {
+            "path": ".14.members.0.recordKey",
+            "before": "[\"description\",\"$0.0019719\"]",
+            "after": "[\"description\",\"$0.0019704\"]"
+          }
+        ]
+      }
+    }
+  }
+]
