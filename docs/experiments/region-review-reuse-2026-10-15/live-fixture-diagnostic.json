@@ -1,0 +1,19 @@
+{
+  "observedFailure": "STALE_OBSERVATION",
+  "target": "Inspect 1",
+  "rects": {
+    "current": {
+      "x": 129.328125,
+      "y": 55.90625,
+      "width": 70.109375,
+      "height": 21
+    },
+    "live": {
+      "x": 128.75,
+      "y": 55.90625,
+      "width": 70.109375,
+      "height": 21
+    }
+  },
+  "reason": "Inline quote width changed the target button x coordinate; stale-target rejection is expected. Stabilize fixture layout without weakening runtime geometry validation."
+}

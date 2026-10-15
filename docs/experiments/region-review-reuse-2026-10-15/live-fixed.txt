@@ -1,0 +1,17 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine
+
+ ✓ tests/region-live-content.test.ts (7 tests) 6668ms
+   ✓ exits an obstruction and retains reviewed regions while background quotes never settle  1866ms
+   ✓ does not repeatedly request the same unassigned regions for passive quote updates  1053ms
+   ✓ invalidates a reviewed region and refuses dispatch when destination changes  717ms
+   ✓ invalidates a reviewed region and refuses dispatch when explicit-label changes  745ms
+   ✓ invalidates a reviewed region and refuses dispatch when readout-meaning changes  716ms
+   ✓ invalidates a reviewed region and refuses dispatch when operation-label changes  726ms
+   ✓ still expires an externally reviewed tentative target when its raw text changes  843ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  21:28:01
+   Duration  7.64s (transform 360ms, setup 0ms, collect 791ms, tests 6.67s, environment 0ms, prepare 50ms)
+
