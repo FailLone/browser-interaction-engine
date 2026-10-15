@@ -60,16 +60,25 @@ export interface RegionReviewInput {
   observationId: string; source: string; evidence: string[];
   regions: { key: string; label: string; candidateIds: string[]; controlIds?: string[]; pageTraversal?: boolean }[];
   rejectedCandidateIds?: string[];
+  /** Omit for a full replacement. A patch explicitly replaces/removes only named regions. */
+  update?: { baseReviewId: string; removeRegionKeys?: string[] };
 }
 export interface RegionReviewRecord {
   id: string; sessionId: string; observationId: string; instanceScope: string; url: string; contextKey: string; at: string;
   source: string; evidence: string[]; status: 'active' | 'invalidated' | 'superseded'; rejectedCandidateIds: string[];
-  regions: { key: string; label: string; controlIds: string[]; pageTraversal: boolean; anchors: { id: string; fingerprint: string }[]; status: 'active' | 'invalidated'; invalidation?: { observationId: string; reason: string } }[];
+  baseReviewId?: string;
+  regions: { key: string; label: string; controlIds: string[]; pageTraversal: boolean; anchors: { id: string; fingerprint: string }[]; reviewId?: string; status: 'active' | 'invalidated'; invalidation?: { observationId: string; reason: string } }[];
+}
+export interface RegionReviewDelta {
+  baseReviewId: string; canUpdate: boolean; unchangedRegionKeys: string[];
+  changedRegions: { key: string; label: string; reason: string; baselineAvailable: boolean;
+    addedControlIds: string[]; removedControlIds: string[]; changedControlIds: string[];
+    changedCandidateIds: string[]; missingCandidateIds: string[] }[];
 }
 export interface RegionReviewMaterial {
   sessionId: string; observationId: string; enabled: boolean; candidates: RegionCandidate[];
   controls: { localId: string; label: string; role: string; actionKinds: string[] }[];
-  review?: RegionReviewRecord; unassignedControlIds: string[]; unassignedPageTraversal: boolean;
+  review?: RegionReviewRecord; delta?: RegionReviewDelta; unassignedControlIds: string[]; unassignedPageTraversal: boolean;
 }
 export interface Observation extends CoreObservation<Control> {
   id: ID; sessionId: ID; capturedAt: string; screenshotAt?: string;

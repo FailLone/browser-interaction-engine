@@ -139,12 +139,13 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   protected override afterExplorationDecisions(sid: string) { this.regions.gate(this.observation(sid), this.session(sid)); }
   regionReviewMaterial(sid: string) { return this.regions.material(this.observation(sid), this.actions(sid), this.session(sid)); }
   reviewRegions(sid: string, input: import('@interaction/adapter-playwright').RegionReviewInput) {
+    const review = structuredClone(input);
     return this.enqueueMeasured(sid, async () => {
       const o = this.observation(sid);
-      if (input.observationId !== o.id) throw new EngineError('STALE_REGION_REVIEW', 'Review the latest complete observation');
+      if (review.observationId !== o.id) throw new EngineError('STALE_REGION_REVIEW', 'Review the latest complete observation');
       if (this.activeId !== sid || !this.driver?.connected()) throw new EngineError('BROWSER_UNAVAILABLE', 'Observe this session in a connected browser before reviewing regions');
       if (await this.driver.preflight?.(o) !== 'valid') { await this.capture(sid, 'inspection'); throw new EngineError('STALE_REGION_REVIEW', 'Region facts changed; review the new observation'); }
-      const record = this.store.transaction(() => this.regions.record(o, this.actions(sid), this.session(sid), input));
+      const record = this.store.transaction(() => this.regions.record(o, this.actions(sid), this.session(sid), review));
       await this.capture(sid, 'inspection');
       return this.store.require<import('@interaction/adapter-playwright').RegionReviewRecord>('region-review', record.id);
     });

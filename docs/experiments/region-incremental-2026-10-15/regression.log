@@ -1,0 +1,54 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine
+
+ ✓ tests/region-review-ui.test.ts (1 test) 3419ms
+   ✓ confirms suggested regions separately from exploration and rejects stale UI drafts  3419ms
+ ✓ tests/region-reviews.test.ts (17 tests) 18546ms
+   ✓ finds unlabelled containers, requires confirmation and separate decisions, and keeps ordinary value edits valid  1096ms
+   ✓ supports splits, merges and rejection while preserving uncovered work and atomically rejecting bad partitions  1068ms
+   ✓ invalidates affected region before dispatch after replace and never revives old approval  622ms
+   ✓ invalidates affected region before dispatch after move and never revives old approval  709ms
+   ✓ invalidates affected region before dispatch after heading and never revives old approval  823ms
+   ✓ invalidates affected region before dispatch after new-control and never revives old approval  662ms
+   ✓ invalidates affected region before dispatch after context and never revives old approval  681ms
+   ✓ invalidates affected region before dispatch after reload and never revives old approval  641ms
+   ✓ keeps same-name regions separate and exposes layout-only evidence without inventing a business label  447ms
+   ✓ keeps candidate review hooks bounded and never lets a scheduling hook authorize unassigned controls  599ms
+   ✓ uses a synchronous region-review result and then the existing exploration hook in one capture  805ms
+   ✓ queries and records through SDK/HTTP, checks live facts on review and rejects old observations  814ms
+   ✓ does not persist a region decision returned after the hook deadline  5588ms
+   ✓ keeps document traversal gated until it is explicitly assigned and an all decision permits discovery  1271ms
+   ✓ retains exits and page boundaries while requiring a new region review at a destination  1724ms
+   ✓ rejects a review for an inactive session without using another session browser  648ms
+   ✓ keeps a complete fallback for controls deeper than the candidate ancestor scan  345ms
+ ✓ tests/region-incremental.test.ts (12 tests) 11158ms
+   ✓ preserves the untouched all decision and gates an enlarged region until a new decision  1671ms
+   ✓ preserves the untouched sample decision and gates an enlarged region until a new decision  1341ms
+   ✓ preserves the untouched defer decision and gates an enlarged region until a new decision  1161ms
+   ✓ reports member changes and missing anchors from the original per-region evidence across multiple patches  954ms
+   ✓ rejects stale bases, overlaps and conflicting rejection/removal atomically, and permits explicit removal  925ms
+   ✓ requires a fresh full partition after url changes  682ms
+   ✓ requires a fresh full partition after context changes  699ms
+   ✓ requires a fresh full partition after reload changes  723ms
+   ✓ keeps unmentioned invalid regions invalid, never revives their decisions, and supports old records without per-region provenance  825ms
+   ✓ delivers deltas through hooks/events and supports partial commands over HTTP with live validation  1019ms
+   ✓ applies incremental hook results without resetting other exploration decisions  467ms
+   ✓ snapshots queued partial input and still resets every region on an explicit full replacement  690ms
+ ✓ tests/region-live-content.test.ts (7 tests) 6008ms
+   ✓ exits an obstruction and retains reviewed regions while background quotes never settle  1478ms
+   ✓ does not repeatedly request the same unassigned regions for passive quote updates  947ms
+   ✓ invalidates a reviewed region and refuses dispatch when destination changes  689ms
+   ✓ invalidates a reviewed region and refuses dispatch when explicit-label changes  679ms
+   ✓ invalidates a reviewed region and refuses dispatch when readout-meaning changes  666ms
+   ✓ invalidates a reviewed region and refuses dispatch when operation-label changes  708ms
+   ✓ still expires an externally reviewed tentative target when its raw text changes  840ms
+ ✓ tests/exploration-review-core.test.ts (12 tests) 5066ms
+   ✓ ignores late batch results after a hook timeout  5003ms
+ ✓ tests/external-exploration-review.test.ts (2 tests) 1397ms
+   ✓ runs the external example through HTTP, deciding new regions and list samples independently  970ms
+   ✓ leaves a stale external partition paused without rewriting its observation or deciding later scopes  426ms
+
+ Test Files  6 passed (6)
+      Tests  51 passed (51)
+   Start at  16:36:01
+   Duration  48.74s (transform 342ms, setup 0ms, collect 2.26s, tests 45.59s, environment 0ms, prepare 225ms)

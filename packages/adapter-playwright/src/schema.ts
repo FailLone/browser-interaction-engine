@@ -17,7 +17,8 @@ export const evidenceOptionsSchema = z.object({
 export const regionReviewSchema = z.object({
   observationId: z.string().min(1), source: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1),
   regions: z.array(z.object({ key: z.string().trim().min(1), label: z.string().trim().min(1), candidateIds: z.array(z.string().min(1)).min(1), controlIds: z.array(z.string().min(1)).optional(), pageTraversal: z.boolean().default(false) }).strict()).max(500),
-  rejectedCandidateIds: z.array(z.string().min(1)).default([]),
+  rejectedCandidateIds: z.array(z.string().min(1)).optional(),
+  update: z.object({ baseReviewId: z.string().min(1), removeRegionKeys: z.array(z.string().min(1)).max(500).default([]) }).strict().optional(),
 }).strict();
 export const sessionSchema = z.object({
   url: z.url().refine(v => ['http:', 'https:'].includes(new URL(v).protocol), 'Only HTTP(S) URLs are supported'),
