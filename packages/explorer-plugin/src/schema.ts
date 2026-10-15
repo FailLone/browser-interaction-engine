@@ -14,6 +14,7 @@ export const budgetSchema=z.object({rounds:z.number().int().min(1).max(100).defa
 export const createTaskSchema = z.object({goal:z.string().trim().max(20000).default(''),url:z.url().refine(v=>['http:','https:'].includes(new URL(v).protocol)),
   coverageMode:z.enum(['all','representative']).default('all'),
   budget:budgetSchema.prefault({}),
+  evidenceBudget:z.object({maxBytes:z.number().int().min(1024*1024).max(16*1024**3).default(1024**3),maxObservations:z.number().int().min(10).max(10000).default(1000)}).strict().prefault({}),
   sessionOptions:z.object({headless:z.boolean().optional(),maxDepth:z.number().int().min(1).max(100).optional(),settleMs:z.number().int().min(0).max(5000).optional(),observeTimeoutMs:z.number().int().min(1).max(30000).optional(),actionTimeoutMs:z.number().int().min(1).max(60000).optional(),maxActions:z.number().int().min(1).max(10000).optional()}).strict().default({}),
 }).strict();
 export const commandSchema = z.object({command:z.enum(['start','pause','resume','stop','replan','continue-scope','extend-budget']),coverageMode:z.enum(['all','representative']).optional(),budget:budgetSchema.optional(),goal:z.string().trim().max(20000).optional(),itemIds:z.array(z.string()).min(1).max(100).optional(),items:z.array(plannedScopeSchema).min(1).max(100).optional()}).strict();

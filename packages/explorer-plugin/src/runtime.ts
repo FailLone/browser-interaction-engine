@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import type { ActionCandidate, ActionAttempt, Observation, EngineEvent } from '@interaction/browser';
+import type { ActionCandidate, ActionAttempt, Observation, EngineEvent, BoundaryExitResult, ContinuationRecord } from '@interaction/browser';
 import { ExplorerError, type Task, type Round, type PlanItem, type Scope, type ExplorerHost, type Providers, type Decision, type ModelRequest } from './types.js';
 import { ExplorerStore } from './store.js';
 import { DecisionRouter } from './router.js';
@@ -33,7 +33,7 @@ export class ExplorerPlugin {
   tasks(){return this.store.tasks();}
   view(id:string){const task=this.store.task(id);return {task,decisions:this.store.decisions(id),events:this.store.events(id)};}
   create(input:unknown) {
-    const x=createTaskSchema.parse(input);if(!x.goal&&x.coverageMode!=='all')throw new ExplorerError('EXHAUSTIVE_REQUIRES_ALL');const task:Task={id:randomUUID(),goal:x.goal,url:x.url,coverageMode:x.coverageMode,createdAt:now(),updatedAt:now(),revision:0,status:'idle',budget:x.budget,usage:{rounds:0,actions:0,durationMs:0,modelRequests:0},sessionOptions:x.sessionOptions,plan:[],rounds:[],sampleExcluded:[],exhaustive:false};
+    const x=createTaskSchema.parse(input);if(!x.goal&&x.coverageMode!=='all')throw new ExplorerError('EXHAUSTIVE_REQUIRES_ALL');const task:Task={id:randomUUID(),goal:x.goal,url:x.url,coverageMode:x.coverageMode,evidenceBudget:x.evidenceBudget,createdAt:now(),updatedAt:now(),revision:0,status:'idle',budget:x.budget,usage:{rounds:0,actions:0,durationMs:0,modelRequests:0},sessionOptions:x.sessionOptions,plan:[],rounds:[],sampleExcluded:[],exhaustive:false};
     this.store.save(task);this.event(task,'task.created',{goal:task.goal});return task;
   }
   owner(sessionId?:string){const a=this.active;return a&&(!sessionId||a.task.rounds.some(r=>r.sessionId===sessionId))?a.task.id:undefined;}
@@ -164,7 +164,7 @@ export class ExplorerPlugin {
     // Fresh sessions have no inherited grants. Cap every session by the remaining aggregate budget.
     const session=await this.host.createSession({...task.sessionOptions,url:task.url,headless:task.sessionOptions.headless??true,exploration:'controls',listExploration:'review',pageExploration:'review',regionExploration:'review',
       maxActions:Math.min(task.sessionOptions.maxActions||100,task.budget.actions-task.usage.actions),maxDurationMs:Math.max(1,Math.floor(task.budget.durationMs-this.elapsed(task))),
-      evidenceRetention:{mode:'persistent',ttlMs:0,maxBytes:128*1024*1024,maxObservations:300}});
+      evidenceRetention:{mode:'persistent',ttlMs:0,...(task.evidenceBudget||{maxBytes:1024**3,maxObservations:1000})}});
     const round:Round={id:randomUUID(),number:task.rounds.length+1,sessionId:session.id,startedAt:now(),status:'running',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0,policyVersion:POLICY_VERSION};
     task.rounds.push(round);task.usage.rounds++;this.store.save(task);this.event(task,'round.started',{roundId:round.id,number:round.number});return round;
   }
@@ -276,11 +276,14 @@ export class ExplorerPlugin {
   }
   private async step(task:Task,round:Round,signal:AbortSignal):Promise<boolean> {
     const sid=round.sessionId,o=this.host.observation(sid);this.assert(task,signal);
+    const verifiedExits=new Set(this.host.list<ContinuationRecord>(sid,'continuation').flatMap(r=>r.verifiedRecovery?.boundaryResultId||[]));
+    if(this.host.list<BoundaryExitResult>(sid,'boundary-exit-result').some(r=>['changed','unverified'].includes(r.status)&&!verifiedExits.has(r.id)))throw new ExplorerError('BOUNDARY_EXIT_UNVERIFIED');
     if(o.gaps.some(g=>g.critical)){this.gap(task,'observation_incomplete',{url:o.url});return false;}
     const goals=task.plan.filter(i=>i.required&&i.dispatchScope===true);
     if(goals.length&&goals.every(i=>i.status==='succeeded'))return false;
     const reviewedBefore=round.reviewed.length,knownDecisions=new Set(this.store.decisions(task.id).map(d=>d.id));
     try { const reviewed=await reviewNext({host:this.host,task,observation:o,
+      hasPendingAction:()=>{const groups=this.host.explorationReviewMaterial(sid).groups,frontier=this.host.getFrontier(sid);return this.host.actions(sid).some(a=>!this.navigationIsUnverified(task,a,o)&&permitted(a,o,groups,frontier)&&includesScope(task.plan,a,o)&&((!round.tried.includes(keyFor(a,o))&&!this.wasCompleted(task,a,o))||this.neededEntry(task,round,a,o)));},
       choose:(p,i,s,opts,constraints)=>this.choose(task,signal,o,p,i,s,opts,constraints),generate:(p,i,s,schema)=>this.generate(task,signal,o,p,i,s,schema),
       assess:(p,s,checks)=>this.assess(task,signal,o,p,s,checks),refresh:(d,key)=>this.refreshEvidence(task,signal,o,d,key),
       apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),gap:(reason,scope,required)=>{this.gap(task,reason,scope,required);}});for(const d of this.store.decisions(task.id).filter(d=>!knownDecisions.has(d.id)&&d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}if(reviewed)return true; } catch(error) { round.reviewed.splice(reviewedBefore); throw error; }
@@ -311,7 +314,11 @@ export class ExplorerPlugin {
       const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,decisionId:selected.decision.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id};
       round.tried.push(keyFor(action,o));this.store.save(task);this.router.mark(selected.decision,'applied');this.router.effect(selected.decision,'action',{requestId,actionId:action.id,label:action.label,kind:action.kind,purpose,itemIds:items.map(i=>i.id)});this.event(task,'action.dispatch',{requestId,actionId:action.id,purpose,decisionId:selected.decision.id});
       try {const attempt=await this.host.execute(sid,action.id,requestId);this.recordOutcome(task,attempt,items.map(i=>i.id));if(attempt.status==='succeeded'&&attempt.afterId){const after=this.host.observation(sid,attempt.afterId);if(after.url!==o.url||(after.boundaries?.length||0)>(o.boundaries?.length||0)||after.controls.some(c=>c.visible&&!c.readOnly&&c.actions.length>0&&!o.controls.some(before=>before.instanceId===c.instanceId&&before.visible)))round.entryPath.push(scopeFor(action,o));else if((after.boundaries?.length||0)<(o.boundaries?.length||0))round.entryPath.pop();}
-      if(attempt.status==='unknown'||attempt.status==='executing')throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');delete task.pendingDispatch;this.store.save(task);}
+      if(attempt.status==='unknown'||attempt.status==='executing')throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');delete task.pendingDispatch;this.store.save(task);
+      if(action.kind==='dismiss') {
+        const result=this.host.list<BoundaryExitResult>(sid,'boundary-exit-result').find(r=>r.attemptId===attempt.id);this.event(task,'boundary.exit_verified',{attemptId:attempt.id,result});
+        if(!result||['changed','unverified'].includes(result.status))throw new ExplorerError('BOUNDARY_EXIT_UNVERIFIED');
+      }}
       catch(e){const attempt=this.host.list<ActionAttempt>(sid,'attempt').find(a=>a.requestId===requestId);if(attempt){this.recordOutcome(task,attempt,items.map(i=>i.id));if(!['unknown','executing'].includes(attempt.status))delete task.pendingDispatch;}else {delete task.pendingDispatch;round.tried=round.tried.filter(k=>k!==keyFor(action,o));}this.store.save(task);throw e;}
       return true;
     }

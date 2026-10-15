@@ -12,6 +12,7 @@ export interface ReviewContext {
   generate<T>(purpose:string,instructions:string,state:unknown,schema:z.ZodType<T>):Promise<{value:T;decision:Decision}>;
   apply(decision:Decision,command:unknown):Promise<void>;
   gap(reason:string,scope:Scope,required?:boolean):void;
+  hasPendingAction():boolean;
 }
 export type ChoiceConstraints=Pick<ModelRequest,'allowedReductions'|'blockedOptions'>;
 const evidence=(d:Decision)=>[`explorer-decision:${d.id}`];
@@ -170,7 +171,25 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     await c.apply(d.decision,{type:'probe',observationId:o.id,localId:item.control.localId,kind:d.value,requestId:crypto.randomUUID()});return true;
   }
   // Page-wide discovery can wait; it must not starve an already observed modal's work/exit.
-  if(boundary)return false;
+  if(boundary) {
+    if(c.hasPendingAction())return false;
+    if(!host.boundaryExitMaterial){c.gap('missing_capability:boundaryExitReview',{url:o.url});return false;}
+    const exits=host.boundaryExitMaterial(sid);
+    // Preserve parent inputs/selections. A geometric outside point is not itself
+    // an approval, and a successful click is not a verified cancellation.
+    const preserved=o.controls.filter(control=>control.visible&&!boundaryIds?.has(control.localId)&&(control.editable||control.checked!==undefined||control.selected!==undefined));
+    if(preserved.length>100){c.gap('boundary_preservation_limit',{url:o.url});return false;}
+    for(const candidate of exits.candidates.filter(x=>!x.attempted)) {
+      const key=`boundary-exit:${exits.episodeId}:${digest(candidate)}`;if(done(key))continue;
+      const judgment=await c.assess('boundary-exit-risk',{observationId:o.id,boundary:exits.boundary,candidate,preserved:preserved.map(control=>({localId:control.localId,name:control.name,value:control.value,checked:control.checked,selected:control.selected})),attempts:exits.attempts,limitation:exits.limitation},{
+        interface_exit:{instructions:'Does the captured boundary and candidate evidence support a bounded attempt at interface-only cancellation by clicking this outside surface? Geometry alone does not establish the click effect; do not infer a successful closure or approve any business operation.'},
+        external_exit:{instructions:'Is there evidence that this candidate click submits, purchases, deletes, authenticates, or otherwise writes external/business state? Judge independently of whether it might also close the popup.'},
+      });
+      if(judgment.values.interface_exit!==true||judgment.values.external_exit!==false){mark(key);continue;}
+      mark(key);await c.apply(judgment.decision,{type:'reviewBoundaryExit',review:{observationId:o.id,boundaryKey:boundary.key,source,evidence:evidence(judgment.decision),decision:{mode:'attempt',candidateId:candidate.id,preserveControlIds:preserved.map(control=>control.localId)}}});return true;
+    }
+    c.gap('boundary_exit_unresolved',{url:o.url,region:exits.boundary?.name});return false;
+  }
   const scan=host.discoveryScanMaterial(sid);
   if(scan.discovery && (scan.discovery.signal.omitted>0 || scan.discovery.structural.omittedLocations>0)) {
     const key=`scan:${scan.discovery.topologyKey}:${scan.discovery.supplement?.targetId||''}`;

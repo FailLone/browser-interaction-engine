@@ -1,7 +1,7 @@
 import type { BrowserEngine, SessionOptions } from '@interaction/browser';
 
 /** Only documented public operations. Never a browser handle or engine persistence. */
-export type ExplorerHost = Pick<BrowserEngine, 'sessions' | 'session' | 'createSession' | 'observation' | 'observe' | 'actions' | 'execute' | 'command' | 'getFrontier' | 'report' | 'list' | 'regionReviewMaterial' | 'explorationReviewMaterial' | 'controlClassificationMaterial' | 'controlReviewMaterial' | 'purposeReviewMaterial' | 'discoveryScanMaterial' | 'createCheckpoint' | 'reachCheckpoint' | 'pause' | 'stop' | 'events' | 'pinEvidence' | 'unpinEvidence'>;
+export type ExplorerHost = Pick<BrowserEngine, 'sessions' | 'session' | 'createSession' | 'observation' | 'observe' | 'actions' | 'execute' | 'command' | 'getFrontier' | 'report' | 'list' | 'regionReviewMaterial' | 'explorationReviewMaterial' | 'controlClassificationMaterial' | 'controlReviewMaterial' | 'purposeReviewMaterial' | 'discoveryScanMaterial' | 'createCheckpoint' | 'reachCheckpoint' | 'pause' | 'stop' | 'events' | 'pinEvidence' | 'unpinEvidence'> & Partial<Pick<BrowserEngine,'boundaryExitMaterial'>>;
 export type TaskStatus = 'idle' | 'running' | 'paused' | 'stopped' | 'completed' | 'blocked' | 'budget_exhausted' | 'configuration_required';
 export interface Budget { rounds: number; actions: number; durationMs: number; modelRequests: number }
 export interface EvidenceRef { sessionId: string; observationId: string; attemptId?: string }
@@ -33,6 +33,8 @@ export interface Task {
   id: string; goal: string; url: string; createdAt: string; updatedAt: string; revision: number;
   status: TaskStatus; reason?: string; budget: Budget; usage: Budget; activeSince?: number;
   sessionOptions: Partial<SessionOptions>; plan: PlanItem[]; rounds: Round[];
+  /** Per-session retained artifacts; no protected evidence is discarded to make room. */
+  evidenceBudget?: {maxBytes:number;maxObservations:number};
   sampleExcluded: string[]; pendingDispatch?: { sessionId: string; requestId: string; actionId: string; decisionId?: string; itemIds: string[]; observationId: string };
   /** Isolated navigation failures remain unresolved and must never be replayed by later rounds. */
   unverifiedNavigations?: {sourceUrl:string;targetUrl:string;evidence:EvidenceRef}[];

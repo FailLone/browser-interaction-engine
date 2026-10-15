@@ -119,6 +119,19 @@ it('reviews the active dialog before background controls and resumes background 
  expect(view.task.status,JSON.stringify(view.task,null,2)).toBe('completed');
  }finally{await plugin.close();await f.close();}
 });
+it.each(['close','noop','changed'])('reviews an outside exit and verifies its %s result before background work',async(effect)=>{
+ const f=await explorerFixture(`<style>#outside{position:fixed;inset:0;background:#eee}#amount,#sibling{position:absolute;top:20px;z-index:1}#amount{left:10px}#sibling{left:400px}#panel{position:absolute;top:100px;left:100px;width:200px;height:160px;background:white;z-index:2}</style><div id="outside"></div><input id="amount" aria-label="Amount" value="42"><button id="sibling" type="button" onclick="this.disabled=true">Sibling</button><div id="panel" role="listbox" aria-label="Options"><button type="button" onclick="this.disabled=true">Inside</button></div><script>document.addEventListener('click',e=>{if(e.target.id==='outside'){${effect==='noop'?'':`panel.hidden=true;${effect==='changed'?"amount.value='99'":''}`}}})</script>`);
+ const providers=fakeProviders(f.url),original=providers.jev.decide;providers.jev.decide=async(r,s)=>{const a=await original(r,s);if(r.purpose==='boundary-exit-risk'&&(r.state as any).material.candidate.selector!=='#outside')return {...a,value:{interface_exit:.01,external_exit:.5}};return a;};
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),providers);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:20,modelRequests:100}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),sid=v.task.rounds[0].sessionId;const attempts=f.host.list<any>(sid,'attempt'),exits=f.host.list<any>(sid,'boundary-exit-result');
+ expect(exits.length,JSON.stringify({task:v.task,decisions:v.decisions.map(d=>({purpose:d.purpose,status:d.status,reason:d.reason})),attempts:attempts.map(a=>({label:a.action.label,status:a.status}))},null,2)).toBeGreaterThan(0);
+ if(effect!=='noop')expect(exits).toHaveLength(1);else {const values=attempts.filter(a=>a.action.kind==='dismiss').map(a=>a.action.value);expect(new Set(values).size).toBe(values.length);}
+ expect(exits.every(r=>r.status===(effect==='close'?'verified':effect==='noop'?'not_closed':'changed'))).toBe(true);expect(v.decisions.some(d=>d.purpose==='boundary-exit-risk'&&d.status==='applied')).toBe(true);
+ const labels=attempts.map(a=>a.action.label);if(effect==='close'){expect(labels).toContain('Sibling');expect(labels.indexOf('Attempt reviewed outside exit')).toBeLessThan(labels.indexOf('Sibling'));}else expect(labels).not.toContain('Sibling');
+ if(effect==='changed'){expect(v.task.reason).toBe('BOUNDARY_EXIT_UNVERIFIED');const count=attempts.length;plugin.start(t.id);await plugin.waitForIdle();expect(f.host.list<any>(sid,'attempt')).toHaveLength(count);expect(plugin.view(t.id).task.reason).toBe('BOUNDARY_EXIT_UNVERIFIED');}
+ if(effect==='noop')expect(v.task.status).not.toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
 it('never replays an unknown dispatched outcome after restart',async()=>{
  const f=await explorerFixture();const path=join(f.dir,'plugin.sqlite');let unknownId:string|undefined;let dispatches=0;
  const host=new Proxy(f.host,{get(target,key){if(key==='execute')return async(...args:Parameters<typeof target.execute>)=>{dispatches++;const attempt=await target.execute(...args);unknownId=attempt.id;return {...attempt,status:'unknown' as const};};if(key==='list')return (sid:string,kind:string)=>target.list<any>(sid,kind).map(x=>kind==='attempt'&&x.id===unknownId?{...x,status:'unknown'}:x);const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;}});
