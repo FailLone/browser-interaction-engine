@@ -47,6 +47,10 @@ it('shows independent control coverage and allows exact current-node actions des
     await page.locator('.session-item').first().click();
     await page.locator('.coverage-summary').waitFor();
     expect(await page.locator('.coverage-summary').innerText()).toContain('1 / 15');
+    const completion = page.getByLabel('整页完成判定');
+    expect(await completion.innerText()).toContain('整页穷尽尚未证明');
+    await completion.getByText('按页面范围查看缺口', { exact: true }).click();
+    expect(await completion.innerText()).toContain('EVENT_LISTENER_COVERAGE');
     const duplicates = page.locator('.action-row').filter({ has: page.locator('b', { hasText: /^Reference$/ }) });
     expect(await duplicates.count()).toBe(2);
     for (let i = 0; i < 2; i++) {

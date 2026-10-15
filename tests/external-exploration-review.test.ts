@@ -29,6 +29,8 @@ it('runs the external example through HTTP, deciding new regions and list sample
     await t.engine.waitForIdle();const report=await t.client.report(t.sid);
     expect(report.explorationAudit.counts.succeeded).toBe(2);expect(report.explorationAudit.counts.policy_excluded).toBe(2);
     expect(report.explorationAudit.discoveryComplete).toBe(false);
+    expect(report.completionAudit).toMatchObject({ unit: 'observed_browser_scope', status: 'unverified', exhaustive: false });
+    expect(report.completionAudit.recordedActions.counts.policy_excluded).toBe(2);
   }finally{await t.close();}
 });
 

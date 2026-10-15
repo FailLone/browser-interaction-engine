@@ -1,6 +1,6 @@
 import { RegionReviews } from './region-reviews.js';
 import { ControlReviews } from './control-reviews.js';
-import { contextKey } from '@interaction/core';
+import { contextKey, type ExplorationGroup } from '@interaction/core';
 import { PageExploration } from './page-exploration.js';
 export type { PageExplorationState } from './page-exploration.js';
 import { InspectionCoordinator, validateInspectionOptions } from './inspection.js';
@@ -16,7 +16,9 @@ export * from './diff-details.js';
 import { BrowserEvidenceQueries, type DomQuery, type ArtifactKind } from './evidence.js';
 import { withFrontierStates } from './frontier.js';
 import { describeControlCoverage } from './control-coverage.js';
+import { auditBrowserCompletion } from './completion-audit.js';
 export * from './control-coverage.js';
+export * from './completion-audit.js';
 export * from '@interaction/adapter-playwright';
 export * from './evidence.js';
 export * from './evidence-availability.js';
@@ -192,7 +194,11 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   private readonly evidenceQueries = new BrowserEvidenceQueries(this);
   override frontierCoverage(sessionId: string) { return withFrontierStates(super.frontierCoverage(sessionId), id => this.store.get<Observation>('observation', id)); }
   controlCoverage(sessionId: string) { return describeControlCoverage(this.list<Observation>(sessionId, 'observation'), this.list(sessionId, 'attempt'), this.list(sessionId, 'action')); }
-  override report(sessionId: string) { return { ...super.report(sessionId), pageExploration: this.pages.state(sessionId), controlCoverage: this.controlCoverage(sessionId) }; }
+  override report(sessionId: string) {
+    const report = super.report(sessionId), controlCoverage = this.controlCoverage(sessionId);
+    return { ...report, pageExploration: this.pages.state(sessionId), controlCoverage,
+      completionAudit: auditBrowserCompletion(report.explorationAudit, controlCoverage, this.list<Observation>(sessionId, 'observation'), report.session.currentObservationId, this.list<ExplorationGroup>(sessionId, 'exploration-group')) };
+  }
   observationDetails(sessionId: string, observationId: string) { return this.evidenceQueries.details(sessionId, observationId); }
   controlDetails(sessionId: string, observationId: string, controlId: string) { return this.evidenceQueries.control(sessionId, observationId, controlId); }
   regionDetails(sessionId: string, observationId: string, key: string) { return this.evidenceQueries.region(sessionId, observationId, key); }
