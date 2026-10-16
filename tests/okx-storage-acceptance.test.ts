@@ -1,13 +1,17 @@
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, realpathSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { EventEmitter } from 'node:events';
+import { spawn, execFileSync } from 'node:child_process';
+import { createRequire } from 'node:module';
+import { randomUUID } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { expect, it, vi } from 'vitest';
 import type { ActionAttempt, Observation } from '@interaction/browser';
 import { SqliteStore } from '@interaction/storage-sqlite';
 import { RetainedPersistence } from '@interaction/storage-retained';
 import { ExplorerPlugin, ExplorerStore, type ExplorerHost, type TaskStatus, type Task } from '@interaction/explorer-plugin';
-import { AcceptanceProgress, AcceptanceWindow, WindowBudgetExceeded, operationConditionCandidate, classifyAcceptanceAttempt, newlyResolvedOccurrences, createDiagnosticLogger, closeAcceptanceResources, settlePendingProviders, auditProtectedArtifact, settleOwnedTask } from '../scripts/okx-storage-acceptance.js';
+import { AcceptanceProgress, AcceptanceWindow, WindowBudgetExceeded, operationConditionCandidate, classifyAcceptanceAttempt, newlyResolvedOccurrences, createDiagnosticLogger, closeAcceptanceResources, settlePendingProviders, auditProtectedArtifact, settleOwnedTask, retainRecoveryResult, writeOwnedStopRequest, readOwnedStopRequest, pollOwnedStopRequests, type AcceptanceRunControl } from '../scripts/okx-storage-acceptance.js';
 
 it('audits retained bytes and media type without starting providers or a browser', async () => {
   const directory = mkdtempSync(join(tmpdir(), 'okx-audit-offline-'));
@@ -170,4 +174,123 @@ it('bounds waiting for a request that ignores cancellation and explicitly report
     const settlement = settlePendingProviders(pending, 5000); await vi.advanceTimersByTimeAsync(5000);
     expect(await settlement).toMatchObject({ settled: false, remainingPendingRequestIds: ['ignored-abort'], waitLimitMs: 5000 });
   } finally { vi.useRealTimers(); }
+});
+
+it.each(['reachCheckpoint', 'reachExplorationTarget'] as const)('stops immediately on each non-successful %s outcome while preserving its evidence', api => {
+  for (const status of ['UNVERIFIED', 'UNREACHABLE', 'PRECONDITIONS_CHANGED']) {
+    const stop = vi.fn(), result = { status, reason: 'replay_target_not_unique_or_missing', attemptIds: ['recovery-attempt'], checks: [{ result: 'unknown' }] };
+    expect(retainRecoveryResult(api, 'session', result, stop)).toBe(result);
+    expect(stop).toHaveBeenCalledExactlyOnceWith('recovery_not_verified', { api, sessionId: 'session', result });
+  }
+  for (const status of api === 'reachCheckpoint' ? ['REACHED_VERIFIED', 'REACHED_ACCEPTABLE'] : ['TARGET_REACHED']) {
+    const stop = vi.fn(), result = { status };
+    expect(retainRecoveryResult(api, 'session', result, stop)).toBe(result); expect(stop).not.toHaveBeenCalled();
+  }
+});
+
+function stopFixture() {
+  const directory = realpathSync(mkdtempSync(join(tmpdir(), 'okx-stop-offline-')));
+  const run: AcceptanceRunControl = { format: 'okx-storage-acceptance-v1', directory, owner: randomUUID(), taskId: 'fixture-task', runId: randomUUID(), pid: process.pid, startedAt: new Date().toISOString(), state: 'active' };
+  const runDirectory = join(directory, 'runs', run.runId); mkdirSync(runDirectory, { recursive: true });
+  const marker = { format: run.format, directory, owner: run.owner, taskId: run.taskId, createdAt: run.startedAt, url: 'https://www.okx.com/convert/usd-to-btc' };
+  writeFileSync(join(directory, 'owner.json'), JSON.stringify(marker)); writeFileSync(join(directory, 'active-run.json'), JSON.stringify(run));
+  return { directory, runDirectory, marker, run, close: () => rmSync(directory, { recursive: true, force: true }) };
+}
+
+it('accepts only its marked run stop request, retains it as evidence and ignores a previous invocation', () => {
+  const fixture = stopFixture();
+  try {
+    expect(readOwnedStopRequest(fixture.run)).toBeUndefined();
+    const request = writeOwnedStopRequest(fixture.directory);
+    expect(readOwnedStopRequest(fixture.run)).toEqual(request);
+    const next = { ...fixture.run, runId: randomUUID() }; mkdirSync(join(fixture.directory, 'runs', next.runId));
+    writeFileSync(join(fixture.directory, 'active-run.json'), JSON.stringify(next));
+    expect(readOwnedStopRequest(next)).toBeUndefined();
+    expect(() => readOwnedStopRequest(fixture.run)).toThrow('STOP_CONTROL_OWNERSHIP_CHANGED');
+    expect(JSON.parse(readFileSync(join(fixture.runDirectory, 'stop-request.json'), 'utf8'))).toEqual(request);
+    writeFileSync(join(fixture.directory, 'active-run.json'), JSON.stringify({ ...next, state: 'finished' }));
+    expect(() => writeOwnedStopRequest(fixture.directory)).toThrow('NO_ACTIVE_OWNED_RUN');
+  } finally { fixture.close(); }
+});
+
+it('rejects foreign owner requests, ownership changes and symlink control files', () => {
+  const fixture = stopFixture();
+  try {
+    const request = writeOwnedStopRequest(fixture.directory), path = join(fixture.runDirectory, 'stop-request.json');
+    writeFileSync(path, JSON.stringify({ ...request, owner: randomUUID() }));
+    expect(() => readOwnedStopRequest(fixture.run)).toThrow('STOP_REQUEST_OWNERSHIP_MISMATCH');
+    writeFileSync(join(fixture.directory, 'owner.json'), JSON.stringify({ ...fixture.marker, owner: randomUUID() }));
+    expect(() => writeOwnedStopRequest(fixture.directory)).toThrow('NOT_OWNED_RUN_DIRECTORY');
+    writeFileSync(join(fixture.directory, 'owner.json'), JSON.stringify(fixture.marker));
+    rmSync(path); symlinkSync(join(fixture.directory, 'owner.json'), path);
+    expect(() => readOwnedStopRequest(fixture.run)).toThrow('INVALID_STOP_CONTROL_FILE');
+  } finally { fixture.close(); }
+});
+
+it('polls stop requests independently of slow metrics and only requests settlement once', async () => {
+  const fixture = stopFixture(); vi.useFakeTimers(); const stop = vi.fn();
+  const dispose = pollOwnedStopRequests(fixture.run, stop);
+  try {
+    const request = writeOwnedStopRequest(fixture.directory);
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(stop).toHaveBeenCalledExactlyOnceWith('operator_stop_request', request);
+  } finally { dispose(); vi.useRealTimers(); fixture.close(); }
+});
+
+it.each(['direct-node-signal', 'tsx-cli-signal', 'direct-node-stop-file'] as const)('settles delayed work and writes summary before exit using %s without a browser/provider', async mode => {
+  const fixture = stopFixture(), script = join(fixture.directory, 'child.mts'), summary = join(fixture.directory, 'summary.json');
+  const harness = new URL('../scripts/okx-storage-acceptance.ts', import.meta.url).href;
+  writeFileSync(script, `
+import { writeFileSync } from 'node:fs';
+import { installAcceptanceStopSignals, settleOwnedTask, pollOwnedStopRequests } from ${JSON.stringify(harness)};
+const run = ${JSON.stringify(fixture.run)}; run.pid = process.pid;
+writeFileSync(${JSON.stringify(join(fixture.directory, 'active-run.json'))}, JSON.stringify(run));
+const hold = setInterval(() => {}, 1000);
+let job, stopPolling; const order = [];
+const otherSignal = () => { order.push('other.signal'); ${mode === 'direct-node-stop-file' ? 'process.exit(130);' : ''} };
+process.on('SIGINT', otherSignal);
+const stop = reason => {
+  if (job) return;
+  order.push('stop.requested');
+  job = settleOwnedTask({ owner: () => run.taskId, pause: async () => { await new Promise(r => setTimeout(r, 150)); order.push('pause.settled'); }, waitForIdle: async () => { order.push('plugin.idle'); } }, { waitForIdle: async () => { await new Promise(r => setTimeout(r, 50)); order.push('host.idle'); } }, run.taskId).then(() => {
+    order.push('stop.settled'); removeSignals(); stopPolling?.();
+    writeFileSync(${JSON.stringify(summary)}, JSON.stringify({ reason, order, otherListenerRetained: process.listeners('SIGINT').includes(otherSignal) }));
+    console.log('summary'); clearInterval(hold);
+  });
+};
+const removeSignals = installAcceptanceStopSignals(stop);
+stopPolling = pollOwnedStopRequests(run, stop, 20);
+console.log(JSON.stringify({ ready: true, pid: process.pid }));
+`);
+  const require = createRequire(import.meta.url), cli = require.resolve('tsx/cli');
+  const child = spawn(process.execPath, mode === 'tsx-cli-signal' ? [cli, '--conditions=development', script] : ['--import', require.resolve('tsx'), '--conditions=development', script], { cwd: fileURLToPath(new URL('..', import.meta.url)), stdio: ['ignore', 'pipe', 'pipe'] });
+  let output = '', stderr = '', fixturePid: number | undefined, timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const completion = new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolve, reject) => {
+      child.on('error', reject); child.on('close', (code, signal) => resolve({ code, signal }));
+      child.stdout.on('data', value => {
+        output += value; const ready = output.match(/\{"ready":true,"pid":(\d+)\}/);
+        if (!ready || fixturePid !== undefined) return;
+        fixturePid = Number(ready[1]);
+        try {
+          if (mode === 'direct-node-stop-file') {
+            const queued = JSON.parse(execFileSync(process.execPath, ['--import', require.resolve('tsx'), '--conditions=development', fileURLToPath(harness), '--dir', fixture.directory, '--request-stop'], { encoding: 'utf8', timeout: 5000 }));
+            expect(queued).toMatchObject({ type: 'stop.request.queued', runId: fixture.run.runId, owner: fixture.run.owner, settlementPending: true });
+          } else process.kill(fixturePid, 'SIGINT');
+        } catch (error) { reject(error); }
+      });
+      child.stderr.on('data', value => { stderr += value; });
+      timer = setTimeout(() => reject(new Error('CHILD_SETTLEMENT_TIMEOUT')), 10000);
+    });
+    expect(await completion, stderr).toEqual({ code: 0, signal: null }); expect(output).toContain('summary');
+    const result = JSON.parse(readFileSync(summary, 'utf8'));
+    expect(result).toEqual({ reason: mode === 'direct-node-stop-file' ? 'operator_stop_request' : 'operator_signal', order: [...(mode === 'direct-node-stop-file' ? [] : ['other.signal']), 'stop.requested', 'pause.settled', 'plugin.idle', 'host.idle', 'stop.settled'], otherListenerRetained: true });
+  } finally {
+    clearTimeout(timer);
+    if (child.exitCode === null && child.signalCode === null) {
+      if (fixturePid) { try { process.kill(fixturePid, 'SIGKILL'); } catch { /* Already exited. */ } }
+      child.kill('SIGKILL');
+    }
+    fixture.close();
+  }
 });

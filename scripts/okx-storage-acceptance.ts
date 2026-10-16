@@ -14,8 +14,11 @@ import { budgetSchema, createTaskSchema } from '../packages/explorer-plugin/src/
 /** Real-site runner, deliberately separate from fixture benchmarks. Merely typechecking
  * this file does not launch it. Start only after reviewing the current implementation.
  *
- * Fresh: pnpm exec tsx --conditions=development scripts/okx-storage-acceptance.ts --dir /absolute/new-directory --url https://www.okx.com/convert/usd-to-btc
+ * Fresh: node --import tsx --conditions=development scripts/okx-storage-acceptance.ts --dir /absolute/new-directory --url https://www.okx.com/convert/usd-to-btc
  * Resume: same command with --dir /absolute/owned-directory --resume [--extend-budget]
+ * Stop: node --import tsx --conditions=development scripts/okx-storage-acceptance.ts --dir /absolute/owned-directory --request-stop
+ * Use the stop command while a browser is active: Playwright's default SIGINT handler
+ * can exit 130 before asynchronous evidence settlement, with either Node or tsx CLI.
  * Provider configuration comes from the launching environment; no dotenv/key file is read.
  * Each invocation is a bounded measurement window. No result claims exhaustion.
  */
@@ -34,23 +37,36 @@ function args(argv: string[]) {
   const values = new Map<string, string>(); const flags = new Set<string>();
   for (let index = 0; index < argv.length; index++) {
     const key = argv[index];
-    if (['--resume', '--extend-budget', '--help'].includes(key)) flags.add(key);
+    if (['--resume', '--extend-budget', '--request-stop', '--help'].includes(key)) flags.add(key);
     else if (['--dir', '--url', '--rounds', '--actions', '--model-requests', '--minutes', '--sample-seconds', '--stall-minutes', '--max-disk-gib'].includes(key) && argv[index + 1] && !argv[index + 1].startsWith('--')) values.set(key, argv[++index]);
     else throw new Error('INVALID_ARGUMENT');
   }
   if (flags.has('--extend-budget') && !flags.has('--resume')) throw new Error('EXTENSION_REQUIRES_RESUME');
+  if (flags.has('--request-stop') && (flags.has('--resume') || flags.has('--extend-budget') || [...values.keys()].some(key => key !== '--dir'))) throw new Error('STOP_REQUIRES_ONLY_DIRECTORY');
   const number = (key: string, fallback: number, min: number, max: number) => {
     const result = Number(values.get(key) ?? fallback);
     if (!Number.isFinite(result) || result < min || result > max) throw new Error('INVALID_ARGUMENT');
     return result;
   };
-  return { directory: values.get('--dir'), url: values.get('--url'), resume: flags.has('--resume'), extend: flags.has('--extend-budget'), help: flags.has('--help'),
+  return { directory: values.get('--dir'), url: values.get('--url'), resume: flags.has('--resume'), extend: flags.has('--extend-budget'), requestStop: flags.has('--request-stop'), help: flags.has('--help'),
     budget: budgetSchema.parse({ rounds: number('--rounds', 2, 1, 100), actions: number('--actions', 100, 1, 10000), modelRequests: number('--model-requests', 1000, 1, 10000), durationMs: number('--minutes', 30, 1, 1440) * 60000 }),
     sampleMs: number('--sample-seconds', 30, 10, 3600) * 1000, stallMs: number('--stall-minutes', 10, 2, 1440) * 60000, maxDisk: number('--max-disk-gib', 20, 1, 1000) * 1024 ** 3 };
 }
 interface Marker { format: typeof FORMAT; directory: string; owner: string; createdAt: string; url: string; taskId?: string }
 interface Cursors { plugin: number; engine: Record<string, number> }
 interface Guard { at: string; reason: string; details?: unknown; prior?: { status: string; reason?: string; usage: Budget } }
+/** Retain the SDK outcome unchanged and stop before the caller schedules more work. */
+export function retainRecoveryResult<T extends { status: string }>(api: 'reachCheckpoint' | 'reachExplorationTarget', sessionId: string, result: T, stop: (reason: string, details: unknown) => void): T {
+  const successful = api === 'reachCheckpoint' ? ['REACHED_VERIFIED', 'REACHED_ACCEPTABLE'].includes(result.status) : result.status === 'TARGET_REACHED';
+  if (!successful) stop('recovery_not_verified', { api, sessionId, result });
+  return result;
+}
+/** These listeners are best effort; never remove another library's listeners. */
+export function installAcceptanceStopSignals(stop: (reason: string) => void) {
+  const onSignal = () => stop('operator_signal');
+  process.on('SIGINT', onSignal); process.on('SIGTERM', onSignal);
+  return () => { process.off('SIGINT', onSignal); process.off('SIGTERM', onSignal); };
+}
 /** Offline-testable integrity read. Retention hashes bind bytes AND media type. */
 export async function auditProtectedArtifact(store: Pick<SqliteStore, 'get' | 'evidence'>, key: string) {
   const entry = store.get<{ status: string; bytes: number; hash: string }>('evidence-entry', `evidence:${key}`), value = await store.evidence.get(key);
@@ -201,6 +217,54 @@ function atomicJson(path: string, value: unknown) {
   const temporary = `${path}.${randomUUID()}.tmp`;
   writeFileSync(temporary, JSON.stringify(value, null, 2) + '\n', { mode: 0o600, flag: 'wx' }); renameSync(temporary, path);
 }
+export interface AcceptanceRunControl { format: typeof FORMAT; directory: string; owner: string; taskId: string; runId: string; pid: number; startedAt: string; state: 'active' | 'finished'; finishedAt?: string }
+interface StopRequest { format: 'okx-storage-stop-v1'; owner: string; taskId: string; runId: string; requestId: string; requestedAt: string }
+const uuid = (value: unknown): value is string => typeof value === 'string' && /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(value);
+function readControlJson(path: string) {
+  const stat = lstatSync(path);
+  if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 8192) throw new Error('INVALID_STOP_CONTROL_FILE');
+  return object(JSON.parse(readFileSync(path, 'utf8')));
+}
+function readOwnedRunControl(directory: string): AcceptanceRunControl {
+  if (realpathSync(directory) !== directory || lstatSync(directory).isSymbolicLink()) throw new Error('DIRECTORY_MUST_BE_CANONICAL');
+  const marker = readControlJson(join(directory, 'owner.json')), run = readControlJson(join(directory, 'active-run.json'));
+  if (marker.format !== FORMAT || marker.directory !== directory || !uuid(marker.owner) || typeof marker.taskId !== 'string' || !marker.taskId
+    || run.format !== FORMAT || run.directory !== directory || run.owner !== marker.owner || run.taskId !== marker.taskId || !uuid(run.runId)
+    || !Number.isSafeInteger(run.pid) || Number(run.pid) <= 0 || typeof run.startedAt !== 'string') throw new Error('NOT_OWNED_RUN_DIRECTORY');
+  if (run.state !== 'active') throw new Error('NO_ACTIVE_OWNED_RUN');
+  const runDirectory = join(directory, 'runs', run.runId);
+  if (realpathSync(runDirectory) !== runDirectory || lstatSync(runDirectory).isSymbolicLink()) throw new Error('DIRECTORY_MUST_BE_CANONICAL');
+  return run as unknown as AcceptanceRunControl;
+}
+/** Queue only for the marked run; no signal, provider, browser or database access.
+ * A crashed run may leave a stale active marker. Its request cannot stop a later run. */
+export function writeOwnedStopRequest(inputDirectory: string): StopRequest {
+  const directory = resolve(inputDirectory), run = readOwnedRunControl(directory);
+  const request: StopRequest = { format: 'okx-storage-stop-v1', owner: run.owner, taskId: run.taskId, runId: run.runId, requestId: randomUUID(), requestedAt: now() };
+  atomicJson(join(directory, 'runs', run.runId, 'stop-request.json'), request);
+  return request;
+}
+export function readOwnedStopRequest(expected: AcceptanceRunControl): StopRequest | undefined {
+  const run = readOwnedRunControl(expected.directory);
+  if (run.owner !== expected.owner || run.taskId !== expected.taskId || run.runId !== expected.runId || run.pid !== expected.pid) throw new Error('STOP_CONTROL_OWNERSHIP_CHANGED');
+  let request: Record<string, unknown>;
+  try { request = readControlJson(join(expected.directory, 'runs', expected.runId, 'stop-request.json')); }
+  catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOENT') return; throw error; }
+  if (request.format !== 'okx-storage-stop-v1' || request.owner !== expected.owner || request.taskId !== expected.taskId || request.runId !== expected.runId
+    || !uuid(request.requestId) || typeof request.requestedAt !== 'string') throw new Error('STOP_REQUEST_OWNERSHIP_MISMATCH');
+  return request as unknown as StopRequest;
+}
+/** Independent of full metrics sampling, including while a recovery is in flight. */
+export function pollOwnedStopRequests(run: AcceptanceRunControl, stop: (reason: string, details: unknown) => void, intervalMs = 1000) {
+  let handled = false;
+  const poll = () => {
+    if (handled) return;
+    try { const request = readOwnedStopRequest(run); if (request) { handled = true; stop('operator_stop_request', request); } }
+    catch (error) { handled = true; stop('stop_control_integrity', { code: code(error) }); }
+  };
+  const timer = setInterval(poll, intervalMs); poll();
+  return () => clearInterval(timer);
+}
 function noSymlinks(directory: string) {
   for (const name of readdirSync(directory)) {
     const path = join(directory, name), stat = lstatSync(path);
@@ -234,8 +298,9 @@ async function disk(directory: string) {
 
 async function main() {
   const config = args(process.argv.slice(2));
-  if (config.help) { console.log('Required: --dir NEW_DIRECTORY --url HTTPS_OKX_URL. Resume: --dir OWNED_DIRECTORY --resume [--extend-budget]. Optional: --rounds 2 --actions 100 --model-requests 1000 --minutes 30 --sample-seconds 30 --stall-minutes 10 --max-disk-gib 20. Providers are supplied only by the launching environment. Provider/new-session call allowances are hard entry limits. Action/time limits may be exceeded by already running SDK recovery/settling; overshoot is reported. No limit establishes exhaustion.'); return; }
+  if (config.help) { console.log('Launch with node --import tsx --conditions=development. Required: --dir NEW_DIRECTORY --url HTTPS_OKX_URL. Resume: --dir OWNED_DIRECTORY --resume [--extend-budget]. Stop safely: --dir OWNED_DIRECTORY --request-stop; this queues a request for the marked run, and its summary confirms settlement. SIGINT is best effort because Playwright may exit before settlement. Optional: --rounds 2 --actions 100 --model-requests 1000 --minutes 30 --sample-seconds 30 --stall-minutes 10 --max-disk-gib 20. Providers are supplied only by the launching environment. Provider/new-session call allowances are hard entry limits. Action/time limits may be exceeded by already running SDK recovery/settling; overshoot is reported. No limit establishes exhaustion.'); return; }
   if (!config.directory) throw new Error('DIRECTORY_REQUIRED');
+  if (config.requestStop) { const request = writeOwnedStopRequest(config.directory); console.log(JSON.stringify({ type: 'stop.request.queued', ...request, settlementPending: true })); return; }
   const directory = resolve(config.directory), markerPath = join(directory, 'owner.json');
   let marker: Marker;
   if (config.resume) {
@@ -264,6 +329,7 @@ async function main() {
   let host: BrowserEngine | undefined, plugin: ExplorerPlugin | undefined, engineStore: SqliteStore | undefined, pluginStore: ExplorerStore | undefined, pluginMetrics: Database.Database | undefined;
   let taskId = marker.taskId || '', stopping = false, stopJob: Promise<void> | undefined, sampleAt = 0, evidenceOffset = 0;
   let deadlineTimer: ReturnType<typeof setTimeout> | undefined, progressDeferralLogged = false;
+  let runControl: AcceptanceRunControl | undefined, stopPolling: (() => void) | undefined;
   const guards: Guard[] = [], cursors: Cursors = { plugin: 0, engine: {} }, sessions = new Set<string>();
   const pendingProviders = new Map<string, Promise<unknown>>();
   let providerSettlement: Awaited<ReturnType<typeof settlePendingProviders>> | undefined;
@@ -299,8 +365,7 @@ async function main() {
       throw error;
     }
   };
-  const onSignal = () => requestStop('operator_signal');
-  process.on('SIGINT', onSignal); process.on('SIGTERM', onSignal);
+  const removeStopSignals = installAcceptanceStopSignals(requestStop);
   const watchRoute = (key: string, evidence: unknown) => {
     const snapshot = progressSnapshot();
     if (snapshot.progressGuardsDeferred) { log('route.guard_deferred', { key, reason: 'unkeyed_success_cannot_establish_no_progress', unkeyedSuccessfulAttemptIds: snapshot.unkeyedSuccessfulAttemptIds }); return; }
@@ -434,14 +499,14 @@ async function main() {
     host.reachCheckpoint = async (...input) => {
       if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
       const began = performance.now();
-      try { const result = await checkpoint(...input); const record = { api: 'reachCheckpoint', sessionId: input[0], status: result.status, elapsedMs: performance.now() - began, observationId: result.observationId, attemptIds: result.attemptIds, checkpointVerified: result.status === 'REACHED_VERIFIED' }; recoveries.push(record); log('recovery.returned', { ...record, result }); return result; }
+      try { const result = await checkpoint(...input); const record = { api: 'reachCheckpoint', sessionId: input[0], status: result.status, elapsedMs: performance.now() - began, observationId: result.observationId, attemptIds: result.attemptIds, checkpointVerified: result.status === 'REACHED_VERIFIED' }; recoveries.push(record); log('recovery.returned', { ...record, result }); return retainRecoveryResult('reachCheckpoint', input[0], result, requestStop); }
       catch (error) { log('recovery.failed', { api: 'reachCheckpoint', sessionId: input[0], elapsedMs: performance.now() - began, code: code(error) }); throw error; }
     };
     const target = host.reachExplorationTarget.bind(host);
     host.reachExplorationTarget = async (...input) => {
       if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
       const began = performance.now();
-      try { const result = await target(...input); const record = { api: 'reachExplorationTarget', sessionId: input[0], status: result.status, elapsedMs: performance.now() - began, observationId: result.observationId, attemptIds: result.attemptIds, matchedActionIds: result.matchedActionIds, checkpointVerified: result.checkpointVerified }; recoveries.push(record); log('recovery.returned', { ...record, result }); return result; }
+      try { const result = await target(...input); const record = { api: 'reachExplorationTarget', sessionId: input[0], status: result.status, elapsedMs: performance.now() - began, observationId: result.observationId, attemptIds: result.attemptIds, matchedActionIds: result.matchedActionIds, checkpointVerified: result.checkpointVerified }; recoveries.push(record); log('recovery.returned', { ...record, result }); return retainRecoveryResult('reachExplorationTarget', input[0], result, requestStop); }
       catch (error) { log('recovery.failed', { api: 'reachExplorationTarget', sessionId: input[0], elapsedMs: performance.now() - began, code: code(error) }); throw error; }
     };
     const event = pluginStore.event.bind(pluginStore);
@@ -453,6 +518,9 @@ async function main() {
     host.events.on('event', engineEvent);
     plugin = new ExplorerPlugin(host, pluginStore, { ...configured, jev: provider('jev', configured.jev), llm: provider('llm', configured.llm) });
     if (!config.resume) { const created = plugin.create(createTaskSchema.parse({ url: marker.url, goal: '', coverageMode: 'all', budget: config.budget, sessionOptions: { headless: true, executionPolicy: 'interface-only' } })); taskId = created.id; marker.taskId = taskId; atomicJson(markerPath, marker); }
+    runControl = { format: FORMAT, directory, owner: marker.owner, taskId, runId, pid: process.pid, startedAt: now(), state: 'active' };
+    atomicJson(join(directory, 'active-run.json'), runControl);
+    stopPolling = pollOwnedStopRequests(runControl, requestStop);
     initialState = pluginStore.taskState(taskId); initial = initialState.task; atomicJson(join(runDirectory, 'task-before.json'), initial);
     atomicJson(join(runDirectory, 'plan-occurrences-before.json'), initialState.plan);
     if (initial.url !== marker.url || initial.goal !== '' || initial.coverageMode !== 'all') throw Object.assign(new Error(), { code: 'OWNED_TASK_CONFIGURATION_CHANGED' });
@@ -502,8 +570,7 @@ async function main() {
       recoveryFollowup: recoveries.map(recovery => ({ ...recovery, subsequentSuccessfulAttempts: finalAttempts.filter(attempt => successes.has(attempt.id) && attempt.sessionId === recovery.sessionId && attempt.beforeId === recovery.observationId).map(attempt => ({ sessionId: attempt.sessionId, attemptId: attempt.id, beforeId: attempt.beforeId })), targetReadinessOnly: recovery.status === 'TARGET_REACHED', wholeCheckpointVerified: recovery.checkpointVerified === true })) });
   } catch (error) { fatal = code(error); requestStop('runner_failure', { code: fatal }); await stopJob; }
   finally {
-    clearTimeout(deadlineTimer);
-    process.off('SIGINT', onSignal); process.off('SIGTERM', onSignal);
+    clearTimeout(deadlineTimer); stopPolling?.();
     await closeAcceptanceResources([
       { name: 'pluginMetrics', close: () => pluginMetrics?.close() },
       { name: 'plugin', close: async () => { if (plugin) { await plugin.close(); pluginStore = undefined; } } },
@@ -519,11 +586,13 @@ async function main() {
     try { atomicJson(join(runDirectory, 'summary.json'), { format: FORMAT, runId, taskId, finishedAt: now(), started, fatal, guards, originalStop: guards[0], finalStatus: final?.status, finalReason: final?.reason, usageBefore: initial?.usage, usageAfter: final?.usage, providerCounts, providerSettlement, diagnosticFailure: diagnostics.failure, unknownAttempts: settled.unknownAttempts, inFlightAttempts: settled.inFlightAttempts, attemptCounts: settled.counts, newSuccessfulExplorationAttempts: settled.successfulAttemptIds.length, newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, budgetEnforcement, windowBudget: windowBudget.snapshot(), overshoot: windowBudget.snapshot().overshoot, recoveryCalls: recoveries.length, recoveryElapsedMs: recoveries.reduce((sum, recovery) => sum + recovery.elapsedMs, 0), cursors, diskAfterClose: await disk(directory), exhaustive: false, reviewRequired: true }); }
     catch (error) { fatal ||= code(error); log('summary.failed', { code: code(error) }); }
     finally { await closeAcceptanceResources([
+      { name: 'stopControl', close: () => { if (runControl) atomicJson(join(directory, 'active-run.json'), { ...runControl, state: 'finished', finishedAt: now() }); } },
       { name: 'lock.rollback', close: () => { if (lock.inTransaction) lock.exec('ROLLBACK'); } },
       { name: 'lock.close', close: () => lock.close() }
     ], failure => { fatal ||= failure.code; log('close.failed', failure); }); }
+    removeStopSignals();
     console.log(JSON.stringify({ directory: runDirectory, taskId, reason: guards[0]?.reason || fatal, fatal, diagnosticFailure: diagnostics.failure, providerSettlement, exhaustive: false, reviewRequired: true }));
-    if (fatal || guards.some(guard => !['operator_signal', 'window_time_budget', 'window_usage_budget', 'task_budget_guard', 'already_completed_requires_review'].includes(guard.reason))) process.exitCode = 2;
+    if (fatal || guards.some(guard => !['operator_signal', 'operator_stop_request', 'window_time_budget', 'window_usage_budget', 'task_budget_guard', 'already_completed_requires_review'].includes(guard.reason))) process.exitCode = 2;
   }
 }
 
