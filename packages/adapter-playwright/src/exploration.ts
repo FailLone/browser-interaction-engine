@@ -3,6 +3,7 @@ import type { ActionCandidate, Control, Observation, Session } from './types.js'
 import { observableCanonical } from './model.js';
 import { constrain } from './policy.js';
 import { ruleMatches, signature, formBinding } from './util.js';
+import { browserBranchConditions } from './branch-conditions.js';
 
 /** Opaque compatibility keys remain readable by existing consumers. They are hints, not identities. */
 export function browserControlCorrespondence(c: Control): CorrespondenceHint | undefined {
@@ -37,11 +38,23 @@ export function browserOperationCorrespondenceHint(c:Control,kind:string,o:Pick<
   }catch{return;}
 }
 
-/** Per-round scheduling hint; its historical encoding is retained for persisted retry ledgers. */
+/** Per-round scheduling hint. Unscoped/no-mode legacy encodings remain readable;
+ * captured semantic rebinding and source modes produce new operation revisions. */
 export function browserOperationKey(a: ActionCandidate,o: Observation) {
   const c=o.controls.find(c=>c.localId===a.localId),r=o.regions.find(r=>r.key===c?.region);
   const key=c&&(c.stableKey||(!c.list&&!c.structuralItem?browserControlCorrespondence(c)?.key:undefined));
-  return hash({scope:{url:o.url,...(r?{region:r.label}:{}),label:a.label,...(c?{role:c.role,...(key?{stableKey:key}:{})}:{}),kind:a.kind,...(['string','boolean','number'].includes(typeof a.value)?{value:a.value}:{})},context:o.context,...(a.kind==='scroll'?{position:a.value}:{})});
+  const branch=c?browserBranchConditions(a,o):undefined;
+  const context=c?.identityContext,item=c?.structuralItem;
+  const targetBinding=c&&(context?.evidence.length&&(context.scope||context.binding)||c.formOwner||item?.recordKey)
+    ?{context:{scope:context?.scope,binding:context?.binding},form:formBinding(c),record:item?.recordKey?{key:item.recordKey,template:item.template,slot:item.slot}:undefined}:undefined;
+  // A shared stable key is not the complete target binding. Its changed owner
+  // must not inherit a spent retry key; instance/document IDs remain excluded.
+  // Controls without source modes or semantic bindings retain their legacy key.
+  // Missing dependency evidence is not a fresh attempt whenever unrelated text
+  // changes. This retry marker claims no equivalence; controlCase still refuses
+  // coverage, while a known projection or semantic rebinding gets a new key.
+  const sourceConditions=c&&!branch?{policy:'browser-branch-conditions-v1',status:'unverified'}:branch?.conditions.length?{policy:branch.policy,key:branch.key}:undefined;
+  return hash({scope:{url:o.url,...(r?{region:r.label}:{}),label:a.label,...(c?{role:c.role,...(key?{stableKey:key}:{})}:{}),kind:a.kind,...(['string','boolean','number'].includes(typeof a.value)?{value:a.value}:{})},context:o.context,...(targetBinding?{targetBinding}:{}),...(sourceConditions?{sourceConditions}:{}),...(a.kind==='scroll'?{position:a.value}:{})});
 }
 
 function shape(c: Control, portable=false) {
@@ -56,22 +69,36 @@ function shape(c: Control, portable=false) {
 export function explorationCase(action: ActionCandidate, o: Observation): ExplorationCase | undefined {
   const c = o.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
   if (!c || c.hypothesisId || o.gaps.some(g => g.critical)) return undefined;
+  const branch = browserBranchConditions(action, o); if (!branch) return;
   const input = ['fill', 'select', 'check'].includes(action.kind);
   const structuralScope = o.controls.filter(c => c.visible && c.actions.length).map(c => ({ key: c.stableKey || signature(c), role: c.role })).sort((a, b) => canonical(a).localeCompare(canonical(b)));
-  const projection = { url: o.url, boundary: o.boundaries?.map(b => b.key) || [], structuralScope, target: shape(c), valid: c.constraints.valid,
+  const projection = { url: o.url, boundary: o.boundaries?.map(b => b.key) || [], structuralScope, target: shape(c), valid: c.constraints.valid, branch: branch.key,
     ...(input ? {} : { text: c.displayedText, expanded: c.expanded }),
     risk: action.risk, replayable: action.replayable, basis: action.basis,
     excluded: action.excluded, exclusionReason: action.exclusionReason,
     blockers: action.preconditions.blockers?.map(b => b.code) || [] };
-  return { key: hash(projection), policy: 'browser-representative-v1', evidence: [
+  return { key: hash(projection), policy: 'browser-representative-v2', evidence: [
     'Same logical control, operation, input sample and declared business context',
     'Same URL, boundary, visible control structure and target constraints/options',
     'Other field values and input starting values are sampled; combinations are not exhaustive',
+    ...branch.evidence,
   ] };
 }
 
-/** Control/operation coverage, independent of other controls' input combinations. */
+/** Control/operation samples include bounded related UI mode conditions; free
+ * text combinations are not exhaustive. Neither state nor identity equivalence. */
 export function controlCase(action: ActionCandidate, o: Observation, portable=false): ExplorationCase | undefined {
+  return controlCaseProjection(action,o,portable,true);
+}
+
+/** Legacy controls-mode queue sampling, never proof that source modes are
+ * equivalent. The independent exploration plugin owns branch enumeration and
+ * budgets. Missing selector evidence must not turn this into whole-state DFS. */
+export function controlsTraversalCase(action:ActionCandidate,o:Observation):ExplorationCase|undefined {
+  return controlCaseProjection(action,o,false,false);
+}
+
+function controlCaseProjection(action:ActionCandidate,o:Observation,portable:boolean,sourceConditions:boolean):ExplorationCase|undefined {
   if(portable&&!action.localId)return;
   if (!action.controlId && ['scroll', 'press'].includes(action.kind)) return {
     key: hash({ url: o.url, boundaries: o.boundaries?.map(b => b.key) || [], kind: action.kind,
@@ -80,12 +107,13 @@ export function controlCase(action: ActionCandidate, o: Observation, portable=fa
   };
   const c = o.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
   if (!c || o.gaps.some(g => g.critical)) return;
+  const branch = sourceConditions?browserBranchConditions(action,o):undefined;if(sourceConditions&&!branch)return;
   const native=portable&&browserOperationCorrespondenceHint(c,action.kind,o);
   if(native&&action.basis?.status==='supported'&&action.basis.evidence.some(e=>e.source==='html'&&e.rule==='hyperlink/v1'&&e.facts.href===c.reviewBinding?.attributes.href)) {
     const {valid:_valid,...constraints}=c.constraints,{instanceId:_instance,...form}=c.reviewBinding?.form||{};
-    return {key:hash({url:o.url,reference:native.key,boundary:o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})),
+    return {key:hash({url:o.url,reference:native.key,branch:branch?.key,boundary:o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})),
       readOnly:c.readOnly,constraints,options:c.options,attributes:c.reviewBinding?.attributes,form,formOwner:formBinding(c),basis:action.basis,risk:action.risk}),
-      policy:'browser-native-record-link-operation-v1',evidence:[...native.evidence,'Same native navigation operation; displayed text remains retained observation evidence']};
+      policy:'browser-native-record-link-operation-v2',evidence:[...native.evidence,...branch?.evidence||[],'Same native navigation operation; displayed text remains retained observation evidence']};
   }
   // Review record IDs identify evidence, not a new operation. Preserve the
   // reviewed DOM conditions and risk; dispatch still validates the exact review.
@@ -95,11 +123,12 @@ export function controlCase(action: ActionCandidate, o: Observation, portable=fa
   const { instanceId: _formInstance, ...reviewForm } = c.reviewBinding?.form || {};
   const reviewBinding = reviewed ? { name: c.name, tag: c.tag, readOnly: c.readOnly,
     attributes: c.reviewBinding?.attributes, form: reviewForm } : undefined;
-  return { key: hash({ url: o.url, boundary: portable?o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})):o.boundaries?.map(b => b.key) || [], shape: shape(c,portable),
+  return { key: hash({ url: o.url, ...(sourceConditions?{branch:branch?.key}:{}), boundary: portable?o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})):o.boundaries?.map(b => b.key) || [], shape: shape(c,portable),
     instance: !portable&&(c.hypothesisId || c.identityScope === 'instance') ? c.instanceId : undefined,
-    basis, reviewBinding, risk: action.risk, scroll: action.kind === 'scroll' ? c.scroll : undefined }), policy: portable?'browser-controls-correspondence-v1':'browser-controls-live-v3',
+    basis, reviewBinding, risk: action.risk, scroll: action.kind === 'scroll' ? c.scroll : undefined }), policy: portable?'browser-controls-correspondence-v2':sourceConditions?'browser-controls-live-v4':'browser-controls-live-v3',
     evidence: ['One operation sample per encountered control, target constraints, option and declared context',
-      portable?'Target-region operation reference only; active boundaries and dispatch permission are checked separately':'Current-instance targets do not assert historical identity; all combinations are outside this coverage unit'] };
+      portable?'Target-region operation reference only; active boundaries and dispatch permission are checked separately':'Current-instance targets do not assert historical identity; all combinations are outside this coverage unit',
+      ...branch?.evidence||[],...sourceConditions?[]:['Legacy controls traversal sample only; source modes require independent correspondence evidence']] };
 }
 
 /** Compare interaction semantics, retaining editable values and obstruction checks.

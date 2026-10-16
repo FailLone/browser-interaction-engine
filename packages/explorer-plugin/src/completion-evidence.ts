@@ -9,13 +9,13 @@ import { scopeFor } from './policy.js';
 export function completedOperations(host:ExplorerHost,task:Task,o:Observation,actions:ActionCandidate[]):ReadonlySet<ActionCandidate> {
   const completed=new Set<ActionCandidate>();
   const proofs=task.plan.filter(i=>i.required&&i.status==='succeeded'&&i.resolvedBy?.attemptId&&i.scope.kind&&i.scope.label)
-    .map(item=>({item,fields:Object.entries(item.scope).filter(([key])=>item.dispatchScope!==false||['url','label','role','kind','value'].includes(key))}));
+    .flatMap(item=>[...new Map([item.resolvedBy!,...item.attempts.filter(a=>a.outcome==='succeeded'&&a.evidence?.attemptId).map(a=>a.evidence!)].map(ref=>[`${ref.sessionId}:${ref.attemptId}`,ref])).values()].map(ref=>({item,ref,fields:Object.entries(item.scope).filter(([key])=>item.dispatchScope!==false||['url','label','role','kind','value'].includes(key))})));
   if(!proofs.length||!actions.length)return completed;
   const requests:Parameters<ExplorerHost['operationCorrespondences']>[1]['requests']=[],requestIndex=new Map<string,number>(),indices=new Map<ActionCandidate,number[]>();
   for(const action of new Set(actions)) {
     const actual=scopeFor(action,o),matches:number[]=[];
     const control=o.controls.find(c=>c.localId===action.localId),nativeLink=control&&browserOperationCorrespondenceHint(control,action.kind,o);
-    for(const {item,fields} of proofs) {
+    for(const {item,ref,fields} of proofs) {
       // Accepted user scopes retain their literal meaning. Program-derived rows
       // are immutable discovery records, not a second identity implementation:
       // legacy key encodings/review region names must not prevent the host from examining
@@ -25,7 +25,7 @@ export function completedOperations(host:ExplorerHost,task:Task,o:Observation,ac
       // relaxes the derived name prefilter; the batch still verifies both sides'
       // destination, unique record, context and operation conditions.
       if(!fields.every(([key,value])=>key==='label'&&item.dispatchScope===false&&nativeLink||JSON.stringify(actual[key as keyof typeof actual])===JSON.stringify(value)))continue;
-      const ref=item.resolvedBy!,source={sessionId:ref.sessionId,attemptId:ref.attemptId!};
+      const source={sessionId:ref.sessionId,attemptId:ref.attemptId!};
       const key=JSON.stringify([action.id,source.sessionId,source.attemptId]);
       let index=requestIndex.get(key);
       if(index===undefined){index=requests.length;requestIndex.set(key,index);requests.push({actionId:action.id,source});}

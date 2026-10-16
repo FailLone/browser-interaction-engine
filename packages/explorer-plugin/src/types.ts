@@ -1,7 +1,9 @@
-import type { BrowserEngine, SessionOptions } from '@interaction/browser';
+import type { ActionAttempt, BrowserEngine, SessionOptions } from '@interaction/browser';
+import type { NavigationPosition } from './navigation-state.js';
+import type { ObligationProjection, RouteRetryLedger } from './obligation-lifecycle.js';
 
 /** Only documented public operations. Never a browser handle or engine persistence. */
-export type ExplorerHost = Pick<BrowserEngine, 'operationCoverageCandidates' | 'actionAvailability' | 'operationCorrespondences' | 'explorationSnapshot' | 'controlInterpretationSnapshot' | 'boundaryState' | 'interactionTransition' | 'navigationIsolation' | 'recoveryAssessment' | 'sessions' | 'session' | 'createSession' | 'observation' | 'observe' | 'actions' | 'execute' | 'command' | 'getFrontier' | 'report' | 'list' | 'regionReviewMaterial' | 'explorationReviewMaterial' | 'controlClassificationMaterial' | 'controlReviewMaterial' | 'purposeReviewMaterial' | 'discoveryScanMaterial' | 'createCheckpoint' | 'reachCheckpoint' | 'pause' | 'stop' | 'events' | 'pinEvidence' | 'unpinEvidence'> & Partial<Pick<BrowserEngine,'boundaryExitMaterial'|'probeAvailability'|'classificationCorrespondences'>>;
+export type ExplorerHost = Pick<BrowserEngine, 'operationCoverageCandidates' | 'actionAvailability' | 'operationCorrespondences' | 'explorationSnapshot' | 'controlInterpretationSnapshot' | 'boundaryState' | 'interactionTransition' | 'navigationIsolation' | 'recoveryAssessment' | 'sessions' | 'session' | 'createSession' | 'observation' | 'observe' | 'actions' | 'execute' | 'command' | 'getFrontier' | 'report' | 'list' | 'regionReviewMaterial' | 'explorationReviewMaterial' | 'controlClassificationMaterial' | 'controlReviewMaterial' | 'purposeReviewMaterial' | 'discoveryScanMaterial' | 'createCheckpoint' | 'reachCheckpoint' | 'pause' | 'stop' | 'events' | 'pinEvidence' | 'unpinEvidence'> & Partial<Pick<BrowserEngine,'boundaryExitMaterial'|'probeAvailability'|'classificationCorrespondences'|'explorationTargetCorrespondences'|'reachExplorationTarget'|'repetitionAssessment'>>;
 export type TaskStatus = 'idle' | 'running' | 'paused' | 'stopped' | 'completed' | 'blocked' | 'budget_exhausted' | 'configuration_required';
 export interface Budget { rounds: number; actions: number; durationMs: number; modelRequests: number }
 export interface EvidenceRef { sessionId: string; observationId: string; attemptId?: string }
@@ -15,6 +17,8 @@ export type TaskIntent =
   | { version:1; mode:'unsupported'; source:'jev'|'llm'; reason:string };
 export interface PlanItem {
   id: string; title: string; scope: Scope; prerequisites: Scope[]; completion: string;
+  /** Scheduling revision only; SDK evidence still decides coverage equivalence. */
+  operationConditionKey?: string;
   status: 'pending' | 'succeeded' | 'blocked' | 'unresolved' | 'untested' | 'excluded';
   required: boolean; reason: string; evidence: EvidenceRef[]; resolvedBy?: EvidenceRef;
   /** Classification evidence closes a review obligation, never an executed action. */
@@ -28,12 +32,22 @@ export interface PlanItem {
 export interface EntryRoute {
   entry:Scope; targets:Scope[]; context:string;
   evidence:EvidenceRef & {beforeId:string};
+  /** Retained source revision only; never an identity, reachability or replay grant. */
+  sourceConditionKey?:string;
+  sourcePolicy?:{replayable:boolean;risk:ActionAttempt['action']['risk'];basisKey:string;effectsAssessment?:ActionAttempt['effectsAssessment'];executionProfile?:ActionAttempt['executionProfile']};
+  /** Captured expectation only; repeat permission is freshly assessed by the SDK. */
+  expected?: {url:string;boundaryKeys:string[];boundaryConditionKey?:string};
 }
-export interface Frame { checkpointId: string; observationId: string; stateId: string; used: string[]; remaining: Scope[]; path: Scope[]; recoveryTried?: boolean }
+export interface Frame { checkpointId: string; observationId: string; stateId: string; used: string[]; remaining: Scope[]; path: Scope[]; recoveryTried?: boolean; recoveryConditionVersion?: string;
+  recoveryFailure?: {status:'unreachable'|'invalidated';reason:string;conditionVersion:string;targets:Scope[]};
+}
 export interface Round {
   id: string; number: number; sessionId: string; startedAt: string; endedAt?: string;
   status: 'running' | 'paused' | 'finished'; reason?: string; actions: number;
   stack: Frame[]; entryPath: Scope[]; reentries: string[]; tried: string[]; reviewed: string[]; lastProgress?: string; noProgress: number;
+  /** Current browser position, independent of durable work and historical frames. */
+  position?: NavigationPosition;
+  repetitionDeferrals?: string[];
   evidenceRefreshes?: string[];
   /** No repeated LLM interpretation of the same target and evidence within a round. */
   semanticReviews?: string[];
@@ -62,6 +76,8 @@ export interface Task {
   scopeMigrationIndex?:ScopeMigrationIndex;
   status: TaskStatus; reason?: string; budget: Budget; usage: Budget; activeSince?: number;
   sessionOptions: Partial<SessionOptions>; plan: PlanItem[]; rounds: Round[];
+  obligations?: ObligationProjection;
+  routeRetries?: RouteRetryLedger;
   /** Per-session retained artifacts; no protected evidence is discarded to make room. */
   evidenceBudget?: {maxBytes:number;maxObservations:number};
   sampleExcluded: string[];
@@ -69,6 +85,9 @@ export interface Task {
     ({actionId:string;probe?:never}|{actionId?:never;probe:{localId:string;kind:'hover'|'focus';scope:Scope}});
   /** Isolated navigation failures remain unresolved and must never be replayed by later rounds. */
   unverifiedNavigations?: {sourceUrl:string;targetUrl:string;evidence:EvidenceRef}[];
+  /** Recovery has no pendingDispatch; retain its unknown source across restarts/rounds.
+   * Only the source host's verified continuation can release these attempt IDs. */
+  unverifiedRecoveries?: {sessionId:string;observationId?:string;attemptIds:string[];sourceUnavailable?:boolean}[];
   exhaustive: false;
   /** Absent on historical tasks; their saved scopes remain authoritative. */
   intent?: TaskIntent;

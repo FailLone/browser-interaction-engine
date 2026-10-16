@@ -210,7 +210,7 @@ it('restores a hidden native operation that was blocked only by host region revi
     expect(blockedObservations.has(clicks[0].beforeId)).toBe(true);
     expect(f.host.observation(sid,clicks[0].afterId).controls.find(c=>c.name==='Second')?.visible).not.toBe(true);
     expect(f.host.observation(sid,clicks[1].beforeId).instanceScope).not.toBe(initialDocument);
-    expect(view.events.some(e=>e.type==='recovery.result'&&['REACHED_VERIFIED','REACHED_ACCEPTABLE'].includes((e.data as any).status))).toBe(true);
+    expect(view.events.some(e=>e.type==='recovery.result'&&['REACHED_VERIFIED','REACHED_ACCEPTABLE','TARGET_REACHED'].includes((e.data as any).status))).toBe(true);
     const second=view.task.plan.filter(i=>i.scope.label==='Second'&&i.scope.kind==='click');
     expect(second.length).toBeGreaterThan(0);expect(second.every(i=>i.status==='succeeded'&&i.resolvedBy?.attemptId===clicks[1].id)).toBe(true);
     expect(view.task.status).toBe('completed');expect(view.task.usage.actions).toBe(attempts.length);
@@ -247,7 +247,7 @@ it('restores a still-visible enabled operation made physically unreachable by an
     const blocked=f.host.observation(sid,clicks[0].afterId).controls.find(c=>c.name==='Second')!;
     expect(blocked).toMatchObject({visible:true,enabled:true,actionable:{outsideScrollableArea:true}});
     expect(f.host.actions(sid,clicks[0].afterId).find(a=>a.label==='Second')?.preconditions.blockers?.some(b=>b.code==='outside_scrollable_area')).toBe(true);
-    expect(view.events.some(e=>e.type==='recovery.result'&&['REACHED_VERIFIED','REACHED_ACCEPTABLE'].includes((e.data as any).status))).toBe(true);
+    expect(view.events.some(e=>e.type==='recovery.result'&&['REACHED_VERIFIED','REACHED_ACCEPTABLE','TARGET_REACHED'].includes((e.data as any).status))).toBe(true);
     expect(view.task.plan.filter(i=>i.required&&i.scope.label==='Second'&&i.scope.kind==='click').every(i=>i.status==='succeeded'&&i.resolvedBy?.attemptId===clicks[1].id)).toBe(true);
     expect(view.task.status).toBe('completed');expect(view.task.usage.actions).toBe(attempts.length);expect(attempts.length).toBeGreaterThan(2);
   } finally {await plugin.close();await f.close();}

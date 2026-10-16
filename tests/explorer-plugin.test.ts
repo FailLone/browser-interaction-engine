@@ -43,6 +43,27 @@ it.each(['disappeared','missing-source','unknown','capability'] as const)('prese
  }finally{await plugin.close();await f.close();}
 });
 
+it.each(['all','one'] as const)('preserves historical field obligations when %s retained action candidates are unavailable',async(missing)=>{
+ let labels=['Length','Width'];const f=await explorerFixture(()=>`<section aria-label="Measurements">${labels.map(label=>`<div><span>${label}</span><input placeholder="0"></div>`).join('')}</section>`),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const source=await f.host.createSession({url:f.url,settleMs:0,observeTimeoutMs:100}),observed=f.host.observation(source.id),sourceControls=structuredClone(observed.controls);
+  expect(sourceControls.filter(c=>c.role==='textbox')).toHaveLength(2);
+  const candidates=f.host.operationCoverageCandidates.bind(f.host),width=sourceControls.find(c=>c.identityContext?.binding?.includes('Width'))!;
+  expect(candidates(source.id,observed.id).filter(a=>a.kind==='fill')).toHaveLength(2);
+  await f.host.stop(source.id);labels=['Length'];
+  // A retained control observation can outlive its generated action candidates.
+  // This missing evidence must not shrink the historical obligation to Length.
+  f.host.operationCoverageCandidates=(sid,oid)=>sid===source.id&&oid===observed.id?candidates(sid,oid).filter(a=>missing==='one'&&a.localId!==width.localId):candidates(sid,oid);
+  expect(f.host.operationCoverageCandidates(source.id,observed.id)).toHaveLength(missing==='all'?0:1);
+  expect(f.host.observation(source.id,observed.id).controls).toEqual(sourceControls);
+  const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:10}});
+  plugin.revise(t.id,{items:[{title:'Measurements',scope:{url:f.url},prerequisites:[],completion:'Verify every field',required:true,reason:'user goal'}]});
+  const saved=plugin.store.task(t.id);saved.plan.push({...structuredClone(saved.plan[0]),id:'legacy-gap',scope:{url:f.url,label:'0',role:'textbox',kind:'fill',value:'example'},status:'unresolved',reason:'ambiguous_scope_match',dispatchScope:false,evidence:[{sessionId:source.id,observationId:observed.id}]});
+  plugin.store.save(saved);plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),gap=v.task.plan.find(i=>i.id==='legacy-gap')!;
+  expect(v.task.usage.actions).toBe(1);expect(gap.status).not.toBe('succeeded');expect(gap.reason).toBe('ambiguous_scope_match');expect(v.task.status).not.toBe('completed');
+  expect(f.host.observation(source.id,observed.id).controls).toEqual(sourceControls);
+ }finally{await plugin.close();await f.close();}
+});
+
 it('does not reuse a completed coarse field scope for a newly revealed semantic field',async()=>{
  const f=await explorerFixture(`<section aria-label="Measurements"><div id="fields"><div><span>Length</span><input placeholder="0"></div><div><span>Width</span><input placeholder="0"></div></div><button type="button" onclick="this.disabled=true;document.getElementById('fields').innerHTML='<div><span>Depth</span><input placeholder=0></div>'">Next</button></section>`),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
  try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:10}});
@@ -107,7 +128,7 @@ it('restores an observed unfinished branch through the host without model rankin
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:10}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');
   expect(attempts.filter(a=>a.action.kind==='click').map(a=>a.action.label)).toEqual(['First','Second']);expect(v.task.status).toBe('completed');expect(requests).toHaveLength(0);expect(v.events.some(e=>e.type==='recovery.selected'&&(e.data as any).unfinishedTargets>0)).toBe(true);
-  expect(v.events.some(e=>e.type==='recovery.result'&&['REACHED_VERIFIED','REACHED_ACCEPTABLE'].includes((e.data as any).status))).toBe(true);expect(v.decisions.some(d=>d.actor==='llm')).toBe(false);
+  expect(v.events.some(e=>e.type==='recovery.result'&&['REACHED_VERIFIED','REACHED_ACCEPTABLE','TARGET_REACHED'].includes((e.data as any).status))).toBe(true);expect(v.decisions.some(d=>d.actor==='llm')).toBe(false);
  }finally{await plugin.close();await f.close();}
 });
 
@@ -115,6 +136,8 @@ it.each([2,3,5])('finishes available new controls before replaying an entry and 
  const children=['First','Second','Third','Fourth','Fifth'].slice(0,count);
  const f=await explorerFixture(`<button id="open" type="button" onclick="document.getElementById('menu').hidden=false">Open</button><div id="menu" hidden>${children.map(name=>`<button type="button" onclick="this.disabled=true;document.getElementById('menu').hidden=true">${name}</button>`).join('')}</div><button type="button" onclick="this.disabled=true;document.getElementById('menu').hidden=true">Outside</button>`),p=fakeProviders(f.url),original=p.jev.decide;
  p.jev.decide=async(r,s)=>{if(r.purpose==='next-action'){const options=Object.entries(r.options!) as [string,any][];const selected=['Open','First','Outside',...children.slice(1)].map(label=>options.find(([,o])=>o.label===label)).find(Boolean)!;return {model:'mock',value:selected[0],confidence:1};}return original(r,s);};
+ // This fixture declares only its local opener safe to repeat; arbitrary observed clicks remain unassessed.
+ const create=f.host.createSession.bind(f.host);f.host.createSession=input=>create({...input as Record<string,unknown>,interfaceActions:[{kind:'click',name:'Open'}]});
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:15}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');
   expect(attempts.map(a=>a.action.label)).toEqual(['Open','First','Outside',...children.slice(1).flatMap(name=>['Open',name])]);expect(v.task.status).toBe('completed');
@@ -360,7 +383,9 @@ it('audits newly revealed controls when the opening action consumes the last act
  }finally{await plugin.close();await f.close();}
 });
 it.each([true,false])('reopens the recorded entry path after an action budget boundary (selected supplement: %s)',async(supplement)=>{
- const f=await explorerFixture('<button type="button" onclick="document.querySelector(\'dialog\').showModal()">Open</button><button type="button">Unrelated</button><dialog aria-label="New scope"><button type="button" onclick="this.disabled=true">New operation</button><button type="button" onclick="document.querySelector(\'dialog\').close()">Close</button></dialog>');const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ const f=await explorerFixture('<button type="button" onclick="document.querySelector(\'dialog\').showModal()">Open</button><button type="button">Unrelated</button><dialog aria-label="New scope"><button type="button" onclick="this.disabled=true">New operation</button><button type="button" onclick="document.querySelector(\'dialog\').close()">Close</button></dialog>');// This fixture declares only its local opener safe to repeat; arbitrary observed clicks remain unassessed.
+ const create=f.host.createSession.bind(f.host);f.host.createSession=input=>create({...input as Record<string,unknown>,interfaceActions:[{kind:'click',name:'Open'}]});
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
  try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:1}});plugin.start(t.id);await plugin.waitForIdle();let task=plugin.view(t.id).task;
   const target=task.plan.find(i=>i.scope.label==='New operation'&&i.status==='unresolved')!;expect(target).toBeDefined();
   expect(task.plan.filter(i=>i.scope.label==='Unrelated').every(i=>!i.prerequisites.length)).toBe(true);

@@ -1,6 +1,6 @@
 import { EventBus } from './events.js';
 import { contextSchema, actionBasisSchema, componentDescriptionSchema } from './schema.js';
-import type { ComponentDescription, ComponentDescriptionInput } from './types.js';
+import type { ComponentDescription, ComponentDescriptionInput, ExplorationTargetReference, ExplorationTargetCorrespondence, ReachExplorationTargetInput, ExplorationTargetReachResult, RepetitionAssessment } from './types.js';
 import { assignState, matchIdentities } from './identity.js';
 import { recoverStore } from './recovery.js';
 import { DiffQueries } from './diff-details.js';
@@ -114,12 +114,33 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   list<T>(sessionId: string, kind: string): T[] { this.session(sessionId); return kind === 'frontier' ? this.getFrontier(sessionId) as T[] : this.store.list<T>(kind, sessionId); }
   /** Compare retained successful evidence; never writes identity, attempts or coverage. */
   operationCorrespondence(sessionId: string, input: {observationId: string; actionId: string; source: {sessionId: string; attemptId: string}}): OperationCorrespondence {
-    return this.correspondenceReader()(sessionId,input);
+    return this.correspondenceReader()(sessionId,input) as OperationCorrespondence;
   }
   /** One synchronous evidence batch. All memoization ends when this call returns. */
   operationCorrespondences(sessionId:string,input:{observationId:string;requests:{actionId:string;source:{sessionId:string;attemptId:string}}[]}) {
     const read=this.correspondenceReader();
-    return {sessionId,observationId:input.observationId,results:input.requests.map(request=>read(sessionId,{...request,observationId:input.observationId}))};
+    return {sessionId,observationId:input.observationId,results:input.requests.map(request=>read(sessionId,{...request,observationId:input.observationId}) as OperationCorrespondence)};
+  }
+  /** Match observed operation targets without inventing historical execution or coverage. */
+  explorationTargetCorrespondences(sessionId:string,input:{observationId:string;requests:{actionId:string;source:ExplorationTargetReference}[]}) {
+    const current=this.observation(sessionId);
+    if(current.id!==input.observationId)throw new EngineError('STALE_OBSERVATION','Target correspondence requires the current observation');
+    const read=this.correspondenceReader();
+    return {sessionId,observationId:input.observationId,results:input.requests.map(request=>read(sessionId,{...request,observationId:input.observationId}) as ExplorationTargetCorrespondence)};
+  }
+  /** Re-entry is repetition, not a fresh excuse to execute an unassessed historical action. */
+  repetitionAssessment(sessionId:string,input:{observationId:string;actionId:string;source:{sessionId:string;attemptId:string}}):RepetitionAssessment {
+    const current=this.observation(sessionId);
+    if(current.id!==input.observationId)throw new EngineError('STALE_OBSERVATION','Repetition assessment requires the current observation');
+    const proof=this.correspondenceReader()(sessionId,{...input,requireTargetConditions:true}) as OperationCorrespondence & {conditionKey?:string};
+    const result:RepetitionAssessment={repeatable:false,reason:proof.reason,conditionKey:proof.conditionKey||hash({source:input.source,reason:proof.reason,context:current.context}),evidence:[...proof.evidence],source:input.source,target:{sessionId,observationId:input.observationId,actionId:input.actionId},dispatchRevalidationRequired:true};
+    if(!proof.equivalent)return result;
+    const attempt=this.owned<ActionAttempt>('attempt',input.source.attemptId,input.source.sessionId),action=this.owned<ActionCandidate>('action',input.actionId,sessionId);
+    if(attempt.effectsAssessment==='not-assessed'||!attempt.action.replayable){result.reason='source_not_replayable';return result;}
+    if(!action.replayable){result.reason='current_action_not_replayable';return result;}
+    const readiness=this.actionAvailability(sessionId,current.id).actions.find(a=>a.actionId===action.id);
+    if(!readiness?.executable||this.adapter.explorationTargetReady&&!this.adapter.explorationTargetReady(action,current)){result.reason='current_action_not_ready';return result;}
+    result.repeatable=true;result.reason='verified_replayable_operation';result.evidence.push(`replayable-attempt:${attempt.id}`);return result;
   }
   private correspondenceReader() {
     type Control=O['controls'][number];
@@ -161,24 +182,38 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if(!byObservation.has(o))byObservation.set(o,operationSample(action,o,(a,observed)=>this.adapter.correspondenceCase?.(a,observed as O,session(observed.sessionId))));
       return byObservation.get(o);
     };
-    return (sessionId:string,input:{observationId:string;actionId:string;source:{sessionId:string;attemptId:string}}):OperationCorrespondence=>{
-    const result: OperationCorrespondence={equivalent:false,reason:'evidence_unavailable',source:{...input.source},target:{sessionId,observationId:input.observationId,actionId:input.actionId},evidence:[],invalidatedBy:['observation-or-review-change','nonunique-correspondence','changed-operation-conditions','changed-declared-context'],identityAuthorized:false,replayAuthorized:false,currentExecution:false};
+    const conditionsCache=new Map<ActionCandidate,Map<O,ReturnType<NonNullable<typeof this.adapter.explorationTargetConditions>>>>();
+    const targetConditions=(action:ActionCandidate,o:O)=>{
+      let byObservation=conditionsCache.get(action);if(!byObservation){byObservation=new Map();conditionsCache.set(action,byObservation);}
+      if(!byObservation.has(o))byObservation.set(o,this.adapter.explorationTargetConditions?.(action,o));
+      return byObservation.get(o);
+    };
+    return (sessionId:string,input:{observationId:string;actionId:string;source:{sessionId:string;attemptId:string}|ExplorationTargetReference;requireTargetConditions?:boolean}):OperationCorrespondence|ExplorationTargetCorrespondence=>{
+    const result: (Omit<OperationCorrespondence,'source'>&{source:OperationCorrespondence['source']|ExplorationTargetReference;conditionKey?:string})={equivalent:false,reason:'evidence_unavailable',source:{...input.source},target:{sessionId,observationId:input.observationId,actionId:input.actionId},evidence:[],invalidatedBy:['observation-or-review-change','nonunique-correspondence','changed-operation-conditions','changed-declared-context'],identityAuthorized:false,replayAuthorized:false,currentExecution:false};
     try {
-      const current=observation(sessionId,input.observationId),action=owned<ActionCandidate>('action',input.actionId,sessionId),attempt=owned<ActionAttempt>('attempt',input.source.attemptId,input.source.sessionId);
-      result.source.beforeId=attempt.beforeId;result.source.afterId=attempt.afterId;
-      if(attempt.status!=='succeeded'||!attempt.afterId){result.reason='source_not_verified';return result;}
-      const before=observation(attempt.sessionId,attempt.beforeId),after=observation(attempt.sessionId,attempt.afterId);
-      if(after.gaps.some(g=>g.critical)){result.reason='source_result_incomplete';return result;}
-      const old=before.controls.find(c=>c.localId===attempt.action.localId),target=current.controls.find(c=>c.localId===action.localId);
-      if(!old||!target){result.reason='target_correspondence_missing';return result;}
-      const hint=getOperationHint(target,action.kind,current),prior=getOperationHint(old,attempt.action.kind,before);
+      const current=observation(sessionId,input.observationId),action=owned<ActionCandidate>('action',input.actionId,sessionId);
+      const attempt='attemptId' in input.source?owned<ActionAttempt>('attempt',input.source.attemptId,input.source.sessionId):undefined;
+      let before:O,sourceAction:ActionCandidate,after:O|undefined;
+      if(attempt){
+        result.source={sessionId:attempt.sessionId,attemptId:attempt.id,beforeId:attempt.beforeId,afterId:attempt.afterId};
+        if(attempt.status!=='succeeded'||!attempt.afterId){result.reason='source_not_verified';return result as OperationCorrespondence;}
+        before=observation(attempt.sessionId,attempt.beforeId);after=observation(attempt.sessionId,attempt.afterId);sourceAction=attempt.action;
+        if(after.gaps.some(g=>g.critical)){result.reason='source_result_incomplete';return result as OperationCorrespondence;}
+      }else{
+        const source=input.source as ExplorationTargetReference;
+        before=observation(source.sessionId,source.observationId);sourceAction=owned<ActionCandidate>('action',source.actionId,source.sessionId);
+      }
+      if(action.observationId!==current.id||sourceAction.observationId!==before.id){result.reason='action_observation_mismatch';return result as ExplorationTargetCorrespondence;}
+      const old=before.controls.find(c=>c.localId===sourceAction.localId),target=current.controls.find(c=>c.localId===action.localId);
+      if(!old||!target){result.reason='target_correspondence_missing';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
+      const hint=getOperationHint(target,action.kind,current),prior=getOperationHint(old,sourceAction.kind,before);
       const hintFor=(c:Control,o:O)=>getOperationHint(c,action.kind,o);
       const sameInstance=()=>before.sessionId===current.sessionId&&!!before.instanceScope&&before.instanceScope===current.instanceScope
         &&!!old.instanceId&&old.instanceId===target.instanceId&&[before,current].every(o=>count(o,'instance',c=>c.instanceId,old.instanceId)===1);
       let evidence:string[];
       if(hint&&prior&&hint.key===prior.key){
         if([before,current].some(o=>count(o,`hint:${action.kind}`,c=>hintFor(c,o)?.key,hint.key)!==1)){
-          if(hint.requiresUniqueTarget||prior.requiresUniqueTarget){result.reason='target_correspondence_ambiguous';return result;}
+          if(hint.requiresUniqueTarget||prior.requiresUniqueTarget){result.reason='target_correspondence_ambiguous';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
           // Component keys may be shared by unrelated controls. Prefer direct
           // instance continuity; otherwise require the existing resolved identity
           // AND unique matching adapter semantics in both complete observations.
@@ -192,7 +227,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
             if(!identity||!targetIdentity||sameSession&&identity!==targetIdentity||!(old.name||old.label)||signature!==getSignature(target)
               ||count(before,'identity',priorResolve,identity)!==1||count(current,'identity',resolve,targetIdentity)!==1
               ||[before,current].some(o=>count(o,'hint-signature',refined,key)!==1)){
-              result.reason='target_correspondence_ambiguous';return result;
+              result.reason='target_correspondence_ambiguous';return result as OperationCorrespondence|ExplorationTargetCorrespondence;
             }
             evidence=['shared-hint-refined-by-unique-semantics',sameSession?'resolved-identity-projection':'independently-resolved-session-identities'];
           }
@@ -201,19 +236,29 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         const resolve=resolveIdentity(sessionId),identity=resolve(old);
         const retainedInstance=sameInstance();
         const sameIdentity=identity&&identity===resolve(target)&&[before,current].every(o=>count(o,'identity',resolve,identity)===1);
-        if(!retainedInstance&&!sameIdentity){result.reason='target_correspondence_missing';return result;}
+        if(!retainedInstance&&!sameIdentity){result.reason='target_correspondence_missing';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
         evidence=[retainedInstance?'current-instance-continuity':'resolved-identity-projection'];
       }else if(!hint&&!prior&&!old.identityScope&&!target.identityScope&&old.name&&target.name){
         // Reuse the adapter signature and local identity judgments. Uniqueness
         // is checked in both complete observations; this still grants no identity.
         const signature=getSignature(old),oldIdentity=resolveIdentity(before.sessionId)(old),newIdentity=resolveIdentity(current.sessionId)(target);
-        if(!oldIdentity||!newIdentity||signature!==getSignature(target)||[before,current].some(o=>count(o,'signature',getSignature,signature)!==1)){result.reason='target_correspondence_missing';return result;}
+        if(!oldIdentity||!newIdentity||signature!==getSignature(target)||[before,current].some(o=>count(o,'signature',getSignature,signature)!==1)){result.reason='target_correspondence_missing';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
         evidence=['unique-adapter-semantic-signature','independently-resolved-session-identities'];
-      }else {result.reason='target_correspondence_missing';return result;}
-      const a=sample(attempt.action,before),b=sample(action,current);
-      if(!a||!b||a.key!==b.key){result.reason='operation_conditions_changed';return result;}
-      result.equivalent=true;result.reason='equivalent_operation_sample';result.policy=b.policy;result.evidence=[...evidence,...b.evidence,`attempt:${attempt.id}`,`observation:${before.id}`,`observation:${after.id}`,`observation:${current.id}`];return result;
-    } catch { return result; }
+      }else {result.reason='target_correspondence_missing';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
+      const a=sample(sourceAction,before),b=sample(action,current),requiresTargetConditions=!attempt||input.requireTargetConditions;
+      // Ordinary successful coverage already compares its operation sample. Do
+      // not rebuild target-arrival projections for every historical proof pair.
+      const priorConditions=requiresTargetConditions?targetConditions(sourceAction,before):undefined,conditions=requiresTargetConditions?targetConditions(action,current):undefined;
+      if(requiresTargetConditions)result.conditionKey=hash({source:a?.key,target:b?.key,priorConditions:priorConditions?.key,conditions:conditions?.key});
+      if(!a||!b||a.key!==b.key){result.reason='operation_conditions_changed';return result as ExplorationTargetCorrespondence;}
+      // Coverage keeps its existing sampling contract. Target arrival and repeated
+      // traversal additionally require the relevant UI preconditions to match.
+      if(requiresTargetConditions&&this.adapter.explorationTargetConditions&&(!priorConditions||!conditions||priorConditions.key!==conditions.key)){
+        result.reason='target_conditions_changed';return result as ExplorationTargetCorrespondence;
+      }
+      result.equivalent=true;result.reason=attempt?'equivalent_operation_sample':'equivalent_observed_target';result.policy=b.policy;
+      result.evidence=[...evidence,...b.evidence,...(conditions?.evidence||[]),...(attempt?[`attempt:${attempt.id}`]:[]),`observation:${before.id}`,...(after?[`observation:${after.id}`]:[]),`observation:${current.id}`];return result as OperationCorrespondence|ExplorationTargetCorrespondence;
+    } catch { return result as OperationCorrespondence|ExplorationTargetCorrespondence; }
     };
   }
   private executionBlockers(original:ActionCandidate,o:O,purpose:ActionAttempt['purpose'],value?:ActionCandidate['value'],guard?:DispatchGuard,material?:{frontier:FrontierItem[];groups:ExplorationGroup[]}):ExecutionBlocker[] {
@@ -261,13 +306,22 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   }
   private assertExecution(original:ActionCandidate,o:O,purpose:ActionAttempt['purpose'],value?:ActionCandidate['value'],guard?:DispatchGuard) {
     const blockers=[...this.executionSessionBlockers(o,purpose),...this.executionBlockers(original,o,purpose,value,guard)];if(blockers.length)throw new EngineError(blockers[0].code,blockers[0].reason,{observationId:o.id,blockers});
+    if(guard&&'repetitionSource' in guard&&guard.repetitionSource){
+      if(value!==undefined&&canonical(value)!==canonical(original.value))throw new EngineError('REPETITION_NOT_VERIFIED','Repeated input differs from the verified source sample');
+      const assessment=this.repetitionAssessment(o.sessionId,{observationId:o.id,actionId:original.id,source:guard.repetitionSource});
+      if(!assessment.repeatable)throw new EngineError('REPETITION_NOT_VERIFIED',assessment.reason,{observationId:o.id,assessment});
+    }
   }
   /** Current ledgers shared by fact queries and the historical audit. */
   private coverageInputs(sessionId:string) {
     return {session:this.session(sessionId),raw:this.frontier(sessionId),attempts:this.store.list<ActionAttempt>('attempt',sessionId),hypotheses:this.store.list<IdentityHypothesis>('hypothesis',sessionId),groups:this.store.list<ExplorationGroup>('exploration-group',sessionId)};
   }
   private reconcileMaterial(m:ReturnType<InteractionEngine<O,S>['coverageInputs']>) {
-    const observations=this.store.list<O>('observation',m.session.id),equivalents=reconcileCoverage(m.session,m.raw,m.attempts,observations,m.hypotheses,(a,o)=>this.adapter.explorationCase?.(a,o,m.session));
+    // Queue sampling may intentionally skip mode combinations. Only the stricter
+    // correspondence contract can discharge work from another source condition;
+    // unavailable evidence must not fall back to a broader traversal sample.
+    const observations=this.store.list<O>('observation',m.session.id),equivalents=reconcileCoverage(m.session,m.raw,m.attempts,observations,m.hypotheses,(a,o)=>this.adapter.correspondenceCase
+      ?this.adapter.correspondenceCase(a,o,m.session):this.adapter.explorationCase?.(a,o,m.session));
     return {...m,observations,equivalents,frontier:describeFrontier(m.raw,m.attempts,equivalents)};
   }
   /** A per-call evidence bundle; no cache survives an observation/review mutation. */
@@ -706,7 +760,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     this.validatePreparedAction(action, current, validationPurpose);
     const unassessed=session.options.executionPolicy==='observed-ui'&&(guard?.profile==='observed-ui-exploration'&&isObservedUIOperation(action,current)||guard?.profile==='observed-ui-probe'&&isObservedUIProbe(action,current));
     if(unassessed)action.replayable=false;
-    const attempt: ActionAttempt = { ...(guard?{executionProfile:guard.profile}:{}),...(unassessed?{effectsAssessment:'not-assessed' as const}:{}),id: id(), sessionId, requestId, action, startedAt: now(), beforeId: current.id, status: 'executing', purpose };
+    const attempt: ActionAttempt = { ...(guard?{executionProfile:guard.profile}:{}),...(guard&&'repetitionSource' in guard&&guard.repetitionSource?{repetitionSource:structuredClone(guard.repetitionSource)}:{}),...(unassessed?{effectsAssessment:'not-assessed' as const}:{}),id: id(), sessionId, requestId, action, startedAt: now(), beforeId: current.id, status: 'executing', purpose };
     const started = Date.now();
     this.store.transaction(() => {
       session.actionCount++;
@@ -971,7 +1025,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     while (queue.length) { const item = queue.shift()!; if (item.state === to) return item.path; if (visited.has(item.state)) continue; visited.add(item.state); for (const edge of edges.filter(e => e.from === item.state)) queue.push({ state: edge.to, path: [...item.path, edge.attemptId] }); }
     return null;
   }
-  private async replay(sessionId: string, attemptIds: string[], allowWrites: boolean, performed: string[]) {
+  private async replay(sessionId: string, attemptIds: string[], allowWrites: boolean, performed: string[], targetReached?: () => Promise<boolean>) {
     for (const attemptId of attemptIds) {
       const old = this.owned<ActionAttempt>('attempt', attemptId, sessionId); const current = this.observation(sessionId);
       if (old.status !== 'succeeded') return 'recorded_action_not_verified';
@@ -979,11 +1033,17 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if (contextKey(current.context) !== contextKey(old.action.preconditions.context)) return 'preconditions_changed';
       const target = this.actions(sessionId).filter(a => this.adapter.replayMatches(a, old.action));
       if (target.length !== 1) return 'replay_target_not_unique_or_missing';
+      // Target-directed traversal has a source-condition contract in addition
+      // to the legacy checkpoint replay checks. Revalidate it atomically at
+      // dispatch; a newly matching UI target never grants repetition permission.
+      const guard:ExecutionGuard|undefined=targetReached?{profile:this.session(sessionId).options.executionPolicy==='observed-ui'?'observed-ui-exploration':'interface-exploration',observationId:current.id,repetitionSource:{sessionId,attemptId:old.id}}:undefined;
+      if(guard){const assessment=this.repetitionAssessment(sessionId,{observationId:current.id,actionId:target[0].id,source:guard.repetitionSource!});if(!assessment.repeatable)return assessment.reason;}
       let result: ActionAttempt;
-      try { result = await this.runAction(sessionId, target[0].id, id(), old.action.value, 'recovery'); }
+      try { result = await this.runAction(sessionId, target[0].id, id(), old.action.value, 'recovery',guard); }
       catch (error) { return error instanceof EngineError ? error.code : String(error); }
       performed.push(result.id);
       if (result.status !== 'succeeded' || !result.afterId || !old.afterId) return 'replay_action_not_verified';
+      if (targetReached && await targetReached()) return undefined;
       if (this.observation(sessionId, result.afterId).canonical !== this.observation(sessionId, old.afterId).canonical) return 'replay_state_diverged';
     }
     return undefined;
@@ -1003,25 +1063,71 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     return canonical({ instanceScope: observation.instanceScope, scope: this.adapter.explorationScope?.(observation),
       boundary: action.boundary?.key, target: target?.instanceId || action.controlId, kind: action.kind, value: action.value });
   }
-  private async reachInternal(sessionId: string, checkpointId: string): Promise<ReachResult> {
+  /** Compositions may remove only attempts already verified by their recovery ledger. */
+  protected unverifiedRecoveryAttempts(sessionId:string) {
+    return this.store.list<ActionAttempt>('attempt',sessionId).filter(a=>a.status==='unknown'||a.status==='executing');
+  }
+  private verifyExplorationTarget(sessionId:string,input:ReachExplorationTargetInput):{status?:ExplorationTargetReachResult['status'];checks:ReachResult['checks'];matches:ExplorationTargetCorrespondence[];dispatchAvailability?:ActionAvailability} {
+    const current=this.observation(sessionId),source=this.observation(sessionId,input.observationId),checks:ReachResult['checks']=[],matches:ExplorationTargetCorrespondence[]=[];
+    const unknown=this.unverifiedRecoveryAttempts(sessionId);
+    checks.push({name:'unresolved-execution-outcomes',result:unknown.length?'unknown':'pass'});
+    if(unknown.length)return {status:'UNVERIFIED',checks,matches};
+    checks.push({name:'known-declared-context',result:Object.values(source.context).some(c=>c.status!=='known')||Object.values(current.context).some(c=>c.status!=='known')?'unknown':contextKey(source.context)===contextKey(current.context)?'pass':'fail'});
+    if(checks.some(c=>c.result==='unknown'))return {status:'UNVERIFIED',checks,matches};
+    if(checks.some(c=>c.result==='fail'))return {status:'PRECONDITIONS_CHANGED',checks,matches};
+    if(current.gaps.some(g=>g.critical)){checks.push({name:'observation-completeness',result:'unknown'});return {status:'UNVERIFIED',checks,matches};}
+    const read=this.correspondenceReader(),actions=this.actions(sessionId),availability=this.actionAvailability(sessionId,current.id);
+    // Arriving at observed work is separate from selecting its exploration
+    // policy. Keep target safety/capability reviews, but leave region/depth and
+    // frontier scheduling decisions in the separately reported dispatch view.
+    const validate=this.preparedActionValidator(current,'external');
+    for(const sourceId of input.actionIds){
+      const old=this.owned<ActionCandidate>('action',sourceId,sessionId);
+      const candidates=actions.filter(a=>a.kind===old.kind).map(action=>read(sessionId,{observationId:current.id,actionId:action.id,source:{sessionId,observationId:source.id,actionId:sourceId}}) as ExplorationTargetCorrespondence).filter(p=>p.equivalent);
+      if(candidates.length!==1){checks.push({name:`unique-target:${sourceId}`,result:'fail'});continue;}
+      const proof=candidates[0],action=actions.find(a=>a.id===proof.target.actionId)!;
+      const blockers=[...this.executionSessionBlockers(current,'recovery'),...this.executionBlockers(action,current,'recovery')];
+      try{validate(action);}catch(error){const e=error as EngineError;blockers.push({code:e.code||'ACTION_BLOCKED',reason:e.message,evidence:[]});}
+      const ready=!blockers.length&&(this.adapter.explorationTargetReady?.(action,current)??current.stable);
+      const recoverable=!ready&&this.adapter.explorationTargetRecoverable?.(action,current,blockers);
+      for(const blocker of blockers)checks.push({name:`target-precondition:${sourceId}:${blocker.code}:${blocker.reason}`,result:recoverable?'fail':'unknown'});
+      checks.push({name:`target-ready:${sourceId}`,result:ready?'pass':recoverable?'fail':'unknown'});
+      if(ready)matches.push(proof);
+    }
+    return {status:matches.length?'TARGET_REACHED':checks.some(c=>c.result==='unknown')?'UNVERIFIED':undefined,checks,matches,dispatchAvailability:availability};
+  }
+  private reachInternal(sessionId:string,checkpointId:string):Promise<ReachResult>;
+  private reachInternal(sessionId:string,checkpointId:string,target:ReachExplorationTargetInput):Promise<ExplorationTargetReachResult>;
+  private async reachInternal(sessionId: string, checkpointId: string, target?:ReachExplorationTargetInput): Promise<ReachResult|ExplorationTargetReachResult> {
     const checkpoint = this.owned<Checkpoint>('checkpoint', checkpointId, sessionId); const performed: string[] = [];
-    let checks: ReachResult['checks'] = []; let status: ReachResult['status'] = 'UNREACHABLE'; let reason = 'No verified path within the current recovery constraints';
-    const strategies: string[] = [];
-    const finish = () => {
+    let checks: ReachResult['checks'] = []; let status: ReachResult['status']|ExplorationTargetReachResult['status'] = 'UNREACHABLE'; let reason = 'No verified path within the current recovery constraints';
+    const strategies: string[] = []; let matches:ExplorationTargetCorrespondence[]=[];let dispatchAvailability:ActionAvailability|undefined;
+    const verify=async()=>{
+      if(!target)return this.verify(sessionId,checkpoint);
+      const result=this.verifyExplorationTarget(sessionId,target);matches=result.matches;dispatchAvailability=result.dispatchAvailability;return result;
+    };
+    const targetReached=target?async()=>{const result=await verify();checks=result.checks;return result.status==='TARGET_REACHED';}:undefined;
+    const finish = ():ReachResult|ExplorationTargetReachResult => {
       const session = this.session(sessionId);
       const dirtyActions = (session.dirtyAttemptIds || []).flatMap(attemptId => {
         const a = this.store.get<ActionAttempt>('attempt', attemptId); return a ? [{ attemptId, label: a.action.label, risk: a.action.risk }] : [];
       });
       const verification=session.options.executionPolicy==='observed-ui'?{verificationScope:'observed-ui' as const}:{};
       const diagnostics = { ...verification,unassessedEffectAttemptIds:session.unassessedEffectAttemptIds||[],strategies, dirtyActions, resetAvailable: !!this.hooks.reset || !!this.adapter.resetAction?.(this.observation(sessionId), session) };
-      const result: ReachResult = { ...verification,id: id(), sessionId, checkpointId, status, reason, checks, attemptIds: performed, observationId: session.currentObservationId, remainingFrontier: this.frontier(sessionId).filter(f => f.status !== 'executed').length, diagnostics };
+      const base={...verification,id:id(),sessionId,checkpointId,reason,checks,attemptIds:performed,observationId:session.currentObservationId,remainingFrontier:this.frontier(sessionId).filter(f=>f.status!=='executed').length,diagnostics};
+      if(target){
+        const result:ExplorationTargetReachResult={...base,status:status as ExplorationTargetReachResult['status'],targetObservationId:target.observationId,targetActionIds:[...target.actionIds],matchedActionIds:matches.map(m=>m.target.actionId),matches,checkpointVerified:false,currentExecution:false,executionAuthorized:false,dispatchAvailability};
+        this.store.put('target-reach',result);this.emit(sessionId,'exploration.target_result',result);return result;
+      }
+      const result:ReachResult={...base,status:status as ReachResult['status']};
       this.store.put('reach', result); this.emit(sessionId, 'checkpoint.result', result); return result;
     };
     try {
+      if(target&&this.unverifiedRecoveryAttempts(sessionId).length){status='UNVERIFIED';reason='Unknown execution outcome requires explicit recovery verification';checks=[{name:'unresolved-execution-outcomes',result:'unknown'}];return finish();}
       await this.attach(sessionId); await this.capture(sessionId, 'recovery');
       strategies.push('verify_current');
-      let verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
-      if (verification.status) { status = verification.status; reason = `Checkpoint verification: ${status}`; return finish(); }
+      let verification = await verify(); checks = verification.checks;
+      if (verification.status) { status = verification.status; reason = `${target?'Target arrival':'Checkpoint'} verification: ${status}`; return finish(); }
       const triedExits = new Set<string>();
       let returnedToSource = false;
       strategies.push('boundary_exit');
@@ -1034,7 +1140,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           if (sourceReturn) {
             returnedToSource = true; strategies.push('observed_source_return'); this.store.put('action', sourceReturn);
             const attempt = await this.runAction(sessionId, sourceReturn.id, id(), undefined, 'recovery'); performed.push(attempt.id);
-            verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
+            verification = await verify(); checks = verification.checks;
             if (attempt.status !== 'succeeded') { status = 'UNVERIFIED'; reason = 'Return to observed source could not be verified'; return finish(); }
             if (verification.status) { status = verification.status; reason = `Verification after return to observed source: ${status}`; return finish(); }
             triedExits.clear();
@@ -1046,14 +1152,14 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         }
         triedExits.add(this.boundaryExitKey(close, current));
         const a = await this.runAction(sessionId, close.id, id(), undefined, 'recovery'); performed.push(a.id);
-        verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
+        verification = await verify(); checks = verification.checks;
         if (verification.status) { status = verification.status; reason = `Verification after boundary exit attempt: ${status}`; return finish(); }
       }
       strategies.push('recorded_path');
       const path = this.navigationPath(sessionId, this.observation(sessionId).stateId, checkpoint.stateId);
       if (path?.length) {
-        const failure = await this.replay(sessionId, path, false, performed);
-        verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
+        const failure = await this.replay(sessionId, path, false, performed, targetReached);
+        verification = await verify(); checks = verification.checks;
         if (verification.status) { status = verification.status; reason = failure || `Recorded path verification: ${status}`; return finish(); }
         if (failure) { reason = failure; return finish(); }
       }
@@ -1074,7 +1180,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           status = 'UNVERIFIED'; reason = 'Declared local restoration diverged from its expected observation'; return finish();
         }
         this.emit(sessionId, 'checkpoint.local_restore', { checkpointId, attemptId: attempt.id, evidence: step.evidence });
-        verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
+        verification = await verify(); checks = verification.checks;
         if (verification.status) { status = verification.status; reason = `Verification after declared local restoration: ${status}`; return finish(); }
       }
       let session = this.session(sessionId); let resetConfirmed = false; let entryReopened = false;
@@ -1109,11 +1215,26 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         const entryAttempt = await this.runAction(sessionId, entry.id, id(), undefined, 'recovery'); performed.push(entryAttempt.id);
         if (entryAttempt.status !== 'succeeded') { status = 'UNVERIFIED'; reason = 'Entry reopening could not be verified'; return finish(); }
       }
-      const failure = await this.replay(sessionId, checkpoint.path, resetConfirmed, performed);
-      verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
+      if(targetReached&&await targetReached()){status='TARGET_REACHED';reason='Target verified after entry restoration';return finish();}
+      const failure = await this.replay(sessionId, checkpoint.path, resetConfirmed, performed, targetReached);
+      verification = await verify(); checks = verification.checks;
       status = verification.status || (failure === 'preconditions_changed' ? 'PRECONDITIONS_CHANGED' : 'UNREACHABLE'); reason = failure || `Entry replay verification: ${status}`;
     } catch (error) { reason = String(error); status = error instanceof EngineError && error.code === 'BUDGET_EXHAUSTED' ? 'UNREACHABLE' : 'UNVERIFIED'; }
     return finish();
+  }
+  /** Recover until any requested historical operation is currently reachable and ready.
+   * This does not execute that target, discharge coverage or certify checkpoint equality. */
+  reachExplorationTarget(sessionId:string,input:ReachExplorationTargetInput) {
+    const target=structuredClone(input);
+    if(!target.actionIds.length)throw new EngineError('INVALID_TARGET','At least one historical target action is required');
+    this.owned<Checkpoint>('checkpoint',target.checkpointId,sessionId);
+    this.observation(sessionId,target.observationId);
+    for(const actionId of target.actionIds)if(this.owned<ActionCandidate>('action',actionId,sessionId).observationId!==target.observationId)throw new EngineError('INVALID_TARGET','Target action does not belong to its source observation');
+    this.pauseRequested=true;
+    return this.enqueueMeasured(sessionId,()=>{
+      if(target.currentObservationId&&this.observation(sessionId).id!==target.currentObservationId)throw new EngineError('STALE_OBSERVATION','Browser cursor changed before target recovery');
+      return this.reachInternal(sessionId,target.checkpointId,target);
+    });
   }
   reachCheckpoint(sessionId: string, checkpointId: string) { this.pauseRequested = true; return this.enqueueMeasured(sessionId, () => this.reachInternal(sessionId, checkpointId)); }
   async pause(sessionId: string) { this.pauseRequested = true; return this.enqueue(async () => { const session = this.session(sessionId); session.status = 'paused'; session.mode = 'manual'; this.store.put('session', session); this.emit(sessionId, 'session.paused', session); return session; }); }

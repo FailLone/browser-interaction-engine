@@ -14,7 +14,7 @@ it('requires observed target routes and a new child completion before repeating 
   const s=await f.host.createSession({url:f.url,headless:true,settleMs:0,observeTimeoutMs:100,interfaceActions:[{kind:'click'}]});
   const click=async(label:string)=>f.host.execute(s.id,f.host.actions(s.id).find(a=>a.label===label&&a.kind==='click')!.id,crypto.randomUUID());
   const initial=f.host.observation(s.id),open=f.host.actions(s.id).find(a=>a.label==='Open')!,openedAttempt=await click('Open');const opened=f.host.observation(s.id);
-  const route=capturedRoute(scopeFor(open,initial),initial,opened,f.host.interactionTransition(s.id,initial.id,opened.id).revealedControlIds)!;expect(route.targets.map(s=>s.label)).toEqual(['First','Second']);
+  const route=capturedRoute(scopeFor(open,initial),initial,opened,f.host.interactionTransition(s.id,initial.id,opened.id).revealedControlIds,openedAttempt)!;expect(route.targets.map(s=>s.label)).toEqual(['First','Second']);
   await click('Close');let o=f.host.observation(s.id),entry=f.host.actions(s.id).find(a=>a.label==='Open')!;
   let task=plugin.create({url:f.url}),round:Round={id:'round',number:1,sessionId:s.id,startedAt:new Date().toISOString(),status:'paused',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0};
   task.rounds=[round];task.usage={rounds:1,actions:7,modelRequests:9,durationMs:1234};

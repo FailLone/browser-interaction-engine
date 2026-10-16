@@ -71,6 +71,9 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     const recovered = new Set(this.list<ContinuationRecord>(sid, 'continuation').flatMap(r => r.verifiedRecovery?.attemptIds || []));
     return this.list<import('@interaction/core').ActionAttempt>(sid, 'attempt').filter(a => a.status === 'unknown' && !recovered.has(a.id));
   }
+  protected override unverifiedRecoveryAttempts(sid:string) {
+    return [...this.unknownOutcomes(sid),...this.list<import('@interaction/core').ActionAttempt>(sid,'attempt').filter(a=>a.status==='executing')];
+  }
   /** Same verified-continuation ledger used by continueExploration; no implicit recovery. */
   recoveryAssessment(sid:string) {
     return {sessionId:sid,observationId:this.observation(sid).id,unknownAttempts:this.unknownOutcomes(sid),blockingBoundaryExit:this.blockingBoundaryExit(sid),dirty:this.session(sid).dirty,...(this.session(sid).options.executionPolicy==='observed-ui'?{verificationScope:'observed-ui' as const}:{}),unassessedEffectAttemptIds:this.session(sid).unassessedEffectAttemptIds||[]};

@@ -114,14 +114,26 @@ export function ExplorerPanel({url,sessionId,onSession}:{url:string;sessionId?:s
 }
 
 /** Plans and evidence stay in the main workspace; task inputs and execution controls live in the sidebar. */
+export function ObligationAuditSummary({projection}:{projection?:Task['obligations']}) {
+  if(!projection||projection.version!==1)return null;
+  const counts=projection.counts;
+  return <section className="scope-note" aria-label="最近轮次审计">
+    <strong>最近轮次审计</strong>
+    <div className="explorer-usage"><span>活动目标 {counts.active} 组</span><span>等待条件 {counts.waiting} 组</span><span>暂不可达 {counts.unreachable} 组</span><span>历史对应 {counts.aliases} 条</span></div>
+    <p>保留 {counts.unresolved} 条未完成记录，对应 {counts.unresolvedGroups} 组待测范围。历史对应仅归并目标，不计为已测。</p>
+    <small title={`会话 ${projection.sessionId} · 观察 ${projection.observationId}`}>审计来源：{projection.sessionId.slice(0,8)} / {projection.observationId.slice(0,8)}。后续页面变化需要重新审计。</small>
+  </section>;
+}
+
 export function ExplorerPlan({onSession}:{onSession:(id:string)=>void}) {
   const {status,view,refresh,mode}=useContext(C);const [picked,setPicked]=useState<string[]>([]);const [editing,setEditing]=useState('');const [error,setError]=useState('');const [busy,setBusy]=useState(false);
   useEffect(()=>{setPicked([]);setEditing('');setError('');},[view?.task.id]);
   if(!status?.enabled||!view||mode==='manual')return null;const task=view.task;
   const run=async(fn:()=>Promise<unknown>)=>{setBusy(true);setError('');try{await fn();await refresh();}catch(e){setError(String(e));}finally{setBusy(false);}};
   return <section className="panel explorer-plan" aria-label="探索计划">
-    <div className="panel-title"><h2>探索计划与未完成范围</h2><span>{task.plan.filter(i=>i.status!=='succeeded').length} 项待处理</span></div>
+    <div className="panel-title"><h2>探索计划与未完成范围</h2><span>{task.plan.filter(i=>i.status!=='succeeded').length} 条未完成记录</span></div>
     <div className="explorer-plan-body"><div className="explorer-plan-intro"><p className="scope-note">{task.intent?.mode==='exhaustive'?'程序覆盖起始页面 URL 下新出现的控件、菜单和弹窗；明确排除项和未解决缺口单独保留。':'当前计划完成不代表全站穷尽；未选样本仍为未测。'}</p><div className="explorer-rounds">{task.rounds.map(r=><button key={r.id} onClick={()=>onSession(r.sessionId)}>第 {r.number} 轮 · {r.actions} 次操作 · {r.status==='running'?'进行中':r.status==='paused'?'已暂停':'已结束'}</button>)}</div></div>
+      <ObligationAuditSummary projection={task.obligations}/>
       {!task.plan.length&&<p className="scope-note">{task.status==='running'?(task.goal?'正在识别任务类型并建立探索范围…':'正在由程序建立全页探索范围…'):'开始探索后，将在这里展示计划、执行证据和未完成范围。'}</p>}
       <div className="explorer-plan-items">{task.plan.map(i=>{
         const code=i.reason.startsWith('missing_capability:')?i.reason.slice('missing_capability:'.length):undefined,accepted=task.acceptedLimitations?.find(x=>x.code===code);

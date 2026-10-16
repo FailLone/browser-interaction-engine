@@ -10,10 +10,12 @@ import { observableCanonical, compareObservations } from './model.js';
 import { sessionSchema } from './schema.js';
 import { signature } from './util.js';
 import { constrain, hasDeclaredBoundaryExit, hasObservedBoundaryExit } from './policy.js';
-import { browserControlCorrespondence, browserOperationCorrespondenceHint, controlCase, explorationCase, restorationStep } from './exploration.js';
+import { browserControlCorrespondence, browserOperationCorrespondenceHint, controlCase, controlsTraversalCase, explorationCase, restorationStep } from './exploration.js';
 export { browserControlCorrespondence, browserOperationCorrespondenceHint, browserOperationKey } from './exploration.js';
 export { navigationIntent, type NavigationIntent } from './navigation.js';
 import { historyReturn } from './navigation.js';
+import { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';
+export { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';
 import { listGroups, structuralListGroups } from './list-groups.js';
 import { decisionScopes } from './decision-scopes.js';
 import type { ActionCandidate, Control, EngineHooks, Observation, Session, SessionOptions } from './types.js';
@@ -32,6 +34,9 @@ export type { Command } from './schema.js';
 export { compareObservations, observableCanonical } from './model.js';
 
 export class PlaywrightAdapter implements InteractionAdapter<Observation, SessionOptions> {
+  explorationTargetConditions = browserTargetConditions;
+  explorationTargetReady = browserTargetReady;
+  explorationTargetRecoverable = browserTargetRecoverable;
   controlCorrespondence = browserControlCorrespondence;
   operationCorrespondenceHint = browserOperationCorrespondenceHint;
   correspondenceCase(a: ActionCandidate,o: Observation) { return controlCase(a,o,true); }
@@ -67,7 +72,7 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   normalize = observableCanonical;
   compare = compareObservations;
   constrain = constrain;
-  explorationCase(a: ActionCandidate, o: Observation, s: Session) { return s.options.exploration === 'controls' ? controlCase(a, o) : explorationCase(a, o); }
+  explorationCase(a: ActionCandidate, o: Observation, s: Session) { return s.options.exploration === 'controls' ? controlsTraversalCase(a, o) : explorationCase(a, o); }
   explorationScope(o: Observation) { return canonical({ url: o.url, boundaries: o.boundaries?.map(b => b.key) || [] }); }
   restorationStep = restorationStep;
   explorationGroups(...args: Parameters<typeof listGroups>) { return [...listGroups(...args), ...structuralListGroups(...args), ...decisionScopes(args[0], args[1], args[2])]; }

@@ -12,12 +12,13 @@ function lineage() {
  const transition={verified:true,navigated:false,entered:[],exited:[],revealedControlIds:['child'],retainedControls:[{beforeLocalId:'entry',afterLocalId:'new-local'}]};
  const host={observation:vi.fn(()=>before),interactionTransition:vi.fn(()=>transition),boundaryState:vi.fn(()=>({verified:true}))};
  const plugin=Object.create(ExplorerPlugin.prototype) as any;plugin.host=host;
- return {plugin,host,round,before,after,action,first,transition};
+ const task={plan:[]};
+ return {plugin,host,task,round,before,after,action,first,transition};
 }
 
 it('uses observed occurrence continuity for a sibling absent from frame.remaining and starts its own branch',()=>{
  const f=lineage(),path=f.plugin.pathForAction(f.round,f.action,f.after);expect(path).toEqual([]);
- f.plugin.trackTransition(f.round,f.after,{...f.after,id:'result'},scopeFor(f.action,f.after as any),path);
+ f.plugin.trackTransition(f.task,f.round,f.after,{...f.after,id:'result'},scopeFor(f.action,f.after as any),path);
  expect(f.round.entryPath.map((s:any)=>s.label)).toEqual(['Second']);
  expect(f.round.stack[0].remaining).toEqual([]);
 });
@@ -36,16 +37,16 @@ it('preserves nested entry paths and restores the observed outside route before 
  const f=lineage(),navigate={label:'Go to page',kind:'click'},open={label:'Open dialog',kind:'click'},disclose={label:'Show details',kind:'click'};
  f.round.stack=[{observationId:'before',remaining:[],path:[navigate]}];f.round.entryPath=[navigate,open,disclose];
  f.transition.exited=['dialog'] as never;f.transition.revealedControlIds=['background'];
- f.plugin.trackTransition(f.round,{...f.before,boundaries:[{key:'dialog'}]},f.after,{label:'Close',kind:'click'},[navigate,open,disclose]);
+ f.plugin.trackTransition(f.task,f.round,{...f.before,boundaries:[{key:'dialog'}]},f.after,{label:'Close',kind:'click'},[navigate,open,disclose]);
  expect(f.round.entryPath).toEqual([navigate]);
  f.transition.exited=[];f.transition.entered=['nested'] as never;
- f.plugin.trackTransition(f.round,f.before,f.after,{label:'Nested',kind:'click'},[navigate,open]);
+ f.plugin.trackTransition(f.task,f.round,f.before,f.after,{label:'Nested',kind:'click'},[navigate,open]);
  expect(f.round.entryPath).toEqual([navigate,open,{label:'Nested',kind:'click'}]);
 });
 
 it('does not alter the route on an unverified transition',()=>{
  const f=lineage();f.transition.verified=false;
- f.plugin.trackTransition(f.round,f.before,f.after,{label:'Second',kind:'click'},[]);
+ f.plugin.trackTransition(f.task,f.round,f.before,f.after,{label:'Second',kind:'click'},[]);
  expect(f.round.entryPath).toEqual([f.first]);
 });
 

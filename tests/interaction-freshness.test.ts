@@ -63,7 +63,9 @@ it('keeps stateful preflight strict and does not ignore an outside target',async
  }finally{await strict.close()}
  const t=await fixture();try{
   const prepared=action(t,'Quote 1');await pageOf(t.engine).evaluate(()=>(window as any).bump());
-  await expect(t.engine.execute(t.sid,prepared.id,'outside-target')).rejects.toMatchObject({code:'STALE_OBSERVATION'});expect(t.engine.session(t.sid).actionCount).toBe(0);
+  // The known active-boundary blocker is checked before stale-target preflight.
+  await expect(t.engine.execute(t.sid,prepared.id,'outside-target')).rejects.toMatchObject({code:'ACTION_BLOCKED',message:'outside_active_boundary'});expect(t.engine.session(t.sid).actionCount).toBe(0);
+  expect(t.engine.list(t.sid,'attempt')).toEqual([]);
  }finally{await t.close()}
 });
 

@@ -71,6 +71,7 @@ export interface ActionAttempt {
   id: ID; sessionId: ID; requestId: string; action: ActionCandidate; startedAt: string; finishedAt?: string;
   beforeId: ID; afterId?: ID; status: 'executing' | 'succeeded' | 'failed' | 'blocked' | 'unknown';
   executionProfile?: import('./execution-readiness.js').DispatchGuard['profile'];
+  repetitionSource?: { sessionId: ID; attemptId: ID };
   /** UI operation observed; external/business effects are not certified. */
   effectsAssessment?: 'not-assessed';
   purpose: 'exploration' | 'external' | 'recovery'; reason?: string; diff?: Diff; transitionId?: ID;
@@ -125,6 +126,35 @@ export interface RecoveryDiagnostics {
   unassessedEffectAttemptIds?: ID[];
 }
 export interface ReachResult { verificationScope?: 'observed-ui'; id: ID; sessionId: ID; checkpointId: ID; status: ReachStatus; observationId?: ID; reason: string; attemptIds: ID[]; checks: { name: string; result: 'pass' | 'fail' | 'unknown' }[]; remainingFrontier: number; diagnostics?: RecoveryDiagnostics }
+/** Historical observed work, whether or not it was executed. Never a coverage proof. */
+export interface ExplorationTargetReference { sessionId: ID; observationId: ID; actionId: ID }
+export interface ExplorationTargetCorrespondence {
+  equivalent: boolean; reason: string; policy?: string; conditionKey?: string; evidence: string[];
+  source: ExplorationTargetReference; target: ExplorationTargetReference;
+  invalidatedBy: string[]; identityAuthorized: false; replayAuthorized: false; currentExecution: false;
+}
+export interface ReachExplorationTargetInput {
+  checkpointId: ID;
+  /** Historical observation and candidate IDs defining the desired operations. */
+  observationId: ID; actionIds: ID[];
+  /** Optional optimistic guard for the browser cursor before recovery begins. */
+  currentObservationId?: ID;
+}
+/** Target arrival is neither checkpoint equality nor successful execution/coverage. */
+export interface ExplorationTargetReachResult extends Omit<ReachResult, 'status'> {
+  status: 'TARGET_REACHED' | 'PRECONDITIONS_CHANGED' | 'UNREACHABLE' | 'UNVERIFIED';
+  targetObservationId: ID; targetActionIds: ID[]; matchedActionIds: ID[];
+  matches: ExplorationTargetCorrespondence[]; checkpointVerified: false; currentExecution: false;
+  /** Arrival leaves review/dispatch gates intact; this is the current separate execution assessment. */
+  dispatchAvailability?: import('./execution-readiness.js').ActionAvailability;
+  executionAuthorized: false;
+}
+export interface RepetitionAssessment {
+  repeatable: boolean; reason: string; conditionKey: string; evidence: string[];
+  source: { sessionId: ID; attemptId: ID }; target: ExplorationTargetReference;
+  /** Read-time assessment only; dispatch must revalidate the current observation. */
+  dispatchRevalidationRequired: true;
+}
 export interface SessionOptions { executionPolicy?: 'interface-only' | 'observed-ui'; maxActions: number; maxDepth: number; maxDurationMs: number; context: Record<string, Json>; exploration?: 'controls' | 'representative' | 'stateful'; evidenceRetention?: import('./ports.js').EvidenceRetentionPolicy }
 export interface ValidationFailure { scopeKey: string; count: number; observationIds: ID[]; evidence: string[] }
 export interface Session<S extends SessionOptions = SessionOptions> { id: ID; options: S; createdAt: string; status: 'idle' | 'running' | 'paused' | 'stopped' | 'finished'; currentObservationId?: ID; actionCount: number; elapsedMs: number; stopReason?: string; mode: 'manual' | 'dfs'; dirty: boolean; dirtyAttemptIds?: ID[]; /** Not a successful business-state verification or replay grant. */ unassessedEffectAttemptIds?: ID[]; validationFailures?: ValidationFailure[]; observationFailures?: { count: number; kind: 'incomplete' | 'stale'; observationIds: ID[] } }

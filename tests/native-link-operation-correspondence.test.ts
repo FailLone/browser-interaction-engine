@@ -27,7 +27,7 @@ it('proves a unique native record click despite changed display text without cha
   expect(oldKey?.key).not.toBe(newKey?.key);
   expect(browserOperationCorrespondenceHint(f.before.controls[0] as any,'click',f.before)?.key).toBe(browserOperationCorrespondenceHint(f.current.controls[0] as any,'click',f.current)?.key);
   const writes=vi.spyOn(f.store,'put'),events=vi.spyOn(f.store,'event'),result=f.query();
-  expect(result).toMatchObject({equivalent:true,policy:'browser-native-record-link-operation-v1',identityAuthorized:false,replayAuthorized:false,currentExecution:false});
+  expect(result).toMatchObject({equivalent:true,policy:'browser-native-record-link-operation-v2',identityAuthorized:false,replayAuthorized:false,currentExecution:false});
   expect(result.evidence).toContain('display-name-not-operation-identity');expect(writes).not.toHaveBeenCalled();expect(events).not.toHaveBeenCalled();
   expect(f.host.list('new','attempt')).toEqual([]);expect(f.host.session('new').actionCount).toBe(0);f.store.close();
 });

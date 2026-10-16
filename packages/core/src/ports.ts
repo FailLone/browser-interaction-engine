@@ -79,8 +79,17 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   controlCorrespondence?(control: O['controls'][number]): import('./coverage-reconciliation.js').CorrespondenceHint | undefined;
   /** Optional operation-specific evidence. Does not change control identity or persisted keys. */
   operationCorrespondenceHint?(control: O['controls'][number], kind: string, observation: O): import('./coverage-reconciliation.js').CorrespondenceHint | undefined;
-  /** Uses the adapter's operation sampling semantics with document-local identifiers projected out. */
+  /** Portable operation equivalence for correspondence and coverage reconciliation.
+   * May be stricter than explorationCase queue sampling; undefined never falls
+   * back to that broader sample when this contract is implemented. */
   correspondenceCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
+  /** Relevant, portable UI preconditions for target arrival, separate from whole-page equality. */
+  explorationTargetConditions?(action: ActionCandidate, observation: O): ExplorationCase | undefined;
+  /** Current target readiness; a ready sibling never proves this operation ready. */
+  explorationTargetReady?(action: ActionCandidate, observation: O): boolean;
+  /** A known mechanical obstruction may be addressed by the existing recovery strategies.
+   * This grants no execution permission and never treats unsettled evidence as failure. */
+  explorationTargetRecoverable?(action: ActionCandidate, observation: O, blockers: import('./execution-readiness.js').ExecutionBlocker[]): boolean;
   /** Optional structural scope for representative depth budgets; raw visit depth is retained. */
   explorationScope?(observation: O): string;
   /** Partial captures must establish readiness for the dispatched operation itself. */

@@ -89,7 +89,7 @@ it('separates boundary disappearance from changes to caller-preserved values', a
     expect(t.engine.list<any>(t.sid, 'boundary-exit-result')[0]).toMatchObject({ status: 'changed', closed: true, preserved: false });
     const count = t.engine.session(t.sid).actionCount;
     const recovery = await t.engine.reachCheckpoint(t.sid, checkpoint.id);
-    expect(recovery.status).toBe('UNVERIFIED'); expect(recovery.reason).toContain('Review the changed or unverified exit');
+    expect(recovery.status).toBe('UNVERIFIED'); expect(recovery.reason).toContain('Verify the unresolved boundary exit');
     expect(await pageOf(t.engine).getByRole('textbox', { name: 'Amount' }).inputValue()).toBe('99');
     await t.engine.explore(t.sid); await t.engine.waitForIdle();
     expect(t.engine.session(t.sid)).toMatchObject({ status: 'paused', stopReason: 'BOUNDARY_EXIT_UNVERIFIED', actionCount: count });

@@ -10,6 +10,8 @@ export interface ExecutionBlocker {
 }
 export interface ExecutionGuard {
   observationId: string;
+  /** A required historical repetition proof, rechecked inside queued dispatch. */
+  repetitionSource?: { sessionId: string; attemptId: string };
   /** Conservative autonomous interaction; ordinary external execution keeps its existing policy. */
   profile: 'interface-exploration' | 'observed-ui-exploration';
 }
