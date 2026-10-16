@@ -7,12 +7,19 @@ export const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(
 /** Task policy consumes host semantics; these opaque keys retain old task compatibility. */
 export const navigationTarget=(a:ActionCandidate,o:Observation)=>navigationIntent(a,o)?.targetUrl;
 export const scopeControlKey=(c:Observation['controls'][number])=>browserControlCorrespondence(c)?.key;
-function actionScope(action:ActionCandidate,o:Observation):Scope {
-  const c=o.controls.find(c=>c.localId===action.localId),r=o.regions.find(r=>r.key===c?.region);
+function actionScope(action:ActionCandidate,o:Observation,c:Observation['controls'][number]|undefined,r:Observation['regions'][number]|undefined):Scope {
   const key=c&&scopeControlKey(c);
   return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(key?{stableKey:key}:{})}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};
 }
-export function scopeFor(action:ActionCandidate,o:Observation):Scope {return actionScope(action,o);}
+export function scopeFor(action:ActionCandidate,o:Observation):Scope {const c=o.controls.find(c=>c.localId===action.localId);return actionScope(action,o,c,o.regions.find(r=>r.key===c?.region));}
+/** Indexes only captured facts for one synchronous pass. Never retain this
+ * reader across an await, a new observation or a review/identity revision. */
+export function actionScopeReader(o:Observation) {
+  const controls=new Map<string,Observation['controls'][number]>(),regions=new Map<string,Observation['regions'][number]>();
+  for(const c of o.controls)if(!controls.has(c.localId))controls.set(c.localId,c);
+  for(const r of o.regions)if(!regions.has(r.key))regions.set(r.key,r);
+  return (action:ActionCandidate)=>{const c=action.localId?controls.get(action.localId):undefined;return actionScope(action,o,c,c?regions.get(c.region):undefined);};
+}
 /** Review gaps bind to the observed control, including controls without an explicit label or an action yet. */
 export function scopeForControl(c:Observation['controls'][number],o:Observation):Scope {
   const label=c.name||c.label,region=o.regions.find(r=>r.key===c.region)?.label,stableKey=scopeControlKey(c);
