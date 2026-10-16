@@ -173,16 +173,19 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           // Component keys may be shared by unrelated controls. Prefer direct
           // instance continuity; otherwise require the existing resolved identity
           // AND unique matching adapter semantics in both complete observations.
+          // Across sessions, each local identity must be independently resolved.
           // A model's suggested candidate or an identity alias alone is not proof.
           if(sameInstance())evidence=['current-instance-continuity','nonunique-hint-not-used'];
           else {
-            const resolve=resolveIdentity(sessionId),identity=before.sessionId===sessionId&&resolve(old),signature=getSignature(old);
+            const priorResolve=resolveIdentity(before.sessionId),resolve=resolveIdentity(sessionId),identity=priorResolve(old),targetIdentity=resolve(target),signature=getSignature(old);
+            const sameSession=before.sessionId===sessionId;
             const refined=(c:Control)=>canonical([getHint(c)?.key,getSignature(c)]),key=refined(old);
-            if(!identity||identity!==resolve(target)||!(old.name||old.label)||signature!==getSignature(target)
-              ||[before,current].some(o=>count(o,'identity',resolve,identity)!==1||count(o,'hint-signature',refined,key)!==1)){
+            if(!identity||!targetIdentity||sameSession&&identity!==targetIdentity||!(old.name||old.label)||signature!==getSignature(target)
+              ||count(before,'identity',priorResolve,identity)!==1||count(current,'identity',resolve,targetIdentity)!==1
+              ||[before,current].some(o=>count(o,'hint-signature',refined,key)!==1)){
               result.reason='target_correspondence_ambiguous';return result;
             }
-            evidence=['shared-hint-refined-by-unique-semantics','resolved-identity-projection'];
+            evidence=['shared-hint-refined-by-unique-semantics',sameSession?'resolved-identity-projection':'independently-resolved-session-identities'];
           }
         }else evidence=hint.evidence;
       }else if(before.sessionId===current.sessionId){

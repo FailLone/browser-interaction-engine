@@ -37,5 +37,12 @@ it('proves rebuilt shared-key button correspondence without granting replay or c
   expect(proof('Open wallet').evidence).toContain('shared-hint-refined-by-unique-semantics');
   expect(proof('Close').equivalent).toBe(false);expect(proof('Convert').equivalent).toBe(false);
   expect(f.host.session(s.id).actionCount).toBe(beforeCount);expect(attempt.action.replayable).toBe(false);
+  await f.host.stop(s.id);
+  const next=await f.host.createSession({url:f.url,headless:true,executionPolicy:'observed-ui',exploration:'controls',settleMs:0,observeTimeoutMs:100});
+  const fresh=f.host.observation(next.id),candidate=f.host.actions(next.id).find(a=>a.label==='Open wallet')!;
+  const cross=f.host.operationCorrespondence(next.id,{observationId:fresh.id,actionId:candidate.id,source:{sessionId:s.id,attemptId:attempt.id}});
+  expect(cross).toMatchObject({equivalent:true,identityAuthorized:false,replayAuthorized:false,currentExecution:false});
+  expect(cross.evidence).toContain('independently-resolved-session-identities');
+  expect(f.host.list(next.id,'attempt')).toHaveLength(0);expect(f.host.session(next.id).actionCount).toBe(0);
  }finally{await f.close();}
 });
