@@ -1,0 +1,1445 @@
+{
+  "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+  "baseline": {
+    "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+    "at": "2026-10-16T07:55:27.979847+00:00",
+    "resumeAt": "2026-10-16T07:55:27.979847+00:00",
+    "taskSnapshot": ".data/okx-revalidation-task-before.json",
+    "usage": {
+      "rounds": 15,
+      "actions": 243,
+      "durationMs": 27937944,
+      "modelRequests": 3155
+    },
+    "decisionCursor": 3283,
+    "eventCursor": 46490
+  },
+  "auditedAt": "2026-10-16T08:00:02.582654+00:00",
+  "status": "budget_exhausted",
+  "reason": "BUDGET_EXHAUSTED",
+  "pendingDispatch": null,
+  "totals": {
+    "persistedUsage": {
+      "rounds": 15,
+      "actions": 250,
+      "durationMs": 28200566,
+      "modelRequests": 3196
+    },
+    "budget": {
+      "rounds": 21,
+      "actions": 1209,
+      "durationMs": 28200000,
+      "modelRequests": 3952
+    },
+    "usageDelta": {
+      "rounds": 0,
+      "actions": 7,
+      "durationMs": 262622,
+      "modelRequests": 41
+    },
+    "activeDurationDeltaMs": 262622,
+    "wallTimeSinceBaselineMs": 274603
+  },
+  "newExecution": {
+    "attemptCounts": {
+      "succeeded": 7
+    },
+    "verifiedCount": 7,
+    "verified": [
+      {
+        "id": "e7ec3a8c-fca5-4992-b757-81607f607b94",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:57:01.856Z",
+        "finishedAt": "2026-10-16T07:57:06.160Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "ca951bf2-e002-445f-ac6a-646647ca2312",
+        "afterId": "edf6e761-ebfc-42c4-87ef-52fd1daeb71f",
+        "documentId": "adf0127e-a151-4655-8429-25af1cc98853",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "702f6f24-b6d7-4b3f-82d3-2f62c5e091f5",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:57:14.091Z",
+        "finishedAt": "2026-10-16T07:57:19.207Z",
+        "label": "Where can I learn more about trading?",
+        "kind": "click",
+        "value": null,
+        "beforeId": "edf6e761-ebfc-42c4-87ef-52fd1daeb71f",
+        "afterId": "358fe43a-2ebb-4fd9-890b-0bc8e7b0bb72",
+        "documentId": "adf0127e-a151-4655-8429-25af1cc98853",
+        "stableKey": "testid:okd-accordion-header",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "6dd133b6-9ab1-493a-a30b-9d160de3c743",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:57:27.173Z",
+        "finishedAt": "2026-10-16T07:57:32.267Z",
+        "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+        "kind": "click",
+        "value": null,
+        "beforeId": "358fe43a-2ebb-4fd9-890b-0bc8e7b0bb72",
+        "afterId": "589ed4e3-5212-4c11-b319-eb2f06201a58",
+        "documentId": "adf0127e-a151-4655-8429-25af1cc98853",
+        "stableKey": "testid:okd-accordion-header",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "54600ebf-87eb-4921-a609-fcb1ce80548f",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:58:43.699Z",
+        "finishedAt": "2026-10-16T07:58:48.046Z",
+        "label": "Scrollable generic",
+        "kind": "scroll",
+        "value": {
+          "x": 840,
+          "y": 0
+        },
+        "beforeId": "2402935b-32f4-4f9a-94f7-1a80827fcdbc",
+        "afterId": "e2a3c96c-8f61-490e-af86-7d28899c5d87",
+        "documentId": "adf0127e-a151-4655-8429-25af1cc98853",
+        "stableKey": null,
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "309a157b-d79b-4fca-b152-6880ce40cf3c",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:59:01.718Z",
+        "finishedAt": "2026-10-16T07:59:06.987Z",
+        "label": "Institutional",
+        "kind": "click",
+        "value": null,
+        "beforeId": "e2a3c96c-8f61-490e-af86-7d28899c5d87",
+        "afterId": "70e54255-04a7-4ed9-a673-17515a8092e9",
+        "documentId": "adf0127e-a151-4655-8429-25af1cc98853",
+        "stableKey": "id:title-nav-institutions",
+        "region": "navigation:navContainer",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "2f728f60-2ea5-4b27-b67a-20a2153f7239",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:59:18.126Z",
+        "finishedAt": "2026-10-16T07:59:24.165Z",
+        "label": "Scroll page",
+        "kind": "scroll",
+        "value": {
+          "documentId": "adf0127e-a151-4655-8429-25af1cc98853",
+          "containerNodeId": "adf0127e-a151-4655-8429-25af1cc98853:510",
+          "left": 0,
+          "top": 675,
+          "expectedLeft": 0,
+          "expectedTop": 0,
+          "width": 1440,
+          "height": 900,
+          "maxLeft": 0,
+          "maxTop": 7079
+        },
+        "beforeId": "70e54255-04a7-4ed9-a673-17515a8092e9",
+        "afterId": "c28bd449-bf42-4244-90bc-68708d9e0624",
+        "documentId": "adf0127e-a151-4655-8429-25af1cc98853",
+        "stableKey": null,
+        "region": null,
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      },
+      {
+        "id": "0d85386f-70c2-4f6b-b5e2-f48add0f862b",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:59:34.721Z",
+        "finishedAt": "2026-10-16T07:59:40.870Z",
+        "label": "Selected language and currency: English/USD",
+        "kind": "click",
+        "value": null,
+        "beforeId": "c28bd449-bf42-4244-90bc-68708d9e0624",
+        "afterId": "e8ae9c65-987a-4bac-a321-3151e98c43d4",
+        "documentId": "adf0127e-a151-4655-8429-25af1cc98853",
+        "stableKey": "id:language",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      }
+    ],
+    "nonSuccess": [],
+    "newlySucceededPlanRows": 0,
+    "newlySucceededExactLeafScopes": 0,
+    "newlySucceededOperationScopes": [],
+    "repeatedLabelKindValue": [],
+    "historicalEvidenceNotCurrentSuccess": true,
+    "repetitionCaveat": "Matching labels/kinds/values only flag possible repeated work. They do not assert host operation equivalence, identity or new coverage."
+  },
+  "models": {
+    "jev": {
+      "requests": 40,
+      "purposeCounts": {
+        "region-review": 24,
+        "control-classification": 3,
+        "identity-review": 1,
+        "control-risk": 1,
+        "probe-risk": 3,
+        "next-action": 8
+      },
+      "statusCounts": {
+        "requested": 0,
+        "returned": 1,
+        "applied": 39,
+        "rejected": 0,
+        "stale": 0,
+        "failed": 0,
+        "cancelled": 0
+      },
+      "elapsedMsSum": 35924,
+      "elapsedMsMedian": 503.0,
+      "elapsedMsP95NearestRank": 1707,
+      "missingDurationRequests": 0,
+      "reportedUsage": {
+        "input_tokens": 269135,
+        "output_tokens": 30872,
+        "cost": 0.01130367
+      },
+      "usageAvailableResponses": 40
+    },
+    "llm": {
+      "requests": 1,
+      "purposeCounts": {
+        "classification-clarification": 1
+      },
+      "statusCounts": {
+        "requested": 0,
+        "returned": 0,
+        "applied": 0,
+        "rejected": 1,
+        "stale": 0,
+        "failed": 0,
+        "cancelled": 0
+      },
+      "elapsedMsSum": 15828,
+      "elapsedMsMedian": 15828,
+      "elapsedMsP95NearestRank": 15828,
+      "missingDurationRequests": 0,
+      "reportedUsage": {
+        "prompt_tokens": 3713,
+        "completion_tokens": 2742,
+        "total_tokens": 6455,
+        "cost": 0.0044043
+      },
+      "usageAvailableResponses": 1
+    }
+  },
+  "phases": {
+    "consecutiveActionDispatchIntervals": {
+      "count": 6,
+      "sumMs": 152760,
+      "p95MsNearestRank": 76491,
+      "medianMs": 16474.5,
+      "minMs": 12214,
+      "maxMs": 76491
+    },
+    "consecutiveActionVerifiedIntervals": {
+      "count": 6,
+      "sumMs": 155372,
+      "p95MsNearestRank": 75607,
+      "medianMs": 17097.0,
+      "minMs": 13152,
+      "maxMs": 75607
+    },
+    "dispatchValidationToDispatch": {
+      "count": 7,
+      "sumMs": 8830,
+      "p95MsNearestRank": 1668,
+      "medianMs": 1373,
+      "minMs": 279,
+      "maxMs": 1668
+    },
+    "actionDispatchToVerified": {
+      "count": 7,
+      "sumMs": 58912,
+      "p95MsNearestRank": 9879,
+      "medianMs": 8244,
+      "minMs": 7096,
+      "maxMs": 9879
+    },
+    "probeDispatchToVerified": {
+      "count": 0,
+      "sumMs": 0,
+      "p95MsNearestRank": null,
+      "medianMs": null,
+      "minMs": null,
+      "maxMs": null
+    },
+    "unmatchedActionDispatchEvents": 0,
+    "unmatchedProbeDispatchEvents": 0,
+    "jevNextActionRequest": {
+      "count": 8,
+      "sumMs": 15133,
+      "p95MsNearestRank": 4904,
+      "medianMs": 1690.0,
+      "minMs": 383,
+      "maxMs": 4904
+    },
+    "resumeAt": "2026-10-16T07:55:27.979847+00:00",
+    "resumeToReattachedMs": 22921
+  },
+  "previousPhaseComparison": {
+    "metricVersion": 3,
+    "fromEventSequence": 37591,
+    "fromAt": "2026-10-16T04:37:26.501Z",
+    "toEventSequence": 38596,
+    "toAt": "2026-10-16T04:46:56.160Z",
+    "phases": {
+      "consecutiveActionDispatchIntervals": {
+        "count": 19,
+        "sumMs": 490785,
+        "p95MsNearestRank": 94888,
+        "medianMs": 22064,
+        "minMs": 19100,
+        "maxMs": 94888
+      },
+      "consecutiveActionVerifiedIntervals": {
+        "count": 19,
+        "sumMs": 492697,
+        "p95MsNearestRank": 94303,
+        "medianMs": 22353,
+        "minMs": 19471,
+        "maxMs": 94303
+      },
+      "dispatchValidationToDispatch": {
+        "count": 20,
+        "sumMs": 124056,
+        "p95MsNearestRank": 6891,
+        "medianMs": 6620.5,
+        "minMs": 238,
+        "maxMs": 6961
+      },
+      "actionDispatchToVerified": {
+        "count": 20,
+        "sumMs": 176193,
+        "p95MsNearestRank": 10254,
+        "medianMs": 8599.5,
+        "minMs": 6663,
+        "maxMs": 10397
+      },
+      "probeDispatchToVerified": {
+        "count": 0,
+        "sumMs": 0,
+        "p95MsNearestRank": null,
+        "medianMs": null,
+        "minMs": null,
+        "maxMs": null
+      },
+      "unmatchedActionDispatchEvents": 0,
+      "unmatchedProbeDispatchEvents": 0,
+      "jevNextActionRequest": {
+        "count": 20,
+        "sumMs": 29755,
+        "p95MsNearestRank": 1671,
+        "medianMs": 1538.0,
+        "minMs": 399,
+        "maxMs": 1721
+      }
+    },
+    "note": "Prior run from round.reattached to task.paused; excludes attach cold-start."
+  },
+  "currentObserved": {
+    "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+    "sessionStatus": "paused",
+    "observationId": "e8ae9c65-987a-4bac-a321-3151e98c43d4",
+    "documentId": "adf0127e-a151-4655-8429-25af1cc98853",
+    "capturedAt": "2026-10-16T07:59:39.496Z",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "controls": 391,
+    "visibleEnabledControls": 330,
+    "storedCandidates": 307,
+    "rawCandidateBlockers": {
+      "outside_scrollable_area": 4,
+      "pointer_intercepted": 30
+    },
+    "rawBlockerCaveat": "Stored observation candidate facts only; no current SDK availability query or dispatch authorization asserted.",
+    "gapCodes": {
+      "STRUCTURAL_LIST_SCAN_TRUNCATED": 1,
+      "STRUCTURAL_DISCOVERY_LIMIT": 19,
+      "UNSUPPORTED_CANVAS": 7,
+      "EVENT_LISTENER_COVERAGE": 1
+    }
+  },
+  "remaining": {
+    "planRows": 3147,
+    "exactScopes": 1785,
+    "unfinishedExactScopes": 1708,
+    "reasonRows": {
+      "unknown_action_outcome": 3,
+      "UNKNOWN_DISPATCH_REQUIRES_REVIEW": 1,
+      "observation_incomplete": 1,
+      "boundary_preservation_limit": 1,
+      "recovery_unresolved": 1,
+      "classification_unresolved": 97,
+      "operation_basis_unconfirmed": 131,
+      "probe_unresolved": 41,
+      "operation_risk_unresolved": 45,
+      "observed_in_scope": 842,
+      "outside_active_boundary": 222,
+      "outside_scrollable_area": 27,
+      "operation_unavailable": 238,
+      "operation_not_executed": 616,
+      "entry_revalidation_deferred": 2,
+      "pointer_intercepted": 95,
+      "region_review_required": 588,
+      "ambiguous_scope_match": 5,
+      "interface_risk_required": 8,
+      "boundary_exit_unresolved": 1,
+      "identity_unresolved": 7,
+      "Control is not visible or enabled": 1
+    },
+    "unknownAttempts": [
+      {
+        "attemptId": "a7e1dcc5-1692-4391-b573-ef3bd0c68324",
+        "sessionId": "27513942-05b7-43e6-bedd-712d0aadfd75",
+        "status": "unknown",
+        "afterId": "71987594-8de1-4da0-8322-28a2f8b91a72",
+        "sourceUrl": "https://www.okx.com/convert/btc-to-usd",
+        "targetUrl": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application"
+      }
+    ],
+    "acceptedUnsupported": [
+      {
+        "id": "fb6a2ddd-3472-466e-a2b3-9a866bbdcfc7",
+        "reason": "missing_capability:UNSUPPORTED_CANVAS",
+        "status": "untested",
+        "required": false,
+        "evidenceCount": 1
+      }
+    ],
+    "notExhaustive": true
+  },
+  "progressEvents": {
+    "round.reattached": 1,
+    "review.reopened": 3,
+    "decision.requested": 41,
+    "decision.returned": 41,
+    "decision.resolved": 40,
+    "decision.applied": 40,
+    "decision.effect": 49,
+    "scope.retained": 2,
+    "decision.rejected": 1,
+    "scope.audit": 8,
+    "action.dispatch": 7,
+    "action.verified": 7,
+    "branch.revalidation_deferred": 2,
+    "branch.reentry_deferred": 4,
+    "branch.reentry_planned": 4,
+    "branch.route_reconciled": 10,
+    "action.priority": 2,
+    "branch.route_recovered": 3,
+    "task.halted": 1
+  },
+  "lastEvents": [
+    {
+      "sequence": 47242,
+      "at": "2026-10-16T07:59:43.524Z",
+      "type": "action.verified",
+      "actor": "program",
+      "decisionId": null
+    },
+    {
+      "sequence": 47243,
+      "at": "2026-10-16T07:59:47.388Z",
+      "type": "decision.requested",
+      "actor": "jev",
+      "decisionId": "8613bb5b-b5ac-475a-84a9-32ffec2901f1"
+    },
+    {
+      "sequence": 47244,
+      "at": "2026-10-16T07:59:49.089Z",
+      "type": "decision.returned",
+      "actor": "jev",
+      "decisionId": "8613bb5b-b5ac-475a-84a9-32ffec2901f1"
+    },
+    {
+      "sequence": 47245,
+      "at": "2026-10-16T07:59:49.090Z",
+      "type": "decision.resolved",
+      "actor": "program",
+      "decisionId": "8613bb5b-b5ac-475a-84a9-32ffec2901f1"
+    },
+    {
+      "sequence": 47246,
+      "at": "2026-10-16T07:59:49.125Z",
+      "type": "checkpoint.created",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 47247,
+      "at": "2026-10-16T07:59:49.317Z",
+      "type": "decision.effect",
+      "actor": "jev",
+      "decisionId": "8613bb5b-b5ac-475a-84a9-32ffec2901f1"
+    },
+    {
+      "sequence": 47248,
+      "at": "2026-10-16T07:59:50.776Z",
+      "type": "scope.audit",
+      "actor": "program",
+      "decisionId": null
+    },
+    {
+      "sequence": 47249,
+      "at": "2026-10-16T07:59:50.909Z",
+      "type": "task.halted",
+      "actor": "program",
+      "decisionId": null
+    }
+  ],
+  "readOnlyAudit": true,
+  "reentryValidation": {
+    "events": [
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.revalidation_deferred",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "edf6e761-ebfc-42c4-87ef-52fd1daeb71f",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "Main menu",
+            "label": "Search crypto",
+            "role": "textbox",
+            "stableKey": "testid:okd-input",
+            "kind": "fill",
+            "value": "example"
+          },
+          "itemId": "0af6aab3-8862-4b07-a208-adc5e19e5f34",
+          "reason": "operation_revalidation_is_not_new_entry",
+          "observationId": "edf6e761-ebfc-42c4-87ef-52fd1daeb71f",
+          "executionAuthorized": false,
+          "currentExecution": false
+        },
+        "at": "2026-10-16T07:57:08.956Z"
+      },
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.reentry_deferred",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "edf6e761-ebfc-42c4-87ef-52fd1daeb71f",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "Main menu",
+            "label": "Trade",
+            "role": "button",
+            "stableKey": "id:title-nav-trade",
+            "kind": "click"
+          },
+          "reason": "no_new_child_completion",
+          "attempts": 1,
+          "limit": 1,
+          "pendingTargets": 307,
+          "executionAuthorized": false
+        },
+        "at": "2026-10-16T07:57:10.097Z"
+      },
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.revalidation_deferred",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "edf6e761-ebfc-42c4-87ef-52fd1daeb71f",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "label": "Where can I find more information about Bitcoin (BTC)?",
+            "role": "button",
+            "stableKey": "testid:okd-accordion-header",
+            "kind": "click"
+          },
+          "itemId": "4424ff99-2b9b-4cf3-9dae-b9aea1a6eae9",
+          "reason": "operation_revalidation_is_not_new_entry",
+          "observationId": "edf6e761-ebfc-42c4-87ef-52fd1daeb71f",
+          "executionAuthorized": false,
+          "currentExecution": false
+        },
+        "at": "2026-10-16T07:57:10.197Z"
+      },
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.reentry_deferred",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "edf6e761-ebfc-42c4-87ef-52fd1daeb71f",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "label": "Where can I find more information about Bitcoin (BTC)?",
+            "role": "button",
+            "stableKey": "testid:okd-accordion-header",
+            "kind": "click"
+          },
+          "reason": "no_new_child_completion",
+          "attempts": 1,
+          "limit": 1,
+          "pendingTargets": 288,
+          "executionAuthorized": false
+        },
+        "at": "2026-10-16T07:57:10.271Z"
+      },
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.reentry_planned",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "edf6e761-ebfc-42c4-87ef-52fd1daeb71f",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "label": "Where can I learn more about trading?",
+            "role": "button",
+            "stableKey": "testid:okd-accordion-header",
+            "kind": "click"
+          },
+          "itemId": "1a8a8151-5d90-4548-bc0f-1fa3625c3d40",
+          "target": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "label": "OKX Telegram community",
+            "role": "link",
+            "stableKey": "explorer:record:v1:c3a1d0800d3050669cd8712211f1f88a1ebdb155a80206be1798fe039217986d",
+            "kind": "click"
+          },
+          "route": [
+            {
+              "entry": {
+                "url": "https://www.okx.com/convert/btc-to-usd",
+                "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+                "label": "Where can I learn more about trading?",
+                "role": "button",
+                "stableKey": "testid:okd-accordion-header",
+                "kind": "click"
+              },
+              "targets": [
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "OKX Telegram community",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:c3a1d0800d3050669cd8712211f1f88a1ebdb155a80206be1798fe039217986d"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "OKX Discord community",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:289e6a6bacd21e8559e24fe2003d29a631c29708f3cf4b92f1c0f34834633e82"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "OKX Learn",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:44fbafb43b168294929473530931de50273bb4cf098b130a56bc9723e5e90c7f"
+                }
+              ],
+              "evidence": {
+                "sessionId": "a25e888f-5c5d-49a9-9564-2a0019f32ff5",
+                "beforeId": "108e0a6e-b21a-4979-9702-ad5b861c305e",
+                "observationId": "6db26e60-8ff1-466f-a6e8-d6d653146d4b"
+              }
+            }
+          ],
+          "reason": "observed_route_to_absent_unfinished_target",
+          "executionAuthorized": false
+        },
+        "at": "2026-10-16T07:57:13.192Z"
+      },
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.reentry_planned",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "358fe43a-2ebb-4fd9-890b-0bc8e7b0bb72",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+            "role": "button",
+            "stableKey": "testid:okd-accordion-header",
+            "kind": "click"
+          },
+          "itemId": "501cf16c-ece5-43cb-a754-feb264ad6504",
+          "target": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "label": "Support center",
+            "role": "link",
+            "stableKey": "explorer:context:v1:793a7378893720e29e502508b1e8d76b01becab2cec1fb44cd2cd3138e49c888",
+            "kind": "click"
+          },
+          "route": [
+            {
+              "entry": {
+                "url": "https://www.okx.com/convert/btc-to-usd",
+                "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+                "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+                "role": "button",
+                "stableKey": "testid:okd-accordion-header",
+                "kind": "click"
+              },
+              "targets": [
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Support center",
+                  "role": "link",
+                  "stableKey": "explorer:context:v1:793a7378893720e29e502508b1e8d76b01becab2cec1fb44cd2cd3138e49c888"
+                }
+              ],
+              "evidence": {
+                "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+                "beforeId": "095767e2-9e8d-4221-97de-96bc0ff83faf",
+                "observationId": "b524fe15-3cd6-471a-b1af-62e664d147a8"
+              }
+            }
+          ],
+          "reason": "observed_route_to_absent_unfinished_target",
+          "executionAuthorized": false
+        },
+        "at": "2026-10-16T07:57:26.260Z"
+      },
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.reentry_deferred",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "e2a3c96c-8f61-490e-af86-7d28899c5d87",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+            "role": "button",
+            "stableKey": "testid:okd-accordion-header",
+            "kind": "click"
+          },
+          "reason": "no_new_child_completion",
+          "attempts": 1,
+          "limit": 1,
+          "pendingTargets": 406,
+          "executionAuthorized": false
+        },
+        "at": "2026-10-16T07:58:53.660Z"
+      },
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.reentry_planned",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "e2a3c96c-8f61-490e-af86-7d28899c5d87",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "Main menu",
+            "label": "Institutional",
+            "role": "button",
+            "stableKey": "id:title-nav-institutions",
+            "kind": "click"
+          },
+          "itemId": "697ba10e-2b0e-40ac-aefa-c4a698de45ae",
+          "target": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "Main menu",
+            "label": "Institutional homeThe world’s most powerful suite of crypto trading solutions",
+            "role": "link",
+            "stableKey": "explorer:record:v1:e85d763b564b775605853b5e1f2844263021dc25cf0d17b6e215e7c97700ba2b",
+            "kind": "click"
+          },
+          "route": [
+            {
+              "entry": {
+                "url": "https://www.okx.com/convert/btc-to-usd",
+                "region": "Main menu",
+                "label": "Institutional",
+                "role": "button",
+                "stableKey": "id:title-nav-institutions",
+                "kind": "click"
+              },
+              "targets": [
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Institutional homeThe world’s most powerful suite of crypto trading solutions",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:e85d763b564b775605853b5e1f2844263021dc25cf0d17b6e215e7c97700ba2b"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "OKX RubixDigital assets-as-a-service for regulated institutions",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:8e0f87453020b7591d3b9841f69df5b3693023d4bbfc749e25e97711b3007790"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "APIsSeamless and ultra-low latency API connectivity",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:13eeea95b10f00cdca6815019f80c300ca4760852e86796739763a1209fff6a8"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Broker ProgramAccess world-class market depth with high commissions",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:5ede1ab83e65d584fd8710cee469681c417268792bc7d7f9bdee0b26faf0b9cf"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Managed Trading Sub-accountsManage sub-accounts, trade easily and safely with more profits",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:53abdbaae137e2a3e8c9ade1a48770a2ff1d9f3bdabcf297b52af97e34407516"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Historical market dataCandlesticks, aggregate trades, order book data and more",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:0d3adf929a2466602b57f86b56ce087c8e3465930adff3aaa1675f338bf280c6"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Institutional InsightsOur latest institutional trading research, news, and more",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:df4c724464f42d5db547eb842bec4cf3006fa0105a23c9b9af831452a9ce2950"
+                }
+              ],
+              "evidence": {
+                "sessionId": "fcd35b36-46c9-43f6-a0d2-233a50eeef54",
+                "beforeId": "c75301aa-2e0d-4c30-b6ae-9311ccc8f1e8",
+                "observationId": "e11c4198-594b-4b2d-96c8-bc29654c9250"
+              }
+            }
+          ],
+          "reason": "observed_route_to_absent_unfinished_target",
+          "executionAuthorized": false
+        },
+        "at": "2026-10-16T07:59:00.788Z"
+      },
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.reentry_deferred",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "70e54255-04a7-4ed9-a673-17515a8092e9",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "Main menu",
+            "label": "Institutional",
+            "role": "button",
+            "stableKey": "id:title-nav-institutions",
+            "kind": "click"
+          },
+          "reason": "no_new_child_completion",
+          "attempts": 1,
+          "limit": 1,
+          "pendingTargets": 145,
+          "executionAuthorized": false
+        },
+        "at": "2026-10-16T07:59:12.205Z"
+      },
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.reentry_planned",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "c28bd449-bf42-4244-90bc-68708d9e0624",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "label": "Selected language and currency: English/USD",
+            "role": "button",
+            "stableKey": "id:language",
+            "kind": "click"
+          },
+          "itemId": "33cd3b0a-913e-4925-b6e5-6227729b0b79",
+          "target": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "label": "简体中文",
+            "role": "link",
+            "stableKey": "explorer:record:v1:ed6b990f20a8fba5a2795e7aacf2f7cb9a914a3a95df77c91caf1912f8d652d5",
+            "kind": "click"
+          },
+          "route": [
+            {
+              "entry": {
+                "url": "https://www.okx.com/convert/btc-to-usd",
+                "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+                "label": "Selected language and currency: English/USD",
+                "role": "button",
+                "stableKey": "id:language",
+                "kind": "click"
+              },
+              "targets": [
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "简体中文",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:ed6b990f20a8fba5a2795e7aacf2f7cb9a914a3a95df77c91caf1912f8d652d5"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "繁體中文",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:f5c8759c26bc20183be38fc8a355f6c46dedfdf2db284056f65efd20565afb63"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Tiếng Việt",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:c25e4173a904833b80efa8b79d0bef2d13c5dc55e9be6db8f9177666cd40402f"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Русский",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:6dceec36e85b65495c2c400ef20e4af56361042f4ff25e90bebed959b1601c37"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Español (Latinoamérica)",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:6f34733c27aafb1bf8c4e99741a78179a7ffdcf2dcb13f93f1d815115736b2b0"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Bahasa Indonesia",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:3d8c844c5a1f3f3b9d12b85a428460582da795e0c766f3e33ef0677b2b1b2dfc"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Français",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:fe69765480181ef86ff150f5ff1f6ed1385643b01a650a7e9f099bc574789a80"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Português",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:38d5237ff28ac311f0fd1d6d73e34d21267dbed6b581922d75d62d2e36efda7c"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Українська",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:5f774774e45ab3df60ec28c2ce64f0c4841356b23990400d186d8226a542a6de"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "العربية",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:8cba5a6fac582bcd1f88f2117913115ccfa01cc69fed074afc3a38b78cd8b18b"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "English",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:517df64357e8f408985d0058c4a9ecf79d29dc5d87685ca119599d2266a8d6ff"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Español (Argentina)",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:a8352daefd77219d8fd0a12e185525c3310247324eecf08dd9eab4ac9b841855"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "简体中文",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:e75745c62248059a8b53777f93d1b85ab512f009dd9a47929ff12a90bd6cc5d9"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Русский",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:dc1e96f70fb74d49b5d49e8d7a7340ac2043715981d5a9977f0601022431c6b8"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "English",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:4021bc3349b760fb320848bf6b40b9bd6069c8abc00334bc3a6c9bde1997a396"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "简体中文",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:4b14fe3c5c22bb13b5cc7f8e1bc3b882f9cb89c042c7227bb226ed8b41602f67"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "English",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:1a81d417f8460a3d63f084cd14a8421fd3f4a430f0caecea980b887c8f44c8fc"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Português (Brasil)",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:a336333a0c5629ee98d21ab29a9c4c94130cd24c4a37d42c8dd416364a90174c"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Deutsch",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:2d806258e6b2cb1929ea04acc6e30490b8e5a2ffa6836db5cab3150709289ff0"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "English",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:26f3a6272c0c57377b225e9b2087fbe834d564a7bfc89d0cead69e4167fc8c55"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Español (España)",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:d68053b9d2e327fb83300ec864f43a7d87c1a49890f4dbf6df59277302935c10"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Français",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:f0685adc6835613afcac41e8e5aa44b425c65654d57aee8ced4a3f083ee9d579"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Italiano",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:1fd6ddf6f877528cadea58374bcd173a422c3aa371880d8317ab3389a3ba3d30"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Nederlands",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:b5727f424369c07d89e94754dc80ef6c09ebf0fe0f2cf414a1ea4712fdf95486"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Polski",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:fa21ba9ae86c74b223938e18b053596a1d1b4997e9e4f231c887c72a3d79dcd5"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Português (Portugal)",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:c028089cead251ab23cfaae1e73b325c3b0fe549ae0d902a5a7baf6fd8ad5b83"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Română",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:d1e87baf3c88570747d2767ffa75e2b40335ac1963f930b629497ff9854ee24b"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Norsk (bokmål)",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:51628c62b496711d7c29d5db24d6fdc0e469cbbf5d311972f486d33239daf620"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Suomi",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:d631ebd5ddf44561e62dcf5737ed9534b0da327a008d1afbd6cdc4fb32935b61"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Svenska",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:3512fcf2cddcd1a1bbb32eaa4dced0f932666d75f43e53a574400b5816f2ee81"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "简体中文",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:368d93ff5b062e87482fc7e0642111381deec50064f11fa718777a4ba6f60164"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Čeština",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:1a2681a2a50563895454bef3034a3328727b8a74929c9e3a58bc265051e71f47"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Русский",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:c413e479cb71521dc83afdc95df9e93bada0b7c43958ada6d7a305fd0f3b0377"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Українська",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:e340adc6587e5f2f5d77f6a203c73031f71d6c260e2644c0b894514f022787b2"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "English",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:64be1d968330406c4f8dea1bf78641a8ea5289dabfa07aa85e5d484ea54f6044"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "简体中文",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:2e12e0e23a7accfd20579d7ec9cecf603290e42ecd1bbc7ecbe2524646de764b"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "简体中文",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:44c6ab8bd13df8f1b6c163ffaf31e243c305c721af496c97611712aaaa0cdac7"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "English",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:602665a0218a8fd3cbaa81e511513de45c39c9582c499fa047f654ffc2e9c849"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Русский",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:4f2038f6a620a2a961ca2c276c2a706ea3f8f56a20fdb2e4bca4710cdadedba0"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Français",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:a58be13310b8f120cac7649a20281a223ed44cc9b31596319c1e71d7b42d8791"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "العربية",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:c63188033f39c5aadd5a935b168d6175dd185d9e84c5845016b2e86a1045fbeb"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "English",
+                  "role": "link",
+                  "stableKey": "id:language_en_GB"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "USD",
+                  "role": "link",
+                  "stableKey": "id:currency_id_0"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "CNY",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:3b3895ff16b27d8c60f8d92db88ae3d6c85fdcb3c8ef09f580c8b03cab7a39ed"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "RUB",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:902aca1b62a7101242bc7e0807bec9c2450984f6125efc321aacfae11f88faff"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "JPY",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:44e7643a2c7cc8fdf19f3ea05344e912c15cd7eb0f9611ab85333bf7c9c729cf"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "EUR",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:99c2d34b25f37ee423db2ecc7aa7c6de00b0842af595ab63382b784a187628b9"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "VND",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:df6f0bbf7b118f27a024d6f091607f4602e7ce6af881ca3f4f097b154310d0cc"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "IDR",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:229fb13dd016ae66e443bb81c6bc6b723f375881c8259f74d5764bf278aae6da"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "PHP",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:855de12c9cd91da026bfcbb139931793c5a9d19bcf9b018c9f6ca7741a1018a6"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "INR",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:af661f18e3928e4f3686cbc27775bdfe5567c19c679776a8e9370699cee1acd2"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "ARS",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:da16f71c3e01b1ee73e20d7a1cd1cc13bc933e8e856276bb8f59d540a978b550"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "SAR",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:e8a67f8ca5ed70ff17f16f7e807a4e9ddf9ccee84eed5e098a6d7ca1e028432e"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "TRY",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:1a876f549cb3f1e63f2e0f6b29db70bd5c47684a6d259d0653bfce42cfe79766"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "AED",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:7b3db259fe85ac4dc951ec36c45f865b37826641046dd6bfe671da0922c8a5a7"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "IQD",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:6653598c109a123f74fa3746eaca14d01212410981ad0d56c185cf681deaee40"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "BND",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:c9f0e130540a4b51160d3a9e1794c18b5fa22093f8a234af3f7c1873e14add6e"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "LAK",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:00c85106a0b1a8ce2360ec7573fc6b904a7fb2661625ca060e706d9692435302"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "NPR",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:ce72db0200e1b41a1880245418328052c0ceaa28817bb5e48798e83aac553fbe"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "PKR",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:f2cdca7dedb7330fddaee109bfe42db0a00b21f057e71188cb6f7f1aabd06633"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "SGD",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:f95853d7dfd05dd26f7734fb377a79bd64aa70c2e97dbf4f3b1de66a8c7be047"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "MMK",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:5d4b3a0eb5b1f9d25725cdb5b80d7d1e5bec7db46ffb8b75d01a9be6d294ba4d"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "MNT",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:003fc9d28215619a7e87bf00d9a2e5bb3c9c0480f10a28fa9d69e248e55f92e2"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "COP",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:0c669d09b697bbe0e8aa46d0ccb876ddd2f691c93bdb46d7d6d5751fb5feeedd"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "CLP",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:f84ca01cfb640091ef2c19615e8789b07cae46630deff8bc076ff1f4e434ac75"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "VES",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:a6fdc4003317a34192bcbac4124ebe4bc062e76f2cb7665d6b38fab5d47db32d"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "MXN",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:4b130440a13687a57437c1faa299ebee3ad6c9f9dc60172c0727521415ced131"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "BRL",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:55e7dc85e1010c8c7acd7505e8f21266336e9295b96a4f19504430b5d39cdb37"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "PEN",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:c5ea7fbe109c1b3cc28c8d50e66b48b86e6eb823610594fe48a6586c86a89350"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "HNL",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:e91bcd001a22c7ab97457dc071e341ff7f3d15b994b245d322609477ea53a92b"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "UYU",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:3e32c96a6f7088ac33fb9bc16f8afd2cd9b2dfd89b53b16819240e982341b2a5"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "GBP",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:825a9f02376f3eb9a918b090837da18957bbbcbc31a6c7b018b90ad8e45a0459"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "CHF",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:1e5d2d6f2e44ef172fa2d5adf019056c46b7dd8c75dc82815a02d53a437b4810"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "SEK",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:ba1ea95d48e4d9b886e48984db49d22d2d6c36fc865aedb421ea9e66c88ec089"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "DKK",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:bf8d689a5ca752a822fe5121a7f42db4c7ac60eae05b2db721186c19ecec9c91"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "RON",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:8734b7c19ed2b29845b49059373663c74d31881a3b3d7ceae0d5fe25e9720cac"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "BGN",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:6dfa8f6d428d529eb9260a8995706871413f6157f132ff3f92bedae38cba5a02"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "PLN",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:cf164647a9e8ace700a2357be797e9ca5c987c01b58fa0d9a6bda99544626dd1"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "CZK",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:335b6180f8a364041c66976b4a26497bd74869bffcfaf3735e9891d02bbe652c"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "HUF",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:e51e242ab4547ac99fb14f2f62789d4da294841f47a917ca4eea31a1665af2fb"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "UAH",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:c1c1a1e07dbfb6c829aecd162531bef91ac10902d783a0bcd6fbda47b65d3f34"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "AUD",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:19694549fe3cb2f8ec789e1c8fc4652d5af4e22e67246c86d1b69afa3f03d0b6"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "NZD",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:8606d998ec3fb5b46b5d9b38da1dbc62e5f2958f685d53cf5f384be70ecbeceb"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "CAD",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:4a0a5ffd4070680c9e718115f5b1de4924db468faf826e82357123409ca864ea"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "ZAR",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:0fbcaf860f5967c85e9bab91ea64ef78f3d74f91e2af4b45e7d3b42ea9816d44"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "ILS",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:8c7f046685d87a3a2b41737165f26096cef7855da4982dcb1cbab49d5ae49b6c"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "TWD",
+                  "role": "link",
+                  "stableKey": "explorer:record:v1:c442a2fe9b50e8696d13374707ff9f8613e3ae22117c44413eb1569645b61330"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Language",
+                  "role": "group",
+                  "stableKey": "explorer:context:v1:24a1cff31cc76c6ef5efb5aabf2126780d1ccb90d18bdc4c18f41fbede9bedf3"
+                },
+                {
+                  "url": "https://www.okx.com/convert/btc-to-usd",
+                  "label": "Local currency",
+                  "role": "group",
+                  "stableKey": "explorer:context:v1:eacd9c003731cfe64ee59bc82474f0a1391f8924f2f0f8d62d73243a073eaf7a"
+                }
+              ],
+              "evidence": {
+                "sessionId": "a25e888f-5c5d-49a9-9564-2a0019f32ff5",
+                "beforeId": "8464cb05-cf6a-4b94-be41-8424292f47b3",
+                "observationId": "a8545205-320a-4f89-8450-01e75e0a27e8"
+              }
+            }
+          ],
+          "reason": "observed_route_to_absent_unfinished_target",
+          "executionAuthorized": false
+        },
+        "at": "2026-10-16T07:59:33.731Z"
+      }
+    ],
+    "tradeExecutions": 0,
+    "searchCryptoExecutions": 0,
+    "noNewVerifiedOperationScopes": true
+  }
+}
