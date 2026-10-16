@@ -9,5 +9,6 @@ export * from './diff-details.js';
 export * from './exploration-audit.js';
 export * from './coverage-reconciliation.js';
 export * from './execution-readiness.js';
+export { BoundedEntityChanges } from './entity-changes.js';
 
 export { currentExplorationDecision } from './exploration-groups.js';

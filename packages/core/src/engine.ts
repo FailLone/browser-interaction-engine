@@ -5,7 +5,7 @@ import { assignState, matchIdentities, sameObservedState } from './identity.js';
 import { recoverStore } from './recovery.js';
 import { migrateSamplingSources, sampledFrontierKey } from './sampling-migration.js';
 import { DiffQueries } from './diff-details.js';
-import { RecordedNavigationGraph } from './navigation-path.js';
+import { NavigationIndex } from './navigation-index.js';
 import { describeFrontier, groupFrontier } from './frontier.js';
 import { ExplorationGroups, currentExplorationDecision, explorationGates, validateExplorationProposals } from './exploration-groups.js';
 import { explorationReviewMaterial } from './exploration-review.js';
@@ -30,6 +30,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   private runEpoch = 0;
   private closing = false;
   private readonly groups: ExplorationGroups;
+  private readonly navigationIndexes = new Map<string, NavigationIndex<O>>();
   constructor(options: EngineOptions<O, S>) {
     this.store = options.persistence; this.adapter = options.adapter; this.hooks = options.hooks || {};
     this.groups = new ExplorationGroups(this.store, (sid, type, data) => this.emit(sid, type, data));
@@ -1041,7 +1042,18 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (checks.some(c => c.result === 'unknown')) return { status: 'UNVERIFIED', checks };
     return { checks };
   }
-  private navigationKey(observation: O) { return canonical({ ruleVersion: observation.ruleVersion, canonical: observation.canonical }); }
+  private navigationKey(observation: O) { return hash({ ruleVersion: observation.ruleVersion, canonical: observation.canonical }); }
+  private navigationCondition(action: ActionCandidate, observation: O, value = action.value, strictKey?: string) {
+    const control = observation.controls.find(c => c.localId === action.localId);
+    const conditions = this.adapter.explorationTargetConditions?.(action, observation);
+    const binding = control && this.adapter.operationCorrespondenceHint?.(control, action.kind, observation);
+    // A score key cannot grant correspondence. Unknown operation conditions use
+    // the strict source, while known conditions exclude unrelated passive text.
+    return hash({ policy: 'recovery-route-cost-v1', ruleVersion: observation.ruleVersion,
+      context: observation.context, kind: action.kind, value, controlId: action.controlId,
+      binding: binding && { policy: binding.policy, key: binding.key },
+      conditions: conditions ? { policy: conditions.policy, key: conditions.key } : { strict: strictKey ?? this.navigationKey(observation) } });
+  }
   private navigationEndpoints(sessionId: string, from: string, to: string, endpoints?: { fromObservationId: string; toObservationId: string }) {
     const sourceState = this.owned<UIState>('state', from, sessionId), targetState = this.owned<UIState>('state', to, sessionId);
     const resolve = (state: UIState, observationId?: string) => {
@@ -1055,34 +1067,18 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     return source && target ? { source, target } : undefined;
   }
   private navigationGraph(sessionId: string) {
-    const graph = new RecordedNavigationGraph();
-    // Passive captures are not path edges. Decode only referenced observations,
-    // once per query, rather than scanning the full immutable observation log.
-    const observations = new Map<string, O | undefined>();
-    const keys = new Map<string, string>();
-    const readObservation = (observationId: string) => {
-      if (!observations.has(observationId)) observations.set(observationId, this.store.get<O>('observation', observationId));
-      const observation = observations.get(observationId);
-      return observation?.sessionId === sessionId ? observation : undefined;
-    };
-    const key = (observation: O) => {
-      let value = keys.get(observation.id);
-      if (value === undefined) { value = this.navigationKey(observation); keys.set(observation.id, value); }
-      return value;
-    };
-    const attempts = new Map(this.store.list<ActionAttempt>('attempt', sessionId).map(a => [a.id, a]));
-    for (const edge of this.store.list<Transition>('transition', sessionId)) {
-      const attempt = attempts.get(edge.attemptId);
-      if (!edge.replayable || attempt?.status !== 'succeeded' || !attempt.action.replayable) continue;
-      const before = readObservation(attempt.beforeId), after = attempt.afterId && readObservation(attempt.afterId);
-      if (!before || !after || before.gaps.some(g => g.critical) || after.gaps.some(g => g.critical)) continue;
-      graph.add(key(before), { to: key(after), attemptId: attempt.id });
-    }
-    return graph;
+    let index = this.navigationIndexes.get(sessionId);
+    if (!index) index = new NavigationIndex(this.store, sessionId, o => this.navigationKey(o), (a, o, strict) => this.navigationCondition(a, o, a.value, strict));
+    this.navigationIndexes.delete(sessionId); this.navigationIndexes.set(sessionId, index);
+    // At most four session indexes. They are disposable; durable source facts
+    // and segment measurements rebuild the same ranking after eviction/restart.
+    while (this.navigationIndexes.size > 4) this.navigationIndexes.delete(this.navigationIndexes.keys().next().value!);
+    if (!index.refresh()) throw new EngineError('NAVIGATION_FACTS_CHANGED', 'Navigation evidence changed concurrently; retry from a fresh observation');
+    return index;
   }
   navigationPath(sessionId: string, from: string, to: string, endpoints?: { fromObservationId: string; toObservationId: string }): string[] | null {
     const resolved = this.navigationEndpoints(sessionId, from, to, endpoints);
-    return resolved ? this.navigationGraph(sessionId).path(this.navigationKey(resolved.source), this.navigationKey(resolved.target)) : null;
+    return resolved ? this.navigationGraph(sessionId).graph.path(this.navigationKey(resolved.source), this.navigationKey(resolved.target)) : null;
   }
   private replayDispatchKey(current: O, action: ActionCandidate, value: ActionCandidate['value']) {
     const control = current.controls.find(c => c.localId === action.localId);
@@ -1115,9 +1111,24 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if(guard){const assessment=this.repetitionAssessment(sessionId,{observationId:current.id,actionId:target[0].id,source:guard.repetitionSource!});if(!assessment.repeatable)return fail(assessment.reason, true);}
       let result: ActionAttempt;
       dispatched?.add(dispatchKey);
+      const segmentStarted = Date.now();
       try { result = await this.runAction(sessionId, target[0].id, id(), old.action.value, 'recovery',guard); }
       catch (error) { return fail(error instanceof EngineError ? error.code : String(error)); }
       performed.push(result.id);
+      const after = result.afterId && this.observation(sessionId, result.afterId);
+      const expected = old.afterId && this.observation(sessionId, old.afterId);
+      const outcome: NonNullable<ActionAttempt['recoverySegment']>['outcome'] = result.status === 'unknown' || result.status === 'executing' ? 'unknown'
+        : result.status !== 'succeeded' || !after || !expected ? 'unverified'
+        : after.canonical === expected.canonical ? 'matched'
+        : after.canonical === current.canonical && current.canonical !== expected.canonical ? 'no_progress'
+        : targetReached ? 'unverified' : 'diverged';
+      // A divergent final target is not automatically blamed on its last edge.
+      // Only exact matching, known no-progress or strict-checkpoint divergence
+      // trains ranking. Passive differences in target mode remain unverified.
+      result.recoverySegment = { recordedAttemptId: old.id, conditionKey: this.navigationCondition(target[0], current, old.action.value),
+        durationMs: Math.max(0, Date.now() - segmentStarted), mode: targetReached ? 'target' : 'checkpoint', outcome };
+      this.store.put('attempt', result);
+      this.emit(sessionId, 'checkpoint.route_segment', { attemptId: result.id, ...result.recoverySegment });
       if (result.status !== 'succeeded' || !result.afterId || !old.afterId) return fail('replay_action_not_verified');
       if (targetReached) {
         if (await targetReached()) return {};
@@ -1239,13 +1250,14 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       strategies.push('recorded_path');
       const currentForPath = this.observation(sessionId);
       const endpoints = this.navigationEndpoints(sessionId, currentForPath.stateId, checkpoint.stateId, { fromObservationId: currentForPath.id, toObservationId: checkpoint.observationId });
-      // One graph snapshot per recovery, bounded alternate plans from actual
-      // observations. Each replay still reloads its evidence and revalidates
-      // dispatch. A failed edge is retained as history, not globally disabled.
-      const graph = endpoints && this.navigationGraph(sessionId), dispatched = new Set<string>();
+      // Reuse the incrementally maintained fact index for these bounded plans.
+      // Other read queries may refresh it between plans; each chosen path is
+      // only a hint, and ranking never caches dispatch permission.
+      const index = endpoints && this.navigationGraph(sessionId), graph = index?.graph, dispatched = new Set<string>();
       let recordedFailure: string | undefined;
       for (let plan = 0; graph && endpoints && plan < 4; plan++) {
         const current = this.observation(sessionId), actions = this.actions(sessionId);
+        const currentConditions = new Map<string, string>();
         let firstRejected: { attemptId: string; reason: string } | undefined;
         const path = graph.path(this.navigationKey(current), this.navigationKey(endpoints.target), edge => {
           const old = this.owned<ActionAttempt>('attempt', edge.attemptId, sessionId);
@@ -1260,8 +1272,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
             const assessment = this.repetitionAssessment(sessionId, { observationId: current.id, actionId: matches[0].id, source: { sessionId, attemptId: old.id } });
             if (!assessment.repeatable) return rejected(assessment.reason);
           }
+          currentConditions.set(old.id, this.navigationCondition(matches[0], current, old.action.value));
           return true;
-        });
+        }, edge => index!.cost(edge.attemptId, target ? 'target' : 'checkpoint', currentConditions.get(edge.attemptId)));
         if (!path?.length) {
           // Filtering unavailable first steps must not introduce entry/reset
           // fallback where the old recorded route would have stopped instead.
@@ -1273,6 +1286,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           break;
         }
         if (plan) strategies.push('recorded_path_alternative');
+        this.emit(sessionId, 'checkpoint.path_selected', { checkpointId, observationId: current.id, path, plan: plan + 1,
+          scoring: 'conditioned-segment-cost-v1', estimatedCostMs: path.reduce((total, aid) => total + index!.cost(aid, target ? 'target' : 'checkpoint', currentConditions.get(aid)), 0),
+          index: { ...index!.metrics, edges: graph.size } });
         const beforeAttemptCount = performed.length;
         const replay = await this.replay(sessionId, path, false, performed, targetReached, dispatched);
         // An unknown result is not made safe by finding another route or by
@@ -1651,5 +1667,5 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       }
     }
   }
-  async close() { this.closing = true; this.pauseRequested = true; await this.runner; await this.queue; await this.driver?.close(); await this.store.evidence.flush?.(); this.store.close(); }
+  async close() { this.closing = true; this.pauseRequested = true; await this.runner; await this.queue; await this.driver?.close(); await this.store.evidence.flush?.(); this.navigationIndexes.clear(); this.store.close(); }
 }

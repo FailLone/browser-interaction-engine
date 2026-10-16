@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import { mkdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { canonical, now, type Persistence, type EvidenceStore } from '@interaction/core';
+import { BoundedEntityChanges, canonical, now, type Persistence, type EvidenceStore } from '@interaction/core';
 import { FileEvidenceStore } from './evidence.js';
 import { decodeStoredEntity, encodeObservationJson, type StoredEntityRow } from './entity-codec.js';
 export { decodeStoredEntity, type StoredEntityRow, type ObservationManifest } from './entity-codec.js';
@@ -16,6 +16,12 @@ export interface SqliteCompactionResult {databaseBytesBefore:number;databaseByte
 export class SqliteStore implements Persistence {
   readonly evidence: EvidenceStore;
   readonly db: Database.Database;
+  private readonly changes = new BoundedEntityChanges();
+  private readonly changeStamp: Database.Statement;
+  private expectedChanges = 0;
+  private dataVersion = 0;
+  private schemaVersion = 0;
+  private queriedInTransaction = false;
   constructor(public directory: string) {
     mkdirSync(directory, { recursive: true });
     this.evidence = new FileEvidenceStore(join(directory, 'evidence'));
@@ -36,8 +42,29 @@ export class SqliteStore implements Persistence {
       if(!compressed){if(version==='2')throw new EngineError('SCHEMA_VERSION','Compressed entity column is missing');this.db.exec('ALTER TABLE entities ADD COLUMN compressed_json BLOB');}
       this.db.prepare("UPDATE metadata SET value='2' WHERE key='schemaVersion'").run();
     })(); }catch(error){this.db.close();throw error;}
+    this.changeStamp = this.db.prepare('SELECT total_changes() AS total, (SELECT data_version FROM pragma_data_version) AS dataVersion, (SELECT schema_version FROM pragma_schema_version) AS schemaVersion');
+    const stamp = this.databaseChangeStamp();
+    this.expectedChanges = stamp.total; this.dataVersion = stamp.dataVersion; this.schemaVersion = stamp.schemaVersion;
   }
-  transaction<T>(fn: () => T): T { return this.db.transaction(fn)(); }
+  private databaseChangeStamp() { return this.changeStamp.get() as { total: number; dataVersion: number; schemaVersion: number }; }
+  transaction<T>(fn: () => T): T {
+    try { return this.db.transaction(fn)(); }
+    catch (error) { this.changes.invalidate(); throw error; }
+  }
+  entityChanges(kind: string, sessionId: string, sinceToken?: string) {
+    const stamp = this.databaseChangeStamp();
+    // Known writes increment the expected count, never replace it. Untracked
+    // writes (including triggers, raw deletes and other connections) cannot be
+    // hidden by a subsequent normal put. No extra query is needed per write.
+    if (stamp.total !== this.expectedChanges || stamp.dataVersion !== this.dataVersion || stamp.schemaVersion !== this.schemaVersion
+      || this.queriedInTransaction || this.db.inTransaction) this.changes.invalidate();
+    this.expectedChanges = stamp.total; this.dataVersion = stamp.dataVersion; this.schemaVersion = stamp.schemaVersion;
+    // A caller using a raw SQLite transaction can roll back without our wrapper.
+    // Facts read inside it must not remain cached after either commit or rollback.
+    this.queriedInTransaction = this.db.inTransaction;
+    const result = this.changes.changes(kind, sessionId, sinceToken);
+    return this.db.inTransaction ? { ...result, cacheable: false as const } : result;
+  }
   put<T extends { id: string; sessionId?: string }>(kind: string, value: T) {
     const sessionId = value.sessionId ?? value.id;
     const owner = this.db.prepare('SELECT kind,session_id FROM entities WHERE id=?').get(value.id) as { kind: string; session_id: string } | undefined;
@@ -48,7 +75,9 @@ export class SqliteStore implements Persistence {
     // Keep ownership guarded at the write too if another connection claimed the
     // ID after the lookup. An ID conflict must not overwrite unrelated evidence.
     const written = this.db.prepare('INSERT INTO entities(kind,id,session_id,json,compressed_json) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET json=excluded.json,compressed_json=excluded.compressed_json WHERE entities.kind=excluded.kind AND entities.session_id=excluded.session_id').run(kind,value.id,sessionId,row.json,row.compressed_json);
+    this.expectedChanges += written.changes;
     if (!written.changes) throw new EngineError('ID_CONFLICT', 'ID already belongs to another entity kind or session');
+    this.changes.record(kind, sessionId, value.id);
   }
   get<T>(kind: string, id: string): T | undefined { const row=this.db.prepare('SELECT kind,json,compressed_json FROM entities WHERE kind=? AND id=?').get(kind,id) as StoredEntityRow|undefined;return row?decodeStoredEntity<T>(row):undefined; }
   require<T>(kind: string, id: string): T { const value = this.get<T>(kind, id); if (!value) throw new EngineError('NOT_FOUND', `${kind} ${id} not found`); return value; }
@@ -94,12 +123,13 @@ export class SqliteStore implements Persistence {
   event(sessionId: string, type: string, data: unknown): EngineEvent {
     const at = now();
     const result = this.db.prepare('INSERT INTO events(session_id,type,at,json) VALUES(?,?,?,?)').run(sessionId, type, at, JSON.stringify(data));
+    this.expectedChanges += result.changes;
     return { sequence: Number(result.lastInsertRowid), sessionId, type, at, data };
   }
   events(sessionId: string, after = 0, limit = 1000): EngineEvent[] {
     return (this.db.prepare('SELECT * FROM events WHERE session_id=? AND sequence>? ORDER BY sequence LIMIT ?').all(sessionId, after, limit) as any[]).map(r => ({ sequence: r.sequence, sessionId: r.session_id, type: r.type, at: r.at, data: JSON.parse(r.json) }));
   }
   request(sessionId: string, requestId: string) { return this.db.prepare('SELECT attempt_id AS attemptId,payload FROM requests WHERE session_id=? AND request_id=?').get(sessionId, requestId) as { attemptId: string; payload: string } | undefined; }
-  recordRequest(sessionId: string, requestId: string, attemptId: string, payload: string) { this.db.prepare('INSERT INTO requests VALUES(?,?,?,?)').run(sessionId, requestId, attemptId, payload); }
+  recordRequest(sessionId: string, requestId: string, attemptId: string, payload: string) { const result = this.db.prepare('INSERT INTO requests VALUES(?,?,?,?)').run(sessionId, requestId, attemptId, payload); this.expectedChanges += result.changes; }
   close() { this.db.close(); }
 }

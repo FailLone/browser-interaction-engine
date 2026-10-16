@@ -19,6 +19,18 @@ export interface EvidenceStore {
   unpin?(owner: string): Promise<void>;
   flush?(): Promise<void>;
 }
+/** A bounded hint for invalidating cached facts; not a database snapshot. */
+export interface EntityChanges {
+  /** Opaque, scoped cursor; valid only for the originating store instance. */
+  token: string;
+  /** Reload the complete kind/session listing, including removals. */
+  reset: boolean;
+  /** IDs to reread, never entity values or proof that an action remains allowed. */
+  ids: string[];
+  /** A transaction-local read may be used after a full scan, but no cursor or
+   * facts may be reused by the next query. Absent means normal cursor checks. */
+  cacheable?: false;
+}
 /** Synchronous atomic record transactions; asynchronous binary evidence is separate. */
 export interface Persistence {
   readonly evidence: EvidenceStore;
@@ -27,6 +39,11 @@ export interface Persistence {
   get<T>(kind: string, id: string): T | undefined;
   require<T>(kind: string, id: string): T;
   list<T>(kind: string, sessionId?: string): T[];
+  /** Optional bounded change hints for cached navigation facts. Missing support,
+   * reset, or an unknown cursor requires a full list. Read the cursor before
+   * reading records and check it again afterwards; a concurrent change requires
+   * retrying. The feed is not an atomic snapshot or execution authorization. */
+  entityChanges?(kind: string, sessionId: string, sinceToken?: string): EntityChanges;
   event(sessionId: string, type: string, data: unknown): EngineEvent;
   events(sessionId: string, after?: number, limit?: number): EngineEvent[];
   request(sessionId: string, requestId: string): { attemptId: string; payload: string } | undefined;

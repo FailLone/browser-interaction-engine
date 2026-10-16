@@ -87,6 +87,12 @@ export interface ActionAttempt {
   /** UI operation observed; external/business effects are not certified. */
   effectsAssessment?: 'not-assessed';
   purpose: 'exploration' | 'external' | 'recovery'; reason?: string; diff?: Diff; transitionId?: ID;
+  /** Route-ranking evidence only. Neither action success nor target/checkpoint arrival proof. */
+  recoverySegment?: {
+    recordedAttemptId: ID; conditionKey: string; durationMs: number;
+    mode: 'target' | 'checkpoint';
+    outcome: 'matched' | 'no_progress' | 'diverged' | 'unknown' | 'unverified';
+  };
 }
 export interface Transition { id: ID; sessionId: ID; from: ID; to: ID; attemptId: ID; replayable: boolean }
 export interface Visit { id: ID; sessionId: ID; stateId: ID; observationId: ID; parentId?: ID; viaAttemptId?: ID; depth: number; at: string; explorationScope?: string; explorationDepth?: number }
