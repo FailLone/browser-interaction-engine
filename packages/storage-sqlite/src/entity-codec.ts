@@ -13,11 +13,16 @@ export interface ObservationManifest extends ObservationMetadata {
 export interface SharedObservationManifest extends ObservationMetadata {
   $interactionStorage:{format:'observation';version:2;codec:'structural';bytes:number;sha256:string;sessionId:string;layoutBytes:number;layoutSha256:string};
 }
+export interface StateManifest {
+  $interactionStorage:{format:'state';version:1;codec:'gzip';bytes:number;sha256:string};
+  id:string;sessionId:string;
+}
 export type ObservationObjectResolver = (ids: readonly number[], sessionId: string) => ReadonlyMap<number, Uint8Array>;
 const metadataKeys=['id','sessionId','capturedAt','url','stateId','documentId','instanceScope'] as const;
 export const entityDigest=(data:Uint8Array)=>createHash('sha256').update(data).digest('hex');
 export const corruptEntity=()=>new EngineError('CORRUPT_ENTITY','Stored entity content or compression manifest is corrupt');
 const marker=(value:unknown)=>!!value&&typeof value==='object'&&(value as Partial<ObservationManifest>).$interactionStorage?.format==='observation';
+const stateMarker=(value:unknown)=>!!value&&typeof value==='object'&&(value as Partial<StateManifest>).$interactionStorage?.format==='state';
 const validDigest=(value:unknown)=>typeof value==='string'&&(/^[a-f0-9]{64}$/).test(value);
 const positive=(value:unknown):value is number=>Number.isSafeInteger(value)&&Number(value)>0;
 
@@ -38,16 +43,27 @@ export function sharedObservationLayout(row:StoredEntityRow):{manifest:SharedObs
   }catch(error){if(error instanceof EngineError&&error.code==='CORRUPT_ENTITY')throw error;throw corruptEntity();}
 }
 
-/** Plain JSON and v1 gzip remain self-contained. V2 structural observations
+/** Plain JSON, gzip observations and gzip states remain self-contained. State
+ * envelopes require SQL kind/id/session_id to validate their mutable row owner.
+ * V2 structural observations
  * require a resolver from the same database snapshot; absence fails explicitly.
  * SqliteStore.decodeStoredEntity supplies that resolver for raw SQL consumers.
  */
 export function decodeStoredEntity<T=unknown>(row:StoredEntityRow,resolve?:ObservationObjectResolver):T {
   try {
     const parsed=JSON.parse(row.json);
-    if(row.compressed_json==null){if((row.kind===undefined||row.kind==='observation')&&marker(parsed))throw corruptEntity();return parsed as T;}
+    if(row.compressed_json==null){if(((row.kind===undefined||row.kind==='observation')&&marker(parsed))||((row.kind===undefined||row.kind==='state')&&stateMarker(parsed)))throw corruptEntity();return parsed as T;}
+    if(stateMarker(parsed)) {
+      const manifest=parsed as StateManifest,h=manifest.$interactionStorage;
+      if(row.kind!=='state'||typeof row.id!=='string'||typeof row.session_id!=='string'||manifest.id!==row.id||manifest.sessionId!==row.session_id||h.version!==1||h.codec!=='gzip'||!positive(h.bytes)||!validDigest(h.sha256))throw corruptEntity();
+      const bytes=gunzipSync(row.compressed_json,{maxOutputLength:h.bytes});
+      if(bytes.length!==h.bytes||entityDigest(bytes)!==h.sha256)throw corruptEntity();
+      const value=JSON.parse(bytes.toString('utf8'));
+      if(value?.id!==row.id||(value?.sessionId??value?.id)!==row.session_id)throw corruptEntity();
+      return value as T;
+    }
     const manifest=parsed as ObservationManifest|SharedObservationManifest,h=manifest?.$interactionStorage;
-    if(!h||h.format!=='observation'||!positive(h.bytes)||!validDigest(h.sha256)||typeof manifest.id!=='string')throw corruptEntity();
+    if(!h||h.format!=='observation'||(row.kind!==undefined&&row.kind!=='observation')||!positive(h.bytes)||!validDigest(h.sha256)||typeof manifest.id!=='string')throw corruptEntity();
     let bytes:Buffer;
     if(h.version===1&&h.codec==='gzip') bytes=gunzipSync(row.compressed_json,{maxOutputLength:h.bytes});
     else if(h.version===2&&h.codec==='structural') {
@@ -67,6 +83,20 @@ export function decodeStoredEntity<T=unknown>(row:StoredEntityRow,resolve?:Obser
     if((row.id!==undefined&&row.id!==value?.id)||(row.session_id!==undefined&&row.session_id!==(value?.sessionId??value?.id)))throw corruptEntity();
     return value as T;
   }catch(error){if(error instanceof EngineError&&error.code==='CORRUPT_ENTITY')throw error;throw corruptEntity();}
+}
+
+/** Mutable state still occupies exactly one row; no shared objects or GC roots.
+ * Only large values with useful savings are compressed. Codec failures propagate.
+ */
+export function encodeStateJson(json:string,id:string,sessionId:string):StoredEntityRow {
+  const bytes=Buffer.from(json),value=JSON.parse(json),reserved=stateMarker(value);
+  if(value?.id!==id||(value?.sessionId??value?.id)!==sessionId)throw corruptEntity();
+  if(bytes.length<32*1024&&!reserved)return {json,compressed_json:null};
+  const compressed=gzipSync(bytes,{level:3});
+  const manifest:StateManifest={$interactionStorage:{format:'state',version:1,codec:'gzip',bytes:bytes.length,sha256:entityDigest(bytes)},id,sessionId};
+  const envelope=JSON.stringify(manifest);
+  if(Buffer.byteLength(envelope)+compressed.length>bytes.length*0.875&&!reserved)return {json,compressed_json:null};
+  return {json:envelope,compressed_json:compressed};
 }
 
 /** Encode one immutable observation. Small/incompressible rows stay plain JSON.

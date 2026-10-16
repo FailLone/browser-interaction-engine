@@ -31,7 +31,7 @@ it('upgrades only the schema on opening v1 and reads mixed legacy/compressed obs
  const directory=makeDirectory(),old=observation('old'),fresh=observation('fresh');legacy(directory,[old]);let store=new SqliteStore(directory);
  try{
   expect(raw(store,'old').compressed_json).toBeNull();expect(JSON.parse(raw(store,'old').json)).toEqual(old);
-  expect(store.db.prepare("SELECT value FROM metadata WHERE key='schemaVersion'").get()).toEqual({value:'3'});
+  expect(store.db.prepare("SELECT value FROM metadata WHERE key='schemaVersion'").get()).toEqual({value:'4'});
   store.put('observation',fresh);store.close();store=new SqliteStore(directory);
   expect(store.list('observation','s')).toEqual([old,fresh]);expect(store.list('observation','other')).toEqual([]);
  }finally{store.close();rmSync(directory,{recursive:true,force:true});}
