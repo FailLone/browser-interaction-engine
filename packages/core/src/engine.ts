@@ -5,6 +5,7 @@ import { assignState, matchIdentities, sameObservedState } from './identity.js';
 import { recoverStore } from './recovery.js';
 import { migrateSamplingSources, sampledFrontierKey } from './sampling-migration.js';
 import { DiffQueries } from './diff-details.js';
+import { RecordedNavigationGraph } from './navigation-path.js';
 import { describeFrontier, groupFrontier } from './frontier.js';
 import { ExplorationGroups, currentExplorationDecision, explorationGates, validateExplorationProposals } from './exploration-groups.js';
 import { explorationReviewMaterial } from './exploration-review.js';
@@ -1040,7 +1041,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (checks.some(c => c.result === 'unknown')) return { status: 'UNVERIFIED', checks };
     return { checks };
   }
-  navigationPath(sessionId: string, from: string, to: string, endpoints?: { fromObservationId: string; toObservationId: string }): string[] | null {
+  private navigationKey(observation: O) { return canonical({ ruleVersion: observation.ruleVersion, canonical: observation.canonical }); }
+  private navigationEndpoints(sessionId: string, from: string, to: string, endpoints?: { fromObservationId: string; toObservationId: string }) {
     const sourceState = this.owned<UIState>('state', from, sessionId), targetState = this.owned<UIState>('state', to, sessionId);
     const resolve = (state: UIState, observationId?: string) => {
       // A caller selecting a group with multiple members has not selected a
@@ -1050,16 +1052,23 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       return observation.stateId === state.id && !observation.gaps.some(g => g.critical) ? observation : undefined;
     };
     const source = resolve(sourceState, endpoints?.fromObservationId), target = resolve(targetState, endpoints?.toObservationId);
-    if (!source || !target) return null;
-    const key = (o: O) => canonical({ ruleVersion: o.ruleVersion, canonical: o.canonical });
-    const destination = key(target), edges = new Map<string, { to: string; attemptId: string }[]>();
+    return source && target ? { source, target } : undefined;
+  }
+  private navigationGraph(sessionId: string) {
+    const graph = new RecordedNavigationGraph();
     // Passive captures are not path edges. Decode only referenced observations,
     // once per query, rather than scanning the full immutable observation log.
     const observations = new Map<string, O | undefined>();
+    const keys = new Map<string, string>();
     const readObservation = (observationId: string) => {
       if (!observations.has(observationId)) observations.set(observationId, this.store.get<O>('observation', observationId));
       const observation = observations.get(observationId);
       return observation?.sessionId === sessionId ? observation : undefined;
+    };
+    const key = (observation: O) => {
+      let value = keys.get(observation.id);
+      if (value === undefined) { value = this.navigationKey(observation); keys.set(observation.id, value); }
+      return value;
     };
     const attempts = new Map(this.store.list<ActionAttempt>('attempt', sessionId).map(a => [a.id, a]));
     for (const edge of this.store.list<Transition>('transition', sessionId)) {
@@ -1067,40 +1076,58 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if (!edge.replayable || attempt?.status !== 'succeeded' || !attempt.action.replayable) continue;
       const before = readObservation(attempt.beforeId), after = attempt.afterId && readObservation(attempt.afterId);
       if (!before || !after || before.gaps.some(g => g.critical) || after.gaps.some(g => g.critical)) continue;
-      const sourceKey = key(before); edges.set(sourceKey, [...(edges.get(sourceKey) || []), { to: key(after), attemptId: attempt.id }]);
+      graph.add(key(before), { to: key(after), attemptId: attempt.id });
     }
-    const queue = [{ state: key(source), path: [] as string[] }], visited = new Set<string>();
-    while (queue.length) { const item = queue.shift()!; if (item.state === destination) return item.path; if (visited.has(item.state)) continue; visited.add(item.state); for (const edge of edges.get(item.state) || []) queue.push({ state: edge.to, path: [...item.path, edge.attemptId] }); }
-    return null;
+    return graph;
   }
-  private async replay(sessionId: string, attemptIds: string[], allowWrites: boolean, performed: string[], targetReached?: () => Promise<boolean>) {
+  navigationPath(sessionId: string, from: string, to: string, endpoints?: { fromObservationId: string; toObservationId: string }): string[] | null {
+    const resolved = this.navigationEndpoints(sessionId, from, to, endpoints);
+    return resolved ? this.navigationGraph(sessionId).path(this.navigationKey(resolved.source), this.navigationKey(resolved.target)) : null;
+  }
+  private replayDispatchKey(current: O, action: ActionCandidate, value: ActionCandidate['value']) {
+    const control = current.controls.find(c => c.localId === action.localId);
+    const conditions = this.adapter.explorationTargetConditions?.(action, current);
+    // Suppression is local to this recovery call and this exact source/instance.
+    // It is not an operation-equivalence judgment or a persistent A/B blacklist.
+    return canonical({ from: this.navigationKey(current), instanceScope: current.instanceScope,
+      target: control?.instanceId || action.localId || action.controlId, kind: action.kind, value,
+      conditions: conditions && { policy: conditions.policy, key: conditions.key } });
+  }
+  private async replay(sessionId: string, attemptIds: string[], allowWrites: boolean, performed: string[], targetReached?: () => Promise<boolean>, dispatched?: Set<string>): Promise<{ failure?: string; failedAttemptId?: string; canReplan?: boolean }> {
+    let lastAttemptId: string | undefined;
     for (const attemptId of attemptIds) {
-      if (targetReached && this.unverifiedRecoveryAttempts(sessionId).length) return 'unknown_execution_outcome';
+      lastAttemptId = attemptId;
+      const fail = (failure: string, canReplan = false) => ({ failure, failedAttemptId: attemptId, canReplan });
+      if (targetReached && this.unverifiedRecoveryAttempts(sessionId).length) return fail('unknown_execution_outcome');
       const old = this.owned<ActionAttempt>('attempt', attemptId, sessionId); const current = this.observation(sessionId);
-      if (old.status !== 'succeeded') return 'recorded_action_not_verified';
-      if (!old.action.replayable && !allowWrites) return 'path_contains_nonreplayable_action';
-      if (contextKey(current.context) !== contextKey(old.action.preconditions.context)) return 'preconditions_changed';
+      if (old.status !== 'succeeded') return fail('recorded_action_not_verified');
+      if (!old.action.replayable && !allowWrites) return fail('path_contains_nonreplayable_action');
+      if (contextKey(current.context) !== contextKey(old.action.preconditions.context)) return fail('preconditions_changed');
       const target = this.actions(sessionId).filter(a => this.adapter.replayMatches(a, old.action));
-      if (target.length !== 1) return 'replay_target_not_unique_or_missing';
+      if (target.length !== 1) return fail('replay_target_not_unique_or_missing', true);
+      if (!target[0].replayable && !allowWrites) return fail('current_action_not_replayable', true);
+      const dispatchKey = this.replayDispatchKey(current, target[0], old.action.value);
+      if (dispatched?.has(dispatchKey)) return fail('replay_operation_already_tried', true);
       // Target-directed traversal has a source-condition contract in addition
       // to the legacy checkpoint replay checks. Revalidate it atomically at
       // dispatch; a newly matching UI target never grants repetition permission.
       const guard:ExecutionGuard|undefined=targetReached?{profile:this.session(sessionId).options.executionPolicy==='observed-ui'?'observed-ui-exploration':'interface-exploration',observationId:current.id,repetitionSource:{sessionId,attemptId:old.id}}:undefined;
-      if(guard){const assessment=this.repetitionAssessment(sessionId,{observationId:current.id,actionId:target[0].id,source:guard.repetitionSource!});if(!assessment.repeatable)return assessment.reason;}
+      if(guard){const assessment=this.repetitionAssessment(sessionId,{observationId:current.id,actionId:target[0].id,source:guard.repetitionSource!});if(!assessment.repeatable)return fail(assessment.reason, true);}
       let result: ActionAttempt;
+      dispatched?.add(dispatchKey);
       try { result = await this.runAction(sessionId, target[0].id, id(), old.action.value, 'recovery',guard); }
-      catch (error) { return error instanceof EngineError ? error.code : String(error); }
+      catch (error) { return fail(error instanceof EngineError ? error.code : String(error)); }
       performed.push(result.id);
-      if (result.status !== 'succeeded' || !result.afterId || !old.afterId) return 'replay_action_not_verified';
+      if (result.status !== 'succeeded' || !result.afterId || !old.afterId) return fail('replay_action_not_verified');
       if (targetReached) {
-        if (await targetReached()) return undefined;
+        if (await targetReached()) return {};
         // The next iteration must prove its own source conditions, readiness
         // and replay permission against the actual observation, including at
         // dispatch. Passive changes elsewhere do not certify or invalidate that
         // next operation. Only the final target check certifies arrival.
-      } else if (this.observation(sessionId, result.afterId).canonical !== this.observation(sessionId, old.afterId).canonical) return 'replay_state_diverged';
+      } else if (this.observation(sessionId, result.afterId).canonical !== this.observation(sessionId, old.afterId).canonical) return fail('replay_state_diverged', true);
     }
-    return targetReached ? 'target_not_reached' : undefined;
+    return targetReached ? { failure: 'target_not_reached', failedAttemptId: lastAttemptId, canReplan: true } : {};
   }
   protected observationReturn(sessionId: string, target: O) {
     const session = this.session(sessionId), current = this.observation(sessionId);
@@ -1211,13 +1238,64 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       }
       strategies.push('recorded_path');
       const currentForPath = this.observation(sessionId);
-      const path = this.navigationPath(sessionId, currentForPath.stateId, checkpoint.stateId, { fromObservationId: currentForPath.id, toObservationId: checkpoint.observationId });
-      if (path?.length) {
-        const failure = await this.replay(sessionId, path, false, performed, targetReached);
+      const endpoints = this.navigationEndpoints(sessionId, currentForPath.stateId, checkpoint.stateId, { fromObservationId: currentForPath.id, toObservationId: checkpoint.observationId });
+      // One graph snapshot per recovery, bounded alternate plans from actual
+      // observations. Each replay still reloads its evidence and revalidates
+      // dispatch. A failed edge is retained as history, not globally disabled.
+      const graph = endpoints && this.navigationGraph(sessionId), dispatched = new Set<string>();
+      let recordedFailure: string | undefined;
+      for (let plan = 0; graph && endpoints && plan < 4; plan++) {
+        const current = this.observation(sessionId), actions = this.actions(sessionId);
+        let firstRejected: { attemptId: string; reason: string } | undefined;
+        const path = graph.path(this.navigationKey(current), this.navigationKey(endpoints.target), edge => {
+          const old = this.owned<ActionAttempt>('attempt', edge.attemptId, sessionId);
+          const matches = actions.filter(action => this.adapter.replayMatches(action, old.action));
+          const rejected = (reason: string) => { firstRejected ??= { attemptId: old.id, reason }; return false; };
+          if (old.status !== 'succeeded' || !old.action.replayable) return rejected('recorded_action_not_replayable');
+          if (contextKey(current.context) !== contextKey(old.action.preconditions.context)) return rejected('preconditions_changed');
+          if (matches.length !== 1) return rejected('replay_target_not_unique_or_missing');
+          if (!matches[0].replayable) return rejected('current_action_not_replayable');
+          if (dispatched.has(this.replayDispatchKey(current, matches[0], old.action.value))) return rejected('replay_operation_already_tried');
+          if (target) {
+            const assessment = this.repetitionAssessment(sessionId, { observationId: current.id, actionId: matches[0].id, source: { sessionId, attemptId: old.id } });
+            if (!assessment.repeatable) return rejected(assessment.reason);
+          }
+          return true;
+        });
+        if (!path?.length) {
+          // Filtering unavailable first steps must not introduce entry/reset
+          // fallback where the old recorded route would have stopped instead.
+          const unfiltered = firstRejected && graph.path(this.navigationKey(current), this.navigationKey(endpoints.target));
+          if (unfiltered?.length) {
+            recordedFailure ??= firstRejected!.reason;
+            this.emit(sessionId, 'checkpoint.path_unavailable', { checkpointId, observationId: current.id, ...firstRejected, plan: plan + 1 });
+          }
+          break;
+        }
+        if (plan) strategies.push('recorded_path_alternative');
+        const beforeAttemptCount = performed.length;
+        const replay = await this.replay(sessionId, path, false, performed, targetReached, dispatched);
+        // An unknown result is not made safe by finding another route or by
+        // observing the requested destination after that uncertain execution.
+        if (this.unverifiedRecoveryAttempts(sessionId).length) {
+          status = 'UNVERIFIED'; reason = 'Unknown execution outcome requires explicit recovery verification';
+          checks = [{ name: 'unresolved-execution-outcomes', result: 'unknown' }]; return finish();
+        }
         verification = await verify(); checks = verification.checks;
-        if (verification.status) { status = verification.status; reason = failure || `Recorded path verification: ${status}`; return finish(); }
-        if (failure) { reason = failure; return finish(); }
+        if (verification.status) { status = verification.status; reason = replay.failure || `Recorded path verification: ${status}`; return finish(); }
+        if (!replay.failure) break;
+        recordedFailure = replay.failure;
+        this.emit(sessionId, 'checkpoint.path_failed', { checkpointId, path, failedAttemptId: replay.failedAttemptId,
+          reason: replay.failure, observationId: this.observation(sessionId).id, attemptIds: performed.slice(beforeAttemptCount),
+          canReplan: !!replay.canReplan, plan: plan + 1, planLimit: 4 });
+        if (!replay.canReplan || !replay.failedAttemptId) { reason = replay.failure; return finish(); }
+        // A final target miss need not be caused by the last historical edge.
+        // Replan from actual facts; only the actual dispatched source/instance/
+        // conditions are suppressed, never an edge at a different A/B source.
       }
+      // Preserve the existing no-reset-on-path-failure contract; alternatives
+      // may consume verified routes, but must not silently repeat entry replay.
+      if (recordedFailure) { reason = recordedFailure; return finish(); }
       strategies.push('declared_local_restore');
       const restored = new Set<string>();
       while (!this.session(sessionId).dirty && this.adapter.restorationStep) {
@@ -1271,7 +1349,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if (entryAttempt.status !== 'succeeded') { status = 'UNVERIFIED'; reason = 'Entry reopening could not be verified'; return finish(); }
       }
       if(targetReached&&await targetReached()){status='TARGET_REACHED';reason='Target verified after entry restoration';return finish();}
-      const failure = await this.replay(sessionId, checkpoint.path, resetConfirmed, performed, targetReached);
+      const { failure } = await this.replay(sessionId, checkpoint.path, resetConfirmed, performed, targetReached);
       verification = await verify(); checks = verification.checks;
       status = verification.status || (failure === 'preconditions_changed' ? 'PRECONDITIONS_CHANGED' : 'UNREACHABLE'); reason = failure || `Entry replay verification: ${status}`;
     } catch (error) { reason = String(error); status = error instanceof EngineError && error.code === 'BUDGET_EXHAUSTED' ? 'UNREACHABLE' : 'UNVERIFIED'; }
