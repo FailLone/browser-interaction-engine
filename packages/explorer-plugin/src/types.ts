@@ -23,6 +23,10 @@ export interface PlanItem {
   dispatchScope?: boolean;
   attempts: { roundId: string; outcome: string; evidence?: EvidenceRef }[];
 }
+export interface EntryRoute {
+  entry:Scope; targets:Scope[]; context:string;
+  evidence:EvidenceRef & {beforeId:string};
+}
 export interface Frame { checkpointId: string; observationId: string; stateId: string; used: string[]; remaining: Scope[]; path: Scope[]; recoveryTried?: boolean }
 export interface Round {
   id: string; number: number; sessionId: string; startedAt: string; endedAt?: string;
@@ -37,6 +41,9 @@ export interface Round {
   boundaryVisit?: {key:string;instanceScope:string;observationId:string;scopeId?:string};
   /** Bound repeated entry despite changing uncompleted labels; saved across restart. */
   reentryProgress?: Record<string,{attempts:number;completedScopes:string[];notified?:boolean}>;
+  /** Verified revealed targets; historical tasks may lack route proof. */
+  entryRoutes?: EntryRoute[];
+  routeDeferrals?: string[];
   policyVersion?: string;
 }
 export interface Task {

@@ -5,7 +5,7 @@ import {explorerFixture,fakeProviders} from './explorer-plugin-helpers.js';
 
 function lineage() {
  const a={localId:'entry',instanceId:'entry-instance',name:'Second',role:'button',tag:'button',visible:true,enabled:true,stableKey:'id:second'};
- const before={id:'before',sessionId:'s',url:'https://fixture.test/',instanceScope:'document',controls:[a],regions:[],context:{},boundaries:[]};
+ const before={id:'before',sessionId:'s',url:'https://fixture.test/',instanceScope:'document',controls:[a],regions:[],context:{},boundaries:[],gaps:[]};
  const after={...structuredClone(before),id:'after',controls:[{...a,localId:'new-local'}]};
  const action={id:'a',localId:'new-local',label:'Second',kind:'click'} as any;
  const first={url:before.url,label:'First',kind:'click'},round={entryPath:[first],stack:[{observationId:'before',remaining:[],path:[]}]} as any;

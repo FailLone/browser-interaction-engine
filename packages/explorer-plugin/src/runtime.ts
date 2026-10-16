@@ -1,3 +1,4 @@
+import {capturedRoute,routeFinder,routeMatches} from './reentry-evidence.js';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import type { ActionCandidate, ActionAttempt, Observation, EngineEvent, BoundaryExitResult, ContinuationRecord, IdentityHypothesis } from '@interaction/browser';
@@ -466,12 +467,19 @@ export class ExplorerPlugin {
     // Same-label targets must be disambiguated by scope/role/stable key. Never choose an arbitrary occurrence.
     const counts=new Map<string,number>();for(const a of actions){const k=digest(scopeFor(a,o));counts.set(k,(counts.get(k)||0)+1);}
     const unique=eligible.filter(a=>{if(counts.get(digest(scopeFor(a,o)))===1)return true;this.gap(task,'ambiguous_scope_match',scopeFor(a,o));return false;});
-    const recordedScopes=new Set(task.plan.filter(i=>i.required).map(i=>digest(i.scope))),pathFor=this.pathResolver(round,o);
+    const recordedItems=new Map<string,PlanItem[]>();
+    for(const item of task.plan.filter(i=>i.required)){const key=digest(item.scope),items=recordedItems.get(key)||[];items.push(item);recordedItems.set(key,items);}
+    const recordedScopes=new Set(recordedItems.keys()),pathFor=this.pathResolver(round,o);
     for(const candidate of unique.filter(a=>includesScope(task.plan,a,o)==='target')) {
       const scope=scopeFor(candidate,o),key=digest(scope);
       // A coarse historical gap can match several distinct current controls. Keep
       // each exact operation's evidence so one success never suppresses its peers.
-      if(!recordedScopes.has(key)){task.plan.push(this.newItem({title:`${candidate.kind} ${candidate.label}`,scope,prerequisites:[...pathFor(scope,candidate.localId)],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false));recordedScopes.add(key);}
+      const path=pathFor(scope,candidate.localId);
+      if(!recordedScopes.has(key)){task.plan.push(this.newItem({title:`${candidate.kind} ${candidate.label}`,scope,prerequisites:[...path],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false));recordedScopes.add(key);}
+      else for(const item of (recordedItems.get(key)||[]).filter(i=>i.dispatchScope===false&&!['succeeded','excluded'].includes(i.status))){
+        if(digest(item.prerequisites)===digest(path))continue;
+        const previous=item.prerequisites;item.prerequisites=[...path];this.event(task,'branch.route_reconciled',{itemId:item.id,previous,prerequisites:path,evidence:{sessionId:o.sessionId,observationId:o.id},scopeUnchanged:true,executionAuthorized:false});
+      }
     }
     this.store.save(task);
     if(unique.length) {
@@ -483,7 +491,7 @@ export class ExplorerPlugin {
       const selectable=deferReentry?unique.filter(a=>fresh.has(a.id)):unique;
       if(deferred.length)this.event(task,'action.priority',{reason:'fresh_work_before_reentry',sourceObservationId:o.id,deferred:deferred.map(a=>({actionId:a.id,label:a.label,kind:a.kind})),retainedInPlan:true,executionAuthorized:false});
       const batch=selectable.slice().sort((a,b)=>Number(a.boundary?.intent==='exit')-Number(b.boundary?.intent==='exit')||Number(!!navigationTarget(a,o))-Number(!!navigationTarget(b,o))).slice(0,200); // Later loop iterations consume remaining cases; never mark omitted cases done.
-      const options:Record<string,unknown>=Object.fromEntries(batch.map(a=>{const scope=scopeFor(a,o),context=scope.stableKey?.startsWith('explorer:context:v1:')?o.controls.find(c=>c.localId===a.localId)?.identityContext:undefined;return [a.id,{label:a.label,kind:a.kind,value:a.value,scope:decisionScope(scope),context,purpose:fresh.has(a.id)?includesScope(task.plan,a,o):'prerequisite',reentry:!fresh.has(a.id),navigationTarget:navigationTarget(a,o),boundaryIntent:a.boundary?.intent}];}));options.uncertain='No evidenced next action';
+      const options:Record<string,unknown>=Object.fromEntries(batch.map(a=>{const scope=scopeFor(a,o),context=scope.stableKey?.startsWith('explorer:context:v1:')?o.controls.find(c=>c.localId===a.localId)?.identityContext:undefined;return [a.id,{label:a.label,kind:a.kind,value:a.value,scope:decisionScope(scope),context,purpose:fresh.has(a.id)?includesScope(task.plan,a,o):'prerequisite',reentry:!fresh.has(a.id),...(!fresh.has(a.id)?{reentryTarget:this.reentryTarget(task,a,o,this.entryTargets(task,a,o))?.item.scope}:{}),navigationTarget:navigationTarget(a,o),boundaryIntent:a.boundary?.intent}];}));options.uncertain='No evidenced next action';
       const selected=await this.choose(task,signal,o,'next-action','Choose the next useful in-scope action. Prefer unexplored controls and internal work before exits, and in-place operations before document navigation. A reentry repeats a previously tried or verified operation only to reach unfinished children; it is not new coverage. Navigation destinations are captured evidence, not permission to explore beyond the task. Select uncertain if none can advance the goal.',{goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',plan:decisionPlan(task.plan),remainingCandidates:unique.length,deferredReentries:deferred.length,batchSize:batch.length},options);
       if(selected.value==='uncertain'){this.router.mark(selected.decision,'rejected','no_action_selected');this.gap(task,'action_selection_unresolved',{url:o.url});return false;}
       const action=batch.find(a=>a.id===selected.value)!;this.assert(task,signal,o.id,selected.decision.revision);
@@ -552,9 +560,17 @@ export class ExplorerPlugin {
       const {frame,source,remaining}=recovery;
       const describe=(snapshot:Observation)=>({observationId:snapshot.id,url:snapshot.url,context:snapshot.context,boundaries:snapshot.boundaries?.map(b=>({name:b.name,region:b.region})),visibleControls:snapshot.controls.filter(c=>c.visible).length,regions:snapshot.regions.slice(0,30).map(r=>({label:r.label,role:r.role})),totalRegions:snapshot.regions.length,criticalGaps:snapshot.gaps.filter(g=>g.critical).map(g=>g.code)});
       const unfinishedTargets=remaining.slice(0,50).map(scope=>{const current=actions.filter(a=>matches(scope,a,o));return {scope:decisionScope(scope),historicalEvidenceOnly:true,currentOccurrences:current.length,currentlyExecutable:current.some(a=>permitted(a,o,availability)),currentBlockers:[...new Set(current.flatMap(a=>a.preconditions.blockers?.map(b=>b.code)||[]))]};});
-      const decision=await this.choose(task,signal,o,'recovery-selection','Judge whether attempting host-verified restoration to the supplied historical state would help reach still-required targets that are absent or unavailable now. Compare current and target observations, accepted scopes, and unfinished targets. Historical evidence is not current permission or execution success. The host must find and verify an allowed return path; this judgment cannot authorize business writes, invent a route, or waive an active boundary. Choose uncertain when usefulness cannot be established.',{checkpointId:frame.checkpointId,sourceObservationId:frame.observationId,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',plan:decisionPlan(task.plan),current:describe(o),target:describe(source),unfinishedTargets,totalUnfinishedTargets:remaining.length,omittedTargets:Math.max(0,remaining.length-unfinishedTargets.length),entryPrerequisites:frame.path.map(decisionScope),businessStateDirty:this.host.session(sid).dirty},{recover:'Attempt host-verified checkpoint recovery for the evidenced unfinished targets',uncertain:'Cannot justify recovery'});
-      frame.recoveryTried=true;if(decision.value==='uncertain'){this.router.mark(decision.decision,'rejected','recovery_not_justified');this.router.effect(decision.decision,'recovery-deferred',{checkpointId:frame.checkpointId,sourceObservationId:source.id,unfinishedTargets:remaining.length,executionAuthorized:false});this.gap(task,'recovery_unresolved',{url:o.url});return false;}
-      this.assert(task,signal,o.id);const result=await this.host.reachCheckpoint(sid,frame.checkpointId);this.router.mark(decision.decision,'applied');this.router.effect(decision.decision,'recovery',{checkpointId:frame.checkpointId,result});this.syncUsage(task);this.event(task,'recovery.result',result);
+      const accepted=task.plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='excluded');
+      const returnToAcceptedPage=o.url!==source.url&&remaining.some(scope=>scope.url===source.url)
+        &&accepted.some(i=>i.scope.url===source.url)&&!accepted.some(i=>!i.scope.url||i.scope.url===o.url)
+        &&!this.host.recoveryAssessment(sid).unknownAttempts.length;
+      const decision=returnToAcceptedPage?undefined:await this.choose(task,signal,o,'recovery-selection','Judge whether attempting host-verified restoration to the supplied historical state would help reach still-required targets that are absent or unavailable now. Compare current and target observations, accepted scopes, and unfinished targets. Historical evidence is not current permission or execution success. The host must find and verify an allowed return path; this judgment cannot authorize business writes, invent a route, or waive an active boundary. Choose uncertain when usefulness cannot be established.',{checkpointId:frame.checkpointId,sourceObservationId:frame.observationId,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',plan:decisionPlan(task.plan),current:describe(o),target:describe(source),unfinishedTargets,totalUnfinishedTargets:remaining.length,omittedTargets:Math.max(0,remaining.length-unfinishedTargets.length),entryPrerequisites:frame.path.map(decisionScope),businessStateDirty:this.host.session(sid).dirty},{recover:'Attempt host-verified checkpoint recovery for the evidenced unfinished targets',uncertain:'Cannot justify recovery'});
+      frame.recoveryTried=true;if(decision?.value==='uncertain'){this.router.mark(decision.decision,'rejected','recovery_not_justified');this.router.effect(decision.decision,'recovery-deferred',{checkpointId:frame.checkpointId,sourceObservationId:source.id,unfinishedTargets:remaining.length,executionAuthorized:false});this.gap(task,'recovery_unresolved',{url:o.url});return false;}
+      this.assert(task,signal,o.id);
+      if(returnToAcceptedPage)this.event(task,'recovery.selected',{reason:'return_to_accepted_page',checkpointId:frame.checkpointId,sourceObservationId:source.id,currentObservationId:o.id,unfinishedTargets:remaining.length,hostVerificationRequired:true});
+      const result=await this.host.reachCheckpoint(sid,frame.checkpointId);
+      if(decision){this.router.mark(decision.decision,'applied');this.router.effect(decision.decision,'recovery',{checkpointId:frame.checkpointId,result});}
+      this.syncUsage(task);this.event(task,'recovery.result',result);
       if(result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'){round.stack=round.stack.slice(0,round.stack.indexOf(frame));round.entryPath=[...frame.path];return true;}
       if(frame.path.length){for(const item of task.plan.filter(i=>i.required&&i.status!=='succeeded'&&frame.remaining.some(scope=>digest(scope)===digest(i.scope))))item.prerequisites=[...frame.path];this.event(task,'recovery.reentry_required',{prerequisites:frame.path,remaining:frame.remaining});return true;}
       this.gap(task,'checkpoint_unverified',{url:o.url});
@@ -567,6 +583,8 @@ export class ExplorerPlugin {
     this.trackBoundary(round,after);
     const transition=this.host.interactionTransition(after.sessionId,before.id,after.id);
     if(!transition.verified)return;
+    const route=(!transition.exited.length||transition.entered.length||transition.navigated)?capturedRoute(entry,before,after,transition.revealedControlIds):undefined;
+    if(route){const routes=round.entryRoutes??=[];if(!routes.some(old=>digest({entry:old.entry,targets:old.targets,context:old.context})===digest({entry:route.entry,targets:route.targets,context:route.context})))routes.push(route);}
     // A newly revealed branch descends from the route to its own entry control,
     // not from every independent disclosure visited before it.
     if(transition.navigated||transition.entered.length)round.entryPath=[...entryPath,entry];
@@ -597,17 +615,31 @@ export class ExplorerPlugin {
   }
   private entryTargets(task:Task,a:ActionCandidate,o:Observation) {return this.entryObligations(task,a,o).filter(i=>i.status!=='succeeded');}
   private entryProgress(task:Task,r:Round,a:ActionCandidate,o:Observation) {
-    const key=digest(scopeFor(a,o)),previous=r.reentryProgress?.[key];
+    const key=digest({entry:scopeFor(a,o),context:o.context}),legacyKey=digest(scopeFor(a,o));
+    const previous=r.reentryProgress?.[key]||r.reentryProgress?.[legacyKey]||[...task.rounds].reverse().map(round=>round.reentryProgress?.[key]).find(Boolean);
     // New names, longer paths, observation IDs or duplicate ledger rows are not
     // child completion. A repeated parent cannot renew its own retry allowance.
-    const completed=this.entryObligations(task,a,o).filter(i=>i.status==='succeeded'&&(i.resolvedBy?.attemptId||i.reviewResolvedBy)&&!matches(i.scope,a,o)).map(i=>digest(i.scope));
+    const routeFor=routeFinder(task,scopeFor(a,o),o);
+    const completed=this.entryObligations(task,a,o).filter(i=>i.status==='succeeded'&&(i.resolvedBy?.attemptId||i.reviewResolvedBy)&&!matches(i.scope,a,o)&&!!routeFor(i.scope)).map(i=>digest(i.scope));
     const progressed=completed.some(scope=>!previous?.completedScopes.includes(scope));
     return {key,attempts:progressed?0:previous?.attempts||0,completedScopes:[...new Set([...(previous?.completedScopes||[]),...completed])],previous};
   }
   private recordEntry(task:Task,r:Round,a:ActionCandidate,o:Observation) {
+    const target=this.reentryTarget(task,a,o,this.entryTargets(task,a,o));
+    if(!target)throw new ExplorerError('REENTRY_EVIDENCE_CHANGED');
     const progress=this.entryProgress(task,r,a,o);
     (r.reentryProgress??={})[progress.key]={attempts:progress.attempts+1,completedScopes:progress.completedScopes};
     r.reentries.push(this.entryKey(task,a,o));
+    this.event(task,'branch.reentry_planned',{scope:scopeFor(a,o),itemId:target.item.id,target:target.item.scope,route:target.proof.map(r=>({entry:r.entry,targets:r.targets,evidence:r.evidence})),reason:'observed_route_to_absent_unfinished_target',executionAuthorized:false});
+  }
+  private reentryTarget(task:Task,a:ActionCandidate,o:Observation,targets:PlanItem[]) {
+    const visible=o.controls.filter(c=>c.visible).map(c=>scopeForControl(c,o)),routeFor=routeFinder(task,scopeFor(a,o),o);
+    for(const item of targets){
+      // Reopening cannot resolve risk/review or an input variant on an already
+      // visible control. Such obligations remain available to normal review.
+      if(visible.some(scope=>routeMatches(item.scope,scope)))continue;
+      const proof=routeFor(item.scope);if(proof)return {item,proof};
+    }
   }
   private entryKey(task:Task,a:ActionCandidate,o:Observation,targets=this.entryTargets(task,a,o)) {
     // Only a change to this branch's semantic obligations justifies another
@@ -651,15 +683,18 @@ export class ExplorerPlugin {
     if(!includesScope(task.plan,a,o))return false;
     const targets=this.entryTargets(task,a,o);if(!targets.length||r.reentries.includes(this.entryKey(task,a,o,targets)))return false;
     const progress=this.entryProgress(task,r,a,o);
-    if(progress.attempts>=3){
-      if(!progress.previous!.notified){progress.previous!.notified=true;this.store.save(task);this.event(task,'branch.reentry_deferred',{scope:scopeFor(a,o),reason:'no_new_child_completion',attempts:progress.attempts,limit:3,pendingTargets:targets.length,executionAuthorized:false});}
+    if(progress.attempts>=1){
+      if(!progress.previous!.notified){progress.previous!.notified=true;this.store.save(task);this.event(task,'branch.reentry_deferred',{scope:scopeFor(a,o),reason:'no_new_child_completion',attempts:progress.attempts,limit:1,pendingTargets:targets.length,executionAuthorized:false});}
       return false;
     }
     // Keep matching historical cache entries effective without clearing the
     // saved round or treating old row IDs as new branch identities.
     if(r.reentries.some(key=>key.startsWith('branch-v2:'))&&r.reentries.includes(`branch-v2:${digest({scope:scopeFor(a,o),pending:[...new Set(targets.map(i=>digest({scope:i.scope,prerequisites:i.prerequisites})))].sort()})}`))return false;
     if(r.reentries.some(key=>!key.startsWith('branch-'))&&r.reentries.includes(digest({scope:scopeFor(a,o),pending:task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status)).map(i=>i.id).sort()})))return false;
-    const actions=this.host.actions(o.sessionId);return targets.some(i=>!actions.some(candidate=>matches(i.scope,candidate,o)&&candidate.preconditions.visible&&!candidate.preconditions.blockers?.length));
+    const target=this.reentryTarget(task,a,o,targets);
+    if(target)return true;
+    const key=digest(scopeFor(a,o));if(!(r.routeDeferrals||[]).includes(key)){(r.routeDeferrals??=[]).push(key);this.event(task,'branch.route_unverified',{scope:scopeFor(a,o),reason:'no_absent_target_with_observed_route',itemIds:targets.map(i=>i.id),executionAuthorized:false});this.store.save(task);}
+    return false;
   }
   private operationMembersVerified(task:Task,items:PlanItem[],current:Observation) {
     const scope=items[0].scope,refs=new Map<string,{sessionId:string;observationId:string}>();
