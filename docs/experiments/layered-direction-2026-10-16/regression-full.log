@@ -1,0 +1,5 @@
+
+> browser-interaction-engine@0.1.0 test /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+> vitest run --reporter=json --outputFile=/tmp/layered-direction-full-results.json
+
+JSON report written to /tmp/layered-direction-full-results.json

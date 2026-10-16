@@ -1,0 +1,719 @@
+{
+  "revision": "de364fab170a9b92227bc4f982ca78fa6a0a4633",
+  "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "node": "v24.22.0",
+  "scriptSha256": "0d76fc5e369851f031228963aa6d4f79a368d577ea2e0e448a26167fd41e4774",
+  "method": "Public SDK guarded fill plus operationCorrespondences, explicit external DOM mutations; independent HTTP input-event oracle; not autonomous scheduler coverage",
+  "results": [
+    {
+      "scenario": "distinct-names",
+      "run": 1,
+      "fixtureSha256": "40ad1ecc3a58bd60bdf3e5afb11106e549d0e7d377029e515af860d8d7623d95",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "62fab997-f64d-499f-a67d-784f3dfe8efd",
+              "attemptId": "856057b5-b679-4b0f-8e9d-129d44f02d28",
+              "beforeId": "ca71a30a-c25f-47d6-80cd-59182d586986",
+              "afterId": "fde9ac3f-94a0-4c77-bdfa-f36504c37d82"
+            },
+            "target": {
+              "sessionId": "62fab997-f64d-499f-a67d-784f3dfe8efd",
+              "observationId": "31708e36-2911-470e-ba11-dc2687b88e5a",
+              "actionId": "5020893a-90e1-4ca4-93b3-795b9eae70ce"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "856057b5-b679-4b0f-8e9d-129d44f02d28",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "6a3c6b90-5046-4c91-9587-03a6d69c4597",
+          "status": "succeeded"
+        }
+      ],
+      "errors": [
+        "Error: Expected unique captured field in Owner B, got 0"
+      ]
+    },
+    {
+      "scenario": "distinct-names",
+      "run": 2,
+      "fixtureSha256": "40ad1ecc3a58bd60bdf3e5afb11106e549d0e7d377029e515af860d8d7623d95",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "4a21e7cc-1e2b-43ae-8790-35c804728e66",
+              "attemptId": "ed5b417d-b11f-4a06-950f-365583ac270d",
+              "beforeId": "e054e7f0-b9a1-4d24-841e-b07d8537c37f",
+              "afterId": "99e4b2e6-2b73-4f05-8877-27ffa625de24"
+            },
+            "target": {
+              "sessionId": "4a21e7cc-1e2b-43ae-8790-35c804728e66",
+              "observationId": "08535c91-bfa5-4446-9e50-1c1999ad5d71",
+              "actionId": "8ca7b0fe-9606-4e54-801c-376fa54cf459"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "ed5b417d-b11f-4a06-950f-365583ac270d",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "5ef6d8f2-32ac-447f-8b96-4b395a9e2acc",
+          "status": "succeeded"
+        }
+      ],
+      "errors": [
+        "Error: Expected unique captured field in Owner B, got 0"
+      ]
+    },
+    {
+      "scenario": "distinct-names",
+      "run": 3,
+      "fixtureSha256": "40ad1ecc3a58bd60bdf3e5afb11106e549d0e7d377029e515af860d8d7623d95",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "ed0c3dfb-8d79-496a-b2bb-aca4a687b31a",
+              "attemptId": "1340fbd9-0717-4c7c-ac83-8e9dcc0be786",
+              "beforeId": "990b1ca8-3fd7-4ec9-bec1-0f22d0eb0045",
+              "afterId": "6ef83b36-08d1-4ec4-ba88-a250f8fbe526"
+            },
+            "target": {
+              "sessionId": "ed0c3dfb-8d79-496a-b2bb-aca4a687b31a",
+              "observationId": "549b7d11-41bf-4a67-9a9c-761fba97d790",
+              "actionId": "f0066959-3679-4f70-a467-8a5fe4da4a25"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "1340fbd9-0717-4c7c-ac83-8e9dcc0be786",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "0fe20826-7856-48b8-9627-7df703b073bb",
+          "status": "succeeded"
+        }
+      ],
+      "errors": [
+        "Error: Expected unique captured field in Owner B, got 0"
+      ]
+    },
+    {
+      "scenario": "distinct-names",
+      "run": 4,
+      "fixtureSha256": "40ad1ecc3a58bd60bdf3e5afb11106e549d0e7d377029e515af860d8d7623d95",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "343659ec-f519-455f-b463-cde8f1c95521",
+              "attemptId": "613dc989-7f59-496c-9675-1e3ec2657cc0",
+              "beforeId": "33af7c9c-0801-4091-a345-71809e6a34e3",
+              "afterId": "7c0582ff-ac4f-43b8-8fdb-daae87742b4c"
+            },
+            "target": {
+              "sessionId": "343659ec-f519-455f-b463-cde8f1c95521",
+              "observationId": "dc771333-6c57-4893-b2d3-3322e8cbe400",
+              "actionId": "72032193-5212-4670-8997-8fd709a0b500"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "613dc989-7f59-496c-9675-1e3ec2657cc0",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "24e75ac1-85aa-4c64-a7fa-f7a66ed33154",
+          "status": "succeeded"
+        }
+      ],
+      "errors": [
+        "Error: Expected unique captured field in Owner B, got 0"
+      ]
+    },
+    {
+      "scenario": "distinct-names",
+      "run": 5,
+      "fixtureSha256": "40ad1ecc3a58bd60bdf3e5afb11106e549d0e7d377029e515af860d8d7623d95",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "ed1396fe-a787-49a7-b2da-1ac931bfa645",
+              "attemptId": "9b359d16-74e6-4478-a4db-3fb4233f1cd2",
+              "beforeId": "f714d130-92b4-4c34-94f1-29c7287d22bf",
+              "afterId": "334b7648-256d-4c26-a1a0-5bf9b7ca4d8b"
+            },
+            "target": {
+              "sessionId": "ed1396fe-a787-49a7-b2da-1ac931bfa645",
+              "observationId": "d12bce27-11ac-4d9d-998a-95dfc62bafc1",
+              "actionId": "2c06a4f2-4f0a-4fbc-8024-88b10c67e536"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "9b359d16-74e6-4478-a4db-3fb4233f1cd2",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "2d68ae77-6062-4e55-a83f-14da7ab4a8de",
+          "status": "succeeded"
+        }
+      ],
+      "errors": [
+        "Error: Expected unique captured field in Owner B, got 0"
+      ]
+    },
+    {
+      "scenario": "same-name-named-owners",
+      "run": 1,
+      "fixtureSha256": "5aa23d63edea3c93ba7cff87166872948e9f17ac3d253bfa73a358c0c24393ed",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "a2a8f470-1395-4f9c-9742-a059a35ef7bc",
+              "attemptId": "5e7d1546-6189-4c7a-b408-7124c0a88607",
+              "beforeId": "c7de9bf8-ec69-4805-9210-68c548cd11f9",
+              "afterId": "f6b0c30f-a24c-4abe-8e4c-0d4345723f6b"
+            },
+            "target": {
+              "sessionId": "a2a8f470-1395-4f9c-9742-a059a35ef7bc",
+              "observationId": "d77cd364-ee6d-4f93-9eb3-af24e5eb1399",
+              "actionId": "7fa1f652-c2e0-4a94-8993-0860a8633b34"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "5e7d1546-6189-4c7a-b408-7124c0a88607",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "3d154f83-0cd7-4417-8e89-c3e8d521c5ee",
+          "status": "succeeded"
+        }
+      ],
+      "errors": [
+        "Error: Expected unique captured field in Owner B, got 0"
+      ]
+    },
+    {
+      "scenario": "same-name-named-owners",
+      "run": 2,
+      "fixtureSha256": "5aa23d63edea3c93ba7cff87166872948e9f17ac3d253bfa73a358c0c24393ed",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "557ff8ef-bd30-46da-8612-858621920405",
+              "attemptId": "f1310633-6a22-4dae-bb86-b6812298e356",
+              "beforeId": "24d70f33-45ee-47e5-8991-21c19dd3dfcf",
+              "afterId": "d5f3d4e2-d235-4d46-ad1f-1d3b86affd1c"
+            },
+            "target": {
+              "sessionId": "557ff8ef-bd30-46da-8612-858621920405",
+              "observationId": "c17535d3-2483-410a-9f90-7995973991d3",
+              "actionId": "2a74276b-f331-4a78-a993-73bb8e18a01e"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "f1310633-6a22-4dae-bb86-b6812298e356",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "a9a7986c-1a3a-40b0-8c1f-2a09caacbd7f",
+          "status": "succeeded"
+        }
+      ],
+      "errors": [
+        "Error: Expected unique captured field in Owner B, got 0"
+      ]
+    },
+    {
+      "scenario": "same-name-named-owners",
+      "run": 3,
+      "fixtureSha256": "5aa23d63edea3c93ba7cff87166872948e9f17ac3d253bfa73a358c0c24393ed",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "86b91e62-1ca4-452e-955b-3efe042d6cce",
+              "attemptId": "2d07548d-e3da-4f08-81f3-860c0c7fff96",
+              "beforeId": "2116c098-20e1-4009-8a57-8290b276c0ac",
+              "afterId": "5b7852cc-d9e4-42c0-84a1-a762a4aa2a55"
+            },
+            "target": {
+              "sessionId": "86b91e62-1ca4-452e-955b-3efe042d6cce",
+              "observationId": "d874cba4-6e31-4151-ade6-d9e6ab3d8ef6",
+              "actionId": "4f4b924f-b987-437c-ac63-f2929b665184"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "2d07548d-e3da-4f08-81f3-860c0c7fff96",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "6c316afa-d47a-4c32-8787-4bac15e39ea4",
+          "status": "succeeded"
+        }
+      ],
+      "errors": [
+        "Error: Expected unique captured field in Owner B, got 0"
+      ]
+    },
+    {
+      "scenario": "same-name-named-owners",
+      "run": 4,
+      "fixtureSha256": "5aa23d63edea3c93ba7cff87166872948e9f17ac3d253bfa73a358c0c24393ed",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "83acdffe-55f5-4ba6-a816-ce1aba98c1d0",
+              "attemptId": "a5e13742-bf9d-400a-b780-7f126638ad44",
+              "beforeId": "e2b96780-c315-4924-ae54-81555b466840",
+              "afterId": "e72e384e-8447-4efa-bf4f-3807000dbd58"
+            },
+            "target": {
+              "sessionId": "83acdffe-55f5-4ba6-a816-ce1aba98c1d0",
+              "observationId": "71afd8b9-f7f8-4194-82f3-73110921c838",
+              "actionId": "0e2ad370-1b46-4d25-8125-069806a147f5"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "a5e13742-bf9d-400a-b780-7f126638ad44",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "12cc7cd9-9ce9-4b91-976c-f203cbd217c3",
+          "status": "succeeded"
+        }
+      ],
+      "errors": [
+        "Error: Expected unique captured field in Owner B, got 0"
+      ]
+    },
+    {
+      "scenario": "same-name-named-owners",
+      "run": 5,
+      "fixtureSha256": "5aa23d63edea3c93ba7cff87166872948e9f17ac3d253bfa73a358c0c24393ed",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "8b0f2597-5aef-44cd-8b04-eef700d6f9a2",
+              "attemptId": "eff32a03-8a7b-42f0-8507-5794bf8b5d9f",
+              "beforeId": "4ccc9aad-bf67-48d2-84a4-5a3af273d2f7",
+              "afterId": "27bbaa16-1a43-4293-bc22-d76ae8617311"
+            },
+            "target": {
+              "sessionId": "8b0f2597-5aef-44cd-8b04-eef700d6f9a2",
+              "observationId": "3f68f889-e201-46a0-8097-9746512a6cbf",
+              "actionId": "83fe44b1-4c42-4920-8662-242e0e4eb2ee"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "eff32a03-8a7b-42f0-8507-5794bf8b5d9f",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "78a637f1-cb20-4629-8654-f2e4e702a3cc",
+          "status": "succeeded"
+        }
+      ],
+      "errors": [
+        "Error: Expected unique captured field in Owner B, got 0"
+      ]
+    }
+  ]
+}
