@@ -320,7 +320,10 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   const controls = all.slice(0, 1500).map(el => {
     const e = el as HTMLInputElement;
     const r = rect(el); const style = getComputedStyle(el);
-    const visible = r.width > 0 && r.height > 0 && style.visibility !== 'hidden' && style.display !== 'none' && !el.closest('[hidden],[inert]');
+    // A descendant of closed native details can retain a nonzero layout box.
+    // Chromium's rendering visibility includes that native hidden subtree and
+    // content-visibility; opacity and pointer interception remain separate facts.
+    const visible = el.checkVisibility() && r.width > 0 && r.height > 0 && style.visibility === 'visible' && !el.closest('[hidden],[inert]');
     const enabled = !e.disabled && !el.matches(':disabled') && el.getAttribute('aria-disabled') !== 'true' && !el.closest('[inert]');
     const semanticRole = role(el);
     const type = el.tagName === 'INPUT' ? e.type : el.tagName.toLowerCase();

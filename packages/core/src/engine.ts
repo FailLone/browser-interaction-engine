@@ -1027,6 +1027,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   }
   private async replay(sessionId: string, attemptIds: string[], allowWrites: boolean, performed: string[], targetReached?: () => Promise<boolean>) {
     for (const attemptId of attemptIds) {
+      if (targetReached && this.unverifiedRecoveryAttempts(sessionId).length) return 'unknown_execution_outcome';
       const old = this.owned<ActionAttempt>('attempt', attemptId, sessionId); const current = this.observation(sessionId);
       if (old.status !== 'succeeded') return 'recorded_action_not_verified';
       if (!old.action.replayable && !allowWrites) return 'path_contains_nonreplayable_action';
@@ -1043,10 +1044,15 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       catch (error) { return error instanceof EngineError ? error.code : String(error); }
       performed.push(result.id);
       if (result.status !== 'succeeded' || !result.afterId || !old.afterId) return 'replay_action_not_verified';
-      if (targetReached && await targetReached()) return undefined;
-      if (this.observation(sessionId, result.afterId).canonical !== this.observation(sessionId, old.afterId).canonical) return 'replay_state_diverged';
+      if (targetReached) {
+        if (await targetReached()) return undefined;
+        // The next iteration must prove its own source conditions, readiness
+        // and replay permission against the actual observation, including at
+        // dispatch. Passive changes elsewhere do not certify or invalidate that
+        // next operation. Only the final target check certifies arrival.
+      } else if (this.observation(sessionId, result.afterId).canonical !== this.observation(sessionId, old.afterId).canonical) return 'replay_state_diverged';
     }
-    return undefined;
+    return targetReached ? 'target_not_reached' : undefined;
   }
   protected observationReturn(sessionId: string, target: O) {
     const session = this.session(sessionId), current = this.observation(sessionId);
