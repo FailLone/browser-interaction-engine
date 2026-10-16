@@ -1,6 +1,6 @@
 import { EventBus } from './events.js';
 import { contextSchema, actionBasisSchema, componentDescriptionSchema } from './schema.js';
-import type { ComponentDescription, ComponentDescriptionInput, ExplorationTargetReference, ExplorationTargetCorrespondence, ReachExplorationTargetInput, ExplorationTargetReachResult, RepetitionAssessment } from './types.js';
+import type { ComponentDescription, ComponentDescriptionInput, ExplorationTargetReference, ExplorationTargetCorrespondence, ReachExplorationTargetInput, ExplorationTargetReachResult, RepetitionAssessment, ReturnToObservedSourceInput, ObservedSourceReturnResult } from './types.js';
 import { assignState, matchIdentities, sameObservedState } from './identity.js';
 import { recoverStore } from './recovery.js';
 import { migrateSamplingSources, sampledFrontierKey } from './sampling-migration.js';
@@ -745,10 +745,11 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     this.emit(sessionId, 'exploration.dependencies_invalidated', { ...failure, blocked: failure.count >= 3 });
     return failure.count >= 3;
   }
-  protected async runAction(sessionId: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: ActionAttempt['purpose'] = 'external', guard?:DispatchGuard): Promise<ActionAttempt> {
+  protected async runAction(sessionId: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: ActionAttempt['purpose'] = 'external', guard?:DispatchGuard, validateRecovery?: () => void): Promise<ActionAttempt> {
     const validationPurpose=guard?'exploration':purpose;
     const payload = canonical({ actionId, value }); const prior = this.store.request(sessionId, requestId);
     if (prior) { if (prior.payload !== payload) throw new EngineError('REQUEST_CONFLICT', 'Request ID was used with different parameters'); return this.owned<ActionAttempt>('attempt', prior.attemptId, sessionId); }
+    validateRecovery?.();
     await this.attach(sessionId); await this.beforeAction(sessionId); let session = this.session(sessionId); this.budget(session);
     const original = this.owned<ActionCandidate>('action', actionId, sessionId);
     const originalObservation = this.observation(sessionId, original.observationId);
@@ -783,6 +784,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     await this.beforeAction(sessionId);
     this.assertExecution(original,this.observation(sessionId),validationPurpose,value,guard);
     this.validatePreparedAction(action, current, validationPurpose);
+    validateRecovery?.();
     const unassessed=session.options.executionPolicy==='observed-ui'&&(guard?.profile==='observed-ui-exploration'&&isObservedUIOperation(action,current)||guard?.profile==='observed-ui-probe'&&isObservedUIProbe(action,current));
     if(unassessed)action.replayable=false;
     const attempt: ActionAttempt = { ...(guard?{executionProfile:guard.profile}:{}),...(guard&&'repetitionSource' in guard&&guard.repetitionSource?{repetitionSource:structuredClone(guard.repetitionSource)}:{}),...(unassessed?{effectsAssessment:'not-assessed' as const}:{}),id: id(), sessionId, requestId, action, startedAt: now(), beforeId: current.id, status: 'executing', purpose };
@@ -1404,6 +1406,82 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     });
   }
   reachCheckpoint(sessionId: string, checkpointId: string) { this.pauseRequested = true; return this.enqueueMeasured(sessionId, () => this.reachInternal(sessionId, checkpointId)); }
+  /** A single native source return, with no checkpoint replay, reset or driver reopening.
+   * This only establishes position. Existing UI/operation gates remain authoritative. */
+  returnToObservedSource(sessionId: string, input: ReturnToObservedSourceInput): Promise<ObservedSourceReturnResult> {
+    const request = structuredClone(input);
+    this.observation(sessionId, request.observationId);
+    this.pauseRequested = true;
+    return this.enqueueMeasured(sessionId, async () => {
+      if (request.currentObservationId && this.observation(sessionId).id !== request.currentObservationId)
+        throw new EngineError('STALE_OBSERVATION', 'Cursor changed before observed source return');
+      const attemptIds: string[] = []; let checks: ObservedSourceReturnResult['checks'] = [];
+      const finish = (status: ObservedSourceReturnResult['status'], reason: string): ObservedSourceReturnResult => {
+        const session = this.session(sessionId);
+        const result: ObservedSourceReturnResult = { ...(session.options.executionPolicy === 'observed-ui' ? { verificationScope: 'observed-ui' as const } : {}), id: id(), sessionId, sourceObservationId: request.observationId,
+          observationId: session.currentObservationId, status, reason, attemptIds, checks,
+          diagnostics: { unassessedEffectAttemptIds: [...(session.unassessedEffectAttemptIds || [])] },
+          checkpointVerified: false, currentExecution: false, executionAuthorized: false, sourceStateRestored: false };
+        this.store.put('source-return', result); this.emit(sessionId, 'exploration.source_return_result', result); return result;
+      };
+      const inspect = (): { failure?: ObservedSourceReturnResult['status']; reason: string; reached?: boolean } => {
+        const source = this.observation(sessionId, request.observationId), current = this.observation(sessionId), session = this.session(sessionId);
+        checks = [{ name: 'unresolved-execution-outcomes', result: this.unverifiedRecoveryAttempts(sessionId).length ? 'unknown' : 'pass' }];
+        if (checks[0].result === 'unknown') return { failure: 'UNVERIFIED', reason: 'unknown_execution_outcome' };
+        checks.push({ name: 'clean-session', result: session.dirty ? 'unknown' : 'pass' });
+        if (session.dirty) return { failure: 'UNVERIFIED', reason: 'dirty_session_requires_verified_recovery' };
+        const blockers = this.executionSessionBlockers(current, 'recovery');
+        checks.push(...blockers.map(blocker => ({ name: `recovery-precondition:${blocker.code}`, result: 'unknown' as const })));
+        if (blockers.length) return { failure: 'UNVERIFIED', reason: blockers[0].reason };
+        const known = ![...Object.values(source.context), ...Object.values(current.context)].some(value => value.status !== 'known');
+        checks.push({ name: 'known-declared-context', result: !known ? 'unknown' : contextKey(source.context) === contextKey(current.context) ? 'pass' : 'fail' });
+        if (!known) return { failure: 'UNVERIFIED', reason: 'declared_context_unknown' };
+        if (checks.at(-1)!.result === 'fail') return { failure: 'PRECONDITIONS_CHANGED', reason: 'declared_context_changed' };
+        checks.push({ name: 'observation-rules', result: source.ruleVersion === current.ruleVersion && current.ruleVersion === this.adapter.ruleVersion ? 'pass' : 'unknown' });
+        if (checks.at(-1)!.result === 'unknown') return { failure: 'UNVERIFIED', reason: 'observation_rules_changed' };
+        checks.push({ name: 'observation-completeness', result: source.stable && current.stable && !source.gaps.some(gap => gap.critical) && !current.gaps.some(gap => gap.critical) ? 'pass' : 'unknown' });
+        if (checks.at(-1)!.result === 'unknown') return { failure: 'UNVERIFIED', reason: 'observation_incomplete' };
+        const position = this.adapter.observedSourcePosition?.(source, current);
+        if (!position) return { failure: 'UNREACHABLE', reason: 'observed_source_return_unsupported' };
+        checks.push(...position.checks);
+        if (position.status === 'unknown' || position.status === 'unavailable') return { failure: position.status === 'unknown' ? 'UNVERIFIED' : 'UNREACHABLE', reason: position.reason };
+        // A normal boundary at the exact source position is retained, not
+        // dismissed or bypassed. Navigation away from an active boundary is forbidden.
+        if (position.status !== 'reached' && current.boundaries?.length) {
+          checks.push({ name: 'active-boundary-before-return', result: 'fail' });
+          return { failure: 'UNREACHABLE', reason: 'active_boundary_blocks_source_return' };
+        }
+        return { reached: position.status === 'reached', reason: position.reason };
+      };
+      const connected = () => this.activeId === sessionId && !!this.driver?.connected();
+      try {
+        let state = inspect();
+        if (state.failure) return finish(state.failure, state.reason);
+        // attach() opens an entry when disconnected. That is outside this API,
+        // and a persisted history pointer alone cannot prove a live position.
+        if (!connected()) return finish('UNREACHABLE', 'observed_source_driver_unavailable');
+        await this.capture(sessionId, 'recovery');
+        state = inspect();
+        if (state.failure) return finish(state.failure, state.reason);
+        if (state.reached) return finish('SOURCE_REACHED', state.reason);
+        const action = this.observationReturn(sessionId, this.observation(sessionId, request.observationId));
+        if (!action) return finish('UNREACHABLE', 'native_source_return_unavailable');
+        this.store.put('action', action);
+        const validate = () => {
+          const fresh = inspect();
+          if (fresh.failure || fresh.reached || !connected()) throw new EngineError(fresh.failure === 'PRECONDITIONS_CHANGED' ? 'PRECONDITIONS_CHANGED' : 'SOURCE_RETURN_INVALIDATED', fresh.failure ? fresh.reason : 'Observed source return changed before dispatch');
+        };
+        const attempt = await this.runAction(sessionId, action.id, id(), undefined, 'recovery', undefined, validate);
+        attemptIds.push(attempt.id);
+        state = inspect();
+        if (state.failure) return finish(state.failure, state.reason);
+        if (attempt.status !== 'succeeded') return finish('UNVERIFIED', 'native_source_return_not_verified');
+        return finish(state.reached ? 'SOURCE_REACHED' : 'UNREACHABLE', state.reached ? state.reason : 'native_source_position_not_reached');
+      } catch (error) {
+        return finish(error instanceof EngineError && error.code === 'PRECONDITIONS_CHANGED' ? 'PRECONDITIONS_CHANGED' : 'UNVERIFIED', String(error));
+      }
+    });
+  }
   async pause(sessionId: string) { this.pauseRequested = true; return this.enqueue(async () => { const session = this.session(sessionId); session.status = 'paused'; session.mode = 'manual'; this.store.put('session', session); this.emit(sessionId, 'session.paused', session); return session; }); }
   async stop(sessionId: string) { this.pauseRequested = true; return this.enqueue(async () => { const session = this.session(sessionId); session.status = 'stopped'; this.store.put('session', session); if (this.activeId === sessionId) { await this.driver?.close(); this.driver = undefined; this.activeId = undefined; } this.emit(sessionId, 'session.stopped', session); return session; }); }
   async explore(sessionId: string): Promise<Session<S>> {

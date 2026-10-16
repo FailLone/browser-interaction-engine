@@ -23,6 +23,8 @@ it.each([false,true])('returns from unknown-effect button navigation while retai
  let requests=0;
  const returnedPage='<button id="remaining" type="button" onclick="this.disabled=true">Remaining</button><script>if(location.pathname==="/elsewhere")document.body.innerHTML="<p>Destination</p>";</script>';
  const f=await explorerFixture(()=>++requests===1?navigationPage:returnedPage),store=new ExplorerStore(':memory:'),plugin=new ExplorerPlugin(f.host,store);
+ // This suite exercises the strict-checkpoint fallback of older host contracts.
+ Object.defineProperty(f.host,'returnToObservedSource',{value:undefined});
  const create=f.host.createSession.bind(f.host);
  vi.spyOn(f.host,'createSession').mockImplementation(async input=>{
   const session=await create(input),o=f.host.observation(session.id),gate=o.controls.find(c=>c.stableKey==='id:gate');

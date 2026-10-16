@@ -1,0 +1,658 @@
+{
+  "sourceCommit": "3885c581",
+  "runId": "0bd214c6-67a5-4838-b4b0-a642c738c0b5",
+  "scope": "Immutable frozen inputs; SDK decoding only on exclusive temporary copy; no browser/provider",
+  "selectedItem": {
+    "title": "穷尽当前页面已发现的交互",
+    "scope": {
+      "url": "https://www.okx.com/convert/usd-to-btc"
+    },
+    "prerequisites": [],
+    "completion": "Audit every discovered in-scope operation and retain unresolved coverage gaps",
+    "required": true,
+    "reason": "program_exhaustive_root",
+    "dispatchScope": true,
+    "id": "bf26248e-e22f-4c69-80b0-1e4edfe65dca",
+    "status": "pending",
+    "evidence": [
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "5a904f94-d42c-4d05-aab0-255c18388699",
+        "attemptId": "2a820db4-4a56-4862-900d-8f882c9bd91e"
+      },
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "46a38d17-fbf9-43c1-ba1f-b4c9791a6c27",
+        "attemptId": "98e8dbcb-fc34-437a-9e0e-a986760fb9b7"
+      },
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "b1f0d28c-50fe-4401-811b-6bbe6d8535e7",
+        "attemptId": "492c5f9c-ca38-4621-bd3b-69f0350aeaed"
+      },
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "a41e6de8-0e12-406d-bfb5-cf6080b272f3",
+        "attemptId": "183ccbdf-cdef-4eb1-bf97-bfec0e4dc58b"
+      },
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "e8267c31-83cf-421b-83e4-118d76bbefb3",
+        "attemptId": "e7718bc9-81d4-4a21-aa44-e26c4f07bc6a"
+      },
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "3a910b7e-e907-480f-9547-4fef6b0a9f12",
+        "attemptId": "55fc9752-861f-4a3a-b90d-f9247b33f3e5"
+      },
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "50974d5c-74b9-4f2f-a9a5-d4110826616f",
+        "attemptId": "75f4a7e7-6e93-4e36-902b-e56c471c1ede"
+      },
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "4a1cd6aa-07c9-4cfb-8665-f30c55f63b0d",
+        "attemptId": "0a41a56c-2d93-463d-9dae-078e7b37f1e3"
+      },
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "256bd0f8-37b8-4297-98b4-1d4e12b6d818",
+        "attemptId": "4f5a1fff-a5cc-404a-af4c-0f0011b7cf40"
+      }
+    ],
+    "attempts": [
+      {
+        "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+        "outcome": "succeeded",
+        "evidence": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "5a904f94-d42c-4d05-aab0-255c18388699",
+          "attemptId": "2a820db4-4a56-4862-900d-8f882c9bd91e"
+        }
+      },
+      {
+        "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+        "outcome": "succeeded",
+        "evidence": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "46a38d17-fbf9-43c1-ba1f-b4c9791a6c27",
+          "attemptId": "98e8dbcb-fc34-437a-9e0e-a986760fb9b7"
+        }
+      },
+      {
+        "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+        "outcome": "succeeded",
+        "evidence": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "b1f0d28c-50fe-4401-811b-6bbe6d8535e7",
+          "attemptId": "492c5f9c-ca38-4621-bd3b-69f0350aeaed"
+        }
+      },
+      {
+        "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+        "outcome": "succeeded",
+        "evidence": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "a41e6de8-0e12-406d-bfb5-cf6080b272f3",
+          "attemptId": "183ccbdf-cdef-4eb1-bf97-bfec0e4dc58b"
+        }
+      },
+      {
+        "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+        "outcome": "succeeded",
+        "evidence": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "e8267c31-83cf-421b-83e4-118d76bbefb3",
+          "attemptId": "e7718bc9-81d4-4a21-aa44-e26c4f07bc6a"
+        }
+      },
+      {
+        "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+        "outcome": "succeeded",
+        "evidence": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "3a910b7e-e907-480f-9547-4fef6b0a9f12",
+          "attemptId": "55fc9752-861f-4a3a-b90d-f9247b33f3e5"
+        }
+      },
+      {
+        "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+        "outcome": "succeeded",
+        "evidence": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "50974d5c-74b9-4f2f-a9a5-d4110826616f",
+          "attemptId": "75f4a7e7-6e93-4e36-902b-e56c471c1ede"
+        }
+      },
+      {
+        "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+        "outcome": "succeeded",
+        "evidence": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "4a1cd6aa-07c9-4cfb-8665-f30c55f63b0d",
+          "attemptId": "0a41a56c-2d93-463d-9dae-078e7b37f1e3"
+        }
+      },
+      {
+        "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+        "outcome": "succeeded",
+        "evidence": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "256bd0f8-37b8-4297-98b4-1d4e12b6d818",
+          "attemptId": "4f5a1fff-a5cc-404a-af4c-0f0011b7cf40"
+        }
+      }
+    ],
+    "resolvedBy": {
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "observationId": "256bd0f8-37b8-4297-98b4-1d4e12b6d818",
+      "attemptId": "4f5a1fff-a5cc-404a-af4c-0f0011b7cf40"
+    }
+  },
+  "checkpoint": {
+    "id": "3ff97103-c812-4779-afe0-a45ceda5f814",
+    "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+    "name": "explorer 1/3",
+    "observationId": "0e316e4c-e428-4222-9d11-47d2073f41a8",
+    "stateId": "3faf887e2cf2585598b7329da6eed1cbace247d25cf6f2aeb248ab8c8f543fb2",
+    "context": {},
+    "predicates": [],
+    "acceptable": [],
+    "path": [
+      "75f4a7e7-6e93-4e36-902b-e56c471c1ede",
+      "0a41a56c-2d93-463d-9dae-078e7b37f1e3"
+    ],
+    "createdAt": "2026-10-16T21:17:51.681Z"
+  },
+  "checkpointPath": [
+    {
+      "id": "75f4a7e7-6e93-4e36-902b-e56c471c1ede",
+      "status": "succeeded",
+      "beforeId": "522227a1-a36c-414c-b050-4135ec17f8cf",
+      "afterId": "50974d5c-74b9-4f2f-a9a5-d4110826616f",
+      "action": {
+        "id": "a8c5d1d4-5d0d-4b5d-9810-d9c6997cdc6e",
+        "kind": "check",
+        "value": true,
+        "label": "Don’t show for 7 days",
+        "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "localId": "48313169-817d-4537-89d6-0d2fff2305da:1554",
+        "risk": "interface",
+        "replayable": true,
+        "basis": {
+          "status": "supported",
+          "evidence": [
+            {
+              "source": "html",
+              "rule": "native-checkable/v1",
+              "facts": {
+                "tag": "input",
+                "type": "checkbox"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "0a41a56c-2d93-463d-9dae-078e7b37f1e3",
+      "status": "succeeded",
+      "beforeId": "50974d5c-74b9-4f2f-a9a5-d4110826616f",
+      "afterId": "4a1cd6aa-07c9-4cfb-8665-f30c55f63b0d",
+      "action": {
+        "id": "a444a46c-9912-4834-9f6f-25e2c94c3335",
+        "kind": "check",
+        "value": false,
+        "label": "Don’t show for 7 days",
+        "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "localId": "48313169-817d-4537-89d6-0d2fff2305da:1554",
+        "risk": "interface",
+        "replayable": true,
+        "basis": {
+          "status": "supported",
+          "evidence": [
+            {
+              "source": "html",
+              "rule": "native-checkable/v1",
+              "facts": {
+                "tag": "input",
+                "type": "checkbox"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "observations": [
+    {
+      "id": "0e316e4c-e428-4222-9d11-47d2073f41a8",
+      "capturedAt": "2026-10-16T21:17:44.887Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "stable": true,
+      "canonicalEqualsCheckpoint": true,
+      "stateId": "3faf887e2cf2585598b7329da6eed1cbace247d25cf6f2aeb248ab8c8f543fb2",
+      "instanceScope": "48313169-817d-4537-89d6-0d2fff2305da",
+      "context": {},
+      "navigation": {
+        "browserSessionId": "d0d2cd6d-2c41-479f-a343-541e65f781d8",
+        "currentIndex": 1,
+        "entries": [
+          {
+            "id": 2,
+            "url": "about:blank"
+          },
+          {
+            "id": 4,
+            "url": "https://www.okx.com/convert/usd-to-btc",
+            "method": "GET"
+          }
+        ]
+      },
+      "boundaries": [
+        {
+          "key": "dialog:okd-dialog-window",
+          "name": "dialog",
+          "region": "document",
+          "evidence": [
+            "aria-modal"
+          ]
+        }
+      ],
+      "controlCount": 301,
+      "criticalGaps": [],
+      "gapCodes": {
+        "STRUCTURAL_LIST_SCAN_TRUNCATED": 1,
+        "STRUCTURAL_DISCOVERY_LIMIT": 17,
+        "UNSUPPORTED_CANVAS": 7,
+        "EVENT_LISTENER_COVERAGE": 1
+      },
+      "modalRelatedControls": [
+        {
+          "localId": "48313169-817d-4537-89d6-0d2fff2305da:1376",
+          "identityId": "636947f5-28c3-42aa-8423-e1ea65921220",
+          "stableKey": "testid:okd-dialog-window",
+          "role": "dialog",
+          "tag": "div",
+          "name": "OKX Exchange products aren’t available in your regionOKX Exchange is currently not available in Hong Kong SAR (China) due to local laws and regulations. OKX has announced that it has ceased operating a virtual asset trading platform in Hong Kong since May 2024.If you don't reside in Hong Kong SAR (China), you may continue using OKX Exchange with a valid government-issued ID.Don’t show for 7 daysGo to OKX WalletClose",
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "localId": "48313169-817d-4537-89d6-0d2fff2305da:1548",
+          "identityId": "a8508c62-0c72-44aa-8fde-7c0a794a6982",
+          "role": "link",
+          "tag": "a",
+          "name": "announced",
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "localId": "48313169-817d-4537-89d6-0d2fff2305da:1554",
+          "identityId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "stableKey": "id:_r_1_",
+          "role": "checkbox",
+          "tag": "input",
+          "name": "Don’t show for 7 days",
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "localId": "48313169-817d-4537-89d6-0d2fff2305da:1552",
+          "identityId": "85869b48-8ddd-4d2e-9896-eb965909e620",
+          "role": "generic",
+          "tag": "div",
+          "name": "Don’t show for 7 days",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "checkpointReplayMatches": [
+        {
+          "attemptId": "75f4a7e7-6e93-4e36-902b-e56c471c1ede",
+          "kind": "check",
+          "value": true,
+          "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "candidates": [
+            "07cf2fc8-af2b-4139-a68c-34aa84e78330"
+          ]
+        },
+        {
+          "attemptId": "0a41a56c-2d93-463d-9dae-078e7b37f1e3",
+          "kind": "check",
+          "value": false,
+          "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "candidates": []
+        }
+      ]
+    },
+    {
+      "id": "4d48188c-0249-4740-ae2e-f1c705712bb5",
+      "capturedAt": "2026-10-16T21:18:01.790Z",
+      "url": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application",
+      "stable": true,
+      "canonicalEqualsCheckpoint": false,
+      "stateId": "d38c050109a593f9375b2e01af2ada080b1648374d4c54143ff049355c8ce358",
+      "instanceScope": "f6395e45-988c-496b-948f-a436c206cddb",
+      "context": {},
+      "navigation": {
+        "browserSessionId": "d0d2cd6d-2c41-479f-a343-541e65f781d8",
+        "currentIndex": 2,
+        "entries": [
+          {
+            "id": 2,
+            "url": "about:blank"
+          },
+          {
+            "id": 4,
+            "url": "https://www.okx.com/convert/usd-to-btc",
+            "method": "GET"
+          },
+          {
+            "id": 6,
+            "url": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application",
+            "method": "GET"
+          }
+        ]
+      },
+      "boundaries": [],
+      "controlCount": 160,
+      "criticalGaps": [],
+      "gapCodes": {
+        "STRUCTURAL_LIST_SCAN_TRUNCATED": 1,
+        "STRUCTURAL_DISCOVERY_LIMIT": 4,
+        "EVENT_LISTENER_COVERAGE": 1
+      },
+      "modalRelatedControls": [],
+      "checkpointReplayMatches": [
+        {
+          "attemptId": "75f4a7e7-6e93-4e36-902b-e56c471c1ede",
+          "kind": "check",
+          "value": true,
+          "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "candidates": []
+        },
+        {
+          "attemptId": "0a41a56c-2d93-463d-9dae-078e7b37f1e3",
+          "kind": "check",
+          "value": false,
+          "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "candidates": []
+        }
+      ]
+    },
+    {
+      "id": "bdb690bc-a632-4eb3-9d3e-a9197f13ca67",
+      "capturedAt": "2026-10-16T21:18:09.098Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "stable": true,
+      "canonicalEqualsCheckpoint": false,
+      "stateId": "e5d06d65d1bba8bbddc1d09810d884c92666a680b8b3fb61b83287c6333b0fda",
+      "instanceScope": "29341a91-c522-4832-8224-a720656e70cb",
+      "context": {},
+      "navigation": {
+        "browserSessionId": "d0d2cd6d-2c41-479f-a343-541e65f781d8",
+        "currentIndex": 1,
+        "entries": [
+          {
+            "id": 2,
+            "url": "about:blank"
+          },
+          {
+            "id": 4,
+            "url": "https://www.okx.com/convert/usd-to-btc",
+            "method": "GET"
+          },
+          {
+            "id": 6,
+            "url": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application",
+            "method": "GET"
+          }
+        ]
+      },
+      "boundaries": [],
+      "controlCount": 292,
+      "criticalGaps": [],
+      "gapCodes": {
+        "STRUCTURAL_LIST_SCAN_TRUNCATED": 1,
+        "STRUCTURAL_DISCOVERY_LIMIT": 17,
+        "UNSUPPORTED_CANVAS": 7,
+        "EVENT_LISTENER_COVERAGE": 1
+      },
+      "modalRelatedControls": [],
+      "checkpointReplayMatches": [
+        {
+          "attemptId": "75f4a7e7-6e93-4e36-902b-e56c471c1ede",
+          "kind": "check",
+          "value": true,
+          "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "candidates": []
+        },
+        {
+          "attemptId": "0a41a56c-2d93-463d-9dae-078e7b37f1e3",
+          "kind": "check",
+          "value": false,
+          "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "candidates": []
+        }
+      ]
+    },
+    {
+      "id": "3be2cbc9-5ca1-4c2f-8d20-f317949cd857",
+      "capturedAt": "2026-10-16T21:18:18.026Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "stable": false,
+      "canonicalEqualsCheckpoint": false,
+      "stateId": "7cf8225a294063b2f9e4e74def559a693ee1ebfdd6712d52e32d972e32cfb26d",
+      "instanceScope": "a779ea80-1862-41dc-b721-8e7ff0fdf072",
+      "context": {},
+      "navigation": {
+        "browserSessionId": "81f06876-74b5-4e8c-8eae-6a01083a06ee",
+        "currentIndex": 1,
+        "entries": [
+          {
+            "id": 7,
+            "url": "about:blank"
+          },
+          {
+            "id": 9,
+            "url": "https://www.okx.com/convert/usd-to-btc",
+            "method": "GET"
+          }
+        ]
+      },
+      "boundaries": [],
+      "controlCount": 292,
+      "criticalGaps": [],
+      "gapCodes": {
+        "STRUCTURAL_LIST_SCAN_TRUNCATED": 1,
+        "STRUCTURAL_DISCOVERY_LIMIT": 17,
+        "UNSUPPORTED_CANVAS": 7,
+        "EVENT_LISTENER_COVERAGE": 1,
+        "UNSTABLE": 1,
+        "INTERACTION_STABLE": 1
+      },
+      "modalRelatedControls": [],
+      "checkpointReplayMatches": [
+        {
+          "attemptId": "75f4a7e7-6e93-4e36-902b-e56c471c1ede",
+          "kind": "check",
+          "value": true,
+          "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "candidates": []
+        },
+        {
+          "attemptId": "0a41a56c-2d93-463d-9dae-078e7b37f1e3",
+          "kind": "check",
+          "value": false,
+          "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "candidates": []
+        }
+      ]
+    }
+  ],
+  "recoveryAttempts": [
+    {
+      "id": "1512316a-5286-44cd-818e-28071ca311cf",
+      "status": "succeeded",
+      "startedAt": "2026-10-16T21:18:03.818Z",
+      "finishedAt": "2026-10-16T21:18:09.907Z",
+      "beforeId": "4d48188c-0249-4740-ae2e-f1c705712bb5",
+      "afterId": "bdb690bc-a632-4eb3-9d3e-a9197f13ca67",
+      "action": {
+        "id": "a91976df-111d-4508-a410-1f49fb525ad1",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "4d48188c-0249-4740-ae2e-f1c705712bb5",
+        "stateId": "d38c050109a593f9375b2e01af2ada080b1648374d4c54143ff049355c8ce358",
+        "kind": "history",
+        "value": 4,
+        "label": "Return to observed page",
+        "source": "browser-history-return",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "sampleValidity": "known",
+        "preconditions": {
+          "context": {},
+          "visible": true,
+          "enabled": true,
+          "identityResolved": true,
+          "blockers": [],
+          "targetResolved": true
+        },
+        "basis": {
+          "status": "supported",
+          "evidence": [
+            {
+              "source": "adapter-playwright",
+              "rule": "browser-history-return/v1",
+              "facts": {
+                "observationId": "4d48188c-0249-4740-ae2e-f1c705712bb5",
+                "targetObservationId": "0e316e4c-e428-4222-9d11-47d2073f41a8",
+                "browserSessionId": "d0d2cd6d-2c41-479f-a343-541e65f781d8",
+                "fromEntryId": 6,
+                "fromUrl": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application",
+                "toEntryId": 4,
+                "toUrl": "https://www.okx.com/convert/usd-to-btc",
+                "method": "GET"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "38ff8093-7d18-4843-9e0d-feb2325b593e",
+      "status": "succeeded",
+      "startedAt": "2026-10-16T21:18:12.399Z",
+      "finishedAt": "2026-10-16T21:18:18.904Z",
+      "beforeId": "bdb690bc-a632-4eb3-9d3e-a9197f13ca67",
+      "afterId": "3be2cbc9-5ca1-4c2f-8d20-f317949cd857",
+      "action": {
+        "id": "16fea9f0-f9d9-4e43-8b8e-b14497dfea1d",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "bdb690bc-a632-4eb3-9d3e-a9197f13ca67",
+        "stateId": "e5d06d65d1bba8bbddc1d09810d884c92666a680b8b3fb61b83287c6333b0fda",
+        "kind": "navigate",
+        "value": "https://www.okx.com/convert/usd-to-btc",
+        "label": "Reopen session entry",
+        "source": "recovery-entry",
+        "risk": "interface",
+        "replayable": false,
+        "excluded": false,
+        "sampleValidity": "known",
+        "preconditions": {
+          "context": {},
+          "visible": true,
+          "enabled": true,
+          "identityResolved": true
+        }
+      }
+    }
+  ],
+  "reach": [
+    {
+      "id": "92bd422e-c026-4857-9dfc-f70df6f36f31",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "checkpointId": "3ff97103-c812-4779-afe0-a45ceda5f814",
+      "reason": "replay_target_not_unique_or_missing",
+      "checks": [
+        {
+          "name": "observation-completeness",
+          "result": "unknown"
+        }
+      ],
+      "attemptIds": [
+        "1512316a-5286-44cd-818e-28071ca311cf",
+        "38ff8093-7d18-4843-9e0d-feb2325b593e"
+      ],
+      "observationId": "3be2cbc9-5ca1-4c2f-8d20-f317949cd857",
+      "remainingFrontier": 1107,
+      "diagnostics": {
+        "unassessedEffectAttemptIds": [],
+        "strategies": [
+          "verify_current",
+          "boundary_exit",
+          "observed_source_return",
+          "recorded_path",
+          "declared_local_restore",
+          "entry_replay"
+        ],
+        "dirtyActions": [],
+        "resetAvailable": false
+      },
+      "status": "UNVERIFIED"
+    }
+  ],
+  "events": [
+    {
+      "sequence": 1011,
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "type": "checkpoint.result",
+      "at": "2026-10-16T21:18:20.374Z",
+      "data": {
+        "id": "92bd422e-c026-4857-9dfc-f70df6f36f31",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "checkpointId": "3ff97103-c812-4779-afe0-a45ceda5f814",
+        "reason": "replay_target_not_unique_or_missing",
+        "checks": [
+          {
+            "name": "observation-completeness",
+            "result": "unknown"
+          }
+        ],
+        "attemptIds": [
+          "1512316a-5286-44cd-818e-28071ca311cf",
+          "38ff8093-7d18-4843-9e0d-feb2325b593e"
+        ],
+        "observationId": "3be2cbc9-5ca1-4c2f-8d20-f317949cd857",
+        "remainingFrontier": 1107,
+        "diagnostics": {
+          "unassessedEffectAttemptIds": [],
+          "strategies": [
+            "verify_current",
+            "boundary_exit",
+            "observed_source_return",
+            "recorded_path",
+            "declared_local_restore",
+            "entry_replay"
+          ],
+          "dirtyActions": [],
+          "resetAvailable": false
+        },
+        "status": "UNVERIFIED"
+      }
+    }
+  ],
+  "frozenDatabaseHashes": {
+    "engine/engine.sqlite": {
+      "sha256": "f770de1f03beb89a30b0e176e6334c008d84532774f5b0586658dffa39cacd27",
+      "matchesFrozenManifest": true
+    },
+    "plugin/explorer.sqlite": {
+      "sha256": "24ae61e38deaebce45502fd60324aba359fd009cb4b3fc506d642a52250d7317",
+      "matchesFrozenManifest": true
+    }
+  }
+}

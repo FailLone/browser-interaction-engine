@@ -13,7 +13,7 @@ import { constrain, hasDeclaredBoundaryExit, hasObservedBoundaryExit } from './p
 import { browserControlCorrespondence, browserOperationCorrespondenceHint, controlCase, controlsTraversalCase, explorationCase, restorationStep } from './exploration.js';
 export { browserControlCorrespondence, browserControlBindingKey, browserOperationCorrespondenceHint, browserOperationKey, legacyBrowserOperationKey } from './exploration.js';
 export { navigationIntent, type NavigationIntent } from './navigation.js';
-import { historyReturn } from './navigation.js';
+import { historyReturn, observedSourcePosition } from './navigation.js';
 import { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';
 export { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';
 import { listGroups, structuralListGroups } from './list-groups.js';
@@ -83,6 +83,7 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   restorationStep = restorationStep;
   explorationGroups(...args: Parameters<typeof listGroups>) { return [...listGroups(...args), ...structuralListGroups(...args), ...decisionScopes(args[0], args[1], args[2])]; }
   returnToObservation = historyReturn;
+  observedSourcePosition = observedSourcePosition;
   testPredicate(predicate: Predicate, observation: Observation): 'pass' | 'fail' | 'unknown' {
     if (predicate.target === 'url') return observation.url === predicate.equals ? 'pass' : 'fail';
     if (predicate.target === 'context') { const value = observation.context[predicate.key || '']; return !value || value.status === 'unknown' ? 'unknown' : canonical(value.value) === canonical(predicate.equals) ? 'pass' : 'fail'; }

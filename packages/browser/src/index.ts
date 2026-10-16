@@ -531,8 +531,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       : eligible;
   }
   protected override explorationIdleReason(sid: string) { return this.pages.idleReason(sid, this.session(sid)) || this.regions.idleReason(sid, this.outstandingFrontier(sid)); }
-  protected override async runAction(sid: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: import('@interaction/core').ActionAttempt['purpose'] = 'external', guard?:import('@interaction/core').DispatchGuard) {
-    const attempt = await super.runAction(sid, actionId, requestId, value, purpose, guard);
+  protected override async runAction(sid: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: import('@interaction/core').ActionAttempt['purpose'] = 'external', guard?:import('@interaction/core').DispatchGuard, validateRecovery?: () => void) {
+    const attempt = await super.runAction(sid, actionId, requestId, value, purpose, guard, validateRecovery);
     this.boundaryExits.finishUnknown(attempt, this.driver instanceof BrowserAdapter ? this.driver.dismissalDispatch(attempt.action.id) : undefined);
     return attempt;
   }

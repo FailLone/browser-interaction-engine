@@ -153,3 +153,17 @@
 新增回归包括公共 plugin.start 的本地完整链：弱 generic 审阅仍缺证后离页，旧审阅继续待测，而目的页的新操作实际执行。真实 SDK 历史返回但目标已经消失的反例仍不报告 REACHED。4 文件 34 项专项、另外 9 文件 118 项相关回归和类型检查通过；冻结 OKX 材料在独享副本重验，generic 等待、6 个同名 checkbox 条目均不受影响，原路线债及冻结文件 SHA 不变，浏览器启动与 provider 调用均为 0。见 [源码与验证记录](evidence/review-recovery-fix/verification.json)、[冻结材料复验](evidence/review-recovery-fix/frozen-check.json)。这些证据尚不能证明真实网页恢复成功率上升。
 
 修复版本 `a0e07f4` 再次运行相同 80 次协议，源码前后不变、脚本/fixture/参数一致，348 项完整性检查通过。16 场景逐 trial 行为与原 `70b8cb4` 基线差异为 0，包含 20/20 正向到达、5/5 嵌套冷重启（必要重入 15、重复叶子和无理由重入 0）、5/5 unknown 跨重启阻断、30 次实际 A/B/C 输入和 40/40 对应检查，以及 100 tick 待测清单增长为 0。见 [对照](evidence/review-recovery-protocols/comparison.json)和[完整汇总](evidence/review-recovery-protocols/summary.json)。运行期间另有相关测试，因此耗时仅作原始记录，不用于性能比较；本轮未重新运行完整 suite。
+
+## 真实 OKX 第三窗：页面位置与旧画面恢复的契约分离
+
+main 与实验源码均为 `3885c581`。同一任务、session、round 于 2026-10-16 21:16:47–21:18:24 UTC 接续，22 项历史 occurrence 全部保留，最终 25 项；原有两条失败路线债逐字段不变。3 次探索仍为 checkbox true/false 和 announced click，不能证明新增语义覆盖；新增成功 occurrence 为 3，历史未解决转成功为 0，旧成功证据刷新为 9。JEV 6 次返回、LLM 0，无剩余 provider、unknown 或 executing。详见 [接续诊断](evidence/real-okx-3/continuation-diagnosis.md)。
+
+上一轮的审阅修复在真实运行中生效：四个 generic review-only 项有持久等待，三个有明确的 unchanged_unresolved_review 延后事件；checkbox 没有被错误加入等待。新的恢复选中原始纯 URL 根范围，不再选旧 generic 项。它却被发送到严格 checkpoint API：一次原生 history 已回到同浏览器的原 GET 条目，观察稳定、无关键缺口，但旧弹层和 checkbox 已消失。严格恢复继续重开入口并尝试旧 checkbox，候选数为 0，最终 21,088.805 ms 后 UNVERIFIED。该失败自动触发停止，完成结算与关闭。不能把原生动作成功解释为 checkpoint 恢复成功，也不能忽略多余重开造成的开销。见 [完整因果链](evidence/real-okx-3/recovery-diagnosis.md)。
+
+新增窄 SDK 接口 `returnToObservedSource` 复用既有原生 history 返回与动作账本，最多执行一次返回，不重放、不重置、不启动替代浏览器。它验证浏览器实例、唯一原生条目、GET、URL、声明上下文、规则、稳定性与证据完整性；SOURCE_REACHED 只证明页面位置，明确保留 checkpointVerified/sourceStateRestored/currentExecution/executionAuthorized 四个 false。observed-ui 未评估效果 ID 继续保留。旧 checkpoint 与具体目标到达接口保持严格语义。
+
+插件仅为已授权、无前置路径的纯 URL 待测项使用此接口；区域、控件、操作与审阅义务不适用。路线与严格恢复的失败债分开记录，旧债不清除；任何未释放 unknown 债仍全局阻断。动态价格、DOM/捕获 ID 不产生新位置返回预算；无原生锚点、当前不稳定或有活动弹层时延后。到达后清空未经验证的旧路径，从当前事实重新检查可执行操作；到达本身不结算覆盖。
+
+公共 plugin.start 本地回归证明：离开弹层后，返回到弹层已消失的同一原生条目，随后真实执行新出现的 Remaining 控件；仅一个 history 恢复动作，没有 entry 重开或旧弹层重放。若返回后持久结果变为 unknown，插件撤销成功、保留债，重开任务后在 observe/createSession/恢复之前阻断。SDK/native/target/core 专项 42/42，最终插件及 SDK 联合回归 7 文件 101/101，root/core 类型检查通过；两组有重叠，不相加。包含严格接口伪返回 SOURCE_REACHED 的拒绝测试和 100 tick 不续预算测试。见 [验证记录](evidence/source-return-fix/verification.json)。这些仍是受控证据，后续需重跑原 80 次协议并再次接续真实页面。
+
+第三窗已关闭冻结 1,865 个文件、45,928,970 B，全部 SHA 与源前后相同，两库完整性检查通过。冻结副本只读，分析使用独享副本；原测试浏览器和任务数据库未操作。关闭时 engine 35,340,288 B、plugin 1,589,248 B，共享证据/日志占用另列在原始 summary。真实穷尽仍未完成，任务库与全量读取的正负性能结论继续沿用前述基准，不能由本次恢复修复推导新的速度或压缩率。

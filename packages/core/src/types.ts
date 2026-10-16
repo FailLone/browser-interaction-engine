@@ -169,6 +169,20 @@ export interface ReachExplorationTargetInput {
   /** Optional optimistic guard for the browser cursor before recovery begins. */
   currentObservationId?: ID;
 }
+/** Return only to a retained source position, never restore its UI state or replay its path. */
+export interface ReturnToObservedSourceInput {
+  observationId: ID;
+  currentObservationId?: ID;
+}
+/** Position arrival leaves all control, boundary, review and execution gates intact. */
+export interface ObservedSourceReturnResult {
+  verificationScope?: 'observed-ui';
+  id: ID; sessionId: ID; sourceObservationId: ID; observationId?: ID;
+  status: 'SOURCE_REACHED' | 'PRECONDITIONS_CHANGED' | 'UNREACHABLE' | 'UNVERIFIED';
+  reason: string; attemptIds: ID[]; checks: ReachResult['checks'];
+  diagnostics: { unassessedEffectAttemptIds: ID[] };
+  checkpointVerified: false; currentExecution: false; executionAuthorized: false; sourceStateRestored: false;
+}
 /** Target arrival is neither checkpoint equality nor successful execution/coverage. */
 export interface ExplorationTargetReachResult extends Omit<ReachResult, 'status'> {
   status: 'TARGET_REACHED' | 'PRECONDITIONS_CHANGED' | 'UNREACHABLE' | 'UNVERIFIED';

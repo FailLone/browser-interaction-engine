@@ -1,0 +1,6 @@
+
+> browser-interaction-engine@0.1.0 typecheck /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+> tsc --noEmit && tsc -p packages/core/tsconfig.json
+
+tests/explorer-source-return-scheduling.test.ts(79,52): error TS2322: Type '"other-rules"' is not assignable to type '"observable-v1" | "observable-v2" | "observable-v3" | "observable-v3-live-v1" | "observable-v3-live-v2" | "observable-v4" | "observable-v5" | "observable-v6" | "observable-v7"'.
+ ELIFECYCLE  Command failed with exit code 2.

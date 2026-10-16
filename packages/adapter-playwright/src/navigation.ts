@@ -1,5 +1,6 @@
 import { id } from './util.js';
 import type { ActionCandidate, BrowserHistory, Observation, Session } from './types.js';
+import type { ObservedSourcePosition } from '@interaction/core';
 
 export interface NavigationIntent {
   kind:'native-http-link'; sourceUrl:string; targetUrl:string; observationId:string;
@@ -18,6 +19,28 @@ export function navigationIntent(action:ActionCandidate,o:Observation):Navigatio
 
 export const historyPosition = (history: BrowserHistory) => ({ browserSessionId: history.browserSessionId,
   entryId: history.entries[history.currentIndex]?.id, url: history.entries[history.currentIndex]?.url });
+
+/** Native entry identity survives document changes; it never proves the old UI was restored. */
+export function observedSourcePosition(target: Observation, current: Observation): ObservedSourcePosition {
+  const checks: ObservedSourcePosition['checks'] = [];
+  const result = (status: ObservedSourcePosition['status'], reason: string): ObservedSourcePosition => ({ status, reason, checks });
+  const source = target.navigation, live = current.navigation;
+  const original = source?.entries[source.currentIndex], position = live?.entries[live.currentIndex];
+  checks.push({ name: 'native-history-evidence', result: source && live && original && position ? 'pass' : 'unknown' });
+  if (!source || !live || !original || !position) return result('unknown', 'native_history_unavailable');
+  checks.push({ name: 'native-browser-session', result: source.browserSessionId === live.browserSessionId ? 'pass' : 'fail' });
+  if (source.browserSessionId !== live.browserSessionId) return result('unavailable', 'native_browser_session_changed');
+  checks.push({ name: 'native-source-get', result: original.method === 'GET' && /^https?:\/\//.test(original.url) && original.url === target.url ? 'pass' : 'fail' });
+  if (checks.at(-1)!.result !== 'pass') return result('unavailable', 'native_source_not_verified_get');
+  const entries = live.entries.filter(entry => entry.id === original.id);
+  checks.push({ name: 'native-source-entry', result: entries.length === 1 && entries[0].url === original.url && entries[0].method === 'GET' ? 'pass' : 'fail' });
+  if (checks.at(-1)!.result !== 'pass') return result('unavailable', 'native_source_entry_unavailable');
+  checks.push({ name: 'native-current-position', result: position.url === current.url && live.entries.filter(entry => entry.id === position.id).length === 1 ? 'pass' : 'unknown' });
+  if (checks.at(-1)!.result !== 'pass') return result('unknown', 'native_current_position_unverified');
+  const reached = position.id === original.id && current.url === target.url && position.method === 'GET';
+  checks.push({ name: 'observed-source-position', result: reached ? 'pass' : 'fail' });
+  return result(reached ? 'reached' : 'returnable', reached ? 'observed_source_position_reached' : 'native_source_return_available');
+}
 
 /** Validate against native history evidence, never a URL guessed from a label. */
 export function historyTarget(action: ActionCandidate, history?: BrowserHistory) {

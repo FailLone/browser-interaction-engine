@@ -1,0 +1,50 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/exploration-target-reach.test.ts (12 tests) 9658ms
+   ✓ verifies a ready target beside a ticking quote without claiming strict checkpoint restoration or execution  853ms
+   ✓ matches unexecuted rebuilt targets but rejects changed declared context and ambiguous bindings  873ms
+   ✓ exits an actual modal through the existing recovery ledger and verifies the target independently  749ms
+   ✓ reports actual same-URL partial recovery after a declared inverse diverges  909ms
+   ✓ preserves unknown outcomes and rejects unassessed repetition inside queued dispatch  580ms
+   ✓ rejects changed context and semantic form binding without attempting recovery  900ms
+   ✓ does not borrow readiness from a stable sibling form  747ms
+   ✓ revalidates repetition after an awaited driver validation rather than trusting the planning read  720ms
+   ✓ carries unexecuted target evidence into a fresh browser session without granting historical execution  697ms
+   ✓ reuses entry replay but stops at verified target arrival when unrelated document state differs  1227ms
+   ✓ reports arrival independently of pending region decisions and leaves actual dispatch gated  406ms
+   ✓ continues deterministic recovery for a settled mechanical obstruction without claiming early arrival  995ms
+ ✓ tests/observed-source-return.test.ts (15 tests) 8927ms
+   ✓ returns to the native page after the old modal disappears, without restoring its checkpoint or executing new work  1647ms
+   ✓ distinguishes two native entries with the same URL and uses no action when already at the exact source  785ms
+   ✓ preserves an ordinary boundary reached at the source and does not authorize actions behind it  876ms
+   ✓ will not navigate out of a different page with an active boundary  475ms
+   ✓ rechecks debt introduced during awaited driver validation before a history dispatch  566ms
+   ✓ rechecks the returned position rather than trusting successful driver dispatch  701ms
+   ✓ keeps an unsuccessful or unknown return unsuccessful even if the final URL is the requested page  708ms
+   ✓ rejects changed declared context observed after an otherwise successful history return  699ms
+   ✓ reports unassessed observed-UI effects without claiming business-state restoration  713ms
+ ✓ tests/explorer-recovery-outcomes.test.ts (6 tests) 3589ms
+   ✓ blocks strict checkpoint fallback before recovery when an earlier recovery result is unknown  435ms
+   ✓ does not accept a source-position result as strict checkpoint restoration  506ms
+   ✓ resumes the original route once after explicit source verification and retains a failed retry limit  907ms
+   ✓ rediscovers a recovery crash from its source session before starting a new round without pendingDispatch  374ms
+   ✓ retains actual position and unknown recovery debt even when the host returns REACHED_VERIFIED  675ms
+   ✓ retains actual position and unknown recovery debt even when the host returns UNVERIFIED  691ms
+ ✓ tests/okx-storage-acceptance.test.ts (29 tests) 2596ms
+   ✓ settles delayed work and writes summary before exit using direct-node-signal without a browser/provider  700ms
+   ✓ settles delayed work and writes summary before exit using tsx-cli-signal without a browser/provider  738ms
+   ✓ settles delayed work and writes summary before exit using direct-node-stop-file without a browser/provider  1105ms
+ ✓ tests/explorer-navigation-return.test.ts (2 tests) 2401ms
+   ✓ returns from unknown-effect button navigation while retaining page obligations; unresolved execution=false  1436ms
+   ✓ returns from unknown-effect button navigation while retaining page obligations; unresolved execution=true  964ms
+ ✓ tests/explorer-observed-source-return.test.ts (2 tests) 1920ms
+   ✓ returns a page discovery obligation without replaying its vanished modal; late unknown=false  1194ms
+   ✓ returns a page discovery obligation without replaying its vanished modal; late unknown=true  726ms
+ ✓ tests/explorer-source-return-scheduling.test.ts (35 tests) 68ms
+
+ Test Files  7 passed (7)
+      Tests  101 passed (101)
+   Start at  05:33:48
+   Duration  33.01s (transform 615ms, setup 0ms, collect 2.89s, tests 29.16s, environment 1ms, prepare 232ms)
+

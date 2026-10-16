@@ -16,6 +16,8 @@ async function fixture(){
  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
  const url=`http://127.0.0.1:${(server.address() as {port:number}).port}/`,dir=mkdtempSync(join(tmpdir(),'explorer-recovery-outcomes-'));
  const host=new BrowserEngine({persistence:new SqliteStore(join(dir,'host')),hooks:{verifyExternalRecovery:()=>({result:'pass',evidence:['Local fixture recovery state independently verified']})}});
+ // This suite exercises the strict-checkpoint fallback of older host contracts.
+ Object.defineProperty(host,'returnToObservedSource',{value:undefined});
  const session=await host.createSession({url,headless:true,settleMs:0,observeTimeoutMs:100,executionPolicy:'interface-only',exploration:'controls',regionExploration:'off',pageExploration:'all',listExploration:'all'});
  const source=host.observation(session.id),checkpoint=await host.createCheckpoint(session.id,'Source');
  const leave=await host.execute(session.id,host.actions(session.id).find(a=>a.label==='Leave')!.id,'leave');
@@ -40,6 +42,19 @@ it('blocks strict checkpoint fallback before recovery when an earlier recovery r
   expect(checkpoint).not.toHaveBeenCalled();expect(target).not.toHaveBeenCalled();expect(f.round.stack).toEqual(before);
   expect(f.task.unverifiedRecoveries).toEqual([{sessionId:f.leave.sessionId,observationId:f.current.id,attemptIds:[f.leave.id]}]);
   expect(f.host.list<ActionAttempt>(f.leave.sessionId,'attempt')).toHaveLength(1);expect(f.task.plan[0].status).toBe('unresolved');
+ }finally{await f.close();}
+});
+
+it('does not accept a source-position result as strict checkpoint restoration',async()=>{
+ const f=await fixture();try{
+  const reach=f.host.reachCheckpoint.bind(f.host);
+  vi.spyOn(f.host,'reachCheckpoint').mockImplementation(async(sid,id)=>({...await reach(sid,id),status:'SOURCE_REACHED' as any,checkpointVerified:false}));
+  await f.runtime().step(f.task,f.round,new AbortController().signal);
+  const events=f.plugin.store.events(f.task.id);
+  expect(events.find(e=>e.type==='recovery.contract_rejected')?.data).toMatchObject({hostResultStatus:'SOURCE_REACHED'});
+  expect(events.find(e=>e.type==='recovery.result')?.data).toMatchObject({status:'UNVERIFIED',reason:'host_recovery_contract_mismatch',checkpointVerified:false});
+  expect(events.some(e=>e.type==='recovery.source_reached')).toBe(false);
+  expect(Object.values(f.task.routeRetries!.routes).flatMap(route=>Object.values(route.conditions)).every(record=>record.outcome!=='verified')).toBe(true);
  }finally{await f.close();}
 });
 

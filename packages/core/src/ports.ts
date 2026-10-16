@@ -78,6 +78,12 @@ export interface InteractionDriver<O extends Observation, S extends SessionOptio
 export interface ScopeStart { name: string; region: string }
 export interface ExplorationCase { key: string; policy: string; evidence: string[] }
 export interface RestorationStep { action: ActionCandidate; expectedCanonical: string; evidence: string[] }
+/** Platform evidence for a retained position; no UI or operation equivalence. */
+export interface ObservedSourcePosition {
+  status: 'reached' | 'returnable' | 'unavailable' | 'unknown';
+  reason: string;
+  checks: import('./types.js').ReachResult['checks'];
+}
 /** Platform policy lives behind this port. The engine does not interpret action kinds. */
 export interface InteractionAdapter<O extends Observation = Observation, S extends SessionOptions = SessionOptions> {
   readonly ruleVersion: string;
@@ -102,6 +108,9 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   entryAction?(observation: O, session: Session<S>): ActionCandidate;
   /** Native return to an observed source; full checkpoint equality remains separately verified. */
   returnToObservation?(target: O, current: O, session: Session<S>): ActionCandidate | undefined;
+  /** Verify exact source position and whether a single native return is available.
+   * Implementations must not infer arrival from URL or UI similarity alone. */
+  observedSourcePosition?(target: O, current: O): ObservedSourcePosition;
   /** Explicit sampling policy. This is not a state equivalence or independence claim. */
   explorationCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
   /** Decode explicitly supported historical representative sampling policies.

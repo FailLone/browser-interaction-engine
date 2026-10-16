@@ -56,8 +56,8 @@ interface Marker { format: typeof FORMAT; directory: string; owner: string; crea
 interface Cursors { plugin: number; engine: Record<string, number> }
 interface Guard { at: string; reason: string; details?: unknown; prior?: { status: string; reason?: string; usage: Budget } }
 /** Retain the SDK outcome unchanged and stop before the caller schedules more work. */
-export function retainRecoveryResult<T extends { status: string }>(api: 'reachCheckpoint' | 'reachExplorationTarget', sessionId: string, result: T, stop: (reason: string, details: unknown) => void): T {
-  const successful = api === 'reachCheckpoint' ? ['REACHED_VERIFIED', 'REACHED_ACCEPTABLE'].includes(result.status) : result.status === 'TARGET_REACHED';
+export function retainRecoveryResult<T extends { status: string }>(api: 'reachCheckpoint' | 'reachExplorationTarget' | 'returnToObservedSource', sessionId: string, result: T, stop: (reason: string, details: unknown) => void): T {
+  const successful = api === 'reachCheckpoint' ? ['REACHED_VERIFIED', 'REACHED_ACCEPTABLE'].includes(result.status) : api === 'returnToObservedSource' ? result.status === 'SOURCE_REACHED' : result.status === 'TARGET_REACHED';
   if (!successful) stop('recovery_not_verified', { api, sessionId, result });
   return result;
 }
@@ -520,6 +520,13 @@ async function main() {
       const began = performance.now();
       try { const result = await target(...input); const record = { api: 'reachExplorationTarget', sessionId: input[0], status: result.status, elapsedMs: performance.now() - began, observationId: result.observationId, attemptIds: result.attemptIds, matchedActionIds: result.matchedActionIds, checkpointVerified: result.checkpointVerified }; recoveries.push(record); log('recovery.returned', { ...record, result }); return retainRecoveryResult('reachExplorationTarget', input[0], result, requestStop); }
       catch (error) { log('recovery.failed', { api: 'reachExplorationTarget', sessionId: input[0], elapsedMs: performance.now() - began, code: code(error) }); throw error; }
+    };
+    const sourceReturn = host.returnToObservedSource.bind(host);
+    host.returnToObservedSource = async (...input) => {
+      if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
+      const began = performance.now();
+      try { const result = await sourceReturn(...input); const record = { api: 'returnToObservedSource', sessionId: input[0], status: result.status, elapsedMs: performance.now() - began, observationId: result.observationId, attemptIds: result.attemptIds, checkpointVerified: result.checkpointVerified }; recoveries.push(record); log('recovery.returned', { ...record, result }); return retainRecoveryResult('returnToObservedSource', input[0], result, requestStop); }
+      catch (error) { log('recovery.failed', { api: 'returnToObservedSource', sessionId: input[0], elapsedMs: performance.now() - began, code: code(error) }); throw error; }
     };
     const event = pluginStore.event.bind(pluginStore);
     pluginStore.event = input => {
