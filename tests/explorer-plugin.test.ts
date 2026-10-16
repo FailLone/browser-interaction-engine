@@ -10,6 +10,7 @@ import { ExplorerPlugin,ExplorerStore,ExplorerError,type Provider,type ModelRequ
 import { createServer } from '../apps/server/src/server.js';
 import { digest,scopeFor,scopeControlKey } from '../packages/explorer-plugin/src/policy.js';
 import { remapStoredScopes } from '../packages/explorer-plugin/src/scope-migration.js';
+import { pageOf } from './helpers.js';
 
 const repeatedRecords=()=>`<section aria-label="Records">${['Alpha','Beta','Gamma'].map(name=>`<article data-key="${name}"><span>${name}</span><button type="button" onclick="this.disabled=true">Visit ${name}</button></article>`).join('')}</section>`;
 it.each(['all','partial','across-rounds'] as const)('reconciles repeated legacy field gaps only after %s matching controls are verified',async(mode)=>{
@@ -328,7 +329,11 @@ it('traverses admissible actions on JEV ranking ties without LLM fallback or out
  try{const t=plugin.create({url:f.url,goal:'Only Alpha',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
  expect(v.task.status).toBe('completed');expect(v.decisions.filter(d=>d.actor==='llm').map(d=>d.purpose)).toEqual(['initial-plan']);
  expect(f.host.list<any>(v.task.rounds[0].sessionId,'attempt').filter(a=>a.purpose==='external').map(a=>a.action.label)).toEqual(['Alpha']);
- expect(v.decisions.some(d=>d.purpose==='next-action')).toBe(false);expect(v.events.find(e=>e.type==='action.selected')?.data).toMatchObject({reason:'stable_candidate_order'});
+ expect(v.decisions.some(d=>d.purpose==='next-action')).toBe(false);
+ const selected=v.events.find(e=>e.type==='action.selected')?.data as {selectedItemId:string;actionId:string};
+ expect(selected).toMatchObject({reason:'obligation_order',reentry:false});
+ expect(v.task.plan.find(item=>item.id===selected.selectedItemId)?.scope).toMatchObject({label:'Alpha',kind:'click'});
+ expect(v.events.find(e=>e.type==='obligation.selected')?.data).toMatchObject({itemId:selected.selectedItemId,actionId:selected.actionId,coverageGranted:false,executionAuthorized:false});
  }finally{await plugin.close();await f.close();}
 });
 it('does not ask for a follow-up plan merely because the session action budget was reached',async()=>{
@@ -493,9 +498,13 @@ it('keeps same-name ambiguous targets unresolved without selecting an arbitrary 
 });
 it('revalidates changed dispatch bindings instead of treating old success as the new case',async()=>{
  let entries=0;const f=await explorerFixture(()=>{entries++;return `<button id="alpha" type="button" onclick="this.dataset.variant='${entries===1?'old':'new'}';this.disabled=true">Alpha</button><button id="beta" type="button" onclick="this.disabled=true">Beta</button>`;});
+ const execute=f.host.execute.bind(f.host),variants:(string|null)[]=[];
+ f.host.execute=async(...args)=>{const attempt=await execute(...args);if(attempt.action.label==='Alpha'&&attempt.status==='succeeded')variants.push(await pageOf(f.host).locator('#alpha').getAttribute('data-variant'));return attempt;};
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
  try{const t=plugin.create({url:f.url,goal:'Both buttons',sessionOptions:{maxActions:1,settleMs:0,observeTimeoutMs:100},budget:{rounds:3,actions:5}});plugin.start(t.id);await plugin.waitForIdle();const task=plugin.view(t.id).task;
- expect(task.status,JSON.stringify(task,null,2)).toBe('completed');expect(task.rounds.map(r=>f.host.list<any>(r.sessionId,'attempt').map(a=>a.action.label))).toEqual([['Alpha'],['Alpha'],['Beta']]);expect(task.usage.actions).toBe(3);
+ const rounds=task.rounds.map(r=>f.host.list<any>(r.sessionId,'attempt').map(a=>a.action.label));
+ expect(task.status,JSON.stringify(task,null,2)).toBe('completed');expect(rounds).toHaveLength(3);expect(rounds.every(actions=>actions.length===1)).toBe(true);
+ expect(rounds.flat().sort()).toEqual(['Alpha','Alpha','Beta']);expect(variants).toEqual(['old','new']);expect(task.usage.actions).toBe(3);
  }finally{await plugin.close();await f.close();}
 });
 it('grounds plans in accessible action names and records current members when retaining scopes',async()=>{

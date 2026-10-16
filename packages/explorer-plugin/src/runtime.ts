@@ -3,7 +3,7 @@ import { observedPosition, reconcileRecoveryPosition, routeAttempt } from './nav
 import { projectObligations, recoveryConditionVersion, recoveryRouteConditionVersion, recoveryRouteKey, recordRouteRetry, routeRetryEligibility, releaseRouteRetriesForVerifiedRecovery } from './obligation-lifecycle.js';
 import {capturedRoute,routeFinder,routeMatches,routeKey} from './reentry-evidence.js';
 import { randomUUID } from 'node:crypto';
-import { browserTargetConditions, sameObservedState } from '@interaction/browser';
+import { browserOperationCorrespondenceHint, browserTargetConditions, sameObservedState } from '@interaction/browser';
 import { z } from 'zod';
 import type { ActionCandidate, ActionAttempt, Observation, EngineEvent, BoundaryExitResult, ContinuationRecord, IdentityHypothesis } from '@interaction/browser';
 import { ExplorerError, type Task, type Round, type Frame, type PlanItem, type Scope, type ExplorerHost, type Providers, type Decision, type ModelRequest } from './types.js';
@@ -18,9 +18,14 @@ import { semanticAnswerSchema, semanticRejection, type SemanticReview } from './
 import { remapStoredScopes, remapStoredReviewScopes, recoverStoredScopeSources } from './scope-migration.js';
 import { reviewGapChanges, controlReviewGapReasons } from './review-ledger.js';
 import { completedOperations } from './completion-evidence.js';
+import { initialSchedule, orderedObligations, unfinishedObligations, selectObligation, reserveObligation, bindScheduledRoute, routeDebtAllows, localSelectionLimit, type ObligationSelection } from './obligation-scheduler.js';
+import type { Checkpoint } from '@interaction/browser';
 
 const requiredCapabilities: (keyof ExplorerHost)[]=['operationCoverageCandidates','actionAvailability','operationCorrespondences','explorationSnapshot','controlInterpretationSnapshot','boundaryState','interactionTransition','navigationIsolation','recoveryAssessment','sessions','session','createSession','observation','observe','actions','execute','command','getFrontier','report','list','regionReviewMaterial','explorationReviewMaterial','controlClassificationMaterial','controlReviewMaterial','purposeReviewMaterial','discoveryScanMaterial','createCheckpoint','reachCheckpoint','pause','stop','pinEvidence','unpinEvidence'];
 const now=()=>new Date().toISOString();
+type ScheduledRoute=NonNullable<Task['scheduling']>['routes'][string];
+type RouteConditionReader=(route:ScheduledRoute)=>string|undefined;
+type ScheduledRecovery={frame:Frame;source:Observation;remaining:Scope[];itemId:string;routeKey:string;targetActionIds:string[];conditionVersion:string};
 export class ExplorerPlugin {
   readonly router:DecisionRouter;
   private active?: {task:Task;controller:AbortController;promise:Promise<void>};
@@ -82,7 +87,7 @@ export class ExplorerPlugin {
     // source allocation. plan.revised preserves both the previous and new plan.
     if(supplement){const children=new Map(task.plan.map(item=>[item.id,item]));for(const parent of task.plan)for(const link of parent.conditionMigration?.children||[]){const child=children.get(link.itemId);if(child){link.required=child.required;link.dispatchScope=child.dispatchScope===true;}}}
     const round=task.rounds.at(-1);if(round){round.status='finished';round.endedAt=now();}
-    delete task.obligations;task.revision++;task.status='idle';task.reason='plan_revised';this.store.save(task);this.event(task,'plan.revised',{supplement,itemIds:input.itemIds,previous,plan:task.plan});return task;
+    delete task.obligations;if(task.scheduling){delete task.scheduling.selection;delete task.scheduling.cursor;task.scheduling.localSelections=0;}task.revision++;task.status='idle';task.reason='plan_revised';this.store.save(task);this.event(task,'plan.revised',{supplement,itemIds:input.itemIds,previous,plan:task.plan});return task;
   }
   extendBudget(id:string,input:unknown) {
     if(this.owner()===id)throw new ExplorerError('PAUSE_REQUIRED');
@@ -449,6 +454,7 @@ export class ExplorerPlugin {
       if(task.plan.some(item=>item.conditionMigration?.integrityFailure)){task.status='blocked';task.reason='condition_split_invalid';this.store.save(task);this.event(task,'task.halted',{reason:task.reason,executionAuthorized:false});return;}
       const recovered=recoverStoredScopeSources(task,this.host);
       if(recovered.length){this.store.save(task);this.event(task,'scope.source_recovered',{changes:recovered,historicalEvidenceOnly:true,originalCreationSource:false,executionAuthorized:false,historicalResultsUnchanged:true});}
+      this.initializeScheduling(task);
       let round=task.rounds.at(-1);
       // Extending aggregate time cannot change a previously created host session.
       if(round?.status==='paused'&&round.policyVersion===POLICY_VERSION&&this.host.session(round.sessionId).options.executionPolicy===(task.sessionOptions.executionPolicy??'observed-ui')&&this.sessionTimeExhausted(round)&&await this.finishRound(task,round,signal,true))return;
@@ -468,7 +474,7 @@ export class ExplorerPlugin {
         // rows stay unchanged. Pending queues are not completed work: rebuilding
         // all host review material here adds reads without proving progress.
         // Dispatch and completion still fetch their own current host material.
-        const fresh=this.host.observation(round.sessionId);const signature=digest({fingerprint:fresh.fingerprint,actions:this.host.session(round.sessionId).actionCount,plan:task.plan.map(i=>({scope:i.scope,status:i.status})),reviewProgress:{completed:round.reviewed,refreshed:round.evidenceRefreshes||[],clarified:round.semanticReviews||[]}});
+        const fresh=this.host.observation(round.sessionId);const signature=digest({fingerprint:fresh.fingerprint,actions:this.host.session(round.sessionId).actionCount,plan:task.plan.map(i=>({scope:i.scope,status:i.status})),routeProgress:Object.entries(task.routeRetries?.routes||{}).map(([key,route])=>[key,Object.entries(route.conditions).map(([condition,record])=>[condition,record.attempts,record.outcome])]),reviewProgress:{completed:round.reviewed,refreshed:round.evidenceRefreshes||[],clarified:round.semanticReviews||[]}});
         round.noProgress=(!acted||signature===round.lastProgress)?round.noProgress+1:0;round.lastProgress=signature;this.store.save(task);
         const sessionTime=this.sessionTimeExhausted(round),sessionBudget=sessionTime||this.host.session(round.sessionId).actionCount>=this.host.session(round.sessionId).options.maxActions;
         if(acted&&!sessionBudget&&round.noProgress<3)continue;
@@ -486,15 +492,160 @@ export class ExplorerPlugin {
       if(task.status==='running')task.status='paused';this.store.save(task);
     }
   }
+  private initializeScheduling(task:Task) {
+    if(task.scheduling?.version===1){
+      for(const [key,route] of Object.entries(task.scheduling.routes))if((!route.memberKeys||!route.pathKeys)&&!route.membershipUnavailable){
+        try{const source=this.host.observation(route.sessionId,route.observationId),actions=this.host.actions(route.sessionId,source.id);
+          route.memberKeys=route.targets.map(scope=>recoveryRouteKey(source,actions,[scope]));route.pathKeys=route.path.map(scope=>recoveryRouteKey(source,actions,[scope]));
+        }catch{route.membershipUnavailable=true;if(task.routeRetries?.routes[key]&&!task.scheduling.legacyUnmappedRouteKeys.includes(key))task.scheduling.legacyUnmappedRouteKeys.push(key);}
+      }
+      return task.scheduling;
+    }
+    const schedule=task.scheduling=initialSchedule(task);
+    // Older retry keys are opaque. Associate only an exact retained frame key;
+    // a newly generated target/checkpoint cannot erase an unmapped old debt.
+    if(schedule.legacyUnmappedRouteKeys.length)for(const round of task.rounds)for(const frame of round.stack){
+      try{
+        const source=this.host.observation(round.sessionId,frame.observationId),actions=this.host.actions(round.sessionId,source.id);
+        const key=recoveryRouteKey(source,actions,frame.remaining,frame.path);
+        if(!task.routeRetries?.routes[key])continue;
+        bindScheduledRoute(schedule,key,{sessionId:round.sessionId,observationId:source.id,checkpointId:frame.checkpointId,targets:frame.remaining,path:frame.path,
+          itemIds:task.plan.filter(i=>frame.remaining.some(scope=>digest(scope)===digest(i.scope))).map(i=>i.id),memberKeys:frame.remaining.map(scope=>recoveryRouteKey(source,actions,[scope])),pathKeys:frame.path.map(scope=>recoveryRouteKey(source,actions,[scope])),...frame.recoveryFailure?{failure:frame.recoveryFailure}:{}});
+      }catch{/* Retain the unmapped debt; missing sources cannot renew retries. */}
+    }
+    return schedule;
+  }
+  /** Names may change while the SDK's native operation hint stays the same.
+   * Remap only retry-condition inputs, never execution targets or task scopes. */
+  private routeConditionReader(o:Observation,actions:ActionCandidate[]):RouteConditionReader {
+    // This index belongs to this observation AND candidate set. Coverage's
+    // operationCandidates may differ from executable actions; callers share the
+    // action reader explicitly, and must rebuild it after any awaited recovery.
+    type Current={action:ActionCandidate;scope:Scope;verified:boolean;native:boolean;link:boolean;ambiguous:boolean};
+    let current:Map<string,Current[]>|undefined,rows:Current[]=[];
+    return route=>{
+      if(route.membershipUnavailable||!route.memberKeys||!route.pathKeys)return;
+      if(!current){
+        current=new Map();const controls=new Map(o.controls.map(control=>[control.localId,control])),scoped=new Map<string,Current[]>();
+        for(const action of actions){
+          const control=controls.get(action.localId||''),scope=scopeFor(action,o),row={action,scope,verified:!!browserTargetConditions(action,o),native:!!control&&!!browserOperationCorrespondenceHint(control,action.kind,o),link:control?.tag==='a'&&control.role==='link',ambiguous:false};
+          rows.push(row);const key=digest(scope),bucket=scoped.get(key)||[];bucket.push(row);scoped.set(key,bucket);
+        }
+        for(const bucket of scoped.values()){
+          if(bucket.length>1)for(const row of bucket)row.ambiguous=true;
+          // Pass only this exact scope's members, preserving nonunique matches
+          // without scanning the entire action set once per action and route.
+          const key=recoveryRouteKey(o,bucket.map(row=>row.action),[bucket[0].scope]),members=current.get(key)||[];members.push(...bucket);current.set(key,members);
+        }
+      }
+      const scopes=[...route.path,...route.targets],keys=[...route.pathKeys,...route.memberKeys],projected:Scope[]=[];
+      for(let index=0;index<scopes.length;index++){
+        const scope=scopes[index],members=current.get(keys[index]);
+        if(members&&(members.length!==1||!members[0].verified))return;
+        if(!members&&scope.kind){
+          // A lost/ambiguous hint is not proof that the old target disappeared.
+          // Only conservatively limit retry allowance; this comparison never
+          // supplies target correspondence or execution/coverage permission.
+          const possible=rows.filter(row=>['url','kind','role','region','value'].every(key=>scope[key as keyof Scope]===undefined||scope[key as keyof Scope]===row.scope[key as keyof Scope]));
+          if(possible.some(row=>!row.verified||row.ambiguous||row.link&&!row.native))return;
+        }
+        projected.push(members?.[0].scope||scope);
+      }
+      return recoveryRouteConditionVersion(o,actions,projected);
+    };
+  }
+  private deferObligation(task:Task,itemId:string,conditionVersion:string,reason:string) {
+    const schedule=this.initializeScheduling(task),previous=schedule.deferred?.[itemId];
+    if(previous?.conditionVersion===conditionVersion&&previous.reason===reason)return;
+    (schedule.deferred??={})[itemId]={conditionVersion,reason};
+    this.event(task,'obligation.route_unavailable',{itemId,conditionVersion,reason,retainedInPlan:true,coverageGranted:false});
+  }
+  /** Resolve durable work against retained checkpoint evidence. The DFS stack is
+   * an optional path/cost hint, never the source of the unfinished-work set. */
+  private scheduledRecovery(task:Task,round:Round,o:Observation,actions:ActionCandidate[],availability:ReturnType<ExplorerHost['actionAvailability']>,routeCondition:RouteConditionReader):ScheduledRecovery|undefined {
+    const schedule=this.initializeScheduling(task),entries=new Map(task.obligations?.entries.map(entry=>[entry.itemId,entry])||[]);
+    const authorities=task.plan.filter(item=>item.required&&item.dispatchScope===true&&schedulableObligation(item)&&item.status!=='excluded');
+    const contains=(scope:Scope,item:PlanItem)=>Object.entries(scope).every(([key,value])=>item.scope[key as keyof Scope]===value);
+    const pending=orderedObligations(task.plan,schedule).filter(item=>{
+      if(!authorities.some(authority=>contains(authority.scope,item)||authority.prerequisites.some(scope=>contains(scope,item)))||task.plan.some(excluded=>!excluded.required&&excluded.reason==='user_excluded'&&contains(excluded.scope,item)))return false;
+      if(item.reason.startsWith('missing_capability:')||item.reason==='unknown_action_outcome')return false;
+      const entry=entries.get(item.id);
+      const current=entry?.currentActionId&&actions.find(action=>action.id===entry.currentActionId);
+      if(entry?.state==='alias')return false;
+      if(current&&current.preconditions.visible&&(!current.localId||o.controls.some(control=>control.localId===current.localId&&control.visible))){
+        const fact=availability.actions.find(fact=>fact.actionId===current.id);
+        if(fact?.executable||!current.preconditions.enabled||fact?.blockers.some(blocker=>blocker.code==='ACTION_BLOCKED'&&['submission_not_authorized','interface_risk_required','action_basis_unconfirmed'].includes(blocker.reason)))return false;
+      }
+      if(broadScope(item.scope))return !!item.scope.url&&item.scope.url!==o.url;
+      return !!item.evidence.length||item.dispatchScope===true;
+    });
+    if(!pending.length)return;
+    const checkpoints=this.host.list<Checkpoint>(o.sessionId,'checkpoint'),byObservation=new Map<string,Checkpoint[]>();
+    for(const checkpoint of checkpoints){const rows=byObservation.get(checkpoint.observationId)||[];rows.push(checkpoint);byObservation.set(checkpoint.observationId,rows);}
+    const retained=new Map<string,{source:Observation;actions:ActionCandidate[]}|undefined>();
+    const read=(observationId:string)=>{
+      if(retained.has(observationId)){const value=retained.get(observationId);retained.delete(observationId);retained.set(observationId,value);return value;}
+      let value:{source:Observation;actions:ActionCandidate[]}|undefined;
+      try{value={source:this.host.observation(o.sessionId,observationId),actions:this.host.actions(o.sessionId,observationId)};}catch{}
+      retained.set(observationId,value);while(retained.size>8)retained.delete(retained.keys().next().value!);return value;
+    };
+    for(const item of pending){
+      const refs=[...new Set(item.evidence.filter(ref=>ref.sessionId===o.sessionId&&!ref.attemptId).map(ref=>ref.observationId))].reverse();
+      const candidates=refs.length?refs.flatMap(ref=>[...(byObservation.get(ref)||[])].reverse()):broadScope(item.scope)||!item.evidence.length?[...checkpoints].reverse():[];
+      let reason=candidates.length?'source_target_unverified':item.evidence.some(ref=>ref.sessionId!==o.sessionId)?'cross_session_observed_route_required':'retained_checkpoint_unavailable';
+      for(const checkpoint of candidates){
+        const facts=read(checkpoint.observationId);if(!facts)continue;
+        const {source,actions:sourceActions}=facts;
+        if(source.gaps.some(g=>g.critical)||Object.values(source.context).some(value=>value.status!=='known'))continue;
+        if(item.scope.url&&item.scope.url!==source.url)continue;
+        const targets=sourceActions.filter(action=>matches(item.scope,action,source)&&(!boundOperationCondition(item)||boundOperationCondition(item)===keyFor(action,source)));
+        if(item.scope.kind&&(targets.length!==1||!browserTargetConditions(targets[0],source)))continue;
+        const present=actions.filter(action=>matches(item.scope,action,o));
+        if(targets.length&&targets.every(action=>!action.preconditions.enabled)&&present.length&&present.every(action=>!action.preconditions.enabled)){reason='source_target_already_disabled';continue;}
+        if(!item.scope.kind&&!broadScope(item.scope)&&!source.controls.some(control=>controlInScope(item.scope,control,source,sourceActions)))continue;
+        if(sameObservedState(source,o))continue;
+        const hint=round.stack.find(frame=>frame.observationId===source.id&&frame.checkpointId===checkpoint.id);
+        const memberKey=recoveryRouteKey(source,sourceActions,[item.scope]),sourceCondition=item.scope.kind&&targets.length===1?browserTargetConditions(targets[0],source)?.key:undefined;
+        const related=Object.entries(schedule.routes).filter(([,route])=>(!route.sourceCondition||route.sourceCondition===sourceCondition)&&(route.memberKeys?.includes(memberKey)||route.targets.some(scope=>digest(scope)===digest(item.scope))));
+        const old=related.find(([key,route])=>route.memberKeys?.includes(memberKey)||recoveryRouteKey(source,sourceActions,route.targets,route.path)===key);
+        if(!old&&related.some(([key])=>task.routeRetries?.routes[key])){reason='mapped_route_debt_source_unverified';continue;}
+        const hintKey=hint&&recoveryRouteKey(source,sourceActions,hint.remaining,hint.path),legacyHint=hintKey&&task.routeRetries?.routes[hintKey]?hint:undefined;
+        // New routes budget individual goals. A DFS frame may contain unrelated
+        // siblings; A failing must not consume B's first reach attempt.
+        const budgetTargets=old?.[1].targets||legacyHint?.remaining||[item.scope],path=old?.[1].path||legacyHint?.path||hint?.path||item.prerequisites;
+        const baseKey=recoveryRouteKey(source,sourceActions,budgetTargets,path);
+        // A new route serves a verified source condition, so failure to reach A
+        // cannot spend B's first attempt while both are currently absent. Older
+        // opaque/composite debt has no such proof and keeps its original key.
+        const legacy=!!old&&!old[1].sourceCondition||!!legacyHint||!!task.routeRetries?.routes[baseKey];
+        const key=old?.[0]||(!legacy&&sourceCondition?digest({policy:'explorer-source-target-route-v1',route:baseKey,sourceCondition}):baseKey);
+        // An exact legacy key is a valid association; otherwise no new budget
+        // can be minted while an older route's scope remains unknown.
+        if(task.routeRetries?.routes[key]&&!schedule.routes[key])bindScheduledRoute(schedule,key,{sessionId:o.sessionId,observationId:source.id,checkpointId:checkpoint.id,targets:budgetTargets,path,itemIds:[item.id],memberKeys:budgetTargets.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),pathKeys:path.map(scope=>recoveryRouteKey(source,sourceActions,[scope]))});
+        if(!routeDebtAllows(schedule,key)){reason='legacy_route_debt_unmapped';continue;}
+        const route={sessionId:o.sessionId,observationId:source.id,checkpointId:checkpoint.id,targets:budgetTargets,path,...(!legacy&&sourceCondition?{sourceCondition}:{}),itemIds:[...new Set([...(old?.[1].itemIds||[]),item.id])],memberKeys:old?.[1].memberKeys||budgetTargets.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),pathKeys:old?.[1].pathKeys||path.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),...old?.[1].failure?{failure:old[1].failure}:{}};
+        const conditionVersion=routeCondition(route);if(!conditionVersion){reason='route_condition_unverified';continue;}
+        const retry=routeRetryEligibility(task.routeRetries,key,conditionVersion);
+        if(!retry.allowed){reason=`route_retry_${retry.reason}`;continue;}
+        const frame:Frame={checkpointId:checkpoint.id,observationId:source.id,stateId:source.stateId,used:[],path,remaining:budgetTargets};
+        bindScheduledRoute(schedule,key,route);
+        const concrete=!!item.scope.kind&&!!(item.scope.label||item.scope.stableKey||item.scope.value!==undefined);
+        return {frame,source,remaining:[item.scope],itemId:item.id,routeKey:key,conditionVersion,targetActionIds:concrete?targets.filter(action=>action.basis?.status==='supported').map(action=>action.id):[]};
+      }
+      this.deferObligation(task,item.id,recoveryConditionVersion(o),reason);
+    }
+  }
   private async step(task:Task,round:Round,signal:AbortSignal):Promise<boolean> {
     const sid=round.sessionId,o=this.host.observation(sid);this.assert(task,signal);
     this.trackBoundary(round,o);round.position=observedPosition(o);
     if(this.host.recoveryAssessment(sid).blockingBoundaryExit)throw new ExplorerError('BOUNDARY_EXIT_UNVERIFIED');
+    if(task.plan.length&&!task.plan.some(item=>item.required&&item.dispatchScope===true&&schedulableObligation(item)&&item.status!=='excluded'))return false;
     await this.retainHostLimitations(task,o,signal);
     if(o.gaps.some(g=>g.critical)){this.gap(task,'observation_incomplete',{url:o.url});return false;}
     await this.reconcileReviewLedger(task,o,signal);
-    const goals=task.plan.filter(i=>i.required&&i.dispatchScope===true);
-    if(goals.length&&goals.every(i=>i.status==='succeeded'))return false;
+    // Authority rows define permission; concrete unfinished children define work.
+    // A completed one-shot goal with no remaining children does not become a monitor.
+    if(task.plan.length&&!task.plan.some(i=>i.required&&isUnfinished(i)))return false;
     const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id),unresolvedBefore=new Set(Object.keys(round.unresolvedPurposeReviews||{}));
     try { const reviewed=await reviewNext({host:this.host,task,observation:o,
       hasPendingAction:(filter?: (action:ActionCandidate)=>boolean,freshOnly=false)=>{
@@ -542,26 +693,55 @@ export class ExplorerPlugin {
       // A coarse historical gap can match several distinct current controls. Keep
       // each exact operation's evidence so one success never suppresses its peers.
       const path=pathFor(scope,candidate.localId);
-      if(!recordedScopes.has(key)){task.plan.push(this.newItem({title:`${candidate.kind} ${candidate.label}`,scope,prerequisites:[...path],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false,o,condition));recordedScopes.add(key);}
+      if(!recordedScopes.has(key)||(recordedItems.get(key)||[]).every(item=>!isUnfinished(item))){task.plan.push(this.newItem({title:`${candidate.kind} ${candidate.label}`,scope,prerequisites:[...path],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false,o,condition));recordedScopes.add(key);}
       else for(const item of (recordedItems.get(key)||[]).filter(i=>i.dispatchScope===false&&isUnfinished(i))){
         if(digest(item.prerequisites)===digest(path))continue;
         const previous=item.prerequisites;item.prerequisites=[...path];this.event(task,'branch.route_reconciled',{itemId:item.id,previous,prerequisites:path,evidence:{sessionId:o.sessionId,observationId:o.id},scopeUnchanged:true,executionAuthorized:false});
       }
     }
+    this.auditRemainingScopes(task,round,o,snapshot,completed);
+    const routeCondition=this.routeConditionReader(o,actions);
+    this.updateObligations(task,o,snapshot.operationCandidates,routeCondition);
+    const schedule=this.initializeScheduling(task),pending=unfinishedObligations(task.plan),byId=new Map(pending.map(item=>[item.id,item]));
+    const ordered=orderedObligations(task.plan,schedule),targetOrder=new Map(ordered.map((item,index)=>[item.id,index]));
+    const orderedActions=unique.slice().sort((a,b)=>Number(a.boundary?.intent==='exit')-Number(b.boundary?.intent==='exit')||Number(!!navigationTarget(a,o))-Number(!!navigationTarget(b,o)));
+    const local:ObligationSelection[]=[],reentries:ObligationSelection[]=[];
+    for(const action of orderedActions){
+      if(fresh.has(action.id)){
+        const members=pending.filter(item=>matches(item.scope,action,o)&&(!boundOperationCondition(item)||boundOperationCondition(item)===keyFor(action,o)));
+        const exact=digest(scopeFor(action,o)),item=members.find(item=>item.scope.kind&&digest(item.scope)===exact)||members.find(item=>item.scope.kind)||members[0];
+        // Boundary exits and page traversal serve existing work without creating
+        // a recurring goal for an otherwise completed one-shot request.
+        const prerequisite=includesScope(task.plan,action,o)==='prerequisite'?pending.find(item=>item.dispatchScope===true)||pending[0]:undefined;
+        const owner=item||prerequisite;if(owner)local.push({itemId:owner.id,kind:'current',actionId:action.id,source:{sessionId:sid,observationId:o.id}});
+      }else{
+        const targets=this.entryTargets(task,action,o).sort((a,b)=>(targetOrder.get(a.id)??Infinity)-(targetOrder.get(b.id)??Infinity));
+        const target=this.reentryTarget(task,action,o,targets,true);
+        if(target&&byId.has(target.item.id))reentries.push({itemId:target.item.id,kind:'reentry',actionId:action.id,source:target.item.evidence.find(ref=>!ref.attemptId)});
+      }
+    }
+    const locality=(choice:ObligationSelection)=>{const path=byId.get(choice.itemId)?.prerequisites||[];let shared=0;while(shared<path.length&&shared<round.entryPath.length&&digest(path[shared])===digest(round.entryPath[shared]))shared++;return shared;};
+    const arrived=schedule.selection&&schedule.selection.kind!=='current'?schedule.selection.itemId:undefined;
+    local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||locality(b)-locality(a)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+    const inPlace=local.filter(choice=>{const action=actions.find(action=>action.id===choice.actionId)!;return action.boundary?.intent!=='exit'&&!navigationTarget(action,o);});
+    if(inPlace.length){local.splice(0,local.length,...inPlace);}
+    reentries.sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+    let recovery:ScheduledRecovery|undefined;
+    if(!local.length||schedule.localSelections>=localSelectionLimit)recovery=this.scheduledRecovery(task,round,o,actions,availability,routeCondition);
+    const remote:ObligationSelection[]=[...reentries,...recovery?[{itemId:recovery.itemId,kind:broadScope(byId.get(recovery.itemId)!.scope)?'inspect' as const:'recovery' as const,source:{sessionId:sid,observationId:recovery.source.id},routeKey:recovery.routeKey}]:[]]
+      .sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+    const selection=selectObligation(schedule,local,remote),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
+    const schedulingBefore={cursor:schedule.cursor,localSelections:schedule.localSelections,selection:schedule.selection};
+    if(selection){if(selectedAction)schedule.selection={...selection};else reserveObligation(schedule,selection);if(schedule.deferred)delete schedule.deferred[selection.itemId];this.event(task,'obligation.selected',{...selection,sourceObservationId:o.id,coverageGranted:false,executionAuthorized:false});}
+    if(selection?.kind!=='recovery'&&selection?.kind!=='inspect')recovery=undefined;
     this.store.save(task);
-    if(unique.length) {
+    if(selectedAction) {
       if(round.entryPath.length>(task.sessionOptions.maxDepth||10)){this.gap(task,'depth_budget',{url:o.url});return false;}
-      // Reopening an old branch while new in-place work is ready causes avoidable
-      // open/leave/reopen cycles. Keep every deferred case in the ledger and stack.
-      const deferReentry=unique.some(a=>fresh.has(a.id)&&a.boundary?.intent!=='exit'&&!navigationTarget(a,o));
-      const deferred=deferReentry?unique.filter(a=>!fresh.has(a.id)):[];
-      const selectable=deferReentry?unique.filter(a=>fresh.has(a.id)):unique;
-      if(deferred.length)this.event(task,'action.priority',{reason:'fresh_work_before_reentry',sourceObservationId:o.id,deferred:deferred.map(a=>({actionId:a.id,label:a.label,kind:a.kind})),retainedInPlan:true,executionAuthorized:false});
-      const batch=selectable.slice().sort((a,b)=>Number(a.boundary?.intent==='exit')-Number(b.boundary?.intent==='exit')||Number(!!navigationTarget(a,o))-Number(!!navigationTarget(b,o))).slice(0,200); // Later loop iterations consume remaining cases; never mark omitted cases done.
       // The host has already established mechanical executability. Traversal order
       // is scheduling policy, not a semantic question or a functionality verdict.
-      const action=batch[0],selectedReentry=!fresh.has(action.id),revision=task.revision;
-      this.event(task,'action.selected',{reason:'stable_candidate_order',actionId:action.id,label:action.label,kind:action.kind,scope:decisionScope(scopeFor(action,o)),reentry:!fresh.has(action.id),candidateCount:selectable.length,sourceObservationId:o.id,dispatchRevalidationRequired:true});
+      const action=selectedAction,selectedReentry=selection?.kind==='reentry'||this.neededEntry(task,round,action,o),revision=task.revision;
+      if(selection?.kind==='current'&&reentries.length)this.event(task,'action.priority',{reason:'fresh_work_before_reentry',sourceObservationId:o.id,deferred:reentries.map(choice=>{const action=actions.find(action=>action.id===choice.actionId);return {actionId:choice.actionId,itemId:choice.itemId,label:action?.label,kind:action?.kind};}),retainedInPlan:true,executionAuthorized:false});
+      this.event(task,'action.selected',{reason:selectedReentry?'unfinished_target_route':'obligation_order',selectionPolicy:selection?.kind==='current'?'ready_local_preference':'finite_local_batch',selectedItemId:selection!.itemId,actionId:action.id,label:action.label,kind:action.kind,scope:decisionScope(scopeFor(action,o)),reentry:selectedReentry,candidateCount:local.length+reentries.length,sourceObservationId:o.id,dispatchRevalidationRequired:true});
       this.assert(task,signal,o.id,revision);
       const checkpoint=await this.host.createCheckpoint(sid,`explorer ${round.number}/${round.stack.length+1}`,[],[]);
       this.assert(task,signal,o.id,revision);
@@ -573,7 +753,6 @@ export class ExplorerPlugin {
       // Model/checkpoint awaits may invalidate retained evidence. This read is
       // shared only by the following synchronous audit and path bookkeeping.
       const completed=completedOperations(this.host,task,o,snapshot.operationCandidates);
-      this.auditRemainingScopes(task,round,o,snapshot,completed);
       const reviews=task.plan.filter(i=>i.required&&isUnfinished(i)&&controlReviewGapReasons.has(i.reason)&&!i.scope.kind&&i.evidence.some(e=>e.observationId===o.id));
       // Reviewed executable operations have comparable operation samples. An
       // unreviewed candidate is instead retained as a review obligation above:
@@ -590,6 +769,7 @@ export class ExplorerPlugin {
       if(reentry)this.recordEntry(task,round,action,o);
       const purpose=reentry?'prerequisite':includesScope(task.plan,action,o);const items=task.plan.filter(i=>i.required&&schedulableObligation(i)&&!i.reason.startsWith('missing_capability:')&&matches(i.scope,action,o)&&(!boundOperationCondition(i)||boundOperationCondition(i)===keyFor(action,o)));
       if(purpose==='target'&&!items.some(i=>i.scope.kind&&i.scope.label)) {const leaf=this.newItem({title:`${action.kind} ${action.label}`,scope:scopeFor(action,o),prerequisites:[...entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false,o,keyFor(action,o));task.plan.push(leaf);items.push(leaf);}
+      reserveObligation(schedule,selection!);
       const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id};
       const attemptKey=this.attemptKey(round,action,o);round.tried.push(attemptKey);this.store.save(task);this.event(task,'action.scheduled',{requestId,actionId:action.id,label:action.label,kind:action.kind,purpose,itemIds:items.map(i=>i.id)});this.event(task,'action.dispatch',{requestId,actionId:action.id,purpose});
       try {const attempt=await this.host.execute(sid,action.id,requestId,undefined,{observationId:o.id,...(repetition?{repetitionSource:repetition.source}:{}),profile:this.host.session(sid).options.executionPolicy==='observed-ui'?'observed-ui-exploration':'interface-exploration'});this.recordOutcome(task,attempt,items.map(i=>i.id));if(attempt.status==='succeeded'&&attempt.afterId)this.trackTransition(task,round,o,this.host.observation(sid,attempt.afterId),scopeFor(action,o),entryPath,attempt);
@@ -598,7 +778,7 @@ export class ExplorerPlugin {
         const result=this.host.list<BoundaryExitResult>(sid,'boundary-exit-result').find(r=>r.attemptId===attempt.id);this.event(task,'boundary.exit_verified',{attemptId:attempt.id,result});
         if(!result||['changed','unverified'].includes(result.status))throw new ExplorerError('BOUNDARY_EXIT_UNVERIFIED');
       }}
-      catch(e){const attempt=this.host.list<ActionAttempt>(sid,'attempt').find(a=>a.requestId===requestId);if(attempt){this.recordOutcome(task,attempt,items.map(i=>i.id));if(!['unknown','executing'].includes(attempt.status))delete task.pendingDispatch;}else {delete task.pendingDispatch;round.tried=round.tried.filter(k=>k!==attemptKey);}this.store.save(task);throw e;}
+      catch(e){const attempt=this.host.list<ActionAttempt>(sid,'attempt').find(a=>a.requestId===requestId);if(attempt){this.recordOutcome(task,attempt,items.map(i=>i.id));if(!['unknown','executing'].includes(attempt.status))delete task.pendingDispatch;}else {delete task.pendingDispatch;round.tried=round.tried.filter(k=>k!==attemptKey);Object.assign(schedule,schedulingBefore);}this.store.save(task);throw e;}
       return true;
     }
     // Record every remaining in-scope unavailable case, including ungrouped controls.
@@ -608,79 +788,22 @@ export class ExplorerPlugin {
       if(round.tried.includes(this.attemptKey(round,action,o)))continue;
       if(!permitted(action,o,availability)){const gap=unexecutedAction(action,availability);this.gap(task,gap.reason,scopeFor(action,o),gap.required,path);}
     }
-    let recovery:{frame:Frame;source:Observation;remaining:Scope[]}|undefined;
-    const roundAttempts=new Map(this.host.list<ActionAttempt>(sid,'attempt').map(a=>[a.id,a]));
-    const executedItems=task.plan.filter(i=>i.status==='succeeded'&&i.resolvedBy?.sessionId===sid&&i.resolvedBy.attemptId);
-    for(const frame of [...round.stack].reverse()) {
-      if(frame.recoveryTried&&!frame.recoveryConditionVersion)continue;
-      const source=this.host.observation(sid,frame.observationId);
-      // A shared graph group is not proof that this historical source is here.
-      if(sameObservedState(source,o))continue;
-      const historicalActions=this.host.actions(sid,source.id),transition=this.host.interactionTransition(sid,source.id,o.id);
-      const completed=completedOperations(this.host,task,source,historicalActions);
-      // A review may replace an old candidate's risk/basis. That invalidates
-      // operation equivalence, but does not erase an actual execution of the
-      // same retained occurrence in this round. This only removes a restoration
-      // request; it grants no action, replay, or new-round execution coverage.
-      const executedHere=new Set<string>();
-      for(const item of executedItems){
-        const historical=historicalActions.filter(a=>matches(item.scope,a,source));if(historical.length!==1)continue;
-        const attempt=roundAttempts.get(item.resolvedBy!.attemptId!);
-        if(!attempt||attempt.status!=='succeeded'||!attempt.afterId||attempt.action.kind!==historical[0].kind||JSON.stringify(attempt.action.value)!==JSON.stringify(historical[0].value))continue;
-        // Retaining a node does not retain its surrounding mode. A success in
-        // mode B cannot discharge the route needed for this frame's mode A.
-        if(keyFor(historical[0],source)!==keyFor(attempt.action,this.host.observation(sid,attempt.beforeId)))continue;
-        const continuity=this.host.interactionTransition(sid,source.id,attempt.beforeId);
-        if(source.id===attempt.beforeId||continuity.retainedControls.some(c=>c.beforeLocalId===historical[0].localId&&c.afterLocalId===attempt.action.localId))executedHere.add(digest(item.scope));
-      }
-      const remaining=frame.remaining.filter(scope=>{
-        if(executedHere.has(digest(scope)))return false;
-        // A broad accepted page asks us to inspect its current UI. Once its URL
-        // is observed, reloading an obsolete modal snapshot adds no evidence.
-        if(broadScope(scope)&&scope.url===o.url)return false;
-        if(broadScope(scope)&&scope.url&&scope.url!==o.url&&task.plan.some(i=>i.required&&i.dispatchScope===true&&i.status!=='succeeded'&&i.scope.url===scope.url))return true;
-        if(!scope.kind&&task.plan.some(i=>controlReviewGapReasons.has(i.reason)&&digest(i.scope)===digest(scope)))return task.plan.some(i=>i.required&&isUnfinished(i)&&digest(i.scope)===digest(scope));
-        const candidates=historicalActions.filter(a=>matches(scope,a,source));return !candidates.length||candidates.some(a=>!completed.has(a));
-      }).filter(scope=>{
-        if(scope.kind){
-          // Restoring a checkpoint cannot remove constraints on an occurrence
-          // that is already present and observable. Keep its host blocker as a
-          // gap instead of reloading the page to seek a different permission.
-          const oldTargets=new Set(historicalActions.filter(a=>matches(scope,a,source)).map(a=>a.localId));
-          const currentTargets=new Set(transition.retainedControls.filter(c=>oldTargets.has(c.beforeLocalId)).map(c=>c.afterLocalId));
-          const present=actions.filter(a=>matches(scope,a,o)||a.kind===scope.kind&&!!a.localId&&currentTargets.has(a.localId));
-          const oldActions=historicalActions.filter(a=>matches(scope,a,source));
-          // A checkpoint that already had this disabled target cannot explain
-          // how to enable it. Keep the obligation without replaying unrelated UI.
-          if(oldActions.length&&oldActions.every(a=>!a.preconditions.enabled)&&present.length&&present.every(a=>!a.preconditions.enabled))return false;
-          if(present.some(a=>{const fact=availability.actions.find(f=>f.actionId===a.id);return fact?.blockers.some(b=>b.code==='ACTION_BLOCKED'&&['submission_not_authorized','interface_risk_required','action_basis_unconfirmed'].includes(b.reason));}))return false;
-          return true;
-        }
-        // Returning cannot clarify a still-present occurrence's unknown purpose.
-        // The host supplies occurrence continuity, not operation equivalence;
-        // changed content keeps its original unresolved evidence in the plan.
-        const previous=new Set(source.controls.filter(c=>controlInScope(scope,c,source,historicalActions)).map(c=>c.localId));
-        const retained=new Set(transition.retainedControls.filter(c=>previous.has(c.beforeLocalId)).map(c=>c.afterLocalId));
-        return !o.controls.some(c=>c.visible&&c.enabled&&(retained.has(c.localId)||controlInScope(scope,c,o,actions)));
-      });
-      if(remaining.length){const routeKey=recoveryRouteKey(source,this.host.actions(sid,source.id),remaining,frame.path),conditionVersion=recoveryRouteConditionVersion(o,actions,[...frame.path,...remaining]);if(!routeRetryEligibility(task.routeRetries,routeKey,conditionVersion).allowed)continue;recovery={frame,source,remaining};break;}
-    }
     if(recovery) {
       this.assertRecoveryOutcomes(task);
-      const {frame,source,remaining}=recovery;
-      frame.recoveryTried=true;frame.recoveryConditionVersion=recoveryRouteConditionVersion(o,actions,[...frame.path,...remaining]);
-      const routeKey=recoveryRouteKey(source,this.host.actions(sid,source.id),remaining,frame.path),recoveryAttemptKey=randomUUID();
+      const {frame,source,remaining,routeKey,itemId}=recovery;
+      frame.recoveryTried=true;frame.recoveryConditionVersion=recovery.conditionVersion;
+      const recoveryAttemptKey=randomUUID();
       task.routeRetries=recordRouteRetry(task.routeRetries,{routeKey,conditionVersion:frame.recoveryConditionVersion,attemptKey:recoveryAttemptKey,outcome:'no_progress',reason:'recovery_selected'});this.store.save(task);
       this.assert(task,signal,o.id);
-      this.event(task,'recovery.selected',{reason:'unfinished_observed_targets',checkpointId:frame.checkpointId,sourceObservationId:source.id,currentObservationId:o.id,unfinishedTargets:remaining.length,hostVerificationRequired:true});
-      const targets=this.host.actions(sid,source.id).filter(a=>a.basis?.status==='supported'&&remaining.some(scope=>scope.kind&&matches(scope,a,source)));
-      const result=targets.length&&this.host.reachExplorationTarget
-        ?await this.host.reachExplorationTarget(sid,{checkpointId:frame.checkpointId,observationId:source.id,actionIds:targets.map(a=>a.id),currentObservationId:o.id})
+      this.event(task,'recovery.selected',{reason:'unfinished_observed_targets',itemId,routeKey,checkpointId:frame.checkpointId,sourceObservationId:source.id,currentObservationId:o.id,unfinishedTargets:remaining.length,hostVerificationRequired:true});
+      const result=recovery.targetActionIds.length&&this.host.reachExplorationTarget
+        ?await this.host.reachExplorationTarget(sid,{checkpointId:frame.checkpointId,observationId:source.id,actionIds:recovery.targetActionIds,currentObservationId:o.id})
         :await this.host.reachCheckpoint(sid,frame.checkpointId);
       const actual=this.host.observation(sid),unresolved=this.recoveryOutcomes(task),unknown=unresolved.length>0,status=unknown?'UNVERIFIED':result.status;
       const unknownAttemptIds=unresolved.filter(r=>r.sessionId===sid).flatMap(r=>r.attemptIds).filter(id=>result.attemptIds.includes(id));
-      if(['UNREACHABLE','UNVERIFIED','PRECONDITIONS_CHANGED'].includes(status))frame.recoveryFailure={status:status==='UNREACHABLE'?'unreachable':'invalidated',reason:unknown?'unknown_action_outcome':result.reason,conditionVersion:recoveryRouteConditionVersion(actual,this.host.actions(sid,actual.id),[...frame.path,...remaining]),targets:remaining};
+      if(['UNREACHABLE','UNVERIFIED','PRECONDITIONS_CHANGED'].includes(status))frame.recoveryFailure={status:status==='UNREACHABLE'?'unreachable':'invalidated',reason:unknown?'unknown_action_outcome':result.reason,conditionVersion:this.routeConditionReader(actual,this.host.actions(sid,actual.id))(schedule.routes[routeKey])||recovery.conditionVersion,targets:remaining};
       else delete frame.recoveryFailure;
+      const savedRoute=schedule.routes[routeKey];if(savedRoute)savedRoute.failure=frame.recoveryFailure;
       task.routeRetries=recordRouteRetry(task.routeRetries,{routeKey,conditionVersion:frame.recoveryConditionVersion,attemptKey:recoveryAttemptKey,outcome:unknown?'unknown':result.status==='TARGET_REACHED'||result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'?'verified':result.status==='UNREACHABLE'?'unreachable':'unverified',reason:result.reason,evidence:{sessionId:sid,observationId:actual.id},...(unknownAttemptIds.length?{unknownSource:{sessionId:sid,attemptIds:unknownAttemptIds}}:{})});
       const position=reconcileRecoveryPosition(round,o,actual,{...result,status},status==='REACHED_VERIFIED'||status==='REACHED_ACCEPTABLE'?frame.path:undefined);
       if(unknown){round.entryPath=[];position.path=[];position.reason='unknown_execution_outcome';}
@@ -688,7 +811,7 @@ export class ExplorerPlugin {
       this.syncUsage(task);this.event(task,'recovery.result',unknown?{...result,status:'UNVERIFIED',hostResultStatus:result.status,reason:'Unknown recovery outcome requires explicit source verification',checkpointVerified:false}:result);
       if(unknown){this.event(task,'recovery.blocked',{resultId:result.id,reason:'unknown_action_outcome',observationId:actual.id,checkpointVerified:false,executionAuthorized:false});throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');}
       if(result.status==='TARGET_REACHED'){this.event(task,'recovery.target_reached',{resultId:result.id,observationId:actual.id,matchedActionIds:result.matchedActionIds,checkpointVerified:false,currentExecution:false});return true;}
-      if(result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'){round.stack=round.stack.slice(0,round.stack.indexOf(frame));round.entryPath=[...frame.path];return true;}
+      if(result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'){const index=round.stack.indexOf(frame);if(index>=0)round.stack=round.stack.slice(0,index);round.entryPath=[...frame.path];return true;}
       const arrived=this.host.observation(sid),assessment=this.host.recoveryAssessment(sid);
       const acceptedPage=task.plan.some(i=>i.required&&i.dispatchScope===true&&i.scope.url===arrived.url);
       if(arrived.url!==o.url&&acceptedPage&&!arrived.gaps.some(g=>g.critical)&&!assessment.unknownAttempts.length&&!assessment.blockingBoundaryExit){
@@ -700,6 +823,7 @@ export class ExplorerPlugin {
       if(frame.path.length){for(const item of task.plan.filter(i=>i.required&&isUnfinished(i)&&frame.remaining.some(scope=>digest(scope)===digest(i.scope))))item.prerequisites=[...frame.path];this.event(task,'recovery.reentry_required',{prerequisites:frame.path,remaining:frame.remaining});return true;}
       this.gap(task,'checkpoint_unverified',{url:o.url});
       if(o.boundaries?.length&&!this.capabilities().boundaryExit)this.gap(task,'missing_capability:boundaryExitReview',{url:o.url});
+      return true; // One newly consumed route condition is finite scheduling progress.
     }
     return false;
   }
@@ -747,7 +871,7 @@ export class ExplorerPlugin {
       &&(i.dispatchScope===true||grants.some(grant=>Object.entries(grant.scope).every(([key,value])=>i.scope[key as keyof Scope]===value)))
       &&i.prerequisites.some(p=>Object.entries(p).every(([key,value])=>actual[key as keyof Scope]===value)));
   }
-  private entryTargets(task:Task,a:ActionCandidate,o:Observation) {return this.entryObligations(task,a,o).filter(i=>i.status!=='succeeded');}
+  private entryTargets(task:Task,a:ActionCandidate,o:Observation) {const selected=task.scheduling?.selection;return this.entryObligations(task,a,o).filter(i=>i.status!=='succeeded').sort((a,b)=>Number(selected?.kind==='reentry'&&b.id===selected.itemId)-Number(selected?.kind==='reentry'&&a.id===selected.itemId));}
   private entryProgressRecord(task:Task,r:Round,a:ActionCandidate,o:Observation) {
     const entry=scopeFor(a,o),condition=browserTargetConditions(a,o)?.key||'unverified';
     const key=digest({policy:'entry-progress-v2',route:recoveryRouteKey(o,[a],[entry]),condition}),oldKey=digest({entry,context:o.context}),legacyKey=digest(entry);
@@ -866,12 +990,18 @@ export class ExplorerPlugin {
     }
     if(changed){r.routeEvidenceChecked=[...checked];this.store.save(task);}
   }
-  private updateObligations(task:Task,o:Observation,actions=this.host.operationCoverageCandidates(o.sessionId,o.id)) {
+  private updateObligations(task:Task,o:Observation,actions=this.host.operationCoverageCandidates(o.sessionId,o.id),routeCondition=this.routeConditionReader(o,this.host.actions(o.sessionId,o.id))) {
     const routeConditions=(task.rounds.at(-1)?.stack||[]).flatMap(frame=>{
       const failure=frame.recoveryFailure;
       if(!failure||failure.conditionVersion!==recoveryRouteConditionVersion(o,actions,[...frame.path,...failure.targets]))return [];
       return task.plan.filter(i=>failure.targets.some(scope=>digest(scope)===digest(i.scope))).map(i=>({itemId:i.id,conditionVersion:recoveryConditionVersion(o),status:failure.status,reason:failure.reason}));
     });
+    for(const route of Object.values(task.scheduling?.routes||{})){
+      const failure=route.failure;
+      if(!failure||failure.conditionVersion!==routeCondition(route))continue;
+      for(const itemId of route.itemIds)routeConditions.push({itemId,conditionVersion:recoveryConditionVersion(o),status:failure.status,reason:failure.reason});
+    }
+    for(const [itemId,deferred] of Object.entries(task.scheduling?.deferred||{}))if(deferred.conditionVersion===recoveryConditionVersion(o)&&!routeConditions.some(row=>row.itemId===itemId))routeConditions.push({itemId,conditionVersion:deferred.conditionVersion,status:'invalidated',reason:deferred.reason});
     const {projection,events}=projectObligations(this.host,task,o,actions,task.obligations,routeConditions);
     task.obligations=projection;
     if(events.length)this.event(task,'obligations.reconciled',{counts:projection.counts,changes:events,currentExecution:false,coverageGranted:false});

@@ -1,6 +1,7 @@
 import type { ActionAttempt, BrowserEngine, SessionOptions } from '@interaction/browser';
 import type { NavigationPosition } from './navigation-state.js';
 import type { ObligationProjection, RouteRetryLedger } from './obligation-lifecycle.js';
+import type { ObligationSchedule } from './obligation-scheduler.js';
 
 /** Only documented public operations. Never a browser handle or engine persistence. */
 export type ExplorerHost = Pick<BrowserEngine, 'operationCoverageCandidates' | 'actionAvailability' | 'operationCorrespondences' | 'explorationSnapshot' | 'controlInterpretationSnapshot' | 'boundaryState' | 'interactionTransition' | 'navigationIsolation' | 'recoveryAssessment' | 'sessions' | 'session' | 'createSession' | 'observation' | 'observe' | 'actions' | 'execute' | 'command' | 'getFrontier' | 'report' | 'list' | 'regionReviewMaterial' | 'explorationReviewMaterial' | 'controlClassificationMaterial' | 'controlReviewMaterial' | 'purposeReviewMaterial' | 'discoveryScanMaterial' | 'createCheckpoint' | 'reachCheckpoint' | 'pause' | 'stop' | 'events' | 'pinEvidence' | 'unpinEvidence'> & Partial<Pick<BrowserEngine,'boundaryExitMaterial'|'probeAvailability'|'classificationCorrespondences'|'explorationTargetCorrespondences'|'reachExplorationTarget'|'repetitionAssessment'>>;
@@ -88,6 +89,8 @@ export interface Task {
   sessionOptions: Partial<SessionOptions>; plan: PlanItem[]; rounds: Round[];
   obligations?: ObligationProjection;
   routeRetries?: RouteRetryLedger;
+  /** Durable target rotation and route hints; never an execution/coverage grant. */
+  scheduling?: ObligationSchedule;
   /** Per-session retained artifacts; no protected evidence is discarded to make room. */
   evidenceBudget?: {maxBytes:number;maxObservations:number};
   sampleExcluded: string[];

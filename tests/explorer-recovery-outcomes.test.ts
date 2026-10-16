@@ -110,11 +110,12 @@ it.each(['REACHED_VERIFIED','UNVERIFIED'] as const)('retains actual position and
    f.host.store.put('attempt',{...attempt,status:'unknown',reason:'Recovery result unavailable'});
    return {...result,status};
   });
-  const frame=f.round.stack[0],plan=structuredClone(f.task.plan);
+  const frame=structuredClone(f.round.stack[0]),plan=structuredClone(f.task.plan);
   await expect(f.runtime().step(f.task,f.round,new AbortController().signal)).rejects.toMatchObject({code:'UNKNOWN_DISPATCH_REQUIRES_REVIEW'});
   expect(f.host.observation(f.leave.sessionId).url).toBe(f.url);expect(f.round.position?.observationId).toBe(f.host.observation(f.leave.sessionId).id);
   expect(f.round.entryPath).toEqual([]);expect(f.round.stack).toEqual([frame]);expect(f.task.plan).toEqual(plan);
-  expect(frame.recoveryFailure).toMatchObject({status:'invalidated',reason:'unknown_action_outcome'});
+  const retainedRoute=Object.values(f.task.scheduling?.routes||{}).find(route=>route.checkpointId===frame.checkpointId&&route.observationId===frame.observationId);
+  expect(retainedRoute).toMatchObject({sessionId:f.leave.sessionId,targets:frame.remaining,failure:{status:'invalidated',reason:'unknown_action_outcome'}});
   expect(f.task.unverifiedRecoveries?.[0].attemptIds).toEqual([unknownId]);
   const events=f.plugin.store.events(f.task.id);expect(events.find(e=>e.type==='recovery.position_reconciled')?.data).toMatchObject({checkpointVerified:false,pathVerified:false,path:[]});
   expect(events.find(e=>e.type==='recovery.result')?.data).toMatchObject({status:'UNVERIFIED',hostResultStatus:status,checkpointVerified:false});
