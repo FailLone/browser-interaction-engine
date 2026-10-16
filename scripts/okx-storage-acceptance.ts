@@ -79,11 +79,24 @@ export async function settleOwnedTask(plugin: Pick<ExplorerPlugin, 'owner' | 'pa
   await plugin.waitForIdle(taskId); await host.waitForIdle();
 }
 /** A scheduling/condition candidate, never semantic equivalence or coverage proof. */
-export function operationConditionCandidate(attempt: ActionAttempt, observation: Observation) {
+export function operationConditionAssessment(attempt: ActionAttempt, observation: Observation) {
   const targets = observation.controls.filter(control => control.localId === attempt.action.localId), target = targets[0];
-  if (targets.length !== 1 || target.hypothesisId || !target.identityId || target.identityId !== attempt.action.controlId) return;
+  const evidence = { sessionId: attempt.sessionId, beforeId: attempt.beforeId, observationId: observation.id, actionId: attempt.action.id,
+    localId: attempt.action.localId, controlId: attempt.action.controlId, targetCount: targets.length, targetIdentityId: target?.identityId,
+    targetHypothesisId: target?.hypothesisId, conditionPolicy: 'browser-target-arrival-v1' };
+  const unkeyed = (reason: string) => ({ key: undefined, reason, evidence });
+  if (targets.length !== 1) return unkeyed(targets.length ? 'target_local_id_nonunique' : 'target_missing');
+  if (target.hypothesisId) return unkeyed('target_identity_unresolved');
+  if (!target.identityId) return unkeyed('target_identity_missing');
+  if (target.identityId !== attempt.action.controlId) return unkeyed('action_target_identity_mismatch');
   const conditions = browserTargetConditions(attempt.action, observation);
-  return conditions ? digest(JSON.stringify([browserOperationKey(attempt.action, observation), conditions.policy, conditions.key])) : undefined;
+  // The SDK exposes no rejection detail here. Retain the exact source reference
+  // for audit instead of inventing a partial dependency/identity algorithm.
+  return conditions ? { key: digest(JSON.stringify([browserOperationKey(attempt.action, observation), conditions.policy, conditions.key])), reason: undefined, evidence }
+    : unkeyed('target_conditions_unavailable');
+}
+export function operationConditionCandidate(attempt: ActionAttempt, observation: Observation) {
+  return operationConditionAssessment(attempt, observation).key;
 }
 export function classifyAcceptanceAttempt(attempt: ActionAttempt) {
   const exploration = attempt.purpose !== 'recovery' && (attempt.purpose === 'exploration' || attempt.executionProfile === 'interface-exploration' || attempt.executionProfile === 'observed-ui-exploration');
@@ -95,15 +108,22 @@ export function classifyAcceptanceAttempt(attempt: ActionAttempt) {
 /** Compact latest-state ledger: event delivery is not a count of unique attempts. */
 export class AcceptanceProgress {
   private historical = new Set<string>();
-  private attempts = new Map<string, { sessionId: string; status: ActionAttempt['status']; exploration: boolean; leaf: boolean; key?: string; finishedAt: number }>();
-  constructor(private keyFor: (attempt: ActionAttempt) => string | undefined) {}
+  private attempts = new Map<string, { sessionId: string; status: ActionAttempt['status']; exploration: boolean; leaf: boolean; key?: string; finishedAt: number; unkeyedSince?: number; assessment?: ReturnType<typeof operationConditionAssessment> }>();
+  constructor(private keyFor: (attempt: ActionAttempt) => string | undefined | ReturnType<typeof operationConditionAssessment>, private clock = Date.now) {}
   record(attempt: ActionAttempt, historical = false) {
     if (historical) this.historical.add(attempt.id);
     const classification = classifyAcceptanceAttempt(attempt), old = this.attempts.get(attempt.id);
     const finishedAt = Date.parse(attempt.finishedAt || attempt.startedAt);
+    const result = attempt.status === 'succeeded' && classification.leaf ? this.keyFor(attempt) : undefined;
+    const assessment = typeof result === 'object' ? result : undefined;
+    const key = typeof result === 'string' ? result : assessment?.key, observedAt = this.clock();
+    const completionMissing = attempt.status === 'succeeded' && !Number.isFinite(Date.parse(attempt.finishedAt || ''));
+    const boundedFinishedAt = completionMissing ? observedAt : Number.isFinite(finishedAt) ? Math.min(finishedAt, observedAt) : old?.finishedAt ?? observedAt;
+    const anchoredFinishedAt = attempt.status === 'succeeded' && old?.status === 'succeeded' ? Math.min(old.finishedAt, boundedFinishedAt) : boundedFinishedAt;
+    const unkeyedSince = attempt.status === 'succeeded' && classification.leaf && !key
+      ? Math.min(old?.unkeyedSince ?? Infinity, anchoredFinishedAt) : undefined;
     this.attempts.set(attempt.id, { sessionId: attempt.sessionId, status: attempt.status, ...classification,
-      key: attempt.status === 'succeeded' && classification.leaf ? this.keyFor(attempt) : undefined,
-      finishedAt: Number.isFinite(finishedAt) ? finishedAt : old?.finishedAt || Date.now() });
+      key, assessment, unkeyedSince, finishedAt: anchoredFinishedAt });
   }
   reconcile(attempts: ActionAttempt[]) {
     const present = new Set(attempts.map(attempt => attempt.id));
@@ -113,11 +133,18 @@ export class AcceptanceProgress {
   snapshot(startedAt = 0) {
     const baseline = new Set<string>(), firstSuccess = new Map<string, number>();
     const counts: Record<string, number> = {}, successfulAttemptIds: string[] = [], unkeyedSuccessfulAttemptIds: string[] = [];
+    type Unkeyed = { sessionId: string; attemptId: string; finishedAt: number; unkeyedSince: number; reason: string; evidence?: ReturnType<typeof operationConditionAssessment>['evidence'] };
+    const unkeyedSuccessfulAttempts: Unkeyed[] = [], historicalUnkeyedSuccessfulAttempts: Unkeyed[] = [];
     const unknownAttempts: { sessionId: string; attemptId: string; status: string }[] = [];
     const inFlightAttempts: { sessionId: string; attemptId: string; status: string }[] = [];
     for (const [id, attempt] of this.attempts) {
       if (attempt.status === 'unknown') unknownAttempts.push({ sessionId: attempt.sessionId, attemptId: id, status: attempt.status });
       if (attempt.status === 'executing') inFlightAttempts.push({ sessionId: attempt.sessionId, attemptId: id, status: attempt.status });
+      if (attempt.status === 'succeeded' && attempt.leaf && !attempt.key) {
+        const row = { sessionId: attempt.sessionId, attemptId: id, finishedAt: attempt.finishedAt, unkeyedSince: attempt.unkeyedSince!,
+          reason: attempt.assessment?.reason || 'condition_candidate_unavailable', evidence: attempt.assessment?.evidence };
+        (this.historical.has(id) ? historicalUnkeyedSuccessfulAttempts : unkeyedSuccessfulAttempts).push(row);
+      }
       if (this.historical.has(id)) {
         if (attempt.status === 'succeeded' && attempt.leaf && attempt.key) baseline.add(attempt.key);
         continue;
@@ -132,8 +159,34 @@ export class AcceptanceProgress {
     for (const key of baseline) firstSuccess.delete(key);
     return { counts, successfulAttemptIds, unkeyedSuccessfulAttemptIds, unknownAttempts, inFlightAttempts, conditionKeys: [...firstSuccess.keys()].sort(),
       newOperationConditionCandidates: firstSuccess.size, lastProgressAt: Math.max(startedAt, ...firstSuccess.values()),
-      progressGuardsDeferred: unkeyedSuccessfulAttemptIds.length > 0 };
+      unkeyedSuccessfulAttempts, historicalUnkeyedSuccessfulAttempts,
+      progressGuardsDeferred: unkeyedSuccessfulAttempts.length + historicalUnkeyedSuccessfulAttempts.length > 0 };
   }
+}
+/** A bounded audit window, not evidence of no progress. Historical uncertainty
+ * receives a full new window after restart; shutdown time is never charged. */
+export function progressEvidenceWindow(snapshot: Pick<ReturnType<AcceptanceProgress['snapshot']>, 'unkeyedSuccessfulAttempts' | 'historicalUnkeyedSuccessfulAttempts'>, startedAt: number | undefined, stallMs: number, evaluatedAt = Date.now()) {
+  const current = snapshot.unkeyedSuccessfulAttempts, historical = snapshot.historicalUnkeyedSuccessfulAttempts;
+  const firstUnkeyedAt = startedAt === undefined || !current.length && !historical.length ? undefined
+    : historical.length ? startedAt : Math.max(startedAt, Math.min(...current.map(row => row.unkeyedSince)));
+  const deadlineAt = firstUnkeyedAt === undefined ? undefined : firstUnkeyedAt + stallMs;
+  return { status: deadlineAt === undefined ? 'inactive' : evaluatedAt >= deadlineAt ? 'audit_required' : 'pending',
+    classification: 'progress_audit_required', startedAt, evaluatedAt, stallMs, firstUnkeyedAt, deadlineAt,
+    elapsedMs: firstUnkeyedAt === undefined ? 0 : Math.max(0, evaluatedAt - firstUnkeyedAt),
+    currentAttemptIds: current.map(row => row.attemptId), historicalAttemptIds: historical.map(row => row.attemptId),
+    semanticCoverageEstablished: false, exhaustive: false };
+}
+/** Runs independently of potentially slow disk/audit sampling. Already started
+ * SDK work is allowed to settle after this review request. */
+export function watchProgressEvidence(read: () => ReturnType<typeof progressEvidenceWindow>, stop: (reason: string, details: unknown) => void) {
+  let requested = false;
+  const timer = setInterval(() => {
+    if (requested) return;
+    try { const window = read(); if (window.status === 'audit_required') { requested = true; stop('progress_evidence_unavailable_window', window); } }
+    catch (error) { requested = true; stop('instrumentation_failure', { source: 'progress_evidence_watch', code: code(error) }); }
+  }, 1000);
+  timer.unref();
+  return () => clearInterval(timer);
 }
 type PlanSnapshot = Pick<ReturnType<ExplorerStore['taskState']>, 'task' | 'plan'>;
 export function newlyResolvedOccurrences(before: PlanSnapshot, after: PlanSnapshot) {
@@ -161,7 +214,7 @@ export const budgetEnforcement = {
   actions: 'Soft threshold using distinct SDK action.started IDs, reconciled against the final attempt ledger. An in-flight recovery may dispatch multiple internal attempts and exceed it; no attempt hooks or session budgets are changed.',
   durationMs: 'Provider/session entries check the deadline and a timer requests pause. Already started SDK work, including an entire recovery call, settles normally and may exceed the window.',
   aggregateDuration: 'After an interrupted process, retained task duration may be a persisted-activity lower bound. durationUncertainty is reported; the independent current window still measures its own elapsed duration.',
-  progress: 'Unkeyed successful exploration is reported separately and defers repeated-route/no-progress guards for this window while that success remains valid.'
+  progress: 'Unkeyed successes defer no-progress/repeated-route claims. An independent stallMs audit deadline starts at the earliest still-unkeyed success; historical unkeyed successes receive a full window from this run start. Later successes never extend it. Expiry requests review and normal settlement, without changing SDK outcomes or claiming exhaustion.'
 };
 export class WindowBudgetExceeded extends Error {
   readonly code = 'CANCELLED';
@@ -310,7 +363,7 @@ async function disk(directory: string) {
 
 async function main() {
   const config = args(process.argv.slice(2));
-  if (config.help) { console.log('Launch with node --import tsx --conditions=development. Required: --dir NEW_DIRECTORY --url HTTPS_OKX_URL. Resume: --dir OWNED_DIRECTORY --resume [--extend-budget]. Stop safely: --dir OWNED_DIRECTORY --request-stop; this queues a request for the marked run, and its summary confirms settlement. SIGINT is best effort because Playwright may exit before settlement. Optional: --rounds 2 --actions 100 --model-requests 1000 --minutes 30 --sample-seconds 30 --stall-minutes 10 --max-disk-gib 20. Providers are supplied only by the launching environment. Provider/new-session call allowances are hard entry limits. Action/time limits may be exceeded by already running SDK recovery/settling; overshoot is reported. No limit establishes exhaustion.'); return; }
+  if (config.help) { console.log('Launch with node --import tsx --conditions=development. Required: --dir NEW_DIRECTORY --url HTTPS_OKX_URL. Resume: --dir OWNED_DIRECTORY --resume [--extend-budget]. Stop safely: --dir OWNED_DIRECTORY --request-stop; this queues a request for the marked run, and its summary confirms settlement. SIGINT is best effort because Playwright may exit before settlement. Optional: --rounds 2 --actions 100 --model-requests 1000 --minutes 30 --sample-seconds 30 --stall-minutes 10 --max-disk-gib 20. Providers are supplied only by the launching environment. Provider/new-session call allowances are hard entry limits. Action/time limits may be exceeded by already running SDK recovery/settling; overshoot is reported. The stall window also bounds unresolved progress evidence: earliest unkeyed success starts a review deadline, and retained historical unkeyed successes receive a full window on resume. Expiry requests audit, not a failed action or exhaustion. No limit establishes exhaustion.'); return; }
   if (!config.directory) throw new Error('DIRECTORY_REQUIRED');
   if (config.requestStop) { const request = writeOwnedStopRequest(config.directory); console.log(JSON.stringify({ type: 'stop.request.queued', ...request, settlementPending: true })); return; }
   const directory = resolve(config.directory), markerPath = join(directory, 'owner.json');
@@ -341,15 +394,19 @@ async function main() {
   let host: BrowserEngine | undefined, plugin: ExplorerPlugin | undefined, engineStore: SqliteStore | undefined, pluginStore: ExplorerStore | undefined, pluginMetrics: Database.Database | undefined;
   let taskId = marker.taskId || '', stopping = false, stopJob: Promise<void> | undefined, sampleAt = 0, evidenceOffset = 0;
   let deadlineTimer: ReturnType<typeof setTimeout> | undefined, progressDeferralLogged = false;
-  let runControl: AcceptanceRunControl | undefined, stopPolling: (() => void) | undefined;
+  let runControl: AcceptanceRunControl | undefined, stopPolling: (() => void) | undefined, stopProgressWatch: (() => void) | undefined;
   const guards: Guard[] = [], cursors: Cursors = { plugin: 0, engine: {} }, sessions = new Set<string>();
   const pendingProviders = new Map<string, Promise<unknown>>();
   let providerSettlement: Awaited<ReturnType<typeof settlePendingProviders>> | undefined;
   const providerCounts = { jev: { started: 0, returned: 0, failed: 0, cancelled: 0, elapsedMs: 0, usage: {} as Record<string, number> }, llm: { started: 0, returned: 0, failed: 0, cancelled: 0, elapsedMs: 0, usage: {} as Record<string, number> } };
   const baselineSuccesses = new Set<string>(), baselineAttempts = new Set<string>(), observations = new Set<string>();
   const windowBudget = new AcceptanceWindow(config.budget);
-  const progress = new AcceptanceProgress(attempt => operationConditionCandidate(attempt, host!.observation(attempt.sessionId, attempt.beforeId)));
-  const progressSnapshot = () => progress.snapshot(windowBudget.snapshot().startedAt ?? Date.now());
+  const progress = new AcceptanceProgress(attempt => operationConditionAssessment(attempt, host!.observation(attempt.sessionId, attempt.beforeId)));
+  const progressSnapshot = () => {
+    const window = windowBudget.snapshot(), snapshot = progress.snapshot(window.startedAt ?? Date.now());
+    return { ...snapshot, progressEvidenceWindow: progressEvidenceWindow(snapshot, window.startedAt, config.stallMs,
+      window.startedAt === undefined ? Date.now() : window.startedAt + window.usage.durationMs) };
+  };
   const repeatedRoutes = new Map<string, { progress: string[]; count: number }>();
   const recoveries: { api: string; sessionId: string; status: string; elapsedMs: number; observationId?: string; attemptIds: string[]; matchedActionIds?: string[]; checkpointVerified?: boolean }[] = [];
   let initial: Task | undefined, final: Task | undefined, initialState: ReturnType<ExplorerStore['taskState']> | undefined, fatal: string | undefined, started = false;
@@ -359,7 +416,7 @@ async function main() {
     let prior: Guard['prior'];
     try { const task = header()?.header; if (task) prior = { status: task.status, reason: task.reason, usage: task.usage }; } catch { /* Preserve the first cause even if the header is corrupt. */ }
     const guard = { at: now(), reason, details, prior }; guards.push(guard);
-    if (stopping) { log('stop.requested', guard); return; } stopping = true;
+    if (stopping) { log('stop.requested', guard); return; } stopping = true; stopProgressWatch?.();
     // Begin pause on the next microtask, before another awaited dispatch/model call.
     stopJob = Promise.resolve().then(async () => {
       if (plugin && host && taskId) await settleOwnedTask(plugin, host, taskId);
@@ -380,7 +437,7 @@ async function main() {
   const removeStopSignals = installAcceptanceStopSignals(requestStop);
   const watchRoute = (key: string, evidence: unknown) => {
     const snapshot = progressSnapshot();
-    if (snapshot.progressGuardsDeferred) { log('route.guard_deferred', { key, reason: 'unkeyed_success_cannot_establish_no_progress', unkeyedSuccessfulAttemptIds: snapshot.unkeyedSuccessfulAttemptIds }); return; }
+    if (snapshot.progressGuardsDeferred) { log('route.guard_deferred', { key, reason: 'unkeyed_success_cannot_establish_no_progress', unkeyedSuccessfulAttemptIds: snapshot.unkeyedSuccessfulAttemptIds, progressEvidenceWindow: snapshot.progressEvidenceWindow }); return; }
     const old = repeatedRoutes.get(key), changed = snapshot.conditionKeys.some(condition => !old?.progress.includes(condition));
     const count = old && !changed ? old.count + 1 : 1;
     repeatedRoutes.set(key, { progress: snapshot.conditionKeys, count });
@@ -423,8 +480,9 @@ async function main() {
       progress.record(attempt);
       const snapshot = progressSnapshot(), classification = classifyAcceptanceAttempt(attempt);
       if (attempt.status === 'succeeded' && classification.exploration) log('coverage.condition_candidate', { attemptId: attempt.id, reentry: classification.reentry,
-        newConditionCount: snapshot.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: snapshot.unkeyedSuccessfulAttemptIds, semanticUniquenessVerified: false });
-      if (snapshot.progressGuardsDeferred && !progressDeferralLogged) { progressDeferralLogged = true; log('progress.guards_deferred', { reason: 'unkeyed_success_cannot_establish_no_progress' }); }
+        newConditionCount: snapshot.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: snapshot.unkeyedSuccessfulAttemptIds,
+        unkeyed: snapshot.unkeyedSuccessfulAttempts.find(row => row.attemptId === attempt.id), progressEvidenceWindow: snapshot.progressEvidenceWindow, semanticUniquenessVerified: false });
+      if (snapshot.progressGuardsDeferred && !progressDeferralLogged) { progressDeferralLogged = true; log('progress.guards_deferred', { reason: 'unkeyed_success_cannot_establish_no_progress', progressEvidenceWindow: snapshot.progressEvidenceWindow }); }
     } catch (error) { requestStop('observation_integrity', { attemptId: attempt.id, code: code(error) }); }
     if (event.type === 'action.started') return;
     log('attempt.completed', { engineEventType: event.type, id: attempt.id, sessionId: attempt.sessionId, status: attempt.status, purpose: attempt.purpose, executionProfile: attempt.executionProfile, beforeId: attempt.beforeId, afterId: attempt.afterId, requestId: attempt.requestId, kind: attempt.action.kind, label: attempt.action.label, elapsedMs: attempt.finishedAt ? Date.parse(attempt.finishedAt) - Date.parse(attempt.startedAt) : undefined, repetitionSource: attempt.repetitionSource, recoverySegment: attempt.recoverySegment });
@@ -484,7 +542,7 @@ async function main() {
     const planCounts = pluginMetrics!.prepare('SELECT status,required,COUNT(*) AS count FROM task_items WHERE task_id=? AND kind=\'plan\' GROUP BY status,required').all(taskId);
     const metrics = progressSnapshot(), unknown = metrics.unknownAttempts;
     const storage = await disk(directory);
-    log('sample', { status: task.status, reason: task.reason, usage: task.usage, durationUncertainty: task.durationUncertainty, budget: task.budget, planCounts, planCount: state.planCount, roundCount: state.roundCount, pendingDispatch: task.pendingDispatch, unverifiedRecoveries: task.unverifiedRecoveries, unverifiedNavigations: task.unverifiedNavigations, unknown, inFlightAttempts: metrics.inFlightAttempts, cursors, providers: providerCounts, attempts: metrics.counts, newlySucceededExplorationAttempts: metrics.successfulAttemptIds.length, newOperationConditionCandidates: metrics.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: metrics.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: metrics.progressGuardsDeferred, budgetEnforcement, windowBudget: windowBudget.snapshot(), newObservations: observations.size, disk: storage, exhaustive: false });
+    log('sample', { status: task.status, reason: task.reason, usage: task.usage, durationUncertainty: task.durationUncertainty, budget: task.budget, planCounts, planCount: state.planCount, roundCount: state.roundCount, pendingDispatch: task.pendingDispatch, unverifiedRecoveries: task.unverifiedRecoveries, unverifiedNavigations: task.unverifiedNavigations, unknown, inFlightAttempts: metrics.inFlightAttempts, cursors, providers: providerCounts, attempts: metrics.counts, newlySucceededExplorationAttempts: metrics.successfulAttemptIds.length, newOperationConditionCandidates: metrics.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: metrics.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: metrics.progressGuardsDeferred, unkeyedSuccessfulAttempts: metrics.unkeyedSuccessfulAttempts, historicalUnkeyedSuccessfulAttempts: metrics.historicalUnkeyedSuccessfulAttempts, progressEvidenceWindow: metrics.progressEvidenceWindow, budgetEnforcement, windowBudget: windowBudget.snapshot(), newObservations: observations.size, disk: storage, exhaustive: false });
     if (unknown.length) requestStop('unknown_attempt', unknown);
     if (task.unverifiedRecoveries?.length || task.unverifiedNavigations?.length) requestStop('unverified_outcome', { recovery: task.unverifiedRecoveries, navigation: task.unverifiedNavigations });
     if (storage.total > config.maxDisk || storage.availableBytes < 1024 ** 3) requestStop('disk_guard', storage);
@@ -495,7 +553,7 @@ async function main() {
     const configured = providersFromEnv();
     if (!configured.jev || !configured.llm) throw Object.assign(new Error(), { code: 'CONFIGURATION_REQUIRED' });
     log('run.preflight', { format: FORMAT, source: sourceIdentity(), resume: config.resume, extendBudget: config.extend, budget: config.budget, budgetEnforcement, url: marker.url, stallMs: config.stallMs, sampleMs: config.sampleMs, maxDiskBytes: config.maxDisk, exhaustive: false,
-      metricLimits: ['Actual successful attempts and newly resolved plan rows are separate; neither deduplicates all semantic operations.', 'browserOperationKey is a scheduling hint: same-name/shared-identifier targets can still collide. Candidate keys grant no identity, uniqueness, or scope completion.', 'Missing targets, unresolved identity or unavailable conditions are unkeyed; such successes defer no-progress and repeated-route guards.', 'Provider counts are actual decide calls, not billable HTTP requests; usage only includes parsed provider answers.', 'Necessary reentry is a candidate backed by route evidence and requires child-progress review.', 'Repeated-route and no-progress guards identify review candidates, not a proof that every retry was unnecessary.', 'Partial live integrity audits rotate through eight protected artifacts; startup/settled audits check all protected artifacts.', 'Raw decisions, observations, unknown attempts and request ledgers remain in the owned databases.'] });
+      metricLimits: ['Actual successful attempts and newly resolved plan rows are separate; neither deduplicates all semantic operations.', 'browserOperationKey is a scheduling hint: same-name/shared-identifier targets can still collide. Candidate keys grant no identity, uniqueness, or scope completion.', 'Missing targets, unresolved identity or unavailable conditions are unkeyed; reasons bind the retained source observation. SDK condition rejection details require source audit. Such successes defer no-progress/repeated-route claims, but an independent stallMs deadline requests progress audit. Historical uncertainty receives a new full window on resume; later success never erases it.', 'Provider counts are actual decide calls, not billable HTTP requests; usage only includes parsed provider answers.', 'Necessary reentry is a candidate backed by route evidence and requires child-progress review.', 'Repeated-route and no-progress guards identify review candidates, not a proof that every retry was unnecessary.', 'Partial live integrity audits rotate through eight protected artifacts; startup/settled audits check all protected artifacts.', 'Raw decisions, observations, unknown attempts and request ledgers remain in the owned databases.'] });
     mkdirSync(join(directory, 'plugin'), { recursive: true });
     engineStore = new SqliteStore(join(directory, 'engine'));
     host = new BrowserEngine({ persistence: engineStore });
@@ -561,6 +619,8 @@ async function main() {
       if (initial.status === 'completed') requestStop('already_completed_requires_review');
       else {
         windowBudget.start(); deadlineTimer = setTimeout(() => requestStop('window_time_budget'), config.budget.durationMs);
+        stopProgressWatch = watchProgressEvidence(() => progressSnapshot().progressEvidenceWindow, requestStop);
+        log('progress.audit_window', { ...progressSnapshot().progressEvidenceWindow, historicalUnkeyedSuccessfulAttempts: progressSnapshot().historicalUnkeyedSuccessfulAttempts });
         log('start.requested', { taskId, priorStatus: initial.status, priorReason: initial.reason }); plugin.start(taskId); started = true;
       }
     }
@@ -585,11 +645,11 @@ async function main() {
     const settled = progressSnapshot(), successes = new Set(settled.successfulAttemptIds), finalUnknown = [...settled.unknownAttempts, ...settled.inFlightAttempts];
     if (finalUnknown.length) requestStop('settled_unknown_or_executing', finalUnknown);
     const { newlyResolved, evidenceRefreshes } = planResolutionChanges(initialState, finalState);
-    atomicJson(join(runDirectory, 'coverage-review.json'), { exhaustive: false, newlySucceededExplorationAttemptIds: [...successes], newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, newlyResolvedPlanOccurrences: newlyResolved, refreshedPlanEvidence: evidenceRefreshes, planProgressIsSemanticCoverageProof: false, newlyResolvedPlanItems: newlyResolved.map(row => row.item), historicalCoverageOnly: final.plan.filter(item => item.coverageResolvedBy), unresolved: final.plan.filter(item => item.required && !['succeeded', 'excluded', 'superseded'].includes(item.status)), unknownAttempts: finalUnknown, pendingDispatch: final.pendingDispatch, unverifiedRecoveries: final.unverifiedRecoveries, unverifiedNavigations: final.unverifiedNavigations, recoveries,
+    atomicJson(join(runDirectory, 'coverage-review.json'), { exhaustive: false, newlySucceededExplorationAttemptIds: [...successes], newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, unkeyedSuccessfulAttempts: settled.unkeyedSuccessfulAttempts, historicalUnkeyedSuccessfulAttempts: settled.historicalUnkeyedSuccessfulAttempts, progressEvidenceWindow: settled.progressEvidenceWindow, newlyResolvedPlanOccurrences: newlyResolved, refreshedPlanEvidence: evidenceRefreshes, planProgressIsSemanticCoverageProof: false, newlyResolvedPlanItems: newlyResolved.map(row => row.item), historicalCoverageOnly: final.plan.filter(item => item.coverageResolvedBy), unresolved: final.plan.filter(item => item.required && !['succeeded', 'excluded', 'superseded'].includes(item.status)), unknownAttempts: finalUnknown, pendingDispatch: final.pendingDispatch, unverifiedRecoveries: final.unverifiedRecoveries, unverifiedNavigations: final.unverifiedNavigations, recoveries,
       recoveryFollowup: recoveries.map(recovery => ({ ...recovery, subsequentSuccessfulAttempts: finalAttempts.filter(attempt => successes.has(attempt.id) && attempt.sessionId === recovery.sessionId && attempt.beforeId === recovery.observationId).map(attempt => ({ sessionId: attempt.sessionId, attemptId: attempt.id, beforeId: attempt.beforeId })), targetReadinessOnly: recovery.status === 'TARGET_REACHED', wholeCheckpointVerified: recovery.checkpointVerified === true })) });
   } catch (error) { fatal = code(error); requestStop('runner_failure', { code: fatal }); await stopJob; }
   finally {
-    clearTimeout(deadlineTimer); stopPolling?.();
+    clearTimeout(deadlineTimer); stopPolling?.(); stopProgressWatch?.();
     await closeAcceptanceResources([
       { name: 'pluginMetrics', close: () => pluginMetrics?.close() },
       { name: 'plugin', close: async () => { if (plugin) { await plugin.close(); pluginStore = undefined; } } },
@@ -602,7 +662,7 @@ async function main() {
     if (!providerSettlement.settled) { fatal ||= 'PROVIDER_SETTLEMENT_INCOMPLETE'; log('provider.settlement_incomplete', providerSettlement); }
     const settled = progressSnapshot();
     // Close releases SQLite WAL handles before the final physical-byte snapshot.
-    try { atomicJson(join(runDirectory, 'summary.json'), { format: FORMAT, runId, taskId, finishedAt: now(), started, fatal, guards, originalStop: guards[0], finalStatus: final?.status, finalReason: final?.reason, usageBefore: initial?.usage, usageAfter: final?.usage, durationAccounting: { before: initial?.durationUncertainty, after: final?.durationUncertainty, aggregateExact: !!final && final.activeSince === undefined && !(initial?.durationUncertainty || final.durationUncertainty) }, providerCounts, providerSettlement, diagnosticFailure: diagnostics.failure, unknownAttempts: settled.unknownAttempts, inFlightAttempts: settled.inFlightAttempts, attemptCounts: settled.counts, newSuccessfulExplorationAttempts: settled.successfulAttemptIds.length, newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, budgetEnforcement, windowBudget: windowBudget.snapshot(), overshoot: windowBudget.snapshot().overshoot, recoveryCalls: recoveries.length, recoveryElapsedMs: recoveries.reduce((sum, recovery) => sum + recovery.elapsedMs, 0), cursors, diskAfterClose: await disk(directory), exhaustive: false, reviewRequired: true }); }
+    try { atomicJson(join(runDirectory, 'summary.json'), { format: FORMAT, runId, taskId, finishedAt: now(), started, fatal, guards, originalStop: guards[0], finalStatus: final?.status, finalReason: final?.reason, usageBefore: initial?.usage, usageAfter: final?.usage, durationAccounting: { before: initial?.durationUncertainty, after: final?.durationUncertainty, aggregateExact: !!final && final.activeSince === undefined && !(initial?.durationUncertainty || final.durationUncertainty) }, providerCounts, providerSettlement, diagnosticFailure: diagnostics.failure, unknownAttempts: settled.unknownAttempts, inFlightAttempts: settled.inFlightAttempts, attemptCounts: settled.counts, newSuccessfulExplorationAttempts: settled.successfulAttemptIds.length, newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, unkeyedSuccessfulAttempts: settled.unkeyedSuccessfulAttempts, historicalUnkeyedSuccessfulAttempts: settled.historicalUnkeyedSuccessfulAttempts, progressEvidenceWindow: settled.progressEvidenceWindow, budgetEnforcement, windowBudget: windowBudget.snapshot(), overshoot: windowBudget.snapshot().overshoot, recoveryCalls: recoveries.length, recoveryElapsedMs: recoveries.reduce((sum, recovery) => sum + recovery.elapsedMs, 0), cursors, diskAfterClose: await disk(directory), exhaustive: false, reviewRequired: true }); }
     catch (error) { fatal ||= code(error); log('summary.failed', { code: code(error) }); }
     finally { await closeAcceptanceResources([
       { name: 'stopControl', close: () => { if (runControl) atomicJson(join(directory, 'active-run.json'), { ...runControl, state: 'finished', finishedAt: now() }); } },

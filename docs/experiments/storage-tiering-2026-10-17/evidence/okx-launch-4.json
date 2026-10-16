@@ -1,0 +1,33 @@
+{
+  "startedAt": "2026-10-16T21:39:00.665Z",
+  "pid": 81227,
+  "directory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1",
+  "sourceRevision": "868e8b47afd31782161deba4f8bd7a14e0349430",
+  "sourceMatchesMain": true,
+  "args": [
+    "--import",
+    "tsx",
+    "--conditions=development",
+    "scripts/okx-storage-acceptance.ts",
+    "--dir",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1",
+    "--resume",
+    "--rounds",
+    "2",
+    "--actions",
+    "100",
+    "--model-requests",
+    "1000",
+    "--minutes",
+    "30",
+    "--sample-seconds",
+    "30",
+    "--stall-minutes",
+    "10"
+  ],
+  "providerConfiguration": "Existing provider variables only; database/service variables excluded; values never recorded.",
+  "stopControl": "Use --request-stop for this owned directory; no SIGINT while browser active.",
+  "finishedAt": "2026-10-16T21:42:56.376Z",
+  "exitCode": 2,
+  "signal": null
+}

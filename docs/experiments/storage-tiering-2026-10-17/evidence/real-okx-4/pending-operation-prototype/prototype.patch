@@ -1,0 +1,201 @@
+--- a/packages/explorer-plugin/src/runtime.ts
++++ b/packages/explorer-plugin/src/runtime.ts
+@@ -11,7 +11,7 @@
+ import { TaskWriter } from './task-writer.js';
+ import { DecisionRouter } from './router.js';
+ import { createTaskSchema, budgetSchema, planSchema, initialTaskSchema, plannedScopeSchema, limitationAcceptanceSchema, jsonSchema } from './schema.js';
+-import { digest, includesScope, keyFor, matches, permitted, unexecutedAction, scopeFor, scopeForControl, navigationTarget, controlInScope, controlScopeMatcher, broadScope, decisionScope, decisionPlan, migrateOperationConditions, operationConditionPolicy } from './policy.js';
++import { digest, includesScope, keyFor, matches, permitted, unexecutedAction, scopeFor, actionScopeReader, scopeForControl, navigationTarget, controlInScope, controlScopeMatcher, broadScope, decisionScope, decisionPlan, migrateOperationConditions, operationConditionPolicy } from './policy.js';
+ import { reviewNext, type ChoiceConstraints, type RetainedScope } from './reviews.js';
+ import { safeError } from './providers.js';
+ import { POLICY_VERSION } from './decision-policy.js';
+@@ -21,6 +21,7 @@
+ import { reviewRecoveryChanges, prioritizeReviewAnchors, validReviewRecoveryWait, type ReviewRecoveryChange, type UnresolvedReview } from './review-recovery.js';
+ import { pageSourceObligation, sourceReturnCondition } from './source-return.js';
+ import { recoveryFailureCondition } from './recovery-failure.js';
++import { pendingDiscoveredOperation } from './pending-operation.js';
+ import { completedOperations } from './completion-evidence.js';
+ import { initialSchedule, orderedObligations, unfinishedObligations, selectObligation, reserveObligation, bindScheduledRoute, routeDebtAllows, localSelectionLimit, type ObligationSelection } from './obligation-scheduler.js';
+ import type { Checkpoint } from '@interaction/browser';
+@@ -143,9 +144,10 @@
+     for(const item of task.plan)if(item.dispatchScope===undefined){this.changedPlan(task,item);item.dispatchScope=approved.has(item.id);}
+     this.persist(task);this.event(task,'plan.authority_restored',{approvedItemIds:[...approved],recordOnly:task.plan.filter(i=>!i.dispatchScope).map(i=>i.id)});
+   }
+-  private gap(task:Task,reason:string,scope:Scope,required=true,prerequisites:Scope[]=[],persist=true,source?:Pick<Observation,'sessionId'|'id'>,operationConditionKey?:string) {
++  private gap(task:Task,reason:string,scope:Scope,required=true,prerequisites:Scope[]=[],persist=true,source?:Pick<Observation,'sessionId'|'id'>,operationConditionKey?:string,uniqueCurrentOperation=false) {
+     if(required && task.plan.length && !task.plan.some(i=>i.required&&i.dispatchScope===true&&Object.entries(i.scope).every(([k,v])=>scope[k as keyof Scope]===undefined||scope[k as keyof Scope]===v)))required=false;
+     const key=JSON.stringify({reason,scope,operationConditionKey});let item=task.plan.find(i=>JSON.stringify({reason:i.reason,scope:i.scope,operationConditionKey:i.operationConditionKey})===key);
++    item??=pendingDiscoveredOperation(task.plan,{reason,scope,required,prerequisites,operationConditionKey,uniqueCurrentOperation,source:source&&{sessionId:source.sessionId,observationId:source.id}});
+     if(!item){item={id:randomUUID(),title:reason,scope,...(operationConditionKey?{operationConditionKey,operationConditionPolicy}:{}),prerequisites:[...prerequisites],completion:'Obtain fresh evidence and verify the requested operation',status:required?'unresolved':reason==='scope_excluded'?'excluded':'untested',required,dispatchScope:false,reason,evidence:[],attempts:[]};this.appendPlan(task,item);}
+     this.changedPlan(task,item);
+     if(item.coverageResolvedBy){const previous=item.coverageResolvedBy;delete item.coverageResolvedBy;item.status=item.required?'unresolved':'untested';this.event(task,'scope.coverage_reopened',{itemId:item.id,previous,reason:'new_unresolved_evidence'});}
+@@ -1267,6 +1269,8 @@
+     const incomplete=new Set<string>(),{actions,availability}=snapshot;
+     const scopes=task.plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='succeeded'&&!(i.scope.kind&&(i.scope.label||i.scope.stableKey||i.scope.value!==undefined)));
+     if(!scopes.length)return incomplete;
++    const readBoundScope=actionScopeReader(o),readScope=(action:ActionCandidate)=>action.localId?readBoundScope(action):scopeFor(action,o),uniqueActions=new Map<string,string|undefined>();
++    for(const action of actions){const key=digest(readScope(action));uniqueActions.set(key,uniqueActions.has(key)?undefined:action.id);}
+     completed??=completedOperations(this.host,task,o,snapshot.operationCandidates);
+     const facts=snapshot.obligations,inScope=controlScopeMatcher(o,actions),pathFor=this.pathResolver(round,o);
+     for(const item of scopes) {
+@@ -1278,7 +1282,8 @@
+         const review=action.basis?.status!=='supported'&&control&&(facts.classifications.includes(control.localId)?'classification_unresolved':facts.operations.includes(control.localId)?'operation_basis_unconfirmed':undefined);
+         if(review){this.gap(task,review,scopeForControl(control!,o),true,path,false,o);continue;}
+         const gap=unexecutedAction(action,availability);
+-        this.gap(task,gap.reason,scopeFor(action,o),gap.required,path,false,o,keyFor(action,o));
++        const scope=readScope(action);
++        this.gap(task,gap.reason,scope,gap.required,path,false,o,keyFor(action,o),action.observationId===o.id&&action.sessionId===o.sessionId&&availability.observationId===o.id&&uniqueActions.get(digest(scope))===action.id);
+       }
+       const controls=new Set(o.controls.filter(c=>c.visible&&c.enabled&&inScope(item.scope,c)&&!task.plan.some(excluded=>excluded.reason==='user_excluded'&&inScope(excluded.scope,c))).map(c=>c.localId));
+       const obligations={
+--- /dev/null
++++ b/packages/explorer-plugin/src/pending-operation.ts
+@@ -0,0 +1,19 @@
++import { digest, operationConditionPolicy } from './policy.js';
++import type { EvidenceRef, PlanItem, Scope } from './types.js';
++
++/** Discovery and an executable-but-unattempted audit describe one pending
++ * operation in one observation. Reuse only its exact bound obligation; this is not correspondence,
++ * execution permission or completion. Existing records/attempts are never merged.
++ */
++export function pendingDiscoveredOperation(plan:readonly PlanItem[],input:{reason:string;scope:Scope;required:boolean;prerequisites:Scope[];operationConditionKey?:string;source?:EvidenceRef;uniqueCurrentOperation:boolean}):PlanItem|undefined {
++  if(input.reason!=='operation_not_executed'||!input.uniqueCurrentOperation||!input.required||!input.scope.kind||!input.operationConditionKey||!input.source)return;
++  const scope=digest(input.scope),path=digest(input.prerequisites);
++  const candidates=plan.filter(item=>item.reason==='observed_in_scope'&&item.required===input.required&&item.dispatchScope===false
++    &&(item.status==='pending'||item.status==='unresolved')&&item.attempts.length===0
++    &&!item.resolvedBy&&!item.reviewResolvedBy&&!item.coverageResolvedBy&&!item.reviewRecoveryWait
++    &&!item.conditionMigration&&!item.conditionLineage
++    &&item.operationConditionPolicy===operationConditionPolicy&&item.operationConditionKey===input.operationConditionKey
++    &&digest(item.scope)===scope&&digest(item.prerequisites)===path
++    &&item.evidence.length>0&&item.evidence.every(ref=>ref.sessionId===input.source!.sessionId&&ref.observationId===input.source!.observationId&&!ref.attemptId));
++  return candidates.length===1?candidates[0]:undefined;
++}
+--- /dev/null
++++ b/tests/explorer-pending-operation.test.ts
+@@ -0,0 +1,126 @@
++import {EventEmitter} from 'node:events';
++import {expect,it} from 'vitest';
++import {ExplorerPlugin,ExplorerStore,type ExplorerHost,type PlanItem,type Task,type Scope} from '@interaction/explorer-plugin';
++import {pendingDiscoveredOperation} from '../packages/explorer-plugin/src/pending-operation.js';
++import {TaskWriter} from '../packages/explorer-plugin/src/task-writer.js';
++import type {ActionCandidate,Observation} from '@interaction/browser';
++import {keyFor,scopeFor} from '../packages/explorer-plugin/src/policy.js';
++
++const source={sessionId:'session',observationId:'current'},current={sessionId:'session',observationId:'current'};
++const scope:Scope={url:'https://fixture.invalid/',kind:'fill',label:'Amount',role:'textbox',stableKey:'id:amount',targetBinding:'owner',value:'1'};
++const item=():PlanItem=>({id:'discovered',title:'Fill Amount',scope:structuredClone(scope),prerequisites:[],completion:'Verify the operation',status:'pending',required:true,dispatchScope:false,
++ reason:'observed_in_scope',operationConditionKey:'condition',operationConditionPolicy:'browser-operation-key-v2',evidence:[source],attempts:[]});
++const request=()=>({reason:'operation_not_executed',scope:structuredClone(scope),required:true,prerequisites:[] as Scope[],operationConditionKey:'condition',source:current,uniqueCurrentOperation:true});
++
++it('reuses only the exact pending discovered operation without changing its meaning or state',()=>{
++ const original=item(),before=structuredClone(original),input=request();input.scope=Object.fromEntries(Object.entries(input.scope).reverse());
++ expect(pendingDiscoveredOperation([original],input)).toBe(original);expect(original).toEqual(before);
++ expect(pendingDiscoveredOperation([original,{...structuredClone(original),id:'ambiguous'}],input)).toBeUndefined();
++});
++
++it.each([
++ ['condition',(i:PlanItem)=>{i.operationConditionKey='another';}],
++ ['missing condition',(i:PlanItem)=>{delete i.operationConditionKey;}],
++ ['old policy',(i:PlanItem)=>{delete i.operationConditionPolicy;}],
++ ['operation',(i:PlanItem)=>{i.scope.kind='click';}],
++ ['input type',(i:PlanItem)=>{i.scope.value=1;}],
++ ['input value',(i:PlanItem)=>{i.scope.value='2';}],
++ ['target binding',(i:PlanItem)=>{i.scope.targetBinding='other';}],
++ ['prerequisite',(i:PlanItem)=>{i.prerequisites=[{kind:'click',label:'Open'}];}],
++ ['dispatch authority',(i:PlanItem)=>{i.dispatchScope=true;}],
++ ['optional',(i:PlanItem)=>{i.required=false;}],
++ ['another reason',(i:PlanItem)=>{i.reason='region_review_required';}],
++ ['completed',(i:PlanItem)=>{i.status='succeeded';}],
++ ['unknown attempt',(i:PlanItem)=>{i.attempts=[{roundId:'round',outcome:'unknown',evidence:{...source,attemptId:'unknown'}}];}],
++ ['failed attempt',(i:PlanItem)=>{i.attempts=[{roundId:'round',outcome:'failed'}];}],
++ ['attempt evidence',(i:PlanItem)=>{i.evidence=[{...source,attemptId:'attempt'}];}],
++ ['other session',(i:PlanItem)=>{i.evidence=[{...source,sessionId:'other'}];}],
++ ['another observation with the same hint',(i:PlanItem)=>{i.evidence=[{...source,observationId:'previous'}];}],
++ ['mixed observation evidence',(i:PlanItem)=>{i.evidence.push({...source,observationId:'previous'});}],
++ ['source missing',(i:PlanItem)=>{i.evidence=[];}],
++ ['resolved proof',(i:PlanItem)=>{i.resolvedBy=source;}],
++ ['coverage proof',(i:PlanItem)=>{i.coverageResolvedBy={observation:source,relatedItemIds:['other']};}],
++ ['review proof',(i:PlanItem)=>{i.reviewResolvedBy={...source,classificationId:'review',classification:'display'};}],
++ ['condition migration',(i:PlanItem)=>{i.conditionMigration={status:'migrated',fromKey:'old',reason:'migrated',sources:[]};}],
++ ['condition lineage',(i:PlanItem)=>{i.conditionLineage={parentItemId:'parent',policy:'operation-condition-split-v1',kind:'condition',fromKey:'old'};}],
++] as [string,(i:PlanItem)=>void][])('keeps %s obligations separate',(_name,change)=>{
++ const original=item();change(original);const before=structuredClone(original);
++ expect(pendingDiscoveredOperation([original],request())).toBeUndefined();expect(original).toEqual(before);
++});
++
++it('does not coalesce control reviews, blockers, unbound or nonrequired audit records',()=>{
++ for(const input of [{...request(),reason:'operation_basis_unconfirmed'},{...request(),reason:'pointer_intercepted'},
++  {...request(),operationConditionKey:undefined},{...request(),source:undefined},{...request(),required:false},{...request(),uniqueCurrentOperation:false},{...request(),scope:{url:scope.url,label:scope.label}}]){
++  expect(pendingDiscoveredOperation([item()],input)).toBeUndefined();
++ }
++});
++
++function fixture(){
++ const store=new ExplorerStore(':memory:'),host={events:new EventEmitter(),observation:()=>({id:current.observationId,sessionId:current.sessionId}),session:()=>({actionCount:0,options:{}})} as unknown as ExplorerHost;
++ const plugin=new ExplorerPlugin(host,store),task=plugin.create({url:scope.url!,coverageMode:'all'});
++ task.plan=[{...item(),id:'root',scope:{url:scope.url},dispatchScope:true,reason:'program_exhaustive_root'},item()];
++ task.rounds=[{id:'round',number:1,sessionId:'session',startedAt:'2026-10-17T00:00:00.000Z',status:'paused',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0}];
++ const record=(target:Task,reason='operation_not_executed',at=current)=>
++  (plugin as any).gap(target,reason,structuredClone(scope),true,[],false,{id:at.observationId,sessionId:at.sessionId},'condition',true) as PlanItem;
++ return {plugin,store,task,record};
++}
++
++it('repeated same-observation audit keeps one operation through the delta writer',async()=>{
++ const f=fixture();try{
++  f.store.save(f.task);const writer=new TaskWriter(f.store,f.store.taskState(f.task.id)),task=writer.task;
++  (f.plugin as any).writers.set(task,writer);
++  const discovered=task.plan[1];expect(f.record(task)).toBe(discovered);expect(f.record(task)).toBe(discovered);
++  expect(task.plan).toHaveLength(2);expect(discovered.evidence).toEqual([source]);expect(discovered.status).toBe('pending');expect(discovered.attempts).toEqual([]);
++  writer.flush();expect(f.store.task(task.id).plan).toEqual(task.plan);
++  f.record(task,'pointer_intercepted');writer.flush();
++  expect(f.store.task(task.id).plan).toHaveLength(3);expect(task.plan[2].reason).toBe('pointer_intercepted');
++ }finally{await f.plugin.close();}
++});
++
++it('a later observation cannot borrow an unverified condition hint to coalesce another source',async()=>{
++ const f=fixture();try{
++  const original=structuredClone(f.task.plan[1]);expect(f.record(f.task)).toBe(f.task.plan[1]);
++  const later={...current,observationId:'later'},gap=f.record(f.task,'operation_not_executed',later);
++  expect(gap.id).not.toBe(original.id);expect(f.task.plan).toHaveLength(3);expect(gap.evidence).toEqual([later]);
++  expect(f.task.plan[1]).toEqual(original);expect(f.task.plan.every(i=>i.status!=='succeeded'&&i.attempts.length===0)).toBe(true);
++ }finally{await f.plugin.close();}
++});
++
++it('leaves legacy paired rows and their attempt/unknown evidence intact',async()=>{
++ const f=fixture();try{
++  const existing={...item(),id:'audit-gap',reason:'operation_not_executed',status:'unresolved' as const,attempts:[{roundId:'round',outcome:'unknown',evidence:{...source,attemptId:'unknown'}}]};
++  f.task.plan.push(existing);const originalAttempt=structuredClone(existing.attempts),discovery=structuredClone(f.task.plan[1]);
++  expect(f.record(f.task)).toBe(existing);expect(f.task.plan).toHaveLength(3);
++  expect(existing.attempts).toEqual(originalAttempt);expect(f.task.plan[1]).toEqual(discovery);expect(existing.status).toBe('unresolved');
++ }finally{await f.plugin.close();}
++});
++
++function auditFixture(){
++ const control={localId:'amount',instanceId:'amount-instance',identityId:'amount-identity',tag:'input',role:'textbox',name:'Amount',label:'',region:'form',form:'',visible:true,enabled:true,editable:true,
++  constraints:{type:'text',required:false,valid:true},options:[],actions:['fill'],selected:[],stableKey:'id:amount',actionBasis:{fill:{status:'supported',evidence:[{source:'html',rule:'input/v1',facts:{tag:'input'}}]}}};
++ const o={id:current.observationId,sessionId:current.sessionId,instanceScope:'document',url:scope.url,context:{tenant:{status:'known',value:'one',source:'fixture'}},gaps:[],stable:true,ruleVersion:'fixture-v1',boundaries:[],regions:[{key:'form',label:'Form',role:'region'}],controls:[control]} as unknown as Observation;
++ const action={id:'fill-action',sessionId:o.sessionId,observationId:o.id,stateId:'state',controlId:control.identityId,localId:control.localId,kind:'fill',value:'1',label:'Amount',risk:'interface',basis:control.actionBasis.fill,replayable:true,source:'fixture',excluded:false,sampleValidity:'known',preconditions:{visible:true,enabled:true,identityResolved:true,context:structuredClone(o.context)}} as ActionCandidate;
++ const f=fixture();f.task.plan[1].scope=scopeFor(action,o);f.task.plan[1].operationConditionKey=keyFor(action,o);
++ const snapshot={revision:'fixture',actions:[action],operationCandidates:[action],availability:{sessionId:o.sessionId,observationId:o.id,actions:[{actionId:action.id,executable:true,blockers:[]}]},obligations:{criticalGaps:[],regions:[],pageTraversal:false,classifications:[],operations:[],identities:[],discovery:false}};
++ return {...f,o,action,snapshot,audit:()=>{(f.plugin as any).auditRemainingScopes(f.task,f.task.rounds[0],o,snapshot,new Set());}};
++}
++
++it('audits the unique action in the complete current snapshot without adding a second obligation',async()=>{
++ const f=auditFixture();try{const original=structuredClone(f.task.plan[1]);f.audit();f.audit();expect(f.task.plan).toHaveLength(2);expect(f.task.plan[1]).toEqual(original);}finally{await f.plugin.close();}
++});
++
++it('refuses same-name A/B coalescing when another current action has the same exact scope',async()=>{
++ const f=auditFixture();try{
++  // The other action is outside operationCandidates; uniqueness must inspect
++  // the complete current action set, not only the executable audit subset.
++  f.snapshot.actions.push({...f.action,id:'other-action'});const original=structuredClone(f.task.plan[1]);f.audit();
++  expect(f.task.plan).toHaveLength(3);expect(f.task.plan[1]).toEqual(original);expect(f.task.plan[2].reason).toBe('operation_not_executed');
++ }finally{await f.plugin.close();}
++});
++
++it.each(['observation','session','availability'])('does not use a mismatched %s snapshot to suppress an audit gap',async(field)=>{
++ const f=auditFixture();try{
++  if(field==='observation')f.action.observationId='other';else if(field==='session')f.action.sessionId='other';else f.snapshot.availability.observationId='other';
++  f.audit();expect(f.task.plan).toHaveLength(3);expect(f.task.plan[1].status).toBe('pending');expect(f.task.plan[2].reason).toBe('operation_not_executed');
++ }finally{await f.plugin.close();}
++});

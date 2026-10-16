@@ -1,0 +1,32 @@
+{
+  "sourceFrozenDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1-frozen-3",
+  "privateCompleteCopy": "/tmp/identity-codec-feasibility-DJOXN0/owned-copy",
+  "filesVerified": 1865,
+  "frozenManifestPath": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-3/frozen-snapshot.json",
+  "frozenManifestSHA256": "9c42f8a433f95885525d385980e21deddbcf14a393b3f6a8e6eb1e299f020c31",
+  "allFrozenAndPrivateCopyFilesUnchanged": true,
+  "walOrShmPresentInInputs": false,
+  "originalLiveDatabaseOpened": false,
+  "sourceDatabaseHashes": {
+    ".runner-lock.sqlite": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "engine/engine.sqlite": "f770de1f03beb89a30b0e176e6334c008d84532774f5b0586658dffa39cacd27",
+    "engine/evidence/.coordination/lock.sqlite": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plugin/explorer.sqlite": "24ae61e38deaebce45502fd60324aba359fd009cb4b3fc506d642a52250d7317"
+  },
+  "fixturesSHA256": "d7c564e5ad3f0a26c0beb3dbb2075a29cbac6c7b23f62744b176aca36fa67f5d",
+  "originalIdentityDigest": "f4f0ba9218f1dda85d8bbd3d9994ad7375e68496a68545beb89ab26abc6d529c",
+  "finalIdentityDigest": "7f1fb73946c0f9f54461778ae56c4db89313fec396c4bf4d4655848fa7d7e007",
+  "nonIdentityAndAuditDigest": "f24bae61875e31c4f0788f3545d77cab8d0540d3589e1dbf5869f7b40179fd61",
+  "allNineFinalDigestsMatch": true,
+  "allOriginalOccurrencePrefixesRetained": true,
+  "nonIdentityAndAuditTablesUnchanged": true,
+  "checkedAuditRowCounts": {
+    "entities": 8773,
+    "events": 1012,
+    "metadata": 1,
+    "observation_objects": 3687,
+    "observation_packs": 222,
+    "requests": 14,
+    "sqlite_sequence": 3
+  }
+}

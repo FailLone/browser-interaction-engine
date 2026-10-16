@@ -11,7 +11,7 @@ import type { ActionAttempt, Observation } from '@interaction/browser';
 import { SqliteStore } from '@interaction/storage-sqlite';
 import { RetainedPersistence } from '@interaction/storage-retained';
 import { ExplorerPlugin, ExplorerStore, type ExplorerHost, type TaskStatus, type Task } from '@interaction/explorer-plugin';
-import { AcceptanceProgress, AcceptanceWindow, WindowBudgetExceeded, operationConditionCandidate, classifyAcceptanceAttempt, newlyResolvedOccurrences, planResolutionChanges, createDiagnosticLogger, closeAcceptanceResources, settlePendingProviders, auditProtectedArtifact, settleOwnedTask, retainRecoveryResult, writeOwnedStopRequest, readOwnedStopRequest, pollOwnedStopRequests, type AcceptanceRunControl } from '../scripts/okx-storage-acceptance.js';
+import { AcceptanceProgress, AcceptanceWindow, WindowBudgetExceeded, operationConditionCandidate, operationConditionAssessment, progressEvidenceWindow, watchProgressEvidence, classifyAcceptanceAttempt, newlyResolvedOccurrences, planResolutionChanges, createDiagnosticLogger, closeAcceptanceResources, settlePendingProviders, auditProtectedArtifact, settleOwnedTask, retainRecoveryResult, writeOwnedStopRequest, readOwnedStopRequest, pollOwnedStopRequests, type AcceptanceRunControl } from '../scripts/okx-storage-acceptance.js';
 
 it('audits retained bytes and media type without starting providers or a browser', async () => {
   const directory = mkdtempSync(join(tmpdir(), 'okx-audit-offline-'));
@@ -113,6 +113,109 @@ it.each(['missing-target', 'identity-pending', 'conditions-unavailable'])('repor
   expect(progress.snapshot()).toMatchObject({ successfulAttemptIds: ['unkeyed'], unkeyedSuccessfulAttemptIds: ['unkeyed'], newOperationConditionCandidates: 0, progressGuardsDeferred: true });
   progress.record({ ...a, status: 'unknown' });
   expect(progress.snapshot()).toMatchObject({ successfulAttemptIds: [], unkeyedSuccessfulAttemptIds: [], progressGuardsDeferred: false });
+});
+
+it.each(['target_missing', 'target_local_id_nonunique', 'target_identity_unresolved', 'target_identity_missing', 'action_target_identity_mismatch', 'target_conditions_unavailable'])('retains the actual source and %s reason without substituting a scheduling key', reason => {
+  const o = observation(), a = attempt('audit');
+  if (reason === 'target_missing') o.controls = [];
+  if (reason === 'target_local_id_nonunique') o.controls.push(structuredClone(o.controls[0]));
+  if (reason === 'target_identity_unresolved') o.controls[0].hypothesisId = 'review';
+  if (reason === 'target_identity_missing') delete o.controls[0].identityId;
+  if (reason === 'action_target_identity_mismatch') o.controls[0].identityId = 'another';
+  if (reason === 'target_conditions_unavailable') o.context = { mode: { status: 'unknown', value: null, source: 'fixture' } };
+  const assessment = operationConditionAssessment(a, o);
+  expect(assessment).toMatchObject({ key: undefined, reason, evidence: { sessionId: 's', beforeId: 'o', observationId: 'o', actionId: a.action.id, localId: 'c0', controlId: 'i0' } });
+  const progress = new AcceptanceProgress(row => operationConditionAssessment(row, o)); progress.record(a);
+  expect(progress.snapshot().unkeyedSuccessfulAttempts).toMatchObject([{ attemptId: a.id, reason, evidence: assessment.evidence }]);
+  expect(operationConditionCandidate(a, o)).toBeUndefined();
+});
+
+it('allows a full audit window of active exploration but neither new unkeyed nor keyed successes extend it', () => {
+  const progress = new AcceptanceProgress(a => a.id === 'keyed' ? 'new-condition' : undefined, () => 10000);
+  progress.record(attempt('first'));
+  const window = (at: number) => progressEvidenceWindow(progress.snapshot(100), 100, 1000, at);
+  expect(window(200)).toMatchObject({ status: 'pending', firstUnkeyedAt: 200, deadlineAt: 1200, elapsedMs: 0 });
+  progress.record(attempt('second', 1, { finishedAt: new Date(800).toISOString() }));
+  progress.record(attempt('keyed', 1, { finishedAt: new Date(1000).toISOString() }));
+  expect(progress.snapshot().newOperationConditionCandidates).toBe(1);
+  expect(window(1199)).toMatchObject({ status: 'pending', deadlineAt: 1200 });
+  expect(window(1200)).toMatchObject({ status: 'audit_required', classification: 'progress_audit_required', deadlineAt: 1200, semanticCoverageEstablished: false, exhaustive: false });
+  expect(progress.snapshot().counts).toEqual({ succeeded: 3 });
+});
+
+it('retains historical unkeyed audit debt with a full restart window without counting downtime or new successes', () => {
+  const progress = new AcceptanceProgress(a => a.id === 'keyed' ? 'known' : undefined, () => 20000);
+  progress.record(attempt('historical'), true); progress.record(attempt('keyed', 1, { finishedAt: new Date(10400).toISOString() }));
+  const snapshot = progress.snapshot(10000);
+  expect(snapshot).toMatchObject({ counts: { succeeded: 1 }, unkeyedSuccessfulAttemptIds: [], historicalUnkeyedSuccessfulAttempts: [{ attemptId: 'historical' }], progressGuardsDeferred: true });
+  expect(progressEvidenceWindow(snapshot, undefined, 1000, 9000).status).toBe('inactive');
+  expect(progressEvidenceWindow(snapshot, 10000, 1000, 10999)).toMatchObject({ status: 'pending', firstUnkeyedAt: 10000, deadlineAt: 11000, historicalAttemptIds: ['historical'] });
+  expect(progressEvidenceWindow(snapshot, 10000, 1000, 11000).status).toBe('audit_required');
+  progress.reconcile([attempt('historical'), attempt('keyed', 1)]);
+  expect(progress.snapshot().historicalUnkeyedSuccessfulAttempts).toHaveLength(1);
+  expect(progressEvidenceWindow(progress.snapshot(), 10000, 1000, 11000).status).toBe('audit_required');
+});
+
+it.each(['future', 'invalid'])('does not extend the audit deadline on %s timestamps or duplicate delivery', timestamp => {
+  let now = 200;
+  const progress = new AcceptanceProgress(() => undefined, () => now);
+  const a = attempt('a', 0, { startedAt: 'invalid', finishedAt: timestamp === 'future' ? new Date(1000000).toISOString() : 'invalid' });
+  progress.record(a); now = 900; progress.record(a); progress.reconcile([a]);
+  expect(progressEvidenceWindow(progress.snapshot(), 100, 1000, 1199)).toMatchObject({ status: 'pending', firstUnkeyedAt: 200, deadlineAt: 1200 });
+  expect(progressEvidenceWindow(progress.snapshot(), 100, 1000, 1200).status).toBe('audit_required');
+});
+
+it.each([undefined, 'invalid'])('starts the full review window when success lacks a valid completion time (%s), not at dispatch', finishedAt => {
+  let now = 0;
+  const progress = new AcceptanceProgress(() => undefined, () => now);
+  const a = attempt('delayed', 0, { startedAt: new Date(0).toISOString(), status: 'executing', finishedAt: undefined });
+  progress.record(a); now = 5000; progress.record({ ...a, status: 'succeeded', finishedAt });
+  expect(progressEvidenceWindow(progress.snapshot(), 0, 1000, now)).toMatchObject({ status: 'pending', firstUnkeyedAt: 5000, deadlineAt: 6000 });
+  now = 5900; progress.record({ ...a, status: 'succeeded', finishedAt });
+  expect(progressEvidenceWindow(progress.snapshot(), 0, 1000, 6000).status).toBe('audit_required');
+});
+
+it.each([undefined, 'invalid', new Date(1000000).toISOString()])('does not manufacture later keyed progress from repeated success with completion time %s', finishedAt => {
+  let now = 0;
+  const progress = new AcceptanceProgress(() => 'same-key', () => now);
+  const a = attempt('keyed', 0, { status: 'executing', startedAt: new Date(0).toISOString(), finishedAt: undefined });
+  progress.record(a); now = 200; progress.record({ ...a, status: 'succeeded', finishedAt });
+  expect(progress.snapshot().lastProgressAt).toBe(200);
+  now = 900; progress.record({ ...a, status: 'succeeded', finishedAt }); progress.reconcile([{ ...a, status: 'succeeded', finishedAt }]);
+  expect(progress.snapshot()).toMatchObject({ newOperationConditionCandidates: 1, lastProgressAt: 200, successfulAttemptIds: ['keyed'] });
+});
+
+it('recomputes audit debt from final attempt states while preserving unknown and in-flight blockers', () => {
+  const progress = new AcceptanceProgress(() => undefined, () => 10000);
+  const a = attempt('a'), b = attempt('b', 1, { finishedAt: new Date(600).toISOString() });
+  progress.record(a); progress.record(b);
+  const unknown = { ...a, status: 'unknown' as const }; progress.record(unknown);
+  expect(progress.snapshot()).toMatchObject({ counts: { unknown: 1, succeeded: 1 }, successfulAttemptIds: ['b'], unknownAttempts: [{ attemptId: 'a', status: 'unknown' }] });
+  expect(progressEvidenceWindow(progress.snapshot(), 100, 1000, 1200)).toMatchObject({ status: 'pending', firstUnkeyedAt: 600, deadlineAt: 1600 });
+  progress.record({ ...b, status: 'executing' });
+  expect(progress.snapshot()).toMatchObject({ unkeyedSuccessfulAttemptIds: [], inFlightAttempts: [{ attemptId: 'b', status: 'executing' }], unknownAttempts: [{ attemptId: 'a' }] });
+  expect(progressEvidenceWindow(progress.snapshot(), 100, 1000, 1200).status).toBe('inactive');
+  progress.record(a); // Later retained evidence explicitly reclassifies the same attempt.
+  expect(progress.snapshot()).toMatchObject({ successfulAttemptIds: ['a'], unknownAttempts: [] });
+  expect(progressEvidenceWindow(progress.snapshot(), 100, 1000, 1200).status).toBe('audit_required');
+  progress.reconcile([unknown]);
+  expect(progressEvidenceWindow(progress.snapshot(), 100, 1000, 5000).status).toBe('inactive');
+  expect(progress.snapshot()).toMatchObject({ counts: { unknown: 1 }, unknownAttempts: [{ attemptId: 'a' }] });
+});
+
+it('requests audit once independently of sampling and can dispose the watcher before settlement', async () => {
+  vi.useFakeTimers(); vi.setSystemTime(0);
+  const progress = new AcceptanceProgress(() => undefined); progress.record(attempt('first', 0, { finishedAt: new Date(0).toISOString() }));
+  const stop = vi.fn(), read = () => progressEvidenceWindow(progress.snapshot(), 0, 3000), dispose = watchProgressEvidence(read, stop);
+  try {
+    await vi.advanceTimersByTimeAsync(2000); expect(stop).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(stop).toHaveBeenCalledExactlyOnceWith('progress_evidence_unavailable_window', expect.objectContaining({ status: 'audit_required', deadlineAt: 3000, exhaustive: false }));
+    await vi.advanceTimersByTimeAsync(10000); expect(stop).toHaveBeenCalledOnce();
+    expect(progress.snapshot().counts).toEqual({ succeeded: 1 });
+    dispose(); const second = watchProgressEvidence(read, stop); second();
+    await vi.advanceTimersByTimeAsync(2000); expect(stop).toHaveBeenCalledOnce();
+  } finally { dispose(); vi.useRealTimers(); }
 });
 
 it('counts newly resolved duplicate business IDs independently using persisted occurrence handles', async () => {

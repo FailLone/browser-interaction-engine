@@ -1,0 +1,19 @@
+import { digest, operationConditionPolicy } from './policy.js';
+import type { EvidenceRef, PlanItem, Scope } from './types.js';
+
+/** Discovery and an executable-but-unattempted audit describe one pending
+ * operation in one observation. Reuse only its exact bound obligation; this is not correspondence,
+ * execution permission or completion. Existing records/attempts are never merged.
+ */
+export function pendingDiscoveredOperation(plan:readonly PlanItem[],input:{reason:string;scope:Scope;required:boolean;prerequisites:Scope[];operationConditionKey?:string;source?:EvidenceRef;uniqueCurrentOperation:boolean}):PlanItem|undefined {
+  if(input.reason!=='operation_not_executed'||!input.uniqueCurrentOperation||!input.required||!input.scope.kind||!input.operationConditionKey||!input.source)return;
+  const scope=digest(input.scope),path=digest(input.prerequisites);
+  const candidates=plan.filter(item=>item.reason==='observed_in_scope'&&item.required===input.required&&item.dispatchScope===false
+    &&(item.status==='pending'||item.status==='unresolved')&&item.attempts.length===0
+    &&!item.resolvedBy&&!item.reviewResolvedBy&&!item.coverageResolvedBy&&!item.reviewRecoveryWait
+    &&!item.conditionMigration&&!item.conditionLineage
+    &&item.operationConditionPolicy===operationConditionPolicy&&item.operationConditionKey===input.operationConditionKey
+    &&digest(item.scope)===scope&&digest(item.prerequisites)===path
+    &&item.evidence.length>0&&item.evidence.every(ref=>ref.sessionId===input.source!.sessionId&&ref.observationId===input.source!.observationId&&!ref.attemptId));
+  return candidates.length===1?candidates[0]:undefined;
+}

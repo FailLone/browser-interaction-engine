@@ -1,0 +1,4066 @@
+{
+  "generatedAt": "2026-10-16T21:38:55.356357+00:00",
+  "method": "Python SQLite immutable=1&mode=ro, query_only; no store/engine constructors, no writes; raw JSON fragments compared as original UTF-8 bytes; gzip is a byte-size experiment only.",
+  "integrity": {
+    "2": {
+      "directory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1-frozen-2",
+      "manifestPath": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-2/frozen-snapshot.json",
+      "manifestSha256": "a61add5ae3da7dd55eb7b0be07a4c1ed6500a9ffba3b0cbccd545adaa5ad7a4f",
+      "fileCount": 1199,
+      "bytes": 30375198,
+      "matchesFrozenManifest": true,
+      "beforeAfterAllFileHashesEqual": true,
+      "databaseHashes": {
+        ".runner-lock.sqlite": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "plugin/explorer.sqlite": "4856895cc4ab9b4a50c3002908428bcd3b6b8772c90975854b25dcb222e7dbf9",
+        "engine/engine.sqlite": "aaf40b60d88dbe8d0a07a01f1acfc495d31e962e7596f3e0365fde717f6b53e3",
+        "engine/evidence/.coordination/lock.sqlite": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "walOrShmFiles": [],
+      "finalAllFileHashesEqual": true,
+      "finalVerifiedAt": "2026-10-16T21:44:04.460802+00:00"
+    },
+    "3": {
+      "directory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1-frozen-3",
+      "manifestPath": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-3/frozen-snapshot.json",
+      "manifestSha256": "9c42f8a433f95885525d385980e21deddbcf14a393b3f6a8e6eb1e299f020c31",
+      "fileCount": 1865,
+      "bytes": 45928970,
+      "matchesFrozenManifest": true,
+      "beforeAfterAllFileHashesEqual": true,
+      "databaseHashes": {
+        ".runner-lock.sqlite": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "plugin/explorer.sqlite": "24ae61e38deaebce45502fd60324aba359fd009cb4b3fc506d642a52250d7317",
+        "engine/engine.sqlite": "f770de1f03beb89a30b0e176e6334c008d84532774f5b0586658dffa39cacd27",
+        "engine/evidence/.coordination/lock.sqlite": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "walOrShmFiles": [],
+      "finalAllFileHashesEqual": true,
+      "finalVerifiedAt": "2026-10-16T21:44:04.710042+00:00"
+    }
+  },
+  "runs": {
+    "2": {
+      "run": 2,
+      "engineAllocation": {
+        "pageSize": 4096,
+        "pageCount": 5725,
+        "freelistPages": 0,
+        "tables": {
+          "entities": {
+            "pages": 4592,
+            "allocatedBytes": 18808832,
+            "payloadBytes": 15997519,
+            "unusedBytes": 2713067
+          },
+          "entities_session_kind": {
+            "pages": 98,
+            "allocatedBytes": 401408,
+            "payloadBytes": 343692,
+            "unusedBytes": 35472
+          },
+          "events": {
+            "pages": 645,
+            "allocatedBytes": 2641920,
+            "payloadBytes": 2412116,
+            "unusedBytes": 219740
+          },
+          "events_session_seq": {
+            "pages": 9,
+            "allocatedBytes": 36864,
+            "payloadBytes": 29268,
+            "unusedBytes": 5479
+          },
+          "metadata": {
+            "pages": 1,
+            "allocatedBytes": 4096,
+            "payloadBytes": 17,
+            "unusedBytes": 4067
+          },
+          "observation_objects": {
+            "pages": 55,
+            "allocatedBytes": 225280,
+            "payloadBytes": 201726,
+            "unusedBytes": 10285
+          },
+          "observation_objects_pack": {
+            "pages": 7,
+            "allocatedBytes": 28672,
+            "payloadBytes": 15287,
+            "unusedBytes": 5787
+          },
+          "observation_packs": {
+            "pages": 168,
+            "allocatedBytes": 688128,
+            "payloadBytes": 557956,
+            "unusedBytes": 127238
+          },
+          "observation_packs_session": {
+            "pages": 3,
+            "allocatedBytes": 12288,
+            "payloadBytes": 6063,
+            "unusedBytes": 5740
+          },
+          "requests": {
+            "pages": 1,
+            "allocatedBytes": 4096,
+            "payloadBytes": 1476,
+            "unusedBytes": 2567
+          },
+          "sqlite_autoindex_entities_1": {
+            "pages": 86,
+            "allocatedBytes": 352256,
+            "payloadBytes": 291429,
+            "unusedBytes": 38727
+          },
+          "sqlite_autoindex_metadata_1": {
+            "pages": 1,
+            "allocatedBytes": 4096,
+            "payloadBytes": 16,
+            "unusedBytes": 4069
+          },
+          "sqlite_autoindex_observation_objects_1": {
+            "pages": 56,
+            "allocatedBytes": 229376,
+            "payloadBytes": 185316,
+            "unusedBytes": 35874
+          },
+          "sqlite_autoindex_requests_1": {
+            "pages": 1,
+            "allocatedBytes": 4096,
+            "payloadBytes": 692,
+            "unusedBytes": 3369
+          },
+          "sqlite_schema": {
+            "pages": 1,
+            "allocatedBytes": 4096,
+            "payloadBytes": 2007,
+            "unusedBytes": 1916
+          },
+          "sqlite_sequence": {
+            "pages": 1,
+            "allocatedBytes": 4096,
+            "payloadBytes": 57,
+            "unusedBytes": 4019
+          }
+        }
+      },
+      "kinds": {
+        "session": {
+          "rows": 1,
+          "jsonBytes": 1112,
+          "compressedBytes": 0,
+          "logicalBytes": 1112,
+          "fields": {
+            "options": 842,
+            "id": 38,
+            "currentObservationId": 38,
+            "createdAt": 26,
+            "stopReason": 17,
+            "mode": 8,
+            "status": 8,
+            "dirty": 5,
+            "elapsedMs": 5,
+            "actionCount": 1
+          }
+        },
+        "evidence-retention": {
+          "rows": 25,
+          "jsonBytes": 11765,
+          "compressedBytes": 0,
+          "logicalBytes": 11765,
+          "fields": {
+            "keys": 2400,
+            "policy": 1900,
+            "pins": 1415,
+            "id": 1200,
+            "sessionId": 950,
+            "observationId": 950,
+            "createdAt": 325,
+            "committed": 100,
+            "pinExpirations": 30
+          }
+        },
+        "evidence-entry": {
+          "rows": 50,
+          "jsonBytes": 17300,
+          "compressedBytes": 0,
+          "logicalBytes": 17300,
+          "fields": {
+            "hash": 3975,
+            "id": 2775,
+            "key": 2325,
+            "sessionId": 1900,
+            "observationId": 1900,
+            "status": 550,
+            "bytes": 325
+          }
+        },
+        "boundary-exit-episode": {
+          "rows": 1,
+          "jsonBytes": 230,
+          "compressedBytes": 0,
+          "logicalBytes": 230,
+          "fields": {
+            "id": 52,
+            "sessionId": 38,
+            "episodeId": 38,
+            "firstObservationId": 38,
+            "key": 2
+          }
+        },
+        "region-review-request": {
+          "rows": 1,
+          "jsonBytes": 184,
+          "compressedBytes": 0,
+          "logicalBytes": 184,
+          "fields": {
+            "key": 66,
+            "id": 53,
+            "sessionId": 38
+          }
+        },
+        "visit": {
+          "rows": 25,
+          "jsonBytes": 11705,
+          "compressedBytes": 0,
+          "logicalBytes": 11705,
+          "fields": {
+            "explorationScope": 2352,
+            "stateId": 1650,
+            "id": 950,
+            "sessionId": 950,
+            "observationId": 950,
+            "parentId": 804,
+            "at": 650,
+            "viaAttemptId": 342,
+            "explorationDepth": 25,
+            "depth": 25
+          }
+        },
+        "exploration-group": {
+          "rows": 116,
+          "jsonBytes": 1009449,
+          "compressedBytes": 0,
+          "logicalBytes": 1009449,
+          "fields": {
+            "members": 382774,
+            "evidence": 336434,
+            "collection": 95404,
+            "conditions": 74441,
+            "proposalKey": 40291,
+            "invalidation": 9583,
+            "contextKey": 7656,
+            "key": 7656,
+            "observationId": 4408,
+            "instanceScope": 4408,
+            "sessionId": 4408,
+            "id": 4408,
+            "membership": 2668,
+            "label": 2582,
+            "kind": 1667,
+            "status": 1440,
+            "decisions": 770,
+            "traversalKeys": 761,
+            "revision": 116,
+            "binding": 9
+          }
+        },
+        "identity": {
+          "rows": 1142,
+          "jsonBytes": 5613046,
+          "compressedBytes": 0,
+          "logicalBytes": 5613046,
+          "fields": {
+            "lastControl": 2948346,
+            "occurrences": 1892883,
+            "signature": 395574,
+            "stableKey": 134344,
+            "id": 43396,
+            "sessionId": 43396,
+            "createdAt": 29692,
+            "status": 14528
+          }
+        },
+        "hypothesis": {
+          "rows": 55,
+          "jsonBytes": 46591,
+          "compressedBytes": 0,
+          "logicalBytes": 46591,
+          "fields": {
+            "candidateIds": 21466,
+            "evidence": 4326,
+            "localId": 2332,
+            "id": 2090,
+            "sessionId": 2090,
+            "observationId": 2090,
+            "provisionalIdentityId": 2090,
+            "conflicts": 1601,
+            "status": 497,
+            "revisions": 474
+          }
+        },
+        "action": {
+          "rows": 4789,
+          "jsonBytes": 4246811,
+          "compressedBytes": 0,
+          "logicalBytes": 4246811,
+          "fields": {
+            "preconditions": 1156399,
+            "basis": 623667,
+            "stateId": 316074,
+            "localId": 200917,
+            "id": 181982,
+            "sessionId": 181982,
+            "observationId": 181982,
+            "controlId": 180918,
+            "label": 97071,
+            "source": 76652,
+            "risk": 51769,
+            "sampleValidity": 34003,
+            "kind": 33466,
+            "target": 28455,
+            "excluded": 23945,
+            "replayable": 19624,
+            "boundary": 3930,
+            "value": 3622
+          }
+        },
+        "frontier": {
+          "rows": 707,
+          "jsonBytes": 1336002,
+          "compressedBytes": 0,
+          "logicalBytes": 1336002,
+          "fields": {
+            "action": 527607,
+            "sampling": 354887,
+            "explorationGroups": 114533,
+            "stateId": 46662,
+            "contextKey": 46662,
+            "key": 46662,
+            "id": 26866,
+            "sessionId": 26866,
+            "reason": 20103,
+            "unblock": 17165,
+            "status": 8010,
+            "attempts": 1759,
+            "depth": 707
+          }
+        },
+        "scope": {
+          "rows": 2,
+          "jsonBytes": 1128,
+          "compressedBytes": 0,
+          "logicalBytes": 1128,
+          "fields": {
+            "attemptIds": 236,
+            "id": 76,
+            "sessionId": 76,
+            "afterId": 76,
+            "instanceScope": 76,
+            "beforeId": 76,
+            "anchors": 56,
+            "boundaryKey": 52,
+            "baseline": 28,
+            "status": 26,
+            "region": 20,
+            "name": 16,
+            "automatic": 8
+          }
+        },
+        "boundary-exit-request": {
+          "rows": 1,
+          "jsonBytes": 192,
+          "compressedBytes": 0,
+          "logicalBytes": 192,
+          "fields": {
+            "key": 66,
+            "id": 61,
+            "sessionId": 38
+          }
+        },
+        "discovery-request": {
+          "rows": 1,
+          "jsonBytes": 187,
+          "compressedBytes": 0,
+          "logicalBytes": 187,
+          "fields": {
+            "key": 66,
+            "id": 56,
+            "sessionId": 38
+          }
+        },
+        "page-exploration": {
+          "rows": 1,
+          "jsonBytes": 279,
+          "compressedBytes": 0,
+          "logicalBytes": 279,
+          "fields": {
+            "frames": 105,
+            "id": 55,
+            "rootUrl": 40,
+            "sessionId": 38
+          }
+        },
+        "control-classification-request": {
+          "rows": 1,
+          "jsonBytes": 198,
+          "compressedBytes": 0,
+          "logicalBytes": 198,
+          "fields": {
+            "id": 67,
+            "key": 66,
+            "sessionId": 38
+          }
+        },
+        "control-review-request": {
+          "rows": 1,
+          "jsonBytes": 191,
+          "compressedBytes": 0,
+          "logicalBytes": 191,
+          "fields": {
+            "key": 66,
+            "id": 60,
+            "sessionId": 38
+          }
+        },
+        "intervention-snapshot": {
+          "rows": 28,
+          "jsonBytes": 372367,
+          "compressedBytes": 0,
+          "logicalBytes": 372367,
+          "fields": {
+            "entries": 231580,
+            "changes": 133537,
+            "id": 2826,
+            "revision": 1848,
+            "sessionId": 1064
+          }
+        },
+        "region-review": {
+          "rows": 5,
+          "jsonBytes": 30561,
+          "compressedBytes": 0,
+          "logicalBytes": 30561,
+          "fields": {
+            "regions": 27163,
+            "evidence": 974,
+            "contextKey": 330,
+            "url": 200,
+            "id": 190,
+            "sessionId": 190,
+            "observationId": 190,
+            "instanceScope": 190,
+            "at": 130,
+            "source": 85,
+            "baseReviewId": 76,
+            "status": 61,
+            "rejectedCandidateIds": 10
+          }
+        },
+        "checkpoint": {
+          "rows": 6,
+          "jsonBytes": 2294,
+          "compressedBytes": 0,
+          "logicalBytes": 2294,
+          "fields": {
+            "stateId": 396,
+            "path": 242,
+            "id": 228,
+            "sessionId": 228,
+            "observationId": 228,
+            "createdAt": 156,
+            "name": 84,
+            "predicates": 12,
+            "acceptable": 12,
+            "context": 12
+          }
+        },
+        "attempt": {
+          "rows": 9,
+          "jsonBytes": 205994,
+          "compressedBytes": 0,
+          "logicalBytes": 205994,
+          "fields": {
+            "diff": 194820,
+            "action": 6965,
+            "id": 342,
+            "transitionId": 342,
+            "sessionId": 342,
+            "afterId": 342,
+            "requestId": 342,
+            "beforeId": 342,
+            "startedAt": 234,
+            "finishedAt": 234,
+            "executionProfile": 138,
+            "status": 99,
+            "purpose": 90
+          }
+        },
+        "transition": {
+          "rows": 9,
+          "jsonBytes": 2802,
+          "compressedBytes": 0,
+          "logicalBytes": 2802,
+          "fields": {
+            "to": 594,
+            "from": 594,
+            "id": 342,
+            "sessionId": 342,
+            "attemptId": 342,
+            "replayable": 39
+          }
+        },
+        "control-classification": {
+          "rows": 4,
+          "jsonBytes": 22411,
+          "compressedBytes": 0,
+          "logicalBytes": 22411,
+          "fields": {
+            "conditions": 19384,
+            "invalidation": 532,
+            "evidence": 344,
+            "conditionKey": 264,
+            "reuseFrom": 194,
+            "localId": 172,
+            "id": 152,
+            "sessionId": 152,
+            "observationId": 152,
+            "reason": 139,
+            "at": 104,
+            "source": 69,
+            "status": 52,
+            "classification": 48
+          }
+        },
+        "reach": {
+          "rows": 2,
+          "jsonBytes": 1288,
+          "compressedBytes": 0,
+          "logicalBytes": 1288,
+          "fields": {
+            "diagnostics": 381,
+            "attemptIds": 119,
+            "checks": 112,
+            "id": 76,
+            "checkpointId": 76,
+            "sessionId": 76,
+            "reason": 76,
+            "observationId": 76,
+            "status": 24,
+            "remainingFrontier": 6
+          }
+        },
+        "observation": {
+          "rows": 25,
+          "jsonBytes": 16015,
+          "compressedBytes": 1631553,
+          "logicalBytes": 85377205
+        },
+        "state": {
+          "rows": 17,
+          "jsonBytes": 4811,
+          "compressedBytes": 803494,
+          "logicalBytes": 14906844
+        }
+      },
+      "observations": {
+        "observations": 25,
+        "formats": {
+          "structural-v2": 16,
+          "gzip-v1": 9
+        },
+        "logicalBytes": 85377205,
+        "manifestAndCompressedBytes": 1647568,
+        "objects": 2506,
+        "referencedObjects": 2506,
+        "orphanObjects": 0,
+        "objectsLogicalBytes": 8810458,
+        "referencedBytesWithMultiplicity": 54298450,
+        "exactSharedFragmentBytesAvoided": 45487992,
+        "packs": 151,
+        "packStoredBytes": 545433,
+        "packLogicalBytes": 8810458,
+        "packFragmentedBytes": 0
+      },
+      "states": {
+        "rows": 17,
+        "compressedRows": 17,
+        "logicalBytes": 14906844,
+        "storedBytes": 808305
+      },
+      "identity": {
+        "rows": 1142,
+        "lastControlBytes": 2948346,
+        "exactObservationControlMatches": 1142,
+        "exactObservationControlBytes": 2948346,
+        "exactExistingObjectMatches": 512,
+        "exactExistingObjectBytes": 1229975,
+        "latestOccurrenceControlMatches": 1142,
+        "latestOccurrenceControlBytes": 2948346,
+        "unmatched": [],
+        "lastControlExactDuplicates": {
+          "occurrences": 1142,
+          "uniqueValues": 1142,
+          "totalBytes": 2948346,
+          "uniqueBytes": 2948346,
+          "duplicateBytes": 0,
+          "repeatedValues": 0
+        },
+        "occurrenceExactDuplicates": {
+          "occurrences": 6905,
+          "uniqueValues": 6905,
+          "totalBytes": 1884836,
+          "uniqueBytes": 1884836,
+          "duplicateBytes": 0,
+          "repeatedValues": 0
+        }
+      },
+      "nestedActions": {
+        "frontier": {
+          "nestedActions": 707,
+          "bytes": 527607,
+          "exactActionRowMatches": 707,
+          "exactActionRowBytes": 527607,
+          "mismatches": 0
+        },
+        "attempt": {
+          "nestedActions": 9,
+          "bytes": 6965,
+          "exactActionRowMatches": 9,
+          "exactActionRowBytes": 6965,
+          "mismatches": 0
+        }
+      },
+      "actionFieldDuplicates": {
+        "preconditions": {
+          "occurrences": 4789,
+          "uniqueValues": 11,
+          "totalBytes": 1156399,
+          "uniqueBytes": 2951,
+          "duplicateBytes": 1153448,
+          "repeatedValues": 11
+        },
+        "basis": {
+          "occurrences": 4787,
+          "uniqueValues": 274,
+          "totalBytes": 623667,
+          "uniqueBytes": 35934,
+          "duplicateBytes": 587733,
+          "repeatedValues": 233
+        },
+        "boundary": {
+          "occurrences": 75,
+          "uniqueValues": 2,
+          "totalBytes": 3930,
+          "uniqueBytes": 104,
+          "duplicateBytes": 3826,
+          "repeatedValues": 2
+        },
+        "label": {
+          "occurrences": 4789,
+          "uniqueValues": 326,
+          "totalBytes": 97071,
+          "uniqueBytes": 6115,
+          "duplicateBytes": 90956,
+          "repeatedValues": 286
+        }
+      },
+      "events": {
+        "region.review_requested": {
+          "rows": 14,
+          "bytes": 142492,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "exploration.group_detected": {
+          "rows": 116,
+          "bytes": 974666,
+          "exactCurrentEntityRows": 16,
+          "exactCurrentEntityBytes": 146042
+        },
+        "identity.ambiguous": {
+          "rows": 55,
+          "bytes": 46225,
+          "exactCurrentEntityRows": 53,
+          "exactCurrentEntityBytes": 45296
+        },
+        "action.tentative": {
+          "rows": 175,
+          "bytes": 50827,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "observation.created": {
+          "rows": 25,
+          "bytes": 243985,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "frontier.updated": {
+          "rows": 27,
+          "bytes": 1500,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "scope.opened": {
+          "rows": 2,
+          "bytes": 784,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "interaction.boundary_changed": {
+          "rows": 4,
+          "bytes": 672,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "boundary.exit_review_requested": {
+          "rows": 2,
+          "bytes": 1188,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "discovery.scan_requested": {
+          "rows": 9,
+          "bytes": 64600,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "control.classification_requested": {
+          "rows": 18,
+          "bytes": 23622,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "control.review_requested": {
+          "rows": 17,
+          "bytes": 30272,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "exploration.review_requested": {
+          "rows": 12,
+          "bytes": 13016,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "interventions.updated": {
+          "rows": 27,
+          "bytes": 196478,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "session.created": {
+          "rows": 1,
+          "bytes": 52,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "region.reviewed": {
+          "rows": 5,
+          "bytes": 28500,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "observation.external_change": {
+          "rows": 5,
+          "bytes": 47934,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "exploration.group_decided": {
+          "rows": 2,
+          "bytes": 572,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "exploration.groups_decided": {
+          "rows": 2,
+          "bytes": 726,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "checkpoint.created": {
+          "rows": 6,
+          "bytes": 2294,
+          "exactCurrentEntityRows": 6,
+          "exactCurrentEntityBytes": 2294
+        },
+        "action.started": {
+          "rows": 9,
+          "bytes": 9815,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "exploration.group_updated": {
+          "rows": 2,
+          "bytes": 5333,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "action.completed": {
+          "rows": 9,
+          "bytes": 205994,
+          "exactCurrentEntityRows": 9,
+          "exactCurrentEntityBytes": 205994
+        },
+        "observation.diff": {
+          "rows": 9,
+          "bytes": 194820,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "control.classified": {
+          "rows": 4,
+          "bytes": 21795,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "identity.resolved": {
+          "rows": 2,
+          "bytes": 1295,
+          "exactCurrentEntityRows": 2,
+          "exactCurrentEntityBytes": 1295
+        },
+        "control.classification_invalidated": {
+          "rows": 4,
+          "bytes": 22411,
+          "exactCurrentEntityRows": 4,
+          "exactCurrentEntityBytes": 22411
+        },
+        "exploration.group_invalidated": {
+          "rows": 99,
+          "bytes": 15721,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "region.review_invalidated": {
+          "rows": 3,
+          "bytes": 1309,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "scope.interrupted": {
+          "rows": 2,
+          "bytes": 1184,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "checkpoint.result": {
+          "rows": 2,
+          "bytes": 1288,
+          "exactCurrentEntityRows": 2,
+          "exactCurrentEntityBytes": 1288
+        },
+        "session.reattached": {
+          "rows": 1,
+          "bytes": 84,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "session.paused": {
+          "rows": 1,
+          "bytes": 1112,
+          "exactCurrentEntityRows": 1,
+          "exactCurrentEntityBytes": 1112
+        }
+      },
+      "eventExactDuplicates": {
+        "occurrences": 671,
+        "uniqueValues": 671,
+        "totalBytes": 2352566,
+        "uniqueBytes": 2352566,
+        "duplicateBytes": 0,
+        "repeatedValues": 0
+      },
+      "eventExactEntityMatches": [
+        {
+          "sequence": 18,
+          "type": "identity.ambiguous",
+          "entityId": "676ecad4-e6da-447a-a176-a3abf273c384",
+          "bytes": 473
+        },
+        {
+          "sequence": 19,
+          "type": "identity.ambiguous",
+          "entityId": "c028fd9c-394a-4bd9-83ce-0edfa2137ff2",
+          "bytes": 495
+        },
+        {
+          "sequence": 20,
+          "type": "identity.ambiguous",
+          "entityId": "79d9479a-bb36-49d0-9732-4c74847d1c0b",
+          "bytes": 473
+        },
+        {
+          "sequence": 21,
+          "type": "identity.ambiguous",
+          "entityId": "ef928564-1736-4ac7-8ac9-0c59a2dbb8f2",
+          "bytes": 495
+        },
+        {
+          "sequence": 22,
+          "type": "identity.ambiguous",
+          "entityId": "6fcaf2de-721e-431b-b4d3-9d50f892411e",
+          "bytes": 618
+        },
+        {
+          "sequence": 23,
+          "type": "identity.ambiguous",
+          "entityId": "2839072a-2356-458f-89a1-1516816e8e0a",
+          "bytes": 618
+        },
+        {
+          "sequence": 24,
+          "type": "identity.ambiguous",
+          "entityId": "7bce7323-2dca-465c-9d50-8c7bc8823df0",
+          "bytes": 618
+        },
+        {
+          "sequence": 25,
+          "type": "identity.ambiguous",
+          "entityId": "977affcb-1e3e-45a5-aadc-189e591c2d10",
+          "bytes": 618
+        },
+        {
+          "sequence": 26,
+          "type": "identity.ambiguous",
+          "entityId": "cc811e35-3269-4d72-a6fd-557ea2486937",
+          "bytes": 618
+        },
+        {
+          "sequence": 67,
+          "type": "checkpoint.created",
+          "entityId": "7d7c3b8d-5dc6-45dc-a77a-13f5b3eab8ec",
+          "bytes": 344
+        },
+        {
+          "sequence": 77,
+          "type": "action.completed",
+          "entityId": "2a820db4-4a56-4862-900d-8f882c9bd91e",
+          "bytes": 2604
+        },
+        {
+          "sequence": 84,
+          "type": "checkpoint.created",
+          "entityId": "c0d03b39-d074-4512-a327-b5b9c8f9ebc2",
+          "bytes": 382
+        },
+        {
+          "sequence": 93,
+          "type": "action.completed",
+          "entityId": "98e8dbcb-fc34-437a-9e0e-a986760fb9b7",
+          "bytes": 2371
+        },
+        {
+          "sequence": 124,
+          "type": "identity.resolved",
+          "entityId": "519c122d-7af5-48e8-af6e-822aa4f113b0",
+          "bytes": 628
+        },
+        {
+          "sequence": 135,
+          "type": "checkpoint.created",
+          "entityId": "33702c36-2be8-4004-8807-f8f88a9c0556",
+          "bytes": 421
+        },
+        {
+          "sequence": 137,
+          "type": "control.classification_invalidated",
+          "entityId": "8ee8edd7-6522-4184-8cdf-b149e7c71405",
+          "bytes": 8392
+        },
+        {
+          "sequence": 138,
+          "type": "control.classification_invalidated",
+          "entityId": "9d069176-f8d8-4adf-b467-8e92c53f5466",
+          "bytes": 2626
+        },
+        {
+          "sequence": 168,
+          "type": "identity.ambiguous",
+          "entityId": "709324cc-5db6-487d-8e29-399c9a27dc4d",
+          "bytes": 550
+        },
+        {
+          "sequence": 169,
+          "type": "identity.ambiguous",
+          "entityId": "122b2d35-7fbd-46b5-8ace-ede646c7e809",
+          "bytes": 572
+        },
+        {
+          "sequence": 170,
+          "type": "identity.ambiguous",
+          "entityId": "4dbea130-a507-42b1-ba06-fea053cd374c",
+          "bytes": 550
+        },
+        {
+          "sequence": 171,
+          "type": "identity.ambiguous",
+          "entityId": "5c46222f-0e2f-4797-81a7-5f0a79527729",
+          "bytes": 572
+        },
+        {
+          "sequence": 179,
+          "type": "action.completed",
+          "entityId": "492c5f9c-ca38-4621-bd3b-69f0350aeaed",
+          "bytes": 39351
+        },
+        {
+          "sequence": 232,
+          "type": "identity.ambiguous",
+          "entityId": "57565a52-d8c9-47d8-91d7-96d01cc555a6",
+          "bytes": 629
+        },
+        {
+          "sequence": 233,
+          "type": "identity.ambiguous",
+          "entityId": "63ef71e9-328a-4531-9fb0-52d20a008b3d",
+          "bytes": 651
+        },
+        {
+          "sequence": 234,
+          "type": "identity.ambiguous",
+          "entityId": "ce5a6cd9-9584-4fe0-a62b-0b21727a7ed9",
+          "bytes": 629
+        },
+        {
+          "sequence": 235,
+          "type": "identity.ambiguous",
+          "entityId": "e632122b-5d6f-4db1-b1f6-865b277a598b",
+          "bytes": 651
+        },
+        {
+          "sequence": 236,
+          "type": "identity.ambiguous",
+          "entityId": "1aacd6ec-5999-4697-afea-c227be9f6bf5",
+          "bytes": 813
+        },
+        {
+          "sequence": 237,
+          "type": "identity.ambiguous",
+          "entityId": "aa31dfdb-c969-46d0-a2e2-fbdee1613123",
+          "bytes": 813
+        },
+        {
+          "sequence": 238,
+          "type": "identity.ambiguous",
+          "entityId": "908b927f-cc0c-4401-8a50-6a35c93a0770",
+          "bytes": 813
+        },
+        {
+          "sequence": 239,
+          "type": "identity.ambiguous",
+          "entityId": "12736734-5980-439e-a7cf-9b7465373e06",
+          "bytes": 813
+        },
+        {
+          "sequence": 240,
+          "type": "identity.ambiguous",
+          "entityId": "7d0b77b8-aeda-430b-8453-de2da2296848",
+          "bytes": 813
+        },
+        {
+          "sequence": 248,
+          "type": "action.completed",
+          "entityId": "2395fd72-ddb9-4a38-9107-96bffb4da963",
+          "bytes": 37400
+        },
+        {
+          "sequence": 291,
+          "type": "identity.ambiguous",
+          "entityId": "f5f0acb5-9f25-45b7-9c10-0dc4a1727ae5",
+          "bytes": 707
+        },
+        {
+          "sequence": 292,
+          "type": "identity.ambiguous",
+          "entityId": "3b376ff0-849e-43b2-bd2c-b03c1da182eb",
+          "bytes": 729
+        },
+        {
+          "sequence": 293,
+          "type": "identity.ambiguous",
+          "entityId": "51a96cfe-e21a-4b62-b4bf-02e491a9a0b9",
+          "bytes": 707
+        },
+        {
+          "sequence": 294,
+          "type": "identity.ambiguous",
+          "entityId": "d7c33f85-5568-4637-946a-a3f3688a5798",
+          "bytes": 729
+        },
+        {
+          "sequence": 295,
+          "type": "identity.ambiguous",
+          "entityId": "64069d5e-439d-4460-b4a6-1c939c528f50",
+          "bytes": 1008
+        },
+        {
+          "sequence": 296,
+          "type": "identity.ambiguous",
+          "entityId": "e8100b6d-1720-402a-a3c2-f774ca9ed9ed",
+          "bytes": 1008
+        },
+        {
+          "sequence": 297,
+          "type": "identity.ambiguous",
+          "entityId": "424e3019-861c-457d-aaaf-52cb1fa7fefb",
+          "bytes": 1008
+        },
+        {
+          "sequence": 298,
+          "type": "identity.ambiguous",
+          "entityId": "3201d55a-ad91-4ad7-9dc4-e0a1b5920b1c",
+          "bytes": 1008
+        },
+        {
+          "sequence": 299,
+          "type": "identity.ambiguous",
+          "entityId": "e9f5cd77-0940-4b3f-b899-93faecf3ab4f",
+          "bytes": 1008
+        },
+        {
+          "sequence": 307,
+          "type": "action.completed",
+          "entityId": "8abe673e-257d-482e-8b56-417b0a1cbd3b",
+          "bytes": 43035
+        },
+        {
+          "sequence": 316,
+          "type": "checkpoint.result",
+          "entityId": "3f836dee-0319-4a7b-8533-fda9ee216a94",
+          "bytes": 675
+        },
+        {
+          "sequence": 420,
+          "type": "identity.ambiguous",
+          "entityId": "e215e17e-c6d3-4c86-b0c6-5ff3df7dbfb7",
+          "bytes": 785
+        },
+        {
+          "sequence": 421,
+          "type": "identity.ambiguous",
+          "entityId": "b94163c0-46c6-44ab-968f-6c9f04745bf6",
+          "bytes": 807
+        },
+        {
+          "sequence": 422,
+          "type": "identity.ambiguous",
+          "entityId": "8cb3bea9-2dde-493d-ba13-c77d1b23708e",
+          "bytes": 785
+        },
+        {
+          "sequence": 423,
+          "type": "identity.ambiguous",
+          "entityId": "50267263-2549-4f53-a783-cb4c3c0e9c9b",
+          "bytes": 807
+        },
+        {
+          "sequence": 424,
+          "type": "identity.ambiguous",
+          "entityId": "5fbec570-c03e-44fc-ae17-8847fd5b4273",
+          "bytes": 1203
+        },
+        {
+          "sequence": 425,
+          "type": "identity.ambiguous",
+          "entityId": "e3c9ade2-f3c5-4b57-941a-0260eaf6fdf4",
+          "bytes": 1203
+        },
+        {
+          "sequence": 426,
+          "type": "identity.ambiguous",
+          "entityId": "652fc902-d973-414b-bea8-640dfa6208a3",
+          "bytes": 1203
+        },
+        {
+          "sequence": 427,
+          "type": "identity.ambiguous",
+          "entityId": "cc045841-f4e1-403b-aa97-547eb23115c3",
+          "bytes": 1203
+        },
+        {
+          "sequence": 428,
+          "type": "identity.ambiguous",
+          "entityId": "abcc56d7-93a0-4b7e-aaaa-a9b95d9f4a21",
+          "bytes": 1203
+        },
+        {
+          "sequence": 462,
+          "type": "checkpoint.created",
+          "entityId": "0274f5f9-bf49-4a81-95fa-6b3d849c6a24",
+          "bytes": 344
+        },
+        {
+          "sequence": 471,
+          "type": "action.completed",
+          "entityId": "183ccbdf-cdef-4eb1-bf97-bfec0e4dc58b",
+          "bytes": 2604
+        },
+        {
+          "sequence": 478,
+          "type": "checkpoint.created",
+          "entityId": "b3c38904-5028-4951-b8ed-c1029285120a",
+          "bytes": 382
+        },
+        {
+          "sequence": 487,
+          "type": "action.completed",
+          "entityId": "e7718bc9-81d4-4a21-aa44-e26c4f07bc6a",
+          "bytes": 2371
+        },
+        {
+          "sequence": 537,
+          "type": "identity.resolved",
+          "entityId": "c3971d16-8ca7-457c-8590-398c88209235",
+          "bytes": 667
+        },
+        {
+          "sequence": 548,
+          "type": "checkpoint.created",
+          "entityId": "92fac9d2-34fa-4c69-a225-8704ea0cd5cd",
+          "bytes": 421
+        },
+        {
+          "sequence": 550,
+          "type": "control.classification_invalidated",
+          "entityId": "0ab1e699-5772-487c-bcc9-4986b349d45e",
+          "bytes": 8767
+        },
+        {
+          "sequence": 551,
+          "type": "control.classification_invalidated",
+          "entityId": "64537410-4f4b-4b96-bb29-81d16eb0f55b",
+          "bytes": 2626
+        },
+        {
+          "sequence": 581,
+          "type": "identity.ambiguous",
+          "entityId": "15c9a778-59ed-4626-a7a5-ed9c11b73ecd",
+          "bytes": 862
+        },
+        {
+          "sequence": 582,
+          "type": "identity.ambiguous",
+          "entityId": "e1c1cb94-b1dc-448e-be18-5d7c97162ae7",
+          "bytes": 884
+        },
+        {
+          "sequence": 583,
+          "type": "identity.ambiguous",
+          "entityId": "80094d4e-106a-43db-900b-c569d4b180ec",
+          "bytes": 862
+        },
+        {
+          "sequence": 584,
+          "type": "identity.ambiguous",
+          "entityId": "2dd4a26f-e95f-48fb-af4a-6fe0c5ee8c3b",
+          "bytes": 884
+        },
+        {
+          "sequence": 592,
+          "type": "action.completed",
+          "entityId": "55fc9752-861f-4a3a-b90d-f9247b33f3e5",
+          "bytes": 39343
+        },
+        {
+          "sequence": 629,
+          "type": "exploration.group_detected",
+          "entityId": "0ef1a03a-fda5-4ed2-ac34-ac08dd2ca577",
+          "bytes": 6818
+        },
+        {
+          "sequence": 630,
+          "type": "exploration.group_detected",
+          "entityId": "86456888-c923-4111-b2d4-8f4e6292015b",
+          "bytes": 8594
+        },
+        {
+          "sequence": 631,
+          "type": "exploration.group_detected",
+          "entityId": "e715a115-5573-4dbf-bb8a-ea7fd45bdc48",
+          "bytes": 6529
+        },
+        {
+          "sequence": 632,
+          "type": "exploration.group_detected",
+          "entityId": "a8558dbd-fd9d-4fc3-a7aa-c10019d7d640",
+          "bytes": 13819
+        },
+        {
+          "sequence": 633,
+          "type": "exploration.group_detected",
+          "entityId": "b6262d25-e294-4d22-a089-48a0fbc3a2d3",
+          "bytes": 13841
+        },
+        {
+          "sequence": 634,
+          "type": "exploration.group_detected",
+          "entityId": "c0e1c9dc-b9eb-498e-a652-a40e300201fc",
+          "bytes": 13906
+        },
+        {
+          "sequence": 635,
+          "type": "exploration.group_detected",
+          "entityId": "159c46c2-f6c3-413a-a883-21f152620890",
+          "bytes": 5709
+        },
+        {
+          "sequence": 636,
+          "type": "exploration.group_detected",
+          "entityId": "c814fcff-28b1-4ac5-9c1e-4846795f07a8",
+          "bytes": 4895
+        },
+        {
+          "sequence": 637,
+          "type": "exploration.group_detected",
+          "entityId": "2d391c92-f777-4835-917e-21e0b2f6e9a2",
+          "bytes": 14420
+        },
+        {
+          "sequence": 638,
+          "type": "exploration.group_detected",
+          "entityId": "5b1d4ae1-b777-4710-ba30-5d9ddddec761",
+          "bytes": 9337
+        },
+        {
+          "sequence": 639,
+          "type": "exploration.group_detected",
+          "entityId": "0aa397bb-bf7e-4f28-b5cd-0b220648b7c5",
+          "bytes": 7636
+        },
+        {
+          "sequence": 640,
+          "type": "exploration.group_detected",
+          "entityId": "5f599a13-d239-4f3b-b76a-483c16580eb4",
+          "bytes": 5653
+        },
+        {
+          "sequence": 641,
+          "type": "exploration.group_detected",
+          "entityId": "2cc2d356-d660-4551-84ac-0427720bc6cb",
+          "bytes": 5684
+        },
+        {
+          "sequence": 642,
+          "type": "exploration.group_detected",
+          "entityId": "32f3aabe-66f9-4f74-aa6a-5b5d3ad83500",
+          "bytes": 6728
+        },
+        {
+          "sequence": 643,
+          "type": "exploration.group_detected",
+          "entityId": "8b14db71-94a5-42f5-b462-89f71934c4ef",
+          "bytes": 14659
+        },
+        {
+          "sequence": 644,
+          "type": "exploration.group_detected",
+          "entityId": "762ea803-575b-470a-ba0a-500fecdd2fe2",
+          "bytes": 7814
+        },
+        {
+          "sequence": 645,
+          "type": "identity.ambiguous",
+          "entityId": "3158523c-9d70-41c0-8d2f-f0817eab9974",
+          "bytes": 941
+        },
+        {
+          "sequence": 646,
+          "type": "identity.ambiguous",
+          "entityId": "77f00c45-c757-43b5-894e-005b81ef2f48",
+          "bytes": 963
+        },
+        {
+          "sequence": 647,
+          "type": "identity.ambiguous",
+          "entityId": "5c875e77-a546-4189-b39a-ac93948f924a",
+          "bytes": 941
+        },
+        {
+          "sequence": 648,
+          "type": "identity.ambiguous",
+          "entityId": "43c05063-9832-4595-a8cd-2b49bc38ea5b",
+          "bytes": 963
+        },
+        {
+          "sequence": 649,
+          "type": "identity.ambiguous",
+          "entityId": "f4d06e6a-657f-435c-b5b0-f644f4bc46b7",
+          "bytes": 1398
+        },
+        {
+          "sequence": 650,
+          "type": "identity.ambiguous",
+          "entityId": "362befa3-2c55-4c36-b4a3-8e1ae71dc8f1",
+          "bytes": 1398
+        },
+        {
+          "sequence": 651,
+          "type": "identity.ambiguous",
+          "entityId": "80e426e1-f77a-4948-a9af-b63ec210cb6b",
+          "bytes": 1398
+        },
+        {
+          "sequence": 652,
+          "type": "identity.ambiguous",
+          "entityId": "17b4b7b5-a64e-4db3-9ac2-d298eb4dd523",
+          "bytes": 1398
+        },
+        {
+          "sequence": 653,
+          "type": "identity.ambiguous",
+          "entityId": "cac78d4d-f23a-49e2-8940-a5494a8a7d0e",
+          "bytes": 1398
+        },
+        {
+          "sequence": 661,
+          "type": "action.completed",
+          "entityId": "93cb1984-77d2-4a85-a553-325539a854ca",
+          "bytes": 36915
+        },
+        {
+          "sequence": 670,
+          "type": "checkpoint.result",
+          "entityId": "6ce44163-e637-4661-95fe-d3c2b4b83e62",
+          "bytes": 613
+        },
+        {
+          "sequence": 671,
+          "type": "session.paused",
+          "entityId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "bytes": 1112
+        }
+      ],
+      "gzip3SizeExperiment": {
+        "identity": {
+          "rows": 1142,
+          "jsonBytes": 5613046,
+          "gzip3Bytes": 1692788,
+          "grossPayloadSavingsBytes": 3920258,
+          "jsonAtLeast1024Bytes": 5613046,
+          "gzip3ForRowsAtLeast1024Bytes": 1692788
+        },
+        "action": {
+          "rows": 4789,
+          "jsonBytes": 4246811,
+          "gzip3Bytes": 2755371,
+          "grossPayloadSavingsBytes": 1491440,
+          "jsonAtLeast1024Bytes": 791232,
+          "gzip3ForRowsAtLeast1024Bytes": 484815
+        },
+        "frontier": {
+          "rows": 707,
+          "jsonBytes": 1336002,
+          "gzip3Bytes": 715881,
+          "grossPayloadSavingsBytes": 620121,
+          "jsonAtLeast1024Bytes": 1334132,
+          "gzip3ForRowsAtLeast1024Bytes": 714788
+        },
+        "exploration-group": {
+          "rows": 116,
+          "jsonBytes": 1009449,
+          "gzip3Bytes": 282924,
+          "grossPayloadSavingsBytes": 726525,
+          "jsonAtLeast1024Bytes": 1009449,
+          "gzip3ForRowsAtLeast1024Bytes": 282924
+        },
+        "events": {
+          "rows": 671,
+          "jsonBytes": 2352566,
+          "gzip3Bytes": 696060
+        }
+      },
+      "plugin": {
+        "allocation": {
+          "pageSize": 4096,
+          "pageCount": 286,
+          "freelistPages": 6,
+          "tables": {
+            "decision_task": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 1239,
+              "unusedBytes": 2756
+            },
+            "decision_unsettled_task": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 0,
+              "unusedBytes": 4088
+            },
+            "decisions": {
+              "pages": 92,
+              "allocatedBytes": 376832,
+              "payloadBytes": 326583,
+              "unusedBytes": 49354
+            },
+            "event_task": {
+              "pages": 12,
+              "allocatedBytes": 49152,
+              "payloadBytes": 37716,
+              "unusedBytes": 8707
+            },
+            "events": {
+              "pages": 140,
+              "allocatedBytes": 573440,
+              "payloadBytes": 512960,
+              "unusedBytes": 53482
+            },
+            "explorer_meta": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 3,
+              "unusedBytes": 4081
+            },
+            "sqlite_autoindex_decisions_1": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 1239,
+              "unusedBytes": 2756
+            },
+            "sqlite_autoindex_task_chunks_1": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 0,
+              "unusedBytes": 4088
+            },
+            "sqlite_autoindex_task_items_1": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 1079,
+              "unusedBytes": 2940
+            },
+            "sqlite_autoindex_tasks_1": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 39,
+              "unusedBytes": 4046
+            },
+            "sqlite_schema": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 2717,
+              "unusedBytes": 1183
+            },
+            "sqlite_sequence": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 11,
+              "unusedBytes": 4073
+            },
+            "task_active_items": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 460,
+              "unusedBytes": 3595
+            },
+            "task_chunk_refs": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 0,
+              "unusedBytes": 4088
+            },
+            "task_chunks": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 0,
+              "unusedBytes": 4088
+            },
+            "task_cold_items": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 564,
+              "unusedBytes": 3488
+            },
+            "task_item_occurrence": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 1795,
+              "unusedBytes": 2224
+            },
+            "task_items": {
+              "pages": 19,
+              "allocatedBytes": 77824,
+              "payloadBytes": 60960,
+              "unusedBytes": 16535
+            },
+            "task_round_session": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 76,
+              "unusedBytes": 4009
+            },
+            "task_running_round": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 0,
+              "unusedBytes": 4088
+            },
+            "tasks": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 3178,
+              "unusedBytes": 905
+            }
+          }
+        },
+        "tables": {
+          "tasks": {
+            "rows": 1,
+            "jsonBytes": 120
+          },
+          "task_items": {
+            "rows": 23,
+            "jsonBytes": 57239
+          },
+          "decisions": {
+            "rows": 31,
+            "jsonBytes": 324182
+          },
+          "events": {
+            "rows": 863,
+            "jsonBytes": 477571
+          }
+        },
+        "chunks": 0
+      }
+    },
+    "3": {
+      "run": 3,
+      "engineAllocation": {
+        "pageSize": 4096,
+        "pageCount": 8628,
+        "freelistPages": 0,
+        "tables": {
+          "entities": {
+            "pages": 6913,
+            "allocatedBytes": 28315648,
+            "payloadBytes": 23890394,
+            "unusedBytes": 4276737
+          },
+          "entities_session_kind": {
+            "pages": 146,
+            "allocatedBytes": 598016,
+            "payloadBytes": 513887,
+            "unusedBytes": 50884
+          },
+          "events": {
+            "pages": 993,
+            "allocatedBytes": 4067328,
+            "payloadBytes": 3716029,
+            "unusedBytes": 335886
+          },
+          "events_session_seq": {
+            "pages": 14,
+            "allocatedBytes": 57344,
+            "payloadBytes": 44272,
+            "unusedBytes": 9872
+          },
+          "metadata": {
+            "pages": 1,
+            "allocatedBytes": 4096,
+            "payloadBytes": 17,
+            "unusedBytes": 4067
+          },
+          "observation_objects": {
+            "pages": 80,
+            "allocatedBytes": 327680,
+            "payloadBytes": 297816,
+            "unusedBytes": 10290
+          },
+          "observation_objects_pack": {
+            "pages": 11,
+            "allocatedBytes": 45056,
+            "payloadBytes": 23554,
+            "unusedBytes": 10313
+          },
+          "observation_packs": {
+            "pages": 248,
+            "allocatedBytes": 1015808,
+            "payloadBytes": 822296,
+            "unusedBytes": 189076
+          },
+          "observation_packs_session": {
+            "pages": 4,
+            "allocatedBytes": 16384,
+            "payloadBytes": 8974,
+            "unusedBytes": 6700
+          },
+          "requests": {
+            "pages": 1,
+            "allocatedBytes": 4096,
+            "payloadBytes": 2296,
+            "unusedBytes": 1722
+          },
+          "sqlite_autoindex_entities_1": {
+            "pages": 132,
+            "allocatedBytes": 540672,
+            "payloadBytes": 435546,
+            "unusedBytes": 72049
+          },
+          "sqlite_autoindex_metadata_1": {
+            "pages": 1,
+            "allocatedBytes": 4096,
+            "payloadBytes": 16,
+            "unusedBytes": 4069
+          },
+          "sqlite_autoindex_observation_objects_1": {
+            "pages": 81,
+            "allocatedBytes": 331776,
+            "payloadBytes": 272710,
+            "unusedBytes": 47037
+          },
+          "sqlite_autoindex_requests_1": {
+            "pages": 1,
+            "allocatedBytes": 4096,
+            "payloadBytes": 1077,
+            "unusedBytes": 2969
+          },
+          "sqlite_schema": {
+            "pages": 1,
+            "allocatedBytes": 4096,
+            "payloadBytes": 2007,
+            "unusedBytes": 1916
+          },
+          "sqlite_sequence": {
+            "pages": 1,
+            "allocatedBytes": 4096,
+            "payloadBytes": 57,
+            "unusedBytes": 4019
+          }
+        }
+      },
+      "kinds": {
+        "session": {
+          "rows": 1,
+          "jsonBytes": 1114,
+          "compressedBytes": 0,
+          "logicalBytes": 1114,
+          "fields": {
+            "options": 842,
+            "id": 38,
+            "currentObservationId": 38,
+            "createdAt": 26,
+            "stopReason": 17,
+            "mode": 8,
+            "status": 8,
+            "elapsedMs": 6,
+            "dirty": 5,
+            "actionCount": 2
+          }
+        },
+        "evidence-retention": {
+          "rows": 37,
+          "jsonBytes": 17279,
+          "compressedBytes": 0,
+          "logicalBytes": 17279,
+          "fields": {
+            "keys": 3552,
+            "policy": 2812,
+            "pins": 1985,
+            "id": 1776,
+            "sessionId": 1406,
+            "observationId": 1406,
+            "createdAt": 481,
+            "committed": 148,
+            "pinExpirations": 42
+          }
+        },
+        "evidence-entry": {
+          "rows": 74,
+          "jsonBytes": 25604,
+          "compressedBytes": 0,
+          "logicalBytes": 25604,
+          "fields": {
+            "hash": 5883,
+            "id": 4107,
+            "key": 3441,
+            "sessionId": 2812,
+            "observationId": 2812,
+            "status": 814,
+            "bytes": 481
+          }
+        },
+        "boundary-exit-episode": {
+          "rows": 1,
+          "jsonBytes": 230,
+          "compressedBytes": 0,
+          "logicalBytes": 230,
+          "fields": {
+            "id": 52,
+            "sessionId": 38,
+            "episodeId": 38,
+            "firstObservationId": 38,
+            "key": 2
+          }
+        },
+        "region-review-request": {
+          "rows": 1,
+          "jsonBytes": 184,
+          "compressedBytes": 0,
+          "logicalBytes": 184,
+          "fields": {
+            "key": 66,
+            "id": 53,
+            "sessionId": 38
+          }
+        },
+        "visit": {
+          "rows": 37,
+          "jsonBytes": 17389,
+          "compressedBytes": 0,
+          "logicalBytes": 17389,
+          "fields": {
+            "explorationScope": 3506,
+            "stateId": 2442,
+            "id": 1406,
+            "sessionId": 1406,
+            "observationId": 1406,
+            "parentId": 1188,
+            "at": 962,
+            "viaAttemptId": 532,
+            "explorationDepth": 37,
+            "depth": 37
+          }
+        },
+        "exploration-group": {
+          "rows": 174,
+          "jsonBytes": 1549855,
+          "compressedBytes": 0,
+          "logicalBytes": 1549855,
+          "fields": {
+            "members": 577282,
+            "evidence": 527888,
+            "collection": 146173,
+            "conditions": 114297,
+            "proposalKey": 63220,
+            "invalidation": 15260,
+            "contextKey": 11484,
+            "key": 11484,
+            "observationId": 6612,
+            "instanceScope": 6612,
+            "sessionId": 6612,
+            "id": 6612,
+            "membership": 4002,
+            "label": 3676,
+            "kind": 2482,
+            "status": 2194,
+            "decisions": 1155,
+            "traversalKeys": 1142,
+            "revision": 174,
+            "binding": 9
+          }
+        },
+        "identity": {
+          "rows": 1726,
+          "jsonBytes": 8317156,
+          "compressedBytes": 0,
+          "logicalBytes": 8317156,
+          "fields": {
+            "lastControl": 4335134,
+            "occurrences": 2796718,
+            "signature": 605606,
+            "stableKey": 212655,
+            "id": 65588,
+            "sessionId": 65588,
+            "createdAt": 44876,
+            "status": 22704
+          }
+        },
+        "hypothesis": {
+          "rows": 87,
+          "jsonBytes": 92465,
+          "compressedBytes": 0,
+          "logicalBytes": 92465,
+          "fields": {
+            "candidateIds": 52737,
+            "evidence": 6858,
+            "localId": 3689,
+            "id": 3306,
+            "sessionId": 3306,
+            "observationId": 3306,
+            "provisionalIdentityId": 3306,
+            "conflicts": 2532,
+            "status": 786,
+            "revisions": 720
+          }
+        },
+        "action": {
+          "rows": 7083,
+          "jsonBytes": 6316082,
+          "compressedBytes": 0,
+          "logicalBytes": 6316082,
+          "fields": {
+            "preconditions": 1745465,
+            "basis": 922393,
+            "stateId": 467478,
+            "localId": 297135,
+            "id": 269154,
+            "sessionId": 269154,
+            "observationId": 269154,
+            "controlId": 267558,
+            "label": 143470,
+            "source": 113372,
+            "risk": 76567,
+            "sampleValidity": 50291,
+            "kind": 49497,
+            "target": 42005,
+            "excluded": 35415,
+            "replayable": 29024,
+            "boundary": 6026,
+            "value": 5196
+          }
+        },
+        "frontier": {
+          "rows": 1115,
+          "jsonBytes": 2079931,
+          "compressedBytes": 0,
+          "logicalBytes": 2079931,
+          "fields": {
+            "action": 831835,
+            "sampling": 547077,
+            "explorationGroups": 175349,
+            "stateId": 73590,
+            "contextKey": 73590,
+            "key": 73590,
+            "id": 42370,
+            "sessionId": 42370,
+            "reason": 32587,
+            "unblock": 18019,
+            "status": 12876,
+            "attempts": 2768,
+            "depth": 1115
+          }
+        },
+        "scope": {
+          "rows": 3,
+          "jsonBytes": 1692,
+          "compressedBytes": 0,
+          "logicalBytes": 1692,
+          "fields": {
+            "attemptIds": 354,
+            "id": 114,
+            "sessionId": 114,
+            "afterId": 114,
+            "instanceScope": 114,
+            "beforeId": 114,
+            "anchors": 84,
+            "boundaryKey": 78,
+            "baseline": 42,
+            "status": 39,
+            "region": 30,
+            "name": 24,
+            "automatic": 12
+          }
+        },
+        "boundary-exit-request": {
+          "rows": 1,
+          "jsonBytes": 192,
+          "compressedBytes": 0,
+          "logicalBytes": 192,
+          "fields": {
+            "key": 66,
+            "id": 61,
+            "sessionId": 38
+          }
+        },
+        "discovery-request": {
+          "rows": 1,
+          "jsonBytes": 187,
+          "compressedBytes": 0,
+          "logicalBytes": 187,
+          "fields": {
+            "key": 66,
+            "id": 56,
+            "sessionId": 38
+          }
+        },
+        "page-exploration": {
+          "rows": 1,
+          "jsonBytes": 279,
+          "compressedBytes": 0,
+          "logicalBytes": 279,
+          "fields": {
+            "frames": 105,
+            "id": 55,
+            "rootUrl": 40,
+            "sessionId": 38
+          }
+        },
+        "control-classification-request": {
+          "rows": 1,
+          "jsonBytes": 198,
+          "compressedBytes": 0,
+          "logicalBytes": 198,
+          "fields": {
+            "id": 67,
+            "key": 66,
+            "sessionId": 38
+          }
+        },
+        "control-review-request": {
+          "rows": 1,
+          "jsonBytes": 191,
+          "compressedBytes": 0,
+          "logicalBytes": 191,
+          "fields": {
+            "key": 66,
+            "id": 60,
+            "sessionId": 38
+          }
+        },
+        "intervention-snapshot": {
+          "rows": 41,
+          "jsonBytes": 555200,
+          "compressedBytes": 0,
+          "logicalBytes": 555200,
+          "fields": {
+            "entries": 342947,
+            "changes": 201610,
+            "id": 4165,
+            "revision": 2706,
+            "sessionId": 1558
+          }
+        },
+        "region-review": {
+          "rows": 6,
+          "jsonBytes": 31666,
+          "compressedBytes": 0,
+          "logicalBytes": 31666,
+          "fields": {
+            "regions": 27747,
+            "evidence": 1032,
+            "contextKey": 396,
+            "url": 240,
+            "id": 228,
+            "sessionId": 228,
+            "observationId": 228,
+            "instanceScope": 228,
+            "at": 156,
+            "source": 102,
+            "baseReviewId": 76,
+            "status": 73,
+            "rejectedCandidateIds": 12
+          }
+        },
+        "checkpoint": {
+          "rows": 9,
+          "jsonBytes": 3441,
+          "compressedBytes": 0,
+          "logicalBytes": 3441,
+          "fields": {
+            "stateId": 594,
+            "path": 363,
+            "id": 342,
+            "sessionId": 342,
+            "observationId": 342,
+            "createdAt": 234,
+            "name": 126,
+            "predicates": 18,
+            "acceptable": 18,
+            "context": 18
+          }
+        },
+        "attempt": {
+          "rows": 14,
+          "jsonBytes": 330714,
+          "compressedBytes": 0,
+          "logicalBytes": 330714,
+          "fields": {
+            "diff": 313235,
+            "action": 10946,
+            "id": 532,
+            "transitionId": 532,
+            "sessionId": 532,
+            "afterId": 532,
+            "requestId": 532,
+            "beforeId": 532,
+            "startedAt": 364,
+            "finishedAt": 364,
+            "executionProfile": 207,
+            "status": 154,
+            "purpose": 140
+          }
+        },
+        "transition": {
+          "rows": 14,
+          "jsonBytes": 4359,
+          "compressedBytes": 0,
+          "logicalBytes": 4359,
+          "fields": {
+            "to": 924,
+            "from": 924,
+            "id": 532,
+            "sessionId": 532,
+            "attemptId": 532,
+            "replayable": 61
+          }
+        },
+        "control-classification": {
+          "rows": 6,
+          "jsonBytes": 33804,
+          "compressedBytes": 0,
+          "logicalBytes": 33804,
+          "fields": {
+            "conditions": 29076,
+            "invalidation": 798,
+            "evidence": 572,
+            "conditionKey": 396,
+            "reuseFrom": 388,
+            "localId": 258,
+            "reason": 236,
+            "id": 228,
+            "sessionId": 228,
+            "observationId": 228,
+            "at": 156,
+            "source": 104,
+            "status": 78,
+            "classification": 72
+          }
+        },
+        "reach": {
+          "rows": 3,
+          "jsonBytes": 1964,
+          "compressedBytes": 0,
+          "logicalBytes": 1964,
+          "fields": {
+            "diagnostics": 584,
+            "attemptIds": 198,
+            "checks": 168,
+            "id": 114,
+            "checkpointId": 114,
+            "sessionId": 114,
+            "observationId": 114,
+            "reason": 113,
+            "status": 36,
+            "remainingFrontier": 10
+          }
+        },
+        "observation": {
+          "rows": 37,
+          "jsonBytes": 23756,
+          "compressedBytes": 2369741,
+          "logicalBytes": 126306215
+        },
+        "state": {
+          "rows": 25,
+          "jsonBytes": 7075,
+          "compressedBytes": 1200583,
+          "logicalBytes": 22321422
+        }
+      },
+      "observations": {
+        "observations": 37,
+        "formats": {
+          "structural-v2": 24,
+          "gzip-v1": 13
+        },
+        "logicalBytes": 126306215,
+        "manifestAndCompressedBytes": 2393497,
+        "objects": 3687,
+        "referencedObjects": 3687,
+        "orphanObjects": 0,
+        "objectsLogicalBytes": 12942882,
+        "referencedBytesWithMultiplicity": 81444433,
+        "exactSharedFragmentBytesAvoided": 68501551,
+        "packs": 222,
+        "packStoredBytes": 803886,
+        "packLogicalBytes": 12942882,
+        "packFragmentedBytes": 0
+      },
+      "states": {
+        "rows": 25,
+        "compressedRows": 25,
+        "logicalBytes": 22321422,
+        "storedBytes": 1207658
+      },
+      "identity": {
+        "rows": 1726,
+        "lastControlBytes": 4335134,
+        "exactObservationControlMatches": 1726,
+        "exactObservationControlBytes": 4335134,
+        "exactExistingObjectMatches": 758,
+        "exactExistingObjectBytes": 1806044,
+        "latestOccurrenceControlMatches": 1726,
+        "latestOccurrenceControlBytes": 4335134,
+        "unmatched": [],
+        "lastControlExactDuplicates": {
+          "occurrences": 1726,
+          "uniqueValues": 1726,
+          "totalBytes": 4335134,
+          "uniqueBytes": 4335134,
+          "duplicateBytes": 0,
+          "repeatedValues": 0
+        },
+        "occurrenceExactDuplicates": {
+          "occurrences": 10217,
+          "uniqueValues": 10217,
+          "totalBytes": 2784775,
+          "uniqueBytes": 2784775,
+          "duplicateBytes": 0,
+          "repeatedValues": 0
+        }
+      },
+      "nestedActions": {
+        "frontier": {
+          "nestedActions": 1115,
+          "bytes": 831835,
+          "exactActionRowMatches": 1115,
+          "exactActionRowBytes": 831835,
+          "mismatches": 0
+        },
+        "attempt": {
+          "nestedActions": 14,
+          "bytes": 10946,
+          "exactActionRowMatches": 14,
+          "exactActionRowBytes": 10946,
+          "mismatches": 0
+        }
+      },
+      "actionFieldDuplicates": {
+        "preconditions": {
+          "occurrences": 7083,
+          "uniqueValues": 11,
+          "totalBytes": 1745465,
+          "uniqueBytes": 2951,
+          "duplicateBytes": 1742514,
+          "repeatedValues": 11
+        },
+        "basis": {
+          "occurrences": 7080,
+          "uniqueValues": 336,
+          "totalBytes": 922393,
+          "uniqueBytes": 44585,
+          "duplicateBytes": 877808,
+          "repeatedValues": 296
+        },
+        "boundary": {
+          "occurrences": 115,
+          "uniqueValues": 2,
+          "totalBytes": 6026,
+          "uniqueBytes": 104,
+          "duplicateBytes": 5922,
+          "repeatedValues": 2
+        },
+        "label": {
+          "occurrences": 7083,
+          "uniqueValues": 386,
+          "totalBytes": 143470,
+          "uniqueBytes": 6984,
+          "duplicateBytes": 136486,
+          "repeatedValues": 351
+        }
+      },
+      "events": {
+        "region.review_requested": {
+          "rows": 19,
+          "bytes": 197481,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "exploration.group_detected": {
+          "rows": 174,
+          "bytes": 1485617,
+          "exactCurrentEntityRows": 16,
+          "exactCurrentEntityBytes": 146055
+        },
+        "identity.ambiguous": {
+          "rows": 87,
+          "bytes": 91916,
+          "exactCurrentEntityRows": 84,
+          "exactCurrentEntityBytes": 90464
+        },
+        "action.tentative": {
+          "rows": 259,
+          "bytes": 75215,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "observation.created": {
+          "rows": 37,
+          "bytes": 360415,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "frontier.updated": {
+          "rows": 40,
+          "bytes": 2222,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "scope.opened": {
+          "rows": 3,
+          "bytes": 1176,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "interaction.boundary_changed": {
+          "rows": 6,
+          "bytes": 1008,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "boundary.exit_review_requested": {
+          "rows": 3,
+          "bytes": 1782,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "discovery.scan_requested": {
+          "rows": 15,
+          "bytes": 112506,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "control.classification_requested": {
+          "rows": 27,
+          "bytes": 35945,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "control.review_requested": {
+          "rows": 25,
+          "bytes": 45213,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "exploration.review_requested": {
+          "rows": 17,
+          "bytes": 19435,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "interventions.updated": {
+          "rows": 40,
+          "bytes": 296719,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "session.created": {
+          "rows": 1,
+          "bytes": 52,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "region.reviewed": {
+          "rows": 6,
+          "bytes": 29481,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "observation.external_change": {
+          "rows": 7,
+          "bytes": 93540,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "exploration.group_decided": {
+          "rows": 3,
+          "bytes": 858,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "exploration.groups_decided": {
+          "rows": 3,
+          "bytes": 1089,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "checkpoint.created": {
+          "rows": 9,
+          "bytes": 3441,
+          "exactCurrentEntityRows": 9,
+          "exactCurrentEntityBytes": 3441
+        },
+        "action.started": {
+          "rows": 14,
+          "bytes": 15365,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "exploration.group_updated": {
+          "rows": 3,
+          "bytes": 10411,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "action.completed": {
+          "rows": 14,
+          "bytes": 330714,
+          "exactCurrentEntityRows": 14,
+          "exactCurrentEntityBytes": 330714
+        },
+        "observation.diff": {
+          "rows": 14,
+          "bytes": 313235,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "control.classified": {
+          "rows": 6,
+          "bytes": 32880,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "identity.resolved": {
+          "rows": 3,
+          "bytes": 2001,
+          "exactCurrentEntityRows": 3,
+          "exactCurrentEntityBytes": 2001
+        },
+        "control.classification_invalidated": {
+          "rows": 6,
+          "bytes": 33804,
+          "exactCurrentEntityRows": 6,
+          "exactCurrentEntityBytes": 33804
+        },
+        "exploration.group_invalidated": {
+          "rows": 157,
+          "bytes": 24994,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "region.review_invalidated": {
+          "rows": 4,
+          "bytes": 1505,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "scope.interrupted": {
+          "rows": 3,
+          "bytes": 1776,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "checkpoint.result": {
+          "rows": 3,
+          "bytes": 1964,
+          "exactCurrentEntityRows": 3,
+          "exactCurrentEntityBytes": 1964
+        },
+        "session.reattached": {
+          "rows": 2,
+          "bytes": 168,
+          "exactCurrentEntityRows": 0,
+          "exactCurrentEntityBytes": 0
+        },
+        "session.paused": {
+          "rows": 2,
+          "bytes": 2226,
+          "exactCurrentEntityRows": 1,
+          "exactCurrentEntityBytes": 1114
+        }
+      },
+      "eventExactDuplicates": {
+        "occurrences": 1012,
+        "uniqueValues": 1011,
+        "totalBytes": 3626154,
+        "uniqueBytes": 3626070,
+        "duplicateBytes": 84,
+        "repeatedValues": 1
+      },
+      "eventExactEntityMatches": [
+        {
+          "sequence": 18,
+          "type": "identity.ambiguous",
+          "entityId": "676ecad4-e6da-447a-a176-a3abf273c384",
+          "bytes": 473
+        },
+        {
+          "sequence": 19,
+          "type": "identity.ambiguous",
+          "entityId": "c028fd9c-394a-4bd9-83ce-0edfa2137ff2",
+          "bytes": 495
+        },
+        {
+          "sequence": 20,
+          "type": "identity.ambiguous",
+          "entityId": "79d9479a-bb36-49d0-9732-4c74847d1c0b",
+          "bytes": 473
+        },
+        {
+          "sequence": 21,
+          "type": "identity.ambiguous",
+          "entityId": "ef928564-1736-4ac7-8ac9-0c59a2dbb8f2",
+          "bytes": 495
+        },
+        {
+          "sequence": 22,
+          "type": "identity.ambiguous",
+          "entityId": "6fcaf2de-721e-431b-b4d3-9d50f892411e",
+          "bytes": 618
+        },
+        {
+          "sequence": 23,
+          "type": "identity.ambiguous",
+          "entityId": "2839072a-2356-458f-89a1-1516816e8e0a",
+          "bytes": 618
+        },
+        {
+          "sequence": 24,
+          "type": "identity.ambiguous",
+          "entityId": "7bce7323-2dca-465c-9d50-8c7bc8823df0",
+          "bytes": 618
+        },
+        {
+          "sequence": 25,
+          "type": "identity.ambiguous",
+          "entityId": "977affcb-1e3e-45a5-aadc-189e591c2d10",
+          "bytes": 618
+        },
+        {
+          "sequence": 26,
+          "type": "identity.ambiguous",
+          "entityId": "cc811e35-3269-4d72-a6fd-557ea2486937",
+          "bytes": 618
+        },
+        {
+          "sequence": 67,
+          "type": "checkpoint.created",
+          "entityId": "7d7c3b8d-5dc6-45dc-a77a-13f5b3eab8ec",
+          "bytes": 344
+        },
+        {
+          "sequence": 77,
+          "type": "action.completed",
+          "entityId": "2a820db4-4a56-4862-900d-8f882c9bd91e",
+          "bytes": 2604
+        },
+        {
+          "sequence": 84,
+          "type": "checkpoint.created",
+          "entityId": "c0d03b39-d074-4512-a327-b5b9c8f9ebc2",
+          "bytes": 382
+        },
+        {
+          "sequence": 93,
+          "type": "action.completed",
+          "entityId": "98e8dbcb-fc34-437a-9e0e-a986760fb9b7",
+          "bytes": 2371
+        },
+        {
+          "sequence": 124,
+          "type": "identity.resolved",
+          "entityId": "519c122d-7af5-48e8-af6e-822aa4f113b0",
+          "bytes": 628
+        },
+        {
+          "sequence": 135,
+          "type": "checkpoint.created",
+          "entityId": "33702c36-2be8-4004-8807-f8f88a9c0556",
+          "bytes": 421
+        },
+        {
+          "sequence": 137,
+          "type": "control.classification_invalidated",
+          "entityId": "8ee8edd7-6522-4184-8cdf-b149e7c71405",
+          "bytes": 8392
+        },
+        {
+          "sequence": 138,
+          "type": "control.classification_invalidated",
+          "entityId": "9d069176-f8d8-4adf-b467-8e92c53f5466",
+          "bytes": 2626
+        },
+        {
+          "sequence": 168,
+          "type": "identity.ambiguous",
+          "entityId": "709324cc-5db6-487d-8e29-399c9a27dc4d",
+          "bytes": 550
+        },
+        {
+          "sequence": 169,
+          "type": "identity.ambiguous",
+          "entityId": "122b2d35-7fbd-46b5-8ace-ede646c7e809",
+          "bytes": 572
+        },
+        {
+          "sequence": 170,
+          "type": "identity.ambiguous",
+          "entityId": "4dbea130-a507-42b1-ba06-fea053cd374c",
+          "bytes": 550
+        },
+        {
+          "sequence": 171,
+          "type": "identity.ambiguous",
+          "entityId": "5c46222f-0e2f-4797-81a7-5f0a79527729",
+          "bytes": 572
+        },
+        {
+          "sequence": 179,
+          "type": "action.completed",
+          "entityId": "492c5f9c-ca38-4621-bd3b-69f0350aeaed",
+          "bytes": 39351
+        },
+        {
+          "sequence": 232,
+          "type": "identity.ambiguous",
+          "entityId": "57565a52-d8c9-47d8-91d7-96d01cc555a6",
+          "bytes": 629
+        },
+        {
+          "sequence": 233,
+          "type": "identity.ambiguous",
+          "entityId": "63ef71e9-328a-4531-9fb0-52d20a008b3d",
+          "bytes": 651
+        },
+        {
+          "sequence": 234,
+          "type": "identity.ambiguous",
+          "entityId": "ce5a6cd9-9584-4fe0-a62b-0b21727a7ed9",
+          "bytes": 629
+        },
+        {
+          "sequence": 235,
+          "type": "identity.ambiguous",
+          "entityId": "e632122b-5d6f-4db1-b1f6-865b277a598b",
+          "bytes": 651
+        },
+        {
+          "sequence": 236,
+          "type": "identity.ambiguous",
+          "entityId": "1aacd6ec-5999-4697-afea-c227be9f6bf5",
+          "bytes": 813
+        },
+        {
+          "sequence": 237,
+          "type": "identity.ambiguous",
+          "entityId": "aa31dfdb-c969-46d0-a2e2-fbdee1613123",
+          "bytes": 813
+        },
+        {
+          "sequence": 238,
+          "type": "identity.ambiguous",
+          "entityId": "908b927f-cc0c-4401-8a50-6a35c93a0770",
+          "bytes": 813
+        },
+        {
+          "sequence": 239,
+          "type": "identity.ambiguous",
+          "entityId": "12736734-5980-439e-a7cf-9b7465373e06",
+          "bytes": 813
+        },
+        {
+          "sequence": 240,
+          "type": "identity.ambiguous",
+          "entityId": "7d0b77b8-aeda-430b-8453-de2da2296848",
+          "bytes": 813
+        },
+        {
+          "sequence": 248,
+          "type": "action.completed",
+          "entityId": "2395fd72-ddb9-4a38-9107-96bffb4da963",
+          "bytes": 37400
+        },
+        {
+          "sequence": 291,
+          "type": "identity.ambiguous",
+          "entityId": "f5f0acb5-9f25-45b7-9c10-0dc4a1727ae5",
+          "bytes": 707
+        },
+        {
+          "sequence": 292,
+          "type": "identity.ambiguous",
+          "entityId": "3b376ff0-849e-43b2-bd2c-b03c1da182eb",
+          "bytes": 729
+        },
+        {
+          "sequence": 293,
+          "type": "identity.ambiguous",
+          "entityId": "51a96cfe-e21a-4b62-b4bf-02e491a9a0b9",
+          "bytes": 707
+        },
+        {
+          "sequence": 294,
+          "type": "identity.ambiguous",
+          "entityId": "d7c33f85-5568-4637-946a-a3f3688a5798",
+          "bytes": 729
+        },
+        {
+          "sequence": 295,
+          "type": "identity.ambiguous",
+          "entityId": "64069d5e-439d-4460-b4a6-1c939c528f50",
+          "bytes": 1008
+        },
+        {
+          "sequence": 296,
+          "type": "identity.ambiguous",
+          "entityId": "e8100b6d-1720-402a-a3c2-f774ca9ed9ed",
+          "bytes": 1008
+        },
+        {
+          "sequence": 297,
+          "type": "identity.ambiguous",
+          "entityId": "424e3019-861c-457d-aaaf-52cb1fa7fefb",
+          "bytes": 1008
+        },
+        {
+          "sequence": 298,
+          "type": "identity.ambiguous",
+          "entityId": "3201d55a-ad91-4ad7-9dc4-e0a1b5920b1c",
+          "bytes": 1008
+        },
+        {
+          "sequence": 299,
+          "type": "identity.ambiguous",
+          "entityId": "e9f5cd77-0940-4b3f-b899-93faecf3ab4f",
+          "bytes": 1008
+        },
+        {
+          "sequence": 307,
+          "type": "action.completed",
+          "entityId": "8abe673e-257d-482e-8b56-417b0a1cbd3b",
+          "bytes": 43035
+        },
+        {
+          "sequence": 316,
+          "type": "checkpoint.result",
+          "entityId": "3f836dee-0319-4a7b-8533-fda9ee216a94",
+          "bytes": 675
+        },
+        {
+          "sequence": 420,
+          "type": "identity.ambiguous",
+          "entityId": "e215e17e-c6d3-4c86-b0c6-5ff3df7dbfb7",
+          "bytes": 785
+        },
+        {
+          "sequence": 421,
+          "type": "identity.ambiguous",
+          "entityId": "b94163c0-46c6-44ab-968f-6c9f04745bf6",
+          "bytes": 807
+        },
+        {
+          "sequence": 422,
+          "type": "identity.ambiguous",
+          "entityId": "8cb3bea9-2dde-493d-ba13-c77d1b23708e",
+          "bytes": 785
+        },
+        {
+          "sequence": 423,
+          "type": "identity.ambiguous",
+          "entityId": "50267263-2549-4f53-a783-cb4c3c0e9c9b",
+          "bytes": 807
+        },
+        {
+          "sequence": 424,
+          "type": "identity.ambiguous",
+          "entityId": "5fbec570-c03e-44fc-ae17-8847fd5b4273",
+          "bytes": 1203
+        },
+        {
+          "sequence": 425,
+          "type": "identity.ambiguous",
+          "entityId": "e3c9ade2-f3c5-4b57-941a-0260eaf6fdf4",
+          "bytes": 1203
+        },
+        {
+          "sequence": 426,
+          "type": "identity.ambiguous",
+          "entityId": "652fc902-d973-414b-bea8-640dfa6208a3",
+          "bytes": 1203
+        },
+        {
+          "sequence": 427,
+          "type": "identity.ambiguous",
+          "entityId": "cc045841-f4e1-403b-aa97-547eb23115c3",
+          "bytes": 1203
+        },
+        {
+          "sequence": 428,
+          "type": "identity.ambiguous",
+          "entityId": "abcc56d7-93a0-4b7e-aaaa-a9b95d9f4a21",
+          "bytes": 1203
+        },
+        {
+          "sequence": 462,
+          "type": "checkpoint.created",
+          "entityId": "0274f5f9-bf49-4a81-95fa-6b3d849c6a24",
+          "bytes": 344
+        },
+        {
+          "sequence": 471,
+          "type": "action.completed",
+          "entityId": "183ccbdf-cdef-4eb1-bf97-bfec0e4dc58b",
+          "bytes": 2604
+        },
+        {
+          "sequence": 478,
+          "type": "checkpoint.created",
+          "entityId": "b3c38904-5028-4951-b8ed-c1029285120a",
+          "bytes": 382
+        },
+        {
+          "sequence": 487,
+          "type": "action.completed",
+          "entityId": "e7718bc9-81d4-4a21-aa44-e26c4f07bc6a",
+          "bytes": 2371
+        },
+        {
+          "sequence": 537,
+          "type": "identity.resolved",
+          "entityId": "c3971d16-8ca7-457c-8590-398c88209235",
+          "bytes": 667
+        },
+        {
+          "sequence": 548,
+          "type": "checkpoint.created",
+          "entityId": "92fac9d2-34fa-4c69-a225-8704ea0cd5cd",
+          "bytes": 421
+        },
+        {
+          "sequence": 550,
+          "type": "control.classification_invalidated",
+          "entityId": "0ab1e699-5772-487c-bcc9-4986b349d45e",
+          "bytes": 8767
+        },
+        {
+          "sequence": 551,
+          "type": "control.classification_invalidated",
+          "entityId": "64537410-4f4b-4b96-bb29-81d16eb0f55b",
+          "bytes": 2626
+        },
+        {
+          "sequence": 581,
+          "type": "identity.ambiguous",
+          "entityId": "15c9a778-59ed-4626-a7a5-ed9c11b73ecd",
+          "bytes": 862
+        },
+        {
+          "sequence": 582,
+          "type": "identity.ambiguous",
+          "entityId": "e1c1cb94-b1dc-448e-be18-5d7c97162ae7",
+          "bytes": 884
+        },
+        {
+          "sequence": 583,
+          "type": "identity.ambiguous",
+          "entityId": "80094d4e-106a-43db-900b-c569d4b180ec",
+          "bytes": 862
+        },
+        {
+          "sequence": 584,
+          "type": "identity.ambiguous",
+          "entityId": "2dd4a26f-e95f-48fb-af4a-6fe0c5ee8c3b",
+          "bytes": 884
+        },
+        {
+          "sequence": 592,
+          "type": "action.completed",
+          "entityId": "55fc9752-861f-4a3a-b90d-f9247b33f3e5",
+          "bytes": 39343
+        },
+        {
+          "sequence": 645,
+          "type": "identity.ambiguous",
+          "entityId": "3158523c-9d70-41c0-8d2f-f0817eab9974",
+          "bytes": 941
+        },
+        {
+          "sequence": 646,
+          "type": "identity.ambiguous",
+          "entityId": "77f00c45-c757-43b5-894e-005b81ef2f48",
+          "bytes": 963
+        },
+        {
+          "sequence": 647,
+          "type": "identity.ambiguous",
+          "entityId": "5c875e77-a546-4189-b39a-ac93948f924a",
+          "bytes": 941
+        },
+        {
+          "sequence": 648,
+          "type": "identity.ambiguous",
+          "entityId": "43c05063-9832-4595-a8cd-2b49bc38ea5b",
+          "bytes": 963
+        },
+        {
+          "sequence": 649,
+          "type": "identity.ambiguous",
+          "entityId": "f4d06e6a-657f-435c-b5b0-f644f4bc46b7",
+          "bytes": 1398
+        },
+        {
+          "sequence": 650,
+          "type": "identity.ambiguous",
+          "entityId": "362befa3-2c55-4c36-b4a3-8e1ae71dc8f1",
+          "bytes": 1398
+        },
+        {
+          "sequence": 651,
+          "type": "identity.ambiguous",
+          "entityId": "80e426e1-f77a-4948-a9af-b63ec210cb6b",
+          "bytes": 1398
+        },
+        {
+          "sequence": 652,
+          "type": "identity.ambiguous",
+          "entityId": "17b4b7b5-a64e-4db3-9ac2-d298eb4dd523",
+          "bytes": 1398
+        },
+        {
+          "sequence": 653,
+          "type": "identity.ambiguous",
+          "entityId": "cac78d4d-f23a-49e2-8940-a5494a8a7d0e",
+          "bytes": 1398
+        },
+        {
+          "sequence": 661,
+          "type": "action.completed",
+          "entityId": "93cb1984-77d2-4a85-a553-325539a854ca",
+          "bytes": 36915
+        },
+        {
+          "sequence": 670,
+          "type": "checkpoint.result",
+          "entityId": "6ce44163-e637-4661-95fe-d3c2b4b83e62",
+          "bytes": 613
+        },
+        {
+          "sequence": 705,
+          "type": "identity.ambiguous",
+          "entityId": "8d1e5125-1813-49fe-ad6a-4226ee167466",
+          "bytes": 1019
+        },
+        {
+          "sequence": 706,
+          "type": "identity.ambiguous",
+          "entityId": "b8e7a770-e740-4cf1-b799-26c110341f72",
+          "bytes": 1041
+        },
+        {
+          "sequence": 707,
+          "type": "identity.ambiguous",
+          "entityId": "94e82682-2e0d-4902-84ff-4c8289401acf",
+          "bytes": 1019
+        },
+        {
+          "sequence": 708,
+          "type": "identity.ambiguous",
+          "entityId": "41a431dd-5a60-4e0d-9d12-126bf0604d96",
+          "bytes": 1041
+        },
+        {
+          "sequence": 709,
+          "type": "identity.ambiguous",
+          "entityId": "d20d734a-5f8a-44b9-bd29-da93633e2fa0",
+          "bytes": 1593
+        },
+        {
+          "sequence": 710,
+          "type": "identity.ambiguous",
+          "entityId": "be8042e7-47b1-410d-8074-ab3ea1cc1068",
+          "bytes": 1593
+        },
+        {
+          "sequence": 711,
+          "type": "identity.ambiguous",
+          "entityId": "4e5a615b-8e2a-44a8-af78-7ef4d06f075d",
+          "bytes": 1593
+        },
+        {
+          "sequence": 712,
+          "type": "identity.ambiguous",
+          "entityId": "3027dfc5-c3be-4955-b56d-943a0e39e3ce",
+          "bytes": 1593
+        },
+        {
+          "sequence": 713,
+          "type": "identity.ambiguous",
+          "entityId": "73a656b7-674d-4a2b-8b92-bdedf299d9d9",
+          "bytes": 1593
+        },
+        {
+          "sequence": 748,
+          "type": "checkpoint.created",
+          "entityId": "bb6a88ae-c79f-4ba9-b6c6-81efa6b7b0be",
+          "bytes": 344
+        },
+        {
+          "sequence": 757,
+          "type": "action.completed",
+          "entityId": "75f4a7e7-6e93-4e36-902b-e56c471c1ede",
+          "bytes": 2604
+        },
+        {
+          "sequence": 764,
+          "type": "checkpoint.created",
+          "entityId": "04c99159-3881-4570-b73d-29a9ba708d4c",
+          "bytes": 382
+        },
+        {
+          "sequence": 773,
+          "type": "action.completed",
+          "entityId": "0a41a56c-2d93-463d-9dae-078e7b37f1e3",
+          "bytes": 2371
+        },
+        {
+          "sequence": 823,
+          "type": "identity.resolved",
+          "entityId": "80cff776-e3a1-439e-9fc4-5c6ca3c75dce",
+          "bytes": 706
+        },
+        {
+          "sequence": 834,
+          "type": "checkpoint.created",
+          "entityId": "3ff97103-c812-4779-afe0-a45ceda5f814",
+          "bytes": 421
+        },
+        {
+          "sequence": 836,
+          "type": "control.classification_invalidated",
+          "entityId": "98b82d58-05aa-4f7e-a003-6992a22df43a",
+          "bytes": 8767
+        },
+        {
+          "sequence": 837,
+          "type": "control.classification_invalidated",
+          "entityId": "d04df176-3948-4eb5-b06c-922a69face0c",
+          "bytes": 2626
+        },
+        {
+          "sequence": 867,
+          "type": "identity.ambiguous",
+          "entityId": "6c8d09f4-2eba-428a-b491-563d24d238da",
+          "bytes": 1096
+        },
+        {
+          "sequence": 868,
+          "type": "identity.ambiguous",
+          "entityId": "72b2e9a3-2636-45fa-8351-fd34177b28ce",
+          "bytes": 1118
+        },
+        {
+          "sequence": 869,
+          "type": "identity.ambiguous",
+          "entityId": "e18361a5-8773-49ca-b61e-9e2a0c788cc4",
+          "bytes": 1096
+        },
+        {
+          "sequence": 870,
+          "type": "identity.ambiguous",
+          "entityId": "0796b4e7-45a1-402e-bc3a-4214ad6fd2a5",
+          "bytes": 1118
+        },
+        {
+          "sequence": 878,
+          "type": "action.completed",
+          "entityId": "4f5a1fff-a5cc-404a-af4c-0f0011b7cf40",
+          "bytes": 39304
+        },
+        {
+          "sequence": 927,
+          "type": "identity.ambiguous",
+          "entityId": "bf31ac73-0abd-4d63-978d-892f1bfd3127",
+          "bytes": 1175
+        },
+        {
+          "sequence": 928,
+          "type": "identity.ambiguous",
+          "entityId": "fd5291cd-567d-4fba-8248-b4a5da2e297e",
+          "bytes": 1197
+        },
+        {
+          "sequence": 929,
+          "type": "identity.ambiguous",
+          "entityId": "e6a6c013-839a-4858-b662-1de9a1982a7a",
+          "bytes": 1175
+        },
+        {
+          "sequence": 930,
+          "type": "identity.ambiguous",
+          "entityId": "18f2bddd-afe3-4d4e-b5bd-32a9d9d10596",
+          "bytes": 1197
+        },
+        {
+          "sequence": 931,
+          "type": "identity.ambiguous",
+          "entityId": "07b6c5ba-e403-4efb-a533-271a40e8069d",
+          "bytes": 1788
+        },
+        {
+          "sequence": 932,
+          "type": "identity.ambiguous",
+          "entityId": "41f1e2a3-1566-4a57-b4fc-57cc6fe7609c",
+          "bytes": 1788
+        },
+        {
+          "sequence": 933,
+          "type": "identity.ambiguous",
+          "entityId": "2c3eedc1-11fa-4bd3-a91e-31ea64cc590b",
+          "bytes": 1788
+        },
+        {
+          "sequence": 934,
+          "type": "identity.ambiguous",
+          "entityId": "fddead39-88f6-4c57-a597-4c0a35309472",
+          "bytes": 1788
+        },
+        {
+          "sequence": 935,
+          "type": "identity.ambiguous",
+          "entityId": "17441f3c-c80f-4cd4-9b4d-5a951cefda46",
+          "bytes": 1788
+        },
+        {
+          "sequence": 943,
+          "type": "action.completed",
+          "entityId": "1512316a-5286-44cd-818e-28071ca311cf",
+          "bytes": 37402
+        },
+        {
+          "sequence": 970,
+          "type": "exploration.group_detected",
+          "entityId": "f456face-e7a8-4dcf-a13b-b2d450f5f0c7",
+          "bytes": 6818
+        },
+        {
+          "sequence": 971,
+          "type": "exploration.group_detected",
+          "entityId": "12c19494-f180-47cb-8a98-046dbe6f1e6f",
+          "bytes": 8594
+        },
+        {
+          "sequence": 972,
+          "type": "exploration.group_detected",
+          "entityId": "281cd5df-536c-4c43-a14e-c0d0a426ef36",
+          "bytes": 6529
+        },
+        {
+          "sequence": 973,
+          "type": "exploration.group_detected",
+          "entityId": "6ca4bcbf-8a5d-4e87-8fd2-777c93303ebc",
+          "bytes": 13819
+        },
+        {
+          "sequence": 974,
+          "type": "exploration.group_detected",
+          "entityId": "c8683c2b-8d8c-40da-bbca-604e9a38c35b",
+          "bytes": 13847
+        },
+        {
+          "sequence": 975,
+          "type": "exploration.group_detected",
+          "entityId": "ae43068d-8d49-4342-9396-9820a84ad6bf",
+          "bytes": 13912
+        },
+        {
+          "sequence": 976,
+          "type": "exploration.group_detected",
+          "entityId": "5245fb68-0c21-412c-a8bf-c544afd1eeb2",
+          "bytes": 5709
+        },
+        {
+          "sequence": 977,
+          "type": "exploration.group_detected",
+          "entityId": "128634aa-92ec-41c8-ad20-754edb12a600",
+          "bytes": 4895
+        },
+        {
+          "sequence": 978,
+          "type": "exploration.group_detected",
+          "entityId": "76b519c3-6804-4b0a-b62a-3c567ddb0f42",
+          "bytes": 14421
+        },
+        {
+          "sequence": 979,
+          "type": "exploration.group_detected",
+          "entityId": "7e91b715-1ff3-4e84-8f89-9dece25a89bf",
+          "bytes": 9337
+        },
+        {
+          "sequence": 980,
+          "type": "exploration.group_detected",
+          "entityId": "60088112-f07d-4314-bbcc-9612bba80122",
+          "bytes": 7636
+        },
+        {
+          "sequence": 981,
+          "type": "exploration.group_detected",
+          "entityId": "853876ec-03fa-4529-9413-64dc8c3b6b5e",
+          "bytes": 5653
+        },
+        {
+          "sequence": 982,
+          "type": "exploration.group_detected",
+          "entityId": "f6cc2f0f-d20e-4a8f-809a-3092b04da6a6",
+          "bytes": 5684
+        },
+        {
+          "sequence": 983,
+          "type": "exploration.group_detected",
+          "entityId": "2e03cd3a-e42f-4a7a-9c1e-ee9f0045f9f6",
+          "bytes": 6728
+        },
+        {
+          "sequence": 984,
+          "type": "exploration.group_detected",
+          "entityId": "2f73c630-8d9b-4cf3-a9b1-78c4e2476e72",
+          "bytes": 14659
+        },
+        {
+          "sequence": 985,
+          "type": "exploration.group_detected",
+          "entityId": "847d954b-1f89-45f2-a35c-8c370ca5351b",
+          "bytes": 7814
+        },
+        {
+          "sequence": 986,
+          "type": "identity.ambiguous",
+          "entityId": "1712bb03-4dd3-4a8e-917a-2a789f2c91ab",
+          "bytes": 1253
+        },
+        {
+          "sequence": 987,
+          "type": "identity.ambiguous",
+          "entityId": "0714da70-3627-4e76-94a6-d69a873d4ff0",
+          "bytes": 1275
+        },
+        {
+          "sequence": 988,
+          "type": "identity.ambiguous",
+          "entityId": "761806bc-5595-401b-b035-ea4ec369faea",
+          "bytes": 1253
+        },
+        {
+          "sequence": 989,
+          "type": "identity.ambiguous",
+          "entityId": "878121e2-475c-4500-868d-29c00415bf4b",
+          "bytes": 1275
+        },
+        {
+          "sequence": 990,
+          "type": "identity.ambiguous",
+          "entityId": "615bcfd5-9992-4dba-9343-e99c7bdee42f",
+          "bytes": 1983
+        },
+        {
+          "sequence": 991,
+          "type": "identity.ambiguous",
+          "entityId": "7d842f43-ff42-4c96-a8e1-66b8a4307a53",
+          "bytes": 1983
+        },
+        {
+          "sequence": 992,
+          "type": "identity.ambiguous",
+          "entityId": "2d7dd573-58ee-47e6-a0b4-cb6af73a5368",
+          "bytes": 1983
+        },
+        {
+          "sequence": 993,
+          "type": "identity.ambiguous",
+          "entityId": "53c70315-d628-4017-ac50-01657189da52",
+          "bytes": 1983
+        },
+        {
+          "sequence": 994,
+          "type": "identity.ambiguous",
+          "entityId": "09c727c5-de0e-4208-87e6-e2d319a4a4a5",
+          "bytes": 1983
+        },
+        {
+          "sequence": 1002,
+          "type": "action.completed",
+          "entityId": "38ff8093-7d18-4843-9e0d-feb2325b593e",
+          "bytes": 43039
+        },
+        {
+          "sequence": 1011,
+          "type": "checkpoint.result",
+          "entityId": "92bd422e-c026-4857-9dfc-f70df6f36f31",
+          "bytes": 676
+        },
+        {
+          "sequence": 1012,
+          "type": "session.paused",
+          "entityId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "bytes": 1114
+        }
+      ],
+      "gzip3SizeExperiment": {
+        "identity": {
+          "rows": 1726,
+          "jsonBytes": 8317156,
+          "gzip3Bytes": 2537011,
+          "grossPayloadSavingsBytes": 5780145,
+          "jsonAtLeast1024Bytes": 8317156,
+          "gzip3ForRowsAtLeast1024Bytes": 2537011
+        },
+        "action": {
+          "rows": 7083,
+          "jsonBytes": 6316082,
+          "gzip3Bytes": 4096617,
+          "grossPayloadSavingsBytes": 2219465,
+          "jsonAtLeast1024Bytes": 1203968,
+          "gzip3ForRowsAtLeast1024Bytes": 738409
+        },
+        "frontier": {
+          "rows": 1115,
+          "jsonBytes": 2079931,
+          "gzip3Bytes": 1114438,
+          "grossPayloadSavingsBytes": 965493,
+          "jsonAtLeast1024Bytes": 2077126,
+          "gzip3ForRowsAtLeast1024Bytes": 1112799
+        },
+        "exploration-group": {
+          "rows": 174,
+          "jsonBytes": 1549855,
+          "gzip3Bytes": 431281,
+          "grossPayloadSavingsBytes": 1118574,
+          "jsonAtLeast1024Bytes": 1549855,
+          "gzip3ForRowsAtLeast1024Bytes": 431281
+        },
+        "events": {
+          "rows": 1012,
+          "jsonBytes": 3626154,
+          "gzip3Bytes": 1083342
+        }
+      },
+      "plugin": {
+        "allocation": {
+          "pageSize": 4096,
+          "pageCount": 388,
+          "freelistPages": 7,
+          "tables": {
+            "decision_task": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 1479,
+              "unusedBytes": 2498
+            },
+            "decision_unsettled_task": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 0,
+              "unusedBytes": 4088
+            },
+            "decisions": {
+              "pages": 116,
+              "allocatedBytes": 475136,
+              "payloadBytes": 415452,
+              "unusedBytes": 58583
+            },
+            "event_task": {
+              "pages": 18,
+              "allocatedBytes": 73728,
+              "payloadBytes": 56504,
+              "unusedBytes": 13142
+            },
+            "events": {
+              "pages": 204,
+              "allocatedBytes": 835584,
+              "payloadBytes": 748821,
+              "unusedBytes": 76291
+            },
+            "explorer_meta": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 3,
+              "unusedBytes": 4081
+            },
+            "sqlite_autoindex_decisions_1": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 1479,
+              "unusedBytes": 2498
+            },
+            "sqlite_autoindex_task_chunks_1": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 0,
+              "unusedBytes": 4088
+            },
+            "sqlite_autoindex_task_items_1": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 1220,
+              "unusedBytes": 2790
+            },
+            "sqlite_autoindex_tasks_1": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 39,
+              "unusedBytes": 4046
+            },
+            "sqlite_schema": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 2717,
+              "unusedBytes": 1183
+            },
+            "sqlite_sequence": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 11,
+              "unusedBytes": 4073
+            },
+            "task_active_items": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 460,
+              "unusedBytes": 3595
+            },
+            "task_chunk_refs": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 0,
+              "unusedBytes": 4088
+            },
+            "task_chunks": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 0,
+              "unusedBytes": 4088
+            },
+            "task_cold_items": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 705,
+              "unusedBytes": 3338
+            },
+            "task_item_occurrence": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 2029,
+              "unusedBytes": 1981
+            },
+            "task_items": {
+              "pages": 26,
+              "allocatedBytes": 106496,
+              "payloadBytes": 76912,
+              "unusedBytes": 29153
+            },
+            "task_round_session": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 76,
+              "unusedBytes": 4009
+            },
+            "task_running_round": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 0,
+              "unusedBytes": 4088
+            },
+            "tasks": {
+              "pages": 1,
+              "allocatedBytes": 4096,
+              "payloadBytes": 3720,
+              "unusedBytes": 363
+            }
+          }
+        },
+        "tables": {
+          "tasks": {
+            "rows": 1,
+            "jsonBytes": 120
+          },
+          "task_items": {
+            "rows": 26,
+            "jsonBytes": 72711
+          },
+          "decisions": {
+            "rows": 37,
+            "jsonBytes": 412584
+          },
+          "events": {
+            "rows": 1290,
+            "jsonBytes": 695922
+          }
+        },
+        "chunks": 0
+      }
+    }
+  },
+  "entityGrowth": {
+    "session": {
+      "rowsAdded": 0,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 1,
+      "addedRowStoredBytes": 0,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 2,
+      "totalStoredBytesDelta": 2
+    },
+    "evidence-retention": {
+      "rowsAdded": 12,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 0,
+      "addedRowStoredBytes": 5514,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 5514
+    },
+    "evidence-entry": {
+      "rowsAdded": 24,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 0,
+      "addedRowStoredBytes": 8304,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 8304
+    },
+    "boundary-exit-episode": {
+      "rowsAdded": 0,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 1,
+      "addedRowStoredBytes": 0,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 0
+    },
+    "region-review-request": {
+      "rowsAdded": 0,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 1,
+      "addedRowStoredBytes": 0,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 0
+    },
+    "visit": {
+      "rowsAdded": 12,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 0,
+      "addedRowStoredBytes": 5684,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 5684
+    },
+    "exploration-group": {
+      "rowsAdded": 58,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 17,
+      "addedRowStoredBytes": 516169,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 24237,
+      "totalStoredBytesDelta": 540406
+    },
+    "identity": {
+      "rowsAdded": 584,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 311,
+      "addedRowStoredBytes": 2297659,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 406451,
+      "totalStoredBytesDelta": 2704110
+    },
+    "hypothesis": {
+      "rowsAdded": 32,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 0,
+      "addedRowStoredBytes": 45874,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 45874
+    },
+    "action": {
+      "rowsAdded": 2294,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 0,
+      "addedRowStoredBytes": 2069271,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 2069271
+    },
+    "frontier": {
+      "rowsAdded": 408,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 220,
+      "addedRowStoredBytes": 751003,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": -7074,
+      "totalStoredBytesDelta": 743929
+    },
+    "scope": {
+      "rowsAdded": 1,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 0,
+      "addedRowStoredBytes": 564,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 564
+    },
+    "boundary-exit-request": {
+      "rowsAdded": 0,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 1,
+      "addedRowStoredBytes": 0,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 0
+    },
+    "discovery-request": {
+      "rowsAdded": 0,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 1,
+      "addedRowStoredBytes": 0,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 0
+    },
+    "page-exploration": {
+      "rowsAdded": 0,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 1,
+      "addedRowStoredBytes": 0,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 0
+    },
+    "control-classification-request": {
+      "rowsAdded": 0,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 1,
+      "addedRowStoredBytes": 0,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 0
+    },
+    "control-review-request": {
+      "rowsAdded": 0,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 1,
+      "addedRowStoredBytes": 0,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 0
+    },
+    "intervention-snapshot": {
+      "rowsAdded": 13,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 1,
+      "addedRowStoredBytes": 180957,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 1876,
+      "totalStoredBytesDelta": 182833
+    },
+    "region-review": {
+      "rowsAdded": 1,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 1,
+      "addedRowStoredBytes": 1106,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": -1,
+      "totalStoredBytesDelta": 1105
+    },
+    "checkpoint": {
+      "rowsAdded": 3,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 0,
+      "addedRowStoredBytes": 1147,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 1147
+    },
+    "attempt": {
+      "rowsAdded": 5,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 0,
+      "addedRowStoredBytes": 124720,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 124720
+    },
+    "transition": {
+      "rowsAdded": 5,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 0,
+      "addedRowStoredBytes": 1557,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 1557
+    },
+    "control-classification": {
+      "rowsAdded": 2,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 0,
+      "addedRowStoredBytes": 11393,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 11393
+    },
+    "reach": {
+      "rowsAdded": 1,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 0,
+      "addedRowStoredBytes": 676,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 676
+    },
+    "observation": {
+      "rowsAdded": 12,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 0,
+      "addedRowStoredBytes": 745929,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 745929
+    },
+    "state": {
+      "rowsAdded": 8,
+      "rowsRemoved": 0,
+      "commonRowsChanged": 0,
+      "addedRowStoredBytes": 399353,
+      "removedRowStoredBytes": 0,
+      "existingRowStoredBytesDelta": 0,
+      "totalStoredBytesDelta": 399353
+    }
+  },
+  "observationGrowth": {
+    "newObservations": 12,
+    "oldObservationBytesUnchanged": true,
+    "oldObjectsUnchanged": true,
+    "newFormats": {
+      "structural-v2": 8,
+      "gzip-v1": 4
+    },
+    "newLogicalBytes": 40929010,
+    "newManifestAndCompressedBytes": 745929,
+    "newObjects": 1181,
+    "newObjectsLogicalBytes": 4132424,
+    "newPackStoredBytes": 258453,
+    "newReferenceOccurrences": 10857,
+    "newReferenceBytes": 27145983,
+    "referencesToPreviousObjects": 1231,
+    "referenceBytesToPreviousObjects": 3621867,
+    "distinctPreviousObjectsReused": 140,
+    "newObservationsUsingExistingStates": 0
+  },
+  "eventGrowth": {
+    "oldRowsUnchanged": true,
+    "newRows": 341,
+    "newBytes": 1273588
+  },
+  "fileCategories": {
+    "2": {
+      "active-run.json": {
+        "files": 1,
+        "bytes": 471
+      },
+      "owner.json": {
+        "files": 1,
+        "bytes": 388
+      },
+      ".runner-lock.sqlite": {
+        "files": 1,
+        "bytes": 0
+      },
+      "plugin/explorer.sqlite": {
+        "files": 1,
+        "bytes": 1171456
+      },
+      "engine/engine.sqlite": {
+        "files": 1,
+        "bytes": 23449600
+      },
+      "evidence-metadata": {
+        "files": 51,
+        "bytes": 687334
+      },
+      "evidence-blobs": {
+        "files": 1130,
+        "bytes": 4037992
+      },
+      "run-artifacts": {
+        "files": 13,
+        "bytes": 1027957
+      }
+    },
+    "3": {
+      "active-run.json": {
+        "files": 1,
+        "bytes": 471
+      },
+      "owner.json": {
+        "files": 1,
+        "bytes": 388
+      },
+      ".runner-lock.sqlite": {
+        "files": 1,
+        "bytes": 0
+      },
+      "plugin/explorer.sqlite": {
+        "files": 1,
+        "bytes": 1589248
+      },
+      "engine/engine.sqlite": {
+        "files": 1,
+        "bytes": 35340288
+      },
+      "evidence-metadata": {
+        "files": 75,
+        "bytes": 1009363
+      },
+      "evidence-blobs": {
+        "files": 1764,
+        "bytes": 6265470
+      },
+      "run-artifacts": {
+        "files": 21,
+        "bytes": 1723742
+      }
+    }
+  },
+  "fileGrowth": {
+    "engine/engine.sqlite": {
+      "beforeBytes": 23449600,
+      "afterBytes": 35340288,
+      "deltaBytes": 11890688
+    },
+    ".runner-lock.sqlite": {
+      "beforeBytes": 0,
+      "afterBytes": 0,
+      "deltaBytes": 0
+    },
+    "run-artifacts": {
+      "beforeBytes": 1027957,
+      "afterBytes": 1723742,
+      "deltaBytes": 695785
+    },
+    "owner.json": {
+      "beforeBytes": 388,
+      "afterBytes": 388,
+      "deltaBytes": 0
+    },
+    "active-run.json": {
+      "beforeBytes": 471,
+      "afterBytes": 471,
+      "deltaBytes": 0
+    },
+    "evidence-metadata": {
+      "beforeBytes": 687334,
+      "afterBytes": 1009363,
+      "deltaBytes": 322029
+    },
+    "plugin/explorer.sqlite": {
+      "beforeBytes": 1171456,
+      "afterBytes": 1589248,
+      "deltaBytes": 417792
+    },
+    "evidence-blobs": {
+      "beforeBytes": 4037992,
+      "afterBytes": 6265470,
+      "deltaBytes": 2227478
+    }
+  },
+  "supplement": {
+    "python": "3.9.6 (default, Jan  9 2026, 11:03:41) \n[Clang 17.0.0 (clang-1700.6.4.2)]",
+    "zlib": "1.2.12",
+    "runs": {
+      "2": {
+        "identityStatus": {
+          "present": 292,
+          "not_observed": 850
+        },
+        "identityOccurrenceReferences": {
+          "total": 6905,
+          "uniqueObservations": 25,
+          "missing": [],
+          "identityIdMismatch": []
+        },
+        "identityGzip3Illustration": {
+          "rows": 1142,
+          "originalBytes": 5613046,
+          "gzipBytes": 1692788,
+          "illustrativeEnvelopeBytes": 292404,
+          "roundTripsVerified": 1142,
+          "illustrativeTotalBytes": 1985192,
+          "illustrativeSavingsBytes": 3627854
+        },
+        "groupDetectedCurrentMembersDuplicate": {
+          "events": 116,
+          "matchingMembers": 37,
+          "matchingMemberBytes": 101060,
+          "differentMembers": 79
+        },
+        "diffEventAttemptDuplicate": {
+          "events": 9,
+          "exactAttemptDiffMatches": 9,
+          "exactAttemptDiffBytes": 194820
+        },
+        "observationWholeGzip6Comparison": {
+          "gzip6PayloadBytes": 3909158,
+          "byStoredFormat": {
+            "2": {
+              "rows": 16,
+              "logicalBytes": 56056157,
+              "wholeGzip6Bytes": 2567678,
+              "encodedBytes": 314387
+            },
+            "1": {
+              "rows": 9,
+              "logicalBytes": 29321048,
+              "wholeGzip6Bytes": 1341480,
+              "encodedBytes": 1333181
+            }
+          },
+          "note": "Does not include hypothetical per-observation manifest; actual structural total additionally includes shared pack bytes."
+        },
+        "actionPackGzip3Illustration": {
+          "rawBytes": 4246811,
+          "packs": 66,
+          "compressedBytes": 470589,
+          "note": "Size experiment only. Excludes per-row offsets, hashes, manifests, ownership indexes and transaction/mutation costs."
+        }
+      },
+      "3": {
+        "identityStatus": {
+          "present": 292,
+          "not_observed": 1434
+        },
+        "identityOccurrenceReferences": {
+          "total": 10217,
+          "uniqueObservations": 37,
+          "missing": [],
+          "identityIdMismatch": []
+        },
+        "identityGzip3Illustration": {
+          "rows": 1726,
+          "originalBytes": 8317156,
+          "gzipBytes": 2537011,
+          "illustrativeEnvelopeBytes": 441985,
+          "roundTripsVerified": 1726,
+          "illustrativeTotalBytes": 2978996,
+          "illustrativeSavingsBytes": 5338160
+        },
+        "groupDetectedCurrentMembersDuplicate": {
+          "events": 174,
+          "matchingMembers": 69,
+          "matchingMemberBytes": 200394,
+          "differentMembers": 105
+        },
+        "diffEventAttemptDuplicate": {
+          "events": 14,
+          "exactAttemptDiffMatches": 14,
+          "exactAttemptDiffBytes": 313235
+        },
+        "observationWholeGzip6Comparison": {
+          "gzip6PayloadBytes": 5782778,
+          "byStoredFormat": {
+            "2": {
+              "rows": 24,
+              "logicalBytes": 84080775,
+              "wholeGzip6Bytes": 3848654,
+              "encodedBytes": 471522
+            },
+            "1": {
+              "rows": 13,
+              "logicalBytes": 42225440,
+              "wholeGzip6Bytes": 1934124,
+              "encodedBytes": 1921975
+            }
+          },
+          "note": "Does not include hypothetical per-observation manifest; actual structural total additionally includes shared pack bytes."
+        },
+        "actionPackGzip3Illustration": {
+          "rawBytes": 6316082,
+          "packs": 97,
+          "compressedBytes": 696832,
+          "note": "Size experiment only. Excludes per-row offsets, hashes, manifests, ownership indexes and transaction/mutation costs."
+        }
+      }
+    }
+  },
+  "privateAnalysisDirectory": "/tmp/okx-storage-growth-ZXpVVW",
+  "analysisScripts": {
+    "analyze.py": {
+      "path": "/tmp/okx-storage-growth-ZXpVVW/analyze.py",
+      "sha256": "1736af62e79e217ea9e40253ec0e5a0a6f2f19fe8aa5dcb82c54d0213427e82e"
+    },
+    "supplement.py": {
+      "path": "/tmp/okx-storage-growth-ZXpVVW/supplement.py",
+      "sha256": "b05f374fb9debdd0c686e441f72065a8a4238826d3f9040c39234673abc28bf7"
+    },
+    "report.py": {
+      "path": "/tmp/okx-storage-growth-ZXpVVW/report.py",
+      "sha256": "cc8a21d039b576a3eba13be6cd0391dbd1ed4bbc123b4039534a2ef255dd6f2e"
+    }
+  },
+  "run3SourceRevision": "3885c581dc4381251e29d0d663d25bf6048f495a",
+  "reviewedSourceRevision": "868e8b47afd31782161deba4f8bd7a14e0349430",
+  "sourceRefs": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/index.ts",
+      "line": 88,
+      "sha256": "c1503efa5c4797901824e4f721ba35baccbf59d085bbed5ccea0962276c54cc9",
+      "reason": "Only observations and states are currently encoded; other entities retain raw JSON."
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/entity-codec.ts",
+      "line": 91,
+      "sha256": "33d534a7d1b70331a8e72c400c74812ecf54e6f31f3084c0e38a33e428ac2758",
+      "reason": "State envelopes retain complete row content, owner and checksum."
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/observation-store.ts",
+      "line": 175,
+      "sha256": "56ec8a8ae989d82ede21776984a3dbd2bd6eb954e2c962dfa62c1a2c3bada857",
+      "reason": "Current shared-object GC roots include only Observation manifests."
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/identity.ts",
+      "line": 79,
+      "sha256": "da9ba03b9f5cb8ee76c8374f9f52cc27d4106e6b5d862157656a3784972a8521",
+      "reason": "Each matched capture appends an occurrence and retains the full lastControl."
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/identity.ts",
+      "line": 110,
+      "sha256": "da9ba03b9f5cb8ee76c8374f9f52cc27d4106e6b5d862157656a3784972a8521",
+      "reason": "State assignment keeps canonical/grouping verification separate from storage encoding."
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts",
+      "line": 444,
+      "sha256": "3eb4f77f9c88178079baa851926baadb75d61d0c070ef3b3a3c0ce4a41a124de",
+      "reason": "Every capture currently reads retained identities before matching."
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts",
+      "line": 502,
+      "sha256": "3eb4f77f9c88178079baa851926baadb75d61d0c070ef3b3a3c0ce4a41a124de",
+      "reason": "Capture writes the identity ledger and every action candidate."
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts",
+      "line": 583,
+      "sha256": "3eb4f77f9c88178079baa851926baadb75d61d0c070ef3b3a3c0ce4a41a124de",
+      "reason": "Completed attempts and diff events preserve separate audit records."
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/exploration-groups.ts",
+      "line": 102,
+      "sha256": "3621e0e98f93fc0bf1a1334ecc3827b8616558e12b6bfafa2919d8b6040fdde7",
+      "reason": "Group detection events hold historical snapshots; mutable group rows subsequently evolve."
+    }
+  ],
+  "conclusions": {
+    "observationSharingStillEffective": true,
+    "stateEncoding": "Complete gzip-v1 rows; not cross-state structural object sharing.",
+    "newObservationStorageBytesExcludingSQLiteRowsIndexes": 1004382,
+    "newObservationLogicalBytes": 40929010,
+    "newStateRows": 8,
+    "newObservationStateReferences": 12,
+    "newObservationsReferencingPreRun3States": 0,
+    "withinRun3StateReuseOccurrences": 4,
+    "priority": "Benchmark a self-contained, owner-checked and checksummed identity row codec before widening cross-entity references.",
+    "identityIllustrativePayloadSavingsBytes": 5338160,
+    "identityLastControlExactDuplicateBytes": 4335134,
+    "identityLastControlExistingSharedObjectBytes": 1806044,
+    "actionPreconditionsAndBasisDuplicateBytes": 2620322,
+    "notAdditive": "Compression savings, lastControl reference savings, action dictionaries and nested snapshots overlap; do not sum these alternatives.",
+    "performance": "No read/write timing, WAL write amplification or VACUUM reclamation was measured. Byte-size experiments are not performance gains.",
+    "preservation": [
+      "Keep identity IDs, unknown/hypothesis status, occurrence ordering, context and original evidence intact; do not delete not_observed rows.",
+      "Preserve action IDs, observation/state ownership, preconditions, basis, risk, sample values and per-capture candidate history; byte interning is not semantic coverage.",
+      "Keep event sequence/type/time/session and historical payloads. Never replace a historical event with a reference to a mutable entity.",
+      "If identity references shared Observation objects later, add identity roots to mark/sweep and session deletion/retention validation, pin exact objects and verify before atomic collection.",
+      "Do not reconstruct all historical Observations per identity read. Benchmark cold and warm all-identity reads, normal capture/put cost, incremental occurrence append and memory under current real fixtures."
+    ]
+  }
+}

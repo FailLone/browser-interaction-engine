@@ -1,6 +1,6 @@
 import { isSuperseded, isUnfinished, schedulableObligation, boundOperationCondition } from './plan-state.js';
 import { observedPosition, reconcileRecoveryPosition, routeAttempt } from './navigation-state.js';
-import { projectObligations, recoveryConditionVersion, recoveryRouteConditionVersion, recoveryRouteKey, recordRouteRetry, routeRetryEligibility, releaseRouteRetriesForVerifiedRecovery } from './obligation-lifecycle.js';
+import { projectObligations, recoveryConditionVersion, recoveryRouteConditionVersion, recoveryRouteKey, recordRouteRetry, retainRouteFailureCondition, routeRetryEligibility, releaseRouteRetriesForVerifiedRecovery } from './obligation-lifecycle.js';
 import {capturedRoute,routeFinder,routeMatches,routeKey} from './reentry-evidence.js';
 import { randomUUID } from 'node:crypto';
 import { browserOperationCorrespondenceHint, browserTargetConditions, sameObservedState } from '@interaction/browser';
@@ -20,6 +20,7 @@ import { remapStoredScopes, remapStoredReviewScopes, recoverStoredScopeSources }
 import { reviewGapChanges, controlReviewGapReasons } from './review-ledger.js';
 import { reviewRecoveryChanges, prioritizeReviewAnchors, validReviewRecoveryWait, type ReviewRecoveryChange, type UnresolvedReview } from './review-recovery.js';
 import { pageSourceObligation, sourceReturnCondition } from './source-return.js';
+import { recoveryFailureCondition } from './recovery-failure.js';
 import { completedOperations } from './completion-evidence.js';
 import { initialSchedule, orderedObligations, unfinishedObligations, selectObligation, reserveObligation, bindScheduledRoute, routeDebtAllows, localSelectionLimit, type ObligationSelection } from './obligation-scheduler.js';
 import type { Checkpoint } from '@interaction/browser';
@@ -691,6 +692,20 @@ export class ExplorerPlugin {
         if(!routeDebtAllows(schedule,key)){reason='legacy_route_debt_unmapped';continue;}
         const route={sessionId:o.sessionId,observationId:source.id,checkpointId:checkpoint.id,targets:budgetTargets,path,...(returnToSource?{arrivalMode:'observed-source' as const}:{}),...(!legacy&&sourceCondition?{sourceCondition}:{}),itemIds:[...new Set([...(old?.[1].itemIds||[]),item.id])],memberKeys:old?.[1].memberKeys||budgetTargets.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),pathKeys:old?.[1].pathKeys||path.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),...old?.[1].failure?{failure:old[1].failure}:{}};
         const conditionVersion=routeCondition(route);if(!conditionVersion){reason='route_condition_unverified';continue;}
+        // Older ledgers consumed only the starting condition. Revalidate their
+        // recorded failure endpoint before treating it as negative retry evidence.
+        // This adds no attempts and never releases an unknown result.
+        if(route.failure?.conditionVersion===conditionVersion&&task.routeRetries){
+          for(const [priorCondition,record] of Object.entries(task.routeRetries.routes[key]?.conditions||{})){
+            if(record.resultCondition||!record.evidence||record.reason!==route.failure.reason||!['unverified','unreachable'].includes(record.outcome))continue;
+            const ended=record.evidence.sessionId===o.sessionId&&read(record.evidence.observationId);
+            if(!ended)continue;
+            const resultCondition=recoveryFailureCondition(ended.source,conditionVersion,record.reason);
+            if(!resultCondition||this.routeConditionReader(ended.source,ended.actions)(route)!==conditionVersion)continue;
+            task.routeRetries=retainRouteFailureCondition(task.routeRetries,key,priorCondition,resultCondition);
+            this.event(task,'recovery.failure_condition_retained',{routeKey:key,attemptKey:record.attemptKey,conditionVersion,resultCondition,currentExecution:false,coverageGranted:false});
+          }
+        }
         const retry=routeRetryEligibility(task.routeRetries,key,conditionVersion);
         if(!retry.allowed){reason=`route_retry_${retry.reason}`;continue;}
         const frame:Frame={checkpointId:checkpoint.id,observationId:source.id,stateId:source.stateId,used:[],path,remaining:budgetTargets};
@@ -879,10 +894,13 @@ export class ExplorerPlugin {
       }
       const actual=this.host.observation(sid),unresolved=this.recoveryOutcomes(task),unknown=unresolved.length>0,status=unknown?'UNVERIFIED':result.status;
       const unknownAttemptIds=unresolved.filter(r=>r.sessionId===sid).flatMap(r=>r.attemptIds).filter(id=>result.attemptIds.includes(id));
-      if(['UNREACHABLE','UNVERIFIED','PRECONDITIONS_CHANGED'].includes(status))frame.recoveryFailure={status:status==='UNREACHABLE'?'unreachable':'invalidated',reason:unknown?'unknown_action_outcome':result.reason,conditionVersion:this.routeConditionReader(actual,this.host.actions(sid,actual.id))(schedule.routes[routeKey])||recovery.conditionVersion,targets:remaining};
+      const failed=['UNREACHABLE','UNVERIFIED','PRECONDITIONS_CHANGED'].includes(status);
+      const actualCondition=failed?this.routeConditionReader(actual,this.host.actions(sid,actual.id))(schedule.routes[routeKey]):undefined;
+      if(failed)frame.recoveryFailure={status:status==='UNREACHABLE'?'unreachable':'invalidated',reason:unknown?'unknown_action_outcome':result.reason,conditionVersion:actualCondition||recovery.conditionVersion,targets:remaining};
       else delete frame.recoveryFailure;
       const savedRoute=schedule.routes[routeKey];if(savedRoute)savedRoute.failure=frame.recoveryFailure;
-      task.routeRetries=recordRouteRetry(task.routeRetries,{routeKey,conditionVersion:frame.recoveryConditionVersion,attemptKey:recoveryAttemptKey,outcome:unknown?'unknown':result.status==='SOURCE_REACHED'||result.status==='TARGET_REACHED'||result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'?'verified':result.status==='UNREACHABLE'?'unreachable':'unverified',reason:result.reason,evidence:{sessionId:sid,observationId:actual.id},...(unknownAttemptIds.length?{unknownSource:{sessionId:sid,attemptIds:unknownAttemptIds}}:{})});
+      const resultCondition=failed&&!unknown&&actualCondition?recoveryFailureCondition(actual,actualCondition,result.reason):undefined;
+      task.routeRetries=recordRouteRetry(task.routeRetries,{routeKey,conditionVersion:frame.recoveryConditionVersion,attemptKey:recoveryAttemptKey,outcome:unknown?'unknown':result.status==='SOURCE_REACHED'||result.status==='TARGET_REACHED'||result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'?'verified':result.status==='UNREACHABLE'?'unreachable':'unverified',reason:result.reason,evidence:{sessionId:sid,observationId:actual.id},...(resultCondition?{resultCondition}:{}),...(unknownAttemptIds.length?{unknownSource:{sessionId:sid,attemptIds:unknownAttemptIds}}:{})});
       const position=reconcileRecoveryPosition(round,o,actual,{...result,status},status==='REACHED_VERIFIED'||status==='REACHED_ACCEPTABLE'?frame.path:undefined);
       if(unknown){round.entryPath=[];position.path=[];position.reason='unknown_execution_outcome';}
       this.event(task,'recovery.position_reconciled',position);this.persist(task);

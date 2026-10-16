@@ -2,6 +2,7 @@ import { conditionSplitIssues, boundOperationCondition } from './plan-state.js';
 import { browserControlCorrespondence, browserOperationCorrespondenceHint, browserTargetConditions, type ActionAttempt, type ActionCandidate, type BrowserEngine, type ContinuationRecord, type Observation } from '@interaction/browser';
 import type { EvidenceRef, ExplorerHost, PlanItem, Scope, Task } from './types.js';
 import { broadScope, controlScopeMatcher, digest, keyFor, matches, scopeFor } from './policy.js';
+import {observationActionIndex} from './observation-action-index.js';
 
 /** A scheduling view of the immutable discovery ledger, never coverage or permission. */
 export type ObligationState = 'active' | 'waiting' | 'unreachable' | 'alias' | 'resolved' | 'excluded' | 'authority' | 'superseded';
@@ -106,7 +107,7 @@ function visibleAction(action:ActionCandidate,o:Observation){return action.preco
  */
 export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:Observation,actions:ActionCandidate[],previous?:ObligationProjection,routeConditions:readonly ObligationRouteCondition[]=[]):{projection:ObligationProjection;events:ObligationLifecycleEvent[]} {
   const conditionVersion=recoveryConditionVersion(o),current=actions.filter(a=>a.sessionId===o.sessionId&&a.observationId===o.id);
-  const currentScopes=new Map(current.map(a=>[a.id,scopeFor(a,o)])),matchControl=controlScopeMatcher(o,current);
+  const currentIndex=observationActionIndex(o,current),matchControl=controlScopeMatcher(o,current);
   const previousEntries=new Map(previous?.version===1?previous.entries.map(e=>[e.itemId,e]):[]);
   const splitIssues=conditionSplitIssues(task.plan);
   const entries:ObligationEntry[]=task.plan.map(item=>{
@@ -121,8 +122,8 @@ export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:
     if(!item.required||item.status==='excluded')return {...entry,state:'excluded',reason:'original_ledger_excluded'};
     if(item.dispatchScope===false&&item.conditionMigration?.status==='invalidated')return {...entry,state:'unreachable',reason:item.reason};
     if(item.dispatchScope===true&&broadScope(item.scope))return {...entry,state:'authority',reason:'task_scope_authority'};
-    const scoped=current.filter(a=>Object.entries(item.scope).every(([k,v])=>JSON.stringify(currentScopes.get(a.id)![k as keyof Scope])===JSON.stringify(v)));
-    const candidates=scoped.filter(a=>!boundOperationCondition(item)||boundOperationCondition(item)===keyFor(a,o));
+    const scoped=currentIndex.matching(item.scope);
+    const candidates=scoped.filter(a=>!boundOperationCondition(item)||boundOperationCondition(item)===currentIndex.condition(a));
     if(candidates.length===1){entry.state=visibleAction(candidates[0],o)?'active':'waiting';entry.reason=entry.state==='active'?'current_target_observed':'target_hidden';entry.currentActionId=candidates[0].id;}
     else if(candidates.length>1){entry.state='active';entry.reason='current_target_ambiguous';}
     else if(scoped.length&&item.operationConditionKey)entry.reason='operation_conditions_changed';
@@ -141,8 +142,8 @@ export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:
   const query=host.explorationTargetCorrespondences;
   if(query&&knownContext(o)) {
     type Source={ref:EvidenceRef&{actionId:string};action:ActionCandidate;observation:Observation};
-    const retained=new Map<string,{observation:Observation;actions:ActionCandidate[]}|undefined>();
-    const currentKey=`${o.sessionId}:${o.id}`,currentRecord={observation:o,actions:current};
+    const retained=new Map<string,{observation:Observation;index:ReturnType<typeof observationActionIndex>}|undefined>();
+    const currentKey=`${o.sessionId}:${o.id}`,currentRecord={observation:o,index:currentIndex};
     const candidates=new Map<string,{action:ActionCandidate;hint?:string}[]>();
     for(const action of current){const key=JSON.stringify([action.kind,action.value]),values=candidates.get(key)||[],control=o.controls.find(c=>c.localId===action.localId);
       values.push({action,hint:control&&browserOperationCorrespondenceHint(control,action.kind,o)?.key});candidates.set(key,values);}
@@ -156,7 +157,10 @@ export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:
         const key=`${ref.sessionId}:${ref.observationId}`;
         if(key!==currentKey&&!retained.has(key)) {
           try{const observation=host.observation(ref.sessionId,ref.observationId);
-            retained.set(key,observation.sessionId===ref.sessionId&&observation.id===ref.observationId?{observation,actions:host.actions(ref.sessionId,ref.observationId)}:undefined);
+            if(observation.sessionId===ref.sessionId&&observation.id===ref.observationId){
+              const actions=host.actions(ref.sessionId,ref.observationId).filter(a=>a.sessionId===ref.sessionId&&a.observationId===ref.observationId);
+              retained.set(key,{observation,index:observationActionIndex(observation,actions)});
+            }else retained.set(key,undefined);
           }catch{retained.set(key,undefined);}
         }
         const record=key===currentKey?currentRecord:retained.get(key);
@@ -165,8 +169,8 @@ export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:
         if(key!==currentKey){retained.delete(key);retained.set(key,record);while(retained.size>8)retained.delete(retained.keys().next().value!);}
         if(!record||!knownContext(record.observation))continue;
         if(contextKey(record.observation)!==contextKey(o)){otherKnownContext=true;continue;}
-        const scopedSources=record.actions.filter(a=>a.sessionId===ref.sessionId&&a.observationId===ref.observationId&&matches(item.scope,a,record.observation));
-        const found=scopedSources.filter(a=>!item.operationConditionKey||item.operationConditionKey===keyFor(a,record.observation));
+        const scopedSources=record.index.matching(item.scope);
+        const found=scopedSources.filter(a=>!item.operationConditionKey||item.operationConditionKey===record.index.condition(a));
         if(scopedSources.length&&!found.length&&item.operationConditionKey)sourceConditionMismatch=true;
         if(found.length!==1)continue;
         source={ref:{sessionId:ref.sessionId,observationId:ref.observationId,actionId:found[0].id},action:found[0],observation:record.observation};break;
@@ -225,8 +229,13 @@ export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:
 
 export type RouteRetryOutcome = 'verified'|'unreachable'|'unverified'|'unknown'|'no_progress';
 export interface RouteUnknownSource {sessionId:string;attemptIds:string[]}
+export interface RouteFailureCondition {
+  conditionVersion:string;evidence:EvidenceRef;basis:'complete-observation'|'replay-target-unavailable';
+}
 export interface RouteRetryRecord {
   attempts:number;outcome:RouteRetryOutcome;reason:string;evidence?:EvidenceRef;attemptKey?:string;
+  /** The condition left by this failed attempt is not a new retry opportunity. */
+  resultCondition?:RouteFailureCondition;
   unknownSource?:RouteUnknownSource;
   /** The old outcome remains unknown; this is only a verified continuation basis. */
   recoveryVerificationId?:string;
@@ -239,15 +248,19 @@ export interface RouteRecoveryVerification {
 }
 export interface RouteRetryLedger {
   version:1; routes:Record<string,{conditions:Record<string,RouteRetryRecord>;unknown?:boolean;saturated?:boolean;completedProgressKeys:string[];
+    /** Survives replacement of one starting-condition record by a renewed attempt. */
+    failedResultConditions?:Record<string,RouteFailureCondition&{sourceConditionVersion:string;attemptKey?:string}>;
     recoveryVerifications?:RouteRecoveryVerification[];recoveryAllowance?:string}>;
 }
-export interface RouteRetryDecision {allowed:boolean;reason:'new_condition'|'verified_recovery'|'condition_attempted'|'unknown_result'|'condition_limit';attempts:number}
+export interface RouteRetryDecision {allowed:boolean;reason:'new_condition'|'verified_recovery'|'condition_attempted'|'failed_result_condition'|'unknown_result'|'condition_limit';attempts:number}
 const maxConditionsPerRoute=16;
 export function routeRetryEligibility(ledger:RouteRetryLedger|undefined,routeKey:string,conditionVersion:string):RouteRetryDecision {
   const route=ledger?.version===1?ledger.routes[routeKey]:undefined,record=route?.conditions[conditionVersion];
   if(route?.unknown)return {allowed:false,reason:'unknown_result',attempts:record?.attempts||0};
   if(route?.recoveryAllowance&&route.recoveryVerifications?.some(v=>v.id===route.recoveryAllowance&&!v.consumedBy))return {allowed:true,reason:'verified_recovery',attempts:record?.attempts||0};
   if(record)return {allowed:false,reason:'condition_attempted',attempts:record.attempts};
+  if(route?.failedResultConditions?.[conditionVersion]||Object.values(route?.conditions||{}).some(prior=>(prior.outcome==='unverified'||prior.outcome==='unreachable')&&prior.resultCondition?.conditionVersion===conditionVersion))
+    return {allowed:false,reason:'failed_result_condition',attempts:0};
   if(route?.saturated||Object.keys(route?.conditions||{}).length>=maxConditionsPerRoute)return {allowed:false,reason:'condition_limit',attempts:0};
   return {allowed:true,reason:'new_condition',attempts:0};
 }
@@ -257,7 +270,7 @@ export function routeRetryEligibility(ledger:RouteRetryLedger|undefined,routeKey
  * only exact original-source continuation evidence can grant one further attempt.
  * A fresh document/context or a later successful attempt never clears the debt.
  */
-export function recordRouteRetry(ledger:RouteRetryLedger|undefined,input:{routeKey:string;conditionVersion:string;outcome:RouteRetryOutcome;reason:string;evidence?:EvidenceRef;attemptKey?:string;unknownSource?:RouteUnknownSource}):RouteRetryLedger {
+export function recordRouteRetry(ledger:RouteRetryLedger|undefined,input:{routeKey:string;conditionVersion:string;outcome:RouteRetryOutcome;reason:string;evidence?:EvidenceRef;attemptKey?:string;unknownSource?:RouteUnknownSource;resultCondition?:RouteFailureCondition}):RouteRetryLedger {
   const result:RouteRetryLedger=ledger?.version===1?structuredClone(ledger):{version:1,routes:{}};
   const route=result.routes[input.routeKey]||={conditions:{},completedProgressKeys:[]};
   const existing=route.conditions[input.conditionVersion];
@@ -276,7 +289,27 @@ export function recordRouteRetry(ledger:RouteRetryLedger|undefined,input:{routeK
     unknownSource=unknownSource&&existing.unknownSource?.sessionId===unknownSource.sessionId?{sessionId:unknownSource.sessionId,attemptIds:[...new Set([...existing.unknownSource.attemptIds,...unknownSource.attemptIds])].sort()}:undefined;
   }
   route.conditions[input.conditionVersion]={attempts:(existing?.attempts||0)+(input.attemptKey&&existing?.attemptKey===input.attemptKey?0:1),outcome:input.outcome,reason:input.reason,...input.evidence?{evidence:input.evidence}:{},...input.attemptKey?{attemptKey:input.attemptKey}:{},...unknownSource?{unknownSource}:{}};
+  retainFailureCondition(route,input.conditionVersion,input.resultCondition);
   if(input.outcome==='unknown'){route.unknown=true;delete route.recoveryAllowance;}
+  return result;
+}
+
+function retainFailureCondition(route:RouteRetryLedger['routes'][string],sourceConditionVersion:string,condition?:RouteFailureCondition) {
+  const record=route.conditions[sourceConditionVersion];
+  if(condition&&(record.outcome==='unverified'||record.outcome==='unreachable')
+    &&condition.evidence.sessionId===record.evidence?.sessionId&&condition.evidence.observationId===record.evidence.observationId){
+    record.resultCondition=structuredClone(condition);
+    const results=route.failedResultConditions??={};
+    if(!results[condition.conditionVersion]){
+      if(Object.keys(results).length>=maxConditionsPerRoute){route.saturated=true;return;}
+      results[condition.conditionVersion]={...structuredClone(condition),sourceConditionVersion,...record.attemptKey?{attemptKey:record.attemptKey}:{}};
+    }
+  }
+}
+/** Upgrade retained failure evidence without inventing or recounting an attempt. */
+export function retainRouteFailureCondition(ledger:RouteRetryLedger,routeKey:string,conditionVersion:string,resultCondition:RouteFailureCondition):RouteRetryLedger {
+  const result=structuredClone(ledger),record=result.routes[routeKey]?.conditions[conditionVersion];
+  if(record&&!record.resultCondition)retainFailureCondition(result.routes[routeKey],conditionVersion,resultCondition);
   return result;
 }
 
@@ -316,5 +349,5 @@ export function releaseRouteRetriesForVerifiedRecovery(host:Pick<ExplorerHost,'l
 export function releaseRouteRetryForProgress(ledger:RouteRetryLedger|undefined,routeKey:string,completedObligationKey:string):RouteRetryLedger {
   const result:RouteRetryLedger=ledger?.version===1?structuredClone(ledger):{version:1,routes:{}};
   const route=result.routes[routeKey];if(!route||route.unknown||route.completedProgressKeys.includes(completedObligationKey))return result;
-  route.completedProgressKeys.push(completedObligationKey);route.conditions={};route.saturated=false;return result;
+  route.completedProgressKeys.push(completedObligationKey);route.conditions={};delete route.failedResultConditions;route.saturated=false;return result;
 }

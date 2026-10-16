@@ -1,0 +1,70 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/navigation-return.test.ts (11 tests) 12100ms
+   ✓ returns to a known native GET entry without replaying a nonreplayable prefix, including forward history  1682ms
+   ✓ continues original-page control work through native return without claiming checkpoint equality  1409ms
+   ✓ does not turn reaching the same URL into proof that the original state was restored  1100ms
+   ✓ uses the exact native entry when multiple history entries share a URL  1038ms
+   ✓ rejects a stale native history pointer even when URL and DOM remain unchanged  716ms
+   ✓ never revisits a POST result through native history, even when the post was outside the engine  1231ms
+   ✓ respects dirty restrictions on native return  1060ms
+   ✓ respects excluded restrictions on native return  859ms
+   ✓ does not use a history entry from a replaced browser session  915ms
+   ✓ exits a boundary that appears on native return before continuing checkpoint recovery  1201ms
+   ✓ reports an unverified return honestly even when the history action itself succeeded  888ms
+ ✓ tests/exploration-target-reach.test.ts (12 tests) 9652ms
+   ✓ verifies a ready target beside a ticking quote without claiming strict checkpoint restoration or execution  830ms
+   ✓ matches unexecuted rebuilt targets but rejects changed declared context and ambiguous bindings  807ms
+   ✓ exits an actual modal through the existing recovery ledger and verifies the target independently  776ms
+   ✓ reports actual same-URL partial recovery after a declared inverse diverges  826ms
+   ✓ preserves unknown outcomes and rejects unassessed repetition inside queued dispatch  576ms
+   ✓ rejects changed context and semantic form binding without attempting recovery  829ms
+   ✓ does not borrow readiness from a stable sibling form  732ms
+   ✓ revalidates repetition after an awaited driver validation rather than trusting the planning read  720ms
+   ✓ carries unexecuted target evidence into a fresh browser session without granting historical execution  682ms
+   ✓ reuses entry replay but stops at verified target arrival when unrelated document state differs  1466ms
+   ✓ reports arrival independently of pending region decisions and leaves actual dispatch gated  403ms
+   ✓ continues deterministic recovery for a settled mechanical obstruction without claiming early arrival  1004ms
+ ✓ tests/observed-source-return.test.ts (15 tests) 8889ms
+   ✓ returns to the native page after the old modal disappears, without restoring its checkpoint or executing new work  1627ms
+   ✓ distinguishes two native entries with the same URL and uses no action when already at the exact source  795ms
+   ✓ preserves an ordinary boundary reached at the source and does not authorize actions behind it  870ms
+   ✓ will not navigate out of a different page with an active boundary  469ms
+   ✓ blocks unknown across process restart without starting a driver or adding attempts  304ms
+   ✓ rechecks debt introduced during awaited driver validation before a history dispatch  562ms
+   ✓ rechecks the returned position rather than trusting successful driver dispatch  695ms
+   ✓ rejects POST sources, different browser sessions and missing native entries without accepting URL equality  306ms
+   ✓ keeps an unsuccessful or unknown return unsuccessful even if the final URL is the requested page  697ms
+   ✓ rejects changed declared context observed after an otherwise successful history return  692ms
+   ✓ reports unassessed observed-UI effects without claiming business-state restoration  727ms
+ ✓ tests/explorer-recovery-outcomes.test.ts (6 tests) 3393ms
+   ✓ blocks strict checkpoint fallback before recovery when an earlier recovery result is unknown  423ms
+   ✓ does not accept a source-position result as strict checkpoint restoration  497ms
+   ✓ resumes the original route once after explicit source verification and retains a failed retry limit  885ms
+   ✓ rediscovers a recovery crash from its source session before starting a new round without pendingDispatch  370ms
+   ✓ retains actual position and unknown recovery debt even when the host returns REACHED_VERIFIED  608ms
+   ✓ retains actual position and unknown recovery debt even when the host returns UNVERIFIED  608ms
+ ✓ tests/okx-storage-acceptance.test.ts (46 tests) 2496ms
+   ✓ settles delayed work and writes summary before exit using direct-node-signal without a browser/provider  669ms
+   ✓ settles delayed work and writes summary before exit using tsx-cli-signal without a browser/provider  705ms
+   ✓ settles delayed work and writes summary before exit using direct-node-stop-file without a browser/provider  1069ms
+ ✓ tests/explorer-navigation-return.test.ts (2 tests) 2423ms
+   ✓ returns from unknown-effect button navigation while retaining page obligations; unresolved execution=false  1433ms
+   ✓ returns from unknown-effect button navigation while retaining page obligations; unresolved execution=true  989ms
+ ✓ tests/explorer-observed-source-return.test.ts (2 tests) 1980ms
+   ✓ returns a page discovery obligation without replaying its vanished modal; late unknown=false  1229ms
+   ✓ returns a page discovery obligation without replaying its vanished modal; late unknown=true  751ms
+ ✓ tests/explorer-observation-action-index.test.ts (2 tests) 93ms
+ ✓ tests/action-observation-query.test.ts (10 tests) 72ms
+ ✓ tests/explorer-source-return-scheduling.test.ts (35 tests) 73ms
+ ✓ tests/explorer-obligation-lifecycle.test.ts (19 tests) 39ms
+ ✓ tests/core.test.ts (4 tests) 35ms
+ ✓ tests/storage-contract.test.ts (8 tests) 35ms
+ ✓ tests/explorer-recovery-failure-condition.test.ts (12 tests) 24ms
+
+ Test Files  14 passed (14)
+      Tests  184 passed (184)
+   Start at  06:16:52
+   Duration  47.17s (transform 669ms, setup 0ms, collect 4.10s, tests 41.30s, environment 1ms, prepare 444ms)
+

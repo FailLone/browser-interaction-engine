@@ -169,3 +169,43 @@ main 与实验源码均为 `3885c581`。同一任务、session、round 于 2026-
 第三窗已关闭冻结 1,865 个文件、45,928,970 B，全部 SHA 与源前后相同，两库完整性检查通过。冻结副本只读，分析使用独享副本；原测试浏览器和任务数据库未操作。关闭时 engine 35,340,288 B、plugin 1,589,248 B，共享证据/日志占用另列在原始 summary。真实穷尽仍未完成，任务库与全量读取的正负性能结论继续沿用前述基准，不能由本次恢复修复推导新的速度或压缩率。
 
 `ba7f38e` 已重跑相同 80 次协议：16 个场景逐 trial 行为与 `70b8cb4` 差异为 0，348 项完整性检查通过，源码前后不变、脚本与 fixture 摘要及测量契约相同。正向到达 20/20、嵌套冷重启 5/5（必要重入 15，重复叶子及无理由重入 0）、unknown 跨重启 5/5（之后 session/action/recovery/JEV/LLM 均 0）、A/B 对应 40/40、100 tick 计划与待测增长 0。原协议使用具体目标到达 API；新增来源位置接口的收益由前述新专项验证，不能用旧协议无回归冒充新 API 的真实成功率。见 [完整汇总](evidence/source-return-protocols/summary.json)及[逐场景对照](evidence/source-return-protocols/comparison.json)。
+
+## 第四窗：来源返回后确实续测，旧失败落点仍触发冗余恢复
+
+源码与 main 均为 `868e8b47afd31782161deba4f8bd7a14e0349430`，autonomous `4857ad5` 已是 main 祖先。独立任务 `6c56a979…` 的第四窗运行 `5f350d86…` 从 2026-10-16 21:39:01 至 21:42:56 UTC；原 round/session 和 25 个旧 plan occurrence 保留。原始材料见 [summary](evidence/real-okx-4/summary.json)、[metrics](evidence/real-okx-4/metrics.jsonl)和[冻结清单](evidence/real-okx-4/frozen-snapshot.json)。
+
+- 纯 URL 来源返回使用一次原生 history，11,985.45 ms 得到 `SOURCE_REACHED`，11 个核验通过；未入口重放。`checkpointVerified/sourceStateRestored/currentExecution/executionAuthorized` 仍全为 false。随后实际执行 scroll、Trade、1h、24h，证明该样本可以继续交互；不是只有一个成功状态码。
+- 第二次选择历史 Wallet 审阅项，严格 checkpoint 恢复仍为 `UNVERIFIED`，18,521.40 ms；入口 navigate 成功不等于 Wallet 弹层恢复。验收工具自动暂停、等待动作/provider 结算、关闭自有浏览器，进程正常 exit 2、signal=null，无 unknown/executing 遗留。
+- 本窗 7 次 exploration 成功、2 次 recovery 动作，JEV 27/27（provider 累计 17,181.32 ms），LLM 0。7 次 exploration 均缺稳定的 operation-condition key，不能直接当作 7 个新覆盖分支；成功 occurrence 新增 9 与旧成功证据刷新 12 分开报告。
+- 最终 plan 539 项：335 unresolved、181 pending、23 succeeded；原 25 项未丢失。增长 514 项不等于新发现 514 个独立操作，语义角色与重复问题另行检查。队列未空，穷尽未完成。
+- 关闭后总占用 73,501,625 B，其中 engine 52,715,520 B、plugin 4,624,384 B、证据 blob 9,123,658 B，WAL/SHM 均为 0。随后冻结 2,709 文件、73,508,012 B，源前后与副本全 SHA 一致，四个 SQLite 完整性检查通过。首次中断留下的累计时长不确定性仍保留，未改称精确总耗时。
+
+这次只能证明一个真实来源返回样本成功并继续了当前页面操作，不能由单次 11.99 s 推导一般恢复成功率或相对严格恢复的速度提升；两种接口契约不同。
+
+### 失败落点预算修复与验收
+
+[真实诊断](evidence/real-okx-4/recovery-diagnosis.md)确认 Wallet 旧失败后的条件 `613636…` 与本轮返回、滚动和周期切换后的条件完全相同，价格和新观察 ID 没有生成新条件。缺口是 ledger 只消费原入场条件 `a1a0…`，未记录失败落点，调度把已失败落点当作 `new_condition`。
+
+本轮修复把有完整证据的失败落点记为负调度依据，独立于 attempts 和覆盖；每条路线至多保存 16 个落点，满后保留债务而非淘汰旧条件重开预算。SDK 验证的续行仍只给一次机会，新的相关条件/可验证路径仍可重新判断，unknown 继续优先阻断。仅有页面不稳定或缺失条件时不固化负证据；交互稳定的回放目标缺失需要独立 `INTERACTION_STABLE` 证据。
+
+[真实冻结材料验收](evidence/real-okx-4/failure-condition-validation.md)实际调用 `scheduledRecovery`：旧 Wallet 重复恢复被阻断，原 attempts=1、scope、plan/status 均不变；重复迁移幂等。对纯不稳定失败的反例仍允许候选，无浏览器或网络调用。12 项新增测试及相关联合 74 项通过，修复后整树类型检查通过；完整协议复验另列，不能替代下一次真实接续。
+
+### 按观察读取动作与身份压缩的取舍
+
+SDK 当前动作查询新增可选按 observation 读取接口；SQLite 用带保守回退的索引，只解码当前或不能安全投影的行。第三方存储可回退原 list/filter；完整覆盖审计仍保留全部历史动作。不是缓存，也不改变身份、覆盖或许可。[离线同帧对照](evidence/action-observation-query/report.md)的 8 API × 2 次完整结果 16/16 一致，当前动作解码从 11,450 降至 207，单次读约 41–44→12 ms；checkpoint review 约 804–811→605–616 ms。整体义务投影仍约 2.2 s，不能宣称整轮等比例提速。索引首次诊断构建约 41.9 ms、新增 946,176 B。
+
+[六进程交替写入对照](evidence/action-observation-query/write-comparison.json)显示代价：每 1,536 条实际 action 的批量插入中位 29.83→59.86 ms（2.01×，增加约 19.6 μs/条），原 JSON 重写 29.60→68.60 ms（2.32×，增加约 25.4 μs/条）。初始索引构建 42.81–44.15 ms，全部批次与最终解码摘要相等，六份副本完整性通过。上述是批量事务与热文件缓存测量，不是逐条提交、冷启动或真实采集总耗时；索引以额外空间和写入成本换取反复读取当前动作的收益。
+
+身份行逐条 gzip 的[九进程对照](evidence/identity-codec-feasibility/README.md)给出负面结论：1 KiB 门槛整理后省 5,595,136 B，但热 list 慢 2.74 倍、get 慢 2.06 倍、旧行重写慢 3.22 倍，峰值 RSS 增约 68 MiB；32 KiB 门槛只省 77,824 B。因此不向身份热路径推广。全部解码/审计摘要相等及原始负样本保留，后续结构共享须解决引用根与热更新成本，不能只追求压缩率。
+
+### 投影重复计算、未能证明的进展和撤回的去重原型
+
+进一步优化 `projectObligations` 的同步读取：每个观察一次生成动作 scope，按请求字段组合索引候选，并在本次读取内复用每个 action 的条件计算。索引保留匹配顺序、重复候选、缺省/显式 undefined/null 的差异；最多保留 32 种查询字段组合，历史观察继续受原 8 文档上界约束。SDK 对应核验和全部许可检查不变，索引在这次调用结束后丢弃。
+
+[完整旧/新对照](evidence/projection-action-index/comparison.json)使用三个真实冻结帧、539 项相同 plan，各交替三次，完整 projection/events 9/9 相等，事件/SQL 写次数和原输入摘要不变、浏览器启动 0。投影中位耗时分别为 1,920→1,001 ms、2,146→1,214 ms、2,086→1,131 ms（约减少 43%–48%）。这是有限热读取诊断，不是整轮或冷启动基准。新增差分测试遍历 256 种 scope 字段组合及重复、空 ID、输入类型和上下文变化；相关 33 项测试和类型检查通过。
+
+[unkeyed 诊断](evidence/real-okx-4/unkeyed-progress-diagnosis.md)证实 7 次操作目标均可执行且身份匹配，但 6 个来源存在隐藏 selector 身份未决/绑定碰撞，另一次 selector 仅具实例身份，无法建立 portable branch conditions。SDK 拒绝有实际证据依据；裸调度键不能替代覆盖或恢复证明。旧工具的任一 unkeyed 成功会持续推迟无进展/重复路线判断；本窗仅约 230 s，未达 600 s，不能说第四窗已经发生阈值漏停。
+
+验收工具增加原因和精确来源记录，以及独立有界的 `progress_evidence_unavailable_window`。从本窗最早仍未解释的成功起计 `stallMs`；历史 unkeyed 在重启后获得一个完整窗口，不计停机。后来的成功和重复事件不续期；期限到达只要求复核并正常结算，不把操作改记失败，也不声称无新覆盖或穷尽。成功被 SDK 重分类为 unknown/executing 后仍由原未知结果保护阻断。46 项离线专项及独立静态审阅通过，完整联合验证另列。
+
+[计划增长诊断](evidence/real-okx-4/plan-growth-diagnosis.md)确认 180 组未尝试操作有 observed_in_scope / operation_not_executed 双行，另 3 组被同一实际 attempt 一起完成；447 个新增行来自首次无遮挡完整页面。不能把全部增长都解释为动态价格或重复。曾实现仅同帧、唯一动作的窄去重原型，但真实两帧复算中首帧 3→2 行，下一帧缺少对应证明仍需独立缺口，最终净节省 0，因此已撤回产品补丁。原型、通过测试和反面结果均归档；旧双行及所有未测/attempt/unknown 证据未删除。后续应明确一个义务怎样保留多个尚未证明等价的来源，再设计审计状态，不能用相同 hash 强行合并。

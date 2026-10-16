@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-observation-action-index.test.ts (2 tests) 117ms
+ ✓ tests/explorer-obligation-lifecycle.test.ts (19 tests) 39ms
+ ✓ tests/explorer-recovery-failure-condition.test.ts (12 tests) 25ms
+
+ Test Files  3 passed (3)
+      Tests  33 passed (33)
+   Start at  06:12:15
+   Duration  2.00s (transform 539ms, setup 0ms, collect 1.43s, tests 180ms, environment 0ms, prepare 98ms)
+

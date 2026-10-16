@@ -1,0 +1,13 @@
+{
+  "baselineSha256": "c5d72c6c3b67cc9101fd1d0bd05c2be1ba104665e832e19352979e672596351a",
+  "sourceSha256": {
+    "packages/explorer-plugin/src/observation-action-index.ts": "b2d760f21f921637492cd04a6b5c43ca7d410cfe1f15b4d5e97214cbf36c8066",
+    "packages/explorer-plugin/src/obligation-lifecycle.ts": "6757730339581e6054acd620b68f07456ccc2f696759c6f197d5f9b7c7d6c34b",
+    "packages/explorer-plugin/src/policy.ts": "c85acc9bc0b3aa2a52a36bfbdf5a7686870953a0ced3054859b9cdaf43d5bdbb",
+    "packages/core/src/engine.ts": "0827b41cee876e5d77bd481f70406cce3547062402231e7e194a2b0cf72b37a2",
+    "packages/storage-sqlite/src/index.ts": "86a192c7c5bf1ddbe5105cdbb8567497b1b6c02ae7d36e28405609f2c46423b3",
+    "tests/explorer-observation-action-index.test.ts": "87c0e6a30667abb8f63898755b623c5e0db31c8fd16abc3b2c104b16c82e5d26"
+  },
+  "databaseSha256": "3ce36c03015dff7482c7dcedf1fcee850e991f1b0b44a11e9cd6d09a3c693357",
+  "taskSha256": "6e9bfd62cdb935598e7dd4234c386387b36762faed7ad364d591f7b78629c614"
+}

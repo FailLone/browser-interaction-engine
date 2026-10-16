@@ -1,0 +1,105 @@
+{
+  "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/okx-projection-action-index-5JqyvS",
+  "driverStarts": 0,
+  "equalities": 9,
+  "comparisons": [
+    {
+      "name": "post-region-review-before-scroll",
+      "id": "5f80a3df-8355-444a-8499-4a625cb89577",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "controls": 292,
+      "actions": 206,
+      "operationCandidates": 206,
+      "criticalGaps": [],
+      "eventsBefore": 1611,
+      "eventsAfter": 1611,
+      "totalChangesBefore": 3,
+      "totalChangesAfter": 3,
+      "taskUnchanged": true
+    },
+    {
+      "name": "pre-24h",
+      "id": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "controls": 292,
+      "actions": 207,
+      "operationCandidates": 207,
+      "criticalGaps": [],
+      "eventsBefore": 1611,
+      "eventsAfter": 1611,
+      "totalChangesBefore": 4,
+      "totalChangesAfter": 4,
+      "taskUnchanged": true
+    },
+    {
+      "name": "final-unverified-recovery",
+      "id": "c4fae20b-a313-48bb-a1f6-22f793550193",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "controls": 292,
+      "actions": 206,
+      "operationCandidates": 206,
+      "criticalGaps": [],
+      "eventsBefore": 1611,
+      "eventsAfter": 1611,
+      "totalChangesBefore": 5,
+      "totalChangesAfter": 5,
+      "taskUnchanged": true
+    }
+  ],
+  "summary": [
+    {
+      "frame": "post-region-review-before-scroll",
+      "timesMs": {
+        "old": [
+          2002.9442089999998,
+          1920.068792,
+          1910.6895829999994
+        ],
+        "new": [
+          1024.8087500000001,
+          996.2559999999999,
+          1001.0495839999985
+        ]
+      },
+      "medianOldMs": 1920.068792,
+      "medianNewMs": 1001.0495839999985,
+      "medianRatio": 0.5213613117253345
+    },
+    {
+      "frame": "pre-24h",
+      "timesMs": {
+        "old": [
+          2145.972416999999,
+          2140.1164169999975,
+          2224.3917919999985
+        ],
+        "new": [
+          1223.593832999999,
+          1214.1275830000013,
+          1211.981749999999
+        ]
+      },
+      "medianOldMs": 2145.972416999999,
+      "medianNewMs": 1214.1275830000013,
+      "medianRatio": 0.5657703581751125
+    },
+    {
+      "frame": "final-unverified-recovery",
+      "timesMs": {
+        "old": [
+          2031.9402499999997,
+          2085.530166999997,
+          2129.5960830000004
+        ],
+        "new": [
+          1109.1360830000012,
+          1131.2529170000016,
+          1133.1207500000019
+        ]
+      },
+      "medianOldMs": 2085.530166999997,
+      "medianNewMs": 1131.2529170000016,
+      "medianRatio": 0.5424294190993609
+    }
+  ]
+}

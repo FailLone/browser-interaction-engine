@@ -1,0 +1,228 @@
+{
+  "format": "okx-storage-acceptance-v1",
+  "runId": "5f350d86-b9dd-43e5-ac07-43a79a9e30f0",
+  "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+  "finishedAt": "2026-10-16T21:42:56.290Z",
+  "started": true,
+  "guards": [
+    {
+      "at": "2026-10-16T21:42:51.165Z",
+      "reason": "recovery_not_verified",
+      "details": {
+        "api": "reachCheckpoint",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "result": {
+          "id": "33cd8add-8713-4ae5-916d-c0915453f8e7",
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "checkpointId": "7d7c3b8d-5dc6-45dc-a77a-13f5b3eab8ec",
+          "reason": "Entry replay verification: UNVERIFIED",
+          "checks": [
+            {
+              "name": "observation-completeness",
+              "result": "unknown"
+            }
+          ],
+          "attemptIds": [
+            "6974dfc3-4178-4291-9fa7-32fd1f975b1a"
+          ],
+          "observationId": "c4fae20b-a313-48bb-a1f6-22f793550193",
+          "remainingFrontier": 1522,
+          "diagnostics": {
+            "unassessedEffectAttemptIds": [],
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore",
+              "entry_replay"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          },
+          "status": "UNVERIFIED"
+        }
+      },
+      "prior": {
+        "status": "running",
+        "usage": {
+          "rounds": 1,
+          "actions": 22,
+          "durationMs": 272612,
+          "modelRequests": 64
+        }
+      }
+    }
+  ],
+  "originalStop": {
+    "at": "2026-10-16T21:42:51.165Z",
+    "reason": "recovery_not_verified",
+    "details": {
+      "api": "reachCheckpoint",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "result": {
+        "id": "33cd8add-8713-4ae5-916d-c0915453f8e7",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "checkpointId": "7d7c3b8d-5dc6-45dc-a77a-13f5b3eab8ec",
+        "reason": "Entry replay verification: UNVERIFIED",
+        "checks": [
+          {
+            "name": "observation-completeness",
+            "result": "unknown"
+          }
+        ],
+        "attemptIds": [
+          "6974dfc3-4178-4291-9fa7-32fd1f975b1a"
+        ],
+        "observationId": "c4fae20b-a313-48bb-a1f6-22f793550193",
+        "remainingFrontier": 1522,
+        "diagnostics": {
+          "unassessedEffectAttemptIds": [],
+          "strategies": [
+            "verify_current",
+            "boundary_exit",
+            "recorded_path",
+            "declared_local_restore",
+            "entry_replay"
+          ],
+          "dirtyActions": [],
+          "resetAvailable": false
+        },
+        "status": "UNVERIFIED"
+      }
+    },
+    "prior": {
+      "status": "running",
+      "usage": {
+        "rounds": 1,
+        "actions": 22,
+        "durationMs": 272612,
+        "modelRequests": 64
+      }
+    }
+  },
+  "finalStatus": "paused",
+  "finalReason": "user_paused",
+  "usageBefore": {
+    "rounds": 1,
+    "actions": 14,
+    "durationMs": 272612,
+    "modelRequests": 37
+  },
+  "usageAfter": {
+    "rounds": 1,
+    "actions": 23,
+    "durationMs": 500836,
+    "modelRequests": 64
+  },
+  "durationAccounting": {
+    "before": {
+      "interruptions": 1,
+      "additionalMsUpperBound": 1724737,
+      "budgetBasis": "persisted-activity-lower-bound"
+    },
+    "after": {
+      "interruptions": 1,
+      "additionalMsUpperBound": 1724737,
+      "budgetBasis": "persisted-activity-lower-bound"
+    },
+    "aggregateExact": false
+  },
+  "providerCounts": {
+    "jev": {
+      "started": 27,
+      "returned": 27,
+      "failed": 0,
+      "cancelled": 0,
+      "elapsedMs": 17181.31558200006,
+      "usage": {
+        "input_tokens": 56612,
+        "output_tokens": 1155,
+        "cost": 0.002377704
+      }
+    },
+    "llm": {
+      "started": 0,
+      "returned": 0,
+      "failed": 0,
+      "cancelled": 0,
+      "elapsedMs": 0,
+      "usage": {}
+    }
+  },
+  "providerSettlement": {
+    "settled": true,
+    "remainingPendingRequestIds": [],
+    "sampledAt": "2026-10-16T21:42:56.290Z",
+    "waitLimitMs": 5000
+  },
+  "unknownAttempts": [],
+  "inFlightAttempts": [],
+  "attemptCounts": {
+    "succeeded": 9
+  },
+  "newSuccessfulExplorationAttempts": 7,
+  "newOperationConditionCandidates": 0,
+  "unkeyedSuccessfulAttemptIds": [
+    "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+    "592416bf-a091-4227-8dfc-bac621abdce0",
+    "40255e62-6836-473d-824a-db0c98c9634e",
+    "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+    "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+    "0ffb08c8-835f-4e0d-b5c1-c166fe086e00",
+    "e46636b7-7000-413d-8bec-9c6227af1fff"
+  ],
+  "progressGuardsDeferred": true,
+  "budgetEnforcement": {
+    "modelRequests": "Hard allowance at actual provider.decide entry; SDK reservations may also count a denied call.",
+    "rounds": "Hard allowance at createSession entry; resuming an existing session consumes no new slot; a failed creation still consumes its call slot.",
+    "actions": "Soft threshold using distinct SDK action.started IDs, reconciled against the final attempt ledger. An in-flight recovery may dispatch multiple internal attempts and exceed it; no attempt hooks or session budgets are changed.",
+    "durationMs": "Provider/session entries check the deadline and a timer requests pause. Already started SDK work, including an entire recovery call, settles normally and may exceed the window.",
+    "aggregateDuration": "After an interrupted process, retained task duration may be a persisted-activity lower bound. durationUncertainty is reported; the independent current window still measures its own elapsed duration.",
+    "progress": "Unkeyed successful exploration is reported separately and defers repeated-route/no-progress guards for this window while that success remains valid."
+  },
+  "windowBudget": {
+    "usage": {
+      "actions": 9,
+      "modelRequests": 27,
+      "rounds": 0,
+      "durationMs": 229950
+    },
+    "startedAt": 1792186743107,
+    "overshoot": {
+      "actions": 0,
+      "modelRequests": 0,
+      "rounds": 0,
+      "durationMs": 0
+    }
+  },
+  "overshoot": {
+    "actions": 0,
+    "modelRequests": 0,
+    "rounds": 0,
+    "durationMs": 0
+  },
+  "recoveryCalls": 2,
+  "recoveryElapsedMs": 30506.847540999996,
+  "cursors": {
+    "plugin": 2283,
+    "engine": {
+      "412937f3-c4f5-4799-b86c-74adf480f329": 1611
+    }
+  },
+  "diskAfterClose": {
+    "engineDatabase": 52715520,
+    "engineWal": 0,
+    "engineShm": 0,
+    "pluginDatabase": 4624384,
+    "pluginWal": 0,
+    "pluginShm": 0,
+    "evidenceManifests": 1646879,
+    "evidenceBlobs": 9123658,
+    "evidenceOther": 0,
+    "runnerAndLogs": 5391184,
+    "total": 73501625,
+    "availableBytes": 109430345728
+  },
+  "exhaustive": false,
+  "reviewRequired": true
+}

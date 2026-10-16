@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-pending-operation.test.ts (34 tests) 33ms
+
+ Test Files  1 passed (1)
+      Tests  34 passed (34)
+   Start at  06:12:58
+   Duration  953ms (transform 457ms, setup 0ms, collect 787ms, tests 33ms, environment 0ms, prepare 34ms)
+

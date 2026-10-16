@@ -1,0 +1,338 @@
+{
+  "trial": "r2-1-gzip3-1k",
+  "mode": "gzip3-1k",
+  "startedAt": "2026-10-16T21:51:59.056Z",
+  "pid": 82781,
+  "versions": {
+    "node": "24.22.0",
+    "acorn": "8.18.0",
+    "ada": "4.0.0",
+    "amaro": "1.1.11",
+    "ares": "1.34.8",
+    "brotli": "1.2.0",
+    "cldr": "48.0",
+    "icu": "78.3",
+    "llhttp": "9.4.3",
+    "merve": "1.2.2",
+    "modules": "137",
+    "napi": "10",
+    "nbytes": "0.1.4",
+    "ncrypto": "0.0.1",
+    "nghttp2": "1.70.0",
+    "nghttp3": "",
+    "ngtcp2": "",
+    "openssl": "3.5.8",
+    "simdjson": "4.6.11",
+    "simdutf": "6.4.0",
+    "sqlite": "3.53.4",
+    "tz": "2026c",
+    "undici": "7.29.1",
+    "unicode": "17.0",
+    "uv": "1.52.1",
+    "uvwasi": "0.0.23",
+    "v8": "13.6.233.17-node.57",
+    "zlib": "1.3.2.1-motley-285e94b",
+    "zstd": "1.5.7"
+  },
+  "identityRowsBefore": 1726,
+  "preparedDigest": "f4f0ba9218f1dda85d8bbd3d9994ad7375e68496a68545beb89ab26abc6d529c",
+  "firstListMs": 55.399041,
+  "retainedAuditContent": {
+    "sha256": "f24bae61875e31c4f0788f3545d77cab8d0540d3589e1dbf5869f7b40179fd61",
+    "counts": {
+      "entities": 8773,
+      "events": 1012,
+      "metadata": 1,
+      "observation_objects": 3687,
+      "observation_packs": 222,
+      "requests": 14,
+      "sqlite_sequence": 3
+    }
+  },
+  "nonIdentityAndAuditUnchanged": true,
+  "getSamples": [
+    {
+      "operations": 3452,
+      "ms": 147.684375,
+      "msPerOperation": 0.04278226390498262
+    },
+    {
+      "operations": 3452,
+      "ms": 150.07683400000008,
+      "msPerOperation": 0.04347532850521439
+    },
+    {
+      "operations": 3452,
+      "ms": 135.26820800000007,
+      "msPerOperation": 0.039185460023174995
+    },
+    {
+      "operations": 3452,
+      "ms": 136.17612499999996,
+      "msPerOperation": 0.039448471900347615
+    },
+    {
+      "operations": 3452,
+      "ms": 134.14641600000004,
+      "msPerOperation": 0.038860491309385875
+    }
+  ],
+  "listSamples": [
+    {
+      "operations": 3,
+      "ms": 146.16833400000002,
+      "msPerOperation": 48.722778000000005
+    },
+    {
+      "operations": 3,
+      "ms": 145.90554199999997,
+      "msPerOperation": 48.635180666666656
+    },
+    {
+      "operations": 3,
+      "ms": 145.19958299999985,
+      "msPerOperation": 48.39986099999995
+    },
+    {
+      "operations": 3,
+      "ms": 146.53108399999996,
+      "msPerOperation": 48.84369466666666
+    },
+    {
+      "operations": 3,
+      "ms": 141.31320800000003,
+      "msPerOperation": 47.10440266666668
+    }
+  ],
+  "writes": {
+    "appendOccurrence": [
+      {
+        "operations": 292,
+        "ms": 30.500290999999834,
+        "msPerOperation": 0.10445305136986244
+      },
+      {
+        "operations": 292,
+        "ms": 30.57725000000005,
+        "msPerOperation": 0.10471660958904126
+      },
+      {
+        "operations": 292,
+        "ms": 29.71199999999999,
+        "msPerOperation": 0.1017534246575342
+      }
+    ],
+    "unchangedHistoricalRewrite": [
+      {
+        "operations": 1434,
+        "ms": 101.10195799999997,
+        "msPerOperation": 0.07050345746164573
+      },
+      {
+        "operations": 1434,
+        "ms": 102.63004099999989,
+        "msPerOperation": 0.07156906624825655
+      },
+      {
+        "operations": 1434,
+        "ms": 100.0664999999999,
+        "msPerOperation": 0.06978138075313801
+      }
+    ],
+    "newIdentityInsert": [
+      {
+        "operations": 292,
+        "ms": 24.082499999999982,
+        "msPerOperation": 0.08247431506849309
+      },
+      {
+        "operations": 292,
+        "ms": 29.014875000000302,
+        "msPerOperation": 0.09936601027397364
+      },
+      {
+        "operations": 292,
+        "ms": 22.944417000000158,
+        "msPerOperation": 0.07857677054794575
+      }
+    ]
+  },
+  "writeFixture": {
+    "present": 292,
+    "unchangedHistorical": 1434,
+    "rounds": 3,
+    "syntheticNewRows": 876,
+    "description": "Each present identity appends an exact existing last-occurrence reference. Historical absent rows are rewritten unchanged. New rows use deterministic synthetic UUIDs and one retained occurrence; these isolated payloads are not SDK identity conclusions."
+  },
+  "beforeCompact": {
+    "rows": 2602,
+    "compressedRows": 2602,
+    "jsonBytes": 666259,
+    "compressedBytes": 3659636,
+    "databaseBytes": 29949952,
+    "walBytes": 4218912,
+    "shmBytes": 32768,
+    "pageSize": 4096,
+    "pageCount": 7470,
+    "freelistPages": 0
+  },
+  "compacted": {
+    "databaseBytes": 30515200,
+    "walBytes": 0,
+    "shmBytes": 65536
+  },
+  "compactionMs": 119.08937500000002,
+  "finalStorage": {
+    "rows": 2602,
+    "compressedRows": 2602,
+    "jsonBytes": 666259,
+    "compressedBytes": 3659636,
+    "databaseBytes": 30515200,
+    "walBytes": 0,
+    "shmBytes": 65536,
+    "pageSize": 4096,
+    "pageCount": 7450,
+    "freelistPages": 0
+  },
+  "finalRows": 2602,
+  "finalDigest": "7f1fb73946c0f9f54461778ae56c4db89313fec396c4bf4d4655848fa7d7e007",
+  "expectedFinalDigest": "7f1fb73946c0f9f54461778ae56c4db89313fec396c4bf4d4655848fa7d7e007",
+  "allOriginalOccurrencePrefixesRetained": true,
+  "rssSamples": [
+    {
+      "phase": "opened-with-fixtures",
+      "rssBytes": 117653504,
+      "heapUsedBytes": 47058184,
+      "maxRssKb": 114912
+    },
+    {
+      "phase": "first-list",
+      "rssBytes": 174014464,
+      "heapUsedBytes": 50410536,
+      "maxRssKb": 169936
+    },
+    {
+      "phase": "get-0",
+      "rssBytes": 249479168,
+      "heapUsedBytes": 39133008,
+      "maxRssKb": 243632
+    },
+    {
+      "phase": "list-0",
+      "rssBytes": 272793600,
+      "heapUsedBytes": 91235824,
+      "maxRssKb": 266416
+    },
+    {
+      "phase": "get-1",
+      "rssBytes": 307511296,
+      "heapUsedBytes": 84051576,
+      "maxRssKb": 300304
+    },
+    {
+      "phase": "list-1",
+      "rssBytes": 333496320,
+      "heapUsedBytes": 66804648,
+      "maxRssKb": 325680
+    },
+    {
+      "phase": "get-2",
+      "rssBytes": 333545472,
+      "heapUsedBytes": 83727440,
+      "maxRssKb": 325728
+    },
+    {
+      "phase": "list-2",
+      "rssBytes": 338231296,
+      "heapUsedBytes": 66329792,
+      "maxRssKb": 330304
+    },
+    {
+      "phase": "get-3",
+      "rssBytes": 338247680,
+      "heapUsedBytes": 84032296,
+      "maxRssKb": 330320
+    },
+    {
+      "phase": "list-3",
+      "rssBytes": 340099072,
+      "heapUsedBytes": 66337544,
+      "maxRssKb": 332128
+    },
+    {
+      "phase": "get-4",
+      "rssBytes": 340131840,
+      "heapUsedBytes": 84876408,
+      "maxRssKb": 332160
+    },
+    {
+      "phase": "list-4",
+      "rssBytes": 342425600,
+      "heapUsedBytes": 65684976,
+      "maxRssKb": 334400
+    },
+    {
+      "phase": "update-0",
+      "rssBytes": 343949312,
+      "heapUsedBytes": 38535744,
+      "maxRssKb": 335888
+    },
+    {
+      "phase": "unchanged-0",
+      "rssBytes": 348880896,
+      "heapUsedBytes": 47717072,
+      "maxRssKb": 340704
+    },
+    {
+      "phase": "insert-0",
+      "rssBytes": 349847552,
+      "heapUsedBytes": 33110928,
+      "maxRssKb": 341648
+    },
+    {
+      "phase": "update-1",
+      "rssBytes": 349896704,
+      "heapUsedBytes": 41406424,
+      "maxRssKb": 341696
+    },
+    {
+      "phase": "unchanged-1",
+      "rssBytes": 349945856,
+      "heapUsedBytes": 49761744,
+      "maxRssKb": 341744
+    },
+    {
+      "phase": "insert-1",
+      "rssBytes": 350781440,
+      "heapUsedBytes": 35191904,
+      "maxRssKb": 342560
+    },
+    {
+      "phase": "update-2",
+      "rssBytes": 350797824,
+      "heapUsedBytes": 43711520,
+      "maxRssKb": 342576
+    },
+    {
+      "phase": "unchanged-2",
+      "rssBytes": 350781440,
+      "heapUsedBytes": 51861808,
+      "maxRssKb": 342576
+    },
+    {
+      "phase": "insert-2",
+      "rssBytes": 351584256,
+      "heapUsedBytes": 37041096,
+      "maxRssKb": 343344
+    },
+    {
+      "phase": "compacted",
+      "rssBytes": 384106496,
+      "heapUsedBytes": 37087968,
+      "maxRssKb": 375104
+    }
+  ],
+  "peakRssBytes": 398196736,
+  "sink": 138832,
+  "finalDatabaseSHA256": "9335d95a48c46c9ddd9ffd3b7b652fe38c2bd305b0f1177a282efd9b9e722e28"
+}

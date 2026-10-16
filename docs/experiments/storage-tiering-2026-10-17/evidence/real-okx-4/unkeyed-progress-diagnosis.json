@@ -1,0 +1,1674 @@
+{
+  "protocol": "run4-unkeyed-progress-diagnosis-v1",
+  "at": "2026-10-16T22:11:56.125028+00:00",
+  "runId": "5f350d86-b9dd-43e5-ac07-43a79a9e30f0",
+  "sourceRevision": "868e8b47afd31782161deba4f8bd7a14e0349430",
+  "scope": {
+    "mode": "Read-only immutable SQLite + retained source observation decode + pure SDK/harness function replay; no engine/store construction, browser/provider/network or database writes. Only new diagnosis artifacts written.",
+    "temporary": "/tmp/okx-run4-unkeyed-9TLnw4",
+    "networkCalls": 0,
+    "sourceHashesCheckedBeforeHarnessFix": {
+      "scripts/okx-storage-acceptance.ts": {
+        "current": "963b9f5e885c8aaf38e702d6ddbfd71ae7d22eb9e4ad2d50ac1eac5d528ea73a",
+        "run4": "963b9f5e885c8aaf38e702d6ddbfd71ae7d22eb9e4ad2d50ac1eac5d528ea73a",
+        "matchesRun4": true
+      },
+      "packages/adapter-playwright/src/branch-conditions.ts": {
+        "current": "700ac4bffd6826d50eebb92478322c63d927556234ad5ad397fa75fb009ae63e",
+        "run4": "700ac4bffd6826d50eebb92478322c63d927556234ad5ad397fa75fb009ae63e",
+        "matchesRun4": true
+      },
+      "packages/adapter-playwright/src/target-arrival.ts": {
+        "current": "f5c65d77e9c7f32aa65c863b9432abb78c49431e5f95e3597cb81b505bf807f1",
+        "run4": "f5c65d77e9c7f32aa65c863b9432abb78c49431e5f95e3597cb81b505bf807f1",
+        "matchesRun4": true
+      },
+      "packages/adapter-playwright/src/exploration.ts": {
+        "current": "cb45a0b4aa1b8070f3e61070f48280f4f74d59d4282447b149fdaa35ce3856eb",
+        "run4": "cb45a0b4aa1b8070f3e61070f48280f4f74d59d4282447b149fdaa35ce3856eb",
+        "matchesRun4": true
+      },
+      "packages/adapter-playwright/src/util.ts": {
+        "current": "a6c7479985539afe4f87337c08069193c4c3c1bd0f9acacda8eeb249143db7a4",
+        "run4": "a6c7479985539afe4f87337c08069193c4c3c1bd0f9acacda8eeb249143db7a4",
+        "matchesRun4": true
+      }
+    },
+    "analysisScripts": {
+      "extract.py": {
+        "path": "/tmp/okx-run4-unkeyed-9TLnw4/extract.py",
+        "sha256": "9af1858f4a6f66b1c36d2ee2efcb791ab6e5e3ea2e3ecda566fbf4f22eff780b"
+      },
+      "analyze.mts": {
+        "path": "/tmp/okx-run4-unkeyed-9TLnw4/analyze.mts",
+        "sha256": "a4370b0eff57d7f5060e0f16decd4bbc8d0ab62dad2649a4751de2542c3e4856"
+      }
+    }
+  },
+  "integrity": {
+    "frozenDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1-frozen-4",
+    "manifestSha256": "fa5db265c62a968a74b946dc53fc84ded6b35986414beb45d29de18e4b4a03fe",
+    "frozenFileCount": 2709,
+    "matchesFrozenManifest": true,
+    "beforeAfterAllHashesEqual": true,
+    "databaseSha256": "3ce36c03015dff7482c7dcedf1fcee850e991f1b0b44a11e9cd6d09a3c693357",
+    "databaseBytes": 52715520,
+    "queryOnly": true,
+    "uriMode": "ro&immutable=1",
+    "originalDatabaseConnections": 0,
+    "storeOrEngineConstructors": 0,
+    "walOrShmFiles": [],
+    "checks": {
+      "packHashes": 143,
+      "objectHashes": 1806,
+      "layoutHashes": 7,
+      "observationHashes": 7
+    },
+    "rawHashes": {
+      "summary.json": "0885baf9e2e7c30acefdc2c527e69d6cf9fed3315be700b4e318fedacc76a05b",
+      "frozen-snapshot.json": "fa5db265c62a968a74b946dc53fc84ded6b35986414beb45d29de18e4b4a03fe",
+      "metrics.jsonl": "6c36418ea49de897a7c13600ce05b7eea8c7af34cfa5c2b712132766b6526400",
+      "coverage-review.json": "491397f3b1a668bae55a843d0895567086eac40e192dff5de164daec882d64a6"
+    },
+    "selectedFileSha256": "f8bb82750ec1feed3c87dc6b616d788966a93c6dac37ea022f6a3e3b3700ea66",
+    "attemptIds": [
+      "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+      "592416bf-a091-4227-8dfc-bac621abdce0",
+      "40255e62-6836-473d-824a-db0c98c9634e",
+      "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+      "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+      "0ffb08c8-835f-4e0d-b5c1-c166fe086e00",
+      "e46636b7-7000-413d-8bec-9c6227af1fff"
+    ]
+  },
+  "facts": {
+    "successfulExplorationAttempts": 7,
+    "successfulRecoveryActionAttempts": 2,
+    "unknownAttempts": [],
+    "inFlightAttempts": [],
+    "newOperationConditionCandidates": 0,
+    "unkeyedSuccessfulAttemptIds": [
+      "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+      "592416bf-a091-4227-8dfc-bac621abdce0",
+      "40255e62-6836-473d-824a-db0c98c9634e",
+      "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+      "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+      "0ffb08c8-835f-4e0d-b5c1-c166fe086e00",
+      "e46636b7-7000-413d-8bec-9c6227af1fff"
+    ],
+    "allTargetsUniqueResolvedMatchingAction": true,
+    "allSourcesStable": true,
+    "allSourcesNoCriticalGaps": true,
+    "allSourcesEmptyDeclaredContext": true,
+    "allTargetsReady": true,
+    "allSDKOperationKeysPresent": true,
+    "allBranchAndTargetConditionsUnavailable": true,
+    "sourcesBlockedByHiddenUnresolvedCollidingSelectors": 6,
+    "sourcesBlockedByVisibleInstanceOnlySelectors": 1,
+    "allSelectorCountsBelowLimit32": true,
+    "allBoundaryRequirementsPresent": true,
+    "runDurationMs": 229950,
+    "stallMs": 600000,
+    "routeCounts": {
+      "recovery:a49c93ff02777c572486e0e9e5d15f47c1b2349565aa1e3c4ee02935750a25c2": 1,
+      "recovery:4781b6c8347fe7977def58b6636fb39c8f1c8f0d8582dd8e1123dce010069d29": 1
+    },
+    "neitherOriginalProgressThresholdReachedInThisRun": true,
+    "coverageReviewCountsOnlyNotSemanticCoverage": {
+      "newlyResolvedPlanOccurrences": 9,
+      "refreshedPlanEvidence": 12,
+      "semanticCoverageProof": false
+    },
+    "actualStop": {
+      "at": "2026-10-16T21:42:51.165Z",
+      "reason": "recovery_not_verified",
+      "details": {
+        "api": "reachCheckpoint",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "result": {
+          "id": "33cd8add-8713-4ae5-916d-c0915453f8e7",
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "checkpointId": "7d7c3b8d-5dc6-45dc-a77a-13f5b3eab8ec",
+          "reason": "Entry replay verification: UNVERIFIED",
+          "checks": [
+            {
+              "name": "observation-completeness",
+              "result": "unknown"
+            }
+          ],
+          "attemptIds": [
+            "6974dfc3-4178-4291-9fa7-32fd1f975b1a"
+          ],
+          "observationId": "c4fae20b-a313-48bb-a1f6-22f793550193",
+          "remainingFrontier": 1522,
+          "diagnostics": {
+            "unassessedEffectAttemptIds": [],
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore",
+              "entry_replay"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          },
+          "status": "UNVERIFIED"
+        }
+      },
+      "prior": {
+        "status": "running",
+        "usage": {
+          "rounds": 1,
+          "actions": 22,
+          "durationMs": 272612,
+          "modelRequests": 64
+        }
+      }
+    }
+  },
+  "attempts": [
+    {
+      "attemptId": "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "repetitionSource": null,
+      "classification": {
+        "exploration": true,
+        "reentry": false,
+        "leaf": true
+      },
+      "startedAt": "2026-10-16T21:39:19.276Z",
+      "finishedAt": "2026-10-16T21:39:23.185Z",
+      "action": {
+        "id": "b2069311-9cba-4de5-ba05-b4544bffe464",
+        "kind": "check",
+        "label": "Don’t show for 7 days",
+        "localId": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1554",
+        "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "value": true
+      },
+      "beforeId": "5017a84c-6321-4d72-a5c0-7c70a2180016",
+      "afterId": "571adda1-6bc5-4d8f-9625-4e5a90816df7",
+      "observationSha256": "3ab8aa33ee3b174934530e5660d9a70f6a2697e7e5e3411363c21dd933a4a7be",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "stable": true,
+      "criticalGaps": [],
+      "interactionReadyGapCodes": [],
+      "context": {},
+      "targetCount": 1,
+      "target": {
+        "localId": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1554",
+        "identityId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "tag": "input",
+        "role": "checkbox",
+        "name": "Don’t show for 7 days",
+        "label": "Don’t show for 7 days",
+        "visible": true,
+        "enabled": true,
+        "stableKey": "id:_r_1_",
+        "identityContext": {
+          "scope": "[\"ancestor-id\",\"scroll-box\"]",
+          "evidence": [
+            "semantic-ancestor-scope/v1"
+          ]
+        },
+        "checked": false,
+        "pressed": null,
+        "expanded": null,
+        "selected": [],
+        "region": "dialog:okd-dialog-window",
+        "constraints": {
+          "type": "checkbox",
+          "required": false,
+          "valid": true
+        }
+      },
+      "targetReasons": [],
+      "selectorCount": 26,
+      "invalidSelectors": [
+        {
+          "control": {
+            "localId": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1469",
+            "identityId": "1fd519f5-9e0c-4f32-a0fa-7da44e198a66",
+            "hypothesisId": "a33f0c4b-7488-4165-8fd9-8120d9f52378",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": false,
+            "enabled": true,
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i"
+          },
+          "canonicalBinding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_identity_unresolved",
+            "selector_binding_collision"
+          ],
+          "collisionLocalIds": [
+            "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1469",
+            "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1475"
+          ]
+        },
+        {
+          "control": {
+            "localId": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1475",
+            "identityId": "8f9ee663-cd62-4e67-aaa4-c4a0a065bc76",
+            "hypothesisId": "6d304722-8bb5-4139-af38-ea2c9499474b",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": false,
+            "enabled": true,
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i"
+          },
+          "canonicalBinding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_identity_unresolved",
+            "selector_binding_collision"
+          ],
+          "collisionLocalIds": [
+            "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1469",
+            "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1475"
+          ]
+        }
+      ],
+      "boundaryBlockers": [],
+      "browserOperationKey": "665897e6afcf15eb660af19375aef4ea46dd4ceafb0ea5636929c85b3364cb81",
+      "browserBranchConditions": null,
+      "browserTargetConditions": null,
+      "browserTargetReady": true,
+      "operationConditionCandidate": null,
+      "counterfactualOnly": {
+        "removeAllHypothesisIdsBranchConditionsAvailable": false,
+        "notAnAuthorizedProofOrRecommendation": true
+      }
+    },
+    {
+      "attemptId": "592416bf-a091-4227-8dfc-bac621abdce0",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "repetitionSource": null,
+      "classification": {
+        "exploration": true,
+        "reentry": false,
+        "leaf": true
+      },
+      "startedAt": "2026-10-16T21:39:28.601Z",
+      "finishedAt": "2026-10-16T21:39:32.333Z",
+      "action": {
+        "id": "36bd2057-d794-4180-ab98-4d7678363225",
+        "kind": "check",
+        "label": "Don’t show for 7 days",
+        "localId": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1554",
+        "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "value": false
+      },
+      "beforeId": "571adda1-6bc5-4d8f-9625-4e5a90816df7",
+      "afterId": "7a2b9e41-6815-4445-a591-3f24cbc021cf",
+      "observationSha256": "77ae406ee5cdfd29de47ec452238954dce10ff7e136b44df6b46556254ca18e9",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "stable": true,
+      "criticalGaps": [],
+      "interactionReadyGapCodes": [],
+      "context": {},
+      "targetCount": 1,
+      "target": {
+        "localId": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1554",
+        "identityId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "tag": "input",
+        "role": "checkbox",
+        "name": "Don’t show for 7 days",
+        "label": "Don’t show for 7 days",
+        "visible": true,
+        "enabled": true,
+        "stableKey": "id:_r_1_",
+        "identityContext": {
+          "scope": "[\"ancestor-id\",\"scroll-box\"]",
+          "evidence": [
+            "semantic-ancestor-scope/v1"
+          ]
+        },
+        "checked": true,
+        "pressed": null,
+        "expanded": null,
+        "selected": [],
+        "region": "dialog:okd-dialog-window",
+        "constraints": {
+          "type": "checkbox",
+          "required": false,
+          "valid": true
+        }
+      },
+      "targetReasons": [],
+      "selectorCount": 28,
+      "invalidSelectors": [
+        {
+          "control": {
+            "localId": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1469",
+            "identityId": "1fd519f5-9e0c-4f32-a0fa-7da44e198a66",
+            "hypothesisId": "a33f0c4b-7488-4165-8fd9-8120d9f52378",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": false,
+            "enabled": true,
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i"
+          },
+          "canonicalBinding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_identity_unresolved",
+            "selector_binding_collision"
+          ],
+          "collisionLocalIds": [
+            "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1469",
+            "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1475"
+          ]
+        },
+        {
+          "control": {
+            "localId": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1475",
+            "identityId": "8f9ee663-cd62-4e67-aaa4-c4a0a065bc76",
+            "hypothesisId": "6d304722-8bb5-4139-af38-ea2c9499474b",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": false,
+            "enabled": true,
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i"
+          },
+          "canonicalBinding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_identity_unresolved",
+            "selector_binding_collision"
+          ],
+          "collisionLocalIds": [
+            "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1469",
+            "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1475"
+          ]
+        }
+      ],
+      "boundaryBlockers": [],
+      "browserOperationKey": "2d3e4eb8d3f48fec22320af44869699657abee1a4e9c9888eafc985f668f1d3b",
+      "browserBranchConditions": null,
+      "browserTargetConditions": null,
+      "browserTargetReady": true,
+      "operationConditionCandidate": null,
+      "counterfactualOnly": {
+        "removeAllHypothesisIdsBranchConditionsAvailable": false,
+        "notAnAuthorizedProofOrRecommendation": true
+      }
+    },
+    {
+      "attemptId": "40255e62-6836-473d-824a-db0c98c9634e",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "repetitionSource": null,
+      "classification": {
+        "exploration": true,
+        "reentry": false,
+        "leaf": true
+      },
+      "startedAt": "2026-10-16T21:40:14.732Z",
+      "finishedAt": "2026-10-16T21:40:18.862Z",
+      "action": {
+        "id": "593e7576-b3c4-4f19-8b4f-7720d0e3a442",
+        "kind": "click",
+        "label": "announced",
+        "localId": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1548",
+        "controlId": "a8508c62-0c72-44aa-8fde-7c0a794a6982",
+        "value": null
+      },
+      "beforeId": "eaae6e16-c686-41de-82b9-b9279c4b7102",
+      "afterId": "7ed38887-915f-45e2-8468-19a1caffe5dd",
+      "observationSha256": "07f9cc737ffcd5b8b0284b63cb7b1b079f3df4830f3c70b810d2eaef61ee0e92",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "stable": true,
+      "criticalGaps": [],
+      "interactionReadyGapCodes": [],
+      "context": {},
+      "targetCount": 1,
+      "target": {
+        "localId": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1548",
+        "identityId": "a8508c62-0c72-44aa-8fde-7c0a794a6982",
+        "tag": "a",
+        "role": "link",
+        "name": "announced",
+        "label": "",
+        "visible": true,
+        "enabled": true,
+        "identityContext": {
+          "scope": "[\"ancestor-id\",\"scroll-box\"]",
+          "binding": "[[\"link-destination\",\"https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application\",\"_self\"]]",
+          "evidence": [
+            "semantic-ancestor-scope/v1",
+            "link-destination/v1"
+          ]
+        },
+        "checked": null,
+        "pressed": null,
+        "expanded": null,
+        "selected": [],
+        "region": "dialog:okd-dialog-window",
+        "constraints": {
+          "type": "a",
+          "required": false,
+          "valid": true
+        }
+      },
+      "targetReasons": [],
+      "selectorCount": 29,
+      "invalidSelectors": [
+        {
+          "control": {
+            "localId": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1469",
+            "identityId": "1fd519f5-9e0c-4f32-a0fa-7da44e198a66",
+            "hypothesisId": "a33f0c4b-7488-4165-8fd9-8120d9f52378",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": false,
+            "enabled": true,
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i"
+          },
+          "canonicalBinding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_identity_unresolved",
+            "selector_binding_collision"
+          ],
+          "collisionLocalIds": [
+            "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1469",
+            "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1475"
+          ]
+        },
+        {
+          "control": {
+            "localId": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1475",
+            "identityId": "8f9ee663-cd62-4e67-aaa4-c4a0a065bc76",
+            "hypothesisId": "6d304722-8bb5-4139-af38-ea2c9499474b",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": false,
+            "enabled": true,
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i"
+          },
+          "canonicalBinding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_identity_unresolved",
+            "selector_binding_collision"
+          ],
+          "collisionLocalIds": [
+            "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1469",
+            "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1475"
+          ]
+        }
+      ],
+      "boundaryBlockers": [],
+      "browserOperationKey": "e9cf0f7df6d8b52441996e8e9b84cdfd97794e2d58144516f394a34766147c50",
+      "browserBranchConditions": null,
+      "browserTargetConditions": null,
+      "browserTargetReady": true,
+      "operationConditionCandidate": null,
+      "counterfactualOnly": {
+        "removeAllHypothesisIdsBranchConditionsAvailable": false,
+        "notAnAuthorizedProofOrRecommendation": true
+      }
+    },
+    {
+      "attemptId": "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "repetitionSource": null,
+      "classification": {
+        "exploration": true,
+        "reentry": false,
+        "leaf": true
+      },
+      "startedAt": "2026-10-16T21:41:35.729Z",
+      "finishedAt": "2026-10-16T21:41:39.706Z",
+      "action": {
+        "id": "0891f201-8fce-44ab-983b-f3730f4477f2",
+        "kind": "scroll",
+        "label": "Scrollable generic",
+        "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:129",
+        "controlId": "b83ee9ca-28b2-4227-998d-0bb3e414bb69",
+        "value": {
+          "x": 840,
+          "y": 0
+        }
+      },
+      "beforeId": "5f80a3df-8355-444a-8499-4a625cb89577",
+      "afterId": "c446073e-8db5-49cd-b6d3-0052622bb861",
+      "observationSha256": "bae612dbca79af9334d56000d9adc2e6b2374e754a89936b10a237c33b3f356d",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "stable": true,
+      "criticalGaps": [],
+      "interactionReadyGapCodes": [],
+      "context": {},
+      "targetCount": 1,
+      "target": {
+        "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:129",
+        "identityId": "b83ee9ca-28b2-4227-998d-0bb3e414bb69",
+        "tag": "div",
+        "role": "generic",
+        "name": "Scrollable generic",
+        "label": "",
+        "visible": true,
+        "enabled": true,
+        "identityContext": {
+          "scope": "[\"ancestor-id\",\"root\"]",
+          "evidence": [
+            "semantic-ancestor-scope/v1"
+          ]
+        },
+        "checked": null,
+        "pressed": null,
+        "expanded": null,
+        "selected": [],
+        "region": "document",
+        "constraints": {
+          "type": "div",
+          "required": false,
+          "valid": true
+        }
+      },
+      "targetReasons": [],
+      "selectorCount": 26,
+      "invalidSelectors": [
+        {
+          "control": {
+            "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1491",
+            "identityId": "38aa9e26-86a3-4f1b-96a9-e0d911380b91",
+            "hypothesisId": "4ef1fe48-9698-474b-bf51-88a79ddcc1e2",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": false,
+            "enabled": true,
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i"
+          },
+          "canonicalBinding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_identity_unresolved",
+            "selector_binding_collision"
+          ],
+          "collisionLocalIds": [
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1491",
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1497"
+          ]
+        },
+        {
+          "control": {
+            "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1497",
+            "identityId": "e403f82a-84c2-4c95-b0a6-1f8e39d6dcb6",
+            "hypothesisId": "0351ba0a-f873-4144-9bf7-a0a17087209f",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": false,
+            "enabled": true,
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i"
+          },
+          "canonicalBinding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_identity_unresolved",
+            "selector_binding_collision"
+          ],
+          "collisionLocalIds": [
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1491",
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1497"
+          ]
+        }
+      ],
+      "boundaryBlockers": [],
+      "browserOperationKey": "5e7a125ad9daf7137d26abbcb2997f9d91878c0a43ae4ee64968f2880e2e41df",
+      "browserBranchConditions": null,
+      "browserTargetConditions": null,
+      "browserTargetReady": true,
+      "operationConditionCandidate": null,
+      "counterfactualOnly": {
+        "removeAllHypothesisIdsBranchConditionsAvailable": false,
+        "notAnAuthorizedProofOrRecommendation": true
+      }
+    },
+    {
+      "attemptId": "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "repetitionSource": null,
+      "classification": {
+        "exploration": true,
+        "reentry": false,
+        "leaf": true
+      },
+      "startedAt": "2026-10-16T21:41:48.991Z",
+      "finishedAt": "2026-10-16T21:41:53.647Z",
+      "action": {
+        "id": "8d922ae4-d9b8-49cd-accf-d37e8b2c2959",
+        "kind": "click",
+        "label": "Trade",
+        "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1483",
+        "controlId": "0ff657c1-9e12-41b0-9465-b77a3f102096",
+        "value": null
+      },
+      "beforeId": "c446073e-8db5-49cd-b6d3-0052622bb861",
+      "afterId": "f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4",
+      "observationSha256": "8e9bb7753a7fc24b329e61431e7632ac4c08ff1d95d070718b8cb3820418b972",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "stable": true,
+      "criticalGaps": [],
+      "interactionReadyGapCodes": [],
+      "context": {},
+      "targetCount": 1,
+      "target": {
+        "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1483",
+        "identityId": "0ff657c1-9e12-41b0-9465-b77a3f102096",
+        "tag": "button",
+        "role": "button",
+        "name": "Trade",
+        "label": "",
+        "visible": true,
+        "enabled": true,
+        "stableKey": "id:title-nav-trade",
+        "identityContext": {
+          "scope": "[\"named-ancestor\",\"nav\",\"Main menu\"]",
+          "evidence": [
+            "semantic-ancestor-scope/v1"
+          ]
+        },
+        "checked": null,
+        "pressed": null,
+        "expanded": false,
+        "selected": [],
+        "region": "navigation:navContainer",
+        "constraints": {
+          "type": "button",
+          "required": false,
+          "valid": true
+        }
+      },
+      "targetReasons": [],
+      "selectorCount": 26,
+      "invalidSelectors": [
+        {
+          "control": {
+            "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1491",
+            "identityId": "38aa9e26-86a3-4f1b-96a9-e0d911380b91",
+            "hypothesisId": "4ef1fe48-9698-474b-bf51-88a79ddcc1e2",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": false,
+            "enabled": true,
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i"
+          },
+          "canonicalBinding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_identity_unresolved",
+            "selector_binding_collision"
+          ],
+          "collisionLocalIds": [
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1491",
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1497"
+          ]
+        },
+        {
+          "control": {
+            "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1497",
+            "identityId": "e403f82a-84c2-4c95-b0a6-1f8e39d6dcb6",
+            "hypothesisId": "0351ba0a-f873-4144-9bf7-a0a17087209f",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": false,
+            "enabled": true,
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i"
+          },
+          "canonicalBinding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_identity_unresolved",
+            "selector_binding_collision"
+          ],
+          "collisionLocalIds": [
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1491",
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1497"
+          ]
+        }
+      ],
+      "boundaryBlockers": [],
+      "browserOperationKey": "467023a6d9c8df670ab0b6032c03898607502ca814f8006410c591457db9fde4",
+      "browserBranchConditions": null,
+      "browserTargetConditions": null,
+      "browserTargetReady": true,
+      "operationConditionCandidate": null,
+      "counterfactualOnly": {
+        "removeAllHypothesisIdsBranchConditionsAvailable": false,
+        "notAnAuthorizedProofOrRecommendation": true
+      }
+    },
+    {
+      "attemptId": "0ffb08c8-835f-4e0d-b5c1-c166fe086e00",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "repetitionSource": null,
+      "classification": {
+        "exploration": true,
+        "reentry": false,
+        "leaf": true
+      },
+      "startedAt": "2026-10-16T21:42:03.608Z",
+      "finishedAt": "2026-10-16T21:42:08.247Z",
+      "action": {
+        "id": "1498ba0a-d624-4ab0-9bbc-86a8ee8871bc",
+        "kind": "click",
+        "label": "1h",
+        "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1382",
+        "controlId": "423c8b6a-d860-4813-85a2-374297a8dea2",
+        "value": null
+      },
+      "beforeId": "f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4",
+      "afterId": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+      "observationSha256": "1cc6dabc31234223e7fb649895edbf9fa5902168d0f86d93e525efe99d007612",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "stable": true,
+      "criticalGaps": [],
+      "interactionReadyGapCodes": [],
+      "context": {},
+      "targetCount": 1,
+      "target": {
+        "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1382",
+        "identityId": "423c8b6a-d860-4813-85a2-374297a8dea2",
+        "tag": "div",
+        "role": "tab",
+        "name": "1h",
+        "label": "",
+        "visible": true,
+        "enabled": true,
+        "stableKey": "structural-item:[\"87b91bd6-ee8a-4d8e-9567-574f45b28a78:1388\",\"[\\\"description\\\",\\\"1h\\\"]\",\"[\\\"tab\\\",\\\"1h\\\",\\\"div\\\"]\"]",
+        "structuralItem": {
+          "ownerInstanceId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1388",
+          "template": "[\"DIV\",\"tab\",\"\",false,false,[]]",
+          "slot": "",
+          "rowInstanceId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1382",
+          "recordKey": "[\"description\",\"1h\"]"
+        },
+        "checked": null,
+        "pressed": null,
+        "expanded": null,
+        "selected": [],
+        "region": "document",
+        "constraints": {
+          "type": "div",
+          "required": false,
+          "valid": true
+        }
+      },
+      "targetReasons": [],
+      "selectorCount": 28,
+      "invalidSelectors": [
+        {
+          "control": {
+            "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1488",
+            "identityId": "f56d34dd-a917-478b-acf7-f37f18d4e381",
+            "tag": "i",
+            "role": "button",
+            "name": "Open Spot sub-menu",
+            "label": "Open Spot sub-menu",
+            "visible": true,
+            "enabled": true,
+            "stableKey": "item:[[[\"Trading instruments\",\"[\\\"record-instance\\\",\\\"87b91bd6-ee8a-4d8e-9567-574f45b28a78:1486\\\",\\\"[\\\\\\\"record-links\\\\\\\",[\\\\\\\"https://www.okx.com/trade-spot\\\\\\\"]]\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]",
+            "identityScope": "instance",
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open Spot sub-menu",
+            "type": "i",
+            "anchor": "item:[[[\"Trading instruments\",\"[\\\"record-instance\\\",\\\"87b91bd6-ee8a-4d8e-9567-574f45b28a78:1486\\\",\\\"[\\\\\\\"record-links\\\\\\\",[\\\\\\\"https://www.okx.com/trade-spot\\\\\\\"]]\\\"]\"]],\"[\\\"button\\\",\\\"Open Spot sub-menu\\\",\\\"i\\\"]\"]"
+          },
+          "canonicalBinding": "{\"anchor\":\"item:[[[\\\"Trading instruments\\\",\\\"[\\\\\\\"record-instance\\\\\\\",\\\\\\\"87b91bd6-ee8a-4d8e-9567-574f45b28a78:1486\\\\\\\",\\\\\\\"[\\\\\\\\\\\\\\\"record-links\\\\\\\\\\\\\\\",[\\\\\\\\\\\\\\\"https://www.okx.com/trade-spot\\\\\\\\\\\\\\\"]]\\\\\\\"]\\\"]],\\\"[\\\\\\\"button\\\\\\\",\\\\\\\"Open Spot sub-menu\\\\\\\",\\\\\\\"i\\\\\\\"]\\\"]\",\"name\":\"Open Spot sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_instance_only"
+          ],
+          "collisionLocalIds": [
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1488"
+          ]
+        },
+        {
+          "control": {
+            "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1491",
+            "identityId": "25397cc1-4dc6-4b0c-b61f-86ec2e7987b9",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": true,
+            "enabled": true,
+            "stableKey": "item:[[[\"Powerful tools\",\"[\\\"record-instance\\\",\\\"87b91bd6-ee8a-4d8e-9567-574f45b28a78:1489\\\",\\\"[\\\\\\\"record-links\\\\\\\",[\\\\\\\"https://www.okx.com/flash-earn?from-page=trade\\\\\\\"]]\\\"]\"]],\"[\\\"button\\\",\\\"Open sub-menu\\\",\\\"i\\\"]\"]",
+            "identityScope": "instance",
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i",
+            "anchor": "item:[[[\"Powerful tools\",\"[\\\"record-instance\\\",\\\"87b91bd6-ee8a-4d8e-9567-574f45b28a78:1489\\\",\\\"[\\\\\\\"record-links\\\\\\\",[\\\\\\\"https://www.okx.com/flash-earn?from-page=trade\\\\\\\"]]\\\"]\"]],\"[\\\"button\\\",\\\"Open sub-menu\\\",\\\"i\\\"]\"]"
+          },
+          "canonicalBinding": "{\"anchor\":\"item:[[[\\\"Powerful tools\\\",\\\"[\\\\\\\"record-instance\\\\\\\",\\\\\\\"87b91bd6-ee8a-4d8e-9567-574f45b28a78:1489\\\\\\\",\\\\\\\"[\\\\\\\\\\\\\\\"record-links\\\\\\\\\\\\\\\",[\\\\\\\\\\\\\\\"https://www.okx.com/flash-earn?from-page=trade\\\\\\\\\\\\\\\"]]\\\\\\\"]\\\"]],\\\"[\\\\\\\"button\\\\\\\",\\\\\\\"Open sub-menu\\\\\\\",\\\\\\\"i\\\\\\\"]\\\"]\",\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_instance_only"
+          ],
+          "collisionLocalIds": [
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1491"
+          ]
+        },
+        {
+          "control": {
+            "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1497",
+            "identityId": "8d809710-4ea0-4ace-ad48-d9b0c25e3f0a",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": true,
+            "enabled": true,
+            "stableKey": "item:[[[\"Powerful tools\",\"[\\\"record-instance\\\",\\\"87b91bd6-ee8a-4d8e-9567-574f45b28a78:1495\\\",\\\"[\\\\\\\"record-links\\\\\\\",[\\\\\\\"https://www.okx.com/agent-tradekit\\\\\\\"]]\\\"]\"]],\"[\\\"button\\\",\\\"Open sub-menu\\\",\\\"i\\\"]\"]",
+            "identityScope": "instance",
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i",
+            "anchor": "item:[[[\"Powerful tools\",\"[\\\"record-instance\\\",\\\"87b91bd6-ee8a-4d8e-9567-574f45b28a78:1495\\\",\\\"[\\\\\\\"record-links\\\\\\\",[\\\\\\\"https://www.okx.com/agent-tradekit\\\\\\\"]]\\\"]\"]],\"[\\\"button\\\",\\\"Open sub-menu\\\",\\\"i\\\"]\"]"
+          },
+          "canonicalBinding": "{\"anchor\":\"item:[[[\\\"Powerful tools\\\",\\\"[\\\\\\\"record-instance\\\\\\\",\\\\\\\"87b91bd6-ee8a-4d8e-9567-574f45b28a78:1495\\\\\\\",\\\\\\\"[\\\\\\\\\\\\\\\"record-links\\\\\\\\\\\\\\\",[\\\\\\\\\\\\\\\"https://www.okx.com/agent-tradekit\\\\\\\\\\\\\\\"]]\\\\\\\"]\\\"]],\\\"[\\\\\\\"button\\\\\\\",\\\\\\\"Open sub-menu\\\\\\\",\\\\\\\"i\\\\\\\"]\\\"]\",\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_instance_only"
+          ],
+          "collisionLocalIds": [
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1497"
+          ]
+        }
+      ],
+      "boundaryBlockers": [],
+      "browserOperationKey": "5f599dd4ba9dd5052c56fb67bfefb1b35414f3a69efe7a313e1461df9278077d",
+      "browserBranchConditions": null,
+      "browserTargetConditions": null,
+      "browserTargetReady": true,
+      "operationConditionCandidate": null,
+      "counterfactualOnly": {
+        "removeAllHypothesisIdsBranchConditionsAvailable": false,
+        "notAnAuthorizedProofOrRecommendation": true
+      }
+    },
+    {
+      "attemptId": "e46636b7-7000-413d-8bec-9c6227af1fff",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "repetitionSource": null,
+      "classification": {
+        "exploration": true,
+        "reentry": false,
+        "leaf": true
+      },
+      "startedAt": "2026-10-16T21:42:18.333Z",
+      "finishedAt": "2026-10-16T21:42:22.950Z",
+      "action": {
+        "id": "bcf71469-6681-41e4-858a-57725bd2dbbf",
+        "kind": "click",
+        "label": "24h",
+        "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1383",
+        "controlId": "392059d5-fe3b-4053-bec9-0aa12ef938e0",
+        "value": null
+      },
+      "beforeId": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+      "afterId": "9ca9a659-c1af-47c6-af1c-40b77b5803a3",
+      "observationSha256": "17455792a9d1bd0836bc58ff8b83b6be8621001fae70517b5fc20601901b75c6",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "stable": true,
+      "criticalGaps": [],
+      "interactionReadyGapCodes": [],
+      "context": {},
+      "targetCount": 1,
+      "target": {
+        "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1383",
+        "identityId": "392059d5-fe3b-4053-bec9-0aa12ef938e0",
+        "tag": "div",
+        "role": "tab",
+        "name": "24h",
+        "label": "",
+        "visible": true,
+        "enabled": true,
+        "stableKey": "structural-item:[\"87b91bd6-ee8a-4d8e-9567-574f45b28a78:1388\",\"[\\\"description\\\",\\\"24h\\\"]\",\"[\\\"tab\\\",\\\"24h\\\",\\\"div\\\"]\"]",
+        "structuralItem": {
+          "ownerInstanceId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1388",
+          "template": "[\"DIV\",\"tab\",\"\",false,false,[]]",
+          "slot": "",
+          "rowInstanceId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1383",
+          "recordKey": "[\"description\",\"24h\"]"
+        },
+        "checked": null,
+        "pressed": null,
+        "expanded": null,
+        "selected": [],
+        "region": "document",
+        "constraints": {
+          "type": "div",
+          "required": false,
+          "valid": true
+        }
+      },
+      "targetReasons": [],
+      "selectorCount": 28,
+      "invalidSelectors": [
+        {
+          "control": {
+            "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1491",
+            "identityId": "38aa9e26-86a3-4f1b-96a9-e0d911380b91",
+            "hypothesisId": "4ef1fe48-9698-474b-bf51-88a79ddcc1e2",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": false,
+            "enabled": true,
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i"
+          },
+          "canonicalBinding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_identity_unresolved",
+            "selector_binding_collision"
+          ],
+          "collisionLocalIds": [
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1491",
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1497"
+          ]
+        },
+        {
+          "control": {
+            "localId": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1497",
+            "identityId": "e403f82a-84c2-4c95-b0a6-1f8e39d6dcb6",
+            "hypothesisId": "0351ba0a-f873-4144-9bf7-a0a17087209f",
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "visible": false,
+            "enabled": true,
+            "checked": null,
+            "pressed": null,
+            "expanded": false,
+            "selected": [],
+            "region": "navigation:navContainer",
+            "constraints": {
+              "type": "i",
+              "required": false,
+              "valid": true
+            }
+          },
+          "state": {
+            "expanded": false
+          },
+          "binding": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "type": "i"
+          },
+          "canonicalBinding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "reasons": [
+            "selector_identity_unresolved",
+            "selector_binding_collision"
+          ],
+          "collisionLocalIds": [
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1491",
+            "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1497"
+          ]
+        }
+      ],
+      "boundaryBlockers": [],
+      "browserOperationKey": "17e250ff066866725a96f95c80b74aa28e9fd00d21c5671df872f53f380c4400",
+      "browserBranchConditions": null,
+      "browserTargetConditions": null,
+      "browserTargetReady": true,
+      "operationConditionCandidate": null,
+      "counterfactualOnly": {
+        "removeAllHypothesisIdsBranchConditionsAvailable": false,
+        "notAnAuthorizedProofOrRecommendation": true
+      }
+    }
+  ],
+  "guardEvents": [
+    {
+      "at": "2026-10-16T21:39:23.533Z",
+      "runId": "5f350d86-b9dd-43e5-ac07-43a79a9e30f0",
+      "type": "progress.guards_deferred",
+      "data": {
+        "reason": "unkeyed_success_cannot_establish_no_progress"
+      },
+      "line": 182
+    },
+    {
+      "at": "2026-10-16T21:40:23.474Z",
+      "runId": "5f350d86-b9dd-43e5-ac07-43a79a9e30f0",
+      "type": "route.guard_deferred",
+      "data": {
+        "key": "recovery:a49c93ff02777c572486e0e9e5d15f47c1b2349565aa1e3c4ee02935750a25c2",
+        "reason": "unkeyed_success_cannot_establish_no_progress",
+        "unkeyedSuccessfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0",
+          "40255e62-6836-473d-824a-db0c98c9634e"
+        ]
+      },
+      "line": 430
+    },
+    {
+      "at": "2026-10-16T21:42:32.643Z",
+      "runId": "5f350d86-b9dd-43e5-ac07-43a79a9e30f0",
+      "type": "route.guard_deferred",
+      "data": {
+        "key": "recovery:4781b6c8347fe7977def58b6636fb39c8f1c8f0d8582dd8e1123dce010069d29",
+        "reason": "unkeyed_success_cannot_establish_no_progress",
+        "unkeyedSuccessfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0",
+          "40255e62-6836-473d-824a-db0c98c9634e",
+          "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+          "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+          "0ffb08c8-835f-4e0d-b5c1-c166fe086e00",
+          "e46636b7-7000-413d-8bec-9c6227af1fff"
+        ]
+      },
+      "line": 1417
+    },
+    {
+      "at": "2026-10-16T21:42:51.165Z",
+      "runId": "5f350d86-b9dd-43e5-ac07-43a79a9e30f0",
+      "type": "stop.requested",
+      "data": {
+        "at": "2026-10-16T21:42:51.165Z",
+        "reason": "recovery_not_verified",
+        "details": {
+          "api": "reachCheckpoint",
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "result": {
+            "id": "33cd8add-8713-4ae5-916d-c0915453f8e7",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "checkpointId": "7d7c3b8d-5dc6-45dc-a77a-13f5b3eab8ec",
+            "reason": "Entry replay verification: UNVERIFIED",
+            "checks": [
+              {
+                "name": "observation-completeness",
+                "result": "unknown"
+              }
+            ],
+            "attemptIds": [
+              "6974dfc3-4178-4291-9fa7-32fd1f975b1a"
+            ],
+            "observationId": "c4fae20b-a313-48bb-a1f6-22f793550193",
+            "remainingFrontier": 1522,
+            "diagnostics": {
+              "unassessedEffectAttemptIds": [],
+              "strategies": [
+                "verify_current",
+                "boundary_exit",
+                "recorded_path",
+                "declared_local_restore",
+                "entry_replay"
+              ],
+              "dirtyActions": [],
+              "resetAvailable": false
+            },
+            "status": "UNVERIFIED"
+          }
+        },
+        "prior": {
+          "status": "running",
+          "usage": {
+            "rounds": 1,
+            "actions": 22,
+            "durationMs": 272612,
+            "modelRequests": 64
+          }
+        }
+      },
+      "line": 1523
+    }
+  ],
+  "originalLedgerSequence": [
+    {
+      "attemptId": "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+      "snapshot": {
+        "counts": {
+          "succeeded": 1
+        },
+        "successfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994"
+        ],
+        "unkeyedSuccessfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994"
+        ],
+        "unknownAttempts": [],
+        "inFlightAttempts": [],
+        "conditionKeys": [],
+        "newOperationConditionCandidates": 0,
+        "lastProgressAt": 1792186743107,
+        "progressGuardsDeferred": true
+      }
+    },
+    {
+      "attemptId": "592416bf-a091-4227-8dfc-bac621abdce0",
+      "snapshot": {
+        "counts": {
+          "succeeded": 2
+        },
+        "successfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0"
+        ],
+        "unkeyedSuccessfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0"
+        ],
+        "unknownAttempts": [],
+        "inFlightAttempts": [],
+        "conditionKeys": [],
+        "newOperationConditionCandidates": 0,
+        "lastProgressAt": 1792186743107,
+        "progressGuardsDeferred": true
+      }
+    },
+    {
+      "attemptId": "40255e62-6836-473d-824a-db0c98c9634e",
+      "snapshot": {
+        "counts": {
+          "succeeded": 3
+        },
+        "successfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0",
+          "40255e62-6836-473d-824a-db0c98c9634e"
+        ],
+        "unkeyedSuccessfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0",
+          "40255e62-6836-473d-824a-db0c98c9634e"
+        ],
+        "unknownAttempts": [],
+        "inFlightAttempts": [],
+        "conditionKeys": [],
+        "newOperationConditionCandidates": 0,
+        "lastProgressAt": 1792186743107,
+        "progressGuardsDeferred": true
+      }
+    },
+    {
+      "attemptId": "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+      "snapshot": {
+        "counts": {
+          "succeeded": 4
+        },
+        "successfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0",
+          "40255e62-6836-473d-824a-db0c98c9634e",
+          "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92"
+        ],
+        "unkeyedSuccessfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0",
+          "40255e62-6836-473d-824a-db0c98c9634e",
+          "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92"
+        ],
+        "unknownAttempts": [],
+        "inFlightAttempts": [],
+        "conditionKeys": [],
+        "newOperationConditionCandidates": 0,
+        "lastProgressAt": 1792186743107,
+        "progressGuardsDeferred": true
+      }
+    },
+    {
+      "attemptId": "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+      "snapshot": {
+        "counts": {
+          "succeeded": 5
+        },
+        "successfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0",
+          "40255e62-6836-473d-824a-db0c98c9634e",
+          "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+          "797f216e-17fb-45ff-b753-f26ad1cf9b0c"
+        ],
+        "unkeyedSuccessfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0",
+          "40255e62-6836-473d-824a-db0c98c9634e",
+          "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+          "797f216e-17fb-45ff-b753-f26ad1cf9b0c"
+        ],
+        "unknownAttempts": [],
+        "inFlightAttempts": [],
+        "conditionKeys": [],
+        "newOperationConditionCandidates": 0,
+        "lastProgressAt": 1792186743107,
+        "progressGuardsDeferred": true
+      }
+    },
+    {
+      "attemptId": "0ffb08c8-835f-4e0d-b5c1-c166fe086e00",
+      "snapshot": {
+        "counts": {
+          "succeeded": 6
+        },
+        "successfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0",
+          "40255e62-6836-473d-824a-db0c98c9634e",
+          "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+          "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+          "0ffb08c8-835f-4e0d-b5c1-c166fe086e00"
+        ],
+        "unkeyedSuccessfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0",
+          "40255e62-6836-473d-824a-db0c98c9634e",
+          "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+          "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+          "0ffb08c8-835f-4e0d-b5c1-c166fe086e00"
+        ],
+        "unknownAttempts": [],
+        "inFlightAttempts": [],
+        "conditionKeys": [],
+        "newOperationConditionCandidates": 0,
+        "lastProgressAt": 1792186743107,
+        "progressGuardsDeferred": true
+      }
+    },
+    {
+      "attemptId": "e46636b7-7000-413d-8bec-9c6227af1fff",
+      "snapshot": {
+        "counts": {
+          "succeeded": 7
+        },
+        "successfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0",
+          "40255e62-6836-473d-824a-db0c98c9634e",
+          "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+          "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+          "0ffb08c8-835f-4e0d-b5c1-c166fe086e00",
+          "e46636b7-7000-413d-8bec-9c6227af1fff"
+        ],
+        "unkeyedSuccessfulAttemptIds": [
+          "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "592416bf-a091-4227-8dfc-bac621abdce0",
+          "40255e62-6836-473d-824a-db0c98c9634e",
+          "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+          "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+          "0ffb08c8-835f-4e0d-b5c1-c166fe086e00",
+          "e46636b7-7000-413d-8bec-9c6227af1fff"
+        ],
+        "unknownAttempts": [],
+        "inFlightAttempts": [],
+        "conditionKeys": [],
+        "newOperationConditionCandidates": 0,
+        "lastProgressAt": 1792186743107,
+        "progressGuardsDeferred": true
+      }
+    }
+  ],
+  "syntheticOriginalLedgerOnly": {
+    "unkeyedThenLaterNewKey": {
+      "counts": {
+        "succeeded": 2
+      },
+      "successfulAttemptIds": [
+        "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+        "known"
+      ],
+      "unkeyedSuccessfulAttemptIds": [
+        "8d791a88-55ba-43ab-a951-0c15f5bf4994"
+      ],
+      "unknownAttempts": [],
+      "inFlightAttempts": [],
+      "conditionKeys": [
+        "known-condition"
+      ],
+      "newOperationConditionCandidates": 1,
+      "lastProgressAt": 1792186980000,
+      "progressGuardsDeferred": true
+    }
+  },
+  "conclusions": {
+    "instrumentationReadBugFound": false,
+    "sdkEvidenceGap": "The branch projection correctly declines portable conditions: hidden unresolved equal bindings in six source observations; instance-scoped selector bindings in the seventh. Actual target readiness/success does not certify cross-observation equivalence.",
+    "sdkBugEstablished": false,
+    "guardLimitation": "Original ledger globally defers both progress guards for the entire invocation while any current unkeyed successful leaf remains valid. Later keyed success does not clear it. Original historical rows were excluded from this deferral.",
+    "run4MissedThresholdEstablished": false,
+    "minimalFixLayer": "Acceptance harness: retain per-attempt reason/source refs; independent stallMs review deadline on remaining unkeyed-success audit debt, preserving successful/unknown states and candidate-only semantics. Parent authorized implementation after this diagnosis.",
+    "restartDecision": "Historical unkeyed successes are separately disclosed and receive a full new stallMs window from invocation start; downtime is excluded. New keyed or unkeyed successes cannot extend the earliest outstanding deadline.",
+    "sdkFutureWorkBoundary": "Optional SDK diagnostic result explaining branch refusal can improve audit/review routing; do not discard hidden dependencies or promote instance bindings/operation hints to portable proof. No captured evidence proves selector independence."
+  },
+  "sourceReferences": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/scripts/okx-storage-acceptance.ts",
+      "revision": "868e8b47afd31782161deba4f8bd7a14e0349430",
+      "lines": [
+        82,
+        96,
+        119,
+        135,
+        351,
+        383,
+        425,
+        498,
+        573
+      ]
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/branch-conditions.ts",
+      "revision": "868e8b47afd31782161deba4f8bd7a14e0349430",
+      "lines": [
+        35,
+        69,
+        82,
+        102,
+        103,
+        105
+      ]
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/target-arrival.ts",
+      "revision": "868e8b47afd31782161deba4f8bd7a14e0349430",
+      "lines": [
+        7,
+        24
+      ]
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/exploration.ts",
+      "revision": "868e8b47afd31782161deba4f8bd7a14e0349430",
+      "lines": [
+        56,
+        74,
+        77,
+        90,
+        131
+      ]
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts",
+      "revision": "868e8b47afd31782161deba4f8bd7a14e0349430",
+      "lines": [
+        252,
+        257,
+        262
+      ]
+    }
+  ]
+}
