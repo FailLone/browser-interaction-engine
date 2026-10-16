@@ -99,6 +99,17 @@ it('retains newly revealed controls when a probe consumes the last action budget
  }finally{await plugin.close();await f.close();}
 });
 
+it('reopens a recorded probe prerequisite under fresh judgments for a selected follow-up scope',async()=>{
+ const f=await explorerFixture(probeFixture()),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),probeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:1}});plugin.start(t.id);await plugin.waitForIdle();const before=plugin.view(t.id),target=before.task.plan.find(i=>i.required&&i.scope.label==='Revealed'&&i.scope.kind==='click')!;expect(target).toBeDefined();
+  plugin.revise(t.id,{itemIds:[target.id]},true);plugin.extendBudget(t.id,{rounds:2,actions:3,durationMs:60000,modelRequests:100});plugin.start(t.id);await plugin.waitForIdle();const after=plugin.view(t.id);
+  expect(after.task.status).toBe('completed');expect(after.task.usage.actions).toBe(3);expect(after.task.rounds).toHaveLength(2);
+  expect(after.task.rounds.map(round=>f.host.list<any>(round.sessionId,'attempt').map(a=>[a.action.kind,a.action.label]))).toEqual([[['hover','hover: Mystery']],[['hover','hover: Mystery'],['click','Revealed']]]);
+  const decisions=after.decisions.filter(d=>d.purpose==='probe-risk'&&d.status==='applied');expect(new Set(decisions.map(d=>d.sessionId)).size).toBe(2);expect(new Set(decisions.map(d=>d.observationId)).size).toBe(2);
+  expect(after.task.plan.find(i=>i.id===target.id)?.resolvedBy?.sessionId).toBe(after.task.rounds[1].sessionId);
+ }finally{await plugin.close();await f.close();}
+});
+
 it('keeps a missing probe capability as a gap while continuing other available controls',async()=>{
  const f=await explorerFixture(probeFixture(false)+'<button type="button" onclick="this.disabled=true">Ready</button>');
  const host=new Proxy(f.host,{get(target,key){if(key==='command')return (sid:string,cmd:any)=>{if(cmd.type==='probe')throw Object.assign(new Error('Unsupported'),{code:'UNSUPPORTED_PROBE'});return target.command(sid,cmd);};const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;}});
