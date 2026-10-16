@@ -92,7 +92,7 @@ export function reconcileCoverage<O extends Observation>(session: Session, front
       policy: k.sample.policy, evidence: k.sample.evidence });
   }
   for (const f of frontier) {
-    if (f.sessionId !== session.id || f.attempts.length || ['executing', 'unknown'].includes(f.status)) continue;
+    if (f.sessionId !== session.id || f.samplingMigration || f.attempts.length || ['executing', 'unknown'].includes(f.status)) continue;
     const k = cached(f.action), proof = k && succeeded.get(k.key);
     if (proof) result.set(f.id, proof);
   }

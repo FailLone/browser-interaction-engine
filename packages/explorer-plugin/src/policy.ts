@@ -1,6 +1,7 @@
+import { conditionSplitIssues, boundOperationCondition, schedulableObligation } from './plan-state.js';
 import { createHash } from 'node:crypto';
-import { browserControlCorrespondence, browserOperationKey, legacyBrowserOperationKey, navigationIntent, type ActionAvailability, type ActionCandidate, type Observation } from '@interaction/browser';
-import type { Scope, PlanItem, ExplorerHost, Task } from './types.js';
+import { browserControlCorrespondence, browserTargetConditions, browserOperationKey, legacyBrowserOperationKey, navigationIntent, type ActionAvailability, type ActionCandidate, type Observation } from '@interaction/browser';
+import type { Scope, PlanItem, ExplorerHost, Task, EvidenceRef } from './types.js';
 const ordered=(value:unknown):unknown=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>[k,ordered(v)])):value;
 export const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(ordered(value))).digest('hex');
 /** Task policy consumes host semantics; these opaque keys retain old task compatibility. */
@@ -51,43 +52,76 @@ export function controlScopeMatcher(o:Observation,actions:ActionCandidate[]) {
 }
 export const keyFor=browserOperationKey;
 export const operationConditionPolicy='browser-operation-key-v2' as const;
-/** Upgrade only unattempted discovery hints with exact retained source proof.
- * A new key does not discharge the obligation: current SDK correspondence and
- * dispatch checks still decide whether an observed target may execute. */
+type ConditionAudit=NonNullable<PlanItem['conditionMigration']>;
+const conditionSplitPolicy='operation-condition-split-v1' as const;
+const sourceRefKey=(ref:EvidenceRef)=>JSON.stringify([ref.sessionId,ref.observationId,ref.attemptId||'']);
+/** Upgrade unattempted scheduling hints from every retained original source.
+ * A split transfers all known source obligations, including explicit residual
+ * gaps; neither it nor its children grant current execution or past coverage. */
 export function migrateOperationConditions(task:Pick<Task,'plan'>,host:Pick<ExplorerHost,'observation'|'actions'>) {
-  const changes:{itemId:string;audit:NonNullable<PlanItem['conditionMigration']>}[]=[];
+  const changes:{itemId:string;audit:ConditionAudit}[]=[],byId=new Map(task.plan.map(item=>[item.id,item])),integrity=conditionSplitIssues(task.plan);
   const records=new Map<string,{observation:Observation;actions:ActionCandidate[]}|undefined>();
-  for(const item of task.plan) {
-    if(item.dispatchScope!==false||!item.operationConditionKey||item.operationConditionPolicy===operationConditionPolicy||item.conditionMigration
+  for(const item of [...task.plan]) {
+    if(item.status==='superseded'||item.conditionMigration?.status==='split'){
+      const issue=integrity.get(item.id),previous=item.conditionMigration?.integrityFailure;
+      if(issue&&(issue!==previous||item.status!=='blocked')){item.conditionMigration??={version:2,status:'invalidated',reason:'missing_split_audit',fromKey:item.operationConditionKey||'unknown',sources:[]};item.status='blocked';item.reason=`condition_split_invalid:${issue}`;item.conditionMigration.integrityFailure=issue;changes.push({itemId:item.id,audit:item.conditionMigration});}
+      continue;
+    }
+    const oldInvalidation=item.conditionMigration?.status==='invalidated'&&item.conditionMigration.reason==='multiple_current_conditions'&&!item.conditionMigration.version;
+    if(item.dispatchScope!==false||!item.operationConditionKey||item.operationConditionPolicy===operationConditionPolicy||item.conditionMigration&&!oldInvalidation
       ||!['pending','unresolved','blocked'].includes(item.status)||item.attempts.length||item.resolvedBy||item.reviewResolvedBy||item.coverageResolvedBy
-      ||!['observed_in_scope','operation_not_executed'].includes(item.reason))continue;
-    const fromKey=item.operationConditionKey,keys=new Set<string>(),sources:NonNullable<PlanItem['conditionMigration']>['sources']=[];
-    let reason=item.evidence.length?'':'missing_source';
-    for(const ref of item.evidence) {
-      if(ref.attemptId){reason='attempt_source_requires_review';break;}
-      const sourceKey=JSON.stringify([ref.sessionId,ref.observationId]);
+      ||!oldInvalidation&&!['observed_in_scope','operation_not_executed'].includes(item.reason))continue;
+    const fromKey=item.operationConditionKey,sources:ConditionAudit['sources']=[],unverified:NonNullable<ConditionAudit['unverifiedSources']>=[];
+    const groups=new Map<string,{key:string;scope:Scope;sources:EvidenceRef[]}>();
+    const refs=[...new Map(item.evidence.map(ref=>[sourceRefKey(ref),ref])).values()];
+    for(const ref of refs) {
+      const reject=(reason:string)=>unverified.push({source:{...ref},reason});
+      if(ref.attemptId){reject('attempt_source_requires_review');continue;}
+      const sourceKey=sourceRefKey(ref);
       if(!records.has(sourceKey)) {
         try{const observation=host.observation(ref.sessionId,ref.observationId);
           records.set(sourceKey,observation.id===ref.observationId&&observation.sessionId===ref.sessionId?{observation,actions:host.actions(ref.sessionId,ref.observationId)}:undefined);
         }catch{records.set(sourceKey,undefined);}
       }
       const record=records.get(sourceKey);
-      // Full retained documents can be megabytes. This synchronous pass retains
-      // only eight; the durable audit contains IDs rather than captures.
       records.delete(sourceKey);records.set(sourceKey,record);while(records.size>8)records.delete(records.keys().next().value!);
-      if(!record){reason='missing_source';break;}
-      if(record.observation.gaps.some(g=>g.critical)||Object.values(record.observation.context).some(c=>c.status!=='known')){reason='incomplete_source';break;}
+      if(!record){reject('missing_source');continue;}
+      if(record.observation.gaps.some(g=>g.critical)||Object.values(record.observation.context).some(c=>c.status!=='known')){reject('incomplete_source');continue;}
       const candidates=record.actions.filter(a=>a.sessionId===ref.sessionId&&a.observationId===ref.observationId&&matches(item.scope,a,record.observation));
-      if(candidates.length!==1){reason='source_not_unique';break;}
+      if(candidates.length!==1){reject('source_not_unique');continue;}
       const action=candidates[0],key=keyFor(action,record.observation);
-      if(fromKey!==key&&fromKey!==legacyBrowserOperationKey(action,record.observation)){reason='source_key_mismatch';break;}
-      keys.add(key);sources.push({...ref,actionId:action.id});
+      if(fromKey!==key&&fromKey!==legacyBrowserOperationKey(action,record.observation)){reject('source_key_mismatch');continue;}
+      // An unverified-marker key is only a retry hint. The SDK must have a known
+      // branch projection (including selector bounds/uniqueness) before splitting.
+      if(!browserTargetConditions(action,record.observation)){reject('source_conditions_unverified');continue;}
+      const scope=scopeFor(action,record.observation),groupKey=digest({key,scope}),group=groups.get(groupKey)||{key,scope,sources:[]};
+      group.sources.push({...ref});groups.set(groupKey,group);sources.push({...ref,actionId:action.id});
     }
-    if(!reason&&keys.size!==1)reason='multiple_current_conditions';
-    const audit:NonNullable<PlanItem['conditionMigration']>=reason?{status:'invalidated',fromKey,reason,sources}
-      :{status:'migrated',fromKey,toKey:[...keys][0],reason:'retained_source_key_verified',sources};
-    if(reason){item.status='blocked';item.reason=`condition_policy_invalidated:${reason}`;}
-    else {item.operationConditionKey=audit.toKey;item.operationConditionPolicy=operationConditionPolicy;}
+    const common={version:2 as const,fromKey,sources,...oldInvalidation?{previousInvalidation:{reason:item.conditionMigration!.reason,sources:item.conditionMigration!.sources}}:{}};
+    let audit:ConditionAudit;
+    if(groups.size===1&&!unverified.length){
+      const key=[...groups.values()][0].key;audit={...common,status:'migrated',toKey:key,reason:'retained_source_key_verified'};
+      item.operationConditionKey=key;item.operationConditionPolicy=operationConditionPolicy;
+      if(oldInvalidation){item.status=item.required?'pending':'untested';item.reason='observed_in_scope';}
+    }else if(groups.size){
+      const children:NonNullable<ConditionAudit['children']>=[],prepared:PlanItem[]=[];
+      const append=(kind:'condition'|'unverified-source',scope:Scope,key:string,refs:EvidenceRef[],reason='observed_in_scope')=>{
+        const id=`${item.id}:split:${digest({policy:conditionSplitPolicy,kind,key,scope,sources:kind==='unverified-source'?refs:undefined})}`;
+        const child:PlanItem={id,title:item.title,scope:structuredClone(scope),prerequisites:structuredClone(item.prerequisites),completion:item.completion,required:item.required,dispatchScope:false,
+          status:kind==='condition'?(item.required?'pending':'untested'):'blocked',reason,operationConditionKey:key,...kind==='condition'?{operationConditionPolicy}:{},
+          conditionLineage:{parentItemId:item.id,policy:conditionSplitPolicy,kind,fromKey},evidence:structuredClone(refs),attempts:[],
+          ...kind==='unverified-source'?{conditionMigration:{version:2,status:'invalidated',fromKey,reason:reason.slice('condition_policy_invalidated:'.length),sources:[],unverifiedSources:refs.map(source=>({source:{...source},reason:reason.slice('condition_policy_invalidated:'.length)}))}}:{}};
+        prepared.push(child);children.push({itemId:id,kind,scope:structuredClone(scope),required:child.required,dispatchScope:false,...kind==='condition'?{operationConditionKey:key}:{},sources:structuredClone(refs)});
+      };
+      for(const group of groups.values())append('condition',group.scope,group.key,group.sources);
+      for(const gap of unverified)append('unverified-source',item.scope,fromKey,[gap.source],`condition_policy_invalidated:${gap.reason}`);
+      audit={...common,status:'split',reason:unverified.length?'retained_sources_split_with_gaps':'retained_sources_split',children,...unverified.length?{unverifiedSources:unverified}:{}};
+      if(prepared.some(child=>byId.has(child.id))){audit={...common,status:'invalidated',reason:'child_id_collision'};item.status='blocked';item.reason='condition_policy_invalidated:child_id_collision';}
+      else {for(const child of prepared){task.plan.push(child);byId.set(child.id,child);}item.status='superseded';item.reason='condition_scope_split';}
+    }else{
+      const reason=unverified[0]?.reason||'missing_source';audit={...common,status:'invalidated',reason,...unverified.length?{unverifiedSources:unverified}:{}};
+      item.status='blocked';item.reason=`condition_policy_invalidated:${reason}`;
+    }
     item.conditionMigration=audit;changes.push({itemId:item.id,audit});
   }
   return changes;
@@ -106,14 +140,14 @@ export function unexecutedAction(action:ActionCandidate,availability:ActionAvail
 }
 export function includesScope(plan:PlanItem[],action:ActionCandidate,o:Observation):'target'|'prerequisite'|undefined {
   if(plan.some(i=>!i.required&&i.reason==='user_excluded'&&matches(i.scope,action,o)))return;
-  const allowed=plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='excluded');
+  const allowed=plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='excluded'&&schedulableObligation(i));
   if(action.kind==='scroll'&&!allowed.some(i=>i.scope.kind==='scroll'&&matches(i.scope,action,o))&&allowed.some(i=>broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url)))return 'prerequisite';
   if(o.boundaries?.length&&action.boundary?.intent==='exit'&&!allowed.some(i=>i.scope.label&&i.scope.kind&&matches(i.scope,action,o)))return 'prerequisite';
   const explicit=allowed.some(i=>i.scope.label&&i.scope.kind&&matches(i.scope,action,o));
   // A page-level capability gap describes unobservable content, not a ban on
   // every supported control on that page. Keep it untested without masking grants.
   if(!explicit&&plan.some(i=>!i.required&&!i.reason.startsWith('missing_capability:')&&['untested','excluded'].includes(i.status)&&matches(i.scope,action,o)))return;
-  if(allowed.some(i=>matches(i.scope,action,o)))return 'target';
+  if(allowed.some(i=>matches(i.scope,action,o)&&(!boundOperationCondition(i)||boundOperationCondition(i)===keyFor(action,o))))return 'target';
   if(allowed.some(i=>i.status!=='succeeded'&&i.prerequisites.some(p=>matches(p,action,o))))return 'prerequisite';
   if(o.boundaries?.length&&action.boundary?.intent==='exit')return 'prerequisite';
 }

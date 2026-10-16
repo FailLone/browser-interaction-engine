@@ -22,10 +22,11 @@ export class MemoryStore implements Persistence {
   }
   put<T extends { id: string; sessionId?: string }>(kind: string, value: T) {
     const prior = this.entities.get(value.id);
-    if (prior && prior.kind !== kind) throw new EngineError('ID_CONFLICT', 'ID already belongs to another entity kind');
+    const sessionId = value.sessionId ?? value.id;
+    if (prior && (prior.kind !== kind || prior.sessionId !== sessionId)) throw new EngineError('ID_CONFLICT', 'ID already belongs to another entity kind or session');
     if (kind === 'observation' && prior && canonical(prior.value) !== canonical(value)) throw new EngineError('IMMUTABLE_OBSERVATION', 'Observations cannot be overwritten');
     // Match the JSON persistence contract, including omission of undefined fields.
-    this.entities.set(value.id, { kind, sessionId: value.sessionId ?? value.id, value: JSON.parse(JSON.stringify(value)) });
+    this.entities.set(value.id, { kind, sessionId, value: JSON.parse(JSON.stringify(value)) });
   }
   get<T>(kind: string, id: string): T | undefined { const row = this.entities.get(id); return row?.kind === kind ? clone(row.value) as T : undefined; }
   require<T>(kind: string, id: string): T { const value = this.get<T>(kind, id); if (value === undefined) throw new EngineError('NOT_FOUND', `${kind} ${id} not found`); return value; }

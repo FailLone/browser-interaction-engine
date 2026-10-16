@@ -1,3 +1,4 @@
+import { isUnfinished, schedulableObligation } from './plan-state.js';
 import { reusableClassifications } from './classification-reuse.js';
 import { z } from 'zod';
 import type { ActionCandidate, IdentityHypothesis, ControlIdentity, Observation, ExplorationGroup, PurposeReview, RegionCandidate } from '@interaction/browser';
@@ -60,7 +61,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const boundary=o.boundaries?.at(-1),overlay=o.overlays?.find(b=>b.key===boundary?.key);
   const boundaryIds=overlay?new Set(overlay.controlIds):undefined;
   const inCurrentBoundary=(action:ActionCandidate)=>!boundary||action.boundary?.key===boundary.key;
-  const pendingPlan=task.plan.filter(i=>i.status!=='succeeded');
+  const pendingPlan=task.plan.filter(isUnfinished);
   const inScope=controlScopeMatcher(o,available);
   const relevant=(control:Observation['controls'][number])=>{
     // Background obligations remain in the plan. Review them after the active boundary exits.
@@ -156,7 +157,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     const key=`group:${group.id}:${group.revision}`;if(done(key))return [];
     const members=group.members.filter(m=>available.some(a=>a.id===m.actionId));
     if(!members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return inCurrentBoundary(action)&&includesScope(pendingPlan,action,o);}))return [];
-    const explicit=members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
+    const explicit=members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&schedulableObligation(i)&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
     return [{group,key,members,allowedReductions:task.coverageMode==='representative'&&!explicit?['sample']:[]}];
   });
   const retained=scopes.filter(s=>!s.allowedReductions.length).slice(0,50);

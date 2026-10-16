@@ -11,6 +11,7 @@ const statusText: Record<FrontierItemView['status'], string> = {
 };
 function groupLabel(group: BrowserFrontierCoverageGroup) {
   const unit = group.kind === 'fill' ? '样本' : '测试项';
+  if (group.items.every(f => f.coverage.migratedTo)) return '旧范围已拆分（未执行）';
   if (group.items.every(f => f.status === 'superseded')) return '历史遍历意图（未执行）';
   if (group.coverageStatus === 'complete') return group.items.some(f => f.sampling) ? '所选操作样本均已执行' : '已发现测试项均已执行';
   if (group.coverageStatus === 'partial') return group.counts.blocked ? `已探索，仍有${unit}受阻` : '已探索，仍有测试项待完成';
@@ -43,7 +44,7 @@ function FrontierGroup({ group, blockerText, unblockText, inspectObservation }: 
           <details><summary>完整界面摘要 / 业务上下文</summary><dl className="state-details">{state.facts.map(f => <React.Fragment key={f.key}><dt>{f.label}</dt><dd>{factText(f.value, f.field)}</dd></React.Fragment>)}</dl>{Object.keys(item.action.preconditions.context).length ? <pre>{JSON.stringify(item.action.preconditions.context, null, 2)}</pre> : <p>未记录业务上下文；上方为实际记录的界面状态。</p>}</details>
         </> : <p className="muted">历史界面记录不可用，无法还原执行前条件。</p>}</td>
         <td className="frontier-differences"><Comparison item={item} state={state} reference={reference} referenceState={referenceState} /></td>
-        <td><span className={`badge ${item.status}`}>{group.kind === 'fill' && item.status === 'blocked' ? '样本受阻' : statusText[item.status]}</span><p>{executionText[item.coverage.executionStatus]}</p></td>
+        <td><span className={`badge ${item.status}`}>{item.coverage.migratedTo ? '已按保留证据拆分' : group.kind === 'fill' && item.status === 'blocked' ? '样本受阻' : statusText[item.status]}</span><p>{executionText[item.coverage.executionStatus]}</p>{item.samplingMigration && <small>{item.samplingMigration.children.length} 个后续测试项 · {item.samplingMigration.sources.filter(s => s.reason).length} 项来源待核实；拆分不代表执行成功。</small>}</td>
         <td>{blockerText[item.reason || ''] || item.reason || '—'} {unblockText[item.unblock || ''] || item.unblock}<RecoveryDetails diagnostics={item.recovery?.diagnostics} /></td>
       </tr>;
     })}</tbody></table>

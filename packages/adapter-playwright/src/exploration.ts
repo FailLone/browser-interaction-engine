@@ -74,10 +74,10 @@ function shape(c: Control, portable=false) {
 }
 
 /** Deliberate representative sampling, not a proof that other values are irrelevant. */
-export function explorationCase(action: ActionCandidate, o: Observation): ExplorationCase | undefined {
+export function explorationCase(action: ActionCandidate, o: Observation, branchVersion: 'v1' | 'v2' = 'v2'): ExplorationCase | undefined {
   const c = o.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
   if (!c || c.hypothesisId || o.gaps.some(g => g.critical)) return undefined;
-  const branch = browserBranchConditions(action, o); if (!branch) return;
+  const branch = browserBranchConditions(action, o, branchVersion); if (!branch) return;
   const input = ['fill', 'select', 'check'].includes(action.kind);
   const structuralScope = o.controls.filter(c => c.visible && c.actions.length).map(c => ({ key: c.stableKey || signature(c), role: c.role })).sort((a, b) => canonical(a).localeCompare(canonical(b)));
   const projection = { url: o.url, boundary: o.boundaries?.map(b => b.key) || [], structuralScope, target: shape(c), valid: c.constraints.valid, branch: branch.key,

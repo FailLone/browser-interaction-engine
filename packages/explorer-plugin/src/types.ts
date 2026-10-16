@@ -21,9 +21,15 @@ export interface PlanItem {
   operationConditionKey?: string;
   operationConditionPolicy?: 'browser-operation-key-v2';
   /** Scheduling-only upgrade audit; never execution or historical coverage. */
-  conditionMigration?: { status: 'migrated' | 'invalidated'; fromKey: string; toKey?: string; reason: string;
-    sources: (EvidenceRef & { actionId: string })[] };
-  status: 'pending' | 'succeeded' | 'blocked' | 'unresolved' | 'untested' | 'excluded';
+  conditionMigration?: { version?: 2; status: 'migrated' | 'invalidated' | 'split'; fromKey: string; toKey?: string; reason: string;
+    sources: (EvidenceRef & { actionId: string })[];
+    children?: { itemId: string; kind: 'condition' | 'unverified-source'; scope: Scope; required: boolean; dispatchScope: boolean; operationConditionKey?: string; sources: EvidenceRef[] }[];
+    unverifiedSources?: { source: EvidenceRef; reason: string }[];
+    previousInvalidation?: { reason: string; sources: (EvidenceRef & { actionId: string })[] };
+    /** Missing or inconsistent children restore an explicit gap, never success. */
+    integrityFailure?: string };
+  conditionLineage?: { parentItemId: string; policy: 'operation-condition-split-v1'; kind: 'condition' | 'unverified-source'; fromKey: string };
+  status: 'pending' | 'succeeded' | 'blocked' | 'unresolved' | 'untested' | 'excluded' | 'superseded';
   required: boolean; reason: string; evidence: EvidenceRef[]; resolvedBy?: EvidenceRef;
   /** Classification evidence closes a review obligation, never an executed action. */
   reviewResolvedBy?: EvidenceRef & {classificationId:string;classification:'display'|'container'};

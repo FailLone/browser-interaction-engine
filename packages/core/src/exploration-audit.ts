@@ -2,6 +2,7 @@ import { currentExplorationDecision } from './exploration-groups.js';
 import type { ActionAttempt, ExplorationGroup, FrontierItem, Observation, Session } from './types.js';
 import { canonical, contextKey } from './util.js';
 import type { EquivalentCoverage } from './coverage-reconciliation.js';
+import { migratedSamplingChildren } from './sampling-migration.js';
 
 export type ExplorationCaseDisposition = 'succeeded' | 'covered_equivalent' | 'policy_excluded' | 'awaiting_decision' | 'pending' | 'blocked' | 'retired';
 export interface ExplorationAudit {
@@ -26,6 +27,7 @@ export function auditExploration(session: Session, frontier: FrontierItem[], att
   const byAttempt = new Map(attempts.filter(a => a.sessionId === session.id).map(a => [a.id, a]));
   const byObservation = new Map(observations.filter(o => o.sessionId === session.id).map(o => [o.id, o]));
   const byGroup = new Map(groups.filter(g => g.sessionId === session.id).map(g => [g.id, g]));
+  const byFrontier = new Map(frontier.map(f => [f.id, f]));
   const cases: ExplorationAudit['cases'] = frontier.map(f => {
     const policies: ExplorationAudit['cases'][number]['policies'] = [];
     let excluded = false, waiting = false, invalidReference = false;
@@ -53,7 +55,8 @@ export function auditExploration(session: Session, frontier: FrontierItem[], att
       waiting ||= d.decision.mode === 'defer';
     }
     const last = f.attempts.length ? byAttempt.get(f.attempts.at(-1)!) : undefined;
-    const equivalent = equivalents.get(f.id);
+    const equivalent = f.samplingMigration ? undefined : equivalents.get(f.id);
+    const migrated = migratedSamplingChildren(f, byFrontier);
     let disposition: ExplorationCaseDisposition, reason: string;
     if (f.attempts.length) {
       const before = last && byObservation.get(last.beforeId), after = last?.afterId && byObservation.get(last.afterId);
@@ -66,6 +69,10 @@ export function auditExploration(session: Session, frontier: FrontierItem[], att
       } else {
         disposition = 'blocked'; reason = !last || last.status === 'succeeded' ? 'execution_evidence_missing_or_incomplete' : `attempt_${last.status}`;
       }
+    } else if (migrated) {
+      disposition = 'retired'; reason = 'sampling_policy_migrated';
+    } else if (f.samplingMigration) {
+      disposition = 'blocked'; reason = f.samplingMigration.sources.find(s => s.reason)?.reason || 'sampling_migration_child_unverified';
     } else if (equivalent && byAttempt.get(equivalent.attemptId)?.status === 'succeeded'
       && byObservation.has(equivalent.beforeId) && byObservation.has(equivalent.afterId)) {
       disposition = 'covered_equivalent'; reason = 'equivalent_operation_sample_with_observations';

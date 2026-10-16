@@ -2,11 +2,12 @@ import { join } from 'node:path';
 import { expect, it, vi } from 'vitest';
 import { hash } from '@interaction/core';
 import { type ActionAttempt, type ActionCandidate, type Observation } from '@interaction/browser';
-import { ExplorerPlugin, ExplorerStore, type PlanItem, type Round } from '@interaction/explorer-plugin';
+import { ExplorerPlugin, ExplorerStore, type PlanItem, type Round, type Task } from '@interaction/explorer-plugin';
 import { browserOperationKey, legacyBrowserOperationKey } from '../packages/adapter-playwright/src/exploration.js';
 import { formBinding } from '../packages/adapter-playwright/src/util.js';
 import { POLICY_VERSION } from '../packages/explorer-plugin/src/decision-policy.js';
-import { migrateOperationConditions, operationConditionPolicy, scopeFor } from '../packages/explorer-plugin/src/policy.js';
+import { migrateOperationConditions, operationConditionPolicy, scopeFor, includesScope } from '../packages/explorer-plugin/src/policy.js';
+import { conditionSplitIssues } from '../packages/explorer-plugin/src/plan-state.js';
 import { projectObligations } from '../packages/explorer-plugin/src/obligation-lifecycle.js';
 import { completedOperations } from '../packages/explorer-plugin/src/completion-evidence.js';
 import { explorerFixture, fakeProviders } from './explorer-plugin-helpers.js';
@@ -32,8 +33,8 @@ function oldItem(o: Observation, a: ActionCandidate): PlanItem {
     required: true, dispatchScope: false, status: 'pending', reason: 'observed_in_scope', operationConditionKey: storedV1Key(a, o),
     evidence: [{ sessionId: o.sessionId, observationId: o.id }], attempts: [] };
 }
-async function fixture() {
-  const f = await explorerFixture(html), path = join(f.dir, 'plugin-v1.sqlite'), providers = fakeProviders(f.url);
+async function fixture(includeLater=true) {
+  const f = await explorerFixture(includeLater?html:html.replace(/<button id="later"[\s\S]*$/, '')), path = join(f.dir, 'plugin-v1.sqlite'), providers = fakeProviders(f.url);
   let plugin = new ExplorerPlugin(f.host, new ExplorerStore(path), providers);
   const session = await f.host.createSession({ ...options, url: f.url }), source = f.host.observation(session.id), action = runAction(f.host, session.id);
   const created = plugin.create({ url: f.url, sessionOptions: { executionPolicy: 'interface-only', headless: true, settleMs: 0, observeTimeoutMs: 100 }, budget: { rounds: 1, actions: 10 } });
@@ -74,22 +75,26 @@ it('reopens a genuinely persisted v1 pending row, upgrades its exact source hint
   } finally { await f.close(); }
 });
 
-it('retains one coarse v1 A/B row as an explicit invalidated gap while discovering and executing both current branches once', async () => {
-  const f = await fixture();
+it('splits an already-invalidated coarse v1 A/B row and completes both children without treating the parent as successful', async () => {
+  const f = await fixture(false);
   try {
     await pageOf(f.host).evaluate(() => { (document.querySelector('#mode') as HTMLSelectElement).value = 'B'; });
     const b = await f.host.observe(f.source.sessionId), actionB = runAction(f.host, b.sessionId), legacy = f.task.plan.at(-1)!;
     expect(storedV1Key(actionB, b)).toBe(legacy.operationConditionKey);
     expect(browserOperationKey(actionB, b)).not.toBe(browserOperationKey(f.action, f.source));
     legacy.evidence.push({ sessionId: b.sessionId, observationId: b.id });
+    legacy.status='blocked';legacy.reason='condition_policy_invalidated:multiple_current_conditions';legacy.conditionMigration={status:'invalidated',fromKey:legacy.operationConditionKey!,reason:'multiple_current_conditions',sources:[{...legacy.evidence[0],actionId:f.action.id},{...legacy.evidence[1],actionId:actionB.id}]};
     f.plugin.store.save(f.task); await f.restart();
     f.plugin.start(f.task.id); await f.plugin.waitForIdle();
     const view = f.plugin.view(f.task.id), invalid = view.task.plan.find(i => i.id === legacy.id)!;
-    expect(view.task).toMatchObject({ status: 'blocked', reason: 'condition_policy_invalidated' });
-    expect(invalid).toMatchObject({ status: 'blocked', reason: 'condition_policy_invalidated:multiple_current_conditions', operationConditionKey: legacy.operationConditionKey,
-      attempts: [], conditionMigration: { status: 'invalidated', reason: 'multiple_current_conditions' } });
+    expect(view.task).toMatchObject({ status: 'completed', reason: 'current_plan_verified' });
+    expect(invalid).toMatchObject({ status: 'superseded', required:true, reason: 'condition_scope_split', operationConditionKey: legacy.operationConditionKey,
+      attempts: [], conditionMigration: { status: 'split', reason: 'retained_sources_split',previousInvalidation:{reason:'multiple_current_conditions'} } });
+    const children=view.task.plan.filter(item=>item.conditionLineage?.parentItemId===legacy.id);
+    expect(children).toHaveLength(2);expect(children.every(item=>item.status==='succeeded'&&item.attempts.length===1)).toBe(true);
+    expect(conditionSplitIssues(view.task.plan).size).toBe(0);
     expect(invalid.resolvedBy).toBeUndefined(); expect(invalid.coverageResolvedBy).toBeUndefined();
-    expect(view.task.obligations?.entries.find(i => i.itemId === legacy.id)).toMatchObject({ state: 'unreachable', reason: invalid.reason });
+    expect(view.task.obligations?.entries.find(i => i.itemId === legacy.id)).toMatchObject({ state: 'superseded', reason: 'original_scope_transferred_to_children' });
     expect(await pageOf(f.host).evaluate(() => (window as any).executed)).toEqual(['B', 'A']);
     expect(view.task.rounds).toHaveLength(1);
     const sources = vi.spyOn(f.host, 'actions');
@@ -164,4 +169,108 @@ it('does not borrow a sibling observation to narrow a keyed v1 obligation whose 
     expect(view.events.filter(e => e.type === 'scope.source_recovered')).toEqual([]);
     expect(await pageOf(f.host).evaluate(() => (window as any).executed)).toEqual(['A', 'B']);
   } finally { await f.close(); }
+});
+
+async function splitSource(f: Awaited<ReturnType<typeof fixture>>) {
+  await pageOf(f.host).evaluate(() => { (document.querySelector('#mode') as HTMLSelectElement).value = 'B'; });
+  const b = await f.host.observe(f.source.sessionId), parent=f.task.plan.find(item=>item.id==='persisted-v1-pending')!;
+  parent.evidence.push({sessionId:b.sessionId,observationId:b.id});
+  expect(migrateOperationConditions(f.task,f.host)).toHaveLength(1);
+  expect(parent.status).toBe('superseded');
+  return {b,parent,children:f.task.plan.filter(item=>item.conditionLineage?.parentItemId===parent.id)};
+}
+
+it('fails closed when transferred children are missing, rebound, unauthorized, excluded, or lose their retained source',async()=>{
+  const f=await fixture();try{
+    const {parent,children}=await splitSource(f),original=structuredClone(f.task.plan);
+    const cases:[string,(plan:PlanItem[])=>void][]=[
+      ['missing_child',plan=>plan.splice(plan.findIndex(item=>item.id===children[0].id),1)],
+      ['child_authority_mismatch',plan=>{plan.find(item=>item.id===children[0].id)!.required=false;}],
+      ['child_authority_mismatch',plan=>{plan.find(item=>item.id===children[0].id)!.dispatchScope=true;}],
+      ['child_scope_mismatch',plan=>{plan.find(item=>item.id===children[0].id)!.scope.label='Other target';}],
+      ['child_source_mismatch',plan=>{plan.find(item=>item.id===children[0].id)!.evidence=[];}],
+      ['child_condition_mismatch',plan=>{plan.find(item=>item.id===children[0].id)!.operationConditionKey='wrong-mode';}],
+      ['child_exclusion_mismatch',plan=>{plan.find(item=>item.id===children[0].id)!.status='excluded';}],
+      ['missing_split_audit',plan=>{delete plan.find(item=>item.id===parent.id)!.conditionMigration;}],
+    ];
+    const reads=vi.spyOn(f.host,'observation');
+    for(const [reason,change] of cases){
+      const plan=structuredClone(original);change(plan);
+      expect(conditionSplitIssues(plan).get(parent.id)).toBe(reason);
+      const projection=projectObligations(f.host,{plan},f.source,[]).projection;
+      expect(projection.entries.find(entry=>entry.itemId===parent.id)).toMatchObject({state:'unreachable',reason:`condition_split_invalid:${reason}`});
+      reads.mockClear();expect(migrateOperationConditions({plan},f.host)).toHaveLength(1);expect(reads).not.toHaveBeenCalled();
+      expect(plan.find(item=>item.id===parent.id)).toMatchObject({status:'blocked',required:true,reason:`condition_split_invalid:${reason}`});
+      expect(migrateOperationConditions({plan},f.host)).toEqual([]);
+    }
+  }finally{await f.close();}
+});
+
+it('prepares all children before an ID collision and retains the complete old gap without a partial split',async()=>{
+  const f=await fixture();try{
+    const original=structuredClone(f.task.plan);await splitSource(f);
+    const parent=f.task.plan.find(item=>item.id==='persisted-v1-pending')!,collision=structuredClone(f.task.plan.find(item=>item.id===parent.conditionMigration!.children![1].itemId)!);
+    const plan=[...original,collision];plan.find(item=>item.id===parent.id)!.evidence=structuredClone(parent.evidence);
+    const before=structuredClone(plan);
+    migrateOperationConditions({plan},f.host);
+    expect(plan).toHaveLength(before.length);expect(plan.at(-1)).toEqual(collision);
+    expect(plan.find(item=>item.id===parent.id)).toMatchObject({status:'blocked',reason:'condition_policy_invalidated:child_id_collision'});
+    expect(plan.filter(item=>item.conditionLineage?.parentItemId===parent.id)).toHaveLength(1);
+  }finally{await f.close();}
+});
+
+it('leaves overflowing and ambiguous selector sources as gaps even when the legacy operation key verifies',async()=>{
+  const f=await fixture();try{
+    for(const reason of ['overflow','ambiguous']){
+      const source=structuredClone(f.source),mode=source.controls.find(control=>control.stableKey==='id:mode')!;
+      const copies=reason==='overflow'?33:1;
+      for(let i=0;i<copies;i++)source.controls.push({...structuredClone(mode),localId:`extra-${i}`,stableKey:reason==='overflow'?`id:extra-${i}`:mode.stableKey});
+      const item=oldItem(source,f.action),host={observation:()=>source,actions:()=>[f.action]};
+      expect(legacyBrowserOperationKey(f.action,source)).toBe(item.operationConditionKey);
+      migrateOperationConditions({plan:[item]},host);
+      expect(item).toMatchObject({status:'blocked',reason:'condition_policy_invalidated:source_conditions_unverified',conditionMigration:{status:'invalidated',version:2}});
+      expect(item.conditionMigration?.children).toBeUndefined();
+    }
+  }finally{await f.close();}
+});
+
+it('settles the A child through current SDK history while B remains untested, and retains its condition after explicit supplement',async()=>{
+  const f=await fixture();try{
+    const {children,parent}=await splitSource(f),keyA=browserOperationKey(f.action,f.source),childA=children.find(item=>item.operationConditionKey===keyA)!,childB=children.find(item=>item!==childA)!;
+    await pageOf(f.host).evaluate(()=>{(document.querySelector('#mode') as HTMLSelectElement).value='A';});
+    const before=await f.host.observe(f.source.sessionId),action=runAction(f.host,before.sessionId),attempt=await f.host.execute(before.sessionId,action.id,'existing-A-history');
+    const ref={sessionId:attempt.sessionId,observationId:attempt.afterId!,attemptId:attempt.id};
+    f.task.plan.push({...oldItem(before,action),id:'verified-A-history',operationConditionKey:keyA,operationConditionPolicy,status:'succeeded',resolvedBy:ref,evidence:[{sessionId:before.sessionId,observationId:before.id},ref],attempts:[{roundId:f.task.rounds[0].id,outcome:'succeeded',evidence:ref}]});
+    const runtime=f.plugin as unknown as {settleScopes(task:Task,o:Observation,incomplete:Set<string>,only:boolean):void;recordOutcome(task:Task,attempt:ActionAttempt,ids:string[]):void};
+    const comparisons=vi.spyOn(f.host,'operationCorrespondences'),current=f.host.observation(before.sessionId);
+    runtime.settleScopes(f.task,current,new Set(),true);
+    expect(comparisons).toHaveBeenCalled();
+    expect(childA).toMatchObject({status:'succeeded',attempts:[],coverageResolvedBy:{observation:{observationId:current.id}}});
+    expect(childA.resolvedBy).toBeUndefined();expect(childB.status).toBe('pending');expect(childB.coverageResolvedBy).toBeUndefined();expect(parent.status).toBe('superseded');
+    f.plugin.store.save(f.task);
+    expect(()=>f.plugin.revise(f.task.id,{itemIds:[parent.id]},true)).toThrowError(expect.objectContaining({code:'SUPERSEDED_SCOPE_SELECT_CHILDREN'}));
+    const revised=f.plugin.revise(f.task.id,{itemIds:[childA.id]},true),selected=revised.plan.find(item=>item.id===childA.id)!;
+    expect(selected.dispatchScope).toBe(true);expect(conditionSplitIssues(revised.plan).size).toBe(0);
+    const b=runAction(f.host,before.sessionId);
+    expect(includesScope(revised.plan,b,current)).toBeUndefined();
+    const bAttempt=await f.host.execute(before.sessionId,b.id,'actual-B-not-A');
+    runtime.recordOutcome(revised,bAttempt,[selected.id]);
+    expect(selected).toMatchObject({status:'pending',attempts:[]});expect(selected.resolvedBy).toBeUndefined();
+    expect(revised.plan.find(item=>item.id===parent.id)?.status).toBe('superseded');
+  }finally{await f.close();}
+});
+
+it('blocks a persisted split with changed child authority before observation, session creation or dispatch',async()=>{
+  const f=await fixture();try{
+    const {children,parent}=await splitSource(f);
+    children[0].dispatchScope=true;
+    f.plugin.store.save(f.task);await f.restart();
+    const create=vi.spyOn(f.host,'createSession'),observe=vi.spyOn(f.host,'observe'),execute=vi.spyOn(f.host,'execute');
+    f.plugin.start(f.task.id);await f.plugin.waitForIdle();
+    const view=f.plugin.view(f.task.id);
+    expect(view.task).toMatchObject({status:'blocked',reason:'condition_split_invalid'});
+    expect(view.task.plan.find(item=>item.id===parent.id)).toMatchObject({status:'blocked',reason:'condition_split_invalid:child_authority_mismatch'});
+    expect(create).not.toHaveBeenCalled();expect(observe).not.toHaveBeenCalled();expect(execute).not.toHaveBeenCalled();
+    expect(view.task.plan.filter(item=>item.conditionLineage?.parentItemId===parent.id)).toHaveLength(2);
+  }finally{await f.close();}
 });

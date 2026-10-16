@@ -3,6 +3,7 @@ import { contextSchema, actionBasisSchema, componentDescriptionSchema } from './
 import type { ComponentDescription, ComponentDescriptionInput, ExplorationTargetReference, ExplorationTargetCorrespondence, ReachExplorationTargetInput, ExplorationTargetReachResult, RepetitionAssessment } from './types.js';
 import { assignState, matchIdentities, sameObservedState } from './identity.js';
 import { recoverStore } from './recovery.js';
+import { migrateSamplingSources, sampledFrontierKey } from './sampling-migration.js';
 import { DiffQueries } from './diff-details.js';
 import { describeFrontier, groupFrontier } from './frontier.js';
 import { ExplorationGroups, currentExplorationDecision, explorationGates, validateExplorationProposals } from './exploration-groups.js';
@@ -519,11 +520,12 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if (!existing) {
           const f: FrontierItem = { id: id(), sessionId, key, stateId: o.stateId, contextKey: contextKey(o.context), action, status: reason || action.excluded ? 'blocked' : 'pending', reason, unblock, depth: frontierDepth, attempts: [] };
           f.explorationGroups = groupDiscovery.references.get(action.id);
-          if (sample) f.sampling = { policy: sample.policy, evidence: sample.evidence, observationIds: [o.id] };
+          if (sample) f.sampling = { policy: sample.policy, evidence: sample.evidence, observationIds: [o.id], revision: this.adapter.explorationCaseRevision };
           this.store.put('frontier', f); frontierByKey.set(key, f);
         } else {
-          const temporarilyBlocked = existing.status === 'blocked' && (!!existing.action.preconditions.blockers?.length || ['action_basis_unconfirmed', 'exploration_scope_hook_failed', 'action_dependencies_unstable'].includes(existing.reason || ''));
+          const temporarilyBlocked = existing.status === 'blocked' && (!!existing.action.preconditions.blockers?.length || ['action_basis_unconfirmed', 'exploration_scope_hook_failed', 'action_dependencies_unstable', 'sampling_scope_review_required'].includes(existing.reason || ''));
           if (existing.sampling && !existing.sampling.observationIds.includes(o.id)) existing.sampling.observationIds.push(o.id);
+          if (existing.sampling) existing.sampling.revision = this.adapter.explorationCaseRevision;
           // A recorded attempt stays attached to its actual source observation.
           // Only unattempted samples may move to newly observed conditions.
           if (!existing.sampling || !existing.attempts.length) {
@@ -574,6 +576,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         this.updateFrontier(attempt); this.emit(sessionId, 'action.completed', attempt); this.emit(sessionId, 'observation.diff', attempt.diff);
         for (const scope of this.store.list<InteractionScope>('scope', sessionId).filter(s => s.status === 'open')) { scope.attemptIds.push(attemptId); this.store.put('scope', scope); }
       } else if (previous && previous.canonical !== o.canonical) this.emit(sessionId, 'observation.external_change', this.adapter.compare(previous, o));
+      migrateSamplingSources(this.store, session, this.adapter, this.unverifiedRecoveryAttempts(sessionId).length > 0);
       this.emit(sessionId, 'observation.created', { observationId: o.id, stateId: o.stateId, visitId: o.visitId, gaps: o.gaps });
       this.emit(sessionId, 'frontier.updated', { observationId: o.id });
       this.syncBoundaries(sessionId, previous, o, attemptId);
@@ -638,7 +641,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   }
   private frontierKey(a: ActionCandidate, observation?: O) {
     const sample = this.samplingCase(a, observation);
-    if (sample) return hash({ sample: sample.key, policy: sample.policy, control: a.controlId, kind: a.kind, value: a.value, context: a.preconditions.context });
+    if (sample) return sampledFrontierKey(a, sample);
     const o = observation || this.observation(a.sessionId, a.observationId);
     // An index group never turns different strict source facts into executed work.
     const state = o.stateGrouping ? hash({ ruleVersion: o.ruleVersion, canonical: o.canonical }) : a.stateId;
@@ -670,6 +673,14 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     return result;
   }
   async observe(sessionId: string) { return this.enqueue(async () => { await this.attach(sessionId); return this.capture(sessionId, 'inspection'); }); }
+  /** Recheck retained migration gaps after evidence repair; never opens a driver
+   * or substitutes a live observation for a historical source. */
+  reconcileSamplingScopes(sessionId: string) {
+    return this.enqueue(async () => this.store.transaction(() => {
+      migrateSamplingSources(this.store, this.session(sessionId), this.adapter, this.unverifiedRecoveryAttempts(sessionId).length > 0, true);
+      return this.getFrontier(sessionId).filter(f => f.samplingMigration);
+    }));
+  }
   async inspect(sessionId: string, region: string) {
     const observation = await this.observe(sessionId);
     if (!observation.regions.some(r => r.key === region)) throw new EngineError('REGION_NOT_FOUND', 'Requested region was not found', { observationId: observation.id });
@@ -778,7 +789,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if (!this.store.list<FrontierItem>('frontier', sessionId).some(f => f.key === key)) {
         const sample = this.samplingCase(action, current);
         this.store.put('frontier', { id: id(), sessionId, key, stateId: action.stateId, contextKey: contextKey(action.preconditions.context), action, status: 'executing', attempts: [], depth: this.owned<Visit>('visit', current.visitId, sessionId).depth,
-          ...(sample ? { sampling: { policy: sample.policy, evidence: sample.evidence, observationIds: [current.id] } } : {}) } as FrontierItem);
+          ...(sample ? { sampling: { policy: sample.policy, evidence: sample.evidence, observationIds: [current.id], revision: this.adapter.explorationCaseRevision } } : {}) } as FrontierItem);
       }
       this.store.put('attempt', attempt); this.store.recordRequest(sessionId, requestId, attempt.id, payload); this.updateFrontier(attempt); this.emit(sessionId, 'action.started', attempt);
     });

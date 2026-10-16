@@ -39,10 +39,16 @@ export class SqliteStore implements Persistence {
   }
   transaction<T>(fn: () => T): T { return this.db.transaction(fn)(); }
   put<T extends { id: string; sessionId?: string }>(kind: string, value: T) {
-    const prior = this.get(kind, value.id);
+    const sessionId = value.sessionId ?? value.id;
+    const owner = this.db.prepare('SELECT kind,session_id FROM entities WHERE id=?').get(value.id) as { kind: string; session_id: string } | undefined;
+    if (owner && (owner.kind !== kind || owner.session_id !== sessionId)) throw new EngineError('ID_CONFLICT', 'ID already belongs to another entity kind or session');
+    const prior = kind === 'observation' && owner ? this.get(kind, value.id) : undefined;
     if(kind==='observation'&&prior){if(canonical(prior)!==canonical(value))throw new EngineError('IMMUTABLE_OBSERVATION','Observations cannot be overwritten');return;}
     const json=JSON.stringify(value),row=kind==='observation'?encodeObservationJson(json):{json,compressed_json:null};
-    this.db.prepare('INSERT INTO entities(kind,id,session_id,json,compressed_json) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET json=excluded.json,compressed_json=excluded.compressed_json').run(kind,value.id,value.sessionId??value.id,row.json,row.compressed_json);
+    // Keep ownership guarded at the write too if another connection claimed the
+    // ID after the lookup. An ID conflict must not overwrite unrelated evidence.
+    const written = this.db.prepare('INSERT INTO entities(kind,id,session_id,json,compressed_json) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET json=excluded.json,compressed_json=excluded.compressed_json WHERE entities.kind=excluded.kind AND entities.session_id=excluded.session_id').run(kind,value.id,sessionId,row.json,row.compressed_json);
+    if (!written.changes) throw new EngineError('ID_CONFLICT', 'ID already belongs to another entity kind or session');
   }
   get<T>(kind: string, id: string): T | undefined { const row=this.db.prepare('SELECT kind,json,compressed_json FROM entities WHERE kind=? AND id=?').get(kind,id) as StoredEntityRow|undefined;return row?decodeStoredEntity<T>(row):undefined; }
   require<T>(kind: string, id: string): T { const value = this.get<T>(kind, id); if (!value) throw new EngineError('NOT_FOUND', `${kind} ${id} not found`); return value; }

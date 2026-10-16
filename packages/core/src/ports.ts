@@ -77,6 +77,13 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   returnToObservation?(target: O, current: O, session: Session<S>): ActionCandidate | undefined;
   /** Explicit sampling policy. This is not a state equivalence or independence claim. */
   explorationCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
+  /** Decode explicitly supported historical representative sampling policies.
+   * Sources must be retained observations, never substituted live facts. These
+   * keys only verify old scope membership; current explorationCase must also
+   * succeed, and this port grants no identity, execution, coverage or replay. */
+  legacyExplorationCases?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase[];
+  /** Required with legacyExplorationCases for once-per-version source audits. */
+  readonly explorationCaseRevision?: string;
   /** Portable observation evidence, without asserting logical identity or permission. */
   controlCorrespondence?(control: O['controls'][number]): import('./coverage-reconciliation.js').CorrespondenceHint | undefined;
   /** Optional operation-specific evidence. Does not change control identity or persisted keys. */

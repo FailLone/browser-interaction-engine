@@ -1,9 +1,10 @@
+import { conditionSplitIssues, boundOperationCondition } from './plan-state.js';
 import { browserControlCorrespondence, browserOperationCorrespondenceHint, browserTargetConditions, type ActionAttempt, type ActionCandidate, type BrowserEngine, type ContinuationRecord, type Observation } from '@interaction/browser';
 import type { EvidenceRef, ExplorerHost, PlanItem, Scope, Task } from './types.js';
 import { broadScope, controlScopeMatcher, digest, keyFor, matches, scopeFor } from './policy.js';
 
 /** A scheduling view of the immutable discovery ledger, never coverage or permission. */
-export type ObligationState = 'active' | 'waiting' | 'unreachable' | 'alias' | 'resolved' | 'excluded' | 'authority';
+export type ObligationState = 'active' | 'waiting' | 'unreachable' | 'alias' | 'resolved' | 'excluded' | 'authority' | 'superseded';
 export interface ObligationEntry {
   itemId:string; groupId:string; state:ObligationState; reason:string;
   conditionVersion:string; currentActionId?:string; aliasOf?:string;
@@ -14,7 +15,7 @@ export interface ObligationEntry {
 export interface ObligationProjection {
   version:1; sessionId:string; observationId:string; conditionVersion:string;
   entries:ObligationEntry[];
-  counts:{rows:number;active:number;waiting:number;unreachable:number;aliases:number;resolved:number;excluded:number;authority:number;unresolved:number;unresolvedGroups:number};
+  counts:{rows:number;active:number;waiting:number;unreachable:number;aliases:number;superseded?:number;resolved:number;excluded:number;authority:number;unresolved:number;unresolvedGroups:number};
 }
 export interface ObligationLifecycleEvent {
   itemId:string; from?:ObligationState; to:ObligationState; reason:string; groupId:string;
@@ -107,8 +108,12 @@ export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:
   const conditionVersion=recoveryConditionVersion(o),current=actions.filter(a=>a.sessionId===o.sessionId&&a.observationId===o.id);
   const currentScopes=new Map(current.map(a=>[a.id,scopeFor(a,o)])),matchControl=controlScopeMatcher(o,current);
   const previousEntries=new Map(previous?.version===1?previous.entries.map(e=>[e.itemId,e]):[]);
+  const splitIssues=conditionSplitIssues(task.plan);
   const entries:ObligationEntry[]=task.plan.map(item=>{
     const entry:ObligationEntry={itemId:item.id,groupId:item.id,state:'waiting',reason:'target_not_observed',conditionVersion};
+    if(splitIssues.has(item.id))return {...entry,state:'unreachable',reason:`condition_split_invalid:${splitIssues.get(item.id)}`};
+    if(item.status==='superseded')return {...entry,state:'superseded',reason:'original_scope_transferred_to_children'};
+    if(item.conditionMigration?.status==='split')return {...entry,state:'unreachable',reason:item.reason};
     if(item.status==='succeeded')return {...entry,state:'resolved',reason:'original_ledger_resolved'};
     // Nonrequired unsupported content is an untested limitation, not evidence of
     // user exclusion or successful coverage. Preserve it in the unresolved view.
@@ -117,7 +122,7 @@ export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:
     if(item.dispatchScope===false&&item.conditionMigration?.status==='invalidated')return {...entry,state:'unreachable',reason:item.reason};
     if(item.dispatchScope===true&&broadScope(item.scope))return {...entry,state:'authority',reason:'task_scope_authority'};
     const scoped=current.filter(a=>Object.entries(item.scope).every(([k,v])=>JSON.stringify(currentScopes.get(a.id)![k as keyof Scope])===JSON.stringify(v)));
-    const candidates=scoped.filter(a=>item.dispatchScope===true||!item.operationConditionKey||item.operationConditionKey===keyFor(a,o));
+    const candidates=scoped.filter(a=>!boundOperationCondition(item)||boundOperationCondition(item)===keyFor(a,o));
     if(candidates.length===1){entry.state=visibleAction(candidates[0],o)?'active':'waiting';entry.reason=entry.state==='active'?'current_target_observed':'target_hidden';entry.currentActionId=candidates[0].id;}
     else if(candidates.length>1){entry.state='active';entry.reason='current_target_ambiguous';}
     else if(scoped.length&&item.operationConditionKey)entry.reason='operation_conditions_changed';
@@ -209,7 +214,7 @@ export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:
       }
     }catch{/* Missing or invalid source evidence keeps the original obligation. */}
   }
-  const counts={rows:entries.length,active:0,waiting:0,unreachable:0,aliases:0,resolved:0,excluded:0,authority:0,unresolved:0,unresolvedGroups:0};
+  const counts={rows:entries.length,active:0,waiting:0,unreachable:0,aliases:0,superseded:0,resolved:0,excluded:0,authority:0,unresolved:0,unresolvedGroups:0};
   for(const entry of entries){if(entry.state==='alias')counts.aliases++;else counts[entry.state]++;if(unresolved(entry))counts.unresolved++;}
   counts.unresolvedGroups=new Set(entries.filter(unresolved).map(e=>e.groupId)).size;
   const projection:ObligationProjection={version:1,sessionId:o.sessionId,observationId:o.id,conditionVersion,entries,counts};

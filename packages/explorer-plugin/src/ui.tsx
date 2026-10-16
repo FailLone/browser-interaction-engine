@@ -1,12 +1,14 @@
+import { isSuperseded, isUnfinished, conditionSplitIssues } from './plan-state.js';
 import React,{createContext,useContext,useEffect,useRef,useState,type ReactNode} from 'react';
 import { ExplorerClient,ExplorerTaskFeed,type PluginStatus,type ExplorerTaskSummary } from './client.js';
-import type { Task,TaskView,ExplorerEvent,Decision } from './types.js';
+import type { Task,TaskView,ExplorerEvent,Decision,PlanItem } from './types.js';
 const api=new ExplorerClient();
 const C=createContext<{status?:PluginStatus;tasks:ExplorerTaskSummary[];view?:TaskView;selectedEvent?:ExplorerEvent;inspect:(event:ExplorerEvent|undefined)=>void;mode:'autonomous'|'manual';setMode:(mode:'autonomous'|'manual')=>void;select:(id:string)=>void;refresh:()=>Promise<void>}>({tasks:[],inspect:()=>{},mode:'autonomous',setMode:()=>{},select:()=>{},refresh:async()=>{}});
-const names:Record<string,string>={idle:'待开始',running:'探索中',paused:'已暂停',stopped:'已停止',completed:'当前计划完成',blocked:'存在阻塞',budget_exhausted:'预算用尽',configuration_required:'需要配置服务',pending:'待执行',succeeded:'已验证',unresolved:'待确认',untested:'未测',excluded:'已排除',requested:'正在调用',returned:'已返回',applied:'已采用',rejected:'未采用',stale:'已过期',cancelled:'已取消',failed:'调用失败'};
+const names:Record<string,string>={idle:'待开始',running:'探索中',paused:'已暂停',stopped:'已停止',completed:'当前计划完成',blocked:'存在阻塞',budget_exhausted:'预算用尽',configuration_required:'需要配置服务',pending:'待执行',succeeded:'已验证',superseded:'已拆分为子范围',unresolved:'待确认',untested:'未测',excluded:'已排除',requested:'正在调用',returned:'已返回',applied:'已采用',rejected:'未采用',stale:'已过期',cancelled:'已取消',failed:'调用失败'};
 const reasons:Record<string,string>={PROVIDER_TIMEOUT:'模型响应超过时限',PROVIDER_UNAVAILABLE:'模型服务暂时不可用',MODEL_OUTPUT_TRUNCATED:'模型输出被长度限制截断',INVALID_MODEL_OUTPUT:'模型输出不符合决策格式',jev_uncertain:'JEV 置信度不足，转交 LLM',jev_low_confidence:'JEV 未达到此类判断的置信度门槛',jev_no_choice:'JEV 无法作出选择',jev_not_configured:'JEV 未配置',jev_circuit_open:'JEV 服务暂时不可用',decision_context_changed:'来源观察已变化，未应用此结果',current_plan_verified:'当前计划内的操作已验证',llm_required_for_planning:'需要配置 LLM 才能生成计划',CONFIGURATION_REQUIRED:'需要配置可用的模型服务',BUDGET_EXHAUSTED:'总预算用尽',ROUND_BUDGET_EXHAUSTED:'轮次预算用尽',sample_unselected:'未选入代表样本',observed_in_scope:'当前范围内发现',scope_deferred:'范围暂缓',scope_not_verified:'目标尚未验证',unknown_action_outcome:'执行结果尚未确认',UNKNOWN_DISPATCH_REQUIRES_REVIEW:'需先核实上次执行结果',operation_basis_unconfirmed:'操作依据未确认',checkpoint_unverified:'返回路径尚未验证',ACTIVE_SESSION:'请先停止当前普通会话',user_paused:'已由用户暂停',user_stopped:'已由用户停止',process_restarted:'服务重启后等待继续',no_new_evidence:'连续探索未获得新证据',plan_revised:'计划已调整'};
 Object.assign(reasons,{program_exhaustive_root:'程序建立的全页探索范围',user_excluded:'用户明确排除，未计为已测',TASK_SCOPE_UNSUPPORTED:'任务超出当前页面交互探索能力，请调整范围',INVALID_TASK_CONSTRAINT:'模型给出的排除条件无法对应用户原文，未执行',EXHAUSTIVE_REQUIRES_ALL:'穷尽探索需选择全部已发现交互，不能使用代表样本',PLAN_REVIEW_REQUIRED:'历史任务缺少范围授权记录，请重新规划',jev_required_for_judgments:'需要配置 JEV 才能进行页面判断',JEV_TEMPORARILY_UNAVAILABLE:'JEV 暂时不可用，已暂停；未自动改用 LLM',operation_risk_unresolved:'操作风险证据不足，保留待测',classification_unresolved:'控件类型仍不明确，保留待测',region_unresolved:'区域仍不明确，保留待测'});
 Object.assign(reasons,{stable_candidate_order:'程序按遍历顺序选择已可执行控件',known_observation_obligations:'保留已有观察义务，无需模型重述',unfinished_observed_targets:'返回有未完成控件的已观察状态'});
+Object.assign(reasons,{condition_scope_split:'原记录保留，待测范围已转交给列出的子项；未计为已测',SUPERSEDED_SCOPE_SELECT_CHILDREN:'此范围已经拆分，请选择对应子项补测',condition_policy_invalidated:'部分历史来源仍无法核实，缺口已保留',condition_split_invalid:'历史范围与子项记录不一致，需先核对后继续'});
 const unsupportedNames:Record<string,string>={UNSUPPORTED_CANVAS:'画布内部',UNSUPPORTED_IFRAME:'内嵌页面',UNSUPPORTED_SHADOW_DOM:'Shadow DOM 内容',UNSUPPORTED_FILE_INPUT:'文件上传控件',UNSUPPORTED_INPUT_TYPE:'部分输入控件',SCROLL_WRITING_MODE_UNSUPPORTED:'部分滚动方向'};
 const reasonText=(reason?:string)=>reason?.startsWith('missing_capability:')?`当前宿主能力不足：${unsupportedNames[reason.slice('missing_capability:'.length)]||reason.slice('missing_capability:'.length)}`:reason?reasons[reason]||reason:'';
 const events:Record<string,string>={'task.created':'创建任务','task.paused':'任务暂停','task.stopped':'任务停止','budget.extended':'预算已追加','round.reattached':'重新观察会话','recovery.reentry_required':'需要重新进入区域','decision.effect':'应用影响','decision.resolved':'按调度规则处理','decision.requested':'请求判断','decision.returned':'返回判断','decision.applied':'采用判断','decision.rejected':'未采用判断','decision.fallback':'转交 LLM','decision.failed':'调用失败','decision.stale':'结果过期','decision.cancelled':'取消判断','round.started':'开始新一轮','round.audit':'本轮审计','action.dispatch':'准备执行','action.verified':'记录执行与观察结果','action.started':'执行操作','action.completed':'操作记录已完成','action.succeeded':'操作成功','observation.created':'页面观察','task.completed':'当前计划完成','task.halted':'保存并暂停','recovery.result':'返回验证','plan.revised':'补测计划已调整'};
@@ -22,6 +24,7 @@ Object.assign(events,{'probe.dispatch':'执行观察探测','probe.verified':'�
 Object.assign(reasons,{probe_unresolved:'探测用途或外部写入风险仍不明确，保留待测'});
 Object.assign(reasons,{entry_revalidation_deferred:'入口条件变化，保留待重验；子目标无新进展，暂不重复进入',operation_not_executed:'尚未执行，保留待测',sampling_not_authorized:'按当前范围保留全部已发现成员；执行仍需通过范围、用途和宿主校验。',host_time_limit:'当前会话的时限已用尽，未完成范围已保留。新会话仍受任务总预算约束，未知结果保持不变。'});
 Object.assign(events,{'action.selected':'程序选择下一步','action.validation':'派发前复验','action.scheduled':'关联待执行范围','action.invalidated':'当前动作已失效','program.review':'程序整理观察范围','classification.reused':'复用已有分类判断','recovery.selected':'程序选择返回目标','plan.retained':'保留未完成范围'});
+Object.assign(events,{'operation.conditions_migrated':'按原始来源迁移或拆分待测范围（未计为已测）'});
 const purposes:Record<string,string>={'task-intent':'判断任务类型','initial-plan':'理解任务与生成范围','region-review':'识别探索区域','control-classification':'判断控件类型','identity-review':'判断控件身份','control-risk':'判断操作用途','input-samples':'生成输入样本','scope-review':'决定遍历范围','sample-selection':'选择代表样本','list-purpose':'判断列表用途','purpose-description':'描述列表用途','probe-selection':'选择观察试探','discovery-scan':'补充发现','next-action':'选择下一步','recovery-selection':'判断返回路径','followup-plan':'提出补测计划','followup-strategy':'判断是否需要新计划'};
 Object.assign(purposes,{'boundary-exit-risk':'判断弹层外部退出方式'});
 Object.assign(purposes,{'probe-risk':'判断观察探测的用途与风险'});
@@ -119,30 +122,37 @@ export function ObligationAuditSummary({projection}:{projection?:Task['obligatio
   const counts=projection.counts;
   return <section className="scope-note" aria-label="最近轮次审计">
     <strong>最近轮次审计</strong>
-    <div className="explorer-usage"><span>活动目标 {counts.active} 组</span><span>等待条件 {counts.waiting} 组</span><span>暂不可达 {counts.unreachable} 组</span><span>历史对应 {counts.aliases} 条</span></div>
+    <div className="explorer-usage"><span>活动目标 {counts.active} 组</span><span>等待条件 {counts.waiting} 组</span><span>暂不可达 {counts.unreachable} 组</span><span>历史对应 {counts.aliases} 条</span>{!!counts.superseded&&<span>已转交子项 {counts.superseded} 条</span>}</div>
     <p>保留 {counts.unresolved} 条未完成记录，对应 {counts.unresolvedGroups} 组待测范围。历史对应仅归并目标，不计为已测。</p>
     <small title={`会话 ${projection.sessionId} · 观察 ${projection.observationId}`}>审计来源：{projection.sessionId.slice(0,8)} / {projection.observationId.slice(0,8)}。后续页面变化需要重新审计。</small>
   </section>;
 }
 
+export function PlanOutstandingCount({plan,issues=conditionSplitIssues(plan)}:{plan:PlanItem[];issues?:Map<string,string>}) {
+  return <span>{plan.filter(item=>isUnfinished(item)||issues.has(item.id)).length} 条未完成记录</span>;
+}
+export function PlanItemSelection({item,running,checked,onChange}:{item:PlanItem;running:boolean;checked:boolean;onChange:(checked:boolean)=>void}) {
+  return <input type="checkbox" checked={checked} disabled={running||isSuperseded(item)||item.conditionMigration?.status==='split'} onChange={event=>onChange(event.target.checked)}/>;
+}
+
 export function ExplorerPlan({onSession}:{onSession:(id:string)=>void}) {
   const {status,view,refresh,mode}=useContext(C);const [picked,setPicked]=useState<string[]>([]);const [editing,setEditing]=useState('');const [error,setError]=useState('');const [busy,setBusy]=useState(false);
   useEffect(()=>{setPicked([]);setEditing('');setError('');},[view?.task.id]);
-  if(!status?.enabled||!view||mode==='manual')return null;const task=view.task;
+  if(!status?.enabled||!view||mode==='manual')return null;const task=view.task,splitIssues=conditionSplitIssues(task.plan);
   const run=async(fn:()=>Promise<unknown>)=>{setBusy(true);setError('');try{await fn();await refresh();}catch(e){setError(String(e));}finally{setBusy(false);}};
   return <section className="panel explorer-plan" aria-label="探索计划">
-    <div className="panel-title"><h2>探索计划与未完成范围</h2><span>{task.plan.filter(i=>i.status!=='succeeded').length} 条未完成记录</span></div>
+    <div className="panel-title"><h2>探索计划与未完成范围</h2><PlanOutstandingCount plan={task.plan} issues={splitIssues}/></div>
     <div className="explorer-plan-body"><div className="explorer-plan-intro"><p className="scope-note">{task.intent?.mode==='exhaustive'?'程序覆盖起始页面 URL 下新出现的控件、菜单和弹窗；明确排除项和未解决缺口单独保留。':'当前计划完成不代表全站穷尽；未选样本仍为未测。'}</p><div className="explorer-rounds">{task.rounds.map(r=><button key={r.id} onClick={()=>onSession(r.sessionId)}>第 {r.number} 轮 · {r.actions} 次操作 · {r.status==='running'?'进行中':r.status==='paused'?'已暂停':'已结束'}</button>)}</div></div>
       <ObligationAuditSummary projection={task.obligations}/>
       {!task.plan.length&&<p className="scope-note">{task.status==='running'?(task.goal?'正在识别任务类型并建立探索范围…':'正在由程序建立全页探索范围…'):'开始探索后，将在这里展示计划、执行证据和未完成范围。'}</p>}
       <div className="explorer-plan-items">{task.plan.map(i=>{
         const code=i.reason.startsWith('missing_capability:')?i.reason.slice('missing_capability:'.length):undefined,accepted=task.acceptedLimitations?.find(x=>x.code===code);
-        return <div className="explorer-plan-item" key={i.id}><label><input type="checkbox" checked={picked.includes(i.id)} disabled={task.status==='running'} onChange={e=>setPicked(e.target.checked?[...picked,i.id]:picked.filter(x=>x!==i.id))}/>{reasonText(i.title)}</label><span className={`badge ${i.status}`}>{names[i.status]}</span><small>{reasonText(i.reason)} · {i.required?'计划内':accepted?'用户已接受此限制，保留未测':'待选择'}{i.dispatchScope===false?' · 此记录不扩展执行范围':''}{i.resolvedBy?' · 有实际执行证据':''}{i.reviewResolvedBy?' · 有分类证据（不计操作次数）':''}{i.coverageResolvedBy?' · 历史覆盖已核实（本条未新增执行）':''}</small>
+        return <div className="explorer-plan-item" key={i.id}><label><PlanItemSelection item={i} running={task.status==='running'} checked={picked.includes(i.id)} onChange={checked=>setPicked(checked?[...picked,i.id]:picked.filter(x=>x!==i.id))}/>{reasonText(i.title)}</label><span className={`badge ${i.status}`}>{splitIssues.has(i.id)?'拆分记录待核实':names[i.status]}</span><small>{splitIssues.has(i.id)?'子范围记录不完整或不一致，保留待核实缺口':reasonText(i.reason)} · {i.required?'计划内':accepted?'用户已接受此限制，保留未测':'待选择'}{i.dispatchScope===false?' · 此记录不扩展执行范围':''}{i.resolvedBy?' · 有实际执行证据':''}{i.reviewResolvedBy?' · 有分类证据（不计操作次数）':''}{i.coverageResolvedBy?' · 历史覆盖已核实（本条未新增执行）':''}{i.conditionMigration?.status==='split'?` · 转交 ${i.conditionMigration.children?.length||0} 个子项`:''}{i.conditionLineage?' · 来自历史范围拆分':''}</small>
           {i.required&&code&&/^(UNSUPPORTED_.+|.+_UNSUPPORTED)$/.test(code)&&<button disabled={busy||task.status==='running'} onClick={()=>void run(()=>api.command(task.id,'accept-limitations',{limitations:{codes:[code],reason:'用户明确跳过本任务中宿主不支持的这类内容，保留为未测。'}}))}>跳过此类能力限制（保留未测）</button>}
-          <details><summary>范围、前置条件与证据</summary><pre>{JSON.stringify({scope:i.scope,prerequisites:i.prerequisites,completion:i.completion,evidence:i.evidence,resolvedBy:i.resolvedBy,reviewResolvedBy:i.reviewResolvedBy,coverageResolvedBy:i.coverageResolvedBy,acceptedLimitation:accepted,history:i.attempts},null,2)}</pre></details></div>;
+          <details><summary>范围、前置条件与证据</summary><pre>{JSON.stringify({scope:i.scope,prerequisites:i.prerequisites,completion:i.completion,evidence:i.evidence,resolvedBy:i.resolvedBy,reviewResolvedBy:i.reviewResolvedBy,coverageResolvedBy:i.coverageResolvedBy,acceptedLimitation:accepted,conditionMigration:i.conditionMigration,conditionLineage:i.conditionLineage,history:i.attempts},null,2)}</pre></details></div>;
       })}</div>
       {!!task.plan.length&&<><div className="explorer-plan-actions"><button disabled={busy||!picked.length||task.status==='running'} onClick={()=>void run(()=>api.command(task.id,'continue-scope',{itemIds:picked}))}>将所选范围设为补测计划</button><small className="scope-note">设置后从左侧继续探索，沿用剩余总预算。</small></div>
-        <details className="explorer-plan-editor"><summary>调整计划范围</summary><button disabled={task.status==='running'} onClick={()=>setEditing(JSON.stringify(task.plan.map(({title,scope,prerequisites,completion,required,reason})=>({title,scope,prerequisites,completion,required,reason})),null,2))}>载入当前计划</button><textarea aria-label="编辑探索计划" rows={8} value={editing} onChange={e=>setEditing(e.target.value)}/><button disabled={busy||!editing||task.status==='running'} onClick={()=>void run(()=>api.command(task.id,'replan',{items:JSON.parse(editing)}))}>保存调整</button></details></>}
+        <details className="explorer-plan-editor"><summary>调整计划范围</summary><button disabled={task.status==='running'} onClick={()=>setEditing(JSON.stringify(task.plan.filter(i=>!isSuperseded(i)&&i.conditionMigration?.status!=='split').map(({title,scope,prerequisites,completion,required,reason})=>({title,scope,prerequisites,completion,required,reason})),null,2))}>载入当前计划</button><textarea aria-label="编辑探索计划" rows={8} value={editing} onChange={e=>setEditing(e.target.value)}/><button disabled={busy||!editing||task.status==='running'} onClick={()=>void run(()=>api.command(task.id,'replan',{items:JSON.parse(editing)}))}>保存调整</button></details></>}
       {error&&<p className="explorer-error" role="alert">{error}</p>}
     </div>
   </section>;

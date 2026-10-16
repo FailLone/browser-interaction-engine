@@ -100,7 +100,16 @@ export interface FrontierItem {
   explorationGroups?: { groupId: ID; memberKey?: string }[];
   reason?: string; unblock?: string; attempts: ID[]; depth: number;
   /** Sampling groups observations, not equivalent states or successful executions. */
-  sampling?: { policy: string; evidence: string[]; observationIds: ID[] };
+  sampling?: { policy: string; evidence: string[]; observationIds: ID[]; revision?: string };
+  /** Accounting expansion of retained source observations; never execution or coverage. */
+  samplingMigration?: {
+    version: 'retained-sampling-sources/v1'; sourceKey: string;
+    sources: { observationId: ID; actionId?: ID; childId?: ID; reason?: string }[];
+    children: { frontierId: ID; key: string; policy: string }[];
+    audit?: { revision: string; sourceSignature: string; childrenSignature: string };
+  };
+  /** Source lineage survives refreshing a derived case against the live page. */
+  samplingParents?: { frontierId: ID; observationIds: ID[]; actionIds: ID[] }[];
   recovery?: { resultId: ID; diagnostics: RecoveryDiagnostics };
 }
 /** Read-time coverage metadata. Scheduling status/reason apply to this case, not its control. */
@@ -112,6 +121,8 @@ export interface FrontierItemView extends FrontierItem {
     executionStatus: ActionAttempt['status'] | 'not_attempted';
     /** Equivalent sampled operation evidence, without claiming this case was dispatched. */
     equivalentTo?: import('./coverage-reconciliation.js').EquivalentCoverage;
+    /** Verified accounting replacement, not a successful operation sample. */
+    migratedTo?: ID[];
   };
 }
 /** Groups one logical control and operation; items follow the session coverage policy. */

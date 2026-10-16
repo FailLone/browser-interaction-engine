@@ -71,9 +71,14 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   }
   normalize = observableCanonical;
   stateGrouping = browserStateGrouping;
+  readonly explorationCaseRevision = 'browser-branch-conditions-v2';
   compare = compareObservations;
   constrain = constrain;
   explorationCase(a: ActionCandidate, o: Observation, s: Session) { return s.options.exploration === 'controls' ? controlsTraversalCase(a, o) : explorationCase(a, o); }
+  legacyExplorationCases(a: ActionCandidate, o: Observation, s: Session) {
+    const previous = s.options.exploration === 'representative' ? explorationCase(a, o, 'v1') : undefined;
+    return previous ? [previous] : [];
+  }
   explorationScope(o: Observation) { return canonical({ url: o.url, boundaries: o.boundaries?.map(b => b.key) || [] }); }
   restorationStep = restorationStep;
   explorationGroups(...args: Parameters<typeof listGroups>) { return [...listGroups(...args), ...structuralListGroups(...args), ...decisionScopes(args[0], args[1], args[2])]; }

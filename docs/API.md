@@ -157,7 +157,11 @@ SQLite 插件使用 WAL，`entities` 保存带 kind 的结构化实体，`events
 
 用途审阅复用与探索决策独立。`GET /v1/sessions/:sessionId/exploration-groups/:groupId/purpose-material` 输出当前条件与成员，上层通过 `reviewListPurpose` 命令提交用途、业务范围、来源和依据，再 observe 使新候选使用判断。`GET /v1/sessions/:sessionId/purpose-reviews` 查询持久记录；`revokePurposeReview` 撤销后会拦截尚未派发的动作。相应 SDK 方法同名，记录、失效与撤销都有 `purpose.review_*` 事件。每项仍校验当前目标并保留独立执行记录，条件变化后不复用；详情见[用途审阅复用](LIST-EXPLORATION.md#穷尽与用途审阅复用可以同时启用)。
 
-新浏览器会话默认 `exploration: controls`，也支持 `representative` 和 `stateful`。`report.controlCoverage` 提供独立控件操作覆盖；`target` / `preconditions.targetResolved` 区分当前节点定位与历史身份。interfaceActions、reversible 和 environmentReset 是可选应用声明。待办 sampling 标识抽样范围，superseded 标识由当前视口替代且未执行的滚动意图；恢复 diagnostics 标识业务副作用来源与恢复路径。SDK/HTTP/client 共用这些字段，旧会话不自动迁移。详见 [探索与恢复](EXPLORATION-RECOVERY.md)。
+新浏览器会话默认 `exploration: controls`，也支持 `representative` 和 `stateful`。`report.controlCoverage` 提供独立控件操作覆盖；`target` / `preconditions.targetResolved` 区分当前节点定位与历史身份。interfaceActions、reversible 和 environmentReset 是可选应用声明。待办 sampling 标识抽样范围；superseded 表示有证据支持的调度退役，不表示执行成功。恢复 diagnostics 标识业务副作用来源与恢复路径。SDK/HTTP/client 共用这些字段。详见 [探索与恢复](EXPLORATION-RECOVERY.md)。
+
+支持的旧 representative 未执行采样范围在新观察时按保留来源核验迁移；`samplingMigration` / `samplingParents` 记录父子关系，完整转交时 `coverage.migratedTo` 区分账务退役和成功覆盖。缺失、歧义、未知来源继续保留缺口，既有执行结果不转换。普通读接口不执行迁移。详见 [旧采样范围接续](FRONTIER-COVERAGE.md#旧采样范围接续)。
+
+SDK `await engine.reconcileSamplingScopes(sessionId)` 显式重核修复后的保留来源，返回带迁移记录的待办；该调用不打开浏览器、不创建观察、不派发操作，仍拒绝未解决的 unknown。常规观察缓存未变化的迁移核验，避免每次动态刷新重读全部历史来源。此入口目前仅提供 SDK 方法，没有新增 HTTP 命令。
 
 ## 复合控件、外部解释和主动探测
 
