@@ -76,7 +76,7 @@ export interface Transition { id: ID; sessionId: ID; from: ID; to: ID; attemptId
 export interface Visit { id: ID; sessionId: ID; stateId: ID; observationId: ID; parentId?: ID; viaAttemptId?: ID; depth: number; at: string; explorationScope?: string; explorationDepth?: number }
 export interface Change { controlId?: ID; kind: 'appeared' | 'disappeared' | 'rebuilt' | 'changed' | 'context'; field?: string; before?: unknown; after?: unknown }
 export interface Diff { beforeId: ID; afterId: ID; changes: Change[]; gaps: Gap[]; attribution: 'observed_during_interval'; region?: string }
-export interface InteractionScope { id: ID; sessionId: ID; name: string; region: string; beforeId: ID; afterId?: ID; attemptIds: ID[]; status: 'open' | 'closed' | 'interrupted'; automatic: boolean; anchors: string[]; boundaryKey?: string; parentScopeId?: ID; baseline?: 'before_entry' | 'already_open'; diff?: Diff }
+export interface InteractionScope { id: ID; sessionId: ID; name: string; region: string; beforeId: ID; afterId?: ID; attemptIds: ID[]; status: 'open' | 'closed' | 'interrupted'; automatic: boolean; anchors: string[]; boundaryKey?: string; instanceScope?: string; parentScopeId?: ID; baseline?: 'before_entry' | 'already_open'; diff?: Diff }
 export interface FrontierItem {
   id: ID; sessionId: ID; key: string; stateId: ID; contextKey: string; action: ActionCandidate;
   status: 'pending' | 'deferred' | 'skipped' | 'executing' | 'executed' | 'blocked' | 'unknown' | 'needs_revalidation' | 'superseded';

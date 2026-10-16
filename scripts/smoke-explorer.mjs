@@ -37,6 +37,10 @@ try {
   assert.ok(!(await timeline.innerText()).includes('转交 LLM'));
   const final=plugin.view(task.id);assert.equal(final.task.status,'completed');assert.equal(final.task.usage.actions,2);assert.deepEqual(errors,[]);
   const screenshot=resolve(directory,'dashboard.png');await page.screenshot({path:screenshot,fullPage:true});
-  const report={at:new Date().toISOString(),node:process.version,providers:'explicit mocks',compiledPlugin:'passed',compiledUI:'passed',actualBrowserActions:2,fallback:'none for low-confidence grouping',sdkModified:false,screenshot};
+  assert.ok(final.events.some(e=>e.type==='decision.effect'&&e.data.kind==='dispatch-validation'));
+  const report={at:new Date().toISOString(),node:process.version,providers:'explicit mocks',target:'Verify Alpha and Beta on the local fixture',compiledPlugin:'passed',compiledUI:'passed',hostDispatchValidation:'passed',actualBrowserActions:2,
+    modelRequests:{jev:final.decisions.filter(d=>d.actor==='jev').length,llm:final.decisions.filter(d=>d.actor==='llm').length},
+    unresolved:final.task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status)).map(i=>i.reason),untested:final.task.plan.filter(i=>!i.required).map(i=>i.reason),
+    exhaustive:false,fallback:'none for low-confidence grouping',screenshot};
   writeFileSync(resolve(directory,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
 } finally {await browser.close();await app.close();await engine.close();await new Promise(r=>fixture.close(r));}

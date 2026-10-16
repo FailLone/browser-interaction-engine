@@ -257,6 +257,7 @@ it.each(['current','revoked','interaction','ambiguous','missing-material','hidde
  const record={id:'r',classification:mode==='interaction'?'interaction':'container',status:mode.includes('revoked')?'revoked':mode==='hidden-invalidated'?'invalidated':'active'};
  const item={id:'gap',required:true,status:'succeeded',reason:'classification_unresolved',scope:{url:o.url,label:'Details'},reviewResolvedBy:{sessionId:'s',observationId:'before',classificationId:'old',classification:'container'}};
  const host={actions:()=>[],list:()=>[{...record,id:'old'}],controlClassificationMaterial:()=>({observationId:o.id,controls:mode==='missing-material'?[]:[{control,needsClassification:mode!=='current',classifications:[record]}]}),controlReviewMaterial:()=>({observationId:o.id,controls:[{control,needsReview:false}]})} as any;
+ host.explorationSnapshot=()=>({observationId:o.id,actions:[],nonInteractive:mode==='current'?[{localId:'one',sessionId:'s',observationId:o.id,classificationId:record.id,classification:'container'}]:[]});
  const changes=reviewGapChanges({plan:[item]} as any,o,host);
  if(mode==='current')expect(changes).toEqual([{itemId:'gap',proof:{sessionId:'s',observationId:'now',classificationId:'r',classification:'container'}}]);
  else if(mode==='hidden-invalidated')expect(changes).toEqual([]);

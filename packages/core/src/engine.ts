@@ -5,10 +5,11 @@ import { assignState, matchIdentities } from './identity.js';
 import { recoverStore } from './recovery.js';
 import { DiffQueries } from './diff-details.js';
 import { describeFrontier, groupFrontier } from './frontier.js';
-import { ExplorationGroups, currentExplorationDecision, validateExplorationProposals } from './exploration-groups.js';
+import { ExplorationGroups, currentExplorationDecision, explorationGates, validateExplorationProposals } from './exploration-groups.js';
 import { explorationReviewMaterial } from './exploration-review.js';
 import { auditExploration } from './exploration-audit.js';
-import { reconcileCoverage } from './coverage-reconciliation.js';
+import type { ActionAvailability, ExecutionBlocker, ExecutionGuard } from './execution-readiness.js';
+import { identityResolver, operationSample, type OperationCorrespondence, reconcileCoverage } from './coverage-reconciliation.js';
 import type { ExplorationGroup, ExplorationGroupDecision, ExplorationGroupResolution } from './types.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
 import type { EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
@@ -43,6 +44,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   protected prepareActions(actions: ActionCandidate[], _observation: O): ActionCandidate[] { return actions; }
   /** Reviewed capabilities precede caller action policy, which may still veto them. */
   protected async reviewActions(actions: ActionCandidate[], _observation: O): Promise<ActionCandidate[]> { return actions; }
+  protected executionSessionBlockers(_observation:O,_purpose:ActionAttempt['purpose']):ExecutionBlocker[]{return [];}
   protected validatePreparedAction(_action: ActionCandidate, _observation: O, _purpose: ActionAttempt['purpose']): void {}
   protected preflightAction(action: ActionCandidate, observation: O, _purpose: ActionAttempt['purpose']) { return this.driver!.preflight(observation, action); }
   protected explorationScopes(_actions: ActionCandidate[], _observation: O): import('./types.js').ExplorationGroupProposal[] | Promise<import('./types.js').ExplorationGroupProposal[]> { return []; }
@@ -106,16 +108,98 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     return this.owned<O>('observation', oid, sessionId);
   }
   list<T>(sessionId: string, kind: string): T[] { this.session(sessionId); return kind === 'frontier' ? this.getFrontier(sessionId) as T[] : this.store.list<T>(kind, sessionId); }
-  private equivalentCoverage(sessionId: string) {
-    const session = this.session(sessionId);
-    if (session.options.exploration !== 'controls') return new Map<string, import('./coverage-reconciliation.js').EquivalentCoverage>();
-    return reconcileCoverage(session, this.frontier(sessionId), this.store.list<ActionAttempt>('attempt', sessionId),
-      this.store.list<O>('observation', sessionId), this.store.list<IdentityHypothesis>('hypothesis', sessionId),
-      (a, o) => this.adapter.explorationCase?.(a, o, session));
+  /** Compare retained successful evidence; never writes identity, attempts or coverage. */
+  operationCorrespondence(sessionId: string, input: {observationId: string; actionId: string; source: {sessionId: string; attemptId: string}}): OperationCorrespondence {
+    const result: OperationCorrespondence={equivalent:false,reason:'evidence_unavailable',source:{...input.source},target:{sessionId,observationId:input.observationId,actionId:input.actionId},evidence:[],invalidatedBy:['observation-or-review-change','nonunique-correspondence','changed-operation-conditions','changed-declared-context'],identityAuthorized:false,replayAuthorized:false,currentExecution:false};
+    try {
+      const current=this.observation(sessionId,input.observationId),action=this.owned<ActionCandidate>('action',input.actionId,sessionId),attempt=this.owned<ActionAttempt>('attempt',input.source.attemptId,input.source.sessionId);
+      result.source.beforeId=attempt.beforeId;result.source.afterId=attempt.afterId;
+      if(attempt.status!=='succeeded'||!attempt.afterId){result.reason='source_not_verified';return result;}
+      const before=this.observation(attempt.sessionId,attempt.beforeId),after=this.observation(attempt.sessionId,attempt.afterId);
+      if(after.gaps.some(g=>g.critical)){result.reason='source_result_incomplete';return result;}
+      const old=before.controls.find(c=>c.localId===attempt.action.localId),target=current.controls.find(c=>c.localId===action.localId);
+      if(!old||!target){result.reason='target_correspondence_missing';return result;}
+      const hint=this.adapter.controlCorrespondence?.(target),prior=this.adapter.controlCorrespondence?.(old);
+      let evidence:string[];
+      if(hint&&prior&&hint.key===prior.key){
+        if([before,current].some(o=>o.controls.filter(c=>this.adapter.controlCorrespondence?.(c)?.key===hint.key).length!==1)){result.reason='target_correspondence_ambiguous';return result;}
+        evidence=hint.evidence;
+      }else if(before.sessionId===current.sessionId){
+        const resolve=identityResolver(this.store.list<IdentityHypothesis>('hypothesis',sessionId)),identity=resolve(old);
+        const sameInstance=before.instanceScope===current.instanceScope&&old.instanceId===target.instanceId&&[before,current].every(o=>o.controls.filter(c=>c.instanceId===old.instanceId).length===1);
+        const sameIdentity=identity&&identity===resolve(target)&&[before,current].every(o=>o.controls.filter(c=>resolve(c)===identity).length===1);
+        if(!sameInstance&&!sameIdentity){result.reason='target_correspondence_missing';return result;}
+        evidence=[sameInstance?'current-instance-continuity':'resolved-identity-projection'];
+      }else if(!hint&&!prior&&!old.identityScope&&!target.identityScope&&old.name&&target.name){
+        // Reuse the adapter signature and local identity judgments. Uniqueness
+        // is checked in both complete observations; this still grants no identity.
+        const signature=this.adapter.signature(old),oldIdentity=identityResolver(this.store.list<IdentityHypothesis>('hypothesis',before.sessionId))(old),newIdentity=identityResolver(this.store.list<IdentityHypothesis>('hypothesis',current.sessionId))(target);
+        if(!oldIdentity||!newIdentity||signature!==this.adapter.signature(target)||[before,current].some(o=>o.controls.filter(c=>this.adapter.signature(c)===signature).length!==1)){result.reason='target_correspondence_missing';return result;}
+        evidence=['unique-adapter-semantic-signature','independently-resolved-session-identities'];
+      }else {result.reason='target_correspondence_missing';return result;}
+      const sample=(a:ActionCandidate,o:O)=>this.adapter.correspondenceCase?.(a,o,this.session(o.sessionId));
+      const a=operationSample(attempt.action,before,sample),b=operationSample(action,current,sample);
+      if(!a||!b||a.key!==b.key){result.reason='operation_conditions_changed';return result;}
+      result.equivalent=true;result.reason='equivalent_operation_sample';result.policy=b.policy;result.evidence=[...evidence,...b.evidence,`attempt:${attempt.id}`,`observation:${before.id}`,`observation:${after.id}`,`observation:${current.id}`];return result;
+    } catch { return result; }
   }
-  getFrontier(sessionId: string) { this.session(sessionId); return describeFrontier(this.frontier(sessionId), this.store.list<ActionAttempt>('attempt', sessionId), this.equivalentCoverage(sessionId)); }
+  private executionBlockers(original:ActionCandidate,o:O,purpose:ActionAttempt['purpose'],value?:ActionCandidate['value'],guard?:ExecutionGuard,material?:{frontier:FrontierItem[];groups:ExplorationGroup[]}):ExecutionBlocker[] {
+    const blockers:ExecutionBlocker[]=[],add=(code:string,reason:string,evidence:string[]=[])=>blockers.push({code,reason,evidence});
+    if(original.observationId!==o.id||guard&&guard.observationId!==o.id)add('STALE_OBSERVATION','Choose an action from the latest observation',[o.id,original.observationId]);
+    const action=structuredClone(original);if(value!==undefined){action.value=value;if(action.exclusionReason==='input_sample_required'){action.excluded=false;delete action.exclusionReason;}}
+    if(action.excluded)add(action.exclusionReason==='input_sample_required'?'INPUT_REQUIRED':'ACTION_EXCLUDED',action.exclusionReason||'Action excluded');
+    if(action.basis?.status==='tentative'&&purpose!=='external')add('ACTION_BLOCKED','action_basis_unconfirmed');
+    if(!this.targetResolved(action,o))add('IDENTITY_AMBIGUOUS','Resolve the identity before acting');
+    try {
+      const constrained=['recovery-entry','recovery-reset'].includes(action.source)?action:this.constrain(structuredClone(action),o,this.session(o.sessionId));
+      for(const b of constrained.preconditions.blockers||[])add('ACTION_BLOCKED',b.code,b.evidence);
+      if(constrained.excluded&&!action.excluded)add('ACTION_EXCLUDED',constrained.exclusionReason||'Action excluded');
+    }catch(e){const error=e as EngineError;add(error.code||'ACTION_BLOCKED',error.message);}
+    const c=o.controls.find(c=>c.localId===action.localId);if(c&&(!c.visible||!c.enabled))add('ACTION_BLOCKED','Control is not visible or enabled');
+    if(guard){
+      if(action.basis?.status!=='supported')add('ACTION_BLOCKED','action_basis_unconfirmed');
+      if(action.risk!=='interface')add('ACTION_BLOCKED','interface_risk_required');
+      const f=(material?.frontier||this.frontier(o.sessionId)).find(f=>f.action.id===action.id);
+      if(f&&['unknown','executing','blocked','deferred','skipped','needs_revalidation'].includes(f.status))add('ACTION_BLOCKED',f.reason||`frontier_${f.status}`,[f.id]);
+      const groups=material?.groups||this.store.list<ExplorationGroup>('exploration-group',o.sessionId);
+      const refs=f?.explorationGroups||groups.flatMap(g=>g.members.filter(m=>m.actionId===action.id).map(m=>({groupId:g.id,memberKey:m.key})));
+      for(const gate of explorationGates(refs,new Map(groups.map(g=>[g.id,g]))))add('ACTION_BLOCKED',gate.reason);
+    }
+    return blockers;
+  }
+  /** Synchronous observation-bound read. No driver access, queue ownership or persistent cache. */
+  actionAvailability(sessionId:string,observationId?:string):ActionAvailability {
+    const o=this.observation(sessionId);return this.availabilityFrom(o,this.actions(sessionId),this.frontier(sessionId),this.store.list<ExplorationGroup>('exploration-group',sessionId),observationId);
+  }
+  private availabilityFrom(o:O,candidates:ActionCandidate[],frontier:FrontierItem[],groups:ExplorationGroup[],expectedId=o.id):ActionAvailability {
+    const sessionId=o.sessionId,guard:ExecutionGuard={profile:'interface-exploration',observationId:expectedId},sessionBlockers=this.executionSessionBlockers(o,'exploration');
+    const actions=candidates.map(a=>{const blockers=[...sessionBlockers,...this.executionBlockers(a,o,'exploration',undefined,guard,{frontier,groups})];
+      try{this.validatePreparedAction(a,o,'exploration');}catch(e){const error=e as EngineError;blockers.push({code:error.code||'ACTION_BLOCKED',reason:error.message,evidence:[]});}
+      return {actionId:a.id,executable:!blockers.length,blockers};});
+    return {sessionId,observationId:o.id,revision:hash({observationId:o.id,groups,actions}),profile:guard.profile,actions,dispatchRevalidationRequired:true};
+  }
+  private assertExecution(original:ActionCandidate,o:O,purpose:ActionAttempt['purpose'],value?:ActionCandidate['value'],guard?:ExecutionGuard) {
+    const blockers=[...this.executionSessionBlockers(o,purpose),...this.executionBlockers(original,o,purpose,value,guard)];if(blockers.length)throw new EngineError(blockers[0].code,blockers[0].reason,{observationId:o.id,blockers});
+  }
+  /** A per-call evidence bundle; no cache survives an observation/review mutation. */
+  protected coverageMaterial(sessionId:string) {
+    const session=this.session(sessionId),raw=this.frontier(sessionId),attempts=this.store.list<ActionAttempt>('attempt',sessionId),observations=this.store.list<O>('observation',sessionId),hypotheses=this.store.list<IdentityHypothesis>('hypothesis',sessionId),groups=this.store.list<ExplorationGroup>('exploration-group',sessionId);
+    const equivalents=reconcileCoverage(session,raw,attempts,observations,hypotheses,(a,o)=>this.adapter.explorationCase?.(a,o,session));
+    return {session,raw,attempts,observations,hypotheses,groups,equivalents,frontier:describeFrontier(raw,attempts,equivalents)};
+  }
+  getFrontier(sessionId:string){return this.session(sessionId).options.exploration==='controls'?this.coverageMaterial(sessionId).frontier:describeFrontier(this.frontier(sessionId),this.store.list<ActionAttempt>('attempt',sessionId));}
+  auditSnapshot(sessionId:string,observationId?:string) {return this.captureAudit(sessionId,observationId).snapshot;}
+  protected captureAudit(sessionId:string,observationId?:string) {
+    const m=this.coverageMaterial(sessionId),observation=this.observation(sessionId);
+    if(observationId&&observationId!==observation.id)throw new EngineError('STALE_OBSERVATION','Audit requires the current observation',{observationId:observation.id});
+    const allActions=this.store.list<ActionCandidate>('action',sessionId),actions=allActions.filter(a=>a.observationId===observation.id),availability=this.availabilityFrom(observation,actions,m.raw,m.groups);
+    const snapshot={sessionId,observationId:observation.id,revision:availability.revision,observation,actions,operationCandidates:actions.filter(a=>a.preconditions.visible&&!this.outsideBoundary(a)),availability,frontier:m.frontier,groups:m.groups,hypotheses:m.hypotheses,
+      unknownAttempts:m.attempts.filter(a=>a.status==='unknown'||a.status==='executing'),
+      explorationAudit:auditExploration(m.session,m.frontier,m.attempts,m.observations,m.groups,m.equivalents)};
+    return {snapshot,material:{...m,allActions}};
+  }
   /** Outstanding scheduling work; equivalence never rewrites stored actions or attempts. */
-  protected outstandingFrontier(sessionId: string) { const covered = this.equivalentCoverage(sessionId); return this.frontier(sessionId).filter(f => !covered.has(f.id)); }
+  protected outstandingFrontier(sessionId: string) { if(this.session(sessionId).options.exploration!=='controls')return this.frontier(sessionId);const m=this.coverageMaterial(sessionId);return m.raw.filter(f=>!m.equivalents.has(f.id)); }
   frontierCoverage(sessionId: string) { return groupFrontier(this.getFrontier(sessionId)); }
   protected commitExplorationDecisions(sessionId: string, resolutions: ExplorationGroupResolution[]) {
     const result = this.groups.decideMany(sessionId, resolutions); this.afterExplorationDecisions(sessionId); return result;
@@ -151,6 +235,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     // audit records, but do not count those impossible operations as coverage gaps.
     return this.store.list<FrontierItem>('frontier', sessionId).filter(f => f.attempts.length || !(f.reason === 'outside_active_boundary' || this.outsideBoundary(f.action)));
   }
+  /** Visible operation obligations; background boundary candidates are not new coverage cases. */
+  operationCoverageCandidates(sessionId:string,observationId?:string){return this.actions(sessionId,observationId).filter(a=>a.preconditions.visible&&!this.outsideBoundary(a));}
   actions(sessionId: string, observationId?: string) { const o = this.observation(sessionId, observationId); return this.store.list<ActionCandidate>('action', sessionId).filter(a => a.observationId === o.id); }
   graph(sessionId: string): Graph { return this.getGraph(sessionId); }
   getGraph(sessionId: string): Graph { this.session(sessionId); return { states: this.store.list('state', sessionId), transitions: this.store.list('transition', sessionId), visits: this.store.list('visit', sessionId) }; }
@@ -161,9 +247,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   async eventDiffDetails(sessionId: string, sequence: number) { return this.diffQueries().eventDiffDetails(sessionId, sequence); }
   async scopeDiffDetails(sessionId: string, scopeId: string) { return this.diffQueries().scopeDiffDetails(sessionId, scopeId); }
   report(sessionId: string) {
-    const equivalents = this.equivalentCoverage(sessionId); const frontier = describeFrontier(this.frontier(sessionId), this.store.list<ActionAttempt>('attempt', sessionId), equivalents); const attempts = this.list<ActionAttempt>(sessionId, 'attempt'); const observations = this.list<O>(sessionId, 'observation');
+    const {session,equivalents,frontier,attempts,observations,groups}=this.coverageMaterial(sessionId);
     const counts = (items: { status: string }[]) => items.reduce<Record<string, number>>((out, i) => { out[i.status] = (out[i.status] || 0) + 1; return out; }, {});
-    return { session: this.session(sessionId), explorationAudit: auditExploration(this.session(sessionId), frontier, attempts, observations, this.store.list<ExplorationGroup>('exploration-group', sessionId), equivalents), explorationGroups: this.store.list<ExplorationGroup>('exploration-group', sessionId).map(g => ({ id: g.id, label: g.label, status: g.status, revision: g.revision, observedCases: g.members.length, mode: currentExplorationDecision(g)?.decision.mode })), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), frontierCoverage: groupFrontier(frontier).map(({ id, controlId, kind, label, coverageStatus, counts }) => ({ id, controlId, kind, label, coverageStatus, counts })), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), exploration: this.session(sessionId).options.exploration || 'stateful', coverage: this.session(sessionId).options.exploration === 'controls' ? 'encountered control operations; values and constraints are sampled, not exhaustive combinations or business assertions' : this.session(sessionId).options.exploration === 'representative' ? 'representative operation samples only; untested starting values, field combinations and undiscovered behavior remain unknown' : 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
+    return { session, explorationAudit: auditExploration(session, frontier, attempts, observations, groups, equivalents), explorationGroups: groups.map(g => ({ id: g.id, label: g.label, status: g.status, revision: g.revision, observedCases: g.members.length, mode: currentExplorationDecision(g)?.decision.mode })), states: this.getGraph(sessionId).states.length, observations: observations.length, attempts: counts(attempts), frontier: counts(frontier), frontierCoverage: groupFrontier(frontier).map(({ id, controlId, kind, label, coverageStatus, counts }) => ({ id, controlId, kind, label, coverageStatus, counts })), gaps: observations.flatMap(o => o.gaps.map(g => ({ ...g, observationId: o.id }))), issues: this.list<Issue>(sessionId, 'issue'), exploration: this.session(sessionId).options.exploration || 'stateful', coverage: this.session(sessionId).options.exploration === 'controls' ? 'encountered control operations; values and constraints are sampled, not exhaustive combinations or business assertions' : this.session(sessionId).options.exploration === 'representative' ? 'representative operation samples only; untested starting values, field combinations and undiscovered behavior remain unknown' : 'discovered operations under the current budgets and observation contract; coverage of the entire interaction space is unknown' };
   }
   async createSession(input: unknown): Promise<Session<S>> {
     const options = this.adapter.parseOptions(input);
@@ -490,18 +576,16 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     this.emit(sessionId, 'exploration.dependencies_invalidated', { ...failure, blocked: failure.count >= 3 });
     return failure.count >= 3;
   }
-  protected async runAction(sessionId: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: ActionAttempt['purpose'] = 'external'): Promise<ActionAttempt> {
+  protected async runAction(sessionId: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: ActionAttempt['purpose'] = 'external', guard?:ExecutionGuard): Promise<ActionAttempt> {
+    const validationPurpose=guard?'exploration':purpose;
     const payload = canonical({ actionId, value }); const prior = this.store.request(sessionId, requestId);
     if (prior) { if (prior.payload !== payload) throw new EngineError('REQUEST_CONFLICT', 'Request ID was used with different parameters'); return this.owned<ActionAttempt>('attempt', prior.attemptId, sessionId); }
     await this.attach(sessionId); await this.beforeAction(sessionId); let session = this.session(sessionId); this.budget(session);
     const original = this.owned<ActionCandidate>('action', actionId, sessionId);
     const originalObservation = this.observation(sessionId, original.observationId);
     const current = this.observation(sessionId);
-    if (current.id !== original.observationId) throw new EngineError('STALE_OBSERVATION', 'Choose an action from the latest observation', { observationId: current.id, actions: this.actions(sessionId) });
-    if (original.excluded && original.exclusionReason !== 'input_sample_required') throw new EngineError('ACTION_EXCLUDED', original.exclusionReason || 'Action excluded');
-    if (original.basis?.status === 'tentative' && purpose !== 'external') throw new EngineError('ACTION_BLOCKED', 'action_basis_unconfirmed');
-    if (!this.targetResolved(original, current)) throw new EngineError('IDENTITY_AMBIGUOUS', 'Resolve the identity before acting');
-    const preflight = await this.preflightAction(original, current, purpose);
+    this.assertExecution(original,current,validationPurpose,value,guard);
+    const preflight = await this.preflightAction(original, current, validationPurpose);
     if (preflight !== 'valid') {
       const fresh = await this.capture(sessionId, 'external');
       if (typeof preflight === 'object' && preflight.scopeKey && preflight.evidence?.length && session.options.exploration === 'controls'
@@ -513,8 +597,6 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if (this.observationFailure(sessionId, 'stale', fresh.id)) throw new EngineError('OBSERVATION_NO_PROGRESS', 'Repeated source invalidation without an executed action; inspect changing targets or context before continuing', { observationId: fresh.id });
       throw new EngineError(preflight === 'context_changed' ? 'PRECONDITIONS_CHANGED' : 'STALE_OBSERVATION', 'Interaction source changed before execution', { observationId: fresh.id, actions: this.actions(sessionId) });
     }
-    const constrained = ['recovery-entry', 'recovery-reset'].includes(original.source) ? original : this.constrain(structuredClone(original), current, session);
-    if (constrained.preconditions.blockers?.length) throw new EngineError('ACTION_BLOCKED', constrained.preconditions.blockers[0].code, { blockers: constrained.preconditions.blockers, observationId: current.id });
     if (this.hooks.context) {
       const check = await this.hook(sessionId, 'context-preflight', async () => contextSchema.parse(await this.hooks.context!(structuredClone({ session, observation: current }))));
       if (check.error) throw new EngineError('PRECONDITIONS_UNKNOWN', check.error);
@@ -530,7 +612,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (control && (!control.visible || !control.enabled)) throw new EngineError('ACTION_BLOCKED', 'Control is not visible or enabled');
     await this.driver!.validate(action, control);
     await this.beforeAction(sessionId);
-    this.validatePreparedAction(action, current, purpose);
+    this.assertExecution(original,this.observation(sessionId),validationPurpose,value,guard);
+    this.validatePreparedAction(action, current, validationPurpose);
     const attempt: ActionAttempt = { id: id(), sessionId, requestId, action, startedAt: now(), beforeId: current.id, status: 'executing', purpose };
     const started = Date.now();
     this.store.transaction(() => {
@@ -575,9 +658,11 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     } finally { session = this.session(sessionId); session.elapsedMs += Date.now() - started; this.store.put('session', session); }
     return this.owned<ActionAttempt>('attempt', attempt.id, sessionId);
   }
-  async execute(sessionId: string, actionId: string, requestId: string, value?: ActionCandidate['value']) {
+  async execute(sessionId: string, actionId: string, requestId: string, value?: ActionCandidate['value'], guard?:ExecutionGuard) {
+    if(guard&&(guard.profile!=='interface-exploration'||typeof guard.observationId!=='string'||!guard.observationId))throw new EngineError('INVALID_INPUT','A guarded execution requires its observation and supported profile');
+    const executionGuard=guard&&structuredClone(guard);
     this.pauseRequested = true;
-    return this.enqueue(async () => { const s = this.session(sessionId); s.mode = 'manual'; if (s.status === 'running') s.status = 'paused'; this.store.put('session', s); return this.runAction(sessionId, actionId, requestId, value); });
+    return this.enqueue(async () => { const s = this.session(sessionId); s.mode = 'manual'; if (s.status === 'running') s.status = 'paused'; this.store.put('session', s); return this.runAction(sessionId, actionId, requestId, value, 'external', executionGuard); });
   }
   probe(sessionId: string, observationId: string, localId: string, kind: string, requestId: string, parameters?: ActionCandidate['value']) {
     if (![observationId, localId, kind, requestId].every(v => typeof v === 'string' && v.trim())) throw new EngineError('INVALID_INPUT', 'Probe requires observation, target, kind and request ID');
@@ -674,10 +759,15 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       await this.capture(sessionId, 'inspection'); return h;
     });
   }
-  private openScopeInternal(sessionId: string, name: string, region: string, automatic = false, beforeId?: string, metadata: Partial<Pick<InteractionScope, 'boundaryKey' | 'parentScopeId' | 'baseline' | 'anchors' | 'attemptIds'>> = {}) {
+  private openScopeInternal(sessionId: string, name: string, region: string, automatic = false, beforeId?: string, metadata: Partial<Pick<InteractionScope, 'boundaryKey' | 'parentScopeId' | 'baseline' | 'anchors' | 'attemptIds' | 'instanceScope'>> = {}) {
     const before = this.observation(sessionId, beforeId);
     if (!before.regions.some(r => r.key === region)) throw new EngineError('REGION_NOT_FOUND', 'Cannot anchor scope to an unknown region');
     const scope: InteractionScope = { id: id(), sessionId, name, region, beforeId: before.id, attemptIds: [], status: 'open', automatic, anchors: [], ...metadata }; this.store.put('scope', scope); this.emit(sessionId, 'scope.opened', scope); return scope;
+  }
+  boundaryState(sessionId:string,observationId?:string) {
+    const o=this.observation(sessionId,observationId),boundary=o.boundaries?.at(-1);
+    const scope=boundary&&this.store.list<InteractionScope>('scope',sessionId).find(s=>s.status==='open'&&s.boundaryKey===boundary.key&&(s.instanceScope||this.observation(sessionId,s.beforeId).instanceScope)===o.instanceScope);
+    return {observationId:o.id,verified:!o.gaps.some(g=>g.critical),active:boundary?{key:boundary.key,instanceScope:o.instanceScope,observationId:scope?.beforeId||o.id,scopeId:scope?.id}:undefined};
   }
   private syncBoundaries(sessionId: string, previous: O | undefined, current: O, attemptId?: string) {
     if (current.gaps.some(g => g.critical)) {
@@ -686,14 +776,15 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     }
     const boundaries = current.boundaries || [];
     for (const scope of this.store.list<InteractionScope>('scope', sessionId).filter(s => s.status === 'open' && s.boundaryKey)) {
-      if (!boundaries.some(b => b.key === scope.boundaryKey)) this.closeScopeInternal(sessionId, scope.id);
+      if((scope.instanceScope||this.observation(sessionId,scope.beforeId).instanceScope)!==current.instanceScope){scope.status='interrupted';scope.afterId=current.id;this.store.put('scope',scope);this.emit(sessionId,'scope.interrupted',{...scope,reason:'document_changed'});}
+      else if (!boundaries.some(b => b.key === scope.boundaryKey)) this.closeScopeInternal(sessionId, scope.id);
     }
     for (const boundary of boundaries) {
       const open = this.store.list<InteractionScope>('scope', sessionId).filter(s => s.status === 'open' && s.boundaryKey);
       if (open.some(s => s.boundaryKey === boundary.key)) continue;
-      const before = previous?.regions.some(r => r.key === boundary.region) ? previous : current;
+      const before = previous?.instanceScope===current.instanceScope&&previous.regions.some(r => r.key === boundary.region) ? previous : current;
       this.openScopeInternal(sessionId, boundary.name, boundary.region, true, before.id, {
-        boundaryKey: boundary.key, anchors: [boundary.key], parentScopeId: open.find(s => s.boundaryKey === boundary.parentKey)?.id,
+        boundaryKey: boundary.key, instanceScope:current.instanceScope, anchors: [boundary.key], parentScopeId: open.find(s => s.boundaryKey === boundary.parentKey)?.id,
         baseline: previous && !previous.boundaries?.some(b => b.key === boundary.key) && before === previous ? 'before_entry' : 'already_open',
         attemptIds: attemptId ? [attemptId] : [],
       });

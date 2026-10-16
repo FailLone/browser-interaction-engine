@@ -170,7 +170,7 @@ export class RegionReviews {
     // current-document scope was based on this explicit reuse contract.
     const scoped=this.store.list<RegionReviewRecord>('region-review',o.sessionId).some(review=>review.instanceScope===o.instanceScope && review.regions.some(r=>r.reuse && (action.localId?r.controlIds.includes(action.localId):action.kind==='scroll'&&r.pageTraversal)));
     if(!scoped) return;
-    this.reconcile(o);const review=this.current(o.sessionId);
+    const review=this.current(o.sessionId);
     if(!review?.regions.some(r=>r.status==='active' && (action.localId?r.controlIds.includes(action.localId):action.kind==='scroll'&&r.pageTraversal))) throw new EngineError('REGION_REVIEW_REQUIRED','Review the current region before automated dispatch');
   }
   proposals(o: Observation, actions: ActionCandidate[]): ExplorationGroupProposal[] {

@@ -1,37 +1,17 @@
 import { createHash } from 'node:crypto';
-import type { ActionCandidate, Observation, ExplorationGroup, FrontierItemView } from '@interaction/browser';
+import { browserControlCorrespondence, browserOperationKey, navigationIntent, type ActionAvailability, type ActionCandidate, type Observation } from '@interaction/browser';
 import type { Scope, PlanItem } from './types.js';
 const ordered=(value:unknown):unknown=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>[k,ordered(v)])):value;
 export const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(ordered(value))).digest('hex');
-/** A captured HTTP hyperlink is a navigation candidate, not proof that its destination loaded. */
-export function navigationTarget(action:ActionCandidate,o:Observation):string|undefined {
-  if(action.kind!=='click'||action.risk!=='interface'||action.basis?.status!=='supported')return;
-  const href=action.basis.evidence.find(e=>e.source==='html'&&e.rule==='hyperlink/v1')?.facts.href;
-  if(typeof href!=='string')return;
-  const control=o.controls.find(c=>c.localId===action.localId);
-  if(control?.tag!=='a'||control.reviewBinding?.attributes.download!==undefined)return;
-  try{const target=new URL(href,o.url),source=new URL(o.url);if(!['http:','https:'].includes(target.protocol)||target.origin+target.pathname+target.search===source.origin+source.pathname+source.search)return;return target.href;}catch{return;}
-}
-/** Durable matching hint, never identity resolution or operation authorization. */
-export function scopeControlKey(c:Observation['controls'][number]):string|undefined {
-  const item=c.structuralItem;
-  if(item?.recordKey)return `explorer:record:v1:${digest({record:item.recordKey,template:item.template,slot:item.slot,tag:c.tag,role:c.role,name:c.name||c.label,type:c.constraints.type})}`;
-  return c.stableKey||contextScopeKey(c);
-}
-function contextScopeKey(c:Observation['controls'][number]):string|undefined {
-  // Public semantic context can distinguish same-name fields and destinations.
-  // It must not replace an existing key or invent missing list-record identity.
-  if(c.list||c.structuralItem)return;
-  const context=c.identityContext;
-  if(context?.evidence.length&&(context.scope||context.binding))return `explorer:context:v1:${digest({tag:c.tag,role:c.role,name:c.name||c.label,type:c.constraints.type,scope:context.scope,binding:context.binding})}`;
-  return undefined;
-}
-function actionScope(action:ActionCandidate,o:Observation,durable:boolean):Scope {
+/** Task policy consumes host semantics; these opaque keys retain old task compatibility. */
+export const navigationTarget=(a:ActionCandidate,o:Observation)=>navigationIntent(a,o)?.targetUrl;
+export const scopeControlKey=(c:Observation['controls'][number])=>browserControlCorrespondence(c)?.key;
+function actionScope(action:ActionCandidate,o:Observation):Scope {
   const c=o.controls.find(c=>c.localId===action.localId),r=o.regions.find(r=>r.key===c?.region);
-  const key=c&&(durable?scopeControlKey(c):c.stableKey||contextScopeKey(c));
+  const key=c&&scopeControlKey(c);
   return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(key?{stableKey:key}:{})}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};
 }
-export function scopeFor(action:ActionCandidate,o:Observation):Scope {return actionScope(action,o,true);}
+export function scopeFor(action:ActionCandidate,o:Observation):Scope {return actionScope(action,o);}
 /** Review gaps bind to the observed control, including controls without an explicit label or an action yet. */
 export function scopeForControl(c:Observation['controls'][number],o:Observation):Scope {
   const label=c.name||c.label,region=o.regions.find(r=>r.key===c.region)?.label,stableKey=scopeControlKey(c);
@@ -57,21 +37,9 @@ export function controlInScope(scope:Scope,control:Observation['controls'][numbe
   const actual:Scope={url:o.url,region:o.regions.find(r=>r.key===control.region)?.label,label:control.name||control.label,role:control.role,stableKey:scopeControlKey(control)};
   return Object.entries(scope).filter(([key])=>!['kind','value'].includes(key)).every(([key,value])=>actual[key as keyof Scope]===value);
 }
-// Preserve existing host keys in attempt caches. Keyless controls use semantic
-// context so distinct fields do not suppress one another's attempts.
-export function keyFor(action:ActionCandidate,o:Observation){return digest({scope:actionScope(action,o,false),context:o.context,...(action.kind==='scroll'?{position:action.value}:{})});}
-export function permitted(action:ActionCandidate,o:Observation,groups:ExplorationGroup[],frontier:FrontierItemView[]) {
-  if(o.gaps.some(g=>g.critical))return false;
-  if(action.excluded || action.basis?.status!=='supported' || action.risk!=='interface' || action.preconditions.blockers?.length || !action.preconditions.visible || !action.preconditions.enabled || !(action.preconditions.targetResolved??action.preconditions.identityResolved))return false;
-  const boundary=o.boundaries?.at(-1);if(boundary&&action.boundary?.key!==boundary.key)return false;
-  const f=frontier.find(f=>f.action.id===action.id);
-  if(f && ['unknown','executing','blocked','deferred','skipped','needs_revalidation'].includes(f.status))return false;
-  for(const ref of f?.explorationGroups || []) {
-    const g=groups.find(g=>g.id===ref.groupId && g.status!=='invalidated');const d=g?.decisions.at(-1);
-    if(!g || !d || g.status!=='decided' || ['defer','skip'].includes(d.decision.mode))return false;
-    if(d.decision.mode==='sample' && ref.memberKey && !d.decision.memberKeys.includes(ref.memberKey))return false;
-  }
-  return true;
+export const keyFor=browserOperationKey;
+export function permitted(action:ActionCandidate,o:Observation,availability:ActionAvailability) {
+  return availability.observationId===o.id&&action.observationId===o.id&&availability.actions.some(a=>a.actionId===action.id&&a.executable);
 }
 export function includesScope(plan:PlanItem[],action:ActionCandidate,o:Observation):'target'|'prerequisite'|undefined {
   if(plan.some(i=>!i.required&&i.reason==='user_excluded'&&matches(i.scope,action,o)))return;

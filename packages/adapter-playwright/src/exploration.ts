@@ -1,11 +1,29 @@
-import { canonical, hash, id, type ExplorationCase, type RestorationStep } from '@interaction/core';
+import { canonical, hash, id, type CorrespondenceHint, type ExplorationCase, type RestorationStep } from '@interaction/core';
 import type { ActionCandidate, Control, Observation, Session } from './types.js';
 import { observableCanonical } from './model.js';
 import { constrain } from './policy.js';
 import { ruleMatches, signature, formBinding } from './util.js';
 
-function shape(c: Control) {
+/** Opaque compatibility keys remain readable by existing consumers. They are hints, not identities. */
+export function browserControlCorrespondence(c: Control): CorrespondenceHint | undefined {
+  const item=c.structuralItem, context=c.identityContext;
+  const key=item?.recordKey ? `explorer:record:v1:${hash({record:item.recordKey,template:item.template,slot:item.slot,tag:c.tag,role:c.role,name:c.name||c.label,type:c.constraints.type})}`
+    : c.stableKey || (!c.list&&!item&&context?.evidence.length&&(context.scope||context.binding)
+      ? `explorer:context:v1:${hash({tag:c.tag,role:c.role,name:c.name||c.label,type:c.constraints.type,scope:context.scope,binding:context.binding})}` : undefined);
+  return key ? {key,policy:'browser-correspondence-v1',evidence:[item?.recordKey?'captured-record-and-slot':c.stableKey?'captured-stable-key':'captured-semantic-context',...(context?.evidence||[])],
+    invalidatedBy:['nonunique-correspondence','changed-owner-or-binding','changed-operation-conditions','changed-declared-context']} : undefined;
+}
+
+/** Per-round scheduling hint; its historical encoding is retained for persisted retry ledgers. */
+export function browserOperationKey(a: ActionCandidate,o: Observation) {
+  const c=o.controls.find(c=>c.localId===a.localId),r=o.regions.find(r=>r.key===c?.region);
+  const key=c&&(c.stableKey||(!c.list&&!c.structuralItem?browserControlCorrespondence(c)?.key:undefined));
+  return hash({scope:{url:o.url,...(r?{region:r.label}:{}),label:a.label,...(c?{role:c.role,...(key?{stableKey:key}:{})}:{}),kind:a.kind,...(['string','boolean','number'].includes(typeof a.value)?{value:a.value}:{})},context:o.context,...(a.kind==='scroll'?{position:a.value}:{})});
+}
+
+function shape(c: Control, portable=false) {
   const { valid: _valid, ...constraints } = c.constraints;
+  if(portable){const {instanceId:_instance,...form}=c.reviewBinding?.form||{};return {correspondence:browserControlCorrespondence(c)?.key,context:{scope:c.identityContext?.scope,binding:c.identityContext?.binding},tag:c.tag,role:c.role,name:c.name,readOnly:c.readOnly,constraints,options:c.options,attributes:c.reviewBinding?.attributes,form,formOwner:formBinding(c)};}
   const item=c.structuralItem;
   const structuralItem=item?{ownerInstanceId:item.ownerInstanceId,template:item.template,slot:item.slot,recordKey:item.recordKey,...(item.recordKey?{}:{rowInstanceId:item.rowInstanceId})}:undefined;
   return { signature: signature(c), stableKey: c.stableKey, identityScope: c.identityScope, visible: c.visible, enabled: c.enabled, editable: c.editable, constraints, options: c.options, list: c.list, purposeBinding: c.purposeBinding, formOwner: formBinding(c), structuralItem };
@@ -30,7 +48,8 @@ export function explorationCase(action: ActionCandidate, o: Observation): Explor
 }
 
 /** Control/operation coverage, independent of other controls' input combinations. */
-export function controlCase(action: ActionCandidate, o: Observation): ExplorationCase | undefined {
+export function controlCase(action: ActionCandidate, o: Observation, portable=false): ExplorationCase | undefined {
+  if(portable&&!action.localId)return;
   if (!action.controlId && ['scroll', 'press'].includes(action.kind)) return {
     key: hash({ url: o.url, boundaries: o.boundaries?.map(b => b.key) || [], kind: action.kind,
       viewport: action.kind === 'scroll' ? (action.source === 'scroll-traversal' ? action.value : o.scroll) : undefined }), policy: 'browser-controls-live-v3',
@@ -46,11 +65,11 @@ export function controlCase(action: ActionCandidate, o: Observation): Exploratio
   const { instanceId: _formInstance, ...reviewForm } = c.reviewBinding?.form || {};
   const reviewBinding = reviewed ? { name: c.name, tag: c.tag, readOnly: c.readOnly,
     attributes: c.reviewBinding?.attributes, form: reviewForm } : undefined;
-  return { key: hash({ url: o.url, boundary: o.boundaries?.map(b => b.key) || [], shape: shape(c),
-    instance: c.hypothesisId || c.identityScope === 'instance' ? c.instanceId : undefined,
-    basis, reviewBinding, risk: action.risk, scroll: action.kind === 'scroll' ? c.scroll : undefined }), policy: 'browser-controls-live-v3',
+  return { key: hash({ url: o.url, boundary: portable?o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})):o.boundaries?.map(b => b.key) || [], shape: shape(c,portable),
+    instance: !portable&&(c.hypothesisId || c.identityScope === 'instance') ? c.instanceId : undefined,
+    basis, reviewBinding, risk: action.risk, scroll: action.kind === 'scroll' ? c.scroll : undefined }), policy: portable?'browser-controls-correspondence-v1':'browser-controls-live-v3',
     evidence: ['One operation sample per encountered control, target constraints, option and declared context',
-      'Current-instance targets do not assert historical identity; all combinations are outside this coverage unit'] };
+      portable?'Target-region operation reference only; active boundaries and dispatch permission are checked separately':'Current-instance targets do not assert historical identity; all combinations are outside this coverage unit'] };
 }
 
 /** Compare interaction semantics, retaining editable values and obstruction checks.

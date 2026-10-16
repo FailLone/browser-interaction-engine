@@ -8,6 +8,20 @@ export function currentExplorationDecision(group: ExplorationGroup | undefined) 
   const entry = group?.decisions.at(-1); return entry?.invalidation ? undefined : entry;
 }
 
+
+/** Shared traversal gates for frontier projection and guarded dispatch. */
+export function explorationGates(references: NonNullable<FrontierItem['explorationGroups']>, groups: Map<string, ExplorationGroup>) {
+  return references.map(ref => {
+    const group = groups.get(ref.groupId);
+    if (group?.status === 'invalidated') return { priority: 1, reason: 'exploration_scope_invalidated' };
+    const decision = currentExplorationDecision(group)?.decision, prefix = group?.kind === 'similar-list' ? 'list' : 'exploration';
+    if (!decision) return { priority: 1, reason: `awaiting_${prefix}_decision` };
+    if (decision.mode === 'skip') return { priority: 0, reason: 'exploration_skipped_by_caller' };
+    if (decision.mode === 'defer') return { priority: 2, reason: `${prefix}_deferred_by_caller` };
+    if (decision.mode === 'sample' && (!ref.memberKey || !decision.memberKeys.includes(ref.memberKey))) return { priority: 3, reason: `${prefix}_member_not_selected` };
+  }).filter(g => g !== undefined).sort((a, b) => a.priority - b.priority);
+}
+
 /** Validate the whole batch before writing anything, including caller references. */
 export function validateExplorationProposals(input: unknown, actions: ActionCandidate[]): ExplorationGroupProposal[] {
   if (!Array.isArray(input)) throw new EngineError('INVALID_EXPLORATION_GROUP', 'Scope hook must return an array');
@@ -104,14 +118,7 @@ export class ExplorationGroups {
         item.status = 'superseded'; item.reason = 'exploration_scope_invalidated'; item.unblock = undefined; this.store.put('frontier', item); continue;
       }
       if (item.status === 'needs_revalidation') continue;
-      const gates = item.explorationGroups.map(ref => {
-        const group = groups.get(ref.groupId); const decision = currentExplorationDecision(group)?.decision;
-        const prefix = group?.kind === 'similar-list' ? 'list' : 'exploration';
-        if (!decision) return { priority: 1, reason: `awaiting_${prefix}_decision` };
-        if (decision.mode === 'skip') return { priority: 0, reason: 'exploration_skipped_by_caller' };
-        if (decision.mode === 'defer') return { priority: 2, reason: `${prefix}_deferred_by_caller` };
-        if (decision.mode === 'sample' && (!ref.memberKey || !decision.memberKeys.includes(ref.memberKey))) return { priority: 3, reason: `${prefix}_member_not_selected` };
-      }).filter(g => g !== undefined).sort((a, b) => a.priority - b.priority);
+      const gates = explorationGates(item.explorationGroups, groups);
       const reason = gates[0]?.reason;
       if (reason) { item.status = gates[0].priority === 0 ? 'skipped' : 'deferred'; item.reason = reason; item.unblock = 'Supply an exploration group decision; unexecuted members remain uncovered'; }
       else if (item.status === 'deferred' || item.status === 'skipped') { item.status = 'pending'; item.reason = undefined; item.unblock = undefined; }

@@ -80,6 +80,12 @@ it('integrates autonomous exploration, interleaves JEV/LLM decisions and restore
  await page.getByRole('tab',{name:'输出',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'模型输出'}).innerText()).toContain('items');
  await page.getByRole('tab',{name:'决策影响',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('已生成探索计划');
  await page.getByRole('button',{name:'返回页面证据'}).click();expect(await page.getByLabel('探索决策详情').count()).toBe(0);
+ await timeline.getByRole('button').filter({hasText:'选择下一步'}).filter({hasText:'请求判断'}).first().click();
+ await page.getByRole('tab',{name:'决策影响',exact:true}).click();
+ const dispatchImpact=await page.getByRole('tabpanel',{name:'决策影响'}).innerText();
+ expect(dispatchImpact).toContain('核对宿主执行约束');expect(dispatchImpact).toContain('dispatchRevalidationRequired');expect(dispatchImpact).toContain('observationId');expect(dispatchImpact).toContain('revision');
+ const firstAttempt=f.host.list<any>(plugin.view(task.id).task.rounds[0].sessionId,'attempt')[0];expect(dispatchImpact).toContain(firstAttempt.id);
+ await page.getByRole('button',{name:'返回页面证据'}).click();
  await timeline.getByRole('button').filter({hasText:'识别探索区域'}).first().click();
  await page.getByRole('tab',{name:'决策影响',exact:true}).click();
  expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('不排除候选');

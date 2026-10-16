@@ -25,6 +25,25 @@ export interface EquivalentCoverage {
   identityId?: string; policy: string; evidence: string[];
 }
 
+/** A correspondence is evidence for scheduling, never an identity or replay grant. */
+export interface CorrespondenceHint {
+  key: string; policy: string; evidence: string[]; invalidatedBy: string[];
+}
+export interface OperationCorrespondence {
+  equivalent: boolean; reason: string; policy?: string; evidence: string[];
+  source: { sessionId: string; attemptId: string; beforeId?: string; afterId?: string };
+  target: { sessionId: string; observationId: string; actionId: string };
+  invalidatedBy: string[]; identityAuthorized: false; replayAuthorized: false; currentExecution: false;
+}
+
+/** Shared sample eligibility for coverage reconciliation and cross-session references. */
+export function operationSample<O extends Observation>(a: ActionCandidate, o: O, sample: (a: ActionCandidate, o: O) => ExplorationCase | undefined) {
+  if (a.sessionId !== o.sessionId || a.observationId !== o.id || a.basis?.status !== 'supported' || o.gaps.some(g => g.critical)
+    || canonical(a.preconditions.context) !== canonical(o.context) || Object.values(o.context).some(c => c.status !== 'known')) return;
+  const result = sample(a, o);
+  return result && { ...result, key: hash({ policy: result.policy, sample: result.key, kind: a.kind, value: a.value, context: o.context, risk: a.risk }) };
+}
+
 /** Successful operation samples may discharge equivalent unattempted work, never failed attempts.
  * This is coverage only: it grants no identity, scope, replay or dispatch permission. */
 export function reconcileCoverage<O extends Observation>(session: Session, frontier: FrontierItem[], attempts: ActionAttempt[], observations: O[],
@@ -52,10 +71,9 @@ export function reconcileCoverage<O extends Observation>(session: Session, front
     const control = identity ? { ...c, identityId: identity, hypothesisId: undefined } : c;
     const action = identity ? { ...a, controlId: identity, target: undefined, preconditions: { ...a.preconditions, identityResolved: true } } : a;
     const projected = identity ? { ...o, controls: o.controls.map(old => old === c ? control : old) } : o;
-    const s = sample(action, projected);
+    const s = operationSample(action, projected, sample);
     if (!s) return;
-    return { key: hash({ policy: s.policy, sample: s.key, target: identity || [o.instanceScope, c.instanceId],
-      kind: a.kind, value: a.value, context: o.context, risk: a.risk }), identity, sample: s };
+    return { key: hash({ sample: s.key, target: identity || [o.instanceScope, c.instanceId] }), identity, sample: s };
   }
   const cached = (a: ActionCandidate) => {
     // Supplied input variants can share an ID; cache only the exact action object.

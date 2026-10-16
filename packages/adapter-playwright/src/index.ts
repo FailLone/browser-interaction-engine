@@ -10,7 +10,9 @@ import { observableCanonical, compareObservations } from './model.js';
 import { sessionSchema } from './schema.js';
 import { signature } from './util.js';
 import { constrain, hasDeclaredBoundaryExit, hasObservedBoundaryExit } from './policy.js';
-import { controlCase, explorationCase, restorationStep } from './exploration.js';
+import { browserControlCorrespondence, controlCase, explorationCase, restorationStep } from './exploration.js';
+export { browserControlCorrespondence, browserOperationKey } from './exploration.js';
+export { navigationIntent, type NavigationIntent } from './navigation.js';
 import { historyReturn } from './navigation.js';
 import { listGroups, structuralListGroups } from './list-groups.js';
 import { decisionScopes } from './decision-scopes.js';
@@ -29,6 +31,8 @@ export type { Command } from './schema.js';
 export { compareObservations, observableCanonical } from './model.js';
 
 export class PlaywrightAdapter implements InteractionAdapter<Observation, SessionOptions> {
+  controlCorrespondence = browserControlCorrespondence;
+  correspondenceCase(a: ActionCandidate,o: Observation) { return controlCase(a,o,true); }
   readonly ruleVersion = 'observable-v7';
   validationScope(action: ActionCandidate, observation: Observation) {
     const target = observation.controls.find(c => c.localId === action.localId);

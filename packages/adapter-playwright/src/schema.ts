@@ -69,7 +69,7 @@ const baseCommandSchema = z.discriminatedUnion('type', [
   componentDescriptionSchema.extend({ type: z.literal('describeComponent') }),
   z.object({ type: z.literal('observe') }),
   z.object({ type: z.literal('inspect'), region: z.string() }),
-  z.object({ type: z.literal('execute'), actionId: z.string(), requestId: z.string().min(1), value: z.union([z.string(), z.boolean(), z.number()]).optional() }),
+  z.object({ type: z.literal('execute'), actionId: z.string(), requestId: z.string().min(1), value: z.union([z.string(), z.boolean(), z.number()]).optional(), guard:z.object({observationId:z.string().min(1),profile:z.literal('interface-exploration')}).strict().optional() }),
   z.object({ type: z.literal('explore') }), z.object({ type: z.literal('pause') }), z.object({ type: z.literal('resume') }), z.object({ type: z.literal('stop') }),
   z.object({ type: z.literal('resolveIdentity'), hypothesisId: z.string(), identityId: z.string(), source: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1), guard: z.object({ observationId: z.string().min(1), revision: z.number().int().nonnegative(), scope: z.literal('historical').optional() }).strict().optional() }),
   z.object({ type: z.literal('decideExplorationGroups'), resolutions: explorationGroupResolutionsSchema }).strict(),

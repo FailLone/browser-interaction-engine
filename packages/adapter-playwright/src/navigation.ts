@@ -1,6 +1,21 @@
 import { id } from './util.js';
 import type { ActionCandidate, BrowserHistory, Observation, Session } from './types.js';
 
+export interface NavigationIntent {
+  kind:'native-http-link'; sourceUrl:string; targetUrl:string; observationId:string;
+  evidence: string[]; destinationVerified:false;
+}
+/** Native browser semantics; a destination is an intent, never a successful navigation. */
+export function navigationIntent(action:ActionCandidate,o:Observation):NavigationIntent|undefined {
+  if(action.observationId!==o.id||action.sessionId!==o.sessionId||action.kind!=='click'||action.risk!=='interface'||action.basis?.status!=='supported')return;
+  const href=action.basis.evidence.find(e=>e.source==='html'&&e.rule==='hyperlink/v1')?.facts.href;
+  const control=o.controls.find(c=>c.localId===action.localId);
+  if(typeof href!=='string'||control?.tag!=='a'||control.reviewBinding?.attributes.download!==undefined)return;
+  try{const target=new URL(href,o.url),source=new URL(o.url);if(!['http:','https:'].includes(target.protocol)||target.origin+target.pathname+target.search===source.origin+source.pathname+source.search)return;
+    return {kind:'native-http-link',sourceUrl:o.url,targetUrl:target.href,observationId:o.id,evidence:['html:hyperlink/v1',`control:${control.localId}`],destinationVerified:false};
+  }catch{return;}
+}
+
 export const historyPosition = (history: BrowserHistory) => ({ browserSessionId: history.browserSessionId,
   entryId: history.entries[history.currentIndex]?.id, url: history.entries[history.currentIndex]?.url });
 

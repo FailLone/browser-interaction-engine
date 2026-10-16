@@ -75,6 +75,10 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   returnToObservation?(target: O, current: O, session: Session<S>): ActionCandidate | undefined;
   /** Explicit sampling policy. This is not a state equivalence or independence claim. */
   explorationCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
+  /** Portable observation evidence, without asserting logical identity or permission. */
+  controlCorrespondence?(control: O['controls'][number]): import('./coverage-reconciliation.js').CorrespondenceHint | undefined;
+  /** Uses the adapter's operation sampling semantics with document-local identifiers projected out. */
+  correspondenceCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
   /** Optional structural scope for representative depth budgets; raw visit depth is retained. */
   explorationScope?(observation: O): string;
   /** Partial captures must establish readiness for the dispatched operation itself. */
