@@ -80,7 +80,7 @@ it('keeps cross-form source samples finite across A/B/A, hidden mode changes, pr
     await page.evaluate(() => { (document.querySelector('#mode') as HTMLSelectElement).value = 'B'; });
     const changed = await f.host.observe(sid), current = action('run');
     expect(f.host.operationCorrespondence(sid, { observationId: changed.id, actionId: current.id,
-      source: { sessionId: sid, attemptId: attempt.id } }).equivalent).toBe(false);
+      source: { sessionId: sid, attemptId: attempt.id } })).toMatchObject({ equivalent: false, reason: 'operation_conditions_changed' });
     expect(browserOperationKey(current, changed)).not.toBe(key);
     await f.host.execute(sid, current.id, 'mode-b');
     await page.evaluate(() => { (document.querySelector('#mode') as HTMLSelectElement).value = 'A'; });
@@ -112,7 +112,7 @@ it('refuses coverage from missing hidden selector state without creating a retry
     const after = await f.host.observe(sid), next = action();
     expect(browserOperationKey(next, after)).toBe(key);
     expect(f.host.operationCorrespondence(sid, { observationId: after.id, actionId: next.id,
-      source: { sessionId: sid, attemptId: attempt.id } }).equivalent).toBe(false);
+      source: { sessionId: sid, attemptId: attempt.id } })).toMatchObject({ equivalent: false, reason: 'operation_conditions_unavailable', replayAuthorized: false, currentExecution: false });
     expect(f.events).toEqual(['run']);
   } finally { await f.close(); }
 });

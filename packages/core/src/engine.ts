@@ -254,11 +254,13 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       // not rebuild target-arrival projections for every historical proof pair.
       const priorConditions=requiresTargetConditions?targetConditions(sourceAction,before):undefined,conditions=requiresTargetConditions?targetConditions(action,current):undefined;
       if(requiresTargetConditions)result.conditionKey=hash({source:a?.key,target:b?.key,priorConditions:priorConditions?.key,conditions:conditions?.key});
-      if(!a||!b||a.key!==b.key){result.reason='operation_conditions_changed';return result as ExplorationTargetCorrespondence;}
+      if(!a||!b){result.reason='operation_conditions_unavailable';return result as ExplorationTargetCorrespondence;}
+      if(a.key!==b.key){result.reason='operation_conditions_changed';return result as ExplorationTargetCorrespondence;}
       // Coverage keeps its existing sampling contract. Target arrival and repeated
       // traversal additionally require the relevant UI preconditions to match.
-      if(requiresTargetConditions&&this.adapter.explorationTargetConditions&&(!priorConditions||!conditions||priorConditions.key!==conditions.key)){
-        result.reason='target_conditions_changed';return result as ExplorationTargetCorrespondence;
+      if(requiresTargetConditions&&this.adapter.explorationTargetConditions){
+        if(!priorConditions||!conditions){result.reason='target_conditions_unavailable';return result as ExplorationTargetCorrespondence;}
+        if(priorConditions.key!==conditions.key){result.reason='target_conditions_changed';return result as ExplorationTargetCorrespondence;}
       }
       result.equivalent=true;result.reason=attempt?'equivalent_operation_sample':'equivalent_observed_target';result.policy=b.policy;
       result.evidence=[...evidence,...b.evidence,...(conditions?.evidence||[]),...(attempt?[`attempt:${attempt.id}`]:[]),`observation:${before.id}`,...(after?[`observation:${after.id}`]:[]),`observation:${current.id}`];return result as OperationCorrespondence|ExplorationTargetCorrespondence;
