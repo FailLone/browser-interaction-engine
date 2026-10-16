@@ -55,7 +55,9 @@ it.each(['uncertain','unestablished','external','incomplete','still-uncertain'] 
  const surroundings=controlSurroundingsReader(o)(target)!,item={control:target,surroundings,actions:[],reviews:[],needsReview:true};
  const decision={id:'d',actor:'jev'},assess=vi.fn(async(_purpose:string,_material:unknown)=>({values:{interface_click:mode==='unestablished'?false:null,external_click:mode==='external'?true:false},decision})),clarify=vi.fn(async()=>({value:mode==='still-uncertain'?'uncertain':'click',decision})),apply=vi.fn(async(_decision:unknown,_command:unknown)=>{});
  const ctx={observation:o,task:{revision:1,plan:[{required:true,dispatchScope:true,scope:{url:o.url,label:'Clear'},prerequisites:[]}],rounds:[{reviewed:[],entryPath:[]}]},host:{actions:()=>[],regionReviewMaterial:()=>({enabled:false}),controlClassificationMaterial:()=>({controls:[]}),controlReviewMaterial:()=>({controls:[item]}),list:()=>[],discoveryScanMaterial:()=>({})},assess,clarify,apply,refresh:async()=>false,gap:vi.fn(),hasPendingAction:()=>false} as unknown as ReviewContext;
- await reviewNext(ctx);expect(assess.mock.calls[0][1]).toMatchObject({surroundings});
+ await reviewNext(ctx);
+ if(mode==='incomplete'){const material=assess.mock.calls[0][1] as any;expect(material.surroundings).toEqual({complete:false,truncated:true,reasons:surroundings.reasons});expect(material.surroundings).not.toHaveProperty('nodes');expect(material.surroundings).not.toHaveProperty('controls');}
+ else expect(assess.mock.calls[0][1]).toMatchObject({surroundings});
  expect(clarify).toHaveBeenCalledTimes(['uncertain','unestablished','still-uncertain'].includes(mode)?1:0);expect(apply).toHaveBeenCalledTimes(['uncertain','unestablished'].includes(mode)?1:0);
  if(['uncertain','unestablished'].includes(mode))expect(apply.mock.calls[0][1]).toMatchObject({review:{reviews:[{surroundingContextKey:surroundings.key}]}});
  const key=unresolvedPurposeKey(o,item,1);expect(unresolvedPurposeKey(o,{...item,surroundings:{...surroundings,key:'new'}},1)).not.toBe(key);

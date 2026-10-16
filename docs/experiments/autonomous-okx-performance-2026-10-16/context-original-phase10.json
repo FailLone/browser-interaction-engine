@@ -1,0 +1,639 @@
+{
+  "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+  "baseline": {
+    "at": "2026-10-16T08:20:16.064637+00:00",
+    "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+    "taskSnapshot": ".data/okx-context-original-task-before.json",
+    "usage": {
+      "rounds": 15,
+      "actions": 250,
+      "durationMs": 28200566,
+      "modelRequests": 3196
+    },
+    "decisionCursor": 3324,
+    "eventCursor": 47249,
+    "resumeAt": "2026-10-16T08:23:40.887093+00:00"
+  },
+  "auditedAt": "2026-10-16T08:29:43.961782+00:00",
+  "status": "paused",
+  "reason": "user_paused",
+  "pendingDispatch": null,
+  "totals": {
+    "persistedUsage": {
+      "rounds": 15,
+      "actions": 256,
+      "durationMs": 28530607,
+      "modelRequests": 3235
+    },
+    "budget": {
+      "rounds": 22,
+      "actions": 1210,
+      "durationMs": 28500000,
+      "modelRequests": 3953
+    },
+    "usageDelta": {
+      "rounds": 0,
+      "actions": 6,
+      "durationMs": 330041,
+      "modelRequests": 39
+    },
+    "activeDurationDeltaMs": 330041,
+    "wallTimeSinceBaselineMs": 567897
+  },
+  "newExecution": {
+    "attemptCounts": {
+      "succeeded": 6
+    },
+    "verifiedCount": 6,
+    "verified": [
+      {
+        "id": "77e6f41b-dae2-4752-87b9-5791c8064c17",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T08:25:07.972Z",
+        "finishedAt": "2026-10-16T08:25:12.747Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "cfd19ade-c7b1-42dd-9a5b-b72824a88d5e",
+        "afterId": "d3a69172-05ae-4d74-93ff-f32fdd1052df",
+        "documentId": "c0a547c2-43f5-4295-8e0b-4623ae7adb0c",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "2805f949-df4e-4ead-a088-93167d8cb133",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T08:26:28.795Z",
+        "finishedAt": "2026-10-16T08:26:34.123Z",
+        "label": "Scroll page",
+        "kind": "scroll",
+        "value": {
+          "documentId": "c0a547c2-43f5-4295-8e0b-4623ae7adb0c",
+          "containerNodeId": "c0a547c2-43f5-4295-8e0b-4623ae7adb0c:510",
+          "left": 0,
+          "top": 675,
+          "expectedLeft": 0,
+          "expectedTop": 0,
+          "width": 1440,
+          "height": 900,
+          "maxLeft": 0,
+          "maxTop": 6823
+        },
+        "beforeId": "1d6217f1-a59d-44b6-9039-41be20cc95c9",
+        "afterId": "fb908738-52ff-4dec-a429-e8926fb7c97b",
+        "documentId": "c0a547c2-43f5-4295-8e0b-4623ae7adb0c",
+        "stableKey": null,
+        "region": null,
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      },
+      {
+        "id": "a56ccba3-9f57-423f-b6ae-faa037d3d19d",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T08:26:46.184Z",
+        "finishedAt": "2026-10-16T08:26:50.726Z",
+        "label": "Scrollable generic",
+        "kind": "scroll",
+        "value": {
+          "x": 840,
+          "y": 0
+        },
+        "beforeId": "fb908738-52ff-4dec-a429-e8926fb7c97b",
+        "afterId": "f49d7a20-4fed-4fa4-ace8-ab0188039653",
+        "documentId": "c0a547c2-43f5-4295-8e0b-4623ae7adb0c",
+        "stableKey": null,
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "0fca38f0-7c3c-4f38-9748-65e2f6c30a2c",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T08:27:02.736Z",
+        "finishedAt": "2026-10-16T08:27:08.954Z",
+        "label": "OKX logo, go to homepage",
+        "kind": "click",
+        "value": null,
+        "beforeId": "f49d7a20-4fed-4fa4-ace8-ab0188039653",
+        "afterId": "873463f3-3752-46fb-b86c-c91c6c70c43a",
+        "documentId": "c0a547c2-43f5-4295-8e0b-4623ae7adb0c",
+        "stableKey": null,
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      },
+      {
+        "id": "0140e97a-6abe-41dd-b79d-7be75e9fbee5",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T08:27:17.491Z",
+        "finishedAt": "2026-10-16T08:27:20.788Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "873463f3-3752-46fb-b86c-c91c6c70c43a",
+        "afterId": "e4398683-e2e5-4c89-9782-3d46ffa22ef4",
+        "documentId": "381b863c-973c-4287-9bd8-2c34083b3552",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "d10371d1-994a-4211-af91-4dc43b66c80b",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T08:27:35.645Z",
+        "finishedAt": "2026-10-16T08:27:42.317Z",
+        "label": "Return to observed page",
+        "kind": "history",
+        "value": 4,
+        "beforeId": "95052ec0-fde6-4209-a5a0-8a34fc5b0614",
+        "afterId": "182d4350-e6a6-4d7b-8f78-06b0df445199",
+        "documentId": "381b863c-973c-4287-9bd8-2c34083b3552",
+        "stableKey": null,
+        "region": null,
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      }
+    ],
+    "nonSuccess": [],
+    "newlySucceededPlanRows": 6,
+    "newlySucceededExactLeafScopes": 2,
+    "newlySucceededOperationScopes": [
+      {
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+        "label": "OKX logo, go to homepage",
+        "role": "link",
+        "kind": "click"
+      },
+      {
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+        "label": "OKX logo, go to homepage",
+        "role": "link",
+        "stableKey": "explorer:context:v1:ba117fb8ad7578d0b1fb01b7aeda99f5e77f9954e0a8aa21585afa9d99000764",
+        "kind": "click"
+      }
+    ],
+    "repeatedLabelKindValue": [
+      {
+        "label": "Close",
+        "kind": "click",
+        "count": 2,
+        "attemptIds": [
+          "77e6f41b-dae2-4752-87b9-5791c8064c17",
+          "0140e97a-6abe-41dd-b79d-7be75e9fbee5"
+        ]
+      }
+    ],
+    "historicalEvidenceNotCurrentSuccess": true,
+    "repetitionCaveat": "Matching labels/kinds/values only flag possible repeated work. They do not assert host operation equivalence, identity or new coverage."
+  },
+  "models": {
+    "jev": {
+      "requests": 37,
+      "purposeCounts": {
+        "region-review": 23,
+        "control-classification": 5,
+        "identity-review": 1,
+        "control-risk": 1,
+        "probe-risk": 2,
+        "next-action": 5
+      },
+      "statusCounts": {
+        "requested": 0,
+        "returned": 0,
+        "applied": 37,
+        "rejected": 0,
+        "stale": 0,
+        "failed": 0,
+        "cancelled": 0
+      },
+      "elapsedMsSum": 28157,
+      "elapsedMsMedian": 567,
+      "elapsedMsP95NearestRank": 1571,
+      "missingDurationRequests": 0,
+      "reportedUsage": {
+        "input_tokens": 204950,
+        "output_tokens": 19257,
+        "cost": 0.008607899999999998
+      },
+      "usageAvailableResponses": 37
+    },
+    "llm": {
+      "requests": 2,
+      "purposeCounts": {
+        "classification-clarification": 2
+      },
+      "statusCounts": {
+        "requested": 0,
+        "returned": 0,
+        "applied": 1,
+        "rejected": 0,
+        "stale": 0,
+        "failed": 1,
+        "cancelled": 0
+      },
+      "elapsedMsSum": 53473,
+      "elapsedMsMedian": 26736.5,
+      "elapsedMsP95NearestRank": 47600,
+      "missingDurationRequests": 0,
+      "reportedUsage": {
+        "prompt_tokens": 4036,
+        "completion_tokens": 833,
+        "total_tokens": 4869,
+        "cost": 0.0022104
+      },
+      "usageAvailableResponses": 1
+    }
+  },
+  "phases": {
+    "consecutiveActionDispatchIntervals": {
+      "count": 4,
+      "sumMs": 129833,
+      "p95MsNearestRank": 80114,
+      "medianMs": 17316.0,
+      "minMs": 15087,
+      "maxMs": 80114
+    },
+    "consecutiveActionVerifiedIntervals": {
+      "count": 4,
+      "sumMs": 128303,
+      "p95MsNearestRank": 81444,
+      "medianMs": 18304.5,
+      "minMs": 10250,
+      "maxMs": 81444
+    },
+    "dispatchValidationToDispatch": {
+      "count": 5,
+      "sumMs": 6367,
+      "p95MsNearestRank": 1977,
+      "medianMs": 1840,
+      "minMs": 221,
+      "maxMs": 1977
+    },
+    "actionDispatchToVerified": {
+      "count": 5,
+      "sumMs": 43623,
+      "p95MsNearestRank": 11432,
+      "medianMs": 8125,
+      "minMs": 6595,
+      "maxMs": 11432
+    },
+    "probeDispatchToVerified": {
+      "count": 0,
+      "sumMs": 0,
+      "p95MsNearestRank": null,
+      "medianMs": null,
+      "minMs": null,
+      "maxMs": null
+    },
+    "unmatchedActionDispatchEvents": 0,
+    "unmatchedProbeDispatchEvents": 0,
+    "jevNextActionRequest": {
+      "count": 5,
+      "sumMs": 6191,
+      "p95MsNearestRank": 1664,
+      "medianMs": 1530,
+      "minMs": 412,
+      "maxMs": 1664
+    },
+    "resumeAt": "2026-10-16T08:23:40.887093+00:00",
+    "resumeToReattachedMs": 28125
+  },
+  "previousPhaseComparison": {
+    "metricVersion": 3,
+    "fromEventSequence": 37591,
+    "fromAt": "2026-10-16T04:37:26.501Z",
+    "toEventSequence": 38596,
+    "toAt": "2026-10-16T04:46:56.160Z",
+    "phases": {
+      "consecutiveActionDispatchIntervals": {
+        "count": 19,
+        "sumMs": 490785,
+        "p95MsNearestRank": 94888,
+        "medianMs": 22064,
+        "minMs": 19100,
+        "maxMs": 94888
+      },
+      "consecutiveActionVerifiedIntervals": {
+        "count": 19,
+        "sumMs": 492697,
+        "p95MsNearestRank": 94303,
+        "medianMs": 22353,
+        "minMs": 19471,
+        "maxMs": 94303
+      },
+      "dispatchValidationToDispatch": {
+        "count": 20,
+        "sumMs": 124056,
+        "p95MsNearestRank": 6891,
+        "medianMs": 6620.5,
+        "minMs": 238,
+        "maxMs": 6961
+      },
+      "actionDispatchToVerified": {
+        "count": 20,
+        "sumMs": 176193,
+        "p95MsNearestRank": 10254,
+        "medianMs": 8599.5,
+        "minMs": 6663,
+        "maxMs": 10397
+      },
+      "probeDispatchToVerified": {
+        "count": 0,
+        "sumMs": 0,
+        "p95MsNearestRank": null,
+        "medianMs": null,
+        "minMs": null,
+        "maxMs": null
+      },
+      "unmatchedActionDispatchEvents": 0,
+      "unmatchedProbeDispatchEvents": 0,
+      "jevNextActionRequest": {
+        "count": 20,
+        "sumMs": 29755,
+        "p95MsNearestRank": 1671,
+        "medianMs": 1538.0,
+        "minMs": 399,
+        "maxMs": 1721
+      }
+    },
+    "note": "Prior run from round.reattached to task.paused; excludes attach cold-start."
+  },
+  "currentObserved": {
+    "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+    "sessionStatus": "paused",
+    "observationId": "daaf9c04-b3d3-4ad2-b406-222eb9f215c4",
+    "documentId": "50256b4c-69f2-46ff-bf9f-18e838f108d6",
+    "capturedAt": "2026-10-16T08:28:17.072Z",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "controls": 302,
+    "visibleEnabledControls": 233,
+    "storedCandidates": 210,
+    "rawCandidateBlockers": {
+      "outside_active_boundary": 205,
+      "outside_scrollable_area": 2,
+      "pointer_intercepted": 40
+    },
+    "rawBlockerCaveat": "Stored observation candidate facts only; no current SDK availability query or dispatch authorization asserted.",
+    "gapCodes": {
+      "STRUCTURAL_LIST_SCAN_TRUNCATED": 1,
+      "STRUCTURAL_DISCOVERY_LIMIT": 17,
+      "UNSUPPORTED_CANVAS": 7,
+      "EVENT_LISTENER_COVERAGE": 1
+    }
+  },
+  "remaining": {
+    "planRows": 3225,
+    "exactScopes": 1817,
+    "unfinishedExactScopes": 1740,
+    "reasonRows": {
+      "unknown_action_outcome": 3,
+      "UNKNOWN_DISPATCH_REQUIRES_REVIEW": 1,
+      "observation_incomplete": 1,
+      "boundary_preservation_limit": 1,
+      "recovery_unresolved": 1,
+      "MODEL_OUTPUT_TRUNCATED": 1,
+      "classification_unresolved": 97,
+      "operation_basis_unconfirmed": 131,
+      "probe_unresolved": 41,
+      "operation_risk_unresolved": 45,
+      "observed_in_scope": 873,
+      "outside_active_boundary": 221,
+      "outside_scrollable_area": 29,
+      "operation_unavailable": 236,
+      "operation_not_executed": 652,
+      "entry_revalidation_deferred": 4,
+      "pointer_intercepted": 98,
+      "region_review_required": 587,
+      "ambiguous_scope_match": 5,
+      "interface_risk_required": 8,
+      "boundary_exit_unresolved": 1,
+      "identity_unresolved": 7,
+      "Control is not visible or enabled": 1
+    },
+    "unknownAttempts": [
+      {
+        "attemptId": "a7e1dcc5-1692-4391-b573-ef3bd0c68324",
+        "sessionId": "27513942-05b7-43e6-bedd-712d0aadfd75",
+        "status": "unknown",
+        "afterId": "71987594-8de1-4da0-8322-28a2f8b91a72",
+        "sourceUrl": "https://www.okx.com/convert/btc-to-usd",
+        "targetUrl": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application"
+      }
+    ],
+    "acceptedUnsupported": [
+      {
+        "id": "fb6a2ddd-3472-466e-a2b3-9a866bbdcfc7",
+        "reason": "missing_capability:UNSUPPORTED_CANVAS",
+        "status": "untested",
+        "required": false,
+        "evidenceCount": 1
+      }
+    ],
+    "notExhaustive": true
+  },
+  "progressEvents": {
+    "budget.extended": 1,
+    "scope.source_recovered": 1,
+    "round.reattached": 1,
+    "decision.requested": 39,
+    "decision.returned": 38,
+    "decision.resolved": 37,
+    "decision.applied": 38,
+    "decision.effect": 44,
+    "scope.retained": 3,
+    "review.resolved": 3,
+    "scope.audit": 5,
+    "action.dispatch": 5,
+    "action.verified": 5,
+    "branch.revalidation_deferred": 2,
+    "branch.reentry_deferred": 2,
+    "branch.route_reconciled": 3,
+    "recovery.selected": 1,
+    "recovery.result": 1,
+    "review.reopened": 3,
+    "decision.failed": 1,
+    "task.halted": 1,
+    "task.paused": 1
+  },
+  "lastEvents": [
+    {
+      "sequence": 48079,
+      "at": "2026-10-16T08:28:23.155Z",
+      "type": "decision.resolved",
+      "actor": "program",
+      "decisionId": "77eaaa31-4595-4df4-8f80-c6ed0149e3f3"
+    },
+    {
+      "sequence": 48080,
+      "at": "2026-10-16T08:28:23.155Z",
+      "type": "decision.applied",
+      "actor": "jev",
+      "decisionId": "77eaaa31-4595-4df4-8f80-c6ed0149e3f3"
+    },
+    {
+      "sequence": 48081,
+      "at": "2026-10-16T08:28:23.156Z",
+      "type": "decision.effect",
+      "actor": "jev",
+      "decisionId": "77eaaa31-4595-4df4-8f80-c6ed0149e3f3"
+    },
+    {
+      "sequence": 48082,
+      "at": "2026-10-16T08:28:23.387Z",
+      "type": "decision.requested",
+      "actor": "llm",
+      "decisionId": "e5789de0-3840-4a18-b18d-24425968d5fb"
+    },
+    {
+      "sequence": 48083,
+      "at": "2026-10-16T08:29:10.987Z",
+      "type": "decision.failed",
+      "actor": "llm",
+      "decisionId": "e5789de0-3840-4a18-b18d-24425968d5fb"
+    },
+    {
+      "sequence": 48084,
+      "at": "2026-10-16T08:29:11.080Z",
+      "type": "task.halted",
+      "actor": "program",
+      "decisionId": null
+    },
+    {
+      "sequence": 48085,
+      "at": "2026-10-16T08:29:43.513Z",
+      "type": "session.paused",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 48086,
+      "at": "2026-10-16T08:29:43.601Z",
+      "type": "task.paused",
+      "actor": "program",
+      "decisionId": null
+    }
+  ],
+  "readOnlyAudit": true,
+  "testedCommit": "93af3b4",
+  "reentryValidation": {
+    "TradeExecutions": 0,
+    "SearchCryptoExecutions": 0,
+    "deferred": [
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.revalidation_deferred",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "d3a69172-05ae-4d74-93ff-f32fdd1052df",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "label": "Where can I learn more about trading?",
+            "role": "button",
+            "stableKey": "testid:okd-accordion-header",
+            "kind": "click"
+          },
+          "itemId": "458bd043-ece1-425b-aa7a-f58a63e33a7c",
+          "reason": "operation_revalidation_is_not_new_entry",
+          "observationId": "d3a69172-05ae-4d74-93ff-f32fdd1052df",
+          "executionAuthorized": false,
+          "currentExecution": false
+        },
+        "at": "2026-10-16T08:25:16.284Z"
+      },
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.revalidation_deferred",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "d3a69172-05ae-4d74-93ff-f32fdd1052df",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+            "role": "button",
+            "stableKey": "testid:okd-accordion-header",
+            "kind": "click"
+          },
+          "itemId": "d9f08703-d7d6-43fa-8346-b1c2bb88aefa",
+          "reason": "operation_revalidation_is_not_new_entry",
+          "observationId": "d3a69172-05ae-4d74-93ff-f32fdd1052df",
+          "executionAuthorized": false,
+          "currentExecution": false
+        },
+        "at": "2026-10-16T08:25:16.370Z"
+      },
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.reentry_deferred",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "1d6217f1-a59d-44b6-9039-41be20cc95c9",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "label": "Where can I learn more about trading?",
+            "role": "button",
+            "stableKey": "testid:okd-accordion-header",
+            "kind": "click"
+          },
+          "reason": "no_new_child_completion",
+          "attempts": 1,
+          "limit": 1,
+          "pendingTargets": 296,
+          "executionAuthorized": false
+        },
+        "at": "2026-10-16T08:26:22.983Z"
+      },
+      {
+        "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+        "type": "branch.reentry_deferred",
+        "actor": "program",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "observationId": "1d6217f1-a59d-44b6-9039-41be20cc95c9",
+        "data": {
+          "scope": {
+            "url": "https://www.okx.com/convert/btc-to-usd",
+            "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+            "label": "Selected language and currency: English/USD",
+            "role": "button",
+            "stableKey": "id:language",
+            "kind": "click"
+          },
+          "reason": "no_new_child_completion",
+          "attempts": 1,
+          "limit": 1,
+          "pendingTargets": 162,
+          "executionAuthorized": false
+        },
+        "at": "2026-10-16T08:26:23.098Z"
+      }
+    ]
+  },
+  "sourceRecovery": {
+    "rows": 314,
+    "executionAuthorized": false
+  },
+  "coverageInterpretation": {
+    "newEntry": "OKX logo, go to homepage",
+    "newActualEntryCount": 1,
+    "twoLeafScopesReferToOneAction": true,
+    "historyReturnSucceeded": true,
+    "closeCountExplanation": "Separate fresh document popup exits, before and after homepage navigation."
+  },
+  "stopDetails": {
+    "automaticReason": "MODEL_OUTPUT_TRUNCATED",
+    "finalPauseByAgent": true,
+    "budgetOverrunMs": 30607,
+    "fixPendingAtExperimentEnd": "Bound pending model requests to remaining cumulative duration, not only provider timeout",
+    "lateDecisionApplied": false
+  }
+}

@@ -201,7 +201,10 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       checks[`external_${kind}`]={instructions:`Is there evidence that ${kind} submits business data, sends a message, purchases, deletes, authenticates, or performs another external/business write? Judge this effect independently of interface changes; an action can do both.`};
     }
     const surroundings=item.surroundings;
-    const judged=await c.assess('control-risk',{control:item.control,actions:item.actions,...(surroundings?{surroundings}:{})},checks);
+    // Incomplete neighbor facts cannot be bound at dispatch, so do not offer them
+    // as evidence for a judgment. Preserve only why the material is unavailable.
+    const contextMaterial=surroundings?.complete?surroundings:surroundings?{complete:false,truncated:surroundings.truncated,reasons:surroundings.reasons}:undefined;
+    const judged=await c.assess('control-risk',{control:item.control,actions:item.actions,...(contextMaterial?{surroundings:contextMaterial}:{})},checks);
     let kind=kinds.find(k=>judged.values[`interface_${k}`]===true&&judged.values[`external_${k}`]===false);
     let decision=judged.decision;
     if(!kind){
