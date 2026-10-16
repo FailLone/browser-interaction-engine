@@ -369,8 +369,19 @@ it('does not call an action successful just because an unrelated form settled af
   try {
     const attempt = await act(t.engine, t.sessionId, 'Starts changing', 'check');
     expect(attempt.status).toBe('unknown');
-    expect(attempt.reason).toBe('Post-action dependencies did not settle');
-    expect(t.engine.observation(t.sessionId).gaps.some(g => g.critical)).toBe(false);
+    const gaps = t.engine.observation(t.sessionId).gaps;
+    // Post-action capture now waits for this field's own dependencies. If the
+    // final DOM read hits that deadline, keep the explicit capture failure;
+    // neither a partial ready sibling nor a timeout may certify this action.
+    if (attempt.reason === 'Post-action dependencies did not settle') {
+      expect(gaps.some(g => g.code === 'PARTIAL_INTERACTION_READY')).toBe(true);
+      expect(gaps.some(g => g.critical)).toBe(false);
+    } else {
+      expect(attempt.reason).toContain('Post-action observation incomplete:');
+      expect(gaps).toContainEqual(expect.objectContaining({ code: 'DOM_CAPTURE_FAILED', critical: true,
+        message: expect.stringContaining('DOM capture deadline exceeded') }));
+    }
+    expect(t.engine.list<ActionAttempt>(t.sessionId, 'attempt')).toHaveLength(1);
     expect(t.engine.getFrontier(t.sessionId).find(f => f.attempts.includes(attempt.id))!.status).toBe('unknown');
   } finally { await t.close(); }
 });

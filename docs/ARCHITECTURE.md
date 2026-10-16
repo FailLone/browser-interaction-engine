@@ -51,6 +51,7 @@ core 负责保留历史并应用确定性的身份关联流程。具体语义签
 
 - `InteractionAdapter` 提供选项校验、驱动创建、身份签名、状态等价、比较、动作约束、谓词和重放匹配。流程范围和回退动作是可选能力。
 - `InteractionDriver` 管理一个活动交互源，负责 start、capture、discover、preflight、validate、execute、reopen、close。
+- `capture(id, context?)` 的可选 `afterAction` 只携带刚执行动作及其原观察，供适配器等待该动作的后置依赖，不授予重放或成功结论。浏览器的整页、交互和局部稳定窗口共享每次 DOM 读取的采样时刻，处理单份快照的耗时不能充当第二份稳定证据。后置捕获只有该原生字段自身的局部依赖就绪时才可局部提前结束；点击、导航等仍等待整体交互稳定。预算耗尽或证据不足仍按原契约记 unknown，捕获不会重发动作。
 - core 在执行前调用 preflight / validate，先通过存储插件提交意图，再调用 execute，之后更新事实及图。适配器无需另建一套待办或恢复记录。
 - 重开入口通过 `recovery-entry` 动作记录，仍受预算和重放约束限制。驱动的 reopen 只重建交互源，不被解释为重置业务世界。
 

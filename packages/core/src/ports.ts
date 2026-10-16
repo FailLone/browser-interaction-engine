@@ -37,10 +37,16 @@ export type HookInvoker = <T>(name: string, fn: () => T | Promise<T>) => Promise
 export type ObservationData<O extends Observation> = Omit<O, 'id' | 'sessionId' | 'stateId' | 'stateGrouping' | 'visitId' | 'fingerprint' | 'canonical' | 'ruleVersion' | 'cause'>;
 export type PreflightResult = 'valid' | 'stale' | 'context_changed'
   | { status: 'stale'; scopeKey: string; evidence: string[] };
+/** Read-only source facts for post-action observation. The driver may wait for
+ * this operation's dependencies, but must never repeat the action or certify
+ * its outcome. The adapter and engine still validate the resulting observation. */
+export interface CaptureContext<O extends Observation> {
+  afterAction?: { action: ActionCandidate; before: O };
+}
 export interface InteractionDriver<O extends Observation, S extends SessionOptions> {
   start(): Promise<void>;
   connected(): boolean;
-  capture(observationId: string): Promise<ObservationData<O>>;
+  capture(observationId: string, context?: CaptureContext<O>): Promise<ObservationData<O>>;
   discover(observation: O, session: Session<S>, invoke: HookInvoker): Promise<ActionCandidate[]>;
   preflight(observation: O, action?: ActionCandidate, reviewTargetLocalIds?: string[]): Promise<PreflightResult>;
   validate(action: ActionCandidate, control?: O['controls'][number]): Promise<void>;

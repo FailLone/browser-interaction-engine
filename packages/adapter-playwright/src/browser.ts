@@ -2,7 +2,7 @@ import { scrollProbeInPage, scrollProbeSchema } from './scroll-probe.js';
 import { collectScrollContainers, traversalScrollInPage, traversalScrollSchema } from './scroll-containers.js';
 import { chromium, type Browser, type BrowserContext, type Page, type CDPSession } from 'playwright';
 import { createHash } from 'node:crypto';
-import type { EvidenceStore, InteractionDriver, HookInvoker, PreflightResult } from '@interaction/core';
+import type { CaptureContext, EvidenceStore, InteractionDriver, HookInvoker, PreflightResult } from '@interaction/core';
 import { canonical, timeout, hash } from '@interaction/core';
 import { observableCanonical } from './model.js';
 import { controlSurroundingsReader } from './control-surroundings.js';
@@ -526,12 +526,15 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (plan?.status === 'invalidated') dom.discoveryScan.supplement = { requestId: plan.requestId, targetId: plan.targetId, budget: plan.budget, status: 'invalidated', reason: plan.reason };
     return dom;
   }
-  async capture(observationId: string) {
+  async capture(observationId: string, captureContext?: CaptureContext<Observation>) {
     if (!this.page) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
     const deadline = Date.now() + this.options.observeTimeoutMs;
     let stable = false; let interactionStable = false; let captureRetries = 0;
     let dom: Awaited<ReturnType<BrowserAdapter['readDOM']>> | undefined;
     let lastError: string | undefined;
+    // All windows describe the same sampled DOM. Time spent computing its
+    // projections cannot turn a single sample into stability evidence.
+    let sampledAt = 0;
     const projections = new WeakMap<object, Map<string, string>>();
     const project = (view: NonNullable<typeof dom>) => {
       if (!projections.has(view)) projections.set(view, dependencyProjections(view));
@@ -543,15 +546,26 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       for (const control of view.controls) {
         const key = project(view).get(control.instanceId); if (!key) continue;
         present.add(control.instanceId);
-        if (dependencyWindows.get(control.instanceId)?.key !== key) dependencyWindows.set(control.instanceId, { key, since: Date.now() });
+        if (dependencyWindows.get(control.instanceId)?.key !== key) dependencyWindows.set(control.instanceId, { key, since: sampledAt });
       }
       for (const key of dependencyWindows.keys()) if (!present.has(key)) dependencyWindows.delete(key);
     };
     const readyDependencies = (view: NonNullable<typeof dom>) => new Set(view.controls.filter(control => {
       const window = dependencyWindows.get(control.instanceId);
       return control.visible && control.enabled && !!window && window.key === project(view).get(control.instanceId)
-        && Date.now() - window.since >= this.options.settleMs;
+        && sampledAt - window.since >= this.options.settleMs;
     }).map(control => control.instanceId));
+    const pending = captureContext?.afterAction;
+    const pendingTarget = pending?.before.controls.find(c => c.localId === pending.action.localId);
+    const pendingScope = pending?.action.risk === 'interface' && pendingTarget ? nativeFormScope(pendingTarget, pending.action.kind) : undefined;
+    const partialSufficient = (view: NonNullable<typeof dom>) => {
+      const ready = readyDependencies(view);
+      if (!pending) return ready.size > 0;
+      // An unrelated ready input cannot finish a click/navigation's observation.
+      // Native field operations may still finish using their own verified form.
+      return !!pendingScope && !!pendingTarget && ready.has(pendingTarget.instanceId)
+        && view.controls.some(c => c.instanceId === pendingTarget.instanceId && nativeFormScope(c, pending.action.kind) === pendingScope);
+    };
     const evidenceManifest: BrowserEvidenceManifest = { schemaVersion: 1, status: this.options.evidence.enabled ? 'captured' : 'disabled', artifacts: {}, gaps: [] };
     for (;;) {
       let previous = ''; let unchangedSince = Date.now();
@@ -560,17 +574,18 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       do {
         try {
           dom = await timeout(this.readDOM(), Math.max(1, deadline - Date.now()), 'DOM capture deadline exceeded');
+          sampledAt = Date.now();
           lastError = undefined;
           sampleDependencies(dom);
           const incomplete = dom.gaps.some(g => ['DOM_ROOT_UNAVAILABLE', 'DOCUMENT_LOADING'].includes(g.code));
           const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.pressed, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
-          if (key !== previous || incomplete) { previous = key; unchangedSince = Date.now(); }
+          if (key !== previous || incomplete) { previous = key; unchangedSince = sampledAt; }
           const scoped = interactionScope(dom);
           const interactive = interactionProjection(scoped) + boundaryBinding(dom) + canonical(scoped.regionCandidates?.map(c => [c.id, c.binding])) + canonical(scoped.structuralLists);
-          if (interactive !== previousInteraction || incomplete) { previousInteraction = interactive; interactionSince = Date.now(); }
-          interactionStable = !incomplete && Date.now() - interactionSince >= this.options.settleMs;
-          if (!incomplete && Date.now() - unchangedSince >= this.options.settleMs) { stable = true; break; }
-          if (this.options.exploration === 'controls' && !dom.gaps.some(g => g.critical) && (interactionStable || readyDependencies(dom).size > 0)) break;
+          if (interactive !== previousInteraction || incomplete) { previousInteraction = interactive; interactionSince = sampledAt; }
+          interactionStable = !incomplete && sampledAt - interactionSince >= this.options.settleMs;
+          if (!incomplete && sampledAt - unchangedSince >= this.options.settleMs) { stable = true; break; }
+          if (this.options.exploration === 'controls' && !dom.gaps.some(g => g.critical) && (interactionStable || partialSufficient(dom))) break;
         } catch (error) {
           dependencyWindows.clear(); lastError = String(error); previous = ''; unchangedSince = Date.now(); previousInteraction = ''; interactionSince = Date.now(); interactionStable = false;
           if (this.page.isClosed()) break;
@@ -585,10 +600,12 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
             interactionStable &&= interactionProjection(interactionScope(dom)) === interactionProjection(interactionScope(detailed)) && boundaryBinding(dom) === boundaryBinding(detailed) && canonical(interactionScope(dom).regionCandidates?.map(c => [c.id, c.binding])) === canonical(interactionScope(detailed).regionCandidates?.map(c => [c.id, c.binding])) && canonical(interactionScope(dom).structuralLists) === canonical(interactionScope(detailed).structuralLists);
             stable = false;
             const critical = !(this.options.exploration === 'controls' && (interactionStable || readyDependencies(detailed).size > 0));
+            const sufficient = this.options.exploration === 'controls' && (interactionStable || partialSufficient(detailed));
             dom = detailed;
             // A transition can arrive after the quiet sampling window. Re-sample
-            // within the original deadline; never retry the browser action.
-            if (critical && Date.now() < deadline) { captureRetries++; continue; }
+            // for this action within the original deadline. Its needs do not
+            // invalidate unrelated ready facts or authorize repeating the action.
+            if (!sufficient && Date.now() < deadline) { captureRetries++; continue; }
             detailed.gaps.push({ code: 'EVIDENCE_CAPTURE_CHANGED', message: 'Page changed between stability sampling and detailed capture', critical });
           }
           dom = detailed;

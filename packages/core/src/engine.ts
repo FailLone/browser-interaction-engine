@@ -428,7 +428,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     try {
     await this.beforeCapture(sessionId, observationId);
     await this.store.evidence.beginObservation?.({ sessionId, observationId, policy: session.options.evidenceRetention });
-    const data = await this.driver!.capture(observationId);
+    const capturedAttempt = attemptId ? this.owned<ActionAttempt>('attempt', attemptId, sessionId) : undefined;
+    const afterAction = capturedAttempt && { action: capturedAttempt.action, before: this.observation(sessionId, capturedAttempt.beforeId) };
+    const data = await this.driver!.capture(observationId, afterAction ? { afterAction } : undefined);
     const o: O = { ...data, id: observationId, sessionId, cause, stateId: '', visitId: id(), fingerprint: '', canonical: '', ruleVersion: this.adapter.ruleVersion } as O;
     const declared = Object.fromEntries(Object.entries(session.options.context).map(([key, value]) => [key, { value, status: 'known' as const, source: 'declared' }]));
     o.context = { ...declared, ...o.context };
@@ -566,7 +568,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         const attempt = this.owned<ActionAttempt>('attempt', attemptId, sessionId);
         attempt.afterId = o.id; attempt.finishedAt = now();
         if (attempt.status === 'executing') {
-          const ready = this.adapter.actionObservationReady?.(attempt.action, this.observation(sessionId, attempt.beforeId), o) !== false;
+          const ready = this.adapter.actionObservationReady?.(attempt.action, afterAction!.before, o) !== false;
           attempt.status = o.gaps.some(g => g.critical) || !ready ? 'unknown' : 'succeeded';
           if (attempt.status === 'unknown') attempt.reason = !ready ? 'Post-action dependencies did not settle' : `Post-action observation incomplete: ${o.gaps.filter(g => g.critical).map(g => g.code).join(', ')}`;
         }
