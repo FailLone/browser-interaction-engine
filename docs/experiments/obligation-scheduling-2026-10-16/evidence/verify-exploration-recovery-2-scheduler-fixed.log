@@ -1,0 +1,6 @@
+{"variant":"refactor","scenario":"nested_static","replicate":2,"status":"TARGET_REACHED","physicalArrival":true,"guardedBranchYield":true,"attempts":2,"durationMs":570.5809579999998}
+{"variant":"refactor","scenario":"modal_reentry_changed_quote","replicate":2,"status":"TARGET_REACHED","physicalArrival":true,"guardedBranchYield":true,"attempts":2,"durationMs":717.6276250000001}
+{"variant":"refactor","scenario":"ready_target_ticking_quote","replicate":2,"status":"TARGET_REACHED","physicalArrival":true,"guardedBranchYield":true,"attempts":0,"durationMs":187.05179099999987}
+{"variant":"refactor","scenario":"nested_changed_quote","replicate":2,"status":"TARGET_REACHED","physicalArrival":true,"guardedBranchYield":true,"attempts":3,"durationMs":891.9653749999998}
+{"variant":"refactor","scenario":"local_inverse_diverges","replicate":2,"status":"UNVERIFIED","physicalArrival":false,"guardedBranchYield":false,"attempts":1,"durationMs":387.47662499999933}
+{"variant":"refactor","scenario":"unknown_outcome_injected","replicate":2,"status":"UNVERIFIED","physicalArrival":true,"guardedBranchYield":false,"attempts":0,"durationMs":0.7721670000009908}

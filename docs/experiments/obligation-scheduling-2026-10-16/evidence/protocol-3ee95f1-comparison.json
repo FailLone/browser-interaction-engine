@@ -1,0 +1,4845 @@
+{
+  "status": "intermediate freeze evidence; not final product signoff",
+  "baseline": "290456d63831477638b6aa7de3bee4a15e4c675c",
+  "candidate": "3ee95f17bfc590b0b1c250cbeb1612fce2637e5e",
+  "method": "Read existing immutable archived JSON only; no tests/browser/service/database/repository modifications",
+  "artifacts": {
+    "/tmp/bie-stability-scheduler-evidence/conditions-scheduler-base.json": {
+      "sha256": "50e536e42c9bfd95f4795b19be646de25018190053ec884ad622c1474499ca2e",
+      "bytes": 1249987
+    },
+    "/tmp/bie-stability-scheduler-evidence/continuation-scheduler-base.json": {
+      "sha256": "68965259d195392b1dcbf3fa3c9efecd5b9053205ef6fce1e2e0136586e87a97",
+      "bytes": 1051551
+    },
+    "/tmp/bie-stability-scheduler-evidence/input-identity-scheduler-base.json": {
+      "sha256": "4639ed6f7d729ea412c7f6968a7849b5f9cf0ada4a53d6be2175cd20038eb833",
+      "bytes": 78653
+    },
+    "/tmp/bie-stability-scheduler-evidence/recovery-stability-1.json": {
+      "sha256": "8fb4565a99741784989bec8f5d2c866aebc6065dca3b3e2f462a4bdebd8995e8",
+      "bytes": 64504
+    },
+    "/tmp/bie-stability-scheduler-evidence/recovery-stability-2.json": {
+      "sha256": "7aa2603733f64110391efa6db4b12dc5d98e773c06977d58863592a967cffe2d",
+      "bytes": 64518
+    },
+    "/tmp/bie-stability-scheduler-evidence/recovery-stability-3.json": {
+      "sha256": "72b3a486c9ed6d98418a9b8e1bcea04f14f45855d49c4895e9bde1e64bf7dec7",
+      "bytes": 64620
+    },
+    "/tmp/bie-stability-scheduler-evidence/recovery-stability-4.json": {
+      "sha256": "532e11f4eda67d06c0bd055b5ec4699c30f53894f720a7c74f51a6f066967b44",
+      "bytes": 64619
+    },
+    "/tmp/bie-stability-scheduler-evidence/recovery-stability-5.json": {
+      "sha256": "4ca5b7113271f973a4012bfc27d26f9d42b241a9087d61361a432e9df2179ea7",
+      "bytes": 64715
+    },
+    "/tmp/bie-stability-scheduler-evidence/scheduler-3ee95f1/conditions-scheduler-fixed.json": {
+      "sha256": "cd9f1f999b78b48c5dab36f05061fdfa87cda4f30a479ae50714d6c6fd19981c",
+      "bytes": 1249971
+    },
+    "/tmp/bie-stability-scheduler-evidence/scheduler-3ee95f1/continuation-scheduler-fixed.json": {
+      "sha256": "6135758c2cb13c5675f0429c08b3dc70f22c764f03c334f7e6424dbd08708383",
+      "bytes": 1045028
+    },
+    "/tmp/bie-stability-scheduler-evidence/scheduler-3ee95f1/input-identity-scheduler-fixed.json": {
+      "sha256": "9ce61c23252ff35185dd55eaa1e4cde6cf716bb665bfe7eff17f38d9525f2f08",
+      "bytes": 78649
+    },
+    "/tmp/bie-stability-scheduler-evidence/scheduler-3ee95f1/recovery-scheduler-fixed-1.json": {
+      "sha256": "fd0c1e115e76c7b4c95f18c7df55db2b79e8edfc192f343a5ab7389261d6e385",
+      "bytes": 64518
+    },
+    "/tmp/bie-stability-scheduler-evidence/scheduler-3ee95f1/recovery-scheduler-fixed-2.json": {
+      "sha256": "f5ea084247e042d1e42bcd332eaf3fbd414840d6cee5390701d7228c0a5c03c6",
+      "bytes": 64503
+    },
+    "/tmp/bie-stability-scheduler-evidence/scheduler-3ee95f1/recovery-scheduler-fixed-3.json": {
+      "sha256": "944886108b831ce6e8cfa05623fecbac747c6c631a8f2fe06a722c0950f8e264",
+      "bytes": 64516
+    },
+    "/tmp/bie-stability-scheduler-evidence/scheduler-3ee95f1/recovery-scheduler-fixed-4.json": {
+      "sha256": "2d49b0bcfc3e20c8b6c2f2382b089abacd89ea51e7d5952d3e0464da8b383aa8",
+      "bytes": 64713
+    },
+    "/tmp/bie-stability-scheduler-evidence/scheduler-3ee95f1/recovery-scheduler-fixed-5.json": {
+      "sha256": "f9ced2cd9e089a98be4f9b10c242955117157c070593f8fa3a555cee30fa49e0",
+      "bytes": 64518
+    }
+  },
+  "variants": {
+    "baseline": {
+      "conditions": {
+        "public-form-cycle": {
+          "n": 5,
+          "wallTimeMs": {
+            "n": 5,
+            "values": [
+              948,
+              803,
+              818,
+              779,
+              816
+            ],
+            "median": 816,
+            "max": 948
+          },
+          "runs": [
+            {
+              "run": 1,
+              "index": 0,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 0,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 5,
+                "finalPlanRows": 5,
+                "finalPendingRows": 0,
+                "wallTimeMs": 948
+              },
+              "observedBranches": [
+                "form:A",
+                "form:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "completed",
+              "errors": []
+            },
+            {
+              "run": 2,
+              "index": 5,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 0,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 5,
+                "finalPlanRows": 5,
+                "finalPendingRows": 0,
+                "wallTimeMs": 803
+              },
+              "observedBranches": [
+                "form:A",
+                "form:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "completed",
+              "errors": []
+            },
+            {
+              "run": 3,
+              "index": 10,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 0,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 5,
+                "finalPlanRows": 5,
+                "finalPendingRows": 0,
+                "wallTimeMs": 818
+              },
+              "observedBranches": [
+                "form:A",
+                "form:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "completed",
+              "errors": []
+            },
+            {
+              "run": 4,
+              "index": 15,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 0,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 5,
+                "finalPlanRows": 5,
+                "finalPendingRows": 0,
+                "wallTimeMs": 779
+              },
+              "observedBranches": [
+                "form:A",
+                "form:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "completed",
+              "errors": []
+            },
+            {
+              "run": 5,
+              "index": 20,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 0,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 5,
+                "finalPlanRows": 5,
+                "finalPendingRows": 0,
+                "wallTimeMs": 816
+              },
+              "observedBranches": [
+                "form:A",
+                "form:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "completed",
+              "errors": []
+            }
+          ]
+        },
+        "shared-id-rebuild": {
+          "n": 5,
+          "wallTimeMs": {
+            "n": 5,
+            "values": [
+              542,
+              699,
+              502,
+              535,
+              562
+            ],
+            "median": 542,
+            "max": 699
+          },
+          "runs": [
+            {
+              "run": 1,
+              "index": 1,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 12,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 6,
+                "finalPendingRows": 4,
+                "wallTimeMs": 542
+              },
+              "observedBranches": [
+                "shared:B"
+              ],
+              "missingBranches": [
+                "shared:A"
+              ],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 2,
+              "index": 6,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 12,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 6,
+                "finalPendingRows": 4,
+                "wallTimeMs": 699
+              },
+              "observedBranches": [
+                "shared:B"
+              ],
+              "missingBranches": [
+                "shared:A"
+              ],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 3,
+              "index": 11,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 12,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 6,
+                "finalPendingRows": 4,
+                "wallTimeMs": 502
+              },
+              "observedBranches": [
+                "shared:B"
+              ],
+              "missingBranches": [
+                "shared:A"
+              ],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 4,
+              "index": 16,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 12,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 6,
+                "finalPendingRows": 4,
+                "wallTimeMs": 535
+              },
+              "observedBranches": [
+                "shared:B"
+              ],
+              "missingBranches": [
+                "shared:A"
+              ],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 5,
+              "index": 21,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 12,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 6,
+                "finalPendingRows": 4,
+                "wallTimeMs": 562
+              },
+              "observedBranches": [
+                "shared:B"
+              ],
+              "missingBranches": [
+                "shared:A"
+              ],
+              "taskStatus": "running",
+              "errors": []
+            }
+          ],
+          "firstRunPhaseEvidence": [
+            {
+              "path": "results[1].phaseRecord[0]",
+              "line": 237,
+              "label": "initial",
+              "planRows": 1,
+              "pendingPlanRows": 1,
+              "pendingLine": 261,
+              "attemptCount": 0,
+              "oracle": [],
+              "coverageClaims": [
+                {
+                  "actionId": "50a20f12-d1a6-4b86-ab4b-a065180e11f1",
+                  "controlId": "051f5a4f-359c-4ab6-830a-2ba3323ad669",
+                  "completed": false
+                },
+                {
+                  "actionId": "5e56f67f-5a6b-43e0-9d8b-4241dd4f4997",
+                  "controlId": "6d098aa8-8ffa-4764-9ad3-90d2531d34a7",
+                  "completed": false
+                }
+              ]
+            },
+            {
+              "path": "results[1].phaseRecord[1]",
+              "line": 264,
+              "label": "after-initial",
+              "planRows": 3,
+              "pendingPlanRows": 3,
+              "pendingLine": 288,
+              "attemptCount": 0,
+              "oracle": [],
+              "coverageClaims": [
+                {
+                  "actionId": "50a20f12-d1a6-4b86-ab4b-a065180e11f1",
+                  "controlId": "051f5a4f-359c-4ab6-830a-2ba3323ad669",
+                  "completed": false
+                },
+                {
+                  "actionId": "5e56f67f-5a6b-43e0-9d8b-4241dd4f4997",
+                  "controlId": "6d098aa8-8ffa-4764-9ad3-90d2531d34a7",
+                  "completed": false
+                }
+              ]
+            },
+            {
+              "path": "results[1].phaseRecord[2]",
+              "line": 291,
+              "label": "A-removed-B-rebuilt-before-dispatch",
+              "planRows": 3,
+              "pendingPlanRows": 3,
+              "pendingLine": 309,
+              "attemptCount": 0,
+              "oracle": [],
+              "coverageClaims": [
+                {
+                  "actionId": "dcf0f088-f306-4ff4-9d20-c0c8a7b40d1c",
+                  "controlId": "6d098aa8-8ffa-4764-9ad3-90d2531d34a7",
+                  "completed": false
+                }
+              ]
+            },
+            {
+              "path": "results[1].phaseRecord[3]",
+              "line": 312,
+              "label": "A-removed-B-rebuilt-after-dispatch",
+              "planRows": 6,
+              "pendingPlanRows": 4,
+              "pendingLine": 332,
+              "attemptCount": 1,
+              "oracle": [
+                "shared:B"
+              ],
+              "coverageClaims": [
+                {
+                  "actionId": "51b15ad6-1a32-4279-bbdb-2b4bce062480",
+                  "controlId": "6d098aa8-8ffa-4764-9ad3-90d2531d34a7",
+                  "completed": true
+                }
+              ]
+            },
+            {
+              "path": "results[1].phaseRecord[4]",
+              "line": 335,
+              "label": "same-B-rebuilt-again",
+              "planRows": 6,
+              "pendingPlanRows": 4,
+              "pendingLine": 355,
+              "attemptCount": 1,
+              "oracle": [
+                "shared:B"
+              ],
+              "coverageClaims": [
+                {
+                  "actionId": "46873ead-23d7-419c-9e2d-cd8db25c71e9",
+                  "controlId": "6d098aa8-8ffa-4764-9ad3-90d2531d34a7",
+                  "completed": true
+                }
+              ]
+            }
+          ],
+          "fullPlanRowsRecorded": false
+        },
+        "price-known": {
+          "n": 5,
+          "wallTimeMs": {
+            "n": 5,
+            "values": [
+              8589,
+              8439,
+              8255,
+              8391,
+              11279
+            ],
+            "median": 8439,
+            "max": 11279
+          },
+          "runs": [
+            {
+              "run": 1,
+              "index": 2,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 5,
+                "finalPendingRows": 3,
+                "wallTimeMs": 8589
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 2,
+              "index": 7,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 5,
+                "finalPendingRows": 3,
+                "wallTimeMs": 8439
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 3,
+              "index": 12,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 5,
+                "finalPendingRows": 3,
+                "wallTimeMs": 8255
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 4,
+              "index": 17,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 5,
+                "finalPendingRows": 3,
+                "wallTimeMs": 8391
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 5,
+              "index": 22,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 5,
+                "finalPendingRows": 3,
+                "wallTimeMs": 11279
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            }
+          ],
+          "postInitialToFinalGrowth": [
+            {
+              "run": 1,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 2,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 3,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 4,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 5,
+              "planRows": 0,
+              "pendingRows": 0
+            }
+          ]
+        },
+        "price-unknown": {
+          "n": 5,
+          "wallTimeMs": {
+            "n": 5,
+            "values": [
+              11731,
+              9588,
+              9337,
+              9618,
+              9494
+            ],
+            "median": 9588,
+            "max": 11731
+          },
+          "runs": [
+            {
+              "run": 1,
+              "index": 3,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 7,
+                "finalPendingRows": 5,
+                "wallTimeMs": 11731
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 2,
+              "index": 8,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 7,
+                "finalPendingRows": 5,
+                "wallTimeMs": 9588
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 3,
+              "index": 13,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 7,
+                "finalPendingRows": 5,
+                "wallTimeMs": 9337
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 4,
+              "index": 18,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 7,
+                "finalPendingRows": 5,
+                "wallTimeMs": 9618
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 5,
+              "index": 23,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 7,
+                "finalPendingRows": 5,
+                "wallTimeMs": 9494
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            }
+          ],
+          "postInitialToFinalGrowth": [
+            {
+              "run": 1,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 2,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 3,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 4,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 5,
+              "planRows": 0,
+              "pendingRows": 0
+            }
+          ]
+        },
+        "nonlocal-dependency": {
+          "n": 5,
+          "wallTimeMs": {
+            "n": 5,
+            "values": [
+              627,
+              611,
+              607,
+              627,
+              593
+            ],
+            "median": 611,
+            "max": 627
+          },
+          "runs": [
+            {
+              "run": 1,
+              "index": 4,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 8,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 8,
+                "finalPendingRows": 4,
+                "wallTimeMs": 627
+              },
+              "observedBranches": [
+                "nonlocal:A",
+                "nonlocal:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 2,
+              "index": 9,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 8,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 8,
+                "finalPendingRows": 4,
+                "wallTimeMs": 611
+              },
+              "observedBranches": [
+                "nonlocal:A",
+                "nonlocal:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 3,
+              "index": 14,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 8,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 8,
+                "finalPendingRows": 4,
+                "wallTimeMs": 607
+              },
+              "observedBranches": [
+                "nonlocal:A",
+                "nonlocal:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 4,
+              "index": 19,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 8,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 8,
+                "finalPendingRows": 4,
+                "wallTimeMs": 627
+              },
+              "observedBranches": [
+                "nonlocal:A",
+                "nonlocal:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 5,
+              "index": 24,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 8,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 8,
+                "finalPendingRows": 4,
+                "wallTimeMs": 593
+              },
+              "observedBranches": [
+                "nonlocal:A",
+                "nonlocal:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            }
+          ]
+        }
+      },
+      "continuation": {
+        "cold_nested_restart": {
+          "n": 5,
+          "valid": 5,
+          "errors": 0,
+          "timings": {
+            "elapsedMs": {
+              "n": 5,
+              "values": [
+                3800,
+                3667,
+                3621,
+                3672,
+                3813
+              ],
+              "median": 3672,
+              "max": 3813
+            },
+            "recoveryElapsedMs": {
+              "n": 5,
+              "values": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "median": 0,
+              "max": 0
+            }
+          },
+          "metrics": {
+            "incorrectCompletion": [
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "unknownRetained": [
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "unresolvedUnknown": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "successfulExplorationAfterInjectedUnknown": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "duplicateLeafExecutions": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "necessaryReentries": [
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "unnecessaryReentries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "recoveryCalls": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "actualBrowserRecoveryCalls": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "injectedRecoveryFailures": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "recoveryHostSuccesses": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "repeatedNoProgressRecoveries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "jev": [
+              8,
+              8,
+              8,
+              8,
+              8
+            ],
+            "llm": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "phases": [
+            {
+              "iteration": 1,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 1511,
+                  "status": "paused",
+                  "reason": "user_paused",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 5
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2244,
+                  "status": "completed",
+                  "reason": "current_plan_verified",
+                  "covered": [
+                    "Branch A",
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "missing": [],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 0
+                }
+              ]
+            },
+            {
+              "iteration": 2,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 1373,
+                  "status": "paused",
+                  "reason": "user_paused",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 5
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2260,
+                  "status": "completed",
+                  "reason": "current_plan_verified",
+                  "covered": [
+                    "Branch A",
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "missing": [],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 0
+                }
+              ]
+            },
+            {
+              "iteration": 3,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 1399,
+                  "status": "paused",
+                  "reason": "user_paused",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 5
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2192,
+                  "status": "completed",
+                  "reason": "current_plan_verified",
+                  "covered": [
+                    "Branch A",
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "missing": [],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 0
+                }
+              ]
+            },
+            {
+              "iteration": 4,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 1349,
+                  "status": "paused",
+                  "reason": "user_paused",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 5
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2291,
+                  "status": "completed",
+                  "reason": "current_plan_verified",
+                  "covered": [
+                    "Branch A",
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "missing": [],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 0
+                }
+              ]
+            },
+            {
+              "iteration": 5,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 1419,
+                  "status": "paused",
+                  "reason": "user_paused",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 5
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2362,
+                  "status": "completed",
+                  "reason": "current_plan_verified",
+                  "covered": [
+                    "Branch A",
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "missing": [],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 0
+                }
+              ]
+            }
+          ],
+          "firstRunEvidence": {
+            "index": 0,
+            "metricsLine": 142,
+            "modelsLine": 1523,
+            "modelPurposes": {
+              "control-classification": 1,
+              "region-review": 7
+            },
+            "oracleEvents": [
+              {
+                "line": 26,
+                "label": "Close gate",
+                "phase": "before_restart",
+                "purpose": "external"
+              },
+              {
+                "line": 34,
+                "label": "Open menu",
+                "phase": "before_restart",
+                "purpose": "external"
+              },
+              {
+                "line": 42,
+                "label": "Open submenu",
+                "phase": "before_restart",
+                "purpose": "external"
+              },
+              {
+                "line": 50,
+                "label": "Branch A",
+                "phase": "before_restart",
+                "purpose": "external"
+              },
+              {
+                "line": 58,
+                "label": "Close gate",
+                "phase": "after_restart",
+                "purpose": "external"
+              },
+              {
+                "line": 66,
+                "label": "Outside",
+                "phase": "after_restart",
+                "purpose": "external"
+              },
+              {
+                "line": 74,
+                "label": "Open menu",
+                "phase": "after_restart",
+                "purpose": "external"
+              },
+              {
+                "line": 82,
+                "label": "Open submenu",
+                "phase": "after_restart",
+                "purpose": "external"
+              },
+              {
+                "line": 90,
+                "label": "Branch B",
+                "phase": "after_restart",
+                "purpose": "external"
+              }
+            ],
+            "recoveriesLine": 1522,
+            "recoveries": [],
+            "phases": [
+              {
+                "line": 172,
+                "modelRequestsLine": 186
+              },
+              {
+                "line": 622,
+                "modelRequestsLine": 635
+              }
+            ]
+          }
+        },
+        "failed_recovery_restart": {
+          "n": 5,
+          "valid": 5,
+          "errors": 0,
+          "timings": {
+            "elapsedMs": {
+              "n": 5,
+              "values": [
+                1228,
+                1202,
+                1182,
+                1214,
+                1174
+              ],
+              "median": 1202,
+              "max": 1228
+            },
+            "recoveryElapsedMs": {
+              "n": 5,
+              "values": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "median": 0,
+              "max": 0
+            }
+          },
+          "metrics": {
+            "incorrectCompletion": [
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "unknownRetained": [
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "unresolvedUnknown": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "successfulExplorationAfterInjectedUnknown": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "duplicateLeafExecutions": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "necessaryReentries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "unnecessaryReentries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "recoveryCalls": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "actualBrowserRecoveryCalls": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "injectedRecoveryFailures": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "recoveryHostSuccesses": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "repeatedNoProgressRecoveries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "jev": [
+              2,
+              2,
+              2,
+              2,
+              2
+            ],
+            "llm": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "phases": [
+            {
+              "iteration": 1,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 598,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 622,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A",
+                    "Branch B"
+                  ],
+                  "missing": [],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 2
+                }
+              ]
+            },
+            {
+              "iteration": 2,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 586,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 610,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A",
+                    "Branch B"
+                  ],
+                  "missing": [],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 2
+                }
+              ]
+            },
+            {
+              "iteration": 3,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 568,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 608,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A",
+                    "Branch B"
+                  ],
+                  "missing": [],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 2
+                }
+              ]
+            },
+            {
+              "iteration": 4,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 595,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 613,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A",
+                    "Branch B"
+                  ],
+                  "missing": [],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 2
+                }
+              ]
+            },
+            {
+              "iteration": 5,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 558,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 609,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A",
+                    "Branch B"
+                  ],
+                  "missing": [],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 2
+                }
+              ]
+            }
+          ]
+        },
+        "unknown_recovery_restart": {
+          "n": 5,
+          "valid": 5,
+          "errors": 0,
+          "timings": {
+            "elapsedMs": {
+              "n": 5,
+              "values": [
+                811,
+                814,
+                819,
+                787,
+                823
+              ],
+              "median": 814,
+              "max": 823
+            },
+            "recoveryElapsedMs": {
+              "n": 5,
+              "values": [
+                310,
+                325,
+                314,
+                313,
+                313
+              ],
+              "median": 313,
+              "max": 325
+            }
+          },
+          "metrics": {
+            "incorrectCompletion": [
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "unknownRetained": [
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "unresolvedUnknown": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "successfulExplorationAfterInjectedUnknown": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "duplicateLeafExecutions": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "necessaryReentries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "unnecessaryReentries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "recoveryCalls": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "actualBrowserRecoveryCalls": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "injectedRecoveryFailures": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "recoveryHostSuccesses": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "repeatedNoProgressRecoveries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "jev": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "llm": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "phases": [
+            {
+              "iteration": 1,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 784,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 0,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                }
+              ]
+            },
+            {
+              "iteration": 2,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 784,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 0,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                }
+              ]
+            },
+            {
+              "iteration": 3,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 792,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 0,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                }
+              ]
+            },
+            {
+              "iteration": 4,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 762,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 0,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                }
+              ]
+            },
+            {
+              "iteration": 5,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 796,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 0,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                }
+              ]
+            }
+          ],
+          "restart": [
+            {
+              "pluginConstructs": 2,
+              "pluginClosesBeforeFinish": 1,
+              "hostConstructs": 2,
+              "hostClosesBeforeFinish": 1,
+              "documentChanged": false,
+              "priorDocument": "1d3acd11-9618-4694-8ffd-ac5b348480a8",
+              "nextDocument": "1d3acd11-9618-4694-8ffd-ac5b348480a8",
+              "sessionCreates": 1
+            },
+            {
+              "pluginConstructs": 2,
+              "pluginClosesBeforeFinish": 1,
+              "hostConstructs": 2,
+              "hostClosesBeforeFinish": 1,
+              "documentChanged": false,
+              "priorDocument": "2e928163-28ae-4eeb-bff2-bd58816fa09b",
+              "nextDocument": "2e928163-28ae-4eeb-bff2-bd58816fa09b",
+              "sessionCreates": 1
+            },
+            {
+              "pluginConstructs": 2,
+              "pluginClosesBeforeFinish": 1,
+              "hostConstructs": 2,
+              "hostClosesBeforeFinish": 1,
+              "documentChanged": false,
+              "priorDocument": "eebfcf23-f24e-4292-a1fb-d853926eea84",
+              "nextDocument": "eebfcf23-f24e-4292-a1fb-d853926eea84",
+              "sessionCreates": 1
+            },
+            {
+              "pluginConstructs": 2,
+              "pluginClosesBeforeFinish": 1,
+              "hostConstructs": 2,
+              "hostClosesBeforeFinish": 1,
+              "documentChanged": false,
+              "priorDocument": "7cacc5f7-79ac-4dc3-b0eb-556a74b66bc0",
+              "nextDocument": "7cacc5f7-79ac-4dc3-b0eb-556a74b66bc0",
+              "sessionCreates": 1
+            },
+            {
+              "pluginConstructs": 2,
+              "pluginClosesBeforeFinish": 1,
+              "hostConstructs": 2,
+              "hostClosesBeforeFinish": 1,
+              "documentChanged": false,
+              "priorDocument": "6a876eff-7458-4556-adb8-451de593c1ae",
+              "nextDocument": "6a876eff-7458-4556-adb8-451de593c1ae",
+              "sessionCreates": 1
+            }
+          ],
+          "afterRestartAttemptCount": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "afterRestartRecoveryCount": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "identity": {
+        "trials": 10,
+        "checks": 40,
+        "matchingExpected": 40,
+        "trueMatches": 10,
+        "rejections": 30,
+        "fills": 30,
+        "successfulFills": 30,
+        "eventBranches": {
+          "A": 10,
+          "B": 10,
+          "C": 10
+        },
+        "errors": 0
+      },
+      "recovery": {
+        "nested_static": {
+          "n": 5,
+          "reportedArrival": 5,
+          "falseArrivalClaim": 0,
+          "guardedBranchYield": 5,
+          "oracleBranchYield": 5,
+          "status": {
+            "TARGET_REACHED": 5
+          },
+          "durationMs": {
+            "n": 5,
+            "values": [
+              535.4807079999998,
+              475.7760830000002,
+              510.8274160000001,
+              542.7054159999998,
+              465.6232910000001
+            ],
+            "median": 510.8274160000001,
+            "max": 542.7054159999998
+          }
+        },
+        "modal_reentry_changed_quote": {
+          "n": 5,
+          "reportedArrival": 5,
+          "falseArrivalClaim": 0,
+          "guardedBranchYield": 5,
+          "oracleBranchYield": 5,
+          "status": {
+            "TARGET_REACHED": 5
+          },
+          "durationMs": {
+            "n": 5,
+            "values": [
+              714.374542,
+              712.6351670000004,
+              713.6495829999999,
+              721.6679999999997,
+              724.9167499999999
+            ],
+            "median": 714.374542,
+            "max": 724.9167499999999
+          }
+        },
+        "ready_target_ticking_quote": {
+          "n": 5,
+          "reportedArrival": 5,
+          "falseArrivalClaim": 0,
+          "guardedBranchYield": 5,
+          "oracleBranchYield": 5,
+          "status": {
+            "TARGET_REACHED": 5
+          },
+          "durationMs": {
+            "n": 5,
+            "values": [
+              205.29133300000012,
+              205.73824999999943,
+              138.03479200000038,
+              186.6007499999996,
+              188.6085839999996
+            ],
+            "median": 188.6085839999996,
+            "max": 205.73824999999943
+          }
+        },
+        "nested_changed_quote": {
+          "n": 5,
+          "reportedArrival": 5,
+          "falseArrivalClaim": 0,
+          "guardedBranchYield": 5,
+          "oracleBranchYield": 5,
+          "status": {
+            "TARGET_REACHED": 5
+          },
+          "durationMs": {
+            "n": 5,
+            "values": [
+              862.675542,
+              1002.2377909999996,
+              855.2663750000002,
+              847.2038750000002,
+              874.646084
+            ],
+            "median": 862.675542,
+            "max": 1002.2377909999996
+          }
+        },
+        "local_inverse_diverges": {
+          "n": 5,
+          "reportedArrival": 0,
+          "falseArrivalClaim": 0,
+          "guardedBranchYield": 0,
+          "oracleBranchYield": 0,
+          "status": {
+            "UNVERIFIED": 5
+          },
+          "durationMs": {
+            "n": 5,
+            "values": [
+              389.31433300000026,
+              389.1250830000008,
+              389.7067079999997,
+              322.4328339999993,
+              370.6192920000012
+            ],
+            "median": 389.1250830000008,
+            "max": 389.7067079999997
+          }
+        },
+        "unknown_outcome_injected": {
+          "n": 5,
+          "reportedArrival": 0,
+          "falseArrivalClaim": 0,
+          "guardedBranchYield": 0,
+          "oracleBranchYield": 0,
+          "status": {
+            "UNVERIFIED": 5
+          },
+          "durationMs": {
+            "n": 5,
+            "values": [
+              0.7359999999989668,
+              0.7840830000004644,
+              0.7362499999999272,
+              0.9167080000006536,
+              0.7999160000017582
+            ],
+            "median": 0.7840830000004644,
+            "max": 0.9167080000006536
+          }
+        }
+      },
+      "scriptSha256": {
+        "conditions": "4c977f147d123ea1adc7c3496cce927ae5be7603fff317b5700578b2732d8693",
+        "continuation": "7b193666d24f3d7b650667e6b5b640b27e2a281e2db5c45a8ed0e066dba7ff4f",
+        "identity": "7cfe18ff69e2fcdad84cda46b353d2c9d0c44c6ce6486ac36b75a322e52ab1e1",
+        "recovery": "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f"
+      }
+    },
+    "freeze3ee95f1": {
+      "conditions": {
+        "public-form-cycle": {
+          "n": 5,
+          "wallTimeMs": {
+            "n": 5,
+            "values": [
+              931,
+              797,
+              786,
+              764,
+              753
+            ],
+            "median": 786,
+            "max": 931
+          },
+          "runs": [
+            {
+              "run": 1,
+              "index": 0,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 0,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 5,
+                "finalPlanRows": 5,
+                "finalPendingRows": 0,
+                "wallTimeMs": 931
+              },
+              "observedBranches": [
+                "form:A",
+                "form:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "completed",
+              "errors": []
+            },
+            {
+              "run": 2,
+              "index": 5,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 0,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 5,
+                "finalPlanRows": 5,
+                "finalPendingRows": 0,
+                "wallTimeMs": 797
+              },
+              "observedBranches": [
+                "form:A",
+                "form:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "completed",
+              "errors": []
+            },
+            {
+              "run": 3,
+              "index": 10,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 0,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 5,
+                "finalPlanRows": 5,
+                "finalPendingRows": 0,
+                "wallTimeMs": 786
+              },
+              "observedBranches": [
+                "form:A",
+                "form:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "completed",
+              "errors": []
+            },
+            {
+              "run": 4,
+              "index": 15,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 0,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 5,
+                "finalPlanRows": 5,
+                "finalPendingRows": 0,
+                "wallTimeMs": 764
+              },
+              "observedBranches": [
+                "form:A",
+                "form:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "completed",
+              "errors": []
+            },
+            {
+              "run": 5,
+              "index": 20,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 0,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 5,
+                "finalPlanRows": 5,
+                "finalPendingRows": 0,
+                "wallTimeMs": 753
+              },
+              "observedBranches": [
+                "form:A",
+                "form:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "completed",
+              "errors": []
+            }
+          ]
+        },
+        "shared-id-rebuild": {
+          "n": 5,
+          "wallTimeMs": {
+            "n": 5,
+            "values": [
+              531,
+              525,
+              517,
+              519,
+              501
+            ],
+            "median": 519,
+            "max": 531
+          },
+          "runs": [
+            {
+              "run": 1,
+              "index": 1,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 12,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 6,
+                "finalPendingRows": 5,
+                "wallTimeMs": 531
+              },
+              "observedBranches": [
+                "shared:B"
+              ],
+              "missingBranches": [
+                "shared:A"
+              ],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 2,
+              "index": 6,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 12,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 6,
+                "finalPendingRows": 5,
+                "wallTimeMs": 525
+              },
+              "observedBranches": [
+                "shared:B"
+              ],
+              "missingBranches": [
+                "shared:A"
+              ],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 3,
+              "index": 11,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 12,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 6,
+                "finalPendingRows": 5,
+                "wallTimeMs": 517
+              },
+              "observedBranches": [
+                "shared:B"
+              ],
+              "missingBranches": [
+                "shared:A"
+              ],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 4,
+              "index": 16,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 12,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 6,
+                "finalPendingRows": 5,
+                "wallTimeMs": 519
+              },
+              "observedBranches": [
+                "shared:B"
+              ],
+              "missingBranches": [
+                "shared:A"
+              ],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 5,
+              "index": 21,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 12,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 6,
+                "finalPendingRows": 5,
+                "wallTimeMs": 501
+              },
+              "observedBranches": [
+                "shared:B"
+              ],
+              "missingBranches": [
+                "shared:A"
+              ],
+              "taskStatus": "running",
+              "errors": []
+            }
+          ],
+          "firstRunPhaseEvidence": [
+            {
+              "path": "results[1].phaseRecord[0]",
+              "line": 237,
+              "label": "initial",
+              "planRows": 1,
+              "pendingPlanRows": 1,
+              "pendingLine": 261,
+              "attemptCount": 0,
+              "oracle": [],
+              "coverageClaims": [
+                {
+                  "actionId": "4c84f429-2857-44a1-a5f2-a5c67040f704",
+                  "controlId": "bed8352d-c6ae-4c0e-a4b1-b8ba02dc2ffa",
+                  "completed": false
+                },
+                {
+                  "actionId": "55928f5d-23ff-4425-a5f3-43e5dfbe71a5",
+                  "controlId": "9cf89ebd-871b-41b7-adf1-d8e7eb0606c3",
+                  "completed": false
+                }
+              ]
+            },
+            {
+              "path": "results[1].phaseRecord[1]",
+              "line": 264,
+              "label": "after-initial",
+              "planRows": 6,
+              "pendingPlanRows": 6,
+              "pendingLine": 288,
+              "attemptCount": 0,
+              "oracle": [],
+              "coverageClaims": [
+                {
+                  "actionId": "4c84f429-2857-44a1-a5f2-a5c67040f704",
+                  "controlId": "bed8352d-c6ae-4c0e-a4b1-b8ba02dc2ffa",
+                  "completed": false
+                },
+                {
+                  "actionId": "55928f5d-23ff-4425-a5f3-43e5dfbe71a5",
+                  "controlId": "9cf89ebd-871b-41b7-adf1-d8e7eb0606c3",
+                  "completed": false
+                }
+              ]
+            },
+            {
+              "path": "results[1].phaseRecord[2]",
+              "line": 291,
+              "label": "A-removed-B-rebuilt-before-dispatch",
+              "planRows": 6,
+              "pendingPlanRows": 6,
+              "pendingLine": 309,
+              "attemptCount": 0,
+              "oracle": [],
+              "coverageClaims": [
+                {
+                  "actionId": "c47282f5-6435-4a67-9f20-48e87342055c",
+                  "controlId": "9cf89ebd-871b-41b7-adf1-d8e7eb0606c3",
+                  "completed": false
+                }
+              ]
+            },
+            {
+              "path": "results[1].phaseRecord[3]",
+              "line": 312,
+              "label": "A-removed-B-rebuilt-after-dispatch",
+              "planRows": 6,
+              "pendingPlanRows": 5,
+              "pendingLine": 332,
+              "attemptCount": 1,
+              "oracle": [
+                "shared:B"
+              ],
+              "coverageClaims": [
+                {
+                  "actionId": "7dd35326-880b-4193-b46f-c6e491699774",
+                  "controlId": "9cf89ebd-871b-41b7-adf1-d8e7eb0606c3",
+                  "completed": true
+                }
+              ]
+            },
+            {
+              "path": "results[1].phaseRecord[4]",
+              "line": 335,
+              "label": "same-B-rebuilt-again",
+              "planRows": 6,
+              "pendingPlanRows": 5,
+              "pendingLine": 355,
+              "attemptCount": 1,
+              "oracle": [
+                "shared:B"
+              ],
+              "coverageClaims": [
+                {
+                  "actionId": "669cf54b-b914-4884-a609-95849af22a66",
+                  "controlId": "9cf89ebd-871b-41b7-adf1-d8e7eb0606c3",
+                  "completed": true
+                }
+              ]
+            }
+          ],
+          "fullPlanRowsRecorded": false
+        },
+        "price-known": {
+          "n": 5,
+          "wallTimeMs": {
+            "n": 5,
+            "values": [
+              8680,
+              8084,
+              8087,
+              7692,
+              7802
+            ],
+            "median": 8084,
+            "max": 8680
+          },
+          "runs": [
+            {
+              "run": 1,
+              "index": 2,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 5,
+                "finalPendingRows": 3,
+                "wallTimeMs": 8680
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 2,
+              "index": 7,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 5,
+                "finalPendingRows": 3,
+                "wallTimeMs": 8084
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 3,
+              "index": 12,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 5,
+                "finalPendingRows": 3,
+                "wallTimeMs": 8087
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 4,
+              "index": 17,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 5,
+                "finalPendingRows": 3,
+                "wallTimeMs": 7692
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 5,
+              "index": 22,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 5,
+                "finalPendingRows": 3,
+                "wallTimeMs": 7802
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            }
+          ],
+          "postInitialToFinalGrowth": [
+            {
+              "run": 1,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 2,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 3,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 4,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 5,
+              "planRows": 0,
+              "pendingRows": 0
+            }
+          ]
+        },
+        "price-unknown": {
+          "n": 5,
+          "wallTimeMs": {
+            "n": 5,
+            "values": [
+              9250,
+              9301,
+              9448,
+              8894,
+              8858
+            ],
+            "median": 9250,
+            "max": 9448
+          },
+          "runs": [
+            {
+              "run": 1,
+              "index": 3,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 7,
+                "finalPendingRows": 5,
+                "wallTimeMs": 9250
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 2,
+              "index": 8,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 7,
+                "finalPendingRows": 5,
+                "wallTimeMs": 9301
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 3,
+              "index": 13,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 7,
+                "finalPendingRows": 5,
+                "wallTimeMs": 9448
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 4,
+              "index": 18,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 7,
+                "finalPendingRows": 5,
+                "wallTimeMs": 8894
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 5,
+              "index": 23,
+              "metrics": {
+                "actualActions": 1,
+                "successfulActions": 1,
+                "recoveryActions": 0,
+                "oracleClicks": 1,
+                "newDistinctBranches": 1,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 1,
+                "priceTickRetryKeyCount": 1,
+                "observedStateCount": 1,
+                "stepCalls": 104,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 7,
+                "finalPendingRows": 5,
+                "wallTimeMs": 8858
+              },
+              "observedBranches": [
+                "price:run"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            }
+          ],
+          "postInitialToFinalGrowth": [
+            {
+              "run": 1,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 2,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 3,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 4,
+              "planRows": 0,
+              "pendingRows": 0
+            },
+            {
+              "run": 5,
+              "planRows": 0,
+              "pendingRows": 0
+            }
+          ]
+        },
+        "nonlocal-dependency": {
+          "n": 5,
+          "wallTimeMs": {
+            "n": 5,
+            "values": [
+              573,
+              588,
+              588,
+              593,
+              553
+            ],
+            "median": 588,
+            "max": 593
+          },
+          "runs": [
+            {
+              "run": 1,
+              "index": 4,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 8,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 8,
+                "finalPendingRows": 4,
+                "wallTimeMs": 573
+              },
+              "observedBranches": [
+                "nonlocal:A",
+                "nonlocal:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 2,
+              "index": 9,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 8,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 8,
+                "finalPendingRows": 4,
+                "wallTimeMs": 588
+              },
+              "observedBranches": [
+                "nonlocal:A",
+                "nonlocal:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 3,
+              "index": 14,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 8,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 8,
+                "finalPendingRows": 4,
+                "wallTimeMs": 588
+              },
+              "observedBranches": [
+                "nonlocal:A",
+                "nonlocal:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 4,
+              "index": 19,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 8,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 8,
+                "finalPendingRows": 4,
+                "wallTimeMs": 593
+              },
+              "observedBranches": [
+                "nonlocal:A",
+                "nonlocal:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            },
+            {
+              "run": 5,
+              "index": 24,
+              "metrics": {
+                "actualActions": 2,
+                "successfulActions": 2,
+                "recoveryActions": 0,
+                "oracleClicks": 2,
+                "newDistinctBranches": 2,
+                "duplicateOracleClicks": 0,
+                "falseCoverageChecks": 0,
+                "retryKeyCount": 2,
+                "priceTickRetryKeyCount": null,
+                "observedStateCount": 2,
+                "stepCalls": 8,
+                "modelRequests": 0,
+                "jevCalls": 0,
+                "llmCalls": 0,
+                "initialPlanRows": 1,
+                "finalPlanRows": 8,
+                "finalPendingRows": 4,
+                "wallTimeMs": 553
+              },
+              "observedBranches": [
+                "nonlocal:A",
+                "nonlocal:B"
+              ],
+              "missingBranches": [],
+              "taskStatus": "running",
+              "errors": []
+            }
+          ]
+        }
+      },
+      "continuation": {
+        "cold_nested_restart": {
+          "n": 5,
+          "valid": 5,
+          "errors": 0,
+          "timings": {
+            "elapsedMs": {
+              "n": 5,
+              "values": [
+                3320,
+                3157,
+                3196,
+                3210,
+                3191
+              ],
+              "median": 3196,
+              "max": 3320
+            },
+            "recoveryElapsedMs": {
+              "n": 5,
+              "values": [
+                555,
+                553,
+                573,
+                571,
+                559
+              ],
+              "median": 559,
+              "max": 573
+            }
+          },
+          "metrics": {
+            "incorrectCompletion": [
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "unknownRetained": [
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "unresolvedUnknown": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "successfulExplorationAfterInjectedUnknown": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "duplicateLeafExecutions": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "necessaryReentries": [
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "unnecessaryReentries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "recoveryCalls": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "actualBrowserRecoveryCalls": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "injectedRecoveryFailures": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "recoveryHostSuccesses": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "repeatedNoProgressRecoveries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "jev": [
+              6,
+              6,
+              6,
+              6,
+              6
+            ],
+            "llm": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "phases": [
+            {
+              "iteration": 1,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 1442,
+                  "status": "paused",
+                  "reason": "user_paused",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 5
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 1833,
+                  "status": "completed",
+                  "reason": "current_plan_verified",
+                  "covered": [
+                    "Branch A",
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "missing": [],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 2,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 0
+                }
+              ]
+            },
+            {
+              "iteration": 2,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 1319,
+                  "status": "paused",
+                  "reason": "user_paused",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 5
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 1807,
+                  "status": "completed",
+                  "reason": "current_plan_verified",
+                  "covered": [
+                    "Branch A",
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "missing": [],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 2,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 0
+                }
+              ]
+            },
+            {
+              "iteration": 3,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 1333,
+                  "status": "paused",
+                  "reason": "user_paused",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 5
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 1827,
+                  "status": "completed",
+                  "reason": "current_plan_verified",
+                  "covered": [
+                    "Branch A",
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "missing": [],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 2,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 0
+                }
+              ]
+            },
+            {
+              "iteration": 4,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 1358,
+                  "status": "paused",
+                  "reason": "user_paused",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 5
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 1821,
+                  "status": "completed",
+                  "reason": "current_plan_verified",
+                  "covered": [
+                    "Branch A",
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "missing": [],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 2,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 0
+                }
+              ]
+            },
+            {
+              "iteration": 5,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 1348,
+                  "status": "paused",
+                  "reason": "user_paused",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 4,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 5
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 1810,
+                  "status": "completed",
+                  "reason": "current_plan_verified",
+                  "covered": [
+                    "Branch A",
+                    "Branch B",
+                    "Outside"
+                  ],
+                  "missing": [],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 2,
+                    "llm": 0
+                  },
+                  "planRows": 11,
+                  "pendingRows": 0
+                }
+              ]
+            }
+          ],
+          "firstRunEvidence": {
+            "index": 0,
+            "metricsLine": 142,
+            "modelsLine": 1466,
+            "modelPurposes": {
+              "control-classification": 1,
+              "region-review": 5
+            },
+            "oracleEvents": [
+              {
+                "line": 26,
+                "label": "Close gate",
+                "phase": "before_restart",
+                "purpose": "external"
+              },
+              {
+                "line": 34,
+                "label": "Open menu",
+                "phase": "before_restart",
+                "purpose": "external"
+              },
+              {
+                "line": 42,
+                "label": "Open submenu",
+                "phase": "before_restart",
+                "purpose": "external"
+              },
+              {
+                "line": 50,
+                "label": "Branch A",
+                "phase": "before_restart",
+                "purpose": "external"
+              },
+              {
+                "line": 58,
+                "label": "Close gate",
+                "phase": "after_restart",
+                "purpose": "recovery"
+              },
+              {
+                "line": 66,
+                "label": "Open menu",
+                "phase": "after_restart",
+                "purpose": "recovery"
+              },
+              {
+                "line": 74,
+                "label": "Open submenu",
+                "phase": "after_restart",
+                "purpose": "recovery"
+              },
+              {
+                "line": 82,
+                "label": "Branch B",
+                "phase": "after_restart",
+                "purpose": "external"
+              },
+              {
+                "line": 90,
+                "label": "Outside",
+                "phase": "after_restart",
+                "purpose": "external"
+              }
+            ],
+            "recoveriesLine": 1428,
+            "recoveries": [
+              {
+                "api": "reachExplorationTarget",
+                "phase": "after_restart",
+                "beforeObservationId": "b9b3a54c-e1e0-41b4-a7d1-eb06ee82d84b",
+                "beforeCondition": "59a07d65b6dab591b8cb9b2216f28fe6e7f079b73dff4e0e62b355f95a5a710f",
+                "oracleCovered": [
+                  "Branch A"
+                ],
+                "elapsedMs": 555,
+                "attemptIds": [
+                  "d55b029b-6117-4bb9-a585-1f03421ff9ad",
+                  "689675d4-212f-468a-ae5f-b63ccdd4b6a7",
+                  "6f656819-5e57-45d1-ae14-f6517762f5c9"
+                ],
+                "actualBrowserRecovery": true,
+                "status": "TARGET_REACHED",
+                "reason": "Recorded path verification: TARGET_REACHED",
+                "result": {
+                  "observationId": "c6baac9c-f52f-4839-9a68-e0c67146daa2",
+                  "checks": [
+                    {
+                      "name": "unresolved-execution-outcomes",
+                      "result": "pass"
+                    },
+                    {
+                      "name": "known-declared-context",
+                      "result": "pass"
+                    },
+                    {
+                      "name": "target-ready:c38716b9-fe39-4792-b587-933320e4ddc4",
+                      "result": "pass"
+                    }
+                  ],
+                  "checkpointVerified": false
+                }
+              }
+            ],
+            "phases": [
+              {
+                "line": 172,
+                "modelRequestsLine": 186
+              },
+              {
+                "line": 622,
+                "modelRequestsLine": 635
+              }
+            ]
+          }
+        },
+        "failed_recovery_restart": {
+          "n": 5,
+          "valid": 5,
+          "errors": 0,
+          "timings": {
+            "elapsedMs": {
+              "n": 5,
+              "values": [
+                1179,
+                1165,
+                1148,
+                1152,
+                1204
+              ],
+              "median": 1165,
+              "max": 1204
+            },
+            "recoveryElapsedMs": {
+              "n": 5,
+              "values": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "median": 0,
+              "max": 0
+            }
+          },
+          "metrics": {
+            "incorrectCompletion": [
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "unknownRetained": [
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "unresolvedUnknown": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "successfulExplorationAfterInjectedUnknown": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "duplicateLeafExecutions": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "necessaryReentries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "unnecessaryReentries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "recoveryCalls": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "actualBrowserRecoveryCalls": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "injectedRecoveryFailures": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "recoveryHostSuccesses": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "repeatedNoProgressRecoveries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "jev": [
+              2,
+              2,
+              2,
+              2,
+              2
+            ],
+            "llm": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "phases": [
+            {
+              "iteration": 1,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 580,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 593,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A",
+                    "Branch B"
+                  ],
+                  "missing": [],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 2
+                }
+              ]
+            },
+            {
+              "iteration": 2,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 563,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 597,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A",
+                    "Branch B"
+                  ],
+                  "missing": [],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 2
+                }
+              ]
+            },
+            {
+              "iteration": 3,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 562,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 580,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A",
+                    "Branch B"
+                  ],
+                  "missing": [],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 2
+                }
+              ]
+            },
+            {
+              "iteration": 4,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 563,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 583,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A",
+                    "Branch B"
+                  ],
+                  "missing": [],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 2
+                }
+              ]
+            },
+            {
+              "iteration": 5,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 585,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 613,
+                  "status": "budget_exhausted",
+                  "reason": "ROUND_BUDGET_EXHAUSTED",
+                  "covered": [
+                    "Branch A",
+                    "Branch B"
+                  ],
+                  "missing": [],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 2
+                }
+              ]
+            }
+          ]
+        },
+        "unknown_recovery_restart": {
+          "n": 5,
+          "valid": 5,
+          "errors": 0,
+          "timings": {
+            "elapsedMs": {
+              "n": 5,
+              "values": [
+                820,
+                789,
+                769,
+                809,
+                814
+              ],
+              "median": 809,
+              "max": 820
+            },
+            "recoveryElapsedMs": {
+              "n": 5,
+              "values": [
+                329,
+                326,
+                304,
+                321,
+                303
+              ],
+              "median": 321,
+              "max": 329
+            }
+          },
+          "metrics": {
+            "incorrectCompletion": [
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "unknownRetained": [
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "unresolvedUnknown": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "successfulExplorationAfterInjectedUnknown": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "duplicateLeafExecutions": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "necessaryReentries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "unnecessaryReentries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "recoveryCalls": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "actualBrowserRecoveryCalls": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "injectedRecoveryFailures": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "recoveryHostSuccesses": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "repeatedNoProgressRecoveries": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "jev": [
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "llm": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "phases": [
+            {
+              "iteration": 1,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 796,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 0,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                }
+              ]
+            },
+            {
+              "iteration": 2,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 762,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 0,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                }
+              ]
+            },
+            {
+              "iteration": 3,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 743,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 0,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                }
+              ]
+            },
+            {
+              "iteration": 4,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 783,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 0,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                }
+              ]
+            },
+            {
+              "iteration": 5,
+              "phases": [
+                {
+                  "phase": "before_restart",
+                  "elapsedMs": 787,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 1,
+                  "modelRequests": {
+                    "jev": 1,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                },
+                {
+                  "phase": "after_restart",
+                  "elapsedMs": 2,
+                  "status": "blocked",
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "covered": [
+                    "Branch A"
+                  ],
+                  "missing": [
+                    "Branch B"
+                  ],
+                  "newSessions": 0,
+                  "modelRequests": {
+                    "jev": 0,
+                    "llm": 0
+                  },
+                  "planRows": 6,
+                  "pendingRows": 4
+                }
+              ]
+            }
+          ],
+          "restart": [
+            {
+              "pluginConstructs": 2,
+              "pluginClosesBeforeFinish": 1,
+              "hostConstructs": 2,
+              "hostClosesBeforeFinish": 1,
+              "documentChanged": false,
+              "priorDocument": "5c2b2e9c-a03c-4c3b-bfe2-64929d2cd3ab",
+              "nextDocument": "5c2b2e9c-a03c-4c3b-bfe2-64929d2cd3ab",
+              "sessionCreates": 1
+            },
+            {
+              "pluginConstructs": 2,
+              "pluginClosesBeforeFinish": 1,
+              "hostConstructs": 2,
+              "hostClosesBeforeFinish": 1,
+              "documentChanged": false,
+              "priorDocument": "980cc41a-4d59-4238-b470-8e4ae7f99884",
+              "nextDocument": "980cc41a-4d59-4238-b470-8e4ae7f99884",
+              "sessionCreates": 1
+            },
+            {
+              "pluginConstructs": 2,
+              "pluginClosesBeforeFinish": 1,
+              "hostConstructs": 2,
+              "hostClosesBeforeFinish": 1,
+              "documentChanged": false,
+              "priorDocument": "b3edf117-7d1c-414b-a159-b13f4a26a0bf",
+              "nextDocument": "b3edf117-7d1c-414b-a159-b13f4a26a0bf",
+              "sessionCreates": 1
+            },
+            {
+              "pluginConstructs": 2,
+              "pluginClosesBeforeFinish": 1,
+              "hostConstructs": 2,
+              "hostClosesBeforeFinish": 1,
+              "documentChanged": false,
+              "priorDocument": "b51566b3-b720-48be-8edd-37a0050d74c5",
+              "nextDocument": "b51566b3-b720-48be-8edd-37a0050d74c5",
+              "sessionCreates": 1
+            },
+            {
+              "pluginConstructs": 2,
+              "pluginClosesBeforeFinish": 1,
+              "hostConstructs": 2,
+              "hostClosesBeforeFinish": 1,
+              "documentChanged": false,
+              "priorDocument": "ee06633b-ef62-426d-92c3-4a3d45b045b8",
+              "nextDocument": "ee06633b-ef62-426d-92c3-4a3d45b045b8",
+              "sessionCreates": 1
+            }
+          ],
+          "afterRestartAttemptCount": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "afterRestartRecoveryCount": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "identity": {
+        "trials": 10,
+        "checks": 40,
+        "matchingExpected": 40,
+        "trueMatches": 10,
+        "rejections": 30,
+        "fills": 30,
+        "successfulFills": 30,
+        "eventBranches": {
+          "A": 10,
+          "B": 10,
+          "C": 10
+        },
+        "errors": 0
+      },
+      "recovery": {
+        "nested_static": {
+          "n": 5,
+          "reportedArrival": 5,
+          "falseArrivalClaim": 0,
+          "guardedBranchYield": 5,
+          "oracleBranchYield": 5,
+          "status": {
+            "TARGET_REACHED": 5
+          },
+          "durationMs": {
+            "n": 5,
+            "values": [
+              475.93616699999984,
+              575.2258329999997,
+              470.5503749999998,
+              511.2136670000002,
+              516.4808330000003
+            ],
+            "median": 511.2136670000002,
+            "max": 575.2258329999997
+          }
+        },
+        "modal_reentry_changed_quote": {
+          "n": 5,
+          "reportedArrival": 5,
+          "falseArrivalClaim": 0,
+          "guardedBranchYield": 5,
+          "oracleBranchYield": 5,
+          "status": {
+            "TARGET_REACHED": 5
+          },
+          "durationMs": {
+            "n": 5,
+            "values": [
+              779.2193339999999,
+              727.1682910000004,
+              732.6325829999996,
+              729.1895,
+              722.6079169999998
+            ],
+            "median": 729.1895,
+            "max": 779.2193339999999
+          }
+        },
+        "ready_target_ticking_quote": {
+          "n": 5,
+          "reportedArrival": 5,
+          "falseArrivalClaim": 0,
+          "guardedBranchYield": 5,
+          "oracleBranchYield": 5,
+          "status": {
+            "TARGET_REACHED": 5
+          },
+          "durationMs": {
+            "n": 5,
+            "values": [
+              208.40445799999998,
+              207.034541,
+              189.9377089999998,
+              188.0463749999999,
+              189.94966600000043
+            ],
+            "median": 189.94966600000043,
+            "max": 208.40445799999998
+          }
+        },
+        "nested_changed_quote": {
+          "n": 5,
+          "reportedArrival": 5,
+          "falseArrivalClaim": 0,
+          "guardedBranchYield": 5,
+          "oracleBranchYield": 5,
+          "status": {
+            "TARGET_REACHED": 5
+          },
+          "durationMs": {
+            "n": 5,
+            "values": [
+              878.0589999999993,
+              869.378917,
+              947.6452499999996,
+              864.2964999999995,
+              846.0115000000005
+            ],
+            "median": 869.378917,
+            "max": 947.6452499999996
+          }
+        },
+        "local_inverse_diverges": {
+          "n": 5,
+          "reportedArrival": 0,
+          "falseArrivalClaim": 0,
+          "guardedBranchYield": 0,
+          "oracleBranchYield": 0,
+          "status": {
+            "UNVERIFIED": 5
+          },
+          "durationMs": {
+            "n": 5,
+            "values": [
+              386.23604199999863,
+              392.18345899999986,
+              367.6588329999995,
+              386.6297919999997,
+              401.87033300000076
+            ],
+            "median": 386.6297919999997,
+            "max": 401.87033300000076
+          }
+        },
+        "unknown_outcome_injected": {
+          "n": 5,
+          "reportedArrival": 0,
+          "falseArrivalClaim": 0,
+          "guardedBranchYield": 0,
+          "oracleBranchYield": 0,
+          "status": {
+            "UNVERIFIED": 5
+          },
+          "durationMs": {
+            "n": 5,
+            "values": [
+              0.767374999999447,
+              0.7490830000006099,
+              0.7726249999996071,
+              0.7275000000008731,
+              0.7696249999989959
+            ],
+            "median": 0.767374999999447,
+            "max": 0.7726249999996071
+          }
+        }
+      },
+      "scriptSha256": {
+        "conditions": "4c977f147d123ea1adc7c3496cce927ae5be7603fff317b5700578b2732d8693",
+        "continuation": "7b193666d24f3d7b650667e6b5b640b27e2a281e2db5c45a8ed0e066dba7ff4f",
+        "identity": "7cfe18ff69e2fcdad84cda46b353d2c9d0c44c6ce6486ac36b75a322e52ab1e1",
+        "recovery": "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f"
+      }
+    }
+  },
+  "candidateSourceAudit": {
+    "sourceUnchanged": true,
+    "equalBeforeAfter": true,
+    "trackedFiles": 231,
+    "allExitZero": true
+  },
+  "scriptsIdentical": true,
+  "interpretation": {
+    "coldNested": "Same 9 real clicks and 3 necessary reentries; 2 fewer JEV region reviews after restart. Recovery API count increased because deterministic SDK path replaces per-action explorer reentry. A 0-call baseline has no recovery API latency denominator; do not compare zero milliseconds with 559 ms as a slowdown.",
+    "sharedId": "Both record 6 final plan rows, only B executed, A missing, falseCoverageChecks 0. Fixed has 5 required non-success/non-excluded rows versus 4 baseline. Fixed already materializes 6 rows before A removal, baseline 3. No row id/scope/status/lineage per plan item was emitted, so extra pending row identity and avoidance of wrong settlement are unproven.",
+    "performance": "5 repeats, deterministic providers, sequential runs; elapsed reductions are observed fixture timings, not CPU/cache/LLM latency/cost attribution or production benchmark.",
+    "unknown": "The continuation unknown case cold-restarts host and plugin and keeps unknown blocked; direct recovery script unknown scenario does not restart. The original continuation script lacks observe-call instrumentation.",
+    "pending": "Price known/unknown 100 ticks add zero plan or pending rows after the initial discovery in both versions. This proves boundedness only in this fixture window, not arbitrary dynamic-site convergence.",
+    "nonlocal": "A/B observed in both 290 and 3ee; this protocol comparison preserves earlier fix, not newly added coverage.",
+    "falseCoverage": "conditions falseCoverageChecks only inspect currently rendered Run candidates; when A is absent, this counter cannot establish that a hidden old plan row was not falsely settled."
+  }
+}

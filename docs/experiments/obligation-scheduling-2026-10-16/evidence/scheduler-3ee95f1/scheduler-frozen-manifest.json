@@ -1,0 +1,8 @@
+{
+  "commit": "3ee95f17bfc590b0b1c250cbeb1612fce2637e5e",
+  "frozenAt": "2026-10-17T00:15:02.709078+08:00",
+  "startSnapshot": "scheduler-final-start-hashes.json",
+  "changedSinceStart": [],
+  "extraFormalTest": "tests/explorer-obligation-source-condition.test.ts",
+  "extraFormalTestSeparateResult": "scheduler-source-condition-formal.json"
+}

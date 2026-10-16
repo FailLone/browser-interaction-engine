@@ -1,0 +1,1312 @@
+{
+  "generatedAt": "2026-10-16T16:18:39.604765+00:00",
+  "scope": "read-only analysis of retained protocol evidence",
+  "phase1Recovery": {
+    "db3": {
+      "revision": "db3cbeaf045dde8528cc159c2fb10e81de0d3ed8",
+      "apiVariant": [
+        "refactor"
+      ],
+      "scriptSha256": [
+        "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f"
+      ],
+      "trials": 30,
+      "setupErrors": 0,
+      "groups": {
+        "nested_static": {
+          "trials": 5,
+          "validTrials": 5,
+          "expectedRole": "positive_target_reach",
+          "statuses": {
+            "TARGET_REACHED": 5
+          },
+          "reportedArrival": 5,
+          "physicalArrival": 5,
+          "guardedActualBranchYield": 5,
+          "directMeasurementOnlyBranchYield": 5,
+          "falseArrivalClaims": 0,
+          "durationMs": {
+            "n": 5,
+            "median": 571.242,
+            "max": 612.971,
+            "min": 567.944
+          },
+          "recoveryActionAttempts": 10,
+          "entryReopenAttempts": 0,
+          "environmentResetAttempts": 0,
+          "documentRequestsDuringRecovery": 0,
+          "injectedUnknownTrials": 0,
+          "guardedDispatchBlocked": 0,
+          "unknownStatusRetained": 0
+        },
+        "modal_reentry_changed_quote": {
+          "trials": 5,
+          "validTrials": 5,
+          "expectedRole": "positive_target_reach",
+          "statuses": {
+            "TARGET_REACHED": 5
+          },
+          "reportedArrival": 5,
+          "physicalArrival": 5,
+          "guardedActualBranchYield": 5,
+          "directMeasurementOnlyBranchYield": 5,
+          "falseArrivalClaims": 0,
+          "durationMs": {
+            "n": 5,
+            "median": 716.878,
+            "max": 724.741,
+            "min": 701.258
+          },
+          "recoveryActionAttempts": 10,
+          "entryReopenAttempts": 5,
+          "environmentResetAttempts": 0,
+          "documentRequestsDuringRecovery": 5,
+          "injectedUnknownTrials": 0,
+          "guardedDispatchBlocked": 0,
+          "unknownStatusRetained": 0
+        },
+        "ready_target_ticking_quote": {
+          "trials": 5,
+          "validTrials": 5,
+          "expectedRole": "positive_target_reach",
+          "statuses": {
+            "TARGET_REACHED": 5
+          },
+          "reportedArrival": 5,
+          "physicalArrival": 5,
+          "guardedActualBranchYield": 5,
+          "directMeasurementOnlyBranchYield": 5,
+          "falseArrivalClaims": 0,
+          "durationMs": {
+            "n": 5,
+            "median": 188.091,
+            "max": 205.844,
+            "min": 170.091
+          },
+          "recoveryActionAttempts": 0,
+          "entryReopenAttempts": 0,
+          "environmentResetAttempts": 0,
+          "documentRequestsDuringRecovery": 0,
+          "injectedUnknownTrials": 0,
+          "guardedDispatchBlocked": 0,
+          "unknownStatusRetained": 0
+        },
+        "nested_changed_quote": {
+          "trials": 5,
+          "validTrials": 5,
+          "expectedRole": "positive_target_reach",
+          "statuses": {
+            "TARGET_REACHED": 5
+          },
+          "reportedArrival": 5,
+          "physicalArrival": 5,
+          "guardedActualBranchYield": 5,
+          "directMeasurementOnlyBranchYield": 5,
+          "falseArrivalClaims": 0,
+          "durationMs": {
+            "n": 5,
+            "median": 971.185,
+            "max": 1057.735,
+            "min": 849.65
+          },
+          "recoveryActionAttempts": 15,
+          "entryReopenAttempts": 5,
+          "environmentResetAttempts": 0,
+          "documentRequestsDuringRecovery": 5,
+          "injectedUnknownTrials": 0,
+          "guardedDispatchBlocked": 0,
+          "unknownStatusRetained": 0
+        },
+        "local_inverse_diverges": {
+          "trials": 5,
+          "validTrials": 5,
+          "expectedRole": "safety_rejection",
+          "statuses": {
+            "UNVERIFIED": 5
+          },
+          "reportedArrival": 0,
+          "physicalArrival": 0,
+          "guardedActualBranchYield": 0,
+          "directMeasurementOnlyBranchYield": 0,
+          "falseArrivalClaims": 0,
+          "durationMs": {
+            "n": 5,
+            "median": 384.429,
+            "max": 402.331,
+            "min": 369.116
+          },
+          "recoveryActionAttempts": 5,
+          "entryReopenAttempts": 0,
+          "environmentResetAttempts": 0,
+          "documentRequestsDuringRecovery": 0,
+          "injectedUnknownTrials": 0,
+          "guardedDispatchBlocked": 0,
+          "unknownStatusRetained": 0
+        },
+        "unknown_outcome_injected": {
+          "trials": 5,
+          "validTrials": 5,
+          "expectedRole": "safety_rejection",
+          "statuses": {
+            "UNVERIFIED": 5
+          },
+          "reportedArrival": 0,
+          "physicalArrival": 5,
+          "guardedActualBranchYield": 0,
+          "directMeasurementOnlyBranchYield": 0,
+          "falseArrivalClaims": 0,
+          "durationMs": {
+            "n": 5,
+            "median": 0.79,
+            "max": 0.875,
+            "min": 0.74
+          },
+          "recoveryActionAttempts": 0,
+          "entryReopenAttempts": 0,
+          "environmentResetAttempts": 0,
+          "documentRequestsDuringRecovery": 0,
+          "injectedUnknownTrials": 5,
+          "guardedDispatchBlocked": 5,
+          "unknownStatusRetained": 5
+        }
+      },
+      "positive": {
+        "denominator": 20,
+        "reportedAndPhysicallyReady": 20,
+        "guardedActualBranchYield": 20,
+        "durationMs": {
+          "n": 20,
+          "median": 657.114,
+          "max": 1057.735,
+          "min": 170.091
+        }
+      },
+      "negative": {
+        "denominator": 10,
+        "correctRefusals": 10,
+        "durationMs": {
+          "n": 10,
+          "median": 184.995,
+          "max": 402.331,
+          "min": 0.74
+        }
+      },
+      "requiresReplay": {
+        "denominator": 15,
+        "durationMs": {
+          "n": 15,
+          "median": 716.878,
+          "max": 1057.735,
+          "min": 567.944
+        }
+      },
+      "falseArrivalClaims": 0,
+      "recoveryActionAttempts": 40,
+      "pendingGrowth": null,
+      "jevCalls": 0,
+      "llmCalls": 0,
+      "modelCountBasis": "Direct SDK experiment; no explorer plugin/model provider is constructed. Not a live-model efficiency measurement.",
+      "unknownRestartMeasured": false,
+      "unknownObservationGuardMeasured": false
+    },
+    "290": {
+      "revision": "290456d63831477638b6aa7de3bee4a15e4c675c",
+      "apiVariant": [
+        "refactor"
+      ],
+      "scriptSha256": [
+        "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f"
+      ],
+      "trials": 30,
+      "setupErrors": 0,
+      "groups": {
+        "nested_static": {
+          "trials": 5,
+          "validTrials": 5,
+          "expectedRole": "positive_target_reach",
+          "statuses": {
+            "TARGET_REACHED": 5
+          },
+          "reportedArrival": 5,
+          "physicalArrival": 5,
+          "guardedActualBranchYield": 5,
+          "directMeasurementOnlyBranchYield": 5,
+          "falseArrivalClaims": 0,
+          "durationMs": {
+            "n": 5,
+            "median": 510.827,
+            "max": 542.705,
+            "min": 465.623
+          },
+          "recoveryActionAttempts": 10,
+          "entryReopenAttempts": 0,
+          "environmentResetAttempts": 0,
+          "documentRequestsDuringRecovery": 0,
+          "injectedUnknownTrials": 0,
+          "guardedDispatchBlocked": 0,
+          "unknownStatusRetained": 0
+        },
+        "modal_reentry_changed_quote": {
+          "trials": 5,
+          "validTrials": 5,
+          "expectedRole": "positive_target_reach",
+          "statuses": {
+            "TARGET_REACHED": 5
+          },
+          "reportedArrival": 5,
+          "physicalArrival": 5,
+          "guardedActualBranchYield": 5,
+          "directMeasurementOnlyBranchYield": 5,
+          "falseArrivalClaims": 0,
+          "durationMs": {
+            "n": 5,
+            "median": 714.375,
+            "max": 724.917,
+            "min": 712.635
+          },
+          "recoveryActionAttempts": 10,
+          "entryReopenAttempts": 5,
+          "environmentResetAttempts": 0,
+          "documentRequestsDuringRecovery": 5,
+          "injectedUnknownTrials": 0,
+          "guardedDispatchBlocked": 0,
+          "unknownStatusRetained": 0
+        },
+        "ready_target_ticking_quote": {
+          "trials": 5,
+          "validTrials": 5,
+          "expectedRole": "positive_target_reach",
+          "statuses": {
+            "TARGET_REACHED": 5
+          },
+          "reportedArrival": 5,
+          "physicalArrival": 5,
+          "guardedActualBranchYield": 5,
+          "directMeasurementOnlyBranchYield": 5,
+          "falseArrivalClaims": 0,
+          "durationMs": {
+            "n": 5,
+            "median": 188.609,
+            "max": 205.738,
+            "min": 138.035
+          },
+          "recoveryActionAttempts": 0,
+          "entryReopenAttempts": 0,
+          "environmentResetAttempts": 0,
+          "documentRequestsDuringRecovery": 0,
+          "injectedUnknownTrials": 0,
+          "guardedDispatchBlocked": 0,
+          "unknownStatusRetained": 0
+        },
+        "nested_changed_quote": {
+          "trials": 5,
+          "validTrials": 5,
+          "expectedRole": "positive_target_reach",
+          "statuses": {
+            "TARGET_REACHED": 5
+          },
+          "reportedArrival": 5,
+          "physicalArrival": 5,
+          "guardedActualBranchYield": 5,
+          "directMeasurementOnlyBranchYield": 5,
+          "falseArrivalClaims": 0,
+          "durationMs": {
+            "n": 5,
+            "median": 862.676,
+            "max": 1002.238,
+            "min": 847.204
+          },
+          "recoveryActionAttempts": 15,
+          "entryReopenAttempts": 5,
+          "environmentResetAttempts": 0,
+          "documentRequestsDuringRecovery": 5,
+          "injectedUnknownTrials": 0,
+          "guardedDispatchBlocked": 0,
+          "unknownStatusRetained": 0
+        },
+        "local_inverse_diverges": {
+          "trials": 5,
+          "validTrials": 5,
+          "expectedRole": "safety_rejection",
+          "statuses": {
+            "UNVERIFIED": 5
+          },
+          "reportedArrival": 0,
+          "physicalArrival": 0,
+          "guardedActualBranchYield": 0,
+          "directMeasurementOnlyBranchYield": 0,
+          "falseArrivalClaims": 0,
+          "durationMs": {
+            "n": 5,
+            "median": 389.125,
+            "max": 389.707,
+            "min": 322.433
+          },
+          "recoveryActionAttempts": 5,
+          "entryReopenAttempts": 0,
+          "environmentResetAttempts": 0,
+          "documentRequestsDuringRecovery": 0,
+          "injectedUnknownTrials": 0,
+          "guardedDispatchBlocked": 0,
+          "unknownStatusRetained": 0
+        },
+        "unknown_outcome_injected": {
+          "trials": 5,
+          "validTrials": 5,
+          "expectedRole": "safety_rejection",
+          "statuses": {
+            "UNVERIFIED": 5
+          },
+          "reportedArrival": 0,
+          "physicalArrival": 5,
+          "guardedActualBranchYield": 0,
+          "directMeasurementOnlyBranchYield": 0,
+          "falseArrivalClaims": 0,
+          "durationMs": {
+            "n": 5,
+            "median": 0.784,
+            "max": 0.917,
+            "min": 0.736
+          },
+          "recoveryActionAttempts": 0,
+          "entryReopenAttempts": 0,
+          "environmentResetAttempts": 0,
+          "documentRequestsDuringRecovery": 0,
+          "injectedUnknownTrials": 5,
+          "guardedDispatchBlocked": 5,
+          "unknownStatusRetained": 5
+        }
+      },
+      "positive": {
+        "denominator": 20,
+        "reportedAndPhysicallyReady": 20,
+        "guardedActualBranchYield": 20,
+        "durationMs": {
+          "n": 20,
+          "median": 627.67,
+          "max": 1002.238,
+          "min": 138.035
+        }
+      },
+      "negative": {
+        "denominator": 10,
+        "correctRefusals": 10,
+        "durationMs": {
+          "n": 10,
+          "median": 161.675,
+          "max": 389.707,
+          "min": 0.736
+        }
+      },
+      "requiresReplay": {
+        "denominator": 15,
+        "durationMs": {
+          "n": 15,
+          "median": 714.375,
+          "max": 1002.238,
+          "min": 465.623
+        }
+      },
+      "falseArrivalClaims": 0,
+      "recoveryActionAttempts": 40,
+      "pendingGrowth": null,
+      "jevCalls": 0,
+      "llmCalls": 0,
+      "modelCountBasis": "Direct SDK experiment; no explorer plugin/model provider is constructed. Not a live-model efficiency measurement.",
+      "unknownRestartMeasured": false,
+      "unknownObservationGuardMeasured": false
+    }
+  },
+  "schedulerBaseline": {
+    "revision": "290456d63831477638b6aa7de3bee4a15e4c675c",
+    "conditions": {
+      "trials": 25,
+      "groups": {
+        "public-form-cycle": {
+          "trials": 5,
+          "method": "public plugin.start/waitForIdle lifecycle",
+          "allExpectedBranchesTrials": 5,
+          "expectedLeafEventsAcrossTrials": 10,
+          "observedDistinctLeavesAcrossTrials": 10,
+          "expectedBranches": [
+            "form:A",
+            "form:B"
+          ],
+          "observedBranches": [
+            "form:A",
+            "form:B"
+          ],
+          "missingBranches": [],
+          "metricValues": {
+            "actualActions": [
+              2
+            ],
+            "successfulActions": [
+              2
+            ],
+            "recoveryActions": [
+              0
+            ],
+            "oracleClicks": [
+              2
+            ],
+            "newDistinctBranches": [
+              2
+            ],
+            "duplicateOracleClicks": [
+              0
+            ],
+            "falseCoverageChecks": [
+              0
+            ],
+            "retryKeyCount": [
+              2
+            ],
+            "priceTickRetryKeyCount": [
+              null
+            ],
+            "observedStateCount": [
+              2
+            ],
+            "stepCalls": [
+              0
+            ],
+            "modelRequests": [
+              0
+            ],
+            "jevCalls": [
+              0
+            ],
+            "llmCalls": [
+              0
+            ],
+            "initialPlanRows": [
+              5
+            ],
+            "finalPlanRows": [
+              5
+            ],
+            "finalPendingRows": [
+              0
+            ]
+          },
+          "wallTimeMs": {
+            "n": 5,
+            "median": 816,
+            "max": 948,
+            "min": 779
+          },
+          "errorTrials": 0,
+          "recordedPhases": [
+            {
+              "label": "public-run-finished",
+              "planRows": 5,
+              "pendingPlanRows": 0
+            }
+          ],
+          "pendingGrowthPerTrial": null,
+          "planGrowthPerTrial": null,
+          "priceTickOnlyGrowth": null
+        },
+        "shared-id-rebuild": {
+          "trials": 5,
+          "method": "single-step SDK/plugin mechanism experiment",
+          "allExpectedBranchesTrials": 0,
+          "expectedLeafEventsAcrossTrials": 10,
+          "observedDistinctLeavesAcrossTrials": 5,
+          "expectedBranches": [
+            "shared:A",
+            "shared:B"
+          ],
+          "observedBranches": [
+            "shared:B"
+          ],
+          "missingBranches": [
+            "shared:A"
+          ],
+          "metricValues": {
+            "actualActions": [
+              1
+            ],
+            "successfulActions": [
+              1
+            ],
+            "recoveryActions": [
+              0
+            ],
+            "oracleClicks": [
+              1
+            ],
+            "newDistinctBranches": [
+              1
+            ],
+            "duplicateOracleClicks": [
+              0
+            ],
+            "falseCoverageChecks": [
+              0
+            ],
+            "retryKeyCount": [
+              2
+            ],
+            "priceTickRetryKeyCount": [
+              null
+            ],
+            "observedStateCount": [
+              2
+            ],
+            "stepCalls": [
+              12
+            ],
+            "modelRequests": [
+              0
+            ],
+            "jevCalls": [
+              0
+            ],
+            "llmCalls": [
+              0
+            ],
+            "initialPlanRows": [
+              1
+            ],
+            "finalPlanRows": [
+              6
+            ],
+            "finalPendingRows": [
+              4
+            ]
+          },
+          "wallTimeMs": {
+            "n": 5,
+            "median": 542,
+            "max": 699,
+            "min": 502
+          },
+          "errorTrials": 0,
+          "recordedPhases": [
+            {
+              "label": "initial",
+              "planRows": 1,
+              "pendingPlanRows": 1
+            },
+            {
+              "label": "after-initial",
+              "planRows": 3,
+              "pendingPlanRows": 3
+            },
+            {
+              "label": "A-removed-B-rebuilt-before-dispatch",
+              "planRows": 3,
+              "pendingPlanRows": 3
+            },
+            {
+              "label": "A-removed-B-rebuilt-after-dispatch",
+              "planRows": 6,
+              "pendingPlanRows": 4
+            },
+            {
+              "label": "same-B-rebuilt-again",
+              "planRows": 6,
+              "pendingPlanRows": 4
+            }
+          ],
+          "pendingGrowthPerTrial": 3,
+          "planGrowthPerTrial": 5,
+          "priceTickOnlyGrowth": null
+        },
+        "price-known": {
+          "trials": 5,
+          "method": "single-step SDK/plugin mechanism experiment",
+          "allExpectedBranchesTrials": 5,
+          "expectedLeafEventsAcrossTrials": 5,
+          "observedDistinctLeavesAcrossTrials": 5,
+          "expectedBranches": [
+            "price:run"
+          ],
+          "observedBranches": [
+            "price:run"
+          ],
+          "missingBranches": [],
+          "metricValues": {
+            "actualActions": [
+              1
+            ],
+            "successfulActions": [
+              1
+            ],
+            "recoveryActions": [
+              0
+            ],
+            "oracleClicks": [
+              1
+            ],
+            "newDistinctBranches": [
+              1
+            ],
+            "duplicateOracleClicks": [
+              0
+            ],
+            "falseCoverageChecks": [
+              0
+            ],
+            "retryKeyCount": [
+              1
+            ],
+            "priceTickRetryKeyCount": [
+              1
+            ],
+            "observedStateCount": [
+              1
+            ],
+            "stepCalls": [
+              104
+            ],
+            "modelRequests": [
+              0
+            ],
+            "jevCalls": [
+              0
+            ],
+            "llmCalls": [
+              0
+            ],
+            "initialPlanRows": [
+              1
+            ],
+            "finalPlanRows": [
+              5
+            ],
+            "finalPendingRows": [
+              3
+            ]
+          },
+          "wallTimeMs": {
+            "n": 5,
+            "median": 8439,
+            "max": 11279,
+            "min": 8255
+          },
+          "errorTrials": 0,
+          "recordedPhases": [
+            {
+              "label": "initial",
+              "planRows": 1,
+              "pendingPlanRows": 1
+            },
+            {
+              "label": "after-initial",
+              "planRows": 5,
+              "pendingPlanRows": 3
+            },
+            {
+              "label": "price-tick-1",
+              "planRows": 5,
+              "pendingPlanRows": 3
+            },
+            {
+              "label": "price-tick-100",
+              "planRows": 5,
+              "pendingPlanRows": 3
+            }
+          ],
+          "pendingGrowthPerTrial": 2,
+          "planGrowthPerTrial": 4,
+          "priceTickOnlyGrowth": {
+            "ticks": 100,
+            "planRows": 0,
+            "pendingRows": 0,
+            "allTickRowsConstant": true
+          }
+        },
+        "price-unknown": {
+          "trials": 5,
+          "method": "single-step SDK/plugin mechanism experiment",
+          "allExpectedBranchesTrials": 5,
+          "expectedLeafEventsAcrossTrials": 5,
+          "observedDistinctLeavesAcrossTrials": 5,
+          "expectedBranches": [
+            "price:run"
+          ],
+          "observedBranches": [
+            "price:run"
+          ],
+          "missingBranches": [],
+          "metricValues": {
+            "actualActions": [
+              1
+            ],
+            "successfulActions": [
+              1
+            ],
+            "recoveryActions": [
+              0
+            ],
+            "oracleClicks": [
+              1
+            ],
+            "newDistinctBranches": [
+              1
+            ],
+            "duplicateOracleClicks": [
+              0
+            ],
+            "falseCoverageChecks": [
+              0
+            ],
+            "retryKeyCount": [
+              1
+            ],
+            "priceTickRetryKeyCount": [
+              1
+            ],
+            "observedStateCount": [
+              1
+            ],
+            "stepCalls": [
+              104
+            ],
+            "modelRequests": [
+              0
+            ],
+            "jevCalls": [
+              0
+            ],
+            "llmCalls": [
+              0
+            ],
+            "initialPlanRows": [
+              1
+            ],
+            "finalPlanRows": [
+              7
+            ],
+            "finalPendingRows": [
+              5
+            ]
+          },
+          "wallTimeMs": {
+            "n": 5,
+            "median": 9588,
+            "max": 11731,
+            "min": 9337
+          },
+          "errorTrials": 0,
+          "recordedPhases": [
+            {
+              "label": "initial",
+              "planRows": 1,
+              "pendingPlanRows": 1
+            },
+            {
+              "label": "after-initial",
+              "planRows": 7,
+              "pendingPlanRows": 5
+            },
+            {
+              "label": "price-tick-1",
+              "planRows": 7,
+              "pendingPlanRows": 5
+            },
+            {
+              "label": "price-tick-100",
+              "planRows": 7,
+              "pendingPlanRows": 5
+            }
+          ],
+          "pendingGrowthPerTrial": 4,
+          "planGrowthPerTrial": 6,
+          "priceTickOnlyGrowth": {
+            "ticks": 100,
+            "planRows": 0,
+            "pendingRows": 0,
+            "allTickRowsConstant": true
+          }
+        },
+        "nonlocal-dependency": {
+          "trials": 5,
+          "method": "single-step SDK/plugin mechanism experiment",
+          "allExpectedBranchesTrials": 5,
+          "expectedLeafEventsAcrossTrials": 10,
+          "observedDistinctLeavesAcrossTrials": 10,
+          "expectedBranches": [
+            "nonlocal:A",
+            "nonlocal:B"
+          ],
+          "observedBranches": [
+            "nonlocal:A",
+            "nonlocal:B"
+          ],
+          "missingBranches": [],
+          "metricValues": {
+            "actualActions": [
+              2
+            ],
+            "successfulActions": [
+              2
+            ],
+            "recoveryActions": [
+              0
+            ],
+            "oracleClicks": [
+              2
+            ],
+            "newDistinctBranches": [
+              2
+            ],
+            "duplicateOracleClicks": [
+              0
+            ],
+            "falseCoverageChecks": [
+              0
+            ],
+            "retryKeyCount": [
+              2
+            ],
+            "priceTickRetryKeyCount": [
+              null
+            ],
+            "observedStateCount": [
+              2
+            ],
+            "stepCalls": [
+              8
+            ],
+            "modelRequests": [
+              0
+            ],
+            "jevCalls": [
+              0
+            ],
+            "llmCalls": [
+              0
+            ],
+            "initialPlanRows": [
+              1
+            ],
+            "finalPlanRows": [
+              8
+            ],
+            "finalPendingRows": [
+              4
+            ]
+          },
+          "wallTimeMs": {
+            "n": 5,
+            "median": 611,
+            "max": 627,
+            "min": 593
+          },
+          "errorTrials": 0,
+          "recordedPhases": [
+            {
+              "label": "initial",
+              "planRows": 1,
+              "pendingPlanRows": 1
+            },
+            {
+              "label": "after-initial",
+              "planRows": 5,
+              "pendingPlanRows": 3
+            },
+            {
+              "label": "nonlocal-B-before-dispatch",
+              "planRows": 5,
+              "pendingPlanRows": 3
+            },
+            {
+              "label": "nonlocal-B-after-dispatch",
+              "planRows": 8,
+              "pendingPlanRows": 4
+            }
+          ],
+          "pendingGrowthPerTrial": 3,
+          "planGrowthPerTrial": 7,
+          "priceTickOnlyGrowth": null
+        }
+      },
+      "actualDistinctLeafEvents": 35,
+      "expectedLeafEvents": 40,
+      "falseCoverageChecks": 0,
+      "recoveryActions": 0,
+      "jevCalls": 0,
+      "llmCalls": 0
+    },
+    "continuation": {
+      "trials": 15,
+      "groups": {
+        "cold_nested_restart": {
+          "trials": 5,
+          "validTrials": 5,
+          "allExpectedLeavesTrials": 5,
+          "coveredLeavesAcrossTrials": 15,
+          "expectedLeavesAcrossTrials": 15,
+          "newLeavesAfterRestart": 10,
+          "priorPendingNamedRows": 20,
+          "lostPendingRows": 0,
+          "incorrectlySettledRows": 0,
+          "metricTotals": {
+            "incorrectCompletion": 0,
+            "duplicateLeafExecutions": 0,
+            "necessaryReentries": 15,
+            "unnecessaryReentries": 0,
+            "recoveryCalls": 0,
+            "actualBrowserRecoveryCalls": 0,
+            "injectedRecoveryFailures": 0,
+            "recoveryHostSuccesses": 0,
+            "repeatedNoProgressRecoveries": 0,
+            "jev": 40,
+            "llm": 0,
+            "unresolvedUnknown": 0,
+            "successfulExplorationAfterInjectedUnknown": 0
+          },
+          "trialElapsedMs": {
+            "n": 5,
+            "median": 3672,
+            "max": 3813,
+            "min": 3621
+          },
+          "recoveryCallElapsedMs": null,
+          "actualRecoveryCallElapsedMs": null,
+          "safeVerifiedRecoveryElapsedMs": null,
+          "rawRecoveryStatuses": {},
+          "unknownInjectionTrials": 0,
+          "unknownRetentionNonVacuous": {
+            "denominator": 0,
+            "retained": 0
+          },
+          "postRestartBlockedUnknownTrials": 0,
+          "postRestartNewSessions": 0,
+          "postRestartAttempts": 25,
+          "postRestartRecoveryCalls": 0,
+          "postRestartModelCalls": 20,
+          "hostColdRestartTrials": 5,
+          "pluginRestartTrials": 5,
+          "observeCountMeasured": false,
+          "representativePlanBeforeAfter": [
+            {
+              "rows": 11,
+              "pending": 5,
+              "status": "paused",
+              "reason": "user_paused"
+            },
+            {
+              "rows": 11,
+              "pending": 0,
+              "status": "completed",
+              "reason": "current_plan_verified"
+            }
+          ],
+          "planGrowthAcrossRestartValues": [
+            0
+          ],
+          "errors": 0
+        },
+        "failed_recovery_restart": {
+          "trials": 5,
+          "validTrials": 5,
+          "allExpectedLeavesTrials": 5,
+          "coveredLeavesAcrossTrials": 10,
+          "expectedLeavesAcrossTrials": 10,
+          "newLeavesAfterRestart": 5,
+          "priorPendingNamedRows": 10,
+          "lostPendingRows": 0,
+          "incorrectlySettledRows": 0,
+          "metricTotals": {
+            "incorrectCompletion": 0,
+            "duplicateLeafExecutions": 0,
+            "necessaryReentries": 0,
+            "unnecessaryReentries": 0,
+            "recoveryCalls": 5,
+            "actualBrowserRecoveryCalls": 0,
+            "injectedRecoveryFailures": 5,
+            "recoveryHostSuccesses": 0,
+            "repeatedNoProgressRecoveries": 0,
+            "jev": 10,
+            "llm": 0,
+            "unresolvedUnknown": 0,
+            "successfulExplorationAfterInjectedUnknown": 0
+          },
+          "trialElapsedMs": {
+            "n": 5,
+            "median": 1202,
+            "max": 1228,
+            "min": 1174
+          },
+          "recoveryCallElapsedMs": {
+            "n": 5,
+            "median": 0,
+            "max": 0,
+            "min": 0
+          },
+          "actualRecoveryCallElapsedMs": null,
+          "safeVerifiedRecoveryElapsedMs": null,
+          "rawRecoveryStatuses": {
+            "UNVERIFIED": 5
+          },
+          "unknownInjectionTrials": 0,
+          "unknownRetentionNonVacuous": {
+            "denominator": 0,
+            "retained": 0
+          },
+          "postRestartBlockedUnknownTrials": 0,
+          "postRestartNewSessions": 5,
+          "postRestartAttempts": 5,
+          "postRestartRecoveryCalls": 0,
+          "postRestartModelCalls": 5,
+          "hostColdRestartTrials": 0,
+          "pluginRestartTrials": 5,
+          "observeCountMeasured": false,
+          "representativePlanBeforeAfter": [
+            {
+              "rows": 6,
+              "pending": 4,
+              "status": "budget_exhausted",
+              "reason": "ROUND_BUDGET_EXHAUSTED"
+            },
+            {
+              "rows": 6,
+              "pending": 2,
+              "status": "budget_exhausted",
+              "reason": "ROUND_BUDGET_EXHAUSTED"
+            }
+          ],
+          "planGrowthAcrossRestartValues": [
+            0
+          ],
+          "errors": 0
+        },
+        "unknown_recovery_restart": {
+          "trials": 5,
+          "validTrials": 5,
+          "allExpectedLeavesTrials": 0,
+          "coveredLeavesAcrossTrials": 5,
+          "expectedLeavesAcrossTrials": 10,
+          "newLeavesAfterRestart": 0,
+          "priorPendingNamedRows": 10,
+          "lostPendingRows": 0,
+          "incorrectlySettledRows": 0,
+          "metricTotals": {
+            "incorrectCompletion": 0,
+            "duplicateLeafExecutions": 0,
+            "necessaryReentries": 0,
+            "unnecessaryReentries": 0,
+            "recoveryCalls": 5,
+            "actualBrowserRecoveryCalls": 5,
+            "injectedRecoveryFailures": 0,
+            "recoveryHostSuccesses": 5,
+            "repeatedNoProgressRecoveries": 0,
+            "jev": 5,
+            "llm": 0,
+            "unresolvedUnknown": 5,
+            "successfulExplorationAfterInjectedUnknown": 0
+          },
+          "trialElapsedMs": {
+            "n": 5,
+            "median": 814,
+            "max": 823,
+            "min": 787
+          },
+          "recoveryCallElapsedMs": {
+            "n": 5,
+            "median": 313,
+            "max": 325,
+            "min": 310
+          },
+          "actualRecoveryCallElapsedMs": {
+            "n": 5,
+            "median": 313,
+            "max": 325,
+            "min": 310
+          },
+          "safeVerifiedRecoveryElapsedMs": null,
+          "rawRecoveryStatuses": {
+            "TARGET_REACHED": 5
+          },
+          "unknownInjectionTrials": 5,
+          "unknownRetentionNonVacuous": {
+            "denominator": 5,
+            "retained": 5
+          },
+          "postRestartBlockedUnknownTrials": 5,
+          "postRestartNewSessions": 0,
+          "postRestartAttempts": 0,
+          "postRestartRecoveryCalls": 0,
+          "postRestartModelCalls": 0,
+          "hostColdRestartTrials": 5,
+          "pluginRestartTrials": 5,
+          "observeCountMeasured": false,
+          "representativePlanBeforeAfter": [
+            {
+              "rows": 6,
+              "pending": 4,
+              "status": "blocked",
+              "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW"
+            },
+            {
+              "rows": 6,
+              "pending": 4,
+              "status": "blocked",
+              "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW"
+            }
+          ],
+          "planGrowthAcrossRestartValues": [
+            0
+          ],
+          "errors": 0
+        }
+      }
+    },
+    "inputIdentity": {
+      "trials": 10,
+      "groups": {
+        "distinct-names": {
+          "trials": 5,
+          "checks": 20,
+          "checksMatchedExpectation": 20,
+          "expectedRejections": 15,
+          "actualRejections": 15,
+          "expectedAcceptances": 5,
+          "actualAcceptances": 5,
+          "guardedFills": 15,
+          "successfulGuardedFills": 15,
+          "actualHttpEvents": 15,
+          "actualBranchesPerTrial": [
+            "A",
+            "B",
+            "C"
+          ],
+          "errors": 0,
+          "recoveryDurationMs": null,
+          "pendingGrowth": null,
+          "jevCalls": 0,
+          "llmCalls": 0
+        },
+        "same-name-named-owners": {
+          "trials": 5,
+          "checks": 20,
+          "checksMatchedExpectation": 20,
+          "expectedRejections": 15,
+          "actualRejections": 15,
+          "expectedAcceptances": 5,
+          "actualAcceptances": 5,
+          "guardedFills": 15,
+          "successfulGuardedFills": 15,
+          "actualHttpEvents": 15,
+          "actualBranchesPerTrial": [
+            "A",
+            "B",
+            "C"
+          ],
+          "errors": 0,
+          "recoveryDurationMs": null,
+          "pendingGrowth": null,
+          "jevCalls": 0,
+          "llmCalls": 0
+        }
+      }
+    }
+  },
+  "sourceAudits": {
+    "phase1Baseline": {
+      "revision": "db3cbeaf045dde8528cc159c2fb10e81de0d3ed8",
+      "productFiles": 200,
+      "mismatches": [],
+      "script": "scripts/verify-exploration-recovery.ts",
+      "scriptSha256": "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f"
+    },
+    "phase1FixedBeforeEqualsAfter": true,
+    "phase1FixedProductFiles": 200,
+    "schedulerBaselineProductFiles": 200,
+    "schedulerBaselineAllMatch": true
+  },
+  "scripts": {
+    "recovery": {
+      "file": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/scripts/verify-exploration-recovery.ts",
+      "sha256": "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f",
+      "currentMatchesRecorded": true
+    },
+    "conditions": {
+      "file": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/scripts/verify-exploration-conditions.ts",
+      "sha256": "4c977f147d123ea1adc7c3496cce927ae5be7603fff317b5700578b2732d8693",
+      "currentMatchesRecorded": true
+    },
+    "continuation": {
+      "file": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/scripts/verify-exploration-continuation.ts",
+      "sha256": "7b193666d24f3d7b650667e6b5b640b27e2a281e2db5c45a8ed0e066dba7ff4f",
+      "currentMatchesRecorded": true
+    },
+    "inputIdentity": {
+      "file": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/scripts/verify-exploration-input-identity.ts",
+      "sha256": "7cfe18ff69e2fcdad84cda46b353d2c9d0c44c6ce6486ac36b75a322e52ab1e1",
+      "currentMatchesRecorded": true
+    }
+  },
+  "limitations": [
+    "This report covers phase-1 recovery db3 vs 290, and only the 290 scheduler baseline; it does not contain frozen scheduler-fixed protocol results.",
+    "Recovery success denominator is 20 positive trials per revision; 10 deliberate negative trials are safety refusals, not failed positive recoveries or successes.",
+    "unknown_outcome_injected in recovery.ts has no host/plugin restart. continuation.ts unknown_recovery_restart has 5 non-vacuous cold-host injections and restarts, but does not instrument observe-call count.",
+    "Continuation recoveryHostSuccesses counts raw SDK status before the durable unknown fault. All five actual calls belong to fault injection; none demonstrates safe verified recovery completion.",
+    "Price-unknown denotes uncertain selector evidence, not unknown execution outcome. Its 100-tick result cannot validate cross-restart unknown blocking.",
+    "Only public-form-cycle uses the public complete plugin lifecycle in conditions.ts; its first plan snapshot is after completion, so initialPlanRows=5 is not a before-run growth measurement. Other four scenarios invoke private step with externally driven changes.",
+    "Continuation model providers are deterministic stubs. JEV counts are requests to those providers; live model quality, token cost and network latency are unmeasured.",
+    "Necessary reentry is the script definition based on fixed entry labels and still-unvisited declared leaf labels, not a universal causal proof for arbitrary pages.",
+    "Phase-1 durationMs wraps the recovery API only; it excludes later DOM oracle probes and guarded target dispatch. Timing samples are five per scenario, sequential non-randomized runs, insufficient for robust speedup claims.",
+    "Plan/pending rows are bookkeeping counts, distinct from unique unresolved UI branches; bounded tick convergence and no lost named leaves do not prove whole-site exhaustion.",
+    "CPU/memory/database bytes, observation/frontier/cache construction counts, 95th/99th latency distributions, arbitrary implicit JS dependencies, live OKX coverage, and long-running invalid-scope accumulation were not measured here."
+  ],
+  "sourceArtifacts": [
+    {
+      "path": "/tmp/bie-stability-scheduler-evidence/recovery-base-1.json",
+      "sha256": "ecedeb3a1cae7f985bebd7ca817fb2cf519a7b7fa347d000943a9acb4a4753d0"
+    },
+    {
+      "path": "/tmp/bie-stability-scheduler-evidence/recovery-base-2.json",
+      "sha256": "cf7074d9f05f668792b84794353366908c20b5068141a398a09de1a362a7c78c"
+    },
+    {
+      "path": "/tmp/bie-stability-scheduler-evidence/recovery-base-3.json",
+      "sha256": "ff72b436f55ad4b1d4991ab00248c425f7ad41281a21615031041a7106892ecd"
+    },
+    {
+      "path": "/tmp/bie-stability-scheduler-evidence/recovery-base-4.json",
+      "sha256": "6e2208fd364dbabc34c9ceddb1b84fdb2f50bb251708226dab400532307aeb08"
+    },
+    {
+      "path": "/tmp/bie-stability-scheduler-evidence/recovery-base-5.json",
+      "sha256": "2369c64a6de9d73395d9ad9fa3c2c2ff9f52b33e64947b82e14e73a5455fefaa"
+    },
+    {
+      "path": "/tmp/bie-stability-scheduler-evidence/recovery-stability-1.json",
+      "sha256": "8fb4565a99741784989bec8f5d2c866aebc6065dca3b3e2f462a4bdebd8995e8"
+    },
+    {
+      "path": "/tmp/bie-stability-scheduler-evidence/recovery-stability-2.json",
+      "sha256": "7aa2603733f64110391efa6db4b12dc5d98e773c06977d58863592a967cffe2d"
+    },
+    {
+      "path": "/tmp/bie-stability-scheduler-evidence/recovery-stability-3.json",
+      "sha256": "72b3a486c9ed6d98418a9b8e1bcea04f14f45855d49c4895e9bde1e64bf7dec7"
+    },
+    {
+      "path": "/tmp/bie-stability-scheduler-evidence/recovery-stability-4.json",
+      "sha256": "532e11f4eda67d06c0bd055b5ec4699c30f53894f720a7c74f51a6f066967b44"
+    },
+    {
+      "path": "/tmp/bie-stability-scheduler-evidence/recovery-stability-5.json",
+      "sha256": "4ca5b7113271f973a4012bfc27d26f9d42b241a9087d61361a432e9df2179ea7"
+    },
+    {
+      "path": "/tmp/bie-stability-scheduler-evidence/conditions-scheduler-base.json",
+      "sha256": "50e536e42c9bfd95f4795b19be646de25018190053ec884ad622c1474499ca2e"
+    },
+    {
+      "path": "/tmp/bie-stability-scheduler-evidence/continuation-scheduler-base.json",
+      "sha256": "68965259d195392b1dcbf3fa3c9efecd5b9053205ef6fce1e2e0136586e87a97"
+    },
+    {
+      "path": "/tmp/bie-stability-scheduler-evidence/input-identity-scheduler-base.json",
+      "sha256": "4639ed6f7d729ea412c7f6968a7849b5f9cf0ada4a53d6be2175cd20038eb833"
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+[
+  {
+    "variant": "oracle",
+    "targetResult": "UNVERIFIED",
+    "finalStatus": "completed",
+    "reason": "current_plan_verified",
+    "oracle": 1,
+    "targetCalls": 1,
+    "checkpointCalls": 1,
+    "attempts": [
+      {
+        "label": "Leave",
+        "purpose": "external",
+        "status": "succeeded",
+        "id": "64647b8b-bed3-4ca1-90ac-a399d9bb583d"
+      },
+      {
+        "label": "Return to observed page",
+        "purpose": "recovery",
+        "status": "succeeded",
+        "id": "dad203f3-3027-4c85-8d4e-2df079b47c6d"
+      },
+      {
+        "label": "Remaining",
+        "purpose": "external",
+        "status": "succeeded",
+        "id": "e222f1f3-ef60-4dfa-a012-abf3fe540635"
+      }
+    ],
+    "recoveryResults": [
+      "UNVERIFIED",
+      "REACHED_VERIFIED"
+    ],
+    "remaining": [
+      {
+        "required": true,
+        "status": "succeeded",
+        "resolvedBy": {
+          "sessionId": "bc6279da-b04b-40a1-825e-6360f93a0aa6",
+          "observationId": "12015d21-d71c-499a-951b-bba2a3504974",
+          "attemptId": "e222f1f3-ef60-4dfa-a012-abf3fe540635"
+        },
+        "attempts": 1
+      },
+      {
+        "required": true,
+        "status": "succeeded",
+        "resolvedBy": {
+          "sessionId": "bc6279da-b04b-40a1-825e-6360f93a0aa6",
+          "observationId": "12015d21-d71c-499a-951b-bba2a3504974",
+          "attemptId": "e222f1f3-ef60-4dfa-a012-abf3fe540635"
+        },
+        "attempts": 1
+      }
+    ]
+  },
+  {
+    "variant": "oracle",
+    "targetResult": "UNREACHABLE",
+    "finalStatus": "completed",
+    "reason": "current_plan_verified",
+    "oracle": 1,
+    "targetCalls": 1,
+    "checkpointCalls": 1,
+    "attempts": [
+      {
+        "label": "Leave",
+        "purpose": "external",
+        "status": "succeeded",
+        "id": "24cbae7d-8d54-4d80-b18b-099c75da026e"
+      },
+      {
+        "label": "Return to observed page",
+        "purpose": "recovery",
+        "status": "succeeded",
+        "id": "06d92948-9c79-4a56-9d46-ecd68553b288"
+      },
+      {
+        "label": "Remaining",
+        "purpose": "external",
+        "status": "succeeded",
+        "id": "0ed7611a-3aee-453c-b362-5e97c83d0148"
+      }
+    ],
+    "recoveryResults": [
+      "UNREACHABLE",
+      "REACHED_VERIFIED"
+    ],
+    "remaining": [
+      {
+        "required": true,
+        "status": "succeeded",
+        "resolvedBy": {
+          "sessionId": "78730789-97b6-4742-a089-062d287757b7",
+          "observationId": "2ae5cb43-0cf7-4f0d-8824-33fdd9dd440a",
+          "attemptId": "0ed7611a-3aee-453c-b362-5e97c83d0148"
+        },
+        "attempts": 1
+      },
+      {
+        "required": true,
+        "status": "succeeded",
+        "resolvedBy": {
+          "sessionId": "78730789-97b6-4742-a089-062d287757b7",
+          "observationId": "2ae5cb43-0cf7-4f0d-8824-33fdd9dd440a",
+          "attemptId": "0ed7611a-3aee-453c-b362-5e97c83d0148"
+        },
+        "attempts": 1
+      }
+    ]
+  },
+  {
+    "variant": "all-failed",
+    "targetResult": "UNVERIFIED",
+    "finalStatus": "budget_exhausted",
+    "reason": "ROUND_BUDGET_EXHAUSTED",
+    "oracle": 0,
+    "targetCalls": 1,
+    "checkpointCalls": 1,
+    "attempts": [
+      {
+        "label": "Leave",
+        "purpose": "external",
+        "status": "succeeded",
+        "id": "32a69ccc-565a-4fe4-b99f-a41dca77c9a7"
+      }
+    ],
+    "recoveryResults": [
+      "UNVERIFIED",
+      "UNVERIFIED"
+    ],
+    "remaining": [
+      {
+        "required": true,
+        "status": "unresolved",
+        "resolvedBy": null,
+        "attempts": 0
+      }
+    ]
+  },
+  {
+    "variant": "all-failed",
+    "targetResult": "UNREACHABLE",
+    "finalStatus": "budget_exhausted",
+    "reason": "ROUND_BUDGET_EXHAUSTED",
+    "oracle": 0,
+    "targetCalls": 1,
+    "checkpointCalls": 1,
+    "attempts": [
+      {
+        "label": "Leave",
+        "purpose": "external",
+        "status": "succeeded",
+        "id": "ae4be0bb-fc49-46bb-a0b1-f7b304cfbadb"
+      }
+    ],
+    "recoveryResults": [
+      "UNREACHABLE",
+      "UNREACHABLE"
+    ],
+    "remaining": [
+      {
+        "required": true,
+        "status": "unresolved",
+        "resolvedBy": null,
+        "attempts": 0
+      }
+    ]
+  }
+]

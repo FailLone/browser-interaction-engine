@@ -1,0 +1,52 @@
+{
+  "290456d": {
+    "targetRiskCount": 2,
+    "allRiskCount": 3,
+    "targetNames": [
+      "Unclear",
+      "Changed purpose evidence"
+    ],
+    "attempts": [
+      {
+        "label": "Shift",
+        "status": "succeeded",
+        "purpose": "external"
+      }
+    ],
+    "unresolvedPurposeNames": [
+      "Unclear",
+      "Changed purpose evidence"
+    ],
+    "taskStatus": "budget_exhausted",
+    "reason": "ROUND_BUDGET_EXHAUSTED",
+    "testSha256": "f92b0e82034adfa5fc05104f0a308e0956de6b3480db508afe658e8763452dab"
+  },
+  "3ee95f1": {
+    "targetRiskCount": 3,
+    "allRiskCount": 5,
+    "targetNames": [
+      "Unclear",
+      "Changed purpose evidence",
+      "Unclear"
+    ],
+    "attempts": [
+      {
+        "label": "Shift",
+        "status": "succeeded",
+        "purpose": "external"
+      },
+      {
+        "label": "Reopen session entry",
+        "status": "succeeded",
+        "purpose": "recovery"
+      }
+    ],
+    "unresolvedPurposeNames": [
+      "Unclear",
+      "Changed purpose evidence"
+    ],
+    "taskStatus": "budget_exhausted",
+    "reason": "ROUND_BUDGET_EXHAUSTED",
+    "testSha256": "1a1dbb76d3db0158d38fc4057e20aae198d96a18ec92cf3a2c884c51e5515ab8"
+  }
+}

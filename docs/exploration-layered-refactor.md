@@ -1,6 +1,8 @@
-# 持续探索的分层重构：第一阶段
+# 持续探索的分层重构
 
-2026-10-16 旧待测范围迁移：`a62d37b` 将可核验的旧条件粗行和 representative 采样范围转交到独立条件子项，保留失效来源、unknown 与未尝试父项的审计含义。独立同文件对照 1/5→5/5，冻结版相关回归 413/413。嵌套恢复、A/B 和 unknown 接续收益保留；首次弹层对照出现一次后置观察 unknown，隔离复验各 5/5，合并仍为基线 6/6、改造版 5/6，未宣称恢复稳定性或整体性能验收通过。见 [本轮迁移与完整证据](experiments/pending-scope-migration-2026-10-16/README.md)。持久化未测范围驱动路线选择的调度重构尚未开始。
+2026-10-17 待测清单驱动调度：先以 `290456d` 修正操作后观察的采样时钟和目标就绪窗口，再由 `3ee95f1` / `7c88f01` 让持久化待测项决定当前位置操作与远端恢复。DFS 帧只提供路线提示；空栈、恢复失败、重启不再等同于没有待测工作。新的条件化路线分开 A/B 目标，旧复合路线和未知结果的失败额度保守保留。冻结版受影响回归59文件648/648通过；原80轮协议保留嵌套恢复、A/B和unknown冷重启收益，空栈独立对照1/11→11/11。真实站点性能仍未验证。验证结果、对照版本和局限见[本轮报告](experiments/obligation-scheduling-2026-10-16/README.md)。
+
+2026-10-16 旧待测范围迁移：`a62d37b` 将可核验的旧条件粗行和 representative 采样范围转交到独立条件子项，保留失效来源、unknown 与未尝试父项的审计含义。独立同文件对照 1/5→5/5，冻结版相关回归 413/413。嵌套恢复、A/B 和 unknown 接续收益保留；首次弹层对照出现一次后置观察 unknown，隔离复验各 5/5，合并仍为基线 6/6、改造版 5/6，未宣称恢复稳定性或整体性能验收通过。见 [本轮迁移与完整证据](experiments/pending-scope-migration-2026-10-16/README.md)。该轮尚未开始持久化未测范围驱动路线选择；后续实现见上方本轮记录。
 
 2026-10-16 上一轮修复：`88704cd` 修正已捕获模式的跨表单/跨区域依赖，增加非授权状态图分组，并核验旧插件未执行条件键的升级来源。同脚本 before=`1ed2238` / after=`88704cd` 共 160 次对照通过本轮验收：非局部 A/B 各实际执行、100 次报价变化图节点 101→1，嵌套恢复和 unknown 冷重启阻断保留。完整观察仍增长，任意 JavaScript 因果和真实站点性能未证明；该轮尚未迁移 SDK representative 旧采样范围。见 [该轮报告与能力边界](experiments/nonlocal-state-fix-2026-10-16/README.md)。
 
@@ -29,17 +31,17 @@ base 的分类复用保留。分类证据只能关闭分类审阅工作；历史
 | 层 | 已有基础 | 本阶段变化 |
 | --- | --- | --- |
 | core | 观察、状态/转换图、路径记录、严格 `reachCheckpoint`、执行队列、未知结果账本 | `explorationTargetCorrespondences` 对应未执行历史目标；`reachExplorationTarget` 复用恢复策略并单独验证目标到达；重复执行来源在队列派发和异步校验后再次检查 |
-| 浏览器适配器 | 身份匹配、控件与操作采样、边界和局部恢复步骤、覆盖对应 | 有界的相关模式投影；目标条件与目标自身就绪验证；操作调度键纳入语义绑定 |
+| 浏览器适配器 | 身份匹配、控件与操作采样、边界和局部恢复步骤、覆盖对应 | 有界的相关模式投影；目标条件与目标自身就绪验证；操作调度键纳入语义绑定；操作后采样使用真实 DOM 读取时点并核对该操作的就绪范围 |
 | SDK 组合 | 分类/覆盖证据、审阅、恢复评估、继续探索 | 目标到达报告独立的 `dispatchAvailability`；继续尊重已验证恢复记录和未知结果 |
-| 独立探索插件 | 计划、DFS 工作帧、模型路由、跨轮证据和预算 | 当前观察位置与保留工作分离；条件化任务、持久化恢复重试；所有历史成功来源参与 SDK 核对；未完成记录的派生生命周期视图 |
+| 独立探索插件 | 计划、DFS 工作帧、模型路由、跨轮证据和预算 | 当前观察位置与保留工作分离；条件化任务、持久化恢复重试；所有历史成功来源参与 SDK 核对；持久化待测项轮换、有限局部优先、独立路线失败记录，DFS 帧作为提示 |
 
-调用链为：插件选择未完成目标 → SDK 目标恢复 → 既有边界退出/历史返回/状态图路径/局部逆操作/起点重放 → 重新观察并核对目标 → 插件从实际观察继续审阅和调度 → 原有执行约束再次校验。
+调用链为：插件从持久化待测清单选择目标 → SDK 目标恢复 → 既有边界退出/历史返回/状态图路径/局部逆操作/起点重放 → 重新观察并核对目标 → 插件从实际观察继续审阅和调度 → 原有执行约束再次校验。
 
 `TARGET_REACHED` 表示至少一个请求目标具有唯一、就绪的当前对应，结果同时列出具体匹配。它固定返回 `checkpointVerified:false`、`currentExecution:false`、`executionAuthorized:false`，不保证请求中的所有目标均已出现。严格检查点一致性仍使用原接口。返回后区域审阅未完成时，可以确认目标出现，实际派发仍被审阅约束阻止。
 
 原 `reachCheckpoint` 验证的是可观察检查点，不会清除未知执行结果。插件在恢复前后、轮次结束和重启入口核对原会话账本；即使该接口报告画面到达，存在未知结果时也记录为 `UNVERIFIED` 并保留原始返回值用于审计。只有关联原执行记录的已验证 continuation 才能解除阻断，并给对应路由一次新的恢复机会；原 attempt 的 unknown 状态保持不变，旧数据缺少来源映射时继续保守阻断。
 
-恢复发生实际动作、文档变化、上下文或边界变化后，插件记录浏览器的真实位置。失败不会弹掉待处理帧，也不会把旧计划路径写成已验证当前位置。严格恢复成功才恢复对应父路径；目标恢复成功保留尚未处理的历史目标。
+恢复发生实际动作、文档变化、上下文或边界变化后，插件记录浏览器的真实位置。失败保留待测项及路线原因，不会把旧计划路径写成已验证当前位置。工作帧不再是待测范围的唯一来源。严格恢复成功才恢复对应父路径；目标恢复成功保留尚未处理的历史目标。
 
 ## 关键不变量
 
@@ -52,7 +54,7 @@ base 的分类复用保留。分类证据只能关闭分类审阅工作；历史
 
 旧插件未执行行在原始观察完整、操作唯一、旧键核验通过且当前 SDK 源条件可构建时升级。所有来源对应一个条件时仅升级调度键；一对多时按条件创建独立 pending 子项。不能核验的来源转交独立 blocked 残余项；全无有效来源仍保留原 blocked。父项以 superseded 保留原证据及完整转交关系，不记成功或排除。上一轮 multiple_current_conditions 失效记录可重新核验；新的迁移审计避免每轮重复拆分。子项丢失或关系损坏会恢复明确缺口。unknown 校验仍先于迁移和新观察，成功/已尝试历史不迁移，覆盖继续由 SDK 依据当前规则逐条件核对。
 
-观察与对应缓存只在一次同步查询内复用；跨 await、审阅更新或新观察后重建。生命周期历史观察缓存最多 8 份，SDK 对应请求每批最多 16 项。生命周期在轮次审计更新，UI 明确标为“最近轮次审计”，不把过期快照显示成当前实时结果。旧 representative 未执行采样范围按保留来源逐条迁移，适配器只解码明确支持的历史版本；有效来源承接到当前子项，部分失效留在父项缺口。完整转交的父项仅账务退役，仍是 not_attempted；原始历史尝试不转成新覆盖。详见[旧采样范围接续](FRONTIER-COVERAGE.md#旧采样范围接续)。默认 controls 的遍历采样键不受此次条件策略换版影响。当前历史对应组仍依赖目标在观察中可对应；离开该页面后，旧别名可能重新成为独立等待项。因此本阶段没有证明跨页面、跨轮的未测集合或存储体积收敛。
+观察与对应缓存只在一次同步查询内复用；跨 await、审阅更新或新观察后重建。生命周期历史观察缓存最多 8 份，SDK 对应请求每批最多 16 项。调度在同步选择前更新生命周期，仍保留轮次审计；UI 明确标为“最近轮次审计”，不把过期快照显示成当前实时结果。路线条件索引只在同一同步观察内共用，恢复后重新构建。旧 representative 未执行采样范围按保留来源逐条迁移，适配器只解码明确支持的历史版本；有效来源承接到当前子项，部分失效留在父项缺口。完整转交的父项仅账务退役，仍是 not_attempted；原始历史尝试不转成新覆盖。详见[旧采样范围接续](FRONTIER-COVERAGE.md#旧采样范围接续)。默认 controls 的遍历采样键不受此次条件策略换版影响。当前历史对应组仍依赖目标在观察中可对应；离开该页面后，旧别名可能重新成为独立等待项。因此本阶段没有证明跨页面、跨轮的未测集合或存储体积收敛。
 
 ## 已解决、仍存在和尚未证实
 
@@ -75,20 +77,22 @@ base 的分类复用保留。分类证据只能关闭分类审阅工作；历史
 
 | 边界 | 代码入口 | 调用链与触发场景 |
 | --- | --- | --- |
-| 目标到达和严格检查点分开 | [packages/core/src/engine.ts:1227](/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts:1227) | 插件恢复 → reachExplorationTarget → reachInternal → 新观察核对；被动价格变化不再强求整页相等。 |
-| 覆盖接续使用严格对应 | [packages/core/src/engine.ts:319](/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts:319) | SDK 队列采样 → 独立 correspondenceCase → reconcileCoverage；队列去重不能证明模式 B 已被模式 A 覆盖。 |
+| 目标到达和严格检查点分开 | [packages/core/src/engine.ts:1282](/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts:1282) | 插件恢复 → reachExplorationTarget → reachInternal → 新观察核对；被动价格变化不再强求整页相等。 |
+| 覆盖接续使用严格对应 | [packages/core/src/engine.ts:324](/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts:324) | SDK 队列采样 → 独立 correspondenceCase → reconcileCoverage；队列去重不能证明模式 B 已被模式 A 覆盖。 |
 | 部分恢复后的真实位置 | [packages/explorer-plugin/src/navigation-state.ts:24](/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/explorer-plugin/src/navigation-state.ts:24) | 插件恢复结果 → 实际观察 → 位置同步；返回失败清除未验证路径，保留工作帧。 |
-| 未知恢复与重启入口 | [packages/explorer-plugin/src/runtime.ts:339](/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/explorer-plugin/src/runtime.ts:339) | run/createRound/finishRound/恢复前后 → 原会话账本 → 已验证 continuation；新会话不改写旧 unknown。 |
-| 消失或缺证据的历史成员 | [packages/explorer-plugin/src/runtime.ts:897](/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/explorer-plugin/src/runtime.ts:897) | recordOutcome → settleScopes → 历史发现成员核对；A 消失、仅 B 完成时不得结清粗范围。 |
+| 未知恢复与重启入口 | [packages/explorer-plugin/src/runtime.ts:350](/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/explorer-plugin/src/runtime.ts:350) | run/createRound/finishRound/恢复前后 → 原会话账本 → 已验证 continuation；新会话不改写旧 unknown。 |
+| 消失或缺证据的历史成员 | [packages/explorer-plugin/src/runtime.ts:1093](/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/explorer-plugin/src/runtime.ts:1093) | recordOutcome → settleScopes → 历史发现成员核对；A 消失、仅 B 完成时不得结清粗范围。 |
 | 动态模式投影 | [packages/adapter-playwright/src/branch-conditions.ts:78](/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/branch-conditions.ts:78) | 适配器操作样本 → 有界相关条件 → SDK 对应和插件键；不以整页报价文字刷新预算。 |
 | 待测账本的派生视图 | [packages/explorer-plugin/src/obligation-lifecycle.ts:106](/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/explorer-plugin/src/obligation-lifecycle.ts:106) | 轮次审计 → SDK 未执行目标对应 → 生命周期投影；别名不授予覆盖。 |
+| 待测清单主导选路 | [packages/explorer-plugin/src/runtime.ts:652](/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/explorer-plugin/src/runtime.ts:652) | 当前 SDK 投影 → 持久化目标轮换 → 到达或操作；空栈不清空目标，失败额度按来源条件保留。 |
+| 操作后观察稳定窗口 | [packages/adapter-playwright/src/browser.ts:529](/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/browser.ts:529) | core 传递实际执行操作 → 按真实 DOM 采样时间等待 → 原执行后置校验；其他输入框就绪不再替代弹层入口稳定。 |
 
 ## 与替换架构的比较
 
 | 方案 | 收益 | 成本与迁移风险 | 能力边界 |
 | --- | --- | --- | --- |
 | 本次分层重构 | 复用已有图和证据；将到达、覆盖、执行权限分开；保留旧任务和审计来源 | 新字段向后兼容，但旧发现行可能缺条件键，须保守核对；策略版本更新会使部分旧证明失效并增加一次审阅 | 无完整 JS 快照；非局部依赖需额外规则；历史持久化仍增长 |
-| 改成显式图优先任务调度 | 可统一跨轮路由代价、失败退避和目标优先级；减少 DFS 位置依赖 | 需要迁移任务/边/条件与预算，验证调度公平性；仍可复用本次 SDK 契约 | 图只覆盖已观察状态和已验证路径，未知 UI 分支仍需发现 |
+| 进一步加入图路径代价调度 | 当前已由待测项主导选择；仍可统一跨轮路径代价、失败退避与目标优先级 | 需要补充多路径成本、路径失效与公平性验证；复用已有任务/条件/预算和 SDK 契约 | 图只覆盖已观察状态和已验证路径，未知 UI 分支仍需发现 |
 | 替换为 Crawljax/FRAGGEN 或其他执行器 | 可获得已有爬取队列或分块算法 | Java/Selenium/DOM 模型、身份、风险、证据和插件接口需整合；双栈长期维护成本高 | 相似状态不等于业务等价；换框架不能获得任意快照还原，也不能解决未知副作用 |
 
 借鉴来源、具体源码入口及许可判断见 [exploration-refactor-sources.md](exploration-refactor-sources.md)。本阶段采用图目的地与实际到达分离、局部状态抽象、恢复后验证这些做法，没有复制上游源码或新增爬虫依赖。

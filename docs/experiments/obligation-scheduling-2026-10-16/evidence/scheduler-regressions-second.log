@@ -1,0 +1,264 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ❯ tests/explorer-plugin.test.ts (95 tests | 5 failed | 85 skipped) 15768ms
+   ↓ reconciles repeated legacy field gaps only after all matching controls are verified
+   ↓ reconciles repeated legacy field gaps only after partial matching controls are verified
+   ↓ reconciles repeated legacy field gaps only after across-rounds matching controls are verified
+   ↓ preserves a disappeared obligation while settling matching field gaps
+   ↓ preserves a missing-source obligation while settling matching field gaps
+   ↓ preserves a unknown obligation while settling matching field gaps
+   ↓ preserves a capability obligation while settling matching field gaps
+   ↓ preserves historical field obligations when all retained action candidates are unavailable
+   ↓ preserves historical field obligations when one retained action candidates are unavailable
+   × does not reuse a completed coarse field scope for a newly revealed semantic field 1777ms
+     → expected [ …(3) ] to deeply equal [ StringContaining "Length", …(2) ]
+   ↓ uses public semantic context to distinguish distinct unnamed-key fields without guessing an occurrence
+   ↓ uses public semantic context to distinguish ambiguous unnamed-key fields without guessing an occurrence
+   ↓ keeps contextual hints separate from stable and list-record keys, values and execution identifiers
+   ↓ matches contextual fields across rounds while keeping actual attempts in their original sessions
+   ↓ provides semantic field evidence with exact scopes so a target plan selects only the intended field
+   ↓ exits a reappearing boundary in same-document even when its close operation succeeded earlier
+   ↓ exits a reappearing boundary in new-document even when its close operation succeeded earlier
+   ↓ does not repeat an ineffective exit while the same boundary remains observed
+   ↓ restores an observed unfinished branch through the host without model ranking
+   × finishes available new controls before replaying an entry and returns for all 2 children 1551ms
+     → expected false to be true // Object.is equality
+   × finishes available new controls before replaying an entry and returns for all 3 children 2095ms
+     → expected [ 'Open', 'First', 'Outside', …(4) ] to deeply equal [ 'Open', 'First', 'Outside', …(4) ]
+   × finishes available new controls before replaying an entry and returns for all 5 children 3619ms
+     → expected [ 'Open', 'First', 'Outside', …(8) ] to deeply equal [ 'Open', 'First', 'Outside', …(8) ]
+   ↓ does not replay an unchanged missing branch when unrelated work changes the coverage ledger
+   ↓ preserves branch retry limits across restart, unrelated gaps and duplicate evidence rows: current
+   ↓ preserves branch retry limits across restart, unrelated gaps and duplicate evidence rows: longer-path
+   ↓ preserves branch retry limits across restart, unrelated gaps and duplicate evidence rows: legacy-v2
+   ↓ retains host coverage limitations for whole-page without treating other successes as coverage
+   ↓ retains host coverage limitations for targeted without treating other successes as coverage
+   ↓ retains host coverage limitations for after-last-action without treating other successes as coverage
+   ↓ continues untested controls after persisting unsupported-content acceptance without clearing budgets or unknown outcomes (false)
+   ↓ continues untested controls after persisting unsupported-content acceptance without clearing budgets or unknown outcomes (true)
+   ↓ rejects unobserved, critical and unknown-dispatch limitation acceptance atomically
+   ↓ matches repeated records across fresh documents without treating history as a new execution
+   ↓ migrates legacy scope keys using retained original evidence and preserves unresolved unmatched scopes
+   ↓ does not arbitrarily execute colliding semantic record scopes
+   ↓ explores real browser actions with an independent ledger and leaves engine mode manual
+   ↓ scopes ungrouped candidates and guards application commands while a model is pending
+   ↓ uses only public host APIs and keeps the SDK independent of the optional explorer
+   ↓ continues remaining scopes in a fresh round without resetting total budget or replaying success
+   ✓ continues after the host time limit at after-action without resetting aggregate usage  925ms
+   ✓ continues after the host time limit at dispatch-preflight without resetting aggregate usage  1036ms
+   ↓ resumes an expired unplanned session without mistaking an empty plan for completion
+   ✓ traverses admissible actions on JEV ranking ties without LLM fallback or out-of-scope execution  583ms
+   ↓ does not ask for a follow-up plan merely because the session action budget was reached
+   ↓ retains sampled-out ranges and can explicitly select them for a later round
+   ↓ restores paused tasks and counters from plugin storage without changing historical engine records
+   ↓ records missing service configuration and exposes no key through HTTP
+   ↓ keeps exhausted totals until an explicit budget extension, then resumes a selected gap
+   ↓ leaves absent targets unresolved instead of inferring completion
+   ↓ audits newly revealed controls when the opening action consumes the last action budget
+   ↓ reopens the recorded entry path after an action budget boundary (selected supplement: true)
+   ↓ reopens the recorded entry path after an action budget boundary (selected supplement: false)
+   ↓ explores a nested dialog and verifies return before continuing the parent branch
+   ↓ reviews the active dialog before background controls and resumes background work after exit
+   ↓ reviews an outside exit and verifies its close result before background work
+   ↓ reviews an outside exit and verifies its noop result before background work
+   ↓ reviews an outside exit and verifies its changed result before background work
+   ↓ preserves real parent fields rather than default null/empty fields on a large page
+   ↓ never replays an unknown dispatched outcome after restart
+   ↓ retries a required interface exit after a real browser restart without resetting history or totals
+   ✓ isolates an unknown hyperlink without replaying it, including a host time limit: false  1503ms
+   ✓ isolates an unknown hyperlink without replaying it, including a host time limit: true  1377ms
+   ↓ keeps dirty unknown hyperlink outcomes blocked
+   ↓ keeps executing unknown hyperlink outcomes blocked
+   ↓ keeps unfinished unknown hyperlink outcomes blocked
+   ↓ keeps same-name ambiguous targets unresolved without selecting an arbitrary occurrence
+   × revalidates changed dispatch bindings instead of treating old success as the new case 1301ms
+     → expected [ Array(3) ] to deeply equal [ Array(3) ]
+   ↓ grounds plans in accessible action names and records current members when retaining scopes
+   ↓ retries initial planning after a provider timeout without turning the error into an execution scope
+   ↓ retains all in-scope members with a program decision when sampling is not authorized
+   ↓ retains multiple scopes atomically and retries a stale batch without marking members executed
+   ↓ keeps JEV sampling and action choices while omitting the historical ledger from their prompts
+   ↓ does not grant an operation on ambiguous external-effect evidence, even if LLM would approve
+   ↓ preserves configuration, history and total counters while starting a fresh session for old routing rules
+   ↓ finishes the exact settings flow without recovery or touching unrelated controls (named select: true)
+   ↓ finishes the exact settings flow without recovery or touching unrelated controls (named select: false)
+   ↓ restores legacy authority from the original plan, never from a page gap or derived outside target
+   ↓ defaults an omitted or blank task to program-owned exhaustive coverage without LLM (undefined)
+   ↓ defaults an omitted or blank task to program-owned exhaustive coverage without LLM ()
+   ↓ defaults an omitted or blank task to program-owned exhaustive coverage without LLM (   )
+   ↓ uses JEV alone to recognize a written exhaustive task and discovers controls absent at startup
+   ↓ generates a typed target plan when JEV cannot establish unrestricted exhaustion ({ value: 'targeted', confidence: 1 })
+   ↓ generates a typed target plan when JEV cannot establish unrestricted exhaustion ({ value: 'uncertain', confidence: 1 })
+   ↓ generates a typed target plan when JEV cannot establish unrestricted exhaustion ({ value: 'exhaustive', confidence: 0.4 })
+   ↓ generates a typed target plan when JEV cannot establish unrestricted exhaustion ({ value: 'unsupported', confidence: 0.4 })
+   ↓ understands structured exhaustive intent with quoted exclusions without letting the model enumerate the root
+   ↓ rejects ambiguous or ungrounded structured intent before executing ({ mode: 'exhaustive', boundary: 'current-page', exclusions: [], items: [] })
+   ↓ rejects ambiguous or ungrounded structured intent before executing ({ mode: 'exhaustive', boundary: 'current-page', exclusions: [ { scope: {}, instruction: '穷尽当前页面' } ] })
+   ↓ rejects ambiguous or ungrounded structured intent before executing ({ mode: 'exhaustive', boundary: 'current-page', exclusions: [ { scope: { label: 'Beta' }, instruction: 'made up exclusion' } ] })
+   ↓ rejects ambiguous or ungrounded structured intent before executing ({ mode: 'targeted', items: [] })
+   ↓ rejects ambiguous or ungrounded structured intent before executing ({ items: [] })
+   ↓ halts an unsupported JEV classification without LLM or action dispatch
+   ↓ allows clearing a goal to switch to default exhaustion and preserves cumulative usage
+   ↓ preserves a default exhaustive root and its budgets after storage restart
+   ↓ does not release an ordinary idle session when starting a new default task
+ ✓ tests/explorer-scheduling.test.ts (36 tests | 35 skipped) 1324ms
+   ✓ restores a still-visible enabled operation made physically unreachable by an earlier local action  1323ms
+ ✓ tests/explorer-source-conditions.test.ts (3 tests | 2 skipped) 766ms
+   ✓ the actual plugin schedules a new mode branch in one round and reuses verified history when mode A returns  766ms
+ ❯ tests/explorer-recovery-outcomes.test.ts (5 tests | 2 failed | 2 skipped) 1939ms
+   ↓ blocks strict checkpoint fallback before recovery when an earlier recovery result is unknown
+   ✓ resumes the original route once after explicit source verification and retains a failed retry limit  944ms
+   ↓ rediscovers a recovery crash from its source session before starting a new round without pendingDispatch
+   × retains actual position and unknown recovery debt even when the host returns REACHED_VERIFIED 498ms
+     → expected undefined to match object { status: 'invalidated', …(1) }
+   × retains actual position and unknown recovery debt even when the host returns UNVERIFIED 497ms
+     → expected undefined to match object { status: 'invalidated', …(1) }
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/explorer-plugin.test.ts > does not reuse a completed coarse field scope for a newly revealed semantic field
+AssertionError: expected [ …(3) ] to deeply equal [ StringContaining "Length", …(2) ]
+
+- Expected
++ Received
+
+  [
+    StringContaining "Length",
+-   StringContaining "Width",
+-   StringContaining "Depth",
++   "[[\"field-description\",\"Depth\"]]",
++   "[[\"field-description\",\"Width\"]]",
+  ]
+
+ ❯ tests/explorer-plugin.test.ts:74:20
+     72|   plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.…
+     73|   const bindings=attempts.filter(a=>a.action.kind==='fill').map(a=>f.h…
+     74|   expect(bindings).toEqual([expect.stringContaining('Length'),expect.s…
+       |                    ^
+     75|  }finally{await plugin.close();await f.close();}
+     76| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/explorer-plugin.test.ts > finishes available new controls before replaying an entry and returns for all 2 children
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/explorer-plugin.test.ts:144:114
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/explorer-plugin.test.ts > finishes available new controls before replaying an entry and returns for all 3 children
+AssertionError: expected [ 'Open', 'First', 'Outside', …(4) ] to deeply equal [ 'Open', 'First', 'Outside', …(4) ]
+
+- Expected
++ Received
+
+  [
+    "Open",
+    "First",
+    "Outside",
+    "Open",
+-   "Second",
+-   "Open",
+    "Third",
++   "Open",
++   "Second",
+  ]
+
+ ❯ tests/explorer-plugin.test.ts:143:43
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/explorer-plugin.test.ts > finishes available new controls before replaying an entry and returns for all 5 children
+AssertionError: expected [ 'Open', 'First', 'Outside', …(8) ] to deeply equal [ 'Open', 'First', 'Outside', …(8) ]
+
+- Expected
++ Received
+
+  [
+    "Open",
+    "First",
+    "Outside",
+    "Open",
+-   "Second",
+-   "Open",
+    "Third",
+-   "Open",
+-   "Fourth",
+    "Open",
+    "Fifth",
++   "Open",
++   "Second",
++   "Open",
++   "Fourth",
+  ]
+
+ ❯ tests/explorer-plugin.test.ts:143:43
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  tests/explorer-plugin.test.ts > revalidates changed dispatch bindings instead of treating old success as the new case
+AssertionError: expected [ Array(3) ] to deeply equal [ Array(3) ]
+
+- Expected
++ Received
+
+  [
+    [
+      "Alpha",
+    ],
+    [
+-     "Alpha",
++     "Beta",
+    ],
+    [
+-     "Beta",
++     "Alpha",
+    ],
+  ]
+
+ ❯ tests/explorer-plugin.test.ts:502:159
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  tests/explorer-recovery-outcomes.test.ts > retains actual position and unknown recovery debt even when the host returns REACHED_VERIFIED
+ FAIL  tests/explorer-recovery-outcomes.test.ts > retains actual position and unknown recovery debt even when the host returns UNVERIFIED
+AssertionError: expected undefined to match object { status: 'invalidated', …(1) }
+
+- Expected: 
+{
+  "reason": "unknown_action_outcome",
+  "status": "invalidated",
+}
+
++ Received: 
+undefined
+
+ ❯ tests/explorer-recovery-outcomes.test.ts:117:33
+    115|   expect(f.host.observation(f.leave.sessionId).url).toBe(f.url);expect…
+    116|   expect(f.round.entryPath).toEqual([]);expect(f.round.stack).toEqual(…
+    117|   expect(frame.recoveryFailure).toMatchObject({status:'invalidated',re…
+       |                                 ^
+    118|   expect(f.task.unverifiedRecoveries?.[0].attemptIds).toEqual([unknown…
+    119|   const events=f.plugin.store.events(f.task.id);expect(events.find(e=>…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+
+ Test Files  2 failed | 2 passed (4)
+      Tests  7 failed | 8 passed | 124 skipped (139)
+   Start at  23:57:19
+   Duration  22.39s (transform 614ms, setup 0ms, collect 2.04s, tests 19.80s, environment 0ms, prepare 132ms)
+
+JSON report written to /tmp/bie-stability-scheduler-evidence/scheduler-regressions-second.json
