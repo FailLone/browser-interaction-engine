@@ -614,7 +614,10 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     this.externalRecoveryVerifier = options.hooks?.verifyExternalRecovery;
     this.interventions = new Interventions(this); this.interventions.recover();
     this.events.on('event', event => {
-      if (/^(exploration\.(paused|finished|group_decided|group_invalidated|decision_reuse_revoked|decision_invalidated)|session\.(paused|reattached)|checkpoint\.result|control\.(review_revoked|classification_revoked)|region\.reuse_revoked|action\.(completed|unknown))$/.test(event.type)) this.interventions.sync(event.sessionId);
+      // Manual, batch and capture-hook decisions already synchronize through
+      // afterExplorationDecisions. Replaying their per-group audit events must
+      // not rebuild the complete intervention material for every member.
+      if (/^(exploration\.(paused|finished|group_invalidated|decision_reuse_revoked|decision_invalidated)|session\.(paused|reattached)|checkpoint\.result|control\.(review_revoked|classification_revoked)|region\.reuse_revoked|action\.(completed|unknown))$/.test(event.type)) this.interventions.sync(event.sessionId);
     });
   }
   override async diffDetails(sessionId: string, beforeId: string, afterId: string, region?: string) { return explainBrowserDiff(await super.diffDetails(sessionId, beforeId, afterId, region), this.store.evidence); }

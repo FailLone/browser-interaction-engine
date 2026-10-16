@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { BrowserEngine, type EngineHooks, type InterventionResponseInput, type ActionAttempt, type ExplorationGroup, type FrontierItem, type ReachResult } from '@interaction/browser';
 import { MemoryStore } from '@interaction/storage-memory';
 import { InteractionClient } from '@interaction/client';
@@ -26,6 +26,25 @@ function response(t: Fixture, mode: 'all' | 'defer' | 'skip' = 'defer'): Interve
   const item = t.engine.interventionMaterial(t.sid).items.find(i => i.subject.groupId === g.id)!;
   return { requestId: crypto.randomUUID(), interventionId: item.id, conditionKey: item.conditionKey, command: { type: 'decideExplorationGroup', groupId: g.id, revision: g.revision, decision: { ...reason, mode } } };
 }
+
+it('refreshes intervention work once for a batch while retaining every group decision event and constraint', async () => {
+  const t = await fixture({ explorationScopes: actions => Array.from({length:12},(_,i)=>({key:`group-${i}`,kind:'custom',label:`Group ${i}`,conditions:{group:i},actionIds:actions.map(a=>a.id),traversalActionIds:[],evidence:[{source:'test',rule:'overlapping-scopes/v1',facts:{group:i}}]})) });
+  try {
+    await partition(t);
+    const groups=t.engine.explorationReviewMaterial(t.sid).groups.filter(g=>g.kind==='custom');expect(groups).toHaveLength(12);
+    const before=t.engine.store.events(t.sid).at(-1)!.sequence,reads=vi.spyOn(t.engine,'getFrontier');
+    await t.engine.decideExplorationGroups(t.sid,groups.map((g,i)=>({groupId:g.id,revision:g.revision,decision:{...reason,mode:i===groups.length-1?'defer':'all'}})));
+    await new Promise<void>(resolve=>setImmediate(resolve));
+    const readCount=reads.mock.calls.length;reads.mockRestore();
+    const events=t.engine.store.events(t.sid,before),material=t.engine.interventionMaterial(t.sid);
+    expect(events.filter(e=>e.type==='exploration.group_decided')).toHaveLength(12);
+    expect(events.filter(e=>e.type==='exploration.groups_decided')).toHaveLength(1);
+    expect(events.filter(e=>e.type==='interventions.updated')).toHaveLength(1);
+    expect(material.items.find(i=>i.subject.groupId===groups.at(-1)!.id)?.status).toBe('deferred');
+    expect(t.engine.session(t.sid).actionCount).toBe(0);
+    expect(readCount).toBe(1);
+  } finally { await t.close(); }
+});
 
 it('organizes current causes and dependencies without mutating records or granting permission', async () => {
   const t = await fixture(); try {
