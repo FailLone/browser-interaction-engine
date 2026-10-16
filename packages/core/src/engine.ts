@@ -114,38 +114,79 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   list<T>(sessionId: string, kind: string): T[] { this.session(sessionId); return kind === 'frontier' ? this.getFrontier(sessionId) as T[] : this.store.list<T>(kind, sessionId); }
   /** Compare retained successful evidence; never writes identity, attempts or coverage. */
   operationCorrespondence(sessionId: string, input: {observationId: string; actionId: string; source: {sessionId: string; attemptId: string}}): OperationCorrespondence {
+    return this.correspondenceReader()(sessionId,input);
+  }
+  /** One synchronous evidence batch. All memoization ends when this call returns. */
+  operationCorrespondences(sessionId:string,input:{observationId:string;requests:{actionId:string;source:{sessionId:string;attemptId:string}}[]}) {
+    const read=this.correspondenceReader();
+    return {sessionId,observationId:input.observationId,results:input.requests.map(request=>read(sessionId,{...request,observationId:input.observationId}))};
+  }
+  private correspondenceReader() {
+    type Control=O['controls'][number];
+    const records=new Map<string,{value?:unknown;error?:unknown}>();
+    const memo=<T>(key:string,load:()=>T):T=>{
+      if(!records.has(key)){try{records.set(key,{value:load()});}catch(error){records.set(key,{error});}}
+      const result=records.get(key)!;if('error' in result)throw result.error;return result.value as T;
+    };
+    const owned=<T extends {sessionId:string}>(kind:string,id:string,sid:string)=>{
+      const entity=memo<T>(canonical([kind,id]),()=>this.store.require<T>(kind,id));
+      if(entity.sessionId!==sid)throw new EngineError('NOT_FOUND',`${kind} does not belong to session`);return entity;
+    };
+    const observation=(sid:string,id:string)=>owned<O>('observation',id,sid);
+    const sessions=new Map<string,Session<S>>();
+    const session=(sid:string)=>{if(!sessions.has(sid))sessions.set(sid,this.session(sid));return sessions.get(sid)!;};
+    const resolvers=new Map<string,ReturnType<typeof identityResolver>>();
+    const resolveIdentity=(sid:string)=>{if(!resolvers.has(sid))resolvers.set(sid,identityResolver(this.store.list<IdentityHypothesis>('hypothesis',sid)));return resolvers.get(sid)!;};
+    const hints=new Map<Control,ReturnType<NonNullable<typeof this.adapter.controlCorrespondence>>>(),signatures=new Map<Control,string>();
+    const getHint=(control:Control)=>{if(!hints.has(control))hints.set(control,this.adapter.controlCorrespondence?.(control));return hints.get(control);};
+    const getSignature=(control:Control)=>{if(!signatures.has(control))signatures.set(control,this.adapter.signature(control));return signatures.get(control)!;};
+    const counts=new Map<O,Map<string,Map<string,number>>>();
+    const count=(o:O,kind:string,key:(c:Control)=>string|undefined,value:string)=>{
+      let byKind=counts.get(o);if(!byKind){byKind=new Map();counts.set(o,byKind);}
+      let index=byKind.get(kind);if(!index){index=new Map();for(const c of o.controls){const k=key(c);if(k!==undefined)index.set(k,(index.get(k)||0)+1);}byKind.set(kind,index);}
+      return index.get(value)||0;
+    };
+    // Action objects, not IDs: distinct source attempts may contain different values
+    // for the same candidate. Neither samples nor failed proofs survive this call.
+    const samples=new Map<ActionCandidate,Map<O,ReturnType<typeof operationSample>>>();
+    const sample=(action:ActionCandidate,o:O)=>{
+      let byObservation=samples.get(action);if(!byObservation){byObservation=new Map();samples.set(action,byObservation);}
+      if(!byObservation.has(o))byObservation.set(o,operationSample(action,o,(a,observed)=>this.adapter.correspondenceCase?.(a,observed as O,session(observed.sessionId))));
+      return byObservation.get(o);
+    };
+    return (sessionId:string,input:{observationId:string;actionId:string;source:{sessionId:string;attemptId:string}}):OperationCorrespondence=>{
     const result: OperationCorrespondence={equivalent:false,reason:'evidence_unavailable',source:{...input.source},target:{sessionId,observationId:input.observationId,actionId:input.actionId},evidence:[],invalidatedBy:['observation-or-review-change','nonunique-correspondence','changed-operation-conditions','changed-declared-context'],identityAuthorized:false,replayAuthorized:false,currentExecution:false};
     try {
-      const current=this.observation(sessionId,input.observationId),action=this.owned<ActionCandidate>('action',input.actionId,sessionId),attempt=this.owned<ActionAttempt>('attempt',input.source.attemptId,input.source.sessionId);
+      const current=observation(sessionId,input.observationId),action=owned<ActionCandidate>('action',input.actionId,sessionId),attempt=owned<ActionAttempt>('attempt',input.source.attemptId,input.source.sessionId);
       result.source.beforeId=attempt.beforeId;result.source.afterId=attempt.afterId;
       if(attempt.status!=='succeeded'||!attempt.afterId){result.reason='source_not_verified';return result;}
-      const before=this.observation(attempt.sessionId,attempt.beforeId),after=this.observation(attempt.sessionId,attempt.afterId);
+      const before=observation(attempt.sessionId,attempt.beforeId),after=observation(attempt.sessionId,attempt.afterId);
       if(after.gaps.some(g=>g.critical)){result.reason='source_result_incomplete';return result;}
       const old=before.controls.find(c=>c.localId===attempt.action.localId),target=current.controls.find(c=>c.localId===action.localId);
       if(!old||!target){result.reason='target_correspondence_missing';return result;}
-      const hint=this.adapter.controlCorrespondence?.(target),prior=this.adapter.controlCorrespondence?.(old);
+      const hint=getHint(target),prior=getHint(old);
       let evidence:string[];
       if(hint&&prior&&hint.key===prior.key){
-        if([before,current].some(o=>o.controls.filter(c=>this.adapter.controlCorrespondence?.(c)?.key===hint.key).length!==1)){result.reason='target_correspondence_ambiguous';return result;}
+        if([before,current].some(o=>count(o,'hint',c=>getHint(c)?.key,hint.key)!==1)){result.reason='target_correspondence_ambiguous';return result;}
         evidence=hint.evidence;
       }else if(before.sessionId===current.sessionId){
-        const resolve=identityResolver(this.store.list<IdentityHypothesis>('hypothesis',sessionId)),identity=resolve(old);
-        const sameInstance=before.instanceScope===current.instanceScope&&old.instanceId===target.instanceId&&[before,current].every(o=>o.controls.filter(c=>c.instanceId===old.instanceId).length===1);
-        const sameIdentity=identity&&identity===resolve(target)&&[before,current].every(o=>o.controls.filter(c=>resolve(c)===identity).length===1);
+        const resolve=resolveIdentity(sessionId),identity=resolve(old);
+        const sameInstance=before.instanceScope===current.instanceScope&&old.instanceId===target.instanceId&&[before,current].every(o=>count(o,'instance',c=>c.instanceId,old.instanceId)===1);
+        const sameIdentity=identity&&identity===resolve(target)&&[before,current].every(o=>count(o,'identity',resolve,identity)===1);
         if(!sameInstance&&!sameIdentity){result.reason='target_correspondence_missing';return result;}
         evidence=[sameInstance?'current-instance-continuity':'resolved-identity-projection'];
       }else if(!hint&&!prior&&!old.identityScope&&!target.identityScope&&old.name&&target.name){
         // Reuse the adapter signature and local identity judgments. Uniqueness
         // is checked in both complete observations; this still grants no identity.
-        const signature=this.adapter.signature(old),oldIdentity=identityResolver(this.store.list<IdentityHypothesis>('hypothesis',before.sessionId))(old),newIdentity=identityResolver(this.store.list<IdentityHypothesis>('hypothesis',current.sessionId))(target);
-        if(!oldIdentity||!newIdentity||signature!==this.adapter.signature(target)||[before,current].some(o=>o.controls.filter(c=>this.adapter.signature(c)===signature).length!==1)){result.reason='target_correspondence_missing';return result;}
+        const signature=getSignature(old),oldIdentity=resolveIdentity(before.sessionId)(old),newIdentity=resolveIdentity(current.sessionId)(target);
+        if(!oldIdentity||!newIdentity||signature!==getSignature(target)||[before,current].some(o=>count(o,'signature',getSignature,signature)!==1)){result.reason='target_correspondence_missing';return result;}
         evidence=['unique-adapter-semantic-signature','independently-resolved-session-identities'];
       }else {result.reason='target_correspondence_missing';return result;}
-      const sample=(a:ActionCandidate,o:O)=>this.adapter.correspondenceCase?.(a,o,this.session(o.sessionId));
-      const a=operationSample(attempt.action,before,sample),b=operationSample(action,current,sample);
+      const a=sample(attempt.action,before),b=sample(action,current);
       if(!a||!b||a.key!==b.key){result.reason='operation_conditions_changed';return result;}
       result.equivalent=true;result.reason='equivalent_operation_sample';result.policy=b.policy;result.evidence=[...evidence,...b.evidence,`attempt:${attempt.id}`,`observation:${before.id}`,`observation:${after.id}`,`observation:${current.id}`];return result;
     } catch { return result; }
+    };
   }
   private executionBlockers(original:ActionCandidate,o:O,purpose:ActionAttempt['purpose'],value?:ActionCandidate['value'],guard?:ExecutionGuard,material?:{frontier:FrontierItem[];groups:ExplorationGroup[]}):ExecutionBlocker[] {
     const blockers:ExecutionBlocker[]=[],add=(code:string,reason:string,evidence:string[]=[])=>blockers.push({code,reason,evidence});

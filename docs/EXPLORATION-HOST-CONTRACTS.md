@@ -1,6 +1,6 @@
 # 探索宿主契约与插件职责
 
-探索插件保持可选，core/SDK 不引用插件或模型提供商。职责重构期间暂停了真实网站穷尽任务；本次公共契约验证使用真实本地浏览器页面和显式注入的模拟提供商，不代表真实网站已经穷尽。后续真实任务恢复记录见[OKX 效率实测](experiments/autonomous-okx-performance-2026-10-16/README.md)。
+探索插件保持可选，core/SDK 不引用插件或模型提供商。真实网站穷尽任务已通过公开暂停接口停下，保留累计 13 轮、136 次动作、2785 次模型请求及原预算；本次职责审查不恢复该任务。公共契约验证使用真实本地浏览器页面和显式注入的模拟提供商，不代表真实网站已经穷尽。此前真实任务运行记录见[OKX 效率实测](experiments/autonomous-okx-performance-2026-10-16/README.md)。
 
 | 层 | 负责 | 不负责 |
 | --- | --- | --- |
@@ -13,6 +13,10 @@
 `browserControlCorrespondence(control)` 返回不透明匹配提示、来源依据和失效条件。旧任务中 `explorer:record:v1`、`explorer:context:v1` 及已有稳定键的编码保持兼容；这些前缀是历史数据协议，不代表 SDK 依赖插件。`browserOperationKey` 同样保留历史重试账本的编码。
 
 `engine.operationCorrespondence(sessionId, {observationId, actionId, source: {sessionId, attemptId}})` 读取原始成功尝试及前后观察，核对唯一对应、声明上下文、操作种类与样本、目标属性、语义绑定、表单及选项。它复用 `coverage-reconciliation` 的样本有效性规则与适配器已有的 `controlCase` 条件投影。缺少证据、结果未知、非唯一对应或条件变化均返回具体拒绝原因。
+
+批量接口 `engine.operationCorrespondences(sessionId, {observationId, requests: [{actionId, source}]})` 返回 `{sessionId, observationId, results}`，结果顺序与请求一致。它与单项接口共用同一实现；缺失或错误归属的证据只影响对应项。一次同步调用共享观察、会话、身份投影、唯一性索引及样本，返回后全部释放。样本按动作对象区分，避免同一候选 ID 在不同尝试中携带不同输入值时被误合并。
+
+插件的 `completedOperations` 只选择符合任务范围的历史成功证明，去重后交给批量接口；不再逐候选、逐计划行重复解释对应关系。它只为当前同步筛选提供历史调度参考，不修改任务成功、身份、派发许可或引擎覆盖计数。模型等待或检查点等待后重新读取；审阅、观察、历史证据或任务完成账本变化后也重新构建。恢复检查仍核对每个保留来源中的成员，消失的控件不会因此变成成功。旧任务数据无需迁移；新版插件启动时会检查宿主是否提供批量接口。
 
 没有稳定提示时，同会话可复用当前实例连续性或已有 `identityResolver` 投影；跨会话仅在两端身份各自已确认、适配器语义签名相同且各自唯一时提供参考。对应策略核对目标所属区域，活动弹层及退出次数由当前执行约束和弹层生命周期另行核对。引擎原有 `reconcileCoverage` 仍保留更严格的会话内覆盖条件，跨会话参考不写入它的成功计数。
 
@@ -117,3 +121,22 @@ if (allowed?.executable) {
 开发服务部署后通过公开接口读取原任务：13 轮、116 次动作、2729 次模型请求、24,058,437 ms 及预算完全保留；部署检查时任务仍暂停，未产生新模型或浏览器动作。旧未知导航仍是 `unknown`，画布仍是用户接受的未测例外。实测闲置增量响应 140 字节，五个任务的摘要 3092 字节。首次打开历史以及运行中变化的完整任务仍有读取开销，有界模型并发尚未实现。
 
 本轮最终日志：`.data/boundary-review-host-final.log`、`.data/boundary-review-contract-plugin-final.log` 中公共契约部分，以及修复后重跑的 `.data/boundary-review-runtime-final.log`、`.data/boundary-review-semantic-scheduling-final.log`、`.data/explorer-sync-final-tests.log`；编译验收为 `.data/boundary-review-smoke-{disabled,enabled}.log`。重启兼容检查为 `.data/boundary-review-postdeploy.json`，本地浏览器报告及截图位于 `.data/explorer-smoke-1792125197579/`。
+
+### 批量对应优化验收
+
+最新一轮共验证 **438 项不同用例**，包括新增批量公共契约 13 项、插件历史证明选择 2 项及已有身份判断 17 项。最终复用范围匹配器、共享探测前审计材料后，相关审计、范围、未知结果和探测场景另定向重跑 70 项，全部通过。类型检查、完整构建及插件开关两种编译验收均通过。开启插件的本地 Alpha/Beta 目标实际执行 2 次，模拟 JEV 6 次、模拟 LLM 1 次，目标内未完成为 0，`exhaustive` 仍为 `false`。调试页面回归继续区分模型输入输出、采用影响、分类证明、实际执行和未测。
+
+针对保留的真实 OKX 观察做只读对比：2058 条计划记录、212 个动作，原逐项判断与批量判断都得到相同的 23 个历史对应样本；这不是新增的 23 次操作，也不代表本轮执行成功。
+
+| 单次同步筛选 | 原逐项读取 | 批量读取 |
+| --- | ---: | ---: |
+| 总耗时 | 2.761 秒 | 0.982 秒 |
+| 记录读取次数 | 272 | 107 |
+| JSON 解析量 | 500.7 MB | 177.1 MB |
+| 对应提示计算次数 | 20,512 | 8,622 |
+
+这是同一保留观察上的本地单次测量，未调用模型或浏览器。完整历史审计和初次加载大任务仍有成本，没有引入跨请求缓存。真实页面原有未知导航、未审阅义务及画布能力缺口仍保留，重复进入搜索或 FAQ 不计为新增覆盖；本次不继续真实穷尽。
+
+最新验证日志：`.data/boundary-batch-{contract-tests,runtime-tests,host-tests,audit-final-tests,typecheck,build,smoke-disabled,smoke-enabled}.log`、`.data/correspondence-batch-final-tests.log`；此前完整顺序测试见 `.data/boundary-batch-plugin-tests.log`（其中新增测试最初的夹具写入错误已在 `contract-tests` 修正重跑）。只读基准为 `.data/review-correspondence-batch-bench.json`；编译产物报告及截图为 `.data/explorer-smoke-1792126529189/`。
+
+开发服务已加载新版代码，旧任务读取正常，仍暂停且无待派发命令；累计时间 24,647,738 ms、13 轮、136 次动作、2785 次模型请求和全部预算与暂停时完全一致。原未知尝试仍为 `unknown`，已接受的画布仍为 `untested`。重启核对证据为 `.data/boundary-batch-restart-verification.json`。
