@@ -8,6 +8,7 @@ import { z } from 'zod';
 import type { ActionCandidate, ActionAttempt, Observation, EngineEvent, BoundaryExitResult, ContinuationRecord, IdentityHypothesis } from '@interaction/browser';
 import { ExplorerError, type Task, type Round, type Frame, type PlanItem, type Scope, type ExplorerHost, type Providers, type Decision, type ModelRequest } from './types.js';
 import { ExplorerStore } from './store.js';
+import { TaskWriter } from './task-writer.js';
 import { DecisionRouter } from './router.js';
 import { createTaskSchema, budgetSchema, planSchema, initialTaskSchema, plannedScopeSchema, limitationAcceptanceSchema, jsonSchema } from './schema.js';
 import { digest, includesScope, keyFor, matches, permitted, unexecutedAction, scopeFor, scopeForControl, navigationTarget, controlInScope, controlScopeMatcher, broadScope, decisionScope, decisionPlan, migrateOperationConditions, operationConditionPolicy } from './policy.js';
@@ -30,16 +31,18 @@ export class ExplorerPlugin {
   readonly router:DecisionRouter;
   private active?: {task:Task;controller:AbortController;promise:Promise<void>};
   private closed=false;
+  private writers=new WeakMap<Task,TaskWriter>();
   private onEvent=(event:EngineEvent)=>{
-    const active=this.active?.task;const task=active?.rounds.some(r=>r.sessionId===event.sessionId)?active:this.store.tasks().find(t=>t.rounds.some(r=>r.sessionId===event.sessionId));const round=task?.rounds.find(r=>r.sessionId===event.sessionId);if(!task||!round)return;
-    if(task===active)this.syncUsage(task);
+    const active=this.active?.task,owned=active?.rounds.some(r=>r.sessionId===event.sessionId);
+    const taskId=owned?active!.id:this.store.taskIdForSession(event.sessionId);if(!taskId)return;
+    if(owned)this.syncUsage(active!);
     // Keep original cursor, but never duplicate large observations or binary artifacts into this log.
     const data=event.data as {id?:string;observationId?:string;beforeId?:string;afterId?:string;status?:string;action?:{label?:string;kind?:string};reason?:string};
-    this.store.event({taskId:task.id,actor:'engine',type:event.type,sessionId:event.sessionId,observationId:data?.afterId||data?.observationId||(event.type==='observation.created'?data?.id:undefined),attemptId:event.type.startsWith('action.')?data?.id:undefined,
+    this.store.event({taskId,actor:'engine',type:event.type,sessionId:event.sessionId,observationId:data?.afterId||data?.observationId||(event.type==='observation.created'?data?.id:undefined),attemptId:event.type.startsWith('action.')?data?.id:undefined,
       data:{engineSequence:event.sequence,at:event.at,status:data?.status,label:data?.action?.label,kind:data?.action?.kind,reason:data?.reason}});
   };
   constructor(readonly host:ExplorerHost,readonly store:ExplorerStore,providers:Providers={}) {
-    this.router=new DecisionRouter(store,providers,t=>{this.checkBudget(t);if(t.usage.modelRequests>=t.budget.modelRequests)throw new ExplorerError('BUDGET_EXHAUSTED');t.usage.modelRequests++;this.store.save(t);});
+    this.router=new DecisionRouter(store,providers,t=>{this.checkBudget(t);if(t.usage.modelRequests>=t.budget.modelRequests)throw new ExplorerError('BUDGET_EXHAUSTED');t.usage.modelRequests++;this.persist(t);});
     host.events.on('event',this.onEvent);
   }
   capabilities(){return {missing:requiredCapabilities.filter(key=>typeof this.host[key]!=='function'),boundaryExit:typeof (this.host as unknown as Record<string,unknown>).boundaryExitMaterial==='function'};}
@@ -48,32 +51,33 @@ export class ExplorerPlugin {
   view(id:string){const task=this.store.task(id);return {task,decisions:this.store.decisions(id),events:this.store.events(id)};}
   create(input:unknown) {
     const x=createTaskSchema.parse(input);if(!x.goal&&x.coverageMode!=='all')throw new ExplorerError('EXHAUSTIVE_REQUIRES_ALL');const task:Task={id:randomUUID(),goal:x.goal,url:x.url,coverageMode:x.coverageMode,evidenceBudget:x.evidenceBudget,createdAt:now(),updatedAt:now(),revision:0,status:'idle',budget:x.budget,usage:{rounds:0,actions:0,durationMs:0,modelRequests:0},sessionOptions:x.sessionOptions,plan:[],rounds:[],sampleExcluded:[],exhaustive:false};
-    this.store.save(task);this.event(task,'task.created',{goal:task.goal});return task;
+    this.persist(task);this.event(task,'task.created',{goal:task.goal});return task;
   }
   owner(sessionId?:string){const a=this.active;return a&&(!sessionId||a.task.rounds.some(r=>r.sessionId===sessionId))?a.task.id:undefined;}
   start(id:string) {
     if(this.closed)throw new ExplorerError('PLUGIN_CLOSED');if(this.active)throw new ExplorerError('ENGINE_OWNED');
-    const task=this.store.task(id);if(task.status==='completed')throw new ExplorerError('PLAN_ALREADY_COMPLETE');
+    if(this.store.taskHeader(id).header.status==='completed')throw new ExplorerError('PLAN_ALREADY_COMPLETE');
+    const state=this.store.taskState(id),task=state.task;if(task.status==='completed')throw new ExplorerError('PLAN_ALREADY_COMPLETE');this.writers.set(task,new TaskWriter(this.store,state));
     this.restoreDispatchScopes(task);
-    const missing=this.capabilities().missing;if(missing.length){task.status='blocked';task.reason=`missing_capability:${missing.join(',')}`;this.store.save(task);return task;}
+    const missing=this.capabilities().missing;if(missing.length){task.status='blocked';task.reason=`missing_capability:${missing.join(',')}`;this.persist(task);return task;}
     if(this.host.sessions().some(s=>s.status==='running'))throw new ExplorerError('ENGINE_BUSY');
     this.syncUsage(task);this.checkBudget(task);
     task.revision++;task.status='running';delete task.reason;task.activeSince=Date.now();
-    this.store.save(task);const controller=new AbortController();
+    this.persist(task);const controller=new AbortController();
     const active={task,controller,promise:Promise.resolve()};this.active=active;
-    active.promise=this.run(task,controller.signal).finally(()=>{if(this.active===active)this.active=undefined;});
-    return this.store.task(id);
+    active.promise=this.run(task,controller.signal).finally(()=>{if(this.active===active)this.active=undefined;this.writers.delete(task);});
+    return structuredClone(task);
   }
   async pause(id:string,stop=false) {
     const active=this.active?.task.id===id?this.active:undefined;
-    if(active){active.task.status=stop?'stopped':'paused';active.task.revision++;active.controller.abort();this.store.save(active.task);await active.promise;}
-    const task=this.store.task(id);task.status=stop?'stopped':'paused';task.reason=stop?'user_stopped':'user_paused';
+    if(active){active.task.status=stop?'stopped':'paused';active.task.revision++;active.controller.abort();this.persist(active.task);await active.promise;}
+    const state=this.store.taskState(id),task=state.task;task.status=stop?'stopped':'paused';task.reason=stop?'user_stopped':'user_paused';
     const round=task.rounds.at(-1);if(round){if(stop)await this.host.stop(round.sessionId);else await this.host.pause(round.sessionId);round.status=stop?'finished':'paused';if(stop)round.endedAt=now();}
-    this.store.save(task);this.event(task,stop?'task.stopped':'task.paused',{});return task;
+    this.persist(task,state.version);this.event(task,stop?'task.stopped':'task.paused',{});return task;
   }
   async takeover(sessionId:string){const owner=this.owner(sessionId);if(owner)await this.pause(owner);}
   revise(id:string,input:{goal?:string;items?:unknown[];itemIds?:string[];coverageMode?:'all'|'representative'},supplement=false) {
-    if(this.owner()===id)throw new ExplorerError('PAUSE_REQUIRED');const task=this.store.task(id);const previous={revision:task.revision,goal:task.goal,coverageMode:task.coverageMode,intent:structuredClone(task.intent),plan:structuredClone(task.plan)};
+    if(this.owner()===id)throw new ExplorerError('PAUSE_REQUIRED');const state=this.store.taskState(id),task=state.task;const previous={revision:task.revision,goal:task.goal,coverageMode:task.coverageMode,intent:structuredClone(task.intent),plan:structuredClone(task.plan)};
     if(supplement&&input.itemIds?.some(id=>task.plan.some(item=>item.id===id&&(isSuperseded(item)||item.conditionMigration?.status==='split'))))throw new ExplorerError('SUPERSEDED_SCOPE_SELECT_CHILDREN');
     if(input.coverageMode)task.coverageMode=z.enum(['all','representative']).parse(input.coverageMode);
     if(supplement)task.coverageMode='all'; // Explicitly selected gaps must not be sampled out again.
@@ -87,17 +91,17 @@ export class ExplorerPlugin {
     // source allocation. plan.revised preserves both the previous and new plan.
     if(supplement){const children=new Map(task.plan.map(item=>[item.id,item]));for(const parent of task.plan)for(const link of parent.conditionMigration?.children||[]){const child=children.get(link.itemId);if(child){link.required=child.required;link.dispatchScope=child.dispatchScope===true;}}}
     const round=task.rounds.at(-1);if(round){round.status='finished';round.endedAt=now();}
-    delete task.obligations;if(task.scheduling){delete task.scheduling.selection;delete task.scheduling.cursor;task.scheduling.localSelections=0;}task.revision++;task.status='idle';task.reason='plan_revised';this.store.save(task);this.event(task,'plan.revised',{supplement,itemIds:input.itemIds,previous,plan:task.plan});return task;
+    delete task.obligations;if(task.scheduling){delete task.scheduling.selection;delete task.scheduling.cursor;task.scheduling.localSelections=0;}task.revision++;task.status='idle';task.reason='plan_revised';this.persist(task,state.version);this.event(task,'plan.revised',{supplement,itemIds:input.itemIds,previous,plan:task.plan});return task;
   }
   extendBudget(id:string,input:unknown) {
     if(this.owner()===id)throw new ExplorerError('PAUSE_REQUIRED');
-    const task=this.store.task(id),add=budgetSchema.parse(input),before={...task.budget};
+    const state=this.store.taskState(id),task=state.task,add=budgetSchema.parse(input),before={...task.budget};
     task.budget=budgetSchema.parse(Object.fromEntries(Object.entries(add).map(([key,value])=>[key,task.budget[key as keyof typeof add]+value])));
-    if(task.status==='budget_exhausted')task.status='paused';task.revision++;this.store.save(task);this.event(task,'budget.extended',{before,after:task.budget,usage:task.usage});return task;
+    if(task.status==='budget_exhausted')task.status='paused';task.revision++;this.persist(task,state.version);this.event(task,'budget.extended',{before,after:task.budget,usage:task.usage});return task;
   }
   acceptLimitations(id:string,input:unknown) {
     if(this.owner()===id)throw new ExplorerError('PAUSE_REQUIRED');
-    const task=this.store.task(id),accepted=limitationAcceptanceSchema.parse(input),codes=[...new Set(accepted.codes)];
+    const state=this.store.taskState(id),task=state.task,accepted=limitationAcceptanceSchema.parse(input),codes=[...new Set(accepted.codes)];
     if(task.pendingDispatch)throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
     const items=task.plan.filter(i=>codes.some(code=>i.reason===`missing_capability:${code}`));
     // A task-local acceptance can only describe retained, noncritical host
@@ -109,12 +113,18 @@ export class ExplorerPlugin {
     }
     const at=now();task.acceptedLimitations=[...(task.acceptedLimitations||[]).filter(x=>!codes.includes(x.code)),...codes.map(code=>({code,reason:accepted.reason,at}))];
     for(const item of items){item.required=false;item.status='untested';}
-    task.revision++;this.store.save(task);this.event(task,'scope.limitation_accepted',{codes,reason:accepted.reason,itemIds:items.map(i=>i.id),executionCoverage:false,unknownOutcomesUnchanged:true});return task;
+    task.revision++;this.persist(task,state.version);this.event(task,'scope.limitation_accepted',{codes,reason:accepted.reason,itemIds:items.map(i=>i.id),executionCoverage:false,unknownOutcomesUnchanged:true});return task;
   }
   async waitForIdle(id?:string){if(!id||this.active?.task.id===id)await this.active?.promise;}
   async close(){if(this.closed)return;this.closed=true;if(this.active)await this.pause(this.active.task.id);this.host.events.off('event',this.onEvent);this.store.close();}
+  private persist(task:Task,expectedVersion?:string) {const writer=this.writers.get(task);if(writer)writer.flush();else this.store.save(task,expectedVersion);}
+  private changedPlan(task:Task,item:PlanItem) {this.writers.get(task)?.planChanged(item);}
+  private changedRound(task:Task,round:Round) {this.writers.get(task)?.roundChanged(round);}
+  private appendPlan(task:Task,item:PlanItem) {const writer=this.writers.get(task);if(writer)writer.appendPlan(item);else task.plan.push(item);}
+  private appendRound(task:Task,round:Round) {const writer=this.writers.get(task);if(writer)writer.appendRound(round);else task.rounds.push(round);}
+  private rewriteTask(task:Task) {this.writers.get(task)?.prepareRewrite();}
   private event(task:Task,type:string,data:unknown){const round=task.rounds.at(-1);let observationId:string|undefined;try{if(round)observationId=this.host.observation(round.sessionId).id;}catch{}return this.store.event({taskId:task.id,type,actor:'program',sessionId:round?.sessionId,observationId,data});}
-  private syncUsage(task:Task) {for(const r of task.rounds){try{const actions=this.host.session(r.sessionId).actionCount;task.usage.actions+=Math.max(0,actions-r.actions);r.actions=actions;}catch{/* Missing historical host data remains a recorded gap. */}}}
+  private syncUsage(task:Task) {for(const r of task.rounds){let actions:number;try{actions=this.host.session(r.sessionId).actionCount;}catch{continue;/* Missing historical host data remains a recorded gap. */}task.usage.actions+=Math.max(0,actions-r.actions);if(r.actions!==actions){this.changedRound(task,r);r.actions=actions;}}}
   private sessionTimeExhausted(round:Round) {const s=this.host.session(round.sessionId);return s.elapsedMs>=s.options.maxDurationMs;}
   private elapsed(task:Task){return task.usage.durationMs+(task.activeSince?Date.now()-task.activeSince:0);}
   private checkBudget(task:Task){this.syncUsage(task);if(task.usage.actions>=task.budget.actions||this.elapsed(task)>=task.budget.durationMs)throw new ExplorerError('BUDGET_EXHAUSTED');}
@@ -127,20 +137,21 @@ export class ExplorerPlugin {
     for(;;){const events=this.store.events(task.id,cursor,1000);if(!events.length)break;for(const e of events){const data=e.data as {kind?:string;details?:{items?:PlanItem[]};plan?:PlanItem[]};if(e.type==='plan.revised'||e.type==='plan.initialized')snapshot=data.plan;else if(e.type==='decision.effect'&&data.kind==='plan')snapshot=data.details?.items;}cursor=events.at(-1)!.sequence;}
     if(!snapshot)throw new ExplorerError('PLAN_REVIEW_REQUIRED');
     const approved=new Set(snapshot.filter(i=>i.required&&i.dispatchScope!==false).map(i=>i.id));
-    for(const item of task.plan)if(item.dispatchScope===undefined)item.dispatchScope=approved.has(item.id);
-    this.store.save(task);this.event(task,'plan.authority_restored',{approvedItemIds:[...approved],recordOnly:task.plan.filter(i=>!i.dispatchScope).map(i=>i.id)});
+    for(const item of task.plan)if(item.dispatchScope===undefined){this.changedPlan(task,item);item.dispatchScope=approved.has(item.id);}
+    this.persist(task);this.event(task,'plan.authority_restored',{approvedItemIds:[...approved],recordOnly:task.plan.filter(i=>!i.dispatchScope).map(i=>i.id)});
   }
   private gap(task:Task,reason:string,scope:Scope,required=true,prerequisites:Scope[]=[],persist=true,source?:Pick<Observation,'sessionId'|'id'>,operationConditionKey?:string) {
     if(required && task.plan.length && !task.plan.some(i=>i.required&&i.dispatchScope===true&&Object.entries(i.scope).every(([k,v])=>scope[k as keyof Scope]===undefined||scope[k as keyof Scope]===v)))required=false;
     const key=JSON.stringify({reason,scope,operationConditionKey});let item=task.plan.find(i=>JSON.stringify({reason:i.reason,scope:i.scope,operationConditionKey:i.operationConditionKey})===key);
-    if(!item){item={id:randomUUID(),title:reason,scope,...(operationConditionKey?{operationConditionKey,operationConditionPolicy}:{}),prerequisites:[...prerequisites],completion:'Obtain fresh evidence and verify the requested operation',status:required?'unresolved':reason==='scope_excluded'?'excluded':'untested',required,dispatchScope:false,reason,evidence:[],attempts:[]};task.plan.push(item);}
+    if(!item){item={id:randomUUID(),title:reason,scope,...(operationConditionKey?{operationConditionKey,operationConditionPolicy}:{}),prerequisites:[...prerequisites],completion:'Obtain fresh evidence and verify the requested operation',status:required?'unresolved':reason==='scope_excluded'?'excluded':'untested',required,dispatchScope:false,reason,evidence:[],attempts:[]};this.appendPlan(task,item);}
+    this.changedPlan(task,item);
     if(item.coverageResolvedBy){const previous=item.coverageResolvedBy;delete item.coverageResolvedBy;item.status=item.required?'unresolved':'untested';this.event(task,'scope.coverage_reopened',{itemId:item.id,previous,reason:'new_unresolved_evidence'});}
     if(item.reviewResolvedBy){const previous=item.reviewResolvedBy;delete item.reviewResolvedBy;delete item.resolvedBy;item.status=item.required?'unresolved':'untested';this.event(task,'review.reopened',{itemId:item.id,previous,reason:'new_unresolved_evidence'});}
     // A synchronous audit already holds the source observation. Reading it once
     // per gap can deserialize hundreds of megabytes without adding evidence.
     // This is an explicit source reference, never a cache or execution grant.
     const r=task.rounds.at(-1);if(r){try{const o=source||this.host.observation(r.sessionId);if(!item.evidence.some(e=>e.sessionId===o.sessionId&&e.observationId===o.id))item.evidence.push({sessionId:o.sessionId,observationId:o.id});}catch{item.reason+=':evidence_unavailable';}}
-    if(persist)this.store.save(task);return item;
+    if(persist)this.persist(task);return item;
   }
   private async retainHostLimitations(task:Task,o:Observation,signal:AbortSignal) {
     // Noncritical means other controls may proceed, not that unobservable content was covered.
@@ -153,10 +164,10 @@ export class ExplorerPlugin {
     if(signal.aborted||task.status!=='running')throw new ExplorerError('CANCELLED');
     for(const code of missing) {
       const item=this.gap(task,`missing_capability:${code}`,{url:o.url},!task.acceptedLimitations?.some(x=>x.code===code));
-      item.completion='Obtain host-supported evidence for the unsupported content; unrelated successful actions cannot verify this scope.';
+      this.changedPlan(task,item);item.completion='Obtain host-supported evidence for the unsupported content; unrelated successful actions cannot verify this scope.';
       this.event(task,'scope.unsupported',{itemId:item.id,observationId:o.id,limitations:o.gaps.filter(g=>g.code===code),executionAuthorized:false});
     }
-    this.store.save(task);
+    this.persist(task);
   }
   private async reconcileReviewLedger(task:Task,o:Observation,signal:AbortSignal) {
     const changes=reviewGapChanges(task,o,this.host),revision=task.revision;if(!changes.length)return;
@@ -164,11 +175,11 @@ export class ExplorerPlugin {
     if(signal.aborted||task.status!=='running'||task.revision!==revision)throw new ExplorerError('CANCELLED');
     if(this.host.observation(o.sessionId).id!==o.id)throw new ExplorerError('STALE_DECISION');
     for(const change of changes) {
-      const item=task.plan.find(i=>i.id===change.itemId)!;
+      const item=task.plan.find(i=>i.id===change.itemId)!;this.changedPlan(task,item);
       if(change.proof){item.reviewResolvedBy=change.proof;item.status='succeeded';item.evidence.push({sessionId:o.sessionId,observationId:o.id});this.event(task,'review.resolved',{itemId:item.id,proof:change.proof,executed:false});}
       else{const previous=item.reviewResolvedBy;delete item.reviewResolvedBy;delete item.resolvedBy;item.status='unresolved';this.event(task,'review.reopened',{itemId:item.id,previous,reason:change.reason||'current_classification_not_verified'});}
     }
-    this.store.save(task);
+    this.persist(task);
   }
   private async decide(task:Task,signal:AbortSignal,request:Omit<ModelRequest,'id'>,validate?:(v:unknown)=>unknown) {
     const revision=task.revision,oid=(request.state as {observationId?:string})?.observationId;
@@ -203,7 +214,7 @@ export class ExplorerPlugin {
   private async refreshEvidence(task:Task,signal:AbortSignal,o:Observation,decision:Decision,key:string) {
     const round=task.rounds.at(-1)!;round.evidenceRefreshes??=[];
     if(round.evidenceRefreshes.includes(key))return false;
-    this.assert(task,signal,o.id);round.evidenceRefreshes.push(key);this.store.save(task);
+    this.assert(task,signal,o.id);round.evidenceRefreshes.push(key);this.persist(task);
     const fresh=await this.host.observe(o.sessionId);this.assert(task,signal,fresh.id);
     this.router.mark(decision,'applied','evidence_refresh');this.router.effect(decision,'evidence-refresh',{beforeId:o.id,afterId:fresh.id,reason:'uncertain_judgment',maxRefreshesPerTarget:1});
     return true;
@@ -225,7 +236,7 @@ export class ExplorerPlugin {
     },value=>semanticAnswerSchema.parse(value));
     // Validate shape first so unoffered choices/references retain a specific, auditable rejection reason.
     const result={value:semanticAnswerSchema.parse(response.answer.value),decision:response.decision};
-    (round.semanticReviews??=[]).push(key);this.store.save(task);
+    (round.semanticReviews??=[]).push(key);this.persist(task);
     const rejection=semanticRejection(request,result.value);
     this.router.effect(result.decision,'semantic-validation',{accepted:!rejection,reason:rejection,choice:result.value.choice,evidenceRefs:result.value.evidenceRefs,sourceObservationId:o.id,executionAuthorized:false});
     if(rejection)this.router.mark(result.decision,'rejected',rejection);
@@ -233,17 +244,17 @@ export class ExplorerPlugin {
   }
   private async apply(task:Task,signal:AbortSignal,o:Observation,decisions:Decision|Decision[],command:unknown) {
     const batch=Array.isArray(decisions)?decisions:[decisions];
-    try{for(const d of batch)this.assert(task,signal,o.id,d.revision);await this.host.command(o.sessionId,command);for(const d of batch){this.router.mark(d,'applied');this.router.effect(d,'review',{command,resultObservationId:this.host.observation(o.sessionId).id,...(batch.length>1?{decisionIds:batch.map(d=>d.id)}:{})});}this.syncUsage(task);this.store.save(task);}
+    try{for(const d of batch)this.assert(task,signal,o.id,d.revision);await this.host.command(o.sessionId,command);for(const d of batch){this.router.mark(d,'applied');this.router.effect(d,'review',{command,resultObservationId:this.host.observation(o.sessionId).id,...(batch.length>1?{decisionIds:batch.map(d=>d.id)}:{})});}this.syncUsage(task);this.persist(task);}
     catch(e){for(const d of batch)this.router.mark(d,(e as {code?:string}).code?.includes('STALE')?'stale':'rejected',(e as {code?:string}).code||'HOST_COMMAND_REJECTED');throw e;}
   }
   private recordProbeOutcome(task:Task,attempt:ActionAttempt,scope:Scope) {
     const ref={sessionId:attempt.sessionId,observationId:attempt.afterId||attempt.beforeId,attemptId:attempt.id};
     // A successful observation operation supplies evidence, never click coverage.
     for(const item of task.plan.filter(i=>i.required&&isUnfinished(i)&&digest(i.scope)===digest(scope)))
-      if(!item.evidence.some(e=>e.attemptId===attempt.id))item.evidence.push(ref);
+      if(!item.evidence.some(e=>e.attemptId===attempt.id)){this.changedPlan(task,item);item.evidence.push(ref);}
     if(['unknown','executing'].includes(attempt.status)){
       const gap=this.gap(task,'unknown_action_outcome',scope);
-      if(!gap.evidence.some(e=>e.attemptId===attempt.id))gap.evidence.push(ref);
+      if(!gap.evidence.some(e=>e.attemptId===attempt.id)){this.changedPlan(task,gap);gap.evidence.push(ref);}
     }
     this.syncUsage(task);this.event(task,'probe.verified',{decisionId:task.pendingDispatch?.decisionId,attemptId:attempt.id,kind:attempt.action.kind,status:attempt.status,beforeId:attempt.beforeId,afterId:attempt.afterId,executionCoverage:false});
   }
@@ -267,17 +278,17 @@ export class ExplorerPlugin {
     if(sameFrame)frame.remaining=[...new Map([...frame.remaining,...remaining].map(s=>[digest(s),s])).values()];
     else round.stack.push({checkpointId:checkpoint.id,observationId:o.id,stateId:o.stateId,used:[],path:[...round.entryPath],remaining:[...new Map(remaining.map(s=>[digest(s),s])).values()]});
     const requestId=randomUUID();task.pendingDispatch={sessionId:o.sessionId,requestId,decisionId:decision?.id,itemIds:[],observationId:o.id,probe:{localId,kind,scope}};
-    this.store.save(task);if(decision)this.router.mark(decision,'applied');if(decision)this.router.effect(decision,'probe',{requestId,localId,kind,scope,sourceObservationId:o.id,executionCoverage:false});this.event(task,'probe.dispatch',{requestId,localId,kind,decisionId:decision?.id});
+    this.persist(task);if(decision)this.router.mark(decision,'applied');if(decision)this.router.effect(decision,'probe',{requestId,localId,kind,scope,sourceObservationId:o.id,executionCoverage:false});this.event(task,'probe.dispatch',{requestId,localId,kind,decisionId:decision?.id});
     try {
       const attempt=await this.host.command(o.sessionId,{type:'probe',observationId:o.id,localId,kind,requestId,...(!decision?{guard:{observationId:o.id,profile:'observed-ui-probe'}}:{})}) as ActionAttempt;
       if(!attempt?.id||attempt.requestId!==requestId||attempt.sessionId!==o.sessionId)throw new ExplorerError('PROBE_RESULT_UNVERIFIED');
       this.recordProbeOutcome(task,attempt,scope);
       if(['unknown','executing'].includes(attempt.status))throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
       if(attempt.status==='succeeded'&&attempt.afterId)this.trackTransition(task,round,o,this.host.observation(o.sessionId,attempt.afterId),{...scope,kind},entryPath,attempt);
-      delete task.pendingDispatch;this.store.save(task);
+      delete task.pendingDispatch;this.persist(task);
     }catch(error){
       const code=(error as {code?:string}).code;
-      if(code==='UNKNOWN_DISPATCH_REQUIRES_REVIEW'){this.store.save(task);throw error;}
+      if(code==='UNKNOWN_DISPATCH_REQUIRES_REVIEW'){this.persist(task);throw error;}
       const attempt=this.host.list<ActionAttempt>(o.sessionId,'attempt').find(a=>a.requestId===requestId);
       if(attempt){this.recordProbeOutcome(task,attempt,scope);if(!['unknown','executing'].includes(attempt.status))delete task.pendingDispatch;}
       // Only known pre-dispatch rejections can clear an intent without an attempt.
@@ -287,7 +298,7 @@ export class ExplorerPlugin {
         else round.stack=round.stack.filter(f=>f.checkpointId!==checkpoint.id);
         if(decision)this.router.mark(decision,code.startsWith('STALE')?'stale':'rejected',code);if(decision)this.router.effect(decision,'probe-rejected',{requestId,reason:code,browserDispatched:false,executionCoverage:false});
       }
-      this.store.save(task);
+      this.persist(task);
       if(code==='UNSUPPORTED_PROBE'){this.gap(task,'missing_capability:probe',scope);return;}
       if(task.pendingDispatch){this.gap(task,'unknown_action_outcome',scope);throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');}
       throw error;
@@ -300,10 +311,9 @@ export class ExplorerPlugin {
     else {
       // A completed plugin task can leave the public engine session idle. Release only
       // completed plugin-owned sessions; ordinary or unfinished sessions remain protected.
-      const completed=this.store.tasks().filter(t=>t.id!==task.id&&t.status==='completed');
       for(const session of this.host.sessions().filter(s=>s.status==='idle'||s.status==='paused')) {
-        const owner=completed.find(t=>t.rounds.some(r=>r.sessionId===session.id));
-        if(owner){this.assert(task,signal);await this.host.stop(session.id);this.event(task,'session.released',{sessionId:session.id,previousTaskId:owner.id,reason:'completed_exploration'});}
+        const owner=this.store.taskIdForSession(session.id,{status:'completed',excludeTaskId:task.id});
+        if(owner){this.assert(task,signal);await this.host.stop(session.id);this.event(task,'session.released',{sessionId:session.id,previousTaskId:owner,reason:'completed_exploration'});}
       }
     }
     this.assert(task,signal);
@@ -312,14 +322,14 @@ export class ExplorerPlugin {
       maxActions:Math.min(task.sessionOptions.maxActions||100,task.budget.actions-task.usage.actions),maxDurationMs:Math.max(1,Math.floor(task.budget.durationMs-this.elapsed(task))),
       evidenceRetention:{mode:'persistent',ttlMs:0,...(task.evidenceBudget||{maxBytes:1024**3,maxObservations:1000})}});
     const round:Round={id:randomUUID(),number:task.rounds.length+1,sessionId:session.id,startedAt:now(),status:'running',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0,policyVersion:POLICY_VERSION};
-    task.rounds.push(round);task.usage.rounds++;this.store.save(task);this.event(task,'round.started',{roundId:round.id,number:round.number});return round;
+    this.appendRound(task,round);task.usage.rounds++;this.persist(task);this.event(task,'round.started',{roundId:round.id,number:round.number});return round;
   }
   private async retainScopes(task:Task,signal:AbortSignal,o:Observation,groups:RetainedScope[]) {
     this.assert(task,signal,o.id);
     await this.host.pinEvidence(o.sessionId,o.id,`explorer:${task.id}`);this.assert(task,signal,o.id);
     const resolutions=groups.map(g=>({groupId:g.id,revision:g.revision,decision:{mode:'all' as const,source:'explorer-program',evidence:[`explorer-task:${task.id}:revision:${task.revision}`,`observation:${o.id}`,'coverage:all-no-sampling-authorization']}}));
     await this.host.command(o.sessionId,{type:'decideExplorationGroups',resolutions});
-    this.event(task,'scope.retained',{sourceObservationId:o.id,resultObservationId:this.host.observation(o.sessionId).id,reason:'sampling_not_authorized',groups,mode:'all',executionAuthorized:false});this.store.save(task);
+    this.event(task,'scope.retained',{sourceObservationId:o.id,resultObservationId:this.host.observation(o.sessionId).id,reason:'sampling_not_authorized',groups,mode:'all',executionAuthorized:false});this.persist(task);
   }
   private isolateUnverifiedNavigation(task:Task) {
     const pending=task.pendingDispatch;if(!pending)return false;
@@ -330,10 +340,10 @@ export class ExplorerPlugin {
     const {targetUrl,sourceUrl}=facts.intent,evidence=facts.evidence;
     const isolated=task.unverifiedNavigations??=[];
     if(!isolated.some(n=>n.evidence.attemptId===attempt.id))isolated.push({sourceUrl,targetUrl,evidence});
-    const round=task.rounds.find(r=>r.sessionId===pending.sessionId)!;round.status='finished';round.endedAt=now();round.reason='navigation_outcome_unverified';
+    const round=task.rounds.find(r=>r.sessionId===pending.sessionId)!;this.changedRound(task,round);round.status='finished';round.endedAt=now();round.reason='navigation_outcome_unverified';
     // A fresh isolated document can explore independent work. It neither verifies
     // the old command nor inherits its permissions, state, coverage or retry grant.
-    delete task.pendingDispatch;this.store.save(task);
+    delete task.pendingDispatch;this.persist(task);
     this.event(task,'navigation.isolated',{sourceUrl,targetUrl,evidence,originalStatus:'unknown',replayAllowed:false,requiresFreshSession:true});return true;
   }
   private navigationIsUnverified(task:Task,a:ActionCandidate,o:Observation) {
@@ -342,7 +352,7 @@ export class ExplorerPlugin {
   private async reconcileDispatch(task:Task) {
     const intent=task.pendingDispatch;if(!intent)return;
     const attempt=this.host.list<ActionAttempt>(intent.sessionId,'attempt').find(a=>a.requestId===intent.requestId);
-    if(attempt){if(intent.probe)this.recordProbeOutcome(task,attempt,intent.probe.scope);else this.recordOutcome(task,attempt,intent.itemIds);this.store.save(task);if(attempt.status==='unknown'||attempt.status==='executing'){if(this.isolateUnverifiedNavigation(task))return;throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');}delete task.pendingDispatch;}
+    if(attempt){if(intent.probe)this.recordProbeOutcome(task,attempt,intent.probe.scope);else this.recordOutcome(task,attempt,intent.itemIds);this.persist(task);if(attempt.status==='unknown'||attempt.status==='executing'){if(this.isolateUnverifiedNavigation(task))return;throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');}delete task.pendingDispatch;}
     else throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
   }
   /** Recovery calls own SDK attempts, not pendingDispatch. Consult their original
@@ -371,8 +381,8 @@ export class ExplorerPlugin {
     }
     if(digest(previous)!==digest(unresolved)){
       if(unresolved.length)task.unverifiedRecoveries=unresolved;else delete task.unverifiedRecoveries;
-      this.event(task,'recovery.outcomes_reconciled',{unresolved,previous,executionAuthorized:false,originalAttemptStatusesUnchanged:true});this.store.save(task);
-    }else if(routesReleased)this.store.save(task);
+      this.event(task,'recovery.outcomes_reconciled',{unresolved,previous,executionAuthorized:false,originalAttemptStatusesUnchanged:true});this.persist(task);
+    }else if(routesReleased)this.persist(task);
     return unresolved;
   }
   private assertRecoveryOutcomes(task:Task) {
@@ -384,6 +394,7 @@ export class ExplorerPlugin {
     for(const item of task.plan.filter(i=>itemIds.includes(i.id)&&schedulableObligation(i)&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome'&&i.reason!=='checkpoint_unverified')) {
       const condition=boundOperationCondition(item);
       if(condition&&condition!==operationKey())continue;
+      this.changedPlan(task,item);
       if(!item.attempts.some(x=>x.evidence?.attemptId===attempt.id))item.attempts.push({roundId:round.id,outcome:attempt.status,evidence:ref});
       item.evidence.push(ref);
       if(attempt.status==='succeeded'&&attempt.afterId){
@@ -421,10 +432,11 @@ export class ExplorerPlugin {
       }
     }
     if(intent.mode==='unsupported') {
-      task.intent={version:1,source:decision?'llm':'jev',...intent};this.store.save(task);
+      task.intent={version:1,source:decision?'llm':'jev',...intent};this.persist(task);
       const classification=decision||routing!;this.router.mark(classification,'applied','TASK_SCOPE_UNSUPPORTED');this.router.effect(classification,'intent',{intent:task.intent,executionAuthorized:false});
       throw new ExplorerError('TASK_SCOPE_UNSUPPORTED');
     }
+    this.rewriteTask(task);
     if(intent.mode==='exhaustive') {
       const invalid=intent.exclusions.some(e=>!task.goal.includes(e.instruction)||(e.scope.url!==undefined&&e.scope.url!==o.url));
       const error=task.coverageMode==='representative'?'EXHAUSTIVE_REQUIRES_ALL':invalid?'INVALID_TASK_CONSTRAINT':undefined;
@@ -435,7 +447,7 @@ export class ExplorerPlugin {
     } else {
       task.intent={version:1,mode:'targeted',source:'llm'};task.plan=intent.items.map(x=>this.newItem(x));
     }
-    this.store.save(task);this.event(task,'intent.resolved',{intent:task.intent});
+    this.persist(task);this.event(task,'intent.resolved',{intent:task.intent});
     if(decision){this.router.mark(decision,'applied');this.router.effect(decision,'intent',{intent:task.intent});this.router.effect(decision,'plan',{revision:task.revision,items:task.plan});}
     else {this.event(task,'plan.initialized',{intent:task.intent,plan:task.plan,llmRequired:false});if(routing)this.router.effect(routing,'plan',{revision:task.revision,items:task.plan,createdBy:'program'});}
   }
@@ -443,22 +455,27 @@ export class ExplorerPlugin {
     try {
       await this.reconcileDispatch(task);
       this.assertRecoveryOutcomes(task);
+      this.rewriteTask(task);
       const remapped=[...remapStoredScopes(task,this.host),...remapStoredReviewScopes(task,this.host)];
-      if(remapped.length){this.store.save(task);this.event(task,'scope.remapped',{changes:remapped,executionAuthorized:false,historicalResultsUnchanged:true});}
+      if(remapped.length){this.persist(task);this.event(task,'scope.remapped',{changes:remapped,executionAuthorized:false,historicalResultsUnchanged:true});}
       // A borrowed peer source is not the original v1 branch observation. Keyed
       // rows must be verified (or retained as a gap) before source recovery.
+      this.rewriteTask(task);
       const migrated=migrateOperationConditions(task,this.host);
-      if(migrated.length){this.store.save(task);this.event(task,'operation.conditions_migrated',{changes:migrated,currentExecution:false,coverageGranted:false,executionAuthorized:false,historicalResultsUnchanged:true});}
+      if(migrated.length){this.persist(task);this.event(task,'operation.conditions_migrated',{changes:migrated,currentExecution:false,coverageGranted:false,executionAuthorized:false,historicalResultsUnchanged:true});}
       // Source uncertainty remains a residual scope. Corrupted transfer/authority
       // records cannot authorize any new browser work until the ledger is reviewed.
-      if(task.plan.some(item=>item.conditionMigration?.integrityFailure)){task.status='blocked';task.reason='condition_split_invalid';this.store.save(task);this.event(task,'task.halted',{reason:task.reason,executionAuthorized:false});return;}
+      if(task.plan.some(item=>item.conditionMigration?.integrityFailure)){task.status='blocked';task.reason='condition_split_invalid';this.persist(task);this.event(task,'task.halted',{reason:task.reason,executionAuthorized:false});return;}
+      this.rewriteTask(task);
       const recovered=recoverStoredScopeSources(task,this.host);
-      if(recovered.length){this.store.save(task);this.event(task,'scope.source_recovered',{changes:recovered,historicalEvidenceOnly:true,originalCreationSource:false,executionAuthorized:false,historicalResultsUnchanged:true});}
+      if(recovered.length){this.persist(task);this.event(task,'scope.source_recovered',{changes:recovered,historicalEvidenceOnly:true,originalCreationSource:false,executionAuthorized:false,historicalResultsUnchanged:true});}
+      // Flush once even when migrations changed only derived indexes.
+      this.persist(task);
       this.initializeScheduling(task);
       let round=task.rounds.at(-1);
       // Extending aggregate time cannot change a previously created host session.
       if(round?.status==='paused'&&round.policyVersion===POLICY_VERSION&&this.host.session(round.sessionId).options.executionPolicy===(task.sessionOptions.executionPolicy??'observed-ui')&&this.sessionTimeExhausted(round)&&await this.finishRound(task,round,signal,true))return;
-      if(round&&round.status==='paused'&&round.policyVersion===POLICY_VERSION&&this.host.session(round.sessionId).options.executionPolicy===(task.sessionOptions.executionPolicy??'observed-ui')&&this.host.session(round.sessionId).actionCount<this.host.session(round.sessionId).options.maxActions) {round.status='running';const before=this.host.observation(round.sessionId);const fresh=await this.host.observe(round.sessionId);if(fresh.instanceScope!==before.instanceScope){round.position=observedPosition(fresh);round.stack=[];round.entryPath=[];round.reentries=[];round.reviewed=[];round.tried=[];round.noProgress=0;delete round.lastProgress;this.event(task,'round.reattached',{businessStateRestored:false,attemptCacheReset:true,unknownOutcomesRetained:true});}this.store.save(task);}
+      if(round&&round.status==='paused'&&round.policyVersion===POLICY_VERSION&&this.host.session(round.sessionId).options.executionPolicy===(task.sessionOptions.executionPolicy??'observed-ui')&&this.host.session(round.sessionId).actionCount<this.host.session(round.sessionId).options.maxActions) {round.status='running';const before=this.host.observation(round.sessionId);const fresh=await this.host.observe(round.sessionId);if(fresh.instanceScope!==before.instanceScope){round.position=observedPosition(fresh);round.stack=[];round.entryPath=[];round.reentries=[];round.reviewed=[];round.tried=[];round.noProgress=0;delete round.lastProgress;this.event(task,'round.reattached',{businessStateRestored:false,attemptCacheReset:true,unknownOutcomesRetained:true});}this.persist(task);}
       else {if(round&&(round.policyVersion!==POLICY_VERSION||this.host.session(round.sessionId).options.executionPolicy!==(task.sessionOptions.executionPolicy??'observed-ui'))){round.status='finished';round.endedAt=now();this.event(task,'routing.updated',{from:round.policyVersion||'legacy',to:POLICY_VERSION,newSessionRequired:true});}round=await this.createRound(task,signal);}
       while(!signal.aborted) {
         this.assert(task,signal);
@@ -468,14 +485,14 @@ export class ExplorerPlugin {
         let acted=false;
         try{acted=await this.step(task,round,signal);}catch(e){const code=(e as {code?:string}).code||safeError(e);
           if(code==='BUDGET_EXHAUSTED'&&!task.pendingDispatch&&this.sessionTimeExhausted(round)){this.assert(task,signal);if(await this.finishRound(task,round,signal,true))break;round=await this.createRound(task,signal);continue;}
-          if(code==='UNKNOWN_DISPATCH_REQUIRES_REVIEW'&&!signal.aborted&&this.isolateUnverifiedNavigation(task)){round=await this.createRound(task,signal);continue;}if(code.startsWith('STALE')||['PRECONDITIONS_CHANGED','ACTION_BLOCKED','ACTION_EXCLUDED','IDENTITY_AMBIGUOUS','REGION_REVIEW_REQUIRED'].includes(code)){this.event(task,'step.invalidated',{reason:code});}else throw e;}
+          if(code==='UNKNOWN_DISPATCH_REQUIRES_REVIEW'&&!signal.aborted&&this.isolateUnverifiedNavigation(task)){round=await this.createRound(task,signal);continue;}if((code!=='STALE_TASK_VERSION'&&code.startsWith('STALE'))||['PRECONDITIONS_CHANGED','ACTION_BLOCKED','ACTION_EXCLUDED','IDENTITY_AMBIGUOUS','REGION_REVIEW_REQUIRED'].includes(code)){this.event(task,'step.invalidated',{reason:code});}else throw e;}
         if(signal.aborted)break;
         // Count completed reviews and bounded refreshes even when the DOM and gap
         // rows stay unchanged. Pending queues are not completed work: rebuilding
         // all host review material here adds reads without proving progress.
         // Dispatch and completion still fetch their own current host material.
         const fresh=this.host.observation(round.sessionId);const signature=digest({fingerprint:fresh.fingerprint,actions:this.host.session(round.sessionId).actionCount,plan:task.plan.map(i=>({scope:i.scope,status:i.status})),routeProgress:Object.entries(task.routeRetries?.routes||{}).map(([key,route])=>[key,Object.entries(route.conditions).map(([condition,record])=>[condition,record.attempts,record.outcome])]),reviewProgress:{completed:round.reviewed,refreshed:round.evidenceRefreshes||[],clarified:round.semanticReviews||[]}});
-        round.noProgress=(!acted||signature===round.lastProgress)?round.noProgress+1:0;round.lastProgress=signature;this.store.save(task);
+        round.noProgress=(!acted||signature===round.lastProgress)?round.noProgress+1:0;round.lastProgress=signature;this.persist(task);
         const sessionTime=this.sessionTimeExhausted(round),sessionBudget=sessionTime||this.host.session(round.sessionId).actionCount>=this.host.session(round.sessionId).options.maxActions;
         if(acted&&!sessionBudget&&round.noProgress<3)continue;
         if(!acted&&round.noProgress<3&&!sessionBudget){await this.host.observe(round.sessionId);continue;}
@@ -484,12 +501,15 @@ export class ExplorerPlugin {
         round=await this.createRound(task,signal);
       }
     } catch(error) {
-      if(!signal.aborted){const code=(error as {code?:string}).code||safeError(error),serviceFailure=code.startsWith('PROVIDER_')||code==='JEV_TEMPORARILY_UNAVAILABLE';task.reason=code;task.status=code.includes('BUDGET')?'budget_exhausted':code==='CONFIGURATION_REQUIRED'?'configuration_required':serviceFailure?'paused':'blocked';
+      if(this.writers.get(task)?.conflicted){this.event(task,'task.halted',{reason:'STALE_TASK_VERSION',executionAuthorized:false,newerStatePreserved:true});}
+      else if(!signal.aborted){const code=(error as {code?:string}).code||safeError(error),serviceFailure=code.startsWith('PROVIDER_')||code==='JEV_TEMPORARILY_UNAVAILABLE';task.reason=code;task.status=code.includes('BUDGET')?'budget_exhausted':code==='CONFIGURATION_REQUIRED'?'configuration_required':serviceFailure?'paused':'blocked';
         if(task.rounds.length&&task.plan.length&&!serviceFailure&&!code.includes('BUDGET')&&code!=='CONFIGURATION_REQUIRED')this.gap(task,code,{url:task.url});this.event(task,'task.halted',{reason:code});}
     } finally {
-      this.syncUsage(task);if(task.activeSince)task.usage.durationMs+=Date.now()-task.activeSince;delete task.activeSince;
-      const round=task.rounds.at(-1);if(round){try{round.position=observedPosition(this.host.observation(round.sessionId));}catch{/* Missing observation remains unknown. */}if(round.status==='running')round.status='paused';}
-      if(task.status==='running')task.status='paused';this.store.save(task);
+      if(!this.writers.get(task)?.conflicted){
+        this.syncUsage(task);if(task.activeSince)task.usage.durationMs+=Date.now()-task.activeSince;delete task.activeSince;
+        const round=task.rounds.at(-1);if(round){try{round.position=observedPosition(this.host.observation(round.sessionId));}catch{/* Missing observation remains unknown. */}if(round.status==='running')round.status='paused';}
+        if(task.status==='running')task.status='paused';this.persist(task);
+      }
     }
   }
   private initializeScheduling(task:Task) {
@@ -671,7 +691,7 @@ export class ExplorerPlugin {
       assess:(p,s,checks)=>this.assess(task,signal,o,p,s,checks),refresh:(d,key)=>this.refreshEvidence(task,signal,o,d,key),
       clarify:request=>this.clarify(task,signal,o,request),
       programProbe:(localId,kind,reason)=>{this.event(task,'probe.selected',{localId,kind,reason,sourceObservationId:o.id,executionCoverage:false});return this.probe(task,signal,o,undefined,localId,kind);},
-      programApply:async(command,reason,details)=>{this.assert(task,signal,o.id);await this.host.command(sid,command);this.syncUsage(task);this.event(task,reason==='classification_reused'?'classification.reused':'program.review',{reason,command,details,sourceObservationId:o.id,resultObservationId:this.host.observation(sid).id,executionAuthorized:false});this.store.save(task);},
+      programApply:async(command,reason,details)=>{this.assert(task,signal,o.id);await this.host.command(sid,command);this.syncUsage(task);this.event(task,reason==='classification_reused'?'classification.reused':'program.review',{reason,command,details,sourceObservationId:o.id,resultObservationId:this.host.observation(sid).id,executionAuthorized:false});this.persist(task);},
       defer:(d,reason)=>{this.router.mark(d,'rejected',reason);this.router.effect(d,'review-deferred',{reason,sourceObservationId:o.id,executionAuthorized:false});},
       unchanged:previous=>this.event(task,'review.unchanged',{...previous,reason:'unchanged_unresolved_evidence',executionAuthorized:false}),
       apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),probe:(d,localId,kind)=>this.probe(task,signal,o,d,localId,kind),retain:groups=>this.retainScopes(task,signal,o,groups),gap:(reason,scope,required,prerequisites)=>{this.gap(task,reason,scope,required,prerequisites);}});for(const d of this.store.decisions(task.id,decisionCursor).filter(d=>d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}if(reviewed)return true; } catch(error) {
@@ -707,10 +727,10 @@ export class ExplorerPlugin {
       // A coarse historical gap can match several distinct current controls. Keep
       // each exact operation's evidence so one success never suppresses its peers.
       const path=pathFor(scope,candidate.localId);
-      if(!recordedScopes.has(key)||(recordedItems.get(key)||[]).every(item=>!isUnfinished(item))){task.plan.push(this.newItem({title:`${candidate.kind} ${candidate.label}`,scope,prerequisites:[...path],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false,o,condition));recordedScopes.add(key);}
+      if(!recordedScopes.has(key)||(recordedItems.get(key)||[]).every(item=>!isUnfinished(item))){this.appendPlan(task,this.newItem({title:`${candidate.kind} ${candidate.label}`,scope,prerequisites:[...path],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false,o,condition));recordedScopes.add(key);}
       else for(const item of (recordedItems.get(key)||[]).filter(i=>i.dispatchScope===false&&isUnfinished(i))){
         if(digest(item.prerequisites)===digest(path))continue;
-        const previous=item.prerequisites;item.prerequisites=[...path];this.event(task,'branch.route_reconciled',{itemId:item.id,previous,prerequisites:path,evidence:{sessionId:o.sessionId,observationId:o.id},scopeUnchanged:true,executionAuthorized:false});
+        const previous=item.prerequisites;this.changedPlan(task,item);item.prerequisites=[...path];this.event(task,'branch.route_reconciled',{itemId:item.id,previous,prerequisites:path,evidence:{sessionId:o.sessionId,observationId:o.id},scopeUnchanged:true,executionAuthorized:false});
       }
     }
     this.auditRemainingScopes(task,round,o,snapshot,completed);
@@ -748,7 +768,7 @@ export class ExplorerPlugin {
     const schedulingBefore={cursor:schedule.cursor,localSelections:schedule.localSelections,selection:schedule.selection};
     if(selection){if(selectedAction)schedule.selection={...selection};else reserveObligation(schedule,selection);if(schedule.deferred)delete schedule.deferred[selection.itemId];this.event(task,'obligation.selected',{...selection,sourceObservationId:o.id,coverageGranted:false,executionAuthorized:false});}
     if(selection?.kind!=='recovery'&&selection?.kind!=='inspect')recovery=undefined;
-    this.store.save(task);
+    this.persist(task);
     if(selectedAction) {
       if(round.entryPath.length>(task.sessionOptions.maxDepth||10)){this.gap(task,'depth_budget',{url:o.url});return false;}
       // The host has already established mechanical executability. Traversal order
@@ -782,17 +802,17 @@ export class ExplorerPlugin {
       if(reentry&&!repetition?.repeatable)throw new ExplorerError('REENTRY_EVIDENCE_CHANGED');
       if(reentry)this.recordEntry(task,round,action,o);
       const purpose=reentry?'prerequisite':includesScope(task.plan,action,o);const items=task.plan.filter(i=>i.required&&schedulableObligation(i)&&!i.reason.startsWith('missing_capability:')&&matches(i.scope,action,o)&&(!boundOperationCondition(i)||boundOperationCondition(i)===keyFor(action,o)));
-      if(purpose==='target'&&!items.some(i=>i.scope.kind&&i.scope.label)) {const leaf=this.newItem({title:`${action.kind} ${action.label}`,scope:scopeFor(action,o),prerequisites:[...entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false,o,keyFor(action,o));task.plan.push(leaf);items.push(leaf);}
+      if(purpose==='target'&&!items.some(i=>i.scope.kind&&i.scope.label)) {const leaf=this.newItem({title:`${action.kind} ${action.label}`,scope:scopeFor(action,o),prerequisites:[...entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false,o,keyFor(action,o));this.appendPlan(task,leaf);items.push(leaf);}
       reserveObligation(schedule,selection!);
       const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id};
-      const attemptKey=this.attemptKey(round,action,o);round.tried.push(attemptKey);this.store.save(task);this.event(task,'action.scheduled',{requestId,actionId:action.id,label:action.label,kind:action.kind,purpose,itemIds:items.map(i=>i.id)});this.event(task,'action.dispatch',{requestId,actionId:action.id,purpose});
+      const attemptKey=this.attemptKey(round,action,o);round.tried.push(attemptKey);this.persist(task);this.event(task,'action.scheduled',{requestId,actionId:action.id,label:action.label,kind:action.kind,purpose,itemIds:items.map(i=>i.id)});this.event(task,'action.dispatch',{requestId,actionId:action.id,purpose});
       try {const attempt=await this.host.execute(sid,action.id,requestId,undefined,{observationId:o.id,...(repetition?{repetitionSource:repetition.source}:{}),profile:this.host.session(sid).options.executionPolicy==='observed-ui'?'observed-ui-exploration':'interface-exploration'});this.recordOutcome(task,attempt,items.map(i=>i.id));if(attempt.status==='succeeded'&&attempt.afterId)this.trackTransition(task,round,o,this.host.observation(sid,attempt.afterId),scopeFor(action,o),entryPath,attempt);
-      if(attempt.status==='unknown'||attempt.status==='executing')throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');delete task.pendingDispatch;this.store.save(task);
+      if(attempt.status==='unknown'||attempt.status==='executing')throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');delete task.pendingDispatch;this.persist(task);
       if(action.kind==='dismiss') {
         const result=this.host.list<BoundaryExitResult>(sid,'boundary-exit-result').find(r=>r.attemptId===attempt.id);this.event(task,'boundary.exit_verified',{attemptId:attempt.id,result});
         if(!result||['changed','unverified'].includes(result.status))throw new ExplorerError('BOUNDARY_EXIT_UNVERIFIED');
       }}
-      catch(e){const attempt=this.host.list<ActionAttempt>(sid,'attempt').find(a=>a.requestId===requestId);if(attempt){this.recordOutcome(task,attempt,items.map(i=>i.id));if(!['unknown','executing'].includes(attempt.status))delete task.pendingDispatch;}else {delete task.pendingDispatch;round.tried=round.tried.filter(k=>k!==attemptKey);Object.assign(schedule,schedulingBefore);}this.store.save(task);throw e;}
+      catch(e){const attempt=this.host.list<ActionAttempt>(sid,'attempt').find(a=>a.requestId===requestId);if(attempt){this.recordOutcome(task,attempt,items.map(i=>i.id));if(!['unknown','executing'].includes(attempt.status))delete task.pendingDispatch;}else {delete task.pendingDispatch;round.tried=round.tried.filter(k=>k!==attemptKey);Object.assign(schedule,schedulingBefore);}this.persist(task);throw e;}
       return true;
     }
     // Record every remaining in-scope unavailable case, including ungrouped controls.
@@ -807,7 +827,7 @@ export class ExplorerPlugin {
       const {frame,source,remaining,routeKey,itemId}=recovery;
       frame.recoveryTried=true;frame.recoveryConditionVersion=recovery.conditionVersion;
       const recoveryAttemptKey=randomUUID();
-      task.routeRetries=recordRouteRetry(task.routeRetries,{routeKey,conditionVersion:frame.recoveryConditionVersion,attemptKey:recoveryAttemptKey,outcome:'no_progress',reason:'recovery_selected'});this.store.save(task);
+      task.routeRetries=recordRouteRetry(task.routeRetries,{routeKey,conditionVersion:frame.recoveryConditionVersion,attemptKey:recoveryAttemptKey,outcome:'no_progress',reason:'recovery_selected'});this.persist(task);
       this.assert(task,signal,o.id);
       this.event(task,'recovery.selected',{reason:'unfinished_observed_targets',itemId,routeKey,checkpointId:frame.checkpointId,sourceObservationId:source.id,currentObservationId:o.id,unfinishedTargets:remaining.length,hostVerificationRequired:true});
       const result=recovery.targetActionIds.length&&this.host.reachExplorationTarget
@@ -821,7 +841,7 @@ export class ExplorerPlugin {
       task.routeRetries=recordRouteRetry(task.routeRetries,{routeKey,conditionVersion:frame.recoveryConditionVersion,attemptKey:recoveryAttemptKey,outcome:unknown?'unknown':result.status==='TARGET_REACHED'||result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'?'verified':result.status==='UNREACHABLE'?'unreachable':'unverified',reason:result.reason,evidence:{sessionId:sid,observationId:actual.id},...(unknownAttemptIds.length?{unknownSource:{sessionId:sid,attemptIds:unknownAttemptIds}}:{})});
       const position=reconcileRecoveryPosition(round,o,actual,{...result,status},status==='REACHED_VERIFIED'||status==='REACHED_ACCEPTABLE'?frame.path:undefined);
       if(unknown){round.entryPath=[];position.path=[];position.reason='unknown_execution_outcome';}
-      this.event(task,'recovery.position_reconciled',position);this.store.save(task);
+      this.event(task,'recovery.position_reconciled',position);this.persist(task);
       this.syncUsage(task);this.event(task,'recovery.result',unknown?{...result,status:'UNVERIFIED',hostResultStatus:result.status,reason:'Unknown recovery outcome requires explicit source verification',checkpointVerified:false}:result);
       if(unknown){this.event(task,'recovery.blocked',{resultId:result.id,reason:'unknown_action_outcome',observationId:actual.id,checkpointVerified:false,executionAuthorized:false});throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');}
       if(result.status==='TARGET_REACHED'){this.event(task,'recovery.target_reached',{resultId:result.id,observationId:actual.id,matchedActionIds:result.matchedActionIds,checkpointVerified:false,currentExecution:false});return true;}
@@ -834,7 +854,7 @@ export class ExplorerPlugin {
         this.event(task,'recovery.observed_scope',{checkpointId:frame.checkpointId,resultStatus:result.status,observationId:arrived.id,url:arrived.url,checkpointVerified:false,continueFromCurrentObservation:true});
         return true;
       }
-      if(frame.path.length){for(const item of task.plan.filter(i=>i.required&&isUnfinished(i)&&frame.remaining.some(scope=>digest(scope)===digest(i.scope))))item.prerequisites=[...frame.path];this.event(task,'recovery.reentry_required',{prerequisites:frame.path,remaining:frame.remaining});return true;}
+      if(frame.path.length){for(const item of task.plan.filter(i=>i.required&&isUnfinished(i)&&frame.remaining.some(scope=>digest(scope)===digest(i.scope)))){this.changedPlan(task,item);item.prerequisites=[...frame.path];}this.event(task,'recovery.reentry_required',{prerequisites:frame.path,remaining:frame.remaining});return true;}
       this.gap(task,'checkpoint_unverified',{url:o.url});
       if(o.boundaries?.length&&!this.capabilities().boundaryExit)this.gap(task,'missing_capability:boundaryExitReview',{url:o.url});
       return true; // One newly consumed route condition is finite scheduling progress.
@@ -889,8 +909,10 @@ export class ExplorerPlugin {
   private entryProgressRecord(task:Task,r:Round,a:ActionCandidate,o:Observation) {
     const entry=scopeFor(a,o),condition=browserTargetConditions(a,o)?.key||'unverified';
     const key=digest({policy:'entry-progress-v2',route:recoveryRouteKey(o,[a],[entry]),condition}),oldKey=digest({entry,context:o.context}),legacyKey=digest(entry);
-    const previous=r.reentryProgress?.[key]||r.reentryProgress?.[oldKey]||r.reentryProgress?.[legacyKey]||[...task.rounds].reverse().map(round=>round.reentryProgress?.[key]||round.reentryProgress?.[oldKey]).find(Boolean);
-    return {key,previous};
+    const local=r.reentryProgress?.[key]||r.reentryProgress?.[oldKey]||r.reentryProgress?.[legacyKey];
+    const owner=local?r:[...task.rounds].reverse().find(round=>round.reentryProgress?.[key]||round.reentryProgress?.[oldKey]);
+    const previous=local||owner?.reentryProgress?.[key]||owner?.reentryProgress?.[oldKey];
+    return {key,previous,owner};
   }
   private freshAction(task:Task,r:Round,a:ActionCandidate,o:Observation,completed:boolean) {
     if(r.tried.includes(this.attemptKey(r,a,o)))return false;
@@ -900,10 +922,10 @@ export class ExplorerPlugin {
     // Failed correspondence is not proof of a new entry. Preserve the host's
     // stricter operation judgment without bypassing an already spent reentry
     // allowance after document replacement, review change or restart.
-    const previous=this.entryProgressRecord(task,r,a,o).previous;
+    const {previous,owner}=this.entryProgressRecord(task,r,a,o);
     if(previous?.attempts&&this.entryProgress(task,r,a,o).attempts>=1){
       if(!previous.revalidationNotified){
-        previous.revalidationNotified=true;
+        if(owner)this.changedRound(task,owner);previous.revalidationNotified=true;
         const item=this.gap(task,'entry_revalidation_deferred',scopeFor(a,o),true,[],true,o);
         this.event(task,'branch.revalidation_deferred',{scope:scopeFor(a,o),itemId:item.id,reason:'operation_revalidation_is_not_new_entry',observationId:o.id,executionAuthorized:false,currentExecution:false});
       }
@@ -912,13 +934,13 @@ export class ExplorerPlugin {
     return true;
   }
   private entryProgress(task:Task,r:Round,a:ActionCandidate,o:Observation) {
-    const {key,previous}=this.entryProgressRecord(task,r,a,o);
+    const {key,previous,owner}=this.entryProgressRecord(task,r,a,o);
     // New names, longer paths, observation IDs or duplicate ledger rows are not
     // child completion. A repeated parent cannot renew its own retry allowance.
     const routeFor=routeFinder(task,scopeFor(a,o),o);
     const completed=this.entryObligations(task,a,o).filter(i=>i.status==='succeeded'&&(i.resolvedBy?.attemptId||i.reviewResolvedBy)&&!matches(i.scope,a,o)&&!!routeFor(i.scope)).map(i=>i.operationConditionKey?digest({scope:i.scope,condition:i.operationConditionKey}):digest(i.scope));
     const progressed=completed.some(scope=>!previous?.completedScopes.includes(scope));
-    return {key,attempts:progressed?0:previous?.attempts||0,completedScopes:[...new Set([...(previous?.completedScopes||[]),...completed])],previous};
+    return {key,attempts:progressed?0:previous?.attempts||0,completedScopes:[...new Set([...(previous?.completedScopes||[]),...completed])],previous,owner};
   }
   private recordEntry(task:Task,r:Round,a:ActionCandidate,o:Observation) {
     const target=this.reentryTarget(task,a,o,this.entryTargets(task,a,o),true);
@@ -969,7 +991,7 @@ export class ExplorerPlugin {
         // earlier success or a not-yet-classified control). Region review labels
         // do not change their route, but changed target semantics do.
         const prior=scopeForControl(previous,data.source);
-        if(['url','label','role','stableKey'].every(key=>prior[key as keyof Scope]===scope[key as keyof Scope]))return frame.path;
+        if(['url','label','role','stableKey','targetBinding'].every(key=>prior[key as keyof Scope]===scope[key as keyof Scope]))return frame.path;
       }
       return round.entryPath;
     };
@@ -995,14 +1017,14 @@ export class ExplorerPlugin {
         const route=(!transition.exited.length||transition.entered.length||transition.navigated)?capturedRoute(entry,before,after,transition.revealedControlIds,attempt):undefined;
         checked.add(reference);changed=true;
         if(route){
-          const owner=task.rounds.find(round=>round.sessionId===ref.sessionId)||r,routes=owner.entryRoutes??=[];
+          const owner=task.rounds.find(round=>round.sessionId===ref.sessionId)||r;this.changedRound(task,owner);const routes=owner.entryRoutes??=[];
           if(!routes.some(old=>routeKey(old)===routeKey(route))){
             routes.push(route);this.event(task,'branch.route_recovered',{entry,evidence:{...route.evidence,attemptId:attempt.id},targets:route.targets,historicalEvidenceOnly:true,executionAuthorized:false});
           }
         }
       }catch{/* Missing historical evidence cannot authorize a return. */}
     }
-    if(changed){r.routeEvidenceChecked=[...checked];this.store.save(task);}
+    if(changed){r.routeEvidenceChecked=[...checked];this.persist(task);}
   }
   private updateObligations(task:Task,o:Observation,actions=this.host.operationCoverageCandidates(o.sessionId,o.id),routeCondition=this.routeConditionReader(o,this.host.actions(o.sessionId,o.id))) {
     const routeConditions=(task.rounds.at(-1)?.stack||[]).flatMap(frame=>{
@@ -1038,7 +1060,7 @@ export class ExplorerPlugin {
     if(!this.reentryTarget(task,a,o,targets,true))this.restoreEntryRoutes(task,r,a,o);
     const progress=this.entryProgress(task,r,a,o);
     if(progress.attempts>=1){
-      if(!progress.previous!.notified){progress.previous!.notified=true;this.store.save(task);this.event(task,'branch.reentry_deferred',{scope:scopeFor(a,o),reason:'no_new_child_completion',attempts:progress.attempts,limit:1,pendingTargets:targets.length,executionAuthorized:false});}
+      if(!progress.previous!.notified){if(progress.owner)this.changedRound(task,progress.owner);progress.previous!.notified=true;this.persist(task);this.event(task,'branch.reentry_deferred',{scope:scopeFor(a,o),reason:'no_new_child_completion',attempts:progress.attempts,limit:1,pendingTargets:targets.length,executionAuthorized:false});}
       return false;
     }
     // Keep matching historical cache entries effective without clearing the
@@ -1050,10 +1072,10 @@ export class ExplorerPlugin {
       const permission=this.reentryPermission(task,r,a,o);
       if(permission?.repeatable)return true;
       const key=digest({entry:scopeFor(a,o),condition:permission?.conditionKey||recoveryConditionVersion(o),reason:permission?.reason||'repetition_evidence_unavailable'});
-      if(!(r.repetitionDeferrals||[]).includes(key)){(r.repetitionDeferrals??=[]).push(key);this.gap(task,'reentry_not_repeatable',scopeFor(a,o),true,[],false,o);this.event(task,'branch.reentry_blocked',{scope:scopeFor(a,o),target:target.item.id,reason:permission?.reason||'repetition_evidence_unavailable',evidence:permission?.evidence||[],replayAllowed:false});this.store.save(task);}
+      if(!(r.repetitionDeferrals||[]).includes(key)){(r.repetitionDeferrals??=[]).push(key);this.gap(task,'reentry_not_repeatable',scopeFor(a,o),true,[],false,o);this.event(task,'branch.reentry_blocked',{scope:scopeFor(a,o),target:target.item.id,reason:permission?.reason||'repetition_evidence_unavailable',evidence:permission?.evidence||[],replayAllowed:false});this.persist(task);}
       return false;
     }
-    const key=digest(scopeFor(a,o));if(!(r.routeDeferrals||[]).includes(key)){(r.routeDeferrals??=[]).push(key);this.event(task,'branch.route_unverified',{scope:scopeFor(a,o),reason:'no_absent_target_with_observed_route',itemIds:targets.map(i=>i.id),executionAuthorized:false});this.store.save(task);}
+    const key=digest(scopeFor(a,o));if(!(r.routeDeferrals||[]).includes(key)){(r.routeDeferrals??=[]).push(key);this.event(task,'branch.route_unverified',{scope:scopeFor(a,o),reason:'no_absent_target_with_observed_route',itemIds:targets.map(i=>i.id),executionAuthorized:false});this.persist(task);}
     return false;
   }
   private operationMembersVerified(task:Task,items:PlanItem[],current:Observation,requireRetainedSources=false,cache=new Map<string,{source:Observation;members:ActionCandidate[];completed:ReadonlySet<ActionCandidate>}>()) {
@@ -1106,7 +1128,7 @@ export class ExplorerPlugin {
       const scopeKey=digest(item.scope),key=digest({scope:item.scope,condition:item.operationConditionKey});if(successful.has(scopeKey)){groups.set(key,[...(groups.get(key)||[]),item]);groupScopes.set(key,scopeKey);}
     }
     for(const [key,items] of groups)if(this.operationMembersVerified(task,items,o,true,coverageFacts)){
-      for(const item of items){item.status='succeeded';item.coverageResolvedBy={observation:{sessionId:o.sessionId,observationId:o.id},relatedItemIds:successful.get(groupScopes.get(key)!)!.map(i=>i.id)};}
+      for(const item of items){this.changedPlan(task,item);item.status='succeeded';item.coverageResolvedBy={observation:{sessionId:o.sessionId,observationId:o.id},relatedItemIds:successful.get(groupScopes.get(key)!)!.map(i=>i.id)};}
       this.event(task,'scope.coverage_reconciled',{itemIds:items.map(i=>i.id),relatedItemIds:successful.get(groupScopes.get(key)!)!.map(i=>i.id),observationId:o.id,currentExecution:false,executionAuthorized:false});
     }
     let advanced:boolean;
@@ -1121,10 +1143,10 @@ export class ExplorerPlugin {
         // Equal historical rows are evidence for the same obligation, not mutual
         // unfinished children. Settle them together only after every known member.
         if(concrete(item)&&!this.operationMembersVerified(task,peers,o,false,coverageFacts))continue;
-        for(const peer of peers)peer.status='succeeded';advanced=true;
+        for(const peer of peers){this.changedPlan(task,peer);peer.status='succeeded';}advanced=true;
       }
     }while(advanced);
-    if(!operationsOnly)for(const item of pending.filter(i=>i.status!=='succeeded')){item.status='unresolved';item.reason=item.reason||'scope_not_verified';}
+    if(!operationsOnly)for(const item of pending.filter(i=>i.status!=='succeeded')){if(item.status!=='unresolved'||!item.reason){this.changedPlan(task,item);item.status='unresolved';item.reason=item.reason||'scope_not_verified';}}
   }
   private async finishRound(task:Task,round:Round,signal:AbortSignal,hostTimeLimit=false) {
     this.assertRecoveryOutcomes(task);
@@ -1132,7 +1154,7 @@ export class ExplorerPlugin {
     this.trackBoundary(round,o);
     if(hostTimeLimit&&!task.plan.length){
       round.status='finished';round.endedAt=now();round.reason='host_time_limit_before_planning';
-      const s=this.host.session(round.sessionId);this.event(task,'round.session_limit',{reason:'host_time_limit',elapsedMs:s.elapsedMs,maxDurationMs:s.options.maxDurationMs,planInitialized:false,totalBudgetUnchanged:true});this.store.save(task);return false;
+      const s=this.host.session(round.sessionId);this.event(task,'round.session_limit',{reason:'host_time_limit',elapsedMs:s.elapsedMs,maxDurationMs:s.options.maxDurationMs,planInitialized:false,totalBudgetUnchanged:true});this.persist(task);return false;
     }
     // A budget boundary can arrive immediately after an action, before the next step
     // discovers/reviews its results. Success of that action is not scope completion.
@@ -1145,23 +1167,23 @@ export class ExplorerPlugin {
       const source=this.host.observation(attempt.sessionId,attempt.beforeId);
       if(includesScope(task.plan,attempt.action,source)) {
         const item=this.gap(task,'unknown_action_outcome',scopeFor(attempt.action,source));
-        if(!item.evidence.some(e=>e.attemptId===attempt.id))item.evidence.push(navigation.evidence);
+        if(!item.evidence.some(e=>e.attemptId===attempt.id)){this.changedPlan(task,item);item.evidence.push(navigation.evidence);}
       }
     }
     this.settleScopes(task,o,incomplete);
     const projection=this.updateObligations(task,o,audit.operationCandidates);
     round.status='finished';round.endedAt=now();const splitGaps=new Set(projection.entries.filter(entry=>entry.state==='unreachable'&&entry.reason.startsWith('condition_split_invalid:')).map(entry=>entry.itemId));const remaining=task.plan.filter(i=>i.required&&(isUnfinished(i)||splitGaps.has(i.id)));
     this.event(task,'round.audit',{roundId:round.id,obligationCounts:projection.counts,remaining:remaining.map(i=>i.id),explorationAudit:audit.explorationAudit,completionAudit:audit.completionAudit});
-    if(!remaining.length){for(const d of this.store.decisions(task.id).filter(d=>d.status==='returned'))this.router.mark(d,'applied','used_in_plan_or_review');task.status='completed';task.reason='current_plan_verified';this.event(task,'task.completed',{exhaustive:false,untested:task.plan.filter(i=>!i.required).length});this.store.save(task);return true;}
-    if(remaining.some(i=>i.dispatchScope===false&&['invalidated','split'].includes(i.conditionMigration?.status||''))){task.status='blocked';task.reason='condition_policy_invalidated';round.reason=task.reason;this.store.save(task);return true;}
+    if(!remaining.length){for(const d of this.store.decisions(task.id).filter(d=>d.status==='returned'))this.router.mark(d,'applied','used_in_plan_or_review');task.status='completed';task.reason='current_plan_verified';this.event(task,'task.completed',{exhaustive:false,untested:task.plan.filter(i=>!i.required).length});this.persist(task);return true;}
+    if(remaining.some(i=>i.dispatchScope===false&&['invalidated','split'].includes(i.conditionMigration?.status||''))){task.status='blocked';task.reason='condition_policy_invalidated';round.reason=task.reason;this.persist(task);return true;}
     const signature=digest([...new Set(projection.entries.filter(i=>!['resolved','excluded','authority','superseded'].includes(i.state)).map(i=>JSON.stringify({group:i.groupId,state:i.state==='alias'?'active':i.state,condition:i.conditionVersion})))].sort());
     round.reason=signature;const stalled=task.rounds.filter(r=>r.reason===signature).length>=3;
     const permanent=remaining.some(i=>i.reason.startsWith('missing_capability:')||i.reason==='unknown_action_outcome');
     const independent=incomplete.size>0||remaining.some(i=>i.scope.kind&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome');
-    if(stalled||(permanent&&(!hostTimeLimit||!independent))){task.status='blocked';task.reason=permanent?'capability_or_unknown_outcome':'no_new_evidence';this.store.save(task);return true;}
-    if(hostTimeLimit){const s=this.host.session(round.sessionId);this.event(task,'round.session_limit',{reason:'host_time_limit',elapsedMs:s.elapsedMs,maxDurationMs:s.options.maxDurationMs,remaining:remaining.map(i=>i.id),unknownOutcomesRetained:true,totalBudgetUnchanged:true});this.store.save(task);return false;}
+    if(stalled||(permanent&&(!hostTimeLimit||!independent))){task.status='blocked';task.reason=permanent?'capability_or_unknown_outcome':'no_new_evidence';this.persist(task);return true;}
+    if(hostTimeLimit){const s=this.host.session(round.sessionId);this.event(task,'round.session_limit',{reason:'host_time_limit',elapsedMs:s.elapsedMs,maxDurationMs:s.options.maxDurationMs,remaining:remaining.map(i=>i.id),unknownOutcomesRetained:true,totalBudgetUnchanged:true});this.persist(task);return false;}
     const semanticGaps=remaining.filter(i=>['classification_unresolved','operation_basis_unconfirmed','INPUT_REQUIRED','input_sample_required','target_not_observed'].includes(i.reason));
-    if(!semanticGaps.length){this.event(task,'plan.retained',{reason:'known_observation_obligations',remaining:remaining.map(i=>i.id),modelRequired:false});this.store.save(task);return false;}
+    if(!semanticGaps.length){this.event(task,'plan.retained',{reason:'known_observation_obligations',remaining:remaining.map(i=>i.id),modelRequired:false});this.persist(task);return false;}
     const followupState={goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',unfinished:semanticGaps,observation:{url:o.url,regions:o.regions.map(r=>({label:r.label,role:r.role})),controls:o.controls.map(c=>({label:c.name,role:c.role})),actions:this.host.actions(round.sessionId).map(a=>scopeFor(a,o))}};
     const strategy=await this.choose(task,signal,o,'followup-strategy','Do the recorded unfinished targets need NEW semantic scopes or prerequisite operations? Retain existing targets for retries, missing evidence, capability gaps and blocked controls. Request generation only when observed evidence identifies a missing route or prerequisite that the existing plan cannot express. Do not request prose merely to restate existing gaps.',followupState,{retain:'Existing recorded scopes and prerequisites suffice; keep their gaps and evidence',replan:'Observed evidence requires a new scope or prerequisite plan',uncertain:'No evidence that a new plan would resolve the gap'});
     this.assert(task,signal,o.id);this.router.mark(strategy.decision,'applied');this.router.effect(strategy.decision,'followup-strategy',{strategy:strategy.value,remaining:remaining.map(i=>i.id),requiresNewPlan:strategy.value==='replan'});
@@ -1171,12 +1193,12 @@ export class ExplorerPlugin {
       // Enrich existing obligations; the model cannot silently discard a failed obligation or enlarge the user's selected scope.
       for(const proposed of followup.value.items) {
         const matched=remaining.find(i=>i.title===proposed.title&&digest(i.scope)===digest(proposed.scope));
-        if(matched){matched.prerequisites=proposed.prerequisites;matched.completion=proposed.completion;matched.reason=proposed.reason;}
-        else {const item=this.newItem({...proposed,required:false},false);item.status='untested';item.reason=`proposed_followup: ${proposed.reason}`;task.plan.push(item);}
+        if(matched){this.changedPlan(task,matched);matched.prerequisites=proposed.prerequisites;matched.completion=proposed.completion;matched.reason=proposed.reason;}
+        else {const item=this.newItem({...proposed,required:false},false);item.status='untested';item.reason=`proposed_followup: ${proposed.reason}`;this.appendPlan(task,item);}
       }
       this.router.effect(followup.decision,'followup-plan',{proposals:followup.value.items,plan:task.plan});
     }
-    this.store.save(task);return false;
+    this.persist(task);return false;
   }
   private auditRemainingScopes(task:Task,round:Round,o:Observation,snapshot:Pick<ReturnType<ExplorerHost['explorationSnapshot']>,'actions'|'availability'|'obligations'|'operationCandidates'|'revision'>=this.host.explorationSnapshot(o.sessionId,o.id,{includeHistoryAudit:false}),completed?:ReadonlySet<ActionCandidate>) {
     const incomplete=new Set<string>(),{actions,availability}=snapshot;
@@ -1210,6 +1232,6 @@ export class ExplorerPlugin {
       const pendingIds=new Set(pending.map(a=>a.id));
       this.event(task,'scope.audit',{itemId:item.id,observationId:o.id,revision:snapshot.revision,obligations,pendingActions:[...pendingIds],operationFacts:availability.actions.filter(a=>pendingIds.has(a.actionId)),pendingReview:incomplete.has(item.id)});
     }
-    this.store.save(task);return incomplete;
+    this.persist(task);return incomplete;
   }
 }

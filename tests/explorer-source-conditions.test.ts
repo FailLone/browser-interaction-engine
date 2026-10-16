@@ -95,7 +95,8 @@ it('does not skip a rebuilt shared-key button when its semantic owner changes, o
       const button = owner.querySelector('button')!; button.replaceWith(button.cloneNode(true));
     });
     const changed = await f.host.observe(session.id), second = f.host.actions(session.id).find(a => a.label === 'Run')!;
-    expect(scopeFor(second, changed)).toEqual(scopeFor(first, before));
+    expect(scopeFor(second, changed).stableKey).toBe(scopeFor(first, before).stableKey);
+    expect(scopeFor(second, changed).targetBinding).not.toBe(scopeFor(first, before).targetBinding);
     expect(browserOperationKey(second, changed)).not.toBe(browserOperationKey(first, before));
     expect(completedOperations(f.host, task, changed, [second]).has(second)).toBe(false);
     for (let i = 0; i < 10 && f.host.session(session.id).actionCount < 2; i++) await step();

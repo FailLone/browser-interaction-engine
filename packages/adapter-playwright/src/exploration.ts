@@ -15,6 +15,21 @@ export function browserControlCorrespondence(c: Control): CorrespondenceHint | u
     invalidatedBy:['nonunique-correspondence','changed-owner-or-binding','changed-operation-conditions','changed-declared-context']} : undefined;
 }
 
+function controlTargetBinding(c:Control) {
+  const context=c.identityContext,item=c.structuralItem;
+  return context?.evidence.length&&(context.scope||context.binding)||c.formOwner||item?.recordKey
+    ?{context:{scope:context?.scope,binding:context?.binding},form:formBinding(c),record:item?.recordKey?{key:item.recordKey,template:item.template,slot:item.slot}:undefined}:undefined;
+}
+
+/** Captured semantic scope refinement for task selection, not a control identity
+ * or operation-equivalence proof. It stays independent of sibling count, DOM
+ * order, instance IDs and current field values. Equal bindings may remain
+ * ambiguous; execution and historical coverage still require SDK validation. */
+export function browserControlBindingKey(c:Control):string|undefined {
+  const binding=controlTargetBinding(c);
+  return binding?`browser-target-binding:v1:${hash(binding)}`:undefined;
+}
+
 /** A native record link has a captured destination independent of its displayed
  * quote/count. This is an operation reference, never a control identity. Explicit
  * labels, record structure, ownership and navigation attributes remain semantic.
@@ -52,9 +67,7 @@ function operationKey(a: ActionCandidate,o: Observation,version:'v1'|'v2') {
   const c=o.controls.find(c=>c.localId===a.localId),r=o.regions.find(r=>r.key===c?.region);
   const key=c&&(c.stableKey||(!c.list&&!c.structuralItem?browserControlCorrespondence(c)?.key:undefined));
   const branch=c?browserBranchConditions(a,o,version):undefined;
-  const context=c?.identityContext,item=c?.structuralItem;
-  const targetBinding=c&&(context?.evidence.length&&(context.scope||context.binding)||c.formOwner||item?.recordKey)
-    ?{context:{scope:context?.scope,binding:context?.binding},form:formBinding(c),record:item?.recordKey?{key:item.recordKey,template:item.template,slot:item.slot}:undefined}:undefined;
+  const targetBinding=c&&controlTargetBinding(c);
   // A shared stable key is not the complete target binding. Its changed owner
   // must not inherit a spent retry key; instance/document IDs remain excluded.
   // Controls without source modes or semantic bindings retain their legacy key.

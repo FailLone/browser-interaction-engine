@@ -39,7 +39,7 @@ export function remapStoredScopes(task:Task,host:ExplorerHost) {
   // rescans retained sources; a new source is always examined. Review decisions
   // do not modify these immutable captured control facts and confer no authority.
   let cache=task.scopeMigrationIndex;
-  if(!cache||cache.version!==1)cache={version:1,keys:[],sources:{}};
+  if(!cache||cache.version!==2)cache={version:2,keys:[],sources:{}};
   const known=new Set(cache.keys);
   for(const key of wanted)if(!known.has(key)){cache.keys.push(key);known.add(key);}
   const seen=new Set<string>(),index=new Map<string,{scope:Scope;key:string;ref:EvidenceRef}[]>();
@@ -52,8 +52,8 @@ export function remapStoredScopes(task:Task,host:ExplorerHost) {
       const newKeys=new Set(cache.keys.slice(entry?.examinedKeys||0)),matches=entry?.matches?[...entry.matches]:[];
       for(const c of o.controls) {
         if(!c.stableKey||!newKeys.has(c.stableKey)||!c.structuralItem?.recordKey)continue;
-        const key=scopeControlKey(c)!;
-        for(const label of new Set([c.name,c.label]))matches.push({stableKey:c.stableKey,scope:{url:o.url,region:o.regions.find(r=>r.key===c.region)?.label,label,role:c.role},key});
+        const key=scopeControlKey(c)!,targetBinding=scopeForControl(c,o).targetBinding;
+        for(const label of new Set([c.name,c.label]))matches.push({stableKey:c.stableKey,scope:{url:o.url,region:o.regions.find(r=>r.key===c.region)?.label,label,role:c.role,...targetBinding?{targetBinding}:{}},key});
       }
       entry={sessionId:o.sessionId,observationId:o.id,examinedKeys:cache.keys.length,matches};cache.sources[id]=entry;
     }

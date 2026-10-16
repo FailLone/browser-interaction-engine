@@ -9,7 +9,7 @@ export type TaskStatus = 'idle' | 'running' | 'paused' | 'stopped' | 'completed'
 export interface Budget { rounds: number; actions: number; durationMs: number; modelRequests: number }
 export interface EvidenceRef { sessionId: string; observationId: string; attemptId?: string }
 /** Exact semantic constraints; no old session control IDs or arbitrary selectors. */
-export interface Scope { stableKey?: string; url?: string; region?: string; label?: string; role?: string; kind?: string; value?: string | boolean | number }
+export interface Scope { stableKey?: string; /** Captured semantic owner/binding hint; never an identity or coverage grant. */ targetBinding?: string; url?: string; region?: string; label?: string; role?: string; kind?: string; value?: string | boolean | number }
 export interface ScopeExclusion { scope: Scope; instruction: string }
 /** Executable task meaning, separate from natural-language intent and the changing coverage ledger. */
 export type TaskIntent =
@@ -79,7 +79,7 @@ export interface Round {
  * Contains no identity, review or execution grants. Missing sources are not cached.
  */
 export interface ScopeMigrationIndex {
-  version:1; keys:string[];
+  version:1|2; keys:string[];
   sources:Record<string,{sessionId:string;observationId:string;examinedKeys:number;matches:{stableKey:string;scope:Scope;key:string}[]}>;
 }
 export interface Task {

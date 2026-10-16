@@ -1,6 +1,6 @@
 import { conditionSplitIssues, boundOperationCondition, schedulableObligation } from './plan-state.js';
 import { createHash } from 'node:crypto';
-import { browserControlCorrespondence, browserTargetConditions, browserOperationKey, legacyBrowserOperationKey, navigationIntent, type ActionAvailability, type ActionCandidate, type Observation } from '@interaction/browser';
+import { browserControlCorrespondence, browserControlBindingKey, browserTargetConditions, browserOperationKey, legacyBrowserOperationKey, navigationIntent, type ActionAvailability, type ActionCandidate, type Observation } from '@interaction/browser';
 import type { Scope, PlanItem, ExplorerHost, Task, EvidenceRef } from './types.js';
 const ordered=(value:unknown):unknown=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>[k,ordered(v)])):value;
 export const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(ordered(value))).digest('hex');
@@ -8,8 +8,8 @@ export const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(
 export const navigationTarget=(a:ActionCandidate,o:Observation)=>navigationIntent(a,o)?.targetUrl;
 export const scopeControlKey=(c:Observation['controls'][number])=>browserControlCorrespondence(c)?.key;
 function actionScope(action:ActionCandidate,o:Observation,c:Observation['controls'][number]|undefined,r:Observation['regions'][number]|undefined):Scope {
-  const key=c&&scopeControlKey(c);
-  return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(key?{stableKey:key}:{})}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};
+  const key=c&&scopeControlKey(c),targetBinding=c&&browserControlBindingKey(c);
+  return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(key?{stableKey:key}:{}),...(targetBinding?{targetBinding}:{})}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};
 }
 export function scopeFor(action:ActionCandidate,o:Observation):Scope {const c=o.controls.find(c=>c.localId===action.localId);return actionScope(action,o,c,o.regions.find(r=>r.key===c?.region));}
 /** Indexes only captured facts for one synchronous pass. Never retain this
@@ -22,8 +22,8 @@ export function actionScopeReader(o:Observation) {
 }
 /** Review gaps bind to the observed control, including controls without an explicit label or an action yet. */
 export function scopeForControl(c:Observation['controls'][number],o:Observation):Scope {
-  const label=c.name||c.label,region=o.regions.find(r=>r.key===c.region)?.label,stableKey=scopeControlKey(c);
-  return {url:o.url,...(region?{region}:{}),...(label?{label}:{}),...(c.role?{role:c.role}:{}),...(stableKey?{stableKey}:{})};
+  const label=c.name||c.label,region=o.regions.find(r=>r.key===c.region)?.label,stableKey=scopeControlKey(c),targetBinding=browserControlBindingKey(c);
+  return {url:o.url,...(region?{region}:{}),...(label?{label}:{}),...(c.role?{role:c.role}:{}),...(stableKey?{stableKey}:{}),...(targetBinding?{targetBinding}:{})};
 }
 /** Model-only view: retain equality hints without repeated document/DOM fingerprints. */
 export function decisionScope(scope:Scope):Scope {return {...scope,...(scope.stableKey?{stableKey:`sha256:${digest(scope.stableKey)}`}:{})};}
@@ -36,9 +36,9 @@ export function matches(scope:Scope,action:ActionCandidate,o:Observation) {
   return Object.entries(scope).every(([key,value])=>JSON.stringify(actual[key as keyof Scope])===JSON.stringify(value));
 }
 /** Only page/region scopes imply discovery navigation; an unnamed operation is still bounded. */
-export const broadScope=(scope:Scope)=>!scope.label&&!scope.role&&!scope.stableKey&&!scope.kind&&scope.value===undefined;
+export const broadScope=(scope:Scope)=>!scope.label&&!scope.role&&!scope.stableKey&&!scope.targetBinding&&!scope.kind&&scope.value===undefined;
 function controlScope(control:Observation['controls'][number],o:Observation):Scope {
-  return {url:o.url,region:o.regions.find(r=>r.key===control.region)?.label,label:control.name||control.label,role:control.role,stableKey:scopeControlKey(control)};
+  return {url:o.url,region:o.regions.find(r=>r.key===control.region)?.label,label:control.name||control.label,role:control.role,stableKey:scopeControlKey(control),targetBinding:browserControlBindingKey(control)};
 }
 function matchesControlScope(scope:Scope,actual:Scope) {
   if((scope.kind||scope.value!==undefined)&&!scope.label&&!scope.stableKey)return false;

@@ -2,6 +2,7 @@ import { expect,it,vi } from 'vitest';
 import type { ExplorerHost,Task,Scope } from '@interaction/explorer-plugin';
 import type { Observation } from '@interaction/browser';
 import { remapStoredScopes } from '../packages/explorer-plugin/src/scope-migration.js';
+import { scopeForControl } from '../packages/explorer-plugin/src/policy.js';
 const control=(stableKey:string,recordKey:string)=>({stableKey,tag:'button',role:'button',name:'Run',label:'Run',constraints:{},structuralItem:{recordKey,template:'button-row',slot:'0'}});
 const observation=(id:string,controls:unknown[])=>({id,sessionId:'s',url:'https://example.test/',regions:[],controls}) as unknown as Observation;
 function fixture(){
@@ -43,6 +44,19 @@ it('does not cache unavailable evidence and never authorizes or completes a row 
  expect(f.task.plan.every(i=>i.status==='unresolved'&&!i.resolvedBy&&i.attempts.length===0&&i.dispatchScope===false)).toBe(true);
 });
 it('bounds persisted projections without losing candidates from the current migration pass',()=>{
- const f=fixture();f.task.scopeMigrationIndex={version:1,keys:['id:entry'],sources:Object.fromEntries(Array.from({length:1100},(_,i)=>[`s:unused-${i}`,{sessionId:'s',observationId:`unused-${i}`,examinedKeys:1,matches:[]}]))};
+ const f=fixture();f.task.scopeMigrationIndex={version:2,keys:['id:entry'],sources:Object.fromEntries(Array.from({length:1100},(_,i)=>[`s:unused-${i}`,{sessionId:'s',observationId:`unused-${i}`,examinedKeys:1,matches:[]}]))};
  expect(remapStoredScopes(f.task,f.host)).toHaveLength(1);expect(Object.keys(f.task.scopeMigrationIndex!.sources)).toHaveLength(1024);
+});
+it('rebuilds the previous cache projection before matching a captured target binding',()=>{
+ const f=fixture(),source=f.sources.get('first')!,targetBinding=scopeForControl(source.controls[0],source).targetBinding;
+ expect(targetBinding).toMatch(/^browser-target-binding:v1:/);
+ f.task.plan[0].scope.targetBinding=targetBinding;
+ f.task.scopeMigrationIndex={version:1,keys:['id:entry','id:plain'],sources:{'s:first':{sessionId:'s',observationId:'first',examinedKeys:2,matches:[]}}};
+ expect(remapStoredScopes(f.task,f.host)).toHaveLength(1);
+ expect(f.task.scopeMigrationIndex!.version).toBe(2);
+ expect(f.task.plan[0].scope.stableKey).toMatch(/^explorer:record:v1:/);
+ expect(f.task.plan[0].scope.targetBinding).toBe(targetBinding);
+ expect(f.task.plan[0].status).toBe('unresolved');
+ f.task.plan.push(f.item('again',{...f.scope,targetBinding}));
+ expect(remapStoredScopes(f.task,f.host)).toHaveLength(1);expect(f.read).toHaveBeenCalledTimes(1);
 });
