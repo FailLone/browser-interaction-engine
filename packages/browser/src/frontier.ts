@@ -8,6 +8,9 @@ export interface FrontierStateFact {
 }
 export interface FrontierStateSummary {
   stateId: string; observationId: string; status: 'available' | 'unavailable';
+  /** Response-local representative observation, verified by complete canonical
+   * equality. Presentation evidence only; never a graph or execution grant. */
+  strictObservationKey?: string;
   capturedAt?: string; facts: FrontierStateFact[];
 }
 export interface BrowserFrontierCoverageGroup extends FrontierCoverageGroup { states: FrontierStateSummary[] }
@@ -15,15 +18,22 @@ export interface BrowserFrontierCoverageGroup extends FrontierCoverageGroup { st
 /** Project recorded observations only. Never substitute the live interface for missing history. */
 export function withFrontierStates(groups: FrontierCoverageGroup[], read: (id: string) => Observation | undefined): BrowserFrontierCoverageGroup[] {
   const states = new Map<string, FrontierStateSummary>();
-  return groups.map(group => ({ ...group, states: [...new Set(group.items.map(item => item.stateId))].map(stateId => {
-    let state = states.get(stateId);
+  const equivalentObservations = new Map<string, string>();
+  return groups.map(group => ({ ...group, states: [...new Map(group.items.map(item => [JSON.stringify([item.sessionId, item.stateId, item.action.observationId]), item])).entries()].map(([key, item]) => {
+    let state = states.get(key);
     if (state) return state;
-    const item = group.items.find(item => item.stateId === stateId)!;
-    const observationId = item.action.observationId;
+    // Graph groups can contain different historical values. Facts and links
+    // belong to the operation's actual source observation, never its group.
+    const stateId = item.stateId, observationId = item.action.observationId;
     const o = read(observationId);
     state = { stateId, observationId, status: 'unavailable', facts: [] };
-    if (o?.stateId === stateId && o.sessionId === item.sessionId) {
+    if (o?.id === observationId && o.stateId === stateId && o.sessionId === item.sessionId) {
       state.status = 'available'; state.capturedAt = o.capturedAt;
+      if (!o.gaps.some(g => g.critical)) {
+        const strictKey = JSON.stringify([o.sessionId, o.ruleVersion, o.canonical]);
+        if (!equivalentObservations.has(strictKey)) equivalentObservations.set(strictKey, o.id);
+        state.strictObservationKey = equivalentObservations.get(strictKey)!;
+      }
       const add = (key: string, label: string, field: string, value: Json, primary = false, controlId?: string) => state!.facts.push({ key, label, field, value, primary, controlId });
       add('url', '页面地址', 'url', o.url);
       add('scroll', '滚动位置', 'scroll', o.scroll);
@@ -46,6 +56,6 @@ export function withFrontierStates(groups: FrontierCoverageGroup[], read: (id: s
         }
       }
     }
-    states.set(stateId, state); return state;
+    states.set(key, state); return state;
   }) }));
 }

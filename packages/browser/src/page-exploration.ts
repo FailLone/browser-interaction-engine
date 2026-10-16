@@ -1,4 +1,4 @@
-import { currentExplorationDecision } from '@interaction/core';
+import { currentExplorationDecision, sameObservedState } from '@interaction/core';
 import { contextKey, type Persistence, type ExplorationGroup, type ExplorationGroupProposal, type FrontierItem } from '@interaction/core';
 import type { ActionCandidate, Observation, Session } from '@interaction/adapter-playwright';
 
@@ -44,14 +44,30 @@ export class PageExploration {
     if (!this.enabled(session) || state?.rootUrl === o.url) return false;
     const g = this.group(o), d = currentExplorationDecision(g)?.decision;
     if (d?.mode === 'all') return false;
-    if (d?.mode === 'sample' && frontier().some(f => f.stateId === o.stateId && f.status === 'pending' && f.depth < session.options.maxDepth
+    const currentSource = this.currentSources(o);
+    if (d?.mode === 'sample' && frontier().some(f => currentSource(f) && f.status === 'pending' && f.depth < session.options.maxDepth
       && f.explorationGroups?.some(r => r.groupId === g!.id && r.memberKey && d.memberKeys.includes(r.memberKey)))) return false;
     return true;
   }
   candidates(items: FrontierItem[], o: Observation, session: Session) {
     if (!this.enabled(session) || o.boundaries?.length) return items;
-    const local = items.filter(f => f.stateId === o.stateId && !this.leavesPage(f.action, o));
+    const currentSource = this.currentSources(o);
+    const local = items.filter(f => currentSource(f) && !this.leavesPage(f.action, o));
     return local.length ? local : items;
+  }
+  private currentSources(current: Observation) {
+    // A synchronous projection can share immutable reads; nothing survives into
+    // another observation or grants execution permission.
+    const matched = new Map([[current.id, sameObservedState(current, current)]]);
+    return (item: FrontierItem) => {
+      if (item.sessionId !== current.sessionId) return false;
+      const observationId = item.action.observationId;
+      if (!matched.has(observationId)) {
+        const source = this.store.get<Observation>('observation', observationId);
+        matched.set(observationId, !!source && source.sessionId === current.sessionId && sameObservedState(source, current));
+      }
+      return matched.get(observationId)!;
+    };
   }
   private leavesPage(a: ActionCandidate, o: Observation) {
     if (a.kind === 'history' || a.kind === 'navigate') return true;

@@ -46,7 +46,7 @@ flowchart LR
 | GET | /sessions/:sid/attempts/:attemptId/diff/details | 动作保存的 diff 详情 |
 | GET | /sessions/:sid/events/:sequence/diff/details | 事件保存的 diff 详情 |
 | GET | /sessions/:sid/scopes/:scopeId/diff/details | 流程累计 diff 详情 |
-| GET | /sessions/:sid/path?from=&to= | 已记录可重放路径；无路径为 null |
+| GET | /sessions/:sid/path?from=&to= | 已记录可重放路径；无路径为 null。多观察图分组须同时指定 fromObservationId、toObservationId；按严格观察连续性寻路，不以图分组相同证明到达 |
 | GET | /sessions/:sid/report | 发现范围、动作、待办、缺口和问题 |
 | GET | /sessions/:sid/evidence/:observationId | PNG 截图 |
 | GET | /sessions/:sid/events?after= | SSE；支持 Last-Event-ID |

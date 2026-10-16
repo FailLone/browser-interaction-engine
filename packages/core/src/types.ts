@@ -27,9 +27,21 @@ export interface Observation<C extends Control = Control> {
   boundaries?: InteractionBoundary[];
   gaps: Gap[]; stable: boolean;
   stateId: ID; visitId: ID; fingerprint: string; canonical: string; ruleVersion: string;
+  /** Present when stateId is a non-authorizing graph group rather than exact observed equality. */
+  stateGrouping?: string;
   cause: 'initial' | 'action' | 'inspection' | 'recovery' | 'external';
 }
-export interface UIState { id: ID; sessionId: ID; fingerprint: string; canonical: string; ruleVersion: string; observationIds: ID[]; context: Context }
+/** A graph index projection only. Equal groups never certify arrival, coverage or replay permission. */
+export interface StateGrouping { policy: string; canonical: string; evidence: string[] }
+export interface UIState {
+  id: ID; sessionId: ID;
+  /** Exact facts of the first retained observation, not an assertion about all group members. */
+  fingerprint: string; canonical: string; ruleVersion: string;
+  /** Complete for exact legacy states; first/latest only when grouping.memberReferences is present.
+   * Full membership remains available from immutable observations by stateId. */
+  observationIds: ID[]; context: Context;
+  grouping?: StateGrouping & { fingerprint: string; observationCount: number; memberReferences: 'first-and-latest' };
+}
 export interface ControlIdentity<C extends Control = Control> {
   id: ID; sessionId: ID; createdAt: string; signature: string; stableKey?: string;
   occurrences: { observationId: ID; localId: ID; instanceId: ID; context: Context; evidence: string[] }[];

@@ -59,7 +59,7 @@ it('explores the same native button from two observed form modes without transfe
   } finally { await t.close(); }
 });
 
-it('retains passive quote ticks and unrelated form changes in facts without creating new input samples', async () => {
+it('ignores passive quotes and input starting values, while sampling cross-form modes without assuming independence', async () => {
   const t = await fixture(`<main><form id="order"><input id="quantity" aria-label="Quantity"><label><input id="limit" type="checkbox">Limit</label></form>
     <form id="other"><label><input id="newsletter" type="checkbox">Subscribe</label></form><output id="quote">$100</output></main>`);
   try {
@@ -67,16 +67,18 @@ it('retains passive quote ticks and unrelated form changes in facts without crea
     const key = controlCase(a, first, true)!.key;
     await t.page.evaluate(() => {
       (document.querySelector('#quantity') as HTMLInputElement).value = '23';
-      (document.querySelector('#newsletter') as HTMLInputElement).checked = true;
       document.querySelector('#quote')!.textContent = '$101 at 12:02';
     });
     const next = await t.engine.observe(t.sid), b = actionFor(t.engine, t.sid, 'id:quantity', 'fill');
     expect(next.canonical).not.toBe(first.canonical);
     expect(controlCase(b, next, true)!.key).toBe(key);
     expect(browserOperationKey(b, next)).toBe(browserOperationKey(a, first));
+    await t.page.evaluate(() => { (document.querySelector('#newsletter') as HTMLInputElement).checked = true; });
+    const nonlocal = await t.engine.observe(t.sid);
+    expect(controlCase(actionFor(t.engine, t.sid, 'id:quantity', 'fill'), nonlocal, true)!.key).not.toBe(key);
     await t.page.evaluate(() => { (document.querySelector('#limit') as HTMLInputElement).checked = true; });
     const changed = await t.engine.observe(t.sid);
-    expect(controlCase(actionFor(t.engine, t.sid, 'id:quantity', 'fill'), changed, true)!.key).not.toBe(key);
+    expect(controlCase(actionFor(t.engine, t.sid, 'id:quantity', 'fill'), changed, true)!.key).not.toBe(controlCase(actionFor(t.engine, t.sid, 'id:quantity', 'fill'), nonlocal, true)!.key);
   } finally { await t.close(); }
 });
 
@@ -90,7 +92,8 @@ it('bounds retries with unknown selector evidence despite passive price changes 
     expect(attempt.status).toBe('succeeded');
     await t.page.evaluate(() => { (document.querySelector('#quote') as HTMLInputElement).value = '$102 at 12:04'; });
     const after = await t.engine.observe(t.sid), second = actionFor(t.engine, t.sid, 'id:run', 'click');
-    expect(after.stateId).not.toBe(before.stateId);
+    expect(after.canonical).not.toBe(before.canonical);
+    expect(after.stateId).toBe(before.stateId);
     expect(browserBranchConditions(second, after)).toBeUndefined();
     expect(controlCase(second, after, true)).toBeUndefined();
     expect(browserOperationKey(second, after)).toBe(retryKey);
@@ -144,14 +147,15 @@ it('keeps source conditions portable across a fresh document and preserves chang
   } finally { await t.close(); }
 });
 
-it('does not let a disjoint semantic region invalidate every operation through a shared main/document ancestor', async () => {
+it('does not treat disjoint semantic regions as evidence of behavioral independence', async () => {
   const t = await fixture('<main><section aria-label="Left"><button id="run" type="button">Run</button></section><section aria-label="Right"><select id="mode" aria-label="Other mode"><option value="a">A</option><option value="b">B</option></select></section></main>');
   try {
     const before = t.engine.observation(t.sid), action = actionFor(t.engine, t.sid, 'id:run', 'click');
     const key = controlCase(action, before, true)!.key;
     await t.page.evaluate(() => { (document.querySelector('#mode') as HTMLSelectElement).value = 'b'; });
     const after = await t.engine.observe(t.sid);
-    expect(controlCase(actionFor(t.engine, t.sid, 'id:run', 'click'), after, true)!.key).toBe(key);
+    expect(controlCase(actionFor(t.engine, t.sid, 'id:run', 'click'), after, true)!.key).not.toBe(key);
+    expect(browserBranchConditions(actionFor(t.engine, t.sid, 'id:run', 'click'), after)!.conditions).toMatchObject([{ relation: 'observed-document-mode', state: { selected: ['b'] } }]);
   } finally { await t.close(); }
 });
 

@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import { browserControlCorrespondence, browserOperationKey, navigationIntent, type ActionAvailability, type ActionCandidate, type Observation } from '@interaction/browser';
-import type { Scope, PlanItem } from './types.js';
+import { browserControlCorrespondence, browserOperationKey, legacyBrowserOperationKey, navigationIntent, type ActionAvailability, type ActionCandidate, type Observation } from '@interaction/browser';
+import type { Scope, PlanItem, ExplorerHost, Task } from './types.js';
 const ordered=(value:unknown):unknown=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>[k,ordered(v)])):value;
 export const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(ordered(value))).digest('hex');
 /** Task policy consumes host semantics; these opaque keys retain old task compatibility. */
@@ -50,6 +50,48 @@ export function controlScopeMatcher(o:Observation,actions:ActionCandidate[]) {
     ||matchesControlScope(scope,controls.get(control.localId)||controlScope(control,o));
 }
 export const keyFor=browserOperationKey;
+export const operationConditionPolicy='browser-operation-key-v2' as const;
+/** Upgrade only unattempted discovery hints with exact retained source proof.
+ * A new key does not discharge the obligation: current SDK correspondence and
+ * dispatch checks still decide whether an observed target may execute. */
+export function migrateOperationConditions(task:Pick<Task,'plan'>,host:Pick<ExplorerHost,'observation'|'actions'>) {
+  const changes:{itemId:string;audit:NonNullable<PlanItem['conditionMigration']>}[]=[];
+  const records=new Map<string,{observation:Observation;actions:ActionCandidate[]}|undefined>();
+  for(const item of task.plan) {
+    if(item.dispatchScope!==false||!item.operationConditionKey||item.operationConditionPolicy===operationConditionPolicy||item.conditionMigration
+      ||!['pending','unresolved','blocked'].includes(item.status)||item.attempts.length||item.resolvedBy||item.reviewResolvedBy||item.coverageResolvedBy
+      ||!['observed_in_scope','operation_not_executed'].includes(item.reason))continue;
+    const fromKey=item.operationConditionKey,keys=new Set<string>(),sources:NonNullable<PlanItem['conditionMigration']>['sources']=[];
+    let reason=item.evidence.length?'':'missing_source';
+    for(const ref of item.evidence) {
+      if(ref.attemptId){reason='attempt_source_requires_review';break;}
+      const sourceKey=JSON.stringify([ref.sessionId,ref.observationId]);
+      if(!records.has(sourceKey)) {
+        try{const observation=host.observation(ref.sessionId,ref.observationId);
+          records.set(sourceKey,observation.id===ref.observationId&&observation.sessionId===ref.sessionId?{observation,actions:host.actions(ref.sessionId,ref.observationId)}:undefined);
+        }catch{records.set(sourceKey,undefined);}
+      }
+      const record=records.get(sourceKey);
+      // Full retained documents can be megabytes. This synchronous pass retains
+      // only eight; the durable audit contains IDs rather than captures.
+      records.delete(sourceKey);records.set(sourceKey,record);while(records.size>8)records.delete(records.keys().next().value!);
+      if(!record){reason='missing_source';break;}
+      if(record.observation.gaps.some(g=>g.critical)||Object.values(record.observation.context).some(c=>c.status!=='known')){reason='incomplete_source';break;}
+      const candidates=record.actions.filter(a=>a.sessionId===ref.sessionId&&a.observationId===ref.observationId&&matches(item.scope,a,record.observation));
+      if(candidates.length!==1){reason='source_not_unique';break;}
+      const action=candidates[0],key=keyFor(action,record.observation);
+      if(fromKey!==key&&fromKey!==legacyBrowserOperationKey(action,record.observation)){reason='source_key_mismatch';break;}
+      keys.add(key);sources.push({...ref,actionId:action.id});
+    }
+    if(!reason&&keys.size!==1)reason='multiple_current_conditions';
+    const audit:NonNullable<PlanItem['conditionMigration']>=reason?{status:'invalidated',fromKey,reason,sources}
+      :{status:'migrated',fromKey,toKey:[...keys][0],reason:'retained_source_key_verified',sources};
+    if(reason){item.status='blocked';item.reason=`condition_policy_invalidated:${reason}`;}
+    else {item.operationConditionKey=audit.toKey;item.operationConditionPolicy=operationConditionPolicy;}
+    item.conditionMigration=audit;changes.push({itemId:item.id,audit});
+  }
+  return changes;
+}
 export function permitted(action:ActionCandidate,o:Observation,availability:ActionAvailability) {
   return availability.observationId===o.id&&action.observationId===o.id&&availability.actions.some(a=>a.actionId===action.id&&a.executable);
 }

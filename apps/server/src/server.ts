@@ -120,7 +120,12 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
     const sequence = z.coerce.number().int().positive().max(Number.MAX_SAFE_INTEGER).parse((request.params as any).sequence);
     return engine.eventDiffDetails(sid(request), sequence);
   });
-  app.get('/v1/sessions/:sessionId/path', async request => { const q = request.query as Record<string, string>; if (!q.from || !q.to) throw new EngineError('INVALID_REQUEST', 'from and to state IDs are required'); return { path: engine.navigationPath(sid(request), q.from, q.to) }; });
+  app.get('/v1/sessions/:sessionId/path', async request => {
+    const q = request.query as Record<string, string>;
+    if (!q.from || !q.to) throw new EngineError('INVALID_REQUEST', 'from and to state IDs are required');
+    if (!!q.fromObservationId !== !!q.toObservationId) throw new EngineError('INVALID_REQUEST', 'Both observation endpoints are required');
+    return { path: engine.navigationPath(sid(request), q.from, q.to, q.fromObservationId ? { fromObservationId: q.fromObservationId, toObservationId: q.toObservationId } : undefined) };
+  });
   const collections: Record<string, string> = { observations: 'observation', states: 'state', visits: 'visit', attempts: 'attempt', frontier: 'frontier', identities: 'identity', hypotheses: 'hypothesis', scopes: 'scope', checkpoints: 'checkpoint', issues: 'issue', recoveries: 'reach', 'exploration-groups': 'exploration-group', 'exploration-decision-reviews': 'exploration-decision-review', 'exploration-decision-applications': 'exploration-decision-application', 'purpose-reviews': 'purpose-review', 'region-reviews': 'region-review', 'boundary-exit-reviews': 'boundary-exit-review', 'boundary-exit-results': 'boundary-exit-result', 'control-reviews':'control-review', 'control-classifications':'control-classification', 'discovery-scans':'discovery-scan' };
   Object.assign(collections, { 'intervention-responses': 'intervention-response', continuations: 'continuation' });
   for (const [resource, kind] of Object.entries(collections)) app.get(`/v1/sessions/:sessionId/${resource}`, async request => {

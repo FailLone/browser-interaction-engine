@@ -2,14 +2,14 @@ import { observedPosition, reconcileRecoveryPosition, routeAttempt } from './nav
 import { projectObligations, recoveryConditionVersion, recoveryRouteConditionVersion, recoveryRouteKey, recordRouteRetry, routeRetryEligibility, releaseRouteRetriesForVerifiedRecovery } from './obligation-lifecycle.js';
 import {capturedRoute,routeFinder,routeMatches,routeKey} from './reentry-evidence.js';
 import { randomUUID } from 'node:crypto';
-import { browserTargetConditions } from '@interaction/browser';
+import { browserTargetConditions, sameObservedState } from '@interaction/browser';
 import { z } from 'zod';
 import type { ActionCandidate, ActionAttempt, Observation, EngineEvent, BoundaryExitResult, ContinuationRecord, IdentityHypothesis } from '@interaction/browser';
 import { ExplorerError, type Task, type Round, type Frame, type PlanItem, type Scope, type ExplorerHost, type Providers, type Decision, type ModelRequest } from './types.js';
 import { ExplorerStore } from './store.js';
 import { DecisionRouter } from './router.js';
 import { createTaskSchema, budgetSchema, planSchema, initialTaskSchema, plannedScopeSchema, limitationAcceptanceSchema, jsonSchema } from './schema.js';
-import { digest, includesScope, keyFor, matches, permitted, unexecutedAction, scopeFor, scopeForControl, navigationTarget, controlInScope, controlScopeMatcher, broadScope, decisionScope, decisionPlan } from './policy.js';
+import { digest, includesScope, keyFor, matches, permitted, unexecutedAction, scopeFor, scopeForControl, navigationTarget, controlInScope, controlScopeMatcher, broadScope, decisionScope, decisionPlan, migrateOperationConditions, operationConditionPolicy } from './policy.js';
 import { reviewNext, type ChoiceConstraints, type RetainedScope } from './reviews.js';
 import { safeError } from './providers.js';
 import { POLICY_VERSION } from './decision-policy.js';
@@ -109,7 +109,7 @@ export class ExplorerPlugin {
   private elapsed(task:Task){return task.usage.durationMs+(task.activeSince?Date.now()-task.activeSince:0);}
   private checkBudget(task:Task){this.syncUsage(task);if(task.usage.actions>=task.budget.actions||this.elapsed(task)>=task.budget.durationMs)throw new ExplorerError('BUDGET_EXHAUSTED');}
   private assert(task:Task,signal:AbortSignal,observationId?:string,revision=task.revision){if(signal.aborted||task.status!=='running'||task.revision!==revision)throw new ExplorerError('CANCELLED');if(observationId&&this.host.observation(task.rounds.at(-1)!.sessionId).id!==observationId)throw new ExplorerError('STALE_DECISION');this.checkBudget(task);}
-  private newItem(x:Pick<PlanItem,'title'|'scope'|'prerequisites'|'completion'|'required'|'reason'>,dispatchScope=true,source?:Pick<Observation,'sessionId'|'id'>,operationConditionKey?:string):PlanItem{return {...x,...(operationConditionKey?{operationConditionKey}:{}),dispatchScope,id:randomUUID(),status:x.required?'pending':'untested',evidence:source?[{sessionId:source.sessionId,observationId:source.id}]:[],attempts:[]};}
+  private newItem(x:Pick<PlanItem,'title'|'scope'|'prerequisites'|'completion'|'required'|'reason'>,dispatchScope=true,source?:Pick<Observation,'sessionId'|'id'>,operationConditionKey?:string):PlanItem{return {...x,...(operationConditionKey?{operationConditionKey,operationConditionPolicy}:{}),dispatchScope,id:randomUUID(),status:x.required?'pending':'untested',evidence:source?[{sessionId:source.sessionId,observationId:source.id}]:[],attempts:[]};}
   private restoreDispatchScopes(task:Task) {
     if(!task.plan.some(i=>i.dispatchScope===undefined))return;
     // Restore only the last explicit plan snapshot; accumulated gap/derived rows are not grants.
@@ -123,7 +123,7 @@ export class ExplorerPlugin {
   private gap(task:Task,reason:string,scope:Scope,required=true,prerequisites:Scope[]=[],persist=true,source?:Pick<Observation,'sessionId'|'id'>,operationConditionKey?:string) {
     if(required && task.plan.length && !task.plan.some(i=>i.required&&i.dispatchScope===true&&Object.entries(i.scope).every(([k,v])=>scope[k as keyof Scope]===undefined||scope[k as keyof Scope]===v)))required=false;
     const key=JSON.stringify({reason,scope,operationConditionKey});let item=task.plan.find(i=>JSON.stringify({reason:i.reason,scope:i.scope,operationConditionKey:i.operationConditionKey})===key);
-    if(!item){item={id:randomUUID(),title:reason,scope,...(operationConditionKey?{operationConditionKey}:{}),prerequisites:[...prerequisites],completion:'Obtain fresh evidence and verify the requested operation',status:required?'unresolved':reason==='scope_excluded'?'excluded':'untested',required,dispatchScope:false,reason,evidence:[],attempts:[]};task.plan.push(item);}
+    if(!item){item={id:randomUUID(),title:reason,scope,...(operationConditionKey?{operationConditionKey,operationConditionPolicy}:{}),prerequisites:[...prerequisites],completion:'Obtain fresh evidence and verify the requested operation',status:required?'unresolved':reason==='scope_excluded'?'excluded':'untested',required,dispatchScope:false,reason,evidence:[],attempts:[]};task.plan.push(item);}
     if(item.coverageResolvedBy){const previous=item.coverageResolvedBy;delete item.coverageResolvedBy;item.status=item.required?'unresolved':'untested';this.event(task,'scope.coverage_reopened',{itemId:item.id,previous,reason:'new_unresolved_evidence'});}
     if(item.reviewResolvedBy){const previous=item.reviewResolvedBy;delete item.reviewResolvedBy;delete item.resolvedBy;item.status=item.required?'unresolved':'untested';this.event(task,'review.reopened',{itemId:item.id,previous,reason:'new_unresolved_evidence'});}
     // A synchronous audit already holds the source observation. Reading it once
@@ -253,7 +253,8 @@ export class ExplorerPlugin {
     const checkpoint=await this.host.createCheckpoint(o.sessionId,`explorer probe ${round.number}/${round.stack.length+1}`,[],[]);
     this.assert(task,signal,o.id,decision?.revision);
     const frame=round.stack.at(-1),previousRemaining=frame&&[...frame.remaining];
-    if(frame?.stateId===o.stateId)frame.remaining=[...new Map([...frame.remaining,...remaining].map(s=>[digest(s),s])).values()];
+    const sameFrame=!!frame&&sameObservedState(this.host.observation(o.sessionId,frame.observationId),o);
+    if(sameFrame)frame.remaining=[...new Map([...frame.remaining,...remaining].map(s=>[digest(s),s])).values()];
     else round.stack.push({checkpointId:checkpoint.id,observationId:o.id,stateId:o.stateId,used:[],path:[...round.entryPath],remaining:[...new Map(remaining.map(s=>[digest(s),s])).values()]});
     const requestId=randomUUID();task.pendingDispatch={sessionId:o.sessionId,requestId,decisionId:decision?.id,itemIds:[],observationId:o.id,probe:{localId,kind,scope}};
     this.store.save(task);if(decision)this.router.mark(decision,'applied');if(decision)this.router.effect(decision,'probe',{requestId,localId,kind,scope,sourceObservationId:o.id,executionCoverage:false});this.event(task,'probe.dispatch',{requestId,localId,kind,decisionId:decision?.id});
@@ -272,7 +273,7 @@ export class ExplorerPlugin {
       // Only known pre-dispatch rejections can clear an intent without an attempt.
       else if(code&&['STALE_OBSERVATION','TARGET_MISSING','UNSUPPORTED_PROBE','ACTION_BLOCKED','ACTION_EXCLUDED','PRECONDITIONS_CHANGED','BUDGET_EXHAUSTED'].includes(code)){
         delete task.pendingDispatch;
-        if(frame?.stateId===o.stateId)frame.remaining=previousRemaining!;
+        if(sameFrame)frame.remaining=previousRemaining!;
         else round.stack=round.stack.filter(f=>f.checkpointId!==checkpoint.id);
         if(decision)this.router.mark(decision,code.startsWith('STALE')?'stale':'rejected',code);if(decision)this.router.effect(decision,'probe-rejected',{requestId,reason:code,browserDispatched:false,executionCoverage:false});
       }
@@ -369,7 +370,7 @@ export class ExplorerPlugin {
   }
   private recordOutcome(task:Task,attempt:ActionAttempt,itemIds:string[]) {
     const round=task.rounds.at(-1)!;const ref={sessionId:attempt.sessionId,observationId:attempt.afterId||attempt.beforeId,attemptId:attempt.id};
-    for(const item of task.plan.filter(i=>itemIds.includes(i.id)&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome'&&i.reason!=='checkpoint_unverified')) {
+    for(const item of task.plan.filter(i=>itemIds.includes(i.id)&&!(i.dispatchScope===false&&i.conditionMigration?.status==='invalidated')&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome'&&i.reason!=='checkpoint_unverified')) {
       if(!item.attempts.some(x=>x.evidence?.attemptId===attempt.id))item.attempts.push({roundId:round.id,outcome:attempt.status,evidence:ref});
       item.evidence.push(ref);
       if(attempt.status==='succeeded'&&attempt.afterId){
@@ -432,6 +433,10 @@ export class ExplorerPlugin {
       this.assertRecoveryOutcomes(task);
       const remapped=[...remapStoredScopes(task,this.host),...remapStoredReviewScopes(task,this.host)];
       if(remapped.length){this.store.save(task);this.event(task,'scope.remapped',{changes:remapped,executionAuthorized:false,historicalResultsUnchanged:true});}
+      // A borrowed peer source is not the original v1 branch observation. Keyed
+      // rows must be verified (or retained as a gap) before source recovery.
+      const migrated=migrateOperationConditions(task,this.host);
+      if(migrated.length){this.store.save(task);this.event(task,'operation.conditions_migrated',{changes:migrated,currentExecution:false,coverageGranted:false,executionAuthorized:false,historicalResultsUnchanged:true});}
       const recovered=recoverStoredScopeSources(task,this.host);
       if(recovered.length){this.store.save(task);this.event(task,'scope.source_recovered',{changes:recovered,historicalEvidenceOnly:true,originalCreationSource:false,executionAuthorized:false,historicalResultsUnchanged:true});}
       let round=task.rounds.at(-1);
@@ -515,7 +520,7 @@ export class ExplorerPlugin {
     const counts=new Map<string,number>();for(const a of actions){const k=digest(scopeFor(a,o));counts.set(k,(counts.get(k)||0)+1);}
     const unique=eligible.filter(a=>{if(counts.get(digest(scopeFor(a,o)))===1)return true;this.gap(task,'ambiguous_scope_match',scopeFor(a,o));return false;});
     const recordedItems=new Map<string,PlanItem[]>();
-    for(const item of task.plan.filter(i=>i.required)){const key=digest({scope:item.scope,condition:item.operationConditionKey}),items=recordedItems.get(key)||[];items.push(item);recordedItems.set(key,items);}
+    for(const item of task.plan.filter(i=>i.required&&!(i.dispatchScope===false&&i.conditionMigration?.status==='invalidated'))){const key=digest({scope:item.scope,condition:item.operationConditionKey}),items=recordedItems.get(key)||[];items.push(item);recordedItems.set(key,items);}
     const recordedScopes=new Set(recordedItems.keys()),pathFor=this.pathResolver(round,o);
     for(const candidate of unique.filter(a=>includesScope(task.plan,a,o)==='target')) {
       const authorities=task.plan.filter(i=>i.required&&i.dispatchScope===true&&matches(i.scope,candidate,o));
@@ -565,7 +570,7 @@ export class ExplorerPlugin {
       // its missing basis/risk is not an executable operation to replay later.
       const remaining=[...snapshot.operationCandidates.filter(a=>a.id!==action.id&&a.basis?.status==='supported'&&includesScope(task.plan,a,o)==='target'&&!this.navigationIsUnverified(task,a,o)&&!completed.has(a)).map(a=>scopeFor(a,o)),...reviews.map(i=>i.scope)];
       const frame=round.stack.at(-1);
-      if(frame?.stateId===o.stateId)frame.remaining=[...new Map([...frame.remaining,...remaining].map(scope=>[digest(scope),scope])).values()];
+      if(frame&&sameObservedState(this.host.observation(sid,frame.observationId),o))frame.remaining=[...new Map([...frame.remaining,...remaining].map(scope=>[digest(scope),scope])).values()];
       else round.stack.push({checkpointId:checkpoint.id,observationId:o.id,stateId:o.stateId,used:[],path:[...round.entryPath],remaining:[...new Map(remaining.map(scope=>[digest(scope),scope])).values()]});
       this.assert(task,signal,o.id,revision);
       const entryPath=this.pathForAction(round,action,o);
@@ -573,7 +578,7 @@ export class ExplorerPlugin {
       const repetition=reentry?this.reentryPermission(task,round,action,o):undefined;
       if(reentry&&!repetition?.repeatable)throw new ExplorerError('REENTRY_EVIDENCE_CHANGED');
       if(reentry)this.recordEntry(task,round,action,o);
-      const purpose=reentry?'prerequisite':includesScope(task.plan,action,o);const items=task.plan.filter(i=>i.required&&!i.reason.startsWith('missing_capability:')&&matches(i.scope,action,o)&&(i.dispatchScope===true||!i.operationConditionKey||i.operationConditionKey===keyFor(action,o)));
+      const purpose=reentry?'prerequisite':includesScope(task.plan,action,o);const items=task.plan.filter(i=>i.required&&!(i.dispatchScope===false&&i.conditionMigration?.status==='invalidated')&&!i.reason.startsWith('missing_capability:')&&matches(i.scope,action,o)&&(i.dispatchScope===true||!i.operationConditionKey||i.operationConditionKey===keyFor(action,o)));
       if(purpose==='target'&&!items.some(i=>i.scope.kind&&i.scope.label)) {const leaf=this.newItem({title:`${action.kind} ${action.label}`,scope:scopeFor(action,o),prerequisites:[...entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false,o,keyFor(action,o));task.plan.push(leaf);items.push(leaf);}
       const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id};
       const attemptKey=this.attemptKey(round,action,o);round.tried.push(attemptKey);this.store.save(task);this.event(task,'action.scheduled',{requestId,actionId:action.id,label:action.label,kind:action.kind,purpose,itemIds:items.map(i=>i.id)});this.event(task,'action.dispatch',{requestId,actionId:action.id,purpose});
@@ -597,8 +602,11 @@ export class ExplorerPlugin {
     const roundAttempts=new Map(this.host.list<ActionAttempt>(sid,'attempt').map(a=>[a.id,a]));
     const executedItems=task.plan.filter(i=>i.status==='succeeded'&&i.resolvedBy?.sessionId===sid&&i.resolvedBy.attemptId);
     for(const frame of [...round.stack].reverse()) {
-      if(frame.stateId===o.stateId||frame.recoveryTried&&!frame.recoveryConditionVersion)continue;
-      const source=this.host.observation(sid,frame.observationId),historicalActions=this.host.actions(sid,source.id),transition=this.host.interactionTransition(sid,source.id,o.id);
+      if(frame.recoveryTried&&!frame.recoveryConditionVersion)continue;
+      const source=this.host.observation(sid,frame.observationId);
+      // A shared graph group is not proof that this historical source is here.
+      if(sameObservedState(source,o))continue;
+      const historicalActions=this.host.actions(sid,source.id),transition=this.host.interactionTransition(sid,source.id,o.id);
       const completed=completedOperations(this.host,task,source,historicalActions);
       // A review may replace an old candidate's risk/basis. That invalidates
       // operation equivalence, but does not erase an actual execution of the
@@ -725,7 +733,7 @@ export class ExplorerPlugin {
   }
   private entryObligations(task:Task,a:ActionCandidate,o:Observation) {
     const grants=task.plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='excluded'),actual=scopeFor(a,o);
-    return task.plan.filter(i=>i.required&&i.status!=='excluded'
+    return task.plan.filter(i=>i.required&&i.status!=='excluded'&&!(i.dispatchScope===false&&i.conditionMigration?.status==='invalidated')
       &&(i.dispatchScope===true||grants.some(grant=>Object.entries(grant.scope).every(([key,value])=>i.scope[key as keyof Scope]===value)))
       &&i.prerequisites.some(p=>Object.entries(p).every(([key,value])=>actual[key as keyof Scope]===value)));
   }
@@ -989,6 +997,7 @@ export class ExplorerPlugin {
     round.status='finished';round.endedAt=now();const remaining=task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status));
     this.event(task,'round.audit',{roundId:round.id,obligationCounts:projection.counts,remaining:remaining.map(i=>i.id),explorationAudit:audit.explorationAudit,completionAudit:audit.completionAudit});
     if(!remaining.length){for(const d of this.store.decisions(task.id).filter(d=>d.status==='returned'))this.router.mark(d,'applied','used_in_plan_or_review');task.status='completed';task.reason='current_plan_verified';this.event(task,'task.completed',{exhaustive:false,untested:task.plan.filter(i=>!i.required).length});this.store.save(task);return true;}
+    if(remaining.some(i=>i.dispatchScope===false&&i.conditionMigration?.status==='invalidated')){task.status='blocked';task.reason='condition_policy_invalidated';round.reason=task.reason;this.store.save(task);return true;}
     const signature=digest([...new Set(projection.entries.filter(i=>!['resolved','excluded','authority'].includes(i.state)).map(i=>JSON.stringify({group:i.groupId,state:i.state==='alias'?'active':i.state,condition:i.conditionVersion})))].sort());
     round.reason=signature;const stalled=task.rounds.filter(r=>r.reason===signature).length>=3;
     const permanent=remaining.some(i=>i.reason.startsWith('missing_capability:')||i.reason==='unknown_action_outcome');

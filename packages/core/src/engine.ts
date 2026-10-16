@@ -1,7 +1,7 @@
 import { EventBus } from './events.js';
 import { contextSchema, actionBasisSchema, componentDescriptionSchema } from './schema.js';
 import type { ComponentDescription, ComponentDescriptionInput, ExplorationTargetReference, ExplorationTargetCorrespondence, ReachExplorationTargetInput, ExplorationTargetReachResult, RepetitionAssessment } from './types.js';
-import { assignState, matchIdentities } from './identity.js';
+import { assignState, matchIdentities, sameObservedState } from './identity.js';
 import { recoverStore } from './recovery.js';
 import { DiffQueries } from './diff-details.js';
 import { describeFrontier, groupFrontier } from './frontier.js';
@@ -435,7 +435,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (this.hooks.context) { const result = await this.hook(sessionId, 'context', async () => contextSchema.parse(await this.hooks.context!(ctx()))); if (result.value) Object.assign(o.context, result.value); if (result.error) o.gaps.push({ code: 'CONTEXT_HOOK_FAILED', message: result.error, critical: true }); }
     const identities = this.store.list<ControlIdentity<O['controls'][number]>>('identity', sessionId);
     const matched = matchIdentities(o, identities, this.store.list<IdentityHypothesis>('hypothesis', sessionId), c => this.adapter.signature(c));
-    let state = assignState(o, this.store.list<UIState>('state', sessionId), value => this.adapter.normalize(value as O));
+    let projection = this.adapter.stateGrouping?.(o, session);
+    let state = assignState(o, this.store.list<UIState>('state', sessionId), value => this.adapter.normalize(value as O), projection);
     const previous = session.currentObservationId ? this.observation(sessionId) : undefined;
     const parent = parentId ?? previous?.visitId;
     const parentVisit = parent ? this.store.get<Visit>('visit', parent) : undefined;
@@ -478,8 +479,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const proposals = scopes.value || [];
     // Discovery is fallible too; preserve captured facts and include late gaps in
     // state equivalence instead of discarding the entire post-action observation.
-    if (this.adapter.normalize(o) !== o.canonical) {
-      state = assignState(o, this.store.list<UIState>('state', sessionId), value => this.adapter.normalize(value as O));
+    const finalProjection = this.adapter.stateGrouping?.(o, session);
+    if (this.adapter.normalize(o) !== o.canonical || projection?.policy !== finalProjection?.policy || projection?.canonical !== finalProjection?.canonical) {
+      projection = finalProjection;
+      state = assignState(o, this.store.list<UIState>('state', sessionId), value => this.adapter.normalize(value as O), projection);
       visit.stateId = o.stateId;
     }
     actions = actions.map(a => ({ ...a, stateId: o.stateId }));
@@ -635,7 +638,11 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   }
   private frontierKey(a: ActionCandidate, observation?: O) {
     const sample = this.samplingCase(a, observation);
-    return hash({ ...(sample ? { sample: sample.key, policy: sample.policy } : { state: a.stateId }), control: a.controlId, kind: a.kind, value: a.value, context: a.preconditions.context });
+    if (sample) return hash({ sample: sample.key, policy: sample.policy, control: a.controlId, kind: a.kind, value: a.value, context: a.preconditions.context });
+    const o = observation || this.observation(a.sessionId, a.observationId);
+    // An index group never turns different strict source facts into executed work.
+    const state = o.stateGrouping ? hash({ ruleVersion: o.ruleVersion, canonical: o.canonical }) : a.stateId;
+    return hash({ state, control: a.controlId, kind: a.kind, value: a.value, context: a.preconditions.context });
   }
   private targetResolved(action: ActionCandidate, o: O) {
     if (action.preconditions.identityResolved) return true;
@@ -1020,9 +1027,37 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if (checks.some(c => c.result === 'unknown')) return { status: 'UNVERIFIED', checks };
     return { checks };
   }
-  navigationPath(sessionId: string, from: string, to: string): string[] | null {
-    const edges = this.getGraph(sessionId).transitions.filter(e => e.replayable); const queue = [{ state: from, path: [] as string[] }]; const visited = new Set<string>();
-    while (queue.length) { const item = queue.shift()!; if (item.state === to) return item.path; if (visited.has(item.state)) continue; visited.add(item.state); for (const edge of edges.filter(e => e.from === item.state)) queue.push({ state: edge.to, path: [...item.path, edge.attemptId] }); }
+  navigationPath(sessionId: string, from: string, to: string, endpoints?: { fromObservationId: string; toObservationId: string }): string[] | null {
+    const sourceState = this.owned<UIState>('state', from, sessionId), targetState = this.owned<UIState>('state', to, sessionId);
+    const resolve = (state: UIState, observationId?: string) => {
+      // A caller selecting a group with multiple members has not selected a
+      // strict destination. Never quietly substitute its first observation.
+      if (!observationId && state.grouping && state.grouping.observationCount > 1) return;
+      const observation = this.observation(sessionId, observationId || state.observationIds[0]);
+      return observation.stateId === state.id && !observation.gaps.some(g => g.critical) ? observation : undefined;
+    };
+    const source = resolve(sourceState, endpoints?.fromObservationId), target = resolve(targetState, endpoints?.toObservationId);
+    if (!source || !target) return null;
+    const key = (o: O) => canonical({ ruleVersion: o.ruleVersion, canonical: o.canonical });
+    const destination = key(target), edges = new Map<string, { to: string; attemptId: string }[]>();
+    // Passive captures are not path edges. Decode only referenced observations,
+    // once per query, rather than scanning the full immutable observation log.
+    const observations = new Map<string, O | undefined>();
+    const readObservation = (observationId: string) => {
+      if (!observations.has(observationId)) observations.set(observationId, this.store.get<O>('observation', observationId));
+      const observation = observations.get(observationId);
+      return observation?.sessionId === sessionId ? observation : undefined;
+    };
+    const attempts = new Map(this.store.list<ActionAttempt>('attempt', sessionId).map(a => [a.id, a]));
+    for (const edge of this.store.list<Transition>('transition', sessionId)) {
+      const attempt = attempts.get(edge.attemptId);
+      if (!edge.replayable || attempt?.status !== 'succeeded' || !attempt.action.replayable) continue;
+      const before = readObservation(attempt.beforeId), after = attempt.afterId && readObservation(attempt.afterId);
+      if (!before || !after || before.gaps.some(g => g.critical) || after.gaps.some(g => g.critical)) continue;
+      const sourceKey = key(before); edges.set(sourceKey, [...(edges.get(sourceKey) || []), { to: key(after), attemptId: attempt.id }]);
+    }
+    const queue = [{ state: key(source), path: [] as string[] }], visited = new Set<string>();
+    while (queue.length) { const item = queue.shift()!; if (item.state === destination) return item.path; if (visited.has(item.state)) continue; visited.add(item.state); for (const edge of edges.get(item.state) || []) queue.push({ state: edge.to, path: [...item.path, edge.attemptId] }); }
     return null;
   }
   private async replay(sessionId: string, attemptIds: string[], allowWrites: boolean, performed: string[], targetReached?: () => Promise<boolean>) {
@@ -1162,7 +1197,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if (verification.status) { status = verification.status; reason = `Verification after boundary exit attempt: ${status}`; return finish(); }
       }
       strategies.push('recorded_path');
-      const path = this.navigationPath(sessionId, this.observation(sessionId).stateId, checkpoint.stateId);
+      const currentForPath = this.observation(sessionId);
+      const path = this.navigationPath(sessionId, currentForPath.stateId, checkpoint.stateId, { fromObservationId: currentForPath.id, toObservationId: checkpoint.observationId });
       if (path?.length) {
         const failure = await this.replay(sessionId, path, false, performed, targetReached);
         verification = await verify(); checks = verification.checks;
@@ -1386,8 +1422,13 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           if (navigation !== 'continue') return navigation === 'changed';
           const outstanding = this.outstandingFrontier(sessionId);
           let pending = outstanding.filter(f => f.status === 'pending');
+          const currentStates = new Map<string, boolean>();
+          const currentState = (f: FrontierItem) => {
+            if (!currentStates.has(f.action.observationId)) currentStates.set(f.action.observationId, sameObservedState(this.observation(sessionId, f.action.observationId), o));
+            return currentStates.get(f.action.observationId)!;
+          };
           const boundary = o.boundaries?.at(-1);
-          const isExit = (f: FrontierItem) => !!boundary && f.stateId === o.stateId && f.action.boundary?.key === boundary.key && f.action.boundary.intent === 'exit';
+          const isExit = (f: FrontierItem) => !!boundary && currentState(f) && f.action.boundary?.key === boundary.key && f.action.boundary.intent === 'exit';
           const explored = new Set(this.store.list<ActionAttempt>('attempt', sessionId).filter(a => a.status === 'succeeded').map(a => a.action.controlId));
           const novelty = (f: FrontierItem) => session.options.exploration === 'controls' && (f.action.kind === 'scroll' || f.action.controlId && !explored.has(f.action.controlId)) ? 0 : 1;
           const observationOrder = new Map(this.store.list<Visit>('visit', sessionId).map((v, i) => [v.observationId, i]));
@@ -1398,7 +1439,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           if (boundary) {
             // Never navigate to another branch while an exclusive interaction is open.
             // Adapters classify targets; core only enforces the generic boundary contract.
-            pending = pending.filter(f => f.stateId === o.stateId && f.action.boundary?.key === boundary.key && !f.action.preconditions.blockers?.length);
+            pending = pending.filter(f => currentState(f) && f.action.boundary?.key === boundary.key && !f.action.preconditions.blockers?.length);
             const scope = this.store.list<InteractionScope>('scope', sessionId).find(s => s.status === 'open' && s.boundaryKey === boundary.key);
             const attempted = new Set<string>();
             for (const aid of scope?.attemptIds || []) {
@@ -1451,26 +1492,27 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           // mode exhausts ordinary work first. The caller may override ordering.
           const riskOrdered = !boundary && ['controls', 'representative'].includes(session.options.exploration || '');
           if (riskOrdered) pending.sort((a, b) => novelty(a) - novelty(b) || Number(a.action.risk !== 'interface') - Number(b.action.risk !== 'interface')
-            || Number(b.stateId === o.stateId) - Number(a.stateId === o.stateId) || revealed(b) - revealed(a) || b.depth - a.depth);
+            || Number(currentState(b)) - Number(currentState(a)) || revealed(b) - revealed(a) || b.depth - a.depth);
           if (!boundary) pending.sort((a, b) => Number(!!a.explorationGroups?.length) - Number(!!b.explorationGroups?.length));
           pending = this.explorationCandidates(pending, o);
           const eligible = !boundary ? pending.filter(f => !!f.explorationGroups?.length === !!pending[0].explorationGroups?.length) : pending;
           const pool = riskOrdered ? eligible.filter(f => novelty(f) === novelty(eligible[0]) && (f.action.risk === 'interface') === (eligible[0].action.risk === 'interface')) : eligible;
-          let chosen = pool.find(f => f.stateId === o.stateId) || pool[0];
+          let chosen = pool.find(currentState) || pool[0];
           if (this.hooks.choose) {
             const result = await this.hook(sessionId, 'choose', () => this.hooks.choose!(describeFrontier(structuredClone(pending), this.store.list<ActionAttempt>('attempt', sessionId)), structuredClone({ session, observation: o })));
             if (result.error || result.value === null) { this.pauseRequested = true; session.status = 'paused'; session.stopReason = result.error || 'external_strategy_paused'; this.store.put('session', session); return false; }
             const item = pending.find(f => f.id === result.value); if (!item) throw new EngineError('INVALID_STRATEGY_CHOICE', 'Strategy returned an unknown frontier item'); chosen = item;
           }
-          if (chosen.stateId !== this.observation(sessionId).stateId) {
+          if (!sameObservedState(this.observation(sessionId, chosen.action.observationId), this.observation(sessionId))) {
             if (session.options.exploration === 'controls' && await this.enterFrontierScope(sessionId, chosen, triedScopeEntries)) return true;
-            const state = this.owned<UIState>('state', chosen.stateId, sessionId); const checkpoint = this.checkpointInternal(sessionId, 'Exploration branch', [], [], state.observationIds[0]);
+            const checkpoint = this.checkpointInternal(sessionId, 'Exploration branch', [], [], chosen.action.observationId);
             const result = await this.reachInternal(sessionId, checkpoint.id);
             if (result.status !== 'REACHED_VERIFIED') {
               // One failed reach proves the same target unavailable for all of
               // its pending work at this instant. Do not repeat a full capture
               // for each sibling. Later observations can revalidate the items.
-              const affected = this.frontier(sessionId).filter(f => f.status === 'pending' && f.stateId === chosen.stateId && f.contextKey === chosen.contextKey);
+              const source = this.observation(sessionId, chosen.action.observationId);
+              const affected = this.frontier(sessionId).filter(f => f.status === 'pending' && sameObservedState(this.observation(sessionId, f.action.observationId), source) && f.contextKey === chosen.contextKey);
               for (const item of affected) {
                 item.status = 'blocked'; item.reason = result.reason; item.unblock = 'Reach the branch checkpoint or repair its preconditions';
                 if (result.diagnostics) item.recovery = { resultId: result.id, diagnostics: result.diagnostics };
@@ -1484,7 +1526,13 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           // made before recovery is not permission under newly observed conditions.
           if (this.owned<FrontierItem>('frontier', chosen.id, sessionId).status !== 'pending') return true;
           const action = this.actions(sessionId).find(a => this.frontierKey(a) === chosen.key);
-          if (!action) { chosen.status = 'blocked'; chosen.reason = 'action_no_longer_available'; this.store.put('frontier', chosen); return true; }
+          if (!action) {
+            chosen.status = 'blocked';
+            const policyChanged = chosen.sampling && this.frontierKey(chosen.action) !== chosen.key;
+            chosen.reason = policyChanged ? 'sampling_policy_changed' : 'action_no_longer_available';
+            if (policyChanged) chosen.unblock = 'Reconcile retained source observations under the current sampling policy; a newly executed sample does not settle this historical range';
+            this.store.put('frontier', chosen); return true;
+          }
           try { await this.runAction(sessionId, action.id, id(), undefined, 'exploration'); }
           catch (error) {
             if (error instanceof EngineError && error.code === 'ACTION_DEPENDENCIES_BLOCKED') {

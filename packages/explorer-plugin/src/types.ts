@@ -19,6 +19,10 @@ export interface PlanItem {
   id: string; title: string; scope: Scope; prerequisites: Scope[]; completion: string;
   /** Scheduling revision only; SDK evidence still decides coverage equivalence. */
   operationConditionKey?: string;
+  operationConditionPolicy?: 'browser-operation-key-v2';
+  /** Scheduling-only upgrade audit; never execution or historical coverage. */
+  conditionMigration?: { status: 'migrated' | 'invalidated'; fromKey: string; toKey?: string; reason: string;
+    sources: (EvidenceRef & { actionId: string })[] };
   status: 'pending' | 'succeeded' | 'blocked' | 'unresolved' | 'untested' | 'excluded';
   required: boolean; reason: string; evidence: EvidenceRef[]; resolvedBy?: EvidenceRef;
   /** Classification evidence closes a review obligation, never an executed action. */

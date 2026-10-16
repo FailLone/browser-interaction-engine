@@ -1,4 +1,4 @@
-import type { ControlIdentity, IdentityHypothesis, Observation, UIState, Control } from './types.js';
+import type { ControlIdentity, IdentityHypothesis, Observation, UIState, Control, StateGrouping } from './types.js';
 import { canonical, hash, id, now, clone as structuredClone } from './util.js';
 export function matchIdentities<C extends Control>(observation: Observation<C>, identities: ControlIdentity<C>[], hypotheses: IdentityHypothesis[], signature: (control: C) => string) {
   // Decide against one immutable view of history. New identities and updates from
@@ -101,9 +101,28 @@ export function matchIdentities<C extends Control>(observation: Observation<C>, 
   return { identities, hypotheses: pending };
 }
 
-export function assignState(o: Observation, states: UIState[], normalize: (observation: Observation) => string): UIState {
+/** Strict observable equality; graph membership alone supplies no such evidence. */
+export function sameObservedState(before: Observation, after: Observation): boolean {
+  return !before.gaps.some(g => g.critical) && !after.gaps.some(g => g.critical)
+    && before.ruleVersion === after.ruleVersion && before.canonical === after.canonical;
+}
+
+export function assignState(o: Observation, states: UIState[], normalize: (observation: Observation) => string, projection?: StateGrouping): UIState {
   o.canonical = normalize(o); o.fingerprint = hash(o.canonical);
-  const prior = !o.gaps.some(g => g.critical) && states.find(s => s.ruleVersion === o.ruleVersion && s.fingerprint === o.fingerprint && s.canonical === o.canonical);
+  if (projection && !o.gaps.some(g => g.critical)) {
+    o.stateGrouping = projection.policy;
+    const fingerprint = hash(projection.canonical);
+    const stateId = hash({ kind: 'state-group', sessionId: o.sessionId, ruleVersion: o.ruleVersion, policy: projection.policy, fingerprint });
+    const prior = states.find(s => s.id === stateId && s.grouping?.policy === projection.policy && s.grouping.canonical === projection.canonical);
+    const state: UIState = prior || { id: stateId, sessionId: o.sessionId, fingerprint: o.fingerprint, canonical: o.canonical,
+      ruleVersion: o.ruleVersion, observationIds: [], context: o.context,
+      grouping: { ...projection, fingerprint, observationCount: 0, memberReferences: 'first-and-latest' } };
+    if (state.observationIds.at(-1) !== o.id) state.grouping!.observationCount++;
+    state.observationIds = [...new Set([state.observationIds[0] || o.id, o.id])];
+    o.stateId = state.id; return state;
+  }
+  delete o.stateGrouping;
+  const prior = !o.gaps.some(g => g.critical) && states.find(s => !s.grouping && s.ruleVersion === o.ruleVersion && s.fingerprint === o.fingerprint && s.canonical === o.canonical);
   const state = prior || { id: id(), sessionId: o.sessionId, fingerprint: o.fingerprint, canonical: o.canonical, ruleVersion: o.ruleVersion, observationIds: [], context: o.context };
-  state.observationIds.push(o.id); o.stateId = state.id; return state;
+  if (!state.observationIds.includes(o.id)) state.observationIds.push(o.id); o.stateId = state.id; return state;
 }

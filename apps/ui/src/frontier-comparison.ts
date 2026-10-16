@@ -14,6 +14,10 @@ export function factText(value: Json | undefined, field?: string): string {
   return typeof value === 'string' ? value : JSON.stringify(value);
 }
 export interface StateDifference { key: string; label: string; field?: string; before?: Json; after?: Json }
+export function sameObservedSummary(a?: FrontierStateSummary, b?: FrontierStateSummary) {
+  return a?.status === 'available' && b?.status === 'available'
+    && (a.observationId === b.observationId || !!a.strictObservationKey && a.strictObservationKey === b.strictObservationKey);
+}
 export function stateDifferences(before?: FrontierStateSummary, after?: FrontierStateSummary): StateDifference[] {
   if (before?.status !== 'available' || after?.status !== 'available') return [];
   const left = new Map(before.facts.map(f => [f.key, f])); const right = new Map(after.facts.map(f => [f.key, f]));
@@ -35,11 +39,11 @@ export function referenceFor(group: BrowserFrontierCoverageGroup, item: Frontier
   const executed = group.items.filter(f => f.status === 'executed');
   if (selected !== 'auto') return executed.find(f => f.id === selected);
   const sameSample = executed.filter(f => sameValue(f.action.value, item.action.value));
-  const state = group.states.find(s => s.stateId === item.stateId);
+  const state = group.states.find(s => s.observationId === item.action.observationId && s.stateId === item.stateId);
   return (sameSample.length ? sameSample : executed).slice().sort((a, b) => {
     const score = (f: FrontierItemView) => {
-      if (f.stateId === item.stateId) return 0;
-      const other = group.states.find(s => s.stateId === f.stateId);
+      const other = group.states.find(s => s.observationId === f.action.observationId && s.stateId === f.stateId);
+      if (sameObservedSummary(state, other)) return 0;
       return state?.status === 'available' && other?.status === 'available' ? stateDifferences(other, state).length + 1 : Infinity;
     };
     return score(a) - score(b);

@@ -6,12 +6,12 @@ import { hasReviewedDismissal } from './boundary-exit.js';
 import { nativeFormScope } from './dependencies.js';
 import { canonical, id, EngineError, type InteractionAdapter, type EvidenceStore, type Predicate, type InteractionScope } from '@interaction/core';
 import { BrowserAdapter } from './browser.js';
-import { observableCanonical, compareObservations } from './model.js';
+import { observableCanonical, compareObservations, browserStateGrouping } from './model.js';
 import { sessionSchema } from './schema.js';
 import { signature } from './util.js';
 import { constrain, hasDeclaredBoundaryExit, hasObservedBoundaryExit } from './policy.js';
 import { browserControlCorrespondence, browserOperationCorrespondenceHint, controlCase, controlsTraversalCase, explorationCase, restorationStep } from './exploration.js';
-export { browserControlCorrespondence, browserOperationCorrespondenceHint, browserOperationKey } from './exploration.js';
+export { browserControlCorrespondence, browserOperationCorrespondenceHint, browserOperationKey, legacyBrowserOperationKey } from './exploration.js';
 export { navigationIntent, type NavigationIntent } from './navigation.js';
 import { historyReturn } from './navigation.js';
 import { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';
@@ -70,6 +70,7 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
       preconditions: { context: observation.context, visible: control.visible, enabled: control.enabled, identityResolved: !control.hypothesisId } };
   }
   normalize = observableCanonical;
+  stateGrouping = browserStateGrouping;
   compare = compareObservations;
   constrain = constrain;
   explorationCase(a: ActionCandidate, o: Observation, s: Session) { return s.options.exploration === 'controls' ? controlsTraversalCase(a, o) : explorationCase(a, o); }

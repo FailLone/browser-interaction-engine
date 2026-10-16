@@ -26,7 +26,7 @@
 }
 ```
 
-上例表示该界面/上下文中的输入样本 `0.001` 尚未执行，调度受阻。`action.value` 是计划使用的样本，不是控件当前值。`stateId`、`contextKey`、`action.preconditions.context` 指明这条测试的条件。
+上例表示该界面/上下文中的输入样本 `0.001` 尚未执行，调度受阻。`action.value` 是计划使用的样本，不是控件当前值。`action.observationId` 指向这条测试的严格来源事实，`stateId` 只标识图节点；`contextKey` 和 `action.preconditions.context` 保留业务上下文。
 
 `coverage.unit` 对 fill 为 `input_sample`，其余操作为 `action_case`。`executionStatus` 为最后一条记录的尝试状态（`executing / succeeded / failed / blocked / unknown`），没有尝试时为 `not_attempted`。尝试记录丢失或中断不确定时保留 `unknown`，不会误报成尚未测试。历史执行成功记录即使没有尝试 ID 也保留 `succeeded`。执行成功表示动作执行及观察完成，不代表业务断言通过。
 
@@ -64,13 +64,13 @@ coverage 汇总字段在读取时派生，旧会话无需迁移或重跑。逐�
 
 浏览器 SDK 与 HTTP/client 的 `frontierCoverage()` 返回 `BrowserFrontierCoverageGroup[]`，在每组中新增 `states`。纯 core 的汇总仍与浏览器无关，报告保持只包含计数摘要。
 
-每个 `states` 条目对应一个 `stateId`：
+每个 `states` 条目对应一个会话、`stateId` 和 `observationId` 组合；同一图分组可以包含不同历史事实：
 
 - `observationId`、`capturedAt`：用于这份摘要的历史观察，来自该状态下待办记录的观察引用。
 - `status: available | unavailable`：原始观察是否仍可查询且属于相同会话和状态；缺失时不会代入当前页面。
 - `facts[]`：结构化的界面条件，包含 `key / label / field / value / controlId / primary`。`primary` 表示适合默认展示的值、选项和开关；其余事实用于差异比较和展开查看。
 
-摘要用于解释测试条件，不代替完整的状态等价判断。两个不同 stateId 的摘要相同仍不能宣称它们等价。
+摘要用于解释测试条件，不代替完整的状态等价判断。`strictObservationKey` 是本次响应内按完整 canonical、规则版本、会话和无关键缺口核验的代表观察引用，用于界面对照；它不授予覆盖或执行权限。仅有相同 stateId 或相同摘要都不能证明严格等价。
 
 调试页直接显示所属界面的输入值、选择项及开关，并对照成功记录突出变化。默认优先选择相同输入样本、摘要差异较少的成功记录，也可以手动切换。相同界面下的不同样本明确标为“执行前界面相同，仅输入样本不同”。界面差异和样本受阻原因分别显示，不将相关性当作原因。
 

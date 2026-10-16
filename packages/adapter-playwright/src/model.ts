@@ -1,10 +1,35 @@
-import type { Observation, Diff, Control } from './types.js';
+import type { Observation, Diff, Control, Session, StateGrouping } from './types.js';
 import { canonical, signature, formBinding } from './util.js';
 export function observableCanonical(o: Pick<Observation, 'url' | 'controls' | 'context' | 'scroll' | 'gaps' | 'overlays' | 'components' | 'scrollContainers'>) {
   const components = o.components?.map(c => ({ kind: c.kind, name: c.name, status: c.basis.status,
     parent: o.components?.filter(p => p.id === c.parentId).map(p => ({ kind: p.kind, name: p.name })),
     members: c.members.map(({ localId, ...semantics }) => { const control = o.controls.find(v => v.localId === localId); return { ...semantics, signature: control && signature(control), stableKey: control?.stableKey }; }) })) || [];
   return canonical({ url: o.url, context: o.context, scroll: o.scroll, scrollContainers: o.scrollContainers?.map(({ nodeId: _, ...c }) => c) || [], components, overlays: o.overlays?.map(layer => ({ key: layer.key, kind: layer.kind, parentKey: layer.parentKey })) || [], incomplete: o.gaps.filter(g => g.critical).map(g => g.code).sort(), controls: o.controls.map(c => ({ signature: signature(c), stableKey: c.stableKey, identityScope: c.identityScope, formOwner: formBinding(c), readiness: c.readiness, scroll: c.scroll, pressed: c.pressed, value: c.value, displayedText: c.displayedText, checked: c.checked, selected: c.selected, visible: c.visible, enabled: c.enabled, editable: c.editable, expanded: c.expanded, constraints: c.constraints, options: c.options, actionBasis: c.actionBasis, hitTarget: c.actionable?.hitTarget, outsideScrollableArea: c.actionable?.outsideScrollableArea })) });
+}
+
+/** Compact graph membership, never operation equivalence or a restorable checkpoint.
+ * Read-only readouts can still influence application behavior: their exact values
+ * remain in observations, strict path checks and stateful traversal samples. */
+export function browserStateGrouping(o: Observation, session: Session): StateGrouping | undefined {
+  if (!['controls', 'representative'].includes(session.options.exploration || '') || o.gaps.some(g => g.critical)) return;
+  const controls = o.controls.map(c => {
+    const readout = ['input', 'textarea'].includes(c.tag) && c.readOnly && !c.editable
+      && c.actions.every(kind => kind === 'fill') && !c.interactionHints?.length
+      && !Object.keys(c.reviewBinding?.attributes || {}).some(key => /^on/i.test(key))
+      && !c.controls && !c.structuralItem && !c.hypothesisId && c.identityScope !== 'instance'
+      && c.checked === null && c.pressed == null && c.expanded === null && !c.selected.length && !c.options.length;
+    return { ...c, ...(readout ? { value: '' } : {}),
+      ...(c.liveContent ? { name: c.liveContent.name, displayedText: c.liveContent.text } : {}) };
+  });
+  // Preserve portable semantic bindings that can change without a label change.
+  // Geometry, document/node IDs and passive readout evidence are not group keys.
+  const bindings = controls.map(c => ({ readOnly: c.readOnly, attributes: c.reviewBinding?.attributes, declared: c.reviewAttributes,
+    record: c.structuralItem && { recordKey: c.structuralItem.recordKey, template: c.structuralItem.template, slot: c.structuralItem.slot },
+    unresolved: c.hypothesisId ? c.localId : undefined, instance: c.identityScope === 'instance' ? c.instanceId : undefined }));
+  return { policy: 'browser-state-grouping-v1', canonical: canonical({ observable: observableCanonical({ ...o, controls }), bindings }),
+    evidence: ['Graph membership only; strict observation facts retained separately',
+      'Read-only noninteractive values and captured native-link readouts omitted from this index only',
+      'Modes, editable values, bindings, constraints, visibility and readiness retained; no execution or coverage permission'] };
 }
 export function compareObservations(before: Observation, after: Observation, region?: string): Diff {
   const diff: Diff = { beforeId: before.id, afterId: after.id, changes: [], gaps: [], attribution: 'observed_during_interval', region };

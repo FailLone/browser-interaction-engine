@@ -34,7 +34,7 @@ export interface Persistence {
   close(): void;
 }
 export type HookInvoker = <T>(name: string, fn: () => T | Promise<T>) => Promise<{ value?: T; error?: string }>;
-export type ObservationData<O extends Observation> = Omit<O, 'id' | 'sessionId' | 'stateId' | 'visitId' | 'fingerprint' | 'canonical' | 'ruleVersion' | 'cause'>;
+export type ObservationData<O extends Observation> = Omit<O, 'id' | 'sessionId' | 'stateId' | 'stateGrouping' | 'visitId' | 'fingerprint' | 'canonical' | 'ruleVersion' | 'cause'>;
 export type PreflightResult = 'valid' | 'stale' | 'context_changed'
   | { status: 'stale'; scopeKey: string; evidence: string[] };
 export interface InteractionDriver<O extends Observation, S extends SessionOptions> {
@@ -62,6 +62,8 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   /** Explicit, observation-bound experiments; never added to automatic discovery. */
   probeAction?(kind: string, control: O['controls'][number], observation: O, session: Session<S>, parameters?: ActionCandidate['value']): ActionCandidate;
   normalize(observation: O): string;
+  /** Non-authorizing graph index. normalize() retains exact observed facts. */
+  stateGrouping?(observation: O, session: Session<S>): import('./types.js').StateGrouping | undefined;
   compare(before: O, after: O, region?: string): Diff;
   constrain(action: ActionCandidate, observation: O, session: Session<S>): ActionCandidate;
   testPredicate(predicate: Predicate, observation: O): 'pass' | 'fail' | 'unknown';

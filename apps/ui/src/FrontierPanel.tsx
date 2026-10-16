@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { BrowserFrontierCoverageGroup, FrontierItemView, FrontierStateSummary } from '@interaction/browser';
-import { differenceText, factText, referenceFor, sameValue, sampleText, stateDifferences, summaryFacts } from './frontier-comparison.js';
+import { differenceText, factText, referenceFor, sameObservedSummary, sameValue, sampleText, stateDifferences, summaryFacts } from './frontier-comparison.js';
 import { RecoveryDetails } from './RecoveryDetails.js';
 
 const executionText: Record<FrontierItemView['coverage']['executionStatus'], string> = {
@@ -30,14 +30,14 @@ function FrontierGroup({ group, blockerText, unblockText, inspectObservation }: 
   const executed = group.items.filter(f => f.status === 'executed');
   return <details className="frontier-group" data-control-id={group.controlId} data-kind={group.kind} open>
     <summary><b>{group.label || '未命名控件'}</b> <code>{group.kind}</code><span className={`badge ${group.coverageStatus === 'complete' ? 'executed' : 'pending'}`}>{groupLabel(group)}</span><small>已完成 {group.counts.executed} / {group.counts.total} 项 · 尚未执行 {group.counts.notAttempted} 项 · 受阻 {group.counts.blocked} 项</small><code>控件 {group.controlId?.slice(0, 8) || '身份未提供'}</code></summary>
-    {!!executed.length && <label className="frontier-reference">对照成功记录<select aria-label={`${group.label} 对照记录`} value={executed.some(f => f.id === referenceId) ? referenceId : 'auto'} onChange={e => setReferenceId(e.target.value)}><option value="auto">自动：优先相同样本、相近界面</option>{executed.map(f => <option key={f.id} value={f.id}>{sampleText(f.action.value)} · 界面 {f.stateId.slice(0, 8)}</option>)}</select></label>}
+    {!!executed.length && <label className="frontier-reference">对照成功记录<select aria-label={`${group.label} 对照记录`} value={executed.some(f => f.id === referenceId) ? referenceId : 'auto'} onChange={e => setReferenceId(e.target.value)}><option value="auto">自动：优先相同样本、相近界面</option>{executed.map(f => <option key={f.id} value={f.id}>{sampleText(f.action.value)} · 观察 {f.action.observationId.slice(0, 8)}</option>)}</select></label>}
     <table><thead><tr><th>{group.kind === 'fill' ? '输入样本' : '操作参数'}</th><th>所属界面（执行前）</th><th>与成功记录相比</th><th>状态 / 执行情况</th><th>原因 / 解除条件</th></tr></thead><tbody>{group.items.map(item => {
-      const state = group.states.find(s => s.stateId === item.stateId);
+      const state = group.states.find(s => s.observationId === item.action.observationId && s.stateId === item.stateId);
       const reference = referenceFor(group, item, executed.some(f => f.id === referenceId) ? referenceId : 'auto');
-      const referenceState = group.states.find(s => s.stateId === reference?.stateId);
+      const referenceState = group.states.find(s => s.observationId === reference?.action.observationId && s.stateId === reference?.stateId);
       return <tr key={item.id} data-frontier-id={item.id}>
         <td><code>{sampleText(item.action.value)}</code>{item.sampling && <details><summary>代表性样本 · {item.sampling.observationIds.length} 次观察</summary><p>这些观察共享一个抽样任务，不表示界面等价或均已执行。其他输入起始值及字段组合不在完整覆盖范围内。</p><code>{item.sampling.policy}</code></details>}</td>
-        <td className="frontier-state"><code>{item.stateId.slice(0, 8)}</code>{state?.status === 'available' ? <>
+        <td className="frontier-state"><code>观察 {item.action.observationId.slice(0, 8)}</code><small>图分组 {item.stateId.slice(0, 8)}</small>{state?.status === 'available' ? <>
           <ul className="state-facts">{summaryFacts(state).map(f => <li key={f.key}><span>{f.label}</span><b>{factText(f.value, f.field)}</b></li>)}</ul>
           <button onClick={() => inspectObservation?.(state.observationId)}>查看历史界面</button>
           <details><summary>完整界面摘要 / 业务上下文</summary><dl className="state-details">{state.facts.map(f => <React.Fragment key={f.key}><dt>{f.label}</dt><dd>{factText(f.value, f.field)}</dd></React.Fragment>)}</dl>{Object.keys(item.action.preconditions.context).length ? <pre>{JSON.stringify(item.action.preconditions.context, null, 2)}</pre> : <p>未记录业务上下文；上方为实际记录的界面状态。</p>}</details>
@@ -55,16 +55,16 @@ function Comparison({ item, state, reference, referenceState }: { item: Frontier
   const differences = stateDifferences(referenceState, state);
   const inputDiffers = !sameValue(reference.action.value, item.action.value);
   const contextDiffers = !sameValue(reference.action.preconditions.context, item.action.preconditions.context);
-  const sameState = item.stateId === reference.stateId;
+  const sameState = sameObservedSummary(state, referenceState);
   const inputName = item.coverage.unit === 'input_sample' ? '输入样本' : '操作参数';
   return <>
-    <small>对照已执行：<code>{sampleText(reference.action.value)}</code> · {reference.stateId.slice(0, 8)}</small>
+    <small>对照已执行：<code>{sampleText(reference.action.value)}</code> · 观察 {reference.action.observationId.slice(0, 8)} · 图分组 {reference.stateId.slice(0, 8)}</small>
     {sameState && !contextDiffers && <p>{inputDiffers ? `执行前界面相同，仅${inputName}不同` : `执行前界面和${inputName}相同`}</p>}
     {inputDiffers && <p className="state-change"><b>{inputName}</b><span>{sampleText(reference.action.value)} → {sampleText(item.action.value)}</span></p>}
     {contextDiffers && <p className="state-change"><b>业务上下文不同</b><span>{JSON.stringify(reference.action.preconditions.context)} → {JSON.stringify(item.action.preconditions.context)}</span></p>}
     {state?.status !== 'available' || referenceState?.status !== 'available' ? <p>历史界面记录不可用，无法比较界面条件。</p> : <>
       {differences.map(d => <p className="state-change" key={d.key}><b>{d.label}</b><span title={`${factText(d.before, d.field)} → ${factText(d.after, d.field)}`}>{differenceText(d.before, d.after, d.field)} → {differenceText(d.after, d.before, d.field)}</span></p>)}
-      {!sameState && !differences.length && <p>界面状态不同，摘要未覆盖其余差异。可查看历史界面。</p>}
+      {!sameState && !differences.length && <p>来自不同观察，摘要中未发现差异。可查看历史界面。</p>}
     </>}
     <small>箭头：成功记录 → 本条记录；这些差异用于区分测试条件，不代表受阻原因。</small>
   </>;

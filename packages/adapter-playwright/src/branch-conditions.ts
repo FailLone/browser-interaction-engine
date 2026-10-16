@@ -5,7 +5,7 @@ import { formBinding } from './util.js';
 /** A bound on evidence, not permission to ignore additional dependencies. */
 export const MAX_BRANCH_CONDITIONS = 32;
 export interface BrowserBranchConditions {
-  policy: 'browser-branch-conditions-v1';
+  policy: 'browser-branch-conditions-v1' | 'browser-branch-conditions-v2';
   key: string;
   conditions: { binding: string; state: Record<string, string[] | boolean | 'mixed'>; relation: string }[];
   evidence: string[];
@@ -66,16 +66,19 @@ function regionAncestors(o: Observation) {
 }
 
 /**
- * Versioned, bounded source-condition sampling. Like fragment-local comparison,
- * this avoids whole-page text equality; it does not infer causal dependencies or
- * grant identity, readiness, replay permission, or exhaustive branch coverage.
- * Nonlocal application modes still require declared context rules.
+ * Versioned, bounded source-condition sampling. This avoids whole-page text
+ * equality; it does not infer causal dependencies or grant identity, readiness,
+ * replay permission, or exhaustive branch coverage. Structure cannot prove
+ * that a mode is behaviorally independent: event handlers can read selectors
+ * across forms/regions, including hidden controls. Include every observed mode
+ * until a separate, explicit independence contract can prove one irrelevant.
  *
- * Only captured form ownership, declared component ancestry and semantic region
- * ancestry establish locality. Missing/ambiguous/unstable selector evidence or
- * overflow declines equivalence instead of silently truncating the projection.
+ * Form/component/region ancestry describes the evidence rather than filtering
+ * it. Missing/ambiguous/unstable selector evidence or overflow declines
+ * equivalence instead of silently truncating the projection. Unobserved JS state
+ * and free-text dependencies still require declared context rules.
  */
-export function browserBranchConditions(action: Pick<ActionCandidate, 'kind' | 'localId'>, o: Observation): BrowserBranchConditions | undefined {
+export function browserBranchConditions(action: Pick<ActionCandidate, 'kind' | 'localId'>, o: Observation, version: 'v1' | 'v2' = 'v2'): BrowserBranchConditions | undefined {
   const target = o.controls.find(c => c.localId === action.localId);
   if (!target || o.gaps.some(g => g.critical) || Object.values(o.context).some(v => v.status !== 'known')) return;
   const components = componentAncestors(o), regions = regionAncestors(o);
@@ -83,30 +86,32 @@ export function browserBranchConditions(action: Pick<ActionCandidate, 'kind' | '
   const selections = new Map((o.components || []).flatMap(c => c.members.filter(m => typeof m.selected === 'boolean').map(m => [m.localId, m.selected!] as const)));
   const conditions: BrowserBranchConditions['conditions'] = [], bindings = new Set<string>();
   for (const c of o.controls) {
-    if (!c.visible) continue;
+    // v1 exists only to verify persisted scheduling keys against their retained
+    // source. Current correspondence, coverage and recovery always use v2.
+    if (version === 'v1' && !c.visible) continue;
     const state = selectorState(c, selections); if (state === undefined) continue;
     // The sample's destination value is already part of the operation key. Its
     // own starting value must not manufacture repeated fill/select/check work.
     if (c === target && ['fill', 'select', 'check'].includes(action.kind)) continue;
-    let relation: string | undefined;
+    let relation: string;
     if (c === target) relation = 'target-mode';
     else if (target.formOwner && c.formOwner?.instanceId === target.formOwner.instanceId) relation = 'same-native-form';
     else if ([...components(c.localId)].some(id => targetComponents.has(id))) relation = 'shared-declared-component';
-    // Distinct forms remain independent even inside the same main/region. An
-    // explicit common component can still supply cross-form locality above.
     else if (!target.formOwner && !c.formOwner && (targetRegions.has(c.region) || regions(c.region).has(target.region))) relation = 'shared-semantic-region';
     else if (!target.formOwner && !c.formOwner && c.region === target.region && !targetRegions.size) relation = 'same-unpartitioned-region';
-    if (!relation) continue;
+    else if (version === 'v1') continue;
+    else relation = 'observed-document-mode';
     if (state === null || c.readiness?.status === 'unstable') return;
     const key = binding(c); if (!key || bindings.has(key)) return;
     bindings.add(key); conditions.push({ binding: key, state, relation });
     if (conditions.length > MAX_BRANCH_CONDITIONS) return;
   }
   conditions.sort((a, b) => a.binding.localeCompare(b.binding));
-  const policy = 'browser-branch-conditions-v1' as const;
+  const policy = version === 'v1' ? 'browser-branch-conditions-v1' as const : 'browser-branch-conditions-v2' as const;
   return { policy, key: hash({ policy, conditions }), conditions, evidence: [
-    'Captured selector state in the target form, declared component or semantic region',
+    version === 'v1' ? 'Legacy visible selectors within the historical form/component/region projection; source-key decoding only'
+      : 'All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence',
     'Passive text and free-text starting values excluded; selector values and semantic bindings retained',
-    'Observed source-condition samples only; undeclared nonlocal dependencies and all combinations are not covered',
+    'Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered',
   ] };
 }

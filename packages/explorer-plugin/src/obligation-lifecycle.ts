@@ -114,6 +114,7 @@ export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:
     // user exclusion or successful coverage. Preserve it in the unresolved view.
     if(item.reason.startsWith('missing_capability:'))return {...entry,state:'active',reason:'capability_obligation_preserved'};
     if(!item.required||item.status==='excluded')return {...entry,state:'excluded',reason:'original_ledger_excluded'};
+    if(item.dispatchScope===false&&item.conditionMigration?.status==='invalidated')return {...entry,state:'unreachable',reason:item.reason};
     if(item.dispatchScope===true&&broadScope(item.scope))return {...entry,state:'authority',reason:'task_scope_authority'};
     const scoped=current.filter(a=>Object.entries(item.scope).every(([k,v])=>JSON.stringify(currentScopes.get(a.id)![k as keyof Scope])===JSON.stringify(v)));
     const candidates=scoped.filter(a=>item.dispatchScope===true||!item.operationConditionKey||item.operationConditionKey===keyFor(a,o));

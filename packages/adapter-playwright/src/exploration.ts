@@ -41,9 +41,17 @@ export function browserOperationCorrespondenceHint(c:Control,kind:string,o:Pick<
 /** Per-round scheduling hint. Unscoped/no-mode legacy encodings remain readable;
  * captured semantic rebinding and source modes produce new operation revisions. */
 export function browserOperationKey(a: ActionCandidate,o: Observation) {
+  return operationKey(a,o,'v2');
+}
+/** Decode a retained scheduling revision only. Never use this key for current
+ * operation equivalence, replay permission, arrival or successful coverage. */
+export function legacyBrowserOperationKey(a: ActionCandidate,o: Observation) {
+  return operationKey(a,o,'v1');
+}
+function operationKey(a: ActionCandidate,o: Observation,version:'v1'|'v2') {
   const c=o.controls.find(c=>c.localId===a.localId),r=o.regions.find(r=>r.key===c?.region);
   const key=c&&(c.stableKey||(!c.list&&!c.structuralItem?browserControlCorrespondence(c)?.key:undefined));
-  const branch=c?browserBranchConditions(a,o):undefined;
+  const branch=c?browserBranchConditions(a,o,version):undefined;
   const context=c?.identityContext,item=c?.structuralItem;
   const targetBinding=c&&(context?.evidence.length&&(context.scope||context.binding)||c.formOwner||item?.recordKey)
     ?{context:{scope:context?.scope,binding:context?.binding},form:formBinding(c),record:item?.recordKey?{key:item.recordKey,template:item.template,slot:item.slot}:undefined}:undefined;
@@ -53,7 +61,7 @@ export function browserOperationKey(a: ActionCandidate,o: Observation) {
   // Missing dependency evidence is not a fresh attempt whenever unrelated text
   // changes. This retry marker claims no equivalence; controlCase still refuses
   // coverage, while a known projection or semantic rebinding gets a new key.
-  const sourceConditions=c&&!branch?{policy:'browser-branch-conditions-v1',status:'unverified'}:branch?.conditions.length?{policy:branch.policy,key:branch.key}:undefined;
+  const sourceConditions=c&&!branch?{policy:`browser-branch-conditions-${version}`,status:'unverified'}:branch?.conditions.length?{policy:branch.policy,key:branch.key}:undefined;
   return hash({scope:{url:o.url,...(r?{region:r.label}:{}),label:a.label,...(c?{role:c.role,...(key?{stableKey:key}:{})}:{}),kind:a.kind,...(['string','boolean','number'].includes(typeof a.value)?{value:a.value}:{})},context:o.context,...(targetBinding?{targetBinding}:{}),...(sourceConditions?{sourceConditions}:{}),...(a.kind==='scroll'?{position:a.value}:{})});
 }
 
