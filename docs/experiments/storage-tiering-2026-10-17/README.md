@@ -229,3 +229,5 @@ main/source=`de88210` 的第五窗在同一 task/session/round 接续，实际�
 固定 `edd32f9` 重跑相同 [80 次协议](evidence/run5-fixes-protocols/summary.json)，16 个场景逐 trial 行为与 `70b8cb4` 相等，[348 项完整性核对](evidence/run5-fixes-protocols/validation.json)通过，源码、fixture、脚本及测量契约保持不变。正向到达 20/20、嵌套冷重启 5/5（必要重入 15、重复叶子/无理由重入 0）、A/B 对应 40/40及实际输入 30、unknown 跨重启 5/5（后续新 session/action/recovery/JEV/LLM 均 0）、100 tick 待测增长 0。隔离编译、发布类型和编译后 API/UI 实际交互也通过，472 份源码前后不变，截图单独复核。旧全套 1,898/1,903 的记录仍保留，本次未重跑全套，也尚未用新版本证明真实恢复成功。
 
 存储总增 14,065,765 B，其中审计导出 4,117,047 B、新动作查询索引 1,150,976 B。10 次新观察的逻辑 33,682,744 B 以新增观察行/共享包 680,037 B 保存；旧共享材料没有变化。主要新增业务 payload 是候选 action 和 identity，插件较小的文件增长部分来自旧空闲页复用。没有独立的投影/保存计时，不能据两个不同页面窗口宣称整体提速。完整分项、负面时间指标和可复算脚本见[只读增长报告](evidence/real-okx-5/storage-growth.md)。真实穷尽仍未完成。
+
+`823f981`（产品 `edd32f9` 及全部第五窗证据）已[快进合入 main](evidence/main-merge-run5-fixes.json)，autonomous `4857ad5` 仍为祖先。原工作区分支、HEAD 与未提交状态不变，没有安装依赖、构建 main 或操作原测试资源。第六窗将使用同一独立任务接续，不以本次 fixture 和冻结反事实代替真实恢复证明。
