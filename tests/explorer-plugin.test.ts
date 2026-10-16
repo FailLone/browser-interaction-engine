@@ -12,6 +12,48 @@ import { scopeFor,scopeControlKey } from '../packages/explorer-plugin/src/policy
 import { remapStoredScopes } from '../packages/explorer-plugin/src/scope-migration.js';
 
 const repeatedRecords=()=>`<section aria-label="Records">${['Alpha','Beta','Gamma'].map(name=>`<article data-key="${name}"><span>${name}</span><button type="button" onclick="this.disabled=true">Visit ${name}</button></article>`).join('')}</section>`;
+it.each(['all','partial','across-rounds'] as const)('reconciles repeated legacy field gaps only after %s matching controls are verified',async(mode)=>{
+ const f=await explorerFixture(`<section aria-label="Measurements"><div><span>Length</span><input placeholder="0"></div><div><span>Width</span><input placeholder="0"></div></section>`),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100,...(mode==='across-rounds'?{maxActions:1}:{})},budget:{rounds:mode==='across-rounds'?3:1,actions:mode==='partial'?1:10}});
+  plugin.revise(t.id,{items:[{title:'Measurements',scope:{url:f.url},prerequisites:[],completion:'Verify every field',required:true,reason:'user goal'}]});
+  const saved=plugin.store.task(t.id);
+  for(const reason of ['ambiguous_scope_match','operation_unavailable'])saved.plan.push({...structuredClone(saved.plan[0]),id:reason,scope:{url:f.url,label:'0',role:'textbox',kind:'fill',value:'example'},status:'unresolved',reason,dispatchScope:false});
+  plugin.store.save(saved);plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=v.task.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
+  const gaps=v.task.plan.filter(i=>['ambiguous_scope_match','operation_unavailable'].includes(i.id));
+  expect(attempts).toHaveLength(mode==='partial'?1:2);expect(attempts.every(a=>a.status==='succeeded')).toBe(true);
+  if(mode!=='partial'){expect(gaps.map(i=>i.status)).toEqual(['succeeded','succeeded']);expect(v.task.status).toBe('completed');}
+  else{expect(gaps.every(i=>i.status!=='succeeded')).toBe(true);expect(v.task.status).not.toBe('completed');}
+  expect(new Set(v.task.plan.filter(i=>i.scope.stableKey?.startsWith('explorer:context:v1:')&&i.status==='succeeded').map(i=>i.scope.stableKey)).size).toBe(mode==='partial'?1:2);
+  if(mode==='across-rounds')expect(v.task.rounds).toHaveLength(2);
+ }finally{await plugin.close();await f.close();}
+});
+
+it.each(['disappeared','missing-source','unknown','capability'] as const)('preserves a %s obligation while settling matching field gaps',async(mode)=>{
+ let labels=['Length','Width'];const f=await explorerFixture(()=>`<section aria-label="Measurements">${labels.map(label=>`<div><span>${label}</span><input placeholder="0"></div>`).join('')}</section>`),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const evidence:{sessionId:string;observationId:string}[]=[];
+  if(mode==='disappeared'){const source=await f.host.createSession({url:f.url,settleMs:0,observeTimeoutMs:100});evidence.push({sessionId:source.id,observationId:f.host.observation(source.id).id});await f.host.stop(source.id);labels=['Length'];}
+  if(mode==='missing-source')evidence.push({sessionId:'unavailable-session',observationId:'unavailable-observation'});
+  const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:10}});
+  plugin.revise(t.id,{items:[{title:'Measurements',scope:{url:f.url},prerequisites:[],completion:'Verify every field',required:true,reason:'user goal'}]});
+  const saved=plugin.store.task(t.id),reason=mode==='unknown'?'unknown_action_outcome':mode==='capability'?'missing_capability:test':'ambiguous_scope_match';
+  saved.plan.push({...structuredClone(saved.plan[0]),id:'legacy-gap',scope:{url:f.url,label:'0',role:'textbox',kind:'fill',value:'example'},status:'unresolved',reason,dispatchScope:false,evidence});
+  plugin.store.save(saved);plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),gap=v.task.plan.find(i=>i.id==='legacy-gap')!;
+  expect(v.task.usage.actions).toBe(mode==='disappeared'?1:2);expect(gap.status).not.toBe('succeeded');expect(v.task.status).not.toBe('completed');expect(gap.reason).toBe(reason);
+  if(mode==='unknown'||mode==='capability'){expect(gap.attempts).toEqual([]);expect(gap.resolvedBy).toBeUndefined();}
+ }finally{await plugin.close();await f.close();}
+});
+
+it('does not reuse a completed coarse field scope for a newly revealed semantic field',async()=>{
+ const f=await explorerFixture(`<section aria-label="Measurements"><div id="fields"><div><span>Length</span><input placeholder="0"></div><div><span>Width</span><input placeholder="0"></div></div><button type="button" onclick="this.disabled=true;document.getElementById('fields').innerHTML='<div><span>Depth</span><input placeholder=0></div>'">Next</button></section>`),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:10}});
+  plugin.revise(t.id,{items:[{title:'Measurements',scope:{url:f.url},prerequisites:[],completion:'Verify every field',required:true,reason:'user goal'}]});
+  const saved=plugin.store.task(t.id);saved.plan.push({...structuredClone(saved.plan[0]),id:'legacy-gap',scope:{url:f.url,label:'0',role:'textbox',kind:'fill',value:'example'},status:'unresolved',reason:'ambiguous_scope_match',dispatchScope:false});plugin.store.save(saved);
+  plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),sid=v.task.rounds[0].sessionId,attempts=f.host.list<any>(sid,'attempt');
+  const bindings=attempts.filter(a=>a.action.kind==='fill').map(a=>f.host.observation(sid,a.beforeId).controls.find(c=>c.localId===a.action.localId)!.identityContext?.binding);
+  expect(bindings).toEqual([expect.stringContaining('Length'),expect.stringContaining('Width'),expect.stringContaining('Depth')]);expect(v.task.status).toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
+
 it.each(['distinct','ambiguous'] as const)('uses public semantic context to distinguish %s unnamed-key fields without guessing an occurrence',async(mode)=>{
  const descriptions=mode==='distinct'?['Length','Width']:['Value','Value'];
  const f=await explorerFixture(`<section aria-label="Measurements">${descriptions.map(label=>`<div><span>${label}</span><input placeholder="0"></div>`).join('')}</section>`),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));

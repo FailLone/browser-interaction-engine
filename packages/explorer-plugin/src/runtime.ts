@@ -255,17 +255,18 @@ export class ExplorerPlugin {
   }
   private recordOutcome(task:Task,attempt:ActionAttempt,itemIds:string[]) {
     const round=task.rounds.at(-1)!;const ref={sessionId:attempt.sessionId,observationId:attempt.afterId||attempt.beforeId,attemptId:attempt.id};
-    for(const item of task.plan.filter(i=>itemIds.includes(i.id)&&!i.reason.startsWith('missing_capability:'))) {
+    for(const item of task.plan.filter(i=>itemIds.includes(i.id)&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome')) {
       if(!item.attempts.some(x=>x.evidence?.attemptId===attempt.id))item.attempts.push({roundId:round.id,outcome:attempt.status,evidence:ref});
       item.evidence.push(ref);
       if(attempt.status==='succeeded'&&attempt.afterId){
         item.resolvedBy=ref;
         const before=this.host.observation(attempt.sessionId,attempt.beforeId);
         const concrete=item.scope.kind&&(item.scope.label||item.scope.stableKey||item.scope.value!==undefined);
-        if(concrete&&this.host.actions(attempt.sessionId,before.id).filter(a=>matches(item.scope,a,before)).length===1)item.status='succeeded';
+        if(concrete&&digest(item.scope)===digest(scopeFor(attempt.action,before))&&this.host.actions(attempt.sessionId,before.id).filter(a=>matches(item.scope,a,before)).length===1)item.status='succeeded';
       }
       else {item.status=attempt.status==='unknown'?'unresolved':'blocked';item.reason=attempt.status==='unknown'?'unknown_action_outcome':attempt.reason||attempt.status;}
     }
+    if(attempt.status==='succeeded'&&attempt.afterId)this.settleScopes(task,this.host.observation(attempt.sessionId,attempt.afterId),new Set(),true);
     this.syncUsage(task);this.event(task,'action.verified',{decisionId:task.pendingDispatch?.decisionId,attemptId:attempt.id,status:attempt.status,afterId:attempt.afterId});
   }
   private async initializePlan(task:Task,signal:AbortSignal,o:Observation) {
@@ -384,8 +385,12 @@ export class ExplorerPlugin {
     // Same-label targets must be disambiguated by scope/role/stable key. Never choose an arbitrary occurrence.
     const counts=new Map<string,number>();for(const a of actions){const k=digest(scopeFor(a,o));counts.set(k,(counts.get(k)||0)+1);}
     const unique=eligible.filter(a=>{if(counts.get(digest(scopeFor(a,o)))===1)return true;this.gap(task,'ambiguous_scope_match',scopeFor(a,o));return false;});
+    const recordedScopes=new Set(task.plan.filter(i=>i.required).map(i=>digest(i.scope)));
     for(const candidate of unique.filter(a=>includesScope(task.plan,a,o)==='target')) {
-      if(!task.plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,candidate,o)))task.plan.push(this.newItem({title:`${candidate.kind} ${candidate.label}`,scope:scopeFor(candidate,o),prerequisites:[...round.entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false));
+      const scope=scopeFor(candidate,o),key=digest(scope);
+      // A coarse historical gap can match several distinct current controls. Keep
+      // each exact operation's evidence so one success never suppresses its peers.
+      if(!recordedScopes.has(key)){task.plan.push(this.newItem({title:`${candidate.kind} ${candidate.label}`,scope,prerequisites:[...round.entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false));recordedScopes.add(key);}
     }
     this.store.save(task);
     if(unique.length) {
@@ -484,11 +489,55 @@ export class ExplorerPlugin {
       const old=before.controls.find(c=>c.localId===attempt.action.localId);
       const currentActions=this.host.actions(o.sessionId,o.id).filter(a=>matches(item.scope,a,o));
       if(currentActions.length!==1)return false;
+      // A coarse completed scope can include newly revealed same-name controls.
+      // Reuse only the concrete operation established by the original attempt.
+      if(digest(scopeFor(attempt.action,before))!==digest(scopeFor(currentActions[0],o)))return false;
       const current=o.controls.find(c=>c.localId===currentActions[0].localId);
       if(!old||!current)return false;
       const shape=(c:typeof old)=>{const {valid,...constraints}=c.constraints;const {instanceId,...form}=c.reviewBinding?.form||{};return {tag:c.tag,role:c.role,name:c.name,readOnly:c.readOnly,constraints,options:c.options,attributes:c.reviewBinding?.attributes,form};};
       return digest(shape(old))===digest(shape(current));
     }catch{return false;}
+  }
+  private operationMembersVerified(task:Task,items:PlanItem[],current:Observation) {
+    const scope=items[0].scope,refs=new Map<string,{sessionId:string;observationId:string}>();
+    const add=(ref:{sessionId:string;observationId:string})=>refs.set(`${ref.sessionId}:${ref.observationId}`,ref);
+    add({sessionId:current.sessionId,observationId:current.id});
+    try {
+      for(const item of items)for(const ref of item.evidence){
+        add(ref);
+        if(ref.attemptId){const attempt=this.host.list<ActionAttempt>(ref.sessionId,'attempt').find(a=>a.id===ref.attemptId);if(!attempt)return false;add({sessionId:ref.sessionId,observationId:attempt.beforeId});}
+      }
+      let found=false;
+      for(const ref of refs.values()) {
+        const source=ref.observationId===current.id?current:this.host.observation(ref.sessionId,ref.observationId);
+        const members=this.host.actions(ref.sessionId,source.id).filter(a=>matches(scope,a,source));
+        if(members.length)found=true;
+        // Retained sources matter too: a member disappearing from the current
+        // page is not proof that the historical obligation was completed.
+        if(members.some(a=>!this.wasCompleted(task,a,source)))return false;
+      }
+      return found;
+    }catch{return false;}
+  }
+  private settleScopes(task:Task,o:Observation,incomplete:Set<string>,operationsOnly=false) {
+    const concrete=(item:PlanItem)=>!!(item.scope.kind&&(item.scope.label||item.scope.stableKey||item.scope.value!==undefined));
+    const pending=task.plan.filter(i=>i.required&&['pending','unresolved'].includes(i.status)&&(!operationsOnly||concrete(i)));
+    const canSettle=(item:PlanItem)=>!!item.resolvedBy&&!incomplete.has(item.id)&&['pending','unresolved'].includes(item.status)&&!item.reason.startsWith('missing_capability:')&&item.reason!=='unknown_action_outcome';
+    let advanced:boolean;
+    do {
+      advanced=false;
+      for(const item of pending) {
+        if(!canSettle(item))continue;
+        const unfinished=task.plan.filter(other=>other.required&&!['succeeded','excluded'].includes(other.status)&&Object.entries(item.scope).every(([k,v])=>other.scope[k as keyof Scope]===v));
+        const peers=unfinished.filter(other=>digest(other.scope)===digest(item.scope));
+        if(unfinished.length!==peers.length||!peers.every(canSettle))continue;
+        // Equal historical rows are evidence for the same obligation, not mutual
+        // unfinished children. Settle them together only after every known member.
+        if(concrete(item)&&!this.operationMembersVerified(task,peers,o))continue;
+        for(const peer of peers)peer.status='succeeded';advanced=true;
+      }
+    }while(advanced);
+    if(!operationsOnly)for(const item of pending.filter(i=>i.status!=='succeeded')){item.status='unresolved';item.reason=item.reason||'scope_not_verified';}
   }
   private async finishRound(task:Task,round:Round,signal:AbortSignal,hostTimeLimit=false) {
     const o=this.host.observation(round.sessionId);
@@ -511,11 +560,7 @@ export class ExplorerPlugin {
         if(!item.evidence.some(e=>e.attemptId===attempt.id))item.evidence.push(navigation.evidence);
       }
     }
-    for(const item of task.plan.filter(i=>i.required&&['pending','unresolved'].includes(i.status))) {
-      if(item.reason.startsWith('missing_capability:')){item.status='unresolved';continue;}
-      if(!incomplete.has(item.id)&&item.resolvedBy && !task.plan.some(other=>other.id!==item.id&&other.required&&other.status!=='succeeded'&&other.status!=='excluded'&&Object.entries(item.scope).every(([k,v])=>other.scope[k as keyof Scope]===v))){item.status='succeeded';}
-      else {item.status='unresolved';item.reason=item.reason||'scope_not_verified';}
-    }
+    this.settleScopes(task,o,incomplete);
     round.status='finished';round.endedAt=now();const remaining=task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status));
     const audit=this.host.report(round.sessionId);
     this.event(task,'round.audit',{roundId:round.id,remaining:remaining.map(i=>i.id),explorationAudit:audit.explorationAudit,completionAudit:audit.completionAudit});
