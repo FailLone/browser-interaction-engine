@@ -253,7 +253,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     if (member.row.matches(itemSelector)) member.recordKey = itemKey(member.row);
   }
   for(const list of structuralScan.candidates)for(const member of list.members)selected.add(member.element);
-  const structuralMembers=new Map(structuralScan.candidates.flatMap(list=>list.members.map(member=>[member.element,{ownerInstanceId:instance(list.owner),template:list.template,slot:member.slot,rowInstanceId:instance(member.row),...(member.recordKey?{recordKey:member.recordKey}:{})}] as const)));
+  const structuralMembers=new Map(structuralScan.candidates.flatMap(list=>list.members.map(member=>[member.element,{ownerInstanceId:instance(list.owner),template:list.template,slot:member.slot,rowInstanceId:instance(member.row),...(member.recordKey?{recordKey:member.recordKey}:{}),...(member.recordEvidence?{recordEvidence:member.recordEvidence}:{})}] as const)));
   const all = [...selected];
   const reuseBindings = new Map<Element, Control['reviewReuseBinding']>();
   const reuseBinding = (owner: Element): Control['reviewReuseBinding'] => {
@@ -325,7 +325,8 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     }
     const structuralItem=structuralMembers.get(el);
     if(structuralItem&&!capabilities.actions.length&&style.cursor==='pointer'){
-      capabilities.actions.push('click');capabilities.actionBasis.click={status:'tentative',evidence:[{source:'dom',rule:'repeated-record-probe/v1',facts:{...structuralItem,meaning:'Repeated custom pointer record; click purpose remains unconfirmed'}}]};
+      const {recordEvidence,...record}=structuralItem;
+      capabilities.actions.push('click');capabilities.actionBasis.click={status:'tentative',evidence:[{source:'dom',rule:'repeated-record-probe/v1',facts:{...record,meaning:'Repeated custom pointer record; click purpose remains unconfirmed'}},...(recordEvidence||[])]};
     }
     const scroll = scrollViewport(el);
     // Virtualized descendants change as the viewport moves. They are not the

@@ -117,12 +117,15 @@ export class ExplorerPlugin {
     for(const item of task.plan)if(item.dispatchScope===undefined)item.dispatchScope=approved.has(item.id);
     this.store.save(task);this.event(task,'plan.authority_restored',{approvedItemIds:[...approved],recordOnly:task.plan.filter(i=>!i.dispatchScope).map(i=>i.id)});
   }
-  private gap(task:Task,reason:string,scope:Scope,required=true,prerequisites:Scope[]=[],persist=true) {
+  private gap(task:Task,reason:string,scope:Scope,required=true,prerequisites:Scope[]=[],persist=true,source?:Pick<Observation,'sessionId'|'id'>) {
     if(required && task.plan.length && !task.plan.some(i=>i.required&&i.dispatchScope===true&&Object.entries(i.scope).every(([k,v])=>scope[k as keyof Scope]===undefined||scope[k as keyof Scope]===v)))required=false;
     const key=JSON.stringify({reason,scope});let item=task.plan.find(i=>JSON.stringify({reason:i.reason,scope:i.scope})===key);
     if(!item){item={id:randomUUID(),title:reason,scope,prerequisites:[...prerequisites],completion:'Obtain fresh evidence and verify the requested operation',status:required?'unresolved':reason==='scope_excluded'?'excluded':'untested',required,dispatchScope:false,reason,evidence:[],attempts:[]};task.plan.push(item);}
     if(item.reviewResolvedBy){const previous=item.reviewResolvedBy;delete item.reviewResolvedBy;delete item.resolvedBy;item.status=item.required?'unresolved':'untested';this.event(task,'review.reopened',{itemId:item.id,previous,reason:'new_unresolved_evidence'});}
-    const r=task.rounds.at(-1);if(r){try{const o=this.host.observation(r.sessionId);if(!item.evidence.some(e=>e.observationId===o.id))item.evidence.push({sessionId:r.sessionId,observationId:o.id});}catch{item.reason+=':evidence_unavailable';}}
+    // A synchronous audit already holds the source observation. Reading it once
+    // per gap can deserialize hundreds of megabytes without adding evidence.
+    // This is an explicit source reference, never a cache or execution grant.
+    const r=task.rounds.at(-1);if(r){try{const o=source||this.host.observation(r.sessionId);if(!item.evidence.some(e=>e.sessionId===o.sessionId&&e.observationId===o.id))item.evidence.push({sessionId:o.sessionId,observationId:o.id});}catch{item.reason+=':evidence_unavailable';}}
     if(persist)this.store.save(task);return item;
   }
   private async retainHostLimitations(task:Task,o:Observation,signal:AbortSignal) {
@@ -239,7 +242,7 @@ export class ExplorerPlugin {
       !task.plan.some(i=>i.required&&i.dispatchScope===true&&!['succeeded','excluded'].includes(i.status)&&[i.scope,...i.prerequisites].some(s=>controlInScope(s,control,o,actions))))throw new ExplorerError('PROBE_OUTSIDE_SCOPE');
     const scope=scopeForControl(control,o),round=task.rounds.at(-1)!;
     // Preserve the old page's obligations before a probe can reveal or hide UI.
-    const snapshot=this.host.explorationSnapshot(o.sessionId,o.id),completed=completedOperations(this.host,task,o,[...actions,...snapshot.operationCandidates]);
+    const snapshot=this.host.explorationSnapshot(o.sessionId,o.id,{includeHistoryAudit:false}),completed=completedOperations(this.host,task,o,[...actions,...snapshot.operationCandidates]);
     this.auditRemainingScopes(task,round,o,snapshot,completed);
     const remaining=[...actions.filter(a=>includesScope(task.plan,a,o)==='target'&&!completed.has(a)).map(a=>scopeFor(a,o)),
       ...this.host.controlReviewMaterial(o.sessionId).controls.filter(i=>i.needsReview&&task.plan.some(p=>p.required&&p.dispatchScope===true&&controlInScope(p.scope,i.control,o,actions))).map(i=>scopeForControl(i.control,o))];
@@ -453,7 +456,7 @@ export class ExplorerPlugin {
       throw error;
     }
     this.assert(task,signal,o.id);
-    const snapshot=this.host.explorationSnapshot(sid,o.id),{actions,availability}=snapshot;
+    const snapshot=this.host.explorationSnapshot(sid,o.id,{includeHistoryAudit:false}),{actions,availability}=snapshot;
     const completed=completedOperations(this.host,task,o,[...actions,...snapshot.operationCandidates]),fresh=new Set<string>();
     const eligible=actions.filter(a=>{
       if(this.navigationIsUnverified(task,a,o)||!permitted(a,o,availability)||!includesScope(task.plan,a,o))return false;
@@ -693,7 +696,7 @@ export class ExplorerPlugin {
     }
     this.store.save(task);return false;
   }
-  private auditRemainingScopes(task:Task,round:Round,o:Observation,snapshot=this.host.explorationSnapshot(o.sessionId,o.id),completed?:ReadonlySet<ActionCandidate>) {
+  private auditRemainingScopes(task:Task,round:Round,o:Observation,snapshot:Pick<ReturnType<ExplorerHost['explorationSnapshot']>,'actions'|'availability'|'obligations'|'operationCandidates'|'revision'>=this.host.explorationSnapshot(o.sessionId,o.id,{includeHistoryAudit:false}),completed?:ReadonlySet<ActionCandidate>) {
     const incomplete=new Set<string>(),{actions,availability}=snapshot;
     const scopes=task.plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='succeeded'&&!(i.scope.kind&&(i.scope.label||i.scope.stableKey||i.scope.value!==undefined)));
     if(!scopes.length)return incomplete;
@@ -703,12 +706,12 @@ export class ExplorerPlugin {
       const pending=snapshot.operationCandidates.filter(a=>matches(item.scope,a,o)&&includesScope(task.plan,a,o)==='target'&&(this.currentExit(a,o)||!completed.has(a))&&!round.tried.includes(this.attemptKey(round,a,o)));
       for(const action of pending) {
         const path=this.pathForAction(round,action,o);
-        if(this.navigationIsUnverified(task,action,o)){this.gap(task,'unknown_action_outcome',scopeFor(action,o),true,path,false);continue;}
+        if(this.navigationIsUnverified(task,action,o)){this.gap(task,'unknown_action_outcome',scopeFor(action,o),true,path,false,o);continue;}
         const control=o.controls.find(c=>c.localId===action.localId);
         const review=action.basis?.status!=='supported'&&control&&(facts.classifications.includes(control.localId)?'classification_unresolved':facts.operations.includes(control.localId)?'operation_basis_unconfirmed':undefined);
-        if(review){this.gap(task,review,scopeForControl(control!,o),true,path,false);continue;}
+        if(review){this.gap(task,review,scopeForControl(control!,o),true,path,false,o);continue;}
         const gap=unexecutedAction(action,availability);
-        this.gap(task,gap.reason,scopeFor(action,o),gap.required,path,false);
+        this.gap(task,gap.reason,scopeFor(action,o),gap.required,path,false,o);
       }
       const controls=new Set(o.controls.filter(c=>c.visible&&c.enabled&&inScope(item.scope,c)&&!task.plan.some(excluded=>excluded.reason==='user_excluded'&&inScope(excluded.scope,c))).map(c=>c.localId));
       const obligations={

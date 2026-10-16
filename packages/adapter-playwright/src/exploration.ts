@@ -10,7 +10,7 @@ export function browserControlCorrespondence(c: Control): CorrespondenceHint | u
   const key=item?.recordKey ? `explorer:record:v1:${hash({record:item.recordKey,template:item.template,slot:item.slot,tag:c.tag,role:c.role,name:c.name||c.label,type:c.constraints.type})}`
     : c.stableKey || (!c.list&&!item&&context?.evidence.length&&(context.scope||context.binding)
       ? `explorer:context:v1:${hash({tag:c.tag,role:c.role,name:c.name||c.label,type:c.constraints.type,scope:context.scope,binding:context.binding})}` : undefined);
-  return key ? {key,policy:'browser-correspondence-v1',evidence:[item?.recordKey?'captured-record-and-slot':c.stableKey?'captured-stable-key':'captured-semantic-context',...(context?.evidence||[])],
+  return key ? {key,policy:'browser-correspondence-v1',evidence:[item?.recordKey?'captured-record-and-slot':c.stableKey?'captured-stable-key':'captured-semantic-context',...(item?.recordEvidence?.map(e=>e.rule)||[]),...(context?.evidence||[])],
     invalidatedBy:['nonunique-correspondence','changed-owner-or-binding','changed-operation-conditions','changed-declared-context']} : undefined;
 }
 

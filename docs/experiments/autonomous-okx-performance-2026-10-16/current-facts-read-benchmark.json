@@ -1,0 +1,92 @@
+{
+  "readOnly": true,
+  "engineOrPluginConstructor": false,
+  "liveWrites": false,
+  "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+  "observationId": "107e9e84-afaf-4a33-88c8-3a5b9fc3a755",
+  "currentActions": 213,
+  "currentControls": 293,
+  "currentFactsEqual": true,
+  "fullHistoricalCases": 835,
+  "measurements": [
+    {
+      "name": "includeHistoryAudit:false",
+      "ms": 494.60974999999996,
+      "stats": {
+        "gets": {
+          "session": 232,
+          "observation": 4,
+          "region-review": 1
+        },
+        "lists": {
+          "frontier": 1,
+          "attempt": 5,
+          "hypothesis": 1,
+          "exploration-group": 1,
+          "action": 1,
+          "continuation": 4,
+          "boundary-exit-result": 2,
+          "control-classification": 2,
+          "region-review": 3,
+          "control-review": 1,
+          "discovery-scan": 1
+        },
+        "bytesParsed": 41179782,
+        "observationBytesParsed": 14958479
+      }
+    },
+    {
+      "name": "default full history",
+      "ms": 3346.508625,
+      "stats": {
+        "gets": {
+          "session": 232,
+          "observation": 4,
+          "region-review": 1
+        },
+        "lists": {
+          "frontier": 1,
+          "attempt": 5,
+          "hypothesis": 1,
+          "exploration-group": 1,
+          "action": 1,
+          "continuation": 4,
+          "boundary-exit-result": 2,
+          "control-classification": 2,
+          "region-review": 3,
+          "observation": 1,
+          "control-review": 1,
+          "discovery-scan": 1
+        },
+        "bytesParsed": 499148496,
+        "observationBytesParsed": 472927193
+      }
+    },
+    {
+      "name": "includeHistoryAudit:false repeat",
+      "ms": 374.05554200000006,
+      "stats": {
+        "gets": {
+          "session": 232,
+          "observation": 4,
+          "region-review": 1
+        },
+        "lists": {
+          "frontier": 1,
+          "attempt": 5,
+          "hypothesis": 1,
+          "exploration-group": 1,
+          "action": 1,
+          "continuation": 4,
+          "boundary-exit-result": 2,
+          "control-classification": 2,
+          "region-review": 3,
+          "control-review": 1,
+          "discovery-scan": 1
+        },
+        "bytesParsed": 41179782,
+        "observationBytesParsed": 14958479
+      }
+    }
+  ]
+}

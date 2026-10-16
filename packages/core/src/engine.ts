@@ -226,22 +226,31 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   private assertExecution(original:ActionCandidate,o:O,purpose:ActionAttempt['purpose'],value?:ActionCandidate['value'],guard?:ExecutionGuard) {
     const blockers=[...this.executionSessionBlockers(o,purpose),...this.executionBlockers(original,o,purpose,value,guard)];if(blockers.length)throw new EngineError(blockers[0].code,blockers[0].reason,{observationId:o.id,blockers});
   }
-  /** A per-call evidence bundle; no cache survives an observation/review mutation. */
-  protected coverageMaterial(sessionId:string) {
-    const session=this.session(sessionId),raw=this.frontier(sessionId),attempts=this.store.list<ActionAttempt>('attempt',sessionId),observations=this.store.list<O>('observation',sessionId),hypotheses=this.store.list<IdentityHypothesis>('hypothesis',sessionId),groups=this.store.list<ExplorationGroup>('exploration-group',sessionId);
-    const equivalents=reconcileCoverage(session,raw,attempts,observations,hypotheses,(a,o)=>this.adapter.explorationCase?.(a,o,session));
-    return {session,raw,attempts,observations,hypotheses,groups,equivalents,frontier:describeFrontier(raw,attempts,equivalents)};
+  /** Current ledgers shared by fact queries and the historical audit. */
+  private coverageInputs(sessionId:string) {
+    return {session:this.session(sessionId),raw:this.frontier(sessionId),attempts:this.store.list<ActionAttempt>('attempt',sessionId),hypotheses:this.store.list<IdentityHypothesis>('hypothesis',sessionId),groups:this.store.list<ExplorationGroup>('exploration-group',sessionId)};
   }
+  private reconcileMaterial(m:ReturnType<InteractionEngine<O,S>['coverageInputs']>) {
+    const observations=this.store.list<O>('observation',m.session.id),equivalents=reconcileCoverage(m.session,m.raw,m.attempts,observations,m.hypotheses,(a,o)=>this.adapter.explorationCase?.(a,o,m.session));
+    return {...m,observations,equivalents,frontier:describeFrontier(m.raw,m.attempts,equivalents)};
+  }
+  /** A per-call evidence bundle; no cache survives an observation/review mutation. */
+  protected coverageMaterial(sessionId:string) {return this.reconcileMaterial(this.coverageInputs(sessionId));}
   getFrontier(sessionId:string){return this.session(sessionId).options.exploration==='controls'?this.coverageMaterial(sessionId).frontier:describeFrontier(this.frontier(sessionId),this.store.list<ActionAttempt>('attempt',sessionId));}
   auditSnapshot(sessionId:string,observationId?:string) {return this.captureAudit(sessionId,observationId).snapshot;}
-  protected captureAudit(sessionId:string,observationId?:string) {
-    const m=this.coverageMaterial(sessionId),observation=this.observation(sessionId);
+  /** Current observation facts use the same dispatch validator; they make no historical coverage claim. */
+  protected captureCurrentFacts(sessionId:string,observationId?:string) {
+    const m=this.coverageInputs(sessionId),observation=this.observation(sessionId,m.session.currentObservationId);
     if(observationId&&observationId!==observation.id)throw new EngineError('STALE_OBSERVATION','Audit requires the current observation',{observationId:observation.id});
     const allActions=this.store.list<ActionCandidate>('action',sessionId),actions=allActions.filter(a=>a.observationId===observation.id),availability=this.availabilityFrom(observation,actions,m.raw,m.groups);
-    const snapshot={sessionId,observationId:observation.id,revision:availability.revision,observation,actions,operationCandidates:actions.filter(a=>a.preconditions.visible&&!this.outsideBoundary(a)),availability,frontier:m.frontier,groups:m.groups,hypotheses:m.hypotheses,
-      unknownAttempts:m.attempts.filter(a=>a.status==='unknown'||a.status==='executing'),
-      explorationAudit:auditExploration(m.session,m.frontier,m.attempts,m.observations,m.groups,m.equivalents)};
+    const snapshot={sessionId,observationId:observation.id,revision:availability.revision,observation,actions,operationCandidates:actions.filter(a=>a.preconditions.visible&&!this.outsideBoundary(a)),availability,groups:m.groups,hypotheses:m.hypotheses,
+      unknownAttempts:m.attempts.filter(a=>a.status==='unknown'||a.status==='executing')};
     return {snapshot,material:{...m,allActions}};
+  }
+  protected captureAudit(sessionId:string,observationId?:string) {
+    const current=this.captureCurrentFacts(sessionId,observationId),m=this.reconcileMaterial(current.material);
+    const snapshot={...current.snapshot,frontier:m.frontier,explorationAudit:auditExploration(m.session,m.frontier,m.attempts,m.observations,m.groups,m.equivalents)};
+    return {snapshot,material:{...m,allActions:current.material.allActions}};
   }
   /** Outstanding scheduling work; equivalence never rewrites stored actions or attempts. */
   protected outstandingFrontier(sessionId: string) { if(this.session(sessionId).options.exploration!=='controls')return this.frontier(sessionId);const m=this.coverageMaterial(sessionId);return m.raw.filter(f=>!m.equivalents.has(f.id)); }

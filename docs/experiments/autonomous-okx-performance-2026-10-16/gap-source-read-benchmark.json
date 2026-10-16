@@ -1,0 +1,25 @@
+{
+  "readOnly": true,
+  "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+  "observationId": "107e9e84-afaf-4a33-88c8-3a5b9fc3a755",
+  "sourceBytes": 3761590,
+  "sameEvidence": true,
+  "measurements": [
+    {
+      "mode": "per-gap-observation-read",
+      "elapsedMs": 3943.6055420000002,
+      "reads": 204,
+      "bytes": 767364360,
+      "eventCount": 1,
+      "planRows": 2362
+    },
+    {
+      "mode": "explicit-source-observation",
+      "elapsedMs": 476.81537500000013,
+      "reads": 1,
+      "bytes": 3761590,
+      "eventCount": 1,
+      "planRows": 2362
+    }
+  ]
+}

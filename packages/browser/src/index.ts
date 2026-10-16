@@ -114,16 +114,34 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     const actions=this.actions(sid),material=this.interpretationMaterial(o,actions),retainedClassifications=this.classifications.retainedEvidence(options.retainedClassifications||[],o);
     return {sessionId:sid,observationId:o.id,revision:hash({observationId:o.id,material,retainedClassifications}),actions,...material,retainedClassifications,executionAuthorized:false as const};
   }
-  /** Consistent synchronous facts at one observation. Returned evidence never changes task state. */
-  explorationSnapshot(sid:string,observationId?:string,options:{includeCompletionAudit?:boolean}={}) {
-    const {snapshot:base,material}=this.captureAudit(sid,observationId),o=base.observation,session=material.session;
+  /** Consistent synchronous facts at one observation. History is explicit, never inferred from current facts. */
+  explorationSnapshot(sid:string,observationId?:string,options?:{includeHistoryAudit?:true;includeCompletionAudit?:boolean}):ReturnType<BrowserEngine['historicalExplorationSnapshot']>;
+  explorationSnapshot(sid:string,observationId:string|undefined,options:{includeHistoryAudit:false;includeCompletionAudit?:false}):ReturnType<BrowserEngine['currentExplorationSnapshot']>;
+  explorationSnapshot(sid:string,observationId:string|undefined,options:{includeHistoryAudit?:boolean;includeCompletionAudit?:boolean}):ReturnType<BrowserEngine['historicalExplorationSnapshot']>|ReturnType<BrowserEngine['currentExplorationSnapshot']>;
+  explorationSnapshot(sid:string,observationId?:string,options:{includeHistoryAudit?:boolean;includeCompletionAudit?:boolean}={}) {
+    if(options.includeHistoryAudit===false){
+      if(options.includeCompletionAudit)throw new EngineError('INVALID_OPTIONS','Completion audit requires historical evidence');
+      return this.currentExplorationSnapshot(sid,observationId);
+    }
+    return this.historicalExplorationSnapshot(sid,observationId,options.includeCompletionAudit);
+  }
+  private currentExplorationSnapshot(sid:string,observationId?:string) {
+    const {snapshot:base,material}=this.captureCurrentFacts(sid,observationId);
+    return {...this.explorationFacts(sid,base,material.session),historyAuditIncluded:false as const,frontier:undefined,explorationAudit:undefined,completionAudit:undefined};
+  }
+  private historicalExplorationSnapshot(sid:string,observationId?:string,includeCompletionAudit=false) {
+    const {snapshot:base,material}=this.captureAudit(sid,observationId),o=base.observation;
+    let completionAudit:ReturnType<typeof auditBrowserCompletion>|undefined;
+    if(includeCompletionAudit){const records=this.classifications.records(sid),coverage=describeControlCoverage(material.observations,material.attempts,material.allActions,records,material.hypotheses);
+      completionAudit=auditBrowserCompletion(base.explorationAudit,coverage,material.observations,o.id,material.groups,records);}
+    return {...this.explorationFacts(sid,base,material.session),historyAuditIncluded:true as const,frontier:base.frontier,explorationAudit:base.explorationAudit,completionAudit};
+  }
+  private explorationFacts(sid:string,base:ReturnType<BrowserEngine['captureCurrentFacts']>['snapshot'],session:ReturnType<BrowserEngine['session']>) {
+    const o=base.observation;
     const regions=this.regions.material(o,base.actions,session),{classifications,operations,nonInteractive}=this.interpretationMaterial(o,base.actions),discovery=this.discoveryScans.material(o);
     const obligations={criticalGaps:o.gaps.filter(g=>g.critical).map(g=>g.code),regions:regions.enabled?regions.unassignedControlIds:[],pageTraversal:regions.enabled&&regions.unassignedPageTraversal,
       classifications:classifications.pendingControlIds,operations:operations.pendingControlIds,identities:base.hypotheses.filter(h=>h.status==='pending').map(h=>({id:h.id,localId:h.localId})),
       discovery:!!discovery.discovery&&(discovery.discovery.signal.omitted>0||discovery.discovery.structural.omittedLocations>0)};
-    let completionAudit:ReturnType<typeof auditBrowserCompletion>|undefined;
-    if(options.includeCompletionAudit){const records=this.classifications.records(sid),coverage=describeControlCoverage(material.observations,material.attempts,material.allActions,records,material.hypotheses);
-      completionAudit=auditBrowserCompletion(base.explorationAudit,coverage,material.observations,o.id,material.groups,records);}
 
     const facts=[
       ...base.availability.actions.map(a=>({kind:'operation' as const,actionId:a.actionId,localId:base.actions.find(x=>x.id===a.actionId)?.localId,code:a.executable?'ready':a.blockers[0]?.reason||'blocked',blockers:a.blockers,evidence:a.blockers.flatMap(b=>b.evidence)})),
@@ -134,7 +152,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       ...base.hypotheses.filter(h=>h.status==='pending').map(h=>({kind:'identity' as const,localId:h.localId,code:'identity_ambiguous',evidence:[h.id,h.observationId]})),
       ...o.gaps.map(g=>({kind:(g.code.startsWith('UNSUPPORTED_')||g.code.endsWith('_UNSUPPORTED')?'unsupported':'discovery') as 'unsupported'|'discovery',code:g.code,evidence:[o.id],critical:!!g.critical})),
       ...base.unknownAttempts.map(a=>({kind:'unknown-result' as const,code:a.status,evidence:[a.id,a.beforeId,...a.afterId?[a.afterId]:[]]}))];
-    return {...base,revision:hash({availability:base.revision,regions:regions.review,classification:classifications.controls.map(c=>c.classifications.map(r=>[r.id,r.status])),operations:operations.controls.map(c=>c.reviews.map(r=>[r.id,r.status])),facts,nonInteractive}),regions,classifications,operations,discovery,nonInteractive,facts,obligations,completionAudit,recovery:this.recoveryAssessment(sid),boundary:this.boundaryState(sid)};
+    return {...base,revision:hash({availability:base.revision,regions:regions.review,classification:classifications.controls.map(c=>c.classifications.map(r=>[r.id,r.status])),operations:operations.controls.map(c=>c.reviews.map(r=>[r.id,r.status])),facts,nonInteractive}),regions,classifications,operations,discovery,nonInteractive,facts,obligations,recovery:this.recoveryAssessment(sid),boundary:this.boundaryState(sid)};
   }
   respondToIntervention(sid: string, input: InterventionResponseInput): Promise<{ response: InterventionResponseRecord; material: import('@interaction/adapter-playwright').InterventionMaterial }> {
     const parsed = interventionResponseSchema.parse(structuredClone(input)), id = hash({ sid, requestId: parsed.requestId, kind: 'intervention-response' });

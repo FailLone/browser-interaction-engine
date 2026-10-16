@@ -1,10 +1,34 @@
 import { expect, it, vi } from 'vitest';
-import { ExplorerPlugin, ExplorerStore, type PlanItem } from '@interaction/explorer-plugin';
+import { ExplorerPlugin, ExplorerStore, type PlanItem, type Task, type Round } from '@interaction/explorer-plugin';
+import type { Observation } from '@interaction/browser';
 import { completedOperations } from '../packages/explorer-plugin/src/completion-evidence.js';
 import { scopeFor } from '../packages/explorer-plugin/src/policy.js';
 import { explorerFixture } from './explorer-plugin-helpers.js';
 
 const options={headless:true,exploration:'controls',settleMs:0,observeTimeoutMs:100,interfaceActions:[{kind:'click'}]};
+
+it('records every audit gap against one source without rereading the large observation for each target',async()=>{
+  const f=await explorerFixture(Array.from({length:30},(_,i)=>`<button id="target-${i}" type="button">Target ${i}</button>`).join(''));
+  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'));
+  try{
+    const s=await f.host.createSession({...options,url:f.url}),first=f.host.observation(s.id),task=plugin.create({url:f.url});
+    const round:Round={id:'round',number:1,sessionId:s.id,startedAt:new Date().toISOString(),status:'paused',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0};
+    task.rounds=[round];task.plan=[{id:'root',title:'All controls',scope:{url:f.url},prerequisites:[],completion:'Audit every control',status:'pending',required:true,dispatchScope:true,reason:'user_goal',evidence:[],attempts:[]}];
+    const audit=plugin as unknown as {auditRemainingScopes(task:Task,round:Round,o:Observation,snapshot:ReturnType<typeof f.host.explorationSnapshot>):Set<string>};
+    for(const pass of [0,1]){
+      const o=pass===0?first:await f.host.observe(s.id);
+      // Build the host facts outside the measured gap loop. Even with historical
+      // evidence in the task, the explicit source must be this supplied version.
+      const snapshot=f.host.explorationSnapshot(s.id,o.id);
+      const reads=vi.spyOn(f.host,'observation');audit.auditRemainingScopes(task,round,o,snapshot);
+      expect(reads.mock.calls.length).toBeLessThanOrEqual(1);reads.mockRestore();
+      const gaps=task.plan.filter(i=>i.dispatchScope===false&&i.scope.kind==='click');expect(gaps).toHaveLength(30);
+      expect(gaps.every(i=>i.evidence.some(e=>e.sessionId===s.id&&e.observationId===o.id))).toBe(true);
+      expect(gaps.every(i=>i.status!=='succeeded'&&!i.resolvedBy&&i.attempts.length===0)).toBe(true);
+    }
+    expect(f.host.session(s.id).actionCount).toBe(0);
+  }finally{await plugin.close();await f.close();}
+});
 
 it('batches duplicate historical task proofs while keeping same-name controls and current execution distinct',async()=>{
   const f=await explorerFixture('<button id="one" type="button">Run</button><button id="two" type="button">Run</button>');

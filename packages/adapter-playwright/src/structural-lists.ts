@@ -18,17 +18,44 @@ export function discoverStructuralLists(elements: Element[], selected: Set<Eleme
     limits.omissions.push({kind,ownerId:instance(owner),ownerSelector:selector(owner),...(row?{rowId:instance(row),rowSelector:selector(row)}:{}),limit,observed});
   };
   const path=(root:Element,el:Element)=>{const parts:number[]=[];for(let n=el;n!==root;){const p=n.parentElement;if(!p)return '';parts.unshift([...p.children].indexOf(n));n=p;}return parts.join('/');};
+  // A disclosure's content is mutable state, not its record label. Require a
+  // unique, explicit relationship inside this row; text or position alone is
+  // insufficient. The resulting key is correspondence evidence, not authority.
+  const disclosures=new WeakMap<Element,{panel:Element;key:string;evidence:NonNullable<Control['structuralItem']>['recordEvidence']}|null>();
+  const disclosure=(row:Element)=>{
+    if(disclosures.has(row))return disclosures.get(row);
+    disclosures.set(row,null);
+    const triggers=[...row.querySelectorAll('button[aria-expanded][aria-controls],[role=button][aria-expanded][aria-controls]')];
+    if(triggers.length!==1)return null;
+    const trigger=triggers[0],expanded=trigger.getAttribute('aria-expanded'),popup=trigger.getAttribute('aria-haspopup');
+    if(!['true','false'].includes(expanded||'')||popup&&popup!=='false')return null;
+    const ids=clean(trigger.getAttribute('aria-controls')).split(' ').filter(Boolean);
+    if(ids.length!==1)return null;
+    const panels=document.querySelectorAll(`#${CSS.escape(ids[0])}`),panel=panels[0];
+    if(panels.length!==1||!row.contains(panel)||panel===row||panel.contains(trigger)||trigger.contains(panel)||panel.matches(scope+', [role=tabpanel]'))return null;
+    const copy=trigger.cloneNode(true) as Element;
+    copy.querySelectorAll('script,style,[hidden],[aria-hidden=true]').forEach(el=>el.remove());
+    const name=label(trigger)||clean(copy.textContent);
+    if(!name||name.length>500)return null;
+    const triggerSlot=path(row,trigger),panelSlot=path(row,panel);
+    const key=JSON.stringify(['disclosure/v1',{name,triggerSlot,tag:trigger.tagName,role:trigger.getAttribute('role')||'',type:trigger.getAttribute('type')||'',panelSlot,panelTag:panel.tagName,panelRole:panel.getAttribute('role')||''}]);
+    const value={panel,key,evidence:[{source:'dom',rule:'disclosure-record/v1',facts:{rowInstanceId:instance(row),triggerInstanceId:instance(trigger),panelInstanceId:instance(panel),targetId:ids[0],triggerSlot,panelSlot,name,relation:'unique-aria-controls-within-record'}}]};
+    disclosures.set(row,value);return value;
+  };
   const targetElements=(row:Element)=>[...selected].filter(el=>(el===row||row.contains(el))&&!el.closest('[role=listbox],select')&&visible(el)&&capabilities(el).actions.length>0);
   const structure=(root:Element,owner:Element)=>{
+    const panel=disclosure(root)?.panel;
     const extended=!!supplement?.root.contains(root),maxNodes=extended?supplement!.templateNodes:100,maxDepth=extended?supplement!.templateDepth:8;
     let count=0,limited:DiscoveryOmission['kind']|undefined;
     const walk=(el:Element,depth:number):unknown=>{
       if(count>=maxNodes){limited='template_nodes';return null;}
       if(depth>maxDepth){limited='template_depth';return null;}
       count++;
+      // Keep content structure: newly revealed operations must still invalidate
+      // the reviewed template. Only passive text and open/closed state are absent.
       if(el!==root&&el.matches(scope))return ['independent-scope',el.tagName,el.getAttribute('role')];
       const children:unknown[]=[];
-      for(const child of el.children){if(child.matches('script,style,[hidden],[aria-hidden=true]'))continue;children.push(walk(child,depth+1));if(limited)break;}
+      for(const child of el.children){if(child!==panel&&child.matches('script,style,[hidden],[aria-hidden=true]'))continue;children.push(walk(child,depth+1));if(limited)break;}
       return [el.tagName,el.getAttribute('role')||'',el.getAttribute('type')||'',el.hasAttribute('href'),el.hasAttribute('contenteditable'),
         children];
     };
@@ -37,6 +64,7 @@ export function discoverStructuralLists(elements: Element[], selected: Set<Eleme
   const recordKey=(row:Element)=>{
     const declared=['data-row-key','data-item-key','data-key'].find(k=>row.hasAttribute(k));
     if(declared)return JSON.stringify([declared,row.getAttribute(declared)]);
+    const disclosed=disclosure(row);if(disclosed)return disclosed.key;
     const links=[...(row.matches('a[href]')?[row]:[]),...row.querySelectorAll('a[href]')].filter(el=>!el.parentElement?.closest('[role=listbox]'));
     if(links.length===1)return JSON.stringify(['href',links[0].getAttribute('href')]);
     const copy=row.cloneNode(true) as Element;
@@ -44,7 +72,7 @@ export function discoverStructuralLists(elements: Element[], selected: Set<Eleme
     const text=label(row)||clean(copy.textContent);
     return text&&text.length<=500?JSON.stringify(['description',text]):undefined;
   };
-  const result:{owner:Element;template:string;qualification:Remembered['qualification'];members:{element:Element;row:Element;slot:string;recordKey?:string}[];binding:StructuralListCandidate['binding'];label:string;selector:string}[]=[];
+  const result:{owner:Element;template:string;qualification:Remembered['qualification'];members:{element:Element;row:Element;slot:string;recordKey?:string;recordEvidence?:NonNullable<Control['structuralItem']>['recordEvidence']}[];binding:StructuralListCandidate['binding'];label:string;selector:string}[]=[];
   owners: for(const owner of elements){
     // A semantic row owns fields, not repeated records. Its inherited pointer
     // cursor must not promote price/status cells to independent click targets
@@ -81,7 +109,7 @@ export function discoverStructuralLists(elements: Element[], selected: Set<Eleme
     const ancestry:string[]=[];for(let p:Element|null=owner;p&&p!==document.documentElement;p=p.parentElement)ancestry.push(instance(p));
     for(const {template,slots,qualification} of remembered.values()){
       const rows=buckets.get(template)||[];
-      const members=rows.flatMap(({row,targets})=>targets.filter(el=>slots.includes(path(row,el))).map(element=>({element,row,slot:path(row,element),recordKey:recordKey(row)})));
+      const members=rows.flatMap(({row,targets})=>{const key=recordKey(row),recordEvidence=key?.startsWith('["disclosure/v1",')?disclosure(row)?.evidence:undefined;return targets.filter(el=>slots.includes(path(row,el))).map(element=>({element,row,slot:path(row,element),recordKey:key,...(recordEvidence?{recordEvidence}:{})}));});
       if(result.length>=(supplement?.collections??300)){limits.collectionsTruncated=true;omit('collections',owner,undefined,supplement?.collections??300,result.length+1);break owners;}
       result.push({owner,template,qualification,members,binding:{ownerInstanceId:instance(owner),ancestry,tag:owner.tagName.toLowerCase(),role:owner.getAttribute('role')||'',label:label(owner),template,templatePresent:rows.length>0||buckets.size===0},
         label:label(owner)||'Repeated record controls',selector:selector(owner)});
@@ -98,11 +126,11 @@ export function describeStructuralLists(scan:ReturnType<typeof discoverStructura
   const byId=new Map(controls.map(c=>[c.instanceId,c]));
   const elementById=new Map(elements.map(el=>[instance(el),el]));
   return scan.candidates.map(candidate=>{
-    const members=candidate.members.flatMap(m=>{const c=byId.get(instance(m.element));return c?.visible&&!c.list?[{localId:c.localId,rowInstanceId:instance(m.row),slot:m.slot,...(m.recordKey?{recordKey:m.recordKey}:{})}]:[];});
+    const members=candidate.members.flatMap(m=>{const c=byId.get(instance(m.element));return c?.visible&&!c.list?[{localId:c.localId,rowInstanceId:instance(m.row),slot:m.slot,...(m.recordKey?{recordKey:m.recordKey}:{}),...(m.recordEvidence?{recordEvidence:m.recordEvidence}:{})}]:[];});
     const traversalLocalIds=controls.filter(c=>c.scroll&&elementById.get(c.instanceId)?.contains(candidate.owner)).map(c=>c.localId);
     return {ownerInstanceId:instance(candidate.owner),ownerSelector:candidate.selector,label:candidate.label,template:candidate.template,binding:candidate.binding,members,traversalLocalIds,
       evidence:[{source:'dom',rule:'repeated-record-list/v1',facts:{ownerInstanceId:instance(candidate.owner),ownerSelector:candidate.selector,template:candidate.template,
-        qualification:candidate.qualification,members,
+        qualification:candidate.qualification,members:members.map(({recordEvidence:_evidence,...member})=>member),
         meaning:'Repeated sibling records and corresponding control slots; business similarity, total size and operation purpose require caller judgment'}}]};
   });
 }

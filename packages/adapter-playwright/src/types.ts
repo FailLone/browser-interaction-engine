@@ -48,7 +48,7 @@ export interface Control extends CoreControl {
   reviewReuseBinding?: { ancestors: { tag: string; selector: string; attributes: Record<string, string>; label: string }[] };
   /** Bounded subtree evidence for classifying weak candidates; truncation prevents negative classification. */
   classificationBinding?: { nodes: { instanceId: string; parentInstanceId: string; tag: string; attributes: Record<string, string> }[]; text: string; truncated: boolean };
-  structuralItem?: { ownerInstanceId:string; template:string; slot:string; rowInstanceId:string; recordKey?:string };
+  structuralItem?: { ownerInstanceId:string; template:string; slot:string; rowInstanceId:string; recordKey?:string; recordEvidence?:ActionEvidence[] };
   /** Page-declared binding attributes, separate from generated identity metadata. */
   reviewAttributes?: Record<string, string>;
   actionable: { visible: boolean; enabled: boolean; editable: boolean; hitTarget: boolean | null; clickPoint?: { x: number; y: number }; occludedBy?: string; outsideScrollableArea?: boolean; unknown: string[] };
@@ -61,7 +61,7 @@ export interface RegionCandidate {
 }
 export interface StructuralListCandidate {
   ownerInstanceId:string; ownerSelector:string; label:string; template:string; binding:Json;
-  members:{localId:string;rowInstanceId:string;slot:string;recordKey?:string}[];
+  members:{localId:string;rowInstanceId:string;slot:string;recordKey?:string;recordEvidence?:ActionEvidence[]}[];
   traversalLocalIds:string[]; evidence:ActionEvidence[];
 }
 export interface RegionReusePolicy { binding: 'same-url-context'; businessScope: string }
