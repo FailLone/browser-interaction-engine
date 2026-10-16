@@ -327,9 +327,11 @@ export class ExplorerPlugin {
           if(code==='BUDGET_EXHAUSTED'&&!task.pendingDispatch&&this.sessionTimeExhausted(round)){this.assert(task,signal);if(await this.finishRound(task,round,signal,true))break;round=await this.createRound(task,signal);continue;}
           if(code==='UNKNOWN_DISPATCH_REQUIRES_REVIEW'&&!signal.aborted&&this.isolateUnverifiedNavigation(task)){round=await this.createRound(task,signal);continue;}if(code.startsWith('STALE')||['PRECONDITIONS_CHANGED','ACTION_BLOCKED','ACTION_EXCLUDED','IDENTITY_AMBIGUOUS','REGION_REVIEW_REQUIRED'].includes(code)){this.event(task,'step.invalidated',{reason:code});}else throw e;}
         if(signal.aborted)break;
-        // Draining distinct reviews is progress even when the DOM and deduplicated
-        // gap rows stay unchanged. Bounded per-target refreshes must reach later work.
-        const fresh=this.host.observation(round.sessionId);const signature=digest({fingerprint:fresh.fingerprint,actions:this.host.session(round.sessionId).actionCount,plan:task.plan.map(i=>({scope:i.scope,status:i.status})),reviewProgress:{completed:round.reviewed,refreshed:round.evidenceRefreshes||[],clarified:round.semanticReviews||[]},reviews:{identities:this.host.list<IdentityHypothesis>(round.sessionId,'hypothesis').filter(h=>h.status==='pending').map(h=>({id:h.id,revision:h.revisions.length})),regions:this.host.regionReviewMaterial(round.sessionId).unassignedControlIds,controls:this.host.controlReviewMaterial(round.sessionId).pendingControlIds,classifications:this.host.controlClassificationMaterial(round.sessionId).pendingControlIds,groups:this.host.explorationReviewMaterial(round.sessionId).groups.map(g=>({kind:g.kind,status:g.status,decision:g.decisions.at(-1)?.decision.mode}))}});
+        // Count completed reviews and bounded refreshes even when the DOM and gap
+        // rows stay unchanged. Pending queues are not completed work: rebuilding
+        // all host review material here adds reads without proving progress.
+        // Dispatch and completion still fetch their own current host material.
+        const fresh=this.host.observation(round.sessionId);const signature=digest({fingerprint:fresh.fingerprint,actions:this.host.session(round.sessionId).actionCount,plan:task.plan.map(i=>({scope:i.scope,status:i.status})),reviewProgress:{completed:round.reviewed,refreshed:round.evidenceRefreshes||[],clarified:round.semanticReviews||[]}});
         round.noProgress=(!acted||signature===round.lastProgress)?round.noProgress+1:0;round.lastProgress=signature;this.store.save(task);
         const sessionTime=this.sessionTimeExhausted(round),sessionBudget=sessionTime||this.host.session(round.sessionId).actionCount>=this.host.session(round.sessionId).options.maxActions;
         if(acted&&!sessionBudget&&round.noProgress<3)continue;
