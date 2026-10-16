@@ -1,0 +1,21 @@
+{
+  "revision": "a551168515a7ae62c74f54f53f143a47b24abcd9",
+  "baselineReproduced": true,
+  "testSuitePassed": false,
+  "sourceUnchanged": true,
+  "sourceFiles": 467,
+  "commands": [
+    {
+      "name": "baseline-test",
+      "exitCode": 1,
+      "timedOut": null,
+      "elapsedSeconds": 6.653382778167725
+    }
+  ],
+  "error": null,
+  "limits": [
+    "Only the unchanged baseline return-to-scope test was run; no build or other suite.",
+    "A reproduced negative baseline is not a passing product test.",
+    "No performance claim, real provider, real-site browser, or original database was used."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "revision": "e7edfe24bd1cbab34e2568b6c42661f11377d194",
+  "command": [
+    "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/vitest/vitest.mjs",
+    "run"
+  ],
+  "startedAtEpoch": 1792189447.8177369,
+  "elapsedSeconds": 1279.2681670188904,
+  "running": false,
+  "exitCode": 1,
+  "sourceUnchanged": true,
+  "sourceFileCount": 460
+}

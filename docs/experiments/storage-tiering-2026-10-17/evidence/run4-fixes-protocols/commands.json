@@ -1,0 +1,172 @@
+[
+  {
+    "index": 1,
+    "name": "conditions",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-conditions.ts",
+      "--revision=e7edfe24bd1cbab34e2568b6c42661f11377d194",
+      "--output=/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run4-fixes-protocols/conditions.json",
+      "--runs=5",
+      "--ticks=100"
+    ],
+    "startedAtEpoch": 1792189175.7847521,
+    "log": "01-conditions.log",
+    "exitCode": 0,
+    "elapsedSeconds": 81.6037666797638
+  },
+  {
+    "index": 2,
+    "name": "continuation",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-continuation.ts",
+      "--label",
+      "storage-tiering",
+      "--revision",
+      "e7edfe24bd1cbab34e2568b6c42661f11377d194",
+      "--repeats",
+      "5",
+      "--out",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run4-fixes-protocols/continuation.json"
+    ],
+    "startedAtEpoch": 1792189257.388887,
+    "log": "02-continuation.log",
+    "exitCode": 0,
+    "elapsedSeconds": 27.441131114959717
+  },
+  {
+    "index": 3,
+    "name": "input-identity",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-input-identity.ts",
+      "--revision",
+      "e7edfe24bd1cbab34e2568b6c42661f11377d194",
+      "--runs",
+      "5",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run4-fixes-protocols/input-identity.json"
+    ],
+    "startedAtEpoch": 1792189284.830385,
+    "log": "03-input-identity.log",
+    "exitCode": 0,
+    "elapsedSeconds": 6.430966854095459
+  },
+  {
+    "index": 4,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "e7edfe24bd1cbab34e2568b6c42661f11377d194",
+      "--replicate",
+      "1",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run4-fixes-protocols/recovery-refactor-r1.json"
+    ],
+    "startedAtEpoch": 1792189291.261708,
+    "log": "04-recovery.log",
+    "exitCode": 0,
+    "elapsedSeconds": 10.07002592086792
+  },
+  {
+    "index": 5,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "e7edfe24bd1cbab34e2568b6c42661f11377d194",
+      "--replicate",
+      "2",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run4-fixes-protocols/recovery-refactor-r2.json"
+    ],
+    "startedAtEpoch": 1792189301.332143,
+    "log": "05-recovery.log",
+    "exitCode": 0,
+    "elapsedSeconds": 9.778059005737305
+  },
+  {
+    "index": 6,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "e7edfe24bd1cbab34e2568b6c42661f11377d194",
+      "--replicate",
+      "3",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run4-fixes-protocols/recovery-refactor-r3.json"
+    ],
+    "startedAtEpoch": 1792189311.1106381,
+    "log": "06-recovery.log",
+    "exitCode": 0,
+    "elapsedSeconds": 9.733033895492554
+  },
+  {
+    "index": 7,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "e7edfe24bd1cbab34e2568b6c42661f11377d194",
+      "--replicate",
+      "4",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run4-fixes-protocols/recovery-refactor-r4.json"
+    ],
+    "startedAtEpoch": 1792189320.844118,
+    "log": "07-recovery.log",
+    "exitCode": 0,
+    "elapsedSeconds": 9.889267921447754
+  },
+  {
+    "index": 8,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "e7edfe24bd1cbab34e2568b6c42661f11377d194",
+      "--replicate",
+      "5",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run4-fixes-protocols/recovery-refactor-r5.json"
+    ],
+    "startedAtEpoch": 1792189330.733855,
+    "log": "08-recovery.log",
+    "exitCode": 0,
+    "elapsedSeconds": 9.914430856704712
+  }
+]

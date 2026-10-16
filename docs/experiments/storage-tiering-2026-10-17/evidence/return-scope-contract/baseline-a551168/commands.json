@@ -1,0 +1,20 @@
+[
+  {
+    "name": "baseline-test",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--conditions=development",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "tests/explorer-return-to-scope.test.ts",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile=.data/return-scope-results.json"
+    ],
+    "cwd": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-return-scope-a551168-2fhd9ez7",
+    "startedAtEpoch": 1792190797.6655092,
+    "log": "baseline-test.log",
+    "exitCode": 1,
+    "elapsedSeconds": 6.653382778167725
+  }
+]

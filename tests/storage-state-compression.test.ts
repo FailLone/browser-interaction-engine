@@ -55,11 +55,15 @@ it.each(['1','2','3'] as const)('reads schema%s plain states and all historical 
   const expectedObservations:unknown[]=[legacyObservation];
   if(version!=='1'){const gzip=encodeObservationJson(JSON.stringify(gzipObservation));store.db.prepare('INSERT INTO entities VALUES(?,?,?,?,?)').run('observation',gzipObservation.id,gzipObservation.sessionId,gzip.json,gzip.compressed_json);expectedObservations.push(gzipObservation);}
   if(version==='3'){store.put('observation',sharedObservation);expectedObservations.push(sharedObservation);}else store.db.exec('DROP TABLE observation_objects;DROP TABLE observation_packs;');
+  // Historical schemas predate this index. Remove the future-schema artifact
+  // before constructing schema 1, whose entities have no compressed column.
+  store.db.exec('DROP INDEX entities_action_observation');
   if(version==='1')store.db.exec('ALTER TABLE entities DROP COLUMN compressed_json');
   store.db.prepare("UPDATE metadata SET value=? WHERE key='schemaVersion'").run(version);
   const before=store.db.prepare(`SELECT kind,id,session_id,json,${version==='1'?'NULL AS compressed_json':'compressed_json'} FROM entities ORDER BY rowid`).all();store.close();
   const reopened=new SqliteStore(directory);try{
     expect(reopened.db.prepare("SELECT value FROM metadata WHERE key='schemaVersion'").get()).toEqual({value:'4'});
+    expect(reopened.db.prepare("SELECT name FROM sqlite_master WHERE type='index' AND name='entities_action_observation'").get()).toEqual({name:'entities_action_observation'});
     expect(reopened.db.prepare('SELECT * FROM entities ORDER BY rowid').all()).toEqual(before);
     expect(reopened.require('state',value.id)).toEqual(value);expect(reopened.list('observation')).toEqual(expectedObservations);
     reopened.put('state',{...value,observationIds:['new']});expect(raw(reopened).compressed_json).not.toBeNull();

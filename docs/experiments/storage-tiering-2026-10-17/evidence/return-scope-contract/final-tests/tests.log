@@ -1,0 +1,33 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-return-to-scope.test.ts (9 tests) 7286ms
+   ✓ requests host-verified return to the accepted page after navigation without asking a model to rediscover the task boundary  1118ms
+   ✓ legacy host retains unfinished work after UNVERIFIED without inventing success or retrying the same route  576ms
+   ✓ legacy host retains unfinished work after UNREACHABLE without inventing success or retrying the same route  566ms
+   ✓ legacy host uses one strict checkpoint fallback after target verification is UNVERIFIED, then requires a real click before completion  963ms
+   ✓ legacy host uses one strict checkpoint fallback after target verification is UNREACHABLE, then requires a real click before completion  982ms
+   ✓ retains target and source-return failures after UNVERIFIED without a strict fallback  585ms
+   ✓ retains target and source-return failures after UNREACHABLE without a strict fallback  564ms
+   ✓ keeps UNVERIFIED target debt when native source return succeeds and requires an actual remaining click  954ms
+   ✓ keeps UNREACHABLE target debt when native source return succeeds and requires an actual remaining click  979ms
+ ✓ tests/storage-state-compression.test.ts (23 tests) 141ms
+ ✓ tests/explorer-recovery-outcomes.test.ts (6 tests) 3503ms
+   ✓ blocks strict checkpoint fallback before recovery when an earlier recovery result is unknown  432ms
+   ✓ does not accept a source-position result as strict checkpoint restoration  482ms
+   ✓ resumes the original route once after explicit source verification and retains a failed retry limit  952ms
+   ✓ rediscovers a recovery crash from its source session before starting a new round without pendingDispatch  400ms
+   ✓ retains actual position and unknown recovery debt even when the host returns REACHED_VERIFIED  629ms
+   ✓ retains actual position and unknown recovery debt even when the host returns UNVERIFIED  607ms
+ ✓ tests/explorer-observed-source-return.test.ts (2 tests) 1923ms
+   ✓ returns a page discovery obligation without replaying its vanished modal; late unknown=false  1196ms
+   ✓ returns a page discovery obligation without replaying its vanished modal; late unknown=true  727ms
+ ✓ tests/action-observation-query.test.ts (10 tests) 71ms
+ ✓ tests/explorer-source-return-scheduling.test.ts (35 tests) 68ms
+ ✓ tests/explorer-recovery-failure-condition.test.ts (12 tests) 24ms
+
+ Test Files  7 passed (7)
+      Tests  97 passed (97)
+   Start at  06:47:22
+   Duration  16.07s (transform 531ms, setup 0ms, collect 2.18s, tests 13.02s, environment 1ms, prepare 220ms)
+

@@ -1,0 +1,44 @@
+
+ RUN  v3.2.7 /private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-return-scope-a551168-2fhd9ez7
+
+ ❯ tests/explorer-return-to-scope.test.ts (5 tests | 4 failed) 5047ms
+   ✓ requests host-verified return to the accepted page after navigation without asking a model to rediscover the task boundary  1100ms
+   × retains unfinished work after UNVERIFIED without inventing success or retrying the same route 970ms
+     → expected "reachCheckpoint" to be called 1 times, but got 0 times
+   × retains unfinished work after UNREACHABLE without inventing success or retrying the same route 999ms
+     → expected "reachCheckpoint" to be called 1 times, but got 0 times
+   × uses one strict checkpoint fallback after target verification is UNVERIFIED, then requires a real click before completion 996ms
+     → expected "reachCheckpoint" to be called 1 times, but got 0 times
+   × uses one strict checkpoint fallback after target verification is UNREACHABLE, then requires a real click before completion 981ms
+     → expected "reachCheckpoint" to be called 1 times, but got 0 times
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/explorer-return-to-scope.test.ts > retains unfinished work after UNVERIFIED without inventing success or retrying the same route
+ FAIL  tests/explorer-return-to-scope.test.ts > retains unfinished work after UNREACHABLE without inventing success or retrying the same route
+AssertionError: expected "reachCheckpoint" to be called 1 times, but got 0 times
+ ❯ tests/explorer-return-to-scope.test.ts:37:64
+     35|  try{
+     36|   const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeT…
+     37|   expect(recovery).toHaveBeenCalledTimes(1);expect(checkpoint).toHaveB…
+       |                                                                ^
+     38|   expect(v.task.plan.some(i=>i.scope.label==='Remaining'&&i.required&&…
+     39|   expect(v.events.find(e=>e.type==='recovery.result')?.data).toMatchOb…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/explorer-return-to-scope.test.ts > uses one strict checkpoint fallback after target verification is UNVERIFIED, then requires a real click before completion
+ FAIL  tests/explorer-return-to-scope.test.ts > uses one strict checkpoint fallback after target verification is UNREACHABLE, then requires a real click before completion
+AssertionError: expected "reachCheckpoint" to be called 1 times, but got 0 times
+ ❯ tests/explorer-return-to-scope.test.ts:56:64
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  06:46:37
+   Duration  6.28s (transform 594ms, setup 0ms, collect 1.07s, tests 5.05s, environment 0ms, prepare 45ms)
+
+JSON report written to /private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-return-scope-a551168-2fhd9ez7/.data/return-scope-results.json
