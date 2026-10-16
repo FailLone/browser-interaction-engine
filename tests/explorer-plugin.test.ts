@@ -111,12 +111,12 @@ it('grounds recovery judgments in both observations and the unfinished branch be
  }finally{await plugin.close();await f.close();}
 });
 
-it.each([2,3])('finishes available new controls before replaying an entry and returns for all %i children',async(count)=>{
- const children=['First','Second','Third'].slice(0,count);
+it.each([2,3,5])('finishes available new controls before replaying an entry and returns for all %i children',async(count)=>{
+ const children=['First','Second','Third','Fourth','Fifth'].slice(0,count);
  const f=await explorerFixture(`<button id="open" type="button" onclick="document.getElementById('menu').hidden=false">Open</button><div id="menu" hidden>${children.map(name=>`<button type="button" onclick="this.disabled=true;document.getElementById('menu').hidden=true">${name}</button>`).join('')}</div><button type="button" onclick="this.disabled=true;document.getElementById('menu').hidden=true">Outside</button>`),p=fakeProviders(f.url),original=p.jev.decide;
- p.jev.decide=async(r,s)=>{if(r.purpose==='next-action'){const options=Object.entries(r.options!) as [string,any][];const selected=['Open','First','Outside','Second','Third'].map(label=>options.find(([,o])=>o.label===label)).find(Boolean)!;return {model:'mock',value:selected[0],confidence:1};}return original(r,s);};
+ p.jev.decide=async(r,s)=>{if(r.purpose==='next-action'){const options=Object.entries(r.options!) as [string,any][];const selected=['Open','First','Outside',...children.slice(1)].map(label=>options.find(([,o])=>o.label===label)).find(Boolean)!;return {model:'mock',value:selected[0],confidence:1};}return original(r,s);};
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
- try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:10}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:15}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');
   expect(attempts.map(a=>a.action.label)).toEqual(['Open','First','Outside',...children.slice(1).flatMap(name=>['Open',name])]);expect(v.task.status).toBe('completed');
   expect(v.events.some(e=>e.type==='action.priority'&&(e.data as any).deferred.some((a:any)=>a.label==='Open'))).toBe(true);
   const reentry=v.decisions.filter(d=>d.purpose==='next-action').map(d=>d.request.options![String(d.answer!.value)] as any).find(o=>o.reentry);expect(reentry).toMatchObject({label:'Open',purpose:'prerequisite',reentry:true});

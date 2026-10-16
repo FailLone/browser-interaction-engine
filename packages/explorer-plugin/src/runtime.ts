@@ -507,7 +507,7 @@ export class ExplorerPlugin {
       if(frame?.stateId===o.stateId)frame.remaining=[...new Map([...frame.remaining,...remaining].map(scope=>[digest(scope),scope])).values()];
       else round.stack.push({checkpointId:checkpoint.id,observationId:o.id,stateId:o.stateId,used:[],path:[...round.entryPath],remaining:[...new Map(remaining.map(scope=>[digest(scope),scope])).values()]});
       this.assert(task,signal,o.id,selected.decision.revision);
-      const reentry=this.neededEntry(task,round,action,o);if(reentry)round.reentries.push(this.entryKey(task,action,o));
+      const reentry=this.neededEntry(task,round,action,o);if(reentry)this.recordEntry(task,round,action,o);
       const purpose=reentry?'prerequisite':includesScope(task.plan,action,o);const items=task.plan.filter(i=>i.required&&!i.reason.startsWith('missing_capability:')&&matches(i.scope,action,o));
       if(purpose==='target'&&!items.some(i=>i.scope.kind&&i.scope.label)) {const leaf=this.newItem({title:`${action.kind} ${action.label}`,scope:scopeFor(action,o),prerequisites:[...round.entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false);task.plan.push(leaf);items.push(leaf);}
       const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,decisionId:selected.decision.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id};
@@ -579,11 +579,25 @@ export class ExplorerPlugin {
   private attemptKey(round:Round,a:ActionCandidate,o:Observation) {
     return this.currentExit(a,o)?digest({protocol:'boundary-exit-visit/v1',visit:round.boundaryVisit||{key:a.boundary!.key,instanceScope:o.instanceScope,observationId:o.id},operation:keyFor(a,o)}):keyFor(a,o);
   }
-  private entryTargets(task:Task,a:ActionCandidate,o:Observation) {
+  private entryObligations(task:Task,a:ActionCandidate,o:Observation) {
     const grants=task.plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='excluded'),actual=scopeFor(a,o);
-    return task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status)
+    return task.plan.filter(i=>i.required&&i.status!=='excluded'
       &&(i.dispatchScope===true||grants.some(grant=>Object.entries(grant.scope).every(([key,value])=>i.scope[key as keyof Scope]===value)))
       &&i.prerequisites.some(p=>Object.entries(p).every(([key,value])=>actual[key as keyof Scope]===value)));
+  }
+  private entryTargets(task:Task,a:ActionCandidate,o:Observation) {return this.entryObligations(task,a,o).filter(i=>i.status!=='succeeded');}
+  private entryProgress(task:Task,r:Round,a:ActionCandidate,o:Observation) {
+    const key=digest(scopeFor(a,o)),previous=r.reentryProgress?.[key];
+    // New names, longer paths, observation IDs or duplicate ledger rows are not
+    // child completion. A repeated parent cannot renew its own retry allowance.
+    const completed=this.entryObligations(task,a,o).filter(i=>i.status==='succeeded'&&(i.resolvedBy?.attemptId||i.reviewResolvedBy)&&!matches(i.scope,a,o)).map(i=>digest(i.scope));
+    const progressed=completed.some(scope=>!previous?.completedScopes.includes(scope));
+    return {key,attempts:progressed?0:previous?.attempts||0,completedScopes:[...new Set([...(previous?.completedScopes||[]),...completed])],previous};
+  }
+  private recordEntry(task:Task,r:Round,a:ActionCandidate,o:Observation) {
+    const progress=this.entryProgress(task,r,a,o);
+    (r.reentryProgress??={})[progress.key]={attempts:progress.attempts+1,completedScopes:progress.completedScopes};
+    r.reentries.push(this.entryKey(task,a,o));
   }
   private entryKey(task:Task,a:ActionCandidate,o:Observation,targets=this.entryTargets(task,a,o)) {
     // Only a change to this branch's semantic obligations justifies another
@@ -601,6 +615,11 @@ export class ExplorerPlugin {
   private neededEntry(task:Task,r:Round,a:ActionCandidate,o:Observation) {
     if(!includesScope(task.plan,a,o))return false;
     const targets=this.entryTargets(task,a,o);if(!targets.length||r.reentries.includes(this.entryKey(task,a,o,targets)))return false;
+    const progress=this.entryProgress(task,r,a,o);
+    if(progress.attempts>=3){
+      if(!progress.previous!.notified){progress.previous!.notified=true;this.store.save(task);this.event(task,'branch.reentry_deferred',{scope:scopeFor(a,o),reason:'no_new_child_completion',attempts:progress.attempts,limit:3,pendingTargets:targets.length,executionAuthorized:false});}
+      return false;
+    }
     // Keep matching historical cache entries effective without clearing the
     // saved round or treating old row IDs as new branch identities.
     if(r.reentries.some(key=>key.startsWith('branch-v2:'))&&r.reentries.includes(`branch-v2:${digest({scope:scopeFor(a,o),pending:[...new Set(targets.map(i=>digest({scope:i.scope,prerequisites:i.prerequisites})))].sort()})}`))return false;

@@ -35,6 +35,8 @@ export interface Round {
   unresolvedPurposeReviews?: Record<string,{decisionId:string;observationId:string}>;
   /** A freshly observed boundary visit may need its own exit despite historical coverage. */
   boundaryVisit?: {key:string;instanceScope:string;observationId:string;scopeId?:string};
+  /** Bound repeated entry despite changing uncompleted labels; saved across restart. */
+  reentryProgress?: Record<string,{attempts:number;completedScopes:string[];notified?:boolean}>;
   policyVersion?: string;
 }
 export interface Task {

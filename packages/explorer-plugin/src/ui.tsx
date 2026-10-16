@@ -14,7 +14,7 @@ Object.assign(events,{'navigation.isolated':'保留未知跳转，换会话继�
 Object.assign(events,{'boundary.exit_verified':'核验弹层关闭与父页面状态','scope.audit':'检查剩余范围','scope.remapped':'根据原始证据更新补测范围标识','scope.retained':'程序保留全部已发现成员','round.session_limit':'会话时限已到，保留未完成范围'});
 Object.assign(events,{'scope.unsupported':'保留宿主无法验证的范围'});
 Object.assign(events,{'scope.limitation_accepted':'用户接受能力限制，保留未测'});
-Object.assign(events,{'action.priority':'优先当前未测控件，保留返回范围'});
+Object.assign(events,{'action.priority':'优先当前未测控件，保留返回范围','branch.reentry_deferred':'暂缓重复进入：子目标尚无新证据'});
 Object.assign(events,{'review.unchanged':'用途证据未变，保留待测'});
 Object.assign(events,{'review.resolved':'分类已验证，关闭审阅缺口','review.reopened':'审阅证据变化，重新待确认'});
 Object.assign(events,{'probe.dispatch':'执行观察探测','probe.verified':'核验探测结果，不计为点击覆盖'});
