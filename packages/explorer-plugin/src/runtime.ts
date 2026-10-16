@@ -679,9 +679,39 @@ export class ExplorerPlugin {
     };
   }
   private pathForAction(round:Round,a:ActionCandidate,o:Observation) {return this.pathResolver(round,o)(scopeFor(a,o),a.localId);}
+  private restoreEntryRoutes(task:Task,r:Round,a:ActionCandidate,o:Observation) {
+    const entry=scopeFor(a,o),key=digest(entry),sources=new Map<string,{sessionId:string;attemptId:string}>();
+    for(const item of task.plan.filter(i=>digest(i.scope)===key))for(const ref of [item.resolvedBy,...item.attempts.map(a=>a.evidence)]){
+      if(ref?.attemptId)sources.set(`${ref.sessionId}:${ref.attemptId}`,{sessionId:ref.sessionId,attemptId:ref.attemptId});
+    }
+    const checked=new Set(r.routeEvidenceChecked||[]),attempts=new Map<string,ActionAttempt[]>();
+    let changed=false;
+    for(const [reference,ref] of [...sources].reverse()){
+      if(checked.has(reference))continue;
+      try{
+        if(!attempts.has(ref.sessionId))attempts.set(ref.sessionId,this.host.list<ActionAttempt>(ref.sessionId,'attempt'));
+        const attempt=attempts.get(ref.sessionId)!.find(a=>a.id===ref.attemptId);
+        if(!attempt||attempt.status!=='succeeded'||!attempt.afterId)continue;
+        const before=this.host.observation(ref.sessionId,attempt.beforeId),after=this.host.observation(ref.sessionId,attempt.afterId);
+        if(digest(scopeFor(attempt.action,before))!==key)continue;
+        const transition=this.host.interactionTransition(ref.sessionId,before.id,after.id);
+        if(!transition.verified)continue;
+        const route=(!transition.exited.length||transition.entered.length||transition.navigated)?capturedRoute(entry,before,after,transition.revealedControlIds):undefined;
+        checked.add(reference);changed=true;
+        if(route){
+          const owner=task.rounds.find(round=>round.sessionId===ref.sessionId)||r,routes=owner.entryRoutes??=[];
+          if(!routes.some(old=>digest({entry:old.entry,targets:old.targets,context:old.context})===digest({entry:route.entry,targets:route.targets,context:route.context}))){
+            routes.push(route);this.event(task,'branch.route_recovered',{entry,evidence:{...route.evidence,attemptId:attempt.id},targets:route.targets,historicalEvidenceOnly:true,executionAuthorized:false});
+          }
+        }
+      }catch{/* Missing historical evidence cannot authorize a return. */}
+    }
+    if(changed){r.routeEvidenceChecked=[...checked];this.store.save(task);}
+  }
   private neededEntry(task:Task,r:Round,a:ActionCandidate,o:Observation) {
     if(!includesScope(task.plan,a,o))return false;
     const targets=this.entryTargets(task,a,o);if(!targets.length||r.reentries.includes(this.entryKey(task,a,o,targets)))return false;
+    if(!this.reentryTarget(task,a,o,targets))this.restoreEntryRoutes(task,r,a,o);
     const progress=this.entryProgress(task,r,a,o);
     if(progress.attempts>=1){
       if(!progress.previous!.notified){progress.previous!.notified=true;this.store.save(task);this.event(task,'branch.reentry_deferred',{scope:scopeFor(a,o),reason:'no_new_child_completion',attempts:progress.attempts,limit:1,pendingTargets:targets.length,executionAuthorized:false});}

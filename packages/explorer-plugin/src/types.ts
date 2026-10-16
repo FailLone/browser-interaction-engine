@@ -44,6 +44,8 @@ export interface Round {
   /** Verified revealed targets; historical tasks may lack route proof. */
   entryRoutes?: EntryRoute[];
   routeDeferrals?: string[];
+  /** Immutable retained attempts already examined for legacy route recovery. */
+  routeEvidenceChecked?: string[];
   policyVersion?: string;
 }
 export interface Task {

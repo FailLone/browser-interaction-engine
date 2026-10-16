@@ -13,7 +13,7 @@ it('requires observed target routes and a new child completion before repeating 
  try{
   const s=await f.host.createSession({url:f.url,headless:true,settleMs:0,observeTimeoutMs:100,interfaceActions:[{kind:'click'}]});
   const click=async(label:string)=>f.host.execute(s.id,f.host.actions(s.id).find(a=>a.label===label&&a.kind==='click')!.id,crypto.randomUUID());
-  const initial=f.host.observation(s.id),open=f.host.actions(s.id).find(a=>a.label==='Open')!;await click('Open');const opened=f.host.observation(s.id);
+  const initial=f.host.observation(s.id),open=f.host.actions(s.id).find(a=>a.label==='Open')!,openedAttempt=await click('Open');const opened=f.host.observation(s.id);
   const route=capturedRoute(scopeFor(open,initial),initial,opened,f.host.interactionTransition(s.id,initial.id,opened.id).revealedControlIds)!;expect(route.targets.map(s=>s.label)).toEqual(['First','Second']);
   await click('Close');let o=f.host.observation(s.id),entry=f.host.actions(s.id).find(a=>a.label==='Open')!;
   let task=plugin.create({url:f.url}),round:Round={id:'round',number:1,sessionId:s.id,startedAt:new Date().toISOString(),status:'paused',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0};
@@ -22,7 +22,10 @@ it('requires observed target routes and a new child completion before repeating 
   const item=(label:string):PlanItem=>({...structuredClone(root),id:label,scope:scopeFor(f.host.actions(s.id,opened.id).find(a=>a.label===label)!,opened),prerequisites:[scopeFor(entry,o)],dispatchScope:false,status:'unresolved',reason:'operation_not_executed'});
   task.plan=[root,item('First'),item('Second')];const scheduler=()=>plugin as unknown as Scheduler;
   expect(scheduler().neededEntry(task,round,entry,o)).toBe(false); // A legacy dependency is not a route proof.
-  round.entryRoutes=[route];expect(scheduler().neededEntry(task,round,entry,o)).toBe(true);scheduler().recordEntry(task,round,entry,o);
+  task.plan.push({...structuredClone(root),id:'historical-entry',scope:scopeFor(open,initial),dispatchScope:false,status:'succeeded',resolvedBy:{sessionId:s.id,observationId:initial.id,attemptId:openedAttempt.id}});
+  expect(scheduler().neededEntry(task,round,entry,o)).toBe(true);expect(round.entryRoutes).toEqual([route]);
+  expect(plugin.store.events(task.id).find(e=>e.type==='branch.route_recovered')?.data).toMatchObject({historicalEvidenceOnly:true,executionAuthorized:false,evidence:{attemptId:openedAttempt.id}});
+  expect(f.host.list(s.id,'attempt')).toHaveLength(2);scheduler().recordEntry(task,round,entry,o);
   task.plan.push({...item('Second'),id:'price-change',scope:{url:f.url,label:'Quote 999',kind:'click'}});
   expect(scheduler().neededEntry(task,round,entry,o)).toBe(false);plugin.store.save(task);const usage=structuredClone(task.usage);
   await plugin.close();plugin=new ExplorerPlugin(f.host,new ExplorerStore(file));task=plugin.store.task(task.id);round=task.rounds[0];
@@ -53,4 +56,16 @@ it('uses only observed chains, keeps nested routes and terminates cycles without
  expect(routeToTarget(task,scope('Parent'),scope('Child'),o)?.map(r=>r.entry.label)).toEqual(['Parent','Nested']);
  expect(routeToTarget(task,scope('Parent'),scope('Unrelated'),o)).toBeUndefined();
  expect(routeToTarget(task,scope('Parent'),scope('Child'),{context:{tenant:{status:'known',value:'other',source:'fixture'}}})).toBeUndefined();
+});
+
+it.each(['unknown','executing','failed'])('does not reconstruct legacy routes from a %s operation',status=>{
+ const control={localId:'entry',name:'Open',role:'button',stableKey:'id:open'},o={sessionId:'s',id:'o',url:'https://fixture.test/',controls:[control],regions:[],context:{}} as unknown as Observation;
+ const action={localId:'entry',label:'Open',kind:'click'} as ActionCandidate,scope=scopeFor(action,o);
+ const attempt={id:'source',sessionId:'s',status,afterId:'after'};
+ let reads=0;const plugin=Object.create(ExplorerPlugin.prototype) as any;
+ plugin.host={list:()=>[attempt],observation:()=>{reads++;throw new Error('Unknown results have no route proof');}};
+ plugin.store={save:()=>{throw new Error('No route should be saved');}};
+ const round={sessionId:'s'} as Round,task={plan:[{scope,resolvedBy:{sessionId:'s',attemptId:'source'},attempts:[]}],rounds:[round]} as unknown as Task;
+ plugin.restoreEntryRoutes(task,round,action,o);
+ expect(reads).toBe(0);expect(round.entryRoutes).toBeUndefined();expect(attempt.status).toBe(status);
 });
