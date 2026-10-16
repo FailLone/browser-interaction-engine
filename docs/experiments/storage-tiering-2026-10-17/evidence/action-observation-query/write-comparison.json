@@ -1,0 +1,158 @@
+{
+  "startedAt": "2026-10-16T22:03:21.991Z",
+  "finishedAt": "2026-10-16T22:03:26.677Z",
+  "work": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/okx-action-index-write-LGsRl0",
+  "node": "v24.22.0",
+  "system": {
+    "platform": "darwin",
+    "release": "25.6.0",
+    "cpu": "Apple M1 Max",
+    "cpuCount": 10
+  },
+  "sourceSha256": {
+    "packages/core/src/ports.ts": "98a159ec4549076a27d2c7ae8967905581c04d6f55f7b9a0adb08649c2418f94",
+    "packages/core/src/engine.ts": "0827b41cee876e5d77bd481f70406cce3547062402231e7e194a2b0cf72b37a2",
+    "packages/storage-sqlite/src/index.ts": "86a192c7c5bf1ddbe5105cdbb8567497b1b6c02ae7d36e28405609f2c46423b3",
+    "packages/storage-memory/src/index.ts": "24cce67e1719bd51024be037122614be507f52834b8aeee112773396c2b2c876",
+    "packages/storage-retained/src/index.ts": "d47f4b33c5051fa5185281b7ed5dae477b1eb87e291506b5f2022bb9b57c4a94",
+    "tests/action-observation-query.test.ts": "96c13eab140fd519b1f1da9fb0547c45393956b787ec659329f62f9eca0a1b9d"
+  },
+  "sourceFrozenSha256": "3ce36c03015dff7482c7dcedf1fcee850e991f1b0b44a11e9cd6d09a3c693357",
+  "inputManifest": "write-input-manifest.json",
+  "independentProcesses": 6,
+  "order": [
+    {
+      "trial": 1,
+      "mode": "unindexed",
+      "pid": 84583
+    },
+    {
+      "trial": 1,
+      "mode": "indexed",
+      "pid": 84584
+    },
+    {
+      "trial": 2,
+      "mode": "indexed",
+      "pid": 84618
+    },
+    {
+      "trial": 2,
+      "mode": "unindexed",
+      "pid": 84619
+    },
+    {
+      "trial": 3,
+      "mode": "unindexed",
+      "pid": 84657
+    },
+    {
+      "trial": 3,
+      "mode": "indexed",
+      "pid": 84658
+    }
+  ],
+  "summary": {
+    "insert": {
+      "rowsPerTrial": 1536,
+      "totalsMs": {
+        "unindexed": [
+          30.45579199999986,
+          29.82545700000003,
+          29.384667000000093
+        ],
+        "indexed": [
+          65.20016699999991,
+          57.00733299999996,
+          59.8594989999998
+        ]
+      },
+      "medianUnindexedMs": 29.82545700000003,
+      "medianIndexedMs": 59.8594989999998,
+      "medianRatio": 2.006993522345684
+    },
+    "update-unchanged": {
+      "rowsPerTrial": 1536,
+      "totalsMs": {
+        "unindexed": [
+          29.599417000000017,
+          30.76520800000003,
+          27.925791000000004
+        ],
+        "indexed": [
+          70.1555830000002,
+          63.332917000000066,
+          68.6031660000001
+        ]
+      },
+      "medianUnindexedMs": 29.599417000000017,
+      "medianIndexedMs": 68.6031660000001,
+      "medianRatio": 2.3177201767183475
+    }
+  },
+  "indexBuildMs": [
+    43.096125,
+    43.80754200000001,
+    42.923541,
+    44.147459,
+    42.932582999999994,
+    42.81299999999999
+  ],
+  "initialIndexBytes": [
+    946176,
+    946176,
+    946176,
+    946176,
+    946176,
+    946176
+  ],
+  "finalSha256": "23687c474e6d0cab037bdeaae89eff6a76af87224e0829dc9ebbd253be0a8ec8",
+  "finalActionCount": 13050,
+  "allBatchResultsEqual": true,
+  "allIntegrityChecksPassed": true,
+  "limitations": [
+    "Dedicated agent CPU window; other operating-system activity was not fully controlled.",
+    "Three alternating independent process pairs; three 512-row transactions per operation. Batch wall time includes SqliteStore.put ownership checks, serialization, SQLite writes and transaction commit.",
+    "Insert clones only the real action ID to avoid existing-row conflicts; all other real action JSON fields are preserved. Updates rewrite existing actual JSON unchanged; changing semantic fields is not measured.",
+    "Both modes start from separate copies, compact setup identically, use product-default WAL/PRAGMA settings and identical 64-row warmups. No provider/browser/network or original/frozen database opens.",
+    "Index rebuild timings are warm-cache setup measurements, not cold-start guarantees."
+  ],
+  "trials": [
+    {
+      "trial": 1,
+      "mode": "unindexed",
+      "json": "write-trial-1-unindexed.json",
+      "log": "write-trial-1-unindexed.log"
+    },
+    {
+      "trial": 1,
+      "mode": "indexed",
+      "json": "write-trial-1-indexed.json",
+      "log": "write-trial-1-indexed.log"
+    },
+    {
+      "trial": 2,
+      "mode": "indexed",
+      "json": "write-trial-2-indexed.json",
+      "log": "write-trial-2-indexed.log"
+    },
+    {
+      "trial": 2,
+      "mode": "unindexed",
+      "json": "write-trial-2-unindexed.json",
+      "log": "write-trial-2-unindexed.log"
+    },
+    {
+      "trial": 3,
+      "mode": "unindexed",
+      "json": "write-trial-3-unindexed.json",
+      "log": "write-trial-3-unindexed.log"
+    },
+    {
+      "trial": 3,
+      "mode": "indexed",
+      "json": "write-trial-3-indexed.json",
+      "log": "write-trial-3-indexed.log"
+    }
+  ]
+}

@@ -1,0 +1,1530 @@
+{
+  "sourceCommit": "868e8b47afd31782161deba4f8bd7a14e0349430 plus uncommitted scoped-query patch",
+  "sourceSha256": {
+    "packages/core/src/ports.ts": "98a159ec4549076a27d2c7ae8967905581c04d6f55f7b9a0adb08649c2418f94",
+    "packages/core/src/engine.ts": "0827b41cee876e5d77bd481f70406cce3547062402231e7e194a2b0cf72b37a2",
+    "packages/storage-sqlite/src/index.ts": "86a192c7c5bf1ddbe5105cdbb8567497b1b6c02ae7d36e28405609f2c46423b3",
+    "packages/storage-memory/src/index.ts": "24cce67e1719bd51024be037122614be507f52834b8aeee112773396c2b2c876",
+    "packages/storage-retained/src/index.ts": "d47f4b33c5051fa5185281b7ed5dae477b1eb87e291506b5f2022bb9b57c4a94",
+    "tests/action-observation-query.test.ts": "d7265d79fb89f105893f0961ba362e701dc7086eb1938f5067da46a5a370e187"
+  },
+  "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/okx-run4-action-query-RRNw3l",
+  "sourceObservationId": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+  "taskPlanCount": 539,
+  "controls": 292,
+  "currentActions": 207,
+  "openMs": 48.12541699999997,
+  "indexBuildMs": 41.86891700000007,
+  "equalities": 16,
+  "eventsBefore": 1611,
+  "eventsAfter": 1611,
+  "driverStarts": 0,
+  "limitations": [
+    "Same current implementation, optional query disabled/enabled; all eight complete results compared with deepStrictEqual twice.",
+    "Final 539-row task against pre-24h observation, not the exact historic task state.",
+    "Two calls per API per mode, not statistical benchmark. API decoded-row counts, not physical I/O.",
+    "Index build measured once by dropping/recreating only the new index on an exclusive copy; no original/frozen writes."
+  ],
+  "results": [
+    {
+      "mode": "fallback",
+      "pass": 0,
+      "name": "actions",
+      "elapsedMs": 44.02920800000004,
+      "sha256": "d8f8f7e9dba0882fe888a59779c1724f37ccc790fa38cca601434db210affd63",
+      "bytes": 156450,
+      "reads": {
+        "get:session": {
+          "calls": 1,
+          "rows": 1,
+          "elapsedMs": 0.09787499999993088
+        },
+        "get:observation": {
+          "calls": 1,
+          "rows": 1,
+          "elapsedMs": 11.561125000000061
+        },
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 31.840542000000028
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 0,
+      "name": "interpretation",
+      "elapsedMs": 118.44958299999996,
+      "sha256": "84523f72faf7fb30cd9a96740956ebe6dad41fcc398cf6a0f99b81a422e6ac90",
+      "bytes": 2101620,
+      "reads": {
+        "get:session": {
+          "calls": 3,
+          "rows": 3,
+          "elapsedMs": 0.1739589999998543
+        },
+        "get:observation": {
+          "calls": 2,
+          "rows": 2,
+          "elapsedMs": 26.516166999999996
+        },
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 32.41454199999998
+        },
+        "list:control-classification": {
+          "calls": 1,
+          "rows": 8,
+          "elapsedMs": 0.30454200000008314
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.02504199999998491
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 0,
+      "name": "availability",
+      "elapsedMs": 144.10191699999996,
+      "sha256": "d1e4bfa37037edab04679ce9047587a326bafe6973dbecf989788a2a5961dfc0",
+      "bytes": 21485,
+      "reads": {
+        "get:session": {
+          "calls": 223,
+          "rows": 223,
+          "elapsedMs": 3.1077090000007956
+        },
+        "get:observation": {
+          "calls": 2,
+          "rows": 2,
+          "elapsedMs": 25.11816599999986
+        },
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 36.564500000000066
+        },
+        "list:frontier": {
+          "calls": 1,
+          "rows": 1536,
+          "elapsedMs": 6.875875000000065
+        },
+        "list:exploration-group": {
+          "calls": 1,
+          "rows": 253,
+          "elapsedMs": 4.489459000000011
+        },
+        "list:attempt": {
+          "calls": 2,
+          "rows": 46,
+          "elapsedMs": 2.595209000000068
+        },
+        "list:continuation": {
+          "calls": 2,
+          "rows": 0,
+          "elapsedMs": 0.0344990000000962
+        },
+        "list:boundary-exit-result": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.016250000000013642
+        },
+        "list:control-classification": {
+          "calls": 1,
+          "rows": 8,
+          "elapsedMs": 0.23499999999989996
+        },
+        "list:region-review": {
+          "calls": 1,
+          "rows": 12,
+          "elapsedMs": 0.2275409999999738
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 0,
+      "name": "snapshot-current",
+      "elapsedMs": 443.5674580000001,
+      "sha256": "26973ce3a28c626e9fd043ba28cc98074f4012f7b0d50ec6f8d8b9c91a53d27c",
+      "bytes": 10637848,
+      "reads": {
+        "get:session": {
+          "calls": 230,
+          "rows": 230,
+          "elapsedMs": 3.116579999999999
+        },
+        "list:frontier": {
+          "calls": 1,
+          "rows": 1536,
+          "elapsedMs": 6.365415999999982
+        },
+        "list:attempt": {
+          "calls": 5,
+          "rows": 115,
+          "elapsedMs": 6.519415999999978
+        },
+        "list:hypothesis": {
+          "calls": 1,
+          "rows": 119,
+          "elapsedMs": 0.36324999999999363
+        },
+        "list:exploration-group": {
+          "calls": 1,
+          "rows": 253,
+          "elapsedMs": 4.620292000000063
+        },
+        "get:observation": {
+          "calls": 24,
+          "rows": 24,
+          "elapsedMs": 278.5851679999995
+        },
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 32.93666699999994
+        },
+        "list:continuation": {
+          "calls": 4,
+          "rows": 0,
+          "elapsedMs": 0.07274900000015805
+        },
+        "list:boundary-exit-result": {
+          "calls": 2,
+          "rows": 0,
+          "elapsedMs": 0.028916999999978543
+        },
+        "list:control-classification": {
+          "calls": 2,
+          "rows": 16,
+          "elapsedMs": 0.45508300000005875
+        },
+        "list:region-review": {
+          "calls": 4,
+          "rows": 48,
+          "elapsedMs": 1.0436660000000302
+        },
+        "get:region-review": {
+          "calls": 21,
+          "rows": 21,
+          "elapsedMs": 1.4810829999992166
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.0263750000001437
+        },
+        "list:discovery-scan": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.042625000000043656
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 0,
+      "name": "review-ledger",
+      "elapsedMs": 212.68316700000014,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "reads": {
+        "get:session": {
+          "calls": 3,
+          "rows": 3,
+          "elapsedMs": 0.1935840000001008
+        },
+        "get:observation": {
+          "calls": 5,
+          "rows": 5,
+          "elapsedMs": 76.63066700000013
+        },
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 30.00020799999993
+        },
+        "list:control-classification": {
+          "calls": 1,
+          "rows": 8,
+          "elapsedMs": 0.3331670000000031
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.020958000000064203
+        },
+        "get:control-classification": {
+          "calls": 3,
+          "rows": 3,
+          "elapsedMs": 0.24079099999971731
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 0,
+      "name": "completed",
+      "elapsedMs": 205.49474999999984,
+      "sha256": "161038afa519893050bbedae8ce10509519c7770d9621168a87d8a38f7336c4d",
+      "bytes": 11,
+      "reads": {
+        "get:observation": {
+          "calls": 12,
+          "rows": 12,
+          "elapsedMs": 173.57837500000028
+        },
+        "get:action": {
+          "calls": 148,
+          "rows": 148,
+          "elapsedMs": 2.197450000000117
+        },
+        "get:attempt": {
+          "calls": 7,
+          "rows": 7,
+          "elapsedMs": 0.7627489999999852
+        },
+        "get:session": {
+          "calls": 1,
+          "rows": 1,
+          "elapsedMs": 0.10829100000000835
+        },
+        "list:hypothesis": {
+          "calls": 1,
+          "rows": 119,
+          "elapsedMs": 0.42475000000013097
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 0,
+      "name": "obligation-projection",
+      "elapsedMs": 2318.9628329999996,
+      "sha256": "fc733daaa94902fb91cc21df69f147858ced91840651f9ee9ddd04bca6c6549f",
+      "bytes": 162916,
+      "reads": {
+        "get:observation": {
+          "calls": 83,
+          "rows": 83,
+          "elapsedMs": 969.7023790000003
+        },
+        "list:action": {
+          "calls": 3,
+          "rows": 34350,
+          "elapsedMs": 99.58016699999962
+        },
+        "get:session": {
+          "calls": 50,
+          "rows": 50,
+          "elapsedMs": 1.881335000000945
+        },
+        "get:action": {
+          "calls": 749,
+          "rows": 749,
+          "elapsedMs": 12.094630999989022
+        },
+        "list:hypothesis": {
+          "calls": 17,
+          "rows": 2023,
+          "elapsedMs": 5.096252000000732
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 0,
+      "name": "review-recovery-checkpoint",
+      "elapsedMs": 811.1548339999999,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "reads": {
+        "get:session": {
+          "calls": 232,
+          "rows": 232,
+          "elapsedMs": 3.105795999993461
+        },
+        "get:observation": {
+          "calls": 16,
+          "rows": 16,
+          "elapsedMs": 194.38941400000112
+        },
+        "list:continuation": {
+          "calls": 4,
+          "rows": 0,
+          "elapsedMs": 0.08787599999959639
+        },
+        "list:attempt": {
+          "calls": 4,
+          "rows": 92,
+          "elapsedMs": 5.251289999999244
+        },
+        "list:boundary-exit-result": {
+          "calls": 2,
+          "rows": 0,
+          "elapsedMs": 0.02845799999886367
+        },
+        "list:action": {
+          "calls": 6,
+          "rows": 68700,
+          "elapsedMs": 187.41408200000023
+        },
+        "list:control-classification": {
+          "calls": 2,
+          "rows": 16,
+          "elapsedMs": 0.5162079999990965
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.019957999999860476
+        },
+        "list:frontier": {
+          "calls": 1,
+          "rows": 1536,
+          "elapsedMs": 6.937041000000136
+        },
+        "list:exploration-group": {
+          "calls": 1,
+          "rows": 253,
+          "elapsedMs": 4.4412499999998545
+        },
+        "list:region-review": {
+          "calls": 1,
+          "rows": 12,
+          "elapsedMs": 0.22987499999999272
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 0,
+      "name": "actions",
+      "elapsedMs": 12.217290999999932,
+      "sha256": "d8f8f7e9dba0882fe888a59779c1724f37ccc790fa38cca601434db210affd63",
+      "bytes": 156450,
+      "reads": {
+        "get:session": {
+          "calls": 1,
+          "rows": 1,
+          "elapsedMs": 0.10745800000040617
+        },
+        "get:observation": {
+          "calls": 1,
+          "rows": 1,
+          "elapsedMs": 11.361708000000363
+        },
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.7047499999998763
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 0,
+      "name": "interpretation",
+      "elapsedMs": 63.597667,
+      "sha256": "84523f72faf7fb30cd9a96740956ebe6dad41fcc398cf6a0f99b81a422e6ac90",
+      "bytes": 2101620,
+      "reads": {
+        "get:session": {
+          "calls": 3,
+          "rows": 3,
+          "elapsedMs": 0.10116699999980483
+        },
+        "get:observation": {
+          "calls": 2,
+          "rows": 2,
+          "elapsedMs": 21.758207999999286
+        },
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.5708330000006754
+        },
+        "list:control-classification": {
+          "calls": 1,
+          "rows": 8,
+          "elapsedMs": 0.24349999999958527
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.02016600000024482
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 0,
+      "name": "availability",
+      "elapsedMs": 98.761708,
+      "sha256": "d1e4bfa37037edab04679ce9047587a326bafe6973dbecf989788a2a5961dfc0",
+      "bytes": 21485,
+      "reads": {
+        "get:session": {
+          "calls": 223,
+          "rows": 223,
+          "elapsedMs": 2.7914069999960702
+        },
+        "get:observation": {
+          "calls": 2,
+          "rows": 2,
+          "elapsedMs": 22.161667000000307
+        },
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 3.362250000000131
+        },
+        "list:frontier": {
+          "calls": 1,
+          "rows": 1536,
+          "elapsedMs": 7.174582999999984
+        },
+        "list:exploration-group": {
+          "calls": 1,
+          "rows": 253,
+          "elapsedMs": 4.518291000000318
+        },
+        "list:attempt": {
+          "calls": 2,
+          "rows": 46,
+          "elapsedMs": 2.5953330000002097
+        },
+        "list:continuation": {
+          "calls": 2,
+          "rows": 0,
+          "elapsedMs": 0.03562499999952706
+        },
+        "list:boundary-exit-result": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.016082999999525782
+        },
+        "list:control-classification": {
+          "calls": 1,
+          "rows": 8,
+          "elapsedMs": 0.1977500000002692
+        },
+        "list:region-review": {
+          "calls": 1,
+          "rows": 12,
+          "elapsedMs": 0.21512499999971624
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 0,
+      "name": "snapshot-current",
+      "elapsedMs": 405.286959,
+      "sha256": "26973ce3a28c626e9fd043ba28cc98074f4012f7b0d50ec6f8d8b9c91a53d27c",
+      "bytes": 10637848,
+      "reads": {
+        "get:session": {
+          "calls": 230,
+          "rows": 230,
+          "elapsedMs": 2.82437299999674
+        },
+        "list:frontier": {
+          "calls": 1,
+          "rows": 1536,
+          "elapsedMs": 6.385916999999608
+        },
+        "list:attempt": {
+          "calls": 5,
+          "rows": 115,
+          "elapsedMs": 7.24437399999988
+        },
+        "list:hypothesis": {
+          "calls": 1,
+          "rows": 119,
+          "elapsedMs": 0.33783299999959127
+        },
+        "list:exploration-group": {
+          "calls": 1,
+          "rows": 253,
+          "elapsedMs": 4.22320899999977
+        },
+        "get:observation": {
+          "calls": 24,
+          "rows": 24,
+          "elapsedMs": 272.5098360000002
+        },
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.5833749999992506
+        },
+        "list:continuation": {
+          "calls": 4,
+          "rows": 0,
+          "elapsedMs": 0.08829100000093604
+        },
+        "list:boundary-exit-result": {
+          "calls": 2,
+          "rows": 0,
+          "elapsedMs": 0.032501000000593194
+        },
+        "list:control-classification": {
+          "calls": 2,
+          "rows": 16,
+          "elapsedMs": 0.4441240000005564
+        },
+        "list:region-review": {
+          "calls": 4,
+          "rows": 48,
+          "elapsedMs": 0.9544569999998203
+        },
+        "get:region-review": {
+          "calls": 21,
+          "rows": 21,
+          "elapsedMs": 1.4701250000007349
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.02570800000012241
+        },
+        "list:discovery-scan": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.02662499999951251
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 0,
+      "name": "review-ledger",
+      "elapsedMs": 173.438666,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "reads": {
+        "get:session": {
+          "calls": 3,
+          "rows": 3,
+          "elapsedMs": 0.13691600000038306
+        },
+        "get:observation": {
+          "calls": 5,
+          "rows": 5,
+          "elapsedMs": 75.02991699999893
+        },
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.6119589999998425
+        },
+        "list:control-classification": {
+          "calls": 1,
+          "rows": 8,
+          "elapsedMs": 0.21450000000004366
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.01687500000025466
+        },
+        "get:control-classification": {
+          "calls": 3,
+          "rows": 3,
+          "elapsedMs": 0.22504100000060134
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 0,
+      "name": "completed",
+      "elapsedMs": 189.1810830000004,
+      "sha256": "161038afa519893050bbedae8ce10509519c7770d9621168a87d8a38f7336c4d",
+      "bytes": 11,
+      "reads": {
+        "get:observation": {
+          "calls": 12,
+          "rows": 12,
+          "elapsedMs": 160.23708100000113
+        },
+        "get:action": {
+          "calls": 148,
+          "rows": 148,
+          "elapsedMs": 2.0656790000048204
+        },
+        "get:attempt": {
+          "calls": 7,
+          "rows": 7,
+          "elapsedMs": 0.7877090000010867
+        },
+        "get:session": {
+          "calls": 1,
+          "rows": 1,
+          "elapsedMs": 0.08525000000008731
+        },
+        "list:hypothesis": {
+          "calls": 1,
+          "rows": 119,
+          "elapsedMs": 0.3458330000003116
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 0,
+      "name": "obligation-projection",
+      "elapsedMs": 2209.0755830000007,
+      "sha256": "fc733daaa94902fb91cc21df69f147858ced91840651f9ee9ddd04bca6c6549f",
+      "bytes": 162916,
+      "reads": {
+        "get:observation": {
+          "calls": 83,
+          "rows": 83,
+          "elapsedMs": 954.4836299999924
+        },
+        "listByObservation:action": {
+          "calls": 3,
+          "rows": 620,
+          "elapsedMs": 1.928168000000369
+        },
+        "get:session": {
+          "calls": 50,
+          "rows": 50,
+          "elapsedMs": 2.1252549999981056
+        },
+        "get:action": {
+          "calls": 749,
+          "rows": 749,
+          "elapsedMs": 11.413328999994519
+        },
+        "list:hypothesis": {
+          "calls": 17,
+          "rows": 2023,
+          "elapsedMs": 5.3281650000008085
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 0,
+      "name": "review-recovery-checkpoint",
+      "elapsedMs": 615.5663329999988,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "reads": {
+        "get:session": {
+          "calls": 232,
+          "rows": 232,
+          "elapsedMs": 2.9720459999953164
+        },
+        "get:observation": {
+          "calls": 16,
+          "rows": 16,
+          "elapsedMs": 187.12070899999526
+        },
+        "list:continuation": {
+          "calls": 4,
+          "rows": 0,
+          "elapsedMs": 0.07016700000167475
+        },
+        "list:attempt": {
+          "calls": 4,
+          "rows": 92,
+          "elapsedMs": 5.164789999998902
+        },
+        "list:boundary-exit-result": {
+          "calls": 2,
+          "rows": 0,
+          "elapsedMs": 0.0303330000006099
+        },
+        "listByObservation:action": {
+          "calls": 6,
+          "rows": 1241,
+          "elapsedMs": 3.7844160000022384
+        },
+        "list:control-classification": {
+          "calls": 2,
+          "rows": 16,
+          "elapsedMs": 0.5023750000000291
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.019500000000334694
+        },
+        "list:frontier": {
+          "calls": 1,
+          "rows": 1536,
+          "elapsedMs": 6.461083000000144
+        },
+        "list:exploration-group": {
+          "calls": 1,
+          "rows": 253,
+          "elapsedMs": 4.274540999998862
+        },
+        "list:region-review": {
+          "calls": 1,
+          "rows": 12,
+          "elapsedMs": 0.20320800000081363
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 1,
+      "name": "actions",
+      "elapsedMs": 41.074791000000914,
+      "sha256": "d8f8f7e9dba0882fe888a59779c1724f37ccc790fa38cca601434db210affd63",
+      "bytes": 156450,
+      "reads": {
+        "get:session": {
+          "calls": 1,
+          "rows": 1,
+          "elapsedMs": 0.10712499999863212
+        },
+        "get:observation": {
+          "calls": 1,
+          "rows": 1,
+          "elapsedMs": 10.895250000001397
+        },
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 29.510416999999507
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 1,
+      "name": "interpretation",
+      "elapsedMs": 94.19925000000148,
+      "sha256": "84523f72faf7fb30cd9a96740956ebe6dad41fcc398cf6a0f99b81a422e6ac90",
+      "bytes": 2101620,
+      "reads": {
+        "get:session": {
+          "calls": 3,
+          "rows": 3,
+          "elapsedMs": 0.15724900000350317
+        },
+        "get:observation": {
+          "calls": 2,
+          "rows": 2,
+          "elapsedMs": 21.534583999999086
+        },
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 33.00974999999926
+        },
+        "list:control-classification": {
+          "calls": 1,
+          "rows": 8,
+          "elapsedMs": 0.3140829999993002
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.02124999999978172
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 1,
+      "name": "availability",
+      "elapsedMs": 130.03862499999923,
+      "sha256": "d1e4bfa37037edab04679ce9047587a326bafe6973dbecf989788a2a5961dfc0",
+      "bytes": 21485,
+      "reads": {
+        "get:session": {
+          "calls": 223,
+          "rows": 223,
+          "elapsedMs": 2.9302049999969313
+        },
+        "get:observation": {
+          "calls": 2,
+          "rows": 2,
+          "elapsedMs": 27.38983299999927
+        },
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 30.32587500000045
+        },
+        "list:frontier": {
+          "calls": 1,
+          "rows": 1536,
+          "elapsedMs": 6.955625000000509
+        },
+        "list:exploration-group": {
+          "calls": 1,
+          "rows": 253,
+          "elapsedMs": 4.420082999999067
+        },
+        "list:attempt": {
+          "calls": 2,
+          "rows": 46,
+          "elapsedMs": 2.5836680000011256
+        },
+        "list:continuation": {
+          "calls": 2,
+          "rows": 0,
+          "elapsedMs": 0.032332999999198364
+        },
+        "list:boundary-exit-result": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.014959000000089873
+        },
+        "list:control-classification": {
+          "calls": 1,
+          "rows": 8,
+          "elapsedMs": 0.22504200000003038
+        },
+        "list:region-review": {
+          "calls": 1,
+          "rows": 12,
+          "elapsedMs": 0.21291699999892444
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 1,
+      "name": "snapshot-current",
+      "elapsedMs": 425.99891600000046,
+      "sha256": "26973ce3a28c626e9fd043ba28cc98074f4012f7b0d50ec6f8d8b9c91a53d27c",
+      "bytes": 10637848,
+      "reads": {
+        "get:session": {
+          "calls": 230,
+          "rows": 230,
+          "elapsedMs": 2.960837000009633
+        },
+        "list:frontier": {
+          "calls": 1,
+          "rows": 1536,
+          "elapsedMs": 6.43658300000061
+        },
+        "list:attempt": {
+          "calls": 5,
+          "rows": 115,
+          "elapsedMs": 6.584123999999065
+        },
+        "list:hypothesis": {
+          "calls": 1,
+          "rows": 119,
+          "elapsedMs": 0.3141250000007858
+        },
+        "list:exploration-group": {
+          "calls": 1,
+          "rows": 253,
+          "elapsedMs": 4.268042000001515
+        },
+        "get:observation": {
+          "calls": 24,
+          "rows": 24,
+          "elapsedMs": 273.2605029999995
+        },
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 31.154750000001513
+        },
+        "list:continuation": {
+          "calls": 4,
+          "rows": 0,
+          "elapsedMs": 0.08783200000107172
+        },
+        "list:boundary-exit-result": {
+          "calls": 2,
+          "rows": 0,
+          "elapsedMs": 0.029166000000259373
+        },
+        "list:control-classification": {
+          "calls": 2,
+          "rows": 16,
+          "elapsedMs": 0.4631250000002183
+        },
+        "list:region-review": {
+          "calls": 4,
+          "rows": 48,
+          "elapsedMs": 1.0366249999988213
+        },
+        "get:region-review": {
+          "calls": 21,
+          "rows": 21,
+          "elapsedMs": 1.3953740000069956
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.017832999999882304
+        },
+        "list:discovery-scan": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.022124999999505235
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 1,
+      "name": "review-ledger",
+      "elapsedMs": 196.25795800000014,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "reads": {
+        "get:session": {
+          "calls": 3,
+          "rows": 3,
+          "elapsedMs": 0.17970900000182155
+        },
+        "get:observation": {
+          "calls": 5,
+          "rows": 5,
+          "elapsedMs": 69.52379199999996
+        },
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 30.106166000001394
+        },
+        "list:control-classification": {
+          "calls": 1,
+          "rows": 8,
+          "elapsedMs": 0.32208299999911105
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.018374999999650754
+        },
+        "get:control-classification": {
+          "calls": 3,
+          "rows": 3,
+          "elapsedMs": 0.2364579999975831
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 1,
+      "name": "completed",
+      "elapsedMs": 185.20029199999954,
+      "sha256": "161038afa519893050bbedae8ce10509519c7770d9621168a87d8a38f7336c4d",
+      "bytes": 11,
+      "reads": {
+        "get:observation": {
+          "calls": 12,
+          "rows": 12,
+          "elapsedMs": 156.94874800000434
+        },
+        "get:action": {
+          "calls": 148,
+          "rows": 148,
+          "elapsedMs": 2.0673319999878004
+        },
+        "get:attempt": {
+          "calls": 7,
+          "rows": 7,
+          "elapsedMs": 0.7629170000000158
+        },
+        "get:session": {
+          "calls": 1,
+          "rows": 1,
+          "elapsedMs": 0.10191699999995762
+        },
+        "list:hypothesis": {
+          "calls": 1,
+          "rows": 119,
+          "elapsedMs": 0.39491699999962293
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 1,
+      "name": "obligation-projection",
+      "elapsedMs": 2254.1712499999994,
+      "sha256": "fc733daaa94902fb91cc21df69f147858ced91840651f9ee9ddd04bca6c6549f",
+      "bytes": 162916,
+      "reads": {
+        "get:observation": {
+          "calls": 83,
+          "rows": 83,
+          "elapsedMs": 989.2377539999998
+        },
+        "list:action": {
+          "calls": 3,
+          "rows": 34350,
+          "elapsedMs": 100.5278330000001
+        },
+        "get:session": {
+          "calls": 50,
+          "rows": 50,
+          "elapsedMs": 1.5668759999916801
+        },
+        "get:action": {
+          "calls": 749,
+          "rows": 749,
+          "elapsedMs": 11.616665999965335
+        },
+        "list:hypothesis": {
+          "calls": 17,
+          "rows": 2023,
+          "elapsedMs": 5.296753000000535
+        }
+      }
+    },
+    {
+      "mode": "fallback",
+      "pass": 1,
+      "name": "review-recovery-checkpoint",
+      "elapsedMs": 803.4625419999993,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "reads": {
+        "get:session": {
+          "calls": 232,
+          "rows": 232,
+          "elapsedMs": 3.175873000003776
+        },
+        "get:observation": {
+          "calls": 16,
+          "rows": 16,
+          "elapsedMs": 192.1410409999935
+        },
+        "list:continuation": {
+          "calls": 4,
+          "rows": 0,
+          "elapsedMs": 0.08508299999994051
+        },
+        "list:attempt": {
+          "calls": 4,
+          "rows": 92,
+          "elapsedMs": 5.197333999998591
+        },
+        "list:boundary-exit-result": {
+          "calls": 2,
+          "rows": 0,
+          "elapsedMs": 0.027625000000625732
+        },
+        "list:action": {
+          "calls": 6,
+          "rows": 68700,
+          "elapsedMs": 185.02758299999732
+        },
+        "list:control-classification": {
+          "calls": 2,
+          "rows": 16,
+          "elapsedMs": 0.5153750000008586
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.01916699999856064
+        },
+        "list:frontier": {
+          "calls": 1,
+          "rows": 1536,
+          "elapsedMs": 6.817041000000245
+        },
+        "list:exploration-group": {
+          "calls": 1,
+          "rows": 253,
+          "elapsedMs": 4.51050000000032
+        },
+        "list:region-review": {
+          "calls": 1,
+          "rows": 12,
+          "elapsedMs": 0.2149169999993319
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 1,
+      "name": "actions",
+      "elapsedMs": 11.985375000000204,
+      "sha256": "d8f8f7e9dba0882fe888a59779c1724f37ccc790fa38cca601434db210affd63",
+      "bytes": 156450,
+      "reads": {
+        "get:session": {
+          "calls": 1,
+          "rows": 1,
+          "elapsedMs": 0.109375
+        },
+        "get:observation": {
+          "calls": 1,
+          "rows": 1,
+          "elapsedMs": 11.124374999999418
+        },
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.6998750000002474
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 1,
+      "name": "interpretation",
+      "elapsedMs": 61.74424999999974,
+      "sha256": "84523f72faf7fb30cd9a96740956ebe6dad41fcc398cf6a0f99b81a422e6ac90",
+      "bytes": 2101620,
+      "reads": {
+        "get:session": {
+          "calls": 3,
+          "rows": 3,
+          "elapsedMs": 0.0912899999984802
+        },
+        "get:observation": {
+          "calls": 2,
+          "rows": 2,
+          "elapsedMs": 21.420916999999463
+        },
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.5692920000001322
+        },
+        "list:control-classification": {
+          "calls": 1,
+          "rows": 8,
+          "elapsedMs": 0.25212500000088767
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.018208000001322944
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 1,
+      "name": "availability",
+      "elapsedMs": 94.425709000001,
+      "sha256": "d1e4bfa37037edab04679ce9047587a326bafe6973dbecf989788a2a5961dfc0",
+      "bytes": 21485,
+      "reads": {
+        "get:session": {
+          "calls": 223,
+          "rows": 223,
+          "elapsedMs": 2.7770430000091437
+        },
+        "get:observation": {
+          "calls": 2,
+          "rows": 2,
+          "elapsedMs": 21.46454100000119
+        },
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.6008329999986017
+        },
+        "list:frontier": {
+          "calls": 1,
+          "rows": 1536,
+          "elapsedMs": 9.151541999999608
+        },
+        "list:exploration-group": {
+          "calls": 1,
+          "rows": 253,
+          "elapsedMs": 4.484749999999622
+        },
+        "list:attempt": {
+          "calls": 2,
+          "rows": 46,
+          "elapsedMs": 2.5872510000008333
+        },
+        "list:continuation": {
+          "calls": 2,
+          "rows": 0,
+          "elapsedMs": 0.03245799999967858
+        },
+        "list:boundary-exit-result": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.014375000000654836
+        },
+        "list:control-classification": {
+          "calls": 1,
+          "rows": 8,
+          "elapsedMs": 0.19112499999937427
+        },
+        "list:region-review": {
+          "calls": 1,
+          "rows": 12,
+          "elapsedMs": 0.2144590000007156
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 1,
+      "name": "snapshot-current",
+      "elapsedMs": 401.70733299999847,
+      "sha256": "26973ce3a28c626e9fd043ba28cc98074f4012f7b0d50ec6f8d8b9c91a53d27c",
+      "bytes": 10637848,
+      "reads": {
+        "get:session": {
+          "calls": 230,
+          "rows": 230,
+          "elapsedMs": 2.8546629999927973
+        },
+        "list:frontier": {
+          "calls": 1,
+          "rows": 1536,
+          "elapsedMs": 6.479417000000467
+        },
+        "list:attempt": {
+          "calls": 5,
+          "rows": 115,
+          "elapsedMs": 6.478291999999783
+        },
+        "list:hypothesis": {
+          "calls": 1,
+          "rows": 119,
+          "elapsedMs": 0.3332089999985328
+        },
+        "list:exploration-group": {
+          "calls": 1,
+          "rows": 253,
+          "elapsedMs": 4.2395419999993464
+        },
+        "get:observation": {
+          "calls": 24,
+          "rows": 24,
+          "elapsedMs": 280.2405419999923
+        },
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.593416999998226
+        },
+        "list:continuation": {
+          "calls": 4,
+          "rows": 0,
+          "elapsedMs": 0.06766699999934644
+        },
+        "list:boundary-exit-result": {
+          "calls": 2,
+          "rows": 0,
+          "elapsedMs": 0.028000000000247383
+        },
+        "list:control-classification": {
+          "calls": 2,
+          "rows": 16,
+          "elapsedMs": 0.4622499999986758
+        },
+        "list:region-review": {
+          "calls": 4,
+          "rows": 48,
+          "elapsedMs": 1.0369160000009288
+        },
+        "get:region-review": {
+          "calls": 21,
+          "rows": 21,
+          "elapsedMs": 1.4495420000002923
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.018125000000509317
+        },
+        "list:discovery-scan": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.028084000001399545
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 1,
+      "name": "review-ledger",
+      "elapsedMs": 172.9404169999998,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "reads": {
+        "get:session": {
+          "calls": 3,
+          "rows": 3,
+          "elapsedMs": 0.13679200000115088
+        },
+        "get:observation": {
+          "calls": 5,
+          "rows": 5,
+          "elapsedMs": 76.81129200000032
+        },
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.6014169999998558
+        },
+        "list:control-classification": {
+          "calls": 1,
+          "rows": 8,
+          "elapsedMs": 0.20416599999953178
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.017374999999447027
+        },
+        "get:control-classification": {
+          "calls": 3,
+          "rows": 3,
+          "elapsedMs": 0.24087500000132422
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 1,
+      "name": "completed",
+      "elapsedMs": 194.99029100000007,
+      "sha256": "161038afa519893050bbedae8ce10509519c7770d9621168a87d8a38f7336c4d",
+      "bytes": 11,
+      "reads": {
+        "get:observation": {
+          "calls": 12,
+          "rows": 12,
+          "elapsedMs": 167.67487399999845
+        },
+        "get:action": {
+          "calls": 148,
+          "rows": 148,
+          "elapsedMs": 2.263131000003341
+        },
+        "get:attempt": {
+          "calls": 7,
+          "rows": 7,
+          "elapsedMs": 0.6941249999999854
+        },
+        "get:session": {
+          "calls": 1,
+          "rows": 1,
+          "elapsedMs": 0.0652090000003227
+        },
+        "list:hypothesis": {
+          "calls": 1,
+          "rows": 119,
+          "elapsedMs": 0.3763340000004973
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 1,
+      "name": "obligation-projection",
+      "elapsedMs": 2204.3179579999996,
+      "sha256": "fc733daaa94902fb91cc21df69f147858ced91840651f9ee9ddd04bca6c6549f",
+      "bytes": 162916,
+      "reads": {
+        "get:observation": {
+          "calls": 83,
+          "rows": 83,
+          "elapsedMs": 1010.2867869999991
+        },
+        "listByObservation:action": {
+          "calls": 3,
+          "rows": 620,
+          "elapsedMs": 1.914875000002212
+        },
+        "get:session": {
+          "calls": 50,
+          "rows": 50,
+          "elapsedMs": 1.658251000002565
+        },
+        "get:action": {
+          "calls": 749,
+          "rows": 749,
+          "elapsedMs": 11.326083000019935
+        },
+        "list:hypothesis": {
+          "calls": 17,
+          "rows": 2023,
+          "elapsedMs": 5.21337400000084
+        }
+      }
+    },
+    {
+      "mode": "indexed",
+      "pass": 1,
+      "name": "review-recovery-checkpoint",
+      "elapsedMs": 605.413958000001,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "reads": {
+        "get:session": {
+          "calls": 232,
+          "rows": 232,
+          "elapsedMs": 3.077040999980454
+        },
+        "get:observation": {
+          "calls": 16,
+          "rows": 16,
+          "elapsedMs": 189.4914579999986
+        },
+        "list:continuation": {
+          "calls": 4,
+          "rows": 0,
+          "elapsedMs": 0.07174899999699846
+        },
+        "list:attempt": {
+          "calls": 4,
+          "rows": 92,
+          "elapsedMs": 5.147791999996116
+        },
+        "list:boundary-exit-result": {
+          "calls": 2,
+          "rows": 0,
+          "elapsedMs": 0.029832999998689047
+        },
+        "listByObservation:action": {
+          "calls": 6,
+          "rows": 1241,
+          "elapsedMs": 3.892083000006096
+        },
+        "list:control-classification": {
+          "calls": 2,
+          "rows": 16,
+          "elapsedMs": 0.43679100000008475
+        },
+        "list:control-review": {
+          "calls": 1,
+          "rows": 0,
+          "elapsedMs": 0.018707999999605818
+        },
+        "list:frontier": {
+          "calls": 1,
+          "rows": 1536,
+          "elapsedMs": 6.536833000001934
+        },
+        "list:exploration-group": {
+          "calls": 1,
+          "rows": 253,
+          "elapsedMs": 4.2760420000013255
+        },
+        "list:region-review": {
+          "calls": 1,
+          "rows": 12,
+          "elapsedMs": 0.20120799999858718
+        }
+      }
+    }
+  ]
+}

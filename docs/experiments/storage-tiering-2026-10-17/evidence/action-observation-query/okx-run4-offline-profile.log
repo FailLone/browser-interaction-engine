@@ -1,0 +1,560 @@
+{
+  "driverStarts": 0,
+  "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/okx-run4-profile-N8nk4z",
+  "results": [
+    {
+      "name": "actions-0",
+      "elapsedMs": 42.38941599999998,
+      "output": {
+        "length": 207
+      },
+      "topReads": [
+        [
+          "list:action",
+          {
+            "calls": 1,
+            "rows": 11450,
+            "elapsedMs": 29.93508399999996
+          }
+        ],
+        [
+          "get:observation",
+          {
+            "calls": 1,
+            "rows": 1,
+            "elapsedMs": 11.707958000000076
+          }
+        ],
+        [
+          "get:session",
+          {
+            "calls": 1,
+            "rows": 1,
+            "elapsedMs": 0.169791000000032
+          }
+        ]
+      ]
+    },
+    {
+      "name": "interpretation-0",
+      "elapsedMs": 121.84166700000003,
+      "output": {
+        "actions": 207
+      },
+      "topReads": [
+        [
+          "list:action",
+          {
+            "calls": 1,
+            "rows": 11450,
+            "elapsedMs": 37.03362500000003
+          }
+        ],
+        [
+          "get:observation",
+          {
+            "calls": 2,
+            "rows": 2,
+            "elapsedMs": 23.91999999999996
+          }
+        ],
+        [
+          "list:control-classification",
+          {
+            "calls": 1,
+            "rows": 8,
+            "elapsedMs": 0.3548749999999927
+          }
+        ]
+      ]
+    },
+    {
+      "name": "availability-0",
+      "elapsedMs": 137.95320800000002,
+      "output": {
+        "actions": 207
+      },
+      "topReads": [
+        [
+          "list:action",
+          {
+            "calls": 1,
+            "rows": 11450,
+            "elapsedMs": 35.353415999999925
+          }
+        ],
+        [
+          "get:observation",
+          {
+            "calls": 2,
+            "rows": 2,
+            "elapsedMs": 23.558292999999935
+          }
+        ],
+        [
+          "list:frontier",
+          {
+            "calls": 1,
+            "rows": 1536,
+            "elapsedMs": 7.197916999999961
+          }
+        ]
+      ]
+    },
+    {
+      "name": "snapshot-current-0",
+      "elapsedMs": 466.2193749999999,
+      "output": {
+        "actions": 207,
+        "operationCandidates": 207
+      },
+      "topReads": [
+        [
+          "get:observation",
+          {
+            "calls": 24,
+            "rows": 24,
+            "elapsedMs": 291.2613740000003
+          }
+        ],
+        [
+          "list:action",
+          {
+            "calls": 1,
+            "rows": 11450,
+            "elapsedMs": 29.0395410000001
+          }
+        ],
+        [
+          "list:frontier",
+          {
+            "calls": 1,
+            "rows": 1536,
+            "elapsedMs": 6.585084000000052
+          }
+        ]
+      ]
+    },
+    {
+      "name": "review-ledger-0",
+      "elapsedMs": 215.73537499999998,
+      "output": {
+        "length": 0
+      },
+      "topReads": [
+        [
+          "get:observation",
+          {
+            "calls": 5,
+            "rows": 5,
+            "elapsedMs": 78.69041700000025
+          }
+        ],
+        [
+          "list:action",
+          {
+            "calls": 1,
+            "rows": 11450,
+            "elapsedMs": 32.018833000000086
+          }
+        ],
+        [
+          "list:control-classification",
+          {
+            "calls": 1,
+            "rows": 8,
+            "elapsedMs": 0.3141250000001037
+          }
+        ]
+      ]
+    },
+    {
+      "name": "completed-0",
+      "elapsedMs": 208.83904100000018,
+      "output": {
+        "size": 0
+      },
+      "topReads": [
+        [
+          "get:observation",
+          {
+            "calls": 12,
+            "rows": 12,
+            "elapsedMs": 176.26800000000026
+          }
+        ],
+        [
+          "get:action",
+          {
+            "calls": 148,
+            "rows": 148,
+            "elapsedMs": 2.3475490000009813
+          }
+        ],
+        [
+          "get:attempt",
+          {
+            "calls": 7,
+            "rows": 7,
+            "elapsedMs": 0.7629970000000412
+          }
+        ]
+      ]
+    },
+    {
+      "name": "obligation-projection-0",
+      "elapsedMs": 2256.1133330000002,
+      "output": {
+        "counts": {
+          "rows": 539,
+          "active": 493,
+          "waiting": 22,
+          "unreachable": 0,
+          "aliases": 0,
+          "superseded": 0,
+          "resolved": 23,
+          "excluded": 0,
+          "authority": 1,
+          "unresolved": 515,
+          "unresolvedGroups": 515
+        }
+      },
+      "topReads": [
+        [
+          "get:observation",
+          {
+            "calls": 83,
+            "rows": 83,
+            "elapsedMs": 993.7183749999997
+          }
+        ],
+        [
+          "list:action",
+          {
+            "calls": 3,
+            "rows": 34350,
+            "elapsedMs": 91.98833300000047
+          }
+        ],
+        [
+          "get:action",
+          {
+            "calls": 749,
+            "rows": 749,
+            "elapsedMs": 11.991330000001199
+          }
+        ]
+      ]
+    },
+    {
+      "name": "review-recovery-checkpoint-0",
+      "elapsedMs": 815.3424590000004,
+      "output": {
+        "length": 0
+      },
+      "topReads": [
+        [
+          "list:action",
+          {
+            "calls": 6,
+            "rows": 68700,
+            "elapsedMs": 189.37208399999872
+          }
+        ],
+        [
+          "get:observation",
+          {
+            "calls": 16,
+            "rows": 16,
+            "elapsedMs": 187.4200830000009
+          }
+        ],
+        [
+          "list:frontier",
+          {
+            "calls": 1,
+            "rows": 1536,
+            "elapsedMs": 6.726166000000376
+          }
+        ]
+      ]
+    },
+    {
+      "name": "actions-1",
+      "elapsedMs": 42.575582999999824,
+      "output": {
+        "length": 207
+      },
+      "topReads": [
+        [
+          "list:action",
+          {
+            "calls": 1,
+            "rows": 11450,
+            "elapsedMs": 30.08770800000002
+          }
+        ],
+        [
+          "get:observation",
+          {
+            "calls": 1,
+            "rows": 1,
+            "elapsedMs": 11.793916999999965
+          }
+        ],
+        [
+          "get:session",
+          {
+            "calls": 1,
+            "rows": 1,
+            "elapsedMs": 0.1215409999995245
+          }
+        ]
+      ]
+    },
+    {
+      "name": "interpretation-1",
+      "elapsedMs": 96.35666700000002,
+      "output": {
+        "actions": 207
+      },
+      "topReads": [
+        [
+          "list:action",
+          {
+            "calls": 1,
+            "rows": 11450,
+            "elapsedMs": 32.904875000000175
+          }
+        ],
+        [
+          "get:observation",
+          {
+            "calls": 2,
+            "rows": 2,
+            "elapsedMs": 21.749792000000525
+          }
+        ],
+        [
+          "list:control-classification",
+          {
+            "calls": 1,
+            "rows": 8,
+            "elapsedMs": 0.33658400000058464
+          }
+        ]
+      ]
+    },
+    {
+      "name": "availability-1",
+      "elapsedMs": 124.99379099999987,
+      "output": {
+        "actions": 207
+      },
+      "topReads": [
+        [
+          "list:action",
+          {
+            "calls": 1,
+            "rows": 11450,
+            "elapsedMs": 29.785209000000577
+          }
+        ],
+        [
+          "get:observation",
+          {
+            "calls": 2,
+            "rows": 2,
+            "elapsedMs": 21.8847080000005
+          }
+        ],
+        [
+          "list:frontier",
+          {
+            "calls": 1,
+            "rows": 1536,
+            "elapsedMs": 8.293249999999716
+          }
+        ]
+      ]
+    },
+    {
+      "name": "snapshot-current-1",
+      "elapsedMs": 454.0891250000004,
+      "output": {
+        "actions": 207,
+        "operationCandidates": 207
+      },
+      "topReads": [
+        [
+          "get:observation",
+          {
+            "calls": 24,
+            "rows": 24,
+            "elapsedMs": 284.91570800000045
+          }
+        ],
+        [
+          "list:action",
+          {
+            "calls": 1,
+            "rows": 11450,
+            "elapsedMs": 28.849041000000398
+          }
+        ],
+        [
+          "list:attempt",
+          {
+            "calls": 5,
+            "rows": 115,
+            "elapsedMs": 10.1917940000003
+          }
+        ]
+      ]
+    },
+    {
+      "name": "review-ledger-1",
+      "elapsedMs": 210.1787919999997,
+      "output": {
+        "length": 0
+      },
+      "topReads": [
+        [
+          "get:observation",
+          {
+            "calls": 5,
+            "rows": 5,
+            "elapsedMs": 69.43591699999979
+          }
+        ],
+        [
+          "list:action",
+          {
+            "calls": 1,
+            "rows": 11450,
+            "elapsedMs": 31.1489160000001
+          }
+        ],
+        [
+          "list:control-classification",
+          {
+            "calls": 1,
+            "rows": 8,
+            "elapsedMs": 0.300625000000764
+          }
+        ]
+      ]
+    },
+    {
+      "name": "completed-1",
+      "elapsedMs": 207.63474999999926,
+      "output": {
+        "size": 0
+      },
+      "topReads": [
+        [
+          "get:observation",
+          {
+            "calls": 12,
+            "rows": 12,
+            "elapsedMs": 176.159126999999
+          }
+        ],
+        [
+          "get:action",
+          {
+            "calls": 148,
+            "rows": 148,
+            "elapsedMs": 2.197793000001184
+          }
+        ],
+        [
+          "get:attempt",
+          {
+            "calls": 7,
+            "rows": 7,
+            "elapsedMs": 0.7444169999989754
+          }
+        ]
+      ]
+    },
+    {
+      "name": "obligation-projection-1",
+      "elapsedMs": 2264.1420000000007,
+      "output": {
+        "counts": {
+          "rows": 539,
+          "active": 493,
+          "waiting": 22,
+          "unreachable": 0,
+          "aliases": 0,
+          "superseded": 0,
+          "resolved": 23,
+          "excluded": 0,
+          "authority": 1,
+          "unresolved": 515,
+          "unresolvedGroups": 515
+        }
+      },
+      "topReads": [
+        [
+          "get:observation",
+          {
+            "calls": 83,
+            "rows": 83,
+            "elapsedMs": 1004.9322519999987
+          }
+        ],
+        [
+          "list:action",
+          {
+            "calls": 3,
+            "rows": 34350,
+            "elapsedMs": 96.73416699999962
+          }
+        ],
+        [
+          "get:action",
+          {
+            "calls": 749,
+            "rows": 749,
+            "elapsedMs": 12.093087000003834
+          }
+        ]
+      ]
+    },
+    {
+      "name": "review-recovery-checkpoint-1",
+      "elapsedMs": 813.7741670000014,
+      "output": {
+        "length": 0
+      },
+      "topReads": [
+        [
+          "get:observation",
+          {
+            "calls": 16,
+            "rows": 16,
+            "elapsedMs": 192.66475199999877
+          }
+        ],
+        [
+          "list:action",
+          {
+            "calls": 6,
+            "rows": 68700,
+            "elapsedMs": 189.20870800000193
+          }
+        ],
+        [
+          "list:frontier",
+          {
+            "calls": 1,
+            "rows": 1536,
+            "elapsedMs": 7.013582999999926
+          }
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/action-observation-query.test.ts (10 tests) 73ms
+ ✓ tests/core.test.ts (4 tests) 35ms
+ ✓ tests/storage-contract.test.ts (8 tests) 32ms
+
+ Test Files  3 passed (3)
+      Tests  22 passed (22)
+   Start at  05:57:36
+   Duration  876ms (transform 179ms, setup 0ms, collect 367ms, tests 139ms, environment 0ms, prepare 96ms)
+

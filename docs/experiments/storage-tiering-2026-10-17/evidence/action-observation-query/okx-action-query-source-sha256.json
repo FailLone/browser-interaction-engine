@@ -1,0 +1,8 @@
+{
+  "packages/core/src/ports.ts": "98a159ec4549076a27d2c7ae8967905581c04d6f55f7b9a0adb08649c2418f94",
+  "packages/core/src/engine.ts": "0827b41cee876e5d77bd481f70406cce3547062402231e7e194a2b0cf72b37a2",
+  "packages/storage-sqlite/src/index.ts": "86a192c7c5bf1ddbe5105cdbb8567497b1b6c02ae7d36e28405609f2c46423b3",
+  "packages/storage-memory/src/index.ts": "24cce67e1719bd51024be037122614be507f52834b8aeee112773396c2b2c876",
+  "packages/storage-retained/src/index.ts": "d47f4b33c5051fa5185281b7ed5dae477b1eb87e291506b5f2022bb9b57c4a94",
+  "tests/action-observation-query.test.ts": "96c13eab140fd519b1f1da9fb0547c45393956b787ec659329f62f9eca0a1b9d"
+}

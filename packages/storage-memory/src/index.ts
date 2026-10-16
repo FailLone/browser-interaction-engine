@@ -38,6 +38,9 @@ export class MemoryStore implements Persistence {
   get<T>(kind: string, id: string): T | undefined { const row = this.entities.get(id); return row?.kind === kind ? clone(row.value) as T : undefined; }
   require<T>(kind: string, id: string): T { const value = this.get<T>(kind, id); if (value === undefined) throw new EngineError('NOT_FOUND', `${kind} ${id} not found`); return value; }
   list<T>(kind: string, sessionId?: string): T[] { return [...this.entities.values()].filter(r => r.kind === kind && (!sessionId || r.sessionId === sessionId)).map(r => clone(r.value) as T); }
+  listByObservation<T>(kind:string,sessionId:string,observationId:string):T[] {
+    return [...this.entities.values()].filter(r=>r.kind===kind&&r.sessionId===sessionId&&(r.value as {observationId?:string}).observationId===observationId).map(r=>clone(r.value) as T);
+  }
   event(sessionId: string, type: string, data: unknown): EngineEvent {
     const event = { sequence: ++this.sequence, sessionId, type, at: now(), data: JSON.parse(JSON.stringify(data)) };
     this.log.push(event); return clone(event);

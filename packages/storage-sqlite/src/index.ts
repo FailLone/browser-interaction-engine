@@ -16,6 +16,16 @@ export interface ObservationCompressionResult {
 export type StateCompressionResult = ObservationCompressionResult;
 export interface SqliteCompactionResult {databaseBytesBefore:number;databaseBytesAfter:number;walBytesBefore:number;walBytesAfter:number}
 
+// Only unambiguous plain JSON is indexed. NULL is a fallback bucket read by
+// every scoped query, so invalid JSON and future compressed encodings still go
+// through the normal decoder. Duplicate/escaped keys can differ between SQLite
+// JSON extraction and JSON.parse; conservatively decode those rows as well.
+const actionObservationProjection=`CASE WHEN compressed_json IS NULL AND json_valid(json) THEN
+  CASE WHEN json_type(json,'$.observationId')='text'
+    AND json_type(json_remove(json,'$.observationId'),'$.observationId') IS NULL
+    AND instr(json,'\\u')=0 AND json_type(json,'$.$interactionStorage') IS NULL
+  THEN json_extract(json,'$.observationId') END END`;
+
 export class SqliteStore implements Persistence {
   readonly evidence: EvidenceStore;
   readonly db: Database.Database;
@@ -44,6 +54,9 @@ export class SqliteStore implements Persistence {
         CREATE TABLE IF NOT EXISTS requests(session_id TEXT NOT NULL,request_id TEXT NOT NULL,attempt_id TEXT NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(session_id,request_id));`);
       const compressed=(this.db.pragma('table_info(entities)') as {name:string}[]).some(c=>c.name==='compressed_json');
       if(!compressed){if(version!=='1')throw new EngineError('SCHEMA_VERSION','Compressed entity column is missing');this.db.exec('ALTER TABLE entities ADD COLUMN compressed_json BLOB');}
+      // One initial scan of action JSON on existing databases; no payload rewrite.
+      // SQLite maintains the projection for normal/raw writes and rollbacks.
+      this.db.exec(`CREATE INDEX IF NOT EXISTS entities_action_observation ON entities(session_id,${actionObservationProjection}) WHERE kind='action'`);
       if(version==='3'||version==='4') {
         const tables=this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('observation_objects','observation_packs')").all();
         if(tables.length!==2)throw new EngineError('SCHEMA_VERSION','Observation structure tables are missing');
@@ -126,6 +139,18 @@ export class SqliteStore implements Persistence {
       const rows = (sessionId ? this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? AND session_id=? ORDER BY rowid').all(kind, sessionId) : this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? ORDER BY rowid').all(kind)) as StoredEntityRow[];
       return rows.map(r=>decodeStoredEntity<T>(r,this.observations.resolve));
     })();}finally{this.observations.end(cacheable);}
+  }
+  listByObservation<T>(kind:string,sessionId:string,observationId:string):T[] {
+    if(kind!=='action')return this.list<T&{observationId?:string}>(kind,sessionId).filter(value=>value.observationId===observationId);
+    // A single statement keeps matching and fallback rows in one read snapshot.
+    // Preserve list() row order, including after an action changes observation.
+    const columns='rowid AS position,kind,json,compressed_json';
+    const rows=this.db.prepare(`SELECT * FROM (
+      SELECT ${columns} FROM entities INDEXED BY entities_action_observation WHERE kind='action' AND session_id=? AND (${actionObservationProjection})=?
+      UNION ALL
+      SELECT ${columns} FROM entities INDEXED BY entities_action_observation WHERE kind='action' AND session_id=? AND (${actionObservationProjection}) IS NULL
+    ) ORDER BY position`).all(sessionId,observationId,sessionId) as StoredEntityRow[];
+    return rows.map(row=>decodeStoredEntity<T&{observationId?:string}>(row)).filter(value=>value.observationId===observationId);
   }
   observationCacheStats() {return this.observations.cacheStats();}
   observationStorageStats(options:{sessionId?:string}={}):ObservationStorageStats {

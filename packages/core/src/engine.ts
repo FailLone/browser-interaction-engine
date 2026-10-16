@@ -338,15 +338,15 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   protected captureCurrentFacts(sessionId:string,observationId?:string) {
     const m=this.coverageInputs(sessionId),observation=this.observation(sessionId,m.session.currentObservationId);
     if(observationId&&observationId!==observation.id)throw new EngineError('STALE_OBSERVATION','Audit requires the current observation',{observationId:observation.id});
-    const allActions=this.store.list<ActionCandidate>('action',sessionId),actions=allActions.filter(a=>a.observationId===observation.id),availability=this.availabilityFrom(observation,actions,m.raw,m.groups);
+    const actions=this.actionsForObservation(sessionId,observation.id),availability=this.availabilityFrom(observation,actions,m.raw,m.groups);
     const snapshot={sessionId,observationId:observation.id,revision:availability.revision,observation,actions,operationCandidates:actions.filter(a=>a.preconditions.visible&&!this.outsideBoundary(a)),availability,groups:m.groups,hypotheses:m.hypotheses,
       unknownAttempts:m.attempts.filter(a=>a.status==='unknown'||a.status==='executing')};
-    return {snapshot,material:{...m,allActions}};
+    return {snapshot,material:m};
   }
   protected captureAudit(sessionId:string,observationId?:string) {
     const current=this.captureCurrentFacts(sessionId,observationId),m=this.reconcileMaterial(current.material);
     const snapshot={...current.snapshot,frontier:m.frontier,explorationAudit:auditExploration(m.session,m.frontier,m.attempts,m.observations,m.groups,m.equivalents)};
-    return {snapshot,material:{...m,allActions:current.material.allActions}};
+    return {snapshot,material:{...m,allActions:this.store.list<ActionCandidate>('action',sessionId)}};
   }
   /** Outstanding scheduling work; equivalence never rewrites stored actions or attempts. */
   protected outstandingFrontier(sessionId: string) { if(this.session(sessionId).options.exploration!=='controls')return this.frontier(sessionId);const m=this.coverageMaterial(sessionId);return m.raw.filter(f=>!m.equivalents.has(f.id)); }
@@ -387,7 +387,11 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   }
   /** Visible operation obligations; background boundary candidates are not new coverage cases. */
   operationCoverageCandidates(sessionId:string,observationId?:string){return this.actions(sessionId,observationId).filter(a=>a.preconditions.visible&&!this.outsideBoundary(a));}
-  actions(sessionId: string, observationId?: string) { const o = this.observation(sessionId, observationId); return this.store.list<ActionCandidate>('action', sessionId).filter(a => a.observationId === o.id); }
+  private actionsForObservation(sessionId:string,observationId:string) {
+    return this.store.listByObservation?.<ActionCandidate>('action',sessionId,observationId)
+      ?? this.store.list<ActionCandidate>('action',sessionId).filter(a=>a.observationId===observationId);
+  }
+  actions(sessionId: string, observationId?: string) { const o = this.observation(sessionId, observationId); return this.actionsForObservation(sessionId,o.id); }
   graph(sessionId: string): Graph { return this.getGraph(sessionId); }
   getGraph(sessionId: string): Graph { this.session(sessionId); return { states: this.store.list('state', sessionId), transitions: this.store.list('transition', sessionId), visits: this.store.list('visit', sessionId) }; }
   compare(sessionId: string, beforeId: string, afterId: string, region?: string) { return this.adapter.compare(this.observation(sessionId, beforeId), this.observation(sessionId, afterId), region); }

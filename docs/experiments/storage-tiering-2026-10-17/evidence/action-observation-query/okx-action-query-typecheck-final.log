@@ -1,0 +1,6 @@
+
+> browser-interaction-engine@0.1.0 typecheck /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+> tsc --noEmit && tsc -p packages/core/tsconfig.json
+
+tests/explorer-recovery-failure-condition.test.ts(50,61): error TS2741: Property 'value' is missing in type '{ status: "unknown"; source: string; }' but required in type '{ value: Json; status: "unknown" | "known"; source: string; }'.
+ ELIFECYCLE  Command failed with exit code 2.

@@ -43,6 +43,11 @@ export interface Persistence {
   get<T>(kind: string, id: string): T | undefined;
   require<T>(kind: string, id: string): T;
   list<T>(kind: string, sessionId?: string): T[];
+  /** Optional observation-scoped read, equivalent to filtering list(kind,
+   * sessionId) by observationId, with the same ordering and value isolation.
+   * Unsupported/corrupt stored encodings must not be silently excluded by an
+   * index projection. This is a fresh read, not execution authorization. */
+  listByObservation?<T>(kind: string, sessionId: string, observationId: string): T[];
   /** Optional bounded change hints for cached navigation facts. Missing support,
    * reset, or an unknown cursor requires a full list. Read the cursor before
    * reading records and check it again afterwards; a concurrent change requires

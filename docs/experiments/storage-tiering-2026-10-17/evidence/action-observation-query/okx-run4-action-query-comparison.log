@@ -1,0 +1,447 @@
+{
+  "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/okx-run4-action-query-RRNw3l",
+  "openMs": 48.12541699999997,
+  "indexBuildMs": 41.86891700000007,
+  "equalities": 16,
+  "eventsBefore": 1611,
+  "eventsAfter": 1611,
+  "driverStarts": 0,
+  "results": [
+    {
+      "name": "actions",
+      "mode": "fallback",
+      "pass": 0,
+      "elapsedMs": 44.02920800000004,
+      "actionReads": {
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 31.840542000000028
+        }
+      }
+    },
+    {
+      "name": "interpretation",
+      "mode": "fallback",
+      "pass": 0,
+      "elapsedMs": 118.44958299999996,
+      "actionReads": {
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 32.41454199999998
+        }
+      }
+    },
+    {
+      "name": "availability",
+      "mode": "fallback",
+      "pass": 0,
+      "elapsedMs": 144.10191699999996,
+      "actionReads": {
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 36.564500000000066
+        }
+      }
+    },
+    {
+      "name": "snapshot-current",
+      "mode": "fallback",
+      "pass": 0,
+      "elapsedMs": 443.5674580000001,
+      "actionReads": {
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 32.93666699999994
+        }
+      }
+    },
+    {
+      "name": "review-ledger",
+      "mode": "fallback",
+      "pass": 0,
+      "elapsedMs": 212.68316700000014,
+      "actionReads": {
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 30.00020799999993
+        }
+      }
+    },
+    {
+      "name": "completed",
+      "mode": "fallback",
+      "pass": 0,
+      "elapsedMs": 205.49474999999984,
+      "actionReads": {
+        "get:action": {
+          "calls": 148,
+          "rows": 148,
+          "elapsedMs": 2.197450000000117
+        }
+      }
+    },
+    {
+      "name": "obligation-projection",
+      "mode": "fallback",
+      "pass": 0,
+      "elapsedMs": 2318.9628329999996,
+      "actionReads": {
+        "list:action": {
+          "calls": 3,
+          "rows": 34350,
+          "elapsedMs": 99.58016699999962
+        },
+        "get:action": {
+          "calls": 749,
+          "rows": 749,
+          "elapsedMs": 12.094630999989022
+        }
+      }
+    },
+    {
+      "name": "review-recovery-checkpoint",
+      "mode": "fallback",
+      "pass": 0,
+      "elapsedMs": 811.1548339999999,
+      "actionReads": {
+        "list:action": {
+          "calls": 6,
+          "rows": 68700,
+          "elapsedMs": 187.41408200000023
+        }
+      }
+    },
+    {
+      "name": "actions",
+      "mode": "indexed",
+      "pass": 0,
+      "elapsedMs": 12.217290999999932,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.7047499999998763
+        }
+      }
+    },
+    {
+      "name": "interpretation",
+      "mode": "indexed",
+      "pass": 0,
+      "elapsedMs": 63.597667,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.5708330000006754
+        }
+      }
+    },
+    {
+      "name": "availability",
+      "mode": "indexed",
+      "pass": 0,
+      "elapsedMs": 98.761708,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 3.362250000000131
+        }
+      }
+    },
+    {
+      "name": "snapshot-current",
+      "mode": "indexed",
+      "pass": 0,
+      "elapsedMs": 405.286959,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.5833749999992506
+        }
+      }
+    },
+    {
+      "name": "review-ledger",
+      "mode": "indexed",
+      "pass": 0,
+      "elapsedMs": 173.438666,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.6119589999998425
+        }
+      }
+    },
+    {
+      "name": "completed",
+      "mode": "indexed",
+      "pass": 0,
+      "elapsedMs": 189.1810830000004,
+      "actionReads": {
+        "get:action": {
+          "calls": 148,
+          "rows": 148,
+          "elapsedMs": 2.0656790000048204
+        }
+      }
+    },
+    {
+      "name": "obligation-projection",
+      "mode": "indexed",
+      "pass": 0,
+      "elapsedMs": 2209.0755830000007,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 3,
+          "rows": 620,
+          "elapsedMs": 1.928168000000369
+        },
+        "get:action": {
+          "calls": 749,
+          "rows": 749,
+          "elapsedMs": 11.413328999994519
+        }
+      }
+    },
+    {
+      "name": "review-recovery-checkpoint",
+      "mode": "indexed",
+      "pass": 0,
+      "elapsedMs": 615.5663329999988,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 6,
+          "rows": 1241,
+          "elapsedMs": 3.7844160000022384
+        }
+      }
+    },
+    {
+      "name": "actions",
+      "mode": "fallback",
+      "pass": 1,
+      "elapsedMs": 41.074791000000914,
+      "actionReads": {
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 29.510416999999507
+        }
+      }
+    },
+    {
+      "name": "interpretation",
+      "mode": "fallback",
+      "pass": 1,
+      "elapsedMs": 94.19925000000148,
+      "actionReads": {
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 33.00974999999926
+        }
+      }
+    },
+    {
+      "name": "availability",
+      "mode": "fallback",
+      "pass": 1,
+      "elapsedMs": 130.03862499999923,
+      "actionReads": {
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 30.32587500000045
+        }
+      }
+    },
+    {
+      "name": "snapshot-current",
+      "mode": "fallback",
+      "pass": 1,
+      "elapsedMs": 425.99891600000046,
+      "actionReads": {
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 31.154750000001513
+        }
+      }
+    },
+    {
+      "name": "review-ledger",
+      "mode": "fallback",
+      "pass": 1,
+      "elapsedMs": 196.25795800000014,
+      "actionReads": {
+        "list:action": {
+          "calls": 1,
+          "rows": 11450,
+          "elapsedMs": 30.106166000001394
+        }
+      }
+    },
+    {
+      "name": "completed",
+      "mode": "fallback",
+      "pass": 1,
+      "elapsedMs": 185.20029199999954,
+      "actionReads": {
+        "get:action": {
+          "calls": 148,
+          "rows": 148,
+          "elapsedMs": 2.0673319999878004
+        }
+      }
+    },
+    {
+      "name": "obligation-projection",
+      "mode": "fallback",
+      "pass": 1,
+      "elapsedMs": 2254.1712499999994,
+      "actionReads": {
+        "list:action": {
+          "calls": 3,
+          "rows": 34350,
+          "elapsedMs": 100.5278330000001
+        },
+        "get:action": {
+          "calls": 749,
+          "rows": 749,
+          "elapsedMs": 11.616665999965335
+        }
+      }
+    },
+    {
+      "name": "review-recovery-checkpoint",
+      "mode": "fallback",
+      "pass": 1,
+      "elapsedMs": 803.4625419999993,
+      "actionReads": {
+        "list:action": {
+          "calls": 6,
+          "rows": 68700,
+          "elapsedMs": 185.02758299999732
+        }
+      }
+    },
+    {
+      "name": "actions",
+      "mode": "indexed",
+      "pass": 1,
+      "elapsedMs": 11.985375000000204,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.6998750000002474
+        }
+      }
+    },
+    {
+      "name": "interpretation",
+      "mode": "indexed",
+      "pass": 1,
+      "elapsedMs": 61.74424999999974,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.5692920000001322
+        }
+      }
+    },
+    {
+      "name": "availability",
+      "mode": "indexed",
+      "pass": 1,
+      "elapsedMs": 94.425709000001,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.6008329999986017
+        }
+      }
+    },
+    {
+      "name": "snapshot-current",
+      "mode": "indexed",
+      "pass": 1,
+      "elapsedMs": 401.70733299999847,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.593416999998226
+        }
+      }
+    },
+    {
+      "name": "review-ledger",
+      "mode": "indexed",
+      "pass": 1,
+      "elapsedMs": 172.9404169999998,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 1,
+          "rows": 207,
+          "elapsedMs": 0.6014169999998558
+        }
+      }
+    },
+    {
+      "name": "completed",
+      "mode": "indexed",
+      "pass": 1,
+      "elapsedMs": 194.99029100000007,
+      "actionReads": {
+        "get:action": {
+          "calls": 148,
+          "rows": 148,
+          "elapsedMs": 2.263131000003341
+        }
+      }
+    },
+    {
+      "name": "obligation-projection",
+      "mode": "indexed",
+      "pass": 1,
+      "elapsedMs": 2204.3179579999996,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 3,
+          "rows": 620,
+          "elapsedMs": 1.914875000002212
+        },
+        "get:action": {
+          "calls": 749,
+          "rows": 749,
+          "elapsedMs": 11.326083000019935
+        }
+      }
+    },
+    {
+      "name": "review-recovery-checkpoint",
+      "mode": "indexed",
+      "pass": 1,
+      "elapsedMs": 605.413958000001,
+      "actionReads": {
+        "listByObservation:action": {
+          "calls": 6,
+          "rows": 1241,
+          "elapsedMs": 3.892083000006096
+        }
+      }
+    }
+  ]
+}
