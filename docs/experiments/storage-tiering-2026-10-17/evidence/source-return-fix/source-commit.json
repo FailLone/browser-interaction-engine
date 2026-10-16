@@ -1,0 +1,6 @@
+{
+  "commit": "ba7f38e1ccd4f2ae62d0aa05bff92a0515dd99d1",
+  "verifiedFiles": 17,
+  "allMatchTestedSource": true,
+  "note": "Exact final source hashes recorded after successful joint tests/typecheck; matching committed content. Protocol runner separately records before/after source maps."
+}

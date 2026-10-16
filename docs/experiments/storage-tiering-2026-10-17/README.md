@@ -164,6 +164,8 @@ main 与实验源码均为 `3885c581`。同一任务、session、round 于 2026-
 
 插件仅为已授权、无前置路径的纯 URL 待测项使用此接口；区域、控件、操作与审阅义务不适用。路线与严格恢复的失败债分开记录，旧债不清除；任何未释放 unknown 债仍全局阻断。动态价格、DOM/捕获 ID 不产生新位置返回预算；无原生锚点、当前不稳定或有活动弹层时延后。到达后清空未经验证的旧路径，从当前事实重新检查可执行操作；到达本身不结算覆盖。
 
-公共 plugin.start 本地回归证明：离开弹层后，返回到弹层已消失的同一原生条目，随后真实执行新出现的 Remaining 控件；仅一个 history 恢复动作，没有 entry 重开或旧弹层重放。若返回后持久结果变为 unknown，插件撤销成功、保留债，重开任务后在 observe/createSession/恢复之前阻断。SDK/native/target/core 专项 42/42，最终插件及 SDK 联合回归 7 文件 101/101，root/core 类型检查通过；两组有重叠，不相加。包含严格接口伪返回 SOURCE_REACHED 的拒绝测试和 100 tick 不续预算测试。见 [验证记录](evidence/source-return-fix/verification.json)。这些仍是受控证据，后续需重跑原 80 次协议并再次接续真实页面。
+公共 plugin.start 本地回归证明：离开弹层后，返回到弹层已消失的同一原生条目，随后真实执行新出现的 Remaining 控件；仅一个 history 恢复动作，没有 entry 重开或旧弹层重放。若返回后持久结果变为 unknown，插件撤销成功、保留债，重开任务后在 observe/createSession/恢复之前阻断。SDK/native/target/core 专项 42/42，最终插件及 SDK 联合回归 7 文件 101/101，root/core 类型检查通过；两组有重叠，不相加。包含严格接口伪返回 SOURCE_REACHED 的拒绝测试和 100 tick 不续预算测试。见 [验证记录](evidence/source-return-fix/verification.json)。这些仍是受控证据，需再次接续真实页面。
 
 第三窗已关闭冻结 1,865 个文件、45,928,970 B，全部 SHA 与源前后相同，两库完整性检查通过。冻结副本只读，分析使用独享副本；原测试浏览器和任务数据库未操作。关闭时 engine 35,340,288 B、plugin 1,589,248 B，共享证据/日志占用另列在原始 summary。真实穷尽仍未完成，任务库与全量读取的正负性能结论继续沿用前述基准，不能由本次恢复修复推导新的速度或压缩率。
+
+`ba7f38e` 已重跑相同 80 次协议：16 个场景逐 trial 行为与 `70b8cb4` 差异为 0，348 项完整性检查通过，源码前后不变、脚本与 fixture 摘要及测量契约相同。正向到达 20/20、嵌套冷重启 5/5（必要重入 15，重复叶子及无理由重入 0）、unknown 跨重启 5/5（之后 session/action/recovery/JEV/LLM 均 0）、A/B 对应 40/40、100 tick 计划与待测增长 0。原协议使用具体目标到达 API；新增来源位置接口的收益由前述新专项验证，不能用旧协议无回归冒充新 API 的真实成功率。见 [完整汇总](evidence/source-return-protocols/summary.json)及[逐场景对照](evidence/source-return-protocols/comparison.json)。
