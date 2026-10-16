@@ -1,0 +1,38 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ❯ tests/explorer-runtime-delta.test.ts (2 tests | 1 failed) 732ms
+   × uses delta persistence in the public runtime and commits every active in-memory change together 29ms
+     → expected [] to deeply equal [ 'Alpha', 'Beta' ]
+   ✓ retains a delta-written unknown dispatch across cold restart before any new browser or model work  703ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/explorer-runtime-delta.test.ts > uses delta persistence in the public runtime and commits every active in-memory change together
+AssertionError: expected [] to deeply equal [ 'Alpha', 'Beta' ]
+
+- Expected
++ Received
+
+- [
+-   "Alpha",
+-   "Beta",
+- ]
++ []
+
+ ❯ tests/explorer-runtime-delta.test.ts:55:22
+     53|     f.plugin.start(task.id);await f.plugin.waitForIdle(task.id);
+     54|     const result=read(task.id);
+     55|     expect(f.events).toEqual(['Alpha','Beta']);expect(result.status).t…
+       |                      ^
+     56|     expect(deltas.mock.calls.length).toBeGreaterThan(5);
+     57|     expect(deltas.mock.calls.some(([, ,delta])=>!!delta.plan?.update?.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  01:57:55
+   Duration  1.83s (transform 533ms, setup 0ms, collect 940ms, tests 732ms, environment 0ms, prepare 37ms)
+

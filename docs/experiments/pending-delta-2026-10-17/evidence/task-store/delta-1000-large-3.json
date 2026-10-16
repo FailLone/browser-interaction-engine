@@ -1,0 +1,89 @@
+{
+  "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "sourceHash": "7fbc85607f66a1799b201697062cf36838fb855e44ce7273027bc1e0bcec5481",
+  "benchmarkHash": "29cd1ed93f29a686147d25a70ca7bf0ccd7381ea1619abc5e8e70a4a64d6a95a",
+  "mode": "delta",
+  "count": 1000,
+  "iterations": 80,
+  "reads": 100,
+  "header": "large",
+  "headerBytes": 235214,
+  "fixtureHash": "9318dbd8d4899bfbb4a0604b7dfec73c83432e4ebef6ec6703969c8ab8023047",
+  "finalHash": "41ab1682d22502287a03c9a417e3eb7ae75d5f88567d7719c1887a965d0b759c",
+  "node": "v24.22.0",
+  "saves": {
+    "count": 80,
+    "totalMs": 46.064833999999976,
+    "medianMs": 0.5164169999999899,
+    "p95Ms": 1.04795900000002,
+    "maxMs": 1.4201669999999922,
+    "cpuMs": 47.744
+  },
+  "activeReads": {
+    "count": 100,
+    "totalMs": 15.038540999999924,
+    "medianMs": 0.13620900000000802,
+    "p95Ms": 0.20662499999997408,
+    "maxMs": 0.7576250000000186,
+    "cpuMs": 15.89
+  },
+  "headerReads": {
+    "count": 100,
+    "totalMs": 60.17483599999986,
+    "medianMs": 0.5780419999999822,
+    "p95Ms": 0.717250000000007,
+    "maxMs": 1.2432500000000175,
+    "cpuMs": 60.517
+  },
+  "ownerReads": {
+    "count": 100,
+    "totalMs": 2.0345829999998557,
+    "medianMs": 0.017042000000003554,
+    "p95Ms": 0.030875000000008868,
+    "maxMs": 0.22791699999999082,
+    "cpuMs": 2.149
+  },
+  "fullReads": {
+    "count": 20,
+    "totalMs": 77.54504200000005,
+    "medianMs": 3.926667000000009,
+    "p95Ms": 4.634166999999991,
+    "maxMs": 4.634166999999991,
+    "cpuMs": 88.811
+  },
+  "activeQueryPlan": {
+    "sql": "SELECT kind,position,json,content_hash,occurrence_id FROM task_items INDEXED BY task_active_items WHERE task_id=? AND kind=? AND position>? AND json_extract(json,'$.status') IN (?,?,?) AND kind='plan' AND json_extract(json,'$.status') IN ('pending','unresolved','blocked') AND json_extract(json,'$.required')=? ORDER BY position LIMIT ?",
+    "plan": [
+      {
+        "id": 10,
+        "parent": 0,
+        "notused": 50,
+        "detail": "SEARCH task_items USING INDEX task_active_items (task_id=? AND position>?)"
+      }
+    ]
+  },
+  "initialBytes": {
+    "database": 1179648,
+    "wal": 0,
+    "sharedMemory": 32768,
+    "total": 1212416
+  },
+  "afterWrites": {
+    "database": 1179648,
+    "wal": 2117712,
+    "sharedMemory": 32768,
+    "total": 3330128
+  },
+  "closedBytes": {
+    "database": 1413120,
+    "wal": 0,
+    "sharedMemory": 0,
+    "total": 1413120
+  },
+  "walPolicy": {
+    "autocheckpointPages": 1000,
+    "initialCheckpoint": true,
+    "finalCloseCheckpointsWal": true
+  },
+  "scope": "persistence microbenchmark, not end-to-end exploration; header still serialized in full; active query is not a full-history integrity audit; no VACUUM"
+}

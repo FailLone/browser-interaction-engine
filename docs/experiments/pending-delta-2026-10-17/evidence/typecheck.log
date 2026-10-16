@@ -1,0 +1,6 @@
+
+> browser-interaction-engine@0.1.0 typecheck /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+> tsc --noEmit && tsc -p packages/core/tsconfig.json
+
+tests/explorer-task-writer.test.ts(12,9): error TS2741: Property 'goal' is missing in type '{ id: string; url: string; createdAt: string; updatedAt: string; revision: number; status: "paused"; budget: { rounds: number; actions: number; durationMs: number; modelRequests: number; }; usage: { rounds: number; actions: number; durationMs: number; modelRequests: number; }; ... 4 more ...; exhaustive: false; }' but required in type 'Task'.
+ ELIFECYCLE  Command failed with exit code 2.

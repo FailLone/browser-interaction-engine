@@ -1,0 +1,397 @@
+{
+  "revision": "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+  "sourceUnchanged": true,
+  "totalTrials": 80,
+  "sameRecoveryApi": "reachExplorationTarget (--variant refactor on both sources)",
+  "conditions": {
+    "public-form-cycle": {
+      "trials": 5,
+      "allDeclaredBranchesExecuted": 5,
+      "missingBranches": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "errors": 0,
+      "falseCoverageClaims": 0,
+      "observedStateCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "metricsSum": {
+        "actualActions": 10,
+        "successfulActions": 10,
+        "recoveryActions": 0,
+        "oracleClicks": 10,
+        "newDistinctBranches": 10,
+        "duplicateOracleClicks": 0,
+        "jevCalls": 0,
+        "llmCalls": 0
+      },
+      "medianMs": 801,
+      "maxMs": 1144
+    },
+    "shared-id-rebuild": {
+      "trials": 5,
+      "allDeclaredBranchesExecuted": 5,
+      "missingBranches": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "errors": 0,
+      "falseCoverageClaims": 0,
+      "observedStateCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "metricsSum": {
+        "actualActions": 10,
+        "successfulActions": 10,
+        "recoveryActions": 0,
+        "oracleClicks": 10,
+        "newDistinctBranches": 10,
+        "duplicateOracleClicks": 0,
+        "jevCalls": 0,
+        "llmCalls": 0
+      },
+      "medianMs": 652,
+      "maxMs": 719
+    },
+    "price-known": {
+      "trials": 5,
+      "allDeclaredBranchesExecuted": 5,
+      "missingBranches": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "errors": 0,
+      "falseCoverageClaims": 0,
+      "observedStateCounts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "metricsSum": {
+        "actualActions": 5,
+        "successfulActions": 5,
+        "recoveryActions": 0,
+        "oracleClicks": 5,
+        "newDistinctBranches": 5,
+        "duplicateOracleClicks": 0,
+        "jevCalls": 0,
+        "llmCalls": 0
+      },
+      "medianMs": 8321,
+      "maxMs": 8849,
+      "tickPlanGrowth": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "tickPendingGrowth": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "tickRetryKeyCounts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "price-unknown": {
+      "trials": 5,
+      "allDeclaredBranchesExecuted": 5,
+      "missingBranches": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "errors": 0,
+      "falseCoverageClaims": 0,
+      "observedStateCounts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "metricsSum": {
+        "actualActions": 5,
+        "successfulActions": 5,
+        "recoveryActions": 0,
+        "oracleClicks": 5,
+        "newDistinctBranches": 5,
+        "duplicateOracleClicks": 0,
+        "jevCalls": 0,
+        "llmCalls": 0
+      },
+      "medianMs": 9362,
+      "maxMs": 9592,
+      "tickPlanGrowth": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "tickPendingGrowth": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "tickRetryKeyCounts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "nonlocal-dependency": {
+      "trials": 5,
+      "allDeclaredBranchesExecuted": 5,
+      "missingBranches": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "errors": 0,
+      "falseCoverageClaims": 0,
+      "observedStateCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "metricsSum": {
+        "actualActions": 10,
+        "successfulActions": 10,
+        "recoveryActions": 0,
+        "oracleClicks": 10,
+        "newDistinctBranches": 10,
+        "duplicateOracleClicks": 0,
+        "jevCalls": 0,
+        "llmCalls": 0
+      },
+      "medianMs": 602,
+      "maxMs": 617
+    }
+  },
+  "continuation": {
+    "cold_nested_restart": {
+      "trials": 5,
+      "valid": 5,
+      "errors": 0,
+      "missingBranches": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "lostPending": 0,
+      "incorrectlySettled": 0,
+      "metricsSum": {
+        "incorrectCompletion": 0,
+        "successfulExplorationAfterInjectedUnknown": 0,
+        "duplicateLeafExecutions": 0,
+        "necessaryReentries": 15,
+        "unnecessaryReentries": 0,
+        "repeatedNoProgressRecoveries": 0,
+        "jev": 30,
+        "llm": 0
+      },
+      "medianMs": 3299,
+      "maxMs": 3495
+    },
+    "failed_recovery_restart": {
+      "trials": 5,
+      "valid": 5,
+      "errors": 0,
+      "missingBranches": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "lostPending": 0,
+      "incorrectlySettled": 0,
+      "metricsSum": {
+        "incorrectCompletion": 0,
+        "successfulExplorationAfterInjectedUnknown": 0,
+        "duplicateLeafExecutions": 0,
+        "necessaryReentries": 0,
+        "unnecessaryReentries": 0,
+        "repeatedNoProgressRecoveries": 0,
+        "jev": 10,
+        "llm": 0
+      },
+      "medianMs": 1207,
+      "maxMs": 1225
+    },
+    "unknown_recovery_restart": {
+      "trials": 5,
+      "valid": 5,
+      "errors": 0,
+      "missingBranches": [
+        [
+          "Branch B"
+        ],
+        [
+          "Branch B"
+        ],
+        [
+          "Branch B"
+        ],
+        [
+          "Branch B"
+        ],
+        [
+          "Branch B"
+        ]
+      ],
+      "lostPending": 0,
+      "incorrectlySettled": 0,
+      "metricsSum": {
+        "incorrectCompletion": 0,
+        "successfulExplorationAfterInjectedUnknown": 0,
+        "duplicateLeafExecutions": 0,
+        "necessaryReentries": 0,
+        "unnecessaryReentries": 0,
+        "repeatedNoProgressRecoveries": 0,
+        "jev": 5,
+        "llm": 0
+      },
+      "medianMs": 804,
+      "maxMs": 842,
+      "unknownRetained": 5,
+      "afterRestart": {
+        "newSessions": 0,
+        "attempts": 0,
+        "recoveries": 0,
+        "jev": 0,
+        "llm": 0,
+        "observeCalls": "not measured by this protocol"
+      }
+    }
+  },
+  "inputIdentity": {
+    "trials": 10,
+    "errors": 0,
+    "checks": 40,
+    "correctCorrespondences": 40,
+    "successfulActualInputs": 30
+  },
+  "recovery": {
+    "nested_static": {
+      "trials": 5,
+      "setupErrors": [],
+      "positiveStatus": 5,
+      "physicalArrival": 5,
+      "guardedBranchYield": 5,
+      "falseArrivalClaims": 0,
+      "recoveryAttempts": 10,
+      "unknownBlocked": 0,
+      "medianMs": 560.4784590000002,
+      "maxMs": 606.7987499999997
+    },
+    "modal_reentry_changed_quote": {
+      "trials": 5,
+      "setupErrors": [],
+      "positiveStatus": 5,
+      "physicalArrival": 5,
+      "guardedBranchYield": 5,
+      "falseArrivalClaims": 0,
+      "recoveryAttempts": 10,
+      "unknownBlocked": 0,
+      "medianMs": 704.9687079999999,
+      "maxMs": 734.6514999999999
+    },
+    "ready_target_ticking_quote": {
+      "trials": 5,
+      "setupErrors": [],
+      "positiveStatus": 5,
+      "physicalArrival": 5,
+      "guardedBranchYield": 5,
+      "falseArrivalClaims": 0,
+      "recoveryAttempts": 0,
+      "unknownBlocked": 0,
+      "medianMs": 188.61754200000087,
+      "maxMs": 190.50175000000036
+    },
+    "nested_changed_quote": {
+      "trials": 5,
+      "setupErrors": [],
+      "positiveStatus": 5,
+      "physicalArrival": 5,
+      "guardedBranchYield": 5,
+      "falseArrivalClaims": 0,
+      "recoveryAttempts": 15,
+      "unknownBlocked": 0,
+      "medianMs": 923.0469170000006,
+      "maxMs": 958.909584
+    },
+    "local_inverse_diverges": {
+      "trials": 5,
+      "setupErrors": [],
+      "positiveStatus": 0,
+      "physicalArrival": 0,
+      "guardedBranchYield": 0,
+      "falseArrivalClaims": 0,
+      "recoveryAttempts": 5,
+      "unknownBlocked": 0,
+      "medianMs": 370.15279100000043,
+      "maxMs": 388.7839160000003
+    },
+    "unknown_outcome_injected": {
+      "trials": 5,
+      "setupErrors": [],
+      "positiveStatus": 0,
+      "physicalArrival": 5,
+      "guardedBranchYield": 0,
+      "falseArrivalClaims": 0,
+      "recoveryAttempts": 0,
+      "unknownBlocked": 5,
+      "medianMs": 0.831000000000131,
+      "maxMs": 0.8542080000006536
+    }
+  },
+  "limits": [
+    "Independent local fixtures, no real-site exhaustiveness claim.",
+    "No storage byte/CPU measurements in these four protocols.",
+    "Small n=5 per scenario; concurrent engineering may affect timings.",
+    "Unknown observe-call counts are not measured in this protocol.",
+    "All reported coverage comes from explicit fixture event oracles and guarded SDK dispatch."
+  ]
+}

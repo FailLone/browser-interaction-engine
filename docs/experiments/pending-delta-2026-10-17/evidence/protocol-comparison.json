@@ -1,0 +1,90 @@
+{
+  "baseRevision": "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+  "afterRevisionMeaning": "Uncommitted frozen source relative to baseRevision; source-before.json and source-after.json identify every file. Final commit mapping is recorded by the parent report.",
+  "sameProtocolSha256": true,
+  "sameScenarioOrderAndFixtureSha256": {
+    "conditions.json": true,
+    "continuation.json": true,
+    "input-identity.json": true,
+    "recovery-refactor-r1.json": true,
+    "recovery-refactor-r2.json": true,
+    "recovery-refactor-r3.json": true,
+    "recovery-refactor-r4.json": true,
+    "recovery-refactor-r5.json": true
+  },
+  "sourceFileCounts": {
+    "baseline": 399,
+    "after": 405
+  },
+  "sourceUnchangedDuringBothRuns": true,
+  "baseline": {
+    "trials": 80,
+    "declaredBranchExecutions": 35,
+    "sharedABBothCoveredTrials": 0,
+    "nonlocalABBothCoveredTrials": 5,
+    "falseCoverageClaims": 0,
+    "duplicateConditionClicks": 0,
+    "dynamicTickPlanGrowth": 0,
+    "dynamicTickPendingGrowth": 0,
+    "inputCorrespondencesCorrect": 40,
+    "actualGuardedInputs": 30,
+    "recoveryPositiveGuardedYield": 20,
+    "recoveryFalseArrivalClaims": 0,
+    "unknownRecoveryGuardBlocked": 5,
+    "unknownColdRestartRetained": 5,
+    "unknownColdRestartAfter": {
+      "newSessions": 0,
+      "attempts": 0,
+      "recoveries": 0,
+      "jev": 0,
+      "llm": 0,
+      "observeCalls": "not measured by this protocol"
+    },
+    "necessaryReentries": 15,
+    "unnecessaryReentries": 0,
+    "duplicateLeafExecutions": 0,
+    "lostPending": 0,
+    "incorrectlySettled": 0,
+    "jev": 45,
+    "llm": 0
+  },
+  "after": {
+    "trials": 80,
+    "declaredBranchExecutions": 40,
+    "sharedABBothCoveredTrials": 5,
+    "nonlocalABBothCoveredTrials": 5,
+    "falseCoverageClaims": 0,
+    "duplicateConditionClicks": 0,
+    "dynamicTickPlanGrowth": 0,
+    "dynamicTickPendingGrowth": 0,
+    "inputCorrespondencesCorrect": 40,
+    "actualGuardedInputs": 30,
+    "recoveryPositiveGuardedYield": 20,
+    "recoveryFalseArrivalClaims": 0,
+    "unknownRecoveryGuardBlocked": 5,
+    "unknownColdRestartRetained": 5,
+    "unknownColdRestartAfter": {
+      "newSessions": 0,
+      "attempts": 0,
+      "recoveries": 0,
+      "jev": 0,
+      "llm": 0,
+      "observeCalls": "not measured by this protocol"
+    },
+    "necessaryReentries": 15,
+    "unnecessaryReentries": 0,
+    "duplicateLeafExecutions": 0,
+    "lostPending": 0,
+    "incorrectlySettled": 0,
+    "jev": 45,
+    "llm": 0
+  },
+  "conclusion": "shared:A omission is repaired in this declared fixture without regressions in the retained A/B, dynamic-price, restart, unknown, input-correspondence, and arrival cases.",
+  "limits": [
+    "Five repetitions per scenario. No real-site completeness claim.",
+    "After protocols ran concurrently with the full test suite; raw timings are retained but not used to claim improved speed.",
+    "Four protocols do not measure storage size, CPU, or JEV/LLM quality.",
+    "Several condition scenarios intentionally invoke step with a controlled task; the separate four runtime integration tests prove actual public lifecycle use of delta persistence.",
+    "Unknown recovery restart protocol does not count observe calls. The separate runtime action-unknown test counts zero observe calls, but that is a different fault path."
+  ]
+}

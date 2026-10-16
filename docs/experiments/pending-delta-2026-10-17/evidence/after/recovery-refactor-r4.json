@@ -1,0 +1,1888 @@
+{
+  "createdAt": "2026-10-16T18:04:51.772Z",
+  "variant": "refactor",
+  "declaredEngineRevision": "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+  "node": "v24.22.0",
+  "cwd": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "scriptSha256": "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f",
+  "engineSourceHashes": {
+    "packages/core/src/engine.ts": "bb0fc0a15adb38d907987822ebab4caec71b0cb39be647699fc6ce271b5cded9",
+    "packages/browser/src/index.ts": "24e04ea4fab20cb6c41a1575ee8a6c75b41fffe2c3ebfff6bae49de1059c193a",
+    "packages/adapter-playwright/src/index.ts": "d903c8353aed262249049c640201043c1fbf01ec70e3d4451b76d39c7abc07b4",
+    "packages/adapter-playwright/src/exploration.ts": "cb45a0b4aa1b8070f3e61070f48280f4f74d59d4282447b149fdaa35ce3856eb"
+  },
+  "runs": [
+    {
+      "variant": "refactor",
+      "scenario": "nested_static",
+      "replicate": 4,
+      "startedAt": "2026-10-16T18:04:42.194Z",
+      "sessionId": "24a49448-ed9e-4254-9a8f-8a7c6a1e0f67",
+      "url": "http://127.0.0.1:60204/",
+      "fixtureSha256": "81e6c2917dbd3a101d3b7cc9483b282254a0e99591c7c0b4ee85c22267983fe8",
+      "budget": {
+        "maxActions": 12,
+        "maxDurationMs": 60000,
+        "settleMs": 60,
+        "observeTimeoutMs": 1000,
+        "actionTimeoutMs": 1500
+      },
+      "source": {
+        "id": "20909f7e-05ec-419c-beb1-d4858a5a2208",
+        "instanceScope": "6fda2c45-2f28-4428-aadd-2f9f0da09c8b",
+        "url": "http://127.0.0.1:60204/",
+        "stable": true,
+        "canonicalHash": "010c15329b9b045e17fb0f6d8982e9ebf71f63021c7235b94795a4a47f213a35",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Outer menu",
+            "localId": "6fda2c45-2f28-4428-aadd-2f9f0da09c8b:5",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Inner menu",
+            "localId": "6fda2c45-2f28-4428-aadd-2f9f0da09c8b:7",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Target",
+            "localId": "6fda2c45-2f28-4428-aadd-2f9f0da09c8b:9",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "before": {
+        "id": "d968a150-9438-4863-a867-5ae9e7e25c74",
+        "instanceScope": "6fda2c45-2f28-4428-aadd-2f9f0da09c8b",
+        "url": "http://127.0.0.1:60204/",
+        "stable": true,
+        "canonicalHash": "5ff3784eaa571dbf18b83b97ace3ddb69a4b5a6f4164c186ffe459ce9af22860",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Outer menu",
+            "localId": "6fda2c45-2f28-4428-aadd-2f9f0da09c8b:5",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Inner menu",
+            "localId": "6fda2c45-2f28-4428-aadd-2f9f0da09c8b:7",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "name": "Target",
+            "localId": "6fda2c45-2f28-4428-aadd-2f9f0da09c8b:9",
+            "visible": false,
+            "enabled": true
+          }
+        ]
+      },
+      "beforePage": {
+        "url": "http://127.0.0.1:60204/",
+        "targetPresent": true,
+        "targetVisible": true,
+        "targetEnabled": true,
+        "targetEditable": true,
+        "hitTarget": false,
+        "mode": null,
+        "outerOpen": false,
+        "innerOpen": false,
+        "dialogOpen": null,
+        "quote": null,
+        "documentLoads": 1,
+        "branchHits": 0,
+        "branchText": "not triggered",
+        "trialReady": false,
+        "trialError": "TimeoutError: locator.click: Timeout 400ms exceeded.",
+        "sourceConditionMatches": false,
+        "physicalArrival": false
+      },
+      "after": {
+        "id": "fa18a63e-e863-4326-9d4a-71e36d737b67",
+        "instanceScope": "6fda2c45-2f28-4428-aadd-2f9f0da09c8b",
+        "url": "http://127.0.0.1:60204/",
+        "stable": true,
+        "canonicalHash": "010c15329b9b045e17fb0f6d8982e9ebf71f63021c7235b94795a4a47f213a35",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Outer menu",
+            "localId": "6fda2c45-2f28-4428-aadd-2f9f0da09c8b:5",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Inner menu",
+            "localId": "6fda2c45-2f28-4428-aadd-2f9f0da09c8b:7",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Target",
+            "localId": "6fda2c45-2f28-4428-aadd-2f9f0da09c8b:9",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "result": {
+        "id": "985e112a-574a-4026-a255-3ae56c930865",
+        "sessionId": "24a49448-ed9e-4254-9a8f-8a7c6a1e0f67",
+        "checkpointId": "b8b1f5c1-800b-472a-ac27-49c3d1c16f0b",
+        "reason": "Recorded path verification: TARGET_REACHED",
+        "checks": [
+          {
+            "name": "unresolved-execution-outcomes",
+            "result": "pass"
+          },
+          {
+            "name": "known-declared-context",
+            "result": "pass"
+          },
+          {
+            "name": "target-ready:867f37a8-1662-479a-9cb6-bad9c271620b",
+            "result": "pass"
+          }
+        ],
+        "attemptIds": [
+          "685e627f-b055-4568-a43c-d8c58e23272c",
+          "241b88bb-eb24-4c75-8316-d34f894473cd"
+        ],
+        "observationId": "fa18a63e-e863-4326-9d4a-71e36d737b67",
+        "remainingFrontier": 1,
+        "diagnostics": {
+          "unassessedEffectAttemptIds": [],
+          "strategies": [
+            "verify_current",
+            "boundary_exit",
+            "recorded_path"
+          ],
+          "dirtyActions": [],
+          "resetAvailable": false
+        },
+        "status": "TARGET_REACHED",
+        "targetObservationId": "20909f7e-05ec-419c-beb1-d4858a5a2208",
+        "targetActionIds": [
+          "867f37a8-1662-479a-9cb6-bad9c271620b"
+        ],
+        "matchedActionIds": [
+          "35393160-4b39-4fe4-9bff-af8cb8163da5"
+        ],
+        "matches": [
+          {
+            "equivalent": true,
+            "reason": "equivalent_observed_target",
+            "source": {
+              "sessionId": "24a49448-ed9e-4254-9a8f-8a7c6a1e0f67",
+              "observationId": "20909f7e-05ec-419c-beb1-d4858a5a2208",
+              "actionId": "867f37a8-1662-479a-9cb6-bad9c271620b"
+            },
+            "target": {
+              "sessionId": "24a49448-ed9e-4254-9a8f-8a7c6a1e0f67",
+              "observationId": "fa18a63e-e863-4326-9d4a-71e36d737b67",
+              "actionId": "35393160-4b39-4fe4-9bff-af8cb8163da5"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "local-field-description/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+              "observation:20909f7e-05ec-419c-beb1-d4858a5a2208",
+              "observation:fa18a63e-e863-4326-9d4a-71e36d737b67"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "conditionKey": "6240e472764d79cd4af1900b17829e49433adfebe1480a288c4c575da2794f42",
+            "policy": "browser-controls-correspondence-v2"
+          }
+        ],
+        "checkpointVerified": false,
+        "currentExecution": false,
+        "executionAuthorized": false,
+        "dispatchAvailability": {
+          "sessionId": "24a49448-ed9e-4254-9a8f-8a7c6a1e0f67",
+          "observationId": "fa18a63e-e863-4326-9d4a-71e36d737b67",
+          "revision": "2e57f573b14a4f81d99291a53a9a1b4865cb0bb09e4b08325ca0274dcb139b40",
+          "profile": "interface-exploration",
+          "actions": [
+            {
+              "actionId": "054a5456-edba-422c-80e7-cf021b5dc853",
+              "executable": true,
+              "blockers": []
+            },
+            {
+              "actionId": "563ed3b7-d0ad-4902-9033-43a124c842bc",
+              "executable": true,
+              "blockers": []
+            },
+            {
+              "actionId": "35393160-4b39-4fe4-9bff-af8cb8163da5",
+              "executable": true,
+              "blockers": []
+            }
+          ],
+          "dispatchRevalidationRequired": true
+        }
+      },
+      "durationMs": 560.4784590000002,
+      "recoveryAttempts": [
+        {
+          "id": "685e627f-b055-4568-a43c-d8c58e23272c",
+          "label": "Outer menu",
+          "kind": "click",
+          "source": "dom-actions-v2",
+          "status": "succeeded",
+          "purpose": "recovery",
+          "beforeId": "de74821a-a180-43fa-8f5c-65162a6f99be",
+          "afterId": "04b4bcb6-3d81-475c-bc24-16c90858d087",
+          "replayable": true
+        },
+        {
+          "id": "241b88bb-eb24-4c75-8316-d34f894473cd",
+          "label": "Inner menu",
+          "kind": "click",
+          "source": "dom-actions-v2",
+          "status": "succeeded",
+          "purpose": "recovery",
+          "beforeId": "04b4bcb6-3d81-475c-bc24-16c90858d087",
+          "afterId": "fa18a63e-e863-4326-9d4a-71e36d737b67",
+          "replayable": true
+        }
+      ],
+      "entryReopenAttempts": 0,
+      "environmentResetAttempts": 0,
+      "documentRequestsDuringRecovery": 0,
+      "documentChanged": false,
+      "oracle": {
+        "url": "http://127.0.0.1:60204/",
+        "targetPresent": true,
+        "targetVisible": true,
+        "targetEnabled": true,
+        "targetEditable": true,
+        "hitTarget": true,
+        "mode": null,
+        "outerOpen": true,
+        "innerOpen": true,
+        "dialogOpen": null,
+        "quote": null,
+        "documentLoads": 1,
+        "branchHits": 0,
+        "branchText": "not triggered",
+        "trialReady": true,
+        "sourceConditionMatches": true,
+        "physicalArrival": true
+      },
+      "reportedArrival": true,
+      "falseArrivalClaim": false,
+      "physicalArrivalWithoutPositiveStatus": false,
+      "hostAvailability": {
+        "actionId": "35393160-4b39-4fe4-9bff-af8cb8163da5",
+        "executable": true,
+        "blockers": []
+      },
+      "targetExecution": {
+        "id": "84eef106-f9fb-4e47-9bfa-12d866488e39",
+        "status": "succeeded",
+        "afterId": "40fb193d-70f4-4abb-b3f0-f94fd3f15d8c"
+      },
+      "guardedBranchYield": true,
+      "oracleBranchYield": true,
+      "unknown": {
+        "injected": false,
+        "unresolvedAfterRecovery": [],
+        "positiveStateClaimWithUnresolvedOutcome": false,
+        "guardedDispatchBlocked": false,
+        "measurementProbeSkipped": false
+      },
+      "setupAttempts": [
+        {
+          "id": "65b40502-11de-4ce2-9ebe-33a07a677b51",
+          "label": "Outer menu",
+          "status": "succeeded"
+        },
+        {
+          "id": "34c84b2d-4e65-4846-92d5-84a1553e4b37",
+          "label": "Inner menu",
+          "status": "succeeded"
+        }
+      ],
+      "measurementOnlyBrowserActions": 1
+    },
+    {
+      "variant": "refactor",
+      "scenario": "modal_reentry_changed_quote",
+      "replicate": 4,
+      "startedAt": "2026-10-16T18:04:44.404Z",
+      "sessionId": "e86c1d74-0bba-4178-9c58-f0ef7ed0d359",
+      "url": "http://127.0.0.1:60210/",
+      "fixtureSha256": "d9a425fdb9c72a6f74b28462fd3a4e8fa72505ad419fb0be911f14ad3055d583",
+      "budget": {
+        "maxActions": 12,
+        "maxDurationMs": 60000,
+        "settleMs": 60,
+        "observeTimeoutMs": 1000,
+        "actionTimeoutMs": 1500
+      },
+      "source": {
+        "id": "2218a70b-4070-478b-aca1-db1b1f002bdd",
+        "instanceScope": "b25a086c-70c2-45c0-92ec-b9244c19e81c",
+        "url": "http://127.0.0.1:60210/",
+        "stable": true,
+        "canonicalHash": "7548d2ba92ff0916e77afbea356dde12dce4359cb54007b0f8db0c4db922c25a",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [
+          {
+            "name": "Trade panel",
+            "key": "dialog:dialog"
+          }
+        ],
+        "controls": [
+          {
+            "name": "Open panel",
+            "localId": "b25a086c-70c2-45c0-92ec-b9244c19e81c:7",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Trade panel",
+            "localId": "b25a086c-70c2-45c0-92ec-b9244c19e81c:2",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Target",
+            "localId": "b25a086c-70c2-45c0-92ec-b9244c19e81c:9",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Close panel",
+            "localId": "b25a086c-70c2-45c0-92ec-b9244c19e81c:10",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Quote",
+            "localId": "b25a086c-70c2-45c0-92ec-b9244c19e81c:12",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "before": {
+        "id": "3c477bfe-023e-4418-9b86-6fc171d895a4",
+        "instanceScope": "b25a086c-70c2-45c0-92ec-b9244c19e81c",
+        "url": "http://127.0.0.1:60210/",
+        "stable": true,
+        "canonicalHash": "557d1fa56d9f88aa271788c530f4e65a367d00b2dfd12f014c2705be73e53cdc",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Open panel",
+            "localId": "b25a086c-70c2-45c0-92ec-b9244c19e81c:7",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Trade panel",
+            "localId": "b25a086c-70c2-45c0-92ec-b9244c19e81c:2",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "name": "Target",
+            "localId": "b25a086c-70c2-45c0-92ec-b9244c19e81c:9",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "name": "Close panel",
+            "localId": "b25a086c-70c2-45c0-92ec-b9244c19e81c:10",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "name": "Quote",
+            "localId": "b25a086c-70c2-45c0-92ec-b9244c19e81c:12",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "beforePage": {
+        "url": "http://127.0.0.1:60210/",
+        "targetPresent": true,
+        "targetVisible": false,
+        "targetEnabled": true,
+        "targetEditable": true,
+        "hitTarget": false,
+        "mode": null,
+        "outerOpen": null,
+        "innerOpen": null,
+        "dialogOpen": false,
+        "quote": "999",
+        "documentLoads": 1,
+        "branchHits": 0,
+        "branchText": "not triggered",
+        "trialReady": false,
+        "trialError": "TimeoutError: locator.click: Timeout 400ms exceeded.",
+        "sourceConditionMatches": false,
+        "physicalArrival": false
+      },
+      "after": {
+        "id": "7f756ff9-1571-4710-8c12-590c7da2e5a2",
+        "instanceScope": "2f1f37c0-1ca5-411a-acb6-5a1f54403703",
+        "url": "http://127.0.0.1:60210/",
+        "stable": true,
+        "canonicalHash": "f56465d9442a78ba1f69e5b2256a8f67bf62f814a158167af8f736505803423d",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [
+          {
+            "name": "Trade panel",
+            "key": "dialog:dialog"
+          }
+        ],
+        "controls": [
+          {
+            "name": "Open panel",
+            "localId": "2f1f37c0-1ca5-411a-acb6-5a1f54403703:7",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Trade panel",
+            "localId": "2f1f37c0-1ca5-411a-acb6-5a1f54403703:2",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Target",
+            "localId": "2f1f37c0-1ca5-411a-acb6-5a1f54403703:9",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Close panel",
+            "localId": "2f1f37c0-1ca5-411a-acb6-5a1f54403703:10",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Quote",
+            "localId": "2f1f37c0-1ca5-411a-acb6-5a1f54403703:12",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "result": {
+        "id": "317b446c-f84a-40f0-b6b2-29e5f69b7faf",
+        "sessionId": "e86c1d74-0bba-4178-9c58-f0ef7ed0d359",
+        "checkpointId": "28657df5-efa6-4116-8e0e-11c8d9107f82",
+        "reason": "Entry replay verification: TARGET_REACHED",
+        "checks": [
+          {
+            "name": "unresolved-execution-outcomes",
+            "result": "pass"
+          },
+          {
+            "name": "known-declared-context",
+            "result": "pass"
+          },
+          {
+            "name": "target-ready:af4201f3-e184-48b0-ac72-db4c0f3a8186",
+            "result": "pass"
+          }
+        ],
+        "attemptIds": [
+          "5650188b-79ff-4f07-b1b3-24a7bb8a621f",
+          "f29d21c1-a129-47c9-b5c8-f6b9cc14b062"
+        ],
+        "observationId": "7f756ff9-1571-4710-8c12-590c7da2e5a2",
+        "remainingFrontier": 3,
+        "diagnostics": {
+          "unassessedEffectAttemptIds": [],
+          "strategies": [
+            "verify_current",
+            "boundary_exit",
+            "recorded_path",
+            "declared_local_restore",
+            "entry_replay"
+          ],
+          "dirtyActions": [],
+          "resetAvailable": false
+        },
+        "status": "TARGET_REACHED",
+        "targetObservationId": "2218a70b-4070-478b-aca1-db1b1f002bdd",
+        "targetActionIds": [
+          "af4201f3-e184-48b0-ac72-db4c0f3a8186"
+        ],
+        "matchedActionIds": [
+          "41b5a4d6-960c-4c2c-87ea-271a54abcdec"
+        ],
+        "matches": [
+          {
+            "equivalent": true,
+            "reason": "equivalent_observed_target",
+            "source": {
+              "sessionId": "e86c1d74-0bba-4178-9c58-f0ef7ed0d359",
+              "observationId": "2218a70b-4070-478b-aca1-db1b1f002bdd",
+              "actionId": "af4201f3-e184-48b0-ac72-db4c0f3a8186"
+            },
+            "target": {
+              "sessionId": "e86c1d74-0bba-4178-9c58-f0ef7ed0d359",
+              "observationId": "7f756ff9-1571-4710-8c12-590c7da2e5a2",
+              "actionId": "41b5a4d6-960c-4c2c-87ea-271a54abcdec"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+              "observation:2218a70b-4070-478b-aca1-db1b1f002bdd",
+              "observation:7f756ff9-1571-4710-8c12-590c7da2e5a2"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "conditionKey": "b353f5f22d76df2c876b958b361950d9bc567f922ecd0d16f3cf351fc0f705bd",
+            "policy": "browser-controls-correspondence-v2"
+          }
+        ],
+        "checkpointVerified": false,
+        "currentExecution": false,
+        "executionAuthorized": false,
+        "dispatchAvailability": {
+          "sessionId": "e86c1d74-0bba-4178-9c58-f0ef7ed0d359",
+          "observationId": "7f756ff9-1571-4710-8c12-590c7da2e5a2",
+          "revision": "fdf891c6c9a4d5dcec52f77e522f795c364cc14e4f4db77e7dc8685995d11bfb",
+          "profile": "interface-exploration",
+          "actions": [
+            {
+              "actionId": "867aecc4-9808-4fe2-9d5d-55aa44f43de0",
+              "executable": false,
+              "blockers": [
+                {
+                  "code": "ACTION_BLOCKED",
+                  "reason": "outside_active_boundary",
+                  "evidence": [
+                    "native-modal"
+                  ]
+                },
+                {
+                  "code": "ACTION_BLOCKED",
+                  "reason": "pointer_intercepted",
+                  "evidence": [
+                    "#dialog"
+                  ]
+                }
+              ]
+            },
+            {
+              "actionId": "41b5a4d6-960c-4c2c-87ea-271a54abcdec",
+              "executable": true,
+              "blockers": []
+            },
+            {
+              "actionId": "1ec49920-a7dc-4184-9251-f3580b0b1feb",
+              "executable": true,
+              "blockers": []
+            },
+            {
+              "actionId": "0f046fb9-6265-49f4-b637-5184bc311f2d",
+              "executable": true,
+              "blockers": []
+            }
+          ],
+          "dispatchRevalidationRequired": true
+        }
+      },
+      "durationMs": 694.5945419999998,
+      "recoveryAttempts": [
+        {
+          "id": "5650188b-79ff-4f07-b1b3-24a7bb8a621f",
+          "label": "Reopen session entry",
+          "kind": "navigate",
+          "source": "recovery-entry",
+          "status": "succeeded",
+          "purpose": "recovery",
+          "beforeId": "d0216538-3c7f-423d-b40b-14ccdff340d4",
+          "afterId": "7a5441a8-6ec9-47c6-8349-6b76dc46067b",
+          "replayable": false
+        },
+        {
+          "id": "f29d21c1-a129-47c9-b5c8-f6b9cc14b062",
+          "label": "Open panel",
+          "kind": "click",
+          "source": "dom-actions-v2",
+          "status": "succeeded",
+          "purpose": "recovery",
+          "beforeId": "7a5441a8-6ec9-47c6-8349-6b76dc46067b",
+          "afterId": "7f756ff9-1571-4710-8c12-590c7da2e5a2",
+          "replayable": true
+        }
+      ],
+      "entryReopenAttempts": 1,
+      "environmentResetAttempts": 0,
+      "documentRequestsDuringRecovery": 1,
+      "documentChanged": true,
+      "oracle": {
+        "url": "http://127.0.0.1:60210/",
+        "targetPresent": true,
+        "targetVisible": true,
+        "targetEnabled": true,
+        "targetEditable": true,
+        "hitTarget": true,
+        "mode": null,
+        "outerOpen": null,
+        "innerOpen": null,
+        "dialogOpen": true,
+        "quote": "102",
+        "documentLoads": 2,
+        "branchHits": 0,
+        "branchText": "not triggered",
+        "trialReady": true,
+        "sourceConditionMatches": true,
+        "physicalArrival": true
+      },
+      "reportedArrival": true,
+      "falseArrivalClaim": false,
+      "physicalArrivalWithoutPositiveStatus": false,
+      "hostAvailability": {
+        "actionId": "41b5a4d6-960c-4c2c-87ea-271a54abcdec",
+        "executable": true,
+        "blockers": []
+      },
+      "targetExecution": {
+        "id": "5ae4d7bc-b0f4-42d4-8c9d-a0eaa6096bf2",
+        "status": "succeeded",
+        "afterId": "9d4134e1-55c6-4a2a-8cbc-d35a2d2444f8"
+      },
+      "guardedBranchYield": true,
+      "oracleBranchYield": true,
+      "unknown": {
+        "injected": false,
+        "unresolvedAfterRecovery": [],
+        "positiveStateClaimWithUnresolvedOutcome": false,
+        "guardedDispatchBlocked": false,
+        "measurementProbeSkipped": false
+      },
+      "setupAttempts": [
+        {
+          "id": "1b8ad55d-700a-422f-a623-38e3813040e4",
+          "label": "Open panel",
+          "status": "succeeded"
+        }
+      ],
+      "measurementOnlyBrowserActions": 1
+    },
+    {
+      "variant": "refactor",
+      "scenario": "ready_target_ticking_quote",
+      "replicate": 4,
+      "startedAt": "2026-10-16T18:04:46.392Z",
+      "sessionId": "901b4f8e-3e2d-4955-b983-ce40921d4615",
+      "url": "http://127.0.0.1:60217/",
+      "fixtureSha256": "ad4971ecba1cffe2638f81d4a2fbea79613492aeeec1cfd063502e0074e3a251",
+      "budget": {
+        "maxActions": 12,
+        "maxDurationMs": 60000,
+        "settleMs": 60,
+        "observeTimeoutMs": 1000,
+        "actionTimeoutMs": 1500
+      },
+      "source": {
+        "id": "50877ed7-5dd1-4f3e-9717-1342fc780a7a",
+        "instanceScope": "58730825-2ef2-43d3-a429-a5de6791cf95",
+        "url": "http://127.0.0.1:60217/",
+        "stable": false,
+        "canonicalHash": "3ef5a168075460e64f0fbfe2f78c858c40ff8d1a467e75d93e3675004b85f261",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          },
+          {
+            "code": "EVIDENCE_CAPTURE_CHANGED",
+            "critical": false
+          },
+          {
+            "code": "UNSTABLE",
+            "critical": false
+          },
+          {
+            "code": "INTERACTION_STABLE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Target",
+            "localId": "58730825-2ef2-43d3-a429-a5de6791cf95:6",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "No effect",
+            "localId": "58730825-2ef2-43d3-a429-a5de6791cf95:7",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Quote",
+            "localId": "58730825-2ef2-43d3-a429-a5de6791cf95:9",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "before": {
+        "id": "d1a498ae-3ead-4dc1-a63b-3bd9db799434",
+        "instanceScope": "58730825-2ef2-43d3-a429-a5de6791cf95",
+        "url": "http://127.0.0.1:60217/",
+        "stable": false,
+        "canonicalHash": "172bc1dc217d8e618aec88621703c388f02731988940382d80e2eff12cc47620",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          },
+          {
+            "code": "UNSTABLE",
+            "critical": false
+          },
+          {
+            "code": "INTERACTION_STABLE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Target",
+            "localId": "58730825-2ef2-43d3-a429-a5de6791cf95:6",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "No effect",
+            "localId": "58730825-2ef2-43d3-a429-a5de6791cf95:7",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Quote",
+            "localId": "58730825-2ef2-43d3-a429-a5de6791cf95:9",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "beforePage": {
+        "url": "http://127.0.0.1:60217/",
+        "targetPresent": true,
+        "targetVisible": true,
+        "targetEnabled": true,
+        "targetEditable": true,
+        "hitTarget": true,
+        "mode": null,
+        "outerOpen": null,
+        "innerOpen": null,
+        "dialogOpen": null,
+        "quote": "122",
+        "documentLoads": 1,
+        "branchHits": 0,
+        "branchText": "not triggered",
+        "trialReady": true,
+        "sourceConditionMatches": true,
+        "physicalArrival": true
+      },
+      "after": {
+        "id": "aefa0990-81ad-4303-bd25-ab521503d4e0",
+        "instanceScope": "58730825-2ef2-43d3-a429-a5de6791cf95",
+        "url": "http://127.0.0.1:60217/",
+        "stable": false,
+        "canonicalHash": "fd7dad8f5901156a29d1ce597bcfa31ffaf15da53f84a190e9b320a279eb649f",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          },
+          {
+            "code": "EVIDENCE_CAPTURE_CHANGED",
+            "critical": false
+          },
+          {
+            "code": "UNSTABLE",
+            "critical": false
+          },
+          {
+            "code": "INTERACTION_STABLE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Target",
+            "localId": "58730825-2ef2-43d3-a429-a5de6791cf95:6",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "No effect",
+            "localId": "58730825-2ef2-43d3-a429-a5de6791cf95:7",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Quote",
+            "localId": "58730825-2ef2-43d3-a429-a5de6791cf95:9",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "result": {
+        "id": "c4b714c9-78e7-4ade-9173-60e6cde6f689",
+        "sessionId": "901b4f8e-3e2d-4955-b983-ce40921d4615",
+        "checkpointId": "afda6952-fcf8-4ce6-931d-d0bb1f1b74be",
+        "reason": "Target arrival verification: TARGET_REACHED",
+        "checks": [
+          {
+            "name": "unresolved-execution-outcomes",
+            "result": "pass"
+          },
+          {
+            "name": "known-declared-context",
+            "result": "pass"
+          },
+          {
+            "name": "target-ready:76f75eca-536d-46ea-a211-21fae9086d95",
+            "result": "pass"
+          }
+        ],
+        "attemptIds": [],
+        "observationId": "aefa0990-81ad-4303-bd25-ab521503d4e0",
+        "remainingFrontier": 2,
+        "diagnostics": {
+          "unassessedEffectAttemptIds": [],
+          "strategies": [
+            "verify_current"
+          ],
+          "dirtyActions": [],
+          "resetAvailable": false
+        },
+        "status": "TARGET_REACHED",
+        "targetObservationId": "50877ed7-5dd1-4f3e-9717-1342fc780a7a",
+        "targetActionIds": [
+          "76f75eca-536d-46ea-a211-21fae9086d95"
+        ],
+        "matchedActionIds": [
+          "73b742ed-eef5-438b-8dd1-397623fa45c3"
+        ],
+        "matches": [
+          {
+            "equivalent": true,
+            "reason": "equivalent_observed_target",
+            "source": {
+              "sessionId": "901b4f8e-3e2d-4955-b983-ce40921d4615",
+              "observationId": "50877ed7-5dd1-4f3e-9717-1342fc780a7a",
+              "actionId": "76f75eca-536d-46ea-a211-21fae9086d95"
+            },
+            "target": {
+              "sessionId": "901b4f8e-3e2d-4955-b983-ce40921d4615",
+              "observationId": "aefa0990-81ad-4303-bd25-ab521503d4e0",
+              "actionId": "73b742ed-eef5-438b-8dd1-397623fa45c3"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "local-field-description/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+              "observation:50877ed7-5dd1-4f3e-9717-1342fc780a7a",
+              "observation:aefa0990-81ad-4303-bd25-ab521503d4e0"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "conditionKey": "be6d5e23412852504da1fb834babacc687215b12149ea140858e323d7bacb0ad",
+            "policy": "browser-controls-correspondence-v2"
+          }
+        ],
+        "checkpointVerified": false,
+        "currentExecution": false,
+        "executionAuthorized": false,
+        "dispatchAvailability": {
+          "sessionId": "901b4f8e-3e2d-4955-b983-ce40921d4615",
+          "observationId": "aefa0990-81ad-4303-bd25-ab521503d4e0",
+          "revision": "7056e7f6ff4f12af0601201d72f00cbae9e4afceb87dc2c0e8b8402d027ae989",
+          "profile": "interface-exploration",
+          "actions": [
+            {
+              "actionId": "73b742ed-eef5-438b-8dd1-397623fa45c3",
+              "executable": true,
+              "blockers": []
+            },
+            {
+              "actionId": "36a62ba0-4bfb-46f2-a8b5-6d87eeddbcb2",
+              "executable": true,
+              "blockers": []
+            }
+          ],
+          "dispatchRevalidationRequired": true
+        }
+      },
+      "durationMs": 189.1220000000003,
+      "recoveryAttempts": [],
+      "entryReopenAttempts": 0,
+      "environmentResetAttempts": 0,
+      "documentRequestsDuringRecovery": 0,
+      "documentChanged": false,
+      "oracle": {
+        "url": "http://127.0.0.1:60217/",
+        "targetPresent": true,
+        "targetVisible": true,
+        "targetEnabled": true,
+        "targetEditable": true,
+        "hitTarget": true,
+        "mode": null,
+        "outerOpen": null,
+        "innerOpen": null,
+        "dialogOpen": null,
+        "quote": "135",
+        "documentLoads": 1,
+        "branchHits": 0,
+        "branchText": "not triggered",
+        "trialReady": true,
+        "sourceConditionMatches": true,
+        "physicalArrival": true
+      },
+      "reportedArrival": true,
+      "falseArrivalClaim": false,
+      "physicalArrivalWithoutPositiveStatus": false,
+      "hostAvailability": {
+        "actionId": "73b742ed-eef5-438b-8dd1-397623fa45c3",
+        "executable": true,
+        "blockers": []
+      },
+      "targetExecution": {
+        "id": "5f0167c4-a9a4-409c-811d-fb4d4e66be9c",
+        "status": "succeeded",
+        "afterId": "f689cfad-0d25-4a95-84b8-7de607ea441b"
+      },
+      "guardedBranchYield": true,
+      "oracleBranchYield": true,
+      "unknown": {
+        "injected": false,
+        "unresolvedAfterRecovery": [],
+        "positiveStateClaimWithUnresolvedOutcome": false,
+        "guardedDispatchBlocked": false,
+        "measurementProbeSkipped": false
+      },
+      "setupAttempts": [],
+      "measurementOnlyBrowserActions": 1
+    },
+    {
+      "variant": "refactor",
+      "scenario": "nested_changed_quote",
+      "replicate": 4,
+      "startedAt": "2026-10-16T18:04:47.429Z",
+      "sessionId": "2334e3ce-2568-4619-86bb-3e8edd3b0242",
+      "url": "http://127.0.0.1:60221/",
+      "fixtureSha256": "1eb4ce24edbc938e321ead80e20c289085371b2566f6c65048d1903948944e76",
+      "budget": {
+        "maxActions": 12,
+        "maxDurationMs": 60000,
+        "settleMs": 60,
+        "observeTimeoutMs": 1000,
+        "actionTimeoutMs": 1500
+      },
+      "source": {
+        "id": "4e763b65-e6bf-41af-a054-f8c3de56df29",
+        "instanceScope": "86c0c943-4ade-4bd1-ab89-0a469b2b445c",
+        "url": "http://127.0.0.1:60221/",
+        "stable": true,
+        "canonicalHash": "34f2f2d3b671a454526ad8303a6530bb8ba8ffc0d50384ab39b0926b597f6798",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Outer menu",
+            "localId": "86c0c943-4ade-4bd1-ab89-0a469b2b445c:6",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Inner menu",
+            "localId": "86c0c943-4ade-4bd1-ab89-0a469b2b445c:8",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Target",
+            "localId": "86c0c943-4ade-4bd1-ab89-0a469b2b445c:10",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Quote",
+            "localId": "86c0c943-4ade-4bd1-ab89-0a469b2b445c:12",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "before": {
+        "id": "0f51aedc-8a1f-4c52-9deb-54cb4488b30d",
+        "instanceScope": "86c0c943-4ade-4bd1-ab89-0a469b2b445c",
+        "url": "http://127.0.0.1:60221/",
+        "stable": true,
+        "canonicalHash": "f1d926e78ce4c0dd6db565050420a9d2ed8a14d355eb4a8a8b3efaf7a538ede8",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Outer menu",
+            "localId": "86c0c943-4ade-4bd1-ab89-0a469b2b445c:6",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Inner menu",
+            "localId": "86c0c943-4ade-4bd1-ab89-0a469b2b445c:8",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "name": "Target",
+            "localId": "86c0c943-4ade-4bd1-ab89-0a469b2b445c:10",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "name": "Quote",
+            "localId": "86c0c943-4ade-4bd1-ab89-0a469b2b445c:12",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "beforePage": {
+        "url": "http://127.0.0.1:60221/",
+        "targetPresent": true,
+        "targetVisible": true,
+        "targetEnabled": true,
+        "targetEditable": true,
+        "hitTarget": false,
+        "mode": null,
+        "outerOpen": false,
+        "innerOpen": false,
+        "dialogOpen": null,
+        "quote": "999",
+        "documentLoads": 1,
+        "branchHits": 0,
+        "branchText": "not triggered",
+        "trialReady": false,
+        "trialError": "TimeoutError: locator.click: Timeout 400ms exceeded.",
+        "sourceConditionMatches": false,
+        "physicalArrival": false
+      },
+      "after": {
+        "id": "2afb63c5-5030-4397-acaf-22ed8c3d9541",
+        "instanceScope": "579c403f-083e-4ee2-95c9-8e5874389f09",
+        "url": "http://127.0.0.1:60221/",
+        "stable": true,
+        "canonicalHash": "5bafcfce949f6040c6c773618edb410bf80901e3f087ef1bf38e107c2cb41fb7",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Outer menu",
+            "localId": "579c403f-083e-4ee2-95c9-8e5874389f09:6",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Inner menu",
+            "localId": "579c403f-083e-4ee2-95c9-8e5874389f09:8",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Target",
+            "localId": "579c403f-083e-4ee2-95c9-8e5874389f09:10",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Quote",
+            "localId": "579c403f-083e-4ee2-95c9-8e5874389f09:12",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "result": {
+        "id": "efc9cfeb-91e8-4a19-a3fa-f2bc462cf059",
+        "sessionId": "2334e3ce-2568-4619-86bb-3e8edd3b0242",
+        "checkpointId": "f8d6a123-562f-474e-97f4-346603903fa9",
+        "reason": "Entry replay verification: TARGET_REACHED",
+        "checks": [
+          {
+            "name": "unresolved-execution-outcomes",
+            "result": "pass"
+          },
+          {
+            "name": "known-declared-context",
+            "result": "pass"
+          },
+          {
+            "name": "target-ready:062e10af-0c21-450e-ab19-1680c32e507f",
+            "result": "pass"
+          }
+        ],
+        "attemptIds": [
+          "a4e8d9db-ea5f-4c28-8c50-466c6e53aafb",
+          "f84bcd36-ebec-4c36-b8fa-505f94302acb",
+          "373aac02-eb5b-4409-909e-9ca7d9a069dc"
+        ],
+        "observationId": "2afb63c5-5030-4397-acaf-22ed8c3d9541",
+        "remainingFrontier": 1,
+        "diagnostics": {
+          "unassessedEffectAttemptIds": [],
+          "strategies": [
+            "verify_current",
+            "boundary_exit",
+            "recorded_path",
+            "declared_local_restore",
+            "entry_replay"
+          ],
+          "dirtyActions": [],
+          "resetAvailable": false
+        },
+        "status": "TARGET_REACHED",
+        "targetObservationId": "4e763b65-e6bf-41af-a054-f8c3de56df29",
+        "targetActionIds": [
+          "062e10af-0c21-450e-ab19-1680c32e507f"
+        ],
+        "matchedActionIds": [
+          "bdd500c5-8232-443a-a09a-7b12882c2339"
+        ],
+        "matches": [
+          {
+            "equivalent": true,
+            "reason": "equivalent_observed_target",
+            "source": {
+              "sessionId": "2334e3ce-2568-4619-86bb-3e8edd3b0242",
+              "observationId": "4e763b65-e6bf-41af-a054-f8c3de56df29",
+              "actionId": "062e10af-0c21-450e-ab19-1680c32e507f"
+            },
+            "target": {
+              "sessionId": "2334e3ce-2568-4619-86bb-3e8edd3b0242",
+              "observationId": "2afb63c5-5030-4397-acaf-22ed8c3d9541",
+              "actionId": "bdd500c5-8232-443a-a09a-7b12882c2339"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "local-field-description/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+              "observation:4e763b65-e6bf-41af-a054-f8c3de56df29",
+              "observation:2afb63c5-5030-4397-acaf-22ed8c3d9541"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "conditionKey": "e7308ca8ab1f9b22c5f5084b00e36084308a3c716ab0b1494b8a0b1cdca5b010",
+            "policy": "browser-controls-correspondence-v2"
+          }
+        ],
+        "checkpointVerified": false,
+        "currentExecution": false,
+        "executionAuthorized": false,
+        "dispatchAvailability": {
+          "sessionId": "2334e3ce-2568-4619-86bb-3e8edd3b0242",
+          "observationId": "2afb63c5-5030-4397-acaf-22ed8c3d9541",
+          "revision": "e8b958561c3d3dfe85fbaa09f1a338d2eac3c1dcb981058f9acf9735a1162692",
+          "profile": "interface-exploration",
+          "actions": [
+            {
+              "actionId": "f57ae52e-fc4b-4dfd-9d03-e3dfa81a556a",
+              "executable": true,
+              "blockers": []
+            },
+            {
+              "actionId": "4d033b59-b501-41c5-84c2-c9bd15971645",
+              "executable": true,
+              "blockers": []
+            },
+            {
+              "actionId": "bdd500c5-8232-443a-a09a-7b12882c2339",
+              "executable": true,
+              "blockers": []
+            }
+          ],
+          "dispatchRevalidationRequired": true
+        }
+      },
+      "durationMs": 900.5887500000008,
+      "recoveryAttempts": [
+        {
+          "id": "a4e8d9db-ea5f-4c28-8c50-466c6e53aafb",
+          "label": "Reopen session entry",
+          "kind": "navigate",
+          "source": "recovery-entry",
+          "status": "succeeded",
+          "purpose": "recovery",
+          "beforeId": "959cfed3-78bf-4459-b497-30c4859eb02f",
+          "afterId": "356d29b5-7e70-442b-aa95-42df39c3dc7c",
+          "replayable": false
+        },
+        {
+          "id": "f84bcd36-ebec-4c36-b8fa-505f94302acb",
+          "label": "Outer menu",
+          "kind": "click",
+          "source": "dom-actions-v2",
+          "status": "succeeded",
+          "purpose": "recovery",
+          "beforeId": "356d29b5-7e70-442b-aa95-42df39c3dc7c",
+          "afterId": "f0b3376f-49f6-490a-8964-9bf52be3ff64",
+          "replayable": true
+        },
+        {
+          "id": "373aac02-eb5b-4409-909e-9ca7d9a069dc",
+          "label": "Inner menu",
+          "kind": "click",
+          "source": "dom-actions-v2",
+          "status": "succeeded",
+          "purpose": "recovery",
+          "beforeId": "f0b3376f-49f6-490a-8964-9bf52be3ff64",
+          "afterId": "2afb63c5-5030-4397-acaf-22ed8c3d9541",
+          "replayable": true
+        }
+      ],
+      "entryReopenAttempts": 1,
+      "environmentResetAttempts": 0,
+      "documentRequestsDuringRecovery": 1,
+      "documentChanged": true,
+      "oracle": {
+        "url": "http://127.0.0.1:60221/",
+        "targetPresent": true,
+        "targetVisible": true,
+        "targetEnabled": true,
+        "targetEditable": true,
+        "hitTarget": true,
+        "mode": null,
+        "outerOpen": true,
+        "innerOpen": true,
+        "dialogOpen": null,
+        "quote": "102",
+        "documentLoads": 2,
+        "branchHits": 0,
+        "branchText": "not triggered",
+        "trialReady": true,
+        "sourceConditionMatches": true,
+        "physicalArrival": true
+      },
+      "reportedArrival": true,
+      "falseArrivalClaim": false,
+      "physicalArrivalWithoutPositiveStatus": false,
+      "hostAvailability": {
+        "actionId": "bdd500c5-8232-443a-a09a-7b12882c2339",
+        "executable": true,
+        "blockers": []
+      },
+      "targetExecution": {
+        "id": "9c57bdb0-dea3-4465-8475-9aa1d6dc36ea",
+        "status": "succeeded",
+        "afterId": "9f4719a1-423b-45d0-ac7d-d8106311ba60"
+      },
+      "guardedBranchYield": true,
+      "oracleBranchYield": true,
+      "unknown": {
+        "injected": false,
+        "unresolvedAfterRecovery": [],
+        "positiveStateClaimWithUnresolvedOutcome": false,
+        "guardedDispatchBlocked": false,
+        "measurementProbeSkipped": false
+      },
+      "setupAttempts": [
+        {
+          "id": "adbd0c9e-0ab7-4378-9cfa-60dd607599be",
+          "label": "Outer menu",
+          "status": "succeeded"
+        },
+        {
+          "id": "55d9fbbd-bd13-4a78-92cc-82f5acec4191",
+          "label": "Inner menu",
+          "status": "succeeded"
+        }
+      ],
+      "measurementOnlyBrowserActions": 1
+    },
+    {
+      "variant": "refactor",
+      "scenario": "local_inverse_diverges",
+      "replicate": 4,
+      "startedAt": "2026-10-16T18:04:49.832Z",
+      "sessionId": "8a921c38-e748-4211-8d97-c07c903fdb5a",
+      "url": "http://127.0.0.1:60232/",
+      "fixtureSha256": "3cdc0f6dcd6df272b776b1c87ff49d0f50968f697e0f22e94269d1d9299c75bd",
+      "budget": {
+        "maxActions": 12,
+        "maxDurationMs": 60000,
+        "settleMs": 60,
+        "observeTimeoutMs": 1000,
+        "actionTimeoutMs": 1500
+      },
+      "source": {
+        "id": "4fe58b7e-579b-4707-a8d9-ba3aba30f87f",
+        "instanceScope": "4424d5df-e734-4816-b398-a9400fa1e2db",
+        "url": "http://127.0.0.1:60232/",
+        "stable": true,
+        "canonicalHash": "d6cff039d7bcb21eeac28917528a04aadca1fe93f6cbc9a25b82353fcaa46d67",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Mode",
+            "localId": "4424d5df-e734-4816-b398-a9400fa1e2db:5",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Target",
+            "localId": "4424d5df-e734-4816-b398-a9400fa1e2db:7",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "before": {
+        "id": "73896cb9-c02f-4aaa-8cfb-265efd0cf1e9",
+        "instanceScope": "4424d5df-e734-4816-b398-a9400fa1e2db",
+        "url": "http://127.0.0.1:60232/",
+        "stable": true,
+        "canonicalHash": "c0117cff7a9cd8e20d72c2525df2c95692b84f1cf25d4719db690fa04c7633d8",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Mode",
+            "localId": "4424d5df-e734-4816-b398-a9400fa1e2db:5",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "Target",
+            "localId": "4424d5df-e734-4816-b398-a9400fa1e2db:7",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "beforePage": {
+        "url": "http://127.0.0.1:60232/",
+        "targetPresent": true,
+        "targetVisible": true,
+        "targetEnabled": true,
+        "targetEditable": true,
+        "hitTarget": true,
+        "mode": true,
+        "outerOpen": null,
+        "innerOpen": null,
+        "dialogOpen": null,
+        "quote": null,
+        "documentLoads": 1,
+        "branchHits": 0,
+        "branchText": "not triggered",
+        "trialReady": true,
+        "sourceConditionMatches": false,
+        "physicalArrival": false
+      },
+      "after": {
+        "id": "24f9b951-0d5a-4b74-ae85-dc2b9ddaa859",
+        "instanceScope": "4424d5df-e734-4816-b398-a9400fa1e2db",
+        "url": "http://127.0.0.1:60232/",
+        "stable": true,
+        "canonicalHash": "eda8ecadfdba7f8bf5649fa20775e1173bd6794e042d18cc29a866bbe7e7720e",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Mode",
+            "localId": "4424d5df-e734-4816-b398-a9400fa1e2db:5",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "result": {
+        "id": "218082dd-f94d-4da5-bc44-a39a3a9f2815",
+        "sessionId": "8a921c38-e748-4211-8d97-c07c903fdb5a",
+        "checkpointId": "09249a34-3969-4483-86b4-1388eb62048b",
+        "reason": "Declared local restoration diverged from its expected observation",
+        "checks": [
+          {
+            "name": "unresolved-execution-outcomes",
+            "result": "pass"
+          },
+          {
+            "name": "known-declared-context",
+            "result": "pass"
+          },
+          {
+            "name": "unique-target:5509f7eb-e10e-4cb5-87ea-e87011c071e9",
+            "result": "fail"
+          }
+        ],
+        "attemptIds": [
+          "944abcdb-d336-4de1-9680-e2d382501af0"
+        ],
+        "observationId": "24f9b951-0d5a-4b74-ae85-dc2b9ddaa859",
+        "remainingFrontier": 2,
+        "diagnostics": {
+          "unassessedEffectAttemptIds": [],
+          "strategies": [
+            "verify_current",
+            "boundary_exit",
+            "recorded_path",
+            "declared_local_restore"
+          ],
+          "dirtyActions": [],
+          "resetAvailable": false
+        },
+        "status": "UNVERIFIED",
+        "targetObservationId": "4fe58b7e-579b-4707-a8d9-ba3aba30f87f",
+        "targetActionIds": [
+          "5509f7eb-e10e-4cb5-87ea-e87011c071e9"
+        ],
+        "matchedActionIds": [],
+        "matches": [],
+        "checkpointVerified": false,
+        "currentExecution": false,
+        "executionAuthorized": false,
+        "dispatchAvailability": {
+          "sessionId": "8a921c38-e748-4211-8d97-c07c903fdb5a",
+          "observationId": "819e7d3a-eab6-467c-a0fd-595e18c3742f",
+          "revision": "eedaf12684198c32b595d36a473e07dfa3f60a357f960acda9bab5eb967907fa",
+          "profile": "interface-exploration",
+          "actions": [
+            {
+              "actionId": "d612287f-fcd2-4b6c-8d2b-8da6f89ab0c3",
+              "executable": true,
+              "blockers": []
+            },
+            {
+              "actionId": "43d29209-162c-4eb3-bb88-dd245da1e8a6",
+              "executable": true,
+              "blockers": []
+            }
+          ],
+          "dispatchRevalidationRequired": true
+        }
+      },
+      "durationMs": 388.7839160000003,
+      "recoveryAttempts": [
+        {
+          "id": "944abcdb-d336-4de1-9680-e2d382501af0",
+          "label": "Mode",
+          "kind": "check",
+          "source": "recovery-local",
+          "status": "succeeded",
+          "purpose": "recovery",
+          "beforeId": "819e7d3a-eab6-467c-a0fd-595e18c3742f",
+          "afterId": "24f9b951-0d5a-4b74-ae85-dc2b9ddaa859",
+          "replayable": true
+        }
+      ],
+      "entryReopenAttempts": 0,
+      "environmentResetAttempts": 0,
+      "documentRequestsDuringRecovery": 0,
+      "documentChanged": false,
+      "oracle": {
+        "url": "http://127.0.0.1:60232/",
+        "targetPresent": false,
+        "targetVisible": false,
+        "targetEnabled": false,
+        "targetEditable": false,
+        "hitTarget": false,
+        "mode": false,
+        "outerOpen": null,
+        "innerOpen": null,
+        "dialogOpen": null,
+        "quote": null,
+        "documentLoads": 1,
+        "branchHits": 0,
+        "branchText": "not triggered",
+        "trialReady": false,
+        "sourceConditionMatches": true,
+        "physicalArrival": false
+      },
+      "reportedArrival": false,
+      "falseArrivalClaim": false,
+      "physicalArrivalWithoutPositiveStatus": false,
+      "guardedBranchYield": false,
+      "oracleBranchYield": false,
+      "unknown": {
+        "injected": false,
+        "unresolvedAfterRecovery": [],
+        "positiveStateClaimWithUnresolvedOutcome": false,
+        "guardedDispatchBlocked": false,
+        "measurementProbeSkipped": false
+      },
+      "setupAttempts": [
+        {
+          "id": "4d2d225c-b8c4-496b-bd99-322154c15a85",
+          "label": "Mode",
+          "status": "succeeded"
+        }
+      ],
+      "measurementOnlyBrowserActions": 0
+    },
+    {
+      "variant": "refactor",
+      "scenario": "unknown_outcome_injected",
+      "replicate": 4,
+      "startedAt": "2026-10-16T18:04:50.935Z",
+      "sessionId": "405059c2-5d46-4048-afa3-836a6de45aac",
+      "url": "http://127.0.0.1:60236/",
+      "fixtureSha256": "f715c01a2cc6cc13c8d27fbb4db6146752f3d0119a6c3be245fa31f32975ea20",
+      "budget": {
+        "maxActions": 12,
+        "maxDurationMs": 60000,
+        "settleMs": 60,
+        "observeTimeoutMs": 1000,
+        "actionTimeoutMs": 1500
+      },
+      "source": {
+        "id": "4c08fbde-a656-48df-84a1-3a0643719cb9",
+        "instanceScope": "ca401bf1-e8cd-48b9-994a-4a0c0e753356",
+        "url": "http://127.0.0.1:60236/",
+        "stable": true,
+        "canonicalHash": "76272febe1f11f395e05ccb4d72116ad58ffa010c64f2ed68535ef5477143fe3",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Target",
+            "localId": "ca401bf1-e8cd-48b9-994a-4a0c0e753356:5",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "No effect",
+            "localId": "ca401bf1-e8cd-48b9-994a-4a0c0e753356:6",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "before": {
+        "id": "22842e30-60f1-47ca-b471-28f4e9df6ccf",
+        "instanceScope": "ca401bf1-e8cd-48b9-994a-4a0c0e753356",
+        "url": "http://127.0.0.1:60236/",
+        "stable": true,
+        "canonicalHash": "76272febe1f11f395e05ccb4d72116ad58ffa010c64f2ed68535ef5477143fe3",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Target",
+            "localId": "ca401bf1-e8cd-48b9-994a-4a0c0e753356:5",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "No effect",
+            "localId": "ca401bf1-e8cd-48b9-994a-4a0c0e753356:6",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "beforePage": {
+        "url": "http://127.0.0.1:60236/",
+        "targetPresent": true,
+        "targetVisible": true,
+        "targetEnabled": true,
+        "targetEditable": true,
+        "hitTarget": true,
+        "mode": null,
+        "outerOpen": null,
+        "innerOpen": null,
+        "dialogOpen": null,
+        "quote": null,
+        "documentLoads": 1,
+        "branchHits": 0,
+        "branchText": "not triggered",
+        "trialReady": true,
+        "sourceConditionMatches": true,
+        "physicalArrival": true
+      },
+      "after": {
+        "id": "22842e30-60f1-47ca-b471-28f4e9df6ccf",
+        "instanceScope": "ca401bf1-e8cd-48b9-994a-4a0c0e753356",
+        "url": "http://127.0.0.1:60236/",
+        "stable": true,
+        "canonicalHash": "76272febe1f11f395e05ccb4d72116ad58ffa010c64f2ed68535ef5477143fe3",
+        "gaps": [
+          {
+            "code": "EVENT_LISTENER_COVERAGE",
+            "critical": false
+          }
+        ],
+        "boundaries": [],
+        "controls": [
+          {
+            "name": "Target",
+            "localId": "ca401bf1-e8cd-48b9-994a-4a0c0e753356:5",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "name": "No effect",
+            "localId": "ca401bf1-e8cd-48b9-994a-4a0c0e753356:6",
+            "visible": true,
+            "enabled": true
+          }
+        ]
+      },
+      "result": {
+        "id": "f37010b1-3aa5-4719-b88e-d3fe44167e30",
+        "sessionId": "405059c2-5d46-4048-afa3-836a6de45aac",
+        "checkpointId": "bf882ca1-6f4e-49d4-9f88-59b982715043",
+        "reason": "Unknown execution outcome requires explicit recovery verification",
+        "checks": [
+          {
+            "name": "unresolved-execution-outcomes",
+            "result": "unknown"
+          }
+        ],
+        "attemptIds": [],
+        "observationId": "22842e30-60f1-47ca-b471-28f4e9df6ccf",
+        "remainingFrontier": 1,
+        "diagnostics": {
+          "unassessedEffectAttemptIds": [],
+          "strategies": [],
+          "dirtyActions": [],
+          "resetAvailable": false
+        },
+        "status": "UNVERIFIED",
+        "targetObservationId": "4c08fbde-a656-48df-84a1-3a0643719cb9",
+        "targetActionIds": [
+          "53f3f865-004b-45c3-9bcb-478f260bbabc"
+        ],
+        "matchedActionIds": [],
+        "matches": [],
+        "checkpointVerified": false,
+        "currentExecution": false,
+        "executionAuthorized": false
+      },
+      "durationMs": 0.8542080000006536,
+      "recoveryAttempts": [],
+      "entryReopenAttempts": 0,
+      "environmentResetAttempts": 0,
+      "documentRequestsDuringRecovery": 0,
+      "documentChanged": false,
+      "oracle": {
+        "url": "http://127.0.0.1:60236/",
+        "targetPresent": true,
+        "targetVisible": true,
+        "targetEnabled": true,
+        "targetEditable": true,
+        "hitTarget": true,
+        "mode": null,
+        "outerOpen": null,
+        "innerOpen": null,
+        "dialogOpen": null,
+        "quote": null,
+        "documentLoads": 1,
+        "branchHits": 0,
+        "branchText": "not triggered",
+        "trialReady": true,
+        "sourceConditionMatches": true,
+        "physicalArrival": true
+      },
+      "reportedArrival": false,
+      "falseArrivalClaim": false,
+      "physicalArrivalWithoutPositiveStatus": true,
+      "hostAvailability": {
+        "actionId": "24f67f1d-2bb6-4c08-93c8-25e4bb89452b",
+        "executable": false,
+        "blockers": [
+          {
+            "code": "UNKNOWN_ACTION_OUTCOME",
+            "reason": "Verify or isolate unknown outcomes before further autonomous execution",
+            "evidence": [
+              "02475d1a-6a57-46c7-b480-c92de4ef0019"
+            ]
+          }
+        ]
+      },
+      "targetError": {
+        "code": "UNKNOWN_ACTION_OUTCOME",
+        "message": "EngineError: Verify or isolate unknown outcomes before further autonomous execution"
+      },
+      "guardedBranchYield": false,
+      "oracleBranchYield": false,
+      "unknown": {
+        "injected": true,
+        "attemptId": "02475d1a-6a57-46c7-b480-c92de4ef0019",
+        "unresolvedAfterRecovery": [
+          "02475d1a-6a57-46c7-b480-c92de4ef0019"
+        ],
+        "originalStatusAfterMeasurement": "unknown",
+        "positiveStateClaimWithUnresolvedOutcome": false,
+        "guardedDispatchBlocked": true,
+        "measurementProbeSkipped": true
+      },
+      "setupAttempts": [
+        {
+          "id": "02475d1a-6a57-46c7-b480-c92de4ef0019",
+          "label": "No effect",
+          "status": "succeeded"
+        }
+      ],
+      "measurementOnlyBrowserActions": 0
+    }
+  ]
+}

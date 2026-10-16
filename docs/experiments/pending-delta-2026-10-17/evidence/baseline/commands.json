@@ -1,0 +1,172 @@
+[
+  {
+    "index": 1,
+    "name": "conditions",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-conditions.ts",
+      "--revision=7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+      "--output=/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/pending-delta-2026-10-17/evidence/baseline/conditions.json",
+      "--runs=5",
+      "--ticks=100"
+    ],
+    "startedAtEpoch": 1792172918.110569,
+    "elapsedSeconds": 96.58237886428833,
+    "exitCode": 0,
+    "log": "01-conditions.log"
+  },
+  {
+    "index": 2,
+    "name": "continuation",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-continuation.ts",
+      "--label",
+      "baseline7cf",
+      "--revision",
+      "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+      "--repeats",
+      "5",
+      "--out",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/pending-delta-2026-10-17/evidence/baseline/continuation.json"
+    ],
+    "startedAtEpoch": 1792173014.693343,
+    "elapsedSeconds": 27.227448225021362,
+    "exitCode": 0,
+    "log": "02-continuation.log"
+  },
+  {
+    "index": 3,
+    "name": "input-identity",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-input-identity.ts",
+      "--revision",
+      "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+      "--runs",
+      "5",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/pending-delta-2026-10-17/evidence/baseline/input-identity.json"
+    ],
+    "startedAtEpoch": 1792173041.9211679,
+    "elapsedSeconds": 6.619837284088135,
+    "exitCode": 0,
+    "log": "03-input-identity.log"
+  },
+  {
+    "index": 4,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+      "--replicate",
+      "1",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/pending-delta-2026-10-17/evidence/baseline/recovery-refactor-r1.json"
+    ],
+    "startedAtEpoch": 1792173048.54141,
+    "elapsedSeconds": 10.334360837936401,
+    "exitCode": 0,
+    "log": "04-recovery.log"
+  },
+  {
+    "index": 5,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+      "--replicate",
+      "2",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/pending-delta-2026-10-17/evidence/baseline/recovery-refactor-r2.json"
+    ],
+    "startedAtEpoch": 1792173058.87617,
+    "elapsedSeconds": 9.7642822265625,
+    "exitCode": 0,
+    "log": "05-recovery.log"
+  },
+  {
+    "index": 6,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+      "--replicate",
+      "3",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/pending-delta-2026-10-17/evidence/baseline/recovery-refactor-r3.json"
+    ],
+    "startedAtEpoch": 1792173068.641065,
+    "elapsedSeconds": 10.264220952987671,
+    "exitCode": 0,
+    "log": "06-recovery.log"
+  },
+  {
+    "index": 7,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+      "--replicate",
+      "4",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/pending-delta-2026-10-17/evidence/baseline/recovery-refactor-r4.json"
+    ],
+    "startedAtEpoch": 1792173078.9058719,
+    "elapsedSeconds": 9.730501174926758,
+    "exitCode": 0,
+    "log": "07-recovery.log"
+  },
+  {
+    "index": 8,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+      "--replicate",
+      "5",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/pending-delta-2026-10-17/evidence/baseline/recovery-refactor-r5.json"
+    ],
+    "startedAtEpoch": 1792173088.636864,
+    "elapsedSeconds": 9.757700204849243,
+    "exitCode": 0,
+    "log": "08-recovery.log"
+  }
+]

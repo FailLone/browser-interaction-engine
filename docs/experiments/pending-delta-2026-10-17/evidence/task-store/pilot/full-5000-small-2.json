@@ -1,0 +1,76 @@
+{
+  "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5",
+  "mode": "full",
+  "count": 5000,
+  "iterations": 80,
+  "reads": 100,
+  "header": "small",
+  "headerBytes": 395,
+  "fixtureHash": "5829ca28a6e7bfb2cebf547af4964227f5272b38546b71f81cc02e0d95aa2aa2",
+  "finalHash": "1da31f7d7ecbd2d7eab097d5007012b437f19c7f99bb72dd1eb788f1d7b19e02",
+  "node": "v24.22.0",
+  "saves": {
+    "count": 80,
+    "totalMs": 1011.4225429999996,
+    "medianMs": 11.97458400000005,
+    "p95Ms": 17.220874999999978,
+    "maxMs": 18.39191699999992,
+    "cpuMs": 1018.613
+  },
+  "activeReads": {
+    "count": 100,
+    "totalMs": 1516.1256200000014,
+    "medianMs": 14.5618750000001,
+    "p95Ms": 18.704375000000027,
+    "maxMs": 20.395375000000058,
+    "cpuMs": 1515.286
+  },
+  "headerReads": {
+    "count": 100,
+    "totalMs": 1499.4441720000013,
+    "medianMs": 14.355000000000018,
+    "p95Ms": 18.57312499999989,
+    "maxMs": 18.98120800000015,
+    "cpuMs": 1482.326
+  },
+  "ownerReads": {
+    "count": 100,
+    "totalMs": 1490.712338000004,
+    "medianMs": 14.37841599999956,
+    "p95Ms": 18.223791999999776,
+    "maxMs": 19.29108300000007,
+    "cpuMs": 1480.548
+  },
+  "fullReads": {
+    "count": 20,
+    "totalMs": 300.038043999999,
+    "medianMs": 14.524917000000642,
+    "p95Ms": 18.669332999999824,
+    "maxMs": 18.669332999999824,
+    "cpuMs": 298.017
+  },
+  "initialBytes": {
+    "database": 3588096,
+    "wal": 0,
+    "sharedMemory": 32768,
+    "total": 3620864
+  },
+  "afterWrites": {
+    "database": 3588096,
+    "wal": 988832,
+    "sharedMemory": 32768,
+    "total": 4609696
+  },
+  "closedBytes": {
+    "database": 3588096,
+    "wal": 0,
+    "sharedMemory": 0,
+    "total": 3588096
+  },
+  "walPolicy": {
+    "autocheckpointPages": 1000,
+    "initialCheckpoint": true,
+    "finalCloseCheckpointsWal": true
+  },
+  "scope": "persistence microbenchmark, not end-to-end exploration; header still serialized in full; active query is not a full-history integrity audit; no VACUUM"
+}

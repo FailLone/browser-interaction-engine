@@ -1,0 +1,76 @@
+{
+  "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5",
+  "mode": "full",
+  "count": 1000,
+  "iterations": 80,
+  "reads": 100,
+  "header": "large",
+  "headerBytes": 235214,
+  "fixtureHash": "d612158a95e1feb6630edc9820aabb7c5df40fe8d9d203c80cb629c273719bcc",
+  "finalHash": "0997f87eeb62c9b1c40ccb01743ad9291c122a899fd54748466fb21df99d68cb",
+  "node": "v24.22.0",
+  "saves": {
+    "count": 80,
+    "totalMs": 235.16875300000004,
+    "medianMs": 2.7623330000000124,
+    "p95Ms": 4.386042000000003,
+    "maxMs": 4.9847500000000196,
+    "cpuMs": 254.958
+  },
+  "activeReads": {
+    "count": 100,
+    "totalMs": 370.51621299999965,
+    "medianMs": 3.5562499999999773,
+    "p95Ms": 5.506165999999951,
+    "maxMs": 5.946041999999977,
+    "cpuMs": 378.01
+  },
+  "headerReads": {
+    "count": 100,
+    "totalMs": 365.2905079999996,
+    "medianMs": 3.5038339999999835,
+    "p95Ms": 5.591499999999996,
+    "maxMs": 5.898249999999962,
+    "cpuMs": 363.763
+  },
+  "ownerReads": {
+    "count": 100,
+    "totalMs": 370.1631179999997,
+    "medianMs": 3.513541000000032,
+    "p95Ms": 5.427625000000035,
+    "maxMs": 7.498208999999861,
+    "cpuMs": 369.424
+  },
+  "fullReads": {
+    "count": 20,
+    "totalMs": 75.46516499999939,
+    "medianMs": 3.6258339999999407,
+    "p95Ms": 8.051791000000094,
+    "maxMs": 8.051791000000094,
+    "cpuMs": 75.513
+  },
+  "initialBytes": {
+    "database": 991232,
+    "wal": 0,
+    "sharedMemory": 32768,
+    "total": 1024000
+  },
+  "afterWrites": {
+    "database": 991232,
+    "wal": 1557392,
+    "sharedMemory": 32768,
+    "total": 2581392
+  },
+  "closedBytes": {
+    "database": 1224704,
+    "wal": 0,
+    "sharedMemory": 0,
+    "total": 1224704
+  },
+  "walPolicy": {
+    "autocheckpointPages": 1000,
+    "initialCheckpoint": true,
+    "finalCloseCheckpointsWal": true
+  },
+  "scope": "persistence microbenchmark, not end-to-end exploration; header still serialized in full; active query is not a full-history integrity audit; no VACUUM"
+}

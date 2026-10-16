@@ -1,0 +1,63 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-shared-target-scope.test.ts > dispatches both simultaneously available shared-id targets under their different captured owners 584ms
+ ✓ tests/explorer-shared-target-scope.test.ts > checks cold-rebuilt shared targets with retained and legacy scopes: same 644ms
+ ✓ tests/explorer-shared-target-scope.test.ts > checks cold-rebuilt shared targets with retained and legacy scopes: changed-owner 658ms
+ ✓ tests/explorer-shared-target-scope.test.ts > checks cold-rebuilt shared targets with retained and legacy scopes: changed-context 634ms
+ ✓ tests/explorer-shared-target-scope.test.ts > checks cold-rebuilt shared targets with retained and legacy scopes: unknown-source 666ms
+ ✓ tests/explorer-shared-target-scope.test.ts > checks cold-rebuilt shared targets with retained and legacy scopes: ambiguous-owner 627ms
+ ✓ tests/explorer-shared-target-scope.test.ts > keeps completely indistinguishable shared targets ambiguous instead of selecting by DOM position 262ms
+ ✓ tests/explorer-shared-target-scope.test.ts > retains literal old scope authority and exclusions while a captured owner can narrow a target 240ms
+ ✓ tests/explorer-shared-target-scope.test.ts > never transfers A coverage or its pending target to rebuilt B, but retains B scope through reconstruction 451ms
+ ✓ tests/explorer-completion-evidence.test.ts > records every audit gap against one source without rereading the large observation for each target 590ms
+ ✓ tests/explorer-completion-evidence.test.ts > batches duplicate historical task proofs while keeping same-name controls and current execution distinct 607ms
+ ✓ tests/explorer-completion-evidence.test.ts > rebuilds task proof selection after scope acceptance changes and never treats review closure as executed evidence 382ms
+ ✓ tests/explorer-completion-evidence.test.ts > retains the discovery observation for unexecuted siblings without inventing evidence for missing legacy rows 367ms
+ ✓ tests/explorer-completion-evidence.test.ts > lets host evidence reconcile stale derived scope encodings without broadening user scopes or same-name controls 632ms
+ ✓ tests/explorer-completion-evidence.test.ts > closes obsolete exact-scope blockers only with SDK-verified historical coverage, without inventing executions 391ms
+ ✓ tests/explorer-completion-evidence.test.ts > lets the SDK match changed native record-link text only for derived evidence, preserving literal user scopes 643ms
+ ✓ tests/explorer-source-conditions.test.ts > the actual plugin schedules a new mode branch in one round and reuses verified history when mode A returns 804ms
+ ✓ tests/explorer-source-conditions.test.ts > retains multiple successful source proofs when a legacy plan row points at the latest mode 757ms
+ ✓ tests/explorer-source-conditions.test.ts > does not skip a rebuilt shared-key button when its semantic owner changes, or repeat an unchanged owner rebuild 632ms
+ ✓ tests/operation-correspondence-batch.test.ts > matches single results in request order, isolates missing or wrongly owned evidence, and grants no authority 11ms
+ ✓ tests/operation-correspondence-batch.test.ts > reads shared records and indexes correspondence once in a batch instead of repeating whole observations 5ms
+ ✓ tests/operation-correspondence-batch.test.ts > does not merge different source values that share the same candidate action ID 1ms
+ ✓ tests/operation-correspondence-batch.test.ts > preserves invalidation after a prior batch: same-name-other-control 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > preserves invalidation after a prior batch: duplicate 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > preserves invalidation after a prior batch: context 1ms
+ ✓ tests/operation-correspondence-batch.test.ts > preserves invalidation after a prior batch: changed-operation 1ms
+ ✓ tests/operation-correspondence-batch.test.ts > preserves invalidation after a prior batch: unknown 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > preserves invalidation after a prior batch: incomplete-after 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > preserves invalidation after a prior batch: wrong-observation 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > preserves invalidation after a prior batch: review-withdrawn 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > shares identity evidence within a batch and rechecks a withdrawn judgment on the next call 1ms
+ ✓ tests/operation-correspondence-batch.test.ts > preserves browser cross-session correspondence and distinguishes same-name controls without changing execution records 655ms
+ ✓ tests/operation-correspondence-batch.test.ts > uses unique same-instance continuity despite repeated hints, preserving unchanged checks 1ms
+ ✓ tests/operation-correspondence-batch.test.ts > uses unique same-instance continuity despite repeated hints, preserving other-instance checks 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > uses unique same-instance continuity despite repeated hints, preserving duplicate-instance checks 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > uses unique same-instance continuity despite repeated hints, preserving new-document checks 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > uses unique same-instance continuity despite repeated hints, preserving changed-context checks 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > uses unique same-instance continuity despite repeated hints, preserving changed-operation checks 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > uses unique same-instance continuity despite repeated hints, preserving review-withdrawn checks 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > uses unique same-instance continuity despite repeated hints, preserving unknown checks 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > recognizes the same browser occurrence despite repeated test IDs without covering its sibling 378ms
+ ✓ tests/operation-correspondence-batch.test.ts > refines a shared component key using unique semantics and existing identity, preserving same 1ms
+ ✓ tests/operation-correspondence-batch.test.ts > refines a shared component key using unique semantics and existing identity, preserving new-session 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > refines a shared component key using unique semantics and existing identity, preserving new-session-pending 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > refines a shared component key using unique semantics and existing identity, preserving new-session-ambiguous 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > refines a shared component key using unique semantics and existing identity, preserving other-name 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > refines a shared component key using unique semantics and existing identity, preserving ambiguous 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > refines a shared component key using unique semantics and existing identity, preserving other-identity 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > refines a shared component key using unique semantics and existing identity, preserving pending 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > refines a shared component key using unique semantics and existing identity, preserving instance-only 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > refines a shared component key using unique semantics and existing identity, preserving changed-context 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > refines a shared component key using unique semantics and existing identity, preserving changed-operation 0ms
+ ✓ tests/operation-correspondence-batch.test.ts > refines a shared component key using unique semantics and existing identity, preserving unknown 0ms
+
+ Test Files  4 passed (4)
+      Tests  53 passed (53)
+   Start at  01:51:05
+   Duration  14.07s (transform 523ms, setup 0ms, collect 1.87s, tests 11.63s, environment 0ms, prepare 140ms)
+
+JSON report written to /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/pending-delta-2026-10-17/evidence/shared-a/targeted.json

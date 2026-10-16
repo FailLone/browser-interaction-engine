@@ -1,0 +1,223 @@
+{
+  "cases": [
+    {
+      "count": 1000,
+      "header": "small",
+      "headerBytes": 395,
+      "fixtureHash": "a69c25dc79ce438c986de23abb93f0a937cf44382beae312dd018a40267daf34",
+      "finalHash": "e87cf730a1591910664c57c64bfcea5a38f742809c002fe116da976044166b94",
+      "modes": {
+        "full": {
+          "sourceHash": "1517179292f496e74028d8a47734e43d55e30cd1e29726fd3a58a6a07916e61a",
+          "medianMs": {
+            "saves": 2.2891250000000127,
+            "activeReads": 2.808999999999969,
+            "headerReads": 2.7795409999999947,
+            "ownerReads": 2.828708000000006,
+            "fullReads": 2.907709000000068
+          },
+          "cpuMs": {
+            "saves": 205.567,
+            "activeReads": 304.529,
+            "headerReads": 293.52,
+            "ownerReads": 297.438,
+            "fullReads": 60.422
+          },
+          "bytes": {
+            "initialBytes": 790528,
+            "afterWrites": 1779360,
+            "closedBytes": 757760
+          }
+        },
+        "delta": {
+          "sourceHash": "8ed500fbcf702924eacd6c02bcd6cd0e778792554ebe88becc005dfd6c192d5a",
+          "medianMs": {
+            "saves": 0.10445899999999142,
+            "activeReads": 0.08620799999999917,
+            "headerReads": 0.008667000000002645,
+            "ownerReads": 0.01520800000000122,
+            "fullReads": 3.2836250000000007
+          },
+          "cpuMs": {
+            "saves": 11.006,
+            "activeReads": 9.79,
+            "headerReads": 1.317,
+            "ownerReads": 1.731,
+            "fullReads": 81.967
+          },
+          "bytes": {
+            "initialBytes": 1011712,
+            "afterWrites": 2659744,
+            "closedBytes": 978944
+          }
+        }
+      }
+    },
+    {
+      "count": 1000,
+      "header": "large",
+      "headerBytes": 235214,
+      "fixtureHash": "d612158a95e1feb6630edc9820aabb7c5df40fe8d9d203c80cb629c273719bcc",
+      "finalHash": "0997f87eeb62c9b1c40ccb01743ad9291c122a899fd54748466fb21df99d68cb",
+      "modes": {
+        "full": {
+          "sourceHash": "1517179292f496e74028d8a47734e43d55e30cd1e29726fd3a58a6a07916e61a",
+          "medianMs": {
+            "saves": 2.5798750000000155,
+            "activeReads": 3.380957999999964,
+            "headerReads": 3.3715419999999767,
+            "ownerReads": 3.4044169999999667,
+            "fullReads": 3.4075000000000273
+          },
+          "cpuMs": {
+            "saves": 241.35,
+            "activeReads": 371.501,
+            "headerReads": 355.41,
+            "ownerReads": 360.761,
+            "fullReads": 68.722
+          },
+          "bytes": {
+            "initialBytes": 1024000,
+            "afterWrites": 2581392,
+            "closedBytes": 1224704
+          }
+        },
+        "delta": {
+          "sourceHash": "8ed500fbcf702924eacd6c02bcd6cd0e778792554ebe88becc005dfd6c192d5a",
+          "medianMs": {
+            "saves": 0.5164170000000041,
+            "activeReads": 0.13766699999999332,
+            "headerReads": 0.561791999999997,
+            "ownerReads": 0.015500000000002956,
+            "fullReads": 3.911332999999985
+          },
+          "cpuMs": {
+            "saves": 48.083,
+            "activeReads": 16.227,
+            "headerReads": 58.658,
+            "ownerReads": 1.943,
+            "fullReads": 89.504
+          },
+          "bytes": {
+            "initialBytes": 1245184,
+            "afterWrites": 3461776,
+            "closedBytes": 1445888
+          }
+        }
+      }
+    },
+    {
+      "count": 5000,
+      "header": "small",
+      "headerBytes": 395,
+      "fixtureHash": "5829ca28a6e7bfb2cebf547af4964227f5272b38546b71f81cc02e0d95aa2aa2",
+      "finalHash": "1da31f7d7ecbd2d7eab097d5007012b437f19c7f99bb72dd1eb788f1d7b19e02",
+      "modes": {
+        "full": {
+          "sourceHash": "1517179292f496e74028d8a47734e43d55e30cd1e29726fd3a58a6a07916e61a",
+          "medianMs": {
+            "saves": 11.70137499999987,
+            "activeReads": 14.146334000000024,
+            "headerReads": 13.915500000000065,
+            "ownerReads": 13.924749999999221,
+            "fullReads": 13.876750000000357
+          },
+          "cpuMs": {
+            "saves": 996.485,
+            "activeReads": 1487.789,
+            "headerReads": 1453.41,
+            "ownerReads": 1450.887,
+            "fullReads": 288.051
+          },
+          "bytes": {
+            "initialBytes": 3620864,
+            "afterWrites": 4609696,
+            "closedBytes": 3588096
+          }
+        },
+        "delta": {
+          "sourceHash": "8ed500fbcf702924eacd6c02bcd6cd0e778792554ebe88becc005dfd6c192d5a",
+          "medianMs": {
+            "saves": 0.10745800000000827,
+            "activeReads": 0.09079199999999332,
+            "headerReads": 0.008707999999984395,
+            "ownerReads": 0.01545800000002373,
+            "fullReads": 16.333124999999995
+          },
+          "cpuMs": {
+            "saves": 11.17,
+            "activeReads": 13.047,
+            "headerReads": 1.39,
+            "ownerReads": 1.802,
+            "fullReads": 364.369
+          },
+          "bytes": {
+            "initialBytes": 4747264,
+            "afterWrites": 6395296,
+            "closedBytes": 4714496
+          }
+        }
+      }
+    },
+    {
+      "count": 5000,
+      "header": "large",
+      "headerBytes": 1191215,
+      "fixtureHash": "1208424fd040e02ea09487f97b2930940fb2546b5311ecdc4ce2479a3fe2867e",
+      "finalHash": "03b3a8f90a7a427bd7f0502c82da33dc0941fa97551ba5e99fb6f0e0b3dd7cb1",
+      "modes": {
+        "full": {
+          "sourceHash": "1517179292f496e74028d8a47734e43d55e30cd1e29726fd3a58a6a07916e61a",
+          "medianMs": {
+            "saves": 13.848499999999945,
+            "activeReads": 16.98720800000001,
+            "headerReads": 16.65975000000026,
+            "ownerReads": 16.837916000000405,
+            "fullReads": 16.66204199999993
+          },
+          "cpuMs": {
+            "saves": 1310.086,
+            "activeReads": 1791.423,
+            "headerReads": 1749.353,
+            "ownerReads": 1762.206,
+            "fullReads": 350.021
+          },
+          "bytes": {
+            "initialBytes": 4812800,
+            "afterWrites": 7334272,
+            "closedBytes": 5971968
+          }
+        },
+        "delta": {
+          "sourceHash": "8ed500fbcf702924eacd6c02bcd6cd0e778792554ebe88becc005dfd6c192d5a",
+          "medianMs": {
+            "saves": 1.9917079999999885,
+            "activeReads": 0.28879100000000335,
+            "headerReads": 2.7574579999999287,
+            "ownerReads": 0.01525000000003729,
+            "fullReads": 18.702125000000024
+          },
+          "cpuMs": {
+            "saves": 178.887,
+            "activeReads": 36.041,
+            "headerReads": 282.368,
+            "ownerReads": 1.98,
+            "fullReads": 394.939
+          },
+          "bytes": {
+            "initialBytes": 5939200,
+            "afterWrites": 9119872,
+            "closedBytes": 7098368
+          }
+        }
+      }
+    }
+  ],
+  "method": "3 separate processes per case; medians of per-process medians; alternating full/delta order; identical fixture and output hashes; 80 single item plus latest round/header updates, 100 partial/header/owner reads, 20 full reads; no live DB/browser; no VACUUM",
+  "limits": [
+    "Full header including obligations.entries still serialized on every delta",
+    "Filtered active page does not replace initial/full completion integrity audit",
+    "Schema v3 adds indexes and occurrence metadata; initial and closed bytes may increase",
+    "Microbenchmark excludes browser/SDK and complete scheduler work"
+  ]
+}

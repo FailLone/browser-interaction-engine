@@ -1,0 +1,236 @@
+{
+  "baselineCommit": "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+  "afterRevision": "uncommitted source hashes below; final integration commit in main report",
+  "baselineProductArchive": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5",
+  "sameOriginalProtocolScript": true,
+  "protocolScriptSha256": "4c977f147d123ea1adc7c3496cce927ae5be7603fff317b5700578b2732d8693",
+  "baseline": {
+    "trials": 5,
+    "missingBranches": [
+      [
+        "shared:A"
+      ],
+      [
+        "shared:A"
+      ],
+      [
+        "shared:A"
+      ],
+      [
+        "shared:A"
+      ],
+      [
+        "shared:A"
+      ]
+    ],
+    "actualActions": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "oracleClicks": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "newDistinctBranches": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "duplicateOracleClicks": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "falseCoverageChecks": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "finalPlanRows": [
+      6,
+      6,
+      6,
+      6,
+      6
+    ],
+    "finalPendingRows": [
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "jevCalls": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "llmCalls": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "afterInitialOracle": [
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  "after": {
+    "trials": 5,
+    "missingBranches": [
+      [],
+      [],
+      [],
+      [],
+      []
+    ],
+    "actualActions": [
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "oracleClicks": [
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "newDistinctBranches": [
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "duplicateOracleClicks": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "falseCoverageChecks": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "finalPlanRows": [
+      7,
+      7,
+      7,
+      7,
+      7
+    ],
+    "finalPendingRows": [
+      3,
+      3,
+      3,
+      3,
+      3
+    ],
+    "jevCalls": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "llmCalls": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "afterInitialOracle": [
+      [
+        "shared:A",
+        "shared:B"
+      ],
+      [
+        "shared:A",
+        "shared:B"
+      ],
+      [
+        "shared:A",
+        "shared:B"
+      ],
+      [
+        "shared:A",
+        "shared:B"
+      ],
+      [
+        "shared:A",
+        "shared:B"
+      ]
+    ]
+  },
+  "sourceHashes": {
+    "packages/adapter-playwright/src/exploration.ts": "cb45a0b4aa1b8070f3e61070f48280f4f74d59d4282447b149fdaa35ce3856eb",
+    "packages/adapter-playwright/src/index.ts": "d903c8353aed262249049c640201043c1fbf01ec70e3d4451b76d39c7abc07b4",
+    "packages/explorer-plugin/src/policy.ts": "c85acc9bc0b3aa2a52a36bfbdf5a7686870953a0ced3054859b9cdaf43d5bdbb",
+    "packages/explorer-plugin/src/types.ts": "0547bc8683410b35a965730f8a455fb7aee6227584216e10d4d8fd1ee9a8d6c5",
+    "packages/explorer-plugin/src/schema.ts": "8e35dbfe9576352cc2d4cd45774ac6b4b0604d9052d34c6a00ab20930a271cf4",
+    "packages/explorer-plugin/src/scope-migration.ts": "13a4b1868265f215cb863f2bfd338dd30ced15dbdf131ca11f69585ac06269e3",
+    "tests/explorer-shared-target-scope.test.ts": "42174b09972961ee4e627462fec52141f48855e589e6ae2fcf85d58afa086793",
+    "tests/explorer-source-conditions.test.ts": "d5a97de16c8b84aa9bf3977e97ec4d2d6661a3e9d7e617114a08dca9ff01ff0d",
+    "tests/explorer-scope-migration-index.test.ts": "f6591cda0c29464007e819d466d598ca491dbd23b3d0ae3ae5006e478eaa4568"
+  },
+  "testRuns": {
+    "baseline": {
+      "passed": 6,
+      "failed": 3,
+      "total": 9,
+      "overlap": "Counts across runs overlap; do not add."
+    },
+    "targeted": {
+      "passed": 53,
+      "failed": 0,
+      "total": 53,
+      "overlap": "Counts across runs overlap; do not add."
+    },
+    "compatibility": {
+      "passed": 120,
+      "failed": 0,
+      "total": 120,
+      "overlap": "Counts across runs overlap; do not add."
+    },
+    "final-targeted": {
+      "passed": 22,
+      "failed": 0,
+      "total": 22,
+      "overlap": "Counts across runs overlap; do not add."
+    },
+    "legacy": {
+      "passed": 101,
+      "failed": 0,
+      "total": 101,
+      "overlap": "Counts across runs overlap; do not add."
+    }
+  },
+  "sameNineCaseTestOnBaselineAndAfter": true
+}

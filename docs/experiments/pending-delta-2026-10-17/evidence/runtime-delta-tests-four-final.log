@@ -1,0 +1,13 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-runtime-delta.test.ts (4 tests) 2320ms
+   ✓ uses delta persistence in the public runtime and commits every active in-memory change together  926ms
+   ✓ retains a delta-written unknown dispatch across cold restart before any new browser or model work  440ms
+   ✓ rejects an inactive pause whose await window acquired a newer pending intent on another connection  716ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  02:01:42
+   Duration  3.29s (transform 475ms, setup 0ms, collect 828ms, tests 2.32s, environment 0ms, prepare 35ms)
+

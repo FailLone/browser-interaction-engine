@@ -1,0 +1,76 @@
+{
+  "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5",
+  "mode": "full",
+  "count": 1000,
+  "iterations": 80,
+  "reads": 100,
+  "header": "large",
+  "headerBytes": 235214,
+  "fixtureHash": "d612158a95e1feb6630edc9820aabb7c5df40fe8d9d203c80cb629c273719bcc",
+  "finalHash": "0997f87eeb62c9b1c40ccb01743ad9291c122a899fd54748466fb21df99d68cb",
+  "node": "v24.22.0",
+  "saves": {
+    "count": 80,
+    "totalMs": 234.1733299999999,
+    "medianMs": 2.787583000000012,
+    "p95Ms": 4.464874999999992,
+    "maxMs": 5.077541999999994,
+    "cpuMs": 254.531
+  },
+  "activeReads": {
+    "count": 100,
+    "totalMs": 366.5026229999997,
+    "medianMs": 3.535624999999982,
+    "p95Ms": 5.514333000000079,
+    "maxMs": 5.588250000000016,
+    "cpuMs": 374.746
+  },
+  "headerReads": {
+    "count": 100,
+    "totalMs": 360.1391230000007,
+    "medianMs": 3.4939580000000205,
+    "p95Ms": 5.403999999999996,
+    "maxMs": 5.6443329999999605,
+    "cpuMs": 361.697
+  },
+  "ownerReads": {
+    "count": 100,
+    "totalMs": 366.77408800000035,
+    "medianMs": 3.442250000000058,
+    "p95Ms": 5.568917000000056,
+    "maxMs": 9.501083999999992,
+    "cpuMs": 365.628
+  },
+  "fullReads": {
+    "count": 20,
+    "totalMs": 72.86287500000026,
+    "medianMs": 3.418416999999863,
+    "p95Ms": 7.4909999999999854,
+    "maxMs": 7.4909999999999854,
+    "cpuMs": 72.972
+  },
+  "initialBytes": {
+    "database": 991232,
+    "wal": 0,
+    "sharedMemory": 32768,
+    "total": 1024000
+  },
+  "afterWrites": {
+    "database": 991232,
+    "wal": 1557392,
+    "sharedMemory": 32768,
+    "total": 2581392
+  },
+  "closedBytes": {
+    "database": 1224704,
+    "wal": 0,
+    "sharedMemory": 0,
+    "total": 1224704
+  },
+  "walPolicy": {
+    "autocheckpointPages": 1000,
+    "initialCheckpoint": true,
+    "finalCloseCheckpointsWal": true
+  },
+  "scope": "persistence microbenchmark, not end-to-end exploration; header still serialized in full; active query is not a full-history integrity audit; no VACUUM"
+}

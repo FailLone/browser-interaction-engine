@@ -1,0 +1,153 @@
+{
+  "baseRevision": "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+  "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5",
+  "originalFiles": 399,
+  "changedOriginalFiles": [],
+  "additionalFiles": [
+    "tests/explorer-shared-target-scope.test.ts"
+  ],
+  "additionalFileMeaning": "Only the shared-scope agent's authorized identical after test was added after the baseline protocol snapshot. Baseline product/protocol files were not edited.",
+  "workspaceDependencies": [
+    {
+      "link": "node_modules/@interaction/adapter-playwright",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/adapter-playwright",
+      "insideArchive": true
+    },
+    {
+      "link": "node_modules/@interaction/storage-retained",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/storage-retained",
+      "insideArchive": true
+    },
+    {
+      "link": "node_modules/@interaction/core",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/core",
+      "insideArchive": true
+    },
+    {
+      "link": "node_modules/@interaction/browser",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/browser",
+      "insideArchive": true
+    },
+    {
+      "link": "node_modules/@interaction/storage-sqlite",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/storage-sqlite",
+      "insideArchive": true
+    },
+    {
+      "link": "node_modules/@interaction/explorer-plugin",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/explorer-plugin",
+      "insideArchive": true
+    },
+    {
+      "link": "node_modules/@interaction/rules",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/rules",
+      "insideArchive": true
+    },
+    {
+      "link": "node_modules/@interaction/storage-memory",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/storage-memory",
+      "insideArchive": true
+    },
+    {
+      "link": "node_modules/@interaction/client",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/client",
+      "insideArchive": true
+    },
+    {
+      "link": "packages/adapter-playwright/node_modules/@interaction/core",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/core",
+      "insideArchive": true
+    },
+    {
+      "link": "packages/storage-retained/node_modules/@interaction/core",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/core",
+      "insideArchive": true
+    },
+    {
+      "link": "packages/browser/node_modules/@interaction/adapter-playwright",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/adapter-playwright",
+      "insideArchive": true
+    },
+    {
+      "link": "packages/browser/node_modules/@interaction/storage-retained",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/storage-retained",
+      "insideArchive": true
+    },
+    {
+      "link": "packages/browser/node_modules/@interaction/core",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/core",
+      "insideArchive": true
+    },
+    {
+      "link": "packages/storage-sqlite/node_modules/@interaction/core",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/core",
+      "insideArchive": true
+    },
+    {
+      "link": "packages/explorer-plugin/node_modules/@interaction/browser",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/browser",
+      "insideArchive": true
+    },
+    {
+      "link": "packages/rules/node_modules/@interaction/adapter-playwright",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/adapter-playwright",
+      "insideArchive": true
+    },
+    {
+      "link": "packages/rules/node_modules/@interaction/browser",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/browser",
+      "insideArchive": true
+    },
+    {
+      "link": "packages/storage-memory/node_modules/@interaction/core",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/core",
+      "insideArchive": true
+    },
+    {
+      "link": "packages/client/node_modules/@interaction/browser",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/browser",
+      "insideArchive": true
+    },
+    {
+      "link": "packages/client/node_modules/@interaction/rules",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/rules",
+      "insideArchive": true
+    },
+    {
+      "link": "apps/ui/node_modules/@interaction/browser",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/browser",
+      "insideArchive": true
+    },
+    {
+      "link": "apps/ui/node_modules/@interaction/explorer-plugin",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/explorer-plugin",
+      "insideArchive": true
+    },
+    {
+      "link": "apps/ui/node_modules/@interaction/client",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/client",
+      "insideArchive": true
+    },
+    {
+      "link": "apps/server/node_modules/@interaction/browser",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/browser",
+      "insideArchive": true
+    },
+    {
+      "link": "apps/server/node_modules/@interaction/storage-sqlite",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/storage-sqlite",
+      "insideArchive": true
+    },
+    {
+      "link": "apps/server/node_modules/@interaction/explorer-plugin",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/explorer-plugin",
+      "insideArchive": true
+    },
+    {
+      "link": "apps/server/node_modules/@interaction/rules",
+      "resolved": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5/packages/rules",
+      "insideArchive": true
+    }
+  ],
+  "cleanup": "Pending deletion after other baseline consumers finish; final cleanup status stored separately."
+}

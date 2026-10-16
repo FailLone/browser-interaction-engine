@@ -1,0 +1,27 @@
+{
+  "baseRevision": "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+  "sourceMeaning": "Dirty frozen implementation identified by SHA256, not by the base revision alone.",
+  "testFiles": 1,
+  "passed": 4,
+  "failed": 0,
+  "log": "runtime-delta-tests-four-final.log",
+  "sourceSha256": {
+    "tests/explorer-runtime-delta.test.ts": "638688b8377b2f17869588801e532c130e1976a58f2462705731322bb9ba07c0",
+    "packages/explorer-plugin/src/runtime.ts": "cdf2354ffa2904bca24fcfd4f89c42b323ba335be9fe6b013a070163cb1750ae",
+    "packages/explorer-plugin/src/task-writer.ts": "f54100a3186043829fd427f8deb9b8f544bbc31ecfd93fb7e8b9f522587b18a6",
+    "packages/explorer-plugin/src/store.ts": "7fbc85607f66a1799b201697062cf36838fb855e44ce7273027bc1e0bcec5481"
+  },
+  "checks": [
+    "Public create/start/waitForIdle uses applyTaskDelta; every captured active delta commit equals an independent full persisted JSON projection of in-memory state after updatedAt synchronization.",
+    "Exactly one start taskState audit; zero runtime task() and tasks() reads; zero full saves or reads after first actual dispatch. Actual HTTP oracle contains Alpha and Beta once each.",
+    "Inactive engine-event ownership uses taskIdForSession without full task/history reads.",
+    "Actual Alpha dispatch receives injected durable unknown, then cold restart preserves original unknown, pending intent, and pending Beta. No new session, observe, execute, target recovery, checkpoint recovery, JEV, or LLM call.",
+    "A second SQLite connection writes pending intent and budget during createSession await; stale runtime halts before dispatch and preserves the entire newer task.",
+    "A second SQLite connection writes pending intent and budget during inactive pause await; pause rejects STALE_TASK_VERSION without overwriting the newer task."
+  ],
+  "limits": [
+    "These are after-only integration/contract tests. They are not a same-file baseline performance comparison.",
+    "The active task is initially fully audited and remains resident; this does not establish lazy scheduling or bounded task-header size.",
+    "Only isolated fixture browser, HTTP server and databases were created."
+  ]
+}

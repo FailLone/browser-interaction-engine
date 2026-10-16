@@ -1,0 +1,76 @@
+{
+  "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-7cf3918-hljyhzn5",
+  "mode": "full",
+  "count": 5000,
+  "iterations": 80,
+  "reads": 100,
+  "header": "large",
+  "headerBytes": 1191215,
+  "fixtureHash": "1208424fd040e02ea09487f97b2930940fb2546b5311ecdc4ce2479a3fe2867e",
+  "finalHash": "03b3a8f90a7a427bd7f0502c82da33dc0941fa97551ba5e99fb6f0e0b3dd7cb1",
+  "node": "v24.22.0",
+  "saves": {
+    "count": 80,
+    "totalMs": 1218.0824190000005,
+    "medianMs": 14.08404100000007,
+    "p95Ms": 22.331958999999983,
+    "maxMs": 26.34633299999996,
+    "cpuMs": 1330.353
+  },
+  "activeReads": {
+    "count": 100,
+    "totalMs": 1811.8923410000007,
+    "medianMs": 17.419167000000016,
+    "p95Ms": 21.66445900000008,
+    "maxMs": 22.800750000000335,
+    "cpuMs": 1822.855
+  },
+  "headerReads": {
+    "count": 100,
+    "totalMs": 1798.3504099999968,
+    "medianMs": 17.282250000000204,
+    "p95Ms": 21.531833000000006,
+    "maxMs": 22.225124999999935,
+    "cpuMs": 1797.183
+  },
+  "ownerReads": {
+    "count": 100,
+    "totalMs": 1797.6987110000082,
+    "medianMs": 17.296417000000474,
+    "p95Ms": 21.523583999999573,
+    "maxMs": 21.987500000000182,
+    "cpuMs": 1798.163
+  },
+  "fullReads": {
+    "count": 20,
+    "totalMs": 358.97724800000105,
+    "medianMs": 17.210041999999703,
+    "p95Ms": 22.03833300000042,
+    "maxMs": 22.03833300000042,
+    "cpuMs": 359.157
+  },
+  "initialBytes": {
+    "database": 4780032,
+    "wal": 0,
+    "sharedMemory": 32768,
+    "total": 4812800
+  },
+  "afterWrites": {
+    "database": 4780032,
+    "wal": 2521472,
+    "sharedMemory": 32768,
+    "total": 7334272
+  },
+  "closedBytes": {
+    "database": 5971968,
+    "wal": 0,
+    "sharedMemory": 0,
+    "total": 5971968
+  },
+  "walPolicy": {
+    "autocheckpointPages": 1000,
+    "initialCheckpoint": true,
+    "finalCloseCheckpointsWal": true
+  },
+  "scope": "persistence microbenchmark, not end-to-end exploration; header still serialized in full; active query is not a full-history integrity audit; no VACUUM"
+}

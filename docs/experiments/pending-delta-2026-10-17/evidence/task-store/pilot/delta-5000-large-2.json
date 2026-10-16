@@ -1,0 +1,76 @@
+{
+  "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "mode": "delta",
+  "count": 5000,
+  "iterations": 80,
+  "reads": 100,
+  "header": "large",
+  "headerBytes": 1191215,
+  "fixtureHash": "1208424fd040e02ea09487f97b2930940fb2546b5311ecdc4ce2479a3fe2867e",
+  "finalHash": "03b3a8f90a7a427bd7f0502c82da33dc0941fa97551ba5e99fb6f0e0b3dd7cb1",
+  "node": "v24.22.0",
+  "saves": {
+    "count": 80,
+    "totalMs": 190.07592399999973,
+    "medianMs": 2.258666999999946,
+    "p95Ms": 3.4111249999999984,
+    "maxMs": 4.939582999999999,
+    "cpuMs": 196.783
+  },
+  "activeReads": {
+    "count": 100,
+    "totalMs": 35.310124999999914,
+    "medianMs": 0.3086659999999597,
+    "p95Ms": 0.5882080000000087,
+    "maxMs": 1.1588750000000232,
+    "cpuMs": 38.786
+  },
+  "headerReads": {
+    "count": 100,
+    "totalMs": 297.3464949999999,
+    "medianMs": 2.949124999999981,
+    "p95Ms": 3.2968329999999924,
+    "maxMs": 4.615791999999942,
+    "cpuMs": 297.854
+  },
+  "ownerReads": {
+    "count": 100,
+    "totalMs": 1.3737879999993083,
+    "medianMs": 0.011541999999963082,
+    "p95Ms": 0.01816600000006474,
+    "maxMs": 0.13787500000000819,
+    "cpuMs": 1.482
+  },
+  "fullReads": {
+    "count": 20,
+    "totalMs": 413.7273329999998,
+    "medianMs": 19.957958000000076,
+    "p95Ms": 26.229666000000066,
+    "maxMs": 26.229666000000066,
+    "cpuMs": 417.776
+  },
+  "initialBytes": {
+    "database": 5906432,
+    "wal": 0,
+    "sharedMemory": 32768,
+    "total": 5939200
+  },
+  "afterWrites": {
+    "database": 5906432,
+    "wal": 3180672,
+    "sharedMemory": 32768,
+    "total": 9119872
+  },
+  "closedBytes": {
+    "database": 7098368,
+    "wal": 0,
+    "sharedMemory": 0,
+    "total": 7098368
+  },
+  "walPolicy": {
+    "autocheckpointPages": 1000,
+    "initialCheckpoint": true,
+    "finalCloseCheckpointsWal": true
+  },
+  "scope": "persistence microbenchmark, not end-to-end exploration; header still serialized in full; active query is not a full-history integrity audit; no VACUUM"
+}

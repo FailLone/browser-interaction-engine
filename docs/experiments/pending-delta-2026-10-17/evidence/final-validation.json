@@ -1,0 +1,85 @@
+{
+  "at": "2026-10-16T18:23:46.566493+00:00",
+  "productCommit": "62ed87306dea402026a51bd1e68029e2cf456abe",
+  "startCommit": "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35",
+  "branch": "codex/exploration-layered-refactor",
+  "sourceFiles": 405,
+  "sourceAfterFullSuiteMatchesVerifiedCommit": true,
+  "fullSuite": {
+    "exitCode": 0,
+    "filesPassed": 163,
+    "testsPassed": 1604,
+    "failed": 0,
+    "skipped": 0,
+    "log": "full-suite.log",
+    "sha256": "805b28b8d35b16a5536d270ffd778c68eb396f7a33ecdc0fb9485e7a1ac53491"
+  },
+  "targeted": {
+    "runtimeIntegration": 4,
+    "taskWriter": 10,
+    "deltaStoreAndNormalized": 23,
+    "sharedTarget": 9,
+    "runtimeRegression": 105,
+    "overlapWithFullSuite": true
+  },
+  "typecheck": {
+    "exitCode": 0,
+    "log": "typecheck-final.log",
+    "earlierFixtureGoalErrorRetained": true
+  },
+  "compiled": {
+    "revision": "62ed87306dea402026a51bd1e68029e2cf456abe",
+    "sourceFiles": 405,
+    "sourceUnchanged": true,
+    "workspaceDependencyLinks": 28,
+    "allWorkspaceLinksInsideArchive": true,
+    "compiledFilesRecorded": 559,
+    "build": "passed",
+    "publishedTypes": "passed",
+    "compiledApiSmoke": "passed",
+    "compiledExplorerUiSmoke": "passed",
+    "actualBrowserActions": 2,
+    "mockProviderRequests": {
+      "jev": 1,
+      "llm": 1
+    },
+    "screenshot": "explorer-dashboard.png",
+    "screenshotReviewed": true,
+    "screenshotObservation": "Current plan completed, both Alpha and Beta verified, 2/2 encountered control coverage, and two actual actions displayed. The UI separately retains limits on whole-page completeness.",
+    "limits": [
+      "Owned local fixture only; explicit mock providers, not production model behavior.",
+      "Smoke success is a compiled packaging/integration check, not real-site exploration completeness.",
+      "Raw explorer report retains its original temporary screenshot path; artifact-map.json points to the retained screenshot."
+    ]
+  },
+  "protocolComparison": "protocol-comparison.json",
+  "storagePerformance": "task-store/summary.json",
+  "protectedWorkspaces": [
+    {
+      "workspace": "/Users/xietian/Projects/browser-interaction-engine",
+      "branch": "codex/single-selection-state-rule",
+      "commit": "6e111284ac3a6642844531dbc06bce462ca4293c",
+      "porcelain": ""
+    },
+    {
+      "workspace": "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine",
+      "branch": "codex/autonomous-exploration",
+      "commit": "4857ad571c19995480a4c149abd9b2868a94c965",
+      "porcelain": ""
+    }
+  ],
+  "restoredGeneratedTrackedFiles": [
+    "docs/screenshots/dashboard.png",
+    "docs/screenshots/evidence-inspector.png"
+  ],
+  "temporaryArchiveCleanup": [
+    "cleanup.json",
+    "compiled/cleanup.json"
+  ],
+  "limits": [
+    "Controlled local fixtures, no real OKX exhaustion or end-to-end speed claim.",
+    "Task DB grew 15.4–26.5%; whole-task read slower by 12.5–17.1%.",
+    "Header and current round still serialize in full; initial history audit and in-memory Task remain.",
+    "CAS guards database state, not browser rollback or multi-process browser ownership."
+  ]
+}

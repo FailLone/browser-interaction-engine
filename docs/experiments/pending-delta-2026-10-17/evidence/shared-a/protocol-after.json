@@ -1,0 +1,1323 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-16T17:53:48.571Z",
+  "sourceRevision": "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35+shared-scope-working-tree",
+  "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "node": "v24.22.0",
+  "modulePaths": {
+    "browser": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/browser/src/index.ts",
+    "plugin": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/explorer-plugin/src/index.ts"
+  },
+  "sourceHashes": {
+    "packages/adapter-playwright/src/exploration.ts": "cb45a0b4aa1b8070f3e61070f48280f4f74d59d4282447b149fdaa35ce3856eb",
+    "packages/explorer-plugin/src/runtime.ts": "2d2da75a07187b8f19056c7789d0dac7590d84a84abc9fbbb046410ec2cf9396",
+    "packages/core/src/engine.ts": "bb0fc0a15adb38d907987822ebab4caec71b0cb39be647699fc6ce271b5cded9"
+  },
+  "scriptSha256": "4c977f147d123ea1adc7c3496cce927ae5be7603fff317b5700578b2732d8693",
+  "protocol": {
+    "runs": 5,
+    "ticks": 100,
+    "phaseSteps": 4,
+    "budget": {
+      "rounds": 1,
+      "actions": 8,
+      "durationMs": 60000,
+      "modelRequests": 8
+    },
+    "sessionOptions": {
+      "headless": true,
+      "settleMs": 0,
+      "observeTimeoutMs": 1000,
+      "actionTimeoutMs": 2000,
+      "maxActions": 8
+    },
+    "scenarios": [
+      "shared-id-rebuild"
+    ],
+    "oracle": "Independent onclick HTTP append log, persistent across reloads; no inference from queue completion",
+    "models": "Counting providers throw on request; no real JEV or LLM is configured",
+    "limitations": [
+      "The bounded mechanism scenarios call private step to apply identical external event streams; they do not test the full run loop.",
+      "The public form cycle exercises public start/waitForIdle.",
+      "Nonlocal JavaScript dependencies are deliberately undeclared and can defeat the current local dependency abstraction.",
+      "This is a controlled direction test, not an exhaustion or real-site performance claim."
+    ]
+  },
+  "results": [
+    {
+      "scenario": "shared-id-rebuild",
+      "run": 1,
+      "sourceRevision": "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35+shared-scope-working-tree",
+      "fixtureSha256": "d12514d69904d2d39ef34ede1ada4a208449dee2d1dd0501d643ac9d20b263a9",
+      "method": "single-step SDK/plugin mechanism experiment",
+      "expectedBranches": [
+        "shared:A",
+        "shared:B"
+      ],
+      "observedBranches": [
+        "shared:A",
+        "shared:B"
+      ],
+      "missingBranches": [],
+      "oracle": [
+        {
+          "branch": "shared:A",
+          "sequence": 1,
+          "at": 372.35629099999994
+        },
+        {
+          "branch": "shared:B",
+          "sequence": 2,
+          "at": 498.92937499999994
+        }
+      ],
+      "metrics": {
+        "actualActions": 2,
+        "successfulActions": 2,
+        "recoveryActions": 0,
+        "oracleClicks": 2,
+        "newDistinctBranches": 2,
+        "duplicateOracleClicks": 0,
+        "falseCoverageChecks": 0,
+        "retryKeyCount": 2,
+        "priceTickRetryKeyCount": null,
+        "observedStateCount": 2,
+        "stepCalls": 12,
+        "modelRequests": 0,
+        "jevCalls": 0,
+        "llmCalls": 0,
+        "initialPlanRows": 1,
+        "finalPlanRows": 7,
+        "finalPendingRows": 3,
+        "wallTimeMs": 774
+      },
+      "taskStatus": "running",
+      "taskReason": "plan_revised",
+      "modelCalls": [],
+      "errors": [],
+      "phaseRecord": [
+        {
+          "label": "initial",
+          "observationId": "75c0df27-1185-4125-bf51-c02c345a077a",
+          "stateId": "1dda5f61085ccebeaea45b462f9ff33c3b0a05bf6f027709f31259b6c0f47e7b",
+          "currentBranch": null,
+          "oracle": [],
+          "operationKeys": [
+            "f01d87c20fcfd23f70a09998d9d1405707a53c153863eb80133ab5e056d13a96",
+            "7728536146595d7c054cbe97345c035776eade1b42fb08e437e1c8620c600c50"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "b899d256-d8e4-4913-82b1-83fc15a9126d",
+              "controlId": "6585723d-75b4-4b00-85c9-cfe80e2c3ec2",
+              "completed": false
+            },
+            {
+              "actionId": "7e71f0d8-6b17-4af0-99b4-e3a7b6eacc01",
+              "controlId": "afea789d-7b53-4b9e-aad8-342e3df74cdd",
+              "completed": false
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 1,
+          "pendingPlanRows": 1,
+          "attemptCount": 0
+        },
+        {
+          "label": "after-initial",
+          "observationId": "eeea2868-a70a-4df6-8caa-900eba1fbee6",
+          "stateId": "1dda5f61085ccebeaea45b462f9ff33c3b0a05bf6f027709f31259b6c0f47e7b",
+          "currentBranch": null,
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "f01d87c20fcfd23f70a09998d9d1405707a53c153863eb80133ab5e056d13a96",
+            "7728536146595d7c054cbe97345c035776eade1b42fb08e437e1c8620c600c50"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "64c1cae7-e392-4167-be12-825e6eb09c17",
+              "controlId": "6585723d-75b4-4b00-85c9-cfe80e2c3ec2",
+              "completed": true
+            },
+            {
+              "actionId": "8bccba1e-1692-4092-98c2-b4456bf6a6e3",
+              "controlId": "afea789d-7b53-4b9e-aad8-342e3df74cdd",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "A-removed-B-rebuilt-before-dispatch",
+          "observationId": "c0e13bf8-96ec-4ba8-8321-7f059d16e5a8",
+          "stateId": "ccbcb62c5214dfcf9652e7fcae192b38b98ca289f4dd74a67d9f214591483f05",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "7728536146595d7c054cbe97345c035776eade1b42fb08e437e1c8620c600c50"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "969d3e85-ab2f-4ff8-8217-d0029510e7ed",
+              "controlId": "afea789d-7b53-4b9e-aad8-342e3df74cdd",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "A-removed-B-rebuilt-after-dispatch",
+          "observationId": "c0e13bf8-96ec-4ba8-8321-7f059d16e5a8",
+          "stateId": "ccbcb62c5214dfcf9652e7fcae192b38b98ca289f4dd74a67d9f214591483f05",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "7728536146595d7c054cbe97345c035776eade1b42fb08e437e1c8620c600c50"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "969d3e85-ab2f-4ff8-8217-d0029510e7ed",
+              "controlId": "afea789d-7b53-4b9e-aad8-342e3df74cdd",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "same-B-rebuilt-again",
+          "observationId": "37969ec9-d558-4821-8484-cf4645322994",
+          "stateId": "ccbcb62c5214dfcf9652e7fcae192b38b98ca289f4dd74a67d9f214591483f05",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "7728536146595d7c054cbe97345c035776eade1b42fb08e437e1c8620c600c50"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "26127989-a10a-4144-8401-e7af361b5e0e",
+              "controlId": "afea789d-7b53-4b9e-aad8-342e3df74cdd",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        }
+      ],
+      "keyRows": [
+        {
+          "observationId": "75c0df27-1185-4125-bf51-c02c345a077a",
+          "stateId": "1dda5f61085ccebeaea45b462f9ff33c3b0a05bf6f027709f31259b6c0f47e7b",
+          "targetId": "6585723d-75b4-4b00-85c9-cfe80e2c3ec2",
+          "key": "f01d87c20fcfd23f70a09998d9d1405707a53c153863eb80133ab5e056d13a96"
+        },
+        {
+          "observationId": "75c0df27-1185-4125-bf51-c02c345a077a",
+          "stateId": "1dda5f61085ccebeaea45b462f9ff33c3b0a05bf6f027709f31259b6c0f47e7b",
+          "targetId": "afea789d-7b53-4b9e-aad8-342e3df74cdd",
+          "key": "7728536146595d7c054cbe97345c035776eade1b42fb08e437e1c8620c600c50"
+        },
+        {
+          "observationId": "f2cd1e31-b1ab-47ce-be17-6a2f196fbe3f",
+          "stateId": "1dda5f61085ccebeaea45b462f9ff33c3b0a05bf6f027709f31259b6c0f47e7b",
+          "targetId": "6585723d-75b4-4b00-85c9-cfe80e2c3ec2",
+          "key": "f01d87c20fcfd23f70a09998d9d1405707a53c153863eb80133ab5e056d13a96"
+        },
+        {
+          "observationId": "f2cd1e31-b1ab-47ce-be17-6a2f196fbe3f",
+          "stateId": "1dda5f61085ccebeaea45b462f9ff33c3b0a05bf6f027709f31259b6c0f47e7b",
+          "targetId": "afea789d-7b53-4b9e-aad8-342e3df74cdd",
+          "key": "7728536146595d7c054cbe97345c035776eade1b42fb08e437e1c8620c600c50"
+        },
+        {
+          "observationId": "eeea2868-a70a-4df6-8caa-900eba1fbee6",
+          "stateId": "1dda5f61085ccebeaea45b462f9ff33c3b0a05bf6f027709f31259b6c0f47e7b",
+          "targetId": "6585723d-75b4-4b00-85c9-cfe80e2c3ec2",
+          "key": "f01d87c20fcfd23f70a09998d9d1405707a53c153863eb80133ab5e056d13a96"
+        },
+        {
+          "observationId": "eeea2868-a70a-4df6-8caa-900eba1fbee6",
+          "stateId": "1dda5f61085ccebeaea45b462f9ff33c3b0a05bf6f027709f31259b6c0f47e7b",
+          "targetId": "afea789d-7b53-4b9e-aad8-342e3df74cdd",
+          "key": "7728536146595d7c054cbe97345c035776eade1b42fb08e437e1c8620c600c50"
+        },
+        {
+          "observationId": "c0e13bf8-96ec-4ba8-8321-7f059d16e5a8",
+          "stateId": "ccbcb62c5214dfcf9652e7fcae192b38b98ca289f4dd74a67d9f214591483f05",
+          "targetId": "afea789d-7b53-4b9e-aad8-342e3df74cdd",
+          "key": "7728536146595d7c054cbe97345c035776eade1b42fb08e437e1c8620c600c50"
+        },
+        {
+          "observationId": "37969ec9-d558-4821-8484-cf4645322994",
+          "stateId": "ccbcb62c5214dfcf9652e7fcae192b38b98ca289f4dd74a67d9f214591483f05",
+          "targetId": "afea789d-7b53-4b9e-aad8-342e3df74cdd",
+          "key": "7728536146595d7c054cbe97345c035776eade1b42fb08e437e1c8620c600c50"
+        }
+      ],
+      "attempts": [
+        {
+          "id": "ea5340ae-93e4-4453-9f37-863a54daca91",
+          "beforeId": "75c0df27-1185-4125-bf51-c02c345a077a",
+          "afterId": "f2cd1e31-b1ab-47ce-be17-6a2f196fbe3f",
+          "status": "succeeded",
+          "purpose": "external",
+          "label": "Run",
+          "kind": "click",
+          "controlId": "6585723d-75b4-4b00-85c9-cfe80e2c3ec2"
+        },
+        {
+          "id": "e3f89452-4e37-45a9-9173-864d133a6a66",
+          "beforeId": "f2cd1e31-b1ab-47ce-be17-6a2f196fbe3f",
+          "afterId": "eeea2868-a70a-4df6-8caa-900eba1fbee6",
+          "status": "succeeded",
+          "purpose": "external",
+          "label": "Run",
+          "kind": "click",
+          "controlId": "afea789d-7b53-4b9e-aad8-342e3df74cdd"
+        }
+      ]
+    },
+    {
+      "scenario": "shared-id-rebuild",
+      "run": 2,
+      "sourceRevision": "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35+shared-scope-working-tree",
+      "fixtureSha256": "d12514d69904d2d39ef34ede1ada4a208449dee2d1dd0501d643ac9d20b263a9",
+      "method": "single-step SDK/plugin mechanism experiment",
+      "expectedBranches": [
+        "shared:A",
+        "shared:B"
+      ],
+      "observedBranches": [
+        "shared:A",
+        "shared:B"
+      ],
+      "missingBranches": [],
+      "oracle": [
+        {
+          "branch": "shared:A",
+          "sequence": 1,
+          "at": 298.47179099999994
+        },
+        {
+          "branch": "shared:B",
+          "sequence": 2,
+          "at": 393.838125
+        }
+      ],
+      "metrics": {
+        "actualActions": 2,
+        "successfulActions": 2,
+        "recoveryActions": 0,
+        "oracleClicks": 2,
+        "newDistinctBranches": 2,
+        "duplicateOracleClicks": 0,
+        "falseCoverageChecks": 0,
+        "retryKeyCount": 2,
+        "priceTickRetryKeyCount": null,
+        "observedStateCount": 2,
+        "stepCalls": 12,
+        "modelRequests": 0,
+        "jevCalls": 0,
+        "llmCalls": 0,
+        "initialPlanRows": 1,
+        "finalPlanRows": 7,
+        "finalPendingRows": 3,
+        "wallTimeMs": 664
+      },
+      "taskStatus": "running",
+      "taskReason": "plan_revised",
+      "modelCalls": [],
+      "errors": [],
+      "phaseRecord": [
+        {
+          "label": "initial",
+          "observationId": "0bcae9e1-9f95-4788-b12d-7a49383aa5f9",
+          "stateId": "d35e2bfe7a95c1c2aa9acade53282c98e7a9c85fa7ed6cb9d12efeabd9108534",
+          "currentBranch": null,
+          "oracle": [],
+          "operationKeys": [
+            "fb55c9479aed41d68a291007c8aeaa4ea620ffd80381678340bef5f0539e35f8",
+            "b65ab47994556a660e975f16afbbdc84f4ad8203165e365b47e1d12cd335e6bc"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "df9c36f9-a669-4bad-988d-64fe8dd9e91c",
+              "controlId": "3dbe366a-081a-40e3-8900-84001111b169",
+              "completed": false
+            },
+            {
+              "actionId": "d5444b06-4154-451a-a66c-326023f13560",
+              "controlId": "ce92e569-45f0-4b8a-9f31-28bbeaef95ac",
+              "completed": false
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 1,
+          "pendingPlanRows": 1,
+          "attemptCount": 0
+        },
+        {
+          "label": "after-initial",
+          "observationId": "c95dc1f1-3f6d-4ac7-8826-426096c7c831",
+          "stateId": "d35e2bfe7a95c1c2aa9acade53282c98e7a9c85fa7ed6cb9d12efeabd9108534",
+          "currentBranch": null,
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "fb55c9479aed41d68a291007c8aeaa4ea620ffd80381678340bef5f0539e35f8",
+            "b65ab47994556a660e975f16afbbdc84f4ad8203165e365b47e1d12cd335e6bc"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "2421749d-05b4-4fa9-bc77-abfe7529b591",
+              "controlId": "3dbe366a-081a-40e3-8900-84001111b169",
+              "completed": true
+            },
+            {
+              "actionId": "c14ce9b4-e5d0-4b43-9f44-0ab0535687fa",
+              "controlId": "ce92e569-45f0-4b8a-9f31-28bbeaef95ac",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "A-removed-B-rebuilt-before-dispatch",
+          "observationId": "1259b439-2165-4af8-8502-42907e1f83f8",
+          "stateId": "9b51909f55093897e536d58b2756870b13e54a62e0c48ce80873b1f898a1239c",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "b65ab47994556a660e975f16afbbdc84f4ad8203165e365b47e1d12cd335e6bc"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "1cf699ea-c405-421b-a2ac-efbd4ea3a9a8",
+              "controlId": "ce92e569-45f0-4b8a-9f31-28bbeaef95ac",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "A-removed-B-rebuilt-after-dispatch",
+          "observationId": "1259b439-2165-4af8-8502-42907e1f83f8",
+          "stateId": "9b51909f55093897e536d58b2756870b13e54a62e0c48ce80873b1f898a1239c",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "b65ab47994556a660e975f16afbbdc84f4ad8203165e365b47e1d12cd335e6bc"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "1cf699ea-c405-421b-a2ac-efbd4ea3a9a8",
+              "controlId": "ce92e569-45f0-4b8a-9f31-28bbeaef95ac",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "same-B-rebuilt-again",
+          "observationId": "5e723c05-8349-4c2f-aa30-0d0c527bcde1",
+          "stateId": "9b51909f55093897e536d58b2756870b13e54a62e0c48ce80873b1f898a1239c",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "b65ab47994556a660e975f16afbbdc84f4ad8203165e365b47e1d12cd335e6bc"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "ca989273-e57c-417a-8fd4-796e2d5e946d",
+              "controlId": "ce92e569-45f0-4b8a-9f31-28bbeaef95ac",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        }
+      ],
+      "keyRows": [
+        {
+          "observationId": "0bcae9e1-9f95-4788-b12d-7a49383aa5f9",
+          "stateId": "d35e2bfe7a95c1c2aa9acade53282c98e7a9c85fa7ed6cb9d12efeabd9108534",
+          "targetId": "3dbe366a-081a-40e3-8900-84001111b169",
+          "key": "fb55c9479aed41d68a291007c8aeaa4ea620ffd80381678340bef5f0539e35f8"
+        },
+        {
+          "observationId": "0bcae9e1-9f95-4788-b12d-7a49383aa5f9",
+          "stateId": "d35e2bfe7a95c1c2aa9acade53282c98e7a9c85fa7ed6cb9d12efeabd9108534",
+          "targetId": "ce92e569-45f0-4b8a-9f31-28bbeaef95ac",
+          "key": "b65ab47994556a660e975f16afbbdc84f4ad8203165e365b47e1d12cd335e6bc"
+        },
+        {
+          "observationId": "70d1e360-147c-4874-b230-89828a816fac",
+          "stateId": "d35e2bfe7a95c1c2aa9acade53282c98e7a9c85fa7ed6cb9d12efeabd9108534",
+          "targetId": "3dbe366a-081a-40e3-8900-84001111b169",
+          "key": "fb55c9479aed41d68a291007c8aeaa4ea620ffd80381678340bef5f0539e35f8"
+        },
+        {
+          "observationId": "70d1e360-147c-4874-b230-89828a816fac",
+          "stateId": "d35e2bfe7a95c1c2aa9acade53282c98e7a9c85fa7ed6cb9d12efeabd9108534",
+          "targetId": "ce92e569-45f0-4b8a-9f31-28bbeaef95ac",
+          "key": "b65ab47994556a660e975f16afbbdc84f4ad8203165e365b47e1d12cd335e6bc"
+        },
+        {
+          "observationId": "c95dc1f1-3f6d-4ac7-8826-426096c7c831",
+          "stateId": "d35e2bfe7a95c1c2aa9acade53282c98e7a9c85fa7ed6cb9d12efeabd9108534",
+          "targetId": "3dbe366a-081a-40e3-8900-84001111b169",
+          "key": "fb55c9479aed41d68a291007c8aeaa4ea620ffd80381678340bef5f0539e35f8"
+        },
+        {
+          "observationId": "c95dc1f1-3f6d-4ac7-8826-426096c7c831",
+          "stateId": "d35e2bfe7a95c1c2aa9acade53282c98e7a9c85fa7ed6cb9d12efeabd9108534",
+          "targetId": "ce92e569-45f0-4b8a-9f31-28bbeaef95ac",
+          "key": "b65ab47994556a660e975f16afbbdc84f4ad8203165e365b47e1d12cd335e6bc"
+        },
+        {
+          "observationId": "1259b439-2165-4af8-8502-42907e1f83f8",
+          "stateId": "9b51909f55093897e536d58b2756870b13e54a62e0c48ce80873b1f898a1239c",
+          "targetId": "ce92e569-45f0-4b8a-9f31-28bbeaef95ac",
+          "key": "b65ab47994556a660e975f16afbbdc84f4ad8203165e365b47e1d12cd335e6bc"
+        },
+        {
+          "observationId": "5e723c05-8349-4c2f-aa30-0d0c527bcde1",
+          "stateId": "9b51909f55093897e536d58b2756870b13e54a62e0c48ce80873b1f898a1239c",
+          "targetId": "ce92e569-45f0-4b8a-9f31-28bbeaef95ac",
+          "key": "b65ab47994556a660e975f16afbbdc84f4ad8203165e365b47e1d12cd335e6bc"
+        }
+      ],
+      "attempts": [
+        {
+          "id": "cacbabde-46e7-4529-bc1d-61fe4417ed0c",
+          "beforeId": "0bcae9e1-9f95-4788-b12d-7a49383aa5f9",
+          "afterId": "70d1e360-147c-4874-b230-89828a816fac",
+          "status": "succeeded",
+          "purpose": "external",
+          "label": "Run",
+          "kind": "click",
+          "controlId": "3dbe366a-081a-40e3-8900-84001111b169"
+        },
+        {
+          "id": "d9a98582-4403-464b-bf35-232ccbcaaa88",
+          "beforeId": "70d1e360-147c-4874-b230-89828a816fac",
+          "afterId": "c95dc1f1-3f6d-4ac7-8826-426096c7c831",
+          "status": "succeeded",
+          "purpose": "external",
+          "label": "Run",
+          "kind": "click",
+          "controlId": "ce92e569-45f0-4b8a-9f31-28bbeaef95ac"
+        }
+      ]
+    },
+    {
+      "scenario": "shared-id-rebuild",
+      "run": 3,
+      "sourceRevision": "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35+shared-scope-working-tree",
+      "fixtureSha256": "d12514d69904d2d39ef34ede1ada4a208449dee2d1dd0501d643ac9d20b263a9",
+      "method": "single-step SDK/plugin mechanism experiment",
+      "expectedBranches": [
+        "shared:A",
+        "shared:B"
+      ],
+      "observedBranches": [
+        "shared:A",
+        "shared:B"
+      ],
+      "missingBranches": [],
+      "oracle": [
+        {
+          "branch": "shared:A",
+          "sequence": 1,
+          "at": 283.229875
+        },
+        {
+          "branch": "shared:B",
+          "sequence": 2,
+          "at": 391.594791
+        }
+      ],
+      "metrics": {
+        "actualActions": 2,
+        "successfulActions": 2,
+        "recoveryActions": 0,
+        "oracleClicks": 2,
+        "newDistinctBranches": 2,
+        "duplicateOracleClicks": 0,
+        "falseCoverageChecks": 0,
+        "retryKeyCount": 2,
+        "priceTickRetryKeyCount": null,
+        "observedStateCount": 2,
+        "stepCalls": 12,
+        "modelRequests": 0,
+        "jevCalls": 0,
+        "llmCalls": 0,
+        "initialPlanRows": 1,
+        "finalPlanRows": 7,
+        "finalPendingRows": 3,
+        "wallTimeMs": 628
+      },
+      "taskStatus": "running",
+      "taskReason": "plan_revised",
+      "modelCalls": [],
+      "errors": [],
+      "phaseRecord": [
+        {
+          "label": "initial",
+          "observationId": "b55cd17f-08b6-4b75-bee3-32dad1381b1d",
+          "stateId": "80e2f451beb92c1736cba6b98bc1d09b66f962d8d186cfff8998e0132ff68950",
+          "currentBranch": null,
+          "oracle": [],
+          "operationKeys": [
+            "d2982a4dcd4e0a5519896e0345cd9f88e6058c61301f19d1f72b504c4fbcf505",
+            "41c5d991aaaaa4ee1d700a8b51c0c391fda87599946eb17d19f54d2249a40cbb"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "5edcffb4-81aa-493c-9b56-0dc03854405a",
+              "controlId": "f54b25a1-bb6f-4fe3-8a26-56727ae6b202",
+              "completed": false
+            },
+            {
+              "actionId": "f679b729-2a90-4284-bb33-ff011afea0b6",
+              "controlId": "8afd9176-8ba4-4ed4-8222-fc1a675af090",
+              "completed": false
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 1,
+          "pendingPlanRows": 1,
+          "attemptCount": 0
+        },
+        {
+          "label": "after-initial",
+          "observationId": "28dd4473-8f67-41db-82d9-1d729c1ca9bc",
+          "stateId": "80e2f451beb92c1736cba6b98bc1d09b66f962d8d186cfff8998e0132ff68950",
+          "currentBranch": null,
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "d2982a4dcd4e0a5519896e0345cd9f88e6058c61301f19d1f72b504c4fbcf505",
+            "41c5d991aaaaa4ee1d700a8b51c0c391fda87599946eb17d19f54d2249a40cbb"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "84098c44-4c19-4cfd-a713-89a1d3513b71",
+              "controlId": "f54b25a1-bb6f-4fe3-8a26-56727ae6b202",
+              "completed": true
+            },
+            {
+              "actionId": "856f2d9a-90c6-4b8c-a15d-cc934b1628ea",
+              "controlId": "8afd9176-8ba4-4ed4-8222-fc1a675af090",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "A-removed-B-rebuilt-before-dispatch",
+          "observationId": "5c830716-3f5c-489c-b14e-25414bccd770",
+          "stateId": "c4143d706e0cc28f432fdbfc24f463e1c1467ff5872901629c861e5095907aed",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "41c5d991aaaaa4ee1d700a8b51c0c391fda87599946eb17d19f54d2249a40cbb"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "5aa1ec1a-1065-4baa-bc54-e2e15b02e81a",
+              "controlId": "8afd9176-8ba4-4ed4-8222-fc1a675af090",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "A-removed-B-rebuilt-after-dispatch",
+          "observationId": "5c830716-3f5c-489c-b14e-25414bccd770",
+          "stateId": "c4143d706e0cc28f432fdbfc24f463e1c1467ff5872901629c861e5095907aed",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "41c5d991aaaaa4ee1d700a8b51c0c391fda87599946eb17d19f54d2249a40cbb"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "5aa1ec1a-1065-4baa-bc54-e2e15b02e81a",
+              "controlId": "8afd9176-8ba4-4ed4-8222-fc1a675af090",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "same-B-rebuilt-again",
+          "observationId": "4981ddab-03e0-4b28-8e8e-6f6aa2f4b3e4",
+          "stateId": "c4143d706e0cc28f432fdbfc24f463e1c1467ff5872901629c861e5095907aed",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "41c5d991aaaaa4ee1d700a8b51c0c391fda87599946eb17d19f54d2249a40cbb"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "7addc764-bd3e-490b-99d2-a17967eb25e5",
+              "controlId": "8afd9176-8ba4-4ed4-8222-fc1a675af090",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        }
+      ],
+      "keyRows": [
+        {
+          "observationId": "b55cd17f-08b6-4b75-bee3-32dad1381b1d",
+          "stateId": "80e2f451beb92c1736cba6b98bc1d09b66f962d8d186cfff8998e0132ff68950",
+          "targetId": "f54b25a1-bb6f-4fe3-8a26-56727ae6b202",
+          "key": "d2982a4dcd4e0a5519896e0345cd9f88e6058c61301f19d1f72b504c4fbcf505"
+        },
+        {
+          "observationId": "b55cd17f-08b6-4b75-bee3-32dad1381b1d",
+          "stateId": "80e2f451beb92c1736cba6b98bc1d09b66f962d8d186cfff8998e0132ff68950",
+          "targetId": "8afd9176-8ba4-4ed4-8222-fc1a675af090",
+          "key": "41c5d991aaaaa4ee1d700a8b51c0c391fda87599946eb17d19f54d2249a40cbb"
+        },
+        {
+          "observationId": "621b734e-4d15-4231-bf9f-9642d5e3f09d",
+          "stateId": "80e2f451beb92c1736cba6b98bc1d09b66f962d8d186cfff8998e0132ff68950",
+          "targetId": "f54b25a1-bb6f-4fe3-8a26-56727ae6b202",
+          "key": "d2982a4dcd4e0a5519896e0345cd9f88e6058c61301f19d1f72b504c4fbcf505"
+        },
+        {
+          "observationId": "621b734e-4d15-4231-bf9f-9642d5e3f09d",
+          "stateId": "80e2f451beb92c1736cba6b98bc1d09b66f962d8d186cfff8998e0132ff68950",
+          "targetId": "8afd9176-8ba4-4ed4-8222-fc1a675af090",
+          "key": "41c5d991aaaaa4ee1d700a8b51c0c391fda87599946eb17d19f54d2249a40cbb"
+        },
+        {
+          "observationId": "28dd4473-8f67-41db-82d9-1d729c1ca9bc",
+          "stateId": "80e2f451beb92c1736cba6b98bc1d09b66f962d8d186cfff8998e0132ff68950",
+          "targetId": "f54b25a1-bb6f-4fe3-8a26-56727ae6b202",
+          "key": "d2982a4dcd4e0a5519896e0345cd9f88e6058c61301f19d1f72b504c4fbcf505"
+        },
+        {
+          "observationId": "28dd4473-8f67-41db-82d9-1d729c1ca9bc",
+          "stateId": "80e2f451beb92c1736cba6b98bc1d09b66f962d8d186cfff8998e0132ff68950",
+          "targetId": "8afd9176-8ba4-4ed4-8222-fc1a675af090",
+          "key": "41c5d991aaaaa4ee1d700a8b51c0c391fda87599946eb17d19f54d2249a40cbb"
+        },
+        {
+          "observationId": "5c830716-3f5c-489c-b14e-25414bccd770",
+          "stateId": "c4143d706e0cc28f432fdbfc24f463e1c1467ff5872901629c861e5095907aed",
+          "targetId": "8afd9176-8ba4-4ed4-8222-fc1a675af090",
+          "key": "41c5d991aaaaa4ee1d700a8b51c0c391fda87599946eb17d19f54d2249a40cbb"
+        },
+        {
+          "observationId": "4981ddab-03e0-4b28-8e8e-6f6aa2f4b3e4",
+          "stateId": "c4143d706e0cc28f432fdbfc24f463e1c1467ff5872901629c861e5095907aed",
+          "targetId": "8afd9176-8ba4-4ed4-8222-fc1a675af090",
+          "key": "41c5d991aaaaa4ee1d700a8b51c0c391fda87599946eb17d19f54d2249a40cbb"
+        }
+      ],
+      "attempts": [
+        {
+          "id": "eb16a3f9-0c79-4267-b8ba-1b8491039b93",
+          "beforeId": "b55cd17f-08b6-4b75-bee3-32dad1381b1d",
+          "afterId": "621b734e-4d15-4231-bf9f-9642d5e3f09d",
+          "status": "succeeded",
+          "purpose": "external",
+          "label": "Run",
+          "kind": "click",
+          "controlId": "f54b25a1-bb6f-4fe3-8a26-56727ae6b202"
+        },
+        {
+          "id": "70717697-f78a-4665-8e5c-6b80c2dcbe34",
+          "beforeId": "621b734e-4d15-4231-bf9f-9642d5e3f09d",
+          "afterId": "28dd4473-8f67-41db-82d9-1d729c1ca9bc",
+          "status": "succeeded",
+          "purpose": "external",
+          "label": "Run",
+          "kind": "click",
+          "controlId": "8afd9176-8ba4-4ed4-8222-fc1a675af090"
+        }
+      ]
+    },
+    {
+      "scenario": "shared-id-rebuild",
+      "run": 4,
+      "sourceRevision": "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35+shared-scope-working-tree",
+      "fixtureSha256": "d12514d69904d2d39ef34ede1ada4a208449dee2d1dd0501d643ac9d20b263a9",
+      "method": "single-step SDK/plugin mechanism experiment",
+      "expectedBranches": [
+        "shared:A",
+        "shared:B"
+      ],
+      "observedBranches": [
+        "shared:A",
+        "shared:B"
+      ],
+      "missingBranches": [],
+      "oracle": [
+        {
+          "branch": "shared:A",
+          "sequence": 1,
+          "at": 300.5532079999998
+        },
+        {
+          "branch": "shared:B",
+          "sequence": 2,
+          "at": 394.17770800000017
+        }
+      ],
+      "metrics": {
+        "actualActions": 2,
+        "successfulActions": 2,
+        "recoveryActions": 0,
+        "oracleClicks": 2,
+        "newDistinctBranches": 2,
+        "duplicateOracleClicks": 0,
+        "falseCoverageChecks": 0,
+        "retryKeyCount": 2,
+        "priceTickRetryKeyCount": null,
+        "observedStateCount": 2,
+        "stepCalls": 12,
+        "modelRequests": 0,
+        "jevCalls": 0,
+        "llmCalls": 0,
+        "initialPlanRows": 1,
+        "finalPlanRows": 7,
+        "finalPendingRows": 3,
+        "wallTimeMs": 632
+      },
+      "taskStatus": "running",
+      "taskReason": "plan_revised",
+      "modelCalls": [],
+      "errors": [],
+      "phaseRecord": [
+        {
+          "label": "initial",
+          "observationId": "1c4163d8-371d-4dfe-8947-e43ea7476e03",
+          "stateId": "06a6ec496f647d095718012df1330499b670305026d53abdc400693d4fe39b4d",
+          "currentBranch": null,
+          "oracle": [],
+          "operationKeys": [
+            "4c3b16b1fffd72f250ee55593522e6cdb94b1e83a060e7de9a6e4a76cd2cd978",
+            "fa93ab7658272675b271b982cbf4e4af25efea23970d91778d66b454aa56dd86"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "5bf014fa-7977-4f31-984e-518594ed91aa",
+              "controlId": "f184755d-9f13-4cb8-8682-0d037a58eb8d",
+              "completed": false
+            },
+            {
+              "actionId": "a5035347-b55b-4e9b-9eb5-f4d8c1ad97c3",
+              "controlId": "a2622278-c7a3-41f9-878b-ed4ca4d4909e",
+              "completed": false
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 1,
+          "pendingPlanRows": 1,
+          "attemptCount": 0
+        },
+        {
+          "label": "after-initial",
+          "observationId": "f0b89591-eb62-4e16-b12c-b4ce646d4c93",
+          "stateId": "06a6ec496f647d095718012df1330499b670305026d53abdc400693d4fe39b4d",
+          "currentBranch": null,
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "4c3b16b1fffd72f250ee55593522e6cdb94b1e83a060e7de9a6e4a76cd2cd978",
+            "fa93ab7658272675b271b982cbf4e4af25efea23970d91778d66b454aa56dd86"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "bb3bfe56-f774-4ece-91a6-ee5c1cbc31de",
+              "controlId": "f184755d-9f13-4cb8-8682-0d037a58eb8d",
+              "completed": true
+            },
+            {
+              "actionId": "47e6cff3-6bf7-4e38-8181-654a18d8ffb1",
+              "controlId": "a2622278-c7a3-41f9-878b-ed4ca4d4909e",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "A-removed-B-rebuilt-before-dispatch",
+          "observationId": "ddde8dda-6b18-40f2-9993-1a6b811603aa",
+          "stateId": "01f8e5bc7e46aff944f3839fa2cc768ad7cc0ca6eab34c7dbadfe0d7bcecb2bc",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "fa93ab7658272675b271b982cbf4e4af25efea23970d91778d66b454aa56dd86"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "9fc58a37-39f8-42c4-bbf0-6b68b7c5c489",
+              "controlId": "a2622278-c7a3-41f9-878b-ed4ca4d4909e",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "A-removed-B-rebuilt-after-dispatch",
+          "observationId": "ddde8dda-6b18-40f2-9993-1a6b811603aa",
+          "stateId": "01f8e5bc7e46aff944f3839fa2cc768ad7cc0ca6eab34c7dbadfe0d7bcecb2bc",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "fa93ab7658272675b271b982cbf4e4af25efea23970d91778d66b454aa56dd86"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "9fc58a37-39f8-42c4-bbf0-6b68b7c5c489",
+              "controlId": "a2622278-c7a3-41f9-878b-ed4ca4d4909e",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "same-B-rebuilt-again",
+          "observationId": "56c62193-a0b9-47fc-b078-9e539017fab7",
+          "stateId": "01f8e5bc7e46aff944f3839fa2cc768ad7cc0ca6eab34c7dbadfe0d7bcecb2bc",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "fa93ab7658272675b271b982cbf4e4af25efea23970d91778d66b454aa56dd86"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "f82a15ad-c049-4e09-b0ce-5d1e13da285d",
+              "controlId": "a2622278-c7a3-41f9-878b-ed4ca4d4909e",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        }
+      ],
+      "keyRows": [
+        {
+          "observationId": "1c4163d8-371d-4dfe-8947-e43ea7476e03",
+          "stateId": "06a6ec496f647d095718012df1330499b670305026d53abdc400693d4fe39b4d",
+          "targetId": "f184755d-9f13-4cb8-8682-0d037a58eb8d",
+          "key": "4c3b16b1fffd72f250ee55593522e6cdb94b1e83a060e7de9a6e4a76cd2cd978"
+        },
+        {
+          "observationId": "1c4163d8-371d-4dfe-8947-e43ea7476e03",
+          "stateId": "06a6ec496f647d095718012df1330499b670305026d53abdc400693d4fe39b4d",
+          "targetId": "a2622278-c7a3-41f9-878b-ed4ca4d4909e",
+          "key": "fa93ab7658272675b271b982cbf4e4af25efea23970d91778d66b454aa56dd86"
+        },
+        {
+          "observationId": "ad493765-0a87-4414-ba70-0efdd234af64",
+          "stateId": "06a6ec496f647d095718012df1330499b670305026d53abdc400693d4fe39b4d",
+          "targetId": "f184755d-9f13-4cb8-8682-0d037a58eb8d",
+          "key": "4c3b16b1fffd72f250ee55593522e6cdb94b1e83a060e7de9a6e4a76cd2cd978"
+        },
+        {
+          "observationId": "ad493765-0a87-4414-ba70-0efdd234af64",
+          "stateId": "06a6ec496f647d095718012df1330499b670305026d53abdc400693d4fe39b4d",
+          "targetId": "a2622278-c7a3-41f9-878b-ed4ca4d4909e",
+          "key": "fa93ab7658272675b271b982cbf4e4af25efea23970d91778d66b454aa56dd86"
+        },
+        {
+          "observationId": "f0b89591-eb62-4e16-b12c-b4ce646d4c93",
+          "stateId": "06a6ec496f647d095718012df1330499b670305026d53abdc400693d4fe39b4d",
+          "targetId": "f184755d-9f13-4cb8-8682-0d037a58eb8d",
+          "key": "4c3b16b1fffd72f250ee55593522e6cdb94b1e83a060e7de9a6e4a76cd2cd978"
+        },
+        {
+          "observationId": "f0b89591-eb62-4e16-b12c-b4ce646d4c93",
+          "stateId": "06a6ec496f647d095718012df1330499b670305026d53abdc400693d4fe39b4d",
+          "targetId": "a2622278-c7a3-41f9-878b-ed4ca4d4909e",
+          "key": "fa93ab7658272675b271b982cbf4e4af25efea23970d91778d66b454aa56dd86"
+        },
+        {
+          "observationId": "ddde8dda-6b18-40f2-9993-1a6b811603aa",
+          "stateId": "01f8e5bc7e46aff944f3839fa2cc768ad7cc0ca6eab34c7dbadfe0d7bcecb2bc",
+          "targetId": "a2622278-c7a3-41f9-878b-ed4ca4d4909e",
+          "key": "fa93ab7658272675b271b982cbf4e4af25efea23970d91778d66b454aa56dd86"
+        },
+        {
+          "observationId": "56c62193-a0b9-47fc-b078-9e539017fab7",
+          "stateId": "01f8e5bc7e46aff944f3839fa2cc768ad7cc0ca6eab34c7dbadfe0d7bcecb2bc",
+          "targetId": "a2622278-c7a3-41f9-878b-ed4ca4d4909e",
+          "key": "fa93ab7658272675b271b982cbf4e4af25efea23970d91778d66b454aa56dd86"
+        }
+      ],
+      "attempts": [
+        {
+          "id": "026890de-dee4-4342-89c1-31a846e1f699",
+          "beforeId": "1c4163d8-371d-4dfe-8947-e43ea7476e03",
+          "afterId": "ad493765-0a87-4414-ba70-0efdd234af64",
+          "status": "succeeded",
+          "purpose": "external",
+          "label": "Run",
+          "kind": "click",
+          "controlId": "f184755d-9f13-4cb8-8682-0d037a58eb8d"
+        },
+        {
+          "id": "3c5fdde4-1820-4539-a998-90011fa22889",
+          "beforeId": "ad493765-0a87-4414-ba70-0efdd234af64",
+          "afterId": "f0b89591-eb62-4e16-b12c-b4ce646d4c93",
+          "status": "succeeded",
+          "purpose": "external",
+          "label": "Run",
+          "kind": "click",
+          "controlId": "a2622278-c7a3-41f9-878b-ed4ca4d4909e"
+        }
+      ]
+    },
+    {
+      "scenario": "shared-id-rebuild",
+      "run": 5,
+      "sourceRevision": "7cf3918d4e4da12346b1a091f0d2ddfbcdb65b35+shared-scope-working-tree",
+      "fixtureSha256": "d12514d69904d2d39ef34ede1ada4a208449dee2d1dd0501d643ac9d20b263a9",
+      "method": "single-step SDK/plugin mechanism experiment",
+      "expectedBranches": [
+        "shared:A",
+        "shared:B"
+      ],
+      "observedBranches": [
+        "shared:A",
+        "shared:B"
+      ],
+      "missingBranches": [],
+      "oracle": [
+        {
+          "branch": "shared:A",
+          "sequence": 1,
+          "at": 311.1329999999998
+        },
+        {
+          "branch": "shared:B",
+          "sequence": 2,
+          "at": 453.03375000000005
+        }
+      ],
+      "metrics": {
+        "actualActions": 2,
+        "successfulActions": 2,
+        "recoveryActions": 0,
+        "oracleClicks": 2,
+        "newDistinctBranches": 2,
+        "duplicateOracleClicks": 0,
+        "falseCoverageChecks": 0,
+        "retryKeyCount": 2,
+        "priceTickRetryKeyCount": null,
+        "observedStateCount": 2,
+        "stepCalls": 12,
+        "modelRequests": 0,
+        "jevCalls": 0,
+        "llmCalls": 0,
+        "initialPlanRows": 1,
+        "finalPlanRows": 7,
+        "finalPendingRows": 3,
+        "wallTimeMs": 711
+      },
+      "taskStatus": "running",
+      "taskReason": "plan_revised",
+      "modelCalls": [],
+      "errors": [],
+      "phaseRecord": [
+        {
+          "label": "initial",
+          "observationId": "cd17d621-cd85-448d-a95d-228c00e6500d",
+          "stateId": "2ff7d642a22d9f3cc29df47e3dbd848f0e8c5aa5c0ade0ea323426bcacdf614e",
+          "currentBranch": null,
+          "oracle": [],
+          "operationKeys": [
+            "3b9a80de49a7e350e645a9c2aa6c32015e0c2ef3dd3132bca248f9e4e8ea83cb",
+            "5f319939669ee334984d8c9aca5738f2df88bd2883c0a21e7c57918ef628c584"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "bc87ff39-e6e1-4b3a-8be5-7ebc18f15419",
+              "controlId": "e9f8cd90-299e-4dd1-b66d-026ef0424961",
+              "completed": false
+            },
+            {
+              "actionId": "c9635508-e6a0-4e2c-9238-025da8a9b0d8",
+              "controlId": "b8989313-e114-4868-b1b2-66f7f7af6540",
+              "completed": false
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 1,
+          "pendingPlanRows": 1,
+          "attemptCount": 0
+        },
+        {
+          "label": "after-initial",
+          "observationId": "4b3ad048-40cb-4d7a-bdb8-cb29e8f8fdcc",
+          "stateId": "2ff7d642a22d9f3cc29df47e3dbd848f0e8c5aa5c0ade0ea323426bcacdf614e",
+          "currentBranch": null,
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "3b9a80de49a7e350e645a9c2aa6c32015e0c2ef3dd3132bca248f9e4e8ea83cb",
+            "5f319939669ee334984d8c9aca5738f2df88bd2883c0a21e7c57918ef628c584"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "9347fb4c-7c25-424e-a83c-7dadccead5b2",
+              "controlId": "e9f8cd90-299e-4dd1-b66d-026ef0424961",
+              "completed": true
+            },
+            {
+              "actionId": "f1b8b2d6-79cb-4305-af7a-ed12d835dd91",
+              "controlId": "b8989313-e114-4868-b1b2-66f7f7af6540",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "A-removed-B-rebuilt-before-dispatch",
+          "observationId": "7b8a83ec-1a8c-4bd9-9916-54c57ea5b24d",
+          "stateId": "a82e13721ee2ec8ff23371bc057865a6a2aefe4b2299f4d543e49a8227e98057",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "5f319939669ee334984d8c9aca5738f2df88bd2883c0a21e7c57918ef628c584"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "6f61bd6f-9e80-436b-ae39-2879ab1949a3",
+              "controlId": "b8989313-e114-4868-b1b2-66f7f7af6540",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "A-removed-B-rebuilt-after-dispatch",
+          "observationId": "7b8a83ec-1a8c-4bd9-9916-54c57ea5b24d",
+          "stateId": "a82e13721ee2ec8ff23371bc057865a6a2aefe4b2299f4d543e49a8227e98057",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "5f319939669ee334984d8c9aca5738f2df88bd2883c0a21e7c57918ef628c584"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "6f61bd6f-9e80-436b-ae39-2879ab1949a3",
+              "controlId": "b8989313-e114-4868-b1b2-66f7f7af6540",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        },
+        {
+          "label": "same-B-rebuilt-again",
+          "observationId": "e79a5378-f9e7-44db-b083-fe6c83bb482f",
+          "stateId": "a82e13721ee2ec8ff23371bc057865a6a2aefe4b2299f4d543e49a8227e98057",
+          "currentBranch": "shared:B",
+          "oracle": [
+            "shared:A",
+            "shared:B"
+          ],
+          "operationKeys": [
+            "5f319939669ee334984d8c9aca5738f2df88bd2883c0a21e7c57918ef628c584"
+          ],
+          "coverageClaims": [
+            {
+              "actionId": "a5de09c8-23d9-4760-86d5-6ca93794bd98",
+              "controlId": "b8989313-e114-4868-b1b2-66f7f7af6540",
+              "completed": true
+            }
+          ],
+          "falseCoverage": false,
+          "planRows": 7,
+          "pendingPlanRows": 3,
+          "attemptCount": 2
+        }
+      ],
+      "keyRows": [
+        {
+          "observationId": "cd17d621-cd85-448d-a95d-228c00e6500d",
+          "stateId": "2ff7d642a22d9f3cc29df47e3dbd848f0e8c5aa5c0ade0ea323426bcacdf614e",
+          "targetId": "e9f8cd90-299e-4dd1-b66d-026ef0424961",
+          "key": "3b9a80de49a7e350e645a9c2aa6c32015e0c2ef3dd3132bca248f9e4e8ea83cb"
+        },
+        {
+          "observationId": "cd17d621-cd85-448d-a95d-228c00e6500d",
+          "stateId": "2ff7d642a22d9f3cc29df47e3dbd848f0e8c5aa5c0ade0ea323426bcacdf614e",
+          "targetId": "b8989313-e114-4868-b1b2-66f7f7af6540",
+          "key": "5f319939669ee334984d8c9aca5738f2df88bd2883c0a21e7c57918ef628c584"
+        },
+        {
+          "observationId": "550ecf91-7332-4f9f-a5e3-2839f35fda51",
+          "stateId": "2ff7d642a22d9f3cc29df47e3dbd848f0e8c5aa5c0ade0ea323426bcacdf614e",
+          "targetId": "e9f8cd90-299e-4dd1-b66d-026ef0424961",
+          "key": "3b9a80de49a7e350e645a9c2aa6c32015e0c2ef3dd3132bca248f9e4e8ea83cb"
+        },
+        {
+          "observationId": "550ecf91-7332-4f9f-a5e3-2839f35fda51",
+          "stateId": "2ff7d642a22d9f3cc29df47e3dbd848f0e8c5aa5c0ade0ea323426bcacdf614e",
+          "targetId": "b8989313-e114-4868-b1b2-66f7f7af6540",
+          "key": "5f319939669ee334984d8c9aca5738f2df88bd2883c0a21e7c57918ef628c584"
+        },
+        {
+          "observationId": "4b3ad048-40cb-4d7a-bdb8-cb29e8f8fdcc",
+          "stateId": "2ff7d642a22d9f3cc29df47e3dbd848f0e8c5aa5c0ade0ea323426bcacdf614e",
+          "targetId": "e9f8cd90-299e-4dd1-b66d-026ef0424961",
+          "key": "3b9a80de49a7e350e645a9c2aa6c32015e0c2ef3dd3132bca248f9e4e8ea83cb"
+        },
+        {
+          "observationId": "4b3ad048-40cb-4d7a-bdb8-cb29e8f8fdcc",
+          "stateId": "2ff7d642a22d9f3cc29df47e3dbd848f0e8c5aa5c0ade0ea323426bcacdf614e",
+          "targetId": "b8989313-e114-4868-b1b2-66f7f7af6540",
+          "key": "5f319939669ee334984d8c9aca5738f2df88bd2883c0a21e7c57918ef628c584"
+        },
+        {
+          "observationId": "7b8a83ec-1a8c-4bd9-9916-54c57ea5b24d",
+          "stateId": "a82e13721ee2ec8ff23371bc057865a6a2aefe4b2299f4d543e49a8227e98057",
+          "targetId": "b8989313-e114-4868-b1b2-66f7f7af6540",
+          "key": "5f319939669ee334984d8c9aca5738f2df88bd2883c0a21e7c57918ef628c584"
+        },
+        {
+          "observationId": "e79a5378-f9e7-44db-b083-fe6c83bb482f",
+          "stateId": "a82e13721ee2ec8ff23371bc057865a6a2aefe4b2299f4d543e49a8227e98057",
+          "targetId": "b8989313-e114-4868-b1b2-66f7f7af6540",
+          "key": "5f319939669ee334984d8c9aca5738f2df88bd2883c0a21e7c57918ef628c584"
+        }
+      ],
+      "attempts": [
+        {
+          "id": "ccfa2c5a-0639-4961-bc00-7dfc9d2228dd",
+          "beforeId": "cd17d621-cd85-448d-a95d-228c00e6500d",
+          "afterId": "550ecf91-7332-4f9f-a5e3-2839f35fda51",
+          "status": "succeeded",
+          "purpose": "external",
+          "label": "Run",
+          "kind": "click",
+          "controlId": "e9f8cd90-299e-4dd1-b66d-026ef0424961"
+        },
+        {
+          "id": "e394bebe-25b3-4fe9-95f5-ff5743b995da",
+          "beforeId": "550ecf91-7332-4f9f-a5e3-2839f35fda51",
+          "afterId": "4b3ad048-40cb-4d7a-bdb8-cb29e8f8fdcc",
+          "status": "succeeded",
+          "purpose": "external",
+          "label": "Run",
+          "kind": "click",
+          "controlId": "b8989313-e114-4868-b1b2-66f7f7af6540"
+        }
+      ]
+    }
+  ]
+}
