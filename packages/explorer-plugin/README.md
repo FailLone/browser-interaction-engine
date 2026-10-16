@@ -35,6 +35,8 @@ Next-action and sampling prompts include accepted scopes and explicit exclusions
 
 When a permitted, unique, untested in-place action is already available, the scheduler defers replaying earlier entry operations until that fresh work is drained. Deferred branches remain in the plan and checkpoint stack, and necessary entries become eligible again afterward. The program emits `action.priority`; model options explicitly identify reentries as prerequisites, never new coverage. This prevents opening an old menu only to leave it for unrelated fresh work, without introducing concurrent model/browser execution or relaxing any scope/review gate.
 
+Reentry retries are keyed to the accepted unfinished targets and prerequisite paths belonging to that entry. Completing unrelated work or adding duplicate ledger rows does not reopen an unchanged branch. Finishing a child or discovering a new child changes that branch's obligations and permits another freshly validated entry. These retry keys persist with the round; matching legacy keys remain honored, and no historical gap, budget or execution evidence is cleared by the change.
+
 Unresolved purpose judgments are not repeatedly requested when only the control's screen position changes. The plugin keeps the original decision and observation references, emits `review.unchanged`, and retains the unfinished scope without granting or executing the operation. A changed task revision, document, URL, context, boundary, control size/content/structure, action basis or review status requires a fresh judgment. Successful authorizations are never stored in this unresolved-evidence cache. Model requests and browser mutations remain sequential.
 
 ## Embed

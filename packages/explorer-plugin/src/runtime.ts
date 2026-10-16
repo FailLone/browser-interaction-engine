@@ -520,18 +520,30 @@ export class ExplorerPlugin {
   private attemptKey(round:Round,a:ActionCandidate,o:Observation) {
     return this.currentExit(a,o)?digest({protocol:'boundary-exit-visit/v1',visit:round.boundaryVisit||{key:a.boundary!.key,instanceScope:o.instanceScope,observationId:o.id},operation:keyFor(a,o)}):keyFor(a,o);
   }
-  private entryKey(task:Task,a:ActionCandidate,o:Observation) {return digest({scope:scopeFor(a,o),pending:task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status)).map(i=>i.id).sort()});}
+  private entryTargets(task:Task,a:ActionCandidate,o:Observation) {
+    const grants=task.plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='excluded'),actual=scopeFor(a,o);
+    return task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status)
+      &&(i.dispatchScope===true||grants.some(grant=>Object.entries(grant.scope).every(([key,value])=>i.scope[key as keyof Scope]===value)))
+      &&i.prerequisites.some(p=>Object.entries(p).every(([key,value])=>actual[key as keyof Scope]===value)));
+  }
+  private entryKey(task:Task,a:ActionCandidate,o:Observation,targets=this.entryTargets(task,a,o)) {
+    // Only a change to this branch's semantic obligations justifies another
+    // entry. Unrelated progress and duplicate evidence rows are not new work.
+    const pending=[...new Set(targets.map(i=>digest({scope:i.scope,prerequisites:i.prerequisites})))].sort();
+    return `branch-v2:${digest({scope:scopeFor(a,o),pending})}`;
+  }
   private pathForAction(round:Round,a:ActionCandidate,o:Observation) {
     // A background sibling already belonged to an earlier frame. Opening the
     // current dialog must not become a prerequisite for that sibling.
     return round.stack.find(frame=>frame.remaining.some(scope=>matches(scope,a,o)))?.path||round.entryPath;
   }
   private neededEntry(task:Task,r:Round,a:ActionCandidate,o:Observation) {
-    if(r.reentries.includes(this.entryKey(task,a,o)))return false;
-    const actions=this.host.actions(o.sessionId);return task.plan.some(i=>i.required&&!['succeeded','excluded'].includes(i.status)
-      &&(i.dispatchScope===true||task.plan.some(grant=>grant.required&&grant.dispatchScope===true&&grant.status!=='excluded'&&Object.entries(grant.scope).every(([key,value])=>i.scope[key as keyof Scope]===value)))
-      &&i.prerequisites.some(p=>matches(p,a,o))&&!!includesScope(task.plan,a,o)
-      &&!actions.some(candidate=>matches(i.scope,candidate,o)&&candidate.preconditions.visible&&!candidate.preconditions.blockers?.length));
+    if(!includesScope(task.plan,a,o))return false;
+    const targets=this.entryTargets(task,a,o);if(!targets.length||r.reentries.includes(this.entryKey(task,a,o,targets)))return false;
+    // Keep matching historical cache entries effective without clearing the
+    // saved round or treating old row IDs as new branch identities.
+    if(r.reentries.some(key=>!key.startsWith('branch-v2:'))&&r.reentries.includes(digest({scope:scopeFor(a,o),pending:task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status)).map(i=>i.id).sort()})))return false;
+    const actions=this.host.actions(o.sessionId);return targets.some(i=>!actions.some(candidate=>matches(i.scope,candidate,o)&&candidate.preconditions.visible&&!candidate.preconditions.blockers?.length));
   }
   private wasCompleted(task:Task,action:ActionCandidate,o:Observation) {
     // Prior completion is a scheduling reference only, never a new engine success or grant.

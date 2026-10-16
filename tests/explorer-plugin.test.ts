@@ -111,16 +111,48 @@ it('grounds recovery judgments in both observations and the unfinished branch be
  }finally{await plugin.close();await f.close();}
 });
 
-it('finishes available new controls before replaying an entry and still returns for its unfinished child',async()=>{
- const f=await explorerFixture(`<button id="open" type="button" onclick="document.getElementById('menu').hidden=false">Open</button><div id="menu" hidden>${['First','Second'].map(name=>`<button type="button" onclick="this.disabled=true;document.getElementById('menu').hidden=true">${name}</button>`).join('')}</div><button type="button" onclick="this.disabled=true;document.getElementById('menu').hidden=true">Outside</button>`),p=fakeProviders(f.url),original=p.jev.decide;
- p.jev.decide=async(r,s)=>{if(r.purpose==='next-action'){const options=Object.entries(r.options!) as [string,any][];const selected=['Open','First','Outside','Second'].map(label=>options.find(([,o])=>o.label===label)).find(Boolean)!;return {model:'mock',value:selected[0],confidence:1};}return original(r,s);};
+it.each([2,3])('finishes available new controls before replaying an entry and returns for all %i children',async(count)=>{
+ const children=['First','Second','Third'].slice(0,count);
+ const f=await explorerFixture(`<button id="open" type="button" onclick="document.getElementById('menu').hidden=false">Open</button><div id="menu" hidden>${children.map(name=>`<button type="button" onclick="this.disabled=true;document.getElementById('menu').hidden=true">${name}</button>`).join('')}</div><button type="button" onclick="this.disabled=true;document.getElementById('menu').hidden=true">Outside</button>`),p=fakeProviders(f.url),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>{if(r.purpose==='next-action'){const options=Object.entries(r.options!) as [string,any][];const selected=['Open','First','Outside','Second','Third'].map(label=>options.find(([,o])=>o.label===label)).find(Boolean)!;return {model:'mock',value:selected[0],confidence:1};}return original(r,s);};
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:10}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');
-  expect(attempts.map(a=>a.action.label)).toEqual(['Open','First','Outside','Open','Second']);expect(v.task.status).toBe('completed');
+  expect(attempts.map(a=>a.action.label)).toEqual(['Open','First','Outside',...children.slice(1).flatMap(name=>['Open',name])]);expect(v.task.status).toBe('completed');
   expect(v.events.some(e=>e.type==='action.priority'&&(e.data as any).deferred.some((a:any)=>a.label==='Open'))).toBe(true);
   const reentry=v.decisions.filter(d=>d.purpose==='next-action').map(d=>d.request.options![String(d.answer!.value)] as any).find(o=>o.reentry);expect(reentry).toMatchObject({label:'Open',purpose:'prerequisite',reentry:true});
-  expect(v.task.plan.some(i=>i.scope.label==='Second'&&i.status==='succeeded')).toBe(true);
+  expect(children.every(name=>v.task.plan.some(i=>i.scope.label===name&&i.status==='succeeded'))).toBe(true);
  }finally{await plugin.close();await f.close();}
+});
+
+it('does not replay an unchanged missing branch when unrelated work changes the coverage ledger',async()=>{
+ const f=await explorerFixture(`<button id="open" type="button" onclick="document.getElementById('result').textContent='Opened'">Open</button><output id="result"></output><button type="button" onclick="this.disabled=true">Outside</button>`),p=fakeProviders(f.url),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>r.purpose==='recovery-selection'?{model:'mock',value:'uncertain',confidence:1}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:8}});
+  plugin.revise(t.id,{items:[{title:'Page',scope:{url:f.url},prerequisites:[],completion:'Verify discovered controls',required:true,reason:'user scope'}]});
+  const saved=plugin.store.task(t.id);saved.plan.push({...structuredClone(saved.plan[0]),id:'missing-child',title:'Missing child',scope:{url:f.url,label:'Child',kind:'click'},prerequisites:[{url:f.url,label:'Open',kind:'click'}],dispatchScope:false,status:'unresolved',reason:'operation_not_executed'});plugin.store.save(saved);
+  plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');
+  expect(attempts.map(a=>a.action.label)).toEqual(['Open','Outside']);
+  expect(v.task.plan.find(i=>i.id==='missing-child')?.status).not.toBe('succeeded');expect(v.task.status).not.toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
+
+it('preserves branch retry limits across restart, unrelated gaps and duplicate evidence rows',async()=>{
+ const f=await explorerFixture(`<button id="open" type="button" onclick="document.getElementById('result').textContent='Opened'">Open</button><output id="result"></output><button type="button" onclick="this.disabled=true">Outside</button>`),p=fakeProviders(f.url),original=p.jev.decide,path=join(f.dir,'branch.sqlite');
+ let began!:()=>void,release!:()=>void,hold=true;const waiting=new Promise<void>(r=>began=r);
+ p.jev.decide=async(r,s)=>{if(r.purpose==='recovery-selection')return {model:'mock',value:'uncertain',confidence:1};if(hold&&r.purpose==='next-action'&&Object.values(r.options!).some((o:any)=>o.label==='Outside')&&!Object.values(r.options!).some((o:any)=>o.label==='Open')){hold=false;began();await new Promise<void>(resolve=>release=resolve);}return original(r,s);};
+ let plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:8}});
+  plugin.revise(t.id,{items:[{title:'Page',scope:{url:f.url},prerequisites:[],completion:'Verify discovered controls',required:true,reason:'user scope'}]});
+  const saved=plugin.store.task(t.id);saved.plan.push({...structuredClone(saved.plan[0]),id:'missing-child',scope:{url:f.url,label:'Child',kind:'click'},prerequisites:[{url:f.url,label:'Open',kind:'click'}],dispatchScope:false,status:'unresolved',reason:'operation_not_executed'});plugin.store.save(saved);
+  plugin.start(t.id);await waiting;await plugin.pause(t.id);release();const before=plugin.view(t.id),sid=before.task.rounds[0].sessionId;expect(before.task.usage.actions).toBe(1);await plugin.close();
+  plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),p);const restored=plugin.store.task(t.id),child=restored.plan.find(i=>i.id==='missing-child')!;
+  restored.plan.push({...structuredClone(child),id:'duplicate-child',reason:'operation_unavailable'},{...structuredClone(child),id:'unrelated-gap',scope:{url:f.url,label:'Elsewhere',kind:'click'},prerequisites:[]});plugin.store.save(restored);
+  plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+  expect(v.task.rounds).toHaveLength(1);expect(v.task.usage.actions).toBe(2);expect(v.task.usage.modelRequests).toBeGreaterThanOrEqual(before.task.usage.modelRequests);
+  expect(f.host.list<any>(sid,'attempt').map(a=>a.action.label)).toEqual(['Open','Outside']);
+  expect(v.task.plan.filter(i=>['missing-child','duplicate-child','unrelated-gap'].includes(i.id)).every(i=>i.status!=='succeeded')).toBe(true);expect(v.task.status).not.toBe('completed');
+ }finally{release?.();await plugin.close();await f.close();}
 });
 
 it.each(['whole-page','targeted','after-last-action'] as const)('retains host coverage limitations for %s without treating other successes as coverage',async(mode)=>{
