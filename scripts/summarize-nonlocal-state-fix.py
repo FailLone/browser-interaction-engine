@@ -227,7 +227,13 @@ criteria["input_oracle_preserved"] = all([e["branch"] for e in row["events"]] ==
     for rows in raw["fixed"]["inputs"].values() for row in rows)
 summary["requestedFixCriteria"] = criteria
 summary["requestedFixExperimentAccepted"] = all(criteria.values())
-summary["remainingArchitectureBlockers"] = [name for name, accepted in criteria.items() if not accepted]
+summary["failedScopedCriteria"] = [name for name, accepted in criteria.items() if not accepted]
+summary["remainingArchitectureLimitations"] = [
+    "Unobserved JavaScript/network/free-text causal dependencies remain outside the selector model.",
+    "Immutable observations, identity occurrences and sampling references still grow; only the graph index is bounded in the measured readout scenarios.",
+    "Legacy SDK representative frontier keys are preserved as explicit sampling_policy_changed gaps, not automatically migrated.",
+    "Shared-ID ambiguity, arbitrary-page restoration, long-run performance and real-site exhaustion are not solved by these fixtures.",
+]
 summary["overallExplorationAccepted"] = False
 summary["overallAcceptanceReason"] = "Observed selector dependencies and finite state groups are scoped evidence. Unobserved JavaScript dependencies, arbitrary data combinations, observation retention and real-site exhaustion remain outside these measurements."
 regression_path = OUT / "regression-full.json"
@@ -239,4 +245,4 @@ engineering_path = OUT / "engineering-checks.json"
 if engineering_path.exists():
     summary["engineeringChecks"] = {c["name"]: c["exitCode"] for c in json.loads(engineering_path.read_text())}
 (OUT / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n")
-print(json.dumps({k: summary[k] for k in ("formalTrials", "datasetIntegrityChecksPassed", "requestedFixCriteria", "requestedFixExperimentAccepted", "remainingArchitectureBlockers")}, ensure_ascii=False, indent=2))
+print(json.dumps({k: summary[k] for k in ("formalTrials", "datasetIntegrityChecksPassed", "requestedFixCriteria", "requestedFixExperimentAccepted", "failedScopedCriteria", "remainingArchitectureLimitations")}, ensure_ascii=False, indent=2))
