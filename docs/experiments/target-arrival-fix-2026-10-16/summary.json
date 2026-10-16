@@ -1,0 +1,3176 @@
+{
+  "productCommits": {
+    "baseline": "4857ad571c19995480a4c149abd9b2868a94c965",
+    "previous": "de364fab170a9b92227bc4f982ca78fa6a0a4633",
+    "fixed": "1ed22389d07c34a7cca778f7802ed14c2701d94d"
+  },
+  "purpose": "Scoped repair acceptance; no claim of arbitrary-page restoration or exhaustive exploration.",
+  "conditions": [
+    {
+      "variant": "baseline",
+      "scenario": "public-form-cycle",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 0,
+      "falseCoverageTrials": 5,
+      "metrics": {
+        "oracleClicks": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "newDistinctBranches": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "retryKeyCount": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "observedStateCount": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "initialPlanRows": {
+          "min": 3,
+          "max": 3,
+          "sum": 15,
+          "median": 3,
+          "p95": 3
+        },
+        "finalPlanRows": {
+          "min": 3,
+          "max": 3,
+          "sum": 15,
+          "median": 3,
+          "p95": 3
+        },
+        "finalPendingRows": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 652,
+          "max": 801,
+          "sum": 3434,
+          "median": 662,
+          "p95": 801
+        }
+      },
+      "priceTickPlanRows": [],
+      "priceTickPendingRows": []
+    },
+    {
+      "variant": "baseline",
+      "scenario": "shared-id-rebuild",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 0,
+      "falseCoverageTrials": 0,
+      "metrics": {
+        "oracleClicks": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "newDistinctBranches": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "retryKeyCount": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "observedStateCount": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "initialPlanRows": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "finalPlanRows": {
+          "min": 4,
+          "max": 4,
+          "sum": 20,
+          "median": 4,
+          "p95": 4
+        },
+        "finalPendingRows": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 450,
+          "max": 511,
+          "sum": 2405,
+          "median": 485,
+          "p95": 511
+        }
+      },
+      "priceTickPlanRows": [],
+      "priceTickPendingRows": []
+    },
+    {
+      "variant": "baseline",
+      "scenario": "price-known",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "falseCoverageTrials": 0,
+      "metrics": {
+        "oracleClicks": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "newDistinctBranches": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "retryKeyCount": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "observedStateCount": {
+          "min": 101,
+          "max": 101,
+          "sum": 505,
+          "median": 101,
+          "p95": 101
+        },
+        "initialPlanRows": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "finalPlanRows": {
+          "min": 4,
+          "max": 4,
+          "sum": 20,
+          "median": 4,
+          "p95": 4
+        },
+        "finalPendingRows": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 8194,
+          "max": 8606,
+          "sum": 41971,
+          "median": 8379,
+          "p95": 8606
+        }
+      },
+      "priceTickPlanRows": [
+        4
+      ],
+      "priceTickPendingRows": [
+        2
+      ]
+    },
+    {
+      "variant": "baseline",
+      "scenario": "price-unknown",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "falseCoverageTrials": 0,
+      "metrics": {
+        "oracleClicks": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "newDistinctBranches": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "retryKeyCount": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "observedStateCount": {
+          "min": 101,
+          "max": 101,
+          "sum": 505,
+          "median": 101,
+          "p95": 101
+        },
+        "initialPlanRows": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "finalPlanRows": {
+          "min": 5,
+          "max": 5,
+          "sum": 25,
+          "median": 5,
+          "p95": 5
+        },
+        "finalPendingRows": {
+          "min": 3,
+          "max": 3,
+          "sum": 15,
+          "median": 3,
+          "p95": 3
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 9564,
+          "max": 9744,
+          "sum": 48198,
+          "median": 9582,
+          "p95": 9744
+        }
+      },
+      "priceTickPlanRows": [
+        5
+      ],
+      "priceTickPendingRows": [
+        3
+      ]
+    },
+    {
+      "variant": "baseline",
+      "scenario": "nonlocal-dependency",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 0,
+      "falseCoverageTrials": 5,
+      "metrics": {
+        "oracleClicks": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "newDistinctBranches": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "retryKeyCount": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "observedStateCount": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "initialPlanRows": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "finalPlanRows": {
+          "min": 4,
+          "max": 4,
+          "sum": 20,
+          "median": 4,
+          "p95": 4
+        },
+        "finalPendingRows": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 775,
+          "max": 816,
+          "sum": 3958,
+          "median": 784,
+          "p95": 816
+        }
+      },
+      "priceTickPlanRows": [],
+      "priceTickPendingRows": []
+    },
+    {
+      "variant": "previous",
+      "scenario": "public-form-cycle",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "falseCoverageTrials": 0,
+      "metrics": {
+        "oracleClicks": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "newDistinctBranches": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "retryKeyCount": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "observedStateCount": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "initialPlanRows": {
+          "min": 5,
+          "max": 5,
+          "sum": 25,
+          "median": 5,
+          "p95": 5
+        },
+        "finalPlanRows": {
+          "min": 5,
+          "max": 5,
+          "sum": 25,
+          "median": 5,
+          "p95": 5
+        },
+        "finalPendingRows": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 761,
+          "max": 965,
+          "sum": 4091,
+          "median": 788,
+          "p95": 965
+        }
+      },
+      "priceTickPlanRows": [],
+      "priceTickPendingRows": []
+    },
+    {
+      "variant": "previous",
+      "scenario": "shared-id-rebuild",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 0,
+      "falseCoverageTrials": 0,
+      "metrics": {
+        "oracleClicks": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "newDistinctBranches": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "retryKeyCount": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "observedStateCount": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "initialPlanRows": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "finalPlanRows": {
+          "min": 6,
+          "max": 6,
+          "sum": 30,
+          "median": 6,
+          "p95": 6
+        },
+        "finalPendingRows": {
+          "min": 4,
+          "max": 4,
+          "sum": 20,
+          "median": 4,
+          "p95": 4
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 473,
+          "max": 575,
+          "sum": 2548,
+          "median": 483,
+          "p95": 575
+        }
+      },
+      "priceTickPlanRows": [],
+      "priceTickPendingRows": []
+    },
+    {
+      "variant": "previous",
+      "scenario": "price-known",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "falseCoverageTrials": 0,
+      "metrics": {
+        "oracleClicks": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "newDistinctBranches": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "retryKeyCount": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "observedStateCount": {
+          "min": 101,
+          "max": 101,
+          "sum": 505,
+          "median": 101,
+          "p95": 101
+        },
+        "initialPlanRows": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "finalPlanRows": {
+          "min": 5,
+          "max": 5,
+          "sum": 25,
+          "median": 5,
+          "p95": 5
+        },
+        "finalPendingRows": {
+          "min": 3,
+          "max": 3,
+          "sum": 15,
+          "median": 3,
+          "p95": 3
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 7842,
+          "max": 8618,
+          "sum": 40778,
+          "median": 8166,
+          "p95": 8618
+        }
+      },
+      "priceTickPlanRows": [
+        5
+      ],
+      "priceTickPendingRows": [
+        3
+      ]
+    },
+    {
+      "variant": "previous",
+      "scenario": "price-unknown",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "falseCoverageTrials": 0,
+      "metrics": {
+        "oracleClicks": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "newDistinctBranches": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "retryKeyCount": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "observedStateCount": {
+          "min": 101,
+          "max": 101,
+          "sum": 505,
+          "median": 101,
+          "p95": 101
+        },
+        "initialPlanRows": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "finalPlanRows": {
+          "min": 7,
+          "max": 7,
+          "sum": 35,
+          "median": 7,
+          "p95": 7
+        },
+        "finalPendingRows": {
+          "min": 5,
+          "max": 5,
+          "sum": 25,
+          "median": 5,
+          "p95": 5
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 9103,
+          "max": 9583,
+          "sum": 46284,
+          "median": 9218,
+          "p95": 9583
+        }
+      },
+      "priceTickPlanRows": [
+        7
+      ],
+      "priceTickPendingRows": [
+        5
+      ]
+    },
+    {
+      "variant": "previous",
+      "scenario": "nonlocal-dependency",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 0,
+      "falseCoverageTrials": 5,
+      "metrics": {
+        "oracleClicks": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "newDistinctBranches": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "retryKeyCount": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "observedStateCount": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "initialPlanRows": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "finalPlanRows": {
+          "min": 5,
+          "max": 5,
+          "sum": 25,
+          "median": 5,
+          "p95": 5
+        },
+        "finalPendingRows": {
+          "min": 3,
+          "max": 3,
+          "sum": 15,
+          "median": 3,
+          "p95": 3
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 460,
+          "max": 489,
+          "sum": 2351,
+          "median": 467,
+          "p95": 489
+        }
+      },
+      "priceTickPlanRows": [],
+      "priceTickPendingRows": []
+    },
+    {
+      "variant": "fixed",
+      "scenario": "public-form-cycle",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "falseCoverageTrials": 0,
+      "metrics": {
+        "oracleClicks": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "newDistinctBranches": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "retryKeyCount": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "observedStateCount": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "initialPlanRows": {
+          "min": 5,
+          "max": 5,
+          "sum": 25,
+          "median": 5,
+          "p95": 5
+        },
+        "finalPlanRows": {
+          "min": 5,
+          "max": 5,
+          "sum": 25,
+          "median": 5,
+          "p95": 5
+        },
+        "finalPendingRows": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 792,
+          "max": 904,
+          "sum": 4125,
+          "median": 797,
+          "p95": 904
+        }
+      },
+      "priceTickPlanRows": [],
+      "priceTickPendingRows": []
+    },
+    {
+      "variant": "fixed",
+      "scenario": "shared-id-rebuild",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 0,
+      "falseCoverageTrials": 0,
+      "metrics": {
+        "oracleClicks": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "newDistinctBranches": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "retryKeyCount": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "observedStateCount": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "initialPlanRows": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "finalPlanRows": {
+          "min": 6,
+          "max": 6,
+          "sum": 30,
+          "median": 6,
+          "p95": 6
+        },
+        "finalPendingRows": {
+          "min": 4,
+          "max": 4,
+          "sum": 20,
+          "median": 4,
+          "p95": 4
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 479,
+          "max": 519,
+          "sum": 2470,
+          "median": 491,
+          "p95": 519
+        }
+      },
+      "priceTickPlanRows": [],
+      "priceTickPendingRows": []
+    },
+    {
+      "variant": "fixed",
+      "scenario": "price-known",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "falseCoverageTrials": 0,
+      "metrics": {
+        "oracleClicks": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "newDistinctBranches": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "retryKeyCount": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "observedStateCount": {
+          "min": 101,
+          "max": 101,
+          "sum": 505,
+          "median": 101,
+          "p95": 101
+        },
+        "initialPlanRows": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "finalPlanRows": {
+          "min": 5,
+          "max": 5,
+          "sum": 25,
+          "median": 5,
+          "p95": 5
+        },
+        "finalPendingRows": {
+          "min": 3,
+          "max": 3,
+          "sum": 15,
+          "median": 3,
+          "p95": 3
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 8135,
+          "max": 8396,
+          "sum": 41243,
+          "median": 8205,
+          "p95": 8396
+        }
+      },
+      "priceTickPlanRows": [
+        5
+      ],
+      "priceTickPendingRows": [
+        3
+      ]
+    },
+    {
+      "variant": "fixed",
+      "scenario": "price-unknown",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "falseCoverageTrials": 0,
+      "metrics": {
+        "oracleClicks": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "newDistinctBranches": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "retryKeyCount": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "observedStateCount": {
+          "min": 101,
+          "max": 101,
+          "sum": 505,
+          "median": 101,
+          "p95": 101
+        },
+        "initialPlanRows": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "finalPlanRows": {
+          "min": 7,
+          "max": 7,
+          "sum": 35,
+          "median": 7,
+          "p95": 7
+        },
+        "finalPendingRows": {
+          "min": 5,
+          "max": 5,
+          "sum": 25,
+          "median": 5,
+          "p95": 5
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 9172,
+          "max": 9434,
+          "sum": 46807,
+          "median": 9413,
+          "p95": 9434
+        }
+      },
+      "priceTickPlanRows": [
+        7
+      ],
+      "priceTickPendingRows": [
+        5
+      ]
+    },
+    {
+      "variant": "fixed",
+      "scenario": "nonlocal-dependency",
+      "trials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 0,
+      "falseCoverageTrials": 5,
+      "metrics": {
+        "oracleClicks": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "newDistinctBranches": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateOracleClicks": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryActions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "retryKeyCount": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "observedStateCount": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "initialPlanRows": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "finalPlanRows": {
+          "min": 5,
+          "max": 5,
+          "sum": 25,
+          "median": 5,
+          "p95": 5
+        },
+        "finalPendingRows": {
+          "min": 3,
+          "max": 3,
+          "sum": 15,
+          "median": 3,
+          "p95": 3
+        },
+        "modelRequests": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "wallTimeMs": {
+          "min": 474,
+          "max": 495,
+          "sum": 2439,
+          "median": 489,
+          "p95": 495
+        }
+      },
+      "priceTickPlanRows": [],
+      "priceTickPendingRows": []
+    }
+  ],
+  "recovery": [
+    {
+      "variant": "baseline",
+      "scenario": "nested_static",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 5,
+      "reportedArrivals": 5,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 5,
+      "physicalArrivalAndSdkEvent": 5,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "REACHED_VERIFIED": 5
+      },
+      "recoveryActions": 10,
+      "entryReloads": 0,
+      "timeMs": {
+        "min": 510.4023749999999,
+        "max": 614.2178749999998,
+        "sum": 2818.3721249999994,
+        "median": 568.8860839999998,
+        "p95": 614.2178749999998
+      }
+    },
+    {
+      "variant": "baseline",
+      "scenario": "modal_reentry_changed_quote",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 5,
+      "reportedArrivals": 0,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 5,
+      "physicalArrivalAndSdkEvent": 5,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "UNREACHABLE": 5
+      },
+      "recoveryActions": 10,
+      "entryReloads": 5,
+      "timeMs": {
+        "min": 700.5083750000003,
+        "max": 763.4845840000003,
+        "sum": 3633.53475,
+        "median": 712.2330829999996,
+        "p95": 763.4845840000003
+      }
+    },
+    {
+      "variant": "baseline",
+      "scenario": "ready_target_ticking_quote",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 5,
+      "reportedArrivals": 0,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 5,
+      "physicalArrivalAndSdkEvent": 5,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "UNVERIFIED": 5
+      },
+      "recoveryActions": 0,
+      "entryReloads": 0,
+      "timeMs": {
+        "min": 121.05620799999997,
+        "max": 207.20100000000002,
+        "sum": 928.8354160000008,
+        "median": 205.2324580000004,
+        "p95": 207.20100000000002
+      }
+    },
+    {
+      "variant": "baseline",
+      "scenario": "nested_changed_quote",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 0,
+      "reportedArrivals": 0,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 0,
+      "physicalArrivalAndSdkEvent": 0,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "UNREACHABLE": 5
+      },
+      "recoveryActions": 10,
+      "entryReloads": 5,
+      "timeMs": {
+        "min": 685.7598749999997,
+        "max": 792.3717500000002,
+        "sum": 3687.1176670000004,
+        "median": 747.9413750000003,
+        "p95": 792.3717500000002
+      }
+    },
+    {
+      "variant": "baseline",
+      "scenario": "local_inverse_diverges",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 0,
+      "reportedArrivals": 0,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 0,
+      "physicalArrivalAndSdkEvent": 0,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "UNVERIFIED": 5
+      },
+      "recoveryActions": 5,
+      "entryReloads": 0,
+      "timeMs": {
+        "min": 370.53158299999996,
+        "max": 387.9370420000014,
+        "sum": 1888.6527510000014,
+        "median": 373.0572090000005,
+        "p95": 387.9370420000014
+      }
+    },
+    {
+      "variant": "baseline",
+      "scenario": "unknown_outcome_injected",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 5,
+      "reportedArrivals": 5,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 0,
+      "physicalArrivalAndSdkEvent": 0,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 5,
+      "statuses": {
+        "REACHED_VERIFIED": 5
+      },
+      "recoveryActions": 0,
+      "entryReloads": 0,
+      "timeMs": {
+        "min": 168.7587080000012,
+        "max": 170.8510409999999,
+        "sum": 848.7295819999999,
+        "median": 169.59870799999953,
+        "p95": 170.8510409999999
+      }
+    },
+    {
+      "variant": "previous",
+      "scenario": "nested_static",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 0,
+      "reportedArrivals": 5,
+      "falseArrivalClaims": 5,
+      "actualSdkTargetEvents": 0,
+      "physicalArrivalAndSdkEvent": 0,
+      "guardedTargetFailures": 5,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "TARGET_REACHED": 5
+      },
+      "recoveryActions": 0,
+      "entryReloads": 0,
+      "timeMs": {
+        "min": 173.75749999999994,
+        "max": 192.37416600000006,
+        "sum": 894.6914160000001,
+        "median": 175.97125000000005,
+        "p95": 192.37416600000006
+      }
+    },
+    {
+      "variant": "previous",
+      "scenario": "modal_reentry_changed_quote",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 5,
+      "reportedArrivals": 5,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 5,
+      "physicalArrivalAndSdkEvent": 5,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "TARGET_REACHED": 5
+      },
+      "recoveryActions": 10,
+      "entryReloads": 5,
+      "timeMs": {
+        "min": 768.489208,
+        "max": 845.3589580000007,
+        "sum": 3979.133667,
+        "median": 778.4426250000006,
+        "p95": 845.3589580000007
+      }
+    },
+    {
+      "variant": "previous",
+      "scenario": "ready_target_ticking_quote",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 5,
+      "reportedArrivals": 5,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 5,
+      "physicalArrivalAndSdkEvent": 5,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "TARGET_REACHED": 5
+      },
+      "recoveryActions": 0,
+      "entryReloads": 0,
+      "timeMs": {
+        "min": 188.83349999999973,
+        "max": 205.63054199999988,
+        "sum": 989.2604160000001,
+        "median": 199.51041600000008,
+        "p95": 205.63054199999988
+      }
+    },
+    {
+      "variant": "previous",
+      "scenario": "nested_changed_quote",
+      "trials": 5,
+      "measuredTrials": 4,
+      "setupErrors": [
+        "Error: Setup Outer menu: unknown: Post-action dependencies did not settle"
+      ],
+      "physicalArrivals": 0,
+      "reportedArrivals": 4,
+      "falseArrivalClaims": 4,
+      "actualSdkTargetEvents": 0,
+      "physicalArrivalAndSdkEvent": 0,
+      "guardedTargetFailures": 4,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "TARGET_REACHED": 4
+      },
+      "recoveryActions": 0,
+      "entryReloads": 0,
+      "timeMs": {
+        "min": 178.82358399999976,
+        "max": 182.80233299999963,
+        "sum": 724.3097499999967,
+        "median": 179.98666599999888,
+        "p95": 182.80233299999963
+      }
+    },
+    {
+      "variant": "previous",
+      "scenario": "local_inverse_diverges",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 0,
+      "reportedArrivals": 0,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 0,
+      "physicalArrivalAndSdkEvent": 0,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "UNVERIFIED": 5
+      },
+      "recoveryActions": 5,
+      "entryReloads": 0,
+      "timeMs": {
+        "min": 367.3791249999995,
+        "max": 371.552083999999,
+        "sum": 1845.3400839999977,
+        "median": 368.91512499999953,
+        "p95": 371.552083999999
+      }
+    },
+    {
+      "variant": "previous",
+      "scenario": "unknown_outcome_injected",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 5,
+      "reportedArrivals": 0,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 0,
+      "physicalArrivalAndSdkEvent": 0,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 5,
+      "statuses": {
+        "UNVERIFIED": 5
+      },
+      "recoveryActions": 0,
+      "entryReloads": 0,
+      "timeMs": {
+        "min": 0.7018329999991693,
+        "max": 1.0095839999994496,
+        "sum": 4.1996669999989535,
+        "median": 0.8354579999995622,
+        "p95": 1.0095839999994496
+      }
+    },
+    {
+      "variant": "fixed",
+      "scenario": "nested_static",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 5,
+      "reportedArrivals": 5,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 5,
+      "physicalArrivalAndSdkEvent": 5,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "TARGET_REACHED": 5
+      },
+      "recoveryActions": 10,
+      "entryReloads": 0,
+      "timeMs": {
+        "min": 552.154084,
+        "max": 612.8082499999998,
+        "sum": 2918.933835,
+        "median": 574.956459,
+        "p95": 612.8082499999998
+      }
+    },
+    {
+      "variant": "fixed",
+      "scenario": "modal_reentry_changed_quote",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 5,
+      "reportedArrivals": 5,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 5,
+      "physicalArrivalAndSdkEvent": 5,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "TARGET_REACHED": 5
+      },
+      "recoveryActions": 10,
+      "entryReloads": 5,
+      "timeMs": {
+        "min": 723.5284590000006,
+        "max": 785.2409589999997,
+        "sum": 3783.6346259999996,
+        "median": 765.329917,
+        "p95": 785.2409589999997
+      }
+    },
+    {
+      "variant": "fixed",
+      "scenario": "ready_target_ticking_quote",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 5,
+      "reportedArrivals": 5,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 5,
+      "physicalArrivalAndSdkEvent": 5,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "TARGET_REACHED": 5
+      },
+      "recoveryActions": 0,
+      "entryReloads": 0,
+      "timeMs": {
+        "min": 123.31862499999988,
+        "max": 208.02350000000024,
+        "sum": 897.9384569999993,
+        "median": 189.13766599999963,
+        "p95": 208.02350000000024
+      }
+    },
+    {
+      "variant": "fixed",
+      "scenario": "nested_changed_quote",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 5,
+      "reportedArrivals": 5,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 5,
+      "physicalArrivalAndSdkEvent": 5,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "TARGET_REACHED": 5
+      },
+      "recoveryActions": 15,
+      "entryReloads": 5,
+      "timeMs": {
+        "min": 860.3093329999992,
+        "max": 970.7378749999998,
+        "sum": 4610.583833,
+        "median": 945.8199999999997,
+        "p95": 970.7378749999998
+      }
+    },
+    {
+      "variant": "fixed",
+      "scenario": "local_inverse_diverges",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 0,
+      "reportedArrivals": 0,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 0,
+      "physicalArrivalAndSdkEvent": 0,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 0,
+      "statuses": {
+        "UNVERIFIED": 5
+      },
+      "recoveryActions": 5,
+      "entryReloads": 0,
+      "timeMs": {
+        "min": 366.4042079999999,
+        "max": 368.7490420000013,
+        "sum": 1839.2566250000018,
+        "median": 368.0967920000003,
+        "p95": 368.7490420000013
+      }
+    },
+    {
+      "variant": "fixed",
+      "scenario": "unknown_outcome_injected",
+      "trials": 5,
+      "measuredTrials": 5,
+      "setupErrors": [],
+      "physicalArrivals": 5,
+      "reportedArrivals": 0,
+      "falseArrivalClaims": 0,
+      "actualSdkTargetEvents": 0,
+      "physicalArrivalAndSdkEvent": 0,
+      "guardedTargetFailures": 0,
+      "unknownDispatchBlocked": 5,
+      "statuses": {
+        "UNVERIFIED": 5
+      },
+      "recoveryActions": 0,
+      "entryReloads": 0,
+      "timeMs": {
+        "min": 0.7547089999989112,
+        "max": 0.9122079999997368,
+        "sum": 4.068625999998403,
+        "median": 0.7888750000001892,
+        "p95": 0.9122079999997368
+      }
+    }
+  ],
+  "continuation": [
+    {
+      "variant": "baseline",
+      "scenario": "cold_nested_restart",
+      "trials": 5,
+      "validTrials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "lostPending": 0,
+      "incorrectlySettled": 0,
+      "newBranchesAfterRestart": 10,
+      "metrics": {
+        "incorrectCompletion": {
+          "min": false,
+          "max": false,
+          "sum": 0,
+          "median": false,
+          "p95": false
+        },
+        "unknownRetained": {
+          "min": true,
+          "max": true,
+          "sum": 5,
+          "median": true,
+          "p95": true
+        },
+        "unresolvedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "successfulExplorationAfterInjectedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "duplicateLeafExecutions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "necessaryReentries": {
+          "min": 3,
+          "max": 3,
+          "sum": 15,
+          "median": 3,
+          "p95": 3
+        },
+        "unnecessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryCalls": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "actualBrowserRecoveryCalls": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "injectedRecoveryFailures": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryHostSuccesses": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "repeatedNoProgressRecoveries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "elapsedMs": {
+          "min": 3486,
+          "max": 3708,
+          "sum": 17792,
+          "median": 3537,
+          "p95": 3708
+        },
+        "recoveryElapsedMs": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "jev": {
+          "min": 8,
+          "max": 8,
+          "sum": 40,
+          "median": 8,
+          "p95": 8
+        },
+        "llm": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "finalStatuses": {
+        "completed": 5
+      },
+      "hostClosesBeforeRestart": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "variant": "baseline",
+      "scenario": "failed_recovery_restart",
+      "trials": 5,
+      "validTrials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "lostPending": 0,
+      "incorrectlySettled": 0,
+      "newBranchesAfterRestart": 5,
+      "metrics": {
+        "incorrectCompletion": {
+          "min": false,
+          "max": false,
+          "sum": 0,
+          "median": false,
+          "p95": false
+        },
+        "unknownRetained": {
+          "min": true,
+          "max": true,
+          "sum": 5,
+          "median": true,
+          "p95": true
+        },
+        "unresolvedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "successfulExplorationAfterInjectedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "duplicateLeafExecutions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "necessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "unnecessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryCalls": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "actualBrowserRecoveryCalls": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "injectedRecoveryFailures": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "recoveryHostSuccesses": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "repeatedNoProgressRecoveries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "elapsedMs": {
+          "min": 1134,
+          "max": 1263,
+          "sum": 5916,
+          "median": 1156,
+          "p95": 1263
+        },
+        "recoveryElapsedMs": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "jev": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "llm": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "finalStatuses": {
+        "budget_exhausted": 5
+      },
+      "hostClosesBeforeRestart": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "variant": "baseline",
+      "scenario": "unknown_recovery_restart",
+      "trials": 5,
+      "validTrials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "lostPending": 0,
+      "incorrectlySettled": 0,
+      "newBranchesAfterRestart": 5,
+      "metrics": {
+        "incorrectCompletion": {
+          "min": true,
+          "max": true,
+          "sum": 5,
+          "median": true,
+          "p95": true
+        },
+        "unknownRetained": {
+          "min": true,
+          "max": true,
+          "sum": 5,
+          "median": true,
+          "p95": true
+        },
+        "unresolvedUnknown": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "successfulExplorationAfterInjectedUnknown": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "duplicateLeafExecutions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "necessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "unnecessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryCalls": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "actualBrowserRecoveryCalls": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "injectedRecoveryFailures": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryHostSuccesses": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "repeatedNoProgressRecoveries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "elapsedMs": {
+          "min": 1556,
+          "max": 1622,
+          "sum": 7961,
+          "median": 1598,
+          "p95": 1622
+        },
+        "recoveryElapsedMs": {
+          "min": 303,
+          "max": 325,
+          "sum": 1576,
+          "median": 316,
+          "p95": 325
+        },
+        "jev": {
+          "min": 3,
+          "max": 3,
+          "sum": 15,
+          "median": 3,
+          "p95": 3
+        },
+        "llm": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "finalStatuses": {
+        "completed": 5
+      },
+      "hostClosesBeforeRestart": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "variant": "previous",
+      "scenario": "cold_nested_restart",
+      "trials": 5,
+      "validTrials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "lostPending": 0,
+      "incorrectlySettled": 0,
+      "newBranchesAfterRestart": 10,
+      "metrics": {
+        "incorrectCompletion": {
+          "min": false,
+          "max": false,
+          "sum": 0,
+          "median": false,
+          "p95": false
+        },
+        "unknownRetained": {
+          "min": true,
+          "max": true,
+          "sum": 5,
+          "median": true,
+          "p95": true
+        },
+        "unresolvedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "successfulExplorationAfterInjectedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "duplicateLeafExecutions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "necessaryReentries": {
+          "min": 3,
+          "max": 3,
+          "sum": 15,
+          "median": 3,
+          "p95": 3
+        },
+        "unnecessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryCalls": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "actualBrowserRecoveryCalls": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "injectedRecoveryFailures": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryHostSuccesses": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "repeatedNoProgressRecoveries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "elapsedMs": {
+          "min": 3607,
+          "max": 3968,
+          "sum": 18686,
+          "median": 3722,
+          "p95": 3968
+        },
+        "recoveryElapsedMs": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "jev": {
+          "min": 8,
+          "max": 8,
+          "sum": 40,
+          "median": 8,
+          "p95": 8
+        },
+        "llm": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "finalStatuses": {
+        "completed": 5
+      },
+      "hostClosesBeforeRestart": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "variant": "previous",
+      "scenario": "failed_recovery_restart",
+      "trials": 5,
+      "validTrials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "lostPending": 0,
+      "incorrectlySettled": 0,
+      "newBranchesAfterRestart": 5,
+      "metrics": {
+        "incorrectCompletion": {
+          "min": false,
+          "max": false,
+          "sum": 0,
+          "median": false,
+          "p95": false
+        },
+        "unknownRetained": {
+          "min": true,
+          "max": true,
+          "sum": 5,
+          "median": true,
+          "p95": true
+        },
+        "unresolvedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "successfulExplorationAfterInjectedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "duplicateLeafExecutions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "necessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "unnecessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryCalls": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "actualBrowserRecoveryCalls": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "injectedRecoveryFailures": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "recoveryHostSuccesses": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "repeatedNoProgressRecoveries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "elapsedMs": {
+          "min": 1225,
+          "max": 1361,
+          "sum": 6330,
+          "median": 1252,
+          "p95": 1361
+        },
+        "recoveryElapsedMs": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "jev": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "llm": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "finalStatuses": {
+        "budget_exhausted": 5
+      },
+      "hostClosesBeforeRestart": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "variant": "previous",
+      "scenario": "unknown_recovery_restart",
+      "trials": 5,
+      "validTrials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 0,
+      "lostPending": 0,
+      "incorrectlySettled": 0,
+      "newBranchesAfterRestart": 0,
+      "metrics": {
+        "incorrectCompletion": {
+          "min": false,
+          "max": false,
+          "sum": 0,
+          "median": false,
+          "p95": false
+        },
+        "unknownRetained": {
+          "min": true,
+          "max": true,
+          "sum": 5,
+          "median": true,
+          "p95": true
+        },
+        "unresolvedUnknown": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "successfulExplorationAfterInjectedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "duplicateLeafExecutions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "necessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "unnecessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryCalls": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "actualBrowserRecoveryCalls": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "injectedRecoveryFailures": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryHostSuccesses": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "repeatedNoProgressRecoveries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "elapsedMs": {
+          "min": 810,
+          "max": 861,
+          "sum": 4167,
+          "median": 831,
+          "p95": 861
+        },
+        "recoveryElapsedMs": {
+          "min": 317,
+          "max": 332,
+          "sum": 1623,
+          "median": 324,
+          "p95": 332
+        },
+        "jev": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "llm": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "finalStatuses": {
+        "blocked": 5
+      },
+      "hostClosesBeforeRestart": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "variant": "fixed",
+      "scenario": "cold_nested_restart",
+      "trials": 5,
+      "validTrials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "lostPending": 0,
+      "incorrectlySettled": 0,
+      "newBranchesAfterRestart": 10,
+      "metrics": {
+        "incorrectCompletion": {
+          "min": false,
+          "max": false,
+          "sum": 0,
+          "median": false,
+          "p95": false
+        },
+        "unknownRetained": {
+          "min": true,
+          "max": true,
+          "sum": 5,
+          "median": true,
+          "p95": true
+        },
+        "unresolvedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "successfulExplorationAfterInjectedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "duplicateLeafExecutions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "necessaryReentries": {
+          "min": 3,
+          "max": 3,
+          "sum": 15,
+          "median": 3,
+          "p95": 3
+        },
+        "unnecessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryCalls": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "actualBrowserRecoveryCalls": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "injectedRecoveryFailures": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryHostSuccesses": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "repeatedNoProgressRecoveries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "elapsedMs": {
+          "min": 3582,
+          "max": 3854,
+          "sum": 18319,
+          "median": 3619,
+          "p95": 3854
+        },
+        "recoveryElapsedMs": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "jev": {
+          "min": 8,
+          "max": 8,
+          "sum": 40,
+          "median": 8,
+          "p95": 8
+        },
+        "llm": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "finalStatuses": {
+        "completed": 5
+      },
+      "hostClosesBeforeRestart": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "variant": "fixed",
+      "scenario": "failed_recovery_restart",
+      "trials": 5,
+      "validTrials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 5,
+      "lostPending": 0,
+      "incorrectlySettled": 0,
+      "newBranchesAfterRestart": 5,
+      "metrics": {
+        "incorrectCompletion": {
+          "min": false,
+          "max": false,
+          "sum": 0,
+          "median": false,
+          "p95": false
+        },
+        "unknownRetained": {
+          "min": true,
+          "max": true,
+          "sum": 5,
+          "median": true,
+          "p95": true
+        },
+        "unresolvedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "successfulExplorationAfterInjectedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "duplicateLeafExecutions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "necessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "unnecessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryCalls": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "actualBrowserRecoveryCalls": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "injectedRecoveryFailures": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "recoveryHostSuccesses": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "repeatedNoProgressRecoveries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "elapsedMs": {
+          "min": 1172,
+          "max": 1253,
+          "sum": 6081,
+          "median": 1232,
+          "p95": 1253
+        },
+        "recoveryElapsedMs": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "jev": {
+          "min": 2,
+          "max": 2,
+          "sum": 10,
+          "median": 2,
+          "p95": 2
+        },
+        "llm": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "finalStatuses": {
+        "budget_exhausted": 5
+      },
+      "hostClosesBeforeRestart": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "variant": "fixed",
+      "scenario": "unknown_recovery_restart",
+      "trials": 5,
+      "validTrials": 5,
+      "errors": [],
+      "fullyCoveredTrials": 0,
+      "lostPending": 0,
+      "incorrectlySettled": 0,
+      "newBranchesAfterRestart": 0,
+      "metrics": {
+        "incorrectCompletion": {
+          "min": false,
+          "max": false,
+          "sum": 0,
+          "median": false,
+          "p95": false
+        },
+        "unknownRetained": {
+          "min": true,
+          "max": true,
+          "sum": 5,
+          "median": true,
+          "p95": true
+        },
+        "unresolvedUnknown": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "successfulExplorationAfterInjectedUnknown": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "duplicateLeafExecutions": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "necessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "unnecessaryReentries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryCalls": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "actualBrowserRecoveryCalls": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "injectedRecoveryFailures": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "recoveryHostSuccesses": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "repeatedNoProgressRecoveries": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        },
+        "elapsedMs": {
+          "min": 786,
+          "max": 807,
+          "sum": 3995,
+          "median": 802,
+          "p95": 807
+        },
+        "recoveryElapsedMs": {
+          "min": 311,
+          "max": 323,
+          "sum": 1584,
+          "median": 316,
+          "p95": 323
+        },
+        "jev": {
+          "min": 1,
+          "max": 1,
+          "sum": 5,
+          "median": 1,
+          "p95": 1
+        },
+        "llm": {
+          "min": 0,
+          "max": 0,
+          "sum": 0,
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "finalStatuses": {
+        "blocked": 5
+      },
+      "hostClosesBeforeRestart": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "variant": "baseline",
+      "scenario": "distinct-names",
+      "trials": 5,
+      "errors": [],
+      "actualInputEvents": 15,
+      "mismatchedChecks": [],
+      "falseEquivalentClaims": 0
+    },
+    {
+      "variant": "baseline",
+      "scenario": "same-name-named-owners",
+      "trials": 5,
+      "errors": [],
+      "actualInputEvents": 15,
+      "mismatchedChecks": [],
+      "falseEquivalentClaims": 0
+    },
+    {
+      "variant": "previous",
+      "scenario": "distinct-names",
+      "trials": 5,
+      "errors": [],
+      "actualInputEvents": 15,
+      "mismatchedChecks": [],
+      "falseEquivalentClaims": 0
+    },
+    {
+      "variant": "previous",
+      "scenario": "same-name-named-owners",
+      "trials": 5,
+      "errors": [],
+      "actualInputEvents": 15,
+      "mismatchedChecks": [],
+      "falseEquivalentClaims": 0
+    },
+    {
+      "variant": "fixed",
+      "scenario": "distinct-names",
+      "trials": 5,
+      "errors": [],
+      "actualInputEvents": 15,
+      "mismatchedChecks": [],
+      "falseEquivalentClaims": 0
+    },
+    {
+      "variant": "fixed",
+      "scenario": "same-name-named-owners",
+      "trials": 5,
+      "errors": [],
+      "actualInputEvents": 15,
+      "mismatchedChecks": [],
+      "falseEquivalentClaims": 0
+    }
+  ],
+  "scriptHashes": {
+    "scripts/verify-exploration-conditions.ts": "4c977f147d123ea1adc7c3496cce927ae5be7603fff317b5700578b2732d8693",
+    "scripts/verify-exploration-recovery.ts": "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f",
+    "scripts/verify-exploration-continuation.ts": "7b193666d24f3d7b650667e6b5b640b27e2a281e2db5c45a8ed0e066dba7ff4f",
+    "scripts/verify-exploration-input-identity.ts": "7cfe18ff69e2fcdad84cda46b353d2c9d0c44c6ce6486ac36b75a322e52ab1e1"
+  },
+  "fixtureHashes": {
+    "conditions/public-form-cycle": "dbabc3054d3bd4e7f391c638806c6bff84e22b88744b875eeb125e85182b3f00",
+    "conditions/shared-id-rebuild": "d12514d69904d2d39ef34ede1ada4a208449dee2d1dd0501d643ac9d20b263a9",
+    "conditions/price-known": "9eeed7a96caf6621c721bab6c68df0b9485d9aec3c7b15b03f91505d3a2aea4d",
+    "conditions/price-unknown": "606555d0775e581de0c9f86442a5c11eac67273133ae31b888d58cb5d7a27d8b",
+    "conditions/nonlocal-dependency": "c797e8c74eddce4788dcb5d4c158142d489b66df321a2f4d2fcf1a7d0cf01531",
+    "recovery/nested_static": "81e6c2917dbd3a101d3b7cc9483b282254a0e99591c7c0b4ee85c22267983fe8",
+    "recovery/modal_reentry_changed_quote": "d9a425fdb9c72a6f74b28462fd3a4e8fa72505ad419fb0be911f14ad3055d583",
+    "recovery/ready_target_ticking_quote": "ad4971ecba1cffe2638f81d4a2fbea79613492aeeec1cfd063502e0074e3a251",
+    "recovery/nested_changed_quote": "1eb4ce24edbc938e321ead80e20c289085371b2566f6c65048d1903948944e76",
+    "recovery/local_inverse_diverges": "3cdc0f6dcd6df272b776b1c87ff49d0f50968f697e0f22e94269d1d9299c75bd",
+    "recovery/unknown_outcome_injected": "f715c01a2cc6cc13c8d27fbb4db6146752f3d0119a6c3be245fa31f32975ea20",
+    "continuation/cold_nested_restart": "2197fadd02056e6c755450af64827e822bdb5680cd68b95381995001c1d80bc4",
+    "continuation/failed_recovery_restart": "4af97ced0046fc1430564701b00abf43da03c7f6e0321e747c5813fd21b7be4c",
+    "continuation/unknown_recovery_restart": "4af97ced0046fc1430564701b00abf43da03c7f6e0321e747c5813fd21b7be4c",
+    "input-identity/distinct-names": "40ad1ecc3a58bd60bdf3e5afb11106e549d0e7d377029e515af860d8d7623d95",
+    "input-identity/same-name-named-owners": "5aa23d63edea3c93ba7cff87166872948e9f17ac3d253bfa73a358c0c24393ed"
+  },
+  "formalTrials": 160,
+  "historicalTrialsForComparison": 80,
+  "datasetIntegrityChecksPassed": true,
+  "requestedFixCriteria": {
+    "nested_static": true,
+    "nested_changed_quote": true,
+    "ab_coverage_without_duplicates": true,
+    "unknown_preserved_and_blocks_after_cold_restart": true,
+    "no_false_arrival": true,
+    "all_new_trials_measured": true,
+    "cold_restart_coverage_preserved": true,
+    "failed_recovery_pending_work_preserved": true,
+    "input_correspondences_preserved": true,
+    "modal_and_ready_target_controls_preserved": true,
+    "failed_inverse_does_not_claim_arrival": true,
+    "unknown_dispatch_stays_blocked": true
+  },
+  "requestedFixExperimentAccepted": true,
+  "remainingArchitectureBlockers": [
+    "Undeclared nonlocal dependencies still admit false coverage in the negative control.",
+    "100 price changes still create 101 canonical states; storage convergence is unproved."
+  ],
+  "overallExplorationAccepted": false,
+  "overallAcceptanceReason": "Known negative controls remain; isolated fixtures do not establish arbitrary dynamic-site exploration or exhaustion.",
+  "regression": {
+    "numTotalTestSuites": 148,
+    "numPassedTestSuites": 148,
+    "numTotalTests": 1417,
+    "numPassedTests": 1417,
+    "numFailedTests": 0,
+    "success": true,
+    "testFiles": 143
+  },
+  "engineeringChecks": {
+    "build": 0,
+    "smoke-built": 0,
+    "smoke-explorer": 0
+  }
+}

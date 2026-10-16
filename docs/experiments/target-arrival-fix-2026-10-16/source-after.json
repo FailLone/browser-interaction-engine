@@ -1,0 +1,49 @@
+{
+  "at": "2026-10-16T13:12:04.475509+00:00",
+  "products": [
+    {
+      "root": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-refactor-base-29m9ndte",
+      "commit": "4857ad571c19995480a4c149abd9b2868a94c965",
+      "checkedFiles": 200,
+      "mismatches": []
+    },
+    {
+      "root": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "commit": "1ed22389d07c34a7cca778f7802ed14c2701d94d",
+      "checkedFiles": 204,
+      "mismatches": []
+    }
+  ],
+  "workspaces": [
+    {
+      "root": "/Users/xietian/Projects/browser-interaction-engine",
+      "headAtValidation": "6e111284ac3a6642844531dbc06bce462ca4293c",
+      "branch": "codex/single-selection-state-rule",
+      "status": []
+    },
+    {
+      "root": "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine",
+      "headAtValidation": "4857ad571c19995480a4c149abd9b2868a94c965",
+      "branch": "codex/autonomous-exploration",
+      "status": []
+    },
+    {
+      "root": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "headAtValidation": "1ed22389d07c34a7cca778f7802ed14c2701d94d",
+      "branch": "codex/exploration-layered-refactor",
+      "status": [
+        " M docs/exploration-layered-refactor.md",
+        " M docs/exploration-refactor-sources.md",
+        "?? docs/experiments/target-arrival-fix-2026-10-16/",
+        "?? scripts/summarize-target-arrival-fix.py",
+        "?? scripts/verify-target-arrival-fix.py"
+      ]
+    }
+  ],
+  "newTestSha256": "a9df97aa96561efe00198d6037d3ba413846179724bd24b950bb432f4c5b0bd4",
+  "restoredOwnGeneratedTrackedFiles": [
+    "docs/build-smoke.json",
+    "docs/screenshots/dashboard.png",
+    "docs/screenshots/evidence-inspector.png"
+  ]
+}

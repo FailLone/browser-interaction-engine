@@ -1,0 +1,35 @@
+[
+  {
+    "name": "build",
+    "command": [
+      "pnpm",
+      "build"
+    ],
+    "cwd": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+    "startedAt": "2026-10-16T13:10:31.856747+00:00",
+    "exitCode": 0,
+    "finishedAt": "2026-10-16T13:10:37.459115+00:00"
+  },
+  {
+    "name": "smoke-built",
+    "command": [
+      "pnpm",
+      "smoke:built"
+    ],
+    "cwd": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+    "startedAt": "2026-10-16T13:10:37.459874+00:00",
+    "exitCode": 0,
+    "finishedAt": "2026-10-16T13:10:40.056157+00:00"
+  },
+  {
+    "name": "smoke-explorer",
+    "command": [
+      "pnpm",
+      "smoke:explorer"
+    ],
+    "cwd": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+    "startedAt": "2026-10-16T13:10:40.056875+00:00",
+    "exitCode": 0,
+    "finishedAt": "2026-10-16T13:10:42.195961+00:00"
+  }
+]

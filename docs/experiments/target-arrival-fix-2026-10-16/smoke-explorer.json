@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-16T13:10:42.145Z",
+  "node": "v24.22.0",
+  "providers": "explicit mocks",
+  "target": "Explore Alpha and Beta on the local fixture",
+  "compiledPlugin": "passed",
+  "compiledUI": "passed",
+  "hostDispatchValidation": "passed",
+  "actualBrowserActions": 2,
+  "modelRequests": {
+    "jev": 1,
+    "llm": 1
+  },
+  "unresolved": [],
+  "untested": [],
+  "exhaustive": false,
+  "routineModelChecks": 0,
+  "screenshot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/explorer-smoke-1792156240527/dashboard.png"
+}
