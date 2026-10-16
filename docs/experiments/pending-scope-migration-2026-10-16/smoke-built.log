@@ -1,0 +1,19 @@
+
+> browser-interaction-engine@0.1.0 smoke:built /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+> node scripts/smoke-built.mjs
+
+Published exploration snapshot types: passed
+{
+  componentContract: 'passed',
+  probeContract: 'passed',
+  inspectionContract: 'passed',
+  at: '2026-10-16T14:35:30.719Z',
+  node: 'v24.22.0',
+  compiledAPI: 'passed',
+  staticUI: 'passed',
+  chromiumExecution: 'passed',
+  historicalEvidence: 'passed',
+  snapshotDelivery: 'passed',
+  cachedEvidence: 'passed',
+  attemptId: '9150f2e2-ca2e-4f6d-a644-68fe57e5dbc8'
+}

@@ -1,0 +1,891 @@
+{
+  "fixedRevision": "a62d37b641b1e54bffd6adf38c70cc09c819f292",
+  "baselineRevision": "2584557248ff04fc9189511308805c49e22eec52",
+  "mainProtocol": {
+    "trialsPerVariant": 16,
+    "repetitionsPerScenario": 1,
+    "totalTrials": 32
+  },
+  "variants": {
+    "baseline": {
+      "conditions": [
+        {
+          "scenario": "public-form-cycle",
+          "observedBranches": [
+            "form:A",
+            "form:B"
+          ],
+          "missingBranches": [],
+          "metrics": {
+            "actualActions": 2,
+            "successfulActions": 2,
+            "recoveryActions": 0,
+            "oracleClicks": 2,
+            "newDistinctBranches": 2,
+            "duplicateOracleClicks": 0,
+            "falseCoverageChecks": 0,
+            "retryKeyCount": 2,
+            "priceTickRetryKeyCount": null,
+            "observedStateCount": 2,
+            "stepCalls": 0,
+            "modelRequests": 0,
+            "jevCalls": 0,
+            "llmCalls": 0,
+            "initialPlanRows": 5,
+            "finalPlanRows": 5,
+            "finalPendingRows": 0,
+            "wallTimeMs": 932
+          },
+          "errors": []
+        },
+        {
+          "scenario": "shared-id-rebuild",
+          "observedBranches": [
+            "shared:B"
+          ],
+          "missingBranches": [
+            "shared:A"
+          ],
+          "metrics": {
+            "actualActions": 1,
+            "successfulActions": 1,
+            "recoveryActions": 0,
+            "oracleClicks": 1,
+            "newDistinctBranches": 1,
+            "duplicateOracleClicks": 0,
+            "falseCoverageChecks": 0,
+            "retryKeyCount": 2,
+            "priceTickRetryKeyCount": null,
+            "observedStateCount": 2,
+            "stepCalls": 12,
+            "modelRequests": 0,
+            "jevCalls": 0,
+            "llmCalls": 0,
+            "initialPlanRows": 1,
+            "finalPlanRows": 6,
+            "finalPendingRows": 4,
+            "wallTimeMs": 514
+          },
+          "errors": []
+        },
+        {
+          "scenario": "price-known",
+          "observedBranches": [
+            "price:run"
+          ],
+          "missingBranches": [],
+          "metrics": {
+            "actualActions": 1,
+            "successfulActions": 1,
+            "recoveryActions": 0,
+            "oracleClicks": 1,
+            "newDistinctBranches": 1,
+            "duplicateOracleClicks": 0,
+            "falseCoverageChecks": 0,
+            "retryKeyCount": 1,
+            "priceTickRetryKeyCount": 1,
+            "observedStateCount": 1,
+            "stepCalls": 104,
+            "modelRequests": 0,
+            "jevCalls": 0,
+            "llmCalls": 0,
+            "initialPlanRows": 1,
+            "finalPlanRows": 5,
+            "finalPendingRows": 3,
+            "wallTimeMs": 8306
+          },
+          "errors": []
+        },
+        {
+          "scenario": "price-unknown",
+          "observedBranches": [
+            "price:run"
+          ],
+          "missingBranches": [],
+          "metrics": {
+            "actualActions": 1,
+            "successfulActions": 1,
+            "recoveryActions": 0,
+            "oracleClicks": 1,
+            "newDistinctBranches": 1,
+            "duplicateOracleClicks": 0,
+            "falseCoverageChecks": 0,
+            "retryKeyCount": 1,
+            "priceTickRetryKeyCount": 1,
+            "observedStateCount": 1,
+            "stepCalls": 104,
+            "modelRequests": 0,
+            "jevCalls": 0,
+            "llmCalls": 0,
+            "initialPlanRows": 1,
+            "finalPlanRows": 7,
+            "finalPendingRows": 5,
+            "wallTimeMs": 9253
+          },
+          "errors": []
+        },
+        {
+          "scenario": "nonlocal-dependency",
+          "observedBranches": [
+            "nonlocal:A",
+            "nonlocal:B"
+          ],
+          "missingBranches": [],
+          "metrics": {
+            "actualActions": 2,
+            "successfulActions": 2,
+            "recoveryActions": 0,
+            "oracleClicks": 2,
+            "newDistinctBranches": 2,
+            "duplicateOracleClicks": 0,
+            "falseCoverageChecks": 0,
+            "retryKeyCount": 2,
+            "priceTickRetryKeyCount": null,
+            "observedStateCount": 2,
+            "stepCalls": 8,
+            "modelRequests": 0,
+            "jevCalls": 0,
+            "llmCalls": 0,
+            "initialPlanRows": 1,
+            "finalPlanRows": 8,
+            "finalPendingRows": 4,
+            "wallTimeMs": 578
+          },
+          "errors": []
+        }
+      ],
+      "recovery": [
+        {
+          "scenario": "nested_static",
+          "status": "TARGET_REACHED",
+          "durationMs": 610.1274169999999,
+          "recoveryActions": 2,
+          "entryReopens": 0,
+          "physicalArrival": true,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false,
+          "unresolvedUnknown": 0,
+          "guardedDispatchBlocked": false
+        },
+        {
+          "scenario": "modal_reentry_changed_quote",
+          "status": "TARGET_REACHED",
+          "durationMs": 770.3269169999999,
+          "recoveryActions": 2,
+          "entryReopens": 1,
+          "physicalArrival": true,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false,
+          "unresolvedUnknown": 0,
+          "guardedDispatchBlocked": false
+        },
+        {
+          "scenario": "ready_target_ticking_quote",
+          "status": "TARGET_REACHED",
+          "durationMs": 205.2726249999996,
+          "recoveryActions": 0,
+          "entryReopens": 0,
+          "physicalArrival": true,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false,
+          "unresolvedUnknown": 0,
+          "guardedDispatchBlocked": false
+        },
+        {
+          "scenario": "nested_changed_quote",
+          "status": "TARGET_REACHED",
+          "durationMs": 1091.976917,
+          "recoveryActions": 3,
+          "entryReopens": 1,
+          "physicalArrival": true,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false,
+          "unresolvedUnknown": 0,
+          "guardedDispatchBlocked": false
+        },
+        {
+          "scenario": "local_inverse_diverges",
+          "status": "UNVERIFIED",
+          "durationMs": 385.41562500000146,
+          "recoveryActions": 1,
+          "entryReopens": 0,
+          "physicalArrival": false,
+          "guardedBranchYield": false,
+          "falseArrivalClaim": false,
+          "unresolvedUnknown": 0,
+          "guardedDispatchBlocked": false
+        },
+        {
+          "scenario": "unknown_outcome_injected",
+          "status": "UNVERIFIED",
+          "durationMs": 0.8206669999999576,
+          "recoveryActions": 0,
+          "entryReopens": 0,
+          "physicalArrival": true,
+          "guardedBranchYield": false,
+          "falseArrivalClaim": false,
+          "unresolvedUnknown": 1,
+          "guardedDispatchBlocked": true
+        }
+      ],
+      "continuation": [
+        {
+          "scenario": "cold_nested_restart",
+          "valid": true,
+          "metrics": {
+            "incorrectCompletion": false,
+            "unknownRetained": true,
+            "unresolvedUnknown": 0,
+            "successfulExplorationAfterInjectedUnknown": 0,
+            "duplicateLeafExecutions": 0,
+            "necessaryReentries": 3,
+            "unnecessaryReentries": 0,
+            "recoveryCalls": 0,
+            "actualBrowserRecoveryCalls": 0,
+            "injectedRecoveryFailures": 0,
+            "recoveryHostSuccesses": 0,
+            "repeatedNoProgressRecoveries": 0,
+            "elapsedMs": 3674,
+            "recoveryElapsedMs": 0,
+            "jev": 8,
+            "llm": 0
+          },
+          "oracleLabels": [
+            "Close gate",
+            "Open menu",
+            "Open submenu",
+            "Branch A",
+            "Close gate",
+            "Outside",
+            "Open menu",
+            "Open submenu",
+            "Branch B"
+          ]
+        },
+        {
+          "scenario": "failed_recovery_restart",
+          "valid": true,
+          "metrics": {
+            "incorrectCompletion": false,
+            "unknownRetained": true,
+            "unresolvedUnknown": 0,
+            "successfulExplorationAfterInjectedUnknown": 0,
+            "duplicateLeafExecutions": 0,
+            "necessaryReentries": 0,
+            "unnecessaryReentries": 0,
+            "recoveryCalls": 1,
+            "actualBrowserRecoveryCalls": 0,
+            "injectedRecoveryFailures": 1,
+            "recoveryHostSuccesses": 0,
+            "repeatedNoProgressRecoveries": 0,
+            "elapsedMs": 1139,
+            "recoveryElapsedMs": 0,
+            "jev": 2,
+            "llm": 0
+          },
+          "oracleLabels": [
+            "Branch A",
+            "Branch B"
+          ]
+        },
+        {
+          "scenario": "unknown_recovery_restart",
+          "valid": true,
+          "metrics": {
+            "incorrectCompletion": false,
+            "unknownRetained": true,
+            "unresolvedUnknown": 1,
+            "successfulExplorationAfterInjectedUnknown": 0,
+            "duplicateLeafExecutions": 0,
+            "necessaryReentries": 0,
+            "unnecessaryReentries": 0,
+            "recoveryCalls": 1,
+            "actualBrowserRecoveryCalls": 1,
+            "injectedRecoveryFailures": 0,
+            "recoveryHostSuccesses": 1,
+            "repeatedNoProgressRecoveries": 0,
+            "elapsedMs": 795,
+            "recoveryElapsedMs": 302,
+            "jev": 1,
+            "llm": 0
+          },
+          "oracleLabels": [
+            "Branch A"
+          ]
+        }
+      ],
+      "inputIdentity": [
+        {
+          "scenario": "distinct-names",
+          "events": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            },
+            {
+              "branch": "C",
+              "value": "sample"
+            }
+          ],
+          "checks": [
+            {
+              "phase": "A disappears; B remains",
+              "expected": false,
+              "actual": false,
+              "reason": "target_correspondence_ambiguous"
+            },
+            {
+              "phase": "B rebuilt, compare with A",
+              "expected": false,
+              "actual": false,
+              "reason": "target_correspondence_ambiguous"
+            },
+            {
+              "phase": "B rebuilt, compare with B",
+              "expected": true,
+              "actual": true,
+              "reason": "equivalent_operation_sample"
+            },
+            {
+              "phase": "owner changes, compare with B",
+              "expected": false,
+              "actual": false,
+              "reason": "operation_conditions_changed"
+            }
+          ],
+          "errors": []
+        },
+        {
+          "scenario": "same-name-named-owners",
+          "events": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            },
+            {
+              "branch": "C",
+              "value": "sample"
+            }
+          ],
+          "checks": [
+            {
+              "phase": "A disappears; B remains",
+              "expected": false,
+              "actual": false,
+              "reason": "target_correspondence_ambiguous"
+            },
+            {
+              "phase": "B rebuilt, compare with A",
+              "expected": false,
+              "actual": false,
+              "reason": "target_correspondence_ambiguous"
+            },
+            {
+              "phase": "B rebuilt, compare with B",
+              "expected": true,
+              "actual": true,
+              "reason": "equivalent_operation_sample"
+            },
+            {
+              "phase": "owner changes, compare with B",
+              "expected": false,
+              "actual": false,
+              "reason": "operation_conditions_changed"
+            }
+          ],
+          "errors": []
+        }
+      ],
+      "modalFollowup": [
+        {
+          "replicate": 2,
+          "status": "TARGET_REACHED",
+          "durationMs": 726.106875,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false
+        },
+        {
+          "replicate": 3,
+          "status": "TARGET_REACHED",
+          "durationMs": 744.7042080000001,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false
+        },
+        {
+          "replicate": 4,
+          "status": "TARGET_REACHED",
+          "durationMs": 830.8145000000002,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false
+        },
+        {
+          "replicate": 5,
+          "status": "TARGET_REACHED",
+          "durationMs": 762.7971250000003,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false
+        },
+        {
+          "replicate": 6,
+          "status": "TARGET_REACHED",
+          "durationMs": 731.310583,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false
+        }
+      ]
+    },
+    "fixed": {
+      "conditions": [
+        {
+          "scenario": "public-form-cycle",
+          "observedBranches": [
+            "form:A",
+            "form:B"
+          ],
+          "missingBranches": [],
+          "metrics": {
+            "actualActions": 2,
+            "successfulActions": 2,
+            "recoveryActions": 0,
+            "oracleClicks": 2,
+            "newDistinctBranches": 2,
+            "duplicateOracleClicks": 0,
+            "falseCoverageChecks": 0,
+            "retryKeyCount": 2,
+            "priceTickRetryKeyCount": null,
+            "observedStateCount": 2,
+            "stepCalls": 0,
+            "modelRequests": 0,
+            "jevCalls": 0,
+            "llmCalls": 0,
+            "initialPlanRows": 5,
+            "finalPlanRows": 5,
+            "finalPendingRows": 0,
+            "wallTimeMs": 987
+          },
+          "errors": []
+        },
+        {
+          "scenario": "shared-id-rebuild",
+          "observedBranches": [
+            "shared:B"
+          ],
+          "missingBranches": [
+            "shared:A"
+          ],
+          "metrics": {
+            "actualActions": 1,
+            "successfulActions": 1,
+            "recoveryActions": 0,
+            "oracleClicks": 1,
+            "newDistinctBranches": 1,
+            "duplicateOracleClicks": 0,
+            "falseCoverageChecks": 0,
+            "retryKeyCount": 2,
+            "priceTickRetryKeyCount": null,
+            "observedStateCount": 2,
+            "stepCalls": 12,
+            "modelRequests": 0,
+            "jevCalls": 0,
+            "llmCalls": 0,
+            "initialPlanRows": 1,
+            "finalPlanRows": 6,
+            "finalPendingRows": 4,
+            "wallTimeMs": 573
+          },
+          "errors": []
+        },
+        {
+          "scenario": "price-known",
+          "observedBranches": [
+            "price:run"
+          ],
+          "missingBranches": [],
+          "metrics": {
+            "actualActions": 1,
+            "successfulActions": 1,
+            "recoveryActions": 0,
+            "oracleClicks": 1,
+            "newDistinctBranches": 1,
+            "duplicateOracleClicks": 0,
+            "falseCoverageChecks": 0,
+            "retryKeyCount": 1,
+            "priceTickRetryKeyCount": 1,
+            "observedStateCount": 1,
+            "stepCalls": 104,
+            "modelRequests": 0,
+            "jevCalls": 0,
+            "llmCalls": 0,
+            "initialPlanRows": 1,
+            "finalPlanRows": 5,
+            "finalPendingRows": 3,
+            "wallTimeMs": 8726
+          },
+          "errors": []
+        },
+        {
+          "scenario": "price-unknown",
+          "observedBranches": [
+            "price:run"
+          ],
+          "missingBranches": [],
+          "metrics": {
+            "actualActions": 1,
+            "successfulActions": 1,
+            "recoveryActions": 0,
+            "oracleClicks": 1,
+            "newDistinctBranches": 1,
+            "duplicateOracleClicks": 0,
+            "falseCoverageChecks": 0,
+            "retryKeyCount": 1,
+            "priceTickRetryKeyCount": 1,
+            "observedStateCount": 1,
+            "stepCalls": 104,
+            "modelRequests": 0,
+            "jevCalls": 0,
+            "llmCalls": 0,
+            "initialPlanRows": 1,
+            "finalPlanRows": 7,
+            "finalPendingRows": 5,
+            "wallTimeMs": 9307
+          },
+          "errors": []
+        },
+        {
+          "scenario": "nonlocal-dependency",
+          "observedBranches": [
+            "nonlocal:A",
+            "nonlocal:B"
+          ],
+          "missingBranches": [],
+          "metrics": {
+            "actualActions": 2,
+            "successfulActions": 2,
+            "recoveryActions": 0,
+            "oracleClicks": 2,
+            "newDistinctBranches": 2,
+            "duplicateOracleClicks": 0,
+            "falseCoverageChecks": 0,
+            "retryKeyCount": 2,
+            "priceTickRetryKeyCount": null,
+            "observedStateCount": 2,
+            "stepCalls": 8,
+            "modelRequests": 0,
+            "jevCalls": 0,
+            "llmCalls": 0,
+            "initialPlanRows": 1,
+            "finalPlanRows": 8,
+            "finalPendingRows": 4,
+            "wallTimeMs": 609
+          },
+          "errors": []
+        }
+      ],
+      "recovery": [
+        {
+          "scenario": "nested_static",
+          "status": "TARGET_REACHED",
+          "durationMs": 605.7783750000001,
+          "recoveryActions": 2,
+          "entryReopens": 0,
+          "physicalArrival": true,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false,
+          "unresolvedUnknown": 0,
+          "guardedDispatchBlocked": false
+        },
+        {
+          "scenario": "modal_reentry_changed_quote",
+          "status": "UNVERIFIED",
+          "durationMs": 770.4932500000004,
+          "recoveryActions": 2,
+          "entryReopens": 1,
+          "physicalArrival": true,
+          "guardedBranchYield": false,
+          "falseArrivalClaim": false,
+          "unresolvedUnknown": 1,
+          "guardedDispatchBlocked": true
+        },
+        {
+          "scenario": "ready_target_ticking_quote",
+          "status": "TARGET_REACHED",
+          "durationMs": 187.9980830000004,
+          "recoveryActions": 0,
+          "entryReopens": 0,
+          "physicalArrival": true,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false,
+          "unresolvedUnknown": 0,
+          "guardedDispatchBlocked": false
+        },
+        {
+          "scenario": "nested_changed_quote",
+          "status": "TARGET_REACHED",
+          "durationMs": 1087.9239579999994,
+          "recoveryActions": 3,
+          "entryReopens": 1,
+          "physicalArrival": true,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false,
+          "unresolvedUnknown": 0,
+          "guardedDispatchBlocked": false
+        },
+        {
+          "scenario": "local_inverse_diverges",
+          "status": "UNVERIFIED",
+          "durationMs": 440.6673329999994,
+          "recoveryActions": 1,
+          "entryReopens": 0,
+          "physicalArrival": false,
+          "guardedBranchYield": false,
+          "falseArrivalClaim": false,
+          "unresolvedUnknown": 0,
+          "guardedDispatchBlocked": false
+        },
+        {
+          "scenario": "unknown_outcome_injected",
+          "status": "UNVERIFIED",
+          "durationMs": 0.7512910000004922,
+          "recoveryActions": 0,
+          "entryReopens": 0,
+          "physicalArrival": true,
+          "guardedBranchYield": false,
+          "falseArrivalClaim": false,
+          "unresolvedUnknown": 1,
+          "guardedDispatchBlocked": true
+        }
+      ],
+      "continuation": [
+        {
+          "scenario": "cold_nested_restart",
+          "valid": true,
+          "metrics": {
+            "incorrectCompletion": false,
+            "unknownRetained": true,
+            "unresolvedUnknown": 0,
+            "successfulExplorationAfterInjectedUnknown": 0,
+            "duplicateLeafExecutions": 0,
+            "necessaryReentries": 3,
+            "unnecessaryReentries": 0,
+            "recoveryCalls": 0,
+            "actualBrowserRecoveryCalls": 0,
+            "injectedRecoveryFailures": 0,
+            "recoveryHostSuccesses": 0,
+            "repeatedNoProgressRecoveries": 0,
+            "elapsedMs": 3806,
+            "recoveryElapsedMs": 0,
+            "jev": 8,
+            "llm": 0
+          },
+          "oracleLabels": [
+            "Close gate",
+            "Open menu",
+            "Open submenu",
+            "Branch A",
+            "Close gate",
+            "Outside",
+            "Open menu",
+            "Open submenu",
+            "Branch B"
+          ]
+        },
+        {
+          "scenario": "failed_recovery_restart",
+          "valid": true,
+          "metrics": {
+            "incorrectCompletion": false,
+            "unknownRetained": true,
+            "unresolvedUnknown": 0,
+            "successfulExplorationAfterInjectedUnknown": 0,
+            "duplicateLeafExecutions": 0,
+            "necessaryReentries": 0,
+            "unnecessaryReentries": 0,
+            "recoveryCalls": 1,
+            "actualBrowserRecoveryCalls": 0,
+            "injectedRecoveryFailures": 1,
+            "recoveryHostSuccesses": 0,
+            "repeatedNoProgressRecoveries": 0,
+            "elapsedMs": 1230,
+            "recoveryElapsedMs": 0,
+            "jev": 2,
+            "llm": 0
+          },
+          "oracleLabels": [
+            "Branch A",
+            "Branch B"
+          ]
+        },
+        {
+          "scenario": "unknown_recovery_restart",
+          "valid": true,
+          "metrics": {
+            "incorrectCompletion": false,
+            "unknownRetained": true,
+            "unresolvedUnknown": 1,
+            "successfulExplorationAfterInjectedUnknown": 0,
+            "duplicateLeafExecutions": 0,
+            "necessaryReentries": 0,
+            "unnecessaryReentries": 0,
+            "recoveryCalls": 1,
+            "actualBrowserRecoveryCalls": 1,
+            "injectedRecoveryFailures": 0,
+            "recoveryHostSuccesses": 1,
+            "repeatedNoProgressRecoveries": 0,
+            "elapsedMs": 831,
+            "recoveryElapsedMs": 344,
+            "jev": 1,
+            "llm": 0
+          },
+          "oracleLabels": [
+            "Branch A"
+          ]
+        }
+      ],
+      "inputIdentity": [
+        {
+          "scenario": "distinct-names",
+          "events": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            },
+            {
+              "branch": "C",
+              "value": "sample"
+            }
+          ],
+          "checks": [
+            {
+              "phase": "A disappears; B remains",
+              "expected": false,
+              "actual": false,
+              "reason": "target_correspondence_ambiguous"
+            },
+            {
+              "phase": "B rebuilt, compare with A",
+              "expected": false,
+              "actual": false,
+              "reason": "target_correspondence_ambiguous"
+            },
+            {
+              "phase": "B rebuilt, compare with B",
+              "expected": true,
+              "actual": true,
+              "reason": "equivalent_operation_sample"
+            },
+            {
+              "phase": "owner changes, compare with B",
+              "expected": false,
+              "actual": false,
+              "reason": "operation_conditions_changed"
+            }
+          ],
+          "errors": []
+        },
+        {
+          "scenario": "same-name-named-owners",
+          "events": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            },
+            {
+              "branch": "C",
+              "value": "sample"
+            }
+          ],
+          "checks": [
+            {
+              "phase": "A disappears; B remains",
+              "expected": false,
+              "actual": false,
+              "reason": "target_correspondence_ambiguous"
+            },
+            {
+              "phase": "B rebuilt, compare with A",
+              "expected": false,
+              "actual": false,
+              "reason": "target_correspondence_ambiguous"
+            },
+            {
+              "phase": "B rebuilt, compare with B",
+              "expected": true,
+              "actual": true,
+              "reason": "equivalent_operation_sample"
+            },
+            {
+              "phase": "owner changes, compare with B",
+              "expected": false,
+              "actual": false,
+              "reason": "operation_conditions_changed"
+            }
+          ],
+          "errors": []
+        }
+      ],
+      "modalFollowup": [
+        {
+          "replicate": 2,
+          "status": "TARGET_REACHED",
+          "durationMs": 711.45675,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false
+        },
+        {
+          "replicate": 3,
+          "status": "TARGET_REACHED",
+          "durationMs": 725.3509999999999,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false
+        },
+        {
+          "replicate": 4,
+          "status": "TARGET_REACHED",
+          "durationMs": 709.9472920000001,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false
+        },
+        {
+          "replicate": 5,
+          "status": "TARGET_REACHED",
+          "durationMs": 704.5383329999997,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false
+        },
+        {
+          "replicate": 6,
+          "status": "TARGET_REACHED",
+          "durationMs": 725.0058329999997,
+          "guardedBranchYield": true,
+          "falseArrivalClaim": false
+        }
+      ]
+    }
+  },
+  "interpretation": {
+    "mainComparison": "Migration accounting improved; existing nonlocal/identity/unknown mechanisms retained. Initial fixed modal recovery did not pass: UNVERIFIED with unknown after partial-ready observation.",
+    "modalFollowup": "After owned concurrent tests/builds finished, unchanged protocol alternating baseline/fixed 5 times each passed. First failure retained: aggregate modal baseline 6/6, fixed 5/6. Timing cause not proven; not a stability or performance acceptance.",
+    "models": "Condition and migration fixtures use zero calls; continuation uses explicit mock JEV 8/2/1, LLM 0 per variant. No real model calls."
+  },
+  "regression": {
+    "files": 38,
+    "passed": 413,
+    "failed": 0
+  }
+}
