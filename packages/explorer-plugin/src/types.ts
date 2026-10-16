@@ -34,6 +34,10 @@ export interface PlanItem {
   required: boolean; reason: string; evidence: EvidenceRef[]; resolvedBy?: EvidenceRef;
   /** Classification evidence closes a review obligation, never an executed action. */
   reviewResolvedBy?: EvidenceRef & {classificationId:string;classification:'display'|'container'};
+  /** Same captured material was reviewed without a usable operation/probe.
+   * Suppresses only recovery for this review; never coverage or permission. */
+  reviewRecoveryWait?: {policy:'review-recovery-wait-v1';revision:number;meaningKey:string;source:EvidenceRef;localId:string;identityKey:string;conditionKey:string;materialKey:string;
+    decisions:{id:string;kind:'purpose'|'probe'}[];reason:'unchanged_unresolved_review'};
   /** SDK-verified historical member coverage; no execution occurred for this row. */
   coverageResolvedBy?: {observation:EvidenceRef; relatedItemIds:string[]};
   /** An obligation or gap is not execution authority. Only accepted plan scopes authorize dispatch. */

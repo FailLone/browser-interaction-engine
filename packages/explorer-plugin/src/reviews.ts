@@ -22,6 +22,8 @@ export interface ReviewContext {
   programProbe?(localId:string,kind:'hover'|'focus',reason:string):Promise<void>;
   defer(decision:Decision,reason:string):void;
   unchanged?(evidence:{sourceDecisionId:string;sourceObservationId:string;scope:Scope}):void;
+  /** Negative evidence only; no successful review, operation or coverage. */
+  unresolvedReview?(evidence:{localId:string;decisionId:string;kind:'purpose'|'probe'}):void;
   retain(groups:RetainedScope[]):Promise<void>;
   gap(reason:string,scope:Scope,required?:boolean,prerequisites?:Scope[]):void;
   hasPendingAction(filter?:(action:ActionCandidate)=>boolean,freshOnly?:boolean):boolean;
@@ -314,7 +316,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
         const clarified=await c.clarify({key:`risk:${item.control.instanceId}`,purpose:'operation-clarification',parent:judged.decision,operation:true,instructions:'Resolve the remaining purpose ambiguity for one offered operation. Establish its interface effect from the captured relationship or controlled content, and separately rule out an external/business write. A popup or shared-container relationship is evidence to interpret, not automatic permission. Neighboring inputs do not imply a clear operation; establish the specific effect from all facts and do not infer safety from a label. Return uncertain if either effect remains unclear.',options:{...Object.fromEntries(Object.keys(effects).map(k=>[k,`Review ${k} as interface-only if evidenced`])),uncertain:'Cannot establish a safe interface-only purpose'},evidence:{current:item.control,actions:semanticActions(item.actions),...Object.fromEntries(Object.entries(effects).map(([k,v])=>[`effect:${k}`,v]))},requiredEvidence:Object.fromEntries(Object.keys(effects).map(k=>[k,['current','actions',`effect:${k}`]]))});
         if(clarified.value!=='uncertain'){kind=clarified.value;decision=clarified.decision;}
       }
-      if(!kind){mark(key);(round.unresolvedPurposeReviews??={})[unresolvedKey]={decisionId:decision.id,observationId:o.id};c.gap('operation_risk_unresolved',scopeForControl(item.control,o));continue;}
+      if(!kind){mark(key);(round.unresolvedPurposeReviews??={})[unresolvedKey]={decisionId:decision.id,observationId:o.id};c.gap('operation_risk_unresolved',scopeForControl(item.control,o));c.unresolvedReview?.({localId:item.control.localId,decisionId:decision.id,kind:'purpose'});continue;}
     }
     const d={value:kind,decision};mark(key);
     const contextBinding=surroundings?.complete?{surroundingContextKey:surroundings.key}:{};
@@ -384,7 +386,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     }
     const d=await c.assess('probe-risk',{observationId:o.id,control:item.control,actions:semanticActions(item.actions),limit:'One explicit observation probe per current element in this document and round. No automatic replay or click authorization.'},checks);mark(key);
     const kind=(['hover','focus'] as const).find(k=>d.values[`interface_${k}`]===true&&d.values[`external_${k}`]===false);
-    if(!kind){c.gap('probe_unresolved',scopeForControl(item.control,o));continue;}
+    if(!kind){c.gap('probe_unresolved',scopeForControl(item.control,o));c.unresolvedReview?.({localId:item.control.localId,decisionId:d.decision.id,kind:'probe'});continue;}
     await c.probe(d.decision,item.control.localId,kind);return true;
   }
   // Page-wide discovery can wait; it must not starve an already observed modal's work/exit.
