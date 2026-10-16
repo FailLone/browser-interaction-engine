@@ -1,0 +1,989 @@
+{
+  "item": {
+    "id": "92e78cad-25e8-495e-a317-6194ec309298",
+    "title": "classification_unresolved",
+    "scope": {
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "region": "USD to BTC | Convert US Dollar to Bitcoin | OKX",
+      "label": "USD",
+      "role": "generic",
+      "stableKey": "explorer:context:v1:7a5f4856c599cefd78d49e7d24a672236d37a85df9554bdae2fa300e7fdcda43",
+      "targetBinding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+    },
+    "prerequisites": [],
+    "completion": "Obtain fresh evidence and verify the requested operation",
+    "status": "unresolved",
+    "required": true,
+    "dispatchScope": false,
+    "reason": "classification_unresolved",
+    "evidence": [
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "5f80a3df-8355-444a-8499-4a625cb89577"
+      },
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "c446073e-8db5-49cd-b6d3-0052622bb861"
+      },
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4"
+      },
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35"
+      },
+      {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "9ca9a659-c1af-47c6-af1c-40b77b5803a3"
+      }
+    ],
+    "attempts": []
+  },
+  "checkpoint": {
+    "id": "4391fdff-f488-498d-ab11-dddfe27f6b2e",
+    "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+    "name": "explorer 1/7",
+    "observationId": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+    "stateId": "c711f1f3261d86aafbf3c175b6437cfff9b0ca4d5f5ab321d64097819139129a",
+    "context": {},
+    "predicates": [],
+    "acceptable": [],
+    "path": [
+      "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+      "592416bf-a091-4227-8dfc-bac621abdce0",
+      "40255e62-6836-473d-824a-db0c98c9634e",
+      "90102e0e-7a04-4b24-9abf-38f4f48498a9",
+      "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+      "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+      "0ffb08c8-835f-4e0d-b5c1-c166fe086e00"
+    ],
+    "createdAt": "2026-10-16T21:42:15.643Z"
+  },
+  "path": [
+    {
+      "id": "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+      "status": "succeeded",
+      "at": "2026-10-16T21:39:19.276Z",
+      "finishedAt": "2026-10-16T21:39:23.185Z",
+      "beforeId": "5017a84c-6321-4d72-a5c0-7c70a2180016",
+      "afterId": "571adda1-6bc5-4d8f-9625-4e5a90816df7",
+      "purpose": "external",
+      "label": "Don’t show for 7 days",
+      "kind": "check",
+      "replayable": true,
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "html",
+            "rule": "native-checkable/v1",
+            "facts": {
+              "tag": "input",
+              "type": "checkbox"
+            }
+          }
+        ]
+      },
+      "risk": "interface",
+      "value": true
+    },
+    {
+      "id": "592416bf-a091-4227-8dfc-bac621abdce0",
+      "status": "succeeded",
+      "at": "2026-10-16T21:39:28.601Z",
+      "finishedAt": "2026-10-16T21:39:32.333Z",
+      "beforeId": "571adda1-6bc5-4d8f-9625-4e5a90816df7",
+      "afterId": "7a2b9e41-6815-4445-a591-3f24cbc021cf",
+      "purpose": "external",
+      "label": "Don’t show for 7 days",
+      "kind": "check",
+      "replayable": true,
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "html",
+            "rule": "native-checkable/v1",
+            "facts": {
+              "tag": "input",
+              "type": "checkbox"
+            }
+          }
+        ]
+      },
+      "risk": "interface",
+      "value": false
+    },
+    {
+      "id": "40255e62-6836-473d-824a-db0c98c9634e",
+      "status": "succeeded",
+      "at": "2026-10-16T21:40:14.732Z",
+      "finishedAt": "2026-10-16T21:40:18.862Z",
+      "beforeId": "eaae6e16-c686-41de-82b9-b9279c4b7102",
+      "afterId": "7ed38887-915f-45e2-8468-19a1caffe5dd",
+      "purpose": "external",
+      "label": "announced",
+      "kind": "click",
+      "replayable": true,
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "html",
+            "rule": "hyperlink/v1",
+            "facts": {
+              "tag": "a",
+              "href": "/help/withdrawal-of-okx-hks-vasp-license-application"
+            }
+          }
+        ]
+      },
+      "risk": "interface"
+    },
+    {
+      "id": "90102e0e-7a04-4b24-9abf-38f4f48498a9",
+      "status": "succeeded",
+      "at": "2026-10-16T21:40:27.498Z",
+      "finishedAt": "2026-10-16T21:40:33.812Z",
+      "beforeId": "edc178cb-1b2b-47c4-ae70-30e2b30b35af",
+      "afterId": "214b3539-9a9c-4141-ae9a-69f8ac216c70",
+      "purpose": "recovery",
+      "label": "Return to observed page",
+      "kind": "history",
+      "replayable": false,
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "adapter-playwright",
+            "rule": "browser-history-return/v1",
+            "facts": {
+              "observationId": "edc178cb-1b2b-47c4-ae70-30e2b30b35af",
+              "targetObservationId": "eaae6e16-c686-41de-82b9-b9279c4b7102",
+              "browserSessionId": "6b71f627-bc46-4141-88a0-b0bbbca10eec",
+              "fromEntryId": 6,
+              "fromUrl": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application",
+              "toEntryId": 4,
+              "toUrl": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            }
+          }
+        ]
+      },
+      "risk": "interface",
+      "value": 4
+    },
+    {
+      "id": "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+      "status": "succeeded",
+      "at": "2026-10-16T21:41:35.729Z",
+      "finishedAt": "2026-10-16T21:41:39.706Z",
+      "beforeId": "5f80a3df-8355-444a-8499-4a625cb89577",
+      "afterId": "c446073e-8db5-49cd-b6d3-0052622bb861",
+      "purpose": "external",
+      "label": "Scrollable generic",
+      "kind": "scroll",
+      "replayable": true,
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "cssom",
+            "rule": "element-scroll-viewport/v1",
+            "facts": {
+              "overflowX": "auto",
+              "overflowY": "hidden"
+            }
+          }
+        ]
+      },
+      "risk": "interface",
+      "value": {
+        "x": 840,
+        "y": 0
+      }
+    },
+    {
+      "id": "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+      "status": "succeeded",
+      "at": "2026-10-16T21:41:48.991Z",
+      "finishedAt": "2026-10-16T21:41:53.647Z",
+      "beforeId": "c446073e-8db5-49cd-b6d3-0052622bb861",
+      "afterId": "f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4",
+      "purpose": "external",
+      "label": "Trade",
+      "kind": "click",
+      "replayable": true,
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "html",
+            "rule": "native-button/v1",
+            "facts": {
+              "tag": "button",
+              "type": "button",
+              "submitsForm": false
+            }
+          }
+        ]
+      },
+      "risk": "interface"
+    },
+    {
+      "id": "0ffb08c8-835f-4e0d-b5c1-c166fe086e00",
+      "status": "succeeded",
+      "at": "2026-10-16T21:42:03.608Z",
+      "finishedAt": "2026-10-16T21:42:08.247Z",
+      "beforeId": "f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4",
+      "afterId": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+      "purpose": "external",
+      "label": "1h",
+      "kind": "click",
+      "replayable": true,
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "aria",
+            "rule": "declared-activation/v1",
+            "facts": {
+              "role": "tab",
+              "implementation": "unverified"
+            }
+          }
+        ]
+      },
+      "risk": "interface"
+    }
+  ],
+  "candidates": [
+    {
+      "id": "7d7c3b8d-5dc6-45dc-a77a-13f5b3eab8ec",
+      "observationId": "8e894178-1943-4a1f-b75d-1ce665aa01cc",
+      "createdAt": "2026-10-16T20:14:15.541Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "4fe5ce2d-e6ee-4d87-b832-5e70e250be89",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1810",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": []
+    },
+    {
+      "id": "c0d03b39-d074-4512-a327-b5b9c8f9ebc2",
+      "observationId": "5a904f94-d42c-4d05-aab0-255c18388699",
+      "createdAt": "2026-10-16T20:14:21.142Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "4fe5ce2d-e6ee-4d87-b832-5e70e250be89",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1810",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "2a820db4-4a56-4862-900d-8f882c9bd91e",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        }
+      ]
+    },
+    {
+      "id": "33702c36-2be8-4004-8807-f8f88a9c0556",
+      "observationId": "6b86d43c-8797-4140-8dcc-2132dbeb9073",
+      "createdAt": "2026-10-16T20:14:55.247Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "4fe5ce2d-e6ee-4d87-b832-5e70e250be89",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1810",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "2a820db4-4a56-4862-900d-8f882c9bd91e",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        },
+        {
+          "id": "98e8dbcb-fc34-437a-9e0e-a986760fb9b7",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        }
+      ]
+    },
+    {
+      "id": "0274f5f9-bf49-4a81-95fa-6b3d849c6a24",
+      "observationId": "24bef614-46f9-4e69-a885-78a7545e1ee0",
+      "createdAt": "2026-10-16T20:44:44.785Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "f36ac873-3160-4d98-b544-a4548b99878e",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1809",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": []
+    },
+    {
+      "id": "b3c38904-5028-4951-b8ed-c1029285120a",
+      "observationId": "a41e6de8-0e12-406d-bfb5-cf6080b272f3",
+      "createdAt": "2026-10-16T20:44:51.929Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "f36ac873-3160-4d98-b544-a4548b99878e",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1809",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "183ccbdf-cdef-4eb1-bf97-bfec0e4dc58b",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        }
+      ]
+    },
+    {
+      "id": "92fac9d2-34fa-4c69-a225-8704ea0cd5cd",
+      "observationId": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b",
+      "createdAt": "2026-10-16T20:45:30.991Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "f36ac873-3160-4d98-b544-a4548b99878e",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1809",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "183ccbdf-cdef-4eb1-bf97-bfec0e4dc58b",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        },
+        {
+          "id": "e7718bc9-81d4-4a21-aa44-e26c4f07bc6a",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        }
+      ]
+    },
+    {
+      "id": "bb6a88ae-c79f-4ba9-b6c6-81efa6b7b0be",
+      "observationId": "522227a1-a36c-414c-b050-4135ec17f8cf",
+      "createdAt": "2026-10-16T21:17:01.699Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "d0d2cd6d-2c41-479f-a343-541e65f781d8",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "48313169-817d-4537-89d6-0d2fff2305da:1810",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": []
+    },
+    {
+      "id": "04c99159-3881-4570-b73d-29a9ba708d4c",
+      "observationId": "50974d5c-74b9-4f2f-a9a5-d4110826616f",
+      "createdAt": "2026-10-16T21:17:09.542Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "d0d2cd6d-2c41-479f-a343-541e65f781d8",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "48313169-817d-4537-89d6-0d2fff2305da:1810",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "75f4a7e7-6e93-4e36-902b-e56c471c1ede",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        }
+      ]
+    },
+    {
+      "id": "3ff97103-c812-4779-afe0-a45ceda5f814",
+      "observationId": "0e316e4c-e428-4222-9d11-47d2073f41a8",
+      "createdAt": "2026-10-16T21:17:51.681Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "d0d2cd6d-2c41-479f-a343-541e65f781d8",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "48313169-817d-4537-89d6-0d2fff2305da:1810",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "75f4a7e7-6e93-4e36-902b-e56c471c1ede",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        },
+        {
+          "id": "0a41a56c-2d93-463d-9dae-078e7b37f1e3",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        }
+      ]
+    },
+    {
+      "id": "27dd5579-82a8-48fe-b2b6-3e367db7ae94",
+      "observationId": "5017a84c-6321-4d72-a5c0-7c70a2180016",
+      "createdAt": "2026-10-16T21:39:17.542Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "6b71f627-bc46-4141-88a0-b0bbbca10eec",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1810",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": []
+    },
+    {
+      "id": "aa69aa5a-4bc0-43f9-a8d2-0ef3add21294",
+      "observationId": "571adda1-6bc5-4d8f-9625-4e5a90816df7",
+      "createdAt": "2026-10-16T21:39:26.500Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "6b71f627-bc46-4141-88a0-b0bbbca10eec",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1810",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        }
+      ]
+    },
+    {
+      "id": "76a8f4d3-48f2-48f8-a555-e98761ae49fe",
+      "observationId": "eaae6e16-c686-41de-82b9-b9279c4b7102",
+      "createdAt": "2026-10-16T21:40:13.100Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "6b71f627-bc46-4141-88a0-b0bbbca10eec",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "cab7a514-a79a-4cc8-a1da-c2b65eba392a:1810",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        },
+        {
+          "id": "592416bf-a091-4227-8dfc-bac621abdce0",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        }
+      ]
+    },
+    {
+      "id": "b1e80845-ab4f-4c31-809d-ba37be180e92",
+      "observationId": "5f80a3df-8355-444a-8499-4a625cb89577",
+      "createdAt": "2026-10-16T21:41:33.940Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "6b71f627-bc46-4141-88a0-b0bbbca10eec",
+      "retainedItemRef": true,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1740",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        },
+        {
+          "id": "592416bf-a091-4227-8dfc-bac621abdce0",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        },
+        {
+          "id": "40255e62-6836-473d-824a-db0c98c9634e",
+          "kind": "click",
+          "label": "announced",
+          "replayable": true
+        },
+        {
+          "id": "90102e0e-7a04-4b24-9abf-38f4f48498a9",
+          "kind": "history",
+          "label": "Return to observed page",
+          "replayable": false
+        }
+      ]
+    },
+    {
+      "id": "5aae901e-91a6-4184-9055-1c08b11d25d1",
+      "observationId": "c446073e-8db5-49cd-b6d3-0052622bb861",
+      "createdAt": "2026-10-16T21:41:46.437Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "6b71f627-bc46-4141-88a0-b0bbbca10eec",
+      "retainedItemRef": true,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1740",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        },
+        {
+          "id": "592416bf-a091-4227-8dfc-bac621abdce0",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        },
+        {
+          "id": "40255e62-6836-473d-824a-db0c98c9634e",
+          "kind": "click",
+          "label": "announced",
+          "replayable": true
+        },
+        {
+          "id": "90102e0e-7a04-4b24-9abf-38f4f48498a9",
+          "kind": "history",
+          "label": "Return to observed page",
+          "replayable": false
+        },
+        {
+          "id": "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+          "kind": "scroll",
+          "label": "Scrollable generic",
+          "replayable": true
+        }
+      ]
+    },
+    {
+      "id": "9418acb4-bd87-4198-bc71-3abf4d148fb1",
+      "observationId": "f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4",
+      "createdAt": "2026-10-16T21:42:01.056Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "6b71f627-bc46-4141-88a0-b0bbbca10eec",
+      "retainedItemRef": true,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1740",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        },
+        {
+          "id": "592416bf-a091-4227-8dfc-bac621abdce0",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        },
+        {
+          "id": "40255e62-6836-473d-824a-db0c98c9634e",
+          "kind": "click",
+          "label": "announced",
+          "replayable": true
+        },
+        {
+          "id": "90102e0e-7a04-4b24-9abf-38f4f48498a9",
+          "kind": "history",
+          "label": "Return to observed page",
+          "replayable": false
+        },
+        {
+          "id": "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+          "kind": "scroll",
+          "label": "Scrollable generic",
+          "replayable": true
+        },
+        {
+          "id": "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+          "kind": "click",
+          "label": "Trade",
+          "replayable": true
+        }
+      ]
+    },
+    {
+      "id": "4391fdff-f488-498d-ab11-dddfe27f6b2e",
+      "observationId": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+      "createdAt": "2026-10-16T21:42:15.643Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "6b71f627-bc46-4141-88a0-b0bbbca10eec",
+      "retainedItemRef": true,
+      "currentHistoryAnchor": false,
+      "matchingControls": [
+        {
+          "id": "87b91bd6-ee8a-4d8e-9567-574f45b28a78:1740",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "8d791a88-55ba-43ab-a951-0c15f5bf4994",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        },
+        {
+          "id": "592416bf-a091-4227-8dfc-bac621abdce0",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        },
+        {
+          "id": "40255e62-6836-473d-824a-db0c98c9634e",
+          "kind": "click",
+          "label": "announced",
+          "replayable": true
+        },
+        {
+          "id": "90102e0e-7a04-4b24-9abf-38f4f48498a9",
+          "kind": "history",
+          "label": "Return to observed page",
+          "replayable": false
+        },
+        {
+          "id": "f9b63cd2-9ba6-4b92-8c1a-10a9361a1b92",
+          "kind": "scroll",
+          "label": "Scrollable generic",
+          "replayable": true
+        },
+        {
+          "id": "797f216e-17fb-45ff-b753-f26ad1cf9b0c",
+          "kind": "click",
+          "label": "Trade",
+          "replayable": true
+        },
+        {
+          "id": "0ffb08c8-835f-4e0d-b5c1-c166fe086e00",
+          "kind": "click",
+          "label": "1h",
+          "replayable": true
+        }
+      ]
+    },
+    {
+      "id": "0dbbeb85-4945-4c0a-a3b0-56d87a0a0087",
+      "observationId": "6c7cf95b-604f-4c19-b8db-aca6d48a6eab",
+      "createdAt": "2026-10-16T22:51:01.901Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "131fb35f-efc7-47cf-bb58-236a56f89a3d",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": true,
+      "sourceReturnCondition": "50dd0eb4b184b736b5b230cbe81a16b440bc648adf1bb0531737d1a37ba2c871",
+      "nativeReturn": {
+        "kind": "history",
+        "label": "Return to observed page",
+        "value": 4
+      },
+      "matchingControls": [
+        {
+          "id": "4127220d-5a0e-4487-9b0d-af624205b3df:1810",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": []
+    },
+    {
+      "id": "ffad0fcc-a282-4eaa-b6b2-96a6f0fed889",
+      "observationId": "61a3d07b-37a2-4a40-9f2b-704b05f2680b",
+      "createdAt": "2026-10-16T22:51:12.523Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "131fb35f-efc7-47cf-bb58-236a56f89a3d",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": true,
+      "sourceReturnCondition": "50dd0eb4b184b736b5b230cbe81a16b440bc648adf1bb0531737d1a37ba2c871",
+      "nativeReturn": {
+        "kind": "history",
+        "label": "Return to observed page",
+        "value": 4
+      },
+      "matchingControls": [
+        {
+          "id": "4127220d-5a0e-4487-9b0d-af624205b3df:1810",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "d316eb23-8af3-45ea-b291-61c1262cb46f",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        }
+      ]
+    },
+    {
+      "id": "36360018-2a62-475d-80a5-b8d375c0b9e9",
+      "observationId": "fe3ed5c7-d5dd-4c76-9628-870ddb441ee9",
+      "createdAt": "2026-10-16T22:52:03.146Z",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "browserSessionId": "131fb35f-efc7-47cf-bb58-236a56f89a3d",
+      "retainedItemRef": false,
+      "currentHistoryAnchor": true,
+      "sourceReturnCondition": "50dd0eb4b184b736b5b230cbe81a16b440bc648adf1bb0531737d1a37ba2c871",
+      "nativeReturn": {
+        "kind": "history",
+        "label": "Return to observed page",
+        "value": 4
+      },
+      "matchingControls": [
+        {
+          "id": "4127220d-5a0e-4487-9b0d-af624205b3df:1810",
+          "name": "USD",
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "path": [
+        {
+          "id": "d316eb23-8af3-45ea-b291-61c1262cb46f",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        },
+        {
+          "id": "fd9f7104-e02b-47f5-a9c7-88fdc7f3044d",
+          "kind": "check",
+          "label": "Don’t show for 7 days",
+          "replayable": true
+        }
+      ]
+    }
+  ],
+  "session": {
+    "dirty": false,
+    "status": "paused",
+    "options": {
+      "executionPolicy": "interface-only",
+      "url": "https://www.okx.com/convert/usd-to-btc",
+      "headless": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "maxActions": 100,
+      "maxDepth": 10,
+      "maxDurationMs": 1799997,
+      "actionTimeoutMs": 10000,
+      "settleMs": 200,
+      "observeTimeoutMs": 10000,
+      "evidence": {
+        "enabled": true,
+        "maxNodes": 5000,
+        "maxTextLength": 20000,
+        "maxHtmlLength": 2000000,
+        "maxDomCharacters": 4000000,
+        "maxAttributeLength": 4000,
+        "maxRuntimeEntries": 200,
+        "styles": "essential",
+        "accessibility": true,
+        "fullPageScreenshot": false
+      },
+      "evidenceRetention": {
+        "mode": "persistent",
+        "ttlMs": 0,
+        "maxBytes": 1073741824,
+        "maxObservations": 1000
+      },
+      "exclude": [],
+      "replayable": [],
+      "context": {},
+      "exploration": "controls",
+      "listExploration": "review",
+      "pageExploration": "review",
+      "regionExploration": "review",
+      "decisionScopes": [],
+      "interfaceActions": [],
+      "reversible": [],
+      "environmentReset": "none",
+      "contextRules": []
+    }
+  },
+  "source": {
+    "id": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+    "url": "https://www.okx.com/convert/usd-to-btc",
+    "stable": true,
+    "browserSessionId": "6b71f627-bc46-4141-88a0-b0bbbca10eec",
+    "currentIndex": 1,
+    "entries": [
+      {
+        "id": 2,
+        "url": "about:blank"
+      },
+      {
+        "id": 4,
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "method": "GET"
+      },
+      {
+        "id": 6,
+        "url": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application",
+        "method": "GET"
+      }
+    ],
+    "instanceScope": "87b91bd6-ee8a-4d8e-9567-574f45b28a78",
+    "context": {},
+    "boundaries": [],
+    "criticalGaps": []
+  },
+  "current": {
+    "id": "d4d54ab3-190f-42a1-9a72-430fca15c213",
+    "url": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application",
+    "stable": true,
+    "browserSessionId": "131fb35f-efc7-47cf-bb58-236a56f89a3d",
+    "currentIndex": 2,
+    "entries": [
+      {
+        "id": 2,
+        "url": "about:blank"
+      },
+      {
+        "id": 4,
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "method": "GET"
+      },
+      {
+        "id": 6,
+        "url": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application",
+        "method": "GET"
+      }
+    ],
+    "instanceScope": "34812afd-0291-4815-9c1e-9f546ed5cbc8",
+    "context": {},
+    "boundaries": [],
+    "criticalGaps": []
+  },
+  "final": {
+    "id": "c9d2e5d3-fb0b-4a40-9398-2d810b340c80",
+    "url": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application",
+    "stable": true,
+    "browserSessionId": "131fb35f-efc7-47cf-bb58-236a56f89a3d",
+    "currentIndex": 2,
+    "entries": [
+      {
+        "id": 2,
+        "url": "about:blank"
+      },
+      {
+        "id": 4,
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "method": "GET"
+      },
+      {
+        "id": 6,
+        "url": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application",
+        "method": "GET"
+      }
+    ],
+    "instanceScope": "34812afd-0291-4815-9c1e-9f546ed5cbc8",
+    "context": {},
+    "boundaries": [],
+    "criticalGaps": []
+  }
+}

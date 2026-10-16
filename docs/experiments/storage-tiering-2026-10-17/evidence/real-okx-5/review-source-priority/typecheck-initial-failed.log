@@ -1,0 +1,12 @@
+
+> browser-interaction-engine@0.1.0 typecheck /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+> tsc --noEmit && tsc -p packages/core/tsconfig.json
+
+tests/explorer-review-source-priority.test.ts(17,41): error TS2352: Conversion of type '{ id: string; sessionId: string; observationId: string; stateId: string; path: never[]; }' to type 'Checkpoint' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: string; sessionId: string; observationId: string; stateId: string; path: never[]; }' is missing the following properties from type 'Checkpoint': name, context, predicates, acceptable, createdAt
+tests/explorer-review-source-priority.test.ts(49,23): error TS2352: Conversion of type '{ id: string; sessionId: string; observationId: string; path: never[]; }' to type 'Checkpoint' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: string; sessionId: string; observationId: string; path: never[]; }' is missing the following properties from type 'Checkpoint': name, stateId, context, predicates, and 2 more.
+tests/explorer-review-source-priority.test.ts(110,17): error TS2352: Conversion of type '{ tag: string; role: string; name: string; label: string; constraints: { type: string; }; reviewBinding: { attributes: { href: string; }; }; actionBasis: { click: { status: "supported"; evidence: { source: string; rule: string; facts: { ...; }; }[]; }; }; ... 37 more ...; identityContext?: { scope?: string; binding?...' to type 'Control' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Types of property 'constraints' are incompatible.
+    Type '{ type: string; }' is missing the following properties from type '{ type: string; required: boolean; min?: string | undefined; max?: string | undefined; step?: string | undefined; pattern?: string | undefined; minLength?: number | undefined; maxLength?: number | undefined; valid: boolean; }': required, valid
+ ELIFECYCLE  Command failed with exit code 2.

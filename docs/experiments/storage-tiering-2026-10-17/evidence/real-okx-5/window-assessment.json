@@ -1,0 +1,101 @@
+{
+  "runId": "d8d00f33-79ae-4ebd-a8ec-9fc31b5c6fda",
+  "sourceRevision": "de88210e0b50d6c851569c2de1bcb254f3ff430b",
+  "finalStatus": "paused",
+  "stop": "recovery_not_verified",
+  "restoreStatus": "UNREACHABLE",
+  "restoreReason": "Checkpoint path contains actions without replay permission",
+  "actualExplorationAttempts": 3,
+  "semanticCoverageCandidates": 0,
+  "unkeyedAttempts": [
+    "d316eb23-8af3-45ea-b291-61c1262cb46f",
+    "fd9f7104-e02b-47f5-a9c7-88fdc7f3044d",
+    "a4fc543d-31c4-4ec9-b039-02cfc65a3fe1"
+  ],
+  "jev": {
+    "started": 6,
+    "returned": 6,
+    "failed": 0,
+    "cancelled": 0,
+    "elapsedMs": 5487.289500999992,
+    "usage": {
+      "input_tokens": 24066,
+      "output_tokens": 500,
+      "cost": 0.001010772
+    }
+  },
+  "llm": {
+    "started": 0,
+    "returned": 0,
+    "failed": 0,
+    "cancelled": 0,
+    "elapsedMs": 0,
+    "usage": {}
+  },
+  "unknown": [],
+  "inFlight": [],
+  "providerSettlement": {
+    "settled": true,
+    "remainingPendingRequestIds": [],
+    "sampledAt": "2026-10-16T22:52:25.289Z",
+    "waitLimitMs": 5000
+  },
+  "recoveryCalls": 1,
+  "recoveryElapsedMs": 5990.252000000008,
+  "recoveryActionIds": [],
+  "planBefore": {
+    "total": 539,
+    "statuses": {
+      "pending": 181,
+      "unresolved": 335,
+      "succeeded": 23
+    }
+  },
+  "planAfter": {
+    "total": 543,
+    "statuses": {
+      "pending": 181,
+      "unresolved": 335,
+      "succeeded": 26,
+      "untested": 1
+    }
+  },
+  "planProgress": {
+    "newlyResolvedPlanOccurrences": 3,
+    "refreshedPlanEvidence": 15,
+    "newlyResolvedPlanItems": 3,
+    "planProgressIsSemanticCoverageProof": false
+  },
+  "diskAfterClose": {
+    "engineDatabase": 61214720,
+    "engineWal": 0,
+    "engineShm": 0,
+    "pluginDatabase": 4665344,
+    "pluginWal": 0,
+    "pluginShm": 0,
+    "evidenceManifests": 1916819,
+    "evidenceBlobs": 10262276,
+    "evidenceOther": 0,
+    "runnerAndLogs": 9491785,
+    "total": 87550944,
+    "availableBytes": 108139261952
+  },
+  "frozenBytes": 87573777,
+  "frozenFiles": 3055,
+  "durationAccounting": {
+    "before": {
+      "interruptions": 1,
+      "additionalMsUpperBound": 1724737,
+      "budgetBasis": "persisted-activity-lower-bound"
+    },
+    "after": {
+      "interruptions": 1,
+      "additionalMsUpperBound": 1724737,
+      "budgetBasis": "persisted-activity-lower-bound"
+    },
+    "aggregateExact": false
+  },
+  "sourceReturnUsed": false,
+  "exhaustive": false,
+  "allPriorClaimsRequireSeparateEvidence": true
+}

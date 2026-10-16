@@ -1,0 +1,13 @@
+{
+  "commit": "edd32f9e34a67ea482eedde9b3b64a6212647600",
+  "allVerifiedSourceHashesMatchCommit": true,
+  "files": {
+    "packages/explorer-plugin/src/runtime.ts": "c31377c8dee1b1e1c1f1c6a2049db27dba47b8dec2345d39aa43fab60f34dc76",
+    "tests/explorer-review-source-priority.test.ts": "f656ae1e59ba2cddd9f828b28b653114805693a8d5d0d9f25d8bf5101438df59",
+    "packages/explorer-plugin/src/obligation-scheduler.ts": "d697c14066f5e93be57f6cf617a42c37491f9fb6d0e44dea27ab0f451af631fc",
+    "packages/explorer-plugin/src/source-return.ts": "96ee9ea4bbd52a4536bde554ee3f39f37cce505f074702589a4409fd7eb0c868",
+    "packages/explorer-plugin/src/review-recovery.ts": "7a6b0a402e3ac2776b6724fd1e7aef2d1edf2d1dab720007fadfaada46c5c0db",
+    "packages/core/src/engine.ts": "0827b41cee876e5d77bd481f70406cce3547062402231e7e194a2b0cf72b37a2"
+  },
+  "validation": "Final product matches the 149-test product, final 18-test/typecheck files, frozen input counterfactual, 80-protocol source hashes and isolated compiled archive."
+}

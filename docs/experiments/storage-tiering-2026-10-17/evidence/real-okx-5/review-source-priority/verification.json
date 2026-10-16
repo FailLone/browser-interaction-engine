@@ -1,0 +1,81 @@
+{
+  "protocol": "run5-review-source-priority-v1",
+  "headBeforePatch": "de88210e0b50d6c851569c2de1bcb254f3ff430b",
+  "frozenAtUtc": "2026-10-16T23:06:11.561500+00:00",
+  "sourceHashes": {
+    "packages/explorer-plugin/src/runtime.ts": "c31377c8dee1b1e1c1f1c6a2049db27dba47b8dec2345d39aa43fab60f34dc76",
+    "tests/explorer-review-source-priority.test.ts": "f656ae1e59ba2cddd9f828b28b653114805693a8d5d0d9f25d8bf5101438df59",
+    "packages/explorer-plugin/src/obligation-scheduler.ts": "d697c14066f5e93be57f6cf617a42c37491f9fb6d0e44dea27ab0f451af631fc",
+    "packages/explorer-plugin/src/source-return.ts": "96ee9ea4bbd52a4536bde554ee3f39f37cce505f074702589a4409fd7eb0c868",
+    "packages/explorer-plugin/src/review-recovery.ts": "7a6b0a402e3ac2776b6724fd1e7aef2d1edf2d1dab720007fadfaada46c5c0db",
+    "packages/core/src/engine.ts": "0827b41cee876e5d77bd481f70406cce3547062402231e7e194a2b0cf72b37a2"
+  },
+  "commands": [
+    {
+      "command": "fnm exec --using 24.22.0 pnpm exec vitest run tests/explorer-review-source-priority.test.ts",
+      "exitCode": 0,
+      "log": "tests-initial-16.log",
+      "passed": 16,
+      "stage": "initial product and 16 scheduling regressions"
+    },
+    {
+      "command": "fnm exec --using 24.22.0 pnpm exec vitest run tests/explorer-review-source-priority.test.ts tests/explorer-source-return-scheduling.test.ts tests/explorer-return-to-scope.test.ts tests/explorer-observed-source-return.test.ts tests/explorer-review-recovery.test.ts tests/explorer-scheduling.test.ts tests/explorer-recovery-outcomes.test.ts tests/explorer-recovery-failure-condition.test.ts tests/explorer-router-budget.test.ts tests/explorer-route-revisions.test.ts",
+      "exitCode": 0,
+      "log": "tests-related-149.log",
+      "passed": 149,
+      "files": 10,
+      "stage": "final product; new tests before fixture type-field completion"
+    },
+    {
+      "command": "fnm exec --using 24.22.0 pnpm typecheck",
+      "exitCode": 2,
+      "log": "typecheck-initial-failed.log",
+      "stage": "new fixture missing Checkpoint and Control constraints fields"
+    },
+    {
+      "command": "fnm exec --using 24.22.0 pnpm typecheck",
+      "exitCode": 2,
+      "log": "typecheck-second-failed.log",
+      "stage": "new link fixture missing reviewBinding.parentInstanceId"
+    },
+    {
+      "command": "fnm exec --using 24.22.0 pnpm exec vitest run tests/explorer-review-source-priority.test.ts",
+      "exitCode": 0,
+      "log": "tests-intermediate-fixtures.log",
+      "passed": 18,
+      "stage": "intermediate fixture fields"
+    },
+    {
+      "command": "fnm exec --using 24.22.0 pnpm typecheck",
+      "exitCode": 0,
+      "log": "typecheck-final.log",
+      "stage": "final frozen source"
+    },
+    {
+      "command": "fnm exec --using 24.22.0 pnpm exec vitest run tests/explorer-review-source-priority.test.ts",
+      "exitCode": 0,
+      "log": "tests-final-18.log",
+      "passed": 18,
+      "stage": "final frozen source"
+    }
+  ],
+  "frozenInput": {
+    "path": ".data/okx-storage-acceptance-20261017-v1-frozen-5/engine/engine.sqlite",
+    "sha256Before": "f1b9a71350d65b0d7a3cc1e08c7123ee183ff76d9e2ec9b5627d04f12b503958",
+    "sha256After": "f1b9a71350d65b0d7a3cc1e08c7123ee183ff76d9e2ec9b5627d04f12b503958",
+    "unchanged": true
+  },
+  "diagnosis": {
+    "sdkStoreConstructor": "Complete private copy only",
+    "privateCopy": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/okx-run5-recovery-u8a2k6mr/frozen",
+    "privateCopyPreserved": true,
+    "originalOrFrozenDatabaseOpenedBySdk": false,
+    "browserOrProviderCalls": 0
+  },
+  "limits": [
+    "149 related tests precede fixture-only type-field fixes; final 18 tests and typecheck run against final frozen files.",
+    "No new real OKX run; source-selection counterfactual is independently archived by observation_storage.",
+    "Source-return opaque unknown ledger refusal is distinct from the existing SDK unknown dispatch gate.",
+    "No wall-time speedup claim; candidate-read tests count whether old sources are requested."
+  ]
+}

@@ -1,0 +1,46 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-return-to-scope.test.ts (9 tests) 7315ms
+   ✓ requests host-verified return to the accepted page after navigation without asking a model to rediscover the task boundary  1150ms
+   ✓ legacy host retains unfinished work after UNVERIFIED without inventing success or retrying the same route  578ms
+   ✓ legacy host retains unfinished work after UNREACHABLE without inventing success or retrying the same route  581ms
+   ✓ legacy host uses one strict checkpoint fallback after target verification is UNVERIFIED, then requires a real click before completion  965ms
+   ✓ legacy host uses one strict checkpoint fallback after target verification is UNREACHABLE, then requires a real click before completion  964ms
+   ✓ retains target and source-return failures after UNVERIFIED without a strict fallback  583ms
+   ✓ retains target and source-return failures after UNREACHABLE without a strict fallback  566ms
+   ✓ keeps UNVERIFIED target debt when native source return succeeds and requires an actual remaining click  943ms
+   ✓ keeps UNREACHABLE target debt when native source return succeeds and requires an actual remaining click  982ms
+ ✓ tests/explorer-scheduling.test.ts (36 tests) 4602ms
+   ✓ executes ready work before model review and retains a newly hidden unknown control as unfinished  588ms
+   ✓ finishes later noninteractive review without converting the deferred obligation into an executed action  733ms
+   ✓ restores a hidden native operation that was blocked only by host region review when ready work ran  1308ms
+   ✓ closes a tentative candidate through later noninteractive review without inventing a click or leaving a concrete obligation  731ms
+   ✓ restores a still-visible enabled operation made physically unreachable by an earlier local action  1224ms
+ ✓ tests/explorer-recovery-outcomes.test.ts (6 tests) 3403ms
+   ✓ blocks strict checkpoint fallback before recovery when an earlier recovery result is unknown  433ms
+   ✓ does not accept a source-position result as strict checkpoint restoration  482ms
+   ✓ resumes the original route once after explicit source verification and retains a failed retry limit  905ms
+   ✓ rediscovers a recovery crash from its source session before starting a new round without pendingDispatch  367ms
+   ✓ retains actual position and unknown recovery debt even when the host returns REACHED_VERIFIED  605ms
+   ✓ retains actual position and unknown recovery debt even when the host returns UNVERIFIED  610ms
+ ✓ tests/explorer-route-revisions.test.ts (4 tests) 2226ms
+   ✓ deduplicates a native route into the same named boundary across fresh documents  872ms
+   ✓ preserves observed mode/policy route revisions and selects a currently verified B route after historical A  881ms
+   ✓ does not downgrade a selected reentry into fresh execution when its permission changes during checkpoint creation  471ms
+ ✓ tests/explorer-review-recovery.test.ts (18 tests) 2067ms
+   ✓ keeps an absent target unverified after a real native return rather than granting checkpoint coverage  804ms
+   ✓ public start keeps a denied generic review pending while a later page executes fresh work  1219ms
+ ✓ tests/explorer-observed-source-return.test.ts (2 tests) 1911ms
+   ✓ returns a page discovery obligation without replaying its vanished modal; late unknown=false  1182ms
+   ✓ returns a page discovery obligation without replaying its vanished modal; late unknown=true  729ms
+ ✓ tests/explorer-source-return-scheduling.test.ts (35 tests) 66ms
+ ✓ tests/explorer-review-source-priority.test.ts (18 tests) 43ms
+ ✓ tests/explorer-recovery-failure-condition.test.ts (12 tests) 24ms
+ ✓ tests/explorer-router-budget.test.ts (9 tests) 21ms
+
+ Test Files  10 passed (10)
+      Tests  149 passed (149)
+   Start at  07:02:26
+   Duration  26.52s (transform 539ms, setup 0ms, collect 3.58s, tests 21.68s, environment 1ms, prepare 315ms)
+

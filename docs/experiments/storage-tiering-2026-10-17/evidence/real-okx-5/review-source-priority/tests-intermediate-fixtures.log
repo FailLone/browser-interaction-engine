@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-review-source-priority.test.ts (18 tests) 44ms
+
+ Test Files  1 passed (1)
+      Tests  18 passed (18)
+   Start at  07:04:48
+   Duration  1.11s (transform 499ms, setup 0ms, collect 921ms, tests 44ms, environment 0ms, prepare 37ms)
+

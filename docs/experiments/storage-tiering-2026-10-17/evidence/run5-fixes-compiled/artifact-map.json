@@ -1,0 +1,22 @@
+[
+  {
+    "source": "docs/build-smoke.json",
+    "artifact": "build-smoke.json",
+    "sha256": "5593632e9ebee43a08144078acdfb7ba6f5d59e5fe8271fa2e878a97a684f9e8"
+  },
+  {
+    "source": ".data/explorer-smoke-1792192041555/report.json",
+    "artifact": "explorer-smoke.json",
+    "sha256": "11a48343734d71edd35b3b460a5d53f221113d4198e383e1ed90cff73a4a5524"
+  },
+  {
+    "source": ".data/explorer-smoke-1792192041555/dashboard.png",
+    "artifact": "explorer-dashboard.png",
+    "sha256": "35b8be6681a3cba86408bb20fb66a7351d598d82a32b3ef2956a0ff521cfd1c5"
+  },
+  {
+    "source": ".data/run4-contract-report.json",
+    "artifact": "compiled-contract-report.json",
+    "sha256": "6a74c518391585fefd90be062f711a8a6b010d36226e9f5215e9e4ccaeb5fc4a"
+  }
+]

@@ -219,3 +219,13 @@ SDK 当前动作查询新增可选按 observation 读取接口；SQLite 用带�
 最终测试提交 `b6c4420` 的[隔离编译验收](evidence/run4-fixes-compiled/summary.json)全部通过：build、发布类型、来源返回的窄结果类型、可选按观察读取及旧后端回退、编译后 API 和 Explorer UI 实际交互。471 个源码文件前后哈希相等，所有 workspace 模块指向自有 archive，603 个构建产物留有摘要；fixture 使用显式 mock provider，两个实际目标动作完成。[截图复核](evidence/run4-fixes-compiled/visual-review.json)单独记录在生成摘要之后，隔离目录已清理。`b6c4420` 已快进合入 main，包含 autonomous `4857ad5`，原工作区未变，见[合并核对](evidence/main-merge-run4-fixes.json)。真实第五窗另行接续，编译与 fixture 结果不代表真实穷尽。
 
 [计划增长诊断](evidence/real-okx-4/plan-growth-diagnosis.md)确认 180 组未尝试操作有 observed_in_scope / operation_not_executed 双行，另 3 组被同一实际 attempt 一起完成；447 个新增行来自首次无遮挡完整页面。不能把全部增长都解释为动态价格或重复。曾实现仅同帧、唯一动作的窄去重原型，但真实两帧复算中首帧 3→2 行，下一帧缺少对应证明仍需独立缺口，最终净节省 0，因此已撤回产品补丁。原型、通过测试和反面结果均归档；旧双行及所有未测/attempt/unknown 证据未删除。后续应明确一个义务怎样保留多个尚未证明等价的来源，再设计审计状态，不能用相同 hash 强行合并。
+
+## 第五窗：旧审阅路线抢先，页面候选仍有全量预读
+
+main/source=`de88210` 的第五窗在同一 task/session/round 接续，实际探索 3 次，JEV 6、LLM 0，无 unknown/在途/provider 遗留；3 次仍因来源条件缺失而没有新语义覆盖证明。计划 539→543，原 pending 181、unresolved 335 均保留。严格恢复旧 USD 分类审阅检查点耗时 5,990.252 ms，路径含不可重放操作，UNREACHABLE 后自动停止，恢复动作 0。SDK 拒绝正确；问题是调度在旧审阅路线处提前返回，没有评估本轮同 URL 的有效 GET 历史入口。见[本窗事实与冻结清单](evidence/real-okx-5/README.md)。
+
+`edd32f9` 仅在旧审阅缺少当前原生锚点时，优先评估同 URL 已接受页面返回，全部原门禁通过才采用；否则保留严格候选。具体操作和当前 native 审阅优先级不变。页面返回候选改为惰性核验，避免冗余全量排序读取。149 项相关测试通过；夹具类型字段补齐后最终新增 18 项及类型检查通过。完整冻结计划反事实选到本轮 `fe3…/3636…`，计划与旧 retry 债相同，4 条旧路线保留语义。页面单独调度的 observation/actions 读取 21/20→2/1；完整计划仍为 24/24→25/24，不能称整体调用下降。见[独立复核](evidence/real-okx-5/source-priority-validation.md)。
+
+固定 `edd32f9` 重跑相同 [80 次协议](evidence/run5-fixes-protocols/summary.json)，16 个场景逐 trial 行为与 `70b8cb4` 相等，[348 项完整性核对](evidence/run5-fixes-protocols/validation.json)通过，源码、fixture、脚本及测量契约保持不变。正向到达 20/20、嵌套冷重启 5/5（必要重入 15、重复叶子/无理由重入 0）、A/B 对应 40/40及实际输入 30、unknown 跨重启 5/5（后续新 session/action/recovery/JEV/LLM 均 0）、100 tick 待测增长 0。隔离编译、发布类型和编译后 API/UI 实际交互也通过，472 份源码前后不变，截图单独复核。旧全套 1,898/1,903 的记录仍保留，本次未重跑全套，也尚未用新版本证明真实恢复成功。
+
+存储总增 14,065,765 B，其中审计导出 4,117,047 B、新动作查询索引 1,150,976 B。10 次新观察的逻辑 33,682,744 B 以新增观察行/共享包 680,037 B 保存；旧共享材料没有变化。主要新增业务 payload 是候选 action 和 identity，插件较小的文件增长部分来自旧空闲页复用。没有独立的投影/保存计时，不能据两个不同页面窗口宣称整体提速。完整分项、负面时间指标和可复算脚本见[只读增长报告](evidence/real-okx-5/storage-growth.md)。真实穷尽仍未完成。
