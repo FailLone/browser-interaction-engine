@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-16T20:14:02.206752+00:00",
+  "mainWorktree": "/Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine",
+  "previousMain": "948361c51bafba0e7c061d4a5bb3ad6ab4e94ab1",
+  "mergedMain": "6630dfa8f1dae13aba1bd6e8dcd789f0d2dc23b5",
+  "method": "merge --ff-only",
+  "autonomousExploration": "4857ad571c19995480a4c149abd9b2868a94c965",
+  "autonomousIncluded": true,
+  "mainCleanAfterMerge": true,
+  "verification": "packages/apps/scripts/tests identical to development worktree; compiled archive and test source identities recorded separately. Main worktree node_modules not used or modified."
+}

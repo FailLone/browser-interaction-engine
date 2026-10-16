@@ -1,0 +1,18 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/okx-storage-acceptance.test.ts (27 tests) 2589ms
+   ✓ settles delayed work and writes summary before exit using direct-node-signal without a browser/provider  688ms
+   ✓ settles delayed work and writes summary before exit using tsx-cli-signal without a browser/provider  728ms
+   ✓ settles delayed work and writes summary before exit using direct-node-stop-file without a browser/provider  1117ms
+ ✓ tests/explorer-store-packed.test.ts (17 tests) 634ms
+ ✓ tests/explorer-lifecycle-recovery.test.ts (12 tests) 86ms
+ ✓ tests/explorer-plugin-sync.test.ts (5 tests) 64ms
+ ✓ tests/explorer-store-delta.test.ts (13 tests) 51ms
+ ✓ tests/explorer-store-normalized.test.ts (10 tests) 46ms
+
+ Test Files  6 passed (6)
+      Tests  84 passed (84)
+   Start at  04:37:12
+   Duration  5.60s (transform 547ms, setup 0ms, collect 1.34s, tests 3.47s, environment 0ms, prepare 202ms)
+

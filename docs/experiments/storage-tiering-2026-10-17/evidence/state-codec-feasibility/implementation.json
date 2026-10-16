@@ -1,0 +1,305 @@
+{
+  "status": "Implemented and frozen; not committed; parent owns integration and full-suite validation",
+  "recordedAt": "2026-10-16T20:38:29.227Z",
+  "environment": {
+    "cpu": "Apple M1 Max",
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v24.22.0"
+  },
+  "baselineCommit": "6630dfa8f1dae13aba1bd6e8dcd789f0d2dc23b5",
+  "sourceDirtySha256": "851577f82476ae555dc8621b61ea0d1fd6c724863c41d923950dffbfd9a8dc6a",
+  "frozenFiles": {
+    "packages/storage-sqlite/src/entity-codec.ts": "33d534a7d1b70331a8e72c400c74812ecf54e6f31f3084c0e38a33e428ac2758",
+    "packages/storage-sqlite/src/index.ts": "c1503efa5c4797901824e4f721ba35baccbf59d085bbed5ccea0962276c54cc9",
+    "tests/storage-state-compression.test.ts": "ea5ef00068618774d3286fa0464793fab8a701802a07fb056cfa4f7535c36c4f",
+    "tests/storage-sqlite-compression.test.ts": "e589b2486d72c4b2d54ed673c27a2e719c6a4ded56c447bf4ff75f04b4ba8abb",
+    "scripts/benchmark-state-compression.ts": "d2ea0a037095a6e114fd74ea2a630425a383efd90f89ae7b3705da05691c3c1c"
+  },
+  "evidence": "sqlite-2026-10-16T20-35-55-336Z.json",
+  "previousSupersededMeasurement": "sqlite-2026-10-16T20-33-41-009Z.json",
+  "scope": "Only storage-sqlite entity-codec.ts/index.ts and listed test/benchmark files changed. observation-store.ts/observation-structure.ts, original OKX database/evidence and browser/provider were untouched.",
+  "behavior": {
+    "schemaVersion": 4,
+    "codec": "gzip level 3, self-contained one-row state envelope",
+    "thresholdUtf8Bytes": 32768,
+    "minimumSavingsFraction": 0.125,
+    "reservedMarker": "A user state carrying the reserved state manifest marker is enveloped even when small, preserving roundtrip unambiguity.",
+    "ownership": "Compressed state decode requires SQL kind=state,id,session_id and matches envelope and decoded body; bounded inflate, exact original byte length and SHA-256. Missing/damaged/unknown codecs fail explicitly.",
+    "writes": "Existing same-owner mutable state UPSERT and transaction behavior; no semantic fields removed or normalized. Observation immutability and sharing unchanged.",
+    "cache": "No state cache added. Each read returns independent JSON.parse values; actual hot-list overhead did not justify new retained-memory/cache invalidation complexity.",
+    "legacy": "All plain states and prior observation codecs readable; startup upgrades schema only. Existing plain states remain until a normal update or explicit migration.",
+    "migrationApi": "compressStates({sessionId?,cursor?,limit?}) returns cursor/done/counts/logical/storage bytes. Default limit 50, maximum 1000; one atomic batch, cursor/id list then one full owner row at a time, exact semantic roundtrip verification. No startup bulk rewrite or automatic VACUUM."
+  },
+  "validation": {
+    "tests": {
+      "file": "state-tests-final.log",
+      "passed": 91,
+      "files": 6
+    },
+    "typecheck": {
+      "file": "state-typecheck-final.log",
+      "command": "pnpm exec tsc --noEmit",
+      "exitCode": 0
+    },
+    "actualOldBinaryRejectsSchema4": true,
+    "sourceHashIdenticalBeforeAndAfterBenchmark": true,
+    "sourceStillIdenticalAfterFinalTests": true,
+    "independentMeasuredWorkerRuns": 20,
+    "fullEngineEntityKinds": 26,
+    "fullEngineDecodedEntityHashesEqualAcrossAllRuns": true,
+    "entityHashes": {
+      "action": "e6ca606c7c6fb431e058f0c3b964e183417dfef9cde4ad129d5315b83dbd58f8",
+      "attempt": "ce28443c6d7eaf3985702cacbdab386e18ada6d94e81c42ee071eb981c9bb1a4",
+      "boundary-exit-episode": "1187a941214b22e11046ac28e8f53aa4eab76be94819f2911927357d9422d7b9",
+      "boundary-exit-request": "d3379bdabfd94ef50c241b53ccfc5dcdd030a684d12f1d74b741e0ce60ef6b01",
+      "checkpoint": "0e7cfacffd220c8243381702f339c28f4942297f38cac47f7e05bbbdc1bf0348",
+      "control-classification": "eb5ced3d8e54157ac444d4cfa2701b782b72ec394262a38a795800fe6173629f",
+      "control-classification-request": "b20169d65710b5e4518cad254ae085b53ec3aa89c01c6b549337457d913faa50",
+      "control-review-request": "1ec0641569d092f8b03bc11432a49f8d98f282179eb88dbde0f45222fe16cf1a",
+      "discovery-request": "c467d3563f37455e22a79d046edabc025e2ecaae306663b6549188c2c8e42e49",
+      "evidence-entry": "5047051414df72258e5a45812c8c6400684921298883674fc3d7a558a9a1e576",
+      "evidence-retention": "a56dfbe41a1000ed4110621d568f765fa48bb36c8de29fab58b96b0ba39cb2c8",
+      "exploration-group": "d33fc78e170d22eb8bb36d13848ed09a3e92f23f255d4ec2f3e7e6d854010960",
+      "frontier": "b7e159821c3f5420041da2956388c35ab56e71363911a55f688a5060905bde5f",
+      "hypothesis": "047c64bf618b10d20aae3d2aee7dcd69a68497adb0a32abf1761d20fd5a8b764",
+      "identity": "ca6dc7019d882d910e26d99780256db7925640f8639c68397044ae612a8e23dc",
+      "intervention-snapshot": "a33025b94908422e513399c72e5c0f1dd47f89b2f280b05a598c5ed25560caea",
+      "observation": "44a5cbf9f0c4f97b199a555647e07a42dd3b2d5a0b4d7c23088a1a78efc42402",
+      "page-exploration": "e15acf54e6bdfdc7e303542c5d97156f7d6367b986a50093310162a6c1650b5f",
+      "reach": "f4e59ada21afd965a4bbd51c1b778640bf61c0885854de322ad1d2b7680760d0",
+      "region-review": "f6877048597ec0f3eb17b07c0bfe9c2180e1c699f5e0d8c1469e6b46cfcc1761",
+      "region-review-request": "fe6d85495a65cb460b095b8183b90c3bb14ccc49ee9ad7ee7099690bd79fab7d",
+      "scope": "5a24644cbf62d9dc871851b521fe6a835de8f9e32a2bc03af5ced9faca8dc366",
+      "session": "b262e88a877c95482b5c249e6995ab01c47bec7d9535b7eb4bcf1d6e6cabb7d0",
+      "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f",
+      "transition": "f7112eda7f41fb8412ebf3ffa99eb92ab8a8f100f3a6bbb0995c05ccabc395f6",
+      "visit": "b4fac3f35d3ab580ca77bb7afde9debffe7ce505e9ad2dc18fc736428311f92e"
+    },
+    "observations": {
+      "observations": 14,
+      "sharedObservations": 8,
+      "manifestBytes": 1064168,
+      "objects": 1325,
+      "referencedObjects": 1325,
+      "orphanObjects": 0,
+      "objectBytes": 4677679,
+      "referencedObjectBytes": 4677679,
+      "packs": 80,
+      "packedBytes": 286783,
+      "packLogicalBytes": 4677679,
+      "fragmentedBytes": 0
+    }
+  },
+  "summary": [
+    {
+      "workload": "nine-states",
+      "baseline": {
+        "writeMs": 47.323666,
+        "coldListMs": 18.54162500000001,
+        "hotListMs": 18.640665999999783,
+        "hotGetMs": 19.332042,
+        "initialDisk": {
+          "files": {
+            "engine.sqlite": 4096,
+            "engine.sqlite-wal": 65952,
+            "engine.sqlite-shm": 32768
+          },
+          "totalBytes": 102816
+        },
+        "migrationDisk": {
+          "files": {
+            "engine.sqlite": 4096,
+            "engine.sqlite-wal": 65952,
+            "engine.sqlite-shm": 32768
+          },
+          "totalBytes": 102816
+        },
+        "activeDisk": {
+          "files": {
+            "engine.sqlite": 4030464,
+            "engine.sqlite-wal": 4120032,
+            "engine.sqlite-shm": 32768
+          },
+          "totalBytes": 8183264
+        },
+        "closedDisk": {
+          "files": {
+            "engine.sqlite": 8019968,
+            "engine.sqlite-wal": 0,
+            "engine.sqlite-shm": 0
+          },
+          "totalBytes": 8019968
+        },
+        "statePayload": {
+          "rows": 9,
+          "bytes": 7939339
+        },
+        "migrationMs": null,
+        "peakRssBytes": 379289600,
+        "afterReadsHeapUsed": 25633320,
+        "afterReadsExternal": 4866190,
+        "afterReadsArrayBuffers": 2245891
+      },
+      "new": {
+        "writeMs": 59.57441700000001,
+        "coldListMs": 19.790624999999977,
+        "hotListMs": 20.155666999999994,
+        "hotGetMs": 20.51475000000005,
+        "initialDisk": {
+          "files": {
+            "engine.sqlite": 4096,
+            "engine.sqlite-wal": 65952,
+            "engine.sqlite-shm": 32768
+          },
+          "totalBytes": 102816
+        },
+        "migrationDisk": {
+          "files": {
+            "engine.sqlite": 4096,
+            "engine.sqlite-wal": 65952,
+            "engine.sqlite-shm": 32768
+          },
+          "totalBytes": 102816
+        },
+        "activeDisk": {
+          "files": {
+            "engine.sqlite": 4096,
+            "engine.sqlite-wal": 655112,
+            "engine.sqlite-shm": 32768
+          },
+          "totalBytes": 691976
+        },
+        "closedDisk": {
+          "files": {
+            "engine.sqlite": 503808,
+            "engine.sqlite-wal": 0,
+            "engine.sqlite-shm": 0
+          },
+          "totalBytes": 503808
+        },
+        "statePayload": {
+          "rows": 9,
+          "bytes": 429709
+        },
+        "migrationMs": null,
+        "peakRssBytes": 360923136,
+        "afterReadsHeapUsed": 25743784,
+        "afterReadsExternal": 24545772,
+        "afterReadsArrayBuffers": 2245891
+      },
+      "compactedReductionPercent": 93.71807967313586,
+      "writePercentChange": 25.887155487911716,
+      "hotListPercentChange": 8.127397379472544,
+      "coldListPercentChange": 6.7361949127973775
+    },
+    {
+      "workload": "full-engine",
+      "baseline": {
+        "writeMs": 32.92141599999991,
+        "coldListMs": 20.395250000000033,
+        "hotListMs": 19.414208000000144,
+        "hotGetMs": 18.54929100000004,
+        "initialDisk": {
+          "files": {
+            "engine.sqlite": 22228992,
+            "engine.sqlite-wal": 0,
+            "engine.sqlite-shm": 32768
+          },
+          "totalBytes": 22261760
+        },
+        "migrationDisk": {
+          "files": {
+            "engine.sqlite": 22228992,
+            "engine.sqlite-wal": 0,
+            "engine.sqlite-shm": 32768
+          },
+          "totalBytes": 22261760
+        },
+        "activeDisk": {
+          "files": {
+            "engine.sqlite": 22228992,
+            "engine.sqlite-wal": 0,
+            "engine.sqlite-shm": 32768
+          },
+          "totalBytes": 22261760
+        },
+        "closedDisk": {
+          "files": {
+            "engine.sqlite": 21159936,
+            "engine.sqlite-wal": 0,
+            "engine.sqlite-shm": 0
+          },
+          "totalBytes": 21159936
+        },
+        "statePayload": {
+          "rows": 9,
+          "bytes": 7939339
+        },
+        "migrationMs": null,
+        "peakRssBytes": 911851520,
+        "afterReadsHeapUsed": 24989432,
+        "afterReadsExternal": 10221370,
+        "afterReadsArrayBuffers": 7587075
+      },
+      "new": {
+        "writeMs": 55.63916700000004,
+        "coldListMs": 21.613334000000123,
+        "hotListMs": 20.103084000000308,
+        "hotGetMs": 19.6189159999999,
+        "initialDisk": {
+          "files": {
+            "engine.sqlite": 22228992,
+            "engine.sqlite-wal": 4152,
+            "engine.sqlite-shm": 32768
+          },
+          "totalBytes": 22265912
+        },
+        "migrationDisk": {
+          "files": {
+            "engine.sqlite": 22228992,
+            "engine.sqlite-wal": 502672,
+            "engine.sqlite-shm": 32768
+          },
+          "totalBytes": 22764432
+        },
+        "activeDisk": {
+          "files": {
+            "engine.sqlite": 22228992,
+            "engine.sqlite-wal": 502672,
+            "engine.sqlite-shm": 32768
+          },
+          "totalBytes": 22764432
+        },
+        "closedDisk": {
+          "files": {
+            "engine.sqlite": 13643776,
+            "engine.sqlite-wal": 0,
+            "engine.sqlite-shm": 0
+          },
+          "totalBytes": 13643776
+        },
+        "statePayload": {
+          "rows": 9,
+          "bytes": 429709
+        },
+        "migrationMs": 120.73470800000007,
+        "peakRssBytes": 941621248,
+        "afterReadsHeapUsed": 25019296,
+        "afterReadsExternal": 26583335,
+        "afterReadsArrayBuffers": 7587075
+      },
+      "compactedReductionPercent": 35.52071234998064,
+      "writePercentChange": 69.00599597538634,
+      "hotListPercentChange": 3.548308537748013,
+      "coldListPercentChange": 5.972390630171676
+    }
+  ],
+  "interpretation": [
+    "The nine-state workload measures first insertion into a fresh real SQLite store; full-engine write timing measures nine same-value updates after explicit migration in the new mode. The baseline has no state migration and preserves plain rows. These are distinct write cases, not browser capture throughput.",
+    "Full-engine migration temporarily adds WAL while the main file retains free pages. Only explicit compact reclaims file bytes. The report includes initial, post-migration, active and closed DB/WAL/SHM separately.",
+    "Memory figures are process measurements from isolated workers. Peak RSS includes engine-wide decoding/hash verification and migration, and is not attributable solely to state codec buffers. No persistent state cache was introduced. Post-GC heap and ArrayBuffer figures are included; external Buffer accounting and allocator retention vary, so negative before/after deltas are not a memory-saving claim.",
+    "The full-engine snapshot contains all entity kinds and all 14 observations. Their decoded hashes, 1325 referenced objects and 80 packs remain identical across baseline/new/migration/restart runs. External evidence files are not copied or benchmarked.",
+    "Neither workload includes real page capture, provider/model network latency, browser recovery or an end-to-end OKX run. Cold read means first list after Store reopen, with OS cache not flushed. Performance conclusions apply to this nine-state snapshot on this machine only."
+  ]
+}

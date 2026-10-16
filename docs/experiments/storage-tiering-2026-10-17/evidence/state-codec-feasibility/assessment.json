@@ -1,0 +1,71 @@
+{
+  "status": "Read-only feasibility assessment; no product code or database changes",
+  "measurement": "measurement-2026-10-16T20-25-06-808Z.json",
+  "source": {
+    "headCommit": "6630dfa8f1dae13aba1bd6e8dcd789f0d2dc23b5",
+    "storageSourceDirtySha256": "0904782693fe61f722bfb0eec84bdd7ffa2c59bc2379d40b36368fe354a1f5cb"
+  },
+  "recommendation": {
+    "feasible": true,
+    "minimumChangeCandidate": "Compress large state entities as one self-contained gzip envelope and BLOB in the existing entities row. Do not add shared objects, new GC roots, semantic projections or state caches.",
+    "candidateLevel": 3,
+    "rationale": "On this dataset gzip level 3 saves 94.59% of state payload with nearly the same encode cost as level 1. Level 6 saves only a further 62,768 bytes across all nine states while adding about 22 ms per nine-state encode batch. This single-snapshot result motivates level 3, not a universal claim about all states.",
+    "admission": "Initial proposal: only kind=state, UTF-8 JSON at least 32 KiB, and manifest+compressed bytes smaller than the original by a meaningful margin; preserve small/custom/identity/action entities as plain JSON. The threshold and saving margin are proposals, not measured optima.",
+    "zstd": "Zstd level 3 is a better measured size/CPU tradeoff on this Node 24.22 runtime, but the official Node 24 documentation marks Zstd APIs experimental. Gzip is the smallest compatibility change because this repository already depends on it. Do not silently switch persisted codec support based on runtime availability."
+  },
+  "observedTradeoffs": {
+    "stateRows": 9,
+    "stateLogicalBytes": 7939339,
+    "gzip3PayloadBytesIncludingEnvelope": 429853,
+    "gzip3SavedBytes": 7509486,
+    "gzip3StatePayloadReductionPercent": 94.5858,
+    "gzip3AllEntitiesPayloadReductionPercent": 44.7600,
+    "gzip3PerRowEncodeMedianMs": 5.3318,
+    "plainPerRowEncodeMedianMs": 1.6469,
+    "gzip3NineStateDecodeMedianMs": 19.1220,
+    "plainNineStateDecodeMedianMs": 10.4787,
+    "gzip3NineStateDecodeAddedMedianMs": 8.6433,
+    "zstd3PayloadBytesIncludingEnvelope": 303164,
+    "zstd3PerRowEncodeMedianMs": 4.5249,
+    "zstd3NineStateDecodeMedianMs": 17.7482,
+    "runtimeReadPath": "core engine observe calls list(state) at engine.ts:445; late projection/canonical changes may call it again at :491. getGraph also lists all states at :390. No query selects only a state fingerprint/canonical summary. The extra full-list decode CPU scales with retained state bytes, so storage savings alone do not imply application acceleration.",
+    "runtimeWritePath": "Each successful observe persists one selected state in the existing transaction at engine.ts:498. assignState may update observationIds and grouping.observationCount while retaining the state ID, so state must remain mutable. A whole-value codec recompresses that record on each update.",
+    "physicalStorageCaveat": "Figures count entity JSON+BLOB payload only, excluding SQLite rows/indexes/pages/WAL and all evidence. Updating existing rows may free pages without shrinking files until explicit compaction. No physical-size or end-to-end speed prediction is asserted."
+  },
+  "compatibilityRequirements": [
+    "Bump metadata schemaVersion 3 to 4 before writing new state envelopes. Current binaries accept only 1/2/3 and will then reject at open. Without a bump, old v3 code opens the database and only fails later when it encounters a state BLOB because its decoder recognizes observation manifests only.",
+    "Preserve plain state rows and every existing plain/gzip/structural observation format. No startup bulk rewrite. If migration is desired, provide explicit bounded atomic batches with roundtrip verification and resume cursor; migration does not touch canonical, grouping, IDs, observations or authorization.",
+    "Use a distinct manifest family with version, kind=state, codec, original UTF-8 length and full SHA-256, plus id and sessionId. Validate SQL row kind/id/session_id against envelope and decompressed value. NonObservation get/list currently SELECT only kind/json/compressed_json; add owner columns for compressed state reads.",
+    "For a new compressed state format require full SQL owner context in raw decode calls rather than allowing omitted ownership fields to bypass checks. Existing plain/observation decoder compatibility can remain unchanged. Document SELECT kind,id,session_id,json,compressed_json or use public get/list.",
+    "A state manifest with no BLOB must fail explicitly instead of being returned as a plain state. Reject unknown versions/codecs, bad SHA/length, malformed JSON and wrong owners. Use bounded decompression and preserve exact serialized bytes/property order. SHA detects content mismatch, not malicious rewriting of all metadata.",
+    "Keep the existing ID_CONFLICT checks and single-row UPSERT transaction behavior. State updates remain permitted within the same kind/session; Observation immutability remains unchanged. Compression adds no SQL writes beyond the existing entity write, so entityChanges accounting need not acquire extra write counts.",
+    "No shared-object resolution, new root type, cache lifetime or GC participation is needed. Retained persistence receives the same decoded objects and uses the same semantics."
+  ],
+  "rawSqlConsumerAudit": {
+    "searchScope": "Repository packages, apps, scripts, tests and docs experiment sources, including ts/js/mjs/py/sh/sql; searched entities SELECT/json_extract/json_each and sqlite access. No production direct JSON state reader found outside storage-sqlite.",
+    "production": [
+      "packages/storage-sqlite/src/index.ts contains the engine entities SQL; get/list decode via the codec and should be extended as described.",
+      "packages/explorer-plugin/src/store.ts uses json_extract on a separate tasks/task_items schema and database. State entity compression must not alter it."
+    ],
+    "historicalOrExperimentConsumers": [
+      "docs/experiments/live-prices-acceptance-2026-10-15/summarize.py directly json.loads entities.json but does not request state. It already assumes plain observations and should remain labeled historical or be modernized separately.",
+      "evidence/okx-readonly/inspect.ts fieldContributors uses json_each only where compressed_json IS NULL. It would omit compressed state fields after such a change; an updated audit must explicitly decode state rows in memory. Entity payload totals already include JSON+BLOB.",
+      "evidence/state-codec-feasibility/measure.ts deliberately requires plain states and fails if run against a later compressed-state dataset; it is a fixed-protocol measurement artifact."
+    ],
+    "documentation": "packages/explorer-plugin/README.md currently documents schema v3 and public get/list or full-row bound decoding. Any future state implementation needs schema v4 and self-contained state codec documentation. External SQL consumers outside the repository were not audited."
+  },
+  "prototypeVerification": {
+    "exactRoundtrip": "9 of 9 original state JSON byte sequences match for each of five compressed algorithms; source serialization/owner checks also passed.",
+    "rejectionCases": "Each compressed prototype rejected wrong kind/id/session, missing/truncated/damaged BLOB, wrong SHA and too-small declared size (40 cases total). These are feasibility probes, not production implementation tests.",
+    "performanceProtocol": "3 warmup and 21 measured rounds, rotating/reversing codec order, encode includes stringify and decode includes parse+SHA+owner checks, original readonly connection closed before timing; no SQLite latency measured, no user browser or service accessed."
+  },
+  "officialReference": {
+    "url": "https://nodejs.org/download/release/v24.20.0/docs/api/zlib.html#zlibzstdcompresssyncbuffer-options",
+    "verifiedClaim": "Node 24 documentation marks zstdCompressSync/zstdDecompressSync experimental; Zstd options include maxOutputLength. Runtime v24.22.0 used here exposes both functions."
+  },
+  "futureValidationIfImplementationAuthorized": [
+    "Keep the 77 existing observation/storage boundary checks and add focused state legacy/plain, exact roundtrip, mutable overwrite, wrong-owner/hash/missing-BLOB rejection and transaction rollback checks.",
+    "Verify an existing v3 binary rejects a schema4 test copy before reading or updating entities, and a new binary reads mixed legacy/new rows without altering semantic values.",
+    "Measure complete state get/list/put and a bounded observe fixture using independent temporary databases. Report extra CPU alongside database/WAL savings; do not infer real OKX acceleration from this codec-only probe."
+  ]
+}

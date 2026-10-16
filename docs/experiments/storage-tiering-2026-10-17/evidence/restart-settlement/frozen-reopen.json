@@ -1,0 +1,74 @@
+{
+  "at": "2026-10-16T20:36:52.470Z",
+  "sourceDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1-frozen-1/plugin",
+  "writableCopyDirectory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/okx-lifecycle-frozen-reopen-6uKsKR",
+  "sourceHashesUnchanged": true,
+  "sourceHashes": {
+    "explorer.sqlite": "0916f3f902762a57bfe54abe05306546694594d1074ba3143e3481f78e19ac06",
+    "explorer.sqlite-shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+    "explorer.sqlite-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+  "statusBefore": "paused",
+  "statusAfter": "paused",
+  "activeSinceBefore": 1792181642914,
+  "activeSinceAfter": null,
+  "durationBefore": 0,
+  "durationAfter": 103661,
+  "accountedActiveMs": 103661,
+  "durationUncertainty": {
+    "interruptions": 1,
+    "additionalMsUpperBound": 1265884,
+    "budgetBasis": "persisted-activity-lower-bound"
+  },
+  "planOccurrencesRetained": 19,
+  "roundOccurrencesRetained": 1,
+  "roundsNotRunning": true,
+  "preservedFields": [
+    "pendingDispatch",
+    "unverifiedRecoveries",
+    "unverifiedNavigations",
+    "routeRetries",
+    "scheduling"
+  ],
+  "invalidatedDecisionIds": [
+    "195c35fd-8f39-48ad-979e-31a30f941697"
+  ],
+  "secondReopenIdentical": true,
+  "recoveryAudit": {
+    "reason": "process_restarted",
+    "prior": {
+      "status": "paused",
+      "revision": 2,
+      "activeSince": 1792181642914
+    },
+    "duration": {
+      "startedAt": 1792181642914,
+      "missingActiveSince": false,
+      "recoveredAt": 1792183012459,
+      "observedThrough": {
+        "source": "task.updatedAt",
+        "at": 1792181746575
+      },
+      "countedMs": 103661,
+      "unmeasuredMs": {
+        "lowerBound": 0,
+        "upperBound": 1265884
+      },
+      "invalidClockEvidence": [],
+      "budgetBasis": "persisted-activity-lower-bound",
+      "exactStopTimeKnown": false,
+      "operationOutcomeInferred": false
+    },
+    "pausedRoundIds": [
+      "caaad143-1b3f-48b6-8a99-bd8d7c490060"
+    ],
+    "staleDecisionIds": [
+      "195c35fd-8f39-48ad-979e-31a30f941697"
+    ],
+    "unknownOutcomesRetained": true,
+    "executionAuthorized": false
+  },
+  "browserStarted": false,
+  "providerCalled": false
+}

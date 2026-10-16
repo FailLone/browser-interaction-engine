@@ -1,0 +1,36 @@
+{
+  "protocol": "readonly-snapshot-screenshot-export-v1",
+  "sourceDatabase": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1/engine/engine.sqlite",
+  "sourceConnection": {
+    "readonly": true,
+    "fileMustExist": true
+  },
+  "backup": "SQLite online backup to owned temporary directory; SqliteStore instantiated only against copy",
+  "screenshots": [
+    {
+      "label": "initial",
+      "observationId": "fd7528a6-d7ef-48fe-b265-347123006223",
+      "capturedAt": "2026-10-16T20:14:07.164Z",
+      "screenshotAt": "2026-10-16T20:14:07.200Z",
+      "key": "fd7528a6-d7ef-48fe-b265-347123006223.png",
+      "mediaType": "image/png",
+      "bytes": 150621,
+      "sha256": "37a653d2c752192ba0390707ab98872747215e1b6c0d8fc6909141c77a09717d",
+      "output": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-1/initial-fd7528a6-d7ef-48fe-b265-347123006223.png",
+      "integrity": "Copied evidence reconstructed with FileEvidenceStore manifest/block/whole SHA checks"
+    },
+    {
+      "label": "recovered",
+      "observationId": "cfc205c1-bab5-4b44-8bc7-9d2b4c498948",
+      "capturedAt": "2026-10-16T20:15:16.090Z",
+      "screenshotAt": "2026-10-16T20:15:16.138Z",
+      "key": "cfc205c1-bab5-4b44-8bc7-9d2b4c498948.png",
+      "mediaType": "image/png",
+      "bytes": 119779,
+      "sha256": "551d324053efde76e83ca2e94d686f2335b5ae253bb0ddceff962b6eef9109d8",
+      "output": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-1/recovered-cfc205c1-bab5-4b44-8bc7-9d2b4c498948.png",
+      "integrity": "Copied evidence reconstructed with FileEvidenceStore manifest/block/whole SHA checks"
+    }
+  ],
+  "cleanup": "Temporary copied database and evidence removed after export"
+}

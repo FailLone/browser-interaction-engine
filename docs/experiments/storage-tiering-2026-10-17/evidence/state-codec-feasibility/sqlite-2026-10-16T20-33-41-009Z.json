@@ -1,0 +1,4295 @@
+{
+  "protocol": "real-state-sqlite-v1",
+  "startedAt": "2026-10-16T20:33:41.009Z",
+  "finishedAt": "2026-10-16T20:34:35.639Z",
+  "node": "v24.22.0",
+  "baselineCommit": "6630dfa8f1dae13aba1bd6e8dcd789f0d2dc23b5",
+  "baselineHashes": {
+    "packages/storage-sqlite/src/entity-codec.ts": "ed035f7715e30bc19683050683ee2ae7cd285406d49e53f94c57cade6eda7da9",
+    "packages/storage-sqlite/src/evidence-chunks.ts": "be9bdf5db8520981f97af70f72041d8e53ea8b08aab60bbeca3641052d91b4f6",
+    "packages/storage-sqlite/src/evidence-lock.ts": "6a3ff26c8636b8bde2cc2bbc1f19faf4a42e3c20bdeacfbaf255aa99336df7ea",
+    "packages/storage-sqlite/src/evidence.ts": "b096524f1740c0d6c29e5eccc3dab43a2025866979e436330e5a88990fa69ff1",
+    "packages/storage-sqlite/src/index.ts": "941d82647dfcde8af3b4ee655c1f28d69ec65cfb65c3d2f62cace40eae00eb6d",
+    "packages/storage-sqlite/src/observation-store.ts": "56ec8a8ae989d82ede21776984a3dbd2bd6eb954e2c962dfa62c1a2c3bada857",
+    "packages/storage-sqlite/src/observation-structure.ts": "ec3d9385632b23da5fa3160fb0af7dae2bfb5c23a8e3bf6c22b4755971ad0825"
+  },
+  "baselineSourceDirtySha256": "0904782693fe61f722bfb0eec84bdd7ffa2c59bc2379d40b36368fe354a1f5cb",
+  "baselineIsolation": "Complete git archive; workspace imports resolve within the archive. Only third-party installed dependencies are shared read-only.",
+  "sourceHashes": {
+    "packages/storage-sqlite/src/entity-codec.ts": "33d534a7d1b70331a8e72c400c74812ecf54e6f31f3084c0e38a33e428ac2758",
+    "packages/storage-sqlite/src/evidence-chunks.ts": "be9bdf5db8520981f97af70f72041d8e53ea8b08aab60bbeca3641052d91b4f6",
+    "packages/storage-sqlite/src/evidence-lock.ts": "6a3ff26c8636b8bde2cc2bbc1f19faf4a42e3c20bdeacfbaf255aa99336df7ea",
+    "packages/storage-sqlite/src/evidence.ts": "b096524f1740c0d6c29e5eccc3dab43a2025866979e436330e5a88990fa69ff1",
+    "packages/storage-sqlite/src/index.ts": "0d0efd52fb4879b75cbfbc1fc32187594ea7300e506d903b6f346d8a82964dec",
+    "packages/storage-sqlite/src/observation-store.ts": "56ec8a8ae989d82ede21776984a3dbd2bd6eb954e2c962dfa62c1a2c3bada857",
+    "packages/storage-sqlite/src/observation-structure.ts": "ec3d9385632b23da5fa3160fb0af7dae2bfb5c23a8e3bf6c22b4755971ad0825"
+  },
+  "sourceHashesAfter": {
+    "packages/storage-sqlite/src/entity-codec.ts": "33d534a7d1b70331a8e72c400c74812ecf54e6f31f3084c0e38a33e428ac2758",
+    "packages/storage-sqlite/src/evidence-chunks.ts": "be9bdf5db8520981f97af70f72041d8e53ea8b08aab60bbeca3641052d91b4f6",
+    "packages/storage-sqlite/src/evidence-lock.ts": "6a3ff26c8636b8bde2cc2bbc1f19faf4a42e3c20bdeacfbaf255aa99336df7ea",
+    "packages/storage-sqlite/src/evidence.ts": "b096524f1740c0d6c29e5eccc3dab43a2025866979e436330e5a88990fa69ff1",
+    "packages/storage-sqlite/src/index.ts": "0d0efd52fb4879b75cbfbc1fc32187594ea7300e506d903b6f346d8a82964dec",
+    "packages/storage-sqlite/src/observation-store.ts": "56ec8a8ae989d82ede21776984a3dbd2bd6eb954e2c962dfa62c1a2c3bada857",
+    "packages/storage-sqlite/src/observation-structure.ts": "ec3d9385632b23da5fa3160fb0af7dae2bfb5c23a8e3bf6c22b4755971ad0825"
+  },
+  "sourceDirtySha256": "d2bd7fa680f58bfa0a22a5a38075966c0ce4f4224b1031624084f4fcc65cbcf3",
+  "scriptSha256": "d2ea0a037095a6e114fd74ea2a630425a383efd90f89ae7b3705da05691c3c1c",
+  "snapshot": {
+    "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1/engine/engine.sqlite",
+    "connection": {
+      "readonly": true,
+      "fileMustExist": true
+    },
+    "schemaVersion": {
+      "value": "3"
+    },
+    "entityKinds": [
+      {
+        "kind": "action",
+        "rows": 2702
+      },
+      {
+        "kind": "attempt",
+        "rows": 5
+      },
+      {
+        "kind": "boundary-exit-episode",
+        "rows": 1
+      },
+      {
+        "kind": "boundary-exit-request",
+        "rows": 1
+      },
+      {
+        "kind": "checkpoint",
+        "rows": 3
+      },
+      {
+        "kind": "control-classification",
+        "rows": 2
+      },
+      {
+        "kind": "control-classification-request",
+        "rows": 1
+      },
+      {
+        "kind": "control-review-request",
+        "rows": 1
+      },
+      {
+        "kind": "discovery-request",
+        "rows": 1
+      },
+      {
+        "kind": "evidence-entry",
+        "rows": 28
+      },
+      {
+        "kind": "evidence-retention",
+        "rows": 14
+      },
+      {
+        "kind": "exploration-group",
+        "rows": 74
+      },
+      {
+        "kind": "frontier",
+        "rows": 466
+      },
+      {
+        "kind": "hypothesis",
+        "rows": 32
+      },
+      {
+        "kind": "identity",
+        "rows": 727
+      },
+      {
+        "kind": "intervention-snapshot",
+        "rows": 16
+      },
+      {
+        "kind": "observation",
+        "rows": 14
+      },
+      {
+        "kind": "page-exploration",
+        "rows": 1
+      },
+      {
+        "kind": "reach",
+        "rows": 1
+      },
+      {
+        "kind": "region-review",
+        "rows": 4
+      },
+      {
+        "kind": "region-review-request",
+        "rows": 1
+      },
+      {
+        "kind": "scope",
+        "rows": 1
+      },
+      {
+        "kind": "session",
+        "rows": 1
+      },
+      {
+        "kind": "state",
+        "rows": 9
+      },
+      {
+        "kind": "transition",
+        "rows": 5
+      },
+      {
+        "kind": "visit",
+        "rows": 14
+      }
+    ],
+    "snapshotBytes": 22228992,
+    "snapshotSha256": "52c5de0846ed84be62e68a42abf60d6aeefaaaf0b39fe7abc65345fbd26022c5",
+    "stateRows": 9,
+    "stateJsonBytes": 7939349,
+    "stateSha256": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f"
+  },
+  "repetitions": 5,
+  "oldBinaryRejected": true,
+  "protocolNotes": {
+    "isolation": "Fresh child process and independent temporary database for every workload/mode/repetition; alternate mode order. SQLite online backup captures original committed engine contents including WAL. No evidence files copied because entity checks do not read artifacts.",
+    "write": "Nine actual state values, one SqliteStore transaction per put; full-engine new run first explicitly migrates three rows per batch, then measures nine same-value updates. Baseline full-engine preserves legacy rows. All entity kinds hash equally before/after migration, writes and reopen.",
+    "read": "Cold means first state list after reopening the Store, not a flushed OS disk cache. Fifteen hot get-all and list calls per worker, timing excludes exact-value hash comparisons.",
+    "memory": "Node --expose-gc. memoryBeforeReads and memoryAfterReads bracket state reads with forced GC; peak process RSS also includes startup, migration and whole-engine verification. State input values retained equally in both modes. RSS is not a clean cache-only cost.",
+    "storage": "Active DB+WAL+SHM immediately after writes, then explicit compact on both modes. Compacted and closed SQLite sizes include entity indexes and Observation tables; no evidence artifact bytes.",
+    "claim": "Actual SQLite microbenchmark on this one real OKX snapshot, not a browser run or end-to-end OKX speed claim."
+  },
+  "summary": [
+    {
+      "workload": "nine-states",
+      "mode": "baseline",
+      "runs": 5,
+      "writeMs": {
+        "p50": 48.107584,
+        "p95": 50.83433400000001,
+        "min": 47.705291999999986,
+        "max": 50.83433400000001
+      },
+      "coldListMs": {
+        "p50": 18.453292000000033,
+        "p95": 18.922875000000033,
+        "min": 18.30816699999997,
+        "max": 18.922875000000033
+      },
+      "hotListMs": {
+        "p50": 19.20054099999993,
+        "p95": 20.480166000000054,
+        "min": 18.594667000000015,
+        "max": 20.480166000000054
+      },
+      "hotGetMs": {
+        "p50": 19.432708000000048,
+        "p95": 20.776124999999865,
+        "min": 19.282709000000068,
+        "max": 20.776124999999865
+      },
+      "activeBytes": {
+        "p50": 8183264,
+        "p95": 8183264,
+        "min": 8183264,
+        "max": 8183264
+      },
+      "compactedBytes": {
+        "p50": 8019968,
+        "p95": 8019968,
+        "min": 8019968,
+        "max": 8019968
+      },
+      "peakRssBytes": {
+        "p50": 379355136,
+        "p95": 408059904,
+        "min": 374390784,
+        "max": 408059904
+      },
+      "retainedHeapDeltaBytes": {
+        "p50": -11915608,
+        "p95": -11914744,
+        "min": -11915928,
+        "max": -11914744
+      },
+      "retainedExternalDeltaBytes": {
+        "p50": 40,
+        "p95": 40,
+        "min": 40,
+        "max": 40
+      }
+    },
+    {
+      "workload": "nine-states",
+      "mode": "new",
+      "runs": 5,
+      "writeMs": {
+        "p50": 59.718625,
+        "p95": 61.00283300000001,
+        "min": 58.315500000000014,
+        "max": 61.00283300000001
+      },
+      "coldListMs": {
+        "p50": 19.93762499999997,
+        "p95": 21.362250000000017,
+        "min": 19.608000000000004,
+        "max": 21.362250000000017
+      },
+      "hotListMs": {
+        "p50": 19.59966700000001,
+        "p95": 20.126209000000017,
+        "min": 19.521999999999935,
+        "max": 20.126209000000017
+      },
+      "hotGetMs": {
+        "p50": 20.429916999999932,
+        "p95": 20.52862499999992,
+        "min": 20.410500000000184,
+        "max": 20.52862499999992
+      },
+      "activeBytes": {
+        "p50": 691976,
+        "p95": 691976,
+        "min": 691976,
+        "max": 691976
+      },
+      "compactedBytes": {
+        "p50": 503808,
+        "p95": 503808,
+        "min": 503808,
+        "max": 503808
+      },
+      "peakRssBytes": {
+        "p50": 359841792,
+        "p95": 399884288,
+        "min": 358105088,
+        "max": 399884288
+      },
+      "retainedHeapDeltaBytes": {
+        "p50": -11904096,
+        "p95": -11901904,
+        "min": -11906864,
+        "max": -11901904
+      },
+      "retainedExternalDeltaBytes": {
+        "p50": 12198216,
+        "p95": 15933996,
+        "min": -7481366,
+        "max": 15933996
+      }
+    },
+    {
+      "workload": "full-engine",
+      "mode": "baseline",
+      "runs": 5,
+      "writeMs": {
+        "p50": 34.05504200000007,
+        "p95": 34.350625000000036,
+        "min": 33.017791999999986,
+        "max": 34.350625000000036
+      },
+      "coldListMs": {
+        "p50": 20.319500000000062,
+        "p95": 21.44058300000006,
+        "min": 20.127124999999978,
+        "max": 21.44058300000006
+      },
+      "hotListMs": {
+        "p50": 19.326958000000104,
+        "p95": 19.485542000000123,
+        "min": 19.252333000000363,
+        "max": 19.485542000000123
+      },
+      "hotGetMs": {
+        "p50": 18.565292,
+        "p95": 18.60283299999992,
+        "min": 18.454416000000037,
+        "max": 18.60283299999992
+      },
+      "activeBytes": {
+        "p50": 22261760,
+        "p95": 22261760,
+        "min": 22261760,
+        "max": 22261760
+      },
+      "compactedBytes": {
+        "p50": 21159936,
+        "p95": 21159936,
+        "min": 21159936,
+        "max": 21159936
+      },
+      "peakRssBytes": {
+        "p50": 912228352,
+        "p95": 925499392,
+        "min": 909459456,
+        "max": 925499392
+      },
+      "retainedHeapDeltaBytes": {
+        "p50": -13197792,
+        "p95": -13197760,
+        "min": -13216480,
+        "max": -13197760
+      },
+      "retainedExternalDeltaBytes": {
+        "p50": -4880676,
+        "p95": -4880676,
+        "min": -8419141,
+        "max": -4880676
+      }
+    },
+    {
+      "workload": "full-engine",
+      "mode": "new",
+      "runs": 5,
+      "writeMs": {
+        "p50": 55.969082999999955,
+        "p95": 57.71083300000009,
+        "min": 55.5302079999999,
+        "max": 57.71083300000009
+      },
+      "coldListMs": {
+        "p50": 21.629625000000033,
+        "p95": 21.965291999999863,
+        "min": 21.538292000000183,
+        "max": 21.965291999999863
+      },
+      "hotListMs": {
+        "p50": 20.135415999999623,
+        "p95": 20.45616599999994,
+        "min": 20.006708999999773,
+        "max": 20.45616599999994
+      },
+      "hotGetMs": {
+        "p50": 19.64895800000022,
+        "p95": 19.91070899999977,
+        "min": 19.53862500000014,
+        "max": 19.91070899999977
+      },
+      "migrationMs": {
+        "p50": 121.72624999999994,
+        "p95": 129.64175,
+        "min": 121.40020800000002,
+        "max": 129.64175
+      },
+      "activeBytes": {
+        "p50": 22764432,
+        "p95": 22764432,
+        "min": 22764432,
+        "max": 22764432
+      },
+      "compactedBytes": {
+        "p50": 13643776,
+        "p95": 13643776,
+        "min": 13643776,
+        "max": 13643776
+      },
+      "peakRssBytes": {
+        "p50": 921731072,
+        "p95": 951107584,
+        "min": 906461184,
+        "max": 951107584
+      },
+      "retainedHeapDeltaBytes": {
+        "p50": -11944576,
+        "p95": -11944512,
+        "min": -11944880,
+        "max": -11944512
+      },
+      "retainedExternalDeltaBytes": {
+        "p50": -3957925,
+        "p95": -3957925,
+        "min": -7148517,
+        "max": -3957925
+      }
+    }
+  ],
+  "runs": [
+    {
+      "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-_t8f3s5z",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/0-nine-states-baseline",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "baseline",
+      "workload": "nine-states",
+      "repetition": 0,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "writeMs": 48.00524999999999,
+      "writeCpuMs": 46.481,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 4030464,
+          "engine.sqlite-wal": 4120032,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 8183264
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 7939339
+      },
+      "compactionMs": 28.836374999999975,
+      "compaction": {
+        "databaseBytesBefore": 4030464,
+        "databaseBytesAfter": 8019968,
+        "walBytesBefore": 4120032,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 8019968,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 8019968
+      },
+      "openMs": 0.7312499999999886,
+      "coldListMs": 18.366041999999993,
+      "coldListCpuMs": 18.381,
+      "hotGetMs": {
+        "p50": 19.56662499999993,
+        "p95": 22.474042000000054,
+        "min": 18.527250000000095,
+        "max": 22.474042000000054
+      },
+      "hotListMs": {
+        "p50": 19.446916999999985,
+        "p95": 20.700958000000014,
+        "min": 18.536832999999888,
+        "max": 20.700958000000014
+      },
+      "hotListCpuMs": {
+        "p50": 19.503,
+        "p95": 20.801,
+        "min": 18.547,
+        "max": 20.801
+      },
+      "samples": {
+        "getSamples": [
+          19.709833000000003,
+          21.422458000000006,
+          18.72083299999997,
+          19.593208000000004,
+          19.790458000000058,
+          22.474042000000054,
+          18.750541000000112,
+          19.56662499999993,
+          19.50712499999986,
+          18.53779099999997,
+          18.527250000000095,
+          19.550416999999925,
+          21.713291000000027,
+          18.544624999999996,
+          19.78991700000006
+        ],
+        "listSamples": [
+          19.641916000000037,
+          20.700958000000014,
+          19.684999999999945,
+          18.609249999999975,
+          18.637292000000002,
+          19.86604100000011,
+          19.446916999999985,
+          18.720332999999982,
+          18.536832999999888,
+          19.542874999999867,
+          18.716707999999926,
+          18.58437499999991,
+          19.491416000000072,
+          19.686374999999998,
+          18.692334000000074
+        ],
+        "listCpuSamples": [
+          19.67,
+          20.801,
+          19.783,
+          18.623,
+          18.647,
+          19.832,
+          19.71,
+          18.729,
+          18.547,
+          19.565,
+          18.725,
+          18.594,
+          19.503,
+          19.695,
+          18.701
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 221282304,
+        "heapTotal": 175063040,
+        "heapUsed": 37849408,
+        "external": 5724176,
+        "arrayBuffers": 3103981
+      },
+      "memoryAfterReads": {
+        "rss": 210124800,
+        "heapTotal": 162758656,
+        "heapUsed": 25933480,
+        "external": 5724216,
+        "arrayBuffers": 3103981
+      },
+      "retainedHeapDeltaBytes": -11915928,
+      "retainedExternalDeltaBytes": 40,
+      "peakHeapUsed": 214899512,
+      "peakExternal": 5724216,
+      "peakRssBytes": 408059904,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 8019968,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 8019968
+      },
+      "verifiedEntityKinds": 1,
+      "entityHashes": {
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f"
+      },
+      "observationStats": {
+        "observations": 0,
+        "sharedObservations": 0,
+        "manifestBytes": 0,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/0-nine-states-new",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "new",
+      "workload": "nine-states",
+      "repetition": 0,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "writeMs": 59.718625,
+      "writeCpuMs": 60.476,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 655112,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 691976
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 429709
+      },
+      "compactionMs": 4.539957999999956,
+      "compaction": {
+        "databaseBytesBefore": 4096,
+        "databaseBytesAfter": 503808,
+        "walBytesBefore": 655112,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 503808,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 503808
+      },
+      "openMs": 0.8082499999999868,
+      "coldListMs": 21.362250000000017,
+      "coldListCpuMs": 22.034,
+      "hotGetMs": {
+        "p50": 20.410500000000184,
+        "p95": 22.356250000000045,
+        "min": 19.315249999999992,
+        "max": 22.356250000000045
+      },
+      "hotListMs": {
+        "p50": 19.59966700000001,
+        "p95": 22.344041999999945,
+        "min": 19.21370899999988,
+        "max": 22.344041999999945
+      },
+      "hotListCpuMs": {
+        "p50": 19.703,
+        "p95": 24.339,
+        "min": 19.224,
+        "max": 24.339
+      },
+      "samples": {
+        "getSamples": [
+          22.108709000000033,
+          20.605541000000017,
+          19.436000000000035,
+          20.527958000000012,
+          20.451416999999992,
+          22.356250000000045,
+          19.315249999999992,
+          19.57570899999996,
+          20.638374999999996,
+          19.660167,
+          19.653375000000096,
+          20.410500000000184,
+          20.69600000000014,
+          19.37416600000006,
+          19.33829199999991
+        ],
+        "listSamples": [
+          19.59966700000001,
+          20.790915999999925,
+          20.29383299999995,
+          19.274167000000034,
+          19.396458999999936,
+          20.360041000000024,
+          20.57425000000012,
+          19.21370899999988,
+          19.36270800000011,
+          21.687708000000157,
+          22.344041999999945,
+          19.363041000000067,
+          19.417167000000063,
+          20.170624999999973,
+          19.222375000000056
+        ],
+        "listCpuSamples": [
+          19.62,
+          20.949,
+          20.467,
+          19.285,
+          19.407,
+          20.419,
+          20.729,
+          19.224,
+          19.699,
+          21.777,
+          24.339,
+          19.703,
+          19.426,
+          20.28,
+          19.231
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 199720960,
+        "heapTotal": 173752320,
+        "heapUsed": 37815616,
+        "external": 12478628,
+        "arrayBuffers": 2376979
+      },
+      "memoryAfterReads": {
+        "rss": 217022464,
+        "heapTotal": 161972224,
+        "heapUsed": 25911520,
+        "external": 28412624,
+        "arrayBuffers": 2376979
+      },
+      "retainedHeapDeltaBytes": -11904096,
+      "retainedExternalDeltaBytes": 15933996,
+      "peakHeapUsed": 180802256,
+      "peakExternal": 38947958,
+      "peakRssBytes": 380518400,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 503808,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 503808
+      },
+      "verifiedEntityKinds": 1,
+      "entityHashes": {
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f"
+      },
+      "observationStats": {
+        "observations": 0,
+        "sharedObservations": 0,
+        "manifestBytes": 0,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-_t8f3s5z",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/0-full-engine-baseline",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "baseline",
+      "workload": "full-engine",
+      "repetition": 0,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "writeMs": 34.05504200000007,
+      "writeCpuMs": 34.223,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 7939339
+      },
+      "compactionMs": 76.06987499999991,
+      "compaction": {
+        "databaseBytesBefore": 22228992,
+        "databaseBytesAfter": 21159936,
+        "walBytesBefore": 0,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 21159936,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 21159936
+      },
+      "openMs": 0.668042000000014,
+      "coldListMs": 20.312832999999955,
+      "coldListCpuMs": 22.06,
+      "hotGetMs": {
+        "p50": 18.60062499999958,
+        "p95": 21.930667000000085,
+        "min": 18.457542000000103,
+        "max": 21.930667000000085
+      },
+      "hotListMs": {
+        "p50": 19.485542000000123,
+        "p95": 23.126125000000002,
+        "min": 19.325916999999663,
+        "max": 23.126125000000002
+      },
+      "hotListCpuMs": {
+        "p50": 19.494,
+        "p95": 31.973,
+        "min": 19.338,
+        "max": 31.973
+      },
+      "samples": {
+        "getSamples": [
+          18.748334000000114,
+          18.51262500000007,
+          18.585624999999936,
+          18.82837500000005,
+          18.51845800000001,
+          18.55266699999993,
+          18.917832999999973,
+          18.527583999999933,
+          18.457542000000103,
+          18.60062499999958,
+          18.617665999999645,
+          18.500375000000076,
+          21.930667000000085,
+          19.979291000000103,
+          19.97129199999972
+        ],
+        "listSamples": [
+          20.445875000000115,
+          20.966750000000047,
+          23.126125000000002,
+          19.451459000000114,
+          19.496083,
+          19.373125000000073,
+          19.485542000000123,
+          19.392417000000023,
+          19.94162499999993,
+          19.462125000000015,
+          19.325916999999663,
+          19.96458399999983,
+          19.458250000000135,
+          19.44716699999981,
+          20.42679199999975
+        ],
+        "listCpuSamples": [
+          20.487,
+          21.059,
+          31.973,
+          19.462,
+          19.506,
+          19.383,
+          19.494,
+          19.401,
+          19.899,
+          19.471,
+          19.338,
+          19.981,
+          19.472,
+          19.457,
+          20.421
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 713129984,
+        "heapTotal": 177422336,
+        "heapUsed": 38206760,
+        "external": 18640511,
+        "arrayBuffers": 7587075
+      },
+      "memoryAfterReads": {
+        "rss": 701562880,
+        "heapTotal": 161972224,
+        "heapUsed": 24990280,
+        "external": 10221370,
+        "arrayBuffers": 7587075
+      },
+      "retainedHeapDeltaBytes": -13216480,
+      "retainedExternalDeltaBytes": -8419141,
+      "peakHeapUsed": 172273704,
+      "peakExternal": 10226138,
+      "peakRssBytes": 910082048,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 21159936,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 21159936
+      },
+      "verifiedEntityKinds": 26,
+      "entityHashes": {
+        "action": "e6ca606c7c6fb431e058f0c3b964e183417dfef9cde4ad129d5315b83dbd58f8",
+        "attempt": "ce28443c6d7eaf3985702cacbdab386e18ada6d94e81c42ee071eb981c9bb1a4",
+        "boundary-exit-episode": "1187a941214b22e11046ac28e8f53aa4eab76be94819f2911927357d9422d7b9",
+        "boundary-exit-request": "d3379bdabfd94ef50c241b53ccfc5dcdd030a684d12f1d74b741e0ce60ef6b01",
+        "checkpoint": "0e7cfacffd220c8243381702f339c28f4942297f38cac47f7e05bbbdc1bf0348",
+        "control-classification": "eb5ced3d8e54157ac444d4cfa2701b782b72ec394262a38a795800fe6173629f",
+        "control-classification-request": "b20169d65710b5e4518cad254ae085b53ec3aa89c01c6b549337457d913faa50",
+        "control-review-request": "1ec0641569d092f8b03bc11432a49f8d98f282179eb88dbde0f45222fe16cf1a",
+        "discovery-request": "c467d3563f37455e22a79d046edabc025e2ecaae306663b6549188c2c8e42e49",
+        "evidence-entry": "5047051414df72258e5a45812c8c6400684921298883674fc3d7a558a9a1e576",
+        "evidence-retention": "a56dfbe41a1000ed4110621d568f765fa48bb36c8de29fab58b96b0ba39cb2c8",
+        "exploration-group": "d33fc78e170d22eb8bb36d13848ed09a3e92f23f255d4ec2f3e7e6d854010960",
+        "frontier": "b7e159821c3f5420041da2956388c35ab56e71363911a55f688a5060905bde5f",
+        "hypothesis": "047c64bf618b10d20aae3d2aee7dcd69a68497adb0a32abf1761d20fd5a8b764",
+        "identity": "ca6dc7019d882d910e26d99780256db7925640f8639c68397044ae612a8e23dc",
+        "intervention-snapshot": "a33025b94908422e513399c72e5c0f1dd47f89b2f280b05a598c5ed25560caea",
+        "observation": "44a5cbf9f0c4f97b199a555647e07a42dd3b2d5a0b4d7c23088a1a78efc42402",
+        "page-exploration": "e15acf54e6bdfdc7e303542c5d97156f7d6367b986a50093310162a6c1650b5f",
+        "reach": "f4e59ada21afd965a4bbd51c1b778640bf61c0885854de322ad1d2b7680760d0",
+        "region-review": "f6877048597ec0f3eb17b07c0bfe9c2180e1c699f5e0d8c1469e6b46cfcc1761",
+        "region-review-request": "fe6d85495a65cb460b095b8183b90c3bb14ccc49ee9ad7ee7099690bd79fab7d",
+        "scope": "5a24644cbf62d9dc871851b521fe6a835de8f9e32a2bc03af5ced9faca8dc366",
+        "session": "b262e88a877c95482b5c249e6995ab01c47bec7d9535b7eb4bcf1d6e6cabb7d0",
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f",
+        "transition": "f7112eda7f41fb8412ebf3ffa99eb92ab8a8f100f3a6bbb0995c05ccabc395f6",
+        "visit": "b4fac3f35d3ab580ca77bb7afde9debffe7ce505e9ad2dc18fc736428311f92e"
+      },
+      "observationStats": {
+        "observations": 14,
+        "sharedObservations": 8,
+        "manifestBytes": 1064168,
+        "objects": 1325,
+        "referencedObjects": 1325,
+        "orphanObjects": 0,
+        "objectBytes": 4677679,
+        "referencedObjectBytes": 4677679,
+        "packs": 80,
+        "packedBytes": 286783,
+        "packLogicalBytes": 4677679,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/0-full-engine-new",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "new",
+      "workload": "full-engine",
+      "repetition": 0,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 4152,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22265912
+      },
+      "migration": [
+        {
+          "cursor": 787,
+          "done": false,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2969061,
+          "logicalBytesAfter": 2969061,
+          "storageBytesBefore": 2969061,
+          "storageBytesAfter": 158734
+        },
+        {
+          "cursor": 1879,
+          "done": false,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2502978,
+          "logicalBytesAfter": 2502978,
+          "storageBytesBefore": 2502978,
+          "storageBytesAfter": 137173
+        },
+        {
+          "cursor": 2901,
+          "done": true,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2467300,
+          "logicalBytesAfter": 2467300,
+          "storageBytesBefore": 2467300,
+          "storageBytesAfter": 133802
+        }
+      ],
+      "migrationMs": 121.72624999999994,
+      "migrationCpuMs": 122.365,
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 502672,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22764432
+      },
+      "writeMs": 55.5302079999999,
+      "writeCpuMs": 55.737,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 502672,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22764432
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 429709
+      },
+      "compactionMs": 34.2455829999999,
+      "compaction": {
+        "databaseBytesBefore": 22228992,
+        "databaseBytesAfter": 13643776,
+        "walBytesBefore": 502672,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 13643776,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 13643776
+      },
+      "openMs": 1.0240830000000187,
+      "coldListMs": 21.538292000000183,
+      "coldListCpuMs": 21.67,
+      "hotGetMs": {
+        "p50": 19.64895800000022,
+        "p95": 22.261958999999933,
+        "min": 19.31408399999964,
+        "max": 22.261958999999933
+      },
+      "hotListMs": {
+        "p50": 20.135415999999623,
+        "p95": 23.98458299999993,
+        "min": 19.92862500000001,
+        "max": 23.98458299999993
+      },
+      "hotListCpuMs": {
+        "p50": 20.538,
+        "p95": 32.766,
+        "min": 19.939,
+        "max": 32.766
+      },
+      "samples": {
+        "getSamples": [
+          19.89358399999992,
+          19.511874999999918,
+          19.500334000000294,
+          19.770166999999674,
+          19.64895800000022,
+          19.471667000000252,
+          19.482082999999875,
+          19.442916999999852,
+          22.261958999999933,
+          20.967249999999694,
+          20.994125000000167,
+          21.040250000000015,
+          19.31408399999964,
+          19.47687500000029,
+          20.426042000000052
+        ],
+        "listSamples": [
+          21.715250000000196,
+          21.294750000000022,
+          23.98458299999993,
+          20.459000000000287,
+          20.135415999999623,
+          20.08199999999988,
+          19.93770799999993,
+          19.94333299999971,
+          20.195999999999913,
+          19.939124999999876,
+          19.92862500000001,
+          20.098667000000205,
+          20.010917000000063,
+          22.848375000000033,
+          22.419332999999824
+        ],
+        "listCpuSamples": [
+          22.63,
+          21.44,
+          32.766,
+          21.118,
+          22.07,
+          20.095,
+          19.948,
+          19.954,
+          20.538,
+          19.95,
+          19.939,
+          20.11,
+          20.147,
+          24.806,
+          22.586
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 755875840,
+        "heapTotal": 178208768,
+        "heapUsed": 36954624,
+        "external": 30541260,
+        "arrayBuffers": 7587075
+      },
+      "memoryAfterReads": {
+        "rss": 770768896,
+        "heapTotal": 161710080,
+        "heapUsed": 25010048,
+        "external": 23392743,
+        "arrayBuffers": 7587075
+      },
+      "retainedHeapDeltaBytes": -11944576,
+      "retainedExternalDeltaBytes": -7148517,
+      "peakHeapUsed": 150909232,
+      "peakExternal": 48504473,
+      "peakRssBytes": 906461184,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 13643776,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 13643776
+      },
+      "verifiedEntityKinds": 26,
+      "entityHashes": {
+        "action": "e6ca606c7c6fb431e058f0c3b964e183417dfef9cde4ad129d5315b83dbd58f8",
+        "attempt": "ce28443c6d7eaf3985702cacbdab386e18ada6d94e81c42ee071eb981c9bb1a4",
+        "boundary-exit-episode": "1187a941214b22e11046ac28e8f53aa4eab76be94819f2911927357d9422d7b9",
+        "boundary-exit-request": "d3379bdabfd94ef50c241b53ccfc5dcdd030a684d12f1d74b741e0ce60ef6b01",
+        "checkpoint": "0e7cfacffd220c8243381702f339c28f4942297f38cac47f7e05bbbdc1bf0348",
+        "control-classification": "eb5ced3d8e54157ac444d4cfa2701b782b72ec394262a38a795800fe6173629f",
+        "control-classification-request": "b20169d65710b5e4518cad254ae085b53ec3aa89c01c6b549337457d913faa50",
+        "control-review-request": "1ec0641569d092f8b03bc11432a49f8d98f282179eb88dbde0f45222fe16cf1a",
+        "discovery-request": "c467d3563f37455e22a79d046edabc025e2ecaae306663b6549188c2c8e42e49",
+        "evidence-entry": "5047051414df72258e5a45812c8c6400684921298883674fc3d7a558a9a1e576",
+        "evidence-retention": "a56dfbe41a1000ed4110621d568f765fa48bb36c8de29fab58b96b0ba39cb2c8",
+        "exploration-group": "d33fc78e170d22eb8bb36d13848ed09a3e92f23f255d4ec2f3e7e6d854010960",
+        "frontier": "b7e159821c3f5420041da2956388c35ab56e71363911a55f688a5060905bde5f",
+        "hypothesis": "047c64bf618b10d20aae3d2aee7dcd69a68497adb0a32abf1761d20fd5a8b764",
+        "identity": "ca6dc7019d882d910e26d99780256db7925640f8639c68397044ae612a8e23dc",
+        "intervention-snapshot": "a33025b94908422e513399c72e5c0f1dd47f89b2f280b05a598c5ed25560caea",
+        "observation": "44a5cbf9f0c4f97b199a555647e07a42dd3b2d5a0b4d7c23088a1a78efc42402",
+        "page-exploration": "e15acf54e6bdfdc7e303542c5d97156f7d6367b986a50093310162a6c1650b5f",
+        "reach": "f4e59ada21afd965a4bbd51c1b778640bf61c0885854de322ad1d2b7680760d0",
+        "region-review": "f6877048597ec0f3eb17b07c0bfe9c2180e1c699f5e0d8c1469e6b46cfcc1761",
+        "region-review-request": "fe6d85495a65cb460b095b8183b90c3bb14ccc49ee9ad7ee7099690bd79fab7d",
+        "scope": "5a24644cbf62d9dc871851b521fe6a835de8f9e32a2bc03af5ced9faca8dc366",
+        "session": "b262e88a877c95482b5c249e6995ab01c47bec7d9535b7eb4bcf1d6e6cabb7d0",
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f",
+        "transition": "f7112eda7f41fb8412ebf3ffa99eb92ab8a8f100f3a6bbb0995c05ccabc395f6",
+        "visit": "b4fac3f35d3ab580ca77bb7afde9debffe7ce505e9ad2dc18fc736428311f92e"
+      },
+      "observationStats": {
+        "observations": 14,
+        "sharedObservations": 8,
+        "manifestBytes": 1064168,
+        "objects": 1325,
+        "referencedObjects": 1325,
+        "orphanObjects": 0,
+        "objectBytes": 4677679,
+        "referencedObjectBytes": 4677679,
+        "packs": 80,
+        "packedBytes": 286783,
+        "packLogicalBytes": 4677679,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/1-nine-states-new",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "new",
+      "workload": "nine-states",
+      "repetition": 1,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "writeMs": 59.952083000000016,
+      "writeCpuMs": 60.752,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 655112,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 691976
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 429709
+      },
+      "compactionMs": 3.728499999999997,
+      "compaction": {
+        "databaseBytesBefore": 4096,
+        "databaseBytesAfter": 503808,
+        "walBytesBefore": 655112,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 503808,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 503808
+      },
+      "openMs": 0.699416000000042,
+      "coldListMs": 19.84491700000001,
+      "coldListCpuMs": 20.483,
+      "hotGetMs": {
+        "p50": 20.49129199999993,
+        "p95": 22.669208000000026,
+        "min": 19.367291000000023,
+        "max": 22.669208000000026
+      },
+      "hotListMs": {
+        "p50": 19.542791000000022,
+        "p95": 23.05620799999997,
+        "min": 19.228041000000076,
+        "max": 23.05620799999997
+      },
+      "hotListCpuMs": {
+        "p50": 19.614,
+        "p95": 32.183,
+        "min": 19.239,
+        "max": 32.183
+      },
+      "samples": {
+        "getSamples": [
+          21.708917000000042,
+          20.683667000000014,
+          19.42891599999996,
+          20.904042000000004,
+          20.534166000000027,
+          20.577584,
+          19.367291000000023,
+          20.493165999999974,
+          20.49129199999993,
+          22.669208000000026,
+          19.620125000000144,
+          19.6087500000001,
+          20.42625000000021,
+          19.39804099999992,
+          19.572291999999834
+        ],
+        "listSamples": [
+          19.542791000000022,
+          20.699500000000057,
+          20.266125000000102,
+          19.46829200000002,
+          19.26029099999994,
+          20.068457999999964,
+          20.245333000000073,
+          19.292625000000044,
+          19.32808299999988,
+          20.57508400000006,
+          20.304125000000113,
+          19.228041000000076,
+          19.30995800000005,
+          23.05620799999997,
+          19.24679200000014
+        ],
+        "listCpuSamples": [
+          19.565,
+          20.823,
+          20.451,
+          19.479,
+          19.271,
+          20.128,
+          20.448,
+          19.302,
+          19.465,
+          20.702,
+          20.4,
+          19.239,
+          19.614,
+          32.183,
+          19.256
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 189579264,
+        "heapTotal": 174538752,
+        "heapUsed": 37644272,
+        "external": 10251004,
+        "arrayBuffers": 2245891
+      },
+      "memoryAfterReads": {
+        "rss": 200769536,
+        "heapTotal": 162496512,
+        "heapUsed": 25742368,
+        "external": 24545772,
+        "arrayBuffers": 2245891
+      },
+      "retainedHeapDeltaBytes": -11901904,
+      "retainedExternalDeltaBytes": 14294768,
+      "peakHeapUsed": 176086312,
+      "peakExternal": 38442304,
+      "peakRssBytes": 359792640,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 503808,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 503808
+      },
+      "verifiedEntityKinds": 1,
+      "entityHashes": {
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f"
+      },
+      "observationStats": {
+        "observations": 0,
+        "sharedObservations": 0,
+        "manifestBytes": 0,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-_t8f3s5z",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/1-nine-states-baseline",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "baseline",
+      "workload": "nine-states",
+      "repetition": 1,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "writeMs": 48.107584,
+      "writeCpuMs": 46.889,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 4030464,
+          "engine.sqlite-wal": 4120032,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 8183264
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 7939339
+      },
+      "compactionMs": 29.441457999999955,
+      "compaction": {
+        "databaseBytesBefore": 4030464,
+        "databaseBytesAfter": 8019968,
+        "walBytesBefore": 4120032,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 8019968,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 8019968
+      },
+      "openMs": 0.7428330000000187,
+      "coldListMs": 18.579665999999975,
+      "coldListCpuMs": 18.593,
+      "hotGetMs": {
+        "p50": 19.36541699999998,
+        "p95": 21.567583000000013,
+        "min": 18.40441700000008,
+        "max": 21.567583000000013
+      },
+      "hotListMs": {
+        "p50": 18.862499999999955,
+        "p95": 22.275125000000003,
+        "min": 18.538583000000017,
+        "max": 22.275125000000003
+      },
+      "hotListCpuMs": {
+        "p50": 18.873,
+        "p95": 31.309,
+        "min": 18.547,
+        "max": 31.309
+      },
+      "samples": {
+        "getSamples": [
+          19.563791000000037,
+          19.70504199999999,
+          18.51104200000009,
+          19.673583000000008,
+          19.36541699999998,
+          18.40441700000008,
+          18.53895799999998,
+          19.455917,
+          18.531708000000208,
+          18.62474999999995,
+          19.538999999999987,
+          18.577332999999953,
+          18.542290999999977,
+          19.554499999999962,
+          21.567583000000013
+        ],
+        "listSamples": [
+          18.70770799999997,
+          19.644917000000078,
+          19.44466699999998,
+          18.552291999999966,
+          18.580834000000095,
+          22.275125000000003,
+          18.538583000000017,
+          18.862499999999955,
+          19.383332999999993,
+          18.641124999999874,
+          18.829250000000002,
+          19.444334000000026,
+          18.60287500000004,
+          18.92775000000006,
+          19.603207999999995
+        ],
+        "listCpuSamples": [
+          18.733,
+          19.672,
+          19.552,
+          18.564,
+          18.59,
+          31.309,
+          18.547,
+          18.873,
+          19.405,
+          18.65,
+          18.808,
+          19.465,
+          18.611,
+          18.933,
+          19.611
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 188432384,
+        "heapTotal": 173752320,
+        "heapUsed": 37548856,
+        "external": 4866150,
+        "arrayBuffers": 2245891
+      },
+      "memoryAfterReads": {
+        "rss": 176422912,
+        "heapTotal": 161710080,
+        "heapUsed": 25633248,
+        "external": 4866190,
+        "arrayBuffers": 2245891
+      },
+      "retainedHeapDeltaBytes": -11915608,
+      "retainedExternalDeltaBytes": 40,
+      "peakHeapUsed": 214382792,
+      "peakExternal": 4866190,
+      "peakRssBytes": 374390784,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 8019968,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 8019968
+      },
+      "verifiedEntityKinds": 1,
+      "entityHashes": {
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f"
+      },
+      "observationStats": {
+        "observations": 0,
+        "sharedObservations": 0,
+        "manifestBytes": 0,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/1-full-engine-new",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "new",
+      "workload": "full-engine",
+      "repetition": 1,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 4152,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22265912
+      },
+      "migration": [
+        {
+          "cursor": 787,
+          "done": false,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2969061,
+          "logicalBytesAfter": 2969061,
+          "storageBytesBefore": 2969061,
+          "storageBytesAfter": 158734
+        },
+        {
+          "cursor": 1879,
+          "done": false,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2502978,
+          "logicalBytesAfter": 2502978,
+          "storageBytesBefore": 2502978,
+          "storageBytesAfter": 137173
+        },
+        {
+          "cursor": 2901,
+          "done": true,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2467300,
+          "logicalBytesAfter": 2467300,
+          "storageBytesBefore": 2467300,
+          "storageBytesAfter": 133802
+        }
+      ],
+      "migrationMs": 121.54979200000002,
+      "migrationCpuMs": 122.2,
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 502672,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22764432
+      },
+      "writeMs": 56.04033400000003,
+      "writeCpuMs": 56.243,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 502672,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22764432
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 429709
+      },
+      "compactionMs": 35.92120899999986,
+      "compaction": {
+        "databaseBytesBefore": 22228992,
+        "databaseBytesAfter": 13643776,
+        "walBytesBefore": 502672,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 13643776,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 13643776
+      },
+      "openMs": 1.0842910000001211,
+      "coldListMs": 21.629625000000033,
+      "coldListCpuMs": 22.209,
+      "hotGetMs": {
+        "p50": 19.53862500000014,
+        "p95": 22.335583999999926,
+        "min": 19.333917000000383,
+        "max": 22.335583999999926
+      },
+      "hotListMs": {
+        "p50": 20.006708999999773,
+        "p95": 23.658957999999984,
+        "min": 19.893082999999933,
+        "max": 23.658957999999984
+      },
+      "hotListCpuMs": {
+        "p50": 20.14,
+        "p95": 32.575,
+        "min": 19.901,
+        "max": 32.575
+      },
+      "samples": {
+        "getSamples": [
+          19.891417000000047,
+          19.53862500000014,
+          19.46120800000017,
+          19.667875000000095,
+          19.534791999999925,
+          19.597541999999976,
+          19.406166000000212,
+          19.465291999999863,
+          19.333917000000383,
+          22.335583999999926,
+          20.874375000000327,
+          20.979249999999865,
+          20.930707999999868,
+          19.409291999999823,
+          19.391999999999825
+        ],
+        "listSamples": [
+          21.66258300000004,
+          21.385541000000103,
+          23.658957999999984,
+          20.26695800000016,
+          20.075083000000177,
+          19.994040999999925,
+          19.89745800000037,
+          20.001708000000235,
+          20.043375000000196,
+          19.92220899999984,
+          19.945292000000336,
+          19.893082999999933,
+          20.006708999999773,
+          19.926708999999846,
+          22.281167000000096
+        ],
+        "listCpuSamples": [
+          22.563,
+          21.531,
+          32.575,
+          20.922,
+          21.973,
+          20.005,
+          19.912,
+          20.011,
+          20.363,
+          19.932,
+          19.955,
+          19.901,
+          20.14,
+          19.936,
+          24.218
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 770457600,
+        "heapTotal": 177422336,
+        "heapUsed": 36954624,
+        "external": 30541260,
+        "arrayBuffers": 7587075
+      },
+      "memoryAfterReads": {
+        "rss": 761282560,
+        "heapTotal": 162234368,
+        "heapUsed": 25010080,
+        "external": 26583335,
+        "arrayBuffers": 7587075
+      },
+      "retainedHeapDeltaBytes": -11944544,
+      "retainedExternalDeltaBytes": -3957925,
+      "peakHeapUsed": 150914528,
+      "peakExternal": 49684265,
+      "peakRssBytes": 932085760,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 13643776,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 13643776
+      },
+      "verifiedEntityKinds": 26,
+      "entityHashes": {
+        "action": "e6ca606c7c6fb431e058f0c3b964e183417dfef9cde4ad129d5315b83dbd58f8",
+        "attempt": "ce28443c6d7eaf3985702cacbdab386e18ada6d94e81c42ee071eb981c9bb1a4",
+        "boundary-exit-episode": "1187a941214b22e11046ac28e8f53aa4eab76be94819f2911927357d9422d7b9",
+        "boundary-exit-request": "d3379bdabfd94ef50c241b53ccfc5dcdd030a684d12f1d74b741e0ce60ef6b01",
+        "checkpoint": "0e7cfacffd220c8243381702f339c28f4942297f38cac47f7e05bbbdc1bf0348",
+        "control-classification": "eb5ced3d8e54157ac444d4cfa2701b782b72ec394262a38a795800fe6173629f",
+        "control-classification-request": "b20169d65710b5e4518cad254ae085b53ec3aa89c01c6b549337457d913faa50",
+        "control-review-request": "1ec0641569d092f8b03bc11432a49f8d98f282179eb88dbde0f45222fe16cf1a",
+        "discovery-request": "c467d3563f37455e22a79d046edabc025e2ecaae306663b6549188c2c8e42e49",
+        "evidence-entry": "5047051414df72258e5a45812c8c6400684921298883674fc3d7a558a9a1e576",
+        "evidence-retention": "a56dfbe41a1000ed4110621d568f765fa48bb36c8de29fab58b96b0ba39cb2c8",
+        "exploration-group": "d33fc78e170d22eb8bb36d13848ed09a3e92f23f255d4ec2f3e7e6d854010960",
+        "frontier": "b7e159821c3f5420041da2956388c35ab56e71363911a55f688a5060905bde5f",
+        "hypothesis": "047c64bf618b10d20aae3d2aee7dcd69a68497adb0a32abf1761d20fd5a8b764",
+        "identity": "ca6dc7019d882d910e26d99780256db7925640f8639c68397044ae612a8e23dc",
+        "intervention-snapshot": "a33025b94908422e513399c72e5c0f1dd47f89b2f280b05a598c5ed25560caea",
+        "observation": "44a5cbf9f0c4f97b199a555647e07a42dd3b2d5a0b4d7c23088a1a78efc42402",
+        "page-exploration": "e15acf54e6bdfdc7e303542c5d97156f7d6367b986a50093310162a6c1650b5f",
+        "reach": "f4e59ada21afd965a4bbd51c1b778640bf61c0885854de322ad1d2b7680760d0",
+        "region-review": "f6877048597ec0f3eb17b07c0bfe9c2180e1c699f5e0d8c1469e6b46cfcc1761",
+        "region-review-request": "fe6d85495a65cb460b095b8183b90c3bb14ccc49ee9ad7ee7099690bd79fab7d",
+        "scope": "5a24644cbf62d9dc871851b521fe6a835de8f9e32a2bc03af5ced9faca8dc366",
+        "session": "b262e88a877c95482b5c249e6995ab01c47bec7d9535b7eb4bcf1d6e6cabb7d0",
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f",
+        "transition": "f7112eda7f41fb8412ebf3ffa99eb92ab8a8f100f3a6bbb0995c05ccabc395f6",
+        "visit": "b4fac3f35d3ab580ca77bb7afde9debffe7ce505e9ad2dc18fc736428311f92e"
+      },
+      "observationStats": {
+        "observations": 14,
+        "sharedObservations": 8,
+        "manifestBytes": 1064168,
+        "objects": 1325,
+        "referencedObjects": 1325,
+        "orphanObjects": 0,
+        "objectBytes": 4677679,
+        "referencedObjectBytes": 4677679,
+        "packs": 80,
+        "packedBytes": 286783,
+        "packLogicalBytes": 4677679,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-_t8f3s5z",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/1-full-engine-baseline",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "baseline",
+      "workload": "full-engine",
+      "repetition": 1,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "writeMs": 33.017791999999986,
+      "writeCpuMs": 33.223,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 7939339
+      },
+      "compactionMs": 76.51920799999994,
+      "compaction": {
+        "databaseBytesBefore": 22228992,
+        "databaseBytesAfter": 21159936,
+        "walBytesBefore": 0,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 21159936,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 21159936
+      },
+      "openMs": 0.677208999999948,
+      "coldListMs": 20.319500000000062,
+      "coldListCpuMs": 22.062,
+      "hotGetMs": {
+        "p50": 18.60283299999992,
+        "p95": 21.99666699999989,
+        "min": 18.436667000000398,
+        "max": 21.99666699999989
+      },
+      "hotListMs": {
+        "p50": 19.395374999999603,
+        "p95": 23.309082999999873,
+        "min": 19.25133299999993,
+        "max": 23.309082999999873
+      },
+      "hotListCpuMs": {
+        "p50": 19.406,
+        "p95": 32.219,
+        "min": 19.261,
+        "max": 32.219
+      },
+      "samples": {
+        "getSamples": [
+          18.67508399999997,
+          18.60283299999992,
+          18.556332999999995,
+          18.593459000000166,
+          18.506791999999905,
+          18.533707999999933,
+          18.705375000000004,
+          18.66791699999999,
+          19.21641600000021,
+          18.43849999999975,
+          18.48695799999996,
+          18.436667000000398,
+          21.99666699999989,
+          19.890334000000166,
+          19.890750000000025
+        ],
+        "listSamples": [
+          20.395250000000033,
+          20.707458000000088,
+          23.309082999999873,
+          19.360791999999947,
+          19.414624999999887,
+          19.25133299999993,
+          19.352125000000115,
+          19.464291999999887,
+          19.345208000000184,
+          19.631958999999824,
+          19.309042000000318,
+          19.377750000000106,
+          19.395374999999603,
+          19.41399999999976,
+          19.34979199999998
+        ],
+        "listCpuSamples": [
+          20.435,
+          20.812,
+          32.219,
+          19.373,
+          19.426,
+          19.261,
+          19.36,
+          19.473,
+          19.356,
+          19.641,
+          19.318,
+          19.387,
+          19.406,
+          19.425,
+          19.36
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 715259904,
+        "heapTotal": 177160192,
+        "heapUsed": 38187296,
+        "external": 15102046,
+        "arrayBuffers": 7587075
+      },
+      "memoryAfterReads": {
+        "rss": 703528960,
+        "heapTotal": 161447936,
+        "heapUsed": 24989504,
+        "external": 10221370,
+        "arrayBuffers": 7587075
+      },
+      "retainedHeapDeltaBytes": -13197792,
+      "retainedExternalDeltaBytes": -4880676,
+      "peakHeapUsed": 172272928,
+      "peakExternal": 10226138,
+      "peakRssBytes": 912228352,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 21159936,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 21159936
+      },
+      "verifiedEntityKinds": 26,
+      "entityHashes": {
+        "action": "e6ca606c7c6fb431e058f0c3b964e183417dfef9cde4ad129d5315b83dbd58f8",
+        "attempt": "ce28443c6d7eaf3985702cacbdab386e18ada6d94e81c42ee071eb981c9bb1a4",
+        "boundary-exit-episode": "1187a941214b22e11046ac28e8f53aa4eab76be94819f2911927357d9422d7b9",
+        "boundary-exit-request": "d3379bdabfd94ef50c241b53ccfc5dcdd030a684d12f1d74b741e0ce60ef6b01",
+        "checkpoint": "0e7cfacffd220c8243381702f339c28f4942297f38cac47f7e05bbbdc1bf0348",
+        "control-classification": "eb5ced3d8e54157ac444d4cfa2701b782b72ec394262a38a795800fe6173629f",
+        "control-classification-request": "b20169d65710b5e4518cad254ae085b53ec3aa89c01c6b549337457d913faa50",
+        "control-review-request": "1ec0641569d092f8b03bc11432a49f8d98f282179eb88dbde0f45222fe16cf1a",
+        "discovery-request": "c467d3563f37455e22a79d046edabc025e2ecaae306663b6549188c2c8e42e49",
+        "evidence-entry": "5047051414df72258e5a45812c8c6400684921298883674fc3d7a558a9a1e576",
+        "evidence-retention": "a56dfbe41a1000ed4110621d568f765fa48bb36c8de29fab58b96b0ba39cb2c8",
+        "exploration-group": "d33fc78e170d22eb8bb36d13848ed09a3e92f23f255d4ec2f3e7e6d854010960",
+        "frontier": "b7e159821c3f5420041da2956388c35ab56e71363911a55f688a5060905bde5f",
+        "hypothesis": "047c64bf618b10d20aae3d2aee7dcd69a68497adb0a32abf1761d20fd5a8b764",
+        "identity": "ca6dc7019d882d910e26d99780256db7925640f8639c68397044ae612a8e23dc",
+        "intervention-snapshot": "a33025b94908422e513399c72e5c0f1dd47f89b2f280b05a598c5ed25560caea",
+        "observation": "44a5cbf9f0c4f97b199a555647e07a42dd3b2d5a0b4d7c23088a1a78efc42402",
+        "page-exploration": "e15acf54e6bdfdc7e303542c5d97156f7d6367b986a50093310162a6c1650b5f",
+        "reach": "f4e59ada21afd965a4bbd51c1b778640bf61c0885854de322ad1d2b7680760d0",
+        "region-review": "f6877048597ec0f3eb17b07c0bfe9c2180e1c699f5e0d8c1469e6b46cfcc1761",
+        "region-review-request": "fe6d85495a65cb460b095b8183b90c3bb14ccc49ee9ad7ee7099690bd79fab7d",
+        "scope": "5a24644cbf62d9dc871851b521fe6a835de8f9e32a2bc03af5ced9faca8dc366",
+        "session": "b262e88a877c95482b5c249e6995ab01c47bec7d9535b7eb4bcf1d6e6cabb7d0",
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f",
+        "transition": "f7112eda7f41fb8412ebf3ffa99eb92ab8a8f100f3a6bbb0995c05ccabc395f6",
+        "visit": "b4fac3f35d3ab580ca77bb7afde9debffe7ce505e9ad2dc18fc736428311f92e"
+      },
+      "observationStats": {
+        "observations": 14,
+        "sharedObservations": 8,
+        "manifestBytes": 1064168,
+        "objects": 1325,
+        "referencedObjects": 1325,
+        "orphanObjects": 0,
+        "objectBytes": 4677679,
+        "referencedObjectBytes": 4677679,
+        "packs": 80,
+        "packedBytes": 286783,
+        "packLogicalBytes": 4677679,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-_t8f3s5z",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/2-nine-states-baseline",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "baseline",
+      "workload": "nine-states",
+      "repetition": 2,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "writeMs": 47.705291999999986,
+      "writeCpuMs": 46.383,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 4030464,
+          "engine.sqlite-wal": 4120032,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 8183264
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 7939339
+      },
+      "compactionMs": 29.732416999999998,
+      "compaction": {
+        "databaseBytesBefore": 4030464,
+        "databaseBytesAfter": 8019968,
+        "walBytesBefore": 4120032,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 8019968,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 8019968
+      },
+      "openMs": 0.6794160000000034,
+      "coldListMs": 18.30816699999997,
+      "coldListCpuMs": 18.318,
+      "hotGetMs": {
+        "p50": 19.432708000000048,
+        "p95": 23.659833000000162,
+        "min": 18.396417000000042,
+        "max": 23.659833000000162
+      },
+      "hotListMs": {
+        "p50": 19.20054099999993,
+        "p95": 22.253791999999976,
+        "min": 18.50804100000005,
+        "max": 22.253791999999976
+      },
+      "hotListCpuMs": {
+        "p50": 19.216,
+        "p95": 31.13,
+        "min": 18.517,
+        "max": 31.13
+      },
+      "samples": {
+        "getSamples": [
+          19.573125000000005,
+          19.417249999999967,
+          18.513791999999967,
+          19.45337500000005,
+          19.520457999999962,
+          18.396417000000042,
+          18.656333000000018,
+          19.432708000000048,
+          18.423541000000114,
+          18.49237499999981,
+          20.235374999999976,
+          18.9861249999999,
+          19.706875000000082,
+          20.694750000000113,
+          23.659833000000162
+        ],
+        "listSamples": [
+          18.590250000000026,
+          19.342209000000025,
+          19.53945800000008,
+          18.537124999999946,
+          18.60395799999992,
+          22.253791999999976,
+          18.537582999999927,
+          18.50804100000005,
+          19.24541700000009,
+          18.516959000000043,
+          20.603583999999955,
+          20.6740420000001,
+          19.20054099999993,
+          19.195375000000013,
+          20.2267089999998
+        ],
+        "listCpuSamples": [
+          18.613,
+          19.379,
+          19.598,
+          18.55,
+          18.611,
+          31.13,
+          18.546,
+          18.517,
+          19.262,
+          18.527,
+          20.552,
+          20.701,
+          19.216,
+          19.213,
+          20.242
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 189038592,
+        "heapTotal": 173490176,
+        "heapUsed": 37548648,
+        "external": 4866150,
+        "arrayBuffers": 2245891
+      },
+      "memoryAfterReads": {
+        "rss": 179978240,
+        "heapTotal": 161447936,
+        "heapUsed": 25633248,
+        "external": 4866190,
+        "arrayBuffers": 2245891
+      },
+      "retainedHeapDeltaBytes": -11915400,
+      "retainedExternalDeltaBytes": 40,
+      "peakHeapUsed": 214382792,
+      "peakExternal": 4866190,
+      "peakRssBytes": 377946112,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 8019968,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 8019968
+      },
+      "verifiedEntityKinds": 1,
+      "entityHashes": {
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f"
+      },
+      "observationStats": {
+        "observations": 0,
+        "sharedObservations": 0,
+        "manifestBytes": 0,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/2-nine-states-new",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "new",
+      "workload": "nine-states",
+      "repetition": 2,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "writeMs": 61.00283300000001,
+      "writeCpuMs": 62.051,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 655112,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 691976
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 429709
+      },
+      "compactionMs": 4.596417000000031,
+      "compaction": {
+        "databaseBytesBefore": 4096,
+        "databaseBytesAfter": 503808,
+        "walBytesBefore": 655112,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 503808,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 503808
+      },
+      "openMs": 0.8115000000000236,
+      "coldListMs": 20.652999999999963,
+      "coldListCpuMs": 21.382,
+      "hotGetMs": {
+        "p50": 20.429916999999932,
+        "p95": 31.443666999999948,
+        "min": 19.424790999999914,
+        "max": 31.443666999999948
+      },
+      "hotListMs": {
+        "p50": 20.126209000000017,
+        "p95": 24.028999999999996,
+        "min": 19.177415999999994,
+        "max": 24.028999999999996
+      },
+      "hotListCpuMs": {
+        "p50": 20.325,
+        "p95": 32.669,
+        "min": 19.19,
+        "max": 32.669
+      },
+      "samples": {
+        "getSamples": [
+          22.66920799999997,
+          31.443666999999948,
+          19.666082999999958,
+          21.7662499999999,
+          20.499292000000082,
+          20.50741599999992,
+          19.487499999999955,
+          20.392499999999927,
+          20.49695799999995,
+          19.82116700000006,
+          19.623542000000043,
+          21.821707999999944,
+          19.50499999999988,
+          19.424790999999914,
+          20.429916999999932
+        ],
+        "listSamples": [
+          20.38733400000001,
+          24.028999999999996,
+          20.491708000000017,
+          19.59170800000004,
+          19.37195799999995,
+          20.266832999999906,
+          20.27449999999999,
+          19.36216599999989,
+          19.40274999999997,
+          23.469041999999945,
+          20.73104199999989,
+          19.313583000000108,
+          20.126209000000017,
+          19.177415999999994,
+          19.247333000000026
+        ],
+        "listCpuSamples": [
+          20.417,
+          24.139,
+          20.606,
+          19.6,
+          19.381,
+          20.325,
+          20.476,
+          19.371,
+          19.514,
+          32.669,
+          20.713,
+          19.325,
+          20.502,
+          19.19,
+          19.258
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 186875904,
+        "heapTotal": 173752320,
+        "heapUsed": 37649360,
+        "external": 12347556,
+        "arrayBuffers": 2245891
+      },
+      "memoryAfterReads": {
+        "rss": 227672064,
+        "heapTotal": 161972224,
+        "heapUsed": 25742832,
+        "external": 4866190,
+        "arrayBuffers": 2245891
+      },
+      "retainedHeapDeltaBytes": -11906528,
+      "retainedExternalDeltaBytes": -7481366,
+      "peakHeapUsed": 176086440,
+      "peakExternal": 40022033,
+      "peakRssBytes": 399884288,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 503808,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 503808
+      },
+      "verifiedEntityKinds": 1,
+      "entityHashes": {
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f"
+      },
+      "observationStats": {
+        "observations": 0,
+        "sharedObservations": 0,
+        "manifestBytes": 0,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-_t8f3s5z",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/2-full-engine-baseline",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "baseline",
+      "workload": "full-engine",
+      "repetition": 2,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "writeMs": 34.350625000000036,
+      "writeCpuMs": 34.586,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 7939339
+      },
+      "compactionMs": 76.63258399999995,
+      "compaction": {
+        "databaseBytesBefore": 22228992,
+        "databaseBytesAfter": 21159936,
+        "walBytesBefore": 0,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 21159936,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 21159936
+      },
+      "openMs": 0.6658340000001317,
+      "coldListMs": 20.127124999999978,
+      "coldListCpuMs": 21.851,
+      "hotGetMs": {
+        "p50": 18.565292,
+        "p95": 22.29275000000007,
+        "min": 18.40095799999972,
+        "max": 22.29275000000007
+      },
+      "hotListMs": {
+        "p50": 19.30008299999963,
+        "p95": 23.39254199999982,
+        "min": 19.2521670000001,
+        "max": 23.39254199999982
+      },
+      "hotListCpuMs": {
+        "p50": 19.311,
+        "p95": 32.365,
+        "min": 19.263,
+        "max": 32.365
+      },
+      "samples": {
+        "getSamples": [
+          18.613875000000007,
+          18.63129200000003,
+          18.520332999999937,
+          18.605167000000165,
+          18.464332999999897,
+          18.565292,
+          19.286583999999948,
+          18.47858300000007,
+          18.487958000000162,
+          18.44583399999965,
+          18.40095799999972,
+          18.440916000000016,
+          22.29275000000007,
+          19.853500000000167,
+          19.88458300000002
+        ],
+        "listSamples": [
+          20.416791000000103,
+          21.209916999999905,
+          23.39254199999982,
+          19.277000000000044,
+          19.286082999999962,
+          19.37191699999994,
+          19.2594160000001,
+          19.31454100000019,
+          19.30008299999963,
+          19.294167000000016,
+          19.287874999999985,
+          19.33254199999965,
+          19.2521670000001,
+          19.27520800000002,
+          19.313916000000063
+        ],
+        "listCpuSamples": [
+          20.465,
+          21.257,
+          32.365,
+          19.288,
+          19.295,
+          19.382,
+          19.271,
+          19.326,
+          19.311,
+          19.303,
+          19.298,
+          19.343,
+          19.263,
+          19.286,
+          19.324
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 717864960,
+        "heapTotal": 176635904,
+        "heapUsed": 38187232,
+        "external": 15102046,
+        "arrayBuffers": 7587075
+      },
+      "memoryAfterReads": {
+        "rss": 706150400,
+        "heapTotal": 161710080,
+        "heapUsed": 24989472,
+        "external": 10221370,
+        "arrayBuffers": 7587075
+      },
+      "retainedHeapDeltaBytes": -13197760,
+      "retainedExternalDeltaBytes": -4880676,
+      "peakHeapUsed": 172272896,
+      "peakExternal": 10226138,
+      "peakRssBytes": 914702336,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 21159936,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 21159936
+      },
+      "verifiedEntityKinds": 26,
+      "entityHashes": {
+        "action": "e6ca606c7c6fb431e058f0c3b964e183417dfef9cde4ad129d5315b83dbd58f8",
+        "attempt": "ce28443c6d7eaf3985702cacbdab386e18ada6d94e81c42ee071eb981c9bb1a4",
+        "boundary-exit-episode": "1187a941214b22e11046ac28e8f53aa4eab76be94819f2911927357d9422d7b9",
+        "boundary-exit-request": "d3379bdabfd94ef50c241b53ccfc5dcdd030a684d12f1d74b741e0ce60ef6b01",
+        "checkpoint": "0e7cfacffd220c8243381702f339c28f4942297f38cac47f7e05bbbdc1bf0348",
+        "control-classification": "eb5ced3d8e54157ac444d4cfa2701b782b72ec394262a38a795800fe6173629f",
+        "control-classification-request": "b20169d65710b5e4518cad254ae085b53ec3aa89c01c6b549337457d913faa50",
+        "control-review-request": "1ec0641569d092f8b03bc11432a49f8d98f282179eb88dbde0f45222fe16cf1a",
+        "discovery-request": "c467d3563f37455e22a79d046edabc025e2ecaae306663b6549188c2c8e42e49",
+        "evidence-entry": "5047051414df72258e5a45812c8c6400684921298883674fc3d7a558a9a1e576",
+        "evidence-retention": "a56dfbe41a1000ed4110621d568f765fa48bb36c8de29fab58b96b0ba39cb2c8",
+        "exploration-group": "d33fc78e170d22eb8bb36d13848ed09a3e92f23f255d4ec2f3e7e6d854010960",
+        "frontier": "b7e159821c3f5420041da2956388c35ab56e71363911a55f688a5060905bde5f",
+        "hypothesis": "047c64bf618b10d20aae3d2aee7dcd69a68497adb0a32abf1761d20fd5a8b764",
+        "identity": "ca6dc7019d882d910e26d99780256db7925640f8639c68397044ae612a8e23dc",
+        "intervention-snapshot": "a33025b94908422e513399c72e5c0f1dd47f89b2f280b05a598c5ed25560caea",
+        "observation": "44a5cbf9f0c4f97b199a555647e07a42dd3b2d5a0b4d7c23088a1a78efc42402",
+        "page-exploration": "e15acf54e6bdfdc7e303542c5d97156f7d6367b986a50093310162a6c1650b5f",
+        "reach": "f4e59ada21afd965a4bbd51c1b778640bf61c0885854de322ad1d2b7680760d0",
+        "region-review": "f6877048597ec0f3eb17b07c0bfe9c2180e1c699f5e0d8c1469e6b46cfcc1761",
+        "region-review-request": "fe6d85495a65cb460b095b8183b90c3bb14ccc49ee9ad7ee7099690bd79fab7d",
+        "scope": "5a24644cbf62d9dc871851b521fe6a835de8f9e32a2bc03af5ced9faca8dc366",
+        "session": "b262e88a877c95482b5c249e6995ab01c47bec7d9535b7eb4bcf1d6e6cabb7d0",
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f",
+        "transition": "f7112eda7f41fb8412ebf3ffa99eb92ab8a8f100f3a6bbb0995c05ccabc395f6",
+        "visit": "b4fac3f35d3ab580ca77bb7afde9debffe7ce505e9ad2dc18fc736428311f92e"
+      },
+      "observationStats": {
+        "observations": 14,
+        "sharedObservations": 8,
+        "manifestBytes": 1064168,
+        "objects": 1325,
+        "referencedObjects": 1325,
+        "orphanObjects": 0,
+        "objectBytes": 4677679,
+        "referencedObjectBytes": 4677679,
+        "packs": 80,
+        "packedBytes": 286783,
+        "packLogicalBytes": 4677679,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/2-full-engine-new",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "new",
+      "workload": "full-engine",
+      "repetition": 2,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 4152,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22265912
+      },
+      "migration": [
+        {
+          "cursor": 787,
+          "done": false,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2969061,
+          "logicalBytesAfter": 2969061,
+          "storageBytesBefore": 2969061,
+          "storageBytesAfter": 158734
+        },
+        {
+          "cursor": 1879,
+          "done": false,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2502978,
+          "logicalBytesAfter": 2502978,
+          "storageBytesBefore": 2502978,
+          "storageBytesAfter": 137173
+        },
+        {
+          "cursor": 2901,
+          "done": true,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2467300,
+          "logicalBytesAfter": 2467300,
+          "storageBytesBefore": 2467300,
+          "storageBytesAfter": 133802
+        }
+      ],
+      "migrationMs": 121.40020800000002,
+      "migrationCpuMs": 122.12,
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 502672,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22764432
+      },
+      "writeMs": 55.59754100000009,
+      "writeCpuMs": 55.794,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 502672,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22764432
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 429709
+      },
+      "compactionMs": 35.57379100000003,
+      "compaction": {
+        "databaseBytesBefore": 22228992,
+        "databaseBytesAfter": 13643776,
+        "walBytesBefore": 502672,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 13643776,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 13643776
+      },
+      "openMs": 1.0116250000000946,
+      "coldListMs": 21.567084000000023,
+      "coldListCpuMs": 21.692,
+      "hotGetMs": {
+        "p50": 19.62783300000001,
+        "p95": 22.511291999999685,
+        "min": 19.37145899999996,
+        "max": 22.511291999999685
+      },
+      "hotListMs": {
+        "p50": 20.08541699999978,
+        "p95": 23.67870800000037,
+        "min": 19.887125000000196,
+        "max": 23.67870800000037
+      },
+      "hotListCpuMs": {
+        "p50": 20.218,
+        "p95": 32.302,
+        "min": 19.898,
+        "max": 32.302
+      },
+      "samples": {
+        "getSamples": [
+          20.135084000000006,
+          19.470291999999972,
+          19.654417000000194,
+          19.666124999999738,
+          19.394000000000233,
+          19.62783300000001,
+          19.37145899999996,
+          19.371666000000005,
+          19.493958999999904,
+          22.511291999999685,
+          20.88324999999986,
+          20.836709000000155,
+          21.021499999999833,
+          19.535417000000052,
+          19.497457999999824
+        ],
+        "listSamples": [
+          21.470958999999993,
+          21.340333999999984,
+          23.67870800000037,
+          20.23720800000001,
+          20.068750000000364,
+          19.932667000000038,
+          19.906499999999596,
+          19.946750000000065,
+          20.254583000000366,
+          20.17383299999983,
+          19.92574999999988,
+          19.92350000000033,
+          20.08541699999978,
+          19.887125000000196,
+          22.179208000000017
+        ],
+        "listCpuSamples": [
+          22.38,
+          21.468,
+          32.302,
+          20.889,
+          21.973,
+          19.941,
+          19.918,
+          19.958,
+          20.549,
+          20.188,
+          19.94,
+          19.933,
+          20.218,
+          19.898,
+          24.107
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 755974144,
+        "heapTotal": 177684480,
+        "heapUsed": 36954560,
+        "external": 30541260,
+        "arrayBuffers": 7587075
+      },
+      "memoryAfterReads": {
+        "rss": 746717184,
+        "heapTotal": 162234368,
+        "heapUsed": 25009712,
+        "external": 26583335,
+        "arrayBuffers": 7587075
+      },
+      "retainedHeapDeltaBytes": -11944848,
+      "retainedExternalDeltaBytes": -3957925,
+      "peakHeapUsed": 150914496,
+      "peakExternal": 49684265,
+      "peakRssBytes": 918110208,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 13643776,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 13643776
+      },
+      "verifiedEntityKinds": 26,
+      "entityHashes": {
+        "action": "e6ca606c7c6fb431e058f0c3b964e183417dfef9cde4ad129d5315b83dbd58f8",
+        "attempt": "ce28443c6d7eaf3985702cacbdab386e18ada6d94e81c42ee071eb981c9bb1a4",
+        "boundary-exit-episode": "1187a941214b22e11046ac28e8f53aa4eab76be94819f2911927357d9422d7b9",
+        "boundary-exit-request": "d3379bdabfd94ef50c241b53ccfc5dcdd030a684d12f1d74b741e0ce60ef6b01",
+        "checkpoint": "0e7cfacffd220c8243381702f339c28f4942297f38cac47f7e05bbbdc1bf0348",
+        "control-classification": "eb5ced3d8e54157ac444d4cfa2701b782b72ec394262a38a795800fe6173629f",
+        "control-classification-request": "b20169d65710b5e4518cad254ae085b53ec3aa89c01c6b549337457d913faa50",
+        "control-review-request": "1ec0641569d092f8b03bc11432a49f8d98f282179eb88dbde0f45222fe16cf1a",
+        "discovery-request": "c467d3563f37455e22a79d046edabc025e2ecaae306663b6549188c2c8e42e49",
+        "evidence-entry": "5047051414df72258e5a45812c8c6400684921298883674fc3d7a558a9a1e576",
+        "evidence-retention": "a56dfbe41a1000ed4110621d568f765fa48bb36c8de29fab58b96b0ba39cb2c8",
+        "exploration-group": "d33fc78e170d22eb8bb36d13848ed09a3e92f23f255d4ec2f3e7e6d854010960",
+        "frontier": "b7e159821c3f5420041da2956388c35ab56e71363911a55f688a5060905bde5f",
+        "hypothesis": "047c64bf618b10d20aae3d2aee7dcd69a68497adb0a32abf1761d20fd5a8b764",
+        "identity": "ca6dc7019d882d910e26d99780256db7925640f8639c68397044ae612a8e23dc",
+        "intervention-snapshot": "a33025b94908422e513399c72e5c0f1dd47f89b2f280b05a598c5ed25560caea",
+        "observation": "44a5cbf9f0c4f97b199a555647e07a42dd3b2d5a0b4d7c23088a1a78efc42402",
+        "page-exploration": "e15acf54e6bdfdc7e303542c5d97156f7d6367b986a50093310162a6c1650b5f",
+        "reach": "f4e59ada21afd965a4bbd51c1b778640bf61c0885854de322ad1d2b7680760d0",
+        "region-review": "f6877048597ec0f3eb17b07c0bfe9c2180e1c699f5e0d8c1469e6b46cfcc1761",
+        "region-review-request": "fe6d85495a65cb460b095b8183b90c3bb14ccc49ee9ad7ee7099690bd79fab7d",
+        "scope": "5a24644cbf62d9dc871851b521fe6a835de8f9e32a2bc03af5ced9faca8dc366",
+        "session": "b262e88a877c95482b5c249e6995ab01c47bec7d9535b7eb4bcf1d6e6cabb7d0",
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f",
+        "transition": "f7112eda7f41fb8412ebf3ffa99eb92ab8a8f100f3a6bbb0995c05ccabc395f6",
+        "visit": "b4fac3f35d3ab580ca77bb7afde9debffe7ce505e9ad2dc18fc736428311f92e"
+      },
+      "observationStats": {
+        "observations": 14,
+        "sharedObservations": 8,
+        "manifestBytes": 1064168,
+        "objects": 1325,
+        "referencedObjects": 1325,
+        "orphanObjects": 0,
+        "objectBytes": 4677679,
+        "referencedObjectBytes": 4677679,
+        "packs": 80,
+        "packedBytes": 286783,
+        "packLogicalBytes": 4677679,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/3-nine-states-new",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "new",
+      "workload": "nine-states",
+      "repetition": 3,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "writeMs": 58.916833,
+      "writeCpuMs": 59.782,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 655112,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 691976
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 429709
+      },
+      "compactionMs": 3.733000000000004,
+      "compaction": {
+        "databaseBytesBefore": 4096,
+        "databaseBytesAfter": 503808,
+        "walBytesBefore": 655112,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 503808,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 503808
+      },
+      "openMs": 0.6299999999999955,
+      "coldListMs": 19.608000000000004,
+      "coldListCpuMs": 20.269,
+      "hotGetMs": {
+        "p50": 20.42475000000013,
+        "p95": 22.39654100000007,
+        "min": 19.370832999999948,
+        "max": 22.39654100000007
+      },
+      "hotListMs": {
+        "p50": 19.975832999999966,
+        "p95": 20.482249999999908,
+        "min": 19.187874999999963,
+        "max": 20.482249999999908
+      },
+      "hotListCpuMs": {
+        "p50": 20.032,
+        "p95": 20.63,
+        "min": 19.199,
+        "max": 20.63
+      },
+      "samples": {
+        "getSamples": [
+          21.248374999999953,
+          20.298541999999998,
+          19.56762500000002,
+          20.808832999999936,
+          20.438541999999984,
+          20.331957999999986,
+          19.538374999999974,
+          20.42475000000013,
+          20.544458000000077,
+          22.39654100000007,
+          19.370832999999948,
+          19.39258400000017,
+          21.163791000000174,
+          21.75991699999986,
+          19.741457999999966
+        ],
+        "listSamples": [
+          19.358249999999998,
+          20.482249999999908,
+          20.206709000000046,
+          19.42583300000001,
+          19.187874999999963,
+          20.02004199999999,
+          20.161042000000066,
+          19.31929100000002,
+          19.448624999999993,
+          20.150750000000016,
+          20.065916000000016,
+          19.294083,
+          19.30704199999991,
+          19.975832999999966,
+          20.120959000000084
+        ],
+        "listCpuSamples": [
+          19.381,
+          20.63,
+          20.329,
+          19.44,
+          19.199,
+          20.07,
+          20.39,
+          19.332,
+          19.569,
+          20.265,
+          20.161,
+          19.304,
+          19.619,
+          20.032,
+          20.187
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 189677568,
+        "heapTotal": 173752320,
+        "heapUsed": 37644480,
+        "external": 10251004,
+        "arrayBuffers": 2245891
+      },
+      "memoryAfterReads": {
+        "rss": 200949760,
+        "heapTotal": 161710080,
+        "heapUsed": 25742544,
+        "external": 22198455,
+        "arrayBuffers": 2245891
+      },
+      "retainedHeapDeltaBytes": -11901936,
+      "retainedExternalDeltaBytes": 11947451,
+      "peakHeapUsed": 176086488,
+      "peakExternal": 38442304,
+      "peakRssBytes": 359841792,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 503808,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 503808
+      },
+      "verifiedEntityKinds": 1,
+      "entityHashes": {
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f"
+      },
+      "observationStats": {
+        "observations": 0,
+        "sharedObservations": 0,
+        "manifestBytes": 0,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-_t8f3s5z",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/3-nine-states-baseline",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "baseline",
+      "workload": "nine-states",
+      "repetition": 3,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "writeMs": 50.83433400000001,
+      "writeCpuMs": 49.73,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 4030464,
+          "engine.sqlite-wal": 4120032,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 8183264
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 7939339
+      },
+      "compactionMs": 30.459957999999972,
+      "compaction": {
+        "databaseBytesBefore": 4030464,
+        "databaseBytesAfter": 8019968,
+        "walBytesBefore": 4120032,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 8019968,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 8019968
+      },
+      "openMs": 0.7000829999999496,
+      "coldListMs": 18.922875000000033,
+      "coldListCpuMs": 18.92,
+      "hotGetMs": {
+        "p50": 20.776124999999865,
+        "p95": 24.06600000000003,
+        "min": 20.163832999999954,
+        "max": 24.06600000000003
+      },
+      "hotListMs": {
+        "p50": 20.480166000000054,
+        "p95": 25.42208299999993,
+        "min": 19.868041000000062,
+        "max": 25.42208299999993
+      },
+      "hotListCpuMs": {
+        "p50": 20.494,
+        "p95": 34.023,
+        "min": 19.863,
+        "max": 34.023
+      },
+      "samples": {
+        "getSamples": [
+          20.613333999999952,
+          22.063333,
+          20.1769579999999,
+          22.502250000000004,
+          21.998207999999977,
+          20.163832999999954,
+          20.406292000000008,
+          21.481541000000107,
+          20.776124999999865,
+          20.54012499999999,
+          21.340667000000167,
+          20.21795800000018,
+          20.25362499999983,
+          21.945791999999983,
+          24.06600000000003
+        ],
+        "listSamples": [
+          21.743749999999977,
+          23.257542000000058,
+          20.480166000000054,
+          19.998666999999955,
+          19.868041000000062,
+          25.42208299999993,
+          20.14412500000003,
+          19.893790999999965,
+          21.51020900000003,
+          20.294959000000063,
+          19.909124999999904,
+          21.687541999999894,
+          19.892667000000074,
+          20.6875,
+          20.946291999999858
+        ],
+        "listCpuSamples": [
+          20.692,
+          22.386,
+          20.494,
+          19.93,
+          19.882,
+          34.023,
+          20.14,
+          19.89,
+          21.485,
+          20.292,
+          19.863,
+          21.71,
+          19.905,
+          20.681,
+          20.952
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 192692224,
+        "heapTotal": 174014464,
+        "heapUsed": 37548904,
+        "external": 4866150,
+        "arrayBuffers": 2245891
+      },
+      "memoryAfterReads": {
+        "rss": 181682176,
+        "heapTotal": 161972224,
+        "heapUsed": 25633248,
+        "external": 4866190,
+        "arrayBuffers": 2245891
+      },
+      "retainedHeapDeltaBytes": -11915656,
+      "retainedExternalDeltaBytes": 40,
+      "peakHeapUsed": 214382792,
+      "peakExternal": 4866190,
+      "peakRssBytes": 379650048,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 8019968,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 8019968
+      },
+      "verifiedEntityKinds": 1,
+      "entityHashes": {
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f"
+      },
+      "observationStats": {
+        "observations": 0,
+        "sharedObservations": 0,
+        "manifestBytes": 0,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/3-full-engine-new",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "new",
+      "workload": "full-engine",
+      "repetition": 3,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 4152,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22265912
+      },
+      "migration": [
+        {
+          "cursor": 787,
+          "done": false,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2969061,
+          "logicalBytesAfter": 2969061,
+          "storageBytesBefore": 2969061,
+          "storageBytesAfter": 158734
+        },
+        {
+          "cursor": 1879,
+          "done": false,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2502978,
+          "logicalBytesAfter": 2502978,
+          "storageBytesBefore": 2502978,
+          "storageBytesAfter": 137173
+        },
+        {
+          "cursor": 2901,
+          "done": true,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2467300,
+          "logicalBytesAfter": 2467300,
+          "storageBytesBefore": 2467300,
+          "storageBytesAfter": 133802
+        }
+      ],
+      "migrationMs": 129.64175,
+      "migrationCpuMs": 130.32,
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 502672,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22764432
+      },
+      "writeMs": 57.71083300000009,
+      "writeCpuMs": 57.803,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 502672,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22764432
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 429709
+      },
+      "compactionMs": 35.92750000000001,
+      "compaction": {
+        "databaseBytesBefore": 22228992,
+        "databaseBytesAfter": 13643776,
+        "walBytesBefore": 502672,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 13643776,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 13643776
+      },
+      "openMs": 1.137583000000177,
+      "coldListMs": 21.965291999999863,
+      "coldListCpuMs": 22.083,
+      "hotGetMs": {
+        "p50": 19.91070899999977,
+        "p95": 24.145708000000013,
+        "min": 19.405292000000372,
+        "max": 24.145708000000013
+      },
+      "hotListMs": {
+        "p50": 20.45616599999994,
+        "p95": 24.993083999999726,
+        "min": 20.01504100000011,
+        "max": 24.993083999999726
+      },
+      "hotListCpuMs": {
+        "p50": 20.882,
+        "p95": 34.468,
+        "min": 20.011,
+        "max": 34.468
+      },
+      "samples": {
+        "getSamples": [
+          21.090208000000075,
+          19.730125000000044,
+          19.405292000000372,
+          19.664416999999958,
+          20.19300000000021,
+          19.74887499999977,
+          19.50191599999971,
+          19.91070899999977,
+          20.19533300000012,
+          24.145708000000013,
+          21.362166999999772,
+          21.76379199999974,
+          21.66245899999967,
+          19.861417000000074,
+          19.630833000000166
+        ],
+        "listSamples": [
+          22.819500000000062,
+          22.10920900000019,
+          24.993083999999726,
+          20.45616599999994,
+          20.376458000000184,
+          20.61554100000012,
+          20.24433399999998,
+          21.019500000000335,
+          20.680041999999958,
+          20.203791999999794,
+          20.01504100000011,
+          20.03820799999994,
+          20.2942079999998,
+          20.04970800000001,
+          22.661415999999917
+        ],
+        "listCpuSamples": [
+          23.696,
+          22.191,
+          34.468,
+          20.984,
+          22.166,
+          20.571,
+          20.242,
+          21.006,
+          20.882,
+          20.217,
+          20.011,
+          20.049,
+          20.421,
+          20.061,
+          24.891
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 765313024,
+        "heapTotal": 177684480,
+        "heapUsed": 36953744,
+        "external": 30541260,
+        "arrayBuffers": 7587075
+      },
+      "memoryAfterReads": {
+        "rss": 779386880,
+        "heapTotal": 161710080,
+        "heapUsed": 25009232,
+        "external": 26583335,
+        "arrayBuffers": 7587075
+      },
+      "retainedHeapDeltaBytes": -11944512,
+      "retainedExternalDeltaBytes": -3957925,
+      "peakHeapUsed": 150913680,
+      "peakExternal": 49684265,
+      "peakRssBytes": 951107584,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 13643776,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 13643776
+      },
+      "verifiedEntityKinds": 26,
+      "entityHashes": {
+        "action": "e6ca606c7c6fb431e058f0c3b964e183417dfef9cde4ad129d5315b83dbd58f8",
+        "attempt": "ce28443c6d7eaf3985702cacbdab386e18ada6d94e81c42ee071eb981c9bb1a4",
+        "boundary-exit-episode": "1187a941214b22e11046ac28e8f53aa4eab76be94819f2911927357d9422d7b9",
+        "boundary-exit-request": "d3379bdabfd94ef50c241b53ccfc5dcdd030a684d12f1d74b741e0ce60ef6b01",
+        "checkpoint": "0e7cfacffd220c8243381702f339c28f4942297f38cac47f7e05bbbdc1bf0348",
+        "control-classification": "eb5ced3d8e54157ac444d4cfa2701b782b72ec394262a38a795800fe6173629f",
+        "control-classification-request": "b20169d65710b5e4518cad254ae085b53ec3aa89c01c6b549337457d913faa50",
+        "control-review-request": "1ec0641569d092f8b03bc11432a49f8d98f282179eb88dbde0f45222fe16cf1a",
+        "discovery-request": "c467d3563f37455e22a79d046edabc025e2ecaae306663b6549188c2c8e42e49",
+        "evidence-entry": "5047051414df72258e5a45812c8c6400684921298883674fc3d7a558a9a1e576",
+        "evidence-retention": "a56dfbe41a1000ed4110621d568f765fa48bb36c8de29fab58b96b0ba39cb2c8",
+        "exploration-group": "d33fc78e170d22eb8bb36d13848ed09a3e92f23f255d4ec2f3e7e6d854010960",
+        "frontier": "b7e159821c3f5420041da2956388c35ab56e71363911a55f688a5060905bde5f",
+        "hypothesis": "047c64bf618b10d20aae3d2aee7dcd69a68497adb0a32abf1761d20fd5a8b764",
+        "identity": "ca6dc7019d882d910e26d99780256db7925640f8639c68397044ae612a8e23dc",
+        "intervention-snapshot": "a33025b94908422e513399c72e5c0f1dd47f89b2f280b05a598c5ed25560caea",
+        "observation": "44a5cbf9f0c4f97b199a555647e07a42dd3b2d5a0b4d7c23088a1a78efc42402",
+        "page-exploration": "e15acf54e6bdfdc7e303542c5d97156f7d6367b986a50093310162a6c1650b5f",
+        "reach": "f4e59ada21afd965a4bbd51c1b778640bf61c0885854de322ad1d2b7680760d0",
+        "region-review": "f6877048597ec0f3eb17b07c0bfe9c2180e1c699f5e0d8c1469e6b46cfcc1761",
+        "region-review-request": "fe6d85495a65cb460b095b8183b90c3bb14ccc49ee9ad7ee7099690bd79fab7d",
+        "scope": "5a24644cbf62d9dc871851b521fe6a835de8f9e32a2bc03af5ced9faca8dc366",
+        "session": "b262e88a877c95482b5c249e6995ab01c47bec7d9535b7eb4bcf1d6e6cabb7d0",
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f",
+        "transition": "f7112eda7f41fb8412ebf3ffa99eb92ab8a8f100f3a6bbb0995c05ccabc395f6",
+        "visit": "b4fac3f35d3ab580ca77bb7afde9debffe7ce505e9ad2dc18fc736428311f92e"
+      },
+      "observationStats": {
+        "observations": 14,
+        "sharedObservations": 8,
+        "manifestBytes": 1064168,
+        "objects": 1325,
+        "referencedObjects": 1325,
+        "orphanObjects": 0,
+        "objectBytes": 4677679,
+        "referencedObjectBytes": 4677679,
+        "packs": 80,
+        "packedBytes": 286783,
+        "packLogicalBytes": 4677679,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-_t8f3s5z",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/3-full-engine-baseline",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "baseline",
+      "workload": "full-engine",
+      "repetition": 3,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "writeMs": 34.306542000000036,
+      "writeCpuMs": 34.503,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 7939339
+      },
+      "compactionMs": 78.04179099999988,
+      "compaction": {
+        "databaseBytesBefore": 22228992,
+        "databaseBytesAfter": 21159936,
+        "walBytesBefore": 0,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 21159936,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 21159936
+      },
+      "openMs": 0.7322500000000218,
+      "coldListMs": 21.44058300000006,
+      "coldListCpuMs": 21.915,
+      "hotGetMs": {
+        "p50": 18.454416000000037,
+        "p95": 22.351124999999683,
+        "min": 18.270916999999827,
+        "max": 22.351124999999683
+      },
+      "hotListMs": {
+        "p50": 19.326958000000104,
+        "p95": 23.34575000000018,
+        "min": 19.147249999999985,
+        "max": 23.34575000000018
+      },
+      "hotListCpuMs": {
+        "p50": 19.337,
+        "p95": 32.126,
+        "min": 19.157,
+        "max": 32.126
+      },
+      "samples": {
+        "getSamples": [
+          19.359791000000087,
+          19.84566700000005,
+          18.51041699999996,
+          18.534333999999944,
+          18.454416000000037,
+          18.40858400000002,
+          18.38958300000013,
+          18.4157909999999,
+          18.98254199999974,
+          18.347667,
+          18.3098329999998,
+          18.326750000000175,
+          18.270916999999827,
+          22.351124999999683,
+          19.805249999999887
+        ],
+        "listSamples": [
+          21.778957999999875,
+          20.43333400000006,
+          23.34575000000018,
+          19.833708000000115,
+          19.307833000000073,
+          19.280958000000055,
+          19.326958000000104,
+          19.33349999999973,
+          19.25316699999985,
+          19.147249999999985,
+          19.558665999999903,
+          19.224833000000217,
+          20.233291999999892,
+          19.31270799999993,
+          19.280083000000104
+        ],
+        "listCpuSamples": [
+          21.818,
+          20.511,
+          32.126,
+          19.818,
+          19.319,
+          19.292,
+          19.337,
+          19.344,
+          19.265,
+          19.157,
+          19.572,
+          19.235,
+          19.706,
+          19.323,
+          19.291
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 717373440,
+        "heapTotal": 178733056,
+        "heapUsed": 38187224,
+        "external": 15102046,
+        "arrayBuffers": 7587075
+      },
+      "memoryAfterReads": {
+        "rss": 704806912,
+        "heapTotal": 161972224,
+        "heapUsed": 24989432,
+        "external": 10221370,
+        "arrayBuffers": 7587075
+      },
+      "retainedHeapDeltaBytes": -13197792,
+      "retainedExternalDeltaBytes": -4880676,
+      "peakHeapUsed": 184205968,
+      "peakExternal": 10226138,
+      "peakRssBytes": 925499392,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 21159936,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 21159936
+      },
+      "verifiedEntityKinds": 26,
+      "entityHashes": {
+        "action": "e6ca606c7c6fb431e058f0c3b964e183417dfef9cde4ad129d5315b83dbd58f8",
+        "attempt": "ce28443c6d7eaf3985702cacbdab386e18ada6d94e81c42ee071eb981c9bb1a4",
+        "boundary-exit-episode": "1187a941214b22e11046ac28e8f53aa4eab76be94819f2911927357d9422d7b9",
+        "boundary-exit-request": "d3379bdabfd94ef50c241b53ccfc5dcdd030a684d12f1d74b741e0ce60ef6b01",
+        "checkpoint": "0e7cfacffd220c8243381702f339c28f4942297f38cac47f7e05bbbdc1bf0348",
+        "control-classification": "eb5ced3d8e54157ac444d4cfa2701b782b72ec394262a38a795800fe6173629f",
+        "control-classification-request": "b20169d65710b5e4518cad254ae085b53ec3aa89c01c6b549337457d913faa50",
+        "control-review-request": "1ec0641569d092f8b03bc11432a49f8d98f282179eb88dbde0f45222fe16cf1a",
+        "discovery-request": "c467d3563f37455e22a79d046edabc025e2ecaae306663b6549188c2c8e42e49",
+        "evidence-entry": "5047051414df72258e5a45812c8c6400684921298883674fc3d7a558a9a1e576",
+        "evidence-retention": "a56dfbe41a1000ed4110621d568f765fa48bb36c8de29fab58b96b0ba39cb2c8",
+        "exploration-group": "d33fc78e170d22eb8bb36d13848ed09a3e92f23f255d4ec2f3e7e6d854010960",
+        "frontier": "b7e159821c3f5420041da2956388c35ab56e71363911a55f688a5060905bde5f",
+        "hypothesis": "047c64bf618b10d20aae3d2aee7dcd69a68497adb0a32abf1761d20fd5a8b764",
+        "identity": "ca6dc7019d882d910e26d99780256db7925640f8639c68397044ae612a8e23dc",
+        "intervention-snapshot": "a33025b94908422e513399c72e5c0f1dd47f89b2f280b05a598c5ed25560caea",
+        "observation": "44a5cbf9f0c4f97b199a555647e07a42dd3b2d5a0b4d7c23088a1a78efc42402",
+        "page-exploration": "e15acf54e6bdfdc7e303542c5d97156f7d6367b986a50093310162a6c1650b5f",
+        "reach": "f4e59ada21afd965a4bbd51c1b778640bf61c0885854de322ad1d2b7680760d0",
+        "region-review": "f6877048597ec0f3eb17b07c0bfe9c2180e1c699f5e0d8c1469e6b46cfcc1761",
+        "region-review-request": "fe6d85495a65cb460b095b8183b90c3bb14ccc49ee9ad7ee7099690bd79fab7d",
+        "scope": "5a24644cbf62d9dc871851b521fe6a835de8f9e32a2bc03af5ced9faca8dc366",
+        "session": "b262e88a877c95482b5c249e6995ab01c47bec7d9535b7eb4bcf1d6e6cabb7d0",
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f",
+        "transition": "f7112eda7f41fb8412ebf3ffa99eb92ab8a8f100f3a6bbb0995c05ccabc395f6",
+        "visit": "b4fac3f35d3ab580ca77bb7afde9debffe7ce505e9ad2dc18fc736428311f92e"
+      },
+      "observationStats": {
+        "observations": 14,
+        "sharedObservations": 8,
+        "manifestBytes": 1064168,
+        "objects": 1325,
+        "referencedObjects": 1325,
+        "orphanObjects": 0,
+        "objectBytes": 4677679,
+        "referencedObjectBytes": 4677679,
+        "packs": 80,
+        "packedBytes": 286783,
+        "packLogicalBytes": 4677679,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-_t8f3s5z",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/4-nine-states-baseline",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "baseline",
+      "workload": "nine-states",
+      "repetition": 4,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "writeMs": 48.782792,
+      "writeCpuMs": 47.296,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 4030464,
+          "engine.sqlite-wal": 4120032,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 8183264
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 7939339
+      },
+      "compactionMs": 29.371459000000016,
+      "compaction": {
+        "databaseBytesBefore": 4030464,
+        "databaseBytesAfter": 8019968,
+        "walBytesBefore": 4120032,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 8019968,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 8019968
+      },
+      "openMs": 0.7167919999999981,
+      "coldListMs": 18.453292000000033,
+      "coldListCpuMs": 18.466,
+      "hotGetMs": {
+        "p50": 19.282709000000068,
+        "p95": 21.719459000000143,
+        "min": 18.36550000000011,
+        "max": 21.719459000000143
+      },
+      "hotListMs": {
+        "p50": 18.594667000000015,
+        "p95": 22.801583999999934,
+        "min": 18.39395800000011,
+        "max": 22.801583999999934
+      },
+      "hotListCpuMs": {
+        "p50": 18.617,
+        "p95": 31.842,
+        "min": 18.404,
+        "max": 31.842
+      },
+      "samples": {
+        "getSamples": [
+          19.431124999999952,
+          19.578708000000006,
+          18.421291999999994,
+          19.371291000000042,
+          19.477041999999983,
+          18.414999999999964,
+          18.921375000000012,
+          19.39295900000002,
+          18.439125000000104,
+          18.414540999999872,
+          19.337540999999874,
+          18.36550000000011,
+          18.366874999999936,
+          19.282709000000068,
+          21.719459000000143
+        ],
+        "listSamples": [
+          18.594667000000015,
+          19.387499999999932,
+          19.37241700000004,
+          18.615042000000017,
+          18.56058399999995,
+          22.801583999999934,
+          18.520624999999995,
+          18.39395800000011,
+          19.56379199999992,
+          18.501374999999825,
+          18.509709000000157,
+          19.246249999999918,
+          18.410708999999997,
+          18.500541999999996,
+          19.3765420000002
+        ],
+        "listCpuSamples": [
+          18.617,
+          19.421,
+          19.411,
+          18.63,
+          18.57,
+          31.842,
+          18.532,
+          18.404,
+          19.584,
+          18.51,
+          18.519,
+          19.267,
+          18.419,
+          18.509,
+          19.388
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 192528384,
+        "heapTotal": 174014464,
+        "heapUsed": 37549576,
+        "external": 4866150,
+        "arrayBuffers": 2245891
+      },
+      "memoryAfterReads": {
+        "rss": 181420032,
+        "heapTotal": 161972224,
+        "heapUsed": 25634832,
+        "external": 4866190,
+        "arrayBuffers": 2245891
+      },
+      "retainedHeapDeltaBytes": -11914744,
+      "retainedExternalDeltaBytes": 40,
+      "peakHeapUsed": 214384376,
+      "peakExternal": 4866190,
+      "peakRssBytes": 379355136,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 8019968,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 8019968
+      },
+      "verifiedEntityKinds": 1,
+      "entityHashes": {
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f"
+      },
+      "observationStats": {
+        "observations": 0,
+        "sharedObservations": 0,
+        "manifestBytes": 0,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/4-nine-states-new",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "new",
+      "workload": "nine-states",
+      "repetition": 4,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 65952,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 102816
+      },
+      "writeMs": 58.315500000000014,
+      "writeCpuMs": 59.237,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-wal": 655112,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 691976
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 429709
+      },
+      "compactionMs": 3.720957999999996,
+      "compaction": {
+        "databaseBytesBefore": 4096,
+        "databaseBytesAfter": 503808,
+        "walBytesBefore": 655112,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 503808,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 503808
+      },
+      "openMs": 0.7582090000000221,
+      "coldListMs": 19.93762499999997,
+      "coldListCpuMs": 20.62,
+      "hotGetMs": {
+        "p50": 20.52862499999992,
+        "p95": 22.509041000000025,
+        "min": 19.291124999999965,
+        "max": 22.509041000000025
+      },
+      "hotListMs": {
+        "p50": 19.521999999999935,
+        "p95": 23.451041999999916,
+        "min": 19.084749999999985,
+        "max": 23.451041999999916
+      },
+      "hotListCpuMs": {
+        "p50": 19.585,
+        "p95": 32.905,
+        "min": 19.095,
+        "max": 32.905
+      },
+      "samples": {
+        "getSamples": [
+          21.694290999999964,
+          20.55166700000001,
+          19.291124999999965,
+          21.094499999999925,
+          20.604624999999942,
+          20.451999999999998,
+          19.362833000000023,
+          20.52862499999992,
+          21.440207999999984,
+          22.509041000000025,
+          19.412250000000085,
+          19.295417000000043,
+          21.323791999999912,
+          19.444583000000193,
+          19.595125000000053
+        ],
+        "listSamples": [
+          19.50654099999997,
+          20.50087499999995,
+          20.125084000000015,
+          19.521999999999935,
+          19.230625000000032,
+          20.99770799999999,
+          21.214042000000063,
+          19.155250000000024,
+          19.38350000000014,
+          20.13870799999995,
+          20.08333300000004,
+          19.084749999999985,
+          19.273124999999936,
+          23.451041999999916,
+          19.197458000000097
+        ],
+        "listCpuSamples": [
+          19.531,
+          20.617,
+          20.244,
+          19.534,
+          19.24,
+          21.053,
+          21.424,
+          19.166,
+          19.521,
+          20.276,
+          20.261,
+          19.095,
+          19.585,
+          32.905,
+          19.207
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 183156736,
+        "heapTotal": 173228032,
+        "heapUsed": 37649352,
+        "external": 12347556,
+        "arrayBuffers": 2245891
+      },
+      "memoryAfterReads": {
+        "rss": 201932800,
+        "heapTotal": 161185792,
+        "heapUsed": 25742488,
+        "external": 24545772,
+        "arrayBuffers": 2245891
+      },
+      "retainedHeapDeltaBytes": -11906864,
+      "retainedExternalDeltaBytes": 12198216,
+      "peakHeapUsed": 176086432,
+      "peakExternal": 38442304,
+      "peakRssBytes": 358105088,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 503808,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 503808
+      },
+      "verifiedEntityKinds": 1,
+      "entityHashes": {
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f"
+      },
+      "observationStats": {
+        "observations": 0,
+        "sharedObservations": 0,
+        "manifestBytes": 0,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-_t8f3s5z",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/4-full-engine-baseline",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "baseline",
+      "workload": "full-engine",
+      "repetition": 4,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "writeMs": 33.141583999999966,
+      "writeCpuMs": 33.37,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22261760
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 7939339
+      },
+      "compactionMs": 74.93174999999997,
+      "compaction": {
+        "databaseBytesBefore": 22228992,
+        "databaseBytesAfter": 21159936,
+        "walBytesBefore": 0,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 21159936,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 21159936
+      },
+      "openMs": 0.6655839999998534,
+      "coldListMs": 20.67791699999998,
+      "coldListCpuMs": 22.287,
+      "hotGetMs": {
+        "p50": 18.50479100000007,
+        "p95": 22.041291999999885,
+        "min": 18.289124999999785,
+        "max": 22.041291999999885
+      },
+      "hotListMs": {
+        "p50": 19.252333000000363,
+        "p95": 22.941499999999905,
+        "min": 19.208208000000013,
+        "max": 22.941499999999905
+      },
+      "hotListCpuMs": {
+        "p50": 19.264,
+        "p95": 32.077,
+        "min": 19.222,
+        "max": 32.077
+      },
+      "samples": {
+        "getSamples": [
+          19.363417000000027,
+          18.519500000000107,
+          18.447791000000052,
+          18.752250000000004,
+          18.725750000000062,
+          18.37633299999993,
+          18.50479100000007,
+          18.39412500000003,
+          18.315624999999727,
+          18.289124999999785,
+          18.29325000000017,
+          18.314582999999857,
+          22.041291999999885,
+          20.38449999999966,
+          19.872749999999996
+        ],
+        "listSamples": [
+          20.350958999999875,
+          20.987708999999995,
+          22.941499999999905,
+          19.471082999999908,
+          19.24916600000006,
+          19.243791999999985,
+          19.78579200000013,
+          19.25333300000011,
+          19.312167000000045,
+          19.232582999999977,
+          19.249500000000353,
+          19.252333000000363,
+          19.208208000000013,
+          19.25162500000033,
+          19.222499999999854
+        ],
+        "listCpuSamples": [
+          20.401,
+          21.062,
+          32.077,
+          19.482,
+          19.26,
+          19.254,
+          19.808,
+          19.265,
+          19.324,
+          19.245,
+          19.262,
+          19.264,
+          19.222,
+          19.263,
+          19.235
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 711196672,
+        "heapTotal": 177684480,
+        "heapUsed": 38206688,
+        "external": 18640511,
+        "arrayBuffers": 7587075
+      },
+      "memoryAfterReads": {
+        "rss": 700841984,
+        "heapTotal": 161710080,
+        "heapUsed": 24990208,
+        "external": 10221370,
+        "arrayBuffers": 7587075
+      },
+      "retainedHeapDeltaBytes": -13216480,
+      "retainedExternalDeltaBytes": -8419141,
+      "peakHeapUsed": 172273632,
+      "peakExternal": 10226138,
+      "peakRssBytes": 909459456,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 21159936,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 21159936
+      },
+      "verifiedEntityKinds": 26,
+      "entityHashes": {
+        "action": "e6ca606c7c6fb431e058f0c3b964e183417dfef9cde4ad129d5315b83dbd58f8",
+        "attempt": "ce28443c6d7eaf3985702cacbdab386e18ada6d94e81c42ee071eb981c9bb1a4",
+        "boundary-exit-episode": "1187a941214b22e11046ac28e8f53aa4eab76be94819f2911927357d9422d7b9",
+        "boundary-exit-request": "d3379bdabfd94ef50c241b53ccfc5dcdd030a684d12f1d74b741e0ce60ef6b01",
+        "checkpoint": "0e7cfacffd220c8243381702f339c28f4942297f38cac47f7e05bbbdc1bf0348",
+        "control-classification": "eb5ced3d8e54157ac444d4cfa2701b782b72ec394262a38a795800fe6173629f",
+        "control-classification-request": "b20169d65710b5e4518cad254ae085b53ec3aa89c01c6b549337457d913faa50",
+        "control-review-request": "1ec0641569d092f8b03bc11432a49f8d98f282179eb88dbde0f45222fe16cf1a",
+        "discovery-request": "c467d3563f37455e22a79d046edabc025e2ecaae306663b6549188c2c8e42e49",
+        "evidence-entry": "5047051414df72258e5a45812c8c6400684921298883674fc3d7a558a9a1e576",
+        "evidence-retention": "a56dfbe41a1000ed4110621d568f765fa48bb36c8de29fab58b96b0ba39cb2c8",
+        "exploration-group": "d33fc78e170d22eb8bb36d13848ed09a3e92f23f255d4ec2f3e7e6d854010960",
+        "frontier": "b7e159821c3f5420041da2956388c35ab56e71363911a55f688a5060905bde5f",
+        "hypothesis": "047c64bf618b10d20aae3d2aee7dcd69a68497adb0a32abf1761d20fd5a8b764",
+        "identity": "ca6dc7019d882d910e26d99780256db7925640f8639c68397044ae612a8e23dc",
+        "intervention-snapshot": "a33025b94908422e513399c72e5c0f1dd47f89b2f280b05a598c5ed25560caea",
+        "observation": "44a5cbf9f0c4f97b199a555647e07a42dd3b2d5a0b4d7c23088a1a78efc42402",
+        "page-exploration": "e15acf54e6bdfdc7e303542c5d97156f7d6367b986a50093310162a6c1650b5f",
+        "reach": "f4e59ada21afd965a4bbd51c1b778640bf61c0885854de322ad1d2b7680760d0",
+        "region-review": "f6877048597ec0f3eb17b07c0bfe9c2180e1c699f5e0d8c1469e6b46cfcc1761",
+        "region-review-request": "fe6d85495a65cb460b095b8183b90c3bb14ccc49ee9ad7ee7099690bd79fab7d",
+        "scope": "5a24644cbf62d9dc871851b521fe6a835de8f9e32a2bc03af5ced9faca8dc366",
+        "session": "b262e88a877c95482b5c249e6995ab01c47bec7d9535b7eb4bcf1d6e6cabb7d0",
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f",
+        "transition": "f7112eda7f41fb8412ebf3ffa99eb92ab8a8f100f3a6bbb0995c05ccabc395f6",
+        "visit": "b4fac3f35d3ab580ca77bb7afde9debffe7ce505e9ad2dc18fc736428311f92e"
+      },
+      "observationStats": {
+        "observations": 14,
+        "sharedObservations": 8,
+        "manifestBytes": 1064168,
+        "objects": 1325,
+        "referencedObjects": 1325,
+        "orphanObjects": 0,
+        "objectBytes": 4677679,
+        "referencedObjectBytes": 4677679,
+        "packs": 80,
+        "packedBytes": 286783,
+        "packLogicalBytes": 4677679,
+        "fragmentedBytes": 0
+      }
+    },
+    {
+      "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/4-full-engine-new",
+      "stateFile": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/states.json",
+      "snapshot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/state-sqlite-benchmark-nk0d2R/snapshot.sqlite",
+      "mode": "new",
+      "workload": "full-engine",
+      "repetition": 4,
+      "initialDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 4152,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22265912
+      },
+      "migration": [
+        {
+          "cursor": 787,
+          "done": false,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2969061,
+          "logicalBytesAfter": 2969061,
+          "storageBytesBefore": 2969061,
+          "storageBytesAfter": 158734
+        },
+        {
+          "cursor": 1879,
+          "done": false,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2502978,
+          "logicalBytesAfter": 2502978,
+          "storageBytesBefore": 2502978,
+          "storageBytesAfter": 137173
+        },
+        {
+          "cursor": 2901,
+          "done": true,
+          "scanned": 3,
+          "compressed": 3,
+          "logicalBytesBefore": 2467300,
+          "logicalBytesAfter": 2467300,
+          "storageBytesBefore": 2467300,
+          "storageBytesAfter": 133802
+        }
+      ],
+      "migrationMs": 123.98012500000004,
+      "migrationCpuMs": 124.431,
+      "migrationDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 502672,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22764432
+      },
+      "writeMs": 55.969082999999955,
+      "writeCpuMs": 56.179,
+      "activeDisk": {
+        "files": {
+          "engine.sqlite": 22228992,
+          "engine.sqlite-wal": 502672,
+          "engine.sqlite-shm": 32768
+        },
+        "totalBytes": 22764432
+      },
+      "payload": {
+        "rows": 9,
+        "bytes": 429709
+      },
+      "compactionMs": 34.3667089999999,
+      "compaction": {
+        "databaseBytesBefore": 22228992,
+        "databaseBytesAfter": 13643776,
+        "walBytesBefore": 502672,
+        "walBytesAfter": 0
+      },
+      "compactedDisk": {
+        "files": {
+          "engine.sqlite": 13643776,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 13643776
+      },
+      "openMs": 1.0357910000000174,
+      "coldListMs": 21.701499999999896,
+      "coldListCpuMs": 21.835,
+      "hotGetMs": {
+        "p50": 19.814750000000004,
+        "p95": 22.885208000000148,
+        "min": 19.344249999999647,
+        "max": 22.885208000000148
+      },
+      "hotListMs": {
+        "p50": 20.325500000000375,
+        "p95": 23.71612499999992,
+        "min": 19.904999999999745,
+        "max": 23.71612499999992
+      },
+      "hotListCpuMs": {
+        "p50": 20.977,
+        "p95": 32.36,
+        "min": 19.918,
+        "max": 32.36
+      },
+      "samples": {
+        "getSamples": [
+          19.926917000000003,
+          19.642333000000008,
+          19.519208000000162,
+          19.814750000000004,
+          19.390957999999955,
+          19.882082999999966,
+          20.631624999999985,
+          19.429583000000093,
+          19.344249999999647,
+          22.885208000000148,
+          20.89520799999991,
+          20.949749999999767,
+          21.058207999999922,
+          19.538332999999966,
+          19.61033400000042
+        ],
+        "listSamples": [
+          21.516416000000163,
+          21.47270800000001,
+          23.71612499999992,
+          20.325500000000375,
+          21.105583000000024,
+          20.958416999999827,
+          20.0920000000001,
+          19.95224999999982,
+          20.075582999999824,
+          20.237916999999925,
+          20.063540999999987,
+          19.904999999999745,
+          20.952084000000013,
+          20.02212499999996,
+          22.817541999999776
+        ],
+        "listCpuSamples": [
+          22.425,
+          21.599,
+          32.36,
+          20.979,
+          23.012,
+          20.977,
+          20.108,
+          19.963,
+          20.398,
+          20.25,
+          20.075,
+          19.918,
+          21.089,
+          20.033,
+          24.703
+        ]
+      },
+      "memoryBeforeReads": {
+        "rss": 760020992,
+        "heapTotal": 177946624,
+        "heapUsed": 36954440,
+        "external": 30541260,
+        "arrayBuffers": 7587075
+      },
+      "memoryAfterReads": {
+        "rss": 750731264,
+        "heapTotal": 161972224,
+        "heapUsed": 25009560,
+        "external": 26583335,
+        "arrayBuffers": 7587075
+      },
+      "retainedHeapDeltaBytes": -11944880,
+      "retainedExternalDeltaBytes": -3957925,
+      "peakHeapUsed": 150914344,
+      "peakExternal": 49684265,
+      "peakRssBytes": 921731072,
+      "closedDisk": {
+        "files": {
+          "engine.sqlite": 13643776,
+          "engine.sqlite-wal": 0,
+          "engine.sqlite-shm": 0
+        },
+        "totalBytes": 13643776
+      },
+      "verifiedEntityKinds": 26,
+      "entityHashes": {
+        "action": "e6ca606c7c6fb431e058f0c3b964e183417dfef9cde4ad129d5315b83dbd58f8",
+        "attempt": "ce28443c6d7eaf3985702cacbdab386e18ada6d94e81c42ee071eb981c9bb1a4",
+        "boundary-exit-episode": "1187a941214b22e11046ac28e8f53aa4eab76be94819f2911927357d9422d7b9",
+        "boundary-exit-request": "d3379bdabfd94ef50c241b53ccfc5dcdd030a684d12f1d74b741e0ce60ef6b01",
+        "checkpoint": "0e7cfacffd220c8243381702f339c28f4942297f38cac47f7e05bbbdc1bf0348",
+        "control-classification": "eb5ced3d8e54157ac444d4cfa2701b782b72ec394262a38a795800fe6173629f",
+        "control-classification-request": "b20169d65710b5e4518cad254ae085b53ec3aa89c01c6b549337457d913faa50",
+        "control-review-request": "1ec0641569d092f8b03bc11432a49f8d98f282179eb88dbde0f45222fe16cf1a",
+        "discovery-request": "c467d3563f37455e22a79d046edabc025e2ecaae306663b6549188c2c8e42e49",
+        "evidence-entry": "5047051414df72258e5a45812c8c6400684921298883674fc3d7a558a9a1e576",
+        "evidence-retention": "a56dfbe41a1000ed4110621d568f765fa48bb36c8de29fab58b96b0ba39cb2c8",
+        "exploration-group": "d33fc78e170d22eb8bb36d13848ed09a3e92f23f255d4ec2f3e7e6d854010960",
+        "frontier": "b7e159821c3f5420041da2956388c35ab56e71363911a55f688a5060905bde5f",
+        "hypothesis": "047c64bf618b10d20aae3d2aee7dcd69a68497adb0a32abf1761d20fd5a8b764",
+        "identity": "ca6dc7019d882d910e26d99780256db7925640f8639c68397044ae612a8e23dc",
+        "intervention-snapshot": "a33025b94908422e513399c72e5c0f1dd47f89b2f280b05a598c5ed25560caea",
+        "observation": "44a5cbf9f0c4f97b199a555647e07a42dd3b2d5a0b4d7c23088a1a78efc42402",
+        "page-exploration": "e15acf54e6bdfdc7e303542c5d97156f7d6367b986a50093310162a6c1650b5f",
+        "reach": "f4e59ada21afd965a4bbd51c1b778640bf61c0885854de322ad1d2b7680760d0",
+        "region-review": "f6877048597ec0f3eb17b07c0bfe9c2180e1c699f5e0d8c1469e6b46cfcc1761",
+        "region-review-request": "fe6d85495a65cb460b095b8183b90c3bb14ccc49ee9ad7ee7099690bd79fab7d",
+        "scope": "5a24644cbf62d9dc871851b521fe6a835de8f9e32a2bc03af5ced9faca8dc366",
+        "session": "b262e88a877c95482b5c249e6995ab01c47bec7d9535b7eb4bcf1d6e6cabb7d0",
+        "state": "26714bec83d4d67679e48188967b86ce8c0c26d08958f9a09613fe4c9ca7849f",
+        "transition": "f7112eda7f41fb8412ebf3ffa99eb92ab8a8f100f3a6bbb0995c05ccabc395f6",
+        "visit": "b4fac3f35d3ab580ca77bb7afde9debffe7ce505e9ad2dc18fc736428311f92e"
+      },
+      "observationStats": {
+        "observations": 14,
+        "sharedObservations": 8,
+        "manifestBytes": 1064168,
+        "objects": 1325,
+        "referencedObjects": 1325,
+        "orphanObjects": 0,
+        "objectBytes": 4677679,
+        "referencedObjectBytes": 4677679,
+        "packs": 80,
+        "packedBytes": 286783,
+        "packLogicalBytes": 4677679,
+        "fragmentedBytes": 0
+      }
+    }
+  ]
+}

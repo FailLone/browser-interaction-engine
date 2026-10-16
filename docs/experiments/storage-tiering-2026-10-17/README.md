@@ -1,6 +1,6 @@
 # 结构共享、任务压缩与读取对照
 
-存储实现提交：`70b8cb4`；验收脚本修复：`2ff9e4b`。基线：`5696125ea3da0909d2daadfa150fa7ad8e94687e`。开发工作区为 `/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine`，分支 `codex/exploration-layered-refactor`，本轮开始时无未提交差异。原有测试浏览器、服务、任务库及其他工作区没有用于本轮验证。
+初次存储实现：`70b8cb4`；验收脚本修复：`2ff9e4b`、`9daa3af`；中断结算：`a657220`；大型 state 压缩：`91af435`。初次基线：`5696125ea3da0909d2daadfa150fa7ad8e94687e`，state 追加对照基线为 `6630dfa`。开发工作区为 `/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine`，分支 `codex/exploration-layered-refactor`，本轮开始时无未提交差异。原有测试浏览器、服务、任务库及其他工作区没有用于本轮验证。
 
 当前结论是：存储分层的方向有证据支持，收益集中在重复观察与历史任务；不能声称所有写入、读取和内存指标都改善。这次没有修改状态等价、操作对应或覆盖授权规则；共享的是不可变字节，压缩不能代替页面恢复验证。
 
@@ -75,8 +75,53 @@
 - `2ff9e4b` 只修改验收脚本及其测试：改从声明依赖的 workspace 包解析 SQLite；操作候选 key 包含目标，首次／重启采用相同分类；后续变 unknown 会撤销成功统计，结算按最终 attempt 真值重建；实时 executing 与未知分开；计划结算按 occurrence 比较。日志失败不阻断清理，provider 取消有界等待并披露仍在途请求。19/19 离线专项、根项目与 core 类型检查、真实脚本 `--help` 均通过。见 [专项结果](evidence/harness-final/summary.json)。
 - 原来的 80 次协议对照全部执行，源码前后摘要一致：四类正向目标到达 20/20，局部退出偏离与 unknown 均拒绝虚报成功；A/B 输入对应 40/40，价格 100 次跳动的计划及待测增长均为 0。冷重启嵌套分支 5/5，必要重入 15 次、重复叶子执行及无理由重入为 0；unknown 跨重启保留 5/5，重启后没有新会话、动作、恢复或模型请求。续跑协议 JEV 45 次、LLM 0 次。排除计时与版本字段后，行为汇总与上一版 `7ec9665` 完全一致。该对照与完整测试并行，耗时不用于速度结论。见 [80 次汇总](evidence/protocols/summary.json)及[逐字段对照](evidence/protocol-comparison.json)。
 - 独立 archive 的完整构建、公开类型检查、编译后 API 和 Explorer UI 烟测通过；截图已查看。见 [编译验证](evidence/compiled/summary.json)。
-- main 合并及本轮真实 OKX 探索尚未执行。真实验收脚本已经准备，但离线 helper 测试和 fixture 烟测不能替代真实页面结果。
+- main 已快进到 `6630dfa`，确认包含 autonomous-exploration `4857ad5`，见 [合并核对](evidence/main-merge.json)。首轮真实实验已执行，下面单独列出异常；离线 helper 测试和 fixture 烟测不能替代真实页面结果。
 
 后续真实验收必须分别核对恢复返回状态、实际目标操作、历史等价覆盖、新执行、必要重入候选及无进展重试；监测 JEV/LLM、待测范围、数据库/WAL/证据总字节。未知执行、证据损坏、provider 错误或循环触发时暂停并保留原原因，修复后重新验证。任何队列清空、预算耗尽或 `completed` 状态都不能独立证明真实页面穷尽。
 
 验收窗口的 provider／新 session 调用数在入口限制；动作及时间是停止阈值，已开始的整次恢复仍等待结算，超量单列。现有取消契约不能靠临时抛错变成无污染的动作边界中断。操作 key 仍是调度提示，同名共享标识仍可能冲突；没有可靠 key 的成功操作单独披露并暂停无进展启发式，不用它们证明穷尽。
+
+## 真实 OKX 首轮：异常保留，尚未完成
+
+使用与 main 相同的 `6630dfa`，独立目录 `.data/okx-storage-acceptance-20261017-v1`、新 headless 会话和任务库。事件记录到 24 次 JEV 与 1 次 LLM 返回；3 次探索操作和 2 次恢复操作完成。尚未建立真实页面的旧版对照，不能用这些数值宣称提速。
+
+首个恢复服务于弹层内尚未完成操作风险审阅的 `Go to OKX Wallet`，不是已点击的 `announced` 链接。Wallet 的风险及 probe 审阅在导航前已经尝试，缺少可绑定上下文，正确保持 unresolved；没有证据表明导航抢走了应当先做的审阅。具体 click 义务因 `source_target_unverified` 被拒后，无操作类型的风险审阅义务走严格 `reachCheckpoint`。后退及入口重开后，截图证实整个提示弹层未出现，约 17.6 s 后返回 `UNVERIFIED / replay_target_not_unique_or_missing`。回放首个 checkbox 的匹配数是 0；后退观察已经稳定，弹层仍缺失，不能靠放宽稳定性解决。当前没有已观察到却遗漏的确定返弹层路径，也没有依据立即放宽 SDK 到达语义。
+
+只读核对中，5 个 SDK attempts 全部 succeeded（3 探索、2 恢复），没有 unknown/executing；没有 pendingDispatch、unverifiedRecoveries 或 unverifiedNavigations。19 项计划仍有 8 succeeded、10 unresolved、1 pending；Wallet 缺口未被改记成功。失败 route 已保留 `attempts=1 / outcome=unverified`、来源证据和失败原因，证明失败路线及待测范围未丢失，不能据此声称页面穷尽。
+
+人工停止向本轮唯一持有 runner 锁的进程发送 SIGINT；记录出现 `stop.requested`，进程随后以 130 退出，没有 `stop.settled` 或最终 summary。Playwright 的默认 SIGINT 处理会关闭浏览器后主动退出 130，与本轮现象一致；无浏览器的 Node／tsx 子进程对照均能完成异步结算，因此不能归因于 tsx，改为直接 Node 也不能单独消除此风险。脚本新增恢复非成功返回时立即停止，以及带 owner/task/run 校验的 `--request-stop` 控制文件入口，等待在途工作与结算，避免主动发浏览器进程信号。
+
+本轮不能算正常暂停。留下了 task paused、round running、activeSince 未清、累计时长 0 和一条 returned 未应用决策；现有 running-only 启动整理会漏掉这种半暂停状态，直接恢复可能计入停机时间或耗用新的轮次。正在通过通用生命周期修复解决，不能清字段、扩预算或改成功掩盖问题。原库已通过只读 SQLite backup（包含 WAL）及证据文件复制[冻结快照](evidence/real-okx-1/frozen-snapshot.json)，保留[中断记录](evidence/real-okx-1/interruption-summary.json)、完整增量日志和[前后截图](evidence/real-okx-1/screenshot-export.json)。
+
+原库只读检查中，14/14 Observation 精确解码及 SHA 校验通过，1,325 个共享对象、80 个包无缺块、跨会话或孤立对象。稳定同 document 帧可复用 831–836 个对象；导航后的实例变化会触发 gzip 和有界退避。payload 中 state 约 7.94 MB（47.3%）、identity 3.50 MB（20.9%）、action 2.33 MB（13.9%）；Observation 行 1.064 MB，加共享包 0.287 MB。运行遗留的主库及 WAL 不能直接解释为逻辑泄漏；后续优化需依据这些真实占用重新排序。
+
+## 中断结算修复
+
+`a657220` 将启动整理扩展到 running 及有未结算痕迹的 paused/stopped 任务，原子更新原 round occurrence、作废尚未应用的请求/回答并保留审计事件。不改变 pendingDispatch、unknown、unverified navigation/recovery、route 失败债、计划 occurrence 或已消耗的动作/模型用量。正常暂停先保存意图再取消；保存失败也执行取消，但该失败调用不承诺已经 waitIdle。
+
+中断时长只计至最后可信持久活动，未知尾段以 `durationUncertainty` 保留上下界；停机不计作活动，重复重启不重复加时。这里的累计任务时长是下界，不能宣称严格覆盖进程中断前的所有 wall time。当前实验窗口另行计时。为兼容旧压缩头，启动仍逐个解码压缩头以找隐藏 activeSince；不会展开 plan/history。两个部分索引首次创建会扫描历史，后续只取未结算轮次和决策。
+
+84/84 相关测试及根项目/core 类型检查通过，包括暂停写入失败、旧压缩头、事务回滚、未知债、重复重启、停机时间超过预算后实际 start 复用原轮次。真实冻结副本补计 **103,661 ms**、仅将一条 returned 决策改为 stale；19 项计划与原 round occurrence 均保留，第二次重启完全幂等。原冻结文件哈希未变，没有启动浏览器或 provider。见 [专项与源码摘要](evidence/restart-settlement/verification.json)、[真实副本复验](evidence/restart-settlement/frozen-reopen.json)。这不能替代后续真实网页接续。
+
+## 大型 state 压缩追加对照
+
+`91af435` 使用 schema 4：大于等于 32 KiB 且净节省至少 12.5% 的 state 保存为单行 gzip level 3，绑定 SQL kind/id/session、全文 SHA-256 与字节数。小值及不适合压缩的内容保留原文，state 仍允许同 owner 更新。没有新增状态缓存、共享对象或 GC 根，也没有改变状态归并或覆盖语义。旧 plain/gzip/structural 内容可读；真实 `6630dfa` binary 确认拒绝新 schema。
+
+启动只升级 schema，不重写旧 state。显式 `compressStates({sessionId?,cursor?,limit?})` 用游标和原子批次逐条读取/压缩/验证，避免一次保留一批大型原文。压缩释放的是 SQLite 内部空间，显式 compact 才归还文件空间。
+
+同一份真实 OKX 快照，5 轮交替、20 个独立进程；旧版为完整 `6630dfa` archive。最终源码摘要前后相同，26 类实体及 14 个 Observation 的解码摘要全部一致。以下为中位数，不含 capture、浏览器恢复或模型网络：
+
+| 实际 SQLite 工作 | 旧版 | 新版 |
+| --- | ---: | ---: |
+| 完整引擎库，双方整理后 | 21,159,936 B | 13,643,776 B |
+| 全部 state 热 list | 19.414 ms | 20.103 ms |
+| 重开首次 list（未清 OS 缓存） | 20.395 ms | 21.613 ms |
+| 9 次同值 state 更新 | 32.921 ms | 55.639 ms |
+| 新库插入 9 条 state | 47.324 ms | 59.574 ms |
+| 仅这 9 条 state 的关闭后新库 | 8,019,968 B | 503,808 B |
+
+完整库减少约 35.5%，热读取约慢 3.5%，9 次更新约慢 69%。单次额外写入开销约 2.52 ms，不能据此声称整个真实探索提速。9 行历史迁移耗时 120.735 ms，迁移期间 WAL 暂增至 502,672 B。完整 worker 峰值 RSS 911.9→941.6 MB，包括启动、迁移及全库校验；post-GC heap 24.989→25.019 MB，ArrayBuffers 一致。保留所有内存数据与限制，不把峰值差当成独立 codec 或缓存成本。
+
+最终 91 项存储相关测试与类型检查通过；只在临时副本中测试迁移、compact 和旧 binary 拒绝，未使用原测试浏览器或任务库。见 [实现、冻结文件清单与验证](evidence/state-codec-feasibility/implementation.json)、[最终逐进程记录](evidence/state-codec-feasibility/sqlite-2026-10-16T20-35-55-336Z.json)。
+
+追加提交 `91af435` 已重跑相同 80 次协议，源码前后不变；脚本、fixture 与测量参数相同。16 个场景逐 trial 行为与 `70b8cb4` 差异为 0：正向到达 20/20，嵌套冷重启 5/5、必要重入 15、重复叶子与无理由重入 0；unknown 跨重启 5/5，之后没有新 session、动作、恢复或模型调用；实际 A/B/C 输入 30 次、对应检查 40/40；100 tick 的计划/pending 增长仍为 0。新版 348/348 完整性检查通过。该结果证明原受控收益保持，不能证明真实 OKX 穷尽或提速。见 [完整汇总](evidence/restart-state-protocols/summary.json)、[跨版本比较](evidence/restart-state-protocols/comparison.json)与[测试源码到提交对应](evidence/followup-source-verification.json)。

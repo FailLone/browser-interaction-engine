@@ -1,0 +1,33 @@
+{
+  "startedAt": "2026-10-16T20:14:02.249Z",
+  "pid": 65359,
+  "directory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1",
+  "sourceRevision": "6630dfa8f1dae13aba1bd6e8dcd789f0d2dc23b5",
+  "sourceMatchesMain": true,
+  "args": [
+    "exec",
+    "tsx",
+    "--conditions=development",
+    "scripts/okx-storage-acceptance.ts",
+    "--dir",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1",
+    "--url",
+    "https://www.okx.com/convert/usd-to-btc",
+    "--rounds",
+    "2",
+    "--actions",
+    "100",
+    "--model-requests",
+    "1000",
+    "--minutes",
+    "30",
+    "--sample-seconds",
+    "30",
+    "--stall-minutes",
+    "10"
+  ],
+  "providerConfiguration": "Existing provider variables only; database/service variables excluded; values never recorded.",
+  "finishedAt": "2026-10-16T20:15:46.638Z",
+  "exitCode": 130,
+  "signal": null
+}

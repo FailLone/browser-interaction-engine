@@ -1,0 +1,23 @@
+{
+  "at": "2026-10-16T20:38:12.974128+00:00",
+  "tests": 84,
+  "files": 6,
+  "typecheck": "passed root and core",
+  "scope": "No browser/provider; only owned temporary test databases or copied frozen database",
+  "sourceHashes": {
+    "packages/explorer-plugin/src/runtime.ts": "6804a657b333c10e2aba3679de0934c4646b3edc2d3085f4593e7967d6177036",
+    "packages/explorer-plugin/src/store.ts": "ec3f0908502b3db3ebcdc8229193c53c8ff05a5ba2e625df9a7a0cb2711b7ba4",
+    "packages/explorer-plugin/src/types.ts": "7a46568681342bcc73f0ee0abc86260840fad4491bd53efcde358cada212215b",
+    "packages/explorer-plugin/src/task-lifecycle.ts": "1d4998e7356307218e9a87aa302a63fc7ea88026d786345eaef8bbbb75a457f1",
+    "tests/explorer-lifecycle-recovery.test.ts": "276c1dcdf8950cc60a3bfa18843448b662c17a97d90dfe184705166b102ec9d1",
+    "tests/explorer-plugin-sync.test.ts": "55a67a54ec83cc76f9b064a929ac28fe38dcb6a4f0024b5dd2fb8e24e4d5b03c",
+    "tests/explorer-store-normalized.test.ts": "2bd4a13543505115c2af347e11abcbddcb1b1db6232d1469607e56778f3d1c00",
+    "scripts/okx-storage-acceptance.ts": "ef617bc1be220f45313a2ab9468f6b3e6f36ae38fb2e634e334790dd5b7cdf7e",
+    "tests/okx-storage-acceptance.test.ts": "2bbea68f96cf85fff68ea9f07587f7ae64883770fec7a08ff78090ddc3a616ad"
+  },
+  "costs": [
+    "Old packed task headers still decoded at startup; plan/history not assembled",
+    "Partial indexes require one initial historical scan",
+    "After interruption duration is an auditable lower bound with retained uncertainty, not a strict total wall-time guarantee"
+  ]
+}
