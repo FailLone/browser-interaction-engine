@@ -62,7 +62,7 @@ export class ExplorerPlugin {
     const missing=this.capabilities().missing;if(missing.length){task.status='blocked';task.reason=`missing_capability:${missing.join(',')}`;this.persist(task);return task;}
     if(this.host.sessions().some(s=>s.status==='running'))throw new ExplorerError('ENGINE_BUSY');
     this.syncUsage(task);this.checkBudget(task);
-    task.revision++;task.status='running';delete task.reason;task.activeSince=Date.now();
+    task.revision++;task.status='running';delete task.reason;delete task.pauseRequestedAt;task.activeSince=Date.now();
     this.persist(task);const controller=new AbortController();
     const active={task,controller,promise:Promise.resolve()};this.active=active;
     active.promise=this.run(task,controller.signal).finally(()=>{if(this.active===active)this.active=undefined;this.writers.delete(task);});
@@ -70,7 +70,7 @@ export class ExplorerPlugin {
   }
   async pause(id:string,stop=false) {
     const active=this.active?.task.id===id?this.active:undefined;
-    if(active){active.task.status=stop?'stopped':'paused';active.task.revision++;active.controller.abort();this.persist(active.task);await active.promise;}
+    if(active){active.task.status=stop?'stopped':'paused';active.task.reason=stop?'user_stopped':'user_paused';active.task.pauseRequestedAt=Date.now();active.task.revision++;try{this.persist(active.task);}finally{active.controller.abort();}await active.promise;}
     const state=this.store.taskState(id),task=state.task;task.status=stop?'stopped':'paused';task.reason=stop?'user_stopped':'user_paused';
     const round=task.rounds.at(-1);if(round){if(stop)await this.host.stop(round.sessionId);else await this.host.pause(round.sessionId);round.status=stop?'finished':'paused';if(stop)round.endedAt=now();}
     this.persist(task,state.version);this.event(task,stop?'task.stopped':'task.paused',{});return task;
@@ -126,7 +126,7 @@ export class ExplorerPlugin {
   private event(task:Task,type:string,data:unknown){const round=task.rounds.at(-1);let observationId:string|undefined;try{if(round)observationId=this.host.observation(round.sessionId).id;}catch{}return this.store.event({taskId:task.id,type,actor:'program',sessionId:round?.sessionId,observationId,data});}
   private syncUsage(task:Task) {for(const r of task.rounds){let actions:number;try{actions=this.host.session(r.sessionId).actionCount;}catch{continue;/* Missing historical host data remains a recorded gap. */}task.usage.actions+=Math.max(0,actions-r.actions);if(r.actions!==actions){this.changedRound(task,r);r.actions=actions;}}}
   private sessionTimeExhausted(round:Round) {const s=this.host.session(round.sessionId);return s.elapsedMs>=s.options.maxDurationMs;}
-  private elapsed(task:Task){return task.usage.durationMs+(task.activeSince?Date.now()-task.activeSince:0);}
+  private elapsed(task:Task){return task.usage.durationMs+(typeof task.activeSince==='number'?Math.max(0,Date.now()-task.activeSince):0);}
   private checkBudget(task:Task){this.syncUsage(task);if(task.usage.actions>=task.budget.actions||this.elapsed(task)>=task.budget.durationMs)throw new ExplorerError('BUDGET_EXHAUSTED');}
   private assert(task:Task,signal:AbortSignal,observationId?:string,revision=task.revision){if(signal.aborted||task.status!=='running'||task.revision!==revision)throw new ExplorerError('CANCELLED');if(observationId&&this.host.observation(task.rounds.at(-1)!.sessionId).id!==observationId)throw new ExplorerError('STALE_DECISION');this.checkBudget(task);}
   private newItem(x:Pick<PlanItem,'title'|'scope'|'prerequisites'|'completion'|'required'|'reason'>,dispatchScope=true,source?:Pick<Observation,'sessionId'|'id'>,operationConditionKey?:string):PlanItem{return {...x,...(operationConditionKey?{operationConditionKey,operationConditionPolicy}:{}),dispatchScope,id:randomUUID(),status:x.required?'pending':'untested',evidence:source?[{sessionId:source.sessionId,observationId:source.id}]:[],attempts:[]};}
@@ -506,7 +506,7 @@ export class ExplorerPlugin {
         if(task.rounds.length&&task.plan.length&&!serviceFailure&&!code.includes('BUDGET')&&code!=='CONFIGURATION_REQUIRED')this.gap(task,code,{url:task.url});this.event(task,'task.halted',{reason:code});}
     } finally {
       if(!this.writers.get(task)?.conflicted){
-        this.syncUsage(task);if(task.activeSince)task.usage.durationMs+=Date.now()-task.activeSince;delete task.activeSince;
+        this.syncUsage(task);if(typeof task.activeSince==='number')task.usage.durationMs+=Math.max(0,Date.now()-task.activeSince);delete task.activeSince;delete task.pauseRequestedAt;
         const round=task.rounds.at(-1);if(round){try{round.position=observedPosition(this.host.observation(round.sessionId));}catch{/* Missing observation remains unknown. */}if(round.status==='running')round.status='paused';}
         if(task.status==='running')task.status='paused';this.persist(task);
       }

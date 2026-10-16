@@ -80,7 +80,7 @@ it('rolls back restart pausing together with decision invalidation and its event
   db(store).exec("CREATE TRIGGER reject_restart BEFORE UPDATE ON decisions BEGIN SELECT RAISE(ABORT,'restart injected'); END;");store.close();
   expect(()=>new ExplorerStore(path)).toThrow('restart injected');const raw=new DatabaseSync(path);
   try{expect(JSON.parse((raw.prepare('SELECT json FROM tasks').get() as {json:string}).json).status).toBe('running');raw.exec('DROP TRIGGER reject_restart');}finally{raw.close();}
-  const reopened=open(path);expect(reopened.task(t.id).status).toBe('paused');expect(reopened.decisions(t.id)[0].status).toBe('stale');expect(reopened.events(t.id).map(e=>e.type)).toEqual(['decision.stale']);
+  const reopened=open(path);expect(reopened.task(t.id).status).toBe('paused');expect(reopened.decisions(t.id)[0].status).toBe('stale');expect(reopened.events(t.id).map(e=>e.type)).toEqual(['decision.stale','task.recovered']);
 });
 
 function legacy(path:string,values:Task[]){const raw=new DatabaseSync(path);raw.exec('CREATE TABLE explorer_meta(version INTEGER NOT NULL); INSERT INTO explorer_meta VALUES(1); CREATE TABLE tasks(id TEXT PRIMARY KEY,json TEXT NOT NULL);');for(const t of values)raw.prepare('INSERT INTO tasks VALUES(?,?)').run(t.id,JSON.stringify(t));return raw;}

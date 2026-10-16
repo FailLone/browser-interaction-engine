@@ -41,7 +41,7 @@ it('journals restart invalidation so an existing event cursor sees old decisions
  const dir=mkdtempSync(join(tmpdir(),'explorer-sync-')),file=join(dir,'plugin.sqlite');let store=new ExplorerStore(file);
  try{
   const t=task();t.status='running';store.save(t);const d=decision(),cursor=changed(store,d).sequence;store.close();store=new ExplorerStore(file);
-  const update=store.updates(t.id,cursor);expect(update.task!.status).toBe('paused');expect(update.task!.usage).toEqual(t.usage);expect(update.decisions).toMatchObject([{id:d.id,status:'stale',reason:'process_restarted'}]);expect(update.events).toMatchObject([{type:'decision.stale',decisionId:d.id}]);
+  const update=store.updates(t.id,cursor);expect(update.task!.status).toBe('paused');expect(update.task!.usage).toEqual(t.usage);expect(update.decisions).toMatchObject([{id:d.id,status:'stale',reason:'process_restarted'}]);expect(update.events).toMatchObject([{type:'decision.stale',decisionId:d.id},{type:'task.recovered'}]);
  }finally{store.close();rmSync(dir,{recursive:true,force:true});}
 });
 

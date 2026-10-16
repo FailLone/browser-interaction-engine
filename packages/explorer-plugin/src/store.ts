@@ -5,6 +5,7 @@ import { randomBytes } from 'node:crypto';
 import { taskDigest as digest, packTaskValue, unpackTaskValue, packTaskRecords, unpackTaskRecords, parseTaskValue, TASK_BLOCK_ITEMS, TASK_BLOCK_BYTES, type PackedTaskValue } from './task-codec.js';
 import type { Decision, ExplorerEvent, Task } from './types.js';
 import { ExplorerError } from './types.js';
+import { settleInterruptedClock } from './task-lifecycle.js';
 
 type TaskRow = { id:string; json:string; version:string; plan_count:number; round_count:number; header_data:Buffer|null; header_hash:string|null; header_size:number|null; header_proof:string };
 type StoredItem = Task['plan'][number]|Task['rounds'][number];
@@ -110,21 +111,40 @@ export class ExplorerStore {
           UPDATE explorer_meta SET version=4;`);
         for(const row of old){this.writeHeader(row.id,row.json,row.version,row.plan_count,row.round_count);this.packCold(row.id,row.round_count,true);}
       }
+      // Existing databases pay one index build. Subsequent restarts inspect
+      // unsettled records without parsing every historical model request.
+      this.db.exec(`CREATE INDEX IF NOT EXISTS decision_unsettled_task ON decisions(task_id) WHERE json_extract(json,'$.status') IN ('requested','returned');
+        CREATE INDEX IF NOT EXISTS task_running_round ON task_items(task_id,position) WHERE kind='rounds' AND status='running';`);
     }).immediate();
-    // Restart work only needs running tasks, not every retained plan/history.
-    for (const {id} of this.db.prepare("SELECT id FROM tasks WHERE json_extract(json,'$.status')='running'").all() as {id:string}[]) {
+    // Older packed headers project only identity/status, so any packed header
+    // can hide an interrupted clock. Decode those headers, never their plan or
+    // historical rounds; new runtime work still reads only changed occurrences.
+    const runningRounds=new Set((this.db.prepare("SELECT DISTINCT task_id FROM task_items INDEXED BY task_running_round WHERE kind='rounds' AND status='running'").all() as {task_id:string}[]).map(row=>row.task_id));
+    const pendingDecisions=new Set((this.db.prepare("SELECT DISTINCT task_id FROM decisions INDEXED BY decision_unsettled_task WHERE json_extract(json,'$.status') IN ('requested','returned') AND EXISTS(SELECT 1 FROM tasks WHERE id=decisions.task_id)").all() as {task_id:string}[]).map(row=>row.task_id));
+    const candidates=new Set([...(this.db.prepare(`SELECT id FROM tasks WHERE header_data IS NOT NULL
+      OR json_extract(json,'$.status')='running' OR json_type(json,'$.activeSince') IS NOT NULL OR json_type(json,'$.pauseRequestedAt') IS NOT NULL`).all() as {id:string}[]).map(row=>row.id),...runningRounds,...pendingDecisions]);
+    for (const id of candidates) {
       this.db.transaction(() => {
       const state = this.taskHeader(id), task = state.header;
-      if (task.activeSince) task.usage.durationMs += Math.max(0, Date.now() - task.activeSince);
-      delete task.activeSince; task.status = 'paused'; task.reason = 'process_restarted'; task.revision++;
-      const round = state.roundCount ? this.taskItems(id,'rounds',{expectedVersion:state.version,afterPosition:state.roundCount-2,limit:1}).items[0] : undefined;
-      if(state.roundCount && !round)throw new ExplorerError('CORRUPT_TASK');
-      if(round?.value.status === 'running')round.value.status='paused';
-      this.applyTaskDelta(id,state.version,{header:task,...(round?{rounds:{update:[{occurrenceId:round.occurrenceId,value:round.value}]}}:{})});
-      for (const d of this.decisions(task.id)) if (d.status === 'requested' || d.status === 'returned') {
+      if(task.status!=='running'&&task.activeSince===undefined&&task.pauseRequestedAt===undefined&&!runningRounds.has(id)&&!pendingDecisions.has(id))return;
+      const roundRows=runningRounds.has(id)?this.statement("SELECT * FROM task_items INDEXED BY task_running_round WHERE task_id=? AND kind='rounds' AND status='running' ORDER BY position").all(id) as ItemRow[]:[];
+      const pending=pendingDecisions.has(id)?(this.statement("SELECT json FROM decisions INDEXED BY decision_unsettled_task WHERE task_id=? AND json_extract(json,'$.status') IN ('requested','returned') ORDER BY rowid").all(id) as {json:string}[]).map(row=>JSON.parse(row.json) as Decision):[];
+      const prior={status:task.status,reason:task.reason,revision:task.revision,activeSince:task.activeSince,pauseRequestedAt:task.pauseRequestedAt};
+      const lastEvent=this.statement('SELECT sequence,json FROM events WHERE task_id=? ORDER BY sequence DESC LIMIT 1').get(id) as {sequence:number;json:string}|undefined;
+      const activity=[...(lastEvent?[{source:`event:${lastEvent.sequence}`,at:Date.parse((JSON.parse(lastEvent.json) as ExplorerEvent).at)}]:[]),
+        ...pending.map(d=>({source:`decision:${d.id}`,at:Date.parse(d.startedAt)+(typeof d.elapsedMs==='number'&&d.elapsedMs>=0?d.elapsedMs:0)}))];
+      const duration=settleInterruptedClock(task,Date.now(),activity,task.status==='running'||roundRows.length>0||task.pauseRequestedAt!==undefined);
+      if(task.status==='running'){task.status='paused';task.reason='process_restarted';}task.revision++;
+      const cache=new Map<number,ChunkEntry[]>(),rounds=roundRows.map(row=>{
+        if(row.position>=state.roundCount)throw new ExplorerError('CORRUPT_TASK');
+        const value=this.readItem(row,cache,true) as Task['rounds'][number];value.status='paused';return {occurrenceId:row.occurrence_id,value};
+      });
+      this.applyTaskDelta(id,state.version,{header:task,...(rounds.length?{rounds:{update:rounds}}:{})});
+      for (const d of pending) {
         d.status = 'stale'; d.reason = 'process_restarted'; this.decision(d);
         this.event({taskId:task.id,actor:d.actor,type:'decision.stale',sessionId:d.sessionId,observationId:d.observationId,decisionId:d.id,data:{reason:d.reason}});
       }
+      this.event({taskId:task.id,actor:'program',type:'task.recovered',data:{reason:'process_restarted',prior,duration,pausedRoundIds:rounds.map(round=>round.value.id),staleDecisionIds:pending.map(d=>d.id),unknownOutcomesRetained:true,executionAuthorized:false}});
       }).immediate();
     }
     } catch (error) { this.db.close(); throw error; }

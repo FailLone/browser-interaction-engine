@@ -86,6 +86,12 @@ export interface Task {
   id: string; goal: string; url: string; createdAt: string; updatedAt: string; revision: number;
   scopeMigrationIndex?:ScopeMigrationIndex;
   status: TaskStatus; reason?: string; budget: Budget; usage: Budget; activeSince?: number;
+  /** Durable stop intent, recorded before awaiting in-flight work; not a settled time. */
+  pauseRequestedAt?: number;
+  /** Crash recovery charges only through persisted activity. Additional active
+   * duration is in [0, additionalMsUpperBound]; null means no trustworthy bound.
+   * Budgets use usage.durationMs, a lower bound, not a strict wall-time guarantee. */
+  durationUncertainty?: { interruptions: number; additionalMsUpperBound: number | null; budgetBasis: 'persisted-activity-lower-bound' };
   sessionOptions: Partial<SessionOptions>; plan: PlanItem[]; rounds: Round[];
   obligations?: ObligationProjection;
   routeRetries?: RouteRetryLedger;
