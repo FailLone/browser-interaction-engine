@@ -1,0 +1,34 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/recovery-route-alternatives.test.ts > reaches target through another recorded route after a known no-op 1779ms
+ ✓ tests/recovery-route-alternatives.test.ts > reaches checkpoint through another recorded route after a known no-op 1593ms
+ ✓ tests/recovery-route-alternatives.test.ts > replans target from the actual intermediate menu without reopening its successful prefix 1904ms
+ ✓ tests/recovery-route-alternatives.test.ts > replans checkpoint from the actual intermediate menu without reopening its successful prefix 2086ms
+ ✓ tests/recovery-route-alternatives.test.ts > does not physically retry the same failed operation through duplicate successful historical proofs 2005ms
+ ✓ tests/recovery-route-alternatives.test.ts > keeps the session action budget across alternative route plans 1459ms
+ ✓ tests/recovery-route-alternatives.test.ts > does not try an alternate route when a dispatched result is unknown 1275ms
+ ✓ tests/recovery-route-alternatives.test.ts > does not turn an unavailable replay permission into an alternate route 1413ms
+ ✓ tests/recovery-route-alternatives.test.ts > bounds recovery alternatives and preserves unreachable work without reopening entry 3035ms
+ ✓ tests/navigation-return.test.ts > returns to a known native GET entry without replaying a nonreplayable prefix, including forward history 1474ms
+ ✓ tests/navigation-return.test.ts > continues original-page control work through native return without claiming checkpoint equality 1270ms
+ ✓ tests/navigation-return.test.ts > does not turn reaching the same URL into proof that the original state was restored 1185ms
+ ✓ tests/navigation-return.test.ts > uses the exact native entry when multiple history entries share a URL 971ms
+ ✓ tests/navigation-return.test.ts > rejects a stale native history pointer even when URL and DOM remain unchanged 716ms
+ ✓ tests/navigation-return.test.ts > never revisits a POST result through native history, even when the post was outside the engine 1146ms
+ ✓ tests/navigation-return.test.ts > respects dirty restrictions on native return 1116ms
+ ✓ tests/navigation-return.test.ts > respects excluded restrictions on native return 872ms
+ ✓ tests/navigation-return.test.ts > does not use a history entry from a replaced browser session 917ms
+ ✓ tests/navigation-return.test.ts > exits a boundary that appears on native return before continuing checkpoint recovery 1271ms
+ ✓ tests/navigation-return.test.ts > reports an unverified return honestly even when the history action itself succeeded 884ms
+ ✓ tests/input-reachability.test.ts > blocks 'fill' outside the reachable scroll area and revalidates after revealing it 722ms
+ ✓ tests/input-reachability.test.ts > blocks 'select' outside the reachable scroll area and revalidates after revealing it 632ms
+ ✓ tests/input-reachability.test.ts > continues to fill an ordinary below-fold field reachable by document scrolling 452ms
+ ✓ tests/explorer-scope-source-recovery.test.ts > recovers unique retained peer sources once without changing execution, original scopes or authority 327ms
+ ✓ tests/explorer-scope-source-recovery.test.ts > keeps absent, ambiguous, user-authorized and unavailable sources unresolved 244ms
+
+ Test Files  4 passed (4)
+      Tests  25 passed (25)
+   Start at  01:06:29
+   Duration  33.28s (transform 555ms, setup 0ms, collect 1.97s, tests 30.75s, environment 0ms, prepare 135ms)
+

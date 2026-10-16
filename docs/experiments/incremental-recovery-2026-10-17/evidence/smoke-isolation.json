@@ -1,0 +1,13 @@
+{
+  "temporaryCwd": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-incremental-built-smoke-g3w6l9fp",
+  "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "purpose": "compiled API/public type/UI smoke; only owned fixture resources; no live task database",
+  "createdByThisTurn": true,
+  "realTemporaryCwd": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-incremental-built-smoke-g3w6l9fp",
+  "retainedReports": [
+    "final-built-smoke.json",
+    "final-explorer-smoke.json",
+    "final-explorer-dashboard.png"
+  ],
+  "temporaryDirectoryRemoved": true
+}

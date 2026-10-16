@@ -1,0 +1,90 @@
+{
+  "01-conditions.log": {
+    "bytes": 10566,
+    "sha256": "e8d3a8b16a2ab7093a4171eadcb8fcde6c18b5939ed11f478e7f562fd2456028"
+  },
+  "02-continuation.log": {
+    "bytes": 13620,
+    "sha256": "f1557807b35148450123b8d9a1a82543bfc65ab986c914ad77d4bedc9bfa8245"
+  },
+  "03-input-identity.log": {
+    "bytes": 49530,
+    "sha256": "d947fb4fb1dc9dcf8c1a4fb7c2e0e67a86d84431f1bed2c457ed30edf578b0a0"
+  },
+  "04-recovery.log": {
+    "bytes": 1149,
+    "sha256": "ea5cd822cfcd3db04ff58b1caa2db0aa03ff96d3a56a4dd996710c0d533ef052"
+  },
+  "05-recovery.log": {
+    "bytes": 1139,
+    "sha256": "bc4e359e4c6463ed1b4b29a988ca946d7461ad4b0417ed3065c6a1c5558ec797"
+  },
+  "06-recovery.log": {
+    "bytes": 1150,
+    "sha256": "106e3a09a0f795b8f5d402816a1f08c14a82bcbbc420aa985e7b96cc21087c82"
+  },
+  "07-recovery.log": {
+    "bytes": 1149,
+    "sha256": "db4b0d8d98cde5f89e625047ed1f1f583db7fe7d0525cb285db5e3582acb6d28"
+  },
+  "08-recovery.log": {
+    "bytes": 1149,
+    "sha256": "18487ea44f209385ff27b6ca5f843f640c60f04eb273cd4f5bbb677b60cbaa5f"
+  },
+  "commands.json": {
+    "bytes": 6655,
+    "sha256": "e97015c52ae35d8924cf9ab148a8d5795421fb4d393f271f46f1698440908c92"
+  },
+  "comparison.json": {
+    "bytes": 1675,
+    "sha256": "15a8a821ad56a4060ab288c31b3c282c90370247b4f16b88c88a83e8beebdb14"
+  },
+  "conditions.json": {
+    "bytes": 1249969,
+    "sha256": "d7f8cf7a849cdd265bacea03941e9fa0da0a722397aaf438157ad71fe403042f"
+  },
+  "continuation.json": {
+    "bytes": 1045003,
+    "sha256": "04def1ad6e32f15b8ec7dbffa35d905d02f0857b8eb59df5e00c76e003e97ee0"
+  },
+  "input-identity.json": {
+    "bytes": 78649,
+    "sha256": "de05665b468f4e453bcca85fe38bdbf68050294b576bebeafeaa49f3fdedcd6b"
+  },
+  "recovery-refactor-r1.json": {
+    "bytes": 64517,
+    "sha256": "f4edaee3fb1c0be5a4985bd7449356e3b1323301831696f6c040c96c9bdf372f"
+  },
+  "recovery-refactor-r2.json": {
+    "bytes": 64507,
+    "sha256": "a6769672533a0017ef3d05ef6ffde6927df905aab3aed19510a5ab91e1c024a8"
+  },
+  "recovery-refactor-r3.json": {
+    "bytes": 64518,
+    "sha256": "f9268c2938abbb35ca0fe36e58bc703c66fa03b135d2048f5897398ab44458a4"
+  },
+  "recovery-refactor-r4.json": {
+    "bytes": 64620,
+    "sha256": "edff8357d6c4add023ce6cef5f1697445dbb439a3d00d20d1c264afd0a8e0005"
+  },
+  "recovery-refactor-r5.json": {
+    "bytes": 64723,
+    "sha256": "f805136fe7208181a73361cfc28a82dc8a795dec49668e14dd6d1860b2199692"
+  },
+  "source-after.json": {
+    "bytes": 68768,
+    "sha256": "3373f8e19b30f62de3b33d145684c306af2dacad7f4752215bdbf2bf4b253860"
+  },
+  "source-before.json": {
+    "bytes": 69635,
+    "sha256": "b532cd8a27030ec8e9106208aaffad9fe9aaa11b2c8f186c4e82be34b27a3dc6"
+  },
+  "source-only-identity.json": {
+    "bytes": 37754,
+    "sha256": "3085cf019a0a84b11fd04241f99c4b739ad26b8e9201301b69520f5946ee5f4a"
+  },
+  "summary.json": {
+    "bytes": 8147,
+    "sha256": "a7da8eb9ebc663d381a08eb0c01eb5cd3786e212930e22bbbc03fc1f25d41ea8"
+  }
+}

@@ -1,0 +1,172 @@
+[
+  {
+    "index": 1,
+    "name": "conditions",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-conditions.ts",
+      "--revision=075b3fc03c7b446795bf4f792c2495608d52bcdc",
+      "--output=/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/incremental-recovery-2026-10-17/evidence/after/conditions.json",
+      "--runs=5",
+      "--ticks=100"
+    ],
+    "startedAtEpoch": 1792170772.450262,
+    "elapsedSeconds": 99.68651008605957,
+    "exitCode": 0,
+    "log": "01-conditions.log"
+  },
+  {
+    "index": 2,
+    "name": "continuation",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-continuation.ts",
+      "--label",
+      "after-final",
+      "--revision",
+      "075b3fc03c7b446795bf4f792c2495608d52bcdc",
+      "--repeats",
+      "5",
+      "--out",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/incremental-recovery-2026-10-17/evidence/after/continuation.json"
+    ],
+    "startedAtEpoch": 1792170872.137249,
+    "elapsedSeconds": 28.03760313987732,
+    "exitCode": 0,
+    "log": "02-continuation.log"
+  },
+  {
+    "index": 3,
+    "name": "input-identity",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-input-identity.ts",
+      "--revision",
+      "075b3fc03c7b446795bf4f792c2495608d52bcdc",
+      "--runs",
+      "5",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/incremental-recovery-2026-10-17/evidence/after/input-identity.json"
+    ],
+    "startedAtEpoch": 1792170900.175282,
+    "elapsedSeconds": 6.890286922454834,
+    "exitCode": 0,
+    "log": "03-input-identity.log"
+  },
+  {
+    "index": 4,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "075b3fc03c7b446795bf4f792c2495608d52bcdc",
+      "--replicate",
+      "1",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/incremental-recovery-2026-10-17/evidence/after/recovery-refactor-r1.json"
+    ],
+    "startedAtEpoch": 1792170907.0660422,
+    "elapsedSeconds": 10.133327722549438,
+    "exitCode": 0,
+    "log": "04-recovery.log"
+  },
+  {
+    "index": 5,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "075b3fc03c7b446795bf4f792c2495608d52bcdc",
+      "--replicate",
+      "2",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/incremental-recovery-2026-10-17/evidence/after/recovery-refactor-r2.json"
+    ],
+    "startedAtEpoch": 1792170917.199817,
+    "elapsedSeconds": 10.226010084152222,
+    "exitCode": 0,
+    "log": "05-recovery.log"
+  },
+  {
+    "index": 6,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "075b3fc03c7b446795bf4f792c2495608d52bcdc",
+      "--replicate",
+      "3",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/incremental-recovery-2026-10-17/evidence/after/recovery-refactor-r3.json"
+    ],
+    "startedAtEpoch": 1792170927.426304,
+    "elapsedSeconds": 10.396978855133057,
+    "exitCode": 0,
+    "log": "06-recovery.log"
+  },
+  {
+    "index": 7,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "075b3fc03c7b446795bf4f792c2495608d52bcdc",
+      "--replicate",
+      "4",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/incremental-recovery-2026-10-17/evidence/after/recovery-refactor-r4.json"
+    ],
+    "startedAtEpoch": 1792170937.823808,
+    "elapsedSeconds": 10.397178173065186,
+    "exitCode": 0,
+    "log": "07-recovery.log"
+  },
+  {
+    "index": 8,
+    "name": "recovery",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/cli.mjs",
+      "--conditions=development",
+      "scripts/verify-exploration-recovery.ts",
+      "--variant",
+      "refactor",
+      "--revision",
+      "075b3fc03c7b446795bf4f792c2495608d52bcdc",
+      "--replicate",
+      "5",
+      "--output",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/incremental-recovery-2026-10-17/evidence/after/recovery-refactor-r5.json"
+    ],
+    "startedAtEpoch": 1792170948.221528,
+    "elapsedSeconds": 10.566690921783447,
+    "exitCode": 0,
+    "log": "08-recovery.log"
+  }
+]

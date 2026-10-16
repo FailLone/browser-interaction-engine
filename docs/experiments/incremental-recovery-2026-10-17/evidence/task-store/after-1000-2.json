@@ -1,0 +1,54 @@
+{
+  "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "fixtureHash": "bf788e3964c690ccfe2789d66f9815d8cfdedc07351614a7d15e260c36d6c324",
+  "count": 1000,
+  "iterations": 40,
+  "polls": 500,
+  "node": "v24.22.0",
+  "saves": {
+    "count": 40,
+    "totalMs": 98.59679400000012,
+    "medianMs": 2.295000000000016,
+    "maxMs": 3.4071670000000154,
+    "cpuMs": 107.133
+  },
+  "idle": {
+    "count": 500,
+    "totalMs": 13.618546999999921,
+    "medianMs": 0.02358300000000213,
+    "maxMs": 0.9564580000000262,
+    "cpuMs": 15.06
+  },
+  "reads": {
+    "count": 30,
+    "totalMs": 90.88487900000001,
+    "medianMs": 2.8836669999999742,
+    "maxMs": 4.801209,
+    "cpuMs": 99.884
+  },
+  "coldReadMs": 3.3564999999999827,
+  "initialBytes": {
+    "database": 757760,
+    "wal": 0,
+    "sharedMemory": 32768,
+    "total": 790528
+  },
+  "afterWrites": {
+    "database": 757760,
+    "wal": 329632,
+    "sharedMemory": 32768,
+    "total": 1120160
+  },
+  "closedBytes": {
+    "database": 757760,
+    "wal": 0,
+    "sharedMemory": 0,
+    "total": 757760
+  },
+  "walPolicy": {
+    "autocheckpointPages": 1000,
+    "initialCheckpoint": true,
+    "finalCloseCheckpointsWal": true
+  },
+  "scope": "task persistence microbenchmark, not browser end-to-end performance; no VACUUM"
+}

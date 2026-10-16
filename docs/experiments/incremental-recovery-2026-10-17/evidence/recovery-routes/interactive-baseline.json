@@ -1,0 +1,84 @@
+{
+  "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/recovery-route-baseline-1synolvw",
+  "node": "v24.22.0",
+  "engineSha256": "445ac6f8d3639e1158525c5d4b2fe5076777b905af50957635cf0fed4fc0e892",
+  "runnerSha256": "ba118d046e1b0c15ac3c1820a323f6724bddf942ea059b71d8565e50ba83cc67",
+  "summary": {
+    "cases": 4,
+    "arrived": 0,
+    "independentlyInteractive": 0,
+    "errors": 0
+  },
+  "results": [
+    {
+      "nested": false,
+      "mode": "target",
+      "recoveryMs": 390.40316700000017,
+      "status": "UNREACHABLE",
+      "reason": "target_not_reached",
+      "recoveryAttemptLabels": [
+        "Route 0"
+      ],
+      "routeClicks": [
+        0
+      ],
+      "openClicks": 0,
+      "amountAttemptsBeforeFill": 0,
+      "arrived": false,
+      "interactive": false
+    },
+    {
+      "nested": false,
+      "mode": "checkpoint",
+      "recoveryMs": 392.52075000000013,
+      "status": "UNREACHABLE",
+      "reason": "replay_state_diverged",
+      "recoveryAttemptLabels": [
+        "Route 0"
+      ],
+      "routeClicks": [
+        0
+      ],
+      "openClicks": 0,
+      "amountAttemptsBeforeFill": 0,
+      "arrived": false,
+      "interactive": false
+    },
+    {
+      "nested": true,
+      "mode": "target",
+      "recoveryMs": 605.2693330000002,
+      "status": "UNREACHABLE",
+      "reason": "target_not_reached",
+      "recoveryAttemptLabels": [
+        "Open routes",
+        "Route 0"
+      ],
+      "routeClicks": [
+        0
+      ],
+      "openClicks": 1,
+      "amountAttemptsBeforeFill": 0,
+      "arrived": false,
+      "interactive": false
+    },
+    {
+      "nested": true,
+      "mode": "checkpoint",
+      "recoveryMs": 548.108792,
+      "status": "UNREACHABLE",
+      "reason": "replay_state_diverged",
+      "recoveryAttemptLabels": [
+        "Open routes",
+        "Route 0"
+      ],
+      "routeClicks": [
+        0
+      ],
+      "openClicks": 1,
+      "amountAttemptsBeforeFill": 0,
+      "arrived": false,
+      "interactive": false
+    }
+  ]
+}

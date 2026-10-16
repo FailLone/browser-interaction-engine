@@ -1,0 +1,112 @@
+{
+  "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "node": "v24.22.0",
+  "engineSha256": "bb0fc0a15adb38d907987822ebab4caec71b0cb39be647699fc6ce271b5cded9",
+  "runnerSha256": "ba118d046e1b0c15ac3c1820a323f6724bddf942ea059b71d8565e50ba83cc67",
+  "summary": {
+    "cases": 4,
+    "arrived": 4,
+    "independentlyInteractive": 4,
+    "errors": 0
+  },
+  "results": [
+    {
+      "nested": false,
+      "mode": "target",
+      "recoveryMs": 612.2074590000002,
+      "status": "TARGET_REACHED",
+      "reason": "Recorded path verification: TARGET_REACHED",
+      "recoveryAttemptLabels": [
+        "Route 0",
+        "Route 1"
+      ],
+      "routeClicks": [
+        0,
+        1
+      ],
+      "openClicks": 0,
+      "amountAttemptsBeforeFill": 0,
+      "arrived": true,
+      "interactive": true,
+      "fillStatus": "succeeded",
+      "domValue": "42",
+      "inputEvents": [
+        "42"
+      ]
+    },
+    {
+      "nested": false,
+      "mode": "checkpoint",
+      "recoveryMs": 606.425917,
+      "status": "REACHED_VERIFIED",
+      "reason": "Recorded path verification: REACHED_VERIFIED",
+      "recoveryAttemptLabels": [
+        "Route 0",
+        "Route 1"
+      ],
+      "routeClicks": [
+        0,
+        1
+      ],
+      "openClicks": 0,
+      "amountAttemptsBeforeFill": 0,
+      "arrived": true,
+      "interactive": true,
+      "fillStatus": "succeeded",
+      "domValue": "42",
+      "inputEvents": [
+        "42"
+      ]
+    },
+    {
+      "nested": true,
+      "mode": "target",
+      "recoveryMs": 707.3109169999998,
+      "status": "TARGET_REACHED",
+      "reason": "Recorded path verification: TARGET_REACHED",
+      "recoveryAttemptLabels": [
+        "Open routes",
+        "Route 0",
+        "Route 1"
+      ],
+      "routeClicks": [
+        0,
+        1
+      ],
+      "openClicks": 1,
+      "amountAttemptsBeforeFill": 0,
+      "arrived": true,
+      "interactive": true,
+      "fillStatus": "succeeded",
+      "domValue": "42",
+      "inputEvents": [
+        "42"
+      ]
+    },
+    {
+      "nested": true,
+      "mode": "checkpoint",
+      "recoveryMs": 714.4080830000003,
+      "status": "REACHED_VERIFIED",
+      "reason": "Recorded path verification: REACHED_VERIFIED",
+      "recoveryAttemptLabels": [
+        "Open routes",
+        "Route 0",
+        "Route 1"
+      ],
+      "routeClicks": [
+        0,
+        1
+      ],
+      "openClicks": 1,
+      "amountAttemptsBeforeFill": 0,
+      "arrived": true,
+      "interactive": true,
+      "fillStatus": "succeeded",
+      "domValue": "42",
+      "inputEvents": [
+        "42"
+      ]
+    }
+  ]
+}

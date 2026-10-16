@@ -1,0 +1,979 @@
+{
+  "protocol": "evidence-chunking-v1",
+  "baselineCommit": "075b3fc03c7b446795bf4f792c2495608d52bcdc",
+  "baselineSourceSha256": "e433ae208e7a6655bb3f27e97995b5a9e4c330fba920d4e125351c5c93065be1",
+  "currentSourceSha256": "88f8a3baebc9dd1695e1689f974ed107a4f188bf01865c43fdc6fa33936e1f14",
+  "chunkerSourceSha256": "1f9f647448311c78839dbb620127d9b787f23d49d232cf5b389cfa5c293aef77",
+  "node": "v24.22.0",
+  "repetitions": 3,
+  "workloads": [
+    {
+      "name": "price-and-list-insertion",
+      "mediaType": "application/json",
+      "captures": 12,
+      "inputBytes": 8928921,
+      "inputSha256": "9ab376b2cfd6a66e138f861664d8afbdb780eba55b23ae583a8ae9cd6800f154"
+    },
+    {
+      "name": "identical-json",
+      "mediaType": "application/json",
+      "captures": 12,
+      "inputBytes": 8925444,
+      "inputSha256": "2583c4ffe1d0b824ea1df7526cd78fbdcf497f587761edad34ed231f27d10ea7"
+    },
+    {
+      "name": "full-price-churn",
+      "mediaType": "application/json",
+      "captures": 12,
+      "inputBytes": 9051804,
+      "inputSha256": "0c6736969256ac637f71e440cd27d8fae39aa5652ba4c05c05dd3d68c4e8df56"
+    },
+    {
+      "name": "incompressible-text",
+      "mediaType": "text/plain",
+      "captures": 12,
+      "inputBytes": 8388624,
+      "inputSha256": "9290eca32b3e35b6ee30a19eacc87c642d0b98c91a18a05892029d99f8f4d02a"
+    },
+    {
+      "name": "binary-control",
+      "mediaType": "image/png",
+      "captures": 12,
+      "inputBytes": 6291456,
+      "inputSha256": "bd6fe9f6e55a3e854533089f0e0498e120128280756f02a21fedbb468bd0e044"
+    }
+  ],
+  "measurement": "Temporary real SQLite DB, WAL, shared-memory, evidence manifests and blobs. File sizes and allocated blocks separately reported; no production DB, browser or service. No observation compression change. Synthetic DOM-shaped data, not a live-site performance claim.",
+  "runs": [
+    {
+      "repetition": 0,
+      "mode": "baseline",
+      "workload": "price-and-list-insertion",
+      "frames": 12,
+      "writeMs": 347.82337499999994,
+      "writeCpuMs": 381.95,
+      "warmReadMs": 179.64125000000013,
+      "restartReadMs": 178.52779099999998,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 104964,
+        "blobBytes": 717011,
+        "files": 522,
+        "fileBytes": 1097831,
+        "allocatedBytes": 2502656
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 104964,
+        "blobBytes": 717011,
+        "files": 520,
+        "fileBytes": 891607,
+        "allocatedBytes": 2293760
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 0,
+      "mode": "new",
+      "workload": "price-and-list-insertion",
+      "frames": 12,
+      "writeMs": 238.00766599999997,
+      "writeCpuMs": 251.434,
+      "warmReadMs": 159.3615420000001,
+      "restartReadMs": 154.63791700000002,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 70140,
+        "blobBytes": 106361,
+        "files": 74,
+        "fileBytes": 452357,
+        "allocatedBytes": 618496
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 70140,
+        "blobBytes": 106361,
+        "files": 72,
+        "fileBytes": 246133,
+        "allocatedBytes": 409600
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 0,
+      "mode": "baseline",
+      "workload": "identical-json",
+      "frames": 12,
+      "writeMs": 191.4856249999998,
+      "writeCpuMs": 218.489,
+      "warmReadMs": 174.08045900000025,
+      "restartReadMs": 188.45091700000012,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 104964,
+        "blobBytes": 65045,
+        "files": 61,
+        "fileBytes": 445865,
+        "allocatedBytes": 614400
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 104964,
+        "blobBytes": 65045,
+        "files": 59,
+        "fileBytes": 239641,
+        "allocatedBytes": 405504
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 0,
+      "mode": "new",
+      "workload": "identical-json",
+      "frames": 12,
+      "writeMs": 248.9007919999999,
+      "writeCpuMs": 236.578,
+      "warmReadMs": 170.12012499999992,
+      "restartReadMs": 183.20408300000008,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 69024,
+        "blobBytes": 60415,
+        "files": 45,
+        "fileBytes": 405295,
+        "allocatedBytes": 499712
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 69024,
+        "blobBytes": 60415,
+        "files": 43,
+        "fileBytes": 199071,
+        "allocatedBytes": 290816
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 0,
+      "mode": "baseline",
+      "workload": "full-price-churn",
+      "frames": 12,
+      "writeMs": 371.049583,
+      "writeCpuMs": 432.238,
+      "warmReadMs": 198.52654099999972,
+      "restartReadMs": 212.74683300000015,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 107196,
+        "blobBytes": 923247,
+        "files": 579,
+        "fileBytes": 1306299,
+        "allocatedBytes": 2736128
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 107196,
+        "blobBytes": 923247,
+        "files": 577,
+        "fileBytes": 1100075,
+        "allocatedBytes": 2527232
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 0,
+      "mode": "new",
+      "workload": "full-price-churn",
+      "frames": 12,
+      "writeMs": 365.9388339999996,
+      "writeCpuMs": 407.171,
+      "warmReadMs": 160.52016600000024,
+      "restartReadMs": 156.27833400000054,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 70893,
+        "blobBytes": 868772,
+        "files": 385,
+        "fileBytes": 1215521,
+        "allocatedBytes": 1892352
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 70893,
+        "blobBytes": 868772,
+        "files": 383,
+        "fileBytes": 1009297,
+        "allocatedBytes": 1683456
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 0,
+      "mode": "baseline",
+      "workload": "incompressible-text",
+      "frames": 12,
+      "writeMs": 389.61795900000016,
+      "writeCpuMs": 427.524,
+      "warmReadMs": 217.2221670000008,
+      "restartReadMs": 182.57691700000032,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 98172,
+        "blobBytes": 6327717,
+        "files": 531,
+        "fileBytes": 6701745,
+        "allocatedBytes": 8781824
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 98172,
+        "blobBytes": 6327717,
+        "files": 529,
+        "fileBytes": 6495521,
+        "allocatedBytes": 8572928
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 0,
+      "mode": "new",
+      "workload": "incompressible-text",
+      "frames": 12,
+      "writeMs": 544.0221659999997,
+      "writeCpuMs": 556.327,
+      "warmReadMs": 180.89549999999963,
+      "restartReadMs": 191.1516249999995,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 102930,
+        "blobBytes": 6333287,
+        "files": 557,
+        "fileBytes": 6712073,
+        "allocatedBytes": 7831552
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 102930,
+        "blobBytes": 6333287,
+        "files": 555,
+        "fileBytes": 6505849,
+        "allocatedBytes": 7622656
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 0,
+      "mode": "baseline",
+      "workload": "binary-control",
+      "frames": 12,
+      "writeMs": 216.0756250000004,
+      "writeCpuMs": 246.964,
+      "warmReadMs": 113.33816699999988,
+      "restartReadMs": 105.05433300000004,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 75396,
+        "blobBytes": 6291456,
+        "files": 399,
+        "fileBytes": 6642708,
+        "allocatedBytes": 6668288
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 75396,
+        "blobBytes": 6291456,
+        "files": 397,
+        "fileBytes": 6436484,
+        "allocatedBytes": 6459392
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 0,
+      "mode": "new",
+      "workload": "binary-control",
+      "frames": 12,
+      "writeMs": 213.99033300000065,
+      "writeCpuMs": 226.981,
+      "warmReadMs": 119.82733399999961,
+      "restartReadMs": 130.54212499999994,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 75396,
+        "blobBytes": 6291456,
+        "files": 399,
+        "fileBytes": 6642708,
+        "allocatedBytes": 6668288
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 75396,
+        "blobBytes": 6291456,
+        "files": 397,
+        "fileBytes": 6436484,
+        "allocatedBytes": 6459392
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 1,
+      "mode": "new",
+      "workload": "price-and-list-insertion",
+      "frames": 12,
+      "writeMs": 227.90966600000047,
+      "writeCpuMs": 232.797,
+      "warmReadMs": 148.97979199999918,
+      "restartReadMs": 144.8329159999994,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 70140,
+        "blobBytes": 106361,
+        "files": 74,
+        "fileBytes": 452357,
+        "allocatedBytes": 618496
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 70140,
+        "blobBytes": 106361,
+        "files": 72,
+        "fileBytes": 246133,
+        "allocatedBytes": 409600
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 1,
+      "mode": "baseline",
+      "workload": "price-and-list-insertion",
+      "frames": 12,
+      "writeMs": 292.9411660000005,
+      "writeCpuMs": 346.471,
+      "warmReadMs": 161.3391670000001,
+      "restartReadMs": 163.667875000001,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 104964,
+        "blobBytes": 717011,
+        "files": 522,
+        "fileBytes": 1097831,
+        "allocatedBytes": 2502656
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 104964,
+        "blobBytes": 717011,
+        "files": 520,
+        "fileBytes": 891607,
+        "allocatedBytes": 2293760
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 1,
+      "mode": "new",
+      "workload": "identical-json",
+      "frames": 12,
+      "writeMs": 219.7415000000001,
+      "writeCpuMs": 224.439,
+      "warmReadMs": 143.51258299999972,
+      "restartReadMs": 151.26866700000028,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 69024,
+        "blobBytes": 60415,
+        "files": 45,
+        "fileBytes": 405295,
+        "allocatedBytes": 499712
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 69024,
+        "blobBytes": 60415,
+        "files": 43,
+        "fileBytes": 199071,
+        "allocatedBytes": 290816
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 1,
+      "mode": "baseline",
+      "workload": "identical-json",
+      "frames": 12,
+      "writeMs": 181.96212500000001,
+      "writeCpuMs": 211.985,
+      "warmReadMs": 158.6888340000005,
+      "restartReadMs": 164.2921669999996,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 104964,
+        "blobBytes": 65045,
+        "files": 61,
+        "fileBytes": 445865,
+        "allocatedBytes": 614400
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 104964,
+        "blobBytes": 65045,
+        "files": 59,
+        "fileBytes": 239641,
+        "allocatedBytes": 405504
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 1,
+      "mode": "new",
+      "workload": "full-price-churn",
+      "frames": 12,
+      "writeMs": 348.57787500000086,
+      "writeCpuMs": 365.315,
+      "warmReadMs": 158.31658399999833,
+      "restartReadMs": 154.52437500000087,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 70893,
+        "blobBytes": 868772,
+        "files": 385,
+        "fileBytes": 1215521,
+        "allocatedBytes": 1892352
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 70893,
+        "blobBytes": 868772,
+        "files": 383,
+        "fileBytes": 1009297,
+        "allocatedBytes": 1683456
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 1,
+      "mode": "baseline",
+      "workload": "full-price-churn",
+      "frames": 12,
+      "writeMs": 325.407459,
+      "writeCpuMs": 353.276,
+      "warmReadMs": 189.85345899999993,
+      "restartReadMs": 163.847749999999,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 107196,
+        "blobBytes": 923247,
+        "files": 579,
+        "fileBytes": 1306299,
+        "allocatedBytes": 2736128
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 107196,
+        "blobBytes": 923247,
+        "files": 577,
+        "fileBytes": 1100075,
+        "allocatedBytes": 2527232
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 1,
+      "mode": "new",
+      "workload": "incompressible-text",
+      "frames": 12,
+      "writeMs": 442.45879100000093,
+      "writeCpuMs": 481.504,
+      "warmReadMs": 178.61433300000135,
+      "restartReadMs": 181.5569579999992,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 102930,
+        "blobBytes": 6333287,
+        "files": 557,
+        "fileBytes": 6712073,
+        "allocatedBytes": 7831552
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 102930,
+        "blobBytes": 6333287,
+        "files": 555,
+        "fileBytes": 6505849,
+        "allocatedBytes": 7622656
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 1,
+      "mode": "baseline",
+      "workload": "incompressible-text",
+      "frames": 12,
+      "writeMs": 349.05866699999933,
+      "writeCpuMs": 396.431,
+      "warmReadMs": 190.47629199999938,
+      "restartReadMs": 182.640707999999,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 98172,
+        "blobBytes": 6327717,
+        "files": 531,
+        "fileBytes": 6701745,
+        "allocatedBytes": 8781824
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 98172,
+        "blobBytes": 6327717,
+        "files": 529,
+        "fileBytes": 6495521,
+        "allocatedBytes": 8572928
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 1,
+      "mode": "new",
+      "workload": "binary-control",
+      "frames": 12,
+      "writeMs": 192.85383399999955,
+      "writeCpuMs": 210.042,
+      "warmReadMs": 103.89512500000092,
+      "restartReadMs": 108.12287500000093,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 75396,
+        "blobBytes": 6291456,
+        "files": 399,
+        "fileBytes": 6642708,
+        "allocatedBytes": 6668288
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 75396,
+        "blobBytes": 6291456,
+        "files": 397,
+        "fileBytes": 6436484,
+        "allocatedBytes": 6459392
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 1,
+      "mode": "baseline",
+      "workload": "binary-control",
+      "frames": 12,
+      "writeMs": 192.66291699999965,
+      "writeCpuMs": 189.783,
+      "warmReadMs": 107.62679199999911,
+      "restartReadMs": 109.706959000001,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 75396,
+        "blobBytes": 6291456,
+        "files": 399,
+        "fileBytes": 6642708,
+        "allocatedBytes": 6668288
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 75396,
+        "blobBytes": 6291456,
+        "files": 397,
+        "fileBytes": 6436484,
+        "allocatedBytes": 6459392
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 2,
+      "mode": "baseline",
+      "workload": "price-and-list-insertion",
+      "frames": 12,
+      "writeMs": 317.9832499999993,
+      "writeCpuMs": 353.258,
+      "warmReadMs": 164.92383300000074,
+      "restartReadMs": 165.0780419999992,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 104964,
+        "blobBytes": 717011,
+        "files": 522,
+        "fileBytes": 1097831,
+        "allocatedBytes": 2502656
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 104964,
+        "blobBytes": 717011,
+        "files": 520,
+        "fileBytes": 891607,
+        "allocatedBytes": 2293760
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 2,
+      "mode": "new",
+      "workload": "price-and-list-insertion",
+      "frames": 12,
+      "writeMs": 216.1822919999995,
+      "writeCpuMs": 218.168,
+      "warmReadMs": 146.8763340000005,
+      "restartReadMs": 145.2828750000008,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 70140,
+        "blobBytes": 106361,
+        "files": 74,
+        "fileBytes": 452357,
+        "allocatedBytes": 618496
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 70140,
+        "blobBytes": 106361,
+        "files": 72,
+        "fileBytes": 246133,
+        "allocatedBytes": 409600
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 2,
+      "mode": "baseline",
+      "workload": "identical-json",
+      "frames": 12,
+      "writeMs": 186.87337500000103,
+      "writeCpuMs": 185.813,
+      "warmReadMs": 156.61945800000103,
+      "restartReadMs": 158.64945799999987,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 104964,
+        "blobBytes": 65045,
+        "files": 61,
+        "fileBytes": 445865,
+        "allocatedBytes": 614400
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 104964,
+        "blobBytes": 65045,
+        "files": 59,
+        "fileBytes": 239641,
+        "allocatedBytes": 405504
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 2,
+      "mode": "new",
+      "workload": "identical-json",
+      "frames": 12,
+      "writeMs": 201.8182080000006,
+      "writeCpuMs": 219.04,
+      "warmReadMs": 142.80233399999997,
+      "restartReadMs": 140.00279099999898,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 69024,
+        "blobBytes": 60415,
+        "files": 45,
+        "fileBytes": 405295,
+        "allocatedBytes": 499712
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 69024,
+        "blobBytes": 60415,
+        "files": 43,
+        "fileBytes": 199071,
+        "allocatedBytes": 290816
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 2,
+      "mode": "baseline",
+      "workload": "full-price-churn",
+      "frames": 12,
+      "writeMs": 289.1383330000008,
+      "writeCpuMs": 320.724,
+      "warmReadMs": 149.87166699999943,
+      "restartReadMs": 154.4580419999984,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 107196,
+        "blobBytes": 923247,
+        "files": 579,
+        "fileBytes": 1306299,
+        "allocatedBytes": 2736128
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 107196,
+        "blobBytes": 923247,
+        "files": 577,
+        "fileBytes": 1100075,
+        "allocatedBytes": 2527232
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 2,
+      "mode": "new",
+      "workload": "full-price-churn",
+      "frames": 12,
+      "writeMs": 329.4900000000016,
+      "writeCpuMs": 350.788,
+      "warmReadMs": 161.55774999999994,
+      "restartReadMs": 147.0802079999994,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 70893,
+        "blobBytes": 868772,
+        "files": 385,
+        "fileBytes": 1215521,
+        "allocatedBytes": 1892352
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 70893,
+        "blobBytes": 868772,
+        "files": 383,
+        "fileBytes": 1009297,
+        "allocatedBytes": 1683456
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 2,
+      "mode": "baseline",
+      "workload": "incompressible-text",
+      "frames": 12,
+      "writeMs": 346.0265419999996,
+      "writeCpuMs": 392.68,
+      "warmReadMs": 171.49575000000186,
+      "restartReadMs": 171.41491700000188,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 98172,
+        "blobBytes": 6327717,
+        "files": 531,
+        "fileBytes": 6701745,
+        "allocatedBytes": 8781824
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 98172,
+        "blobBytes": 6327717,
+        "files": 529,
+        "fileBytes": 6495521,
+        "allocatedBytes": 8572928
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 2,
+      "mode": "new",
+      "workload": "incompressible-text",
+      "frames": 12,
+      "writeMs": 438.2504170000029,
+      "writeCpuMs": 484.247,
+      "warmReadMs": 186.07416600000215,
+      "restartReadMs": 174.7767079999976,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 102930,
+        "blobBytes": 6333287,
+        "files": 557,
+        "fileBytes": 6712073,
+        "allocatedBytes": 7831552
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 102930,
+        "blobBytes": 6333287,
+        "files": 555,
+        "fileBytes": 6505849,
+        "allocatedBytes": 7622656
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 2,
+      "mode": "baseline",
+      "workload": "binary-control",
+      "frames": 12,
+      "writeMs": 202.18433299999742,
+      "writeCpuMs": 240.726,
+      "warmReadMs": 101.99458400000003,
+      "restartReadMs": 108.57891599999857,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 75396,
+        "blobBytes": 6291456,
+        "files": 399,
+        "fileBytes": 6642708,
+        "allocatedBytes": 6668288
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 75396,
+        "blobBytes": 6291456,
+        "files": 397,
+        "fileBytes": 6436484,
+        "allocatedBytes": 6459392
+      },
+      "verifiedCaptures": 24
+    },
+    {
+      "repetition": 2,
+      "mode": "new",
+      "workload": "binary-control",
+      "frames": 12,
+      "writeMs": 181.05991600000198,
+      "writeCpuMs": 206.157,
+      "warmReadMs": 98.98995800000193,
+      "restartReadMs": 100.54554199999984,
+      "activeDisk": {
+        "databaseBytes": 4096,
+        "walBytes": 238992,
+        "sharedMemoryBytes": 32768,
+        "manifestBytes": 75396,
+        "blobBytes": 6291456,
+        "files": 399,
+        "fileBytes": 6642708,
+        "allocatedBytes": 6668288
+      },
+      "closedDisk": {
+        "databaseBytes": 69632,
+        "walBytes": 0,
+        "sharedMemoryBytes": 0,
+        "manifestBytes": 75396,
+        "blobBytes": 6291456,
+        "files": 397,
+        "fileBytes": 6436484,
+        "allocatedBytes": 6459392
+      },
+      "verifiedCaptures": 24
+    }
+  ]
+}

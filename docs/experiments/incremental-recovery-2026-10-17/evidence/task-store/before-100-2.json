@@ -1,0 +1,54 @@
+{
+  "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-incremental-baseline-075b3fc-skpfmyv4",
+  "fixtureHash": "daaa0a8181dd35f097d59d97eb9bd94fa55cb9b62fa4cbc091750cf50e825ab8",
+  "count": 100,
+  "iterations": 40,
+  "polls": 500,
+  "node": "v24.22.0",
+  "saves": {
+    "count": 40,
+    "totalMs": 8.906461,
+    "medianMs": 0.2115000000000009,
+    "maxMs": 0.6202500000000128,
+    "cpuMs": 9.174
+  },
+  "idle": {
+    "count": 500,
+    "totalMs": 31.42382699999989,
+    "medianMs": 0.05749999999999034,
+    "maxMs": 0.38829199999999275,
+    "cpuMs": 32.905
+  },
+  "reads": {
+    "count": 30,
+    "totalMs": 5.481748999999951,
+    "medianMs": 0.17645799999999667,
+    "maxMs": 0.29283399999999915,
+    "cpuMs": 5.605
+  },
+  "coldReadMs": 0.19429199999999014,
+  "initialBytes": {
+    "database": 94208,
+    "wal": 0,
+    "sharedMemory": 32768,
+    "total": 126976
+  },
+  "afterWrites": {
+    "database": 94208,
+    "wal": 2636832,
+    "sharedMemory": 32768,
+    "total": 2763808
+  },
+  "closedBytes": {
+    "database": 147456,
+    "wal": 0,
+    "sharedMemory": 0,
+    "total": 147456
+  },
+  "walPolicy": {
+    "autocheckpointPages": 1000,
+    "initialCheckpoint": true,
+    "finalCloseCheckpointsWal": true
+  },
+  "scope": "task persistence microbenchmark, not browser end-to-end performance; no VACUUM"
+}

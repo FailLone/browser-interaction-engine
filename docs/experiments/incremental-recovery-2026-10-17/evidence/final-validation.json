@@ -1,0 +1,57 @@
+{
+  "baseCommit": "075b3fc03c7b446795bf4f792c2495608d52bcdc",
+  "testedFinalCommit": "95bc6db7cd2219a256cd03f29d5d58a45982b9f4",
+  "committedFileHashesMatched": 399,
+  "mismatches": [],
+  "productSourcesUnchangedSinceProtocolsAndFullSuite": true,
+  "postSuiteTestFixtureChanges": [
+    "tests/native-link-operation-correspondence.test.ts",
+    "tests/operation-correspondence-batch.test.ts"
+  ],
+  "fullSuite": {
+    "files": 159,
+    "total": 1567,
+    "passed": 1549,
+    "failed": 18,
+    "pending": 0,
+    "success": false
+  },
+  "baselineReproduction": {
+    "files": 2,
+    "total": 57,
+    "passed": 39,
+    "failed": 18,
+    "pending": 0,
+    "success": false
+  },
+  "sameFailureNamesOnBase": true,
+  "affectedFixtureRetest": {
+    "files": 2,
+    "total": 57,
+    "passed": 57,
+    "failed": 0,
+    "pending": 0,
+    "success": true
+  },
+  "secondFullSuiteRun": false,
+  "note": "Full suite first ran 159 files: 1549 passed/18 fixture setup failures. The base reproduces those failures. Only fixture candidate IDs were corrected, with original assertions retained; both affected files then passed 57/57. No product changes followed the full run. Do not label this as one all-green full-suite execution.",
+  "typecheck": {
+    "exitCode": 0,
+    "log": "final-typecheck.log"
+  },
+  "build": {
+    "exitCode": 0,
+    "log": "final-build.log"
+  },
+  "compiledSmoke": {
+    "exitCode": 0,
+    "log": "final-built-smoke.log",
+    "report": "final-built-smoke.json"
+  },
+  "explorerSmoke": {
+    "exitCode": 0,
+    "log": "final-explorer-smoke.log",
+    "report": "final-explorer-smoke.json",
+    "providers": "explicit mocks; not live model requests"
+  }
+}

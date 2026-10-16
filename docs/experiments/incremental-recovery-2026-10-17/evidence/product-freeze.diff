@@ -1,0 +1,543 @@
+diff --git a/packages/core/src/engine.ts b/packages/core/src/engine.ts
+index d4fc82c..2283b7c 100644
+--- a/packages/core/src/engine.ts
++++ b/packages/core/src/engine.ts
+@@ -5,6 +5,7 @@ import { assignState, matchIdentities, sameObservedState } from './identity.js';
+ import { recoverStore } from './recovery.js';
+ import { migrateSamplingSources, sampledFrontierKey } from './sampling-migration.js';
+ import { DiffQueries } from './diff-details.js';
++import { RecordedNavigationGraph } from './navigation-path.js';
+ import { describeFrontier, groupFrontier } from './frontier.js';
+ import { ExplorationGroups, currentExplorationDecision, explorationGates, validateExplorationProposals } from './exploration-groups.js';
+ import { explorationReviewMaterial } from './exploration-review.js';
+@@ -1040,7 +1041,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
+     if (checks.some(c => c.result === 'unknown')) return { status: 'UNVERIFIED', checks };
+     return { checks };
+   }
+-  navigationPath(sessionId: string, from: string, to: string, endpoints?: { fromObservationId: string; toObservationId: string }): string[] | null {
++  private navigationKey(observation: O) { return canonical({ ruleVersion: observation.ruleVersion, canonical: observation.canonical }); }
++  private navigationEndpoints(sessionId: string, from: string, to: string, endpoints?: { fromObservationId: string; toObservationId: string }) {
+     const sourceState = this.owned<UIState>('state', from, sessionId), targetState = this.owned<UIState>('state', to, sessionId);
+     const resolve = (state: UIState, observationId?: string) => {
+       // A caller selecting a group with multiple members has not selected a
+@@ -1050,57 +1052,82 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
+       return observation.stateId === state.id && !observation.gaps.some(g => g.critical) ? observation : undefined;
+     };
+     const source = resolve(sourceState, endpoints?.fromObservationId), target = resolve(targetState, endpoints?.toObservationId);
+-    if (!source || !target) return null;
+-    const key = (o: O) => canonical({ ruleVersion: o.ruleVersion, canonical: o.canonical });
+-    const destination = key(target), edges = new Map<string, { to: string; attemptId: string }[]>();
++    return source && target ? { source, target } : undefined;
++  }
++  private navigationGraph(sessionId: string) {
++    const graph = new RecordedNavigationGraph();
+     // Passive captures are not path edges. Decode only referenced observations,
+     // once per query, rather than scanning the full immutable observation log.
+     const observations = new Map<string, O | undefined>();
++    const keys = new Map<string, string>();
+     const readObservation = (observationId: string) => {
+       if (!observations.has(observationId)) observations.set(observationId, this.store.get<O>('observation', observationId));
+       const observation = observations.get(observationId);
+       return observation?.sessionId === sessionId ? observation : undefined;
+     };
++    const key = (observation: O) => {
++      let value = keys.get(observation.id);
++      if (value === undefined) { value = this.navigationKey(observation); keys.set(observation.id, value); }
++      return value;
++    };
+     const attempts = new Map(this.store.list<ActionAttempt>('attempt', sessionId).map(a => [a.id, a]));
+     for (const edge of this.store.list<Transition>('transition', sessionId)) {
+       const attempt = attempts.get(edge.attemptId);
+       if (!edge.replayable || attempt?.status !== 'succeeded' || !attempt.action.replayable) continue;
+       const before = readObservation(attempt.beforeId), after = attempt.afterId && readObservation(attempt.afterId);
+       if (!before || !after || before.gaps.some(g => g.critical) || after.gaps.some(g => g.critical)) continue;
+-      const sourceKey = key(before); edges.set(sourceKey, [...(edges.get(sourceKey) || []), { to: key(after), attemptId: attempt.id }]);
++      graph.add(key(before), { to: key(after), attemptId: attempt.id });
+     }
+-    const queue = [{ state: key(source), path: [] as string[] }], visited = new Set<string>();
+-    while (queue.length) { const item = queue.shift()!; if (item.state === destination) return item.path; if (visited.has(item.state)) continue; visited.add(item.state); for (const edge of edges.get(item.state) || []) queue.push({ state: edge.to, path: [...item.path, edge.attemptId] }); }
+-    return null;
++    return graph;
+   }
+-  private async replay(sessionId: string, attemptIds: string[], allowWrites: boolean, performed: string[], targetReached?: () => Promise<boolean>) {
++  navigationPath(sessionId: string, from: string, to: string, endpoints?: { fromObservationId: string; toObservationId: string }): string[] | null {
++    const resolved = this.navigationEndpoints(sessionId, from, to, endpoints);
++    return resolved ? this.navigationGraph(sessionId).path(this.navigationKey(resolved.source), this.navigationKey(resolved.target)) : null;
++  }
++  private replayDispatchKey(current: O, action: ActionCandidate, value: ActionCandidate['value']) {
++    const control = current.controls.find(c => c.localId === action.localId);
++    const conditions = this.adapter.explorationTargetConditions?.(action, current);
++    // Suppression is local to this recovery call and this exact source/instance.
++    // It is not an operation-equivalence judgment or a persistent A/B blacklist.
++    return canonical({ from: this.navigationKey(current), instanceScope: current.instanceScope,
++      target: control?.instanceId || action.localId || action.controlId, kind: action.kind, value,
++      conditions: conditions && { policy: conditions.policy, key: conditions.key } });
++  }
++  private async replay(sessionId: string, attemptIds: string[], allowWrites: boolean, performed: string[], targetReached?: () => Promise<boolean>, dispatched?: Set<string>): Promise<{ failure?: string; failedAttemptId?: string; canReplan?: boolean }> {
++    let lastAttemptId: string | undefined;
+     for (const attemptId of attemptIds) {
+-      if (targetReached && this.unverifiedRecoveryAttempts(sessionId).length) return 'unknown_execution_outcome';
++      lastAttemptId = attemptId;
++      const fail = (failure: string, canReplan = false) => ({ failure, failedAttemptId: attemptId, canReplan });
++      if (targetReached && this.unverifiedRecoveryAttempts(sessionId).length) return fail('unknown_execution_outcome');
+       const old = this.owned<ActionAttempt>('attempt', attemptId, sessionId); const current = this.observation(sessionId);
+-      if (old.status !== 'succeeded') return 'recorded_action_not_verified';
+-      if (!old.action.replayable && !allowWrites) return 'path_contains_nonreplayable_action';
+-      if (contextKey(current.context) !== contextKey(old.action.preconditions.context)) return 'preconditions_changed';
++      if (old.status !== 'succeeded') return fail('recorded_action_not_verified');
++      if (!old.action.replayable && !allowWrites) return fail('path_contains_nonreplayable_action');
++      if (contextKey(current.context) !== contextKey(old.action.preconditions.context)) return fail('preconditions_changed');
+       const target = this.actions(sessionId).filter(a => this.adapter.replayMatches(a, old.action));
+-      if (target.length !== 1) return 'replay_target_not_unique_or_missing';
++      if (target.length !== 1) return fail('replay_target_not_unique_or_missing', true);
++      if (!target[0].replayable && !allowWrites) return fail('current_action_not_replayable', true);
++      const dispatchKey = this.replayDispatchKey(current, target[0], old.action.value);
++      if (dispatched?.has(dispatchKey)) return fail('replay_operation_already_tried', true);
+       // Target-directed traversal has a source-condition contract in addition
+       // to the legacy checkpoint replay checks. Revalidate it atomically at
+       // dispatch; a newly matching UI target never grants repetition permission.
+       const guard:ExecutionGuard|undefined=targetReached?{profile:this.session(sessionId).options.executionPolicy==='observed-ui'?'observed-ui-exploration':'interface-exploration',observationId:current.id,repetitionSource:{sessionId,attemptId:old.id}}:undefined;
+-      if(guard){const assessment=this.repetitionAssessment(sessionId,{observationId:current.id,actionId:target[0].id,source:guard.repetitionSource!});if(!assessment.repeatable)return assessment.reason;}
++      if(guard){const assessment=this.repetitionAssessment(sessionId,{observationId:current.id,actionId:target[0].id,source:guard.repetitionSource!});if(!assessment.repeatable)return fail(assessment.reason, true);}
+       let result: ActionAttempt;
++      dispatched?.add(dispatchKey);
+       try { result = await this.runAction(sessionId, target[0].id, id(), old.action.value, 'recovery',guard); }
+-      catch (error) { return error instanceof EngineError ? error.code : String(error); }
++      catch (error) { return fail(error instanceof EngineError ? error.code : String(error)); }
+       performed.push(result.id);
+-      if (result.status !== 'succeeded' || !result.afterId || !old.afterId) return 'replay_action_not_verified';
++      if (result.status !== 'succeeded' || !result.afterId || !old.afterId) return fail('replay_action_not_verified');
+       if (targetReached) {
+-        if (await targetReached()) return undefined;
++        if (await targetReached()) return {};
+         // The next iteration must prove its own source conditions, readiness
+         // and replay permission against the actual observation, including at
+         // dispatch. Passive changes elsewhere do not certify or invalidate that
+         // next operation. Only the final target check certifies arrival.
+-      } else if (this.observation(sessionId, result.afterId).canonical !== this.observation(sessionId, old.afterId).canonical) return 'replay_state_diverged';
++      } else if (this.observation(sessionId, result.afterId).canonical !== this.observation(sessionId, old.afterId).canonical) return fail('replay_state_diverged', true);
+     }
+-    return targetReached ? 'target_not_reached' : undefined;
++    return targetReached ? { failure: 'target_not_reached', failedAttemptId: lastAttemptId, canReplan: true } : {};
+   }
+   protected observationReturn(sessionId: string, target: O) {
+     const session = this.session(sessionId), current = this.observation(sessionId);
+@@ -1211,13 +1238,64 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
+       }
+       strategies.push('recorded_path');
+       const currentForPath = this.observation(sessionId);
+-      const path = this.navigationPath(sessionId, currentForPath.stateId, checkpoint.stateId, { fromObservationId: currentForPath.id, toObservationId: checkpoint.observationId });
+-      if (path?.length) {
+-        const failure = await this.replay(sessionId, path, false, performed, targetReached);
++      const endpoints = this.navigationEndpoints(sessionId, currentForPath.stateId, checkpoint.stateId, { fromObservationId: currentForPath.id, toObservationId: checkpoint.observationId });
++      // One graph snapshot per recovery, bounded alternate plans from actual
++      // observations. Each replay still reloads its evidence and revalidates
++      // dispatch. A failed edge is retained as history, not globally disabled.
++      const graph = endpoints && this.navigationGraph(sessionId), dispatched = new Set<string>();
++      let recordedFailure: string | undefined;
++      for (let plan = 0; graph && endpoints && plan < 4; plan++) {
++        const current = this.observation(sessionId), actions = this.actions(sessionId);
++        let firstRejected: { attemptId: string; reason: string } | undefined;
++        const path = graph.path(this.navigationKey(current), this.navigationKey(endpoints.target), edge => {
++          const old = this.owned<ActionAttempt>('attempt', edge.attemptId, sessionId);
++          const matches = actions.filter(action => this.adapter.replayMatches(action, old.action));
++          const rejected = (reason: string) => { firstRejected ??= { attemptId: old.id, reason }; return false; };
++          if (old.status !== 'succeeded' || !old.action.replayable) return rejected('recorded_action_not_replayable');
++          if (contextKey(current.context) !== contextKey(old.action.preconditions.context)) return rejected('preconditions_changed');
++          if (matches.length !== 1) return rejected('replay_target_not_unique_or_missing');
++          if (!matches[0].replayable) return rejected('current_action_not_replayable');
++          if (dispatched.has(this.replayDispatchKey(current, matches[0], old.action.value))) return rejected('replay_operation_already_tried');
++          if (target) {
++            const assessment = this.repetitionAssessment(sessionId, { observationId: current.id, actionId: matches[0].id, source: { sessionId, attemptId: old.id } });
++            if (!assessment.repeatable) return rejected(assessment.reason);
++          }
++          return true;
++        });
++        if (!path?.length) {
++          // Filtering unavailable first steps must not introduce entry/reset
++          // fallback where the old recorded route would have stopped instead.
++          const unfiltered = firstRejected && graph.path(this.navigationKey(current), this.navigationKey(endpoints.target));
++          if (unfiltered?.length) {
++            recordedFailure ??= firstRejected!.reason;
++            this.emit(sessionId, 'checkpoint.path_unavailable', { checkpointId, observationId: current.id, ...firstRejected, plan: plan + 1 });
++          }
++          break;
++        }
++        if (plan) strategies.push('recorded_path_alternative');
++        const beforeAttemptCount = performed.length;
++        const replay = await this.replay(sessionId, path, false, performed, targetReached, dispatched);
++        // An unknown result is not made safe by finding another route or by
++        // observing the requested destination after that uncertain execution.
++        if (this.unverifiedRecoveryAttempts(sessionId).length) {
++          status = 'UNVERIFIED'; reason = 'Unknown execution outcome requires explicit recovery verification';
++          checks = [{ name: 'unresolved-execution-outcomes', result: 'unknown' }]; return finish();
++        }
+         verification = await verify(); checks = verification.checks;
+-        if (verification.status) { status = verification.status; reason = failure || `Recorded path verification: ${status}`; return finish(); }
+-        if (failure) { reason = failure; return finish(); }
++        if (verification.status) { status = verification.status; reason = replay.failure || `Recorded path verification: ${status}`; return finish(); }
++        if (!replay.failure) break;
++        recordedFailure = replay.failure;
++        this.emit(sessionId, 'checkpoint.path_failed', { checkpointId, path, failedAttemptId: replay.failedAttemptId,
++          reason: replay.failure, observationId: this.observation(sessionId).id, attemptIds: performed.slice(beforeAttemptCount),
++          canReplan: !!replay.canReplan, plan: plan + 1, planLimit: 4 });
++        if (!replay.canReplan || !replay.failedAttemptId) { reason = replay.failure; return finish(); }
++        // A final target miss need not be caused by the last historical edge.
++        // Replan from actual facts; only the actual dispatched source/instance/
++        // conditions are suppressed, never an edge at a different A/B source.
+       }
++      // Preserve the existing no-reset-on-path-failure contract; alternatives
++      // may consume verified routes, but must not silently repeat entry replay.
++      if (recordedFailure) { reason = recordedFailure; return finish(); }
+       strategies.push('declared_local_restore');
+       const restored = new Set<string>();
+       while (!this.session(sessionId).dirty && this.adapter.restorationStep) {
+@@ -1271,7 +1349,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
+         if (entryAttempt.status !== 'succeeded') { status = 'UNVERIFIED'; reason = 'Entry reopening could not be verified'; return finish(); }
+       }
+       if(targetReached&&await targetReached()){status='TARGET_REACHED';reason='Target verified after entry restoration';return finish();}
+-      const failure = await this.replay(sessionId, checkpoint.path, resetConfirmed, performed, targetReached);
++      const { failure } = await this.replay(sessionId, checkpoint.path, resetConfirmed, performed, targetReached);
+       verification = await verify(); checks = verification.checks;
+       status = verification.status || (failure === 'preconditions_changed' ? 'PRECONDITIONS_CHANGED' : 'UNREACHABLE'); reason = failure || `Entry replay verification: ${status}`;
+     } catch (error) { reason = String(error); status = error instanceof EngineError && error.code === 'BUDGET_EXHAUSTED' ? 'UNREACHABLE' : 'UNVERIFIED'; }
+diff --git a/packages/explorer-plugin/src/completion-evidence.ts b/packages/explorer-plugin/src/completion-evidence.ts
+index 4f8f28c..8407c8d 100644
+--- a/packages/explorer-plugin/src/completion-evidence.ts
++++ b/packages/explorer-plugin/src/completion-evidence.ts
+@@ -1,6 +1,6 @@
+ import { browserOperationCorrespondenceHint, type ActionCandidate, type Observation } from '@interaction/browser';
+ import type { ExplorerHost, Task } from './types.js';
+-import { scopeFor } from './policy.js';
++import { actionScopeReader } from './policy.js';
+ 
+ /** A synchronous scheduling read, never current execution coverage or permission.
+  * Rebuild after every await, observation/review change or completion-ledger change.
+@@ -11,11 +11,22 @@ export function completedOperations(host:ExplorerHost,task:Task,o:Observation,ac
+   const proofs=task.plan.filter(i=>i.required&&i.status==='succeeded'&&i.resolvedBy?.attemptId&&i.scope.kind&&i.scope.label)
+     .flatMap(item=>[...new Map([item.resolvedBy!,...item.attempts.filter(a=>a.outcome==='succeeded'&&a.evidence?.attemptId).map(a=>a.evidence!)].map(ref=>[`${ref.sessionId}:${ref.attemptId}`,ref])).values()].map(ref=>({item,ref,fields:Object.entries(item.scope).filter(([key])=>item.dispatchScope!==false||['url','label','role','kind','value'].includes(key))})));
+   if(!proofs.length||!actions.length)return completed;
++  // Necessary literal conditions form an index, not an equivalence judgment.
++  // Native record links alone may relax a derived label; keep a separate bucket
++  // for that existing SDK rule, preserving every historical A/B source.
++  type Proof=typeof proofs[number];
++  const exact=new Map<string,Proof[]>(),literal=new Map<string,Proof[]>(),native=new Map<string,Proof[]>();
++  const add=(map:Map<string,Proof[]>,key:string,proof:Proof)=>{let values=map.get(key);if(!values){values=[];map.set(key,values);}values.push(proof);};
++  for(const proof of proofs){const key=JSON.stringify([proof.item.scope.kind,proof.item.scope.label]);add(exact,key,proof);if(proof.item.dispatchScope===false)add(native,proof.item.scope.kind!,proof);else add(literal,key,proof);}
++  const readScope=actionScopeReader(o),controls=new Map<string,Observation['controls'][number]>();
++  for(const c of o.controls)if(!controls.has(c.localId))controls.set(c.localId,c);
+   const requests:Parameters<ExplorerHost['operationCorrespondences']>[1]['requests']=[],requestIndex=new Map<string,number>(),indices=new Map<ActionCandidate,number[]>();
+   for(const action of new Set(actions)) {
+-    const actual=scopeFor(action,o),matches:number[]=[];
+-    const control=o.controls.find(c=>c.localId===action.localId),nativeLink=control&&browserOperationCorrespondenceHint(control,action.kind,o);
+-    for(const {item,ref,fields} of proofs) {
++    const actual=readScope(action),matches:number[]=[];
++    const control=action.localId?controls.get(action.localId):undefined,nativeLink=control&&browserOperationCorrespondenceHint(control,action.kind,o);
++    const key=JSON.stringify([actual.kind,actual.label]);
++    const candidates=nativeLink?[...(literal.get(key)||[]),...(native.get(action.kind)||[])]:exact.get(key)||[];
++    for(const {item,ref,fields} of candidates) {
+       // Accepted user scopes retain their literal meaning. Program-derived rows
+       // are immutable discovery records, not a second identity implementation:
+       // legacy key encodings/review region names must not prevent the host from examining
+diff --git a/packages/explorer-plugin/src/policy.ts b/packages/explorer-plugin/src/policy.ts
+index 663aa4f..0eb46ce 100644
+--- a/packages/explorer-plugin/src/policy.ts
++++ b/packages/explorer-plugin/src/policy.ts
+@@ -7,12 +7,19 @@ export const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(
+ /** Task policy consumes host semantics; these opaque keys retain old task compatibility. */
+ export const navigationTarget=(a:ActionCandidate,o:Observation)=>navigationIntent(a,o)?.targetUrl;
+ export const scopeControlKey=(c:Observation['controls'][number])=>browserControlCorrespondence(c)?.key;
+-function actionScope(action:ActionCandidate,o:Observation):Scope {
+-  const c=o.controls.find(c=>c.localId===action.localId),r=o.regions.find(r=>r.key===c?.region);
++function actionScope(action:ActionCandidate,o:Observation,c:Observation['controls'][number]|undefined,r:Observation['regions'][number]|undefined):Scope {
+   const key=c&&scopeControlKey(c);
+   return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(key?{stableKey:key}:{})}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};
+ }
+-export function scopeFor(action:ActionCandidate,o:Observation):Scope {return actionScope(action,o);}
++export function scopeFor(action:ActionCandidate,o:Observation):Scope {const c=o.controls.find(c=>c.localId===action.localId);return actionScope(action,o,c,o.regions.find(r=>r.key===c?.region));}
++/** Indexes only captured facts for one synchronous pass. Never retain this
++ * reader across an await, a new observation or a review/identity revision. */
++export function actionScopeReader(o:Observation) {
++  const controls=new Map<string,Observation['controls'][number]>(),regions=new Map<string,Observation['regions'][number]>();
++  for(const c of o.controls)if(!controls.has(c.localId))controls.set(c.localId,c);
++  for(const r of o.regions)if(!regions.has(r.key))regions.set(r.key,r);
++  return (action:ActionCandidate)=>{const c=action.localId?controls.get(action.localId):undefined;return actionScope(action,o,c,c?regions.get(c.region):undefined);};
++}
+ /** Review gaps bind to the observed control, including controls without an explicit label or an action yet. */
+ export function scopeForControl(c:Observation['controls'][number],o:Observation):Scope {
+   const label=c.name||c.label,region=o.regions.find(r=>r.key===c.region)?.label,stableKey=scopeControlKey(c);
+diff --git a/packages/explorer-plugin/src/store.ts b/packages/explorer-plugin/src/store.ts
+index b75e01b..9a20270 100644
+--- a/packages/explorer-plugin/src/store.ts
++++ b/packages/explorer-plugin/src/store.ts
+@@ -1,24 +1,58 @@
+ import Database from 'better-sqlite3';
+ import { mkdirSync } from 'node:fs';
+ import { dirname } from 'node:path';
+-import { createHash } from 'node:crypto';
++import { createHash, randomBytes } from 'node:crypto';
+ import type { Decision, ExplorerEvent, Task } from './types.js';
+ import { ExplorerError } from './types.js';
+ 
++type TaskRow = { id:string; json:string; version:string; plan_count:number; round_count:number };
++type ItemRow = { kind:'plan'|'rounds'; position:number; json:string; content_hash:string };
++const digest = (json:string) => createHash('sha256').update(json).digest('hex');
++const newVersion = () => randomBytes(32).toString('hex');
++
+ export class ExplorerStore {
+   private db: Database.Database;
+   constructor(filename: string) {
+     if (filename !== ':memory:') mkdirSync(dirname(filename), { recursive: true });
+-    this.db = new Database(filename); this.db.pragma('journal_mode = WAL');
+-    this.db.exec(`CREATE TABLE IF NOT EXISTS explorer_meta(version INTEGER NOT NULL);
++    this.db = new Database(filename); this.db.pragma('journal_mode = WAL'); this.db.pragma('foreign_keys = ON');
++    try { this.db.transaction(() => {
++      this.db.exec(`CREATE TABLE IF NOT EXISTS explorer_meta(version INTEGER NOT NULL);
+       INSERT INTO explorer_meta SELECT 1 WHERE NOT EXISTS(SELECT 1 FROM explorer_meta);
+       CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY,json TEXT NOT NULL);
+       CREATE TABLE IF NOT EXISTS decisions(id TEXT PRIMARY KEY,task_id TEXT NOT NULL,json TEXT NOT NULL);
+       CREATE INDEX IF NOT EXISTS decision_task ON decisions(task_id);
+       CREATE TABLE IF NOT EXISTS events(sequence INTEGER PRIMARY KEY AUTOINCREMENT,task_id TEXT NOT NULL,json TEXT NOT NULL);
+       CREATE INDEX IF NOT EXISTS event_task ON events(task_id,sequence);`);
+-    if ((this.db.prepare('SELECT version FROM explorer_meta').get() as {version:number}).version !== 1) throw new ExplorerError('STORE_VERSION');
+-    for (const task of this.tasks()) if (task.status === 'running') {
++      const version = (this.db.prepare('SELECT version FROM explorer_meta').get() as {version:number}).version;
++      if (version !== 1 && version !== 2) throw new ExplorerError('STORE_VERSION');
++      this.db.exec(`CREATE TABLE IF NOT EXISTS task_items(
++        task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
++        kind TEXT NOT NULL CHECK(kind IN ('plan','rounds')), position INTEGER NOT NULL,
++        json TEXT NOT NULL, content_hash TEXT NOT NULL,
++        PRIMARY KEY(task_id,kind,position));`);
++      if (version === 1) {
++        this.db.exec(`ALTER TABLE tasks ADD COLUMN version TEXT NOT NULL DEFAULT '';
++          ALTER TABLE tasks ADD COLUMN plan_count INTEGER NOT NULL DEFAULT 0;
++          ALTER TABLE tasks ADD COLUMN round_count INTEGER NOT NULL DEFAULT 0;`);
++        // One atomic format migration; retain every ordered item and unknown
++        // marker. No scheduling, coverage or browser state is inferred here.
++        const insert = this.db.prepare('INSERT INTO task_items VALUES(?,?,?,?,?)');
++        const update = this.db.prepare('UPDATE tasks SET json=?,version=?,plan_count=?,round_count=? WHERE id=?');
++        for (const row of this.db.prepare('SELECT id,json FROM tasks').all() as {id:string;json:string}[]) {
++          const {plan,rounds,...header} = JSON.parse(row.json) as Task;
++          if (header.id !== row.id || !Array.isArray(plan) || !Array.isArray(rounds)) throw new ExplorerError('CORRUPT_TASK');
++          for (const [kind,items] of [['plan',plan],['rounds',rounds]] as const) items.forEach((item,position) => {
++            const json = JSON.stringify(item); insert.run(row.id,kind,position,json,digest(json));
++          });
++          update.run(JSON.stringify(header),newVersion(),plan.length,rounds.length,row.id);
++        }
++        this.db.prepare('UPDATE explorer_meta SET version=2').run();
++      }
++    }).immediate();
++    // Restart work only needs running tasks, not every retained plan/history.
++    for (const {id} of this.db.prepare("SELECT id FROM tasks WHERE json_extract(json,'$.status')='running'").all() as {id:string}[]) {
++      this.db.transaction(() => {
++      const task = this.task(id);
+       if (task.activeSince) task.usage.durationMs += Math.max(0, Date.now() - task.activeSince);
+       delete task.activeSince; task.status = 'paused'; task.reason = 'process_restarted'; task.revision++;
+       const round = task.rounds.at(-1); if (round?.status === 'running') round.status = 'paused';
+@@ -27,15 +61,52 @@ export class ExplorerStore {
+         d.status = 'stale'; d.reason = 'process_restarted'; this.decision(d);
+         this.event({taskId:task.id,actor:d.actor,type:'decision.stale',sessionId:d.sessionId,observationId:d.observationId,decisionId:d.id,data:{reason:d.reason}});
+       }
++      }).immediate();
++    }
++    } catch (error) { this.db.close(); throw error; }
++  }
++  save(task: Task) {
++    task.updatedAt = new Date().toISOString();
++    const {plan,rounds,...header} = task;
++    if (!Array.isArray(plan) || !Array.isArray(rounds)) throw new ExplorerError('CORRUPT_TASK');
++    // The public API permits in-place mutation, so inspect every item. Only
++    // changed rows are written; no object-identity cache can miss a nested edit.
++    const groups = ([['plan',plan],['rounds',rounds]] as const).map(([kind,items]) => ({kind,items:items.map(item => {
++      const json=JSON.stringify(item); return {json,hash:digest(json)};
++    })}));
++    const json=JSON.stringify(header);
++    this.db.transaction(() => {
++      const before=this.db.prepare('SELECT json,version,plan_count,round_count FROM tasks WHERE id=?').get(task.id) as TaskRow|undefined;
++      const hashes=new Map((this.db.prepare('SELECT kind,position,content_hash FROM task_items WHERE task_id=?').all(task.id) as {kind:string;position:number;content_hash:string}[]).map(r=>[`${r.kind}:${r.position}`,r.content_hash]));
++      const changed=!before || before.json!==json || before.plan_count!==plan.length || before.round_count!==rounds.length || groups.some(g=>g.items.some((item,position)=>hashes.get(`${g.kind}:${position}`)!==item.hash));
++      if (!changed) return;
++      this.db.prepare('INSERT INTO tasks(id,json,version,plan_count,round_count) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET json=excluded.json,version=excluded.version,plan_count=excluded.plan_count,round_count=excluded.round_count').run(task.id,json,newVersion(),plan.length,rounds.length);
++      const write=this.db.prepare('INSERT INTO task_items VALUES(?,?,?,?,?) ON CONFLICT(task_id,kind,position) DO UPDATE SET json=excluded.json,content_hash=excluded.content_hash');
++      for(const {kind,items} of groups) {
++        items.forEach((item,position)=>{if(hashes.get(`${kind}:${position}`)!==item.hash)write.run(task.id,kind,position,item.json,item.hash);});
++        this.db.prepare('DELETE FROM task_items WHERE task_id=? AND kind=? AND position>=?').run(task.id,kind,items.length);
++      }
++    }).immediate();
++  }
++  private assemble(row:TaskRow):Task {
++    const header=JSON.parse(row.json) as Task;
++    const items=this.db.prepare('SELECT kind,position,json,content_hash FROM task_items WHERE task_id=? ORDER BY kind,position').all(row.id) as ItemRow[];
++    const plan:Task['plan']=[],rounds:Task['rounds']=[];
++    for(const item of items) {
++      const target=item.kind==='plan'?plan:rounds;
++      if(item.position!==target.length || digest(item.json)!==item.content_hash)throw new ExplorerError('CORRUPT_TASK');
++      target.push(JSON.parse(item.json));
+     }
++    if(header.id!==row.id || plan.length!==row.plan_count || rounds.length!==row.round_count)throw new ExplorerError('CORRUPT_TASK');
++    return {...header,plan,rounds};
+   }
+-  save(task: Task) { task.updatedAt = new Date().toISOString(); this.db.prepare('INSERT INTO tasks VALUES(?,?) ON CONFLICT(id) DO UPDATE SET json=excluded.json').run(task.id, JSON.stringify(task)); }
+-  tasks(): Task[] { return (this.db.prepare('SELECT json FROM tasks ORDER BY rowid').all() as {json:string}[]).map(r => JSON.parse(r.json)); }
++  tasks(): Task[] { return this.db.transaction(() => (this.db.prepare('SELECT * FROM tasks ORDER BY rowid').all() as TaskRow[]).map(r=>this.assemble(r)))(); }
+   taskSummaries(): {id:string;goal:string;url:string;status:Task['status'];rounds:{sessionId:string}[]}[] {
+     return (this.db.prepare(`SELECT json_object('id',id,'goal',json_extract(json,'$.goal'),'url',json_extract(json,'$.url'),'status',json_extract(json,'$.status'),
+-      'rounds',json((SELECT json_group_array(json_object('sessionId',json_extract(value,'$.sessionId'))) FROM json_each(tasks.json,'$.rounds')))) AS summary FROM tasks ORDER BY rowid`).all() as {summary:string}[]).map(r=>JSON.parse(r.summary));
++      'rounds',json((SELECT json_group_array(json_object('sessionId',session_id)) FROM
++        (SELECT json_extract(json,'$.sessionId') AS session_id FROM task_items WHERE task_id=tasks.id AND kind='rounds' ORDER BY position)))) AS summary FROM tasks ORDER BY rowid`).all() as {summary:string}[]).map(r=>JSON.parse(r.summary));
+   }
+-  task(id: string): Task { const r = this.db.prepare('SELECT json FROM tasks WHERE id=?').get(id) as {json:string} | undefined; if (!r) throw new ExplorerError('NOT_FOUND'); return JSON.parse(r.json); }
++  task(id: string): Task { return this.db.transaction(() => {const r=this.db.prepare('SELECT * FROM tasks WHERE id=?').get(id) as TaskRow|undefined;if(!r)throw new ExplorerError('NOT_FOUND');return this.assemble(r);})(); }
+   decision(value: Decision) { this.db.prepare('INSERT INTO decisions VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET json=excluded.json').run(value.id, value.taskId, JSON.stringify(value)); }
+   /** Updates keep their rowid, so a review pass can read only decisions it inserted. */
+   decisionCursor(id: string): number { return (this.db.prepare('SELECT COALESCE(MAX(rowid),0) AS cursor FROM decisions WHERE task_id=?').get(id) as {cursor:number}).cursor; }
+@@ -52,11 +123,11 @@ export class ExplorerStore {
+    * A synchronous read transaction binds the task, event page and decision records together. */
+   updates(id: string, after = 0, limit = 500, knownTaskVersion?:string) {
+     return this.db.transaction(() => {
+-      const row=this.db.prepare('SELECT json FROM tasks WHERE id=?').get(id) as {json:string}|undefined;if(!row)throw new ExplorerError('NOT_FOUND');
+-      // Timestamps can collide within one millisecond; hash the stored bytes so
+-      // any status, budget or plan change invalidates the caller's cached task.
+-      const taskVersion=createHash('sha256').update(row.json).digest('hex');
+-      const task:Task|undefined=knownTaskVersion===taskVersion?undefined:JSON.parse(row.json);
++      const row=this.db.prepare('SELECT version FROM tasks WHERE id=?').get(id) as {version:string}|undefined;if(!row)throw new ExplorerError('NOT_FOUND');
++      // Published atomically with header and item rows. Idle polling neither
++      // loads the plan nor hashes/decodes the complete retained history.
++      const taskVersion=row.version;
++      const task:Task|undefined=knownTaskVersion===taskVersion?undefined:this.task(id);
+       const events=this.events(id,after,limit),cursor=events.at(-1)?.sequence??after;
+       const ids=[...new Set(events.flatMap(e=>e.decisionId?[e.decisionId]:[]))];
+       const decisions:Decision[]=ids.length?(this.db.prepare(`SELECT json FROM decisions WHERE task_id=? AND id IN (${ids.map(()=>'?').join(',')}) ORDER BY rowid`).all(id,...ids) as {json:string}[]).map(r=>JSON.parse(r.json)):[];
+diff --git a/packages/storage-sqlite/src/evidence.ts b/packages/storage-sqlite/src/evidence.ts
+index bc51152..606f9f8 100644
+--- a/packages/storage-sqlite/src/evidence.ts
++++ b/packages/storage-sqlite/src/evidence.ts
+@@ -2,12 +2,17 @@ import { mkdir, readFile, writeFile, rename, unlink, readdir, access } from 'nod
+ import { join } from 'node:path';
+ import { gzipSync, gunzipSync } from 'node:zlib';
+ import { EngineError, hashBytes, id, type Evidence, type EvidenceStore } from '@interaction/core';
++import { evidenceChunks } from './evidence-chunks.js';
+ interface Block { blob: string; encoding: 'identity' | 'gzip'; bytes: number; sha256: string }
+ interface Manifest extends Partial<Block> { version: 2 | 3; mediaType: string; bytes: number; sha256: string; blocks?: Block[] }
+ /** Logical references share immutable blobs. Text compression is transparent to callers. */
+ export class FileEvidenceStore implements EvidenceStore {
+   readonly durability = 'persistent' as const;
+   private queue: Promise<unknown> = Promise.resolve();
++  // Only packing metadata is cached, never evidence bytes or a claim that a file
++  // still exists. Bounded independently of history and rechecked before reuse.
++  private packing = new Map<string, Block>();
++  private layouts = new Map<string, { bytes: number; blocks: Block[] }>();
+   constructor(readonly directory: string) {}
+   private run<T>(fn: () => Promise<T>) { const result = this.queue.then(fn); this.queue = result.catch(() => {}); return result; }
+   private path(key: string) {
+@@ -19,22 +24,59 @@ export class FileEvidenceStore implements EvidenceStore {
+     return this.run(async () => {
+       const path = this.path(key); await mkdir(join(this.directory, 'blobs'), { recursive: true });
+       const blocks: Block[] = [];
+-      // Fixed independent blocks avoid replay chains and reuse unchanged ranges.
+-      for (let offset = 0; offset < data.length || offset === 0; offset += 16384) {
+-        const block = data.slice(offset, offset + 16384); const sha256 = hashBytes(block);
+-        const packed = /json|text|xml|javascript|yaml/.test(mediaType) ? gzipSync(block) : block;
+-        const encoding = packed.length < block.length ? 'gzip' : 'identity'; const bytes = encoding === 'gzip' ? packed : block;
+-        const blob = `${sha256}.${encoding === 'gzip' ? 'gz' : 'bin'}`;
+-        const blobPath = join(this.directory, 'blobs', blob);
+-        try { await access(blobPath); } catch (error) {
+-          if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+-          // Never publish a partially written content-addressed block after a crash.
+-          const temporary = `${blobPath}.${id()}.tmp`;
+-          await writeFile(temporary, bytes); await rename(temporary, blobPath);
++      const text = /json|text|xml|javascript|yaml/.test(mediaType);
++      const sha256 = hashBytes(data), layoutKey = `${text ? 'text' : 'binary'}:${sha256}`;
++      const layout = this.layouts.get(layoutKey);
++      let reuseLayout = !!layout && layout.bytes === data.length;
++      if (reuseLayout) {
++        for (const block of layout!.blocks) {
++          try { await access(join(this.directory, 'blobs', block.blob)); }
++          catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; reuseLayout = false; break; }
+         }
+-        blocks.push({ blob, encoding, bytes: block.length, sha256 });
+       }
+-      const manifest: Manifest = { version: 3, mediaType, blocks, bytes: data.length, sha256: hashBytes(data) };
++      if (reuseLayout) blocks.push(...layout!.blocks);
++      else {
++        // High-entropy text (for example encoded random assets) gets little sharing
++        // benefit. A bounded sample avoids scanning it with the rolling hash. This
++        // selects an encoding only; every source byte is retained and verified.
++        const sample = data.subarray(0, 4096);
++        const contentDefined = text && data.length >= 32768 && gzipSync(sample).length < sample.length * .72;
++        // Text insertions no longer shift every following block boundary. The v3
++        // manifest already supports arbitrary independent ranges, so old readers
++        // can reconstruct new captures and no historical migration is necessary.
++        for (const block of evidenceChunks(data, contentDefined)) {
++          const sha256 = hashBytes(block), cacheKey = `${text ? 'text' : 'binary'}:${sha256}`;
++          const cached = this.packing.get(cacheKey);
++          if (cached && cached.bytes === block.length && cached.sha256 === sha256) {
++            try {
++              await access(join(this.directory, 'blobs', cached.blob));
++              this.packing.delete(cacheKey); this.packing.set(cacheKey, cached);
++              blocks.push(cached); continue;
++            } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
++          }
++          const packed = text ? gzipSync(block) : block;
++          const encoding = packed.length < block.length ? 'gzip' : 'identity'; const bytes = encoding === 'gzip' ? packed : block;
++          const blob = `${sha256}.${encoding === 'gzip' ? 'gz' : 'bin'}`;
++          const blobPath = join(this.directory, 'blobs', blob);
++          try { await access(blobPath); } catch (error) {
++            if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
++            // Never publish a partially written content-addressed block after a crash.
++            const temporary = `${blobPath}.${id()}.tmp`;
++            await writeFile(temporary, bytes); await rename(temporary, blobPath);
++          }
++          const descriptor: Block = { blob, encoding, bytes: block.length, sha256 };
++          this.packing.delete(cacheKey); this.packing.set(cacheKey, descriptor);
++          if (this.packing.size > 2048) this.packing.delete(this.packing.keys().next().value!);
++          blocks.push(descriptor);
++        }
++      }
++      // At most 16 layouts of 128 descriptors each; a large capture cannot make
++      // this cache grow with the retained history. No uncompressed data is held.
++      if (blocks.length <= 128) {
++        this.layouts.delete(layoutKey); this.layouts.set(layoutKey, { bytes: data.length, blocks });
++        if (this.layouts.size > 16) this.layouts.delete(this.layouts.keys().next().value!);
++      }
++      const manifest: Manifest = { version: 3, mediaType, blocks, bytes: data.length, sha256 };
+       const temporary = `${path}.${id()}.tmp`; await writeFile(temporary, JSON.stringify(manifest)); await rename(temporary, `${path}.meta.json`);
+       await unlink(path).catch(error => { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; });
+     });
+@@ -46,18 +88,25 @@ export class FileEvidenceStore implements EvidenceStore {
+         let manifest: Partial<Manifest> | undefined;
+         try { manifest = JSON.parse(await readFile(`${path}.meta.json`, 'utf8')); } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+         if (manifest?.version === 2 || manifest?.version === 3) {
+-          const chunks = manifest.version === 3 ? manifest.blocks! : [manifest as Block];
+-          if (!Array.isArray(chunks) || !Number.isSafeInteger(manifest.bytes) || manifest.bytes! < 0 || chunks.reduce((n, b) => n + b.bytes, 0) !== manifest.bytes) throw new EngineError('CORRUPT_EVIDENCE', 'Invalid evidence manifest');
+-          const data = new Uint8Array(manifest.bytes!); let offset = 0;
+-          for (const chunk of chunks) {
+-            if (!/^[a-f0-9]{64}\.(gz|bin)$/.test(chunk.blob || '') || !Number.isSafeInteger(chunk.bytes) || chunk.bytes < 0) throw new EngineError('CORRUPT_EVIDENCE', 'Invalid evidence blob reference');
+-            const stored = await readFile(join(this.directory, 'blobs', chunk.blob));
+-            const unpacked = chunk.encoding === 'gzip' ? gunzipSync(stored, { maxOutputLength: Math.max(1, chunk.bytes) }) : stored;
+-            if (unpacked.length !== chunk.bytes || hashBytes(unpacked) !== chunk.sha256) throw new EngineError('CORRUPT_EVIDENCE', 'Evidence block failed integrity validation');
+-            data.set(unpacked, offset); offset += unpacked.length;
++          try {
++            const chunks = manifest.version === 3 ? manifest.blocks! : [manifest as Block];
++            if (!Array.isArray(chunks) || typeof manifest.mediaType !== 'string' || !/^[a-f0-9]{64}$/.test(manifest.sha256 || '') || !Number.isSafeInteger(manifest.bytes) || manifest.bytes! < 0 || chunks.reduce((n, b) => n + b.bytes, 0) !== manifest.bytes) throw new EngineError('CORRUPT_EVIDENCE', 'Invalid evidence manifest');
++            const data = new Uint8Array(manifest.bytes!); let offset = 0;
++            for (const chunk of chunks) {
++              if (!/^[a-f0-9]{64}\.(gz|bin)$/.test(chunk.blob || '') || !/^[a-f0-9]{64}$/.test(chunk.sha256 || '') || !['identity', 'gzip'].includes(chunk.encoding) || !Number.isSafeInteger(chunk.bytes) || chunk.bytes < 0) throw new EngineError('CORRUPT_EVIDENCE', 'Invalid evidence blob reference');
++              const stored = await readFile(join(this.directory, 'blobs', chunk.blob));
++              const unpacked = chunk.encoding === 'gzip' ? gunzipSync(stored, { maxOutputLength: Math.max(1, chunk.bytes) }) : stored;
++              if (unpacked.length !== chunk.bytes || hashBytes(unpacked) !== chunk.sha256) throw new EngineError('CORRUPT_EVIDENCE', 'Evidence block failed integrity validation');
++              data.set(unpacked, offset); offset += unpacked.length;
++            }
++            if (hashBytes(data) !== manifest.sha256) throw new EngineError('CORRUPT_EVIDENCE', 'Evidence failed integrity validation');
++            return { data, mediaType: manifest.mediaType! };
++          } catch (error) {
++            if (error instanceof EngineError && error.code === 'CORRUPT_EVIDENCE') throw error;
++            // A missing referenced blob is corruption, not a missing logical
++            // capture. Never silently downgrade a retained manifest to absent.
++            throw new EngineError('CORRUPT_EVIDENCE', 'Evidence block is missing or cannot be decoded');
+           }
+-          if (hashBytes(data) !== manifest.sha256) throw new EngineError('CORRUPT_EVIDENCE', 'Evidence failed integrity validation');
+-          return { data, mediaType: manifest.mediaType! };
+         }
+         return { data: await readFile(path), mediaType: manifest?.mediaType || (key.endsWith('.png') ? 'image/png' : 'application/octet-stream') };
+       } catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined; throw error; }

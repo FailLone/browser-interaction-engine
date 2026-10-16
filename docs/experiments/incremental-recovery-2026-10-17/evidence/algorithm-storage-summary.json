@@ -1,0 +1,327 @@
+{
+  "repetitions": 3,
+  "taskStore": [
+    {
+      "count": 100,
+      "fixtureHash": "daaa0a8181dd35f097d59d97eb9bd94fa55cb9b62fa4cbc091750cf50e825ab8",
+      "before": {
+        "saves": {
+          "medianMs": 0.21104199999999196,
+          "totalMs": 8.734960999999991,
+          "cpuMs": 8.974
+        },
+        "idle": {
+          "medianMs": 0.05749999999999034,
+          "totalMs": 31.42382699999989,
+          "cpuMs": 32.861
+        },
+        "reads": {
+          "medianMs": 0.17374999999998408,
+          "totalMs": 5.472455999999994,
+          "cpuMs": 5.533
+        },
+        "initialBytes": {
+          "database": 94208,
+          "wal": 0,
+          "sharedMemory": 32768,
+          "total": 126976
+        },
+        "afterWrites": {
+          "database": 94208,
+          "wal": 2636832,
+          "sharedMemory": 32768,
+          "total": 2763808
+        },
+        "closedBytes": {
+          "database": 147456,
+          "wal": 0,
+          "sharedMemory": 0,
+          "total": 147456
+        },
+        "walPolicy": {
+          "autocheckpointPages": 1000,
+          "initialCheckpoint": true,
+          "finalCloseCheckpointsWal": true
+        },
+        "coldReadMs": 0.19429199999999014
+      },
+      "after": {
+        "saves": {
+          "medianMs": 0.31808300000000145,
+          "totalMs": 14.432454999999976,
+          "cpuMs": 16.738
+        },
+        "idle": {
+          "medianMs": 0.02354200000000617,
+          "totalMs": 13.233211000000125,
+          "cpuMs": 14.374
+        },
+        "reads": {
+          "medianMs": 0.33012500000000955,
+          "totalMs": 10.848582999999977,
+          "cpuMs": 11.76
+        },
+        "initialBytes": {
+          "database": 118784,
+          "wal": 0,
+          "sharedMemory": 32768,
+          "total": 151552
+        },
+        "afterWrites": {
+          "database": 118784,
+          "wal": 329632,
+          "sharedMemory": 32768,
+          "total": 481184
+        },
+        "closedBytes": {
+          "database": 118784,
+          "wal": 0,
+          "sharedMemory": 0,
+          "total": 118784
+        },
+        "walPolicy": {
+          "autocheckpointPages": 1000,
+          "initialCheckpoint": true,
+          "finalCloseCheckpointsWal": true
+        },
+        "coldReadMs": 0.40254200000001106
+      }
+    },
+    {
+      "count": 1000,
+      "fixtureHash": "bf788e3964c690ccfe2789d66f9815d8cfdedc07351614a7d15e260c36d6c324",
+      "before": {
+        "saves": {
+          "medianMs": 1.6137499999999818,
+          "totalMs": 76.42724899999993,
+          "cpuMs": 72.878
+        },
+        "idle": {
+          "medianMs": 0.43970899999999347,
+          "totalMs": 230.25726999999938,
+          "cpuMs": 232.229
+        },
+        "reads": {
+          "medianMs": 1.776625000000024,
+          "totalMs": 54.20758000000012,
+          "cpuMs": 54.642
+        },
+        "initialBytes": {
+          "database": 602112,
+          "wal": 0,
+          "sharedMemory": 32768,
+          "total": 634880
+        },
+        "afterWrites": {
+          "database": 1163264,
+          "wal": 4614432,
+          "sharedMemory": 32768,
+          "total": 5810464
+        },
+        "closedBytes": {
+          "database": 1163264,
+          "wal": 0,
+          "sharedMemory": 0,
+          "total": 1163264
+        },
+        "walPolicy": {
+          "autocheckpointPages": 1000,
+          "initialCheckpoint": true,
+          "finalCloseCheckpointsWal": true
+        },
+        "coldReadMs": 1.782083
+      },
+      "after": {
+        "saves": {
+          "medianMs": 2.2920000000000016,
+          "totalMs": 97.45091999999998,
+          "cpuMs": 105.875
+        },
+        "idle": {
+          "medianMs": 0.02358300000000213,
+          "totalMs": 13.393506999999857,
+          "cpuMs": 14.742
+        },
+        "reads": {
+          "medianMs": 2.819250000000011,
+          "totalMs": 89.92512499999998,
+          "cpuMs": 98.432
+        },
+        "initialBytes": {
+          "database": 757760,
+          "wal": 0,
+          "sharedMemory": 32768,
+          "total": 790528
+        },
+        "afterWrites": {
+          "database": 757760,
+          "wal": 329632,
+          "sharedMemory": 32768,
+          "total": 1120160
+        },
+        "closedBytes": {
+          "database": 757760,
+          "wal": 0,
+          "sharedMemory": 0,
+          "total": 757760
+        },
+        "walPolicy": {
+          "autocheckpointPages": 1000,
+          "initialCheckpoint": true,
+          "finalCloseCheckpointsWal": true
+        },
+        "coldReadMs": 2.9297090000000026
+      }
+    },
+    {
+      "count": 5000,
+      "fixtureHash": "943dda172f4b716fb826182920c9fc0d8570a577d27af354c78686496694ce97",
+      "before": {
+        "saves": {
+          "medianMs": 12.80820799999998,
+          "totalMs": 432.2935819999998,
+          "cpuMs": 409.236
+        },
+        "idle": {
+          "medianMs": 2.263584000000037,
+          "totalMs": 1148.0998660000007,
+          "cpuMs": 1157.527
+        },
+        "reads": {
+          "medianMs": 8.898042000000032,
+          "totalMs": 271.687541,
+          "cpuMs": 275.322
+        },
+        "initialBytes": {
+          "database": 2887680,
+          "wal": 0,
+          "sharedMemory": 32768,
+          "total": 2920448
+        },
+        "afterWrites": {
+          "database": 5734400,
+          "wal": 5751552,
+          "sharedMemory": 32768,
+          "total": 11518720
+        },
+        "closedBytes": {
+          "database": 5734400,
+          "wal": 0,
+          "sharedMemory": 0,
+          "total": 5734400
+        },
+        "walPolicy": {
+          "autocheckpointPages": 1000,
+          "initialCheckpoint": true,
+          "finalCloseCheckpointsWal": true
+        },
+        "coldReadMs": 8.550458000000162
+      },
+      "after": {
+        "saves": {
+          "medianMs": 11.653707999999995,
+          "totalMs": 493.97124899999994,
+          "cpuMs": 508.776
+        },
+        "idle": {
+          "medianMs": 0.024292000000059488,
+          "totalMs": 13.064294999999106,
+          "cpuMs": 14.091
+        },
+        "reads": {
+          "medianMs": 14.24133299999994,
+          "totalMs": 449.5052470000004,
+          "cpuMs": 461
+        },
+        "initialBytes": {
+          "database": 3588096,
+          "wal": 0,
+          "sharedMemory": 32768,
+          "total": 3620864
+        },
+        "afterWrites": {
+          "database": 3588096,
+          "wal": 329632,
+          "sharedMemory": 32768,
+          "total": 3950496
+        },
+        "closedBytes": {
+          "database": 3588096,
+          "wal": 0,
+          "sharedMemory": 0,
+          "total": 3588096
+        },
+        "walPolicy": {
+          "autocheckpointPages": 1000,
+          "initialCheckpoint": true,
+          "finalCloseCheckpointsWal": true
+        },
+        "coldReadMs": 15.685750000000098
+      }
+    }
+  ],
+  "completionIndex": [
+    {
+      "count": 100,
+      "fixtureHash": "e7a484de637432a28345e60ab929629ad42cdc4c7981fc4cac910f3444ce5bdf",
+      "before": {
+        "medianMs": 1.815334000000007,
+        "totalMs": 9.26487400000002,
+        "cpuMs": 20.018,
+        "requests": 500,
+        "completed": 75
+      },
+      "after": {
+        "medianMs": 0.371249999999975,
+        "totalMs": 1.8712899999999877,
+        "cpuMs": 2.778,
+        "requests": 500,
+        "completed": 75
+      },
+      "sameRequestsAndResult": true
+    },
+    {
+      "count": 1000,
+      "fixtureHash": "6c424a88be43c5f6892fad99a4547aad1405c050d1f25620a09e91eaee0a6cae",
+      "before": {
+        "medianMs": 114.60191699999996,
+        "totalMs": 584.3656659999998,
+        "cpuMs": 593.857,
+        "requests": 5000,
+        "completed": 750
+      },
+      "after": {
+        "medianMs": 3.1592079999999783,
+        "totalMs": 16.194124999999985,
+        "cpuMs": 27.617,
+        "requests": 5000,
+        "completed": 750
+      },
+      "sameRequestsAndResult": true
+    },
+    {
+      "count": 3000,
+      "fixtureHash": "93f668fa8357d2a8d234ae7ac652ee1e400469346dacf4c2dfd919e65915cb55",
+      "before": {
+        "medianMs": 1009.0500830000001,
+        "totalMs": 5189.966957000001,
+        "cpuMs": 5242.999,
+        "requests": 15000,
+        "completed": 2250
+      },
+      "after": {
+        "medianMs": 9.004250000000013,
+        "totalMs": 47.326791000000014,
+        "cpuMs": 98.012,
+        "requests": 15000,
+        "completed": 2250
+      },
+      "sameRequestsAndResult": true
+    }
+  ],
+  "notes": [
+    "Equal deterministic inputs, before source archived at075b3fc.",
+    "Microbenchmark only; full task read and write costs are reported even when slower.",
+    "File bytes include database/WAL/SHM; closing checkpoints WAL; no VACUUM."
+  ]
+}

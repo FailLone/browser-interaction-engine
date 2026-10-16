@@ -1,0 +1,15 @@
+{
+  "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-incremental-baseline-075b3fc-skpfmyv4",
+  "node": "v24.22.0",
+  "count": 100,
+  "iterations": 5,
+  "requests": 500,
+  "completed": 75,
+  "requestsHash": "669d9f283a820cbec118765a50d480b21b21f65dd9a33e41467ec1d61b1ab681",
+  "completedHash": "f38fd12af66b17853e0479c67fa7740d87c5f1b203121e6a22864ce566a50dda",
+  "fixtureHash": "e7a484de637432a28345e60ab929629ad42cdc4c7981fc4cac910f3444ce5bdf",
+  "medianMs": 1.8097909999999615,
+  "totalMs": 9.124915999999928,
+  "cpuMs": 19.802,
+  "scope": "synthetic prefilter only; actual SDK equivalence still verified in browser regression tests"
+}

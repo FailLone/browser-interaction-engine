@@ -1,0 +1,32 @@
+{
+  "baselineRevision": "075b3fc03c7b446795bf4f792c2495608d52bcdc",
+  "afterBaseCommit": "075b3fc03c7b446795bf4f792c2495608d52bcdc",
+  "afterRevisionSemantics": "Raw protocol revision fields contain the base commit, NOT a committed optimized product revision. Final uncommitted tested sources are identified by source-before.json/source-after.json hashes; the main report will map them to the final commit after testing. Raw results are not rewritten.",
+  "sourceUnchangedThroughoutAfter": true,
+  "sameProtocolScripts": {
+    "conditions": {
+      "baseline": "4c977f147d123ea1adc7c3496cce927ae5be7603fff317b5700578b2732d8693",
+      "after": "4c977f147d123ea1adc7c3496cce927ae5be7603fff317b5700578b2732d8693",
+      "same": true
+    },
+    "continuation": {
+      "baseline": "7b193666d24f3d7b650667e6b5b640b27e2a281e2db5c45a8ed0e066dba7ff4f",
+      "after": "7b193666d24f3d7b650667e6b5b640b27e2a281e2db5c45a8ed0e066dba7ff4f",
+      "same": true
+    },
+    "input-identity": {
+      "baseline": "7cfe18ff69e2fcdad84cda46b353d2c9d0c44c6ce6486ac36b75a322e52ab1e1",
+      "after": "7cfe18ff69e2fcdad84cda46b353d2c9d0c44c6ce6486ac36b75a322e52ab1e1",
+      "same": true
+    },
+    "recovery-refactor-r1": {
+      "baseline": "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f",
+      "after": "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f",
+      "same": true
+    }
+  },
+  "fixtureChanges": [],
+  "semanticMetricChanges": [],
+  "allComparedSemanticMetricsUnchanged": true,
+  "timingCaveat": "After protocols ran concurrently with parent full regression. Per-trial timings cannot establish speedup; use separate equal-input microbenchmarks."
+}

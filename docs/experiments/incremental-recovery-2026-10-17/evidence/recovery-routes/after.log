@@ -1,0 +1,29 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/recovery-route-alternatives.test.ts > reaches target through another recorded route after a known no-op 1607ms
+ ✓ tests/recovery-route-alternatives.test.ts > reaches checkpoint through another recorded route after a known no-op 1458ms
+ ✓ tests/recovery-route-alternatives.test.ts > replans target from the actual intermediate menu without reopening its successful prefix 2080ms
+ ✓ tests/recovery-route-alternatives.test.ts > replans checkpoint from the actual intermediate menu without reopening its successful prefix 1882ms
+ ✓ tests/recovery-route-alternatives.test.ts > does not physically retry the same failed operation through duplicate successful historical proofs 2181ms
+ ✓ tests/recovery-route-alternatives.test.ts > keeps the session action budget across alternative route plans 1412ms
+ ✓ tests/recovery-route-alternatives.test.ts > does not try an alternate route when a dispatched result is unknown 1163ms
+ ✓ tests/recovery-route-alternatives.test.ts > does not turn an unavailable replay permission into an alternate route 1350ms
+ ✓ tests/recovery-route-alternatives.test.ts > skips duplicate historical proofs rejected by current replay permission without consuming route plans 2910ms
+ ✓ tests/recovery-route-alternatives.test.ts > strict checkpoint recovery respects withdrawn current replay permission and does not reopen entry 1523ms
+ ✓ tests/recovery-route-alternatives.test.ts > bounds recovery alternatives and preserves unreachable work without reopening entry 3074ms
+ ✓ tests/grouped-navigation-path.test.ts > requires exact observation endpoints for a multi-member group and never invents an empty reverse path 16ms
+ ✓ tests/grouped-navigation-path.test.ts > does not splice disconnected exact endpoints through a shared intermediate graph group 5ms
+ ✓ tests/grouped-navigation-path.test.ts > finds and actually replays all exact steps, including a transition within one graph group 10ms
+ ✓ tests/grouped-navigation-path.test.ts > refuses a recorded route whose intermediate evidence is unknown 3ms
+ ✓ tests/grouped-navigation-path.test.ts > refuses a recorded route whose intermediate evidence is failed 3ms
+ ✓ tests/grouped-navigation-path.test.ts > refuses a recorded route whose intermediate evidence is missing-after 2ms
+ ✓ tests/grouped-navigation-path.test.ts > refuses a recorded route whose intermediate evidence is nonreplayable-edge 2ms
+ ✓ tests/grouped-navigation-path.test.ts > rejects an observation endpoint that does not belong to the requested graph node 1ms
+ ✓ tests/grouped-navigation-path.test.ts > preserves an old representative sample as an explicit policy gap when upgrading its key and graph grouping once 5ms
+
+ Test Files  2 passed (2)
+      Tests  20 passed (20)
+   Start at  01:11:22
+   Duration  21.79s (transform 383ms, setup 0ms, collect 819ms, tests 20.69s, environment 0ms, prepare 69ms)
+
