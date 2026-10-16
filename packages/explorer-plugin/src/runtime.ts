@@ -18,7 +18,7 @@ import { POLICY_VERSION } from './decision-policy.js';
 import { semanticAnswerSchema, semanticRejection, type SemanticReview } from './semantic-review.js';
 import { remapStoredScopes, remapStoredReviewScopes, recoverStoredScopeSources } from './scope-migration.js';
 import { reviewGapChanges, controlReviewGapReasons } from './review-ledger.js';
-import { reviewRecoveryChanges, prioritizeReviewAnchors, validReviewRecoveryWait, type ReviewRecoveryChange, type UnresolvedReview } from './review-recovery.js';
+import { reviewRecoveryChanges, prioritizeReviewAnchors, currentHistoryAnchor, validReviewRecoveryWait, type ReviewRecoveryChange, type UnresolvedReview } from './review-recovery.js';
 import { pageSourceObligation, sourceReturnCondition } from './source-return.js';
 import { recoveryFailureCondition } from './recovery-failure.js';
 import { completedOperations } from './completion-evidence.js';
@@ -630,7 +630,9 @@ export class ExplorerPlugin {
       try{value={source:this.host.observation(o.sessionId,observationId),actions:this.host.actions(o.sessionId,observationId)};}catch{}
       retained.set(observationId,value);while(retained.size>8)retained.delete(retained.keys().next().value!);return value;
     };
+    let reviewFallback:{recovery:ScheduledRecovery;route:ScheduledRoute;pageIds:Set<string>}|undefined;
     for(const item of pending){
+      if(reviewFallback&&!reviewFallback.pageIds.has(item.id))continue;
       if(validReviewRecoveryWait(task,item,o,id=>read(id)?.source)){this.deferObligation(task,item.id,recoveryConditionVersion(o),'unchanged_unresolved_review');continue;}
       const returnToSource=!!this.host.returnToObservedSource&&pageSourceObligation(item);
       // A different arrival contract cannot isolate unresolved execution debt.
@@ -641,7 +643,10 @@ export class ExplorerPlugin {
       }
       const refs=[...new Set(item.evidence.filter(ref=>ref.sessionId===o.sessionId&&!ref.attemptId).map(ref=>ref.observationId))].reverse();
       let candidates=refs.length?refs.flatMap(ref=>[...(byObservation.get(ref)||[])].reverse()):broadScope(item.scope)||!item.evidence.length?[...checkpoints].reverse():[];
-      if(returnToSource||!item.scope.kind&&controlReviewGapReasons.has(item.reason))candidates=prioritizeReviewAnchors(candidates,o,id=>read(id)?.source);
+      // Source-position arrival already rejects every non-native candidate, so
+      // its first eligible row is unchanged by the stable native-first sort.
+      // Check lazily instead of reading all historical checkpoints up front.
+      if(!returnToSource&&!item.scope.kind&&controlReviewGapReasons.has(item.reason))candidates=prioritizeReviewAnchors(candidates,o,id=>read(id)?.source);
       let reason=candidates.length?'source_target_unverified':item.evidence.some(ref=>ref.sessionId!==o.sessionId)?'cross_session_observed_route_required':'retained_checkpoint_unavailable';
       for(const checkpoint of candidates){
         const facts=read(checkpoint.observationId);if(!facts)continue;
@@ -709,12 +714,22 @@ export class ExplorerPlugin {
         const retry=routeRetryEligibility(task.routeRetries,key,conditionVersion);
         if(!retry.allowed){reason=`route_retry_${retry.reason}`;continue;}
         const frame:Frame={checkpointId:checkpoint.id,observationId:source.id,stateId:source.stateId,used:[],path,remaining:budgetTargets};
-        bindScheduledRoute(schedule,key,route);
         const concrete=!!item.scope.kind&&!!(item.scope.label||item.scope.stableKey||item.scope.value!==undefined);
-        return {frame,source,remaining:[item.scope],itemId:item.id,routeKey:key,conditionVersion,returnToSource,targetActionIds:concrete?targets.filter(action=>action.basis?.status==='supported').map(action=>action.id):[]};
+        const recovery:ScheduledRecovery={frame,source,remaining:[item.scope],itemId:item.id,routeKey:key,conditionVersion,returnToSource,targetActionIds:concrete?targets.filter(action=>action.basis?.status==='supported').map(action=>action.id):[]};
+        if(!reviewFallback&&this.host.returnToObservedSource&&!item.scope.kind&&controlReviewGapReasons.has(item.reason)&&!currentHistoryAnchor(source,o)){
+          // A stale review source can require a strict replay even when the
+          // accepted page has a current native return. Try that independent
+          // discovery obligation first, without changing the review's source.
+          // Its normal context, unknown, authority and retry gates still apply.
+          const pageIds=new Set(pending.filter(page=>pageSourceObligation(page)&&page.scope.url===source.url).map(page=>page.id));
+          if(pageIds.size){reviewFallback={recovery,route,pageIds};break;}
+        }
+        bindScheduledRoute(schedule,key,route);return recovery;
       }
+      if(reviewFallback?.recovery.itemId===item.id)continue;
       this.deferObligation(task,item.id,recoveryConditionVersion(o),reason);
     }
+    if(reviewFallback){bindScheduledRoute(schedule,reviewFallback.recovery.routeKey,reviewFallback.route);return reviewFallback.recovery;}
   }
   private async step(task:Task,round:Round,signal:AbortSignal):Promise<boolean> {
     const sid=round.sessionId,o=this.host.observation(sid);this.assert(task,signal);
