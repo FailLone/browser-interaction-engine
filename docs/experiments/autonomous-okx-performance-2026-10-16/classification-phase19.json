@@ -440,7 +440,9 @@
         "currentAttributes": {
           "href": "/account/register"
         },
-        "note": "Different captured controls/owner positions; matching label and destination alone are not identity proof."
+        "note": "Different captured controls/owner positions; matching label and destination alone are not identity proof.",
+        "historicalOwner": "Calculator_calculator__x9+0B / index_buyButtonWrapper__ZmLmJ",
+        "currentOwner": "how_to_buy_3_steps_banner / index_tradeButton__joHSA"
       }
     }
   },
