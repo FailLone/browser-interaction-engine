@@ -51,13 +51,14 @@ it('does not alter the route on an unverified transition',()=>{
 });
 
 it('records independent disclosures and their children on separate routes while preserving all execution obligations',async()=>{
- const f=await explorerFixture(`<button id="first" type="button" onclick="document.getElementById('a').hidden=false">First FAQ</button><button id="second" type="button" onclick="document.getElementById('b').hidden=false">Second FAQ</button><div id="a" hidden><button type="button" onclick="this.disabled=true">First child</button></div><div id="b" hidden><button type="button" onclick="this.disabled=true">Second child</button></div>`),providers=fakeProviders(f.url),original=providers.jev.decide;
- providers.jev.decide=async(r,s)=>{if(r.purpose!=='next-action')return original(r,s);const options=Object.entries(r.options!) as [string,any][];const pick=['First FAQ','Second FAQ','First child','Second child'].map(label=>options.find(([,o])=>o.label===label)).find(Boolean);return {model:'fixture',confidence:1,value:pick?.[0]||'uncertain'};};
+ const f=await explorerFixture(`<button id="first" type="button" onclick="document.getElementById('a').hidden=false">First FAQ</button><button id="second" type="button" onclick="document.getElementById('b').hidden=false">Second FAQ</button><div id="a" hidden><button type="button" onclick="this.disabled=true">First child</button></div><div id="b" hidden><button type="button" onclick="this.disabled=true">Second child</button></div>`),providers=fakeProviders(f.url);
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),providers);
  try{
   const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:4}});plugin.start(t.id);await plugin.waitForIdle();
   const task=plugin.view(t.id).task,attempts=f.host.list<any>(task.rounds[0].sessionId,'attempt');
-  expect(attempts.map(a=>a.action.label)).toEqual(['First FAQ','Second FAQ','First child','Second child']);expect(attempts.every(a=>a.status==='succeeded')).toBe(true);
+  // Ready children retain locality before another disclosure; route lineage must
+  // still keep the second FAQ independent of the first branch.
+  expect(attempts.map(a=>a.action.label)).toEqual(['First FAQ','First child','Second FAQ','Second child']);expect(attempts.every(a=>a.status==='succeeded')).toBe(true);
   for(const [label,path] of [['First FAQ',[]],['Second FAQ',[]],['First child',['First FAQ']],['Second child',['Second FAQ']]] as const){
    const items=task.plan.filter(i=>i.scope.label===label&&i.scope.kind==='click');expect(items.length).toBeGreaterThan(0);
    expect(items.every(i=>JSON.stringify(i.prerequisites.map(p=>p.label))===JSON.stringify(path)),JSON.stringify(items)).toBe(true);

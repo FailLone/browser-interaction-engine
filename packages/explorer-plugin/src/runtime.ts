@@ -582,10 +582,11 @@ export class ExplorerPlugin {
     if(!pending.length)return;
     const checkpoints=this.host.list<Checkpoint>(o.sessionId,'checkpoint'),byObservation=new Map<string,Checkpoint[]>();
     for(const checkpoint of checkpoints){const rows=byObservation.get(checkpoint.observationId)||[];rows.push(checkpoint);byObservation.set(checkpoint.observationId,rows);}
-    const retained=new Map<string,{source:Observation;actions:ActionCandidate[]}|undefined>();
+    type Retained={source:Observation;actions:ActionCandidate[];transition?:ReturnType<ExplorerHost['interactionTransition']>};
+    const retained=new Map<string,Retained|undefined>();
     const read=(observationId:string)=>{
       if(retained.has(observationId)){const value=retained.get(observationId);retained.delete(observationId);retained.set(observationId,value);return value;}
-      let value:{source:Observation;actions:ActionCandidate[]}|undefined;
+      let value:Retained|undefined;
       try{value={source:this.host.observation(o.sessionId,observationId),actions:this.host.actions(o.sessionId,observationId)};}catch{}
       retained.set(observationId,value);while(retained.size>8)retained.delete(retained.keys().next().value!);return value;
     };
@@ -600,9 +601,22 @@ export class ExplorerPlugin {
         if(item.scope.url&&item.scope.url!==source.url)continue;
         const targets=sourceActions.filter(action=>matches(item.scope,action,source)&&(!boundOperationCondition(item)||boundOperationCondition(item)===keyFor(action,source)));
         if(item.scope.kind&&(targets.length!==1||!browserTargetConditions(targets[0],source)))continue;
-        const present=actions.filter(action=>matches(item.scope,action,o));
-        if(targets.length&&targets.every(action=>!action.preconditions.enabled)&&present.length&&present.every(action=>!action.preconditions.enabled)){reason='source_target_already_disabled';continue;}
-        if(!item.scope.kind&&!broadScope(item.scope)&&!source.controls.some(control=>controlInScope(item.scope,control,source,sourceActions)))continue;
+        if(!broadScope(item.scope)){
+          // Retained occurrence continuity only suppresses a pointless restore.
+          // It does not equate source modes, authorize the current action, or
+          // discharge a historical operation/review obligation after renaming.
+          const transition=facts.transition??=this.host.interactionTransition(o.sessionId,source.id,o.id);
+          const previous=new Set(item.scope.kind?targets.map(action=>action.localId):source.controls.filter(control=>controlInScope(item.scope,control,source,sourceActions)).map(control=>control.localId));
+          const currentIds=new Set(transition.retainedControls.filter(control=>previous.has(control.beforeLocalId)).map(control=>control.afterLocalId));
+          if(item.scope.kind){
+            const present=actions.filter(action=>matches(item.scope,action,o)||action.kind===item.scope.kind&&!!action.localId&&currentIds.has(action.localId));
+            if(targets.length&&targets.every(action=>!action.preconditions.enabled)&&present.length&&present.every(action=>!action.preconditions.enabled)){reason='source_target_already_disabled';continue;}
+            if(present.some(action=>availability.actions.find(fact=>fact.actionId===action.id)?.blockers.some(blocker=>blocker.code==='ACTION_BLOCKED'&&['submission_not_authorized','interface_risk_required','action_basis_unconfirmed'].includes(blocker.reason)))){reason='current_target_policy_blocked';continue;}
+          }else{
+            if(!previous.size)continue;
+            if(o.controls.some(control=>control.visible&&control.enabled&&(currentIds.has(control.localId)||controlInScope(item.scope,control,o,actions)))){reason='current_review_occurrence_present';continue;}
+          }
+        }
         if(sameObservedState(source,o))continue;
         const hint=round.stack.find(frame=>frame.observationId===source.id&&frame.checkpointId===checkpoint.id);
         const memberKey=recoveryRouteKey(source,sourceActions,[item.scope]),sourceCondition=item.scope.kind&&targets.length===1?browserTargetConditions(targets[0],source)?.key:undefined;
