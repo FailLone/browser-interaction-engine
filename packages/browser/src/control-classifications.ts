@@ -9,8 +9,12 @@ export class ControlClassifications {
   private supported(c: Control, actions: ActionCandidate[]) {
     return Object.values(c.actionBasis || {}).some(b => b.status === 'supported') || actions.some(a => a.localId === c.localId && a.basis?.status === 'supported');
   }
-  negative(c: Control, o: Observation) {
-    return this.records(o.sessionId).find(r => isNonInteractiveClassification(r.classification) && classificationMatches(r, c, o));
+  negative(c: Control, o: Observation, records = this.records(o.sessionId)) {
+    return records.find(r => isNonInteractiveClassification(r.classification) && classificationMatches(r, c, o));
+  }
+  negativeTargets(o: Observation) {
+    const records = this.records(o.sessionId);
+    return new Set(o.controls.filter(c => this.negative(c, o, records)).map(c => c.localId));
   }
   material(o: Observation, actions: ActionCandidate[]): ControlClassificationMaterial {
     const records = this.records(o.sessionId);
@@ -50,8 +54,9 @@ export class ControlClassifications {
       return { ...classification, id: id(), sessionId: o.sessionId, observationId: o.id, source: parsed.source, at: now(), status: 'active' as const,
         conditions, conditionKey: controlClassificationKey(conditions) };
     });
+    const existing = this.records(o.sessionId);
     for (const record of records) {
-      for (const old of this.records(o.sessionId).filter(r => r.status === 'active' && r.conditions.target.instanceScope === o.instanceScope && r.conditions.target.target.instanceId === record.conditions.target.target.instanceId)) {
+      for (const old of existing.filter(r => r.status === 'active' && r.conditions.target.instanceScope === o.instanceScope && r.conditions.target.target.instanceId === record.conditions.target.target.instanceId)) {
         old.status = 'superseded'; old.replacedBy = record.id; this.store.put('control-classification', old); this.emit(o.sessionId, 'control.classification_superseded', old);
       }
       this.store.put('control-classification', record); this.emit(o.sessionId, 'control.classified', record);
@@ -76,9 +81,10 @@ export class ControlClassifications {
     }
   }
   apply(actions: ActionCandidate[], o: Observation) {
+    const negative = this.negativeTargets(o);
     return actions.filter(a => {
       const c = o.controls.find(c => c.localId === a.localId);
-      return a.basis?.status === 'supported' || !c || !this.negative(c, o);
+      return a.basis?.status === 'supported' || !c || !negative.has(c.localId);
     });
   }
   validate(a: ActionCandidate, o: Observation) {

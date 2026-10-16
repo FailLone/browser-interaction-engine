@@ -6,7 +6,7 @@ const rule = 'reviewed-control/v1';
 const references = (a: ActionCandidate) => a.basis?.evidence.filter(e=>e.rule===rule).map(e=>e.facts.reviewId) || [];
 /** Instance-bound external judgments. No native capability, identity or result is rewritten. */
 export class ControlReviews {
-  constructor(private store:Persistence,private emit:(sid:string,type:string,data:unknown)=>unknown,private nonInteractive:(c:Control,o:Observation)=>boolean=()=>false) {}
+  constructor(private store:Persistence,private emit:(sid:string,type:string,data:unknown)=>unknown,private nonInteractive:(o:Observation)=>Set<string>=()=>new Set()) {}
   private records(sid:string) { return this.store.list<ControlReviewRecord>('control-review',sid); }
   private sourceAvailable(r: ControlReviewRecord, seen = new Set<string>()): boolean {
     if (seen.size >= 64 || seen.has(r.id) || ['revoked', 'superseded'].includes(r.status)) return false;
@@ -31,12 +31,12 @@ export class ControlReviews {
       && (!r.exitBoundary || o.boundaries?.at(-1)?.key===r.exitBoundary);
   }
   material(o:Observation,actions:ActionCandidate[]):ControlReviewMaterial {
-    const records=this.records(o.sessionId);
+    const records=this.records(o.sessionId),nonInteractive=this.nonInteractive(o);
     const controls=o.controls.filter(c=>c.visible).map(control=>{
       const candidates=actions.filter(a=>a.localId===control.localId);
       const reviews=records.filter(r=>r.conditions.target.instanceId===control.instanceId && r.conditions.instanceScope===o.instanceScope);
       const reviewed=(kind:string)=>reviews.some(r=>r.kind===kind&&this.matches(r,control,o));
-      const needsReview=!control.readOnly && !this.nonInteractive(control,o) && (!candidates.some(a=>a.basis?.status==='supported') && !Object.values(control.actionBasis||{}).some(b=>b.status==='supported') && !reviews.some(r=>this.matches(r,control,o))
+      const needsReview=!control.readOnly && !nonInteractive.has(control.localId) && (!candidates.some(a=>a.basis?.status==='supported') && !Object.values(control.actionBasis||{}).some(b=>b.status==='supported') && !reviews.some(r=>this.matches(r,control,o))
         || candidates.some(a=>(a.basis?.status!=='supported'||a.risk==='unknown'||['operation_requires_review','navigation_requires_review'].includes(a.exclusionReason||''))&&!reviewed(a.kind)));
       return {control,actions:candidates,reviews,needsReview,reuseCandidates:this.reuseCandidates(control,o,records)};
     });

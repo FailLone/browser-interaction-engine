@@ -24,12 +24,16 @@ export class RetainedEvidenceStore implements EvidenceStore {
   private queue: Promise<unknown> = Promise.resolve();
   private timer?: ReturnType<typeof setInterval>;
   private clock: () => number;
+  // Index only managed manifest IDs that can expire. Values, pins and protection
+  // are always read afresh; every manifest write and restart rebuilds membership.
+  private readonly expiringGroups = new Set<string>();
   readonly maxMemoryBytes: number;
   constructor(private records: Persistence, options: RetentionOptions = {}) {
     this.clock = options.now || Date.now; this.maxMemoryBytes = options.maxMemoryBytes ?? 128 * 1024 ** 2;
     if (!Number.isSafeInteger(this.maxMemoryBytes) || this.maxMemoryBytes < 1024) throw new EngineError('INVALID_QUERY', 'maxMemoryBytes must be an integer of at least 1024');
     // Process-local evidence cannot be reconstructed from a durable manifest.
     for (const group of this.groups()) {
+      this.trackExpiry(group);
       if (group.policy.mode !== 'persistent') for (const key of group.keys) { const entry = this.entry(key); if (entry?.status === 'available') this.save({ ...entry, status: 'not_retained', reason: 'process_restarted' }); }
       if (!group.committed) { group.committed = true; group.pins = []; this.saveGroup(group); }
     }
@@ -40,7 +44,11 @@ export class RetainedEvidenceStore implements EvidenceStore {
   private groups(sessionId?: string) { return this.records.list<Group & { observationId: string }>(GROUP, sessionId).map(g => ({ ...g, id: g.observationId })); }
   private group(id: string) { const g = this.records.get<Group>(GROUP, `retention:${id}`); return g ? { ...g, id } : undefined; }
   private requireGroup(id: string) { const g = this.group(id); if (!g) throw new EngineError('NOT_FOUND', 'Evidence retention manifest is missing'); return g; }
-  private saveGroup(group: Group) { this.records.put(GROUP, { ...group, id: `retention:${group.id}`, observationId: group.id }); }
+  private trackExpiry(group: Group) {
+    if (group.expiresAt !== undefined || group.pins.some(owner => group.pinExpirations?.[owner] !== undefined)) this.expiringGroups.add(group.id);
+    else this.expiringGroups.delete(group.id);
+  }
+  private saveGroup(group: Group) { this.records.put(GROUP, { ...group, id: `retention:${group.id}`, observationId: group.id }); this.trackExpiry(group); }
   private entry(key: string) { const entry = this.records.get<Entry>(ENTRY, `evidence:${key}`); return entry ? { ...entry, id: key } : undefined; }
   private save(entry: Entry) { this.records.put(ENTRY, { ...entry, id: `evidence:${entry.id}`, key: entry.id }); }
   private entries(group: Group) { return group.keys.map(k => this.entry(k)).filter((e): e is Entry => e?.status === 'available'); }
@@ -67,9 +75,14 @@ export class RetainedEvidenceStore implements EvidenceStore {
       this.save({ ...entry, status, reason });
     }
   }
-  private async expire() {
+  private async expire(target?: Group) {
     const now = this.clock();
-    for (const group of this.groups()) {
+    const groups = target ? [target] : [...this.expiringGroups].flatMap(id => {
+      const group = this.group(id);
+      if (!group) this.expiringGroups.delete(id);
+      return group ? [group] : [];
+    });
+    for (const group of groups) {
       const expired = group.pins.filter(owner => group.pinExpirations?.[owner] !== undefined && group.pinExpirations[owner] <= now);
       if (expired.length) {
         group.pins = group.pins.filter(owner => !expired.includes(owner));
@@ -136,10 +149,13 @@ export class RetainedEvidenceStore implements EvidenceStore {
     });
   }
   private async read(key: string, copy = true): Promise<Evidence | undefined> {
-    await this.expire(); const entry = this.entry(key);
+    let entry = this.entry(key);
     if (!entry) return this.records.evidence.get(key);
     if (entry.status !== 'available') return undefined;
     const group = this.requireGroup(entry.observationId);
+    // Reading one artifact must not scan unrelated historical sessions.
+    await this.expire(group); entry = this.entry(key)!;
+    if (entry.status !== 'available') return undefined;
     try {
       const value = group.policy.mode === 'persistent' ? await this.records.evidence.get(key) : this.blobs.get(entry.hash)?.value;
       if (!value) { this.save({ ...entry, status: group.policy.mode === 'persistent' ? 'missing' : 'not_retained', reason: 'evidence_not_found' }); return undefined; }

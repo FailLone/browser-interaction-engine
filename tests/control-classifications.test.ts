@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { BrowserEngine, type ControlClassificationRecord, type ControlClassification, type EngineHooks, type SessionOptions, describeControlCoverage } from '@interaction/browser';
 import { MemoryStore } from '@interaction/storage-memory';
 import { SqliteStore } from '@interaction/storage-sqlite';
@@ -38,6 +38,22 @@ it('classifies a weak display with provenance, removes review noise and never co
     expect(report.completionAudit.exhaustive).toBe(false);expect(report.completionAudit.gaps.some(g=>g.code==='EVENT_LISTENER_COVERAGE')).toBe(true);
     report.completionAudit.controlClassifications[0].evidence.length=0;expect(records(t)[0].evidence).toHaveLength(1);
   }finally{await t.close();}
+});
+
+it('reads classification history once per review material and immediately observes revocation and changed targets',async()=>{
+  const t=await setup(Array.from({length:30},(_,i)=>`<div id="node-${i}" tabindex="0" aria-label="Text ${i}">Read ${i}</div>`).join(''));
+  try {
+    const o=t.engine.observation(t.sid);
+    const saved=await t.engine.classifyControls(t.sid,{observationId:o.id,source:'test',classifications:o.controls.filter(c=>c.stableKey?.startsWith('id:node-')).map(c=>({localId:c.localId,classification:'display' as const,reason:'Static bounded text',evidence:['Current bounded subtree']}))});
+    expect(saved).toHaveLength(30);
+    const read=()=>{const spy=vi.spyOn(t.engine.store,'list');const material=t.engine.controlReviewMaterial(t.sid);const count=spy.mock.calls.filter(([kind])=>kind==='control-classification').length;spy.mockRestore();expect(count).toBe(1);return material;};
+    expect(read().pendingControlIds).toEqual([]);
+    await t.engine.revokeControlClassification(t.sid,{classificationId:saved[0].id,source:'test',reason:'Reconsider this exact node'});
+    expect(read().pendingControlIds).toHaveLength(1);
+    await pageOf(t.engine).locator('#node-29').evaluate(el=>{el.textContent='Changed evidence';});await t.engine.observe(t.sid);
+    expect(read().pendingControlIds).toHaveLength(2);
+    expect(t.engine.session(t.sid).actionCount).toBe(0);
+  } finally {await t.close();}
 });
 
 it('retires only an unattempted tentative container operation and keeps child operations available',async()=>{

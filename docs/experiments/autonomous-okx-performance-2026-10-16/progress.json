@@ -1,0 +1,131 @@
+{
+  "recordedAt": "2026-10-16T03:28:59.416516+00:00",
+  "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+  "url": "https://www.okx.com/convert/btc-to-usd",
+  "status": "running",
+  "complete": false,
+  "baseline": {
+    "actions": 109,
+    "rounds": 12,
+    "modelRequests": 2283,
+    "durationMs": 22206939
+  },
+  "usage": {
+    "rounds": 12,
+    "actions": 111,
+    "durationMs": 22709880,
+    "modelRequests": 2420
+  },
+  "activeElapsedMs": 371921,
+  "budget": {
+    "rounds": 18,
+    "actions": 909,
+    "durationMs": 25800000,
+    "modelRequests": 3352
+  },
+  "newAttempts": [
+    {
+      "id": "7d5a190b-a741-43d2-8997-d3302411670f",
+      "status": "succeeded",
+      "kind": "click",
+      "label": "Close",
+      "sessionId": "094e3ff1-dc30-4eeb-b43d-146d4a31c4bd",
+      "beforeId": "4b211479-c776-43aa-a683-f37896744132",
+      "afterId": "0bba48ad-fb99-4151-b169-d913011c1c17"
+    },
+    {
+      "id": "0c611850-d3d3-42b2-8bc2-f99c665f2fac",
+      "status": "succeeded",
+      "kind": "click",
+      "label": "Close",
+      "sessionId": "094e3ff1-dc30-4eeb-b43d-146d4a31c4bd",
+      "beforeId": "775e84b6-1bf8-4144-a255-f49b0766af4e",
+      "afterId": "b214a260-828e-46ba-99f5-c4a3976ee772"
+    }
+  ],
+  "modelCalls": {
+    "jev": 135,
+    "llm": 2
+  },
+  "modelPurposes": {
+    "region-review": 44,
+    "control-classification": 66,
+    "classification-clarification": 2,
+    "identity-review": 17,
+    "control-risk": 2,
+    "probe-risk": 4,
+    "next-action": 2
+  },
+  "modelStatuses": {
+    "applied": 137
+  },
+  "remainingRequired": 1540,
+  "remainingReasons": {
+    "unknown_action_outcome": 3,
+    "operation_risk_unresolved": 45,
+    "operation_basis_unconfirmed": 51,
+    "observed_in_scope": 688,
+    "UNKNOWN_DISPATCH_REQUIRES_REVIEW": 1,
+    "observation_incomplete": 1,
+    "boundary_preservation_limit": 1,
+    "outside_active_boundary": 225,
+    "operation_unavailable": 244,
+    "outside_scrollable_area": 6,
+    "pointer_intercepted": 8,
+    "ambiguous_scope_match": 5,
+    "operation_not_executed": 220,
+    "boundary_exit_unresolved": 1,
+    "recovery_unresolved": 1,
+    "probe_unresolved": 40
+  },
+  "acceptedLimitations": [
+    {
+      "code": "UNSUPPORTED_CANVAS",
+      "reason": "用户允许不支持的 canvas、iframe 等跳过并记录为不支持；不计执行成功。",
+      "at": "2026-10-16T03:11:20.955Z"
+    }
+  ],
+  "unsupported": [
+    {
+      "reason": "missing_capability:UNSUPPORTED_CANVAS",
+      "status": "untested",
+      "required": false
+    }
+  ],
+  "historicalUnknown": {
+    "attemptId": "a7e1dcc5-1692-4391-b573-ef3bd0c68324",
+    "status": "unknown",
+    "replayed": false
+  },
+  "tests": {
+    "uniqueTestsPassed": 331,
+    "files": {
+      "tests/exploration-decision-reuse.test.ts": 16,
+      "tests/control-classifications.test.ts": 25,
+      "tests/reviewed-boundary-exit.test.ts": 12,
+      "tests/observation-lifecycle.test.ts": 9,
+      "tests/exploration-contracts.test.ts": 12,
+      "tests/explorer-plugin.test.ts": 90,
+      "tests/interventions.test.ts": 14,
+      "tests/inspection.test.ts": 12,
+      "tests/evidence-query.test.ts": 6,
+      "tests/snapshot-events.test.ts": 5,
+      "tests/retention.test.ts": 7,
+      "tests/control-reviews.test.ts": 22,
+      "tests/control-review-reuse.test.ts": 19,
+      "tests/explorer-plugin-ui.test.ts": 7,
+      "tests/explorer-plugin-semantic.test.ts": 55,
+      "tests/explorer-plugin-providers.test.ts": 20
+    },
+    "typecheck": "passed",
+    "build": "passed",
+    "compiledPluginDisabled": "passed",
+    "compiledPluginEnabled": "passed",
+    "fixtureProviders": "mock"
+  },
+  "limitations": [
+    "Current-page task is still running; this is not an exhaustion completion audit.",
+    "Reattachment Close executions do not imply new branch coverage.",
+    "Historical unknown navigation and unsupported canvas retain their original evidence categories."
+  ]
+}

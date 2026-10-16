@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import { expect, it, vi } from 'vitest';
-import { BrowserEngine, type EngineHooks, type InterventionResponseInput, type ActionAttempt, type ExplorationGroup, type FrontierItem, type ReachResult } from '@interaction/browser';
+import { BrowserEngine, type EngineHooks, type InterventionResponseInput, type ActionAttempt, type ExplorationGroup, type FrontierItem, type ReachResult, type Observation } from '@interaction/browser';
 import { MemoryStore } from '@interaction/storage-memory';
 import { InteractionClient } from '@interaction/client';
 import { createServer as apiServer } from '../apps/server/src/server.js';
@@ -43,6 +43,41 @@ it('refreshes intervention work once for a batch while retaining every group dec
     expect(material.items.find(i=>i.subject.groupId===groups.at(-1)!.id)?.status).toBe('deferred');
     expect(t.engine.session(t.sid).actionCount).toBe(0);
     expect(readCount).toBe(1);
+  } finally { await t.close(); }
+});
+
+it.each([false,true])('rebuilds intervention work once for many invalidated scopes, retaining grants as revoked even if capture fails=%s', async fail => {
+  let epoch = 0;
+  const t = await fixture({ explorationScopes: actions => Array.from({length:12},(_,i)=>({key:`changing-${i}`,kind:'custom',label:`Changing ${i}`,conditions:{epoch},actionIds:actions.map(a=>a.id),traversalActionIds:[],evidence:[{source:'test',rule:'changing-scopes/v1',facts:{epoch}}]})) });
+  try {
+    const groups=t.engine.explorationReviewMaterial(t.sid).groups.filter(g=>g.kind==='custom');
+    await t.engine.decideExplorationGroups(t.sid,groups.map(g=>({groupId:g.id,revision:g.revision,decision:{...reason,mode:'all'}})));
+    await new Promise<void>(resolve=>setImmediate(resolve));
+    const before=t.engine.store.events(t.sid).at(-1)!.sequence,reads=vi.spyOn(t.engine,'getFrontier');
+    epoch++;
+    const hooks=t.engine as unknown as {afterCapture:(o:Observation,previous?:Observation,attemptId?:string)=>Promise<void>};
+    const original=hooks.afterCapture.bind(t.engine);
+    const failure=fail?vi.spyOn(hooks,'afterCapture').mockImplementationOnce(async(...args)=>{await original(...args);throw new Error('capture-finalization-failed');}):undefined;
+    if(fail)await expect(t.engine.observe(t.sid)).rejects.toThrow('capture-finalization-failed');
+    else await t.engine.observe(t.sid);
+    failure?.mockRestore();
+    const current=t.engine.observation(t.sid);
+    await new Promise<void>(resolve=>setImmediate(resolve));
+    const readCount=reads.mock.calls.length;reads.mockRestore();
+    const events=t.engine.store.events(t.sid,before);
+    expect(events.filter(e=>e.type==='exploration.group_invalidated')).toHaveLength(12);
+    expect(events.filter(e=>e.type==='interventions.updated')).toHaveLength(1);
+    expect(readCount).toBe(1);
+    const material=t.engine.interventionMaterial(t.sid);
+    expect(material.observationId).toBe(current.id);
+    const fresh=t.engine.explorationReviewMaterial(t.sid).groups.filter(g=>g.kind==='custom');
+    expect(fresh).toHaveLength(12);
+    expect(fresh.every(g=>g.status==='pending'&&!groups.some(old=>old.id===g.id))).toBe(true);
+    expect(fresh.every(g=>material.items.some(i=>i.subject.groupId===g.id&&i.status==='awaiting_decision'))).toBe(true);
+    expect(t.engine.session(t.sid).actionCount).toBe(0);
+    // Failure must not leave a suppression flag that hides later changes.
+    await t.engine.decideExplorationGroups(t.sid,fresh.map(g=>({groupId:g.id,revision:g.revision,decision:{...reason,mode:'defer'}})));
+    expect(t.engine.interventionMaterial(t.sid).items.filter(i=>fresh.some(g=>g.id===i.subject.groupId)).every(i=>i.status==='deferred')).toBe(true);
   } finally { await t.close(); }
 });
 

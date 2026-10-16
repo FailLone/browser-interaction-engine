@@ -43,6 +43,26 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   private readonly interventions: Interventions;
   private readonly externalRecoveryVerifier?: EngineHooks['verifyExternalRecovery'];
   private readonly interventionRequests = new Map<string, Promise<unknown>>();
+  private readonly interventionCaptures = new Map<string, { depth: number; pending: boolean }>();
+  private syncInterventions(sid: string) {
+    const capture = this.interventionCaptures.get(sid);
+    if (capture) capture.pending = true;
+    else this.interventions.sync(sid);
+  }
+  protected override async capture(sid: string, cause: Observation['cause'], attemptId?: string, parentId?: string): Promise<Observation> {
+    const batch = this.interventionCaptures.get(sid) || { depth: 0, pending: false };
+    this.interventionCaptures.set(sid, batch); batch.depth++;
+    try { return await super.capture(sid, cause, attemptId, parentId); }
+    finally {
+      if (--batch.depth === 0) {
+        this.interventionCaptures.delete(sid);
+        // One projection after all observation/review hooks, including recursive
+        // identity captures and failed captures that committed invalidations.
+        // Public reads still build fresh material; no grant or result is cached.
+        if (batch.pending) this.interventions.sync(sid);
+      }
+    }
+  }
   publishInterventions(sid: string, type: string, data: unknown) { this.publish(sid, type, data); }
   interventionMaterial(sid: string, since?: string) { return this.interventions.material(sid, since); }
   blockingBoundaryExit(sid: string) { return this.boundaryExits.blockingResult(sid); }
@@ -366,7 +386,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   protected override afterExplorationDecisions(sid: string) {
     this.depthReuse.reconcile(this.observation(sid), this.actions(sid));
     this.regions.gate(this.observation(sid), this.session(sid));
-    this.interventions.sync(sid);
+    this.syncInterventions(sid);
   }
   explorationDecisionReuseMaterial(sid: string) { return this.depthReuse.material(this.observation(sid), this.actions(sid)); }
   private async validateDepthReuse(o: Observation, actionIds: string[]) {
@@ -575,7 +595,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
         if (valid.value) await this.hook(observation.sessionId, 'explorationDecisionReuse-record', () => this.commitDepthReuse(observation, valid.value!));
       }
     }
-    this.interventions.sync(observation.sessionId);
+    this.syncInterventions(observation.sessionId);
   }
   protected override captureFailed(sessionId: string, observationId: string, error: unknown) { return this.inspections.failed(sessionId, observationId, error); }
   protected override beforeAction(sessionId: string) { return this.inspections.beforeAction(sessionId); }
@@ -654,7 +674,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     this.depthReuse = new ExplorationDecisionReuse(this.store, (sid, type, data) => this.publish(sid, type, data), (sid, groupId, observationId, reason) => this.invalidateExplorationDecision(sid, groupId, observationId, reason));
     this.depthReuseHook = options.hooks?.explorationDecisionReuse;
     this.classifications = new ControlClassifications(this.store, (sid,type,data)=>this.publish(sid,type,data));
-    this.controls = new ControlReviews(this.store,(sid,type,data)=>this.publish(sid,type,data), (c,o)=>!!this.classifications.negative(c,o));
+    this.controls = new ControlReviews(this.store,(sid,type,data)=>this.publish(sid,type,data), o=>this.classifications.negativeTargets(o));
     this.classificationHook = options.hooks?.controlClassification;
     this.controlHook = options.hooks?.controlReview;
     this.regionHook = options.hooks?.regionReview;
@@ -666,7 +686,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       // Manual, batch and capture-hook decisions already synchronize through
       // afterExplorationDecisions. Replaying their per-group audit events must
       // not rebuild the complete intervention material for every member.
-      if (/^(exploration\.(paused|finished|group_invalidated|decision_reuse_revoked|decision_invalidated)|session\.(paused|reattached)|checkpoint\.result|control\.(review_revoked|classification_revoked)|region\.reuse_revoked|action\.(completed|unknown))$/.test(event.type)) this.interventions.sync(event.sessionId);
+      if (/^(exploration\.(paused|finished|group_invalidated|decision_reuse_revoked|decision_invalidated)|session\.(paused|reattached)|checkpoint\.result|control\.(review_revoked|classification_revoked)|region\.reuse_revoked|action\.(completed|unknown))$/.test(event.type)) this.syncInterventions(event.sessionId);
     });
   }
   override async diffDetails(sessionId: string, beforeId: string, afterId: string, region?: string) { return explainBrowserDiff(await super.diffDetails(sessionId, beforeId, afterId, region), this.store.evidence); }

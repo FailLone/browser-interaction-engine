@@ -1,4 +1,4 @@
-import { it, expect } from 'vitest';
+import { it, expect, vi } from 'vitest';
 import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -86,6 +86,34 @@ it('persists retention manifests across restart and records lost memory snapshot
     expect(await store.evidence.availability('persistent.json')).toMatchObject({ status: 'available', durability: 'persistent' });
     await store.evidence.release('persistent', 'persistent'); expect((await store.evidence.availability('persistent.json')).status).toBe('released');
   } finally { await store.evidence.flush(); store.close(); rmSync(directory, { recursive: true, force: true }); }
+});
+
+it('reads and sweeps without rescanning permanent history, preserving TTL and finite pins across restart', async () => {
+  const directory=mkdtempSync(join(tmpdir(),'retention-expiry-index-'));let clock=0;
+  let raw=new SqliteStore(directory),store=new RetainedPersistence(raw,{now:()=>clock,sweepIntervalMs:0});
+  const capture=async(id:string,ttlMs=0)=>{
+    await store.evidence.beginObservation({sessionId:id,observationId:id,policy:evidenceRetentionSchema.parse({mode:'persistent',ttlMs})});
+    await store.evidence.put(id,{data:new Uint8Array([1,2,3]),mediaType:'image/png'});await store.evidence.endObservation(id,true);
+  };
+  try {
+    for(let i=0;i<40;i++)await capture(`history-${i}`);
+    await capture('finite',10);await store.evidence.pin(['finite'],'reservation',{expiresAt:20});
+    await store.evidence.flush();store.close();
+    raw=new SqliteStore(directory);store=new RetainedPersistence(raw,{now:()=>clock,sweepIntervalMs:0});
+    const lists=vi.spyOn(raw,'list'),reads=vi.spyOn(raw,'get');
+    expect(await store.evidence.get('history-0')).toBeDefined();await store.evidence.sweep();
+    expect(lists.mock.calls.filter(([kind])=>kind==='evidence-retention')).toHaveLength(0);
+    expect(new Set(reads.mock.calls.filter(([kind])=>kind==='evidence-retention').map(([,id])=>id))).toEqual(new Set(['retention:history-0','retention:finite']));
+    lists.mockRestore();reads.mockRestore();
+    // A finite pin added after restart must enter the expiry index even with TTL 0.
+    await store.evidence.pin(['history-1'],'short',{expiresAt:5});clock=6;await store.evidence.sweep();
+    expect(raw.require<{pins:string[]}>('evidence-retention','retention:history-1').pins).toEqual([]);
+    expect(await store.evidence.get('history-1')).toBeDefined();
+    clock=11;expect((await store.evidence.availability('finite')).status).toBe('available');
+    clock=21;expect((await store.evidence.availability('finite')).status).toBe('expired');
+    expect(await raw.evidence.get('finite')).toBeUndefined();
+    expect(await store.evidence.get('history-0')).toBeDefined();
+  } finally {await store.evidence.flush();store.close();rmSync(directory,{recursive:true,force:true});}
 });
 
 it('expires finite pins independently and drops abandoned reservations without an inspection process', async () => {
