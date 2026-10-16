@@ -1,0 +1,515 @@
+{
+  "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+  "baseline": {
+    "at": "2026-10-16T07:41:22.622367+00:00",
+    "commit": "32e1dcf",
+    "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+    "taskSnapshot": ".data/okx-legacy-route-task-before.json",
+    "status": "paused",
+    "usage": {
+      "rounds": 15,
+      "actions": 236,
+      "durationMs": 27686128,
+      "modelRequests": 3115
+    },
+    "budget": {
+      "rounds": 21,
+      "actions": 1209,
+      "durationMs": 28200000,
+      "modelRequests": 3952
+    },
+    "decisionCursor": 3243,
+    "eventCursor": 45745,
+    "resumeAt": "2026-10-16T07:41:22.622367+00:00"
+  },
+  "auditedAt": "2026-10-16T07:52:25.191380+00:00",
+  "status": "paused",
+  "reason": "user_paused",
+  "pendingDispatch": null,
+  "totals": {
+    "persistedUsage": {
+      "rounds": 15,
+      "actions": 243,
+      "durationMs": 27937944,
+      "modelRequests": 3155
+    },
+    "budget": {
+      "rounds": 21,
+      "actions": 1209,
+      "durationMs": 28200000,
+      "modelRequests": 3952
+    },
+    "usageDelta": {
+      "rounds": 0,
+      "actions": 7,
+      "durationMs": 251816,
+      "modelRequests": 40
+    },
+    "activeDurationDeltaMs": 251816,
+    "wallTimeSinceBaselineMs": 662569
+  },
+  "newExecution": {
+    "attemptCounts": {
+      "succeeded": 7
+    },
+    "verifiedCount": 7,
+    "verified": [
+      {
+        "id": "6b464cff-8a23-474f-94a9-5f5eda3a8fbc",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:46:44.533Z",
+        "finishedAt": "2026-10-16T07:46:48.723Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "138cefeb-6329-4887-ac33-2b9dbddb7dbd",
+        "afterId": "bef69094-1501-4198-a174-84427be876f8",
+        "documentId": "a268caa1-ed24-4b3c-a766-5ac2e04a6d27",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "0383f3ac-984c-4f62-9ff6-fe26d63e1db0",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:46:55.869Z",
+        "finishedAt": "2026-10-16T07:47:04.863Z",
+        "label": "Search crypto",
+        "kind": "fill",
+        "value": "example",
+        "beforeId": "bef69094-1501-4198-a174-84427be876f8",
+        "afterId": "62356882-420a-4f49-b1cd-95a91cdb83e9",
+        "documentId": "a268caa1-ed24-4b3c-a766-5ac2e04a6d27",
+        "stableKey": "testid:okd-input",
+        "region": "navigation:navContainer",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "ccc25b7e-dd04-4583-af16-3e80a44bf8e0",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:47:13.016Z",
+        "finishedAt": "2026-10-16T07:47:17.874Z",
+        "label": "Where can I learn more about trading?",
+        "kind": "click",
+        "value": null,
+        "beforeId": "62356882-420a-4f49-b1cd-95a91cdb83e9",
+        "afterId": "634162ea-5905-4db3-a678-b188f5f23f73",
+        "documentId": "a268caa1-ed24-4b3c-a766-5ac2e04a6d27",
+        "stableKey": "testid:okd-accordion-header",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "6a203d1b-c872-417c-ac9c-c06c56ae6f30",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:47:26.451Z",
+        "finishedAt": "2026-10-16T07:47:31.446Z",
+        "label": "Where can I find more information about Bitcoin (BTC)?",
+        "kind": "click",
+        "value": null,
+        "beforeId": "634162ea-5905-4db3-a678-b188f5f23f73",
+        "afterId": "55434d2e-3780-4dc9-950e-cdc5c498f034",
+        "documentId": "a268caa1-ed24-4b3c-a766-5ac2e04a6d27",
+        "stableKey": "testid:okd-accordion-header",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "f23e3d89-5188-45db-bea2-d49dd124098a",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:48:46.333Z",
+        "finishedAt": "2026-10-16T07:48:50.535Z",
+        "label": "Scrollable generic",
+        "kind": "scroll",
+        "value": {
+          "x": 840,
+          "y": 0
+        },
+        "beforeId": "ebcd25f1-008a-406b-9b0f-f529f0cf68d2",
+        "afterId": "0203a557-0315-47ca-b3fc-da08efbb79ba",
+        "documentId": "a268caa1-ed24-4b3c-a766-5ac2e04a6d27",
+        "stableKey": null,
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "8a6cb788-425c-4fb1-89b0-606fc08252fa",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:48:59.685Z",
+        "finishedAt": "2026-10-16T07:49:04.790Z",
+        "label": "Trade",
+        "kind": "click",
+        "value": null,
+        "beforeId": "0203a557-0315-47ca-b3fc-da08efbb79ba",
+        "afterId": "65082c2d-fc31-4314-b6ad-24de5eec284f",
+        "documentId": "a268caa1-ed24-4b3c-a766-5ac2e04a6d27",
+        "stableKey": "id:title-nav-trade",
+        "region": "navigation:navContainer",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "bb8703e5-da1d-434f-a2fa-a20645ce4d7e",
+        "status": "succeeded",
+        "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+        "startedAt": "2026-10-16T07:49:16.928Z",
+        "finishedAt": "2026-10-16T07:49:22.733Z",
+        "label": "Scroll page",
+        "kind": "scroll",
+        "value": {
+          "documentId": "a268caa1-ed24-4b3c-a766-5ac2e04a6d27",
+          "containerNodeId": "a268caa1-ed24-4b3c-a766-5ac2e04a6d27:510",
+          "left": 0,
+          "top": 675,
+          "expectedLeft": 0,
+          "expectedTop": 0,
+          "width": 1440,
+          "height": 900,
+          "maxLeft": 0,
+          "maxTop": 7031
+        },
+        "beforeId": "65082c2d-fc31-4314-b6ad-24de5eec284f",
+        "afterId": "0690f377-32f3-41dc-a6bc-06d1177f8ccf",
+        "documentId": "a268caa1-ed24-4b3c-a766-5ac2e04a6d27",
+        "stableKey": null,
+        "region": null,
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      }
+    ],
+    "nonSuccess": [],
+    "newlySucceededPlanRows": 0,
+    "newlySucceededExactLeafScopes": 0,
+    "newlySucceededOperationScopes": [],
+    "repeatedLabelKindValue": [],
+    "historicalEvidenceNotCurrentSuccess": true,
+    "repetitionCaveat": "Matching labels/kinds/values only flag possible repeated work. They do not assert host operation equivalence, identity or new coverage."
+  },
+  "models": {
+    "jev": {
+      "requests": 39,
+      "purposeCounts": {
+        "region-review": 24,
+        "control-classification": 3,
+        "identity-review": 1,
+        "control-risk": 2,
+        "probe-risk": 2,
+        "next-action": 7
+      },
+      "statusCounts": {
+        "requested": 0,
+        "returned": 0,
+        "applied": 38,
+        "rejected": 0,
+        "stale": 0,
+        "failed": 1,
+        "cancelled": 0
+      },
+      "elapsedMsSum": 45790,
+      "elapsedMsMedian": 594,
+      "elapsedMsP95NearestRank": 4100,
+      "missingDurationRequests": 0,
+      "reportedUsage": {
+        "input_tokens": 189662,
+        "output_tokens": 19800,
+        "cost": 0.007965804
+      },
+      "usageAvailableResponses": 38
+    },
+    "llm": {
+      "requests": 1,
+      "purposeCounts": {
+        "classification-clarification": 1
+      },
+      "statusCounts": {
+        "requested": 0,
+        "returned": 0,
+        "applied": 1,
+        "rejected": 0,
+        "stale": 0,
+        "failed": 0,
+        "cancelled": 0
+      },
+      "elapsedMsSum": 2614,
+      "elapsedMsMedian": 2614,
+      "elapsedMsP95NearestRank": 2614,
+      "missingDurationRequests": 0,
+      "reportedUsage": {
+        "prompt_tokens": 3933,
+        "completion_tokens": 294,
+        "total_tokens": 4227,
+        "cost": 0.0015327
+      },
+      "usageAvailableResponses": 1
+    }
+  },
+  "phases": {
+    "consecutiveActionDispatchIntervals": {
+      "count": 6,
+      "sumMs": 150613,
+      "p95MsNearestRank": 79895,
+      "medianMs": 14465.5,
+      "minMs": 11297,
+      "maxMs": 79895
+    },
+    "consecutiveActionVerifiedIntervals": {
+      "count": 6,
+      "sumMs": 154290,
+      "p95MsNearestRank": 78952,
+      "medianMs": 15319.5,
+      "minMs": 13124,
+      "maxMs": 78952
+    },
+    "dispatchValidationToDispatch": {
+      "count": 7,
+      "sumMs": 9823,
+      "p95MsNearestRank": 2323,
+      "medianMs": 1393,
+      "minMs": 279,
+      "maxMs": 2323
+    },
+    "actionDispatchToVerified": {
+      "count": 7,
+      "sumMs": 58040,
+      "p95MsNearestRank": 11499,
+      "medianMs": 7722,
+      "minMs": 6536,
+      "maxMs": 11499
+    },
+    "probeDispatchToVerified": {
+      "count": 0,
+      "sumMs": 0,
+      "p95MsNearestRank": null,
+      "medianMs": null,
+      "minMs": null,
+      "maxMs": null
+    },
+    "unmatchedActionDispatchEvents": 0,
+    "unmatchedProbeDispatchEvents": 0,
+    "jevNextActionRequest": {
+      "count": 7,
+      "sumMs": 9599,
+      "p95MsNearestRank": 2664,
+      "medianMs": 1174,
+      "minMs": 509,
+      "maxMs": 2664
+    },
+    "resumeAt": "2026-10-16T07:41:22.622367+00:00",
+    "resumeToReattachedMs": 20509
+  },
+  "previousPhaseComparison": {
+    "metricVersion": 3,
+    "fromEventSequence": 37591,
+    "fromAt": "2026-10-16T04:37:26.501Z",
+    "toEventSequence": 38596,
+    "toAt": "2026-10-16T04:46:56.160Z",
+    "phases": {
+      "consecutiveActionDispatchIntervals": {
+        "count": 19,
+        "sumMs": 490785,
+        "p95MsNearestRank": 94888,
+        "medianMs": 22064,
+        "minMs": 19100,
+        "maxMs": 94888
+      },
+      "consecutiveActionVerifiedIntervals": {
+        "count": 19,
+        "sumMs": 492697,
+        "p95MsNearestRank": 94303,
+        "medianMs": 22353,
+        "minMs": 19471,
+        "maxMs": 94303
+      },
+      "dispatchValidationToDispatch": {
+        "count": 20,
+        "sumMs": 124056,
+        "p95MsNearestRank": 6891,
+        "medianMs": 6620.5,
+        "minMs": 238,
+        "maxMs": 6961
+      },
+      "actionDispatchToVerified": {
+        "count": 20,
+        "sumMs": 176193,
+        "p95MsNearestRank": 10254,
+        "medianMs": 8599.5,
+        "minMs": 6663,
+        "maxMs": 10397
+      },
+      "probeDispatchToVerified": {
+        "count": 0,
+        "sumMs": 0,
+        "p95MsNearestRank": null,
+        "medianMs": null,
+        "minMs": null,
+        "maxMs": null
+      },
+      "unmatchedActionDispatchEvents": 0,
+      "unmatchedProbeDispatchEvents": 0,
+      "jevNextActionRequest": {
+        "count": 20,
+        "sumMs": 29755,
+        "p95MsNearestRank": 1671,
+        "medianMs": 1538.0,
+        "minMs": 399,
+        "maxMs": 1721
+      }
+    },
+    "note": "Prior run from round.reattached to task.paused; excludes attach cold-start."
+  },
+  "currentObserved": {
+    "sessionId": "937b411b-5735-4748-8f19-917fe7459f72",
+    "sessionStatus": "paused",
+    "observationId": "0690f377-32f3-41dc-a6bc-06d1177f8ccf",
+    "documentId": "a268caa1-ed24-4b3c-a766-5ac2e04a6d27",
+    "capturedAt": "2026-10-16T07:49:21.543Z",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "controls": 293,
+    "visibleEnabledControls": 232,
+    "storedCandidates": 212,
+    "rawCandidateBlockers": {
+      "outside_scrollable_area": 4,
+      "pointer_intercepted": 3
+    },
+    "rawBlockerCaveat": "Stored observation candidate facts only; no current SDK availability query or dispatch authorization asserted.",
+    "gapCodes": {
+      "STRUCTURAL_LIST_SCAN_TRUNCATED": 1,
+      "STRUCTURAL_DISCOVERY_LIMIT": 17,
+      "UNSUPPORTED_CANVAS": 7,
+      "EVENT_LISTENER_COVERAGE": 1
+    }
+  },
+  "remaining": {
+    "planRows": 3052,
+    "exactScopes": 1753,
+    "unfinishedExactScopes": 1673,
+    "reasonRows": {
+      "unknown_action_outcome": 3,
+      "UNKNOWN_DISPATCH_REQUIRES_REVIEW": 1,
+      "observation_incomplete": 1,
+      "boundary_preservation_limit": 1,
+      "recovery_unresolved": 1,
+      "operation_risk_unresolved": 45,
+      "operation_basis_unconfirmed": 128,
+      "observed_in_scope": 842,
+      "outside_active_boundary": 222,
+      "outside_scrollable_area": 25,
+      "operation_unavailable": 238,
+      "operation_not_executed": 580,
+      "pointer_intercepted": 91,
+      "region_review_required": 541,
+      "ambiguous_scope_match": 5,
+      "interface_risk_required": 8,
+      "probe_unresolved": 40,
+      "classification_unresolved": 94,
+      "boundary_exit_unresolved": 1,
+      "identity_unresolved": 7,
+      "Control is not visible or enabled": 1
+    },
+    "unknownAttempts": [
+      {
+        "attemptId": "a7e1dcc5-1692-4391-b573-ef3bd0c68324",
+        "sessionId": "27513942-05b7-43e6-bedd-712d0aadfd75",
+        "status": "unknown",
+        "afterId": "71987594-8de1-4da0-8322-28a2f8b91a72",
+        "sourceUrl": "https://www.okx.com/convert/btc-to-usd",
+        "targetUrl": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application"
+      }
+    ],
+    "acceptedUnsupported": [
+      {
+        "id": "fb6a2ddd-3472-466e-a2b3-9a866bbdcfc7",
+        "reason": "missing_capability:UNSUPPORTED_CANVAS",
+        "status": "untested",
+        "required": false,
+        "evidenceCount": 1
+      }
+    ],
+    "notExhaustive": true
+  },
+  "progressEvents": {
+    "round.reattached": 1,
+    "review.reopened": 3,
+    "decision.requested": 40,
+    "decision.returned": 39,
+    "decision.resolved": 38,
+    "decision.applied": 39,
+    "decision.effect": 47,
+    "scope.retained": 2,
+    "review.resolved": 3,
+    "decision.failed": 1,
+    "decision.deferred": 1,
+    "task.halted": 1,
+    "scope.audit": 7,
+    "action.dispatch": 7,
+    "action.verified": 7,
+    "branch.route_recovered": 17,
+    "branch.reentry_planned": 2,
+    "branch.route_reconciled": 13,
+    "action.priority": 2,
+    "task.paused": 1
+  },
+  "lastEvents": [
+    {
+      "sequence": 46483,
+      "at": "2026-10-16T07:49:23.098Z",
+      "type": "frontier.updated",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 46484,
+      "at": "2026-10-16T07:49:23.099Z",
+      "type": "discovery.scan_requested",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 46485,
+      "at": "2026-10-16T07:49:23.099Z",
+      "type": "control.classification_requested",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 46486,
+      "at": "2026-10-16T07:49:23.099Z",
+      "type": "control.review_requested",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 46487,
+      "at": "2026-10-16T07:49:24.420Z",
+      "type": "interventions.updated",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 46488,
+      "at": "2026-10-16T07:49:24.552Z",
+      "type": "action.verified",
+      "actor": "program",
+      "decisionId": null
+    },
+    {
+      "sequence": 46489,
+      "at": "2026-10-16T07:49:26.018Z",
+      "type": "session.paused",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 46490,
+      "at": "2026-10-16T07:49:26.104Z",
+      "type": "task.paused",
+      "actor": "program",
+      "decisionId": null
+    }
+  ],
+  "readOnlyAudit": true
+}

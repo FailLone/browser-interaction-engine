@@ -987,7 +987,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
             const attempt = await this.runAction(sessionId, sourceReturn.id, id(), undefined, 'recovery'); performed.push(attempt.id);
             verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
             if (attempt.status !== 'succeeded') { status = 'UNVERIFIED'; reason = 'Return to observed source could not be verified'; return finish(); }
-            if (verification.status) { status = verification.status; reason = 'Verified after return to observed source'; return finish(); }
+            if (verification.status) { status = verification.status; reason = `Verification after return to observed source: ${status}`; return finish(); }
             triedExits.clear();
             // Native history may restore an open interaction boundary. Exit and
             // verify it before considering any replay or environment reopening.
@@ -998,14 +998,14 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         triedExits.add(this.boundaryExitKey(close, current));
         const a = await this.runAction(sessionId, close.id, id(), undefined, 'recovery'); performed.push(a.id);
         verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
-        if (verification.status) { status = verification.status; reason = 'Verified after boundary exit attempt'; return finish(); }
+        if (verification.status) { status = verification.status; reason = `Verification after boundary exit attempt: ${status}`; return finish(); }
       }
       strategies.push('recorded_path');
       const path = this.navigationPath(sessionId, this.observation(sessionId).stateId, checkpoint.stateId);
       if (path?.length) {
         const failure = await this.replay(sessionId, path, false, performed);
         verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
-        if (verification.status) { status = verification.status; reason = failure || 'Recorded path verified'; return finish(); }
+        if (verification.status) { status = verification.status; reason = failure || `Recorded path verification: ${status}`; return finish(); }
         if (failure) { reason = failure; return finish(); }
       }
       strategies.push('declared_local_restore');
@@ -1026,7 +1026,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         }
         this.emit(sessionId, 'checkpoint.local_restore', { checkpointId, attemptId: attempt.id, evidence: step.evidence });
         verification = await this.verify(sessionId, checkpoint); checks = verification.checks;
-        if (verification.status) { status = verification.status; reason = 'Verified after declared local restoration'; return finish(); }
+        if (verification.status) { status = verification.status; reason = `Verification after declared local restoration: ${status}`; return finish(); }
       }
       let session = this.session(sessionId); let resetConfirmed = false; let entryReopened = false;
       if (session.dirty && this.hooks.reset) {

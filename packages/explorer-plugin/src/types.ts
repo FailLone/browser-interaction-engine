@@ -40,7 +40,7 @@ export interface Round {
   /** A freshly observed boundary visit may need its own exit despite historical coverage. */
   boundaryVisit?: {key:string;instanceScope:string;observationId:string;scopeId?:string};
   /** Bound repeated entry despite changing uncompleted labels; saved across restart. */
-  reentryProgress?: Record<string,{attempts:number;completedScopes:string[];notified?:boolean}>;
+  reentryProgress?: Record<string,{attempts:number;completedScopes:string[];notified?:boolean;revalidationNotified?:boolean}>;
   /** Verified revealed targets; historical tasks may lack route proof. */
   entryRoutes?: EntryRoute[];
   routeDeferrals?: string[];

@@ -440,7 +440,7 @@ export class ExplorerPlugin {
       hasPendingAction:(filter?: (action:ActionCandidate)=>boolean,freshOnly=false)=>{
         const availability=this.host.actionAvailability(sid,o.id),actions=this.host.actions(sid).filter(a=>(!filter||filter(a))&&!this.navigationIsUnverified(task,a,o)&&permitted(a,o,availability)&&includesScope(task.plan,a,o));
         const completed=completedOperations(this.host,task,o,actions);
-        return actions.some(a=>(!round.tried.includes(this.attemptKey(round,a,o))&&(this.currentExit(a,o)||!completed.has(a)))||!freshOnly&&this.neededEntry(task,round,a,o));
+        return actions.some(a=>this.freshAction(task,round,a,o,completed.has(a))||!freshOnly&&this.neededEntry(task,round,a,o));
       },
       choose:(p,i,s,opts,constraints)=>this.choose(task,signal,o,p,i,s,opts,constraints),generate:(p,i,s,schema)=>this.generate(task,signal,o,p,i,s,schema),
       assess:(p,s,checks)=>this.assess(task,signal,o,p,s,checks),refresh:(d,key)=>this.refreshEvidence(task,signal,o,d,key),
@@ -461,7 +461,7 @@ export class ExplorerPlugin {
     const completed=completedOperations(this.host,task,o,[...actions,...snapshot.operationCandidates]),fresh=new Set<string>();
     const eligible=actions.filter(a=>{
       if(this.navigationIsUnverified(task,a,o)||!permitted(a,o,availability)||!includesScope(task.plan,a,o))return false;
-      if(!round.tried.includes(this.attemptKey(round,a,o))&&(this.currentExit(a,o)||!completed.has(a))){fresh.add(a.id);return true;}
+      if(this.freshAction(task,round,a,o,completed.has(a))){fresh.add(a.id);return true;}
       return this.neededEntry(task,round,a,o);
     });
     // Same-label targets must be disambiguated by scope/role/stable key. Never choose an arbitrary occurrence.
@@ -614,9 +614,32 @@ export class ExplorerPlugin {
       &&i.prerequisites.some(p=>Object.entries(p).every(([key,value])=>actual[key as keyof Scope]===value)));
   }
   private entryTargets(task:Task,a:ActionCandidate,o:Observation) {return this.entryObligations(task,a,o).filter(i=>i.status!=='succeeded');}
-  private entryProgress(task:Task,r:Round,a:ActionCandidate,o:Observation) {
+  private entryProgressRecord(task:Task,r:Round,a:ActionCandidate,o:Observation) {
     const key=digest({entry:scopeFor(a,o),context:o.context}),legacyKey=digest(scopeFor(a,o));
     const previous=r.reentryProgress?.[key]||r.reentryProgress?.[legacyKey]||[...task.rounds].reverse().map(round=>round.reentryProgress?.[key]).find(Boolean);
+    return {key,previous};
+  }
+  private freshAction(task:Task,r:Round,a:ActionCandidate,o:Observation,completed:boolean) {
+    if(r.tried.includes(this.attemptKey(r,a,o)))return false;
+    // A current boundary exit remains available even after prior branch visits.
+    if(this.currentExit(a,o))return true;
+    if(completed)return false;
+    // Failed correspondence is not proof of a new entry. Preserve the host's
+    // stricter operation judgment without bypassing an already spent reentry
+    // allowance after document replacement, review change or restart.
+    const previous=this.entryProgressRecord(task,r,a,o).previous;
+    if(previous?.attempts&&this.entryProgress(task,r,a,o).attempts>=1){
+      if(!previous.revalidationNotified){
+        previous.revalidationNotified=true;
+        const item=this.gap(task,'entry_revalidation_deferred',scopeFor(a,o),true,[],true,o);
+        this.event(task,'branch.revalidation_deferred',{scope:scopeFor(a,o),itemId:item.id,reason:'operation_revalidation_is_not_new_entry',observationId:o.id,executionAuthorized:false,currentExecution:false});
+      }
+      return false;
+    }
+    return true;
+  }
+  private entryProgress(task:Task,r:Round,a:ActionCandidate,o:Observation) {
+    const {key,previous}=this.entryProgressRecord(task,r,a,o);
     // New names, longer paths, observation IDs or duplicate ledger rows are not
     // child completion. A repeated parent cannot renew its own retry allowance.
     const routeFor=routeFinder(task,scopeFor(a,o),o);

@@ -148,3 +148,24 @@ it('exits a boundary that appears on native return before continuing checkpoint 
     expect(t.engine.observation(t.sessionId).boundaries).toEqual([]);
   } finally { await t.close(); }
 });
+
+
+it('reports an unverified return honestly even when the history action itself succeeded', async () => {
+  let verifyReturn = false;
+  const t = await setup('plain', { verify: (_checkpoint, { observation }) => ({
+    result: verifyReturn && new URL(observation.url).pathname === '/a' ? 'unknown' : 'fail',
+    evidence: ['fixture:independent-return-verification'],
+  }) });
+  try {
+    const checkpoint = await t.engine.createCheckpoint(t.sessionId, 'source');
+    await act(t.engine, t.sessionId, 'Next'); verifyReturn = true;
+    const result = await t.engine.reachCheckpoint(t.sessionId, checkpoint.id);
+    expect(result.status).toBe('UNVERIFIED');
+    expect(result.reason).toBe('Verification after return to observed source: UNVERIFIED');
+    expect(result.checks.some(check => check.result === 'unknown')).toBe(true);
+    const attempts = t.engine.list<ActionAttempt>(t.sessionId, 'attempt').filter(a => a.action.kind === 'history');
+    expect(attempts).toHaveLength(1); expect(attempts[0].status).toBe('succeeded');
+    const retained = t.engine.list<{ id: string; status: string; reason: string }>(t.sessionId, 'reach').find(r => r.id === result.id);
+    expect(retained).toMatchObject({ status: 'UNVERIFIED', reason: result.reason });
+  } finally { await t.close(); }
+});

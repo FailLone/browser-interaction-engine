@@ -6,7 +6,7 @@ import {scopeFor} from '../packages/explorer-plugin/src/policy.js';
 import {capturedRoute,routeToTarget} from '../packages/explorer-plugin/src/reentry-evidence.js';
 import {explorerFixture} from './explorer-plugin-helpers.js';
 
-type Scheduler={neededEntry(t:Task,r:Round,a:ActionCandidate,o:Observation):boolean;recordEntry(t:Task,r:Round,a:ActionCandidate,o:Observation):void};
+type Scheduler={freshAction(t:Task,r:Round,a:ActionCandidate,o:Observation,completed:boolean):boolean;neededEntry(t:Task,r:Round,a:ActionCandidate,o:Observation):boolean;recordEntry(t:Task,r:Round,a:ActionCandidate,o:Observation):void};
 it('requires observed target routes and a new child completion before repeating entry, across restart',async()=>{
  const f=await explorerFixture(`<button id="open" type="button" onclick="document.getElementById('menu').hidden=false">Open</button><div id="menu" hidden><button id="first" onclick="this.disabled=true;document.getElementById('menu').hidden=true">First</button><button id="second">Second</button></div><button id="close" onclick="document.getElementById('menu').hidden=true">Close</button>`),file=join(f.dir,'reentry.sqlite');
  let plugin=new ExplorerPlugin(f.host,new ExplorerStore(file));
@@ -30,14 +30,23 @@ it('requires observed target routes and a new child completion before repeating 
   expect(scheduler().neededEntry(task,round,entry,o)).toBe(false);plugin.store.save(task);const usage=structuredClone(task.usage);
   await plugin.close();plugin=new ExplorerPlugin(f.host,new ExplorerStore(file));task=plugin.store.task(task.id);round=task.rounds[0];
   expect(scheduler().neededEntry(task,round,entry,o)).toBe(false);expect(task.usage).toEqual(usage);
+  // A new document or changed review can make the host reject old operation
+  // equivalence. That does not restore an entry's no-progress allowance.
+  expect(scheduler().freshAction(task,round,entry,o,false)).toBe(false);
+  expect(plugin.store.events(task.id).filter(e=>e.type==='branch.revalidation_deferred')).toHaveLength(1);
+  expect(task.plan.find(i=>i.reason==='entry_revalidation_deferred')).toMatchObject({status:'unresolved',dispatchScope:false});
+  expect(task.usage).toEqual(usage);
   const nextRound={...structuredClone(round),id:'next-round',number:2,reentries:[],reentryProgress:undefined,entryRoutes:undefined};task.rounds.push(nextRound);
-  expect(scheduler().neededEntry(task,nextRound,entry,o)).toBe(false);task.rounds.pop();
+  expect(scheduler().neededEntry(task,nextRound,entry,o)).toBe(false);expect(scheduler().freshAction(task,nextRound,entry,o,false)).toBe(false);task.rounds.pop();
+  expect(scheduler().freshAction(task,round,entry,{...o,context:{tenant:{status:'known',value:'other',source:'fixture'}}},false)).toBe(true);
+  expect(scheduler().freshAction(task,round,{...entry,value:'different'},o,false)).toBe(true);
+  expect(scheduler().freshAction(task,round,{...entry,boundary:{intent:'exit',key:'active'} as ActionCandidate['boundary']},{...o,boundaries:[{key:'active'}] as Observation['boundaries']},false)).toBe(true);
   expect(plugin.store.events(task.id).filter(e=>e.type==='branch.reentry_planned')).toHaveLength(1);
   const event=plugin.store.events(task.id).find(e=>e.type==='branch.reentry_planned')!;expect((event.data as any).itemId).toBe('First');expect((event.data as any).route[0].evidence.observationId).toBe(opened.id);
   await click('Open');const source=f.host.observation(s.id),attempt=await click('First');expect(attempt.status).toBe('succeeded');
   Object.assign(task.plan.find(i=>i.id==='First')!,{status:'succeeded',resolvedBy:{sessionId:s.id,observationId:source.id,attemptId:attempt.id}});
   o=f.host.observation(s.id);entry=f.host.actions(s.id).find(a=>a.label==='Open')!;
-  expect(scheduler().neededEntry(task,round,entry,o)).toBe(true);scheduler().recordEntry(task,round,entry,o);
+  expect(scheduler().freshAction(task,round,entry,o,false)).toBe(true);expect(scheduler().neededEntry(task,round,entry,o)).toBe(true);scheduler().recordEntry(task,round,entry,o);
   task.plan.push({...structuredClone(task.plan.find(i=>i.id==='First')!),id:'duplicate-success'});
   expect(scheduler().neededEntry(task,round,entry,o)).toBe(false);expect(task.usage).toEqual(usage);
   expect(task.plan.find(i=>i.id==='Second')?.status).toBe('unresolved');
