@@ -584,9 +584,11 @@ export class ExplorerPlugin {
   }
   private entryKey(task:Task,a:ActionCandidate,o:Observation,targets=this.entryTargets(task,a,o)) {
     // Only a change to this branch's semantic obligations justifies another
-    // entry. Unrelated progress and duplicate evidence rows are not new work.
-    const pending=[...new Set(targets.map(i=>digest({scope:i.scope,prerequisites:i.prerequisites})))].sort();
-    return `branch-v2:${digest({scope:scopeFor(a,o),pending})}`;
+    // entry. Longer discovery paths and duplicate rows are not new targets.
+    // In particular, adding this entry to a retained path cannot renew its own
+    // retry allowance. A completed child still changes the remaining scope set.
+    const pending=[...new Set(targets.map(i=>digest(i.scope)))].sort();
+    return `branch-v3:${digest({scope:scopeFor(a,o),pending})}`;
   }
   private pathForAction(round:Round,a:ActionCandidate,o:Observation) {
     // A background sibling already belonged to an earlier frame. Opening the
@@ -598,7 +600,8 @@ export class ExplorerPlugin {
     const targets=this.entryTargets(task,a,o);if(!targets.length||r.reentries.includes(this.entryKey(task,a,o,targets)))return false;
     // Keep matching historical cache entries effective without clearing the
     // saved round or treating old row IDs as new branch identities.
-    if(r.reentries.some(key=>!key.startsWith('branch-v2:'))&&r.reentries.includes(digest({scope:scopeFor(a,o),pending:task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status)).map(i=>i.id).sort()})))return false;
+    if(r.reentries.some(key=>key.startsWith('branch-v2:'))&&r.reentries.includes(`branch-v2:${digest({scope:scopeFor(a,o),pending:[...new Set(targets.map(i=>digest({scope:i.scope,prerequisites:i.prerequisites})))].sort()})}`))return false;
+    if(r.reentries.some(key=>!key.startsWith('branch-'))&&r.reentries.includes(digest({scope:scopeFor(a,o),pending:task.plan.filter(i=>i.required&&!['succeeded','excluded'].includes(i.status)).map(i=>i.id).sort()})))return false;
     const actions=this.host.actions(o.sessionId);return targets.some(i=>!actions.some(candidate=>matches(i.scope,candidate,o)&&candidate.preconditions.visible&&!candidate.preconditions.blockers?.length));
   }
   private operationMembersVerified(task:Task,items:PlanItem[],current:Observation) {

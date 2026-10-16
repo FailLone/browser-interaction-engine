@@ -8,7 +8,7 @@ import { InteractionEngine } from '@interaction/browser';
 import { SqliteStore } from '@interaction/storage-sqlite';
 import { ExplorerPlugin,ExplorerStore,ExplorerError,type Provider,type ModelRequest } from '@interaction/explorer-plugin';
 import { createServer } from '../apps/server/src/server.js';
-import { scopeFor,scopeControlKey } from '../packages/explorer-plugin/src/policy.js';
+import { digest,scopeFor,scopeControlKey } from '../packages/explorer-plugin/src/policy.js';
 import { remapStoredScopes } from '../packages/explorer-plugin/src/scope-migration.js';
 
 const repeatedRecords=()=>`<section aria-label="Records">${['Alpha','Beta','Gamma'].map(name=>`<article data-key="${name}"><span>${name}</span><button type="button" onclick="this.disabled=true">Visit ${name}</button></article>`).join('')}</section>`;
@@ -137,7 +137,7 @@ it('does not replay an unchanged missing branch when unrelated work changes the 
  }finally{await plugin.close();await f.close();}
 });
 
-it('preserves branch retry limits across restart, unrelated gaps and duplicate evidence rows',async()=>{
+it.each(['current','longer-path','legacy-v2'])('preserves branch retry limits across restart, unrelated gaps and duplicate evidence rows: %s',async(mode)=>{
  const f=await explorerFixture(`<button id="open" type="button" onclick="document.getElementById('result').textContent='Opened'">Open</button><output id="result"></output><button type="button" onclick="this.disabled=true">Outside</button>`),p=fakeProviders(f.url),original=p.jev.decide,path=join(f.dir,'branch.sqlite');
  let began!:()=>void,release!:()=>void,hold=true;const waiting=new Promise<void>(r=>began=r);
  p.jev.decide=async(r,s)=>{if(r.purpose==='recovery-selection')return {model:'mock',value:'uncertain',confidence:1};if(hold&&r.purpose==='next-action'&&Object.values(r.options!).some((o:any)=>o.label==='Outside')&&!Object.values(r.options!).some((o:any)=>o.label==='Open')){hold=false;began();await new Promise<void>(resolve=>release=resolve);}return original(r,s);};
@@ -147,7 +147,12 @@ it('preserves branch retry limits across restart, unrelated gaps and duplicate e
   const saved=plugin.store.task(t.id);saved.plan.push({...structuredClone(saved.plan[0]),id:'missing-child',scope:{url:f.url,label:'Child',kind:'click'},prerequisites:[{url:f.url,label:'Open',kind:'click'}],dispatchScope:false,status:'unresolved',reason:'operation_not_executed'});plugin.store.save(saved);
   plugin.start(t.id);await waiting;await plugin.pause(t.id);release();const before=plugin.view(t.id),sid=before.task.rounds[0].sessionId;expect(before.task.usage.actions).toBe(1);await plugin.close();
   plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),p);const restored=plugin.store.task(t.id),child=restored.plan.find(i=>i.id==='missing-child')!;
+  if(mode==='legacy-v2'){
+    const source=f.host.list<any>(sid,'attempt').find(a=>a.action.label==='Open')!,o=f.host.observation(sid,source.beforeId);
+    restored.rounds[0].reentries=[`branch-v2:${digest({scope:scopeFor(source.action,o),pending:[digest({scope:child.scope,prerequisites:child.prerequisites})]})}`];
+  }
   restored.plan.push({...structuredClone(child),id:'duplicate-child',reason:'operation_unavailable'},{...structuredClone(child),id:'unrelated-gap',scope:{url:f.url,label:'Elsewhere',kind:'click'},prerequisites:[]});plugin.store.save(restored);
+  if(mode==='longer-path'){for(const item of restored.plan.filter(i=>['missing-child','duplicate-child'].includes(i.id)))item.prerequisites=[{url:f.url,label:'Earlier',kind:'click'},...item.prerequisites,...item.prerequisites];plugin.store.save(restored);}
   plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
   expect(v.task.rounds).toHaveLength(1);expect(v.task.usage.actions).toBe(2);expect(v.task.usage.modelRequests).toBeGreaterThanOrEqual(before.task.usage.modelRequests);
   expect(f.host.list<any>(sid,'attempt').map(a=>a.action.label)).toEqual(['Open','Outside']);
