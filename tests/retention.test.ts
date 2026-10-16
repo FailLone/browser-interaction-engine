@@ -7,6 +7,14 @@ import { SqliteStore } from '@interaction/storage-sqlite';
 import { RetainedPersistence } from '@interaction/storage-retained';
 import { evidenceRetentionSchema, type Session, type InteractionScope } from '@interaction/core';
 
+it('preserves optional change-feed compatibility for backing stores without incremental queries', () => {
+  const backing = new MemoryStore();
+  Object.defineProperty(backing, 'entityChanges', { value: undefined });
+  const retained = new RetainedPersistence(backing, { sweepIntervalMs: 0 });
+  try { expect(retained.entityChanges).toBeUndefined(); }
+  finally { retained.close(); }
+});
+
 it('bounds cache storage, deduplicates bytes and protects current observations, scopes and explicit pins', async () => {
   let clock = 0; const raw = new MemoryStore(); const store = new RetainedPersistence(raw, { now: () => clock, sweepIntervalMs: 0 });
   const policy = evidenceRetentionSchema.parse({ mode: 'cache', ttlMs: 100, maxBytes: 1400, maxObservations: 2 });

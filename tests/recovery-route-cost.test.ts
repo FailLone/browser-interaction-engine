@@ -225,3 +225,20 @@ it('keeps an unknown outcome on the learned cheapest route unresolved and does n
   expect(blocked.attemptIds).toHaveLength(0);
   expect(await t.clicks()).toEqual([1]);
 });
+
+it('uses incremental facts through the actual BrowserEngine retention wrapper and invalidates revoked evidence', async () => {
+  const t = await fixture(), destination = t.destinations.get('A')!;
+  const source = t.engine.observation(t.sessionId);
+  const path = () => t.engine.navigationPath(t.sessionId, source.stateId, destination.checkpoint.stateId,
+    { fromObservationId: source.id, toObservationId: destination.checkpoint.observationId });
+  expect(t.engine.store.entityChanges).toBeTypeOf('function');
+  expect(path()).toEqual([destination.recorded[0].id]);
+  const list = vi.spyOn(t.engine.store, 'list');
+  expect(path()).toEqual([destination.recorded[0].id]);
+  expect(path()).toEqual([destination.recorded[0].id]);
+  expect(list).not.toHaveBeenCalled();
+  for (const recorded of destination.recorded) t.engine.store.put('attempt', { ...recorded, action: { ...recorded.action, replayable: false } });
+  expect(path()).toBeNull();
+  expect(list).not.toHaveBeenCalled();
+  expect(await t.clicks()).toEqual([]);
+});
