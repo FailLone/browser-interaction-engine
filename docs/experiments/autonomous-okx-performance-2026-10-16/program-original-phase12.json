@@ -1,0 +1,380 @@
+{
+  "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+  "baseline": {
+    "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+    "at": "2026-10-16T09:19:03.194442+00:00",
+    "resumeAt": "2026-10-16T09:19:03.194442+00:00",
+    "taskSnapshot": ".data/okx-program-original-before.json",
+    "usage": {
+      "rounds": 15,
+      "actions": 256,
+      "durationMs": 28530607,
+      "modelRequests": 3235
+    },
+    "decisionCursor": 3363,
+    "eventCursor": 48087
+  },
+  "auditedAt": "2026-10-16T09:20:16.246547+00:00",
+  "status": "blocked",
+  "reason": "capability_or_unknown_outcome",
+  "pendingDispatch": null,
+  "totals": {
+    "persistedUsage": {
+      "rounds": 16,
+      "actions": 257,
+      "durationMs": 28570119,
+      "modelRequests": 3235
+    },
+    "budget": {
+      "rounds": 23,
+      "actions": 1211,
+      "durationMs": 28830000,
+      "modelRequests": 3954
+    },
+    "usageDelta": {
+      "rounds": 1,
+      "actions": 1,
+      "durationMs": 39512,
+      "modelRequests": 0
+    },
+    "activeDurationDeltaMs": 39512,
+    "wallTimeSinceBaselineMs": 73052
+  },
+  "newExecution": {
+    "attemptCounts": {
+      "succeeded": 1
+    },
+    "verifiedCount": 1,
+    "verified": [
+      {
+        "id": "ae1741fd-0f78-4502-8de6-0baee38001d8",
+        "status": "succeeded",
+        "sessionId": "4dbc0265-880c-441a-96de-ca50d9ae110a",
+        "startedAt": "2026-10-16T09:19:22.422Z",
+        "finishedAt": "2026-10-16T09:19:27.052Z",
+        "label": "Go to OKX Wallet",
+        "kind": "click",
+        "value": null,
+        "beforeId": "02ce0e28-9518-4007-bb6c-cb4648c335c6",
+        "afterId": "6989dbc2-3d55-417f-912b-26b98016de9d",
+        "documentId": "440ba3ac-9882-41cf-a5e9-a777bae5c84a",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      }
+    ],
+    "nonSuccess": [],
+    "newlySucceededPlanRows": 6,
+    "newlySucceededExactLeafScopes": 1,
+    "newlySucceededOperationScopes": [
+      {
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "region": "dialog",
+        "label": "Go to OKX Wallet",
+        "role": "button",
+        "stableKey": "testid:okd-button",
+        "kind": "click"
+      }
+    ],
+    "repeatedLabelKindValue": [],
+    "historicalEvidenceNotCurrentSuccess": true,
+    "repetitionCaveat": "Matching labels/kinds/values only flag possible repeated work. They do not assert host operation equivalence, identity or new coverage."
+  },
+  "models": {
+    "jev": {
+      "requests": 0,
+      "purposeCounts": {},
+      "statusCounts": {
+        "requested": 0,
+        "returned": 0,
+        "applied": 0,
+        "rejected": 0,
+        "stale": 0,
+        "failed": 0,
+        "cancelled": 0
+      },
+      "elapsedMsSum": 0,
+      "elapsedMsMedian": null,
+      "elapsedMsP95NearestRank": null,
+      "missingDurationRequests": 0,
+      "reportedUsage": {},
+      "usageAvailableResponses": 0
+    },
+    "llm": {
+      "requests": 0,
+      "purposeCounts": {},
+      "statusCounts": {
+        "requested": 0,
+        "returned": 0,
+        "applied": 0,
+        "rejected": 0,
+        "stale": 0,
+        "failed": 0,
+        "cancelled": 0
+      },
+      "elapsedMsSum": 0,
+      "elapsedMsMedian": null,
+      "elapsedMsP95NearestRank": null,
+      "missingDurationRequests": 0,
+      "reportedUsage": {},
+      "usageAvailableResponses": 0
+    }
+  },
+  "phases": {
+    "consecutiveActionDispatchIntervals": {
+      "count": 0,
+      "sumMs": 0,
+      "p95MsNearestRank": null,
+      "medianMs": null,
+      "minMs": null,
+      "maxMs": null
+    },
+    "consecutiveActionVerifiedIntervals": {
+      "count": 0,
+      "sumMs": 0,
+      "p95MsNearestRank": null,
+      "medianMs": null,
+      "minMs": null,
+      "maxMs": null
+    },
+    "dispatchValidationToDispatch": {
+      "count": 0,
+      "sumMs": 0,
+      "p95MsNearestRank": null,
+      "medianMs": null,
+      "minMs": null,
+      "maxMs": null
+    },
+    "actionDispatchToVerified": {
+      "count": 1,
+      "sumMs": 6158,
+      "p95MsNearestRank": 6158,
+      "medianMs": 6158,
+      "minMs": 6158,
+      "maxMs": 6158
+    },
+    "probeDispatchToVerified": {
+      "count": 0,
+      "sumMs": 0,
+      "p95MsNearestRank": null,
+      "medianMs": null,
+      "minMs": null,
+      "maxMs": null
+    },
+    "unmatchedActionDispatchEvents": 0,
+    "unmatchedProbeDispatchEvents": 0,
+    "jevNextActionRequest": {
+      "count": 0,
+      "sumMs": 0,
+      "p95MsNearestRank": null,
+      "medianMs": null,
+      "minMs": null,
+      "maxMs": null
+    },
+    "resumeAt": "2026-10-16T09:19:03.194442+00:00",
+    "resumeToReattachedMs": null
+  },
+  "previousPhaseComparison": {
+    "metricVersion": 3,
+    "fromEventSequence": 37591,
+    "fromAt": "2026-10-16T04:37:26.501Z",
+    "toEventSequence": 38596,
+    "toAt": "2026-10-16T04:46:56.160Z",
+    "phases": {
+      "consecutiveActionDispatchIntervals": {
+        "count": 19,
+        "sumMs": 490785,
+        "p95MsNearestRank": 94888,
+        "medianMs": 22064,
+        "minMs": 19100,
+        "maxMs": 94888
+      },
+      "consecutiveActionVerifiedIntervals": {
+        "count": 19,
+        "sumMs": 492697,
+        "p95MsNearestRank": 94303,
+        "medianMs": 22353,
+        "minMs": 19471,
+        "maxMs": 94303
+      },
+      "dispatchValidationToDispatch": {
+        "count": 20,
+        "sumMs": 124056,
+        "p95MsNearestRank": 6891,
+        "medianMs": 6620.5,
+        "minMs": 238,
+        "maxMs": 6961
+      },
+      "actionDispatchToVerified": {
+        "count": 20,
+        "sumMs": 176193,
+        "p95MsNearestRank": 10254,
+        "medianMs": 8599.5,
+        "minMs": 6663,
+        "maxMs": 10397
+      },
+      "probeDispatchToVerified": {
+        "count": 0,
+        "sumMs": 0,
+        "p95MsNearestRank": null,
+        "medianMs": null,
+        "minMs": null,
+        "maxMs": null
+      },
+      "unmatchedActionDispatchEvents": 0,
+      "unmatchedProbeDispatchEvents": 0,
+      "jevNextActionRequest": {
+        "count": 20,
+        "sumMs": 29755,
+        "p95MsNearestRank": 1671,
+        "medianMs": 1538.0,
+        "minMs": 399,
+        "maxMs": 1721
+      }
+    },
+    "note": "Prior run from round.reattached to task.paused; excludes attach cold-start."
+  },
+  "currentObserved": {
+    "sessionId": "4dbc0265-880c-441a-96de-ca50d9ae110a",
+    "sessionStatus": "idle",
+    "observationId": "44642199-7bb7-4fd7-a472-8a41c139dd5a",
+    "documentId": "6009baf8-72b6-4e78-ae1b-30f16619bc8a",
+    "capturedAt": "2026-10-16T09:19:38.613Z",
+    "url": "https://web3.okx.com/",
+    "controls": 196,
+    "visibleEnabledControls": 74,
+    "storedCandidates": 71,
+    "rawCandidateBlockers": {
+      "outside_scrollable_area": 1
+    },
+    "rawBlockerCaveat": "Stored observation candidate facts only; no current SDK availability query or dispatch authorization asserted.",
+    "gapCodes": {
+      "STRUCTURAL_LIST_SCAN_TRUNCATED": 1,
+      "STRUCTURAL_DISCOVERY_LIMIT": 6,
+      "EVENT_LISTENER_COVERAGE": 1
+    }
+  },
+  "remaining": {
+    "planRows": 3226,
+    "exactScopes": 1817,
+    "unfinishedExactScopes": 1738,
+    "reasonRows": {
+      "unknown_action_outcome": 3,
+      "UNKNOWN_DISPATCH_REQUIRES_REVIEW": 1,
+      "observation_incomplete": 1,
+      "boundary_preservation_limit": 1,
+      "recovery_unresolved": 1,
+      "MODEL_OUTPUT_TRUNCATED": 1,
+      "classification_unresolved": 97,
+      "operation_basis_unconfirmed": 130,
+      "probe_unresolved": 40,
+      "operation_risk_unresolved": 44,
+      "observed_in_scope": 873,
+      "outside_active_boundary": 221,
+      "outside_scrollable_area": 29,
+      "operation_unavailable": 235,
+      "operation_not_executed": 652,
+      "entry_revalidation_deferred": 4,
+      "pointer_intercepted": 98,
+      "region_review_required": 587,
+      "ambiguous_scope_match": 5,
+      "boundary_exit_unresolved": 1,
+      "identity_unresolved": 7,
+      "interface_risk_required": 7,
+      "Control is not visible or enabled": 1
+    },
+    "unknownAttempts": [
+      {
+        "attemptId": "a7e1dcc5-1692-4391-b573-ef3bd0c68324",
+        "sessionId": "27513942-05b7-43e6-bedd-712d0aadfd75",
+        "status": "unknown",
+        "afterId": "71987594-8de1-4da0-8322-28a2f8b91a72",
+        "sourceUrl": "https://www.okx.com/convert/btc-to-usd",
+        "targetUrl": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application"
+      }
+    ],
+    "acceptedUnsupported": [
+      {
+        "id": "fb6a2ddd-3472-466e-a2b3-9a866bbdcfc7",
+        "reason": "missing_capability:UNSUPPORTED_CANVAS",
+        "status": "untested",
+        "required": false,
+        "evidenceCount": 1
+      }
+    ],
+    "notExhaustive": true
+  },
+  "progressEvents": {
+    "scope.source_recovered": 1,
+    "routing.updated": 1,
+    "round.started": 1,
+    "program.review": 1,
+    "scope.retained": 1,
+    "action.selected": 1,
+    "action.validation": 1,
+    "scope.audit": 2,
+    "action.scheduled": 1,
+    "action.dispatch": 1,
+    "action.verified": 1,
+    "round.audit": 1
+  },
+  "lastEvents": [
+    {
+      "sequence": 48297,
+      "at": "2026-10-16T09:19:39.237Z",
+      "type": "action.tentative",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 48298,
+      "at": "2026-10-16T09:19:39.238Z",
+      "type": "action.tentative",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 48299,
+      "at": "2026-10-16T09:19:39.238Z",
+      "type": "action.tentative",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 48300,
+      "at": "2026-10-16T09:19:39.238Z",
+      "type": "observation.created",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 48301,
+      "at": "2026-10-16T09:19:39.238Z",
+      "type": "frontier.updated",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 48302,
+      "at": "2026-10-16T09:19:39.465Z",
+      "type": "interventions.updated",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 48303,
+      "at": "2026-10-16T09:19:42.612Z",
+      "type": "scope.audit",
+      "actor": "program",
+      "decisionId": null
+    },
+    {
+      "sequence": 48304,
+      "at": "2026-10-16T09:19:42.810Z",
+      "type": "round.audit",
+      "actor": "program",
+      "decisionId": null
+    }
+  ],
+  "readOnlyAudit": true
+}

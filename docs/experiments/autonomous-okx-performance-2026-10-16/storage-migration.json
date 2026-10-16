@@ -1,0 +1,45 @@
+{
+  "at": "2026-10-16T09:02:04.608Z",
+  "before": {
+    "hashes": {
+      "observation": "58f18f274792e283c5c249ee08f42155e36a51f6f1a6ae495db28bf5ee526351",
+      "entities": "dc70f0cd8ae3aa645b3a8c8eea565e76748a7f38354e06cb3cefd42021d0c9a3",
+      "events": "57b3dc72d7baa949a614f584381edca24fb8b7999de9ada678eb4d48c33917ee",
+      "requests": "d4a0922b765a574c7239e72a742c898eb0ad4de440437ba1621c36655554f169"
+    },
+    "counts": {
+      "observation": 1726,
+      "entities": 380716,
+      "events": 30097,
+      "requests": 274
+    }
+  },
+  "after": {
+    "hashes": {
+      "observation": "58f18f274792e283c5c249ee08f42155e36a51f6f1a6ae495db28bf5ee526351",
+      "entities": "dc70f0cd8ae3aa645b3a8c8eea565e76748a7f38354e06cb3cefd42021d0c9a3",
+      "events": "57b3dc72d7baa949a614f584381edca24fb8b7999de9ada678eb4d48c33917ee",
+      "requests": "d4a0922b765a574c7239e72a742c898eb0ad4de440437ba1621c36655554f169"
+    },
+    "counts": {
+      "observation": 1726,
+      "entities": 380716,
+      "events": 30097,
+      "requests": 274
+    }
+  },
+  "scanned": 1726,
+  "logicalBytes": 6093090338,
+  "storedBytes": 280709479,
+  "compact": {
+    "databaseBytesBefore": 7003062272,
+    "databaseBytesAfter": 1156116480,
+    "walBytesBefore": 5747432,
+    "walBytesAfter": 0
+  },
+  "backup": {
+    "path": ".data/engine-before-compression-2026-10-16.sqlite.gz",
+    "bytes": 406099962
+  },
+  "factsUnchanged": true
+}
