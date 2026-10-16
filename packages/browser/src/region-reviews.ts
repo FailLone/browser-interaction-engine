@@ -10,10 +10,11 @@ export class RegionReviews {
   private compatible(review: RegionReviewRecord, o: Observation) {
     return review.instanceScope === o.instanceScope && review.url === o.url && review.contextKey === contextKey(o.context);
   }
-  private delta(review: RegionReviewRecord, o: Observation, controllable: Set<string>): RegionReviewDelta {
+  private delta(review: RegionReviewRecord, o: Observation, controllable: Set<string>,observations:Map<string,Observation|undefined>): RegionReviewDelta {
     const candidates = new Map((o.regionCandidates || []).map(c => [c.id, c]));
+    const conditions=this.reuse.conditionsReader(o);
     const canUpdate = this.compatible(review, o) && !o.gaps.some(g => g.critical);
-    const unchangedRegionKeys = canUpdate ? review.regions.filter(r => r.status === 'active' && this.reuse.matches(review,r,o) && r.anchors.every(a => candidates.has(a.id) && hash(candidates.get(a.id)!.binding) === a.fingerprint)).map(r => r.key) : [];
+    const unchangedRegionKeys = canUpdate ? review.regions.filter(r => r.status === 'active' && this.reuse.matches(review,r,o,conditions) && r.anchors.every(a => candidates.has(a.id) && hash(candidates.get(a.id)!.binding) === a.fingerprint)).map(r => r.key) : [];
     const memberBindings = (observation: Observation | undefined, ids: string[]) => {
       const result = new Map<string, string>();
       for (const c of observation?.regionCandidates || []) if (ids.includes(c.id) && c.binding && typeof c.binding === 'object' && !Array.isArray(c.binding) && Array.isArray(c.binding.members)) {
@@ -23,7 +24,8 @@ export class RegionReviews {
     };
     return { baseReviewId: review.id, canUpdate, unchangedRegionKeys, changedRegions: review.regions.filter(r => !unchangedRegionKeys.includes(r.key)).map(r => {
       const proof = r.reviewId ? this.store.get<RegionReviewRecord>('region-review', r.reviewId) : review;
-      const before = proof && this.store.get<Observation>('observation', proof.observationId);
+      if(proof&&!observations.has(proof.observationId))observations.set(proof.observationId,this.store.get<Observation>('observation',proof.observationId));
+      const before = proof && observations.get(proof.observationId);
       const anchors = r.anchors.map(a => a.id);
       const baselineAvailable = !!before && anchors.every(id => before.regionCandidates?.some(c => c.id === id));
       const previousPool = new Set(before?.regionCandidates?.filter(c => anchors.includes(c.id)).flatMap(c => c.controlIds) || []);
@@ -45,9 +47,10 @@ export class RegionReviews {
     if (session.options.regionExploration !== 'review') return {sessionId:o.sessionId,observationId:o.id,enabled:false,candidates:[],controls:[],unassignedControlIds:[],unassignedPageTraversal:false};
     const review = this.current(o.sessionId) || this.store.list<RegionReviewRecord>('region-review', o.sessionId).at(-1); const controls = this.controls(o, actions);
     const assigned = new Set(review?.status === 'active' ? review.regions.filter(r => r.status === 'active').flatMap(r => r.controlIds) : []);
+    const observations=new Map<string,Observation|undefined>([[o.id,o]]);
     return { sessionId: o.sessionId, observationId: o.id, enabled: session.options.regionExploration === 'review', candidates: o.regionCandidates || [], review,
-      delta: review && this.delta(review, o, new Set(controls.map(c => c.localId))),
-      reuseCandidates:this.reuse.candidates(o,new Set(controls.map(c=>c.localId)),review),
+      delta: review && this.delta(review, o, new Set(controls.map(c => c.localId)),observations),
+      reuseCandidates:this.reuse.candidates(o,new Set(controls.map(c=>c.localId)),review,observations),
       controls: controls.map(c => ({ localId: c.localId, label: c.name, role: c.role, actionKinds: [...new Set([...c.actions, ...actions.filter(a => a.localId === c.localId && a.boundary?.intent !== 'exit').map(a => a.kind)])] })),
       unassignedControlIds: controls.filter(c => !assigned.has(c.localId)).map(c => c.localId),
       unassignedPageTraversal: actions.some(a => a.kind === 'scroll' && !a.localId) && !review?.regions.some(r => review.status === 'active' && r.status === 'active' && r.pageTraversal) };
@@ -66,7 +69,8 @@ export class RegionReviews {
     const changedContext = !this.compatible(review, o);
     const candidates = new Map((o.regionCandidates || []).map(c => [c.id, hash(c.binding)]));
     const invalidated: string[] = [];
-    for (const region of review.regions) if (region.status === 'active' && (changedContext || !this.reuse.matches(review,region,o) || region.anchors.some(a => candidates.get(a.id) !== a.fingerprint))) {
+    const conditions=this.reuse.conditionsReader(o);
+    for (const region of review.regions) if (region.status === 'active' && (changedContext || !this.reuse.matches(review,region,o,conditions) || region.anchors.some(a => candidates.get(a.id) !== a.fingerprint))) {
       region.status = 'invalidated'; region.invalidation = { observationId: o.id, reason: changedContext ? 'document_url_or_context_changed' : 'region_structure_changed' }; invalidated.push(region.key);
     }
     if (changedContext || review.regions.length && review.regions.every(r => r.status === 'invalidated')) review.status = 'invalidated';
@@ -95,6 +99,7 @@ export class RegionReviews {
     const old = this.store.list<RegionReviewRecord>('region-review', o.sessionId).at(-1);
     if (value.update && (!old || old.id !== value.update.baseReviewId || !this.compatible(old, o))) throw new EngineError('STALE_REGION_REVIEW', 'The base partition or its document, URL or context changed; prepare a fresh review');
     const candidates = new Map((o.regionCandidates || []).map(c => [c.id, c]));
+    const readConditions=this.reuse.conditionsReader(o);
     const controllable = new Set(this.controls(o, actions).map(c => c.localId)); const used = new Set<string>(); const keys = new Set<string>();
     const reject = () => { throw new EngineError('INVALID_REGION_REVIEW', 'Use distinct region keys and non-overlapping observed controls anchored to current candidates'); };
     const removed = value.update?.removeRegionKeys || [];
@@ -105,7 +110,7 @@ export class RegionReviews {
     let traversalAssigned = false;
     for (const r of retained) {
       keys.add(r.key); if (r.status !== 'active') continue;
-      if (!this.reuse.matches(old!,r,o) || r.anchors.some(a => !candidates.has(a.id) || hash(candidates.get(a.id)!.binding) !== a.fingerprint)) throw new EngineError('STALE_REGION_REVIEW', 'An omitted region changed; observe and review its new facts');
+      if (!this.reuse.matches(old!,r,o,readConditions) || r.anchors.some(a => !candidates.has(a.id) || hash(candidates.get(a.id)!.binding) !== a.fingerprint)) throw new EngineError('STALE_REGION_REVIEW', 'An omitted region changed; observe and review its new facts');
       if (r.anchors.some(a => rejected.includes(a.id)) || r.controlIds.some(id => !controllable.has(id) || used.has(id)) || r.pageTraversal && traversalAssigned) reject();
       r.controlIds.forEach(id => used.add(id)); traversalAssigned ||= r.pageTraversal;
     }
@@ -117,7 +122,7 @@ export class RegionReviews {
       if (!controlIds.length && !r.pageTraversal || new Set(controlIds).size !== controlIds.length || controlIds.some(id => !pool.has(id) || used.has(id))) reject();
       if (r.pageTraversal && traversalAssigned) reject(); traversalAssigned ||= r.pageTraversal;
       controlIds.forEach(id => used.add(id));
-      const reuseConditions=r.reuse && this.reuse.conditions(o,r.candidateIds,controlIds,r.pageTraversal);
+      const reuseConditions=r.reuse && readConditions(r.candidateIds,controlIds,r.pageTraversal);
       if(r.reuse && !reuseConditions) throw new EngineError('INVALID_REGION_REUSE','Complete bounded structural evidence and known context are required outside active boundaries');
       return { key: r.key, label: r.label, controlIds, pageTraversal: r.pageTraversal, anchors: r.candidateIds.map(id => ({ id, fingerprint: hash(candidates.get(id)!.binding) })), reviewId, status: 'active' as const,
         ...(reuseConditions?{reuse:r.reuse,reuseConditions}:{}),...(provenance?.get(r.key)?{reusedFrom:provenance.get(r.key)}:{}) };

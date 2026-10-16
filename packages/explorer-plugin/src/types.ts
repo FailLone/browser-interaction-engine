@@ -20,7 +20,17 @@ export interface PlanItem {
   id: string; title: string; scope: Scope; prerequisites: Scope[]; completion: string;
   /** Scheduling revision only; SDK evidence still decides coverage equivalence. */
   operationConditionKey?: string;
-  operationConditionPolicy?: 'browser-operation-key-v2';
+  operationConditionPolicy?: 'browser-operation-key-v2' | 'browser-operation-key-v3';
+  /** Latest mechanical audit fact, never dispatch authority or coverage. */
+  operationAvailability?: {reason:string;source:EvidenceRef;actionId:string};
+  /** Append-only source provenance for a scheduling hint; original condition,
+   * attempts, split links and source obligations retain their own meaning. */
+  operationSchedulingNormalization?: {
+    policy:'browser-operation-key-v3';fromPolicy:'browser-operation-key-v2';fromKey:string;toKey:string;scopeKey:string;
+    sources:string[]; // JSON [sessionId, observationId, attemptId || '']; immutable refs remain on the item.
+    legacyKeys:string[]; // Distinct verified v2 encodings; never a fresh retry allowance.
+    proofHash:string;
+  };
   /** Scheduling-only upgrade audit; never execution or historical coverage. */
   conditionMigration?: { version?: 2; status: 'migrated' | 'invalidated' | 'split'; fromKey: string; toKey?: string; reason: string;
     sources: (EvidenceRef & { actionId: string })[];

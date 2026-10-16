@@ -67,7 +67,7 @@ export interface StructuralListCandidate {
   traversalLocalIds:string[]; evidence:ActionEvidence[];
 }
 export interface RegionReusePolicy { binding: 'same-url-context'; businessScope: string }
-export interface RegionReuseConditions { version: 'region-review-reuse/v1'; url: string; context: Context; anchors: { binding: Json; selectedIndices: number[] }[]; pageTraversal: boolean }
+export interface RegionReuseConditions { version: 'region-review-reuse/v1' | 'region-review-reuse/v2'; url: string; context: Context; anchors: { binding: Json; selectedIndices: number[] }[]; pageTraversal: boolean }
 export interface ReuseRegionReviewsInput {
   observationId: string; baseReviewId: string; source: string; businessScope: string; evidence: string[];
   regions: { reviewId: string; regionKey: string; conditionKey: string }[];

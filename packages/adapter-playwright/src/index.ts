@@ -11,7 +11,7 @@ import { sessionSchema } from './schema.js';
 import { signature } from './util.js';
 import { constrain, hasDeclaredBoundaryExit, hasObservedBoundaryExit } from './policy.js';
 import { browserControlCorrespondence, browserOperationCorrespondenceHint, controlCase, controlsTraversalCase, explorationCase, restorationStep } from './exploration.js';
-export { browserControlCorrespondence, browserControlBindingKey, browserOperationCorrespondenceHint, browserOperationKey, legacyBrowserOperationKey } from './exploration.js';
+export { browserControlCorrespondence, browserControlBindingKey, browserOperationCorrespondenceHint, browserOperationKey, browserOperationSchedulingKey, legacyBrowserOperationKey } from './exploration.js';
 export { navigationIntent, type NavigationIntent } from './navigation.js';
 import { historyReturn, observedSourcePosition } from './navigation.js';
 import { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';

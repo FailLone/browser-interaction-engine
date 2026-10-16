@@ -1,6 +1,6 @@
 import { isObservedUIOperation, canonical, contextKey, EngineError, hash, id, now, type Persistence, type FrontierItem } from '@interaction/core';
 import { controlReviewSchema, revokeControlReviewSchema, reuseControlReviewsSchema, controlReviewConditions, controlReviewKey, controlReuseConditions, controlSurroundingsReader,
-  type ActionCandidate, type Control, type Observation, type ControlReviewInput, type ControlReviewRecord, type ControlReviewMaterial, type RevokeControlReviewInput, type ReuseControlReviewsInput } from '@interaction/adapter-playwright';
+  type ActionCandidate, type ActionAttempt, type Control, type Observation, type ControlReviewInput, type ControlReviewRecord, type ControlReviewMaterial, type RevokeControlReviewInput, type ReuseControlReviewsInput } from '@interaction/adapter-playwright';
 
 const rule = 'reviewed-control/v1';
 const references = (a: ActionCandidate) => a.basis?.evidence.filter(e=>e.rule===rule).map(e=>e.facts.reviewId) || [];
@@ -29,6 +29,42 @@ export class ControlReviews {
     return !!conditions && r.status==='active' && r.conditionKey===controlReviewKey(conditions)
       && this.sourceAvailable(r) && (!r.reusedFrom || canonical(r.reuseConditions) === canonical(controlReuseConditions(c,o,r.kind)))
       && (!r.exitBoundary || o.boundaries?.at(-1)?.key===r.exitBoundary);
+  }
+  /** Clarify an earlier unknown operation using the exact review consumed by a
+   * real successful execution. This does not reuse that review for dispatch,
+   * change captured actions, or equate a reconstructed DOM instance. */
+  coverageProjection(action:ActionCandidate,o:Observation,attempt:ActionAttempt,before:Observation):{risk:'interface';basis:NonNullable<ActionCandidate['basis']>;evidence:string[]}|undefined {
+    const prior=attempt.action;
+    if(attempt.status!=='succeeded'||!attempt.afterId||attempt.sessionId!==o.sessionId||before.sessionId!==o.sessionId||attempt.beforeId!==before.id
+      ||action.sessionId!==o.sessionId||action.observationId!==o.id||prior.sessionId!==before.sessionId||prior.observationId!==before.id
+      ||prior.risk!=='interface'||prior.basis?.status!=='supported'||action.kind!==prior.kind||!['unknown','interface'].includes(action.risk)
+      ||action.risk==='interface'&&action.basis?.status==='supported'||!o.instanceScope||o.instanceScope!==before.instanceScope||!o.ruleVersion||o.ruleVersion!==before.ruleVersion)return;
+    const times=[o.capturedAt,before.capturedAt,attempt.startedAt].map(Date.parse);
+    if(times.some(time=>!Number.isFinite(time))||times[0]>times[1]||times[1]>times[2])return;
+    const proofs=prior.basis.evidence.filter(e=>e.rule===rule);if(proofs.length!==1)return;
+    const proof=proofs[0],review=typeof proof.facts.reviewId==='string'&&this.store.get<ControlReviewRecord>('control-review',proof.facts.reviewId);
+    if(!review||review.sessionId!==o.sessionId||review.localId!==prior.localId||review.kind!==action.kind||review.risk!=='interface'||review.conditionKey!==proof.facts.conditionKey
+      ||proof.facts.sourceObservationId!==review.observationId||proof.source!==review.source||controlReviewKey(review.conditions)!==review.conditionKey
+      ||!['active','invalidated'].includes(review.status)||!this.sourceAvailable(review)||!Number.isFinite(Date.parse(review.at))||Date.parse(review.at)>times[2]
+      ||review.status==='invalidated'&&review.invalidation?.observationId!==attempt.afterId)return;
+    const old=before.controls.find(c=>c.localId===prior.localId),target=o.controls.find(c=>c.localId===action.localId);
+    if(!old?.instanceId||old.instanceId!==target?.instanceId||[before,o].some(observation=>observation.controls.filter(c=>c.instanceId===old.instanceId).length!==1))return;
+    const source=this.store.get<Observation>('observation',review.observationId),sourceTime=Date.parse(source?.capturedAt||'');
+    if(!source||source.id!==review.observationId||source.sessionId!==o.sessionId||source.instanceScope!==o.instanceScope||source.ruleVersion!==o.ruleVersion
+      ||!Number.isFinite(sourceTime)||sourceTime>Date.parse(review.at)||sourceTime>times[1])return;
+    const reviewed=source.controls.find(c=>c.localId===review.localId&&c.instanceId===old.instanceId);
+    if(!reviewed||source.controls.filter(c=>c.instanceId===old.instanceId).length!==1)return;
+    // Captured data/name bindings participate in live target validation but
+    // are not all present in the portable operation sample. A/B rebinding
+    // cannot be hidden by a later clarification of the operation's purpose.
+    if([target,reviewed].some(control=>canonical(control.reviewAttributes||{})!==canonical(old.reviewAttributes||{})))return;
+    for(const [control,observation] of [[old,before],[target,o],[reviewed,source]] as const){
+      const conditions=controlReviewConditions(control,observation,review.kind,review.exitBoundary,review.surroundingContextKey);
+      if(!conditions||controlReviewKey(conditions)!==review.conditionKey)return;
+    }
+    if(action.basis?.evidence.some(e=>e.rule===rule&&e.facts.reviewId!==review.id))return;
+    return {risk:'interface',basis:{status:'supported',evidence:[...(action.basis?.evidence||[]),proof]},
+      evidence:[`historical-control-review:${review.id}`,'same-instance-exact-review-conditions','coverage-only-review-clarification']};
   }
   material(o:Observation,actions:ActionCandidate[],nonInteractive=this.nonInteractive(o)):ControlReviewMaterial {
     const observedUI=this.store.get<import('@interaction/adapter-playwright').Session>('session',o.sessionId)?.options.executionPolicy==='observed-ui';

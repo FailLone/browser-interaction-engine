@@ -1,6 +1,6 @@
 import type {ActionCandidate,Observation} from '@interaction/browser';
 import type {Scope} from './types.js';
-import {actionScopeReader,keyFor,scopeFor} from './policy.js';
+import {actionScopeReader,schedulingKeyFor,scopeFor} from './policy.js';
 
 /** Synchronous, one-observation lookup. These keys only accelerate the existing
  * literal scope filter; they establish no target equivalence or permission.
@@ -23,7 +23,7 @@ export function observationActionIndex(observation:Observation,actions:ActionCan
       return index.get(valueKey(scope,fields))||[];
     },
     condition(action:ActionCandidate):string {
-      if(!conditions.has(action))conditions.set(action,keyFor(action,observation));
+      if(!conditions.has(action))conditions.set(action,schedulingKeyFor(action,observation));
       return conditions.get(action)!;
     },
   };

@@ -58,15 +58,28 @@ export function browserOperationCorrespondenceHint(c:Control,kind:string,o:Pick<
 export function browserOperationKey(a: ActionCandidate,o: Observation) {
   return operationKey(a,o,'v2');
 }
+/** v3 scheduling hint removes only a generated structural DOM owner. It is
+ * neither portable operation evidence nor permission to merge source coverage. */
+export function browserOperationSchedulingKey(a:ActionCandidate,o:Observation) {
+  return operationKey(a,o,'v3');
+}
 /** Decode a retained scheduling revision only. Never use this key for current
  * operation equivalence, replay permission, arrival or successful coverage. */
 export function legacyBrowserOperationKey(a: ActionCandidate,o: Observation) {
   return operationKey(a,o,'v1');
 }
-function operationKey(a: ActionCandidate,o: Observation,version:'v1'|'v2') {
+function operationKey(a: ActionCandidate,o: Observation,version:'v1'|'v2'|'v3') {
   const c=o.controls.find(c=>c.localId===a.localId),r=o.regions.find(r=>r.key===c?.region);
-  const key=c&&(c.stableKey||(!c.list&&!c.structuralItem?browserControlCorrespondence(c)?.key:undefined));
-  const branch=c?browserBranchConditions(a,o,version):undefined;
+  let key=c&&(c.stableKey||(!c.list&&!c.structuralItem?browserControlCorrespondence(c)?.key:undefined));
+  if(version==='v3'&&c?.structuralItem?.recordKey&&c.stableKey?.startsWith('structural-item:')){
+    const item=c.structuralItem;
+    try{const parts:unknown=JSON.parse(c.stableKey.slice('structural-item:'.length));
+      if(Array.isArray(parts)&&parts.length===3&&parts[0]===item.ownerInstanceId&&parts[1]===item.recordKey&&typeof parts[2]==='string')
+        key=`structural-operation:v3:${hash({record:item.recordKey,template:item.template,slot:item.slot,localKey:parts[2]})}`;
+    }catch{/* An unfamiliar or damaged encoding retains its original hint. */}
+  }
+  const branchVersion=version==='v1'?'v1':'v2';
+  const branch=c?browserBranchConditions(a,o,branchVersion):undefined;
   const targetBinding=c&&controlTargetBinding(c);
   // A shared stable key is not the complete target binding. Its changed owner
   // must not inherit a spent retry key; instance/document IDs remain excluded.
@@ -74,7 +87,7 @@ function operationKey(a: ActionCandidate,o: Observation,version:'v1'|'v2') {
   // Missing dependency evidence is not a fresh attempt whenever unrelated text
   // changes. This retry marker claims no equivalence; controlCase still refuses
   // coverage, while a known projection or semantic rebinding gets a new key.
-  const sourceConditions=c&&!branch?{policy:`browser-branch-conditions-${version}`,status:'unverified'}:branch?.conditions.length?{policy:branch.policy,key:branch.key}:undefined;
+  const sourceConditions=c&&!branch?{policy:`browser-branch-conditions-${branchVersion}`,status:'unverified'}:branch?.conditions.length?{policy:branch.policy,key:branch.key}:undefined;
   return hash({scope:{url:o.url,...(r?{region:r.label}:{}),label:a.label,...(c?{role:c.role,...(key?{stableKey:key}:{})}:{}),kind:a.kind,...(['string','boolean','number'].includes(typeof a.value)?{value:a.value}:{})},context:o.context,...(targetBinding?{targetBinding}:{}),...(sourceConditions?{sourceConditions}:{}),...(a.kind==='scroll'?{position:a.value}:{})});
 }
 

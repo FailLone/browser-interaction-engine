@@ -46,6 +46,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   /** Composition policy runs before final constraints; it must not alter captured facts. */
   protected afterExplorationDecisions(_sessionId: string): void {}
   protected prepareActions(actions: ActionCandidate[], _observation: O): ActionCandidate[] { return actions; }
+  /** A retained successful receipt may clarify an earlier observation through
+   * a composition-owned review proof. This narrow projection is coverage only:
+   * it cannot alter target coordinates, inputs, preconditions or stored facts. */
+  protected historicalReviewProjection(_action:ActionCandidate,_observation:O,_attempt:ActionAttempt,_before:O):{risk:'interface';basis:NonNullable<ActionCandidate['basis']>;evidence:string[]}|undefined {return;}
   /** Reviewed capabilities precede caller action policy, which may still veto them. */
   protected async reviewActions(actions: ActionCandidate[], _observation: O): Promise<ActionCandidate[]> { return actions; }
   protected executionSessionBlockers(_observation:O,_purpose:ActionAttempt['purpose']):ExecutionBlocker[]{return [];}
@@ -192,6 +196,16 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if(!byObservation.has(o))byObservation.set(o,this.adapter.explorationTargetConditions?.(action,o));
       return byObservation.get(o);
     };
+    type ReviewProjection=ReturnType<typeof this.historicalReviewProjection>;
+    const reviewed=new Map<ActionCandidate,Map<ActionAttempt,{proof:ReviewProjection;action?:ActionCandidate}>>();
+    const reviewedSample=(action:ActionCandidate,o:O,attempt:ActionAttempt,before:O)=>{
+      let byAttempt=reviewed.get(action);if(!byAttempt){byAttempt=new Map();reviewed.set(action,byAttempt);}
+      if(!byAttempt.has(attempt)){
+        const proof=this.historicalReviewProjection(action,o,attempt,before);
+        byAttempt.set(attempt,{proof,...(proof?{action:{...action,risk:proof.risk,basis:proof.basis}}:{})});
+      }
+      return byAttempt.get(attempt)!;
+    };
     return (sessionId:string,input:{observationId:string;actionId:string;source:{sessionId:string;attemptId:string}|ExplorationTargetReference;requireTargetConditions?:boolean}):OperationCorrespondence|ExplorationTargetCorrespondence=>{
     const result: (Omit<OperationCorrespondence,'source'>&{source:OperationCorrespondence['source']|ExplorationTargetReference;conditionKey?:string})={equivalent:false,reason:'evidence_unavailable',source:{...input.source},target:{sessionId,observationId:input.observationId,actionId:input.actionId},evidence:[],invalidatedBy:['observation-or-review-change','nonunique-correspondence','changed-operation-conditions','changed-declared-context'],identityAuthorized:false,replayAuthorized:false,currentExecution:false};
     try {
@@ -249,7 +263,15 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if(!oldIdentity||!newIdentity||signature!==getSignature(target)||[before,current].some(o=>count(o,'signature',getSignature,signature)!==1)){result.reason='target_correspondence_missing';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
         evidence=['unique-adapter-semantic-signature','independently-resolved-session-identities'];
       }else {result.reason='target_correspondence_missing';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
-      const a=sample(sourceAction,before),b=sample(action,current),requiresTargetConditions=!attempt||input.requireTargetConditions;
+      const a=sample(sourceAction,before),requiresTargetConditions=!attempt||input.requireTargetConditions;
+      let b=sample(action,current),reviewProjection:ReturnType<typeof this.historicalReviewProjection>;
+      // Historical review clarification never authorizes target arrival or
+      // replay. The original identity checks and complete operation sample
+      // (including nonlocal dependencies) still have to agree.
+      if(attempt&&!requiresTargetConditions&&a&&(!b||a.key!==b.key)){
+        const projected=reviewedSample(action,current,attempt,before);reviewProjection=projected.proof;
+        if(projected.action)b=sample(projected.action,current);
+      }
       // Ordinary successful coverage already compares its operation sample. Do
       // not rebuild target-arrival projections for every historical proof pair.
       const priorConditions=requiresTargetConditions?targetConditions(sourceAction,before):undefined,conditions=requiresTargetConditions?targetConditions(action,current):undefined;
@@ -262,8 +284,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if(!priorConditions||!conditions){result.reason='target_conditions_unavailable';return result as ExplorationTargetCorrespondence;}
         if(priorConditions.key!==conditions.key){result.reason='target_conditions_changed';return result as ExplorationTargetCorrespondence;}
       }
-      result.equivalent=true;result.reason=attempt?'equivalent_operation_sample':'equivalent_observed_target';result.policy=b.policy;
-      result.evidence=[...evidence,...b.evidence,...(conditions?.evidence||[]),...(attempt?[`attempt:${attempt.id}`]:[]),`observation:${before.id}`,...(after?[`observation:${after.id}`]:[]),`observation:${current.id}`];return result as OperationCorrespondence|ExplorationTargetCorrespondence;
+      result.equivalent=true;result.reason=reviewProjection?'equivalent_reviewed_operation_sample':attempt?'equivalent_operation_sample':'equivalent_observed_target';result.policy=b.policy;
+      result.evidence=[...evidence,...b.evidence,...(reviewProjection?.evidence||[]),...(conditions?.evidence||[]),...(attempt?[`attempt:${attempt.id}`]:[]),`observation:${before.id}`,...(after?[`observation:${after.id}`]:[]),`observation:${current.id}`];return result as OperationCorrespondence|ExplorationTargetCorrespondence;
     } catch { return result as OperationCorrespondence|ExplorationTargetCorrespondence; }
     };
   }

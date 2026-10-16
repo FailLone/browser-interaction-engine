@@ -110,6 +110,9 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     });
     return {classifications,operations,nonInteractive};
   }
+  protected override historicalReviewProjection(action:ActionCandidate,o:Observation,attempt:import('@interaction/core').ActionAttempt,before:Observation) {
+    return this.controls.coverageProjection(action,o,attempt,before);
+  }
   /** Current interpretations only; no historical coverage scan or execution permission. */
   controlInterpretationSnapshot(sid:string,observationId?:string,options:{retainedClassifications?:ClassificationEvidenceRef[]}={}) {
     const o=this.observation(sid);

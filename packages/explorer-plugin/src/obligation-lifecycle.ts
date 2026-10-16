@@ -1,7 +1,7 @@
-import { conditionSplitIssues, boundOperationCondition } from './plan-state.js';
+import { conditionSplitIssues, boundOperationCondition, schedulingOperationCondition } from './plan-state.js';
 import { browserControlCorrespondence, browserOperationCorrespondenceHint, browserTargetConditions, type ActionAttempt, type ActionCandidate, type BrowserEngine, type ContinuationRecord, type Observation } from '@interaction/browser';
 import type { EvidenceRef, ExplorerHost, PlanItem, Scope, Task } from './types.js';
-import { broadScope, controlScopeMatcher, digest, keyFor, matches, scopeFor } from './policy.js';
+import { broadScope, controlScopeMatcher, digest, matches, scopeFor } from './policy.js';
 import {observationActionIndex} from './observation-action-index.js';
 
 /** A scheduling view of the immutable discovery ledger, never coverage or permission. */
@@ -123,7 +123,7 @@ export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:
     if(item.dispatchScope===false&&item.conditionMigration?.status==='invalidated')return {...entry,state:'unreachable',reason:item.reason};
     if(item.dispatchScope===true&&broadScope(item.scope))return {...entry,state:'authority',reason:'task_scope_authority'};
     const scoped=currentIndex.matching(item.scope);
-    const candidates=scoped.filter(a=>!boundOperationCondition(item)||boundOperationCondition(item)===currentIndex.condition(a));
+    const condition=boundOperationCondition(item),candidates=scoped.filter(a=>!condition||condition===currentIndex.condition(a));
     if(candidates.length===1){entry.state=visibleAction(candidates[0],o)?'active':'waiting';entry.reason=entry.state==='active'?'current_target_observed':'target_hidden';entry.currentActionId=candidates[0].id;}
     else if(candidates.length>1){entry.state='active';entry.reason='current_target_ambiguous';}
     else if(scoped.length&&item.operationConditionKey)entry.reason='operation_conditions_changed';
@@ -170,7 +170,7 @@ export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:
         if(!record||!knownContext(record.observation))continue;
         if(contextKey(record.observation)!==contextKey(o)){otherKnownContext=true;continue;}
         const scopedSources=record.index.matching(item.scope);
-        const found=scopedSources.filter(a=>!item.operationConditionKey||item.operationConditionKey===record.index.condition(a));
+        const condition=schedulingOperationCondition(item),found=scopedSources.filter(a=>!condition||condition===record.index.condition(a));
         if(scopedSources.length&&!found.length&&item.operationConditionKey)sourceConditionMismatch=true;
         if(found.length!==1)continue;
         source={ref:{sessionId:ref.sessionId,observationId:ref.observationId,actionId:found[0].id},action:found[0],observation:record.observation};break;

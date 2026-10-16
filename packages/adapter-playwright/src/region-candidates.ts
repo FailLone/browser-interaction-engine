@@ -26,8 +26,19 @@ export function collectRegionCandidates(controls: Control[], elements: Element[]
   // reviewed operations separately retain their exact target conditions.
   const memberName = (c: Control) => c.liveContent?.name ?? (c.label || (Object.values(c.actionBasis || {}).some(b => b.status === 'supported') ? c.name : undefined));
   // Reuse describes structure, not historical identity. Keep full attributes and
-  // explicit labels, but not geometry, inline styles or mutable control properties.
+  // explicit labels, but not geometry, inline styles or native disabled readiness.
+  // Disabled is enforced by fresh action preconditions; it does not change this
+  // grouping boundary. Keep aria-disabled and arbitrary/custom attributes.
+  const nativeDisabled=(el:Element)=>el.namespaceURI==='http://www.w3.org/1999/xhtml'&&['button','input','select','textarea','optgroup','option','fieldset'].includes(el.localName);
   const pathCache = new Map<Element, object[] | undefined>();
+  const uniqueTargets=new Map<Element,boolean>();
+  const uniqueTarget=(el:Element)=>{
+    if(!uniqueTargets.has(el)){
+      try {const found=document.querySelectorAll(selector(el));uniqueTargets.set(el,found.length===1&&found[0]===el);}
+      catch {uniqueTargets.set(el,false);}
+    }
+    return uniqueTargets.get(el);
+  };
   const path = (el: Element | undefined): object[] | undefined => {
     if (!el) return;
     if (pathCache.has(el)) return pathCache.get(el);
@@ -35,7 +46,7 @@ export function collectRegionCandidates(controls: Control[], elements: Element[]
     for (let p: Element | null = el; p; p = p.parentElement) {
       if (nodes.length >= 32) { pathCache.set(el, undefined); return; }
       nodes.push({ tag:p.tagName.toLowerCase(), selector:selector(p),
-        attributes:Object.fromEntries([...p.attributes].filter(a=>a.name!=='style').map(a=>[a.name,a.value])),
+        attributes:Object.fromEntries([...p.attributes].filter(a=>a.name!=='style'&&(a.name!=='disabled'||!nativeDisabled(p!))).map(a=>[a.name,a.value])),
         label:[p.getAttribute('aria-label') || '', (p.getAttribute('aria-labelledby') || '').split(/\s+/).map(id=>document.getElementById(id)?.textContent || '').join(' ')] });
     }
     const result = JSON.stringify(nodes).length <= 16000 ? nodes : undefined;
@@ -53,13 +64,26 @@ export function collectRegionCandidates(controls: Control[], elements: Element[]
       const structural=c.structuralItem && { template:c.structuralItem.template,slot:c.structuralItem.slot,recordKey:c.structuralItem.recordKey,
         owner:path(owner || undefined),row:path(row || undefined) };
       if (!ancestry || form && !path(form) || structural && (!structural.owner || !structural.row)) return;
-      return { ancestry, tag:c.tag,role:c.role,name:memberName(c),stableKey:c.stableKey,actions:c.actions,actionBasis:c.actionBasis,
+      let stableKey:unknown=c.stableKey;
+      if(c.stableKey?.startsWith('structural-item:')) {
+        // The collector's owner token is document-local. Replace only that
+        // verified redundancy; complete owner/row paths and record/slot facts
+        // remain in this binding. Never reinterpret old v1 stored proofs.
+        if(!c.structuralItem||!owner||!row||!owner.contains(row)||!row.contains(target))return;
+        try {
+          const key:unknown=JSON.parse(c.stableKey.slice('structural-item:'.length));
+          if(!Array.isArray(key)||key.length!==3||key.some(v=>typeof v!=='string')||key[0]!==c.structuralItem.ownerInstanceId
+            ||key[1]!==c.structuralItem.recordKey||!key[2]||!uniqueTarget(owner)||!uniqueTarget(row))return;
+          stableKey={kind:'structural-item',recordKey:key[1],localKey:key[2]};
+        }catch{return;}
+      }
+      return { ancestry, tag:c.tag,role:c.role,name:memberName(c),stableKey,actions:c.actions,actionBasis:c.actionBasis,
         region:c.region,form:form?{ancestry:path(form),action:form.action,method:form.method,target:form.target}:null,
         list:c.list&&{role:c.list.role,label:c.list.label,selector:c.list.selector},structural,
         constraints:{...c.constraints,valid:undefined},options:c.options.map(o=>({value:o.value,label:o.label,disabled:o.disabled})) };
     });
     if (members.some(m=>!m)) return;
-    const value={version:'region-structure-reuse/v1',anchor,heading:heading?{path:path(heading),text:heading.textContent}:null,facts,members};
+    const value={version:'region-structure-reuse/v2',anchor,heading:heading?{path:path(heading),text:heading.textContent}:null,facts,members};
     if (heading && !value.heading?.path || JSON.stringify(value).length>100000) return;
     return JSON.parse(JSON.stringify(value));
   };

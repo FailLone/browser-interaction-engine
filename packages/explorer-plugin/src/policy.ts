@@ -1,6 +1,6 @@
 import { conditionSplitIssues, boundOperationCondition, schedulableObligation } from './plan-state.js';
 import { createHash } from 'node:crypto';
-import { browserControlCorrespondence, browserControlBindingKey, browserTargetConditions, browserOperationKey, legacyBrowserOperationKey, navigationIntent, type ActionAvailability, type ActionCandidate, type Observation } from '@interaction/browser';
+import { browserControlCorrespondence, browserControlBindingKey, browserTargetConditions, browserOperationKey, browserOperationSchedulingKey, legacyBrowserOperationKey, navigationIntent, type ActionAvailability, type ActionCandidate, type Observation } from '@interaction/browser';
 import type { Scope, PlanItem, ExplorerHost, Task, EvidenceRef } from './types.js';
 const ordered=(value:unknown):unknown=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>[k,ordered(v)])):value;
 export const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(ordered(value))).digest('hex');
@@ -59,6 +59,10 @@ export function controlScopeMatcher(o:Observation,actions:ActionCandidate[]) {
 }
 export const keyFor=browserOperationKey;
 export const operationConditionPolicy='browser-operation-key-v2' as const;
+export const schedulingKeyFor=browserOperationSchedulingKey;
+export const schedulingOperationConditionPolicy='browser-operation-key-v3' as const;
+export {normalizeOperationScheduling} from './operation-scheduling.js';
+export {schedulingOperationCondition,operationSchedulingAliases} from './plan-state.js';
 type ConditionAudit=NonNullable<PlanItem['conditionMigration']>;
 const conditionSplitPolicy='operation-condition-split-v1' as const;
 const sourceRefKey=(ref:EvidenceRef)=>JSON.stringify([ref.sessionId,ref.observationId,ref.attemptId||'']);
@@ -75,7 +79,7 @@ export function migrateOperationConditions(task:Pick<Task,'plan'>,host:Pick<Expl
       continue;
     }
     const oldInvalidation=item.conditionMigration?.status==='invalidated'&&item.conditionMigration.reason==='multiple_current_conditions'&&!item.conditionMigration.version;
-    if(item.dispatchScope!==false||!item.operationConditionKey||item.operationConditionPolicy===operationConditionPolicy||item.conditionMigration&&!oldInvalidation
+    if(item.dispatchScope!==false||!item.operationConditionKey||item.operationConditionPolicy===operationConditionPolicy||item.operationConditionPolicy===schedulingOperationConditionPolicy||item.conditionMigration&&!oldInvalidation
       ||!['pending','unresolved','blocked'].includes(item.status)||item.attempts.length||item.resolvedBy||item.reviewResolvedBy||item.coverageResolvedBy
       ||!oldInvalidation&&!['observed_in_scope','operation_not_executed'].includes(item.reason))continue;
     const fromKey=item.operationConditionKey,sources:ConditionAudit['sources']=[],unverified:NonNullable<ConditionAudit['unverifiedSources']>=[];
@@ -154,7 +158,7 @@ export function includesScope(plan:PlanItem[],action:ActionCandidate,o:Observati
   // A page-level capability gap describes unobservable content, not a ban on
   // every supported control on that page. Keep it untested without masking grants.
   if(!explicit&&plan.some(i=>!i.required&&!i.reason.startsWith('missing_capability:')&&['untested','excluded'].includes(i.status)&&matches(i.scope,action,o)))return;
-  if(allowed.some(i=>matches(i.scope,action,o)&&(!boundOperationCondition(i)||boundOperationCondition(i)===keyFor(action,o))))return 'target';
+  if(allowed.some(i=>matches(i.scope,action,o)&&(!boundOperationCondition(i)||boundOperationCondition(i)===schedulingKeyFor(action,o))))return 'target';
   if(allowed.some(i=>i.status!=='succeeded'&&i.prerequisites.some(p=>matches(p,action,o))))return 'prerequisite';
   if(o.boundaries?.length&&action.boundary?.intent==='exit')return 'prerequisite';
 }
