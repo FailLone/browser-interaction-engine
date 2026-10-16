@@ -4,8 +4,9 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash, randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import Database from 'better-sqlite3';
-import { BrowserEngine, browserTargetConditions, type ActionAttempt, type EngineEvent } from '@interaction/browser';
+import { createRequire } from 'node:module';
+import type Database from 'better-sqlite3';
+import { BrowserEngine, browserTargetConditions, browserOperationKey, type Observation, type ActionAttempt, type EngineEvent } from '@interaction/browser';
 import { SqliteStore } from '@interaction/storage-sqlite';
 import { ExplorerPlugin, ExplorerStore, providersFromEnv, safeError, type Budget, type ExplorerEvent, type Provider, type Task } from '@interaction/explorer-plugin';
 import { budgetSchema, createTaskSchema } from '../packages/explorer-plugin/src/schema.js';
@@ -18,6 +19,8 @@ import { budgetSchema, createTaskSchema } from '../packages/explorer-plugin/src/
  * Provider configuration comes from the launching environment; no dotenv/key file is read.
  * Each invocation is a bounded measurement window. No result claims exhaustion.
  */
+// Resolve the native driver through the workspace package that declares it.
+const SqliteDatabase = createRequire(new URL('../packages/storage-sqlite/package.json', import.meta.url))('better-sqlite3') as typeof Database;
 const FORMAT = 'okx-storage-acceptance-v1';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const now = () => new Date().toISOString();
@@ -59,6 +62,141 @@ export async function settleOwnedTask(plugin: Pick<ExplorerPlugin, 'owner' | 'pa
   if (plugin.owner() === taskId) await plugin.pause(taskId);
   await plugin.waitForIdle(taskId); await host.waitForIdle();
 }
+/** A scheduling/condition candidate, never semantic equivalence or coverage proof. */
+export function operationConditionCandidate(attempt: ActionAttempt, observation: Observation) {
+  const targets = observation.controls.filter(control => control.localId === attempt.action.localId), target = targets[0];
+  if (targets.length !== 1 || target.hypothesisId || !target.identityId || target.identityId !== attempt.action.controlId) return;
+  const conditions = browserTargetConditions(attempt.action, observation);
+  return conditions ? digest(JSON.stringify([browserOperationKey(attempt.action, observation), conditions.policy, conditions.key])) : undefined;
+}
+export function classifyAcceptanceAttempt(attempt: ActionAttempt) {
+  const exploration = attempt.purpose !== 'recovery' && (attempt.purpose === 'exploration' || attempt.executionProfile === 'interface-exploration' || attempt.executionProfile === 'observed-ui-exploration');
+  // The SDK persists the approved reentry source on the attempt. Use the same
+  // retained evidence for live events and resume, rather than transient action IDs.
+  const reentry = !!attempt.repetitionSource;
+  return { exploration, reentry, leaf: exploration && !reentry };
+}
+/** Compact latest-state ledger: event delivery is not a count of unique attempts. */
+export class AcceptanceProgress {
+  private historical = new Set<string>();
+  private attempts = new Map<string, { sessionId: string; status: ActionAttempt['status']; exploration: boolean; leaf: boolean; key?: string; finishedAt: number }>();
+  constructor(private keyFor: (attempt: ActionAttempt) => string | undefined) {}
+  record(attempt: ActionAttempt, historical = false) {
+    if (historical) this.historical.add(attempt.id);
+    const classification = classifyAcceptanceAttempt(attempt), old = this.attempts.get(attempt.id);
+    const finishedAt = Date.parse(attempt.finishedAt || attempt.startedAt);
+    this.attempts.set(attempt.id, { sessionId: attempt.sessionId, status: attempt.status, ...classification,
+      key: attempt.status === 'succeeded' && classification.leaf ? this.keyFor(attempt) : undefined,
+      finishedAt: Number.isFinite(finishedAt) ? finishedAt : old?.finishedAt || Date.now() });
+  }
+  reconcile(attempts: ActionAttempt[]) {
+    const present = new Set(attempts.map(attempt => attempt.id));
+    for (const id of this.attempts.keys()) if (!present.has(id)) this.attempts.delete(id);
+    for (const attempt of attempts) this.record(attempt);
+  }
+  snapshot(startedAt = 0) {
+    const baseline = new Set<string>(), firstSuccess = new Map<string, number>();
+    const counts: Record<string, number> = {}, successfulAttemptIds: string[] = [], unkeyedSuccessfulAttemptIds: string[] = [];
+    const unknownAttempts: { sessionId: string; attemptId: string; status: string }[] = [];
+    const inFlightAttempts: { sessionId: string; attemptId: string; status: string }[] = [];
+    for (const [id, attempt] of this.attempts) {
+      if (attempt.status === 'unknown') unknownAttempts.push({ sessionId: attempt.sessionId, attemptId: id, status: attempt.status });
+      if (attempt.status === 'executing') inFlightAttempts.push({ sessionId: attempt.sessionId, attemptId: id, status: attempt.status });
+      if (this.historical.has(id)) {
+        if (attempt.status === 'succeeded' && attempt.leaf && attempt.key) baseline.add(attempt.key);
+        continue;
+      }
+      counts[attempt.status] = (counts[attempt.status] || 0) + 1;
+      if (attempt.status !== 'succeeded' || !attempt.exploration) continue;
+      successfulAttemptIds.push(id);
+      if (!attempt.leaf) continue;
+      if (!attempt.key) unkeyedSuccessfulAttemptIds.push(id);
+      else firstSuccess.set(attempt.key, Math.min(firstSuccess.get(attempt.key) ?? Infinity, attempt.finishedAt));
+    }
+    for (const key of baseline) firstSuccess.delete(key);
+    return { counts, successfulAttemptIds, unkeyedSuccessfulAttemptIds, unknownAttempts, inFlightAttempts, conditionKeys: [...firstSuccess.keys()].sort(),
+      newOperationConditionCandidates: firstSuccess.size, lastProgressAt: Math.max(startedAt, ...firstSuccess.values()),
+      progressGuardsDeferred: unkeyedSuccessfulAttemptIds.length > 0 };
+  }
+}
+type PlanSnapshot = Pick<ReturnType<ExplorerStore['taskState']>, 'task' | 'plan'>;
+export function newlyResolvedOccurrences(before: PlanSnapshot, after: PlanSnapshot) {
+  const resolution = (item: Task['plan'][number]) => item.status === 'succeeded' && item.resolvedBy?.attemptId ? JSON.stringify([item.resolvedBy.sessionId, item.resolvedBy.attemptId]) : undefined;
+  const previous = new Map(before.task.plan.map((item, index) => [before.plan[index], resolution(item)]));
+  return after.task.plan.flatMap((item, position) => {
+    const occurrenceId = after.plan[position], resolved = resolution(item);
+    return resolved && previous.get(occurrenceId) !== resolved ? [{ occurrenceId, position, item }] : [];
+  });
+}
+export const budgetEnforcement = {
+  modelRequests: 'Hard allowance at actual provider.decide entry; SDK reservations may also count a denied call.',
+  rounds: 'Hard allowance at createSession entry; resuming an existing session consumes no new slot; a failed creation still consumes its call slot.',
+  actions: 'Soft threshold using distinct SDK action.started IDs, reconciled against the final attempt ledger. An in-flight recovery may dispatch multiple internal attempts and exceed it; no attempt hooks or session budgets are changed.',
+  durationMs: 'Provider/session entries check the deadline and a timer requests pause. Already started SDK work, including an entire recovery call, settles normally and may exceed the window.',
+  progress: 'Unkeyed successful exploration is reported separately and defers repeated-route/no-progress guards for this window while that success remains valid.'
+};
+export class WindowBudgetExceeded extends Error {
+  readonly code = 'CANCELLED';
+  constructor(readonly dimension: keyof Budget) { super('CANCELLED'); }
+}
+/** Entry allowances do not rewrite task/session budgets or SDK attempt outcomes. */
+export class AcceptanceWindow {
+  private began?: number;
+  private settled?: number;
+  private models = 0;
+  private rounds = 0;
+  private attempts = new Set<string>();
+  constructor(readonly budget: Budget, private clock = Date.now) {}
+  start() { this.began = this.clock(); }
+  finish() { if (this.began !== undefined && this.settled === undefined) this.settled = this.clock(); }
+  enter(kind: 'provider' | 'round') {
+    if (this.began === undefined) throw new Error('WINDOW_NOT_STARTED');
+    if (this.clock() - this.began >= this.budget.durationMs) throw new WindowBudgetExceeded('durationMs');
+    if (kind === 'provider') {
+      if (this.models >= this.budget.modelRequests) throw new WindowBudgetExceeded('modelRequests');
+      this.models++;
+    } else if (kind === 'round') {
+      if (this.rounds >= this.budget.rounds) throw new WindowBudgetExceeded('rounds');
+      this.rounds++;
+    }
+  }
+  actionStarted(id: string) { this.attempts.add(id); }
+  reconcileActions(ids: string[]) { this.attempts = new Set(ids); }
+  snapshot() {
+    const usage = { actions: this.attempts.size, modelRequests: this.models, rounds: this.rounds, durationMs: this.began === undefined ? 0 : Math.max(0, (this.settled ?? this.clock()) - this.began) };
+    const overshoot: Budget = { actions: Math.max(0, usage.actions - this.budget.actions), modelRequests: Math.max(0, usage.modelRequests - this.budget.modelRequests), rounds: Math.max(0, usage.rounds - this.budget.rounds), durationMs: Math.max(0, usage.durationMs - this.budget.durationMs) };
+    return { usage, startedAt: this.began, overshoot };
+  }
+}
+
+/** Diagnostic failure must not escape an SDK callback or skip independent cleanup. */
+export function createDiagnosticLogger(write: (type: string, data: unknown) => void, failed: (failure: { code: string; at: string }) => void) {
+  let failure: { code: string; at: string } | undefined;
+  return {
+    get failure() { return failure; },
+    log(type: string, data: unknown) {
+      if (failure) return;
+      try { write(type, data); }
+      catch (error) { failure = { code: code(error), at: now() }; try { failed(failure); } catch { /* Never throw from an SDK callback. */ } }
+    }
+  };
+}
+export async function closeAcceptanceResources(resources: { name: string; close: () => unknown | Promise<unknown> }[], failed: (failure: { resource: string; code: string }) => void) {
+  for (const resource of resources) {
+    try { await resource.close(); }
+    catch (error) { try { failed({ resource: resource.name, code: code(error) }); } catch { /* The next resource still owns cleanup. */ } }
+  }
+}
+/** Router cancellation can settle before the underlying provider promise. */
+export async function settlePendingProviders(pending: ReadonlyMap<string, Promise<unknown>>, waitMs = 5000) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    if (pending.size) await Promise.race([Promise.allSettled([...pending.values()]), new Promise<void>(resolve => { timer = setTimeout(resolve, waitMs); })]);
+  } finally { clearTimeout(timer); }
+  const remainingPendingRequestIds = [...pending.keys()].sort();
+  return { settled: remainingPendingRequestIds.length === 0, remainingPendingRequestIds, sampledAt: now(), waitLimitMs: waitMs };
+}
+
 function atomicJson(path: string, value: unknown) {
   const temporary = `${path}.${randomUUID()}.tmp`;
   writeFileSync(temporary, JSON.stringify(value, null, 2) + '\n', { mode: 0o600, flag: 'wx' }); renameSync(temporary, path);
@@ -96,7 +234,7 @@ async function disk(directory: string) {
 
 async function main() {
   const config = args(process.argv.slice(2));
-  if (config.help) { console.log('Required: --dir NEW_DIRECTORY --url HTTPS_OKX_URL. Resume: --dir OWNED_DIRECTORY --resume [--extend-budget]. Optional: --rounds 2 --actions 100 --model-requests 1000 --minutes 30 --sample-seconds 30 --stall-minutes 10 --max-disk-gib 20. Providers are supplied only by the launching environment. Budgets bound a window; they never establish exhaustion.'); return; }
+  if (config.help) { console.log('Required: --dir NEW_DIRECTORY --url HTTPS_OKX_URL. Resume: --dir OWNED_DIRECTORY --resume [--extend-budget]. Optional: --rounds 2 --actions 100 --model-requests 1000 --minutes 30 --sample-seconds 30 --stall-minutes 10 --max-disk-gib 20. Providers are supplied only by the launching environment. Provider/new-session call allowances are hard entry limits. Action/time limits may be exceeded by already running SDK recovery/settling; overshoot is reported. No limit establishes exhaustion.'); return; }
   if (!config.directory) throw new Error('DIRECTORY_REQUIRED');
   const directory = resolve(config.directory), markerPath = join(directory, 'owner.json');
   let marker: Marker;
@@ -116,48 +254,68 @@ async function main() {
     atomicJson(markerPath, marker);
   }
   // OS-owned lock releases after process death; never guess whether a PID/lease is stale.
-  const lock = new Database(join(directory, '.runner-lock.sqlite'), { timeout: 0 });
+  const lock = new SqliteDatabase(join(directory, '.runner-lock.sqlite'), { timeout: 0 });
   try { lock.exec('BEGIN IMMEDIATE'); } catch { lock.close(); throw new Error('RUN_DIRECTORY_BUSY'); }
   const runId = randomUUID(), runDirectory = join(directory, 'runs', runId);
-  mkdirSync(runDirectory, { recursive: true, mode: 0o700 });
-  const log = (type: string, data: unknown) => appendFileSync(join(runDirectory, 'metrics.jsonl'), JSON.stringify({ at: now(), runId, type, data }) + '\n', { mode: 0o600 });
+  const diagnostics = createDiagnosticLogger((type, data) => appendFileSync(join(runDirectory, 'metrics.jsonl'), JSON.stringify({ at: now(), runId, type, data }) + '\n', { mode: 0o600 }), failure => {
+    fatal ||= 'DIAGNOSTIC_WRITE_FAILED'; requestStop('diagnostic_write_failed', failure);
+  });
+  const log = diagnostics.log;
   let host: BrowserEngine | undefined, plugin: ExplorerPlugin | undefined, engineStore: SqliteStore | undefined, pluginStore: ExplorerStore | undefined, pluginMetrics: Database.Database | undefined;
-  let taskId = marker.taskId || '', stopping = false, stopJob: Promise<void> | undefined, sampleAt = 0, lastProgress = Date.now(), evidenceOffset = 0;
+  let taskId = marker.taskId || '', stopping = false, stopJob: Promise<void> | undefined, sampleAt = 0, evidenceOffset = 0;
+  let deadlineTimer: ReturnType<typeof setTimeout> | undefined, progressDeferralLogged = false;
   const guards: Guard[] = [], cursors: Cursors = { plugin: 0, engine: {} }, sessions = new Set<string>();
+  const pendingProviders = new Map<string, Promise<unknown>>();
+  let providerSettlement: Awaited<ReturnType<typeof settlePendingProviders>> | undefined;
   const providerCounts = { jev: { started: 0, returned: 0, failed: 0, cancelled: 0, elapsedMs: 0, usage: {} as Record<string, number> }, llm: { started: 0, returned: 0, failed: 0, cancelled: 0, elapsedMs: 0, usage: {} as Record<string, number> } };
-  const attemptCounts: Record<string, number> = {}, successes = new Set<string>(), baselineSuccesses = new Set<string>(), observations = new Set<string>();
-  const unknownAttempts = new Map<string, { sessionId: string; attemptId: string }>();
-  const reentryActions = new Set<string>(), successfulConditions = new Set<string>(); let newConditions = 0;
-  const repeatedRoutes = new Map<string, { progress: number; count: number }>();
+  const baselineSuccesses = new Set<string>(), baselineAttempts = new Set<string>(), observations = new Set<string>();
+  const windowBudget = new AcceptanceWindow(config.budget);
+  const progress = new AcceptanceProgress(attempt => operationConditionCandidate(attempt, host!.observation(attempt.sessionId, attempt.beforeId)));
+  const progressSnapshot = () => progress.snapshot(windowBudget.snapshot().startedAt ?? Date.now());
+  const repeatedRoutes = new Map<string, { progress: string[]; count: number }>();
   const recoveries: { api: string; sessionId: string; status: string; elapsedMs: number; observationId?: string; attemptIds: string[]; matchedActionIds?: string[]; checkpointVerified?: boolean }[] = [];
-  let initial: Task | undefined, final: Task | undefined, fatal: string | undefined, started = false;
+  let initial: Task | undefined, final: Task | undefined, initialState: ReturnType<ExplorerStore['taskState']> | undefined, fatal: string | undefined, started = false;
   const header = () => pluginStore && taskId ? pluginStore.taskHeader(taskId) : undefined;
   const requestStop = (reason: string, details?: unknown) => {
     if (guards.some(guard => guard.reason === reason)) return;
     let prior: Guard['prior'];
     try { const task = header()?.header; if (task) prior = { status: task.status, reason: task.reason, usage: task.usage }; } catch { /* Preserve the first cause even if the header is corrupt. */ }
-    const guard = { at: now(), reason, details, prior }; guards.push(guard); log('stop.requested', guard);
-    if (stopping) return; stopping = true;
+    const guard = { at: now(), reason, details, prior }; guards.push(guard);
+    if (stopping) { log('stop.requested', guard); return; } stopping = true;
     // Begin pause on the next microtask, before another awaited dispatch/model call.
     stopJob = Promise.resolve().then(async () => {
       if (plugin && host && taskId) await settleOwnedTask(plugin, host, taskId);
       else if (host) await host.waitForIdle();
+      windowBudget.finish();
       log('stop.settled', { reason, original: prior, paused: header()?.header.status });
-    }).catch(error => { fatal = code(error); log('stop.failed', { code: fatal, reason }); });
+    }).catch(error => { fatal ||= code(error); log('stop.failed', { code: fatal, reason }); });
+    // Stopping and settlement are already arranged if this diagnostic write fails.
+    log('stop.requested', guard);
+  };
+  const enterWindow = (kind: Parameters<AcceptanceWindow['enter']>[0]) => {
+    if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
+    try { windowBudget.enter(kind); } catch (error) {
+      if (error instanceof WindowBudgetExceeded) requestStop(error.dimension === 'durationMs' ? 'window_time_budget' : 'window_usage_budget', { dimension: error.dimension, entry: kind, ...windowBudget.snapshot() });
+      throw error;
+    }
   };
   const onSignal = () => requestStop('operator_signal');
   process.on('SIGINT', onSignal); process.on('SIGTERM', onSignal);
   const watchRoute = (key: string, evidence: unknown) => {
-    const old = repeatedRoutes.get(key), count = old?.progress === newConditions ? old.count + 1 : 1;
-    repeatedRoutes.set(key, { progress: newConditions, count });
+    const snapshot = progressSnapshot();
+    if (snapshot.progressGuardsDeferred) { log('route.guard_deferred', { key, reason: 'unkeyed_success_cannot_establish_no_progress', unkeyedSuccessfulAttemptIds: snapshot.unkeyedSuccessfulAttemptIds }); return; }
+    const old = repeatedRoutes.get(key), changed = snapshot.conditionKeys.some(condition => !old?.progress.includes(condition));
+    const count = old && !changed ? old.count + 1 : 1;
+    repeatedRoutes.set(key, { progress: snapshot.conditionKeys, count });
     if (count >= 3) requestStop('repeated_route_without_new_success', { key, count, evidence, classification: 'suspected_retry_requires_review' });
   };
   const provider = (actor: 'jev' | 'llm', source: Provider): Provider => ({ ...source, async decide(request, signal) {
-    if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
+    enterWindow('provider');
     const began = performance.now(), counters = providerCounts[actor]; counters.started++;
-    log('provider.started', { actor, requestId: request.id, purpose: request.purpose, kind: request.kind, policy: request.policy, provider: source.name, model: source.model });
     try {
-      const answer = await source.decide(request, signal); counters.returned++;
+      const call = source.decide(request, signal); pendingProviders.set(request.id, call);
+      log('provider.started', { actor, requestId: request.id, purpose: request.purpose, kind: request.kind, policy: request.policy, provider: source.name, model: source.model });
+      const answer = await call; counters.returned++;
       const usage = Object.fromEntries(Object.entries(answer.usage || {}).filter(([, value]) => Number.isFinite(value) && value >= 0));
       for (const [key, value] of Object.entries(usage)) counters.usage[key] = (counters.usage[key] || 0) + value;
       log('provider.returned', { actor, requestId: request.id, purpose: request.purpose, elapsedMs: performance.now() - began, model: answer.model, usage }); return answer;
@@ -165,12 +323,11 @@ async function main() {
       const failure = code(error), cancelled = signal.aborted || failure === 'CANCELLED'; counters[cancelled ? 'cancelled' : 'failed']++;
       log('provider.failed', { actor, requestId: request.id, purpose: request.purpose, code: failure, cancelled, elapsedMs: performance.now() - began });
       if (!cancelled) requestStop('provider_failure', { actor, requestId: request.id, code: failure }); throw error;
-    } finally { counters.elapsedMs += performance.now() - began; }
+    } finally { pendingProviders.delete(request.id); counters.elapsedMs += performance.now() - began; }
   } });
   const auditEvent = (event: ExplorerEvent) => {
     const data = object(event.data);
     if (event.sessionId) sessions.add(event.sessionId);
-    if (event.type === 'action.selected' && data.reentry === true && typeof data.actionId === 'string') reentryActions.add(data.actionId);
     if (event.type === 'decision.failed') requestStop('provider_or_decision_failure', { decisionId: event.decisionId, reason: data.reason });
     if (event.type === 'recovery.selected') watchRoute(`recovery:${String(data.routeKey)}`, { sequence: event.sequence, sourceObservationId: data.sourceObservationId, itemId: data.itemId });
     if (event.type === 'branch.reentry_planned') {
@@ -179,30 +336,26 @@ async function main() {
       watchRoute(`reentry:${digest(JSON.stringify([data.scope, data.target]))}`, { sequence: event.sequence, itemId: data.itemId });
     }
   };
-  const conditionKey = (attempt: ActionAttempt) => {
-    const observation = host!.observation(attempt.sessionId, attempt.beforeId), conditions = browserTargetConditions(attempt.action, observation);
-    return conditions ? digest(JSON.stringify([conditions.policy, conditions.key, attempt.action.kind, attempt.action.value])) : undefined;
-  };
-  const engineEvent = (event: EngineEvent) => {
+  const auditEngineEvent = (event: EngineEvent) => {
     sessions.add(event.sessionId);
     if (event.type === 'observation.created') observations.add(String(object(event.data).observationId));
-    if (event.type !== 'action.completed' && event.type !== 'action.unknown') return;
+    if (!['action.started', 'action.completed', 'action.unknown'].includes(event.type)) return;
     const attempt = event.data as ActionAttempt;
-    attemptCounts[attempt.status] = (attemptCounts[attempt.status] || 0) + 1;
-    if (attempt.status === 'unknown') unknownAttempts.set(attempt.id, { sessionId: attempt.sessionId, attemptId: attempt.id });
-    else unknownAttempts.delete(attempt.id);
-    // Plugin commands remain purpose=external in the SDK ledger. Their explicit
-    // exploration profile distinguishes them from recovery and hover/focus probes.
-    if (attempt.status === 'succeeded' && attempt.purpose !== 'recovery' && (attempt.purpose === 'exploration' || attempt.executionProfile === 'interface-exploration' || attempt.executionProfile === 'observed-ui-exploration')) {
-      successes.add(attempt.id);
-      try {
-        const key = conditionKey(attempt), entry = reentryActions.has(attempt.action.id) || !!attempt.repetitionSource;
-        if (key && !entry && !successfulConditions.has(key)) { successfulConditions.add(key); newConditions++; lastProgress = Date.now(); }
-        log('coverage.condition_candidate', { attemptId: attempt.id, conditionKey: key, reentry: entry, newConditionCount: newConditions, semanticUniquenessVerified: false });
-      } catch (error) { requestStop('observation_integrity', { attemptId: attempt.id, code: code(error) }); }
-    }
+    if (event.type === 'action.started') windowBudget.actionStarted(attempt.id);
+    try {
+      progress.record(attempt);
+      const snapshot = progressSnapshot(), classification = classifyAcceptanceAttempt(attempt);
+      if (attempt.status === 'succeeded' && classification.exploration) log('coverage.condition_candidate', { attemptId: attempt.id, reentry: classification.reentry,
+        newConditionCount: snapshot.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: snapshot.unkeyedSuccessfulAttemptIds, semanticUniquenessVerified: false });
+      if (snapshot.progressGuardsDeferred && !progressDeferralLogged) { progressDeferralLogged = true; log('progress.guards_deferred', { reason: 'unkeyed_success_cannot_establish_no_progress' }); }
+    } catch (error) { requestStop('observation_integrity', { attemptId: attempt.id, code: code(error) }); }
+    if (event.type === 'action.started') return;
     log('attempt.completed', { engineEventType: event.type, id: attempt.id, sessionId: attempt.sessionId, status: attempt.status, purpose: attempt.purpose, executionProfile: attempt.executionProfile, beforeId: attempt.beforeId, afterId: attempt.afterId, requestId: attempt.requestId, kind: attempt.action.kind, label: attempt.action.label, elapsedMs: attempt.finishedAt ? Date.parse(attempt.finishedAt) - Date.parse(attempt.startedAt) : undefined, repetitionSource: attempt.repetitionSource, recoverySegment: attempt.recoverySegment });
     if (attempt.status === 'unknown') requestStop('unknown_attempt', { sessionId: event.sessionId, attemptId: attempt.id });
+    else if (windowBudget.snapshot().usage.actions >= config.budget.actions) requestStop('window_usage_budget', { dimension: 'actions', ...windowBudget.snapshot() });
+  };
+  const engineEvent = (event: EngineEvent) => {
+    try { auditEngineEvent(event); } catch (error) { fatal ||= code(error); requestStop('instrumentation_failure', { source: 'engine_event', code: code(error) }); }
   };
   const drain = () => {
     if (!pluginStore || !engineStore || !taskId) return;
@@ -252,49 +405,62 @@ async function main() {
     drain(); const state = header(); if (!state || !pluginStore) return;
     const task = state.header;
     const planCounts = pluginMetrics!.prepare('SELECT status,required,COUNT(*) AS count FROM task_items WHERE task_id=? AND kind=\'plan\' GROUP BY status,required').all(taskId);
-    const unknown = [...unknownAttempts.values()];
+    const metrics = progressSnapshot(), unknown = metrics.unknownAttempts;
     const storage = await disk(directory);
-    log('sample', { status: task.status, reason: task.reason, usage: task.usage, budget: task.budget, planCounts, planCount: state.planCount, roundCount: state.roundCount, pendingDispatch: task.pendingDispatch, unverifiedRecoveries: task.unverifiedRecoveries, unverifiedNavigations: task.unverifiedNavigations, unknown, cursors, providers: providerCounts, attempts: attemptCounts, newlySucceededExplorationAttempts: successes.size, newOperationConditionCandidates: newConditions, newObservations: observations.size, disk: storage, exhaustive: false });
+    log('sample', { status: task.status, reason: task.reason, usage: task.usage, budget: task.budget, planCounts, planCount: state.planCount, roundCount: state.roundCount, pendingDispatch: task.pendingDispatch, unverifiedRecoveries: task.unverifiedRecoveries, unverifiedNavigations: task.unverifiedNavigations, unknown, inFlightAttempts: metrics.inFlightAttempts, cursors, providers: providerCounts, attempts: metrics.counts, newlySucceededExplorationAttempts: metrics.successfulAttemptIds.length, newOperationConditionCandidates: metrics.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: metrics.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: metrics.progressGuardsDeferred, budgetEnforcement, windowBudget: windowBudget.snapshot(), newObservations: observations.size, disk: storage, exhaustive: false });
     if (unknown.length) requestStop('unknown_attempt', unknown);
     if (task.unverifiedRecoveries?.length || task.unverifiedNavigations?.length) requestStop('unverified_outcome', { recovery: task.unverifiedRecoveries, navigation: task.unverifiedNavigations });
     if (storage.total > config.maxDisk || storage.availableBytes < 1024 ** 3) requestStop('disk_guard', storage);
     try { await auditProtected(false); } catch (error) { requestStop('protected_evidence_integrity', { code: code(error) }); }
   };
   try {
+    mkdirSync(runDirectory, { recursive: true, mode: 0o700 });
     const configured = providersFromEnv();
     if (!configured.jev || !configured.llm) throw Object.assign(new Error(), { code: 'CONFIGURATION_REQUIRED' });
-    log('run.preflight', { format: FORMAT, source: sourceIdentity(), resume: config.resume, extendBudget: config.extend, budget: config.budget, url: marker.url, stallMs: config.stallMs, sampleMs: config.sampleMs, maxDiskBytes: config.maxDisk, exhaustive: false,
-      metricLimits: ['Actual successful attempts and newly resolved plan rows are separate; neither deduplicates all semantic operations.', 'Necessary reentry is a candidate backed by route evidence and requires child-progress review.', 'Repeated-route and no-progress guards identify review candidates, not a proof that every retry was unnecessary.', 'Partial live integrity audits rotate through eight protected artifacts; startup/settled audits check all protected artifacts.', 'Raw decisions, observations, unknown attempts and request ledgers remain in the owned databases.'] });
+    log('run.preflight', { format: FORMAT, source: sourceIdentity(), resume: config.resume, extendBudget: config.extend, budget: config.budget, budgetEnforcement, url: marker.url, stallMs: config.stallMs, sampleMs: config.sampleMs, maxDiskBytes: config.maxDisk, exhaustive: false,
+      metricLimits: ['Actual successful attempts and newly resolved plan rows are separate; neither deduplicates all semantic operations.', 'browserOperationKey is a scheduling hint: same-name/shared-identifier targets can still collide. Candidate keys grant no identity, uniqueness, or scope completion.', 'Missing targets, unresolved identity or unavailable conditions are unkeyed; such successes defer no-progress and repeated-route guards.', 'Provider counts are actual decide calls, not billable HTTP requests; usage only includes parsed provider answers.', 'Necessary reentry is a candidate backed by route evidence and requires child-progress review.', 'Repeated-route and no-progress guards identify review candidates, not a proof that every retry was unnecessary.', 'Partial live integrity audits rotate through eight protected artifacts; startup/settled audits check all protected artifacts.', 'Raw decisions, observations, unknown attempts and request ledgers remain in the owned databases.'] });
     mkdirSync(join(directory, 'plugin'), { recursive: true });
     engineStore = new SqliteStore(join(directory, 'engine'));
     host = new BrowserEngine({ persistence: engineStore });
     pluginStore = new ExplorerStore(join(directory, 'plugin', 'explorer.sqlite'));
     // Compact projections only; source-version metadata binds these schema-dependent metrics.
-    pluginMetrics = new Database(join(directory, 'plugin', 'explorer.sqlite'), { readonly: true, fileMustExist: true });
-    // Instrument public evidence-producing calls without changing their inputs/results.
+    pluginMetrics = new SqliteDatabase(join(directory, 'plugin', 'explorer.sqlite'), { readonly: true, fileMustExist: true });
+    // Fence public entries without rewriting task/session limits or SDK outcomes.
+    const createSession = host.createSession.bind(host);
+    host.createSession = async (...input) => { enterWindow('round'); return createSession(...input); };
+    // A recovery API may dispatch several internal attempts. Its entry is checked,
+    // but an already running recovery is not interrupted or recast as unknown.
     const checkpoint = host.reachCheckpoint.bind(host);
     host.reachCheckpoint = async (...input) => {
+      if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
       const began = performance.now();
       try { const result = await checkpoint(...input); const record = { api: 'reachCheckpoint', sessionId: input[0], status: result.status, elapsedMs: performance.now() - began, observationId: result.observationId, attemptIds: result.attemptIds, checkpointVerified: result.status === 'REACHED_VERIFIED' }; recoveries.push(record); log('recovery.returned', { ...record, result }); return result; }
       catch (error) { log('recovery.failed', { api: 'reachCheckpoint', sessionId: input[0], elapsedMs: performance.now() - began, code: code(error) }); throw error; }
     };
     const target = host.reachExplorationTarget.bind(host);
     host.reachExplorationTarget = async (...input) => {
+      if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
       const began = performance.now();
       try { const result = await target(...input); const record = { api: 'reachExplorationTarget', sessionId: input[0], status: result.status, elapsedMs: performance.now() - began, observationId: result.observationId, attemptIds: result.attemptIds, matchedActionIds: result.matchedActionIds, checkpointVerified: result.checkpointVerified }; recoveries.push(record); log('recovery.returned', { ...record, result }); return result; }
       catch (error) { log('recovery.failed', { api: 'reachExplorationTarget', sessionId: input[0], elapsedMs: performance.now() - began, code: code(error) }); throw error; }
     };
     const event = pluginStore.event.bind(pluginStore);
-    pluginStore.event = input => { const saved = event(input); auditEvent(saved); return saved; };
+    pluginStore.event = input => {
+      const saved = event(input);
+      try { auditEvent(saved); } catch (error) { fatal ||= code(error); requestStop('instrumentation_failure', { source: 'plugin_event', code: code(error) }); }
+      return saved;
+    };
     host.events.on('event', engineEvent);
     plugin = new ExplorerPlugin(host, pluginStore, { ...configured, jev: provider('jev', configured.jev), llm: provider('llm', configured.llm) });
     if (!config.resume) { const created = plugin.create(createTaskSchema.parse({ url: marker.url, goal: '', coverageMode: 'all', budget: config.budget, sessionOptions: { headless: true, executionPolicy: 'interface-only' } })); taskId = created.id; marker.taskId = taskId; atomicJson(markerPath, marker); }
-    initial = pluginStore.task(taskId); atomicJson(join(runDirectory, 'task-before.json'), initial);
+    initialState = pluginStore.taskState(taskId); initial = initialState.task; atomicJson(join(runDirectory, 'task-before.json'), initial);
+    atomicJson(join(runDirectory, 'plan-occurrences-before.json'), initialState.plan);
     if (initial.url !== marker.url || initial.goal !== '' || initial.coverageMode !== 'all') throw Object.assign(new Error(), { code: 'OWNED_TASK_CONFIGURATION_CHANGED' });
     for (const round of initial.rounds) sessions.add(round.sessionId);
     for (const sid of sessions) for (const attempt of host.list<ActionAttempt>(sid, 'attempt')) {
-      if (attempt.status === 'succeeded') { baselineSuccesses.add(attempt.id); const key = conditionKey(attempt); if (key) successfulConditions.add(key); }
-      else if (attempt.status === 'unknown' || attempt.status === 'executing') { unknownAttempts.set(attempt.id, { sessionId: sid, attemptId: attempt.id }); requestStop('preexisting_unknown_or_executing', { sessionId: sid, attemptId: attempt.id, status: attempt.status }); }
+      baselineAttempts.add(attempt.id); progress.record(attempt, true);
+      if (attempt.status === 'succeeded') baselineSuccesses.add(attempt.id);
+      else if (attempt.status === 'unknown' || attempt.status === 'executing') requestStop('preexisting_unknown_or_executing', { sessionId: sid, attemptId: attempt.id, status: attempt.status });
     }
     // Resume starts at the persisted source cursors; earlier run logs remain alongside it.
     cursors.plugin = (pluginMetrics.prepare('SELECT COALESCE(MAX(sequence),0) AS sequence FROM events WHERE task_id=?').get(taskId) as { sequence: number }).sequence;
@@ -306,39 +472,57 @@ async function main() {
     if (!stopping) { const task = header()!.header; if (task.usage.actions >= task.budget.actions || task.usage.modelRequests >= task.budget.modelRequests || task.usage.durationMs >= task.budget.durationMs) requestStop('task_budget_guard', { usage: task.usage, budget: task.budget }); }
     if (!stopping) {
       if (initial.status === 'completed') requestStop('already_completed_requires_review');
-      else { log('start.requested', { taskId, priorStatus: initial.status, priorReason: initial.reason }); plugin.start(taskId); started = true; }
+      else {
+        windowBudget.start(); deadlineTimer = setTimeout(() => requestStop('window_time_budget'), config.budget.durationMs);
+        log('start.requested', { taskId, priorStatus: initial.status, priorReason: initial.reason }); plugin.start(taskId); started = true;
+      }
     }
-    const deadline = Date.now() + config.budget.durationMs;
     while (plugin.owner() === taskId && !stopping) {
       drain();
-      const current = header()!;
-      if (current.header.usage.actions - initial.usage.actions >= config.budget.actions || current.header.usage.modelRequests - initial.usage.modelRequests >= config.budget.modelRequests || current.roundCount - initial.rounds.length > config.budget.rounds) requestStop('window_usage_budget', { usage: current.header.usage, before: initial.usage, windowBudget: config.budget });
+      if (windowBudget.snapshot().usage.actions >= config.budget.actions) requestStop('window_usage_budget', { dimension: 'actions', ...windowBudget.snapshot() });
       if (Date.now() - sampleAt >= config.sampleMs) { sampleAt = Date.now(); await sample(); }
-      if (Date.now() >= deadline) requestStop('window_time_budget');
-      if (Date.now() - lastProgress >= config.stallMs) requestStop('no_new_operation_condition_window', { elapsedMs: Date.now() - lastProgress, classification: 'stalled_or_review_only_requires_review' });
+      if (windowBudget.snapshot().usage.durationMs >= config.budget.durationMs) requestStop('window_time_budget');
+      const metrics = progressSnapshot();
+      if (!metrics.progressGuardsDeferred && Date.now() - metrics.lastProgressAt >= config.stallMs) requestStop('no_new_operation_condition_window', { elapsedMs: Date.now() - metrics.lastProgressAt, classification: 'stalled_or_review_only_requires_review' });
       if (!stopping) await new Promise<void>(done => setTimeout(done, 1000));
     }
     await plugin.waitForIdle(taskId);
     if (!stopping) { const task = header()!.header; requestStop(task.status === 'budget_exhausted' ? 'task_budget_guard' : 'task_halted_for_review', { status: task.status, reason: task.reason, exhaustive: false }); }
     await stopJob; await sample();
     try { await auditProtected(true); } catch (error) { requestStop('protected_evidence_integrity', { code: code(error) }); }
-    final = pluginStore.task(taskId); atomicJson(join(runDirectory, 'task-after.json'), final);
+    const finalState = pluginStore.taskState(taskId); final = finalState.task; atomicJson(join(runDirectory, 'task-after.json'), final);
+    atomicJson(join(runDirectory, 'plan-occurrences-after.json'), finalState.plan);
     const finalAttempts = [...sessions].flatMap(sid => host!.list<ActionAttempt>(sid, 'attempt'));
-    const finalUnknown = finalAttempts.filter(attempt => attempt.status === 'unknown' || attempt.status === 'executing').map(attempt => ({ sessionId: attempt.sessionId, attemptId: attempt.id, status: attempt.status }));
+    progress.reconcile(finalAttempts);
+    windowBudget.reconcileActions(finalAttempts.filter(attempt => !baselineAttempts.has(attempt.id)).map(attempt => attempt.id));
+    const settled = progressSnapshot(), successes = new Set(settled.successfulAttemptIds), finalUnknown = [...settled.unknownAttempts, ...settled.inFlightAttempts];
     if (finalUnknown.length) requestStop('settled_unknown_or_executing', finalUnknown);
-    const beforeResolved = new Set(initial.plan.filter(item => item.status === 'succeeded' && item.resolvedBy?.attemptId).map(item => item.id));
-    const newlyResolved = final.plan.filter(item => item.status === 'succeeded' && item.resolvedBy?.attemptId && !beforeResolved.has(item.id));
-    atomicJson(join(runDirectory, 'coverage-review.json'), { exhaustive: false, newlySucceededExplorationAttemptIds: [...successes], newOperationConditionCandidates: newConditions, newlyResolvedPlanItems: newlyResolved, historicalCoverageOnly: final.plan.filter(item => item.coverageResolvedBy), unresolved: final.plan.filter(item => item.required && !['succeeded', 'excluded', 'superseded'].includes(item.status)), unknownAttempts: finalUnknown, pendingDispatch: final.pendingDispatch, unverifiedRecoveries: final.unverifiedRecoveries, unverifiedNavigations: final.unverifiedNavigations, recoveries,
-      recoveryFollowup: recoveries.map(recovery => ({ ...recovery, subsequentSuccessfulAttempts: finalAttempts.filter(attempt => successes.has(attempt.id) && attempt.beforeId === recovery.observationId).map(attempt => ({ sessionId: attempt.sessionId, attemptId: attempt.id, beforeId: attempt.beforeId })), targetReadinessOnly: recovery.status === 'TARGET_REACHED', wholeCheckpointVerified: recovery.checkpointVerified === true })) });
+    const newlyResolved = newlyResolvedOccurrences(initialState, finalState);
+    atomicJson(join(runDirectory, 'coverage-review.json'), { exhaustive: false, newlySucceededExplorationAttemptIds: [...successes], newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, newlyResolvedPlanOccurrences: newlyResolved, newlyResolvedPlanItems: newlyResolved.map(row => row.item), historicalCoverageOnly: final.plan.filter(item => item.coverageResolvedBy), unresolved: final.plan.filter(item => item.required && !['succeeded', 'excluded', 'superseded'].includes(item.status)), unknownAttempts: finalUnknown, pendingDispatch: final.pendingDispatch, unverifiedRecoveries: final.unverifiedRecoveries, unverifiedNavigations: final.unverifiedNavigations, recoveries,
+      recoveryFollowup: recoveries.map(recovery => ({ ...recovery, subsequentSuccessfulAttempts: finalAttempts.filter(attempt => successes.has(attempt.id) && attempt.sessionId === recovery.sessionId && attempt.beforeId === recovery.observationId).map(attempt => ({ sessionId: attempt.sessionId, attemptId: attempt.id, beforeId: attempt.beforeId })), targetReadinessOnly: recovery.status === 'TARGET_REACHED', wholeCheckpointVerified: recovery.checkpointVerified === true })) });
   } catch (error) { fatal = code(error); requestStop('runner_failure', { code: fatal }); await stopJob; }
   finally {
+    clearTimeout(deadlineTimer);
     process.off('SIGINT', onSignal); process.off('SIGTERM', onSignal);
-    pluginMetrics?.close();
-    try { if (plugin) { await plugin.close(); pluginStore = undefined; } else pluginStore?.close(); } catch (error) { fatal ||= code(error); log('close.plugin_failed', { code: code(error) }); }
-    try { if (host) await host.close(); else engineStore?.close(); } catch (error) { fatal ||= code(error); log('close.engine_failed', { code: code(error) }); }
+    await closeAcceptanceResources([
+      { name: 'pluginMetrics', close: () => pluginMetrics?.close() },
+      { name: 'plugin', close: async () => { if (plugin) { await plugin.close(); pluginStore = undefined; } } },
+      { name: 'pluginStore', close: () => pluginStore?.close() },
+      { name: 'host', close: async () => { if (host) { await host.close(); engineStore = undefined; } } },
+      { name: 'engineStore', close: () => engineStore?.close() }
+    ], failure => { fatal ||= failure.code; log('close.failed', failure); });
+    windowBudget.finish();
+    providerSettlement = await settlePendingProviders(pendingProviders);
+    if (!providerSettlement.settled) { fatal ||= 'PROVIDER_SETTLEMENT_INCOMPLETE'; log('provider.settlement_incomplete', providerSettlement); }
+    const settled = progressSnapshot();
     // Close releases SQLite WAL handles before the final physical-byte snapshot.
-    try { atomicJson(join(runDirectory, 'summary.json'), { format: FORMAT, runId, taskId, finishedAt: now(), started, fatal, guards, originalStop: guards[0], finalStatus: final?.status, finalReason: final?.reason, usageBefore: initial?.usage, usageAfter: final?.usage, providerCounts, attemptCounts, newSuccessfulExplorationAttempts: successes.size, recoveryCalls: recoveries.length, recoveryElapsedMs: recoveries.reduce((sum, recovery) => sum + recovery.elapsedMs, 0), cursors, diskAfterClose: await disk(directory), exhaustive: false, reviewRequired: true }); } finally { if (lock.inTransaction) lock.exec('ROLLBACK'); lock.close(); }
-    console.log(JSON.stringify({ directory: runDirectory, taskId, reason: guards[0]?.reason || fatal, exhaustive: false, reviewRequired: true }));
+    try { atomicJson(join(runDirectory, 'summary.json'), { format: FORMAT, runId, taskId, finishedAt: now(), started, fatal, guards, originalStop: guards[0], finalStatus: final?.status, finalReason: final?.reason, usageBefore: initial?.usage, usageAfter: final?.usage, providerCounts, providerSettlement, diagnosticFailure: diagnostics.failure, unknownAttempts: settled.unknownAttempts, inFlightAttempts: settled.inFlightAttempts, attemptCounts: settled.counts, newSuccessfulExplorationAttempts: settled.successfulAttemptIds.length, newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, budgetEnforcement, windowBudget: windowBudget.snapshot(), overshoot: windowBudget.snapshot().overshoot, recoveryCalls: recoveries.length, recoveryElapsedMs: recoveries.reduce((sum, recovery) => sum + recovery.elapsedMs, 0), cursors, diskAfterClose: await disk(directory), exhaustive: false, reviewRequired: true }); }
+    catch (error) { fatal ||= code(error); log('summary.failed', { code: code(error) }); }
+    finally { await closeAcceptanceResources([
+      { name: 'lock.rollback', close: () => { if (lock.inTransaction) lock.exec('ROLLBACK'); } },
+      { name: 'lock.close', close: () => lock.close() }
+    ], failure => { fatal ||= failure.code; log('close.failed', failure); }); }
+    console.log(JSON.stringify({ directory: runDirectory, taskId, reason: guards[0]?.reason || fatal, fatal, diagnosticFailure: diagnostics.failure, providerSettlement, exhaustive: false, reviewRequired: true }));
     if (fatal || guards.some(guard => !['operator_signal', 'window_time_budget', 'window_usage_budget', 'task_budget_guard', 'already_completed_requires_review'].includes(guard.reason))) process.exitCode = 2;
   }
 }
