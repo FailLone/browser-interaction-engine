@@ -62,8 +62,9 @@ All endpoints are under `/plugins/explorer/v1`:
 - `GET /status`, `GET /tasks`, `POST /tasks` (`url`, optional `goal`, `coverageMode`, `budget` and bounded `sessionOptions`). Omitted, empty or whitespace-only `goal` selects default exhaustive exploration with `coverageMode: all`.
 - `GET /tasks/:id` returns the task, decisions and first event page.
 - `GET /tasks/:id/events?after=0&limit=500` provides durable cursor pagination.
-- `POST /tasks/:id/commands` accepts `start`, `resume`, `pause`, `stop`, `replan`, `continue-scope`, `extend-budget`.
+- `POST /tasks/:id/commands` accepts `start`, `resume`, `pause`, `stop`, `replan`, `continue-scope`, `extend-budget`, `accept-limitations`.
 - `replan` accepts a new goal or reviewed `items`, and an optional `coverageMode` (`all` by default, `representative` only by user choice). `continue-scope` accepts existing `itemIds` and forces full traversal of those selected targets so they cannot be sampled out again. Pause before changing a plan. Start/resume separately after inspecting changes. `extend-budget` explicitly adds an allowance to the existing totals; it never resets usage. The UI labels this action “追加上方预算”.
+- `accept-limitations` accepts `limitations: {codes: ["UNSUPPORTED_CANVAS"], reason: "User explicitly permits untested canvas contents"}` after pausing. Codes must correspond to retained, noncritical unsupported-content evidence. Accepted items remain `untested` with their original evidence; budgets, dispatch authority and unknown operation outcomes stay unchanged. This task-local choice persists across rounds and restarts. Explicitly selecting such an item with `continue-scope` removes its acceptance and requires fresh testing.
 
 Plan scopes match exact URL, region label, control label, role, stable key, operation kind and optional value. Prerequisites use the same format. Ambiguous matches stay unresolved. A plan completion description is guidance; verification currently means successful supported interaction with a subsequent host observation, not arbitrary business assertions.
 
@@ -92,6 +93,8 @@ A terminal unknown result from a supported, replayable native HTTP hyperlink in 
 `completed` means the current observed plan is verified. `exhaustive` is always false. Discovery gaps, sampled-out members and unreachable states remain separately visible.
 
 For accepted whole-page scopes, host `UNSUPPORTED_*` and `*_UNSUPPORTED` observations (such as canvas, iframe or shadow contents) create required capability gaps even when the host marks them noncritical. Other supported controls may still proceed. The plugin pins the source observation and emits `scope.unsupported` with the host's exact limitations. Neither a later unrelated success nor the last action at a budget boundary clears these gaps. Targeted control tasks do not inherit unrelated page-wide limitations. This records the host's boundary; it adds no browser access or new host capability.
+
+Only an explicit user acceptance can make these unsupported-content gaps optional. The debug page offers “跳过此类能力限制（保留未测）” and records `scope.limitation_accepted` separately from execution results. Accepted limitations remain visible even when the current supported plan completes; they never count as successful coverage or justify a claim of absolute exhaustion.
 
 ## Debug UI and validation
 

@@ -46,6 +46,8 @@ it('shows unsupported coverage as a program node with source evidence, not execu
   await page.getByLabel('包含模型决策的遍历路径').getByRole('button').filter({hasText:'保留宿主无法验证的范围'}).click();
   const inspector=page.getByLabel('探索决策详情');expect(await inspector.innerText()).toContain('其他控件的执行成功不能替代这部分验证');expect(await inspector.innerText()).toContain('UNSUPPORTED_CANVAS');expect(await inspector.innerText()).toContain('observationId');expect(await inspector.innerText()).toContain('无需模型调用');
   const row=page.locator('.explorer-plan-item').filter({hasText:'当前宿主能力不足：画布内部'});expect(await row.innerText()).toContain('待确认');expect(await row.innerText()).not.toContain('有实际执行证据');
+  await row.getByRole('button',{name:'跳过此类能力限制（保留未测）'}).click();await page.waitForFunction(()=>document.querySelector('.explorer-plan-items')?.textContent?.includes('用户已接受此限制，保留未测'));
+  expect(await row.innerText()).toContain('未测');expect(await row.innerText()).not.toContain('有实际执行证据');expect(plugin.view(task.id).task.plan.find(i=>i.reason==='missing_capability:UNSUPPORTED_CANVAS')?.required).toBe(false);
  }finally{await browser.close();await ui.close();await app.close();await f.close();}
 });
 it('shows a semantic LLM handoff, grounded input/output and the resulting accepted review',async()=>{

@@ -53,6 +53,8 @@ export interface Task {
   intent?: TaskIntent;
   /** Only a user setting permits representative sampling. Missing on older tasks means all. */
   coverageMode?: 'all' | 'representative';
+  /** Explicit user acceptance of observed noncritical unsupported content; never tested coverage. */
+  acceptedLimitations?: {code:string;reason:string;at:string}[];
 }
 export type DecisionKind = 'choice' | 'noul' | 'checklist' | 'generate';
 export type DecisionPolicy = 'ranking'|'discovery'|'coverage'|'classification'|'identity'|'evidence-gate'|'planning-gate'|'recovery'|'grouping'|'task-intent';

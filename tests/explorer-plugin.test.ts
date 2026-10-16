@@ -169,6 +169,34 @@ it.each(['whole-page','targeted','after-last-action'] as const)('retains host co
  }finally{await plugin.close();await f.close();}
 });
 
+it.each([false,true])('persists explicit unsupported-content acceptance without clearing scope, budgets or unknown outcomes (%s)',async(unknown)=>{
+ const f=await explorerFixture('<canvas id="chart"></canvas><button type="button" onclick="this.disabled=true">Ready</button>'),path=join(f.dir,'limitations.sqlite');let plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:2,actions:1}});plugin.start(t.id);await plugin.waitForIdle();
+  const before=plugin.view(t.id).task,canvas=before.plan.find(i=>i.reason==='missing_capability:UNSUPPORTED_CANVAS')!;expect(canvas.required).toBe(true);
+  if(unknown){before.plan.push({...structuredClone(canvas),id:'unknown',reason:'unknown_action_outcome',scope:{url:f.url,label:'Prior navigation',kind:'click'}});plugin.store.save(before);}
+  const accepted=plugin.acceptLimitations(t.id,{codes:['UNSUPPORTED_CANVAS'],reason:'Canvas may remain untested'});
+  expect(accepted.usage).toEqual(before.usage);expect(accepted.budget).toEqual(before.budget);expect(accepted.plan.filter(i=>i.dispatchScope)).toEqual(before.plan.filter(i=>i.dispatchScope));
+  expect(accepted.plan.find(i=>i.id===canvas.id)).toMatchObject({required:false,status:'untested',evidence:canvas.evidence});expect(accepted.plan.find(i=>i.id===canvas.id)?.resolvedBy).toBeUndefined();
+  await plugin.close();plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),fakeProviders(f.url));expect(plugin.view(t.id).task.acceptedLimitations).toEqual(accepted.acceptedLimitations);
+  plugin.extendBudget(t.id,{rounds:1,actions:2,durationMs:60000,modelRequests:100});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+  expect(v.task.usage.actions).toBe(1);expect(v.task.plan.find(i=>i.id===canvas.id)?.status).toBe('untested');
+  if(unknown){expect(v.task.status).not.toBe('completed');expect(v.task.plan.find(i=>i.id==='unknown')).toMatchObject({required:true,status:'unresolved'});}
+  else{expect(v.task.status).toBe('completed');plugin.revise(t.id,{itemIds:[canvas.id]},true);expect(plugin.view(t.id).task.acceptedLimitations).toEqual([]);expect(plugin.view(t.id).task.plan.find(i=>i.id===canvas.id)?.required).toBe(true);}
+ }finally{await plugin.close();await f.close();}
+});
+
+it('rejects unobserved, critical and unknown-dispatch limitation acceptance atomically',async()=>{
+ const f=await explorerFixture('<canvas></canvas>');let critical=false;
+ const host=new Proxy(f.host,{get(target,key){if(key==='observation')return (...args:Parameters<typeof target.observation>)=>{const o=target.observation(...args);return critical?{...o,gaps:o.gaps.map(g=>({...g,critical:true}))}:o;};const v=Reflect.get(target,key);return typeof v==='function'?v.bind(target):v;}}),plugin=new ExplorerPlugin(host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const before=plugin.view(t.id).task;
+  for(const codes of [['UNSUPPORTED_CANVAS','UNSUPPORTED_IFRAME'],['unknown_action_outcome']])expect(()=>plugin.acceptLimitations(t.id,{codes,reason:'Accept only evidenced limits'})).toThrow();
+  critical=true;expect(()=>plugin.acceptLimitations(t.id,{codes:['UNSUPPORTED_CANVAS'],reason:'Cannot waive critical evidence'})).toThrow('INVALID_LIMITATION');critical=false;
+  expect(plugin.view(t.id).task).toEqual(before);
+  before.pendingDispatch={sessionId:before.rounds[0].sessionId,requestId:'unknown',actionId:'unknown',itemIds:[],observationId:host.observation(before.rounds[0].sessionId).id};plugin.store.save(before);
+  expect(()=>plugin.acceptLimitations(t.id,{codes:['UNSUPPORTED_CANVAS'],reason:'Cannot waive an unknown dispatch'})).toThrow('UNKNOWN_DISPATCH_REQUIRES_REVIEW');expect(plugin.view(t.id).task).toEqual(before);
+ }finally{await plugin.close();await f.close();}
+});
+
 it('matches repeated records across fresh documents without treating history as a new execution',async()=>{
  const f=await explorerFixture(repeatedRecords());const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
  try{const t=plugin.create({url:f.url,sessionOptions:{maxActions:1,settleMs:0,observeTimeoutMs:100},budget:{rounds:4,actions:5,modelRequests:200}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);

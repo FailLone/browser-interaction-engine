@@ -4,7 +4,7 @@ import type { ActionCandidate, ActionAttempt, Observation, EngineEvent, Boundary
 import { ExplorerError, type Task, type Round, type Frame, type PlanItem, type Scope, type ExplorerHost, type Providers, type Decision, type ModelRequest } from './types.js';
 import { ExplorerStore } from './store.js';
 import { DecisionRouter } from './router.js';
-import { createTaskSchema, budgetSchema, planSchema, initialTaskSchema, plannedScopeSchema, jsonSchema } from './schema.js';
+import { createTaskSchema, budgetSchema, planSchema, initialTaskSchema, plannedScopeSchema, limitationAcceptanceSchema, jsonSchema } from './schema.js';
 import { digest, includesScope, keyFor, matches, permitted, scopeFor, scopeForControl, navigationTarget, controlInScope, broadScope, decisionScope, decisionPlan } from './policy.js';
 import { reviewNext, type ChoiceConstraints, type RetainedScope } from './reviews.js';
 import { safeError } from './providers.js';
@@ -69,7 +69,7 @@ export class ExplorerPlugin {
     if(input.goal!==undefined)task.goal=z.string().trim().max(20000).parse(input.goal);
     if(!task.goal&&!input.items&&!supplement&&task.coverageMode!=='all')throw new ExplorerError('EXHAUSTIVE_REQUIRES_ALL');
     if(input.items){const items=z.array(plannedScopeSchema).min(1).max(100).parse(input.items);task.plan=items.map(x=>this.newItem(x));task.intent={version:1,mode:'targeted',source:'user'};}
-    else if(supplement){task.intent={version:1,mode:'targeted',source:'user'};if(!input.itemIds?.length||input.itemIds.some(id=>!task.plan.some(i=>i.id===id)))throw new ExplorerError('INVALID_SCOPE');const ids=new Set(input.itemIds);for(const item of task.plan){item.required=ids.has(item.id);item.dispatchScope=item.required;if(item.required){item.status='pending';delete item.resolvedBy;delete item.reviewResolvedBy;}}}
+    else if(supplement){task.intent={version:1,mode:'targeted',source:'user'};if(!input.itemIds?.length||input.itemIds.some(id=>!task.plan.some(i=>i.id===id)))throw new ExplorerError('INVALID_SCOPE');const ids=new Set(input.itemIds);task.acceptedLimitations=task.acceptedLimitations?.filter(x=>!task.plan.some(i=>ids.has(i.id)&&i.reason===`missing_capability:${x.code}`));for(const item of task.plan){item.required=ids.has(item.id);item.dispatchScope=item.required;if(item.required){item.status='pending';delete item.resolvedBy;delete item.reviewResolvedBy;}}}
     else {task.plan=[];delete task.intent;}
     if(task.pendingDispatch)throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
     const round=task.rounds.at(-1);if(round){round.status='finished';round.endedAt=now();}
@@ -80,6 +80,22 @@ export class ExplorerPlugin {
     const task=this.store.task(id),add=budgetSchema.parse(input),before={...task.budget};
     task.budget=budgetSchema.parse(Object.fromEntries(Object.entries(add).map(([key,value])=>[key,task.budget[key as keyof typeof add]+value])));
     if(task.status==='budget_exhausted')task.status='paused';task.revision++;this.store.save(task);this.event(task,'budget.extended',{before,after:task.budget,usage:task.usage});return task;
+  }
+  acceptLimitations(id:string,input:unknown) {
+    if(this.owner()===id)throw new ExplorerError('PAUSE_REQUIRED');
+    const task=this.store.task(id),accepted=limitationAcceptanceSchema.parse(input),codes=[...new Set(accepted.codes)];
+    if(task.pendingDispatch)throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
+    const items=task.plan.filter(i=>codes.some(code=>i.reason===`missing_capability:${code}`));
+    // A task-local acceptance can only describe retained, noncritical host
+    // limitations. Unknown operations and missing execution evidence remain required.
+    for(const code of codes) {
+      const gaps=items.filter(i=>i.reason===`missing_capability:${code}`);
+      const evidence=gaps.flatMap(i=>i.evidence.flatMap(ref=>{try{return this.host.observation(ref.sessionId,ref.observationId).gaps.filter(g=>g.code===code);}catch{return [];}}));
+      if(!gaps.length||!evidence.length||evidence.some(g=>g.critical))throw new ExplorerError('INVALID_LIMITATION');
+    }
+    const at=now();task.acceptedLimitations=[...(task.acceptedLimitations||[]).filter(x=>!codes.includes(x.code)),...codes.map(code=>({code,reason:accepted.reason,at}))];
+    for(const item of items){item.required=false;item.status='untested';}
+    task.revision++;this.store.save(task);this.event(task,'scope.limitation_accepted',{codes,reason:accepted.reason,itemIds:items.map(i=>i.id),executionCoverage:false,unknownOutcomesUnchanged:true});return task;
   }
   async waitForIdle(id?:string){if(!id||this.active?.task.id===id)await this.active?.promise;}
   async close(){if(this.closed)return;this.closed=true;if(this.active)await this.pause(this.active.task.id);this.host.events.off('event',this.onEvent);this.store.close();}
@@ -118,7 +134,7 @@ export class ExplorerPlugin {
     await this.host.pinEvidence(o.sessionId,o.id,`explorer:${task.id}`);
     if(signal.aborted||task.status!=='running')throw new ExplorerError('CANCELLED');
     for(const code of missing) {
-      const item=this.gap(task,`missing_capability:${code}`,{url:o.url});
+      const item=this.gap(task,`missing_capability:${code}`,{url:o.url},!task.acceptedLimitations?.some(x=>x.code===code));
       item.completion='Obtain host-supported evidence for the unsupported content; unrelated successful actions cannot verify this scope.';
       this.event(task,'scope.unsupported',{itemId:item.id,observationId:o.id,limitations:o.gaps.filter(g=>g.code===code),executionAuthorized:false});
     }

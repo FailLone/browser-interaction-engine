@@ -28,6 +28,7 @@ export async function registerExplorer(app:FastifyInstance,plugin:ExplorerPlugin
         case 'pause':return await plugin.pause(id);
         case 'stop':return await plugin.pause(id,true);
         case 'extend-budget':if(!input.budget)throw new ExplorerError('INVALID_REQUEST');return plugin.extendBudget(id,input.budget);
+        case 'accept-limitations':if(!input.limitations)throw new ExplorerError('INVALID_REQUEST');return plugin.acceptLimitations(id,input.limitations);
         case 'replan':return plugin.revise(id,input);
         case 'continue-scope':return plugin.revise(id,input,true);
       }
