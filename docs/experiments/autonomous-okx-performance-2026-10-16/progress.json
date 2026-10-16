@@ -127,5 +127,30 @@
     "Current-page task is still running; this is not an exhaustion completion audit.",
     "Reattachment Close executions do not imply new branch coverage.",
     "Historical unknown navigation and unsupported canvas retain their original evidence categories."
-  ]
+  ],
+  "diagnosticRecovery": {
+    "recordedAt": "2026-10-16T03:31:09.508549+00:00",
+    "cause": "Diagnostic Runtime.evaluate dynamic import failed with ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING; not a site or model failure",
+    "recovered": {
+      "status": "paused",
+      "reason": "process_restarted",
+      "usage": {
+        "rounds": 12,
+        "actions": 111,
+        "durationMs": 23174535,
+        "modelRequests": 2450
+      },
+      "pendingDispatch": null
+    },
+    "resumed": {
+      "status": "running",
+      "reason": null,
+      "usage": {
+        "rounds": 12,
+        "actions": 111,
+        "durationMs": 23174535,
+        "modelRequests": 2450
+      }
+    }
+  }
 }
