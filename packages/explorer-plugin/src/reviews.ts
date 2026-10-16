@@ -62,21 +62,34 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       const boundaryInstance=o.regions.find(r=>r.key===boundary?.key)?.instanceId;
       const candidates=region.candidates.filter(r=>r.controlIds.some(id=>relevantIds.has(id)&&region.unassignedControlIds.includes(id)));
       const strength={heading:3,semantic:2,layout:1,document:0};
-      const candidate=candidates.sort((a,b)=>Number(b.id===boundaryInstance)-Number(a.id===boundaryInstance)
+      candidates.sort((a,b)=>Number(b.id===boundaryInstance)-Number(a.id===boundaryInstance)
         ||(boundaryIds?a.controlIds.filter(id=>!boundaryIds.has(id)).length-b.controlIds.filter(id=>!boundaryIds.has(id)).length:0)
-        ||strength[b.basis]-strength[a.basis]||b.controlIds.length-a.controlIds.length)[0];
-      if(candidate) {
-        const d=await c.choose('region-review','Should this observed region be an exploration scope for the task? This is grouping, not action permission. Exact structural bindings remain with the host for fresh validation.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',candidate:regionEvidence(candidate),controls:region.controls.filter(x=>candidate.controlIds.includes(x.localId))},{include:'Recognized coherent exploration region',uncertain:'Cannot decide its role'});
-        if(d.value==='uncertain'&&await c.refresh(d.decision,`region:${o.instanceScope}:${candidate.id}`))return true;
+        ||strength[b.basis]-strength[a.basis]||b.controlIds.length-a.controlIds.length);
+      const batch:{candidate:RegionCandidate;controlIds:string[];decision:Decision}[]=[],reserved=new Set<string>();
+      const flush=async()=>{
         mark(key);
-        if(d.value==='include') {
-          // Prefer the public incremental contract so unrelated region decisions remain valid.
-          const incremental=region.review&&region.delta?.canUpdate;
-          const existing=region.review?.regions.filter(r=>r.status==='active').map(r=>({key:r.key,label:r.label,candidateIds:r.anchors.map(a=>a.id),controlIds:r.controlIds,pageTraversal:r.pageTraversal})) || [];
-          await c.apply(d.decision,{type:'reviewRegions',review:{observationId:o.id,source,evidence:evidence(d.decision),...(incremental?{update:{baseReviewId:region.review!.id}}:{}),regions:[...(incremental?[]:existing),{key:`explorer:${candidate.id}`,label:candidate.label,candidateIds:[candidate.id],controlIds:candidate.controlIds.filter(id=>region.unassignedControlIds.includes(id)),pageTraversal:!boundary&&region.unassignedPageTraversal}],rejectedCandidateIds:region.review?.rejectedCandidateIds||[]}});return true;
+        // Keep unrelated current regions through the public incremental contract.
+        const incremental=region.review&&region.delta?.canUpdate;
+        const existing=region.review?.regions.filter(r=>r.status==='active').map(r=>({key:r.key,label:r.label,candidateIds:r.anchors.map(a=>a.id),controlIds:r.controlIds,pageTraversal:r.pageTraversal})) || [];
+        await c.apply(batch.map(entry=>entry.decision),{type:'reviewRegions',review:{observationId:o.id,source,evidence:batch.flatMap(entry=>evidence(entry.decision)),...(incremental?{update:{baseReviewId:region.review!.id}}:{}),regions:[...(incremental?[]:existing),...batch.map(({candidate,controlIds},index)=>({key:`explorer:${candidate.id}`,label:candidate.label,candidateIds:[candidate.id],controlIds,pageTraversal:index===0&&!boundary&&region.unassignedPageTraversal}))],rejectedCandidateIds:region.review?.rejectedCandidateIds||[]}});
+        return true;
+      };
+      for(const candidate of candidates) {
+        const controlIds=candidate.controlIds.filter(id=>region.unassignedControlIds.includes(id)&&!reserved.has(id));
+        if(!controlIds.some(id=>relevantIds.has(id)))continue;
+        const d=await c.choose('region-review','Should this observed region be an exploration scope for the task? This is grouping, not action permission. Exact structural bindings remain with the host for fresh validation.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',candidate:regionEvidence(candidate),controls:region.controls.filter(x=>controlIds.includes(x.localId)),assignedElsewhere:candidate.controlIds.length-controlIds.length},{include:'Recognized coherent exploration region',uncertain:'Cannot decide its role'});
+        // A refresh invalidates all prepared region bindings. Submit clear entries
+        // first, then ask about this uncertain candidate against the new capture.
+        if(d.value==='uncertain'&&batch.length){c.defer(d.decision,'region_batch_recapture');return flush();}
+        if(d.value==='uncertain'){
+          if(await c.refresh(d.decision,`region:${o.instanceScope}:${candidate.id}`))return true;
+          mark(key);c.gap('region_unresolved',{url:o.url,region:candidate.label});break;
         }
-        c.gap('region_unresolved',{url:o.url,region:candidate.label});
-      } else {mark(key);c.gap('region_partition_unavailable',{url:o.url});}
+        batch.push({candidate,controlIds,decision:d.decision});controlIds.forEach(id=>reserved.add(id));
+        if(batch.length>=5)return flush();
+      }
+      if(batch.length)return flush();
+      if(!candidates.length){mark(key);c.gap('region_partition_unavailable',{url:o.url});}
     }
   }
   const classifications=host.controlClassificationMaterial(sid);

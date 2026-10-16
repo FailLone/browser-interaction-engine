@@ -8,6 +8,45 @@ import { remapStoredReviewScopes } from '../packages/explorer-plugin/src/scope-m
 import { reviewGapChanges } from '../packages/explorer-plugin/src/review-ledger.js';
 
 const grounded={choice:'click',evidenceRefs:['current','actions','effect:click'],reason:'Captured child choice panel supports a local expansion.',interfaceOnly:true,externalWrite:false};
+const separateRegions=`${Array.from({length:7},(_,i)=>`<section aria-label="Region ${i}"><h2>Region ${i}</h2><button type="button" onclick="this.disabled=true">Action ${i}</button></section>`).join('')}<script>document.addEventListener('DOMContentLoaded',()=>{document.querySelector('main>h1').remove();const main=document.querySelector('main');main.replaceWith(...main.children)})</script>`;
+
+it('batches non-overlapping region judgments while retaining every source decision and current binding',async()=>{
+ const f=await explorerFixture(separateRegions),commands:any[]=[];
+ const host=new Proxy(f.host,{get(target,key){if(key==='command')return async(sid:string,command:any)=>{if(command.type==='reviewRegions')commands.push({command,actions:target.session(sid).actionCount});return target.command(sid,command);};const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;}});
+ const plugin=new ExplorerPlugin(host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:20}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),initial=commands.filter(c=>c.actions===0).map(c=>c.command.review);
+  expect(initial.map(c=>c.regions.length)).toEqual([5,2]);
+  for(const review of initial){const ids=review.regions.flatMap((r:any)=>r.controlIds);expect(new Set(ids).size).toBe(ids.length);expect(review.evidence).toHaveLength(review.regions.length);for(const ref of review.evidence){const d=v.decisions.find(d=>`explorer-decision:${d.id}`===ref)!;expect(d).toMatchObject({purpose:'region-review',status:'applied',observationId:review.observationId});expect(v.events.some(e=>e.type==='decision.effect'&&e.decisionId===d.id&&(e.data as any).details?.decisionIds?.length===review.regions.length)).toBe(true);}}
+  expect(v.task.usage.actions).toBe(7);expect(v.task.status).toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
+
+it('cancels prepared region judgments without submitting a partial partition',async()=>{
+ const f=await explorerFixture(separateRegions),p=fakeProviders(f.url),original=p.jev.decide;let count=0,began!:()=>void,finish!:(value:any)=>void;const waiting=new Promise<void>(r=>began=r);
+ p.jev.decide=async(r,s)=>{if(r.purpose!=='region-review')return original(r,s);if(++count===3)return new Promise(resolve=>{finish=resolve;began();});return {model:'mock',value:'include',confidence:1};};
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await waiting;await plugin.pause(t.id);finish({model:'mock',value:'include',confidence:1});await plugin.waitForIdle();const v=plugin.view(t.id),ds=v.decisions.filter(d=>d.purpose==='region-review');
+  expect(v.task.status).toBe('paused');expect(v.task.usage.actions).toBe(0);expect(f.host.list(v.task.rounds[0].sessionId,'region-review')).toEqual([]);expect(ds).toHaveLength(3);expect(ds.every(d=>d.status==='cancelled')).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});
+
+it('rejudges a deferred region after committing earlier clear regions',async()=>{
+ const f=await explorerFixture(separateRegions),p=fakeProviders(f.url),original=p.jev.decide;let count=0;
+ p.jev.decide=async(r,s)=>r.purpose==='region-review'?{model:'mock',value:++count===2?'uncertain':'include',confidence:1}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),ds=v.decisions.filter(d=>d.purpose==='region-review'&&(d.request.state as any).material.candidate.label==='Region 1');
+  expect(ds).toHaveLength(2);expect(ds[0]).toMatchObject({status:'rejected',reason:'region_batch_recapture'});expect(ds[1].status).toBe('applied');expect(ds[0].observationId).not.toBe(ds[1].observationId);expect(v.events.some(e=>e.type==='decision.effect'&&e.decisionId===ds[0].id&&(e.data as any).kind==='review')).toBe(false);expect(v.task.status).toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
+
+it('discards all prepared regions when their source observation becomes stale',async()=>{
+ const f=await explorerFixture(separateRegions),p=fakeProviders(f.url),original=p.jev.decide;let count=0;
+ p.jev.decide=async(r,s)=>{if(r.purpose!=='region-review')return original(r,s);if(++count===5)await f.host.observe(f.host.sessions()[0].id);return {model:'mock',value:'include',confidence:1};};
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),ds=v.decisions.filter(d=>d.purpose==='region-review'),records=f.host.list<any>(v.task.rounds[0].sessionId,'region-review');
+  expect(ds).toHaveLength(12);expect(ds.slice(0,5).every(d=>d.status==='stale')).toBe(true);expect(ds.slice(5).every(d=>d.status==='applied')).toBe(true);expect(records.every(r=>r.observationId!==ds[0].observationId)).toBe(true);expect(v.task.status).toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
 
 it('invalidates unresolved purpose evidence when document, context, structure, size, action basis or task revision changes',()=>{
  const o={instanceScope:'doc',url:'https://fixture/',context:{},boundaries:[]} as any;
