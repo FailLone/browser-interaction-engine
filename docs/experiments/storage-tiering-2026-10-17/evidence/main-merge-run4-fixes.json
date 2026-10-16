@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-16T22:49:44.902401+00:00",
+  "mainBefore": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine",
+    "head": "868e8b47afd31782161deba4f8bd7a14e0349430",
+    "branch": "main",
+    "status": ""
+  },
+  "mainAfter": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine",
+    "head": "b6c4420651d77e663b487e1a34af719a081d885c",
+    "branch": "main",
+    "status": ""
+  },
+  "autonomousCommit": "4857ad571c19995480a4c149abd9b2868a94c965",
+  "autonomousAncestor": true,
+  "originalBefore": {
+    "path": "/Users/xietian/Projects/browser-interaction-engine",
+    "head": "6e111284ac3a6642844531dbc06bce462ca4293c",
+    "branch": "codex/single-selection-state-rule",
+    "status": ""
+  },
+  "originalAfter": {
+    "path": "/Users/xietian/Projects/browser-interaction-engine",
+    "head": "6e111284ac3a6642844531dbc06bce462ca4293c",
+    "branch": "codex/single-selection-state-rule",
+    "status": ""
+  },
+  "originalUnchanged": true,
+  "testedProductRevision": "e7edfe24bd1cbab34e2568b6c42661f11377d194",
+  "testedRevision": "b6c4420651d77e663b487e1a34af719a081d885c",
+  "fullSuite": "1898/1903; five historical test-fixture/contract failures preserved",
+  "postFixtureFix": "97/97 and typecheck passed; no product changes",
+  "compiled": "passed on isolated archive, screenshot separately reviewed"
+}

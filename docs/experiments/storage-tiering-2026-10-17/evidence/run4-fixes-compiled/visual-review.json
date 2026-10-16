@@ -1,0 +1,7 @@
+{
+  "revision": "b6c4420651d77e663b487e1a34af719a081d885c",
+  "screenshot": "explorer-dashboard.png",
+  "sha256": "d5d411d10f37b49f323bf286fb179a6f400a5a0a58b563bd8fb458330e9ac9ba",
+  "reviewed": true,
+  "result": "Targeted Alpha/Beta fixture shows two actual actions and coverage 2/2, model split, and explicit discovery/completeness limitations. No blank dashboard, clipping or overlap observed. Generated runner summary predates this separate visual review."
+}
