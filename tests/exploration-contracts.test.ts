@@ -41,7 +41,9 @@ it('rechecks traversal decisions at dispatch and keeps manual execution availabl
   const f=await explorerFixture('<section aria-label="Area"><button id="one" type="button">Run</button><button id="two" type="button">Other</button></section>');
   try{
     const s=await f.host.createSession({...options,url:f.url,regionExploration:'review'});let o=f.host.observation(s.id),a=f.host.actions(s.id).find(a=>a.kind==='click')!;
-    const blocked=f.host.actionAvailability(s.id,o.id);expect(blocked.actions.find(x=>x.actionId===a.id)?.executable).toBe(false);
+    const reads=vi.spyOn(f.host.store,'list'),blocked=f.host.actionAvailability(s.id,o.id);
+    for(const kind of ['exploration-group','region-review','control-classification'])expect(reads.mock.calls.filter(([k])=>k===kind)).toHaveLength(1);
+    reads.mockRestore();expect(blocked.actions.find(x=>x.actionId===a.id)?.executable).toBe(false);
     await expect(f.host.execute(s.id,a.id,'blocked',undefined,{observationId:o.id,profile:'interface-exploration'})).rejects.toMatchObject({code:'ACTION_BLOCKED'});
     const region=f.host.regionReviewMaterial(s.id);await f.host.reviewRegions(s.id,{observationId:o.id,source:'test',evidence:['Observed area'],regions:[{key:'area',label:'Area',candidateIds:[region.candidates.find(c=>c.label==='Area')!.id]}]});o=f.host.observation(s.id);a=f.host.actions(s.id).find(a=>a.kind==='click')!;
     const group=f.host.explorationReviewMaterial(s.id).groups.find(g=>g.kind==='reviewed-region')!;
@@ -49,10 +51,14 @@ it('rechecks traversal decisions at dispatch and keeps manual execution availabl
     const allowed=f.host.actionAvailability(s.id,o.id);expect(allowed.actions.find(x=>x.actionId===a.id)?.executable).toBe(true);
     let updated=f.host.explorationReviewMaterial(s.id).groups.find(g=>g.id===group.id)!;
     await f.host.decideExplorationGroup(s.id,updated.id,updated.revision,{mode:'sample',memberKeys:[updated.members.find(m=>m.actionId!==a.id)!.key],source:'test',evidence:['Explicit sample']});
-    expect(f.host.actionAvailability(s.id,o.id).actions.find(x=>x.actionId===a.id)?.blockers.some(b=>b.reason.endsWith('_member_not_selected'))).toBe(true);
+    const sampled=f.host.actionAvailability(s.id,o.id).actions.find(x=>x.actionId===a.id)!;
+    expect(sampled.blockers).toContainEqual(expect.objectContaining({selection:expect.objectContaining({state:'unselected',groupId:group.id}),evidence:[group.id]}));
+    const sampledAudit=f.host.explorationSnapshot(s.id,o.id);
+    expect(sampledAudit.facts.find(x=>x.kind==='operation'&&x.actionId===a.id)).toMatchObject({blockers:sampled.blockers});
     updated=f.host.explorationReviewMaterial(s.id).groups.find(g=>g.id===group.id)!;
     await f.host.decideExplorationGroup(s.id,updated.id,updated.revision,{mode:'defer',source:'test',evidence:['Withdraw traversal decision']});
-    expect(f.host.actionAvailability(s.id,o.id).revision).not.toBe(allowed.revision);
+    const deferred=f.host.actionAvailability(s.id,o.id);expect(deferred.revision).not.toBe(allowed.revision);
+    expect(deferred.actions.find(x=>x.actionId===a.id)?.blockers).toContainEqual(expect.objectContaining({selection:expect.objectContaining({state:'deferred',groupId:group.id})}));
     await expect(f.host.execute(s.id,a.id,'revoked',undefined,{observationId:o.id,profile:'interface-exploration'})).rejects.toMatchObject({code:'ACTION_BLOCKED'});
     expect(f.host.session(s.id).actionCount).toBe(0);
     expect((await f.host.execute(s.id,a.id,'manual')).status).toBe('succeeded');
@@ -78,7 +84,7 @@ it('returns a consistent read-only audit with unsupported contents and rebuilds 
     const s=await f.host.createSession({...options,url:f.url}),o=f.host.observation(s.id),c=o.controls.find(c=>c.stableKey==='id:unknown')!;
     const count=f.host.store.events(s.id).length,read=vi.spyOn(f.host.store,'list');
     const snapshot=f.host.explorationSnapshot(s.id,o.id,{includeCompletionAudit:true});
-    expect(read.mock.calls.filter(([kind])=>kind==='observation')).toHaveLength(1);read.mockRestore();
+    expect(read.mock.calls.filter(([kind])=>kind==='observation')).toHaveLength(1);expect(read.mock.calls.filter(([kind])=>kind==='exploration-group')).toHaveLength(1);read.mockRestore();
     expect(f.host.store.events(s.id)).toHaveLength(count);expect(snapshot.facts.some(x=>x.kind==='unsupported'&&x.code==='UNSUPPORTED_CANVAS')).toBe(true);
     expect([snapshot.observation.id,snapshot.availability.observationId,snapshot.classifications.observationId,snapshot.operations.observationId,snapshot.discovery.observationId]).toEqual(Array(5).fill(o.id));
     const records=await f.host.classifyControls(s.id,{observationId:o.id,source:'test',classifications:[{localId:c.localId,classification:'display',reason:'Display label',evidence:['Observed display-only content']}]});
@@ -86,6 +92,48 @@ it('returns a consistent read-only audit with unsupported contents and rebuilds 
     await f.host.revokeControlClassification(s.id,{classificationId:records[0].id,source:'test',reason:'Purpose changed'});
     const revoked=f.host.explorationSnapshot(s.id);expect(revoked.nonInteractive).toEqual([]);expect(revoked.classifications.pendingControlIds.length).toBeGreaterThan(0);expect(revoked.facts.some(x=>x.kind==='unsupported')).toBe(true);
     expect(()=>f.host.explorationSnapshot(s.id,o.id)).toThrow('Audit requires the current observation');
+  }finally{await f.close();}
+});
+
+it('projects current interpretations without scanning history, sharing full-audit proofs and rejecting stale observations',async()=>{
+  const f=await explorerFixture('<div id="label" tabindex="0">Informational text</div><button type="button">Ready</button>');
+  try{
+    const s=await f.host.createSession({...options,url:f.url}),o=f.host.observation(s.id),c=o.controls.find(c=>c.stableKey==='id:label')!;
+    const count=f.host.store.events(s.id).length,reads=vi.spyOn(f.host.store,'list');
+    const before=f.host.controlInterpretationSnapshot(s.id,o.id);
+    expect(reads.mock.calls.filter(([kind])=>['observation','attempt','frontier','exploration-group'].includes(kind))).toEqual([]);reads.mockRestore();
+    expect(f.host.store.events(s.id)).toHaveLength(count);expect(before).toMatchObject({observationId:o.id,executionAuthorized:false,nonInteractive:[]});
+    const [record]=await f.host.classifyControls(s.id,{observationId:o.id,source:'test',classifications:[{localId:c.localId,classification:'display',reason:'Read-only explanatory content',evidence:['Bounded current subtree']}]});
+    const current=f.host.controlInterpretationSnapshot(s.id),audit=f.host.explorationSnapshot(s.id);
+    expect(current.nonInteractive).toEqual(audit.nonInteractive);expect(current.classifications).toEqual(audit.classifications);expect(current.operations).toEqual(audit.operations);
+    expect(current.nonInteractive).toEqual([expect.objectContaining({classificationId:record.id})]);expect(current.revision).not.toBe(before.revision);
+    await f.host.revokeControlClassification(s.id,{classificationId:record.id,source:'test',reason:'Reconsider classification'});
+    const revoked=f.host.controlInterpretationSnapshot(s.id);expect(revoked.nonInteractive).toEqual([]);expect(revoked.revision).not.toBe(current.revision);
+    expect(()=>f.host.controlInterpretationSnapshot(s.id,current.observationId)).toThrow('Interpretation requires the current observation');
+    expect(f.host.session(s.id).actionCount).toBe(0);
+  }finally{await f.close();}
+});
+
+it('retains classification evidence only for its proven historical scene and invalidates it on revocation',async()=>{
+  const f=await explorerFixture('<div id="label" tabindex="0">Informational text</div><button type="button">Ready</button>');
+  try{
+    const s=await f.host.createSession({...options,url:f.url}),before=f.host.observation(s.id),c=before.controls.find(c=>c.stableKey==='id:label')!;
+    const [record]=await f.host.classifyControls(s.id,{observationId:before.id,source:'test',classifications:[{localId:c.localId,classification:'display',reason:'Display only',evidence:['Complete target structure']}]});
+    const interpreted=f.host.controlInterpretationSnapshot(s.id),proof=interpreted.nonInteractive[0];expect(proof).toBeTruthy();
+    // The proof cites the resulting observation, not the pre-classification record.
+    expect(proof.observationId).not.toBe(record.observationId);
+    await pageOf(f.host).evaluate(()=>document.querySelector('#label')!.remove());await f.host.observe(s.id);
+    const count=f.host.store.events(s.id).length,reads=vi.spyOn(f.host.store,'list');
+    const current=f.host.controlInterpretationSnapshot(s.id,undefined,{retainedClassifications:[proof]});
+    expect(reads.mock.calls.filter(([kind])=>kind==='control-classification')).toHaveLength(1);
+    expect(reads.mock.calls.filter(([kind])=>['observation','attempt','frontier'].includes(kind))).toEqual([]);reads.mockRestore();
+    expect(current.nonInteractive).toEqual([]);expect(current.retainedClassifications).toEqual([{source:proof,retained:true,reason:'historical_classification_retained',currentApplicability:false,executionAuthorized:false}]);
+    expect(f.host.store.events(s.id)).toHaveLength(count);expect(f.host.session(s.id).actionCount).toBe(0);
+    const mismatches=[{...proof,sessionId:'another-session'},{...proof,observationId:current.observationId},{...proof,classification:'container' as const},{...proof,classificationId:'missing'}];
+    expect(f.host.controlInterpretationSnapshot(s.id,undefined,{retainedClassifications:mismatches}).retainedClassifications.every(p=>!p.retained)).toBe(true);
+    await f.host.revokeControlClassification(s.id,{classificationId:record.id,source:'test',reason:'Withdraw interpretation'});
+    const revoked=f.host.controlInterpretationSnapshot(s.id,undefined,{retainedClassifications:[proof]});
+    expect(revoked.retainedClassifications[0]).toMatchObject({retained:false,reason:'classification_revoked_or_replaced'});expect(revoked.revision).not.toBe(current.revision);
   }finally{await f.close();}
 });
 
@@ -101,6 +149,21 @@ it('tracks distinct boundary visits through existing scope lifecycle, including 
     await pageOf(f.host).reload();await pageOf(f.host).evaluate(()=>document.querySelector('dialog')!.showModal());await f.host.observe(s.id);
     const third=f.host.boundaryState(s.id);expect(third.active?.scopeId).not.toBe(second.active?.scopeId);
     expect(f.host.list<any>(s.id,'scope').find(x=>x.id===second.active?.scopeId)?.status).toBe('interrupted');
+  }finally{await f.close();}
+});
+
+it('reports unique occurrence continuity without treating changed operation conditions as equivalent',async()=>{
+  const f=await explorerFixture('<button id="target" type="button">Before</button>');
+  try{
+    const s=await f.host.createSession({...options,url:f.url}),before=f.host.observation(s.id),action=f.host.actions(s.id).find(a=>a.label==='Before')!;
+    const attempt=await f.host.execute(s.id,action.id,'source');expect(attempt.status).toBe('succeeded');
+    await pageOf(f.host).evaluate(()=>{document.querySelector('button')!.textContent='After';});await f.host.observe(s.id);
+    const after=f.host.observation(s.id),target=f.host.actions(s.id).find(a=>a.label==='After')!;
+    expect(f.host.interactionTransition(s.id,before.id,after.id).retainedControls).toContainEqual({beforeLocalId:action.localId,afterLocalId:target.localId});
+    expect(f.host.operationCorrespondence(s.id,{observationId:after.id,actionId:target.id,source:{sessionId:s.id,attemptId:attempt.id}})).toMatchObject({equivalent:false,identityAuthorized:false,replayAuthorized:false,currentExecution:false});
+    await pageOf(f.host).reload();await f.host.observe(s.id);
+    expect(f.host.interactionTransition(s.id,after.id,f.host.observation(s.id).id)).toMatchObject({documentChanged:true,retainedControls:[]});
+    expect(f.host.list(s.id,'attempt')).toHaveLength(1);
   }finally{await f.close();}
 });
 

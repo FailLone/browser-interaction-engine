@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { createHash } from 'node:crypto';
 import type { Decision, ExplorerEvent, Task } from './types.js';
 import { ExplorerError } from './types.js';
 
@@ -22,11 +23,18 @@ export class ExplorerStore {
       delete task.activeSince; task.status = 'paused'; task.reason = 'process_restarted'; task.revision++;
       const round = task.rounds.at(-1); if (round?.status === 'running') round.status = 'paused';
       this.save(task);
-      for (const d of this.decisions(task.id)) if (d.status === 'requested' || d.status === 'returned') { d.status = 'stale'; d.reason = 'process_restarted'; this.decision(d); }
+      for (const d of this.decisions(task.id)) if (d.status === 'requested' || d.status === 'returned') {
+        d.status = 'stale'; d.reason = 'process_restarted'; this.decision(d);
+        this.event({taskId:task.id,actor:d.actor,type:'decision.stale',sessionId:d.sessionId,observationId:d.observationId,decisionId:d.id,data:{reason:d.reason}});
+      }
     }
   }
   save(task: Task) { task.updatedAt = new Date().toISOString(); this.db.prepare('INSERT INTO tasks VALUES(?,?) ON CONFLICT(id) DO UPDATE SET json=excluded.json').run(task.id, JSON.stringify(task)); }
   tasks(): Task[] { return (this.db.prepare('SELECT json FROM tasks ORDER BY rowid').all() as {json:string}[]).map(r => JSON.parse(r.json)); }
+  taskSummaries(): {id:string;goal:string;url:string;status:Task['status'];rounds:{sessionId:string}[]}[] {
+    return (this.db.prepare(`SELECT json_object('id',id,'goal',json_extract(json,'$.goal'),'url',json_extract(json,'$.url'),'status',json_extract(json,'$.status'),
+      'rounds',json((SELECT json_group_array(json_object('sessionId',json_extract(value,'$.sessionId'))) FROM json_each(tasks.json,'$.rounds')))) AS summary FROM tasks ORDER BY rowid`).all() as {summary:string}[]).map(r=>JSON.parse(r.summary));
+  }
   task(id: string): Task { const r = this.db.prepare('SELECT json FROM tasks WHERE id=?').get(id) as {json:string} | undefined; if (!r) throw new ExplorerError('NOT_FOUND'); return JSON.parse(r.json); }
   decision(value: Decision) { this.db.prepare('INSERT INTO decisions VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET json=excluded.json').run(value.id, value.taskId, JSON.stringify(value)); }
   /** Updates keep their rowid, so a review pass can read only decisions it inserted. */
@@ -39,6 +47,22 @@ export class ExplorerStore {
   }
   events(id: string, after = 0, limit = 500): ExplorerEvent[] {
     return (this.db.prepare('SELECT sequence,json FROM events WHERE task_id=? AND sequence>? ORDER BY sequence LIMIT ?').all(id, after, Math.min(1000,limit)) as {sequence:number;json:string}[]).map(r => ({...JSON.parse(r.json), sequence:r.sequence}));
+  }
+  /** Event order, not decision insertion order, also captures changes to existing decisions.
+   * A synchronous read transaction binds the task, event page and decision records together. */
+  updates(id: string, after = 0, limit = 500, knownTaskVersion?:string) {
+    return this.db.transaction(() => {
+      const row=this.db.prepare('SELECT json FROM tasks WHERE id=?').get(id) as {json:string}|undefined;if(!row)throw new ExplorerError('NOT_FOUND');
+      // Timestamps can collide within one millisecond; hash the stored bytes so
+      // any status, budget or plan change invalidates the caller's cached task.
+      const taskVersion=createHash('sha256').update(row.json).digest('hex');
+      const task:Task|undefined=knownTaskVersion===taskVersion?undefined:JSON.parse(row.json);
+      const events=this.events(id,after,limit),cursor=events.at(-1)?.sequence??after;
+      const ids=[...new Set(events.flatMap(e=>e.decisionId?[e.decisionId]:[]))];
+      const decisions:Decision[]=ids.length?(this.db.prepare(`SELECT json FROM decisions WHERE task_id=? AND id IN (${ids.map(()=>'?').join(',')}) ORDER BY rowid`).all(id,...ids) as {json:string}[]).map(r=>JSON.parse(r.json)):[];
+      const hasMore=!!this.db.prepare('SELECT 1 FROM events WHERE task_id=? AND sequence>? LIMIT 1').get(id,cursor);
+      return {task,taskVersion,decisions,events,cursor,hasMore};
+    })();
   }
   close() { this.db.close(); }
 }

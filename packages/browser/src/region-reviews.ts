@@ -164,13 +164,18 @@ export class RegionReviews {
     const review=this.current(o.sessionId);
     return [...new Set(review?.regions.filter(r=>r.status==='active' && r.reuse && (action.localId?r.controlIds.includes(action.localId):action.kind==='scroll'&&r.pageTraversal)).flatMap(r=>r.anchors.map(a=>a.id)) || [])];
   }
-  validateAction(o:Observation,action:ActionCandidate,session:Session) {
+  validationMaterial(o:Observation,session:Session) {
+    const records=session.options.regionExploration==='review'?this.store.list<RegionReviewRecord>('region-review',o.sessionId):[];
+    return {records,current:records.findLast(r=>r.status==='active')};
+  }
+  validateAction(o:Observation,action:ActionCandidate,session:Session,material?:ReturnType<RegionReviews['validationMaterial']>) {
     if(session.options.regionExploration!=='review' || action.boundary?.intent==='exit' || action.kind==='history') return;
     // Preserve ordinary/manual region semantics. Recheck only operations whose
     // current-document scope was based on this explicit reuse contract.
-    const scoped=this.store.list<RegionReviewRecord>('region-review',o.sessionId).some(review=>review.instanceScope===o.instanceScope && review.regions.some(r=>r.reuse && (action.localId?r.controlIds.includes(action.localId):action.kind==='scroll'&&r.pageTraversal)));
+    const facts=material||this.validationMaterial(o,session);
+    const scoped=facts.records.some(review=>review.instanceScope===o.instanceScope && review.regions.some(r=>r.reuse && (action.localId?r.controlIds.includes(action.localId):action.kind==='scroll'&&r.pageTraversal)));
     if(!scoped) return;
-    const review=this.current(o.sessionId);
+    const review=facts.current;
     if(!review?.regions.some(r=>r.status==='active' && (action.localId?r.controlIds.includes(action.localId):action.kind==='scroll'&&r.pageTraversal))) throw new EngineError('REGION_REVIEW_REQUIRED','Review the current region before automated dispatch');
   }
   proposals(o: Observation, actions: ActionCandidate[]): ExplorationGroupProposal[] {

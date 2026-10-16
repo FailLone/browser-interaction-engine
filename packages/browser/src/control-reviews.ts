@@ -30,8 +30,8 @@ export class ControlReviews {
       && this.sourceAvailable(r) && (!r.reusedFrom || canonical(r.reuseConditions) === canonical(controlReuseConditions(c,o,r.kind)))
       && (!r.exitBoundary || o.boundaries?.at(-1)?.key===r.exitBoundary);
   }
-  material(o:Observation,actions:ActionCandidate[]):ControlReviewMaterial {
-    const records=this.records(o.sessionId),nonInteractive=this.nonInteractive(o);
+  material(o:Observation,actions:ActionCandidate[],nonInteractive=this.nonInteractive(o)):ControlReviewMaterial {
+    const records=this.records(o.sessionId);
     const controls=o.controls.filter(c=>c.visible).map(control=>{
       const candidates=actions.filter(a=>a.localId===control.localId);
       const reviews=records.filter(r=>r.conditions.target.instanceId===control.instanceId && r.conditions.instanceScope===o.instanceScope);

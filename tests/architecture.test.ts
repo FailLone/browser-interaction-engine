@@ -28,3 +28,18 @@ it('does not couple persistence plugins to browser or transport packages', () =>
     expect(Object.keys(deps).filter(d => /playwright|fastify|browser|client/.test(d))).toEqual([]);
   }
 });
+
+it('keeps host SDK and adapter independent of exploration plugins and model providers', () => {
+  for (const name of ['core', 'browser', 'adapter-playwright']) {
+    const root=resolve(`packages/${name}`),deps=JSON.parse(readFileSync(`${root}/package.json`,'utf8')).dependencies;
+    const forbidden=/explorer-plugin|openrouter|openai|anthropic|typesafe/;
+    expect(Object.keys(deps).filter(d=>forbidden.test(d))).toEqual([]);
+    for(const file of readdirSync(`${root}/src`).filter(f=>f.endsWith('.ts'))){
+      const source=ts.createSourceFile(file,readFileSync(`${root}/src/${file}`,'utf8'),ts.ScriptTarget.Latest);
+      const visit=(node:ts.Node)=>{
+        if((ts.isImportDeclaration(node)||ts.isExportDeclaration(node))&&node.moduleSpecifier&&ts.isStringLiteral(node.moduleSpecifier))expect(node.moduleSpecifier.text,`${name}/${file}`).not.toMatch(forbidden);
+        ts.forEachChild(node,visit);
+      };visit(source);
+    }
+  }
+});

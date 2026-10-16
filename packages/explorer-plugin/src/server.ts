@@ -6,7 +6,7 @@ import { commandSchema } from './schema.js';
 
 export async function registerExplorer(app:FastifyInstance,plugin:ExplorerPlugin) {
   const prefix='/plugins/explorer/v1';
-  // Application-level ownership. The host SDK remains unchanged.
+  // Session ownership stays at the application layer.
   app.addHook('preHandler',async(request,reply)=>{
     if(request.method==='GET'||request.method==='HEAD'||!request.url.startsWith('/v1/'))return;
     const sid=/^\/v1\/sessions\/([^/?]+)/.exec(request.url)?.[1];
@@ -17,10 +17,11 @@ export async function registerExplorer(app:FastifyInstance,plugin:ExplorerPlugin
     return reply.code(409).send({error:{code:'EXPLORER_OWNS_ENGINE',message:'先暂停探索插件或接管会话',taskId:owner}});
   });
   app.get(`${prefix}/status`,async()=>plugin.status());
-  app.get(`${prefix}/tasks`,async()=>plugin.tasks());
+  app.get(`${prefix}/tasks`,async(request,reply)=>{try{const q=z.object({summary:z.enum(['true','false']).optional()}).parse(request.query);return q.summary==='true'?plugin.store.taskSummaries():plugin.tasks();}catch(e){return failure(reply,e);}});
   app.post(`${prefix}/tasks`,async(request,reply)=>{try{return reply.code(201).send(plugin.create(request.body));}catch(e){return failure(reply,e);}});
   app.get(`${prefix}/tasks/:id`,async(request,reply)=>{try{return plugin.view((request.params as {id:string}).id);}catch(e){return failure(reply,e);}});
   app.get(`${prefix}/tasks/:id/events`,async(request,reply)=>{try{const id=(request.params as {id:string}).id;plugin.store.task(id);const q=z.object({after:z.coerce.number().int().nonnegative().default(0),limit:z.coerce.number().int().min(1).max(1000).default(500)}).parse(request.query);return plugin.store.events(id,q.after,q.limit);}catch(e){return failure(reply,e);}});
+  app.get(`${prefix}/tasks/:id/updates`,async(request,reply)=>{try{reply.header('Cache-Control','no-store');const id=(request.params as {id:string}).id;const q=z.object({after:z.coerce.number().int().nonnegative().default(0),limit:z.coerce.number().int().min(1).max(1000).default(500),taskVersion:z.string().regex(/^[a-f0-9]{64}$/).optional()}).parse(request.query);return plugin.store.updates(id,q.after,q.limit,q.taskVersion);}catch(e){return failure(reply,e);}});
   app.post(`${prefix}/tasks/:id/commands`,async(request,reply)=>{
     try{const id=(request.params as {id:string}).id;const input=commandSchema.parse(request.body);
       switch(input.command){

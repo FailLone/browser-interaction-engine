@@ -9,7 +9,8 @@ import { continueScrollTraversal } from './scroll-traversal.js';
 import { DiscoveryScans } from './discovery-scans.js';
 import { RegionReviews } from './region-reviews.js';
 import { ControlReviews } from './control-reviews.js';
-import { ControlClassifications } from './control-classifications.js';
+import { ControlClassifications, type ClassificationEvidenceRef } from './control-classifications.js';
+export type { ClassificationEvidenceRef, RetainedClassificationEvidence } from './control-classifications.js';
 import { contextKey, type ExplorationGroup } from '@interaction/core';
 import { PageExploration } from './page-exploration.js';
 export type { PageExplorationState } from './page-exploration.js';
@@ -81,21 +82,42 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   }
   interactionTransition(sid:string,beforeId:string,afterId:string) {
     const before=this.observation(sid,beforeId),after=this.observation(sid,afterId),verified=!after.gaps.some(g=>g.critical),documentChanged=before.instanceScope!==after.instanceScope;
+    // Occurrence continuity only: changed text, conditions or review validity do
+    // not become operation equivalence, identity permission or replay authority.
+    const counts=new Map<string,number>(),targets=new Map<string,Observation['controls']>();
+    for(const c of before.controls)counts.set(c.instanceId,(counts.get(c.instanceId)||0)+1);
+    for(const c of after.controls){const found=targets.get(c.instanceId)||[];found.push(c);targets.set(c.instanceId,found);}
+    const retainedControls=verified&&!documentChanged&&!before.gaps.some(g=>g.critical)?before.controls.flatMap(c=>{
+      const matches=targets.get(c.instanceId)||[];
+      return counts.get(c.instanceId)===1&&matches.length===1?[{beforeLocalId:c.localId,afterLocalId:matches[0].localId}]:[];
+    }):[];
     return {beforeId,afterId,verified,documentChanged,navigated:before.url!==after.url,
+      retainedControls,
       entered:after.boundaries?.filter(b=>documentChanged||!before.boundaries?.some(old=>old.key===b.key)).map(b=>b.key)||[],
       exited:!documentChanged&&verified?before.boundaries?.filter(b=>!after.boundaries?.some(next=>next.key===b.key)).map(b=>b.key)||[]:[],
       revealedControlIds:after.controls.filter(c=>c.visible&&!c.readOnly&&c.actions.length&&!before.controls.some(old=>old.instanceId===c.instanceId&&old.visible)).map(c=>c.localId)};
   }
-  /** Consistent synchronous facts at one observation. Returned evidence never changes task state. */
-  explorationSnapshot(sid:string,observationId?:string,options:{includeCompletionAudit?:boolean}={}) {
-    const {snapshot:base,material}=this.captureAudit(sid,observationId),o=base.observation,session=material.session;
-    const regions=this.regions.material(o,base.actions,session),classifications=this.classifications.material(o,base.actions),operations=this.controls.material(o,base.actions),discovery=this.discoveryScans.material(o);
+  private interpretationMaterial(o:Observation,actions:ActionCandidate[]) {
+    const records=this.classifications.records(o.sessionId),classifications=this.classifications.material(o,actions,records),operations=this.controls.material(o,actions,this.classifications.negativeTargets(o,records));
     const nonInteractive=classifications.controls.flatMap(c=>{
       const negative=c.classifications.find(r=>r.status==='active'&&['display','container'].includes(r.classification)&&classificationMatches(r,c.control,o));
       const review=operations.controls.find(r=>r.control.localId===c.control.localId);
-      return negative&&!c.needsClassification&&review&&!review.needsReview&&!Object.values(c.control.actionBasis||{}).some(b=>b.status==='supported')&&!base.actions.some(a=>a.localId===c.control.localId&&a.basis?.status==='supported')
-        ?[{localId:c.control.localId,sessionId:sid,observationId:o.id,classificationId:negative.id,classification:negative.classification as 'display'|'container'}]:[];
+      return negative&&!c.needsClassification&&review&&!review.needsReview&&!Object.values(c.control.actionBasis||{}).some(b=>b.status==='supported')&&!actions.some(a=>a.localId===c.control.localId&&a.basis?.status==='supported')
+        ?[{localId:c.control.localId,sessionId:o.sessionId,observationId:o.id,classificationId:negative.id,classification:negative.classification as 'display'|'container'}]:[];
     });
+    return {classifications,operations,nonInteractive};
+  }
+  /** Current interpretations only; no historical coverage scan or execution permission. */
+  controlInterpretationSnapshot(sid:string,observationId?:string,options:{retainedClassifications?:ClassificationEvidenceRef[]}={}) {
+    const o=this.observation(sid);
+    if(observationId&&observationId!==o.id)throw new EngineError('STALE_OBSERVATION','Interpretation requires the current observation');
+    const actions=this.actions(sid),material=this.interpretationMaterial(o,actions),retainedClassifications=this.classifications.retainedEvidence(options.retainedClassifications||[],o);
+    return {sessionId:sid,observationId:o.id,revision:hash({observationId:o.id,material,retainedClassifications}),actions,...material,retainedClassifications,executionAuthorized:false as const};
+  }
+  /** Consistent synchronous facts at one observation. Returned evidence never changes task state. */
+  explorationSnapshot(sid:string,observationId?:string,options:{includeCompletionAudit?:boolean}={}) {
+    const {snapshot:base,material}=this.captureAudit(sid,observationId),o=base.observation,session=material.session;
+    const regions=this.regions.material(o,base.actions,session),{classifications,operations,nonInteractive}=this.interpretationMaterial(o,base.actions),discovery=this.discoveryScans.material(o);
     const obligations={criticalGaps:o.gaps.filter(g=>g.critical).map(g=>g.code),regions:regions.enabled?regions.unassignedControlIds:[],pageTraversal:regions.enabled&&regions.unassignedPageTraversal,
       classifications:classifications.pendingControlIds,operations:operations.pendingControlIds,identities:base.hypotheses.filter(h=>h.status==='pending').map(h=>({id:h.id,localId:h.localId})),
       discovery:!!discovery.discovery&&(discovery.discovery.signal.omitted>0||discovery.discovery.structural.omittedLocations>0)};
@@ -104,7 +126,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       completionAudit=auditBrowserCompletion(base.explorationAudit,coverage,material.observations,o.id,material.groups,records);}
 
     const facts=[
-      ...base.availability.actions.map(a=>({kind:'operation' as const,actionId:a.actionId,localId:base.actions.find(x=>x.id===a.actionId)?.localId,code:a.executable?'ready':a.blockers[0]?.reason||'blocked',evidence:a.blockers.flatMap(b=>b.evidence)})),
+      ...base.availability.actions.map(a=>({kind:'operation' as const,actionId:a.actionId,localId:base.actions.find(x=>x.id===a.actionId)?.localId,code:a.executable?'ready':a.blockers[0]?.reason||'blocked',blockers:a.blockers,evidence:a.blockers.flatMap(b=>b.evidence)})),
       ...obligations.regions.map(localId=>({kind:'review' as const,localId,code:'region_review_required',evidence:[o.id]})),
       ...(obligations.discovery?[{kind:'discovery' as const,code:'discovery_incomplete',evidence:[o.id]}]:[]),
       ...classifications.pendingControlIds.map(localId=>({kind:'review' as const,localId,code:'classification_required',evidence:[o.id]})),
@@ -556,7 +578,18 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     if(purpose==='exploration'){const unknown=this.unknownOutcomes(o.sessionId);if(unknown.length)blockers.push({code:'UNKNOWN_ACTION_OUTCOME',reason:'Verify or isolate unknown outcomes before further autonomous execution',evidence:unknown.map(a=>a.id)});}
     return blockers;
   }
-  protected override validatePreparedAction(action: ActionCandidate, observation: Observation, purpose:import('@interaction/core').ActionAttempt['purpose']) { this.boundaryExits.validate(action, observation); this.classifications.validate(action, observation); this.controls.validate(action, observation); this.purposeReviews.validate(action, observation); if(purpose!=='external') { this.regions.validateAction(observation,action,this.session(observation.sessionId)); this.depthReuse.validate(action,observation); } }
+  private validationMaterial(o:Observation,groups?:ExplorationGroup[]) {
+    const session=this.session(o.sessionId);
+    return {session,classifications:this.classifications.records(o.sessionId),regions:this.regions.validationMaterial(o,session),depth:this.depthReuse.validationMaterial(o,groups)};
+  }
+  protected override preparedActionValidator(o:Observation,purpose:import('@interaction/core').ActionAttempt['purpose'],groups?:ExplorationGroup[]) {
+    const material=this.validationMaterial(o,groups);
+    return (action:ActionCandidate)=>this.validatePreparedAction(action,o,purpose,material);
+  }
+  protected override validatePreparedAction(action: ActionCandidate, observation: Observation, purpose:import('@interaction/core').ActionAttempt['purpose'],material?:ReturnType<BrowserEngine['validationMaterial']>) {
+    this.boundaryExits.validate(action, observation);this.classifications.validate(action, observation,material?.classifications);this.controls.validate(action, observation);this.purposeReviews.validate(action, observation);
+    if(purpose!=='external'){this.regions.validateAction(observation,action,material?.session||this.session(observation.sessionId),material?.regions);this.depthReuse.validate(action,observation,material?.depth);}
+  }
   purposeReviewMaterial(sessionId: string, groupId: string) { return this.purposeReviews.material(this.observation(sessionId), this.actions(sessionId), groupId); }
   reviewListPurpose(sessionId: string, review: ListPurposeReviewInput) {
     return this.enqueueMeasured(sessionId, async () => this.store.transaction(() => this.purposeReviews.record(this.observation(sessionId), this.actions(sessionId), review)));

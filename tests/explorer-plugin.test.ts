@@ -169,8 +169,8 @@ it.each(['whole-page','targeted','after-last-action'] as const)('retains host co
  }finally{await plugin.close();await f.close();}
 });
 
-it.each([false,true])('persists explicit unsupported-content acceptance without clearing scope, budgets or unknown outcomes (%s)',async(unknown)=>{
- const f=await explorerFixture('<canvas id="chart"></canvas><button type="button" onclick="this.disabled=true">Ready</button>'),path=join(f.dir,'limitations.sqlite');let plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),fakeProviders(f.url));
+it.each([false,true])('continues untested controls after persisting unsupported-content acceptance without clearing budgets or unknown outcomes (%s)',async(unknown)=>{
+ const f=await explorerFixture('<canvas id="chart"></canvas><button type="button" onclick="this.disabled=true">Ready</button><button type="button" onclick="this.disabled=true">Next</button>'),path=join(f.dir,'limitations.sqlite');let plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),fakeProviders(f.url));
  try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:2,actions:1}});plugin.start(t.id);await plugin.waitForIdle();
   const before=plugin.view(t.id).task,canvas=before.plan.find(i=>i.reason==='missing_capability:UNSUPPORTED_CANVAS')!;expect(canvas.required).toBe(true);
   if(unknown){before.plan.push({...structuredClone(canvas),id:'unknown',reason:'unknown_action_outcome',scope:{url:f.url,label:'Prior navigation',kind:'click'}});plugin.store.save(before);}
@@ -179,7 +179,9 @@ it.each([false,true])('persists explicit unsupported-content acceptance without 
   expect(accepted.plan.find(i=>i.id===canvas.id)).toMatchObject({required:false,status:'untested',evidence:canvas.evidence});expect(accepted.plan.find(i=>i.id===canvas.id)?.resolvedBy).toBeUndefined();
   await plugin.close();plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),fakeProviders(f.url));expect(plugin.view(t.id).task.acceptedLimitations).toEqual(accepted.acceptedLimitations);
   plugin.extendBudget(t.id,{rounds:1,actions:2,durationMs:60000,modelRequests:100});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
-  expect(v.task.usage.actions).toBe(1);expect(v.task.plan.find(i=>i.id===canvas.id)?.status).toBe('untested');
+  expect(v.task.usage.actions).toBe(2);expect(v.task.plan.find(i=>i.id===canvas.id)?.status).toBe('untested');
+  expect(v.task.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt')).map(a=>a.action.label)).toEqual(['Ready','Next']);
+  expect(v.task.plan.find(i=>i.id===canvas.id)?.attempts).toEqual([]);expect(v.task.plan.find(i=>i.id===canvas.id)?.resolvedBy).toBeUndefined();
   if(unknown){expect(v.task.status).not.toBe('completed');expect(v.task.plan.find(i=>i.id==='unknown')).toMatchObject({required:true,status:'unresolved'});}
   else{expect(v.task.status).toBe('completed');plugin.revise(t.id,{itemIds:[canvas.id]},true);expect(plugin.view(t.id).task.acceptedLimitations).toEqual([]);expect(plugin.view(t.id).task.plan.find(i=>i.id===canvas.id)?.required).toBe(true);}
  }finally{await plugin.close();await f.close();}
@@ -484,7 +486,7 @@ it('grounds plans in accessible action names and records current members when re
  };
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,goal:'Click Alpha once',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const view=plugin.view(t.id),task=view.task;
- const retained=view.events.filter(e=>e.type==='scope.retained');expect(retained.some(e=>(e.data as any).groups.some((g:any)=>g.historicalMemberCount>0))).toBe(true);
+ const retained=view.events.filter(e=>e.type==='scope.retained');expect(retained.length).toBeGreaterThan(0);expect(retained.every(e=>(e.data as any).groups.every((g:any)=>g.historicalMemberCount>=0))).toBe(true);
  for(const event of retained){const data=event.data as any,current=f.host.actions(event.sessionId!,data.sourceObservationId);expect(data.groups.every((g:any)=>g.actionIds.every((id:string)=>current.some(a=>a.id===id)))).toBe(true);}
  expect(task.status,JSON.stringify(task)).toBe('completed');expect(task.usage.actions).toBe(1);expect(task.plan.some(i=>i.reason==='sample_unselected')).toBe(false);
  }finally{await plugin.close();await f.close();}

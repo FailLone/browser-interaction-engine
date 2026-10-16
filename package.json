@@ -25,7 +25,7 @@
     "test:core": "vitest run tests/core.test.ts tests/storage-contract.test.ts tests/architecture.test.ts tests/retention.test.ts tests/identity-matching.test.ts",
     "experiment:identity": "tsx --conditions=development scripts/identity-blind-experiment.ts",
     "smoke:explorer": "node scripts/smoke-explorer.mjs",
-    "test:explorer": "vitest run tests/explorer-plugin-providers.test.ts tests/explorer-plugin.test.ts tests/explorer-plugin-semantic.test.ts tests/explorer-plugin-ui.test.ts"
+    "test:explorer": "vitest run tests/explorer-plugin-providers.test.ts tests/explorer-plugin.test.ts tests/explorer-plugin-semantic.test.ts tests/explorer-plugin-ui.test.ts tests/explorer-scheduling.test.ts tests/explorer-plugin-sync.test.ts tests/explorer-plugin-sync-ui.test.ts"
   },
   "dependencies": {
     "@interaction/rules": "workspace:*",

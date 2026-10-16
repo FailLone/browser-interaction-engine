@@ -169,10 +169,13 @@ export class ExplorationDecisionReuse {
       if (reason) this.invalidate(o.sessionId, g.id, o.id, reason);
     }
   }
-  validate(action: ActionCandidate, o: Observation) {
-    for (const g of this.groups(o.sessionId)) {
-      if (g.status === 'invalidated' || g.instanceScope !== o.instanceScope || !g.decisions.at(-1)?.invalidation) continue;
-      const application = this.store.list<ExplorationDecisionReuseApplication>('exploration-decision-application', o.sessionId).find(a => a.groupId === g.id && a.decisionRevision === g.decisions.at(-1)?.revision);
+  validationMaterial(o:Observation,groups=this.groups(o.sessionId)) {
+    const invalid=groups.filter(g=>g.status!=='invalidated'&&g.instanceScope===o.instanceScope&&g.decisions.at(-1)?.invalidation);
+    return {groups:invalid,applications:invalid.length?this.store.list<ExplorationDecisionReuseApplication>('exploration-decision-application',o.sessionId):[]};
+  }
+  validate(action: ActionCandidate, o: Observation, material=this.validationMaterial(o)) {
+    for (const g of material.groups) {
+      const application = material.applications.find(a => a.groupId === g.id && a.decisionRevision === g.decisions.at(-1)?.revision);
       const owned = g.members.some(m => m.actionId === action.id || m.observationId === o.id && m.localId === action.localId && m.kind === action.kind)
         || application?.members.some(m => {
           const original = this.store.get<ActionCandidate>('action', m.actionId);

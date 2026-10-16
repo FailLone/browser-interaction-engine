@@ -2,6 +2,7 @@ import type { Persistence } from './ports.js';
 import { EngineError, type ActionCandidate, type ExplorationGroup, type ExplorationGroupDecision, type ExplorationGroupProposal, type ExplorationGroupResolution, type FrontierItem, type Observation } from './types.js';
 import { explorationGroupProposalSchema, explorationGroupResolutionsSchema } from './schema.js';
 import { canonical, contextKey, hash, id, now } from './util.js';
+import type { ExecutionBlocker } from './execution-readiness.js';
 
 /** A withdrawn latest decision never falls back to an older grant. */
 export function currentExplorationDecision(group: ExplorationGroup | undefined) {
@@ -13,12 +14,15 @@ export function currentExplorationDecision(group: ExplorationGroup | undefined) 
 export function explorationGates(references: NonNullable<FrontierItem['explorationGroups']>, groups: Map<string, ExplorationGroup>) {
   return references.map(ref => {
     const group = groups.get(ref.groupId);
-    if (group?.status === 'invalidated') return { priority: 1, reason: 'exploration_scope_invalidated' };
+    const gate = (priority: number, reason: string, state: NonNullable<ExecutionBlocker['selection']>['state']) => ({
+      priority, reason, selection: { state, groupId: ref.groupId, revision: group?.revision, memberKey: ref.memberKey },
+    });
+    if (group?.status === 'invalidated') return gate(1, 'exploration_scope_invalidated', 'invalidated');
     const decision = currentExplorationDecision(group)?.decision, prefix = group?.kind === 'similar-list' ? 'list' : 'exploration';
-    if (!decision) return { priority: 1, reason: `awaiting_${prefix}_decision` };
-    if (decision.mode === 'skip') return { priority: 0, reason: 'exploration_skipped_by_caller' };
-    if (decision.mode === 'defer') return { priority: 2, reason: `${prefix}_deferred_by_caller` };
-    if (decision.mode === 'sample' && (!ref.memberKey || !decision.memberKeys.includes(ref.memberKey))) return { priority: 3, reason: `${prefix}_member_not_selected` };
+    if (!decision) return gate(1, `awaiting_${prefix}_decision`, 'pending');
+    if (decision.mode === 'skip') return gate(0, 'exploration_skipped_by_caller', 'skipped');
+    if (decision.mode === 'defer') return gate(2, `${prefix}_deferred_by_caller`, 'deferred');
+    if (decision.mode === 'sample' && (!ref.memberKey || !decision.memberKeys.includes(ref.memberKey))) return gate(3, `${prefix}_member_not_selected`, 'unselected');
   }).filter(g => g !== undefined).sort((a, b) => a.priority - b.priority);
 }
 

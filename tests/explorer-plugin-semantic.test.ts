@@ -6,8 +6,31 @@ import { reviewNext,unresolvedPurposeKey,type ReviewContext } from '../packages/
 import { explorerFixture,fakeProviders,semanticPopupHtml } from './explorer-plugin-helpers.js';
 import { remapStoredReviewScopes } from '../packages/explorer-plugin/src/scope-migration.js';
 import { reviewGapChanges } from '../packages/explorer-plugin/src/review-ledger.js';
+import { controlScopeMatcher, unexecutedAction } from '../packages/explorer-plugin/src/policy.js';
 
 const grounded={choice:'click',evidenceRefs:['current','actions','effect:click'],reason:'Captured child choice panel supports a local expansion.',interfaceOnly:true,externalWrite:false};
+
+it('uses host facts for task gaps instead of interpreting old action reasons as execution or sampling rules',()=>{
+ const action={id:'a',exclusionReason:'old_reason',preconditions:{blockers:[{code:'old_rule'}]}} as any;
+ const availability=(blockers:any[],executable=false)=>({actions:[{actionId:'a',executable,blockers}]}) as any;
+ expect(unexecutedAction(action,availability([{code:'CONTROL_REVIEW_EXPIRED',reason:'Review withdrawn',evidence:['review']}]))).toEqual({reason:'CONTROL_REVIEW_EXPIRED',required:true});
+ expect(unexecutedAction(action,availability([{code:'ACTION_BLOCKED',reason:'opaque-host-reason',evidence:['group'],selection:{state:'unselected',groupId:'group',revision:2}}]))).toEqual({reason:'sample_unselected',required:false});
+ expect(unexecutedAction(action,availability([{code:'ACTION_BLOCKED',reason:'opaque-host-reason',evidence:['group'],selection:{state:'deferred',groupId:'group',revision:3}}]))).toEqual({reason:'scope_deferred',required:true});
+ expect(unexecutedAction(action,availability([],true))).toEqual({reason:'operation_not_executed',required:true});
+});
+
+it('indexes review targets without merging same-name controls, action labels or operation-only scopes',()=>{
+ const controls=[{localId:'one',name:'Same',role:'textbox',stableKey:'id:one',region:'first'},{localId:'two',name:'Same',role:'textbox',stableKey:'id:two',region:'second'}];
+ const o={url:'http://fixture/',controls,regions:[{key:'first',label:'First'},{key:'second',label:'Second'}]} as any;
+ const actions=[{id:'a',localId:'one',kind:'fill',label:'Fill First',value:'A'},{id:'b',localId:'two',kind:'fill',label:'Fill Second',value:'B'}] as any;
+ const match=controlScopeMatcher(o,actions),targets=(scope:Record<string,unknown>)=>controls.filter(c=>match(scope,c as any)).map(c=>c.localId);
+ expect(targets({label:'Same'})).toEqual(['one','two']);expect(targets({stableKey:'id:one'})).toEqual(['one']);
+ expect(targets({label:'Fill Second'})).toEqual(['two']);expect(targets({region:'First'})).toEqual(['one']);
+ expect(targets({kind:'fill',value:'A'})).toEqual(['one']);expect(targets({kind:'hover'})).toEqual([]);
+ expect(targets({label:'Missing'})).toEqual([]);expect(targets({url:'http://elsewhere/'})).toEqual([]);
+ const fresh={...o,controls:controls.map(c=>({...c,name:'Changed'}))};
+ expect(fresh.controls.some((c:any)=>controlScopeMatcher(fresh,actions)({label:'Same'},c))).toBe(false);
+});
 const separateRegions=`${Array.from({length:7},(_,i)=>`<section aria-label="Region ${i}"><h2>Region ${i}</h2><button type="button" onclick="this.disabled=true">Action ${i}</button></section>`).join('')}<script>document.addEventListener('DOMContentLoaded',()=>{document.querySelector('main>h1').remove();const main=document.querySelector('main');main.replaceWith(...main.children)})</script>`;
 const probeFixture=(reveals=true)=>`<div id="mystery" role="button" tabindex="0" aria-label="Mystery" aria-haspopup="menu" style="width:180px;height:40px">Mystery</div><div id="panel" hidden><button type="button" onclick="this.disabled=true">Revealed</button></div><script>document.getElementById('mystery').addEventListener('mouseenter',()=>{${reveals?"document.getElementById('panel').hidden=false":""}})</script>`;
 function probeProviders(url:string,mode:'allow'|'uncertain'|'external'='allow') {
@@ -257,7 +280,7 @@ it.each(['current','revoked','interaction','ambiguous','missing-material','hidde
  const record={id:'r',classification:mode==='interaction'?'interaction':'container',status:mode.includes('revoked')?'revoked':mode==='hidden-invalidated'?'invalidated':'active'};
  const item={id:'gap',required:true,status:'succeeded',reason:'classification_unresolved',scope:{url:o.url,label:'Details'},reviewResolvedBy:{sessionId:'s',observationId:'before',classificationId:'old',classification:'container'}};
  const host={actions:()=>[],list:()=>[{...record,id:'old'}],controlClassificationMaterial:()=>({observationId:o.id,controls:mode==='missing-material'?[]:[{control,needsClassification:mode!=='current',classifications:[record]}]}),controlReviewMaterial:()=>({observationId:o.id,controls:[{control,needsReview:false}]})} as any;
- host.explorationSnapshot=()=>({observationId:o.id,actions:[],nonInteractive:mode==='current'?[{localId:'one',sessionId:'s',observationId:o.id,classificationId:record.id,classification:'container'}]:[]});
+ host.controlInterpretationSnapshot=()=>({observationId:o.id,actions:[],nonInteractive:mode==='current'?[{localId:'one',sessionId:'s',observationId:o.id,classificationId:record.id,classification:'container'}]:[],retainedClassifications:[{source:item.reviewResolvedBy,retained:mode==='hidden-invalidated',reason:mode==='hidden-invalidated'?'historical_classification_retained':'classification_revoked_or_replaced',currentApplicability:false,executionAuthorized:false}]});
  const changes=reviewGapChanges({plan:[item]} as any,o,host);
  if(mode==='current')expect(changes).toEqual([{itemId:'gap',proof:{sessionId:'s',observationId:'now',classificationId:'r',classification:'container'}}]);
  else if(mode==='hidden-invalidated')expect(changes).toEqual([]);

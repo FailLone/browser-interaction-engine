@@ -2,6 +2,17 @@ import { EngineError, hash, id, now, type Persistence, type FrontierItem } from 
 import { classifyControlsSchema, revokeControlClassificationSchema, controlClassificationConditions, controlClassificationKey, classificationMatches, isNonInteractiveClassification,
   type Control, type Observation, type ActionCandidate, type ClassifyControlsInput, type ControlClassificationRecord, type ControlClassificationMaterial, type RevokeControlClassificationInput } from '@interaction/adapter-playwright';
 
+export interface ClassificationEvidenceRef {
+  sessionId: string; observationId: string; classificationId: string; classification: 'display' | 'container';
+}
+export interface RetainedClassificationEvidence {
+  source: ClassificationEvidenceRef;
+  retained: boolean;
+  reason: 'historical_classification_retained' | 'classification_revoked_or_replaced' | 'classification_evidence_unavailable';
+  /** Retention is historical evidence only. Current applicability requires a fresh interpretation. */
+  currentApplicability: false; executionAuthorized: false;
+}
+
 /** Classifies one observed node. Descendants and supported capabilities are never suppressed. */
 export class ControlClassifications {
   constructor(private store: Persistence, private emit: (sid: string, type: string, data: unknown) => unknown) {}
@@ -12,12 +23,29 @@ export class ControlClassifications {
   negative(c: Control, o: Observation, records = this.records(o.sessionId)) {
     return records.find(r => isNonInteractiveClassification(r.classification) && classificationMatches(r, c, o));
   }
-  negativeTargets(o: Observation) {
-    const records = this.records(o.sessionId);
+  retainedEvidence(sources: ClassificationEvidenceRef[], current: Observation): RetainedClassificationEvidence[] {
+    const observations=new Map<string,Observation|undefined>([[current.id,current]]),records=new Map<string,ControlClassificationRecord|undefined>();
+    return sources.map(source=>{
+      if(!records.has(source.classificationId))records.set(source.classificationId,this.store.get<ControlClassificationRecord>('control-classification',source.classificationId));
+      const record=records.get(source.classificationId);
+      let reason:RetainedClassificationEvidence['reason']='classification_evidence_unavailable';
+      if(record?.sessionId===source.sessionId&&record.classification===source.classification){
+        if(['revoked','superseded'].includes(record.status))reason='classification_revoked_or_replaced';
+        else {
+          if(!observations.has(source.observationId))observations.set(source.observationId,this.store.get<Observation>('observation',source.observationId));
+          const o=observations.get(source.observationId);
+          // Invalidated by a later scene is still evidence about this retained scene.
+          // Reuse the original condition matcher; it cannot authorize the current scene.
+          if(o?.sessionId===source.sessionId&&!o.gaps.some(g=>g.critical)&&o.controls.filter(c=>classificationMatches({...record,status:'active'},c,o)).length===1)reason='historical_classification_retained';
+        }
+      }
+      return {source:{...source},retained:reason==='historical_classification_retained',reason,currentApplicability:false,executionAuthorized:false};
+    });
+  }
+  negativeTargets(o: Observation, records = this.records(o.sessionId)) {
     return new Set(o.controls.filter(c => this.negative(c, o, records)).map(c => c.localId));
   }
-  material(o: Observation, actions: ActionCandidate[]): ControlClassificationMaterial {
-    const records = this.records(o.sessionId);
+  material(o: Observation, actions: ActionCandidate[], records = this.records(o.sessionId)): ControlClassificationMaterial {
     const controls = o.controls.filter(c => c.visible).map(control => {
       const candidates = actions.filter(a => a.localId === control.localId);
       const classifications = records.filter(r => r.conditions.target.instanceScope === o.instanceScope && r.conditions.target.target.instanceId === control.instanceId);
@@ -87,9 +115,9 @@ export class ControlClassifications {
       return a.basis?.status === 'supported' || !c || !negative.has(c.localId);
     });
   }
-  validate(a: ActionCandidate, o: Observation) {
+  validate(a: ActionCandidate, o: Observation, records?:ControlClassificationRecord[]) {
     const c = o.controls.find(c => c.localId === a.localId);
-    if (a.basis?.status !== 'supported' && c && this.negative(c, o)) throw new EngineError('CONTROL_CLASSIFIED_NONINTERACTIVE', 'Revoke or replace the classification before probing this target');
+    if (a.basis?.status !== 'supported' && c && this.negative(c, o, records)) throw new EngineError('CONTROL_CLASSIFIED_NONINTERACTIVE', 'Revoke or replace the classification before probing this target');
   }
   retire(o: Observation) {
     const negatives = this.records(o.sessionId).filter(r => r.status === 'active' && isNonInteractiveClassification(r.classification));

@@ -1,6 +1,8 @@
 {
+  "componentContract": "passed",
+  "probeContract": "passed",
   "inspectionContract": "passed",
-  "at": "2026-10-14T19:17:46.879Z",
+  "at": "2026-10-16T04:33:19.371Z",
   "node": "v24.22.0",
   "compiledAPI": "passed",
   "staticUI": "passed",
@@ -8,5 +10,5 @@
   "historicalEvidence": "passed",
   "snapshotDelivery": "passed",
   "cachedEvidence": "passed",
-  "attemptId": "bae4704a-0361-463f-90e7-9e0147ad3c6d"
+  "attemptId": "975c1195-e473-4ba0-88ed-09a75c4ec3ff"
 }

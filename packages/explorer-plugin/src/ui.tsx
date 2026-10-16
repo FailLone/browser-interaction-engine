@@ -1,8 +1,8 @@
 import React,{createContext,useContext,useEffect,useRef,useState,type ReactNode} from 'react';
-import { ExplorerClient,type PluginStatus } from './client.js';
+import { ExplorerClient,ExplorerTaskFeed,type PluginStatus,type ExplorerTaskSummary } from './client.js';
 import type { Task,TaskView,ExplorerEvent,Decision } from './types.js';
 const api=new ExplorerClient();
-const C=createContext<{status?:PluginStatus;tasks:Task[];view?:TaskView;selectedEvent?:ExplorerEvent;inspect:(event:ExplorerEvent|undefined)=>void;mode:'autonomous'|'manual';setMode:(mode:'autonomous'|'manual')=>void;select:(id:string)=>void;refresh:()=>Promise<void>}>({tasks:[],inspect:()=>{},mode:'autonomous',setMode:()=>{},select:()=>{},refresh:async()=>{}});
+const C=createContext<{status?:PluginStatus;tasks:ExplorerTaskSummary[];view?:TaskView;selectedEvent?:ExplorerEvent;inspect:(event:ExplorerEvent|undefined)=>void;mode:'autonomous'|'manual';setMode:(mode:'autonomous'|'manual')=>void;select:(id:string)=>void;refresh:()=>Promise<void>}>({tasks:[],inspect:()=>{},mode:'autonomous',setMode:()=>{},select:()=>{},refresh:async()=>{}});
 const names:Record<string,string>={idle:'待开始',running:'探索中',paused:'已暂停',stopped:'已停止',completed:'当前计划完成',blocked:'存在阻塞',budget_exhausted:'预算用尽',configuration_required:'需要配置服务',pending:'待执行',succeeded:'已验证',unresolved:'待确认',untested:'未测',excluded:'已排除',requested:'正在调用',returned:'已返回',applied:'已采用',rejected:'未采用',stale:'已过期',cancelled:'已取消',failed:'调用失败'};
 const reasons:Record<string,string>={PROVIDER_TIMEOUT:'模型响应超过时限',PROVIDER_UNAVAILABLE:'模型服务暂时不可用',MODEL_OUTPUT_TRUNCATED:'模型输出被长度限制截断',INVALID_MODEL_OUTPUT:'模型输出不符合决策格式',jev_uncertain:'JEV 置信度不足，转交 LLM',jev_low_confidence:'JEV 未达到此类判断的置信度门槛',jev_no_choice:'JEV 无法作出选择',jev_not_configured:'JEV 未配置',jev_circuit_open:'JEV 服务暂时不可用',decision_context_changed:'来源观察已变化，未应用此结果',current_plan_verified:'当前计划内的操作已验证',llm_required_for_planning:'需要配置 LLM 才能生成计划',CONFIGURATION_REQUIRED:'需要配置可用的模型服务',BUDGET_EXHAUSTED:'总预算用尽',ROUND_BUDGET_EXHAUSTED:'轮次预算用尽',sample_unselected:'未选入代表样本',observed_in_scope:'当前范围内发现',scope_deferred:'范围暂缓',scope_not_verified:'目标尚未验证',unknown_action_outcome:'执行结果尚未确认',UNKNOWN_DISPATCH_REQUIRES_REVIEW:'需先核实上次执行结果',operation_basis_unconfirmed:'操作依据未确认',checkpoint_unverified:'返回路径尚未验证',ACTIVE_SESSION:'请先停止当前普通会话',user_paused:'已由用户暂停',user_stopped:'已由用户停止',process_restarted:'服务重启后等待继续',no_new_evidence:'连续探索未获得新证据',plan_revised:'计划已调整'};
 Object.assign(reasons,{program_exhaustive_root:'程序建立的全页探索范围',user_excluded:'用户明确排除，未计为已测',TASK_SCOPE_UNSUPPORTED:'任务超出当前页面交互探索能力，请调整范围',INVALID_TASK_CONSTRAINT:'模型给出的排除条件无法对应用户原文，未执行',EXHAUSTIVE_REQUIRES_ALL:'穷尽探索需选择全部已发现交互，不能使用代表样本',PLAN_REVIEW_REQUIRED:'历史任务缺少范围授权记录，请重新规划',jev_required_for_judgments:'需要配置 JEV 才能进行页面判断',JEV_TEMPORARILY_UNAVAILABLE:'JEV 暂时不可用，已暂停；未自动改用 LLM',operation_risk_unresolved:'操作风险证据不足，保留待测',classification_unresolved:'控件类型仍不明确，保留待测',region_unresolved:'区域仍不明确，保留待测'});
@@ -24,6 +24,8 @@ const purposes:Record<string,string>={'task-intent':'判断任务类型','initia
 Object.assign(purposes,{'boundary-exit-risk':'判断弹层外部退出方式'});
 Object.assign(purposes,{'probe-risk':'判断观察探测的用途与风险'});
 Object.assign(reasons,{BOUNDARY_EXIT_UNVERIFIED:'弹层退出后的状态未通过核验',boundary_exit_unresolved:'尚未找到可验证的弹层退出方式',boundary_preservation_limit:'待保护的父页面字段超过单次核验上限'});
+Object.assign(reasons,{CONTROL_REVIEW_EXPIRED:'控件审阅依据已失效，需重新审阅',REGION_REVIEW_REQUIRED:'当前区域尚未通过审阅',DEPTH_REUSE_INVALIDATED:'沿用的遍历决定已失效',IDENTITY_AMBIGUOUS:'当前控件身份存在歧义',UNKNOWN_ACTION_OUTCOME:'上次执行结果未知，需先核实',STALE_OBSERVATION:'观察已经变化，需重新核对',INPUT_REQUIRED:'尚未提供有效输入样本'});
+Object.assign(reasons,{interface_risk_required:'尚未确认操作仅影响界面',action_basis_unconfirmed:'操作依据尚未确认',CONTROL_CLASSIFICATION_REQUIRED:'控件类型尚未确认'});
 Object.assign(purposes,{'operation-clarification':'澄清控件用途','identity-clarification':'澄清控件身份','classification-clarification':'澄清控件类型'});
 Object.assign(reasons,{semantic_review_needed:'JEV 补充观察后仍有歧义，按需交给 LLM',semantic_choice_not_offered:'模型选择不在允许范围内，未采用',semantic_evidence_unknown:'模型引用了未提供的证据，未采用',semantic_evidence_missing:'模型未引用必要证据，未采用',semantic_still_uncertain:'LLM 仍无法确定，保留待测',semantic_effect_unresolved:'界面用途或外部写入风险仍不明确，未采用'});
 const policyNames:Record<string,string>={'task-intent':'任务类型判断',ranking:'候选排序',discovery:'区域发现',coverage:'范围保留',classification:'控件分类',identity:'身份核对','evidence-gate':'证据检查','planning-gate':'新计划判断',recovery:'恢复判断'};
@@ -31,11 +33,21 @@ const resolutionNames:Record<string,string>={task_intent_classified:'JEV 已判�
 export function ExplorerProvider({children}:{children:ReactNode}) {
   const [selectedEvent,setSelectedEvent]=useState<ExplorerEvent>();
   const [mode,setMode]=useState<'autonomous'|'manual'>('autonomous');
-  const [status,setStatus]=useState<PluginStatus>();const [tasks,setTasks]=useState<Task[]>([]);const [id,setId]=useState('');const [view,setView]=useState<TaskView>();const selected=useRef('');selected.current=id;
-  const refresh=async()=>{const s=await api.status();setStatus(s);setTasks(await api.tasks());if(selected.current){const current=selected.current,v=await api.task(current);let cursor=v.events.at(-1)?.sequence||0;for(;;){const next=await api.events(current,cursor);if(!next.length)break;v.events.push(...next);cursor=next.at(-1)!.sequence;if(next.length<500)break;}if(selected.current===current)setView(v);}};
-  useEffect(()=>{let dead=false;let timer:ReturnType<typeof setTimeout>;let available=false;const tick=async()=>{try{if(!dead){await refresh();available=true;}}catch{if(!dead)setStatus(undefined);}if(!dead&&available)timer=setTimeout(tick,1200);};void tick();return()=>{dead=true;clearTimeout(timer);};},[]);
-  useEffect(()=>{setView(undefined);setSelectedEvent(undefined);void refresh().catch(()=>{});},[id]);
-  return <C.Provider value={{status,tasks,view,selectedEvent,inspect:setSelectedEvent,mode,setMode,select:setId,refresh}}>{children}</C.Provider>;
+  const [status,setStatus]=useState<PluginStatus>();const [tasks,setTasks]=useState<ExplorerTaskSummary[]>([]);const [id,setId]=useState('');const [view,setView]=useState<TaskView>();const selected=useRef('');
+  const feed=useRef<ExplorerTaskFeed|undefined>(undefined),controller=useRef(new AbortController()),requestVersion=useRef(0);
+  const select=(next:string)=>{if(next===selected.current)return;controller.current.abort();controller.current=new AbortController();requestVersion.current++;selected.current=next;feed.current=next?new ExplorerTaskFeed(api,next):undefined;setView(undefined);setSelectedEvent(undefined);setId(next);};
+  const refresh=async()=>{
+    const version=++requestVersion.current,current=selected.current;
+    if(controller.current.signal.aborted)controller.current=new AbortController();const signal=controller.current.signal;
+    try{
+      const [s,items,v]=await Promise.all([api.status(signal),api.taskSummaries(signal),feed.current?.refresh(signal)]);
+      if(signal.aborted||version!==requestVersion.current||current!==selected.current)return;
+      setStatus(previous=>JSON.stringify(previous)===JSON.stringify(s)?previous:s);setTasks(previous=>JSON.stringify(previous)===JSON.stringify(items)?previous:items);setView(v);
+    }catch(error){if(!signal.aborted&&version===requestVersion.current)throw error;}
+  };
+  useEffect(()=>{let dead=false;let timer:ReturnType<typeof setTimeout>;let available=false;const tick=async()=>{try{if(!dead){await refresh();available=true;}}catch{if(!dead)setStatus(undefined);}if(!dead&&available)timer=setTimeout(tick,1200);};void tick();return()=>{dead=true;controller.current.abort();requestVersion.current++;clearTimeout(timer);};},[]);
+  useEffect(()=>{void refresh().catch(()=>{});},[id]);
+  return <C.Provider value={{status,tasks,view,selectedEvent,inspect:setSelectedEvent,mode,setMode,select,refresh}}>{children}</C.Provider>;
 }
 const workspaceStyles = `
 .explorer-call-summary{display:grid;gap:8px;padding:14px;font-size:11px;line-height:1.6;border-bottom:1px solid #e8ede5;background:#f4f7f2}.explorer-call-summary span{color:#738377}.explorer-call-summary button{font-size:10px;text-align:left;padding:7px 9px}

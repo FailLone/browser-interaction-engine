@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { ActionCandidate, IdentityHypothesis, ControlIdentity, Observation, ExplorationGroup, PurposeReview, RegionCandidate } from '@interaction/browser';
 import type { ExplorerHost, Task, ModelRequest, Decision, Scope } from './types.js';
 import { jsonSchema } from './schema.js';
-import { digest, matches, includesScope, broadScope, controlInScope, decisionPlan, scopeForControl } from './policy.js';
+import { digest, matches, includesScope, broadScope, decisionPlan, scopeForControl, navigationTarget, controlScopeMatcher } from './policy.js';
 import type { SemanticReview } from './semantic-review.js';
 
 export interface ReviewContext {
@@ -17,8 +17,8 @@ export interface ReviewContext {
   defer(decision:Decision,reason:string):void;
   unchanged?(evidence:{sourceDecisionId:string;sourceObservationId:string;scope:Scope}):void;
   retain(groups:RetainedScope[]):Promise<void>;
-  gap(reason:string,scope:Scope,required?:boolean):void;
-  hasPendingAction():boolean;
+  gap(reason:string,scope:Scope,required?:boolean,prerequisites?:Scope[]):void;
+  hasPendingAction(filter?:(action:ActionCandidate)=>boolean,freshOnly?:boolean):boolean;
 }
 export type ChoiceConstraints=Pick<ModelRequest,'allowedReductions'|'blockedOptions'>;
 export interface RetainedScope {id:string;revision:number;label:string;memberKeys:string[];actionIds:string[];historicalMemberCount:number}
@@ -29,8 +29,15 @@ const semanticActions=(actions:ActionCandidate[])=>actions.map(({kind,label,valu
 /** A translation alone adds no purpose evidence. Preserve all other facts, and never cache a grant here. */
 export function unresolvedPurposeKey(o:Observation,item:ReturnType<ExplorerHost['controlReviewMaterial']>['controls'][number],revision:number) {
   const {x:_x,y:_y,...size}=item.control.rect;
+  const actionable=item.control.actionable&&(()=>{
+    // A scroll changes sampled pointer geometry, not unresolved purpose. Preserve
+    // actual state/obstruction and every other unknown fact; dispatch reads them all
+    // freshly and never consumes this negative cache as operation permission.
+    const {clickPoint:_point,hitTarget:_hit,unknown,...state}=item.control.actionable;
+    return {...state,unknown:unknown?.filter(reason=>reason!=='off-viewport-hit-target')};
+  })();
   return digest({protocol:'unresolved-purpose/v1',revision,instance:o.instanceScope,url:o.url,context:o.context,boundaries:o.boundaries,
-    control:{...item.control,rect:size},reviews:item.reviews.map(r=>[r.id,r.status]),actions:item.actions.map(a=>({kind:a.kind,risk:a.risk,value:a.value,basis:a.basis}))});
+    control:{...item.control,rect:size,...(actionable?{actionable}:{})},reviews:item.reviews.map(r=>[r.id,r.status]),actions:item.actions.map(a=>({kind:a.kind,risk:a.risk,value:a.value,basis:a.basis}))});
 }
 /** The host retains exact bindings for validation; grouping needs semantic evidence, not repeated dispatch fingerprints. */
 function regionEvidence(candidate:RegionCandidate) {
@@ -47,14 +54,36 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const boundaryIds=overlay?new Set(overlay.controlIds):undefined;
   const inCurrentBoundary=(action:ActionCandidate)=>!boundary||action.boundary?.key===boundary.key;
   const pendingPlan=task.plan.filter(i=>i.status!=='succeeded');
+  const inScope=controlScopeMatcher(o,available);
   const relevant=(control:Observation['controls'][number])=>{
     // Background obligations remain in the plan. Review them after the active boundary exits.
     if(boundaryIds&&!boundaryIds.has(control.localId))return false;
     if(available.some(a=>a.localId===control.localId&&includesScope(pendingPlan,a,o)))return true;
-    if(task.plan.some(i=>!i.required&&i.reason==='user_excluded'&&controlInScope(i.scope,control,o,available)))return false;
-    return pendingPlan.some(i=>i.required&&i.dispatchScope===true&&[i.scope,...i.prerequisites].some(scope=>controlInScope(scope,control,o,available)));
+    if(task.plan.some(i=>!i.required&&i.reason==='user_excluded'&&inScope(i.scope,control)))return false;
+    return pendingPlan.some(i=>i.required&&i.dispatchScope===true&&[i.scope,...i.prerequisites].some(scope=>inScope(scope,control)));
   };
   const relevantIds=new Set(o.controls.filter(relevant).map(c=>c.localId));
+  // Yield only to fresh, independently executable in-place work. Reentry waits
+  // for review of new work; a ready exit/history/link
+  // must not make unresolved modal contents disappear before their review.
+  const inPlace=(a:ActionCandidate)=>inCurrentBoundary(a)&&!['dismiss','history'].includes(a.kind)&&a.boundary?.intent!=='exit'&&!navigationTarget(a,o);
+  if(available.some(inPlace)&&c.hasPendingAction(inPlace,true)) {
+    // Local actions and scrolling may hide current controls too. Retain obligations
+    // before yielding; these are evidence gaps, never new dispatch authority. A later
+    // pass reviews them normally because no reviewed key or decision is fabricated.
+    const recorded=new Set(task.plan.filter(i=>i.status==='unresolved'&&i.required).map(i=>digest({reason:i.reason,scope:i.scope})));
+    const retain=(reason:string,control:Observation['controls'][number])=>{
+      if(!relevantIds.has(control.localId))return;
+      const scope=scopeForControl(control,o),key=digest({reason,scope});if(recorded.has(key))return;
+      c.gap(reason,scope,true,round.entryPath);recorded.add(key);
+    };
+    const interpretations=host.controlInterpretationSnapshot(sid,o.id);
+    for(const item of interpretations.classifications.controls)if(item.needsClassification)retain('classification_unresolved',item.control);
+    for(const item of interpretations.operations.controls)if(item.needsReview)retain('operation_basis_unconfirmed',item.control);
+    const pendingIdentities=new Set(host.list<IdentityHypothesis>(sid,'hypothesis').filter(h=>h.status==='pending').map(h=>h.id));
+    for(const control of o.controls)if(control.hypothesisId&&pendingIdentities.has(control.hypothesisId))retain('identity_unresolved',control);
+    return false;
+  }
   const region=host.regionReviewMaterial(sid);
   const broad=pendingPlan.some(i=>i.required&&i.dispatchScope===true&&broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url));
   if(region.enabled&&(region.unassignedControlIds.some(id=>relevantIds.has(id))||(!boundary&&region.unassignedPageTraversal&&broad))) {
@@ -92,6 +121,22 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       if(batch.length)return flush();
       if(!candidates.length){mark(key);c.gap('region_partition_unavailable',{url:o.url});}
     }
+  }
+  const material=available.length?host.explorationReviewMaterial(sid):{groups:[]};
+  // Keeping every observed member is a fixed program rule unless the user
+  // permits sampling. It needs neither a model call nor the historical ledger.
+  const scopes=material.groups.filter(g=>g.status==='pending'||!g.decisions.length).flatMap(group=>{
+    const key=`group:${group.id}:${group.revision}`;if(done(key))return [];
+    const members=group.members.filter(m=>available.some(a=>a.id===m.actionId));
+    if(!members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return inCurrentBoundary(action)&&includesScope(pendingPlan,action,o);}))return [];
+    const explicit=members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
+    return [{group,key,members,allowedReductions:task.coverageMode==='representative'&&!explicit?['sample']:[]}];
+  });
+  const retained=scopes.filter(s=>!s.allowedReductions.length).slice(0,50);
+  if(retained.length){
+    for(const s of retained)mark(s.key);
+    await c.retain(retained.map(({group,members})=>({id:group.id,revision:group.revision,label:group.label,memberKeys:members.map(m=>m.key),actionIds:members.map(m=>m.actionId),historicalMemberCount:group.members.length-members.length})));
+    return true;
   }
   const classifications=host.controlClassificationMaterial(sid);
   const classificationBatch:{key:string;localId:string;value:string;decision:Decision}[]=[];
@@ -185,22 +230,6 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       await c.apply(generated.decision,{type:'reviewControls',review:{observationId:o.id,source,reviews:[{localId:item.control.localId,kind:d.value,risk:'interface',replayable:false,samples,reason:'Generated bounded input samples',evidence:[...evidence(d.decision),...evidence(generated.decision)]}]}});return true;
     }
     await c.apply(d.decision,{type:'reviewControls',review:{observationId:o.id,source,reviews:[{localId:item.control.localId,kind:d.value,risk:'interface',replayable:false,reason:'Reviewed interface operation',evidence:evidence(d.decision)}]}});return true;
-  }
-  const material=host.explorationReviewMaterial(sid);
-  // Keeping every observed member is a fixed program rule unless the user
-  // permits sampling. It needs neither a model call nor the historical ledger.
-  const scopes=material.groups.filter(g=>g.status==='pending'||!g.decisions.length).flatMap(group=>{
-    const key=`group:${group.id}:${group.revision}`;if(done(key))return [];
-    const members=group.members.filter(m=>available.some(a=>a.id===m.actionId));
-    if(!members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return inCurrentBoundary(action)&&includesScope(pendingPlan,action,o);}))return [];
-    const explicit=members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
-    return [{group,key,members,allowedReductions:task.coverageMode==='representative'&&!explicit?['sample']:[]}];
-  });
-  const retained=scopes.filter(s=>!s.allowedReductions.length).slice(0,50);
-  if(retained.length){
-    for(const s of retained)mark(s.key);
-    await c.retain(retained.map(({group,members})=>({id:group.id,revision:group.revision,label:group.label,memberKeys:members.map(m=>m.key),actionIds:members.map(m=>m.actionId),historicalMemberCount:group.members.length-members.length})));
-    return true;
   }
   for(const {group,key,members,allowedReductions} of scopes) {
     const plan=decisionPlan(task.plan);

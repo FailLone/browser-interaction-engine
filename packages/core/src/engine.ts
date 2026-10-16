@@ -46,6 +46,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   protected async reviewActions(actions: ActionCandidate[], _observation: O): Promise<ActionCandidate[]> { return actions; }
   protected executionSessionBlockers(_observation:O,_purpose:ActionAttempt['purpose']):ExecutionBlocker[]{return [];}
   protected validatePreparedAction(_action: ActionCandidate, _observation: O, _purpose: ActionAttempt['purpose']): void {}
+  /** Synchronous query-local facts only; actual dispatch obtains fresh validation. */
+  protected preparedActionValidator(observation: O, purpose: ActionAttempt['purpose'], _groups?: ExplorationGroup[]) {
+    return (action: ActionCandidate) => this.validatePreparedAction(action, observation, purpose);
+  }
   protected preflightAction(action: ActionCandidate, observation: O, _purpose: ActionAttempt['purpose']) { return this.driver!.preflight(observation, action); }
   protected explorationScopes(_actions: ActionCandidate[], _observation: O): import('./types.js').ExplorationGroupProposal[] | Promise<import('./types.js').ExplorationGroupProposal[]> { return []; }
   /** Composition navigation policy runs in the queue before scheduling any automatic work. */
@@ -163,7 +167,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if(f&&['unknown','executing','blocked','deferred','skipped','needs_revalidation'].includes(f.status))add('ACTION_BLOCKED',f.reason||`frontier_${f.status}`,[f.id]);
       const groups=material?.groups||this.store.list<ExplorationGroup>('exploration-group',o.sessionId);
       const refs=f?.explorationGroups||groups.flatMap(g=>g.members.filter(m=>m.actionId===action.id).map(m=>({groupId:g.id,memberKey:m.key})));
-      for(const gate of explorationGates(refs,new Map(groups.map(g=>[g.id,g]))))add('ACTION_BLOCKED',gate.reason);
+      for(const gate of explorationGates(refs,new Map(groups.map(g=>[g.id,g]))))blockers.push({code:'ACTION_BLOCKED',reason:gate.reason,evidence:[gate.selection.groupId],selection:gate.selection});
     }
     return blockers;
   }
@@ -172,9 +176,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const o=this.observation(sessionId);return this.availabilityFrom(o,this.actions(sessionId),this.frontier(sessionId),this.store.list<ExplorationGroup>('exploration-group',sessionId),observationId);
   }
   private availabilityFrom(o:O,candidates:ActionCandidate[],frontier:FrontierItem[],groups:ExplorationGroup[],expectedId=o.id):ActionAvailability {
-    const sessionId=o.sessionId,guard:ExecutionGuard={profile:'interface-exploration',observationId:expectedId},sessionBlockers=this.executionSessionBlockers(o,'exploration');
+    const sessionId=o.sessionId,guard:ExecutionGuard={profile:'interface-exploration',observationId:expectedId},sessionBlockers=this.executionSessionBlockers(o,'exploration'),validate=this.preparedActionValidator(o,'exploration',groups);
     const actions=candidates.map(a=>{const blockers=[...sessionBlockers,...this.executionBlockers(a,o,'exploration',undefined,guard,{frontier,groups})];
-      try{this.validatePreparedAction(a,o,'exploration');}catch(e){const error=e as EngineError;blockers.push({code:error.code||'ACTION_BLOCKED',reason:error.message,evidence:[]});}
+      try{validate(a);}catch(e){const error=e as EngineError;blockers.push({code:error.code||'ACTION_BLOCKED',reason:error.message,evidence:[]});}
       return {actionId:a.id,executable:!blockers.length,blockers};});
     return {sessionId,observationId:o.id,revision:hash({observationId:o.id,groups,actions}),profile:guard.profile,actions,dispatchRevalidationRequired:true};
   }

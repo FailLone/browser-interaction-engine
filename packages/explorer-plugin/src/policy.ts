@@ -29,17 +29,38 @@ export function matches(scope:Scope,action:ActionCandidate,o:Observation) {
 }
 /** Only page/region scopes imply discovery navigation; an unnamed operation is still bounded. */
 export const broadScope=(scope:Scope)=>!scope.label&&!scope.role&&!scope.stableKey&&!scope.kind&&scope.value===undefined;
+function controlScope(control:Observation['controls'][number],o:Observation):Scope {
+  return {url:o.url,region:o.regions.find(r=>r.key===control.region)?.label,label:control.name||control.label,role:control.role,stableKey:scopeControlKey(control)};
+}
+function matchesControlScope(scope:Scope,actual:Scope) {
+  if((scope.kind||scope.value!==undefined)&&!scope.label&&!scope.stableKey)return false;
+  return Object.entries(scope).filter(([key])=>!['kind','value'].includes(key)).every(([key,value])=>actual[key as keyof Scope]===value);
+}
 export function controlInScope(scope:Scope,control:Observation['controls'][number],o:Observation,actions:ActionCandidate[]) {
   if(actions.some(a=>a.localId===control.localId&&matches(scope,a,o)))return true;
   // A named target may need classification before candidates exist. An operation-only
   // target must bind to a real candidate; dropping kind/value would match the entire page.
-  if((scope.kind||scope.value!==undefined)&&!scope.label&&!scope.stableKey)return false;
-  const actual:Scope={url:o.url,region:o.regions.find(r=>r.key===control.region)?.label,label:control.name||control.label,role:control.role,stableKey:scopeControlKey(control)};
-  return Object.entries(scope).filter(([key])=>!['kind','value'].includes(key)).every(([key,value])=>actual[key as keyof Scope]===value);
+  return matchesControlScope(scope,controlScope(control,o));
+}
+/** A single synchronous scope-matching pass; rebuilt for every observation/read. */
+export function controlScopeMatcher(o:Observation,actions:ActionCandidate[]) {
+  const controls=new Map(o.controls.map(c=>[c.localId,controlScope(c,o)])),operations=new Map<string,Scope[]>();
+  for(const a of actions)if(a.localId){const scopes=operations.get(a.localId)||[];scopes.push(scopeFor(a,o));operations.set(a.localId,scopes);}
+  return (scope:Scope,control:Observation['controls'][number])=>(operations.get(control.localId)||[]).some(actual=>Object.entries(scope).every(([key,value])=>JSON.stringify(actual[key as keyof Scope])===JSON.stringify(value)))
+    ||matchesControlScope(scope,controls.get(control.localId)||controlScope(control,o));
 }
 export const keyFor=browserOperationKey;
 export function permitted(action:ActionCandidate,o:Observation,availability:ActionAvailability) {
   return availability.observationId===o.id&&action.observationId===o.id&&availability.actions.some(a=>a.actionId===action.id&&a.executable);
+}
+/** Translate host facts into task gaps; do not reconstruct execution or sampling rules. */
+export function unexecutedAction(action:ActionCandidate,availability:ActionAvailability) {
+  const fact=availability.actions.find(a=>a.actionId===action.id);
+  const selection=fact?.blockers.find(b=>b.selection)?.selection;
+  if(selection?.state==='skipped'||selection?.state==='unselected')return {reason:'sample_unselected',required:false};
+  if(selection?.state==='deferred')return {reason:'scope_deferred',required:true};
+  const blocker=fact?.blockers[0];
+  return {reason:fact?.executable?'operation_not_executed':blocker?(['ACTION_BLOCKED','ACTION_EXCLUDED'].includes(blocker.code)?blocker.reason:blocker.code):'operation_unavailable',required:true};
 }
 export function includesScope(plan:PlanItem[],action:ActionCandidate,o:Observation):'target'|'prerequisite'|undefined {
   if(plan.some(i=>!i.required&&i.reason==='user_excluded'&&matches(i.scope,action,o)))return;
@@ -47,7 +68,9 @@ export function includesScope(plan:PlanItem[],action:ActionCandidate,o:Observati
   if(action.kind==='scroll'&&!allowed.some(i=>i.scope.kind==='scroll'&&matches(i.scope,action,o))&&allowed.some(i=>broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url)))return 'prerequisite';
   if(o.boundaries?.length&&action.boundary?.intent==='exit'&&!allowed.some(i=>i.scope.label&&i.scope.kind&&matches(i.scope,action,o)))return 'prerequisite';
   const explicit=allowed.some(i=>i.scope.label&&i.scope.kind&&matches(i.scope,action,o));
-  if(!explicit&&plan.some(i=>!i.required&&['untested','excluded'].includes(i.status)&&matches(i.scope,action,o)))return;
+  // A page-level capability gap describes unobservable content, not a ban on
+  // every supported control on that page. Keep it untested without masking grants.
+  if(!explicit&&plan.some(i=>!i.required&&!i.reason.startsWith('missing_capability:')&&['untested','excluded'].includes(i.status)&&matches(i.scope,action,o)))return;
   if(allowed.some(i=>matches(i.scope,action,o)))return 'target';
   if(allowed.some(i=>i.status!=='succeeded'&&i.prerequisites.some(p=>matches(p,action,o))))return 'prerequisite';
   if(o.boundaries?.length&&action.boundary?.intent==='exit')return 'prerequisite';

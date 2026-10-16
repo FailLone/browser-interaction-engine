@@ -1,5 +1,10 @@
 export interface ExecutionBlocker {
   code: string; reason: string; evidence: string[];
+  /** The current scope decision, not a fact inferred from a frontier reason string. */
+  selection?: {
+    state: 'pending' | 'invalidated' | 'skipped' | 'deferred' | 'unselected';
+    groupId: string; revision?: number; memberKey?: string;
+  };
 }
 export interface ExecutionGuard {
   observationId: string;
