@@ -1,3 +1,4 @@
+import { reusableClassifications } from './classification-reuse.js';
 import { z } from 'zod';
 import type { ActionCandidate, IdentityHypothesis, ControlIdentity, Observation, ExplorationGroup, PurposeReview, RegionCandidate } from '@interaction/browser';
 import type { ExplorerHost, Task, ModelRequest, Decision, Scope } from './types.js';
@@ -14,7 +15,7 @@ export interface ReviewContext {
   generate<T>(purpose:string,instructions:string,state:unknown,schema:z.ZodType<T>):Promise<{value:T;decision:Decision}>;
   apply(decision:Decision|Decision[],command:unknown):Promise<void>;
   /** Deterministic bookkeeping/observation decisions, with no fabricated model record. */
-  programApply?(command:unknown,reason:string):Promise<void>;
+  programApply?(command:unknown,reason:string,details?:unknown):Promise<void>;
   probe(decision:Decision,localId:string,kind:'hover'|'focus'):Promise<void>;
   /** An SDK-available bounded observation, not model authorization or execution coverage. */
   programProbe?(localId:string,kind:'hover'|'focus',reason:string):Promise<void>;
@@ -178,6 +179,10 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     }
   }
   const classifications=host.controlClassificationMaterial(sid);
+  if(c.programApply){
+    const [reuse]=reusableClassifications(host,task,o,classifications.controls.filter(i=>i.needsClassification&&relevantIds.has(i.control.localId)).map(i=>i.control));
+    if(reuse){await c.programApply({type:'classifyControls',classification:{observationId:o.id,source:'explorer-program',classifications:reuse.classifications}},'classification_reused',{proofs:reuse.proofs,sourceDecisionIds:reuse.sourceDecisionIds,currentExecution:false,executionAuthorized:false});return true;}
+  }
   const classificationBatch:{key:string;localId:string;value:string;decision:Decision}[]=[];
   const flushClassifications=async()=>{
     for(const entry of classificationBatch)mark(entry.key);

@@ -22,6 +22,7 @@ export * from './boundary-exit.js';
 export * from './purpose-review.js';
 export * from './control-review.js';
 export * from './control-classification.js';
+export { classificationCorrespondenceConditions } from './classification-correspondence.js';
 export * from './discovery-scan.js';
 export * from './interventions.js';
 export { interventionResponseSchema, continuationSchema } from './schema.js';

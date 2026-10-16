@@ -4,11 +4,13 @@ import { controlReviewConditions } from './control-review.js';
 import type { ActionCandidate, Control, Observation } from './types.js';
 
 const text = z.string().trim().min(1);
+export const classificationEvidenceRefSchema=z.object({sessionId:text,observationId:text,classificationId:text,classification:z.enum(['display','container'])}).strict();
 export const classifyControlsSchema = z.object({
   observationId: text, source: text,
   classifications: z.array(z.object({ localId: text,
     classification: z.enum(['interaction', 'display', 'container', 'probe_required', 'unresolved']),
     reason: text, evidence: z.array(text).min(1).max(100),
+    reuseFrom: classificationEvidenceRefSchema.optional(),
   }).strict()).min(1).max(500),
 }).strict();
 export const revokeControlClassificationSchema = z.object({ classificationId: text, source: text, reason: text }).strict();

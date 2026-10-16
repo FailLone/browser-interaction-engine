@@ -9,8 +9,8 @@ import { continueScrollTraversal } from './scroll-traversal.js';
 import { DiscoveryScans } from './discovery-scans.js';
 import { RegionReviews } from './region-reviews.js';
 import { ControlReviews } from './control-reviews.js';
-import { ControlClassifications, type ClassificationEvidenceRef } from './control-classifications.js';
-export type { ClassificationEvidenceRef, RetainedClassificationEvidence } from './control-classifications.js';
+import { ControlClassifications, type ClassificationEvidenceRef, type ClassificationCorrespondenceRequest } from './control-classifications.js';
+export type { ClassificationEvidenceRef, RetainedClassificationEvidence, ClassificationCorrespondenceRequest, ClassificationCorrespondence } from './control-classifications.js';
 import { contextKey, type ExplorationGroup } from '@interaction/core';
 import { PageExploration } from './page-exploration.js';
 export type { PageExplorationState } from './page-exploration.js';
@@ -354,6 +354,11 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     });
   }
   controlClassificationMaterial(sid: string) { return this.classifications.material(this.observation(sid), this.actions(sid)); }
+  /** Read-only applicability at the current observation. Application revalidates the retained source. */
+  classificationCorrespondences(sid:string,input:{observationId:string;requests:ClassificationCorrespondenceRequest[]}) {
+    const o=this.observation(sid);if(input.observationId!==o.id)throw new EngineError('STALE_OBSERVATION','Classification correspondence requires the current observation');
+    return this.classifications.correspondences(o,this.actions(sid),input.requests);
+  }
   classifyControls(sid: string, input: import('@interaction/adapter-playwright').ClassifyControlsInput) {
     return this.enqueueMeasured(sid, async () => {
       const o = this.observation(sid);

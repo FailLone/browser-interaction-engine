@@ -1,5 +1,5 @@
 import { EngineError, hash, id, now, type Persistence, type FrontierItem } from '@interaction/core';
-import { classifyControlsSchema, revokeControlClassificationSchema, controlClassificationConditions, controlClassificationKey, classificationMatches, isNonInteractiveClassification,
+import { classifyControlsSchema, revokeControlClassificationSchema, controlClassificationConditions, controlClassificationKey, classificationMatches, isNonInteractiveClassification, classificationCorrespondenceConditions,
   type Control, type Observation, type ActionCandidate, type ClassifyControlsInput, type ControlClassificationRecord, type ControlClassificationMaterial, type RevokeControlClassificationInput } from '@interaction/adapter-playwright';
 
 export interface ClassificationEvidenceRef {
@@ -12,11 +12,30 @@ export interface RetainedClassificationEvidence {
   /** Retention is historical evidence only. Current applicability requires a fresh interpretation. */
   currentApplicability: false; executionAuthorized: false;
 }
+export interface ClassificationCorrespondenceRequest { localId:string;source:ClassificationEvidenceRef }
+export interface ClassificationCorrespondence {
+  applicable:boolean;reason:string;source:ClassificationEvidenceRef;target:{sessionId:string;observationId:string;localId:string};classification:'display'|'container';
+  identityAuthorized:false;executionAuthorized:false;currentExecution:false;evidence:string[];
+}
 
 /** Classifies one observed node. Descendants and supported capabilities are never suppressed. */
 export class ControlClassifications {
   constructor(private store: Persistence, private emit: (sid: string, type: string, data: unknown) => unknown) {}
-  records(sid: string) { return this.store.list<ControlClassificationRecord>('control-classification', sid); }
+  private sourceRetained(record:ControlClassificationRecord) {
+    if(!record.reuseFrom)return true;
+    const source=this.store.get<ControlClassificationRecord>('control-classification',record.reuseFrom.classificationId);
+    if(!source||source.reuseFrom||source.sessionId!==record.reuseFrom.sessionId||source.classification!==record.classification||['revoked','superseded'].includes(source.status))return false;
+    const o=this.store.get<Observation>('observation',record.reuseFrom.observationId);
+    return !!o&&o.sessionId===source.sessionId&&!o.gaps.some(g=>g.critical)&&o.controls.filter(c=>classificationMatches({...source,status:'active'},c,o)).length===1;
+  }
+  records(sid: string) {
+    const validity=new Map<string,boolean>();
+    return this.store.list<ControlClassificationRecord>('control-classification', sid).map(r=>{
+      if(r.status!=='active'||!r.reuseFrom)return r;
+      const key=hash(r.reuseFrom);if(!validity.has(key))validity.set(key,this.sourceRetained(r));
+      return validity.get(key)?r:{...r,status:'invalidated' as const};
+    });
+  }
   private supported(c: Control, actions: ActionCandidate[]) {
     return Object.values(c.actionBasis || {}).some(b => b.status === 'supported') || actions.some(a => a.localId === c.localId && a.basis?.status === 'supported');
   }
@@ -30,7 +49,7 @@ export class ControlClassifications {
       const record=records.get(source.classificationId);
       let reason:RetainedClassificationEvidence['reason']='classification_evidence_unavailable';
       if(record?.sessionId===source.sessionId&&record.classification===source.classification){
-        if(['revoked','superseded'].includes(record.status))reason='classification_revoked_or_replaced';
+        if(['revoked','superseded'].includes(record.status)||!this.sourceRetained(record))reason='classification_revoked_or_replaced';
         else {
           if(!observations.has(source.observationId))observations.set(source.observationId,this.store.get<Observation>('observation',source.observationId));
           const o=observations.get(source.observationId);
@@ -41,6 +60,39 @@ export class ControlClassifications {
       }
       return {source:{...source},retained:reason==='historical_classification_retained',reason,currentApplicability:false,executionAuthorized:false};
     });
+  }
+  correspondences(o:Observation,actions:ActionCandidate[],requests:ClassificationCorrespondenceRequest[]) {
+    const observations=new Map<string,Observation|undefined>([[o.id,o]]),projections=new Map<Observation,Map<string,ReturnType<typeof classificationCorrespondenceConditions>>>();
+    const projection=(observed:Observation,c:Control)=>{let values=projections.get(observed);if(!values){values=new Map();projections.set(observed,values);}if(!values.has(c.localId))values.set(c.localId,classificationCorrespondenceConditions(c,observed));return values.get(c.localId);};
+    const sourceKeys=requests.map(r=>hash(r.source)),sources=new Map(requests.map((r,i)=>[sourceKeys[i],r.source]));
+    const retainedResults=this.retainedEvidence([...sources.values()],o);
+    const retained=new Map([...sources.keys()].map((key,index)=>[key,retainedResults[index]])),sourceStates:unknown[]=[];
+    const originalTargets=new Map<string,Control[]>();
+    const results=requests.map(({localId,source},index):ClassificationCorrespondence=>{
+      const result:ClassificationCorrespondence={applicable:false,reason:'classification_evidence_unavailable',source:{...source},target:{sessionId:o.sessionId,observationId:o.id,localId},classification:source.classification,identityAuthorized:false,executionAuthorized:false,currentExecution:false,evidence:[]};
+      const record=this.store.get<ControlClassificationRecord>('control-classification',source.classificationId);sourceStates.push(record&&[record.id,record.status,record.reuseFrom]);
+      if(!isNonInteractiveClassification(source.classification)||!record||record.reuseFrom){result.reason='original_negative_classification_required';return result;}
+      const retainedSource=retained.get(sourceKeys[index])!;
+      if(!retainedSource.retained){result.reason=retainedSource.reason;return result;}
+      if(!observations.has(source.observationId))observations.set(source.observationId,this.store.get<Observation>('observation',source.observationId));
+      const before=observations.get(source.observationId),target=o.controls.filter(c=>c.localId===localId);
+      if(!before||before.sessionId!==source.sessionId||target.length!==1){result.reason='target_missing_or_ambiguous';return result;}
+      if(!originalTargets.has(sourceKeys[index]))originalTargets.set(sourceKeys[index],before.controls.filter(c=>classificationMatches({...record,status:'active'},c,before)));
+      const originals=originalTargets.get(sourceKeys[index])!;
+      if(originals.length!==1){result.reason='source_classification_ambiguous';return result;}
+      if(this.supported(target[0],actions)){result.reason='supported_operation_present';return result;}
+      const a=projection(before,originals[0]),b=projection(o,target[0]);
+      if(!a||!b){result.reason='classification_conditions_incomplete';return result;}
+      if(a.identityKey!==b.identityKey){result.reason='target_correspondence_missing';return result;}
+      // Missing/truncated evidence must not erase a rival target. Count semantic
+      // candidates before requiring a portable projection, conservatively across
+      // regions; a complete subtree cannot manufacture uniqueness on its own.
+      const signature=(c:Control)=>hash({tag:c.tag,role:c.role,name:c.name,label:c.label}),candidate=signature(target[0]);
+      if([before,o].some(observed=>observed.controls.filter(c=>signature(c)===candidate).length!==1)){result.reason='target_correspondence_ambiguous';return result;}
+      if(a.conditionKey!==b.conditionKey){result.reason='classification_conditions_changed';return result;}
+      result.applicable=true;result.reason='equivalent_classification_conditions';result.evidence=[...b.evidence,`classification:${record.id}`,`observation:${before.id}`,`observation:${o.id}`];return result;
+    });
+    return {sessionId:o.sessionId,observationId:o.id,revision:hash({observationId:o.id,sourceStates,results}),results};
   }
   negativeTargets(o: Observation, records = this.records(o.sessionId)) {
     return new Set(o.controls.filter(c => this.negative(c, o, records)).map(c => c.localId));
@@ -74,6 +126,10 @@ export class ControlClassifications {
       const c = o.controls.find(c => c.localId === classification.localId);
       if (!c?.visible || seen.has(c.localId)) throw new EngineError('INVALID_CONTROL_CLASSIFICATION', 'Classify distinct visible current controls');
       seen.add(c.localId);
+      if(classification.reuseFrom){
+        if(classification.classification!==classification.reuseFrom.classification||!this.correspondences(o,actions,[{localId:c.localId,source:classification.reuseFrom}]).results[0].applicable)
+          throw new EngineError('CLASSIFICATION_REUSE_INVALID','Retained classification does not apply to this current target');
+      }
       if (isNonInteractiveClassification(classification.classification) && (this.supported(c, actions) || !c.classificationBinding || c.classificationBinding.truncated)) {
         throw new EngineError('INVALID_CONTROL_CLASSIFICATION', 'A negative classification requires complete bounded target structure and no supported operation');
       }
@@ -100,9 +156,9 @@ export class ControlClassifications {
   }
   reconcile(o: Observation, actions: ActionCandidate[]) {
     if (o.gaps.some(g => g.critical)) return;
-    for (const r of this.records(o.sessionId).filter(r => r.status === 'active')) {
+    for (const r of this.store.list<ControlClassificationRecord>('control-classification',o.sessionId).filter(r => r.status === 'active')) {
       const c = o.controls.find(c => c.instanceId === r.conditions.target.target.instanceId);
-      if (!c || !classificationMatches(r, c, o) || isNonInteractiveClassification(r.classification) && this.supported(c, actions)) {
+      if (!this.sourceRetained(r)||!c || !classificationMatches(r, c, o) || isNonInteractiveClassification(r.classification) && this.supported(c, actions)) {
         r.status = 'invalidated'; r.invalidation = { observationId: o.id, reason: 'classification_conditions_changed', at: now() };
         this.store.put('control-classification', r); this.emit(o.sessionId, 'control.classification_invalidated', r);
       }

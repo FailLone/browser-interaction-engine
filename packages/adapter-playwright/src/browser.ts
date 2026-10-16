@@ -269,7 +269,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const result = !parent && JSON.stringify(ancestors).length <= 16000 ? { ancestors } : undefined;
     reuseBindings.set(owner, result); return result;
   };
-  const classificationBinding = (el: Element): Control['classificationBinding'] => {
+  const classificationBinding = (el: Element, includeReferences=true): Control['classificationBinding'] => {
     const nodes: NonNullable<Control['classificationBinding']>['nodes'] = [];
     const text = el.textContent || ''; let characters = text.length, truncated = text.length > 8000;
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_ELEMENT);
@@ -284,7 +284,14 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       nodes.push({ instanceId: instance(next), parentInstanceId: instance(next.parentElement || document.documentElement), tag: next.tagName.toLowerCase(), attributes });
       next = walker.nextNode() as Element | null;
     }
-    return { nodes, text: text.slice(0, 8000), truncated: truncated || !!next };
+    const result:NonNullable<Control['classificationBinding']>={ nodes, text: text.slice(0, 8000), truncated: truncated || !!next };
+    if(includeReferences){
+      const ids=[...new Set(nodes.flatMap(n=>Object.entries(n.attributes).filter(([name])=>['for','aria-labelledby','aria-describedby','aria-controls','aria-owns','aria-activedescendant','aria-details','aria-errormessage','headers','list','form'].includes(name)).flatMap(([,value])=>value.trim().split(/\s+/).filter(Boolean))))];
+      result.references=ids.slice(0,32).map(id=>{const matches=document.querySelectorAll(`#${CSS.escape(id)}`),target=matches[0];if(!target)return {id,missing:true as const};if(matches.length!==1)return {id,ambiguous:true as const};
+        const targetInstanceId=instance(target);return {id,targetInstanceId,...(nodes.some(n=>n.instanceId===targetInstanceId)?{}:{target:classificationBinding(target,false)!})};});
+      if(ids.length>32||result.references.some(r=>r.target?.truncated))result.truncated=true;
+    }
+    return result;
   };
   const unnamedScrolls = new Set<Element>();
   const ownerOf = (el: Element) => 'form' in el ? (el as HTMLInputElement).form : el.closest('form');

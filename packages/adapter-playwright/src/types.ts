@@ -47,7 +47,9 @@ export interface Control extends CoreControl {
   /** Conservative structural evidence for explicitly reusing a purpose in a new document. */
   reviewReuseBinding?: { ancestors: { tag: string; selector: string; attributes: Record<string, string>; label: string }[] };
   /** Bounded subtree evidence for classifying weak candidates; truncation prevents negative classification. */
-  classificationBinding?: { nodes: { instanceId: string; parentInstanceId: string; tag: string; attributes: Record<string, string> }[]; text: string; truncated: boolean };
+  classificationBinding?: { nodes: { instanceId: string; parentInstanceId: string; tag: string; attributes: Record<string, string> }[]; text: string; truncated: boolean;
+    /** Captured IDREF targets. Missing targets are explicit facts, not omitted evidence. */
+    references?: {id:string;missing?:true;ambiguous?:true;targetInstanceId?:string;target?:{nodes:{instanceId:string;parentInstanceId:string;tag:string;attributes:Record<string,string>}[];text:string;truncated:boolean}}[] };
   structuralItem?: { ownerInstanceId:string; template:string; slot:string; rowInstanceId:string; recordKey?:string; recordEvidence?:ActionEvidence[] };
   /** Page-declared binding attributes, separate from generated identity metadata. */
   reviewAttributes?: Record<string, string>;
