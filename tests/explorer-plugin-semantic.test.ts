@@ -9,6 +9,113 @@ import { reviewGapChanges } from '../packages/explorer-plugin/src/review-ledger.
 
 const grounded={choice:'click',evidenceRefs:['current','actions','effect:click'],reason:'Captured child choice panel supports a local expansion.',interfaceOnly:true,externalWrite:false};
 const separateRegions=`${Array.from({length:7},(_,i)=>`<section aria-label="Region ${i}"><h2>Region ${i}</h2><button type="button" onclick="this.disabled=true">Action ${i}</button></section>`).join('')}<script>document.addEventListener('DOMContentLoaded',()=>{document.querySelector('main>h1').remove();const main=document.querySelector('main');main.replaceWith(...main.children)})</script>`;
+const probeFixture=(reveals=true)=>`<div id="mystery" role="button" tabindex="0" aria-label="Mystery" aria-haspopup="menu" style="width:180px;height:40px">Mystery</div><div id="panel" hidden><button type="button" onclick="this.disabled=true">Revealed</button></div><script>document.getElementById('mystery').addEventListener('mouseenter',()=>{${reveals?"document.getElementById('panel').hidden=false":""}})</script>`;
+function probeProviders(url:string,mode:'allow'|'uncertain'|'external'='allow') {
+ const p=fakeProviders(url),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>{
+  if(r.purpose==='control-classification'&&(r.state as any).material.control.name==='Mystery')return {model:'mock',value:'interaction',confidence:1};
+  if(r.purpose==='control-risk'&&(r.state as any).material.control.name==='Mystery')return {model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,.01]))};
+  if(r.purpose==='probe-risk')return {model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,mode==='uncertain'?.5:k==='interface_hover'||mode==='external'&&k==='external_hover'?.99:.01]))};
+  return original(r,s);
+ };return p;
+}
+
+it('uses an independently approved probe to reveal UI behind an interactive control with unresolved click purpose',async()=>{
+ const f=await explorerFixture(probeFixture()),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),probeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:4}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),sid=v.task.rounds[0].sessionId,attempts=f.host.list<any>(sid,'attempt');
+  expect(attempts.map(a=>[a.action.kind,a.action.label,a.status])).toEqual([['hover','hover: Mystery','succeeded'],['click','Revealed','succeeded']]);
+  const probe=attempts[0];expect(f.host.observation(sid,probe.beforeId).controls.find(c=>c.name==='Revealed')?.visible).not.toBe(true);expect(f.host.observation(sid,probe.afterId).controls.find(c=>c.name==='Revealed')?.visible).toBe(true);
+  expect(v.task.usage.actions).toBe(2);expect(v.task.pendingDispatch).toBeUndefined();expect(v.task.status).not.toBe('completed');
+  expect(v.task.plan.some(i=>i.scope.label==='Mystery'&&i.status==='unresolved')).toBe(true);
+  expect(v.events.find(e=>e.type==='probe.verified')?.data).toMatchObject({attemptId:probe.id,status:'succeeded',executionCoverage:false});
+  expect(v.events.some(e=>e.type==='decision.effect'&&(e.data as any).kind==='probe')).toBe(true);
+  expect(v.decisions.some(d=>d.actor==='llm')).toBe(false);
+ }finally{await plugin.close();await f.close();}
+});
+
+it.each(['uncertain','external'] as const)('does not probe on %s probe evidence even for a probe_required classification',async(mode)=>{
+ const f=await explorerFixture(probeFixture()),p=probeProviders(f.url,mode),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>r.purpose==='control-classification'&&(r.state as any).material.control.name==='Mystery'?{model:'mock',value:'probe_required',confidence:1}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:4}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+  expect(f.host.list(v.task.rounds[0].sessionId,'attempt')).toEqual([]);expect(v.task.plan.some(i=>i.scope.label==='Mystery'&&i.reason==='probe_unresolved'&&i.status==='unresolved')).toBe(true);expect(v.task.status).not.toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
+
+it('retains a no-effect probe as evidence without repeating it or granting a click',async()=>{
+ const f=await explorerFixture(probeFixture(false)),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),probeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:4}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');
+  expect(attempts.map(a=>a.action.kind)).toEqual(['hover']);expect(v.task.status).not.toBe('completed');expect(v.task.plan.some(i=>i.scope.label==='Mystery'&&i.status==='unresolved')).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});
+
+it.each(['unknown','missing-record'] as const)('persists %s probe dispatch across restart and never blindly retries it',async(mode)=>{
+ const f=await explorerFixture(probeFixture()),path=join(f.dir,'probe.sqlite');let count=0,unknownId:string|undefined,plugin:ExplorerPlugin;
+ const host=new Proxy(f.host,{get(target,key){
+  if(key==='command')return async(sid:string,command:any)=>{if(command.type!=='probe')return target.command(sid,command);count++;expect(plugin.store.tasks()[0].pendingDispatch?.probe).toMatchObject({localId:command.localId,kind:'hover'});if(mode==='missing-record')throw new Error('connection_lost');const attempt=await target.command(sid,command) as any;unknownId=attempt.id;return {...attempt,status:'unknown'};};
+  if(key==='list')return (sid:string,kind:string)=>target.list<any>(sid,kind).map(x=>kind==='attempt'&&x.id===unknownId?{...x,status:'unknown'}:x);
+  const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;
+ }});
+ plugin=new ExplorerPlugin(host,new ExplorerStore(path),probeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:2,actions:5}});plugin.start(t.id);await plugin.waitForIdle();let v=plugin.view(t.id);
+  expect(v.task.reason).toBe('UNKNOWN_DISPATCH_REQUIRES_REVIEW');expect(v.task.pendingDispatch?.probe?.kind).toBe('hover');expect(count).toBe(1);const usage={...v.task.usage};await plugin.close();
+  plugin=new ExplorerPlugin(host,new ExplorerStore(path),probeProviders(f.url));plugin.start(t.id);await plugin.waitForIdle();v=plugin.view(t.id);
+  expect(count).toBe(1);expect(v.task.pendingDispatch?.probe?.kind).toBe('hover');expect(v.task.reason).toBe('UNKNOWN_DISPATCH_REQUIRES_REVIEW');expect(v.task.usage.actions).toBe(usage.actions);expect(v.task.usage.modelRequests).toBe(usage.modelRequests);
+  expect(f.host.list<any>(v.task.rounds[0].sessionId,'attempt').every(a=>a.action.source==='external-probe')).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});
+
+it('cancels a pending probe judgment on takeover without dispatching its late approval',async()=>{
+ const f=await explorerFixture(probeFixture()),p=probeProviders(f.url),original=p.jev.decide;let began!:()=>void,resolve!:(v:any)=>void;const waiting=new Promise<void>(r=>began=r);
+ p.jev.decide=async(r,s)=>r.purpose==='probe-risk'?new Promise(done=>{resolve=done;began();}):original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await waiting;await plugin.pause(t.id);resolve({model:'mock',value:{interface_hover:.99,external_hover:.01,interface_focus:.01,external_focus:.01}});await plugin.waitForIdle();const v=plugin.view(t.id);
+  expect(v.task.status).toBe('paused');expect(v.task.pendingDispatch).toBeUndefined();expect(f.host.list(v.task.rounds[0].sessionId,'attempt')).toEqual([]);expect(v.decisions.find(d=>d.purpose==='probe-risk')?.status).toBe('cancelled');
+ }finally{await plugin.close();await f.close();}
+});
+
+it('waits for an issued probe on takeover, records its result and does not dispatch revealed controls',async()=>{
+ const f=await explorerFixture(probeFixture());let began!:()=>void,release!:()=>void;const waiting=new Promise<void>(r=>began=r),held=new Promise<void>(r=>release=r);
+ const host=new Proxy(f.host,{get(target,key){if(key==='command')return async(sid:string,command:any)=>{const result=await target.command(sid,command);if(command.type==='probe'){began();await held;}return result;};const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;}});
+ const plugin=new ExplorerPlugin(host,new ExplorerStore(':memory:'),probeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await waiting;expect(plugin.store.task(t.id).pendingDispatch?.probe).toBeDefined();const paused=plugin.pause(t.id);release();await paused;const v=plugin.view(t.id);
+  expect(v.task.status).toBe('paused');expect(v.task.pendingDispatch).toBeUndefined();expect(v.task.usage.actions).toBe(1);expect(f.host.list<any>(v.task.rounds[0].sessionId,'attempt').map(a=>a.action.kind)).toEqual(['hover']);expect(v.events.find(e=>e.type==='probe.verified')?.data).toMatchObject({status:'succeeded',executionCoverage:false});
+ }finally{release();await plugin.close();await f.close();}
+});
+
+it('rejects stale probe approval after a new observation and never executes it',async()=>{
+ const f=await explorerFixture(probeFixture()),p=probeProviders(f.url),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>{const result=await original(r,s);if(r.purpose==='probe-risk')await f.host.observe(f.host.sessions()[0].id);return result;};
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,modelRequests:80}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+  expect(v.decisions.some(d=>d.purpose==='probe-risk'&&d.status==='stale')).toBe(true);expect(f.host.list(v.task.rounds[0].sessionId,'attempt')).toEqual([]);expect(v.task.pendingDispatch).toBeUndefined();
+ }finally{await plugin.close();await f.close();}
+});
+
+it('retains newly revealed controls when a probe consumes the last action budget',async()=>{
+ const f=await explorerFixture(probeFixture()),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),probeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+  expect(v.task.usage.actions).toBe(1);expect(v.task.pendingDispatch).toBeUndefined();expect(v.task.status).not.toBe('completed');expect(v.task.plan.some(i=>i.required&&i.scope.label==='Revealed'&&i.status!=='succeeded'&&i.prerequisites.some(p=>p.label==='Mystery'&&p.kind==='hover'))).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});
+
+it('keeps a missing probe capability as a gap while continuing other available controls',async()=>{
+ const f=await explorerFixture(probeFixture(false)+'<button type="button" onclick="this.disabled=true">Ready</button>');
+ const host=new Proxy(f.host,{get(target,key){if(key==='command')return (sid:string,cmd:any)=>{if(cmd.type==='probe')throw Object.assign(new Error('Unsupported'),{code:'UNSUPPORTED_PROBE'});return target.command(sid,cmd);};const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;}});
+ const plugin=new ExplorerPlugin(host,new ExplorerStore(':memory:'),probeProviders(f.url));
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:4}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+  expect(v.task.pendingDispatch).toBeUndefined();expect(v.task.plan.some(i=>i.required&&i.reason==='missing_capability:probe'&&i.status==='unresolved')).toBe(true);expect(f.host.list<any>(v.task.rounds[0].sessionId,'attempt').map(a=>a.action.label)).toEqual(['Ready']);expect(v.task.status).not.toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
+
+it('limits probes and revealed work to the accepted target scope',async()=>{
+ const f=await explorerFixture(probeFixture()+'<div role="button" tabindex="0" aria-label="Other">Other</div>'),p=probeProviders(f.url),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>r.purpose==='control-classification'?{model:'mock',value:'interaction',confidence:1}:r.purpose==='control-risk'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,.01]))}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
+ try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:4}});plugin.revise(t.id,{items:[{title:'Mystery',scope:{url:f.url,label:'Mystery'},prerequisites:[],required:true,completion:'Verify Mystery',reason:'user target'}]});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+  expect(f.host.list<any>(v.task.rounds[0].sessionId,'attempt').map(a=>a.action.label)).toEqual(['hover: Mystery']);expect(v.decisions.filter(d=>d.purpose==='probe-risk').every(d=>(d.request.state as any).material.control.name==='Mystery')).toBe(true);expect(v.task.status).not.toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
 
 it('batches non-overlapping region judgments while retaining every source decision and current binding',async()=>{
  const f=await explorerFixture(separateRegions),commands:any[]=[];

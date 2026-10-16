@@ -43,7 +43,9 @@ export interface Task {
   sessionOptions: Partial<SessionOptions>; plan: PlanItem[]; rounds: Round[];
   /** Per-session retained artifacts; no protected evidence is discarded to make room. */
   evidenceBudget?: {maxBytes:number;maxObservations:number};
-  sampleExcluded: string[]; pendingDispatch?: { sessionId: string; requestId: string; actionId: string; decisionId?: string; itemIds: string[]; observationId: string };
+  sampleExcluded: string[];
+  pendingDispatch?: { sessionId:string; requestId:string; decisionId?:string; itemIds:string[]; observationId:string } &
+    ({actionId:string;probe?:never}|{actionId?:never;probe:{localId:string;kind:'hover'|'focus';scope:Scope}});
   /** Isolated navigation failures remain unresolved and must never be replayed by later rounds. */
   unverifiedNavigations?: {sourceUrl:string;targetUrl:string;evidence:EvidenceRef}[];
   exhaustive: false;

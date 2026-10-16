@@ -16,9 +16,12 @@ Object.assign(events,{'scope.unsupported':'保留宿主无法验证的范围'});
 Object.assign(events,{'action.priority':'优先当前未测控件，保留返回范围'});
 Object.assign(events,{'review.unchanged':'用途证据未变，保留待测'});
 Object.assign(events,{'review.resolved':'分类已验证，关闭审阅缺口','review.reopened':'审阅证据变化，重新待确认'});
+Object.assign(events,{'probe.dispatch':'执行观察探测','probe.verified':'核验探测结果，不计为点击覆盖'});
+Object.assign(reasons,{probe_unresolved:'探测用途或外部写入风险仍不明确，保留待测'});
 Object.assign(reasons,{operation_not_executed:'尚未执行，保留待测',sampling_not_authorized:'按当前范围保留全部已发现成员；执行仍需通过范围、用途和宿主校验。',host_time_limit:'当前会话的时限已用尽，未完成范围已保留。新会话仍受任务总预算约束，未知结果保持不变。'});
 const purposes:Record<string,string>={'task-intent':'判断任务类型','initial-plan':'理解任务与生成范围','region-review':'识别探索区域','control-classification':'判断控件类型','identity-review':'判断控件身份','control-risk':'判断操作用途','input-samples':'生成输入样本','scope-review':'决定遍历范围','sample-selection':'选择代表样本','list-purpose':'判断列表用途','purpose-description':'描述列表用途','probe-selection':'选择观察试探','discovery-scan':'补充发现','next-action':'选择下一步','recovery-selection':'判断返回路径','followup-plan':'提出补测计划','followup-strategy':'判断是否需要新计划'};
 Object.assign(purposes,{'boundary-exit-risk':'判断弹层外部退出方式'});
+Object.assign(purposes,{'probe-risk':'判断观察探测的用途与风险'});
 Object.assign(reasons,{BOUNDARY_EXIT_UNVERIFIED:'弹层退出后的状态未通过核验',boundary_exit_unresolved:'尚未找到可验证的弹层退出方式',boundary_preservation_limit:'待保护的父页面字段超过单次核验上限'});
 Object.assign(purposes,{'operation-clarification':'澄清控件用途','identity-clarification':'澄清控件身份','classification-clarification':'澄清控件类型'});
 Object.assign(reasons,{semantic_review_needed:'JEV 补充观察后仍有歧义，按需交给 LLM',semantic_choice_not_offered:'模型选择不在允许范围内，未采用',semantic_evidence_unknown:'模型引用了未提供的证据，未采用',semantic_evidence_missing:'模型未引用必要证据，未采用',semantic_still_uncertain:'LLM 仍无法确定，保留待测',semantic_effect_unresolved:'界面用途或外部写入风险仍不明确，未采用'});
@@ -123,6 +126,7 @@ export function ExplorerTraversal({sessionId,children,onInspect}:{sessionId:stri
 }
 const effectNames:Record<string,string>={'task-route':'已选择任务处理方式',intent:'已识别结构化任务',plan:'已生成探索计划',review:'已应用审阅决定','review-input':'已作为审阅依据',action:'已派发页面操作',recovery:'已尝试并验证返回路径','followup-plan':'已更新补测建议','followup-strategy':'已选择补测方式','evidence-refresh':'已补充页面观察'};
 Object.assign(effectNames,{'semantic-escalation':'转交 LLM 澄清歧义','semantic-validation':'核对结构化结论与证据引用','review-deferred':'暂缓采纳，待新观察后重新判断','recovery-deferred':'未确认返回依据，保留未完成分支'});
+Object.assign(effectNames,{probe:'已派发观察探测','probe-rejected':'宿主在浏览器操作前拒绝了探测'});
 const pretty=(value:unknown)=>JSON.stringify(value,null,2);
 
 /** Replaces the right-hand evidence panel while a model/program node is selected. */
@@ -131,7 +135,7 @@ export function ExplorerInspector({children}:{children:ReactNode}) {
   if(!status?.enabled||!view||!selected)return <>{children}</>;
   const decision=selected.decisionId?view.decisions.find(d=>d.id===selected.decisionId):undefined;
   const effects=decision?view.events.filter(e=>e.decisionId===decision.id&&e.type==='decision.effect'):[];
-  const results=decision?view.events.filter(e=>e.type==='action.verified'&&(e.data as {decisionId?:string})?.decisionId===decision.id):[];
+  const results=decision?view.events.filter(e=>['action.verified','probe.verified'].includes(e.type)&&(e.data as {decisionId?:string})?.decisionId===decision.id):[];
   const origin=decision?.fallbackFrom?view.decisions.find(d=>d.id===decision.fallbackFrom):undefined;
   const triggered=decision?.triggeredBy?view.decisions.find(d=>d.id===decision.triggeredBy):undefined;
   const generated=decision?view.decisions.find(d=>d.triggeredBy===decision.id):undefined;
@@ -154,8 +158,8 @@ export function ExplorerInspector({children}:{children:ReactNode}) {
           {forwarded&&<p>本次结果未直接采用，已转交 {forwarded.actor.toUpperCase()}：{purposes[forwarded.purpose]||forwarded.purpose}（{names[forwarded.status]}）。</p>}
           {!effects.length&&<p>{rejected?'本次未产生可采用的决策，未记录由它派发的页面操作。':decision.status==='requested'?'尚未返回结果，暂未应用。':decision.status==='returned'?'结果已返回，等待程序校验与应用。':'此历史记录仅保存了采纳状态，未保存具体应用明细；不能据此认定页面操作成功。'}</p>}
           {effects.map(e=>{const data=e.data as {kind:string;details:unknown};return <div className="explorer-effect" key={e.sequence}><h3>{effectNames[data.kind]||data.kind}</h3>{data.kind==='review'&&<p>以下审阅命令已由宿主接受，审阅本身不代表页面动作已经执行。</p>}{data.kind==='review-input'&&<p>该判断参与了审阅；最终许可和操作结果以对应的审阅与执行记录为准。</p>}<pre>{pretty(data.details)}</pre></div>;})}
-          {results.map(e=><div className="explorer-effect" key={e.sequence}><h3>实际操作结果</h3><pre>{pretty(e.data)}</pre></div>)}
-          {effects.some(e=>(e.data as {kind:string}).kind==='action')&&!results.length&&<p>操作已经派发，尚未记录到最终结果。</p>}
+          {results.map(e=><div className="explorer-effect" key={e.sequence}><h3>{e.type==='probe.verified'?'探测实际结果（不计点击覆盖）':'实际操作结果'}</h3><pre>{pretty(e.data)}</pre></div>)}
+          {effects.some(e=>['action','probe'].includes((e.data as {kind:string}).kind))&&!effects.some(e=>(e.data as {kind:string}).kind==='probe-rejected')&&!results.length&&<p>操作已经派发，尚未记录到最终结果。</p>}
           {decision.fallbackFrom&&<p className="explorer-inspector-meta">转交来源：{decision.fallbackFrom}</p>}
         </>}
       </div>

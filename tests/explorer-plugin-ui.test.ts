@@ -5,6 +5,20 @@ import { resolve,join } from 'node:path';
 import { ExplorerPlugin,ExplorerStore } from '@interaction/explorer-plugin';
 import { createServer } from '../apps/server/src/server.js';
 import { explorerFixture,fakeProviders,semanticPopupHtml } from './explorer-plugin-helpers.js';
+it('shows probe model input, output and actual results separately from click coverage',async()=>{
+ const f=await explorerFixture('<div id="info" role="button" tabindex="0" title="More information">Info</div>'),p=fakeProviders(f.url),original=p.jev.decide;
+ p.jev.decide=async(r,s)=>r.purpose==='control-classification'?{model:'mock',value:'interaction',confidence:1}:r.purpose==='control-risk'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,.01]))}:r.purpose==='probe-risk'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,k==='interface_hover'?.99:.01]))}:original(r,s);
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p),app=await createServer(f.host,{explorer:plugin});await app.listen({host:'127.0.0.1',port:0});const origin=`http://127.0.0.1:${(app.server.address() as {port:number}).port}`;
+ const ui=await createViteServer({root:resolve('apps/ui'),logLevel:'error',server:{port:0,strictPort:false,proxy:{'/v1':origin,'/plugins':origin}}});await ui.listen();const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1500,height:1100}});
+ try{const task=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(task.id);await plugin.waitForIdle();const v=plugin.view(task.id),attempt=f.host.list<any>(v.task.rounds[0].sessionId,'attempt')[0];expect(attempt.action.kind).toBe('hover');
+  await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as {port:number}).port}`);await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);
+  await page.getByLabel('包含模型决策的遍历路径').getByRole('button').filter({hasText:'判断观察探测的用途与风险'}).filter({hasText:'JEV'}).first().click();
+  expect(await page.getByRole('tabpanel',{name:'模型输入'}).innerText()).toContain('interface_hover');
+  await page.getByRole('tab',{name:'输出',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'模型输出'}).innerText()).toContain('0.99');
+  await page.getByRole('tab',{name:'决策影响',exact:true}).click();const impact=page.getByRole('tabpanel',{name:'决策影响'});expect(await impact.innerText()).toContain('已派发观察探测');expect(await impact.innerText()).toContain('探测实际结果（不计点击覆盖）');expect(await impact.innerText()).toContain(attempt.id);expect(await impact.innerText()).toContain('"executionCoverage": false');
+  await page.getByLabel('探索决策详情').screenshot({path:resolve('.data/explorer-probe-inspector.png')});
+ }finally{await browser.close();await ui.close();await app.close();await f.close();}
+});
 it('shows unchanged unresolved evidence as a program deferral with its original model reference',async()=>{
  const f=await explorerFixture(`<div role="button" tabindex="0" id="unclear" style="cursor:pointer">Unclear</div><button type="button" onclick="this.disabled=true;document.getElementById('unclear').style.transform='translateY(40px)'">Shift</button>`),p=fakeProviders(f.url),original=p.jev.decide;
  p.jev.decide=async(r,s)=>r.purpose==='control-classification'?{model:'mock',value:'interaction',confidence:1}:r.purpose==='control-risk'&&(r.state as any).material.control.stableKey==='id:unclear'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,.01]))}:original(r,s);

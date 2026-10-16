@@ -13,6 +13,7 @@ export interface ReviewContext {
   clarify(request:SemanticReview):Promise<{value:string;decision:Decision}>;
   generate<T>(purpose:string,instructions:string,state:unknown,schema:z.ZodType<T>):Promise<{value:T;decision:Decision}>;
   apply(decision:Decision|Decision[],command:unknown):Promise<void>;
+  probe(decision:Decision,localId:string,kind:'hover'|'focus'):Promise<void>;
   defer(decision:Decision,reason:string):void;
   unchanged?(evidence:{sourceDecisionId:string;sourceObservationId:string;scope:Scope}):void;
   retain(groups:RetainedScope[]):Promise<void>;
@@ -238,14 +239,21 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       }
     }
   }
-  // Probe only classified targets; each probe remains subject to host preflight.
+  // An interactive classification does not resolve purpose. A bounded probe has
+  // its own evidence gate, independent of classification and click permission.
   const classified=host.controlClassificationMaterial(sid);
-  for(const item of classified.controls)if(item.classifications.some(r=>r.status==='active'&&r.classification==='probe_required')) {
+  for(const item of host.controlReviewMaterial(sid).controls)if(item.needsReview||classified.controls.some(x=>x.control.localId===item.control.localId&&x.classifications.some(r=>r.status==='active'&&r.classification==='probe_required'))) {
     if(!relevant(item.control))continue;
     const key=`probe:${o.instanceScope}:${item.control.instanceId}`;if(done(key))continue;
-    const d=await c.choose('probe-selection','Choose a bounded observation probe if it can reveal interaction evidence.',{observationId:o.id,control:item.control},{hover:'Observe hover effect',focus:'Observe focus effect',uncertain:'Cannot select a useful probe'});mark(key);
-    if(d.value==='uncertain'){c.gap('probe_unresolved',scopeForControl(item.control,o));continue;}
-    await c.apply(d.decision,{type:'probe',observationId:o.id,localId:item.control.localId,kind:d.value,requestId:crypto.randomUUID()});return true;
+    const checks:NonNullable<ModelRequest['checks']>={};
+    for(const kind of ['hover','focus']) {
+      checks[`interface_${kind}`]={instructions:`Does the captured evidence positively support one bounded ${kind} on this current element to reveal interface state useful for resolving its purpose? A classification, label, pointer cursor or native element type alone is insufficient. Do not infer the effects of clicking from a hover/focus result.`};
+      checks[`external_${kind}`]={instructions:`Is there evidence that ${kind} itself submits business data, authenticates, sends a message, purchases, deletes or writes external/business state? Judge this separately from any interface change; absence of a warning is not proof of safety.`};
+    }
+    const d=await c.assess('probe-risk',{observationId:o.id,control:item.control,actions:semanticActions(item.actions),limit:'One explicit observation probe per current element in this document and round. No automatic replay or click authorization.'},checks);mark(key);
+    const kind=(['hover','focus'] as const).find(k=>d.values[`interface_${k}`]===true&&d.values[`external_${k}`]===false);
+    if(!kind){c.gap('probe_unresolved',scopeForControl(item.control,o));continue;}
+    await c.probe(d.decision,item.control.localId,kind);return true;
   }
   // Page-wide discovery can wait; it must not starve an already observed modal's work/exit.
   if(boundary) {
