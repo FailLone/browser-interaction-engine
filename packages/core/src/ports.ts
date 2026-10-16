@@ -12,6 +12,10 @@ export interface EvidenceStore {
   get(key: string): Promise<Evidence | undefined>;
   readonly durability?: 'process' | 'persistent';
   delete?(key: string): Promise<void>;
+  /** Remove logical artifacts in one collection pass. May partially remove keys
+   * on failure; callers must retain unavailable evidence explicitly, never infer
+   * that a rejected deletion preserved every artifact. */
+  deleteMany?(keys: string[]): Promise<void>;
   availability?(key: string): Promise<EvidenceAvailability>;
   beginObservation?(context: { sessionId: string; observationId: string; policy?: EvidenceRetentionPolicy }): Promise<void>;
   endObservation?(observationId: string, committed: boolean): Promise<void>;

@@ -87,7 +87,7 @@ function legacy(path:string,values:Task[]){const raw=new DatabaseSync(path);raw.
 
 it('atomically migrates a legacy task while preserving pending work, source references and budgets',()=>{
   const path=file(),t=task();t.plan[0].status='succeeded';t.plan[1].attempts.push({roundId:'r',outcome:'unknown'});t.unverifiedRecoveries=[{sessionId:'s',attemptIds:['u']}];legacy(path,[t]).close();
-  const store=open(path);expect(store.task(t.id)).toEqual(t);expect(db(store).prepare('SELECT version FROM explorer_meta').get()).toEqual({version:3});
+  const store=open(path);expect(store.task(t.id)).toEqual(t);expect(db(store).prepare('SELECT version FROM explorer_meta').get()).toEqual({version:4});
   expect(JSON.parse((db(store).prepare('SELECT json FROM tasks').get() as {json:string}).json)).not.toHaveProperty('plan');
 });
 

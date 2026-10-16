@@ -1,10 +1,36 @@
-import { mkdir, readFile, writeFile, rename, unlink, readdir, access } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, rename, unlink, readdir, access, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import { EngineError, hashBytes, id, type Evidence, type EvidenceStore } from '@interaction/core';
 import { evidenceChunks } from './evidence-chunks.js';
+import { withEvidenceLock } from './evidence-lock.js';
 interface Block { blob: string; encoding: 'identity' | 'gzip'; bytes: number; sha256: string }
 interface Manifest extends Partial<Block> { version: 2 | 3; mediaType: string; bytes: number; sha256: string; blocks?: Block[] }
+export interface EvidenceCollectionResult { scannedManifests: number; retainedBlobs: number; deletedBlobs: number; deletedBytes: number }
+const missing = (error: unknown) => (error as NodeJS.ErrnoException).code === 'ENOENT';
+async function names(directory: string) {
+  try { return await readdir(directory); } catch (error) { if (missing(error)) return []; throw error; }
+}
+function parseManifest(json: string): Partial<Manifest> {
+  try {
+    const value = JSON.parse(json) as Partial<Manifest>;
+    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('manifest');
+    if (value.version === undefined) {
+      if ('blocks' in value || 'blob' in value || 'encoding' in value) throw new Error('version');
+      return value; // Legacy raw-file metadata.
+    }
+    if (value.version !== 2 && value.version !== 3) throw new Error('version');
+    const blocks = value.version === 3 ? value.blocks : [value as Block];
+    if (!Array.isArray(blocks) || typeof value.mediaType !== 'string' || !/^[a-f0-9]{64}$/.test(value.sha256 || '')
+      || !Number.isSafeInteger(value.bytes) || value.bytes! < 0) throw new Error('header');
+    for (const block of blocks) {
+      if (!block || !['identity', 'gzip'].includes(block.encoding) || !Number.isSafeInteger(block.bytes) || block.bytes < 0
+        || !/^[a-f0-9]{64}$/.test(block.sha256) || block.blob !== `${block.sha256}.${block.encoding === 'gzip' ? 'gz' : 'bin'}`) throw new Error('block');
+    }
+    if (blocks.reduce((sum, block) => sum + block.bytes, 0) !== value.bytes) throw new Error('length');
+    return value;
+  } catch { throw new EngineError('CORRUPT_EVIDENCE', 'Invalid evidence manifest'); }
+}
 /** Logical references share immutable blobs. Text compression is transparent to callers. */
 export class FileEvidenceStore implements EvidenceStore {
   readonly durability = 'persistent' as const;
@@ -14,9 +40,9 @@ export class FileEvidenceStore implements EvidenceStore {
   private packing = new Map<string, Block>();
   private layouts = new Map<string, { bytes: number; blocks: Block[] }>();
   constructor(readonly directory: string) {}
-  private run<T>(fn: () => Promise<T>) { const result = this.queue.then(fn); this.queue = result.catch(() => {}); return result; }
+  private run<T>(fn: () => Promise<T>) { const result = this.queue.then(() => withEvidenceLock(this.directory, fn)); this.queue = result.catch(() => {}); return result; }
   private path(key: string) {
-    if (!/^[a-zA-Z0-9._-]+$/.test(key) || key === '.' || key === '..') throw new EngineError('INVALID_EVIDENCE_KEY', 'Evidence keys must be flat filenames');
+    if (!/^[a-zA-Z0-9._-]+$/.test(key) || ['.', '..', 'blobs', '.coordination'].includes(key) || key.endsWith('.meta.json')) throw new EngineError('INVALID_EVIDENCE_KEY', 'Evidence keys must be flat filenames outside the storage metadata namespace');
     return join(this.directory, key);
   }
   put(key: string, evidence: Evidence) {
@@ -86,7 +112,7 @@ export class FileEvidenceStore implements EvidenceStore {
       const path = this.path(key);
       try {
         let manifest: Partial<Manifest> | undefined;
-        try { manifest = JSON.parse(await readFile(`${path}.meta.json`, 'utf8')); } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+        try { manifest = parseManifest(await readFile(`${path}.meta.json`, 'utf8')); } catch (error) { if (!missing(error)) throw error; }
         if (manifest?.version === 2 || manifest?.version === 3) {
           try {
             const chunks = manifest.version === 3 ? manifest.blocks! : [manifest as Block];
@@ -113,21 +139,41 @@ export class FileEvidenceStore implements EvidenceStore {
     });
   }
   delete(key: string) {
+    return this.deleteMany([key]);
+  }
+  deleteMany(keys: string[]) {
     return this.run(async () => {
-      const path = this.path(key);
-      for (const file of [path, `${path}.meta.json`]) await unlink(file).catch(error => { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; });
+      const paths = [...new Set(keys)].map(key => this.path(key));
+      for (const path of paths) for (const file of [path, `${path}.meta.json`]) await unlink(file).catch(error => { if (!missing(error)) throw error; });
       await this.gcInternal();
     });
   }
-  private async gcInternal() {
+  private async gcInternal(): Promise<EvidenceCollectionResult> {
     const references = new Set<string>();
-    const files = await readdir(this.directory).catch(() => [] as string[]);
+    const result = { scannedManifests: 0, retainedBlobs: 0, deletedBlobs: 0, deletedBytes: 0 };
+    const files = await names(this.directory);
+    // Validate every manifest before deleting any blob. Incomplete metadata or
+    // an unreadable directory must never look like an empty reference graph.
     for (const name of files.filter(f => f.endsWith('.meta.json'))) {
-      const metadata = JSON.parse(await readFile(join(this.directory, name), 'utf8'));
-      if (metadata.version === 2) references.add(metadata.blob);
-      if (metadata.version === 3) for (const block of metadata.blocks) references.add(block.blob);
+      const metadata = parseManifest(await readFile(join(this.directory, name), 'utf8')); result.scannedManifests++;
+      if (metadata.version === undefined) {
+        try { await access(join(this.directory, name.slice(0, -'.meta.json'.length))); }
+        catch { throw new EngineError('CORRUPT_EVIDENCE', 'Legacy evidence metadata has no corresponding raw artifact'); }
+      }
+      if (metadata.version === 2) references.add(metadata.blob!);
+      if (metadata.version === 3) for (const block of metadata.blocks!) references.add(block.blob);
     }
-    for (const name of await readdir(join(this.directory, 'blobs')).catch(() => [] as string[])) if (!references.has(name)) await unlink(join(this.directory, 'blobs', name));
+    result.retainedBlobs = references.size;
+    for (const name of references) {
+      try { await access(join(this.directory, 'blobs', name)); }
+      catch { throw new EngineError('CORRUPT_EVIDENCE', 'Referenced evidence block is unavailable during collection'); }
+    }
+    for (const name of await names(join(this.directory, 'blobs'))) {
+      if (references.has(name) || !/^[a-f0-9]{64}\.(gz|bin)(\.[a-f0-9-]+\.tmp)?$/.test(name)) continue;
+      const path = join(this.directory, 'blobs', name), bytes = (await stat(path)).size;
+      await unlink(path); result.deletedBlobs++; result.deletedBytes += bytes;
+    }
+    return result;
   }
   garbageCollect() { return this.run(() => this.gcInternal()); }
   async flush() { await this.queue; }

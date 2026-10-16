@@ -17,8 +17,8 @@ it('transparently compresses observations, preserves read isolation and immutabi
  const directory=makeDirectory(),store=new SqliteStore(directory),value=observation('o');
  try{
   store.put('observation',value);const row=raw(store,'o');expect(row.compressed_json?.byteLength).toBeLessThan(Buffer.byteLength(JSON.stringify(value))/10);
-  expect(JSON.parse(row.json)).toMatchObject({id:'o',sessionId:'s',url:value.url,$interactionStorage:{format:'observation',version:1,codec:'gzip'}});
-  expect(store.require('observation','o')).toEqual(value);expect(decodeStoredEntity(row)).toEqual(value);
+  expect(JSON.parse(row.json)).toMatchObject({id:'o',sessionId:'s',url:value.url,$interactionStorage:{format:'observation',version:2,codec:'structural'}});
+  expect(store.require('observation','o')).toEqual(value);expect(store.decodeStoredEntity(row)).toEqual(value);
   const read=store.require<typeof value>('observation','o');read.controls[0].name='changed';expect(store.require<typeof value>('observation','o').controls[0].name).toBe('价格 € 中文');
   store.put('observation',{...value,controls:[...value.controls]});expect(raw(store,'o').json).toBe(row.json);
   expect(()=>store.put('observation',{...value,url:'https://changed.test/'})).toThrow('Observations cannot be overwritten');
@@ -31,7 +31,7 @@ it('upgrades only the schema on opening v1 and reads mixed legacy/compressed obs
  const directory=makeDirectory(),old=observation('old'),fresh=observation('fresh');legacy(directory,[old]);let store=new SqliteStore(directory);
  try{
   expect(raw(store,'old').compressed_json).toBeNull();expect(JSON.parse(raw(store,'old').json)).toEqual(old);
-  expect(store.db.prepare("SELECT value FROM metadata WHERE key='schemaVersion'").get()).toEqual({value:'2'});
+  expect(store.db.prepare("SELECT value FROM metadata WHERE key='schemaVersion'").get()).toEqual({value:'3'});
   store.put('observation',fresh);store.close();store=new SqliteStore(directory);
   expect(store.list('observation','s')).toEqual([old,fresh]);expect(store.list('observation','other')).toEqual([]);
  }finally{store.close();rmSync(directory,{recursive:true,force:true});}

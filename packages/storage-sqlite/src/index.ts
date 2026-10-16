@@ -4,7 +4,9 @@ import { join } from 'node:path';
 import { BoundedEntityChanges, canonical, now, type Persistence, type EvidenceStore } from '@interaction/core';
 import { FileEvidenceStore } from './evidence.js';
 import { decodeStoredEntity, encodeObservationJson, type StoredEntityRow } from './entity-codec.js';
-export { decodeStoredEntity, type StoredEntityRow, type ObservationManifest } from './entity-codec.js';
+export { decodeStoredEntity, type StoredEntityRow, type ObservationManifest, type SharedObservationManifest, type ObservationObjectResolver } from './entity-codec.js';
+import { ObservationObjectStore, observationSchema, type ObservationStorageStats, type ObservationGarbageCollectionResult } from './observation-store.js';
+export type { ObservationStorageStats, ObservationGarbageCollectionResult } from './observation-store.js';
 import { EngineError, type EngineEvent, type Session, type ActionAttempt, type FrontierItem, type InteractionScope } from '@interaction/core';
 
 export interface ObservationCompressionResult {
@@ -16,6 +18,7 @@ export interface SqliteCompactionResult {databaseBytesBefore:number;databaseByte
 export class SqliteStore implements Persistence {
   readonly evidence: EvidenceStore;
   readonly db: Database.Database;
+  private readonly observations: ObservationObjectStore;
   private readonly changes = new BoundedEntityChanges();
   private readonly changeStamp: Database.Statement;
   private expectedChanges = 0;
@@ -32,16 +35,21 @@ export class SqliteStore implements Persistence {
       this.db.exec(`CREATE TABLE IF NOT EXISTS metadata(key TEXT PRIMARY KEY,value TEXT NOT NULL);
         INSERT OR IGNORE INTO metadata VALUES('schemaVersion','1');`);
       const version=(this.db.prepare("SELECT value FROM metadata WHERE key='schemaVersion'").get() as {value:string}).value;
-      if(version!=='1'&&version!=='2')throw new EngineError('SCHEMA_VERSION',`Unsupported database schema ${version}`);
+      if(version!=='1'&&version!=='2'&&version!=='3')throw new EngineError('SCHEMA_VERSION',`Unsupported database schema ${version}`);
       this.db.exec(`CREATE TABLE IF NOT EXISTS entities(kind TEXT NOT NULL,id TEXT PRIMARY KEY,session_id TEXT NOT NULL,json TEXT NOT NULL);
         CREATE INDEX IF NOT EXISTS entities_session_kind ON entities(session_id,kind);
         CREATE TABLE IF NOT EXISTS events(sequence INTEGER PRIMARY KEY AUTOINCREMENT,session_id TEXT NOT NULL,type TEXT NOT NULL,at TEXT NOT NULL,json TEXT NOT NULL);
         CREATE INDEX IF NOT EXISTS events_session_seq ON events(session_id,sequence);
         CREATE TABLE IF NOT EXISTS requests(session_id TEXT NOT NULL,request_id TEXT NOT NULL,attempt_id TEXT NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(session_id,request_id));`);
       const compressed=(this.db.pragma('table_info(entities)') as {name:string}[]).some(c=>c.name==='compressed_json');
-      if(!compressed){if(version==='2')throw new EngineError('SCHEMA_VERSION','Compressed entity column is missing');this.db.exec('ALTER TABLE entities ADD COLUMN compressed_json BLOB');}
-      this.db.prepare("UPDATE metadata SET value='2' WHERE key='schemaVersion'").run();
+      if(!compressed){if(version!=='1')throw new EngineError('SCHEMA_VERSION','Compressed entity column is missing');this.db.exec('ALTER TABLE entities ADD COLUMN compressed_json BLOB');}
+      if(version==='3') {
+        const tables=this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('observation_objects','observation_packs')").all();
+        if(tables.length!==2)throw new EngineError('SCHEMA_VERSION','Observation structure tables are missing');
+      }else this.db.exec(observationSchema);
+      this.db.prepare("UPDATE metadata SET value='3' WHERE key='schemaVersion'").run();
     })(); }catch(error){this.db.close();throw error;}
+    this.observations = new ObservationObjectStore(this.db, count => { this.expectedChanges += count; });
     this.changeStamp = this.db.prepare('SELECT total_changes() AS total, (SELECT data_version FROM pragma_data_version) AS dataVersion, (SELECT schema_version FROM pragma_schema_version) AS schemaVersion');
     const stamp = this.databaseChangeStamp();
     this.expectedChanges = stamp.total; this.dataVersion = stamp.dataVersion; this.schemaVersion = stamp.schemaVersion;
@@ -49,7 +57,7 @@ export class SqliteStore implements Persistence {
   private databaseChangeStamp() { return this.changeStamp.get() as { total: number; dataVersion: number; schemaVersion: number }; }
   transaction<T>(fn: () => T): T {
     try { return this.db.transaction(fn)(); }
-    catch (error) { this.changes.invalidate(); throw error; }
+    catch (error) { this.changes.invalidate(); this.observations.invalidate(); throw error; }
   }
   entityChanges(kind: string, sessionId: string, sinceToken?: string) {
     const stamp = this.databaseChangeStamp();
@@ -66,24 +74,66 @@ export class SqliteStore implements Persistence {
     return this.db.inTransaction ? { ...result, cacheable: false as const } : result;
   }
   put<T extends { id: string; sessionId?: string }>(kind: string, value: T) {
-    const sessionId = value.sessionId ?? value.id;
-    const owner = this.db.prepare('SELECT kind,session_id FROM entities WHERE id=?').get(value.id) as { kind: string; session_id: string } | undefined;
-    if (owner && (owner.kind !== kind || owner.session_id !== sessionId)) throw new EngineError('ID_CONFLICT', 'ID already belongs to another entity kind or session');
-    const prior = kind === 'observation' && owner ? this.get(kind, value.id) : undefined;
-    if(kind==='observation'&&prior){if(canonical(prior)!==canonical(value))throw new EngineError('IMMUTABLE_OBSERVATION','Observations cannot be overwritten');return;}
-    const json=JSON.stringify(value),row=kind==='observation'?encodeObservationJson(json):{json,compressed_json:null};
-    // Keep ownership guarded at the write too if another connection claimed the
-    // ID after the lookup. An ID conflict must not overwrite unrelated evidence.
-    const written = this.db.prepare('INSERT INTO entities(kind,id,session_id,json,compressed_json) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET json=excluded.json,compressed_json=excluded.compressed_json WHERE entities.kind=excluded.kind AND entities.session_id=excluded.session_id').run(kind,value.id,sessionId,row.json,row.compressed_json);
-    this.expectedChanges += written.changes;
-    if (!written.changes) throw new EngineError('ID_CONFLICT', 'ID already belongs to another entity kind or session');
-    this.changes.record(kind, sessionId, value.id);
+    // Serialize the ownership check, immutable-observation check and all object /
+    // pack writes across connections. Nested calls use the caller's transaction.
+    const beforeChanges=this.expectedChanges,cacheable=!this.db.inTransaction;
+    try { const persist=() => {
+      if(kind==='observation')this.observations.begin(cacheable);
+      const sessionId = value.sessionId ?? value.id;
+      const owner = this.db.prepare('SELECT kind,session_id FROM entities WHERE id=?').get(value.id) as { kind: string; session_id: string } | undefined;
+      if (owner && (owner.kind !== kind || owner.session_id !== sessionId)) throw new EngineError('ID_CONFLICT', 'ID already belongs to another entity kind or session');
+      const prior = kind === 'observation' && owner ? this.get(kind, value.id) : undefined;
+      if(kind==='observation'&&prior){if(canonical(prior)!==canonical(value))throw new EngineError('IMMUTABLE_OBSERVATION','Observations cannot be overwritten');return;}
+      const json=JSON.stringify(value),row=kind==='observation'?this.observations.encode(json,sessionId):{json,compressed_json:null};
+      const written = this.db.prepare('INSERT INTO entities(kind,id,session_id,json,compressed_json) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET json=excluded.json,compressed_json=excluded.compressed_json WHERE entities.kind=excluded.kind AND entities.session_id=excluded.session_id').run(kind,value.id,sessionId,row.json,row.compressed_json);
+      this.expectedChanges += written.changes;this.observations.knownWrite(written.changes);
+      if (!written.changes) throw new EngineError('ID_CONFLICT', 'ID already belongs to another entity kind or session');
+      this.changes.record(kind, sessionId, value.id);
+    };if(kind==='observation')this.db.transaction(persist).immediate();else persist();
+    } catch(error) { this.observations.invalidate();if(this.expectedChanges!==beforeChanges)this.changes.invalidate(); throw error; } finally {if(kind==='observation')this.observations.end(cacheable);}
   }
-  get<T>(kind: string, id: string): T | undefined { const row=this.db.prepare('SELECT kind,json,compressed_json FROM entities WHERE kind=? AND id=?').get(kind,id) as StoredEntityRow|undefined;return row?decodeStoredEntity<T>(row):undefined; }
+  /** Raw SQL consumers can use this bound decoder for both old and shared rows.
+   * Read the row and call this within store.transaction for one stable snapshot. */
+  decodeStoredEntity<T=unknown>(row:StoredEntityRow):T {
+    const cacheable=!this.db.inTransaction;
+    try{return this.db.transaction(()=>{this.observations.begin(cacheable);return decodeStoredEntity<T>(row,this.observations.resolve);})();}
+    finally{this.observations.end(cacheable);}
+  }
+  get<T>(kind: string, id: string): T | undefined {
+    if(kind!=='observation') {
+      const row=this.db.prepare('SELECT kind,json,compressed_json FROM entities WHERE kind=? AND id=?').get(kind,id) as StoredEntityRow|undefined;
+      return row?decodeStoredEntity<T>(row):undefined;
+    }
+    const cacheable=!this.db.inTransaction;
+    try{return this.db.transaction(()=>{
+      this.observations.begin(cacheable);
+      const row=this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? AND id=?').get(kind,id) as StoredEntityRow|undefined;
+      return row?decodeStoredEntity<T>(row,this.observations.resolve):undefined;
+    })();}finally{this.observations.end(cacheable);}
+  }
   require<T>(kind: string, id: string): T { const value = this.get<T>(kind, id); if (!value) throw new EngineError('NOT_FOUND', `${kind} ${id} not found`); return value; }
   list<T>(kind: string, sessionId?: string): T[] {
-    const rows = (sessionId ? this.db.prepare('SELECT kind,json,compressed_json FROM entities WHERE kind=? AND session_id=? ORDER BY rowid').all(kind, sessionId) : this.db.prepare('SELECT kind,json,compressed_json FROM entities WHERE kind=? ORDER BY rowid').all(kind)) as StoredEntityRow[];
-    return rows.map(r=>decodeStoredEntity<T>(r));
+    if(kind!=='observation') {
+      const rows=(sessionId?this.db.prepare('SELECT kind,json,compressed_json FROM entities WHERE kind=? AND session_id=? ORDER BY rowid').all(kind,sessionId):this.db.prepare('SELECT kind,json,compressed_json FROM entities WHERE kind=? ORDER BY rowid').all(kind)) as StoredEntityRow[];
+      return rows.map(row=>decodeStoredEntity<T>(row));
+    }
+    const cacheable=!this.db.inTransaction;
+    try{return this.db.transaction(()=>{
+      this.observations.begin(cacheable);
+      const rows = (sessionId ? this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? AND session_id=? ORDER BY rowid').all(kind, sessionId) : this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? ORDER BY rowid').all(kind)) as StoredEntityRow[];
+      return rows.map(r=>decodeStoredEntity<T>(r,this.observations.resolve));
+    })();}finally{this.observations.end(cacheable);}
+  }
+  observationCacheStats() {return this.observations.cacheStats();}
+  observationStorageStats(options:{sessionId?:string}={}):ObservationStorageStats {
+    return this.db.transaction(()=>this.observations.stats(options.sessionId))();
+  }
+  /** Explicit mark/sweep over actual immutable observation manifests. Optional
+   * repacking reclaims dead ranges in mixed packs, atomically retaining every
+   * live object's ID/content. Does not delete observations or select retention. */
+  garbageCollectObservations(options:{sessionId?:string;repack?:boolean}={}):ObservationGarbageCollectionResult {
+    try {return this.db.transaction(()=>{this.observations.begin(false);return this.observations.collect(options);}).immediate();}
+    catch(error){this.changes.invalidate();throw error;}finally{this.observations.invalidate();}
   }
   /** Explicit, bounded migration of old observations. Pass the returned cursor
    * to the next batch; each batch is atomic and verifies every compressed value.
@@ -123,13 +173,13 @@ export class SqliteStore implements Persistence {
   event(sessionId: string, type: string, data: unknown): EngineEvent {
     const at = now();
     const result = this.db.prepare('INSERT INTO events(session_id,type,at,json) VALUES(?,?,?,?)').run(sessionId, type, at, JSON.stringify(data));
-    this.expectedChanges += result.changes;
+    this.expectedChanges += result.changes;this.observations.knownWrite(result.changes);
     return { sequence: Number(result.lastInsertRowid), sessionId, type, at, data };
   }
   events(sessionId: string, after = 0, limit = 1000): EngineEvent[] {
     return (this.db.prepare('SELECT * FROM events WHERE session_id=? AND sequence>? ORDER BY sequence LIMIT ?').all(sessionId, after, limit) as any[]).map(r => ({ sequence: r.sequence, sessionId: r.session_id, type: r.type, at: r.at, data: JSON.parse(r.json) }));
   }
   request(sessionId: string, requestId: string) { return this.db.prepare('SELECT attempt_id AS attemptId,payload FROM requests WHERE session_id=? AND request_id=?').get(sessionId, requestId) as { attemptId: string; payload: string } | undefined; }
-  recordRequest(sessionId: string, requestId: string, attemptId: string, payload: string) { const result = this.db.prepare('INSERT INTO requests VALUES(?,?,?,?)').run(sessionId, requestId, attemptId, payload); this.expectedChanges += result.changes; }
+  recordRequest(sessionId: string, requestId: string, attemptId: string, payload: string) { const result = this.db.prepare('INSERT INTO requests VALUES(?,?,?,?)').run(sessionId, requestId, attemptId, payload); this.expectedChanges += result.changes;this.observations.knownWrite(result.changes); }
   close() { this.db.close(); }
 }

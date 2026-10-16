@@ -6,6 +6,7 @@ export class MemoryEvidenceStore implements EvidenceStore {
   async put(key: string, evidence: Evidence) { this.values.set(key, clone(evidence)); }
   async get(key: string) { const value = this.values.get(key); return value ? clone(value) : undefined; }
   async delete(key: string) { this.values.delete(key); }
+  async deleteMany(keys: string[]) { for (const key of keys) this.values.delete(key); }
 }
 
 /** No disk writes. A fresh instance represents a fresh, empty database. */

@@ -1,7 +1,7 @@
 import type { EntityChanges } from './ports.js';
 import { id } from './util.js';
 
-const navigationKinds = new Set(['attempt', 'transition', 'observation']);
+const trackedKinds = new Set(['attempt', 'transition', 'observation', 'evidence-entry', 'evidence-retention']);
 interface Change { revision: number; kind: string; sessionId: string; id: string }
 
 /** A bounded, process-local hint journal. It holds no entity bodies and never
@@ -17,7 +17,7 @@ export class BoundedEntityChanges {
   }
 
   record(kind: string, sessionId: string, entityId: string): void {
-    if (!navigationKinds.has(kind)) return;
+    if (!trackedKinds.has(kind)) return;
     if (this.revision === Number.MAX_SAFE_INTEGER) this.invalidate();
     const revision = ++this.revision;
     this.ring[(revision - 1) % this.capacity] = { revision, kind, sessionId, id: entityId };
@@ -32,7 +32,7 @@ export class BoundedEntityChanges {
   changes(kind: string, sessionId: string, sinceToken?: string): EntityChanges {
     const token = JSON.stringify([this.generation, kind, sessionId, this.revision]);
     const reset = (): EntityChanges => ({ token, reset: true, ids: [] });
-    if (!navigationKinds.has(kind) || !sinceToken) return reset();
+    if (!trackedKinds.has(kind) || !sinceToken) return reset();
     let cursor: unknown;
     try { cursor = JSON.parse(sinceToken); } catch { return reset(); }
     if (!Array.isArray(cursor) || cursor.length !== 4 || cursor[0] !== this.generation || cursor[1] !== kind || cursor[2] !== sessionId
