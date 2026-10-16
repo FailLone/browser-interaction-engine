@@ -1,0 +1,46 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/exploration-contracts.test.ts (15 tests) 7919ms
+   ✓ returns cross-session operation evidence without granting identity or recording execution: same  694ms
+   ✓ returns cross-session operation evidence without granting identity or recording execution: other-control  591ms
+   ✓ returns cross-session operation evidence without granting identity or recording execution: binding  591ms
+   ✓ returns cross-session operation evidence without granting identity or recording execution: context  583ms
+   ✓ returns cross-session operation evidence without granting identity or recording execution: duplicate  589ms
+   ✓ invalidates portable operation evidence when options changes  558ms
+   ✓ invalidates portable operation evidence when form changes  555ms
+   ✓ rechecks traversal decisions at dispatch and keeps manual execution available without the plugin  456ms
+   ✓ exposes read-only host contracts and guarded execution over HTTP with the plugin disabled  447ms
+   ✓ returns a consistent read-only audit with unsupported contents and rebuilds it after review changes  351ms
+   ✓ projects current interpretations without scanning history, sharing full-audit proofs and rejecting stale observations  336ms
+   ✓ retains classification evidence only for its proven historical scene and invalidates it on revocation  387ms
+   ✓ tracks distinct boundary visits through existing scope lifecycle, including document replacement  676ms
+   ✓ reports unique occurrence continuity without treating changed operation conditions as equivalent  512ms
+   ✓ exposes unknown navigation facts without treating isolation or a new session as recovery  589ms
+ ✓ tests/nonlocal-conditions.test.ts (6 tests) 4829ms
+   ✓ public exploration observes A and B once across forms, with the mode visible  856ms
+   ✓ public exploration observes A and B once across forms, with the mode hidden  651ms
+   ✓ public exploration observes A and B once across regions, with the mode visible  735ms
+   ✓ public exploration observes A and B once across regions, with the mode hidden  626ms
+   ✓ keeps cross-form source samples finite across A/B/A, hidden mode changes, price ticks and unrelated text fills  1575ms
+   ✓ refuses coverage from missing hidden selector state without creating a retry key per price tick  385ms
+ ✓ tests/branch-conditions.test.ts (7 tests) 3791ms
+   ✓ explores the same native button from two observed form modes without transferring the first branch coverage  804ms
+   ✓ ignores passive quotes and input starting values, while sampling cross-form modes without assuming independence  628ms
+   ✓ bounds retries with unknown selector evidence despite passive price changes without granting coverage equivalence  651ms
+   ✓ keeps related tab modes and the target click toggle state while ignoring a select destination starting value  614ms
+   ✓ keeps source conditions portable across a fresh document and preserves changed semantic binding  397ms
+   ✓ does not treat disjoint semantic regions as evidence of behavioral independence  391ms
+   ✓ declines partial, ambiguous, unstable and overflowing dependency evidence instead of truncating modes  305ms
+ ✓ tests/disclosure-correspondence.test.ts (6 tests) 2748ms
+   ✓ binds disclosure records to the proven trigger and preserves correspondence across answer changes and collapse  656ms
+   ✓ discovers new disclosure operations and invalidates the old structural approval  344ms
+   ✓ compares a new document using public evidence without granting identity, replay or current execution  691ms
+   ✓ does not infer disclosure ownership from missing, external, duplicate or multiple targets  439ms
+   ✓ keeps same-name sibling disclosures ambiguous without inferring an equivalent target  369ms
+
+ Test Files  4 passed (4)
+      Tests  34 passed (34)
+   Start at  05:02:16
+   Duration  21.87s (transform 599ms, setup 0ms, collect 2.05s, tests 19.29s, environment 0ms, prepare 130ms)
+

@@ -125,3 +125,31 @@
 最终 91 项存储相关测试与类型检查通过；只在临时副本中测试迁移、compact 和旧 binary 拒绝，未使用原测试浏览器或任务库。见 [实现、冻结文件清单与验证](evidence/state-codec-feasibility/implementation.json)、[最终逐进程记录](evidence/state-codec-feasibility/sqlite-2026-10-16T20-35-55-336Z.json)。
 
 追加提交 `91af435` 已重跑相同 80 次协议，源码前后不变；脚本、fixture 与测量参数相同。16 个场景逐 trial 行为与 `70b8cb4` 差异为 0：正向到达 20/20，嵌套冷重启 5/5、必要重入 15、重复叶子与无理由重入 0；unknown 跨重启 5/5，之后没有新 session、动作、恢复或模型调用；实际 A/B/C 输入 30 次、对应检查 40/40；100 tick 的计划/pending 增长仍为 0。新版 348/348 完整性检查通过。该结果证明原受控收益保持，不能证明真实 OKX 穷尽或提速。见 [完整汇总](evidence/restart-state-protocols/summary.json)、[跨版本比较](evidence/restart-state-protocols/comparison.json)与[测试源码到提交对应](evidence/followup-source-verification.json)。
+
+## 真实 OKX 第二窗：接续与停止有效，新增覆盖尚未证明
+
+追加修复已快进合入 main=`cdb8a67`，包含 autonomous=`4857ad5`；实验工作区使用相同源码，见 [合并记录](evidence/main-merge-followup.json)。恢复前只对本实验自己的 engine 库执行大型 state 迁移及整理，4,125 个实体的精确解码摘要全部不变，关闭后主库为 13,643,776 B；未打开或修改 plugin 任务库。原始第一窗冻结副本保持不变。见 [维护记录](evidence/real-okx-1/state-maintenance.json)。
+
+第二窗 `e926ae98-5c1a-4d6b-8cea-9b232fd47877` 于 2026-10-16 20:44:31–20:45:51 UTC 运行。原 task、session、round 复用，轮数仍为 1，19 个历史计划及旧 route 重试债保留。第二窗新增 3 次探索操作（checkbox true、false、announced click）、1 次 entry recovery；JEV 6 次返回、LLM 0。累计 actions 5→9，记录的活动耗时 103,661→180,302 ms；第一窗中断尾段仍明确标记不确定，没有把停机时间算成已知活动时间。
+
+恢复返回 UNVERIFIED，耗时 11,752.757 ms；最后检查为 observation-completeness=unknown。该负向结果于 20:45:48.582 自动触发停止，20:45:49.417 已结算；20:45:50.426 读取人工请求时任务已经 paused，不能把正常收尾归功于后到的人工请求。最终没有 unknown、在途动作或未结算 provider，activeSince/pauseRequestedAt 均清除，summary 与 finished 控制记录齐全。见 [原始汇总](evidence/real-okx-2/summary.json)、[完整事件](evidence/real-okx-2/metrics.jsonl)。这是真实页面上的生命周期验证，仍不是恢复成功。
+
+本窗发现一个确定的验收计数缺陷：原报告的 newlyResolvedPlanOccurrences=9 中，6 个 occurrence 在窗前已经 succeeded，只是 resolvedBy 换成了本窗执行证据。现将其单列为 refreshedPlanEvidence；只有从未成功到成功、或新出现的成功 occurrence 才计新增解决。以冻结产物离线重算为 **3 个新增 occurrence、0 个历史未解决项转成功、6 个证据刷新**；新增 occurrence 本身也不是新语义覆盖证明。28 项专项与完整类型检查通过，原始报告不改写，修正另存于 [计数修正](evidence/real-okx-2/plan-progress-correction.json)。
+
+三次探索与历史操作相同是重复候选，不能仅凭 label 或 operationKey 判为覆盖遗失。只读核对表明目标 identity 沿用，但来源中隐藏菜单选择器仍有待裁决对应，source conditions 未建立；SDK 拒绝等价有实际证据。必须继续检查审阅依赖与恢复路径，不能通过忽略非局部隐藏条件来制造覆盖复用。第二窗关闭后 engine 23,449,600 B、plugin 1,171,456 B、证据及日志合计约 5.75 MB，总计 30,368,331 B；详细增长归因见下段。
+
+`e34ba3e` 补上诊断区分：条件无法建立返回 `operation_conditions_unavailable` / `target_conditions_unavailable`，已知样本不同仍为 `*_conditions_changed`。两者都保持拒绝等价，未扩大执行或恢复权限。34 项相关回归通过；对真实冻结库的三组对应查询复验，仅 reason 改变，全部事实与授权字段不变，见 [精确复验](evidence/real-okx-2/condition-diagnostics-recheck.json)。两个隐藏 selector 的 binding 本身也冲突，不能靠一次身份审阅就解决；完整因果链见 [覆盖诊断](evidence/real-okx-2/coverage-diagnosis.md)。
+
+增长归因已在独立副本完成：新增 2,899 个实体，identity/action payload 增长约 4.02 MB、事件约 0.974 MB。原 9 个 state 和 14 个 Observation 全部未变；总计 17 个 state 均压缩为 gzip、payload 仅 808,305 B。2,506 个共享对象全部有引用，稳定帧复用 836/837 个对象（约 99.57% 字节）；25 个 Observation、50 个证据根和 1,130 个 blob 全部校验通过。副本整理仅回收 720,896 B，不能消除大部分新增历史占用。action 的 preconditions/basis 约有 1.74 MB 精确重复内容，可研究结构共享；它只是逻辑字节潜力，尚无实际读写性能证明。见 [逐项归因](evidence/real-okx-2/storage-growth.json)、[结论与边界](evidence/real-okx-2/storage-growth-assessment.json)，后续已记入 ROADMAP。
+
+本窗已冻结 1,199 个文件、30,375,198 B，SQLite 完整性检查通过；与 summary 的字节差来自之后落盘的汇总及控制记录。冻结前确认 runner 已退出且 WAL/SHM 均不存在，再逐文件复制、前后校验 SHA；分析只读冻结副本或独立临时副本，见 [冻结清单](evidence/real-okx-2/frozen-snapshot.json)。真实页面持续探索与穷尽验收仍未完成。
+
+## 审阅恢复调度修复
+
+`a0e07f4` 修复第二窗中审阅义务沿用旧浏览器来源的问题。旧、新目标必须通过 SDK 分类条件投影匹配，且没有同名歧义、截断、未知上下文、身份待决或后台边界问题，插件才保留当前来源。当前浏览器仍持有的 GET 历史条目优先用于路线选择；它只改变候选顺序，派发和到达仍由 SDK 验证，旧路线失败债不清除。
+
+对于 interface-only 模式下明确经过 purpose/probe 审阅、仍无法得到可用操作的目标，插件持久记录“同一份缺证材料等待新事实”。这只抑制为该审阅项反复恢复页面，保留 unresolved、原 attempts 和覆盖状态。材料、规则、声明上下文、任务含义或浏览器变化、来源丢失、出现可执行操作时重新开放；机械暂停/启动 revision 变化本身不算新事实。未知执行、待提交动作和未验证恢复不能被该等待解除。observed-ui 的程序 probe 不在本次扩展范围内。
+
+新增回归包括公共 plugin.start 的本地完整链：弱 generic 审阅仍缺证后离页，旧审阅继续待测，而目的页的新操作实际执行。真实 SDK 历史返回但目标已经消失的反例仍不报告 REACHED。4 文件 34 项专项、另外 9 文件 118 项相关回归和类型检查通过；冻结 OKX 材料在独享副本重验，generic 等待、6 个同名 checkbox 条目均不受影响，原路线债及冻结文件 SHA 不变，浏览器启动与 provider 调用均为 0。见 [源码与验证记录](evidence/review-recovery-fix/verification.json)、[冻结材料复验](evidence/review-recovery-fix/frozen-check.json)。这些证据尚不能证明真实网页恢复成功率上升。
+
+修复版本 `a0e07f4` 再次运行相同 80 次协议，源码前后不变、脚本/fixture/参数一致，348 项完整性检查通过。16 场景逐 trial 行为与原 `70b8cb4` 基线差异为 0，包含 20/20 正向到达、5/5 嵌套冷重启（必要重入 15、重复叶子和无理由重入 0）、5/5 unknown 跨重启阻断、30 次实际 A/B/C 输入和 40/40 对应检查，以及 100 tick 待测清单增长为 0。见 [对照](evidence/review-recovery-protocols/comparison.json)和[完整汇总](evidence/review-recovery-protocols/summary.json)。运行期间另有相关测试，因此耗时仅作原始记录，不用于性能比较；本轮未重新运行完整 suite。

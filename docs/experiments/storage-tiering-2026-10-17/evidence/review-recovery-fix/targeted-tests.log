@@ -1,0 +1,30 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-review-recovery.test.ts (18 tests) 1875ms
+   ✓ keeps an absent target unverified after a real native return rather than granting checkpoint coverage  817ms
+   ✓ public start keeps a denied generic review pending while a later page executes fresh work  1011ms
+ ✓ tests/explorer-obligation-scheduler-safety.test.ts (9 tests) 4472ms
+   ✓ does not bypass exhausted legacy composite route debt with new per-item keys (orphaned=false)  649ms
+   ✓ does not bypass exhausted legacy composite route debt with new per-item keys (orphaned=true)  537ms
+   ✓ keeps an already associated composite debt after a fresh duplicate row ID is discovered and the historical stack disappears  379ms
+   ✓ never restores another session checkpoint when only historical target evidence survives and no EntryRoute exists  576ms
+   ✓ retained gaps and a historical root frame do not authorize returning to a page after its accepted scope is removed  365ms
+   ✓ a durable unknown in the old source session blocks cold-start scheduling before observation, replacement session or dispatch  371ms
+   ✓ does not turn an exhausted composite route into a fresh singleton route when native-link quote labels change  553ms
+   ✓ retained gaps do not authorize a local boundary exit after every accepted scope is removed  478ms
+   ✓ does not renew a failed route condition when a still-obstructed native target changes only its quote label  563ms
+ ✓ tests/explorer-recovery-outcomes.test.ts (5 tests) 2823ms
+   ✓ blocks strict checkpoint fallback before recovery when an earlier recovery result is unknown  427ms
+   ✓ resumes the original route once after explicit source verification and retains a failed retry limit  895ms
+   ✓ rediscovers a recovery crash from its source session before starting a new round without pendingDispatch  331ms
+   ✓ retains actual position and unknown recovery debt even when the host returns REACHED_VERIFIED  584ms
+   ✓ retains actual position and unknown recovery debt even when the host returns UNVERIFIED  585ms
+ ✓ tests/explorer-scope-source-recovery.test.ts (2 tests) 561ms
+   ✓ recovers unique retained peer sources once without changing execution, original scopes or authority  313ms
+
+ Test Files  4 passed (4)
+      Tests  34 passed (34)
+   Start at  05:11:14
+   Duration  12.10s (transform 516ms, setup 0ms, collect 1.85s, tests 9.73s, environment 0ms, prepare 129ms)
+

@@ -1,0 +1,109 @@
+{
+  "directory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/okx-review-recovery-offline-1NvGRv",
+  "frozenFilesUnchanged": true,
+  "browserStarts": 0,
+  "providerCalls": 0,
+  "generic": {
+    "itemId": "d6890f2b-f098-4e20-8a71-d31f862ef0bb",
+    "status": "unresolved",
+    "attempts": [],
+    "sourceAppended": {
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "observationId": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b"
+    },
+    "proof": {
+      "source": {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "8e894178-1943-4a1f-b75d-1ce665aa01cc"
+      },
+      "sourceLocalId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1552",
+      "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1552",
+      "identityKey": "da2639694919fa4c93225b1069c8fac6218e9008c3eca37a8872fba3206b8e49",
+      "conditionKey": "359cf54d84e030b6554c8621111ba901c4454f9f1b157b3668ec777ad68a0525",
+      "policy": "classification-correspondence/v1",
+      "evidence": [
+        "unique-captured-target-semantics",
+        "complete-classification-subtree",
+        "captured-idref-topology",
+        "unchanged-classification-conditions"
+      ]
+    },
+    "wait": {
+      "policy": "review-recovery-wait-v1",
+      "revision": 5,
+      "meaningKey": "fa86d198d7f2719f946c375bc485f4c3ec02833acfe4062504409f29df350407",
+      "source": {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b"
+      },
+      "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1552",
+      "identityKey": "da2639694919fa4c93225b1069c8fac6218e9008c3eca37a8872fba3206b8e49",
+      "conditionKey": "359cf54d84e030b6554c8621111ba901c4454f9f1b157b3668ec777ad68a0525",
+      "materialKey": "a5e9f7c7a73de463077e0ec9e7345f9e56d3ad8fe95e235f03771279c4f91845",
+      "decisions": [
+        {
+          "id": "3f546fab-889a-42d2-9b33-da92adda76ff",
+          "kind": "probe"
+        }
+      ],
+      "reason": "unchanged_unresolved_review"
+    },
+    "validWhileAway": true
+  },
+  "checkboxes": [
+    {
+      "itemId": "57b2b287-3403-45ed-8695-24534092f486",
+      "kind": "check",
+      "value": true,
+      "status": "succeeded",
+      "wait": false
+    },
+    {
+      "itemId": "07da5553-193f-46a0-a97d-916c2ae66832",
+      "kind": "check",
+      "value": true,
+      "status": "succeeded",
+      "wait": false
+    },
+    {
+      "itemId": "d64c1f8a-7b98-496d-8814-18dc6aee9563",
+      "kind": "check",
+      "value": false,
+      "status": "succeeded",
+      "wait": false
+    },
+    {
+      "itemId": "2add7f08-ecc3-4707-8948-9616f1fa48a4",
+      "kind": "check",
+      "value": false,
+      "status": "succeeded",
+      "wait": false
+    },
+    {
+      "itemId": "1a6f3848-2af6-40a5-bad6-c823a2bbe236",
+      "kind": "check",
+      "value": true,
+      "status": "succeeded",
+      "wait": false
+    },
+    {
+      "itemId": "172740a0-735d-44c9-a1e6-1dbc0df2d4fb",
+      "kind": "check",
+      "value": false,
+      "status": "succeeded",
+      "wait": false
+    }
+  ],
+  "routeDebtUnchanged": true,
+  "rankedCheckpoints": [
+    {
+      "id": "92fac9d2-34fa-4c69-a225-8704ea0cd5cd",
+      "observationId": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b"
+    },
+    {
+      "id": "7d7c3b8d-5dc6-45dc-a77a-13f5b3eab8ec",
+      "observationId": "8e894178-1943-4a1f-b75d-1ce665aa01cc"
+    }
+  ],
+  "scope": "Offline retained evidence and scheduler projections only; no real return or exploration executed"
+}

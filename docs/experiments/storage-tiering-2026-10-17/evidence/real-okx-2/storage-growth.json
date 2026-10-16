@@ -1,0 +1,6408 @@
+{
+  "protocol": "frozen-okx-run2-storage-growth-v1",
+  "at": "2026-10-16T20:57:26.139Z",
+  "headCommit": "4161b38bc59e922be577cf0d672bd99e286c6df0",
+  "sourceHashes": {
+    "packages/storage-sqlite/src/entity-codec.ts": "33d534a7d1b70331a8e72c400c74812ecf54e6f31f3084c0e38a33e428ac2758",
+    "packages/storage-sqlite/src/evidence-chunks.ts": "be9bdf5db8520981f97af70f72041d8e53ea8b08aab60bbeca3641052d91b4f6",
+    "packages/storage-sqlite/src/evidence-lock.ts": "6a3ff26c8636b8bde2cc2bbc1f19faf4a42e3c20bdeacfbaf255aa99336df7ea",
+    "packages/storage-sqlite/src/evidence.ts": "b096524f1740c0d6c29e5eccc3dab43a2025866979e436330e5a88990fa69ff1",
+    "packages/storage-sqlite/src/index.ts": "c1503efa5c4797901824e4f721ba35baccbf59d085bbed5ccea0962276c54cc9",
+    "packages/storage-sqlite/src/observation-store.ts": "56ec8a8ae989d82ede21776984a3dbd2bd6eb954e2c962dfa62c1a2c3bada857",
+    "packages/storage-sqlite/src/observation-structure.ts": "ec3d9385632b23da5fa3160fb0af7dae2bfb5c23a8e3bf6c22b4755971ad0825"
+  },
+  "sourceDirtySha256": "851577f82476ae555dc8621b61ea0d1fd6c724863c41d923950dffbfd9a8dc6a",
+  "scriptSha256": "49a107e73f2267c8292cec3bcdea172dc4a3871c4b79689f9d081fe5af82c81d",
+  "scope": {
+    "frozenSnapshots": [
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1-frozen-1",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1-frozen-2"
+    ],
+    "inputDatabaseFiles": [
+      {
+        "engine.sqlite": {
+          "bytes": 22228992,
+          "sha256": "71b822d53978efbbe587ff1d66012ed253eb9957fb55ea304f54dfb8c0474655"
+        },
+        "engine.sqlite-wal": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "engine.sqlite-shm": {
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        }
+      },
+      {
+        "engine.sqlite": {
+          "bytes": 23449600,
+          "sha256": "aaf40b60d88dbe8d0a07a01f1acfc495d31e962e7596f3e0365fde717f6b53e3"
+        }
+      }
+    ],
+    "sourceDatabaseConnections": 0,
+    "method": "Copied frozen engine database/WAL into private temporary directories, opened SDK only there, normalized run1 with explicit state compression/compaction and compacted run2 copy for fragmentation measurement. Original runtime and frozen files unchanged; no browser/provider or plugin database access.",
+    "temporaryRemovedOnExit": true
+  },
+  "baselineNormalization": {
+    "before": {
+      "pageCount": 5427,
+      "pageSize": 4096,
+      "freePages": 0,
+      "dbstat": [
+        {
+          "name": "entities",
+          "pageBytes": 19554304,
+          "payloadBytes": 17134206,
+          "unusedBytes": 2351692,
+          "pages": 4774
+        },
+        {
+          "name": "events",
+          "pageBytes": 1548288,
+          "payloadBytes": 1411388,
+          "unusedBytes": 131232,
+          "pages": 378
+        },
+        {
+          "name": "observation_packs",
+          "pageBytes": 360448,
+          "payloadBytes": 293419,
+          "unusedBytes": 65512,
+          "pages": 88
+        },
+        {
+          "name": "entities_session_kind",
+          "pageBytes": 245760,
+          "payloadBytes": 202081,
+          "unusedBytes": 30588,
+          "pages": 60
+        },
+        {
+          "name": "sqlite_autoindex_entities_1",
+          "pageBytes": 204800,
+          "payloadBytes": 171040,
+          "unusedBytes": 20789,
+          "pages": 50
+        },
+        {
+          "name": "sqlite_autoindex_observation_objects_1",
+          "pageBytes": 122880,
+          "payloadBytes": 97922,
+          "unusedBytes": 20627,
+          "pages": 30
+        },
+        {
+          "name": "observation_objects",
+          "pageBytes": 122880,
+          "payloadBytes": 106409,
+          "unusedBytes": 9507,
+          "pages": 30
+        },
+        {
+          "name": "events_session_seq",
+          "pageBytes": 24576,
+          "payloadBytes": 16024,
+          "unusedBytes": 7374,
+          "pages": 6
+        },
+        {
+          "name": "observation_objects_pack",
+          "pageBytes": 16384,
+          "payloadBytes": 7793,
+          "unusedBytes": 4572,
+          "pages": 4
+        },
+        {
+          "name": "sqlite_sequence",
+          "pageBytes": 4096,
+          "payloadBytes": 56,
+          "unusedBytes": 4020,
+          "pages": 1
+        },
+        {
+          "name": "sqlite_schema",
+          "pageBytes": 4096,
+          "payloadBytes": 2007,
+          "unusedBytes": 1916,
+          "pages": 1
+        },
+        {
+          "name": "sqlite_autoindex_requests_1",
+          "pageBytes": 4096,
+          "payloadBytes": 384,
+          "unusedBytes": 3689,
+          "pages": 1
+        },
+        {
+          "name": "sqlite_autoindex_metadata_1",
+          "pageBytes": 4096,
+          "payloadBytes": 16,
+          "unusedBytes": 4069,
+          "pages": 1
+        },
+        {
+          "name": "requests",
+          "pageBytes": 4096,
+          "payloadBytes": 820,
+          "unusedBytes": 3243,
+          "pages": 1
+        },
+        {
+          "name": "observation_packs_session",
+          "pageBytes": 4096,
+          "payloadBytes": 3199,
+          "unusedBytes": 649,
+          "pages": 1
+        },
+        {
+          "name": "metadata",
+          "pageBytes": 4096,
+          "payloadBytes": 17,
+          "unusedBytes": 4067,
+          "pages": 1
+        }
+      ],
+      "schema": {
+        "value": "4"
+      }
+    },
+    "migration": [
+      {
+        "cursor": 787,
+        "done": false,
+        "scanned": 3,
+        "compressed": 3,
+        "logicalBytesBefore": 2969061,
+        "logicalBytesAfter": 2969061,
+        "storageBytesBefore": 2969061,
+        "storageBytesAfter": 158734
+      },
+      {
+        "cursor": 1879,
+        "done": false,
+        "scanned": 3,
+        "compressed": 3,
+        "logicalBytesBefore": 2502978,
+        "logicalBytesAfter": 2502978,
+        "storageBytesBefore": 2502978,
+        "storageBytesAfter": 137173
+      },
+      {
+        "cursor": 2901,
+        "done": true,
+        "scanned": 3,
+        "compressed": 3,
+        "logicalBytesBefore": 2467300,
+        "logicalBytesAfter": 2467300,
+        "storageBytesBefore": 2467300,
+        "storageBytesAfter": 133802
+      }
+    ],
+    "compact": {
+      "databaseBytesBefore": 22228992,
+      "databaseBytesAfter": 13643776,
+      "walBytesBefore": 502672,
+      "walBytesAfter": 0
+    },
+    "expectedMaintenanceBytes": 13643776,
+    "maintenanceEntityHashMismatches": []
+  },
+  "run1": {
+    "entities": 4125,
+    "byKind": {
+      "session": {
+        "rows": 1,
+        "logicalBytes": 1079,
+        "payloadBytes": 1079,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "evidence-retention": {
+        "rows": 14,
+        "logicalBytes": 6766,
+        "payloadBytes": 6766,
+        "formats": {
+          "plain": 14
+        }
+      },
+      "evidence-entry": {
+        "rows": 28,
+        "logicalBytes": 9688,
+        "payloadBytes": 9688,
+        "formats": {
+          "plain": 28
+        }
+      },
+      "boundary-exit-episode": {
+        "rows": 1,
+        "logicalBytes": 230,
+        "payloadBytes": 230,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "region-review-request": {
+        "rows": 1,
+        "logicalBytes": 184,
+        "payloadBytes": 184,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "observation": {
+        "rows": 14,
+        "logicalBytes": 48072531,
+        "payloadBytes": 1064168,
+        "formats": {
+          "observation:v2:structural": 8,
+          "observation:v1:gzip": 6
+        }
+      },
+      "state": {
+        "rows": 9,
+        "logicalBytes": 7939339,
+        "payloadBytes": 429709,
+        "formats": {
+          "state:v1:gzip": 9
+        }
+      },
+      "visit": {
+        "rows": 14,
+        "logicalBytes": 6508,
+        "payloadBytes": 6508,
+        "formats": {
+          "plain": 14
+        }
+      },
+      "exploration-group": {
+        "rows": 74,
+        "logicalBytes": 615313,
+        "payloadBytes": 615313,
+        "formats": {
+          "plain": 74
+        }
+      },
+      "identity": {
+        "rows": 727,
+        "logicalBytes": 3504404,
+        "payloadBytes": 3504404,
+        "formats": {
+          "plain": 727
+        }
+      },
+      "hypothesis": {
+        "rows": 32,
+        "logicalBytes": 22435,
+        "payloadBytes": 22435,
+        "formats": {
+          "plain": 32
+        }
+      },
+      "action": {
+        "rows": 2702,
+        "logicalBytes": 2333290,
+        "payloadBytes": 2333290,
+        "formats": {
+          "plain": 2702
+        }
+      },
+      "frontier": {
+        "rows": 466,
+        "logicalBytes": 894794,
+        "payloadBytes": 894794,
+        "formats": {
+          "plain": 466
+        }
+      },
+      "scope": {
+        "rows": 1,
+        "logicalBytes": 564,
+        "payloadBytes": 564,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "boundary-exit-request": {
+        "rows": 1,
+        "logicalBytes": 192,
+        "payloadBytes": 192,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "discovery-request": {
+        "rows": 1,
+        "logicalBytes": 187,
+        "payloadBytes": 187,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "page-exploration": {
+        "rows": 1,
+        "logicalBytes": 279,
+        "payloadBytes": 279,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "control-classification-request": {
+        "rows": 1,
+        "logicalBytes": 198,
+        "payloadBytes": 198,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "control-review-request": {
+        "rows": 1,
+        "logicalBytes": 191,
+        "payloadBytes": 191,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "intervention-snapshot": {
+        "rows": 16,
+        "logicalBytes": 210603,
+        "payloadBytes": 210603,
+        "formats": {
+          "plain": 16
+        }
+      },
+      "region-review": {
+        "rows": 4,
+        "logicalBytes": 27651,
+        "payloadBytes": 27651,
+        "formats": {
+          "plain": 4
+        }
+      },
+      "checkpoint": {
+        "rows": 3,
+        "logicalBytes": 1147,
+        "payloadBytes": 1147,
+        "formats": {
+          "plain": 3
+        }
+      },
+      "attempt": {
+        "rows": 5,
+        "logicalBytes": 124761,
+        "payloadBytes": 124761,
+        "formats": {
+          "plain": 5
+        }
+      },
+      "transition": {
+        "rows": 5,
+        "logicalBytes": 1557,
+        "payloadBytes": 1557,
+        "formats": {
+          "plain": 5
+        }
+      },
+      "control-classification": {
+        "rows": 2,
+        "logicalBytes": 11018,
+        "payloadBytes": 11018,
+        "formats": {
+          "plain": 2
+        }
+      },
+      "reach": {
+        "rows": 1,
+        "logicalBytes": 675,
+        "payloadBytes": 675,
+        "formats": {
+          "plain": 1
+        }
+      }
+    },
+    "physical": {
+      "pageCount": 3331,
+      "pageSize": 4096,
+      "freePages": 0,
+      "dbstat": [
+        {
+          "name": "entities",
+          "pageBytes": 11030528,
+          "payloadBytes": 9624585,
+          "unusedBytes": 1348778,
+          "pages": 2693
+        },
+        {
+          "name": "events",
+          "pageBytes": 1548288,
+          "payloadBytes": 1411388,
+          "unusedBytes": 131232,
+          "pages": 378
+        },
+        {
+          "name": "observation_packs",
+          "pageBytes": 360448,
+          "payloadBytes": 293419,
+          "unusedBytes": 65512,
+          "pages": 88
+        },
+        {
+          "name": "entities_session_kind",
+          "pageBytes": 217088,
+          "payloadBytes": 202081,
+          "unusedBytes": 2000,
+          "pages": 53
+        },
+        {
+          "name": "sqlite_autoindex_entities_1",
+          "pageBytes": 188416,
+          "payloadBytes": 171040,
+          "unusedBytes": 4453,
+          "pages": 46
+        },
+        {
+          "name": "observation_objects",
+          "pageBytes": 122880,
+          "payloadBytes": 106409,
+          "unusedBytes": 9507,
+          "pages": 30
+        },
+        {
+          "name": "sqlite_autoindex_observation_objects_1",
+          "pageBytes": 106496,
+          "payloadBytes": 97922,
+          "unusedBytes": 4291,
+          "pages": 26
+        },
+        {
+          "name": "events_session_seq",
+          "pageBytes": 24576,
+          "payloadBytes": 16024,
+          "unusedBytes": 7374,
+          "pages": 6
+        },
+        {
+          "name": "observation_objects_pack",
+          "pageBytes": 16384,
+          "payloadBytes": 7793,
+          "unusedBytes": 4572,
+          "pages": 4
+        },
+        {
+          "name": "sqlite_sequence",
+          "pageBytes": 4096,
+          "payloadBytes": 56,
+          "unusedBytes": 4020,
+          "pages": 1
+        },
+        {
+          "name": "sqlite_schema",
+          "pageBytes": 4096,
+          "payloadBytes": 2007,
+          "unusedBytes": 1916,
+          "pages": 1
+        },
+        {
+          "name": "sqlite_autoindex_requests_1",
+          "pageBytes": 4096,
+          "payloadBytes": 384,
+          "unusedBytes": 3689,
+          "pages": 1
+        },
+        {
+          "name": "sqlite_autoindex_metadata_1",
+          "pageBytes": 4096,
+          "payloadBytes": 16,
+          "unusedBytes": 4069,
+          "pages": 1
+        },
+        {
+          "name": "requests",
+          "pageBytes": 4096,
+          "payloadBytes": 820,
+          "unusedBytes": 3243,
+          "pages": 1
+        },
+        {
+          "name": "observation_packs_session",
+          "pageBytes": 4096,
+          "payloadBytes": 3199,
+          "unusedBytes": 649,
+          "pages": 1
+        },
+        {
+          "name": "metadata",
+          "pageBytes": 4096,
+          "payloadBytes": 17,
+          "unusedBytes": 4067,
+          "pages": 1
+        }
+      ],
+      "schema": {
+        "value": "4"
+      }
+    },
+    "observations": {
+      "observations": 14,
+      "sharedObservations": 8,
+      "manifestBytes": 1064168,
+      "objects": 1325,
+      "referencedObjects": 1325,
+      "orphanObjects": 0,
+      "objectBytes": 4677679,
+      "referencedObjectBytes": 4677679,
+      "packs": 80,
+      "packedBytes": 286783,
+      "packLogicalBytes": 4677679,
+      "fragmentedBytes": 0
+    },
+    "events": {
+      "rows": 370,
+      "payloadBytes": 1378625
+    },
+    "requests": {
+      "rows": 5,
+      "payloadBytes": 255
+    },
+    "evidence": {
+      "manifestCount": 28,
+      "manifestBytes": 387142,
+      "logicalBytes": 58694433,
+      "blobCount": 651,
+      "blobBytes": 2400644,
+      "uniqueReferencedBlobs": 651,
+      "blobsSharedAcrossReferences": 377,
+      "verifiedManifests": 28,
+      "invalid": 0,
+      "missing": [],
+      "unreferenced": [],
+      "exactDuplicateManifestCopies": 7,
+      "exactDuplicateManifestBytes": 13254,
+      "frames": [
+        {
+          "name": "2a5c42ab-6289-4874-9550-a7162014efa7.details.json.meta.json",
+          "manifestBytes": 28005,
+          "logicalBytes": 4380657,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 4380657
+        },
+        {
+          "name": "2a5c42ab-6289-4874-9550-a7162014efa7.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150626,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 150626
+        },
+        {
+          "name": "46a38d17-fbf9-43c1-ba1f-b4c9791a6c27.details.json.meta.json",
+          "manifestBytes": 28005,
+          "logicalBytes": 4380559,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 4380559
+        },
+        {
+          "name": "46a38d17-fbf9-43c1-ba1f-b4c9791a6c27.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150626,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 150626
+        },
+        {
+          "name": "51193a8f-2624-4d05-9284-67ed340d1eb7.details.json.meta.json",
+          "manifestBytes": 28005,
+          "logicalBytes": 4380657,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 4380657
+        },
+        {
+          "name": "51193a8f-2624-4d05-9284-67ed340d1eb7.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150626,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 150626
+        },
+        {
+          "name": "55bc5dfd-50a3-4835-ad87-99a9b1795061.details.json.meta.json",
+          "manifestBytes": 14166,
+          "logicalBytes": 2146940,
+          "blocks": 75,
+          "uniqueBlobs": 75,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 2146940
+        },
+        {
+          "name": "55bc5dfd-50a3-4835-ad87-99a9b1795061.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119796,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 119796
+        },
+        {
+          "name": "5a904f94-d42c-4d05-aab0-255c18388699.details.json.meta.json",
+          "manifestBytes": 28005,
+          "logicalBytes": 4380582,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 4380582
+        },
+        {
+          "name": "5a904f94-d42c-4d05-aab0-255c18388699.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150785,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 150785
+        },
+        {
+          "name": "60c60574-7095-4f13-9406-4561a24bd9fe.details.json.meta.json",
+          "manifestBytes": 27256,
+          "logicalBytes": 4368167,
+          "blocks": 145,
+          "uniqueBlobs": 145,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 4368167
+        },
+        {
+          "name": "60c60574-7095-4f13-9406-4561a24bd9fe.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119779,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 119779
+        },
+        {
+          "name": "6b86d43c-8797-4140-8dcc-2132dbeb9073.details.json.meta.json",
+          "manifestBytes": 28005,
+          "logicalBytes": 4380657,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 4380657
+        },
+        {
+          "name": "6b86d43c-8797-4140-8dcc-2132dbeb9073.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150626,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 150626
+        },
+        {
+          "name": "6f0b9144-0522-4fa7-b0a3-b306ae48ccbc.details.json.meta.json",
+          "manifestBytes": 27256,
+          "logicalBytes": 4368140,
+          "blocks": 145,
+          "uniqueBlobs": 145,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 4368140
+        },
+        {
+          "name": "6f0b9144-0522-4fa7-b0a3-b306ae48ccbc.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119779,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 119779
+        },
+        {
+          "name": "8e894178-1943-4a1f-b75d-1ce665aa01cc.details.json.meta.json",
+          "manifestBytes": 28005,
+          "logicalBytes": 4380505,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 4380505
+        },
+        {
+          "name": "8e894178-1943-4a1f-b75d-1ce665aa01cc.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150621,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 150621
+        },
+        {
+          "name": "b1f0d28c-50fe-4401-811b-6bbe6d8535e7.details.json.meta.json",
+          "manifestBytes": 14165,
+          "logicalBytes": 2122951,
+          "blocks": 75,
+          "uniqueBlobs": 75,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 2122951
+        },
+        {
+          "name": "b1f0d28c-50fe-4401-811b-6bbe6d8535e7.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119243,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 119243
+        },
+        {
+          "name": "c1d95c73-4ec7-44ae-92d3-76c9b37a0fdd.details.json.meta.json",
+          "manifestBytes": 27256,
+          "logicalBytes": 4368167,
+          "blocks": 145,
+          "uniqueBlobs": 145,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 4368167
+        },
+        {
+          "name": "c1d95c73-4ec7-44ae-92d3-76c9b37a0fdd.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119779,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 119779
+        },
+        {
+          "name": "cfc205c1-bab5-4b44-8bc7-9d2b4c498948.details.json.meta.json",
+          "manifestBytes": 27256,
+          "logicalBytes": 4365366,
+          "blocks": 145,
+          "uniqueBlobs": 145,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 4365366
+        },
+        {
+          "name": "cfc205c1-bab5-4b44-8bc7-9d2b4c498948.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119779,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 119779
+        },
+        {
+          "name": "fbbc4cbf-1482-41ca-b1e5-37c838473d8f.details.json.meta.json",
+          "manifestBytes": 27629,
+          "logicalBytes": 4402332,
+          "blocks": 147,
+          "uniqueBlobs": 147,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 4402332
+        },
+        {
+          "name": "fbbc4cbf-1482-41ca-b1e5-37c838473d8f.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119899,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 119899
+        },
+        {
+          "name": "fd7528a6-d7ef-48fe-b265-347123006223.details.json.meta.json",
+          "manifestBytes": 28004,
+          "logicalBytes": 4376168,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 4376168
+        },
+        {
+          "name": "fd7528a6-d7ef-48fe-b265-347123006223.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150621,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 150621
+        }
+      ]
+    }
+  },
+  "run2": {
+    "entities": 7024,
+    "byKind": {
+      "session": {
+        "rows": 1,
+        "logicalBytes": 1112,
+        "payloadBytes": 1112,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "evidence-retention": {
+        "rows": 25,
+        "logicalBytes": 11765,
+        "payloadBytes": 11765,
+        "formats": {
+          "plain": 25
+        }
+      },
+      "evidence-entry": {
+        "rows": 50,
+        "logicalBytes": 17300,
+        "payloadBytes": 17300,
+        "formats": {
+          "plain": 50
+        }
+      },
+      "boundary-exit-episode": {
+        "rows": 1,
+        "logicalBytes": 230,
+        "payloadBytes": 230,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "region-review-request": {
+        "rows": 1,
+        "logicalBytes": 184,
+        "payloadBytes": 184,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "observation": {
+        "rows": 25,
+        "logicalBytes": 85377205,
+        "payloadBytes": 1647568,
+        "formats": {
+          "observation:v2:structural": 16,
+          "observation:v1:gzip": 9
+        }
+      },
+      "state": {
+        "rows": 17,
+        "logicalBytes": 14906844,
+        "payloadBytes": 808305,
+        "formats": {
+          "state:v1:gzip": 17
+        }
+      },
+      "visit": {
+        "rows": 25,
+        "logicalBytes": 11705,
+        "payloadBytes": 11705,
+        "formats": {
+          "plain": 25
+        }
+      },
+      "exploration-group": {
+        "rows": 116,
+        "logicalBytes": 1009449,
+        "payloadBytes": 1009449,
+        "formats": {
+          "plain": 116
+        }
+      },
+      "identity": {
+        "rows": 1142,
+        "logicalBytes": 5613046,
+        "payloadBytes": 5613046,
+        "formats": {
+          "plain": 1142
+        }
+      },
+      "hypothesis": {
+        "rows": 55,
+        "logicalBytes": 46591,
+        "payloadBytes": 46591,
+        "formats": {
+          "plain": 55
+        }
+      },
+      "action": {
+        "rows": 4789,
+        "logicalBytes": 4246811,
+        "payloadBytes": 4246811,
+        "formats": {
+          "plain": 4789
+        }
+      },
+      "frontier": {
+        "rows": 707,
+        "logicalBytes": 1336002,
+        "payloadBytes": 1336002,
+        "formats": {
+          "plain": 707
+        }
+      },
+      "scope": {
+        "rows": 2,
+        "logicalBytes": 1128,
+        "payloadBytes": 1128,
+        "formats": {
+          "plain": 2
+        }
+      },
+      "boundary-exit-request": {
+        "rows": 1,
+        "logicalBytes": 192,
+        "payloadBytes": 192,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "discovery-request": {
+        "rows": 1,
+        "logicalBytes": 187,
+        "payloadBytes": 187,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "page-exploration": {
+        "rows": 1,
+        "logicalBytes": 279,
+        "payloadBytes": 279,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "control-classification-request": {
+        "rows": 1,
+        "logicalBytes": 198,
+        "payloadBytes": 198,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "control-review-request": {
+        "rows": 1,
+        "logicalBytes": 191,
+        "payloadBytes": 191,
+        "formats": {
+          "plain": 1
+        }
+      },
+      "intervention-snapshot": {
+        "rows": 28,
+        "logicalBytes": 372367,
+        "payloadBytes": 372367,
+        "formats": {
+          "plain": 28
+        }
+      },
+      "region-review": {
+        "rows": 5,
+        "logicalBytes": 30561,
+        "payloadBytes": 30561,
+        "formats": {
+          "plain": 5
+        }
+      },
+      "checkpoint": {
+        "rows": 6,
+        "logicalBytes": 2294,
+        "payloadBytes": 2294,
+        "formats": {
+          "plain": 6
+        }
+      },
+      "attempt": {
+        "rows": 9,
+        "logicalBytes": 205994,
+        "payloadBytes": 205994,
+        "formats": {
+          "plain": 9
+        }
+      },
+      "transition": {
+        "rows": 9,
+        "logicalBytes": 2802,
+        "payloadBytes": 2802,
+        "formats": {
+          "plain": 9
+        }
+      },
+      "control-classification": {
+        "rows": 4,
+        "logicalBytes": 22411,
+        "payloadBytes": 22411,
+        "formats": {
+          "plain": 4
+        }
+      },
+      "reach": {
+        "rows": 2,
+        "logicalBytes": 1288,
+        "payloadBytes": 1288,
+        "formats": {
+          "plain": 2
+        }
+      }
+    },
+    "physical": {
+      "pageCount": 5725,
+      "pageSize": 4096,
+      "freePages": 0,
+      "dbstat": [
+        {
+          "name": "entities",
+          "pageBytes": 18808832,
+          "payloadBytes": 15997519,
+          "unusedBytes": 2713067,
+          "pages": 4592
+        },
+        {
+          "name": "events",
+          "pageBytes": 2641920,
+          "payloadBytes": 2412116,
+          "unusedBytes": 219740,
+          "pages": 645
+        },
+        {
+          "name": "observation_packs",
+          "pageBytes": 688128,
+          "payloadBytes": 557956,
+          "unusedBytes": 127238,
+          "pages": 168
+        },
+        {
+          "name": "entities_session_kind",
+          "pageBytes": 401408,
+          "payloadBytes": 343692,
+          "unusedBytes": 35472,
+          "pages": 98
+        },
+        {
+          "name": "sqlite_autoindex_entities_1",
+          "pageBytes": 352256,
+          "payloadBytes": 291429,
+          "unusedBytes": 38727,
+          "pages": 86
+        },
+        {
+          "name": "sqlite_autoindex_observation_objects_1",
+          "pageBytes": 229376,
+          "payloadBytes": 185316,
+          "unusedBytes": 35874,
+          "pages": 56
+        },
+        {
+          "name": "observation_objects",
+          "pageBytes": 225280,
+          "payloadBytes": 201726,
+          "unusedBytes": 10285,
+          "pages": 55
+        },
+        {
+          "name": "events_session_seq",
+          "pageBytes": 36864,
+          "payloadBytes": 29268,
+          "unusedBytes": 5479,
+          "pages": 9
+        },
+        {
+          "name": "observation_objects_pack",
+          "pageBytes": 28672,
+          "payloadBytes": 15287,
+          "unusedBytes": 5787,
+          "pages": 7
+        },
+        {
+          "name": "observation_packs_session",
+          "pageBytes": 12288,
+          "payloadBytes": 6063,
+          "unusedBytes": 5740,
+          "pages": 3
+        },
+        {
+          "name": "sqlite_sequence",
+          "pageBytes": 4096,
+          "payloadBytes": 57,
+          "unusedBytes": 4019,
+          "pages": 1
+        },
+        {
+          "name": "sqlite_schema",
+          "pageBytes": 4096,
+          "payloadBytes": 2007,
+          "unusedBytes": 1916,
+          "pages": 1
+        },
+        {
+          "name": "sqlite_autoindex_requests_1",
+          "pageBytes": 4096,
+          "payloadBytes": 692,
+          "unusedBytes": 3369,
+          "pages": 1
+        },
+        {
+          "name": "sqlite_autoindex_metadata_1",
+          "pageBytes": 4096,
+          "payloadBytes": 16,
+          "unusedBytes": 4069,
+          "pages": 1
+        },
+        {
+          "name": "requests",
+          "pageBytes": 4096,
+          "payloadBytes": 1476,
+          "unusedBytes": 2567,
+          "pages": 1
+        },
+        {
+          "name": "metadata",
+          "pageBytes": 4096,
+          "payloadBytes": 17,
+          "unusedBytes": 4067,
+          "pages": 1
+        }
+      ],
+      "schema": {
+        "value": "4"
+      }
+    },
+    "observations": {
+      "observations": 25,
+      "sharedObservations": 16,
+      "manifestBytes": 1647568,
+      "objects": 2506,
+      "referencedObjects": 2506,
+      "orphanObjects": 0,
+      "objectBytes": 8810458,
+      "referencedObjectBytes": 8810458,
+      "packs": 151,
+      "packedBytes": 545433,
+      "packLogicalBytes": 8810458,
+      "fragmentedBytes": 0
+    },
+    "events": {
+      "rows": 671,
+      "payloadBytes": 2352566
+    },
+    "requests": {
+      "rows": 9,
+      "payloadBytes": 459
+    },
+    "evidence": {
+      "manifestCount": 50,
+      "manifestBytes": 687334,
+      "logicalBytes": 103928758,
+      "blobCount": 1130,
+      "blobBytes": 4037992,
+      "uniqueReferencedBlobs": 1130,
+      "blobsSharedAcrossReferences": 601,
+      "verifiedManifests": 50,
+      "invalid": 0,
+      "missing": [],
+      "unreferenced": [],
+      "exactDuplicateManifestCopies": 14,
+      "exactDuplicateManifestBytes": 26892,
+      "frames": [
+        {
+          "name": "1ccc7c61-b878-46b7-977b-04721cf59803.details.json.meta.json",
+          "manifestBytes": 27819,
+          "logicalBytes": 4378393,
+          "blocks": 148,
+          "uniqueBlobs": 148,
+          "oldBlobs": 1,
+          "oldLogicalBytes": 1854,
+          "uniqueLogicalBytes": 4378393
+        },
+        {
+          "name": "1ccc7c61-b878-46b7-977b-04721cf59803.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150947,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 2,
+          "oldLogicalBytes": 32768,
+          "uniqueLogicalBytes": 150947
+        },
+        {
+          "name": "24bef614-46f9-4e69-a885-78a7545e1ee0.details.json.meta.json",
+          "manifestBytes": 27819,
+          "logicalBytes": 4378125,
+          "blocks": 148,
+          "uniqueBlobs": 148,
+          "oldBlobs": 1,
+          "oldLogicalBytes": 1854,
+          "uniqueLogicalBytes": 4378125
+        },
+        {
+          "name": "24bef614-46f9-4e69-a885-78a7545e1ee0.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150942,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 2,
+          "oldLogicalBytes": 32768,
+          "uniqueLogicalBytes": 150942
+        },
+        {
+          "name": "2a5c42ab-6289-4874-9550-a7162014efa7.details.json.meta.json",
+          "manifestBytes": 28005,
+          "logicalBytes": 4380657,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 149,
+          "oldLogicalBytes": 4380657,
+          "uniqueLogicalBytes": 4380657
+        },
+        {
+          "name": "2a5c42ab-6289-4874-9550-a7162014efa7.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150626,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 10,
+          "oldLogicalBytes": 150626,
+          "uniqueLogicalBytes": 150626
+        },
+        {
+          "name": "3a910b7e-e907-480f-9547-4fef6b0a9f12.details.json.meta.json",
+          "manifestBytes": 13794,
+          "logicalBytes": 2123996,
+          "blocks": 73,
+          "uniqueBlobs": 73,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 2123996
+        },
+        {
+          "name": "3a910b7e-e907-480f-9547-4fef6b0a9f12.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119243,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 8,
+          "oldLogicalBytes": 119243,
+          "uniqueLogicalBytes": 119243
+        },
+        {
+          "name": "46a38d17-fbf9-43c1-ba1f-b4c9791a6c27.details.json.meta.json",
+          "manifestBytes": 28005,
+          "logicalBytes": 4380559,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 149,
+          "oldLogicalBytes": 4380559,
+          "uniqueLogicalBytes": 4380559
+        },
+        {
+          "name": "46a38d17-fbf9-43c1-ba1f-b4c9791a6c27.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150626,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 10,
+          "oldLogicalBytes": 150626,
+          "uniqueLogicalBytes": 150626
+        },
+        {
+          "name": "51193a8f-2624-4d05-9284-67ed340d1eb7.details.json.meta.json",
+          "manifestBytes": 28005,
+          "logicalBytes": 4380657,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 149,
+          "oldLogicalBytes": 4380657,
+          "uniqueLogicalBytes": 4380657
+        },
+        {
+          "name": "51193a8f-2624-4d05-9284-67ed340d1eb7.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150626,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 10,
+          "oldLogicalBytes": 150626,
+          "uniqueLogicalBytes": 150626
+        },
+        {
+          "name": "55bc5dfd-50a3-4835-ad87-99a9b1795061.details.json.meta.json",
+          "manifestBytes": 14166,
+          "logicalBytes": 2146940,
+          "blocks": 75,
+          "uniqueBlobs": 75,
+          "oldBlobs": 75,
+          "oldLogicalBytes": 2146940,
+          "uniqueLogicalBytes": 2146940
+        },
+        {
+          "name": "55bc5dfd-50a3-4835-ad87-99a9b1795061.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119796,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 8,
+          "oldLogicalBytes": 119796,
+          "uniqueLogicalBytes": 119796
+        },
+        {
+          "name": "5a904f94-d42c-4d05-aab0-255c18388699.details.json.meta.json",
+          "manifestBytes": 28005,
+          "logicalBytes": 4380582,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 149,
+          "oldLogicalBytes": 4380582,
+          "uniqueLogicalBytes": 4380582
+        },
+        {
+          "name": "5a904f94-d42c-4d05-aab0-255c18388699.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150785,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 10,
+          "oldLogicalBytes": 150785,
+          "uniqueLogicalBytes": 150785
+        },
+        {
+          "name": "60c60574-7095-4f13-9406-4561a24bd9fe.details.json.meta.json",
+          "manifestBytes": 27256,
+          "logicalBytes": 4368167,
+          "blocks": 145,
+          "uniqueBlobs": 145,
+          "oldBlobs": 145,
+          "oldLogicalBytes": 4368167,
+          "uniqueLogicalBytes": 4368167
+        },
+        {
+          "name": "60c60574-7095-4f13-9406-4561a24bd9fe.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119779,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 8,
+          "oldLogicalBytes": 119779,
+          "uniqueLogicalBytes": 119779
+        },
+        {
+          "name": "6b86d43c-8797-4140-8dcc-2132dbeb9073.details.json.meta.json",
+          "manifestBytes": 28005,
+          "logicalBytes": 4380657,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 149,
+          "oldLogicalBytes": 4380657,
+          "uniqueLogicalBytes": 4380657
+        },
+        {
+          "name": "6b86d43c-8797-4140-8dcc-2132dbeb9073.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150626,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 10,
+          "oldLogicalBytes": 150626,
+          "uniqueLogicalBytes": 150626
+        },
+        {
+          "name": "6f0b9144-0522-4fa7-b0a3-b306ae48ccbc.details.json.meta.json",
+          "manifestBytes": 27256,
+          "logicalBytes": 4368140,
+          "blocks": 145,
+          "uniqueBlobs": 145,
+          "oldBlobs": 145,
+          "oldLogicalBytes": 4368140,
+          "uniqueLogicalBytes": 4368140
+        },
+        {
+          "name": "6f0b9144-0522-4fa7-b0a3-b306ae48ccbc.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119779,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 8,
+          "oldLogicalBytes": 119779,
+          "uniqueLogicalBytes": 119779
+        },
+        {
+          "name": "8e894178-1943-4a1f-b75d-1ce665aa01cc.details.json.meta.json",
+          "manifestBytes": 28005,
+          "logicalBytes": 4380505,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 149,
+          "oldLogicalBytes": 4380505,
+          "uniqueLogicalBytes": 4380505
+        },
+        {
+          "name": "8e894178-1943-4a1f-b75d-1ce665aa01cc.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150621,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 10,
+          "oldLogicalBytes": 150621,
+          "uniqueLogicalBytes": 150621
+        },
+        {
+          "name": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b.details.json.meta.json",
+          "manifestBytes": 27819,
+          "logicalBytes": 4378393,
+          "blocks": 148,
+          "uniqueBlobs": 148,
+          "oldBlobs": 1,
+          "oldLogicalBytes": 1854,
+          "uniqueLogicalBytes": 4378393
+        },
+        {
+          "name": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150947,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 2,
+          "oldLogicalBytes": 32768,
+          "uniqueLogicalBytes": 150947
+        },
+        {
+          "name": "a41e6de8-0e12-406d-bfb5-cf6080b272f3.details.json.meta.json",
+          "manifestBytes": 27819,
+          "logicalBytes": 4378397,
+          "blocks": 148,
+          "uniqueBlobs": 148,
+          "oldBlobs": 1,
+          "oldLogicalBytes": 1854,
+          "uniqueLogicalBytes": 4378397
+        },
+        {
+          "name": "a41e6de8-0e12-406d-bfb5-cf6080b272f3.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 151088,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 2,
+          "oldLogicalBytes": 32768,
+          "uniqueLogicalBytes": 151088
+        },
+        {
+          "name": "aa3b5d04-03bf-4214-bc19-fe170a1d0213.details.json.meta.json",
+          "manifestBytes": 27818,
+          "logicalBytes": 4376909,
+          "blocks": 148,
+          "uniqueBlobs": 148,
+          "oldBlobs": 1,
+          "oldLogicalBytes": 2216,
+          "uniqueLogicalBytes": 4376909
+        },
+        {
+          "name": "aa3b5d04-03bf-4214-bc19-fe170a1d0213.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150942,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 2,
+          "oldLogicalBytes": 32768,
+          "uniqueLogicalBytes": 150942
+        },
+        {
+          "name": "b1f0d28c-50fe-4401-811b-6bbe6d8535e7.details.json.meta.json",
+          "manifestBytes": 14165,
+          "logicalBytes": 2122951,
+          "blocks": 75,
+          "uniqueBlobs": 75,
+          "oldBlobs": 75,
+          "oldLogicalBytes": 2122951,
+          "uniqueLogicalBytes": 2122951
+        },
+        {
+          "name": "b1f0d28c-50fe-4401-811b-6bbe6d8535e7.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119243,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 8,
+          "oldLogicalBytes": 119243,
+          "uniqueLogicalBytes": 119243
+        },
+        {
+          "name": "c1d95c73-4ec7-44ae-92d3-76c9b37a0fdd.details.json.meta.json",
+          "manifestBytes": 27256,
+          "logicalBytes": 4368167,
+          "blocks": 145,
+          "uniqueBlobs": 145,
+          "oldBlobs": 145,
+          "oldLogicalBytes": 4368167,
+          "uniqueLogicalBytes": 4368167
+        },
+        {
+          "name": "c1d95c73-4ec7-44ae-92d3-76c9b37a0fdd.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119779,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 8,
+          "oldLogicalBytes": 119779,
+          "uniqueLogicalBytes": 119779
+        },
+        {
+          "name": "c7aabb3a-529d-417d-847f-f439613d2138.details.json.meta.json",
+          "manifestBytes": 28566,
+          "logicalBytes": 4367632,
+          "blocks": 152,
+          "uniqueBlobs": 152,
+          "oldBlobs": 1,
+          "oldLogicalBytes": 2090,
+          "uniqueLogicalBytes": 4367632
+        },
+        {
+          "name": "c7aabb3a-529d-417d-847f-f439613d2138.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119999,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 2,
+          "oldLogicalBytes": 32768,
+          "uniqueLogicalBytes": 119999
+        },
+        {
+          "name": "cfc205c1-bab5-4b44-8bc7-9d2b4c498948.details.json.meta.json",
+          "manifestBytes": 27256,
+          "logicalBytes": 4365366,
+          "blocks": 145,
+          "uniqueBlobs": 145,
+          "oldBlobs": 145,
+          "oldLogicalBytes": 4365366,
+          "uniqueLogicalBytes": 4365366
+        },
+        {
+          "name": "cfc205c1-bab5-4b44-8bc7-9d2b4c498948.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119779,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 8,
+          "oldLogicalBytes": 119779,
+          "uniqueLogicalBytes": 119779
+        },
+        {
+          "name": "e122c926-fcf3-43e6-a7d1-668eaaa82bbc.details.json.meta.json",
+          "manifestBytes": 27819,
+          "logicalBytes": 4378393,
+          "blocks": 148,
+          "uniqueBlobs": 148,
+          "oldBlobs": 1,
+          "oldLogicalBytes": 1854,
+          "uniqueLogicalBytes": 4378393
+        },
+        {
+          "name": "e122c926-fcf3-43e6-a7d1-668eaaa82bbc.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150947,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 2,
+          "oldLogicalBytes": 32768,
+          "uniqueLogicalBytes": 150947
+        },
+        {
+          "name": "e8267c31-83cf-421b-83e4-118d76bbefb3.details.json.meta.json",
+          "manifestBytes": 27819,
+          "logicalBytes": 4378393,
+          "blocks": 148,
+          "uniqueBlobs": 148,
+          "oldBlobs": 1,
+          "oldLogicalBytes": 1854,
+          "uniqueLogicalBytes": 4378393
+        },
+        {
+          "name": "e8267c31-83cf-421b-83e4-118d76bbefb3.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150947,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 2,
+          "oldLogicalBytes": 32768,
+          "uniqueLogicalBytes": 150947
+        },
+        {
+          "name": "eb4c96d2-114d-4356-8296-c2d4686fb38b.details.json.meta.json",
+          "manifestBytes": 27819,
+          "logicalBytes": 4378393,
+          "blocks": 148,
+          "uniqueBlobs": 148,
+          "oldBlobs": 1,
+          "oldLogicalBytes": 1854,
+          "uniqueLogicalBytes": 4378393
+        },
+        {
+          "name": "eb4c96d2-114d-4356-8296-c2d4686fb38b.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150947,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 2,
+          "oldLogicalBytes": 32768,
+          "uniqueLogicalBytes": 150947
+        },
+        {
+          "name": "fbbc4cbf-1482-41ca-b1e5-37c838473d8f.details.json.meta.json",
+          "manifestBytes": 27629,
+          "logicalBytes": 4402332,
+          "blocks": 147,
+          "uniqueBlobs": 147,
+          "oldBlobs": 147,
+          "oldLogicalBytes": 4402332,
+          "uniqueLogicalBytes": 4402332
+        },
+        {
+          "name": "fbbc4cbf-1482-41ca-b1e5-37c838473d8f.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119899,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 8,
+          "oldLogicalBytes": 119899,
+          "uniqueLogicalBytes": 119899
+        },
+        {
+          "name": "fbc54d28-a3e8-402f-92e7-513a953e059b.details.json.meta.json",
+          "manifestBytes": 13795,
+          "logicalBytes": 2150556,
+          "blocks": 73,
+          "uniqueBlobs": 73,
+          "oldBlobs": 0,
+          "oldLogicalBytes": 0,
+          "uniqueLogicalBytes": 2150556
+        },
+        {
+          "name": "fbc54d28-a3e8-402f-92e7-513a953e059b.png.meta.json",
+          "manifestBytes": 1674,
+          "logicalBytes": 119796,
+          "blocks": 8,
+          "uniqueBlobs": 8,
+          "oldBlobs": 8,
+          "oldLogicalBytes": 119796,
+          "uniqueLogicalBytes": 119796
+        },
+        {
+          "name": "fd7528a6-d7ef-48fe-b265-347123006223.details.json.meta.json",
+          "manifestBytes": 28004,
+          "logicalBytes": 4376168,
+          "blocks": 149,
+          "uniqueBlobs": 149,
+          "oldBlobs": 149,
+          "oldLogicalBytes": 4376168,
+          "uniqueLogicalBytes": 4376168
+        },
+        {
+          "name": "fd7528a6-d7ef-48fe-b265-347123006223.png.meta.json",
+          "manifestBytes": 2058,
+          "logicalBytes": 150621,
+          "blocks": 10,
+          "uniqueBlobs": 10,
+          "oldBlobs": 10,
+          "oldLogicalBytes": 150621,
+          "uniqueLogicalBytes": 150621
+        }
+      ]
+    }
+  },
+  "changes": [
+    {
+      "kind": "identity",
+      "newRows": 415,
+      "changedRows": 311,
+      "unchangedRows": 416,
+      "deletedRows": 0,
+      "newPayloadBytes": 1736804,
+      "changedPayloadDelta": 371838,
+      "newLogicalBytes": 1736804,
+      "changedLogicalDelta": 371838,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 2108642,
+      "logicalDelta": 2108642
+    },
+    {
+      "kind": "action",
+      "newRows": 2087,
+      "changedRows": 0,
+      "unchangedRows": 2702,
+      "deletedRows": 0,
+      "newPayloadBytes": 1913521,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 1913521,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 1913521,
+      "logicalDelta": 1913521
+    },
+    {
+      "kind": "observation",
+      "newRows": 11,
+      "changedRows": 0,
+      "unchangedRows": 14,
+      "deletedRows": 0,
+      "newPayloadBytes": 583400,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 37304674,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 583400,
+      "logicalDelta": 37304674
+    },
+    {
+      "kind": "frontier",
+      "newRows": 241,
+      "changedRows": 225,
+      "unchangedRows": 241,
+      "deletedRows": 0,
+      "newPayloadBytes": 453407,
+      "changedPayloadDelta": -12199,
+      "newLogicalBytes": 453407,
+      "changedLogicalDelta": -12199,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 441208,
+      "logicalDelta": 441208
+    },
+    {
+      "kind": "exploration-group",
+      "newRows": 42,
+      "changedRows": 32,
+      "unchangedRows": 42,
+      "deletedRows": 0,
+      "newPayloadBytes": 368234,
+      "changedPayloadDelta": 25902,
+      "newLogicalBytes": 368234,
+      "changedLogicalDelta": 25902,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 394136,
+      "logicalDelta": 394136
+    },
+    {
+      "kind": "state",
+      "newRows": 8,
+      "changedRows": 0,
+      "unchangedRows": 9,
+      "deletedRows": 0,
+      "newPayloadBytes": 378596,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 6967505,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 378596,
+      "logicalDelta": 6967505
+    },
+    {
+      "kind": "intervention-snapshot",
+      "newRows": 12,
+      "changedRows": 1,
+      "unchangedRows": 15,
+      "deletedRows": 0,
+      "newPayloadBytes": 161765,
+      "changedPayloadDelta": -1,
+      "newLogicalBytes": 161765,
+      "changedLogicalDelta": -1,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 161764,
+      "logicalDelta": 161764
+    },
+    {
+      "kind": "attempt",
+      "newRows": 4,
+      "changedRows": 0,
+      "unchangedRows": 5,
+      "deletedRows": 0,
+      "newPayloadBytes": 81233,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 81233,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 81233,
+      "logicalDelta": 81233
+    },
+    {
+      "kind": "hypothesis",
+      "newRows": 23,
+      "changedRows": 0,
+      "unchangedRows": 32,
+      "deletedRows": 0,
+      "newPayloadBytes": 24156,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 24156,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 24156,
+      "logicalDelta": 24156
+    },
+    {
+      "kind": "control-classification",
+      "newRows": 2,
+      "changedRows": 0,
+      "unchangedRows": 2,
+      "deletedRows": 0,
+      "newPayloadBytes": 11393,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 11393,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 11393,
+      "logicalDelta": 11393
+    },
+    {
+      "kind": "evidence-entry",
+      "newRows": 22,
+      "changedRows": 0,
+      "unchangedRows": 28,
+      "deletedRows": 0,
+      "newPayloadBytes": 7612,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 7612,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 7612,
+      "logicalDelta": 7612
+    },
+    {
+      "kind": "visit",
+      "newRows": 11,
+      "changedRows": 0,
+      "unchangedRows": 14,
+      "deletedRows": 0,
+      "newPayloadBytes": 5197,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 5197,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 5197,
+      "logicalDelta": 5197
+    },
+    {
+      "kind": "evidence-retention",
+      "newRows": 11,
+      "changedRows": 0,
+      "unchangedRows": 14,
+      "deletedRows": 0,
+      "newPayloadBytes": 4999,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 4999,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 4999,
+      "logicalDelta": 4999
+    },
+    {
+      "kind": "region-review",
+      "newRows": 1,
+      "changedRows": 1,
+      "unchangedRows": 3,
+      "deletedRows": 0,
+      "newPayloadBytes": 1106,
+      "changedPayloadDelta": 1804,
+      "newLogicalBytes": 1106,
+      "changedLogicalDelta": 1804,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 2910,
+      "logicalDelta": 2910
+    },
+    {
+      "kind": "transition",
+      "newRows": 4,
+      "changedRows": 0,
+      "unchangedRows": 5,
+      "deletedRows": 0,
+      "newPayloadBytes": 1245,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 1245,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 1245,
+      "logicalDelta": 1245
+    },
+    {
+      "kind": "checkpoint",
+      "newRows": 3,
+      "changedRows": 0,
+      "unchangedRows": 3,
+      "deletedRows": 0,
+      "newPayloadBytes": 1147,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 1147,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 1147,
+      "logicalDelta": 1147
+    },
+    {
+      "kind": "reach",
+      "newRows": 1,
+      "changedRows": 0,
+      "unchangedRows": 1,
+      "deletedRows": 0,
+      "newPayloadBytes": 613,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 613,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 613,
+      "logicalDelta": 613
+    },
+    {
+      "kind": "scope",
+      "newRows": 1,
+      "changedRows": 0,
+      "unchangedRows": 1,
+      "deletedRows": 0,
+      "newPayloadBytes": 564,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 564,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 564,
+      "logicalDelta": 564
+    },
+    {
+      "kind": "session",
+      "newRows": 0,
+      "changedRows": 1,
+      "unchangedRows": 0,
+      "deletedRows": 0,
+      "newPayloadBytes": 0,
+      "changedPayloadDelta": 33,
+      "newLogicalBytes": 0,
+      "changedLogicalDelta": 33,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 33,
+      "logicalDelta": 33
+    },
+    {
+      "kind": "boundary-exit-episode",
+      "newRows": 0,
+      "changedRows": 1,
+      "unchangedRows": 0,
+      "deletedRows": 0,
+      "newPayloadBytes": 0,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 0,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 0,
+      "logicalDelta": 0
+    },
+    {
+      "kind": "region-review-request",
+      "newRows": 0,
+      "changedRows": 1,
+      "unchangedRows": 0,
+      "deletedRows": 0,
+      "newPayloadBytes": 0,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 0,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 0,
+      "logicalDelta": 0
+    },
+    {
+      "kind": "boundary-exit-request",
+      "newRows": 0,
+      "changedRows": 1,
+      "unchangedRows": 0,
+      "deletedRows": 0,
+      "newPayloadBytes": 0,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 0,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 0,
+      "logicalDelta": 0
+    },
+    {
+      "kind": "discovery-request",
+      "newRows": 0,
+      "changedRows": 1,
+      "unchangedRows": 0,
+      "deletedRows": 0,
+      "newPayloadBytes": 0,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 0,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 0,
+      "logicalDelta": 0
+    },
+    {
+      "kind": "page-exploration",
+      "newRows": 0,
+      "changedRows": 1,
+      "unchangedRows": 0,
+      "deletedRows": 0,
+      "newPayloadBytes": 0,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 0,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 0,
+      "logicalDelta": 0
+    },
+    {
+      "kind": "control-classification-request",
+      "newRows": 0,
+      "changedRows": 1,
+      "unchangedRows": 0,
+      "deletedRows": 0,
+      "newPayloadBytes": 0,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 0,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 0,
+      "logicalDelta": 0
+    },
+    {
+      "kind": "control-review-request",
+      "newRows": 0,
+      "changedRows": 1,
+      "unchangedRows": 0,
+      "deletedRows": 0,
+      "newPayloadBytes": 0,
+      "changedPayloadDelta": 0,
+      "newLogicalBytes": 0,
+      "changedLogicalDelta": 0,
+      "deletedPayloadBytes": 0,
+      "payloadDelta": 0,
+      "logicalDelta": 0
+    }
+  ],
+  "changedFields": {
+    "session:status": {
+      "rows": 1,
+      "priorLogicalBytes": 6,
+      "newLogicalBytes": 8
+    },
+    "session:actionCount": {
+      "rows": 1,
+      "priorLogicalBytes": 1,
+      "newLogicalBytes": 1
+    },
+    "session:elapsedMs": {
+      "rows": 1,
+      "priorLogicalBytes": 5,
+      "newLogicalBytes": 5
+    },
+    "session:currentObservationId": {
+      "rows": 1,
+      "priorLogicalBytes": 38,
+      "newLogicalBytes": 38
+    },
+    "session:stopReason": {
+      "rows": 1,
+      "priorLogicalBytes": 0,
+      "newLogicalBytes": 17
+    },
+    "boundary-exit-episode:episodeId": {
+      "rows": 1,
+      "priorLogicalBytes": 38,
+      "newLogicalBytes": 38
+    },
+    "boundary-exit-episode:firstObservationId": {
+      "rows": 1,
+      "priorLogicalBytes": 38,
+      "newLogicalBytes": 38
+    },
+    "region-review-request:key": {
+      "rows": 1,
+      "priorLogicalBytes": 66,
+      "newLogicalBytes": 66
+    },
+    "identity:occurrences": {
+      "rows": 142,
+      "priorLogicalBytes": 461719,
+      "newLogicalBytes": 832709
+    },
+    "identity:lastControl": {
+      "rows": 142,
+      "priorLogicalBytes": 578395,
+      "newLogicalBytes": 578398
+    },
+    "frontier:stateId": {
+      "rows": 58,
+      "priorLogicalBytes": 3828,
+      "newLogicalBytes": 3828
+    },
+    "frontier:action": {
+      "rows": 58,
+      "priorLogicalBytes": 44176,
+      "newLogicalBytes": 44176
+    },
+    "frontier:attempts": {
+      "rows": 3,
+      "priorLogicalBytes": 120,
+      "newLogicalBytes": 237
+    },
+    "frontier:sampling": {
+      "rows": 58,
+      "priorLogicalBytes": 33023,
+      "newLogicalBytes": 37391
+    },
+    "frontier:explorationGroups": {
+      "rows": 24,
+      "priorLogicalBytes": 3144,
+      "newLogicalBytes": 131
+    },
+    "boundary-exit-request:key": {
+      "rows": 1,
+      "priorLogicalBytes": 66,
+      "newLogicalBytes": 66
+    },
+    "discovery-request:key": {
+      "rows": 1,
+      "priorLogicalBytes": 66,
+      "newLogicalBytes": 66
+    },
+    "page-exploration:frames": {
+      "rows": 1,
+      "priorLogicalBytes": 105,
+      "newLogicalBytes": 105
+    },
+    "control-classification-request:key": {
+      "rows": 1,
+      "priorLogicalBytes": 66,
+      "newLogicalBytes": 66
+    },
+    "control-review-request:key": {
+      "rows": 1,
+      "priorLogicalBytes": 66,
+      "newLogicalBytes": 66
+    },
+    "intervention-snapshot:revision": {
+      "rows": 1,
+      "priorLogicalBytes": 66,
+      "newLogicalBytes": 66
+    },
+    "intervention-snapshot:entries": {
+      "rows": 1,
+      "priorLogicalBytes": 10319,
+      "newLogicalBytes": 8577
+    },
+    "intervention-snapshot:changes": {
+      "rows": 1,
+      "priorLogicalBytes": 5195,
+      "newLogicalBytes": 6936
+    },
+    "exploration-group:observationId": {
+      "rows": 1,
+      "priorLogicalBytes": 38,
+      "newLogicalBytes": 38
+    },
+    "exploration-group:revision": {
+      "rows": 32,
+      "priorLogicalBytes": 32,
+      "newLogicalBytes": 32
+    },
+    "exploration-group:members": {
+      "rows": 1,
+      "priorLogicalBytes": 31283,
+      "newLogicalBytes": 53565
+    },
+    "exploration-group:traversalKeys": {
+      "rows": 1,
+      "priorLogicalBytes": 68,
+      "newLogicalBytes": 135
+    },
+    "frontier:status": {
+      "rows": 167,
+      "priorLogicalBytes": 1670,
+      "newLogicalBytes": 2004
+    },
+    "frontier:reason": {
+      "rows": 189,
+      "priorLogicalBytes": 4732,
+      "newLogicalBytes": 5696
+    },
+    "frontier:unblock": {
+      "rows": 189,
+      "priorLogicalBytes": 14343,
+      "newLogicalBytes": 1694
+    },
+    "exploration-group:status": {
+      "rows": 31,
+      "priorLogicalBytes": 279,
+      "newLogicalBytes": 403
+    },
+    "exploration-group:invalidation": {
+      "rows": 31,
+      "priorLogicalBytes": 0,
+      "newLogicalBytes": 2933
+    },
+    "identity:status": {
+      "rows": 169,
+      "priorLogicalBytes": 1521,
+      "newLogicalBytes": 2366
+    },
+    "region-review:regions": {
+      "rows": 1,
+      "priorLogicalBytes": 10166,
+      "newLogicalBytes": 11966
+    },
+    "region-review:status": {
+      "rows": 1,
+      "priorLogicalBytes": 8,
+      "newLogicalBytes": 12
+    }
+  },
+  "fields": [
+    {
+      "kind": "observation",
+      "field": "regionCandidates",
+      "rows": 25,
+      "logicalBytes": 50511924,
+      "logicalGrowth": 22043748,
+      "uniqueValues": 13,
+      "exactDuplicateLogicalBytes": 26281654,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "controls",
+      "rows": 25,
+      "logicalBytes": 21671237,
+      "logicalGrowth": 9492143,
+      "uniqueValues": 17,
+      "exactDuplicateLogicalBytes": 7450917,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "state",
+      "field": "grouping",
+      "rows": 17,
+      "logicalBytes": 9163636,
+      "logicalGrowth": 4282276,
+      "uniqueValues": 17,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "canonical",
+      "rows": 25,
+      "logicalBytes": 8751975,
+      "logicalGrowth": 3821414,
+      "uniqueValues": 15,
+      "exactDuplicateLogicalBytes": 3773809,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "state",
+      "field": "canonical",
+      "rows": 17,
+      "logicalBytes": 5737464,
+      "logicalGrowth": 2682542,
+      "uniqueValues": 15,
+      "exactDuplicateLogicalBytes": 759298,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "structuralLists",
+      "rows": 25,
+      "logicalBytes": 2484835,
+      "logicalGrowth": 1076857,
+      "uniqueValues": 7,
+      "exactDuplicateLogicalBytes": 1849098,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "identity",
+      "field": "lastControl",
+      "rows": 1142,
+      "logicalBytes": 2948346,
+      "logicalGrowth": 981480,
+      "uniqueValues": 1142,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "identity",
+      "field": "occurrences",
+      "rows": 1142,
+      "logicalBytes": 1892883,
+      "logicalGrowth": 833348,
+      "uniqueValues": 1142,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "action",
+      "field": "preconditions",
+      "rows": 4789,
+      "logicalBytes": 1156399,
+      "logicalGrowth": 567045,
+      "uniqueValues": 11,
+      "exactDuplicateLogicalBytes": 1153448,
+      "newRowsMatchingOldFieldBytes": 567045
+    },
+    {
+      "kind": "action",
+      "field": "basis",
+      "rows": 4787,
+      "logicalBytes": 623667,
+      "logicalGrowth": 271479,
+      "uniqueValues": 274,
+      "exactDuplicateLogicalBytes": 587733,
+      "newRowsMatchingOldFieldBytes": 231942
+    },
+    {
+      "kind": "frontier",
+      "field": "action",
+      "rows": 707,
+      "logicalBytes": 527607,
+      "logicalGrowth": 179203,
+      "uniqueValues": 707,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "components",
+      "rows": 25,
+      "logicalBytes": 368564,
+      "logicalGrowth": 161437,
+      "uniqueValues": 7,
+      "exactDuplicateLogicalBytes": 272743,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "identity",
+      "field": "signature",
+      "rows": 1142,
+      "logicalBytes": 395574,
+      "logicalGrowth": 149573,
+      "uniqueValues": 433,
+      "exactDuplicateLogicalBytes": 255367,
+      "newRowsMatchingOldFieldBytes": 122719
+    },
+    {
+      "kind": "exploration-group",
+      "field": "members",
+      "rows": 116,
+      "logicalBytes": 382774,
+      "logicalGrowth": 144845,
+      "uniqueValues": 115,
+      "exactDuplicateLogicalBytes": 2753,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "regions",
+      "rows": 25,
+      "logicalBytes": 314984,
+      "logicalGrowth": 138258,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 218326,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "action",
+      "field": "stateId",
+      "rows": 4789,
+      "logicalBytes": 316074,
+      "logicalGrowth": 137742,
+      "uniqueValues": 17,
+      "exactDuplicateLogicalBytes": 314952,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "exploration-group",
+      "field": "evidence",
+      "rows": 116,
+      "logicalBytes": 336434,
+      "logicalGrowth": 136044,
+      "uniqueValues": 116,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "text",
+      "rows": 25,
+      "logicalBytes": 306636,
+      "logicalGrowth": 133188,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 202280,
+      "newRowsMatchingOldFieldBytes": 7814
+    },
+    {
+      "kind": "frontier",
+      "field": "sampling",
+      "rows": 704,
+      "logicalBytes": 354887,
+      "logicalGrowth": 115751,
+      "uniqueValues": 17,
+      "exactDuplicateLogicalBytes": 345984,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "evidence",
+      "rows": 25,
+      "logicalBytes": 258798,
+      "logicalGrowth": 111780,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "gaps",
+      "rows": 25,
+      "logicalBytes": 239235,
+      "logicalGrowth": 103215,
+      "uniqueValues": 10,
+      "exactDuplicateLogicalBytes": 146357,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "boundaryExitCandidates",
+      "rows": 25,
+      "logicalBytes": 188075,
+      "logicalGrowth": 100302,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 162999,
+      "newRowsMatchingOldFieldBytes": 6
+    },
+    {
+      "kind": "observation",
+      "field": "discoveryScan",
+      "rows": 25,
+      "logicalBytes": 229339,
+      "logicalGrowth": 99167,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 165360,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "intervention-snapshot",
+      "field": "entries",
+      "rows": 28,
+      "logicalBytes": 231580,
+      "logicalGrowth": 98770,
+      "uniqueValues": 27,
+      "exactDuplicateLogicalBytes": 8577,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "action",
+      "field": "localId",
+      "rows": 4761,
+      "logicalBytes": 200917,
+      "logicalGrowth": 87565,
+      "uniqueValues": 1231,
+      "exactDuplicateLogicalBytes": 148996,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "action",
+      "field": "id",
+      "rows": 4789,
+      "logicalBytes": 181982,
+      "logicalGrowth": 79306,
+      "uniqueValues": 4789,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "action",
+      "field": "sessionId",
+      "rows": 4789,
+      "logicalBytes": 181982,
+      "logicalGrowth": 79306,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 181944,
+      "newRowsMatchingOldFieldBytes": 79306
+    },
+    {
+      "kind": "action",
+      "field": "observationId",
+      "rows": 4789,
+      "logicalBytes": 181982,
+      "logicalGrowth": 79306,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 181032,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "action",
+      "field": "controlId",
+      "rows": 4761,
+      "logicalBytes": 180918,
+      "logicalGrowth": 78850,
+      "uniqueValues": 1018,
+      "exactDuplicateLogicalBytes": 142234,
+      "newRowsMatchingOldFieldBytes": 16948
+    },
+    {
+      "kind": "attempt",
+      "field": "diff",
+      "rows": 9,
+      "logicalBytes": 194820,
+      "logicalGrowth": 76364,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "intervention-snapshot",
+      "field": "changes",
+      "rows": 28,
+      "logicalBytes": 133537,
+      "logicalGrowth": 59862,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 15586,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "identity",
+      "field": "stableKey",
+      "rows": 975,
+      "logicalBytes": 134344,
+      "logicalGrowth": 55315,
+      "uniqueValues": 964,
+      "exactDuplicateLogicalBytes": 229,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "action",
+      "field": "label",
+      "rows": 4789,
+      "logicalBytes": 97071,
+      "logicalGrowth": 42312,
+      "uniqueValues": 326,
+      "exactDuplicateLogicalBytes": 90956,
+      "newRowsMatchingOldFieldBytes": 37403
+    },
+    {
+      "kind": "exploration-group",
+      "field": "collection",
+      "rows": 115,
+      "logicalBytes": 95404,
+      "logicalGrowth": 36925,
+      "uniqueValues": 26,
+      "exactDuplicateLogicalBytes": 75135,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "frontier",
+      "field": "explorationGroups",
+      "rows": 658,
+      "logicalBytes": 114533,
+      "logicalGrowth": 36843,
+      "uniqueValues": 657,
+      "exactDuplicateLogicalBytes": 52,
+      "newRowsMatchingOldFieldBytes": 52
+    },
+    {
+      "kind": "action",
+      "field": "source",
+      "rows": 4789,
+      "logicalBytes": 76652,
+      "logicalGrowth": 33398,
+      "uniqueValues": 4,
+      "exactDuplicateLogicalBytes": 76578,
+      "newRowsMatchingOldFieldBytes": 33398
+    },
+    {
+      "kind": "exploration-group",
+      "field": "conditions",
+      "rows": 116,
+      "logicalBytes": 74441,
+      "logicalGrowth": 28696,
+      "uniqueValues": 116,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "action",
+      "field": "risk",
+      "rows": 4789,
+      "logicalBytes": 51769,
+      "logicalGrowth": 22559,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 51749,
+      "newRowsMatchingOldFieldBytes": 22559
+    },
+    {
+      "kind": "exploration-group",
+      "field": "proposalKey",
+      "rows": 116,
+      "logicalBytes": 40291,
+      "logicalGrowth": 16285,
+      "uniqueValues": 116,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "frontier",
+      "field": "key",
+      "rows": 707,
+      "logicalBytes": 46662,
+      "logicalGrowth": 15906,
+      "uniqueValues": 707,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "frontier",
+      "field": "stateId",
+      "rows": 707,
+      "logicalBytes": 46662,
+      "logicalGrowth": 15906,
+      "uniqueValues": 8,
+      "exactDuplicateLogicalBytes": 46134,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "frontier",
+      "field": "contextKey",
+      "rows": 707,
+      "logicalBytes": 46662,
+      "logicalGrowth": 15906,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 46596,
+      "newRowsMatchingOldFieldBytes": 15906
+    },
+    {
+      "kind": "identity",
+      "field": "id",
+      "rows": 1142,
+      "logicalBytes": 43396,
+      "logicalGrowth": 15770,
+      "uniqueValues": 1142,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "identity",
+      "field": "sessionId",
+      "rows": 1142,
+      "logicalBytes": 43396,
+      "logicalGrowth": 15770,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 43358,
+      "newRowsMatchingOldFieldBytes": 15770
+    },
+    {
+      "kind": "action",
+      "field": "sampleValidity",
+      "rows": 4789,
+      "logicalBytes": 34003,
+      "logicalGrowth": 14819,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 33984,
+      "newRowsMatchingOldFieldBytes": 14819
+    },
+    {
+      "kind": "action",
+      "field": "kind",
+      "rows": 4789,
+      "logicalBytes": 33466,
+      "logicalGrowth": 14582,
+      "uniqueValues": 7,
+      "exactDuplicateLogicalBytes": 33412,
+      "newRowsMatchingOldFieldBytes": 14582
+    },
+    {
+      "kind": "hypothesis",
+      "field": "candidateIds",
+      "rows": 55,
+      "logicalBytes": 21466,
+      "logicalGrowth": 13634,
+      "uniqueValues": 55,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "action",
+      "field": "target",
+      "rows": 105,
+      "logicalBytes": 28455,
+      "logicalGrowth": 12195,
+      "uniqueValues": 105,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "identity",
+      "field": "createdAt",
+      "rows": 1142,
+      "logicalBytes": 29692,
+      "logicalGrowth": 10790,
+      "uniqueValues": 35,
+      "exactDuplicateLogicalBytes": 28782,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "action",
+      "field": "excluded",
+      "rows": 4789,
+      "logicalBytes": 23945,
+      "logicalGrowth": 10435,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 23940,
+      "newRowsMatchingOldFieldBytes": 10435
+    },
+    {
+      "kind": "control-classification",
+      "field": "conditions",
+      "rows": 4,
+      "logicalBytes": 19384,
+      "logicalGrowth": 9692,
+      "uniqueValues": 4,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "frontier",
+      "field": "id",
+      "rows": 707,
+      "logicalBytes": 26866,
+      "logicalGrowth": 9158,
+      "uniqueValues": 707,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "frontier",
+      "field": "sessionId",
+      "rows": 707,
+      "logicalBytes": 26866,
+      "logicalGrowth": 9158,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 26828,
+      "newRowsMatchingOldFieldBytes": 9158
+    },
+    {
+      "kind": "action",
+      "field": "replayable",
+      "rows": 4789,
+      "logicalBytes": 19624,
+      "logicalGrowth": 8551,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 19615,
+      "newRowsMatchingOldFieldBytes": 8551
+    },
+    {
+      "kind": "frontier",
+      "field": "reason",
+      "rows": 701,
+      "logicalBytes": 20103,
+      "logicalGrowth": 7225,
+      "uniqueValues": 7,
+      "exactDuplicateLogicalBytes": 19937,
+      "newRowsMatchingOldFieldBytes": 6261
+    },
+    {
+      "kind": "identity",
+      "field": "status",
+      "rows": 1142,
+      "logicalBytes": 14528,
+      "logicalGrowth": 5810,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 14505,
+      "newRowsMatchingOldFieldBytes": 4965
+    },
+    {
+      "kind": "exploration-group",
+      "field": "invalidation",
+      "rows": 99,
+      "logicalBytes": 9583,
+      "logicalGrowth": 5474,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 8722,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "overlays",
+      "rows": 25,
+      "logicalBytes": 10145,
+      "logicalGrowth": 5406,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 8793,
+      "newRowsMatchingOldFieldBytes": 6
+    },
+    {
+      "kind": "attempt",
+      "field": "action",
+      "rows": 9,
+      "logicalBytes": 6965,
+      "logicalGrowth": 2984,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "frontier",
+      "field": "status",
+      "rows": 707,
+      "logicalBytes": 8010,
+      "logicalGrowth": 2887,
+      "uniqueValues": 4,
+      "exactDuplicateLogicalBytes": 7969,
+      "newRowsMatchingOldFieldBytes": 2553
+    },
+    {
+      "kind": "exploration-group",
+      "field": "key",
+      "rows": 116,
+      "logicalBytes": 7656,
+      "logicalGrowth": 2772,
+      "uniqueValues": 116,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "exploration-group",
+      "field": "contextKey",
+      "rows": 116,
+      "logicalBytes": 7656,
+      "logicalGrowth": 2772,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 7590,
+      "newRowsMatchingOldFieldBytes": 2772
+    },
+    {
+      "kind": "region-review",
+      "field": "regions",
+      "rows": 5,
+      "logicalBytes": 27163,
+      "logicalGrowth": 2384,
+      "uniqueValues": 5,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "navigation",
+      "rows": 25,
+      "logicalBytes": 5220,
+      "logicalGrowth": 2276,
+      "uniqueValues": 7,
+      "exactDuplicateLogicalBytes": 3592,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "action",
+      "field": "boundary",
+      "rows": 75,
+      "logicalBytes": 3930,
+      "logicalGrowth": 2096,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 3826,
+      "newRowsMatchingOldFieldBytes": 2096
+    },
+    {
+      "kind": "hypothesis",
+      "field": "evidence",
+      "rows": 55,
+      "logicalBytes": 4326,
+      "logicalGrowth": 1794,
+      "uniqueValues": 4,
+      "exactDuplicateLogicalBytes": 4062,
+      "newRowsMatchingOldFieldBytes": 1794
+    },
+    {
+      "kind": "observation",
+      "field": "actionDiscovery",
+      "rows": 25,
+      "logicalBytes": 3545,
+      "logicalGrowth": 1781,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 3293,
+      "newRowsMatchingOldFieldBytes": 1781
+    },
+    {
+      "kind": "evidence-entry",
+      "field": "hash",
+      "rows": 50,
+      "logicalBytes": 3975,
+      "logicalGrowth": 1749,
+      "uniqueValues": 36,
+      "exactDuplicateLogicalBytes": 1064,
+      "newRowsMatchingOldFieldBytes": 152
+    },
+    {
+      "kind": "exploration-group",
+      "field": "id",
+      "rows": 116,
+      "logicalBytes": 4408,
+      "logicalGrowth": 1596,
+      "uniqueValues": 116,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "exploration-group",
+      "field": "sessionId",
+      "rows": 116,
+      "logicalBytes": 4408,
+      "logicalGrowth": 1596,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 4370,
+      "newRowsMatchingOldFieldBytes": 1596
+    },
+    {
+      "kind": "exploration-group",
+      "field": "instanceScope",
+      "rows": 116,
+      "logicalBytes": 4408,
+      "logicalGrowth": 1596,
+      "uniqueValues": 7,
+      "exactDuplicateLogicalBytes": 4142,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "exploration-group",
+      "field": "observationId",
+      "rows": 116,
+      "logicalBytes": 4408,
+      "logicalGrowth": 1596,
+      "uniqueValues": 7,
+      "exactDuplicateLogicalBytes": 4142,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "action",
+      "field": "value",
+      "rows": 160,
+      "logicalBytes": 3622,
+      "logicalGrowth": 1304,
+      "uniqueValues": 12,
+      "exactDuplicateLogicalBytes": 2450,
+      "newRowsMatchingOldFieldBytes": 650
+    },
+    {
+      "kind": "intervention-snapshot",
+      "field": "id",
+      "rows": 28,
+      "logicalBytes": 2826,
+      "logicalGrowth": 1236,
+      "uniqueValues": 28,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "evidence-entry",
+      "field": "id",
+      "rows": 50,
+      "logicalBytes": 2775,
+      "logicalGrowth": 1221,
+      "uniqueValues": 50,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "visit",
+      "field": "explorationScope",
+      "rows": 25,
+      "logicalBytes": 2352,
+      "logicalGrowth": 1082,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 2075,
+      "newRowsMatchingOldFieldBytes": 1082
+    },
+    {
+      "kind": "evidence-retention",
+      "field": "keys",
+      "rows": 25,
+      "logicalBytes": 2400,
+      "logicalGrowth": 1056,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "evidence-entry",
+      "field": "key",
+      "rows": 50,
+      "logicalBytes": 2325,
+      "logicalGrowth": 1023,
+      "uniqueValues": 50,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "hypothesis",
+      "field": "localId",
+      "rows": 55,
+      "logicalBytes": 2332,
+      "logicalGrowth": 975,
+      "uniqueValues": 55,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "exploration-group",
+      "field": "membership",
+      "rows": 116,
+      "logicalBytes": 2668,
+      "logicalGrowth": 966,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 2645,
+      "newRowsMatchingOldFieldBytes": 966
+    },
+    {
+      "kind": "observation",
+      "field": "scrollContainers",
+      "rows": 25,
+      "logicalBytes": 3882,
+      "logicalGrowth": 882,
+      "uniqueValues": 6,
+      "exactDuplicateLogicalBytes": 1954,
+      "newRowsMatchingOldFieldBytes": 16
+    },
+    {
+      "kind": "hypothesis",
+      "field": "id",
+      "rows": 55,
+      "logicalBytes": 2090,
+      "logicalGrowth": 874,
+      "uniqueValues": 55,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "hypothesis",
+      "field": "sessionId",
+      "rows": 55,
+      "logicalBytes": 2090,
+      "logicalGrowth": 874,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 2052,
+      "newRowsMatchingOldFieldBytes": 874
+    },
+    {
+      "kind": "hypothesis",
+      "field": "observationId",
+      "rows": 55,
+      "logicalBytes": 2090,
+      "logicalGrowth": 874,
+      "uniqueValues": 8,
+      "exactDuplicateLogicalBytes": 1786,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "hypothesis",
+      "field": "provisionalIdentityId",
+      "rows": 55,
+      "logicalBytes": 2090,
+      "logicalGrowth": 874,
+      "uniqueValues": 55,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "evidence-retention",
+      "field": "policy",
+      "rows": 25,
+      "logicalBytes": 1900,
+      "logicalGrowth": 836,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 1824,
+      "newRowsMatchingOldFieldBytes": 836
+    },
+    {
+      "kind": "evidence-entry",
+      "field": "sessionId",
+      "rows": 50,
+      "logicalBytes": 1900,
+      "logicalGrowth": 836,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 1862,
+      "newRowsMatchingOldFieldBytes": 836
+    },
+    {
+      "kind": "evidence-entry",
+      "field": "observationId",
+      "rows": 50,
+      "logicalBytes": 1900,
+      "logicalGrowth": 836,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 950,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "intervention-snapshot",
+      "field": "revision",
+      "rows": 28,
+      "logicalBytes": 1848,
+      "logicalGrowth": 792,
+      "uniqueValues": 27,
+      "exactDuplicateLogicalBytes": 66,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "boundaries",
+      "rows": 25,
+      "logicalBytes": 1490,
+      "logicalGrowth": 790,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 1390,
+      "newRowsMatchingOldFieldBytes": 790
+    },
+    {
+      "kind": "exploration-group",
+      "field": "label",
+      "rows": 116,
+      "logicalBytes": 2582,
+      "logicalGrowth": 778,
+      "uniqueValues": 23,
+      "exactDuplicateLogicalBytes": 1782,
+      "newRowsMatchingOldFieldBytes": 778
+    },
+    {
+      "kind": "observation",
+      "field": "stateId",
+      "rows": 25,
+      "logicalBytes": 1650,
+      "logicalGrowth": 726,
+      "uniqueValues": 17,
+      "exactDuplicateLogicalBytes": 528,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "fingerprint",
+      "rows": 25,
+      "logicalBytes": 1650,
+      "logicalGrowth": 726,
+      "uniqueValues": 15,
+      "exactDuplicateLogicalBytes": 660,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "visit",
+      "field": "stateId",
+      "rows": 25,
+      "logicalBytes": 1650,
+      "logicalGrowth": 726,
+      "uniqueValues": 17,
+      "exactDuplicateLogicalBytes": 528,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "hypothesis",
+      "field": "conflicts",
+      "rows": 55,
+      "logicalBytes": 1601,
+      "logicalGrowth": 670,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 1540,
+      "newRowsMatchingOldFieldBytes": 670
+    },
+    {
+      "kind": "frontier",
+      "field": "attempts",
+      "rows": 707,
+      "logicalBytes": 1759,
+      "logicalGrowth": 637,
+      "uniqueValues": 7,
+      "exactDuplicateLogicalBytes": 1400,
+      "newRowsMatchingOldFieldBytes": 480
+    },
+    {
+      "kind": "exploration-group",
+      "field": "status",
+      "rows": 116,
+      "logicalBytes": 1440,
+      "logicalGrowth": 606,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 1418,
+      "newRowsMatchingOldFieldBytes": 482
+    },
+    {
+      "kind": "exploration-group",
+      "field": "kind",
+      "rows": 116,
+      "logicalBytes": 1667,
+      "logicalGrowth": 591,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 1630,
+      "newRowsMatchingOldFieldBytes": 591
+    },
+    {
+      "kind": "observation",
+      "field": "title",
+      "rows": 25,
+      "logicalBytes": 1249,
+      "logicalGrowth": 551,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 1145,
+      "newRowsMatchingOldFieldBytes": 551
+    },
+    {
+      "kind": "evidence-retention",
+      "field": "id",
+      "rows": 25,
+      "logicalBytes": 1200,
+      "logicalGrowth": 528,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "state",
+      "field": "id",
+      "rows": 17,
+      "logicalBytes": 1122,
+      "logicalGrowth": 528,
+      "uniqueValues": 17,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "state",
+      "field": "fingerprint",
+      "rows": 17,
+      "logicalBytes": 1122,
+      "logicalGrowth": 528,
+      "uniqueValues": 15,
+      "exactDuplicateLogicalBytes": 132,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "url",
+      "rows": 25,
+      "logicalBytes": 1132,
+      "logicalGrowth": 506,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 1019,
+      "newRowsMatchingOldFieldBytes": 506
+    },
+    {
+      "kind": "evidence-retention",
+      "field": "pins",
+      "rows": 25,
+      "logicalBytes": 1415,
+      "logicalGrowth": 477,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 1320,
+      "newRowsMatchingOldFieldBytes": 477
+    },
+    {
+      "kind": "observation",
+      "field": "screenshot",
+      "rows": 25,
+      "logicalBytes": 1050,
+      "logicalGrowth": 462,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "intervention-snapshot",
+      "field": "sessionId",
+      "rows": 28,
+      "logicalBytes": 1064,
+      "logicalGrowth": 456,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 1026,
+      "newRowsMatchingOldFieldBytes": 456
+    },
+    {
+      "kind": "evidence-retention",
+      "field": "sessionId",
+      "rows": 25,
+      "logicalBytes": 950,
+      "logicalGrowth": 418,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 912,
+      "newRowsMatchingOldFieldBytes": 418
+    },
+    {
+      "kind": "evidence-retention",
+      "field": "observationId",
+      "rows": 25,
+      "logicalBytes": 950,
+      "logicalGrowth": 418,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "documentId",
+      "rows": 25,
+      "logicalBytes": 950,
+      "logicalGrowth": 418,
+      "uniqueValues": 7,
+      "exactDuplicateLogicalBytes": 684,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "instanceScope",
+      "rows": 25,
+      "logicalBytes": 950,
+      "logicalGrowth": 418,
+      "uniqueValues": 7,
+      "exactDuplicateLogicalBytes": 684,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "id",
+      "rows": 25,
+      "logicalBytes": 950,
+      "logicalGrowth": 418,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "sessionId",
+      "rows": 25,
+      "logicalBytes": 950,
+      "logicalGrowth": 418,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 912,
+      "newRowsMatchingOldFieldBytes": 418
+    },
+    {
+      "kind": "observation",
+      "field": "visitId",
+      "rows": 25,
+      "logicalBytes": 950,
+      "logicalGrowth": 418,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "visit",
+      "field": "id",
+      "rows": 25,
+      "logicalBytes": 950,
+      "logicalGrowth": 418,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "visit",
+      "field": "sessionId",
+      "rows": 25,
+      "logicalBytes": 950,
+      "logicalGrowth": 418,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 912,
+      "newRowsMatchingOldFieldBytes": 418
+    },
+    {
+      "kind": "visit",
+      "field": "observationId",
+      "rows": 25,
+      "logicalBytes": 950,
+      "logicalGrowth": 418,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "state",
+      "field": "observationIds",
+      "rows": 17,
+      "logicalBytes": 797,
+      "logicalGrowth": 359,
+      "uniqueValues": 17,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "exploration-group",
+      "field": "decisions",
+      "rows": 116,
+      "logicalBytes": 770,
+      "logicalGrowth": 353,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 226,
+      "newRowsMatchingOldFieldBytes": 82
+    },
+    {
+      "kind": "visit",
+      "field": "parentId",
+      "rows": 24,
+      "logicalBytes": 804,
+      "logicalGrowth": 346,
+      "uniqueValues": 22,
+      "exactDuplicateLogicalBytes": 4,
+      "newRowsMatchingOldFieldBytes": 4
+    },
+    {
+      "kind": "state",
+      "field": "sessionId",
+      "rows": 17,
+      "logicalBytes": 646,
+      "logicalGrowth": 304,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 608,
+      "newRowsMatchingOldFieldBytes": 304
+    },
+    {
+      "kind": "observation",
+      "field": "viewport",
+      "rows": 25,
+      "logicalBytes": 675,
+      "logicalGrowth": 297,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 648,
+      "newRowsMatchingOldFieldBytes": 297
+    },
+    {
+      "kind": "observation",
+      "field": "stateGrouping",
+      "rows": 25,
+      "logicalBytes": 675,
+      "logicalGrowth": 297,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 648,
+      "newRowsMatchingOldFieldBytes": 297
+    },
+    {
+      "kind": "observation",
+      "field": "capturedAt",
+      "rows": 25,
+      "logicalBytes": 650,
+      "logicalGrowth": 286,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "screenshotAt",
+      "rows": 25,
+      "logicalBytes": 650,
+      "logicalGrowth": 286,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "visit",
+      "field": "at",
+      "rows": 25,
+      "logicalBytes": 650,
+      "logicalGrowth": 286,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "exploration-group",
+      "field": "traversalKeys",
+      "rows": 116,
+      "logicalBytes": 761,
+      "logicalGrowth": 283,
+      "uniqueValues": 7,
+      "exactDuplicateLogicalBytes": 284,
+      "newRowsMatchingOldFieldBytes": 80
+    },
+    {
+      "kind": "observation",
+      "field": "scroll",
+      "rows": 25,
+      "logicalBytes": 625,
+      "logicalGrowth": 275,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 575,
+      "newRowsMatchingOldFieldBytes": 275
+    },
+    {
+      "kind": "control-classification",
+      "field": "invalidation",
+      "rows": 4,
+      "logicalBytes": 532,
+      "logicalGrowth": 266,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 133,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "transition",
+      "field": "from",
+      "rows": 9,
+      "logicalBytes": 594,
+      "logicalGrowth": 264,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "transition",
+      "field": "to",
+      "rows": 9,
+      "logicalBytes": 594,
+      "logicalGrowth": 264,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "frontier",
+      "field": "unblock",
+      "rows": 226,
+      "logicalBytes": 17165,
+      "logicalGrowth": 252,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 17002,
+      "newRowsMatchingOldFieldBytes": 12901
+    },
+    {
+      "kind": "evidence-entry",
+      "field": "status",
+      "rows": 50,
+      "logicalBytes": 550,
+      "logicalGrowth": 242,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 539,
+      "newRowsMatchingOldFieldBytes": 242
+    },
+    {
+      "kind": "frontier",
+      "field": "depth",
+      "rows": 707,
+      "logicalBytes": 707,
+      "logicalGrowth": 241,
+      "uniqueValues": 5,
+      "exactDuplicateLogicalBytes": 702,
+      "newRowsMatchingOldFieldBytes": 241
+    },
+    {
+      "kind": "hypothesis",
+      "field": "revisions",
+      "rows": 55,
+      "logicalBytes": 474,
+      "logicalGrowth": 228,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 104,
+      "newRowsMatchingOldFieldBytes": 44
+    },
+    {
+      "kind": "control-classification",
+      "field": "evidence",
+      "rows": 4,
+      "logicalBytes": 344,
+      "logicalGrowth": 228,
+      "uniqueValues": 4,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "hypothesis",
+      "field": "status",
+      "rows": 55,
+      "logicalBytes": 497,
+      "logicalGrowth": 208,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 478,
+      "newRowsMatchingOldFieldBytes": 208
+    },
+    {
+      "kind": "checkpoint",
+      "field": "stateId",
+      "rows": 6,
+      "logicalBytes": 396,
+      "logicalGrowth": 198,
+      "uniqueValues": 6,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "control-classification",
+      "field": "reuseFrom",
+      "rows": 1,
+      "logicalBytes": 194,
+      "logicalGrowth": 194,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "reach",
+      "field": "diagnostics",
+      "rows": 2,
+      "logicalBytes": 381,
+      "logicalGrowth": 178,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "ruleVersion",
+      "rows": 25,
+      "logicalBytes": 375,
+      "logicalGrowth": 165,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 360,
+      "newRowsMatchingOldFieldBytes": 165
+    },
+    {
+      "kind": "attempt",
+      "field": "id",
+      "rows": 9,
+      "logicalBytes": 342,
+      "logicalGrowth": 152,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "attempt",
+      "field": "sessionId",
+      "rows": 9,
+      "logicalBytes": 342,
+      "logicalGrowth": 152,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 304,
+      "newRowsMatchingOldFieldBytes": 152
+    },
+    {
+      "kind": "attempt",
+      "field": "requestId",
+      "rows": 9,
+      "logicalBytes": 342,
+      "logicalGrowth": 152,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "attempt",
+      "field": "beforeId",
+      "rows": 9,
+      "logicalBytes": 342,
+      "logicalGrowth": 152,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "attempt",
+      "field": "afterId",
+      "rows": 9,
+      "logicalBytes": 342,
+      "logicalGrowth": 152,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "attempt",
+      "field": "transitionId",
+      "rows": 9,
+      "logicalBytes": 342,
+      "logicalGrowth": 152,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "visit",
+      "field": "viaAttemptId",
+      "rows": 9,
+      "logicalBytes": 342,
+      "logicalGrowth": 152,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "transition",
+      "field": "id",
+      "rows": 9,
+      "logicalBytes": 342,
+      "logicalGrowth": 152,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "transition",
+      "field": "sessionId",
+      "rows": 9,
+      "logicalBytes": 342,
+      "logicalGrowth": 152,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 304,
+      "newRowsMatchingOldFieldBytes": 152
+    },
+    {
+      "kind": "transition",
+      "field": "attemptId",
+      "rows": 9,
+      "logicalBytes": 342,
+      "logicalGrowth": 152,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "evidence-retention",
+      "field": "createdAt",
+      "rows": 25,
+      "logicalBytes": 325,
+      "logicalGrowth": 143,
+      "uniqueValues": 25,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "evidence-entry",
+      "field": "bytes",
+      "rows": 50,
+      "logicalBytes": 325,
+      "logicalGrowth": 143,
+      "uniqueValues": 29,
+      "exactDuplicateLogicalBytes": 133,
+      "newRowsMatchingOldFieldBytes": 12
+    },
+    {
+      "kind": "control-classification",
+      "field": "conditionKey",
+      "rows": 4,
+      "logicalBytes": 264,
+      "logicalGrowth": 132,
+      "uniqueValues": 4,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "checkpoint",
+      "field": "path",
+      "rows": 6,
+      "logicalBytes": 242,
+      "logicalGrowth": 121,
+      "uniqueValues": 5,
+      "exactDuplicateLogicalBytes": 2,
+      "newRowsMatchingOldFieldBytes": 2
+    },
+    {
+      "kind": "state",
+      "field": "ruleVersion",
+      "rows": 17,
+      "logicalBytes": 255,
+      "logicalGrowth": 120,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 240,
+      "newRowsMatchingOldFieldBytes": 120
+    },
+    {
+      "kind": "scope",
+      "field": "attemptIds",
+      "rows": 2,
+      "logicalBytes": 236,
+      "logicalGrowth": 118,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "cause",
+      "rows": 25,
+      "logicalBytes": 261,
+      "logicalGrowth": 114,
+      "uniqueValues": 4,
+      "exactDuplicateLogicalBytes": 222,
+      "newRowsMatchingOldFieldBytes": 114
+    },
+    {
+      "kind": "checkpoint",
+      "field": "id",
+      "rows": 6,
+      "logicalBytes": 228,
+      "logicalGrowth": 114,
+      "uniqueValues": 6,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "checkpoint",
+      "field": "sessionId",
+      "rows": 6,
+      "logicalBytes": 228,
+      "logicalGrowth": 114,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 190,
+      "newRowsMatchingOldFieldBytes": 114
+    },
+    {
+      "kind": "checkpoint",
+      "field": "observationId",
+      "rows": 6,
+      "logicalBytes": 228,
+      "logicalGrowth": 114,
+      "uniqueValues": 6,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "attempt",
+      "field": "startedAt",
+      "rows": 9,
+      "logicalBytes": 234,
+      "logicalGrowth": 104,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "attempt",
+      "field": "finishedAt",
+      "rows": 9,
+      "logicalBytes": 234,
+      "logicalGrowth": 104,
+      "uniqueValues": 9,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "control-classification",
+      "field": "reason",
+      "rows": 4,
+      "logicalBytes": 139,
+      "logicalGrowth": 97,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 22,
+      "newRowsMatchingOldFieldBytes": 22
+    },
+    {
+      "kind": "control-classification",
+      "field": "localId",
+      "rows": 4,
+      "logicalBytes": 172,
+      "logicalGrowth": 86,
+      "uniqueValues": 4,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "checkpoint",
+      "field": "createdAt",
+      "rows": 6,
+      "logicalBytes": 156,
+      "logicalGrowth": 78,
+      "uniqueValues": 6,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "control-classification",
+      "field": "id",
+      "rows": 4,
+      "logicalBytes": 152,
+      "logicalGrowth": 76,
+      "uniqueValues": 4,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "control-classification",
+      "field": "sessionId",
+      "rows": 4,
+      "logicalBytes": 152,
+      "logicalGrowth": 76,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 114,
+      "newRowsMatchingOldFieldBytes": 76
+    },
+    {
+      "kind": "control-classification",
+      "field": "observationId",
+      "rows": 4,
+      "logicalBytes": 152,
+      "logicalGrowth": 76,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 38,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "attempt",
+      "field": "executionProfile",
+      "rows": 6,
+      "logicalBytes": 138,
+      "logicalGrowth": 69,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 115,
+      "newRowsMatchingOldFieldBytes": 69
+    },
+    {
+      "kind": "region-review",
+      "field": "contextKey",
+      "rows": 5,
+      "logicalBytes": 330,
+      "logicalGrowth": 66,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 264,
+      "newRowsMatchingOldFieldBytes": 66
+    },
+    {
+      "kind": "region-review",
+      "field": "evidence",
+      "rows": 5,
+      "logicalBytes": 974,
+      "logicalGrowth": 58,
+      "uniqueValues": 5,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "reach",
+      "field": "checks",
+      "rows": 2,
+      "logicalBytes": 112,
+      "logicalGrowth": 56,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 56,
+      "newRowsMatchingOldFieldBytes": 56
+    },
+    {
+      "kind": "control-classification",
+      "field": "at",
+      "rows": 4,
+      "logicalBytes": 104,
+      "logicalGrowth": 52,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 26,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "observation",
+      "field": "stable",
+      "rows": 25,
+      "logicalBytes": 104,
+      "logicalGrowth": 46,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 95,
+      "newRowsMatchingOldFieldBytes": 46
+    },
+    {
+      "kind": "evidence-retention",
+      "field": "committed",
+      "rows": 25,
+      "logicalBytes": 100,
+      "logicalGrowth": 44,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 96,
+      "newRowsMatchingOldFieldBytes": 44
+    },
+    {
+      "kind": "attempt",
+      "field": "status",
+      "rows": 9,
+      "logicalBytes": 99,
+      "logicalGrowth": 44,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 88,
+      "newRowsMatchingOldFieldBytes": 44
+    },
+    {
+      "kind": "exploration-group",
+      "field": "revision",
+      "rows": 116,
+      "logicalBytes": 116,
+      "logicalGrowth": 42,
+      "uniqueValues": 4,
+      "exactDuplicateLogicalBytes": 112,
+      "newRowsMatchingOldFieldBytes": 41
+    },
+    {
+      "kind": "checkpoint",
+      "field": "name",
+      "rows": 6,
+      "logicalBytes": 84,
+      "logicalGrowth": 42,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 42,
+      "newRowsMatchingOldFieldBytes": 42
+    },
+    {
+      "kind": "region-review",
+      "field": "url",
+      "rows": 5,
+      "logicalBytes": 200,
+      "logicalGrowth": 40,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 160,
+      "newRowsMatchingOldFieldBytes": 40
+    },
+    {
+      "kind": "attempt",
+      "field": "purpose",
+      "rows": 9,
+      "logicalBytes": 90,
+      "logicalGrowth": 40,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 70,
+      "newRowsMatchingOldFieldBytes": 40
+    },
+    {
+      "kind": "reach",
+      "field": "attemptIds",
+      "rows": 2,
+      "logicalBytes": 119,
+      "logicalGrowth": 40,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "reach",
+      "field": "reason",
+      "rows": 2,
+      "logicalBytes": 76,
+      "logicalGrowth": 39,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "scope",
+      "field": "id",
+      "rows": 2,
+      "logicalBytes": 76,
+      "logicalGrowth": 38,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "scope",
+      "field": "sessionId",
+      "rows": 2,
+      "logicalBytes": 76,
+      "logicalGrowth": 38,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 38,
+      "newRowsMatchingOldFieldBytes": 38
+    },
+    {
+      "kind": "scope",
+      "field": "beforeId",
+      "rows": 2,
+      "logicalBytes": 76,
+      "logicalGrowth": 38,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "scope",
+      "field": "instanceScope",
+      "rows": 2,
+      "logicalBytes": 76,
+      "logicalGrowth": 38,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "scope",
+      "field": "afterId",
+      "rows": 2,
+      "logicalBytes": 76,
+      "logicalGrowth": 38,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "region-review",
+      "field": "id",
+      "rows": 5,
+      "logicalBytes": 190,
+      "logicalGrowth": 38,
+      "uniqueValues": 5,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "region-review",
+      "field": "sessionId",
+      "rows": 5,
+      "logicalBytes": 190,
+      "logicalGrowth": 38,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 152,
+      "newRowsMatchingOldFieldBytes": 38
+    },
+    {
+      "kind": "region-review",
+      "field": "observationId",
+      "rows": 5,
+      "logicalBytes": 190,
+      "logicalGrowth": 38,
+      "uniqueValues": 5,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "region-review",
+      "field": "instanceScope",
+      "rows": 5,
+      "logicalBytes": 190,
+      "logicalGrowth": 38,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 76,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "reach",
+      "field": "id",
+      "rows": 2,
+      "logicalBytes": 76,
+      "logicalGrowth": 38,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "reach",
+      "field": "sessionId",
+      "rows": 2,
+      "logicalBytes": 76,
+      "logicalGrowth": 38,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 38,
+      "newRowsMatchingOldFieldBytes": 38
+    },
+    {
+      "kind": "reach",
+      "field": "checkpointId",
+      "rows": 2,
+      "logicalBytes": 76,
+      "logicalGrowth": 38,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "reach",
+      "field": "observationId",
+      "rows": 2,
+      "logicalBytes": 76,
+      "logicalGrowth": 38,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "control-classification",
+      "field": "source",
+      "rows": 4,
+      "logicalBytes": 69,
+      "logicalGrowth": 35,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 34,
+      "newRowsMatchingOldFieldBytes": 17
+    },
+    {
+      "kind": "scope",
+      "field": "anchors",
+      "rows": 2,
+      "logicalBytes": 56,
+      "logicalGrowth": 28,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 28,
+      "newRowsMatchingOldFieldBytes": 28
+    },
+    {
+      "kind": "scope",
+      "field": "boundaryKey",
+      "rows": 2,
+      "logicalBytes": 52,
+      "logicalGrowth": 26,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 26,
+      "newRowsMatchingOldFieldBytes": 26
+    },
+    {
+      "kind": "region-review",
+      "field": "at",
+      "rows": 5,
+      "logicalBytes": 130,
+      "logicalGrowth": 26,
+      "uniqueValues": 5,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "control-classification",
+      "field": "status",
+      "rows": 4,
+      "logicalBytes": 52,
+      "logicalGrowth": 26,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 39,
+      "newRowsMatchingOldFieldBytes": 26
+    },
+    {
+      "kind": "control-classification",
+      "field": "classification",
+      "rows": 4,
+      "logicalBytes": 48,
+      "logicalGrowth": 24,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 24,
+      "newRowsMatchingOldFieldBytes": 24
+    },
+    {
+      "kind": "observation",
+      "field": "context",
+      "rows": 25,
+      "logicalBytes": 50,
+      "logicalGrowth": 22,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 48,
+      "newRowsMatchingOldFieldBytes": 22
+    },
+    {
+      "kind": "session",
+      "field": "stopReason",
+      "rows": 1,
+      "logicalBytes": 17,
+      "logicalGrowth": 17,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "region-review",
+      "field": "source",
+      "rows": 5,
+      "logicalBytes": 85,
+      "logicalGrowth": 17,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 68,
+      "newRowsMatchingOldFieldBytes": 17
+    },
+    {
+      "kind": "region-review",
+      "field": "status",
+      "rows": 5,
+      "logicalBytes": 61,
+      "logicalGrowth": 17,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 36,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "transition",
+      "field": "replayable",
+      "rows": 9,
+      "logicalBytes": 39,
+      "logicalGrowth": 17,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 30,
+      "newRowsMatchingOldFieldBytes": 17
+    },
+    {
+      "kind": "state",
+      "field": "context",
+      "rows": 17,
+      "logicalBytes": 34,
+      "logicalGrowth": 16,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 32,
+      "newRowsMatchingOldFieldBytes": 16
+    },
+    {
+      "kind": "scope",
+      "field": "baseline",
+      "rows": 2,
+      "logicalBytes": 28,
+      "logicalGrowth": 14,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 14,
+      "newRowsMatchingOldFieldBytes": 14
+    },
+    {
+      "kind": "scope",
+      "field": "status",
+      "rows": 2,
+      "logicalBytes": 26,
+      "logicalGrowth": 13,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 13,
+      "newRowsMatchingOldFieldBytes": 13
+    },
+    {
+      "kind": "reach",
+      "field": "status",
+      "rows": 2,
+      "logicalBytes": 24,
+      "logicalGrowth": 12,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 12,
+      "newRowsMatchingOldFieldBytes": 12
+    },
+    {
+      "kind": "visit",
+      "field": "depth",
+      "rows": 25,
+      "logicalBytes": 25,
+      "logicalGrowth": 11,
+      "uniqueValues": 5,
+      "exactDuplicateLogicalBytes": 20,
+      "newRowsMatchingOldFieldBytes": 11
+    },
+    {
+      "kind": "visit",
+      "field": "explorationDepth",
+      "rows": 25,
+      "logicalBytes": 25,
+      "logicalGrowth": 11,
+      "uniqueValues": 3,
+      "exactDuplicateLogicalBytes": 22,
+      "newRowsMatchingOldFieldBytes": 11
+    },
+    {
+      "kind": "evidence-retention",
+      "field": "pinExpirations",
+      "rows": 15,
+      "logicalBytes": 30,
+      "logicalGrowth": 10,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 28,
+      "newRowsMatchingOldFieldBytes": 10
+    },
+    {
+      "kind": "scope",
+      "field": "region",
+      "rows": 2,
+      "logicalBytes": 20,
+      "logicalGrowth": 10,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 10,
+      "newRowsMatchingOldFieldBytes": 10
+    },
+    {
+      "kind": "scope",
+      "field": "name",
+      "rows": 2,
+      "logicalBytes": 16,
+      "logicalGrowth": 8,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 8,
+      "newRowsMatchingOldFieldBytes": 8
+    },
+    {
+      "kind": "checkpoint",
+      "field": "context",
+      "rows": 6,
+      "logicalBytes": 12,
+      "logicalGrowth": 6,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 10,
+      "newRowsMatchingOldFieldBytes": 6
+    },
+    {
+      "kind": "checkpoint",
+      "field": "predicates",
+      "rows": 6,
+      "logicalBytes": 12,
+      "logicalGrowth": 6,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 10,
+      "newRowsMatchingOldFieldBytes": 6
+    },
+    {
+      "kind": "checkpoint",
+      "field": "acceptable",
+      "rows": 6,
+      "logicalBytes": 12,
+      "logicalGrowth": 6,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 10,
+      "newRowsMatchingOldFieldBytes": 6
+    },
+    {
+      "kind": "scope",
+      "field": "automatic",
+      "rows": 2,
+      "logicalBytes": 8,
+      "logicalGrowth": 4,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 4,
+      "newRowsMatchingOldFieldBytes": 4
+    },
+    {
+      "kind": "reach",
+      "field": "remainingFrontier",
+      "rows": 2,
+      "logicalBytes": 6,
+      "logicalGrowth": 3,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "session",
+      "field": "status",
+      "rows": 1,
+      "logicalBytes": 8,
+      "logicalGrowth": 2,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "region-review",
+      "field": "rejectedCandidateIds",
+      "rows": 5,
+      "logicalBytes": 10,
+      "logicalGrowth": 2,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 8,
+      "newRowsMatchingOldFieldBytes": 2
+    },
+    {
+      "kind": "session",
+      "field": "id",
+      "rows": 1,
+      "logicalBytes": 38,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "session",
+      "field": "options",
+      "rows": 1,
+      "logicalBytes": 842,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "session",
+      "field": "createdAt",
+      "rows": 1,
+      "logicalBytes": 26,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "session",
+      "field": "actionCount",
+      "rows": 1,
+      "logicalBytes": 1,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "session",
+      "field": "elapsedMs",
+      "rows": 1,
+      "logicalBytes": 5,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "session",
+      "field": "mode",
+      "rows": 1,
+      "logicalBytes": 8,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "session",
+      "field": "dirty",
+      "rows": 1,
+      "logicalBytes": 5,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "session",
+      "field": "currentObservationId",
+      "rows": 1,
+      "logicalBytes": 38,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "boundary-exit-episode",
+      "field": "id",
+      "rows": 1,
+      "logicalBytes": 52,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "boundary-exit-episode",
+      "field": "sessionId",
+      "rows": 1,
+      "logicalBytes": 38,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "boundary-exit-episode",
+      "field": "key",
+      "rows": 1,
+      "logicalBytes": 2,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "boundary-exit-episode",
+      "field": "episodeId",
+      "rows": 1,
+      "logicalBytes": 38,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "boundary-exit-episode",
+      "field": "firstObservationId",
+      "rows": 1,
+      "logicalBytes": 38,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "region-review-request",
+      "field": "id",
+      "rows": 1,
+      "logicalBytes": 53,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "region-review-request",
+      "field": "sessionId",
+      "rows": 1,
+      "logicalBytes": 38,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "region-review-request",
+      "field": "key",
+      "rows": 1,
+      "logicalBytes": 66,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "boundary-exit-request",
+      "field": "id",
+      "rows": 1,
+      "logicalBytes": 61,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "boundary-exit-request",
+      "field": "sessionId",
+      "rows": 1,
+      "logicalBytes": 38,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "boundary-exit-request",
+      "field": "key",
+      "rows": 1,
+      "logicalBytes": 66,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "discovery-request",
+      "field": "id",
+      "rows": 1,
+      "logicalBytes": 56,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "discovery-request",
+      "field": "sessionId",
+      "rows": 1,
+      "logicalBytes": 38,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "discovery-request",
+      "field": "key",
+      "rows": 1,
+      "logicalBytes": 66,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "page-exploration",
+      "field": "id",
+      "rows": 1,
+      "logicalBytes": 55,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "page-exploration",
+      "field": "sessionId",
+      "rows": 1,
+      "logicalBytes": 38,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "page-exploration",
+      "field": "rootUrl",
+      "rows": 1,
+      "logicalBytes": 40,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "page-exploration",
+      "field": "frames",
+      "rows": 1,
+      "logicalBytes": 105,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "control-classification-request",
+      "field": "id",
+      "rows": 1,
+      "logicalBytes": 67,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "control-classification-request",
+      "field": "sessionId",
+      "rows": 1,
+      "logicalBytes": 38,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "control-classification-request",
+      "field": "key",
+      "rows": 1,
+      "logicalBytes": 66,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "control-review-request",
+      "field": "id",
+      "rows": 1,
+      "logicalBytes": 60,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "control-review-request",
+      "field": "sessionId",
+      "rows": 1,
+      "logicalBytes": 38,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "control-review-request",
+      "field": "key",
+      "rows": 1,
+      "logicalBytes": 66,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "exploration-group",
+      "field": "binding",
+      "rows": 1,
+      "logicalBytes": 9,
+      "logicalGrowth": 0,
+      "uniqueValues": 1,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    },
+    {
+      "kind": "region-review",
+      "field": "baseReviewId",
+      "rows": 2,
+      "logicalBytes": 76,
+      "logicalGrowth": 0,
+      "uniqueValues": 2,
+      "exactDuplicateLogicalBytes": 0,
+      "newRowsMatchingOldFieldBytes": 0
+    }
+  ],
+  "events": [
+    {
+      "type": "exploration.group_detected",
+      "rows": 116,
+      "jsonBytes": 974666,
+      "gzip3Bytes": 266956,
+      "largestBytes": 32533,
+      "newRows": 42,
+      "jsonBytesDelta": 364904
+    },
+    {
+      "type": "observation.created",
+      "rows": 25,
+      "jsonBytes": 243985,
+      "gzip3Bytes": 26661,
+      "largestBytes": 11487,
+      "newRows": 11,
+      "jsonBytesDelta": 105305
+    },
+    {
+      "type": "interventions.updated",
+      "rows": 27,
+      "jsonBytes": 196478,
+      "gzip3Bytes": 74571,
+      "largestBytes": 12008,
+      "newRows": 12,
+      "jsonBytesDelta": 87495
+    },
+    {
+      "type": "action.completed",
+      "rows": 9,
+      "jsonBytes": 205994,
+      "gzip3Bytes": 69429,
+      "largestBytes": 43035,
+      "newRows": 4,
+      "jsonBytesDelta": 81233
+    },
+    {
+      "type": "observation.diff",
+      "rows": 9,
+      "jsonBytes": 194820,
+      "gzip3Bytes": 63707,
+      "largestBytes": 42079,
+      "newRows": 4,
+      "jsonBytesDelta": 76364
+    },
+    {
+      "type": "region.review_requested",
+      "rows": 14,
+      "jsonBytes": 142492,
+      "gzip3Bytes": 14588,
+      "largestBytes": 21998,
+      "newRows": 5,
+      "jsonBytesDelta": 58562
+    },
+    {
+      "type": "observation.external_change",
+      "rows": 5,
+      "jsonBytes": 47934,
+      "gzip3Bytes": 15967,
+      "largestBytes": 44539,
+      "newRows": 3,
+      "jsonBytesDelta": 46192
+    },
+    {
+      "type": "discovery.scan_requested",
+      "rows": 9,
+      "jsonBytes": 64600,
+      "gzip3Bytes": 7903,
+      "largestBytes": 10404,
+      "newRows": 4,
+      "jsonBytesDelta": 27098
+    },
+    {
+      "type": "identity.ambiguous",
+      "rows": 55,
+      "jsonBytes": 46225,
+      "gzip3Bytes": 29639,
+      "largestBytes": 1398,
+      "newRows": 23,
+      "jsonBytesDelta": 23973
+    },
+    {
+      "type": "action.tentative",
+      "rows": 175,
+      "jsonBytes": 50827,
+      "gzip3Bytes": 40286,
+      "largestBytes": 333,
+      "newRows": 77,
+      "jsonBytesDelta": 22337
+    },
+    {
+      "type": "control.review_requested",
+      "rows": 17,
+      "jsonBytes": 30272,
+      "gzip3Bytes": 4221,
+      "largestBytes": 2028,
+      "newRows": 8,
+      "jsonBytesDelta": 14188
+    },
+    {
+      "type": "control.classification_requested",
+      "rows": 18,
+      "jsonBytes": 23622,
+      "gzip3Bytes": 3905,
+      "largestBytes": 1463,
+      "newRows": 9,
+      "jsonBytesDelta": 11833
+    },
+    {
+      "type": "control.classification_invalidated",
+      "rows": 4,
+      "jsonBytes": 22411,
+      "gzip3Bytes": 5931,
+      "largestBytes": 8767,
+      "newRows": 2,
+      "jsonBytesDelta": 11393
+    },
+    {
+      "type": "control.classified",
+      "rows": 4,
+      "jsonBytes": 21795,
+      "gzip3Bytes": 5657,
+      "largestBytes": 8613,
+      "newRows": 2,
+      "jsonBytesDelta": 11085
+    },
+    {
+      "type": "exploration.group_invalidated",
+      "rows": 99,
+      "jsonBytes": 15721,
+      "gzip3Bytes": 14489,
+      "largestBytes": 160,
+      "newRows": 57,
+      "jsonBytesDelta": 9008
+    },
+    {
+      "type": "exploration.group_updated",
+      "rows": 2,
+      "jsonBytes": 5333,
+      "gzip3Bytes": 2951,
+      "largestBytes": 5078,
+      "newRows": 1,
+      "jsonBytesDelta": 5078
+    },
+    {
+      "type": "exploration.review_requested",
+      "rows": 12,
+      "jsonBytes": 13016,
+      "gzip3Bytes": 4671,
+      "largestBytes": 1737,
+      "newRows": 4,
+      "jsonBytesDelta": 4682
+    },
+    {
+      "type": "action.started",
+      "rows": 9,
+      "jsonBytes": 9815,
+      "gzip3Bytes": 5856,
+      "largestBytes": 1285,
+      "newRows": 4,
+      "jsonBytesDelta": 4265
+    },
+    {
+      "type": "checkpoint.created",
+      "rows": 6,
+      "jsonBytes": 2294,
+      "gzip3Bytes": 1729,
+      "largestBytes": 421,
+      "newRows": 3,
+      "jsonBytesDelta": 1147
+    },
+    {
+      "type": "region.review_invalidated",
+      "rows": 3,
+      "jsonBytes": 1309,
+      "gzip3Bytes": 584,
+      "largestBytes": 917,
+      "newRows": 2,
+      "jsonBytesDelta": 1113
+    },
+    {
+      "type": "session.paused",
+      "rows": 1,
+      "jsonBytes": 1112,
+      "gzip3Bytes": 645,
+      "largestBytes": 1112,
+      "newRows": 1,
+      "jsonBytesDelta": 1112
+    },
+    {
+      "type": "region.reviewed",
+      "rows": 5,
+      "jsonBytes": 28500,
+      "gzip3Bytes": 6361,
+      "largestBytes": 10965,
+      "newRows": 1,
+      "jsonBytesDelta": 981
+    },
+    {
+      "type": "identity.resolved",
+      "rows": 2,
+      "jsonBytes": 1295,
+      "gzip3Bytes": 826,
+      "largestBytes": 667,
+      "newRows": 1,
+      "jsonBytesDelta": 667
+    },
+    {
+      "type": "frontier.updated",
+      "rows": 27,
+      "jsonBytes": 1500,
+      "gzip3Bytes": 2040,
+      "largestBytes": 56,
+      "newRows": 12,
+      "jsonBytesDelta": 666
+    },
+    {
+      "type": "checkpoint.result",
+      "rows": 2,
+      "jsonBytes": 1288,
+      "gzip3Bytes": 908,
+      "largestBytes": 675,
+      "newRows": 1,
+      "jsonBytesDelta": 613
+    },
+    {
+      "type": "boundary.exit_review_requested",
+      "rows": 2,
+      "jsonBytes": 1188,
+      "gzip3Bytes": 408,
+      "largestBytes": 594,
+      "newRows": 1,
+      "jsonBytesDelta": 594
+    },
+    {
+      "type": "scope.interrupted",
+      "rows": 2,
+      "jsonBytes": 1184,
+      "gzip3Bytes": 805,
+      "largestBytes": 592,
+      "newRows": 1,
+      "jsonBytesDelta": 592
+    },
+    {
+      "type": "scope.opened",
+      "rows": 2,
+      "jsonBytes": 784,
+      "gzip3Bytes": 568,
+      "largestBytes": 392,
+      "newRows": 1,
+      "jsonBytesDelta": 392
+    },
+    {
+      "type": "exploration.groups_decided",
+      "rows": 2,
+      "jsonBytes": 726,
+      "gzip3Bytes": 511,
+      "largestBytes": 363,
+      "newRows": 1,
+      "jsonBytesDelta": 363
+    },
+    {
+      "type": "interaction.boundary_changed",
+      "rows": 4,
+      "jsonBytes": 672,
+      "gzip3Bytes": 493,
+      "largestBytes": 269,
+      "newRows": 2,
+      "jsonBytesDelta": 336
+    },
+    {
+      "type": "exploration.group_decided",
+      "rows": 2,
+      "jsonBytes": 572,
+      "gzip3Bytes": 454,
+      "largestBytes": 286,
+      "newRows": 1,
+      "jsonBytesDelta": 286
+    },
+    {
+      "type": "session.reattached",
+      "rows": 1,
+      "jsonBytes": 84,
+      "gzip3Bytes": 89,
+      "largestBytes": 84,
+      "newRows": 1,
+      "jsonBytesDelta": 84
+    },
+    {
+      "type": "session.created",
+      "rows": 1,
+      "jsonBytes": 52,
+      "gzip3Bytes": 72,
+      "largestBytes": 52,
+      "newRows": 0,
+      "jsonBytesDelta": 0
+    }
+  ],
+  "gzipEstimates": {
+    "run1": {
+      "exploration-group:min4096": {
+        "rows": 62,
+        "candidateBytes": 582125,
+        "gzip3Plus300ByteEnvelope": 176867,
+        "savingBytes": 405258
+      },
+      "identity:min4096": {
+        "rows": 384,
+        "candidateBytes": 2308339,
+        "gzip3Plus300ByteEnvelope": 736415,
+        "savingBytes": 1571924
+      },
+      "identity:min32768": {
+        "rows": 2,
+        "candidateBytes": 83297,
+        "gzip3Plus300ByteEnvelope": 13363,
+        "savingBytes": 69934
+      },
+      "intervention-snapshot:min4096": {
+        "rows": 16,
+        "candidateBytes": 210603,
+        "gzip3Plus300ByteEnvelope": 86684,
+        "savingBytes": 123919
+      },
+      "attempt:min4096": {
+        "rows": 3,
+        "candidateBytes": 119786,
+        "gzip3Plus300ByteEnvelope": 40281,
+        "savingBytes": 79505
+      },
+      "attempt:min32768": {
+        "rows": 3,
+        "candidateBytes": 119786,
+        "gzip3Plus300ByteEnvelope": 40281,
+        "savingBytes": 79505
+      }
+    },
+    "run2": {
+      "exploration-group:min4096": {
+        "rows": 103,
+        "candidateBytes": 972054,
+        "gzip3Plus300ByteEnvelope": 294327,
+        "savingBytes": 677727
+      },
+      "identity:min4096": {
+        "rows": 571,
+        "candidateBytes": 3672754,
+        "gzip3Plus300ByteEnvelope": 1123424,
+        "savingBytes": 2549330
+      },
+      "identity:min32768": {
+        "rows": 2,
+        "candidateBytes": 88719,
+        "gzip3Plus300ByteEnvelope": 14397,
+        "savingBytes": 74322
+      },
+      "intervention-snapshot:min4096": {
+        "rows": 28,
+        "candidateBytes": 372367,
+        "gzip3Plus300ByteEnvelope": 154697,
+        "savingBytes": 217670
+      },
+      "attempt:min4096": {
+        "rows": 5,
+        "candidateBytes": 196044,
+        "gzip3Plus300ByteEnvelope": 66276,
+        "savingBytes": 129768
+      },
+      "attempt:min32768": {
+        "rows": 5,
+        "candidateBytes": 196044,
+        "gzip3Plus300ByteEnvelope": 66276,
+        "savingBytes": 129768
+      },
+      "exploration-group:min32768": {
+        "rows": 1,
+        "candidateBytes": 54882,
+        "gzip3Plus300ByteEnvelope": 14161,
+        "savingBytes": 40721
+      }
+    },
+    "note": "Byte-only gzip3 estimate on existing plain rows with a hypothetical fixed 300-byte envelope; no database encoding was changed. Threshold groups overlap and must not be added together. No write/read CPU estimate."
+  },
+  "observationGrowth": {
+    "newObjects": 1181,
+    "newObjectLogicalBytes": 4132779,
+    "newPacks": 71,
+    "newPackedBytes": 258650,
+    "objectsReferencedMultipleTimes": 1652,
+    "objectsReferencedOnlyOnce": 854,
+    "oldObjectsReusedByNewFrames": 140,
+    "frames": [
+      {
+        "id": "fd7528a6-d7ef-48fe-b265-347123006223",
+        "stateId": "666f247442983f7f30ec0730f8c3be0a826c4b0a94665684760c617b56ad83db",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:14:07.164Z",
+        "cause": "initial",
+        "documentId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "instanceScope": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3728638,
+        "payloadBytes": 20600,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 836,
+        "oldRun1ObjectRefs": 836,
+        "oldRun1ObjectBytes": 2755618,
+        "reusedEarlierRefs": 0,
+        "reusedEarlierObjectBytes": 0,
+        "referencedObjectBytes": 2755618,
+        "newlyReferencedObjects": 836,
+        "layoutParts": 2868,
+        "inlineLayoutBytes": 114156
+      },
+      {
+        "id": "8e894178-1943-4a1f-b75d-1ce665aa01cc",
+        "stateId": "2b96fbf782d978d28b85909af3d84f234ff74b38e92666c57d76e9726e306f13",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:14:13.344Z",
+        "cause": "inspection",
+        "documentId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "instanceScope": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3728181,
+        "payloadBytes": 20607,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 836,
+        "oldRun1ObjectRefs": 836,
+        "oldRun1ObjectBytes": 2755145,
+        "reusedEarlierRefs": 831,
+        "reusedEarlierObjectBytes": 2698098,
+        "referencedObjectBytes": 2755145,
+        "newlyReferencedObjects": 5,
+        "layoutParts": 2868,
+        "inlineLayoutBytes": 114172,
+        "comparedWithPrevious": {
+          "common": 301,
+          "exact": 299,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 1,
+          "changedFields": {
+            "identityId": 1,
+            "hypothesisId": 1,
+            "name": 1,
+            "reviewAttributes": 1,
+            "classificationBinding": 1,
+            "displayedText": 1
+          }
+        }
+      },
+      {
+        "id": "5a904f94-d42c-4d05-aab0-255c18388699",
+        "stateId": "3c49316b0b3374e3511a77bbca9ad8035e8b5bf940ccf8314e6ce1644fc34a97",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:14:19.360Z",
+        "cause": "action",
+        "documentId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "instanceScope": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3728801,
+        "payloadBytes": 20568,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 837,
+        "oldRun1ObjectRefs": 837,
+        "oldRun1ObjectBytes": 2755954,
+        "reusedEarlierRefs": 812,
+        "reusedEarlierObjectBytes": 2365811,
+        "referencedObjectBytes": 2755954,
+        "newlyReferencedObjects": 25,
+        "layoutParts": 2870,
+        "inlineLayoutBytes": 113911,
+        "comparedWithPrevious": {
+          "common": 301,
+          "exact": 290,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {
+            "expanded": 2,
+            "interactionHints": 2,
+            "discovery": 2,
+            "classificationBinding": 8,
+            "reviewReuseBinding": 1,
+            "checked": 1
+          }
+        }
+      },
+      {
+        "id": "46a38d17-fbf9-43c1-ba1f-b4c9791a6c27",
+        "stateId": "c3683c45fa2ab6e80674b33e46e6ee5a031649f80c14096b032b96c61e7b3d4c",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:14:24.949Z",
+        "cause": "action",
+        "documentId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "instanceScope": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3728653,
+        "payloadBytes": 20567,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 837,
+        "oldRun1ObjectRefs": 837,
+        "oldRun1ObjectBytes": 2755806,
+        "reusedEarlierRefs": 834,
+        "reusedEarlierObjectBytes": 2680964,
+        "referencedObjectBytes": 2755806,
+        "newlyReferencedObjects": 3,
+        "layoutParts": 2870,
+        "inlineLayoutBytes": 113911,
+        "comparedWithPrevious": {
+          "common": 301,
+          "exact": 298,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {
+            "classificationBinding": 2,
+            "reviewReuseBinding": 1,
+            "checked": 1
+          }
+        }
+      },
+      {
+        "id": "51193a8f-2624-4d05-9284-67ed340d1eb7",
+        "stateId": "c3683c45fa2ab6e80674b33e46e6ee5a031649f80c14096b032b96c61e7b3d4c",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:14:30.521Z",
+        "cause": "inspection",
+        "documentId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "instanceScope": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3728657,
+        "payloadBytes": 20571,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 837,
+        "oldRun1ObjectRefs": 837,
+        "oldRun1ObjectBytes": 2755806,
+        "reusedEarlierRefs": 836,
+        "reusedEarlierObjectBytes": 2744060,
+        "referencedObjectBytes": 2755806,
+        "newlyReferencedObjects": 1,
+        "layoutParts": 2870,
+        "inlineLayoutBytes": 113915,
+        "comparedWithPrevious": {
+          "common": 301,
+          "exact": 301,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {}
+        }
+      },
+      {
+        "id": "2a5c42ab-6289-4874-9550-a7162014efa7",
+        "stateId": "c3683c45fa2ab6e80674b33e46e6ee5a031649f80c14096b032b96c61e7b3d4c",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:14:43.926Z",
+        "cause": "inspection",
+        "documentId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "instanceScope": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3728657,
+        "payloadBytes": 20569,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 837,
+        "oldRun1ObjectRefs": 837,
+        "oldRun1ObjectBytes": 2755806,
+        "reusedEarlierRefs": 836,
+        "reusedEarlierObjectBytes": 2744060,
+        "referencedObjectBytes": 2755806,
+        "newlyReferencedObjects": 1,
+        "layoutParts": 2870,
+        "inlineLayoutBytes": 113915,
+        "comparedWithPrevious": {
+          "common": 301,
+          "exact": 301,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {}
+        }
+      },
+      {
+        "id": "6b86d43c-8797-4140-8dcc-2132dbeb9073",
+        "stateId": "f7073125902f36e4daa7cb0b5379ea746337b3ad9212ff6961aa99b7b6e1620b",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:14:50.417Z",
+        "cause": "inspection",
+        "documentId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "instanceScope": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3728603,
+        "payloadBytes": 20571,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 837,
+        "oldRun1ObjectRefs": 837,
+        "oldRun1ObjectBytes": 2755752,
+        "reusedEarlierRefs": 835,
+        "reusedEarlierObjectBytes": 2742481,
+        "referencedObjectBytes": 2755752,
+        "newlyReferencedObjects": 2,
+        "layoutParts": 2870,
+        "inlineLayoutBytes": 113915,
+        "comparedWithPrevious": {
+          "common": 301,
+          "exact": 300,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {
+            "hypothesisId": 1
+          }
+        }
+      },
+      {
+        "id": "b1f0d28c-50fe-4401-811b-6bbe6d8535e7",
+        "stateId": "52915fd29d9f3dc33de9f02c88e3ab4c841ecffd229b1c8d87f01a72ab78af93",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:14:58.632Z",
+        "cause": "action",
+        "documentId": "2a021cd8-7792-4b32-8e73-7eb6055d8b36",
+        "instanceScope": "2a021cd8-7792-4b32-8e73-7eb6055d8b36",
+        "format": "observation:v1:gzip",
+        "logicalBytes": 1925454,
+        "payloadBytes": 95125,
+        "controls": 159,
+        "regions": 5,
+        "uniqueObjectRefs": 0,
+        "oldRun1ObjectRefs": 0,
+        "oldRun1ObjectBytes": 0,
+        "reusedEarlierRefs": 0,
+        "reusedEarlierObjectBytes": 0,
+        "referencedObjectBytes": 0,
+        "newlyReferencedObjects": 0,
+        "layoutParts": 0,
+        "inlineLayoutBytes": 0,
+        "comparedWithPrevious": {
+          "common": 139,
+          "exact": 0,
+          "localIdChanged": 139,
+          "instanceIdChanged": 139,
+          "identityIdChanged": 68,
+          "changedFields": {
+            "localId": 139,
+            "instanceId": 139,
+            "reviewBinding": 139,
+            "reviewReuseBinding": 31,
+            "regionInstanceId": 139,
+            "actionable": 25,
+            "identityId": 68,
+            "hypothesisId": 4,
+            "expanded": 2,
+            "interactionHints": 3,
+            "discovery": 3,
+            "rect": 68,
+            "stableKey": 64,
+            "structuralItem": 63,
+            "classificationBinding": 16,
+            "role": 1,
+            "name": 1,
+            "displayedText": 2,
+            "actions": 1,
+            "actionBasis": 1,
+            "identityContext": 1
+          }
+        }
+      },
+      {
+        "id": "55bc5dfd-50a3-4835-ad87-99a9b1795061",
+        "stateId": "3eacab20eb7e49b97d0af8dd490217b63d3096a4e81852da6c1b14cf8d72623b",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:15:01.897Z",
+        "cause": "recovery",
+        "documentId": "2a021cd8-7792-4b32-8e73-7eb6055d8b36",
+        "instanceScope": "2a021cd8-7792-4b32-8e73-7eb6055d8b36",
+        "format": "observation:v2:structural",
+        "logicalBytes": 1928894,
+        "payloadBytes": 13020,
+        "controls": 160,
+        "regions": 5,
+        "uniqueObjectRefs": 452,
+        "oldRun1ObjectRefs": 452,
+        "oldRun1ObjectBytes": 1363266,
+        "reusedEarlierRefs": 0,
+        "reusedEarlierObjectBytes": 0,
+        "referencedObjectBytes": 1363266,
+        "newlyReferencedObjects": 452,
+        "layoutParts": 1551,
+        "inlineLayoutBytes": 81107,
+        "comparedWithPrevious": {
+          "common": 159,
+          "exact": 159,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {}
+        }
+      },
+      {
+        "id": "fbbc4cbf-1482-41ca-b1e5-37c838473d8f",
+        "stateId": "0153b5cdd50d39709e51af9233c107413cc517247873f880657f52ada3ad90c2",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:15:08.234Z",
+        "cause": "recovery",
+        "documentId": "bf76f1f3-db99-4047-aa9c-683a1a71c2af",
+        "instanceScope": "bf76f1f3-db99-4047-aa9c-683a1a71c2af",
+        "format": "observation:v1:gzip",
+        "logicalBytes": 3623586,
+        "payloadBytes": 162297,
+        "controls": 292,
+        "regions": 7,
+        "uniqueObjectRefs": 0,
+        "oldRun1ObjectRefs": 0,
+        "oldRun1ObjectBytes": 0,
+        "reusedEarlierRefs": 0,
+        "reusedEarlierObjectBytes": 0,
+        "referencedObjectBytes": 0,
+        "newlyReferencedObjects": 0,
+        "layoutParts": 0,
+        "inlineLayoutBytes": 0,
+        "comparedWithPrevious": {
+          "common": 140,
+          "exact": 0,
+          "localIdChanged": 140,
+          "instanceIdChanged": 140,
+          "identityIdChanged": 68,
+          "changedFields": {
+            "localId": 140,
+            "instanceId": 140,
+            "reviewBinding": 140,
+            "regionInstanceId": 140,
+            "identityId": 68,
+            "hypothesisId": 4,
+            "rect": 68,
+            "stableKey": 64,
+            "structuralItem": 63,
+            "classificationBinding": 17,
+            "role": 1,
+            "name": 1,
+            "reviewReuseBinding": 1,
+            "displayedText": 2,
+            "actions": 1,
+            "actionBasis": 1,
+            "interactionHints": 1,
+            "discovery": 1,
+            "actionable": 1,
+            "identityContext": 1
+          }
+        }
+      },
+      {
+        "id": "cfc205c1-bab5-4b44-8bc7-9d2b4c498948",
+        "stateId": "d54f3045a41396b5b831ec5ef202e0ed6ee77dd2533dd9f1ed6335befae084f7",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:15:16.090Z",
+        "cause": "recovery",
+        "documentId": "dd235268-306c-4f3f-8663-07f17c996696",
+        "instanceScope": "dd235268-306c-4f3f-8663-07f17c996696",
+        "format": "observation:v1:gzip",
+        "logicalBytes": 3623955,
+        "payloadBytes": 162496,
+        "controls": 292,
+        "regions": 7,
+        "uniqueObjectRefs": 0,
+        "oldRun1ObjectRefs": 0,
+        "oldRun1ObjectBytes": 0,
+        "reusedEarlierRefs": 0,
+        "reusedEarlierObjectBytes": 0,
+        "referencedObjectBytes": 0,
+        "newlyReferencedObjects": 0,
+        "layoutParts": 0,
+        "inlineLayoutBytes": 0,
+        "comparedWithPrevious": {
+          "common": 285,
+          "exact": 0,
+          "localIdChanged": 285,
+          "instanceIdChanged": 285,
+          "identityIdChanged": 163,
+          "changedFields": {
+            "localId": 285,
+            "instanceId": 285,
+            "reviewBinding": 285,
+            "regionInstanceId": 285,
+            "identityId": 163,
+            "hypothesisId": 9,
+            "list": 12,
+            "stableKey": 154,
+            "structuralItem": 154,
+            "classificationBinding": 31
+          }
+        }
+      },
+      {
+        "id": "6f0b9144-0522-4fa7-b0a3-b306ae48ccbc",
+        "stateId": "d54f3045a41396b5b831ec5ef202e0ed6ee77dd2533dd9f1ed6335befae084f7",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:15:25.548Z",
+        "cause": "inspection",
+        "documentId": "dd235268-306c-4f3f-8663-07f17c996696",
+        "instanceScope": "dd235268-306c-4f3f-8663-07f17c996696",
+        "format": "observation:v1:gzip",
+        "logicalBytes": 3623484,
+        "payloadBytes": 162392,
+        "controls": 292,
+        "regions": 7,
+        "uniqueObjectRefs": 0,
+        "oldRun1ObjectRefs": 0,
+        "oldRun1ObjectBytes": 0,
+        "reusedEarlierRefs": 0,
+        "reusedEarlierObjectBytes": 0,
+        "referencedObjectBytes": 0,
+        "newlyReferencedObjects": 0,
+        "layoutParts": 0,
+        "inlineLayoutBytes": 0,
+        "comparedWithPrevious": {
+          "common": 292,
+          "exact": 292,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {}
+        }
+      },
+      {
+        "id": "60c60574-7095-4f13-9406-4561a24bd9fe",
+        "stateId": "d54f3045a41396b5b831ec5ef202e0ed6ee77dd2533dd9f1ed6335befae084f7",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:15:34.608Z",
+        "cause": "inspection",
+        "documentId": "dd235268-306c-4f3f-8663-07f17c996696",
+        "instanceScope": "dd235268-306c-4f3f-8663-07f17c996696",
+        "format": "observation:v1:gzip",
+        "logicalBytes": 3623484,
+        "payloadBytes": 162392,
+        "controls": 292,
+        "regions": 7,
+        "uniqueObjectRefs": 0,
+        "oldRun1ObjectRefs": 0,
+        "oldRun1ObjectBytes": 0,
+        "reusedEarlierRefs": 0,
+        "reusedEarlierObjectBytes": 0,
+        "referencedObjectBytes": 0,
+        "newlyReferencedObjects": 0,
+        "layoutParts": 0,
+        "inlineLayoutBytes": 0,
+        "comparedWithPrevious": {
+          "common": 292,
+          "exact": 292,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {}
+        }
+      },
+      {
+        "id": "c1d95c73-4ec7-44ae-92d3-76c9b37a0fdd",
+        "stateId": "d54f3045a41396b5b831ec5ef202e0ed6ee77dd2533dd9f1ed6335befae084f7",
+        "newInRun2": false,
+        "capturedAt": "2026-10-16T20:15:43.583Z",
+        "cause": "inspection",
+        "documentId": "dd235268-306c-4f3f-8663-07f17c996696",
+        "instanceScope": "dd235268-306c-4f3f-8663-07f17c996696",
+        "format": "observation:v1:gzip",
+        "logicalBytes": 3623484,
+        "payloadBytes": 162393,
+        "controls": 292,
+        "regions": 7,
+        "uniqueObjectRefs": 0,
+        "oldRun1ObjectRefs": 0,
+        "oldRun1ObjectBytes": 0,
+        "reusedEarlierRefs": 0,
+        "reusedEarlierObjectBytes": 0,
+        "referencedObjectBytes": 0,
+        "newlyReferencedObjects": 0,
+        "layoutParts": 0,
+        "inlineLayoutBytes": 0,
+        "comparedWithPrevious": {
+          "common": 292,
+          "exact": 292,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {}
+        }
+      },
+      {
+        "id": "aa3b5d04-03bf-4214-bc19-fe170a1d0213",
+        "stateId": "221925c28863d79dfa85859f49a02b812031929808ae5acb963e42e555bbf1e1",
+        "newInRun2": true,
+        "capturedAt": "2026-10-16T20:44:36.589Z",
+        "cause": "recovery",
+        "documentId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "instanceScope": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "format": "observation:v1:gzip",
+        "logicalBytes": 3728403,
+        "payloadBytes": 168572,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 0,
+        "oldRun1ObjectRefs": 0,
+        "oldRun1ObjectBytes": 0,
+        "reusedEarlierRefs": 0,
+        "reusedEarlierObjectBytes": 0,
+        "referencedObjectBytes": 0,
+        "newlyReferencedObjects": 0,
+        "layoutParts": 0,
+        "inlineLayoutBytes": 0,
+        "comparedWithPrevious": {
+          "common": 285,
+          "exact": 0,
+          "localIdChanged": 285,
+          "instanceIdChanged": 285,
+          "identityIdChanged": 163,
+          "changedFields": {
+            "localId": 285,
+            "instanceId": 285,
+            "reviewBinding": 285,
+            "reviewReuseBinding": 67,
+            "regionInstanceId": 285,
+            "actionable": 51,
+            "identityId": 163,
+            "hypothesisId": 9,
+            "list": 12,
+            "stableKey": 154,
+            "structuralItem": 154,
+            "name": 41,
+            "rect": 38,
+            "displayedText": 42,
+            "actionBasis": 38,
+            "identityContext": 38,
+            "classificationBinding": 31,
+            "scroll": 1,
+            "reviewAttributes": 1
+          }
+        }
+      },
+      {
+        "id": "24bef614-46f9-4e69-a885-78a7545e1ee0",
+        "stateId": "b07d9a76ec226ba43148df33bf512b0c17fb060fd2126c088101be5cceb25bde",
+        "newInRun2": true,
+        "capturedAt": "2026-10-16T20:44:42.065Z",
+        "cause": "inspection",
+        "documentId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "instanceScope": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3727891,
+        "payloadBytes": 20644,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 836,
+        "oldRun1ObjectRefs": 88,
+        "oldRun1ObjectBytes": 293452,
+        "reusedEarlierRefs": 88,
+        "reusedEarlierObjectBytes": 293452,
+        "referencedObjectBytes": 2754979,
+        "newlyReferencedObjects": 748,
+        "layoutParts": 2868,
+        "inlineLayoutBytes": 114164,
+        "comparedWithPrevious": {
+          "common": 301,
+          "exact": 300,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {
+            "name": 1,
+            "reviewAttributes": 1,
+            "classificationBinding": 1,
+            "displayedText": 1
+          }
+        }
+      },
+      {
+        "id": "a41e6de8-0e12-406d-bfb5-cf6080b272f3",
+        "stateId": "4b156ad5d63735a2e70767651c869287f4d9e7ef42b78c00ce285927bea47e0b",
+        "newInRun2": true,
+        "capturedAt": "2026-10-16T20:44:48.784Z",
+        "cause": "action",
+        "documentId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "instanceScope": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3728511,
+        "payloadBytes": 20611,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 837,
+        "oldRun1ObjectRefs": 88,
+        "oldRun1ObjectBytes": 293536,
+        "reusedEarlierRefs": 815,
+        "reusedEarlierObjectBytes": 2416645,
+        "referencedObjectBytes": 2755788,
+        "newlyReferencedObjects": 22,
+        "layoutParts": 2870,
+        "inlineLayoutBytes": 113903,
+        "comparedWithPrevious": {
+          "common": 301,
+          "exact": 290,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {
+            "expanded": 2,
+            "interactionHints": 2,
+            "discovery": 2,
+            "classificationBinding": 8,
+            "reviewReuseBinding": 1,
+            "checked": 1
+          }
+        }
+      },
+      {
+        "id": "e8267c31-83cf-421b-83e4-118d76bbefb3",
+        "stateId": "0829d4c00aa882bc92ccfaae07ea8a6ebd93483933ea5512186b5f59bdd9cfcb",
+        "newInRun2": true,
+        "capturedAt": "2026-10-16T20:44:55.856Z",
+        "cause": "action",
+        "documentId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "instanceScope": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3728363,
+        "payloadBytes": 20612,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 837,
+        "oldRun1ObjectRefs": 88,
+        "oldRun1ObjectBytes": 293476,
+        "reusedEarlierRefs": 834,
+        "reusedEarlierObjectBytes": 2680852,
+        "referencedObjectBytes": 2755640,
+        "newlyReferencedObjects": 3,
+        "layoutParts": 2870,
+        "inlineLayoutBytes": 113903,
+        "comparedWithPrevious": {
+          "common": 301,
+          "exact": 298,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {
+            "classificationBinding": 2,
+            "reviewReuseBinding": 1,
+            "checked": 1
+          }
+        }
+      },
+      {
+        "id": "e122c926-fcf3-43e6-a7d1-668eaaa82bbc",
+        "stateId": "0829d4c00aa882bc92ccfaae07ea8a6ebd93483933ea5512186b5f59bdd9cfcb",
+        "newInRun2": true,
+        "capturedAt": "2026-10-16T20:45:03.497Z",
+        "cause": "inspection",
+        "documentId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "instanceScope": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3728367,
+        "payloadBytes": 20616,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 837,
+        "oldRun1ObjectRefs": 88,
+        "oldRun1ObjectBytes": 293476,
+        "reusedEarlierRefs": 836,
+        "reusedEarlierObjectBytes": 2743894,
+        "referencedObjectBytes": 2755640,
+        "newlyReferencedObjects": 1,
+        "layoutParts": 2870,
+        "inlineLayoutBytes": 113907,
+        "comparedWithPrevious": {
+          "common": 301,
+          "exact": 301,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {}
+        }
+      },
+      {
+        "id": "eb4c96d2-114d-4356-8296-c2d4686fb38b",
+        "stateId": "0829d4c00aa882bc92ccfaae07ea8a6ebd93483933ea5512186b5f59bdd9cfcb",
+        "newInRun2": true,
+        "capturedAt": "2026-10-16T20:45:10.556Z",
+        "cause": "inspection",
+        "documentId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "instanceScope": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3728367,
+        "payloadBytes": 20617,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 837,
+        "oldRun1ObjectRefs": 88,
+        "oldRun1ObjectBytes": 293476,
+        "reusedEarlierRefs": 836,
+        "reusedEarlierObjectBytes": 2743894,
+        "referencedObjectBytes": 2755640,
+        "newlyReferencedObjects": 1,
+        "layoutParts": 2870,
+        "inlineLayoutBytes": 113907,
+        "comparedWithPrevious": {
+          "common": 301,
+          "exact": 301,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {}
+        }
+      },
+      {
+        "id": "1ccc7c61-b878-46b7-977b-04721cf59803",
+        "stateId": "0829d4c00aa882bc92ccfaae07ea8a6ebd93483933ea5512186b5f59bdd9cfcb",
+        "newInRun2": true,
+        "capturedAt": "2026-10-16T20:45:17.725Z",
+        "cause": "inspection",
+        "documentId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "instanceScope": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3728367,
+        "payloadBytes": 20618,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 837,
+        "oldRun1ObjectRefs": 88,
+        "oldRun1ObjectBytes": 293476,
+        "reusedEarlierRefs": 836,
+        "reusedEarlierObjectBytes": 2743894,
+        "referencedObjectBytes": 2755640,
+        "newlyReferencedObjects": 1,
+        "layoutParts": 2870,
+        "inlineLayoutBytes": 113907,
+        "comparedWithPrevious": {
+          "common": 301,
+          "exact": 301,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {}
+        }
+      },
+      {
+        "id": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b",
+        "stateId": "ff319bf6368f06441fc1ded5b4b37a4b935cfad79dc29be597ca03aa123576db",
+        "newInRun2": true,
+        "capturedAt": "2026-10-16T20:45:24.968Z",
+        "cause": "inspection",
+        "documentId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "instanceScope": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+        "format": "observation:v2:structural",
+        "logicalBytes": 3728313,
+        "payloadBytes": 20617,
+        "controls": 301,
+        "regions": 8,
+        "uniqueObjectRefs": 837,
+        "oldRun1ObjectRefs": 88,
+        "oldRun1ObjectBytes": 293476,
+        "reusedEarlierRefs": 835,
+        "reusedEarlierObjectBytes": 2742315,
+        "referencedObjectBytes": 2755586,
+        "newlyReferencedObjects": 2,
+        "layoutParts": 2870,
+        "inlineLayoutBytes": 113907,
+        "comparedWithPrevious": {
+          "common": 301,
+          "exact": 300,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {
+            "hypothesisId": 1
+          }
+        }
+      },
+      {
+        "id": "3a910b7e-e907-480f-9547-4fef6b0a9f12",
+        "stateId": "837069200d847fde77b702833db96c2735a0699312436136d9a6da2db4279fdc",
+        "newInRun2": true,
+        "capturedAt": "2026-10-16T20:45:34.466Z",
+        "cause": "action",
+        "documentId": "756065ca-cdcb-412c-9b5e-0cda10c4e8cd",
+        "instanceScope": "756065ca-cdcb-412c-9b5e-0cda10c4e8cd",
+        "format": "observation:v1:gzip",
+        "logicalBytes": 1925454,
+        "payloadBytes": 95129,
+        "controls": 159,
+        "regions": 5,
+        "uniqueObjectRefs": 0,
+        "oldRun1ObjectRefs": 0,
+        "oldRun1ObjectBytes": 0,
+        "reusedEarlierRefs": 0,
+        "reusedEarlierObjectBytes": 0,
+        "referencedObjectBytes": 0,
+        "newlyReferencedObjects": 0,
+        "layoutParts": 0,
+        "inlineLayoutBytes": 0,
+        "comparedWithPrevious": {
+          "common": 139,
+          "exact": 0,
+          "localIdChanged": 139,
+          "instanceIdChanged": 139,
+          "identityIdChanged": 68,
+          "changedFields": {
+            "localId": 139,
+            "instanceId": 139,
+            "reviewBinding": 139,
+            "reviewReuseBinding": 31,
+            "regionInstanceId": 139,
+            "actionable": 25,
+            "identityId": 68,
+            "hypothesisId": 4,
+            "expanded": 2,
+            "interactionHints": 3,
+            "discovery": 3,
+            "rect": 68,
+            "stableKey": 64,
+            "structuralItem": 63,
+            "classificationBinding": 16,
+            "role": 1,
+            "name": 1,
+            "displayedText": 2,
+            "actions": 1,
+            "actionBasis": 1,
+            "identityContext": 1
+          }
+        }
+      },
+      {
+        "id": "fbc54d28-a3e8-402f-92e7-513a953e059b",
+        "stateId": "cc785fb16571e9817b99f29507eb47f424e0afd197a57acd8a5e5fe19d92898c",
+        "newInRun2": true,
+        "capturedAt": "2026-10-16T20:45:38.346Z",
+        "cause": "recovery",
+        "documentId": "756065ca-cdcb-412c-9b5e-0cda10c4e8cd",
+        "instanceScope": "756065ca-cdcb-412c-9b5e-0cda10c4e8cd",
+        "format": "observation:v2:structural",
+        "logicalBytes": 1928894,
+        "payloadBytes": 12979,
+        "controls": 160,
+        "regions": 5,
+        "uniqueObjectRefs": 452,
+        "oldRun1ObjectRefs": 49,
+        "oldRun1ObjectBytes": 154454,
+        "reusedEarlierRefs": 49,
+        "reusedEarlierObjectBytes": 154454,
+        "referencedObjectBytes": 1363266,
+        "newlyReferencedObjects": 403,
+        "layoutParts": 1551,
+        "inlineLayoutBytes": 81107,
+        "comparedWithPrevious": {
+          "common": 159,
+          "exact": 159,
+          "localIdChanged": 0,
+          "instanceIdChanged": 0,
+          "identityIdChanged": 0,
+          "changedFields": {}
+        }
+      },
+      {
+        "id": "c7aabb3a-529d-417d-847f-f439613d2138",
+        "stateId": "189433c12b0a807146162ec7a7102a426d2bd3943ad9f31b5f1512244c1e53f6",
+        "newInRun2": true,
+        "capturedAt": "2026-10-16T20:45:46.128Z",
+        "cause": "recovery",
+        "documentId": "71396661-4213-403a-a1e6-a2d8f503be01",
+        "instanceScope": "71396661-4213-403a-a1e6-a2d8f503be01",
+        "format": "observation:v1:gzip",
+        "logicalBytes": 3623744,
+        "payloadBytes": 162385,
+        "controls": 292,
+        "regions": 7,
+        "uniqueObjectRefs": 0,
+        "oldRun1ObjectRefs": 0,
+        "oldRun1ObjectBytes": 0,
+        "reusedEarlierRefs": 0,
+        "reusedEarlierObjectBytes": 0,
+        "referencedObjectBytes": 0,
+        "newlyReferencedObjects": 0,
+        "layoutParts": 0,
+        "inlineLayoutBytes": 0,
+        "comparedWithPrevious": {
+          "common": 140,
+          "exact": 0,
+          "localIdChanged": 140,
+          "instanceIdChanged": 140,
+          "identityIdChanged": 68,
+          "changedFields": {
+            "localId": 140,
+            "instanceId": 140,
+            "reviewBinding": 140,
+            "regionInstanceId": 140,
+            "identityId": 68,
+            "hypothesisId": 4,
+            "rect": 68,
+            "stableKey": 64,
+            "structuralItem": 63,
+            "name": 2,
+            "label": 1,
+            "classificationBinding": 17,
+            "role": 1,
+            "reviewReuseBinding": 1,
+            "displayedText": 2,
+            "actions": 1,
+            "actionBasis": 1,
+            "interactionHints": 1,
+            "discovery": 1,
+            "actionable": 1,
+            "identityContext": 1
+          }
+        }
+      }
+    ]
+  },
+  "evidenceDelta": {
+    "newManifests": 22,
+    "manifestBytes": 300192,
+    "newBlobs": 479,
+    "blobBytes": 1637348,
+    "changedOldManifests": 0,
+    "missingOldBlobs": 0,
+    "newFrames": [
+      {
+        "name": "1ccc7c61-b878-46b7-977b-04721cf59803.details.json.meta.json",
+        "manifestBytes": 27819,
+        "logicalBytes": 4378393,
+        "blocks": 148,
+        "uniqueBlobs": 148,
+        "oldBlobs": 1,
+        "oldLogicalBytes": 1854,
+        "uniqueLogicalBytes": 4378393
+      },
+      {
+        "name": "1ccc7c61-b878-46b7-977b-04721cf59803.png.meta.json",
+        "manifestBytes": 2058,
+        "logicalBytes": 150947,
+        "blocks": 10,
+        "uniqueBlobs": 10,
+        "oldBlobs": 2,
+        "oldLogicalBytes": 32768,
+        "uniqueLogicalBytes": 150947
+      },
+      {
+        "name": "24bef614-46f9-4e69-a885-78a7545e1ee0.details.json.meta.json",
+        "manifestBytes": 27819,
+        "logicalBytes": 4378125,
+        "blocks": 148,
+        "uniqueBlobs": 148,
+        "oldBlobs": 1,
+        "oldLogicalBytes": 1854,
+        "uniqueLogicalBytes": 4378125
+      },
+      {
+        "name": "24bef614-46f9-4e69-a885-78a7545e1ee0.png.meta.json",
+        "manifestBytes": 2058,
+        "logicalBytes": 150942,
+        "blocks": 10,
+        "uniqueBlobs": 10,
+        "oldBlobs": 2,
+        "oldLogicalBytes": 32768,
+        "uniqueLogicalBytes": 150942
+      },
+      {
+        "name": "3a910b7e-e907-480f-9547-4fef6b0a9f12.details.json.meta.json",
+        "manifestBytes": 13794,
+        "logicalBytes": 2123996,
+        "blocks": 73,
+        "uniqueBlobs": 73,
+        "oldBlobs": 0,
+        "oldLogicalBytes": 0,
+        "uniqueLogicalBytes": 2123996
+      },
+      {
+        "name": "3a910b7e-e907-480f-9547-4fef6b0a9f12.png.meta.json",
+        "manifestBytes": 1674,
+        "logicalBytes": 119243,
+        "blocks": 8,
+        "uniqueBlobs": 8,
+        "oldBlobs": 8,
+        "oldLogicalBytes": 119243,
+        "uniqueLogicalBytes": 119243
+      },
+      {
+        "name": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b.details.json.meta.json",
+        "manifestBytes": 27819,
+        "logicalBytes": 4378393,
+        "blocks": 148,
+        "uniqueBlobs": 148,
+        "oldBlobs": 1,
+        "oldLogicalBytes": 1854,
+        "uniqueLogicalBytes": 4378393
+      },
+      {
+        "name": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b.png.meta.json",
+        "manifestBytes": 2058,
+        "logicalBytes": 150947,
+        "blocks": 10,
+        "uniqueBlobs": 10,
+        "oldBlobs": 2,
+        "oldLogicalBytes": 32768,
+        "uniqueLogicalBytes": 150947
+      },
+      {
+        "name": "a41e6de8-0e12-406d-bfb5-cf6080b272f3.details.json.meta.json",
+        "manifestBytes": 27819,
+        "logicalBytes": 4378397,
+        "blocks": 148,
+        "uniqueBlobs": 148,
+        "oldBlobs": 1,
+        "oldLogicalBytes": 1854,
+        "uniqueLogicalBytes": 4378397
+      },
+      {
+        "name": "a41e6de8-0e12-406d-bfb5-cf6080b272f3.png.meta.json",
+        "manifestBytes": 2058,
+        "logicalBytes": 151088,
+        "blocks": 10,
+        "uniqueBlobs": 10,
+        "oldBlobs": 2,
+        "oldLogicalBytes": 32768,
+        "uniqueLogicalBytes": 151088
+      },
+      {
+        "name": "aa3b5d04-03bf-4214-bc19-fe170a1d0213.details.json.meta.json",
+        "manifestBytes": 27818,
+        "logicalBytes": 4376909,
+        "blocks": 148,
+        "uniqueBlobs": 148,
+        "oldBlobs": 1,
+        "oldLogicalBytes": 2216,
+        "uniqueLogicalBytes": 4376909
+      },
+      {
+        "name": "aa3b5d04-03bf-4214-bc19-fe170a1d0213.png.meta.json",
+        "manifestBytes": 2058,
+        "logicalBytes": 150942,
+        "blocks": 10,
+        "uniqueBlobs": 10,
+        "oldBlobs": 2,
+        "oldLogicalBytes": 32768,
+        "uniqueLogicalBytes": 150942
+      },
+      {
+        "name": "c7aabb3a-529d-417d-847f-f439613d2138.details.json.meta.json",
+        "manifestBytes": 28566,
+        "logicalBytes": 4367632,
+        "blocks": 152,
+        "uniqueBlobs": 152,
+        "oldBlobs": 1,
+        "oldLogicalBytes": 2090,
+        "uniqueLogicalBytes": 4367632
+      },
+      {
+        "name": "c7aabb3a-529d-417d-847f-f439613d2138.png.meta.json",
+        "manifestBytes": 1674,
+        "logicalBytes": 119999,
+        "blocks": 8,
+        "uniqueBlobs": 8,
+        "oldBlobs": 2,
+        "oldLogicalBytes": 32768,
+        "uniqueLogicalBytes": 119999
+      },
+      {
+        "name": "e122c926-fcf3-43e6-a7d1-668eaaa82bbc.details.json.meta.json",
+        "manifestBytes": 27819,
+        "logicalBytes": 4378393,
+        "blocks": 148,
+        "uniqueBlobs": 148,
+        "oldBlobs": 1,
+        "oldLogicalBytes": 1854,
+        "uniqueLogicalBytes": 4378393
+      },
+      {
+        "name": "e122c926-fcf3-43e6-a7d1-668eaaa82bbc.png.meta.json",
+        "manifestBytes": 2058,
+        "logicalBytes": 150947,
+        "blocks": 10,
+        "uniqueBlobs": 10,
+        "oldBlobs": 2,
+        "oldLogicalBytes": 32768,
+        "uniqueLogicalBytes": 150947
+      },
+      {
+        "name": "e8267c31-83cf-421b-83e4-118d76bbefb3.details.json.meta.json",
+        "manifestBytes": 27819,
+        "logicalBytes": 4378393,
+        "blocks": 148,
+        "uniqueBlobs": 148,
+        "oldBlobs": 1,
+        "oldLogicalBytes": 1854,
+        "uniqueLogicalBytes": 4378393
+      },
+      {
+        "name": "e8267c31-83cf-421b-83e4-118d76bbefb3.png.meta.json",
+        "manifestBytes": 2058,
+        "logicalBytes": 150947,
+        "blocks": 10,
+        "uniqueBlobs": 10,
+        "oldBlobs": 2,
+        "oldLogicalBytes": 32768,
+        "uniqueLogicalBytes": 150947
+      },
+      {
+        "name": "eb4c96d2-114d-4356-8296-c2d4686fb38b.details.json.meta.json",
+        "manifestBytes": 27819,
+        "logicalBytes": 4378393,
+        "blocks": 148,
+        "uniqueBlobs": 148,
+        "oldBlobs": 1,
+        "oldLogicalBytes": 1854,
+        "uniqueLogicalBytes": 4378393
+      },
+      {
+        "name": "eb4c96d2-114d-4356-8296-c2d4686fb38b.png.meta.json",
+        "manifestBytes": 2058,
+        "logicalBytes": 150947,
+        "blocks": 10,
+        "uniqueBlobs": 10,
+        "oldBlobs": 2,
+        "oldLogicalBytes": 32768,
+        "uniqueLogicalBytes": 150947
+      },
+      {
+        "name": "fbc54d28-a3e8-402f-92e7-513a953e059b.details.json.meta.json",
+        "manifestBytes": 13795,
+        "logicalBytes": 2150556,
+        "blocks": 73,
+        "uniqueBlobs": 73,
+        "oldBlobs": 0,
+        "oldLogicalBytes": 0,
+        "uniqueLogicalBytes": 2150556
+      },
+      {
+        "name": "fbc54d28-a3e8-402f-92e7-513a953e059b.png.meta.json",
+        "manifestBytes": 1674,
+        "logicalBytes": 119796,
+        "blocks": 8,
+        "uniqueBlobs": 8,
+        "oldBlobs": 8,
+        "oldLogicalBytes": 119796,
+        "uniqueLogicalBytes": 119796
+      }
+    ]
+  },
+  "run2CopyCompaction": {
+    "databaseBytesBefore": 23449600,
+    "databaseBytesAfter": 22728704,
+    "walBytesBefore": 0,
+    "walBytesAfter": 0,
+    "reclaimedBytes": 720896,
+    "allEntityHashesUnchanged": true
+  },
+  "caveats": [
+    "Field-level byte counts describe exact serialized top-level values before compression and overlap nested content; they are not directly additive physical-saving estimates. Exact duplicates may still be semantically distinct records and cannot be deleted without preserving IDs/ownership/links.",
+    "Per-event gzip3 byte estimates exclude envelopes/schema migration/index costs; they are a possible codec investigation, not an implemented storage change or speed claim.",
+    "Restart loses only in-memory admission hints/caches. Persistent object hashes remain session-scoped and independently verifiable; controls can legitimately receive new document/instance IDs after navigation.",
+    "Compaction is applied only to disposable copies to measure free-page/packing effects; no retention or logical root deletion occurs."
+  ]
+}

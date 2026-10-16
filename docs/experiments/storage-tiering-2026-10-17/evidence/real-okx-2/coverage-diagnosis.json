@@ -1,0 +1,1316 @@
+{
+  "generatedAt": "2026-10-16T20:59:01.438617+00:00",
+  "runId": "e926ae98-5c1a-4d6b-8cea-9b232fd47877",
+  "runRevision": "cdb8a67a9f7646d71823ef4153c027bc3cf660d9",
+  "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+  "sourceFrozenDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1-frozen-2",
+  "privateCopyDirectory": "/tmp/okx-run2-coverage-a8s84t8c/owned-copy",
+  "method": "Frozen SQLite inspected with mode=ro&immutable=1; entire frozen directory copied to private /tmp. Exact InteractionEngine operationCorrespondence read method invoked with retained SqliteStore and pure adapter on the copy, bypassing engine constructor/recovery/driver/browser/provider. No original/frozen DB writes. No product changes.",
+  "databaseHashes": [
+    {
+      "path": ".runner-lock.sqlite",
+      "originalFrozenSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "currentFrozenSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "currentCopySHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "plugin/explorer.sqlite",
+      "originalFrozenSHA256": "4856895cc4ab9b4a50c3002908428bcd3b6b8772c90975854b25dcb222e7dbf9",
+      "currentFrozenSHA256": "4856895cc4ab9b4a50c3002908428bcd3b6b8772c90975854b25dcb222e7dbf9",
+      "currentCopySHA256": "4856895cc4ab9b4a50c3002908428bcd3b6b8772c90975854b25dcb222e7dbf9"
+    },
+    {
+      "path": "engine/engine.sqlite",
+      "originalFrozenSHA256": "aaf40b60d88dbe8d0a07a01f1acfc495d31e962e7596f3e0365fde717f6b53e3",
+      "currentFrozenSHA256": "aaf40b60d88dbe8d0a07a01f1acfc495d31e962e7596f3e0365fde717f6b53e3",
+      "currentCopySHA256": "aaf40b60d88dbe8d0a07a01f1acfc495d31e962e7596f3e0365fde717f6b53e3"
+    },
+    {
+      "path": "engine/evidence/.coordination/lock.sqlite",
+      "originalFrozenSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "currentFrozenSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "currentCopySHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "databaseHashesUnchanged": true,
+  "inputHashes": {
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-2/task-before.json": "15e54070fbf3c36214c4a158883eef05d3280fc3f3f7fedd4b4e3283a5311658",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-2/task-after.json": "783e33fec4e6f3412efd7a9420e7a561084c3ab8fed1b9a7254fa0201028329a",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-2/plan-occurrences-before.json": "e01123aa2e16bc7c08a308b45f1ee9620b2d8cfb713655f536f2ee2164f27f91",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-2/plan-occurrences-after.json": "d106b10484d0d6ae2e0d69097190954d44e430cd69b5f01dce36af5ce7940b4a",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-2/metrics.jsonl": "6b7891e7d3a417c9eb606d3c40d9dabf28bb675e96c4f415422bfcf97e3617ca",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-2/coverage-review.json": "01077eb39a39e5e29b64e2d86456c57e5cdcf30dfc6ae9883bce60ea2b60435b",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-2/summary.json": "247430cc68f281c1a68710d9636b87d0da9156a814837ea8d4e2f2f0c0e6ac7f"
+  },
+  "readerHashes": {
+    "/tmp/okx-run2-coverage-a8s84t8c/read-proof.ts": "8d4e12263f7ca68ee71a198037503bf6e53ed889346b7c4a50718fa84bb799fc",
+    "/tmp/okx-run2-coverage-a8s84t8c/read-bindings.ts": "6b7c07d10f514149e1f30b9aa722073ddd6b7b6f3fe61afdb75f59cd0689a2cf",
+    "/tmp/okx-run2-coverage-a8s84t8c/coverage-proofs.json": "7daa532d16e1f5a42334e92f994e530254f515d501dcf79bae464bd8a4500e95",
+    "/tmp/okx-run2-coverage-a8s84t8c/selector-bindings.json": "06bb9f6d73fc70cf687f180e968ca806d12099360da83deaaca6c8c4444d4114"
+  },
+  "sourceCodeHashes": {
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/branch-conditions.ts": "700ac4bffd6826d50eebb92478322c63d927556234ad5ad397fa75fb009ae63e",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/exploration.ts": "cb45a0b4aa1b8070f3e61070f48280f4f74d59d4282447b149fdaa35ce3856eb",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts": "d2d8918a32866b3a0548cf4dae936f850e47e231b975c535f3b815de6fdfdcec",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/explorer-plugin/src/completion-evidence.ts": "eddaaf89bcba10b2ac1a620a800e83678a28894bb506ef44fe1bc4b79b2d9b8d",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/explorer-plugin/src/reviews.ts": "be77bbcba02412b49411d2f9aa47ad3c3866960d708c80e464f1078155d0a207",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/explorer-plugin/src/runtime.ts": "6804a657b333c10e2aba3679de0934c4646b3edc2d3085f4593e7967d6177036"
+  },
+  "caseProofs": [
+    {
+      "label": "check-true",
+      "proof": {
+        "equivalent": false,
+        "reason": "operation_conditions_changed",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "attemptId": "2a820db4-4a56-4862-900d-8f882c9bd91e",
+          "beforeId": "8e894178-1943-4a1f-b75d-1ce665aa01cc",
+          "afterId": "5a904f94-d42c-4d05-aab0-255c18388699"
+        },
+        "target": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "24bef614-46f9-4e69-a885-78a7545e1ee0",
+          "actionId": "f4e9b32b-a8fc-46d8-bc76-f2943b3f2004"
+        },
+        "evidence": [],
+        "invalidatedBy": [
+          "observation-or-review-change",
+          "nonunique-correspondence",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false
+      },
+      "old": {
+        "attempt": {
+          "id": "2a820db4-4a56-4862-900d-8f882c9bd91e",
+          "startedAt": "2026-10-16T20:14:16.411Z",
+          "status": "succeeded",
+          "purpose": "external",
+          "executionProfile": "interface-exploration",
+          "beforeId": "8e894178-1943-4a1f-b75d-1ce665aa01cc",
+          "afterId": "5a904f94-d42c-4d05-aab0-255c18388699"
+        },
+        "actionId": "e2cacb5e-52cd-4d5b-a510-2a773437c0d2",
+        "operationKey": "665897e6afcf15eb660af19375aef4ea46dd4ceafb0ea5636929c85b3364cb81",
+        "actionControlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "target": {
+          "localId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1554",
+          "instanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1554",
+          "identityId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "tag": "input",
+          "role": "checkbox",
+          "name": "Don’t show for 7 days",
+          "label": "Don’t show for 7 days",
+          "stableKey": "id:_r_1_",
+          "region": "dialog:okd-dialog-window",
+          "visible": true,
+          "checked": false,
+          "pressed": null,
+          "expanded": null,
+          "selected": [],
+          "constraints": {
+            "type": "checkbox",
+            "required": false,
+            "valid": true
+          },
+          "identityContext": {
+            "scope": "[\"ancestor-id\",\"scroll-box\"]",
+            "evidence": [
+              "semantic-ancestor-scope/v1"
+            ]
+          },
+          "resolvedIdentity": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "correspondence": {
+            "key": "id:_r_1_",
+            "policy": "browser-correspondence-v1",
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1"
+            ],
+            "invalidatedBy": [
+              "nonunique-correspondence",
+              "changed-owner-or-binding",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ]
+          }
+        },
+        "observation": {
+          "id": "8e894178-1943-4a1f-b75d-1ce665aa01cc",
+          "instanceScope": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "context": {},
+          "stable": true,
+          "boundaries": [
+            {
+              "key": "dialog:okd-dialog-window",
+              "name": "dialog",
+              "region": "document",
+              "evidence": [
+                "aria-modal"
+              ]
+            }
+          ]
+        },
+        "criticalGapCount": 0,
+        "portableCase": null,
+        "operationSample": null,
+        "branchConditions": null,
+        "targetConditions": null,
+        "selectorCount": 26
+      },
+      "current": {
+        "attempt": {
+          "id": "183ccbdf-cdef-4eb1-bf97-bfec0e4dc58b",
+          "startedAt": "2026-10-16T20:44:45.772Z",
+          "status": "succeeded",
+          "purpose": "external",
+          "executionProfile": "interface-exploration",
+          "beforeId": "24bef614-46f9-4e69-a885-78a7545e1ee0",
+          "afterId": "a41e6de8-0e12-406d-bfb5-cf6080b272f3"
+        },
+        "actionId": "f4e9b32b-a8fc-46d8-bc76-f2943b3f2004",
+        "operationKey": "665897e6afcf15eb660af19375aef4ea46dd4ceafb0ea5636929c85b3364cb81",
+        "actionControlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "target": {
+          "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1554",
+          "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1554",
+          "identityId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "tag": "input",
+          "role": "checkbox",
+          "name": "Don’t show for 7 days",
+          "label": "Don’t show for 7 days",
+          "stableKey": "id:_r_1_",
+          "region": "dialog:okd-dialog-window",
+          "visible": true,
+          "checked": false,
+          "pressed": null,
+          "expanded": null,
+          "selected": [],
+          "constraints": {
+            "type": "checkbox",
+            "required": false,
+            "valid": true
+          },
+          "identityContext": {
+            "scope": "[\"ancestor-id\",\"scroll-box\"]",
+            "evidence": [
+              "semantic-ancestor-scope/v1"
+            ]
+          },
+          "resolvedIdentity": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "correspondence": {
+            "key": "id:_r_1_",
+            "policy": "browser-correspondence-v1",
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1"
+            ],
+            "invalidatedBy": [
+              "nonunique-correspondence",
+              "changed-owner-or-binding",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ]
+          }
+        },
+        "observation": {
+          "id": "24bef614-46f9-4e69-a885-78a7545e1ee0",
+          "instanceScope": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "context": {},
+          "stable": true,
+          "boundaries": [
+            {
+              "key": "dialog:okd-dialog-window",
+              "name": "dialog",
+              "region": "document",
+              "evidence": [
+                "aria-modal"
+              ]
+            }
+          ]
+        },
+        "criticalGapCount": 0,
+        "portableCase": null,
+        "operationSample": null,
+        "branchConditions": null,
+        "targetConditions": null,
+        "selectorCount": 26
+      }
+    },
+    {
+      "label": "check-false",
+      "proof": {
+        "equivalent": false,
+        "reason": "operation_conditions_changed",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "attemptId": "98e8dbcb-fc34-437a-9e0e-a986760fb9b7",
+          "beforeId": "5a904f94-d42c-4d05-aab0-255c18388699",
+          "afterId": "46a38d17-fbf9-43c1-ba1f-b4c9791a6c27"
+        },
+        "target": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "a41e6de8-0e12-406d-bfb5-cf6080b272f3",
+          "actionId": "3943695f-e9cd-4125-ad96-6e455a8e5712"
+        },
+        "evidence": [],
+        "invalidatedBy": [
+          "observation-or-review-change",
+          "nonunique-correspondence",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false
+      },
+      "old": {
+        "attempt": {
+          "id": "98e8dbcb-fc34-437a-9e0e-a986760fb9b7",
+          "startedAt": "2026-10-16T20:14:21.994Z",
+          "status": "succeeded",
+          "purpose": "external",
+          "executionProfile": "interface-exploration",
+          "beforeId": "5a904f94-d42c-4d05-aab0-255c18388699",
+          "afterId": "46a38d17-fbf9-43c1-ba1f-b4c9791a6c27"
+        },
+        "actionId": "0dcee6ba-2071-41c4-a458-5c985e498aca",
+        "operationKey": "2d3e4eb8d3f48fec22320af44869699657abee1a4e9c9888eafc985f668f1d3b",
+        "actionControlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "target": {
+          "localId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1554",
+          "instanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1554",
+          "identityId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "tag": "input",
+          "role": "checkbox",
+          "name": "Don’t show for 7 days",
+          "label": "Don’t show for 7 days",
+          "stableKey": "id:_r_1_",
+          "region": "dialog:okd-dialog-window",
+          "visible": true,
+          "checked": true,
+          "pressed": null,
+          "expanded": null,
+          "selected": [],
+          "constraints": {
+            "type": "checkbox",
+            "required": false,
+            "valid": true
+          },
+          "identityContext": {
+            "scope": "[\"ancestor-id\",\"scroll-box\"]",
+            "evidence": [
+              "semantic-ancestor-scope/v1"
+            ]
+          },
+          "resolvedIdentity": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "correspondence": {
+            "key": "id:_r_1_",
+            "policy": "browser-correspondence-v1",
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1"
+            ],
+            "invalidatedBy": [
+              "nonunique-correspondence",
+              "changed-owner-or-binding",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ]
+          }
+        },
+        "observation": {
+          "id": "5a904f94-d42c-4d05-aab0-255c18388699",
+          "instanceScope": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "context": {},
+          "stable": true,
+          "boundaries": [
+            {
+              "key": "dialog:okd-dialog-window",
+              "name": "dialog",
+              "region": "document",
+              "evidence": [
+                "aria-modal"
+              ]
+            }
+          ]
+        },
+        "criticalGapCount": 0,
+        "portableCase": null,
+        "operationSample": null,
+        "branchConditions": null,
+        "targetConditions": null,
+        "selectorCount": 28
+      },
+      "current": {
+        "attempt": {
+          "id": "e7718bc9-81d4-4a21-aa44-e26c4f07bc6a",
+          "startedAt": "2026-10-16T20:44:52.897Z",
+          "status": "succeeded",
+          "purpose": "external",
+          "executionProfile": "interface-exploration",
+          "beforeId": "a41e6de8-0e12-406d-bfb5-cf6080b272f3",
+          "afterId": "e8267c31-83cf-421b-83e4-118d76bbefb3"
+        },
+        "actionId": "3943695f-e9cd-4125-ad96-6e455a8e5712",
+        "operationKey": "2d3e4eb8d3f48fec22320af44869699657abee1a4e9c9888eafc985f668f1d3b",
+        "actionControlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "target": {
+          "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1554",
+          "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1554",
+          "identityId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "tag": "input",
+          "role": "checkbox",
+          "name": "Don’t show for 7 days",
+          "label": "Don’t show for 7 days",
+          "stableKey": "id:_r_1_",
+          "region": "dialog:okd-dialog-window",
+          "visible": true,
+          "checked": true,
+          "pressed": null,
+          "expanded": null,
+          "selected": [],
+          "constraints": {
+            "type": "checkbox",
+            "required": false,
+            "valid": true
+          },
+          "identityContext": {
+            "scope": "[\"ancestor-id\",\"scroll-box\"]",
+            "evidence": [
+              "semantic-ancestor-scope/v1"
+            ]
+          },
+          "resolvedIdentity": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "correspondence": {
+            "key": "id:_r_1_",
+            "policy": "browser-correspondence-v1",
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1"
+            ],
+            "invalidatedBy": [
+              "nonunique-correspondence",
+              "changed-owner-or-binding",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ]
+          }
+        },
+        "observation": {
+          "id": "a41e6de8-0e12-406d-bfb5-cf6080b272f3",
+          "instanceScope": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "context": {},
+          "stable": true,
+          "boundaries": [
+            {
+              "key": "dialog:okd-dialog-window",
+              "name": "dialog",
+              "region": "document",
+              "evidence": [
+                "aria-modal"
+              ]
+            }
+          ]
+        },
+        "criticalGapCount": 0,
+        "portableCase": null,
+        "operationSample": null,
+        "branchConditions": null,
+        "targetConditions": null,
+        "selectorCount": 28
+      }
+    },
+    {
+      "label": "announced",
+      "proof": {
+        "equivalent": false,
+        "reason": "operation_conditions_changed",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "attemptId": "492c5f9c-ca38-4621-bd3b-69f0350aeaed",
+          "beforeId": "6b86d43c-8797-4140-8dcc-2132dbeb9073",
+          "afterId": "b1f0d28c-50fe-4401-811b-6bbe6d8535e7"
+        },
+        "target": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b",
+          "actionId": "049022af-8419-4ce0-8e41-d636e219c243"
+        },
+        "evidence": [],
+        "invalidatedBy": [
+          "observation-or-review-change",
+          "nonunique-correspondence",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false
+      },
+      "old": {
+        "attempt": {
+          "id": "492c5f9c-ca38-4621-bd3b-69f0350aeaed",
+          "startedAt": "2026-10-16T20:14:56.168Z",
+          "status": "succeeded",
+          "purpose": "external",
+          "executionProfile": "interface-exploration",
+          "beforeId": "6b86d43c-8797-4140-8dcc-2132dbeb9073",
+          "afterId": "b1f0d28c-50fe-4401-811b-6bbe6d8535e7"
+        },
+        "actionId": "95fd1d3e-3c8f-4dd7-9912-752c3277084a",
+        "operationKey": "e9cf0f7df6d8b52441996e8e9b84cdfd97794e2d58144516f394a34766147c50",
+        "actionControlId": "a8508c62-0c72-44aa-8fde-7c0a794a6982",
+        "target": {
+          "localId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1548",
+          "instanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1548",
+          "identityId": "a8508c62-0c72-44aa-8fde-7c0a794a6982",
+          "tag": "a",
+          "role": "link",
+          "name": "announced",
+          "label": "",
+          "region": "dialog:okd-dialog-window",
+          "visible": true,
+          "checked": null,
+          "pressed": null,
+          "expanded": null,
+          "selected": [],
+          "constraints": {
+            "type": "a",
+            "required": false,
+            "valid": true
+          },
+          "identityContext": {
+            "scope": "[\"ancestor-id\",\"scroll-box\"]",
+            "binding": "[[\"link-destination\",\"https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application\",\"_self\"]]",
+            "evidence": [
+              "semantic-ancestor-scope/v1",
+              "link-destination/v1"
+            ]
+          },
+          "resolvedIdentity": "a8508c62-0c72-44aa-8fde-7c0a794a6982",
+          "correspondence": {
+            "key": "explorer:context:v1:01ee03020a0e94dc72b2f3eb6fd9b3c7eb08a0755137b9fd12dda91a88eef955",
+            "policy": "browser-correspondence-v1",
+            "evidence": [
+              "captured-semantic-context",
+              "semantic-ancestor-scope/v1",
+              "link-destination/v1"
+            ],
+            "invalidatedBy": [
+              "nonunique-correspondence",
+              "changed-owner-or-binding",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ]
+          }
+        },
+        "observation": {
+          "id": "6b86d43c-8797-4140-8dcc-2132dbeb9073",
+          "instanceScope": "8edd2618-4c9f-4c49-bcae-549260f5e1d6",
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "context": {},
+          "stable": true,
+          "boundaries": [
+            {
+              "key": "dialog:okd-dialog-window",
+              "name": "dialog",
+              "region": "document",
+              "evidence": [
+                "aria-modal"
+              ]
+            }
+          ]
+        },
+        "criticalGapCount": 0,
+        "portableCase": null,
+        "operationSample": null,
+        "branchConditions": null,
+        "targetConditions": null,
+        "selectorCount": 29
+      },
+      "current": {
+        "attempt": {
+          "id": "55fc9752-861f-4a3a-b90d-f9247b33f3e5",
+          "startedAt": "2026-10-16T20:45:32.045Z",
+          "status": "succeeded",
+          "purpose": "external",
+          "executionProfile": "interface-exploration",
+          "beforeId": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b",
+          "afterId": "3a910b7e-e907-480f-9547-4fef6b0a9f12"
+        },
+        "actionId": "049022af-8419-4ce0-8e41-d636e219c243",
+        "operationKey": "e9cf0f7df6d8b52441996e8e9b84cdfd97794e2d58144516f394a34766147c50",
+        "actionControlId": "a8508c62-0c72-44aa-8fde-7c0a794a6982",
+        "target": {
+          "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1548",
+          "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1548",
+          "identityId": "a8508c62-0c72-44aa-8fde-7c0a794a6982",
+          "tag": "a",
+          "role": "link",
+          "name": "announced",
+          "label": "",
+          "region": "dialog:okd-dialog-window",
+          "visible": true,
+          "checked": null,
+          "pressed": null,
+          "expanded": null,
+          "selected": [],
+          "constraints": {
+            "type": "a",
+            "required": false,
+            "valid": true
+          },
+          "identityContext": {
+            "scope": "[\"ancestor-id\",\"scroll-box\"]",
+            "binding": "[[\"link-destination\",\"https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application\",\"_self\"]]",
+            "evidence": [
+              "semantic-ancestor-scope/v1",
+              "link-destination/v1"
+            ]
+          },
+          "resolvedIdentity": "a8508c62-0c72-44aa-8fde-7c0a794a6982",
+          "correspondence": {
+            "key": "explorer:context:v1:01ee03020a0e94dc72b2f3eb6fd9b3c7eb08a0755137b9fd12dda91a88eef955",
+            "policy": "browser-correspondence-v1",
+            "evidence": [
+              "captured-semantic-context",
+              "semantic-ancestor-scope/v1",
+              "link-destination/v1"
+            ],
+            "invalidatedBy": [
+              "nonunique-correspondence",
+              "changed-owner-or-binding",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ]
+          }
+        },
+        "observation": {
+          "id": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b",
+          "instanceScope": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c",
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "context": {},
+          "stable": true,
+          "boundaries": [
+            {
+              "key": "dialog:okd-dialog-window",
+              "name": "dialog",
+              "region": "document",
+              "evidence": [
+                "aria-modal"
+              ]
+            }
+          ]
+        },
+        "criticalGapCount": 0,
+        "portableCase": null,
+        "operationSample": null,
+        "branchConditions": null,
+        "targetConditions": null,
+        "selectorCount": 29
+      }
+    }
+  ],
+  "selectors": [
+    {
+      "observationId": "8e894178-1943-4a1f-b75d-1ce665aa01cc",
+      "boundary": {
+        "key": "dialog:okd-dialog-window",
+        "name": "dialog",
+        "region": "document",
+        "evidence": [
+          "aria-modal"
+        ]
+      },
+      "overlay": {
+        "key": "dialog:okd-dialog-window",
+        "controlCount": 9
+      },
+      "selectors": [
+        {
+          "localId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1469",
+          "instanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1469",
+          "identityId": "a73d0731-92f0-4351-8f85-aff29be0d36c",
+          "fields": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "stableKey": null,
+            "identityContext": null,
+            "formOwner": null,
+            "structuralItem": null,
+            "expanded": false,
+            "identityScope": null,
+            "readiness": null,
+            "hypothesisId": "676ecad4-e6da-447a-a176-a3abf273c384",
+            "visible": false,
+            "constraints.type": "i"
+          },
+          "bindingIgnoringHypothesis": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "bindingCollisionCount": 2,
+          "bindingCollisionLocalIds": [
+            "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1469",
+            "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1475"
+          ],
+          "inActiveBoundary": false
+        },
+        {
+          "localId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1475",
+          "instanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1475",
+          "identityId": "da323572-c37e-4256-894d-37d125359c8b",
+          "fields": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "stableKey": null,
+            "identityContext": null,
+            "formOwner": null,
+            "structuralItem": null,
+            "expanded": false,
+            "identityScope": null,
+            "readiness": null,
+            "hypothesisId": "79d9479a-bb36-49d0-9732-4c74847d1c0b",
+            "visible": false,
+            "constraints.type": "i"
+          },
+          "bindingIgnoringHypothesis": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "bindingCollisionCount": 2,
+          "bindingCollisionLocalIds": [
+            "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1469",
+            "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1475"
+          ],
+          "inActiveBoundary": false
+        }
+      ]
+    },
+    {
+      "observationId": "24bef614-46f9-4e69-a885-78a7545e1ee0",
+      "boundary": {
+        "key": "dialog:okd-dialog-window",
+        "name": "dialog",
+        "region": "document",
+        "evidence": [
+          "aria-modal"
+        ]
+      },
+      "overlay": {
+        "key": "dialog:okd-dialog-window",
+        "controlCount": 9
+      },
+      "selectors": [
+        {
+          "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1469",
+          "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1469",
+          "identityId": "a08ace28-0f62-4909-918e-2d6d3cda0374",
+          "fields": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "stableKey": null,
+            "identityContext": null,
+            "formOwner": null,
+            "structuralItem": null,
+            "expanded": false,
+            "identityScope": null,
+            "readiness": null,
+            "hypothesisId": "e215e17e-c6d3-4c86-b0c6-5ff3df7dbfb7",
+            "visible": false,
+            "constraints.type": "i"
+          },
+          "bindingIgnoringHypothesis": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "bindingCollisionCount": 2,
+          "bindingCollisionLocalIds": [
+            "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1469",
+            "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1475"
+          ],
+          "inActiveBoundary": false
+        },
+        {
+          "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1475",
+          "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1475",
+          "identityId": "5492f0f9-026e-4d57-9309-356c4f0d8ac3",
+          "fields": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "stableKey": null,
+            "identityContext": null,
+            "formOwner": null,
+            "structuralItem": null,
+            "expanded": false,
+            "identityScope": null,
+            "readiness": null,
+            "hypothesisId": "8cb3bea9-2dde-493d-ba13-c77d1b23708e",
+            "visible": false,
+            "constraints.type": "i"
+          },
+          "bindingIgnoringHypothesis": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "bindingCollisionCount": 2,
+          "bindingCollisionLocalIds": [
+            "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1469",
+            "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1475"
+          ],
+          "inActiveBoundary": false
+        }
+      ]
+    },
+    {
+      "observationId": "a41e6de8-0e12-406d-bfb5-cf6080b272f3",
+      "boundary": {
+        "key": "dialog:okd-dialog-window",
+        "name": "dialog",
+        "region": "document",
+        "evidence": [
+          "aria-modal"
+        ]
+      },
+      "overlay": {
+        "key": "dialog:okd-dialog-window",
+        "controlCount": 9
+      },
+      "selectors": [
+        {
+          "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1469",
+          "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1469",
+          "identityId": "a08ace28-0f62-4909-918e-2d6d3cda0374",
+          "fields": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "stableKey": null,
+            "identityContext": null,
+            "formOwner": null,
+            "structuralItem": null,
+            "expanded": false,
+            "identityScope": null,
+            "readiness": null,
+            "hypothesisId": "e215e17e-c6d3-4c86-b0c6-5ff3df7dbfb7",
+            "visible": false,
+            "constraints.type": "i"
+          },
+          "bindingIgnoringHypothesis": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "bindingCollisionCount": 2,
+          "bindingCollisionLocalIds": [
+            "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1469",
+            "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1475"
+          ],
+          "inActiveBoundary": false
+        },
+        {
+          "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1475",
+          "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1475",
+          "identityId": "5492f0f9-026e-4d57-9309-356c4f0d8ac3",
+          "fields": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "stableKey": null,
+            "identityContext": null,
+            "formOwner": null,
+            "structuralItem": null,
+            "expanded": false,
+            "identityScope": null,
+            "readiness": null,
+            "hypothesisId": "8cb3bea9-2dde-493d-ba13-c77d1b23708e",
+            "visible": false,
+            "constraints.type": "i"
+          },
+          "bindingIgnoringHypothesis": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "bindingCollisionCount": 2,
+          "bindingCollisionLocalIds": [
+            "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1469",
+            "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1475"
+          ],
+          "inActiveBoundary": false
+        }
+      ]
+    },
+    {
+      "observationId": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b",
+      "boundary": {
+        "key": "dialog:okd-dialog-window",
+        "name": "dialog",
+        "region": "document",
+        "evidence": [
+          "aria-modal"
+        ]
+      },
+      "overlay": {
+        "key": "dialog:okd-dialog-window",
+        "controlCount": 9
+      },
+      "selectors": [
+        {
+          "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1469",
+          "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1469",
+          "identityId": "a08ace28-0f62-4909-918e-2d6d3cda0374",
+          "fields": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "stableKey": null,
+            "identityContext": null,
+            "formOwner": null,
+            "structuralItem": null,
+            "expanded": false,
+            "identityScope": null,
+            "readiness": null,
+            "hypothesisId": "e215e17e-c6d3-4c86-b0c6-5ff3df7dbfb7",
+            "visible": false,
+            "constraints.type": "i"
+          },
+          "bindingIgnoringHypothesis": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "bindingCollisionCount": 2,
+          "bindingCollisionLocalIds": [
+            "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1469",
+            "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1475"
+          ],
+          "inActiveBoundary": false
+        },
+        {
+          "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1475",
+          "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1475",
+          "identityId": "5492f0f9-026e-4d57-9309-356c4f0d8ac3",
+          "fields": {
+            "tag": "i",
+            "role": "button",
+            "name": "Open sub-menu",
+            "label": "Open sub-menu",
+            "stableKey": null,
+            "identityContext": null,
+            "formOwner": null,
+            "structuralItem": null,
+            "expanded": false,
+            "identityScope": null,
+            "readiness": null,
+            "hypothesisId": "8cb3bea9-2dde-493d-ba13-c77d1b23708e",
+            "visible": false,
+            "constraints.type": "i"
+          },
+          "bindingIgnoringHypothesis": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}",
+          "bindingCollisionCount": 2,
+          "bindingCollisionLocalIds": [
+            "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1469",
+            "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1475"
+          ],
+          "inActiveBoundary": false
+        }
+      ]
+    }
+  ],
+  "plan": {
+    "beforeCount": 19,
+    "afterCount": 22,
+    "beforeStatuses": {
+      "pending": 1,
+      "unresolved": 10,
+      "succeeded": 8
+    },
+    "afterStatuses": {
+      "pending": 1,
+      "unresolved": 10,
+      "succeeded": 11
+    },
+    "allHistoricalOccurrencesRetained": true,
+    "newlyIntroducedSuccessfulOccurrences": [
+      {
+        "occurrenceId": "e89003f035649f1aa0930d38e636c198",
+        "position": 19,
+        "businessId": "ebb831a1-0cd5-4e0a-ab82-44baa46726db",
+        "scope": {
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "region": "dialog",
+          "label": "announced",
+          "role": "link",
+          "stableKey": "explorer:context:v1:01ee03020a0e94dc72b2f3eb6fd9b3c7eb08a0755137b9fd12dda91a88eef955",
+          "targetBinding": "browser-target-binding:v1:ef9aa123a90e64b5bcb4f40b7dcc745689c1f2cf3e268711771a021441a03804",
+          "kind": "click"
+        },
+        "operationConditionKey": "e9cf0f7df6d8b52441996e8e9b84cdfd97794e2d58144516f394a34766147c50",
+        "resolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "3a910b7e-e907-480f-9547-4fef6b0a9f12",
+          "attemptId": "55fc9752-861f-4a3a-b90d-f9247b33f3e5"
+        },
+        "priorStatus": null,
+        "historicalSameScopeAndCondition": [
+          {
+            "businessId": "a1cb1d34-32d9-4894-99d8-6f05f4b1cd98",
+            "status": "succeeded"
+          },
+          {
+            "businessId": "8f50c713-49be-4d57-b78f-cbe7711e594f",
+            "status": "succeeded"
+          }
+        ]
+      },
+      {
+        "occurrenceId": "0be8ce134508cdd7ac1cf334cb430bfc",
+        "position": 20,
+        "businessId": "1a6f3848-2af6-40a5-bad6-c823a2bbe236",
+        "scope": {
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "region": "dialog",
+          "label": "Don’t show for 7 days",
+          "role": "checkbox",
+          "stableKey": "id:_r_1_",
+          "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176",
+          "kind": "check",
+          "value": true
+        },
+        "operationConditionKey": "665897e6afcf15eb660af19375aef4ea46dd4ceafb0ea5636929c85b3364cb81",
+        "resolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "a41e6de8-0e12-406d-bfb5-cf6080b272f3",
+          "attemptId": "183ccbdf-cdef-4eb1-bf97-bfec0e4dc58b"
+        },
+        "priorStatus": null,
+        "historicalSameScopeAndCondition": [
+          {
+            "businessId": "57b2b287-3403-45ed-8695-24534092f486",
+            "status": "succeeded"
+          },
+          {
+            "businessId": "07da5553-193f-46a0-a97d-916c2ae66832",
+            "status": "succeeded"
+          }
+        ]
+      },
+      {
+        "occurrenceId": "04554b85bf2e370242318a95f068ae99",
+        "position": 21,
+        "businessId": "172740a0-735d-44c9-a1e6-1dbc0df2d4fb",
+        "scope": {
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "region": "dialog",
+          "label": "Don’t show for 7 days",
+          "role": "checkbox",
+          "stableKey": "id:_r_1_",
+          "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176",
+          "kind": "check",
+          "value": false
+        },
+        "operationConditionKey": "2d3e4eb8d3f48fec22320af44869699657abee1a4e9c9888eafc985f668f1d3b",
+        "resolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "e8267c31-83cf-421b-83e4-118d76bbefb3",
+          "attemptId": "e7718bc9-81d4-4a21-aa44-e26c4f07bc6a"
+        },
+        "priorStatus": null,
+        "historicalSameScopeAndCondition": [
+          {
+            "businessId": "d64c1f8a-7b98-496d-8814-18dc6aee9563",
+            "status": "succeeded"
+          },
+          {
+            "businessId": "2add7f08-ecc3-4707-8948-9616f1fa48a4",
+            "status": "succeeded"
+          }
+        ]
+      }
+    ],
+    "historicalUnresolvedToSuccess": 0,
+    "refreshedSuccessfulEvidence": [
+      {
+        "occurrenceId": "862766e12c8628a038fe2b5daca9abc7",
+        "position": 8,
+        "businessId": "a1cb1d34-32d9-4894-99d8-6f05f4b1cd98",
+        "scope": {
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "region": "dialog",
+          "label": "announced",
+          "role": "link",
+          "stableKey": "explorer:context:v1:01ee03020a0e94dc72b2f3eb6fd9b3c7eb08a0755137b9fd12dda91a88eef955",
+          "targetBinding": "browser-target-binding:v1:ef9aa123a90e64b5bcb4f40b7dcc745689c1f2cf3e268711771a021441a03804",
+          "kind": "click"
+        },
+        "operationConditionKey": "e9cf0f7df6d8b52441996e8e9b84cdfd97794e2d58144516f394a34766147c50",
+        "resolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "3a910b7e-e907-480f-9547-4fef6b0a9f12",
+          "attemptId": "55fc9752-861f-4a3a-b90d-f9247b33f3e5"
+        },
+        "previousResolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "b1f0d28c-50fe-4401-811b-6bbe6d8535e7",
+          "attemptId": "492c5f9c-ca38-4621-bd3b-69f0350aeaed"
+        }
+      },
+      {
+        "occurrenceId": "c1c8e0dddb7577dddf5bf85eb82df93d",
+        "position": 9,
+        "businessId": "57b2b287-3403-45ed-8695-24534092f486",
+        "scope": {
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "region": "dialog",
+          "label": "Don’t show for 7 days",
+          "role": "checkbox",
+          "stableKey": "id:_r_1_",
+          "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176",
+          "kind": "check",
+          "value": true
+        },
+        "operationConditionKey": "665897e6afcf15eb660af19375aef4ea46dd4ceafb0ea5636929c85b3364cb81",
+        "resolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "a41e6de8-0e12-406d-bfb5-cf6080b272f3",
+          "attemptId": "183ccbdf-cdef-4eb1-bf97-bfec0e4dc58b"
+        },
+        "previousResolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "5a904f94-d42c-4d05-aab0-255c18388699",
+          "attemptId": "2a820db4-4a56-4862-900d-8f882c9bd91e"
+        }
+      },
+      {
+        "occurrenceId": "8ef1e3654e62ab5d49e1cbd3e8f8867b",
+        "position": 10,
+        "businessId": "8f50c713-49be-4d57-b78f-cbe7711e594f",
+        "scope": {
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "region": "dialog",
+          "label": "announced",
+          "role": "link",
+          "stableKey": "explorer:context:v1:01ee03020a0e94dc72b2f3eb6fd9b3c7eb08a0755137b9fd12dda91a88eef955",
+          "targetBinding": "browser-target-binding:v1:ef9aa123a90e64b5bcb4f40b7dcc745689c1f2cf3e268711771a021441a03804",
+          "kind": "click"
+        },
+        "operationConditionKey": "e9cf0f7df6d8b52441996e8e9b84cdfd97794e2d58144516f394a34766147c50",
+        "resolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "3a910b7e-e907-480f-9547-4fef6b0a9f12",
+          "attemptId": "55fc9752-861f-4a3a-b90d-f9247b33f3e5"
+        },
+        "previousResolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "b1f0d28c-50fe-4401-811b-6bbe6d8535e7",
+          "attemptId": "492c5f9c-ca38-4621-bd3b-69f0350aeaed"
+        }
+      },
+      {
+        "occurrenceId": "759c839f3598c3d3baaef9376d39ffc5",
+        "position": 11,
+        "businessId": "07da5553-193f-46a0-a97d-916c2ae66832",
+        "scope": {
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "region": "dialog",
+          "label": "Don’t show for 7 days",
+          "role": "checkbox",
+          "stableKey": "id:_r_1_",
+          "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176",
+          "kind": "check",
+          "value": true
+        },
+        "operationConditionKey": "665897e6afcf15eb660af19375aef4ea46dd4ceafb0ea5636929c85b3364cb81",
+        "resolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "a41e6de8-0e12-406d-bfb5-cf6080b272f3",
+          "attemptId": "183ccbdf-cdef-4eb1-bf97-bfec0e4dc58b"
+        },
+        "previousResolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "5a904f94-d42c-4d05-aab0-255c18388699",
+          "attemptId": "2a820db4-4a56-4862-900d-8f882c9bd91e"
+        }
+      },
+      {
+        "occurrenceId": "d402aefeb76b8f75355f8c0b83eee0cc",
+        "position": 13,
+        "businessId": "d64c1f8a-7b98-496d-8814-18dc6aee9563",
+        "scope": {
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "region": "dialog",
+          "label": "Don’t show for 7 days",
+          "role": "checkbox",
+          "stableKey": "id:_r_1_",
+          "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176",
+          "kind": "check",
+          "value": false
+        },
+        "operationConditionKey": "2d3e4eb8d3f48fec22320af44869699657abee1a4e9c9888eafc985f668f1d3b",
+        "resolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "e8267c31-83cf-421b-83e4-118d76bbefb3",
+          "attemptId": "e7718bc9-81d4-4a21-aa44-e26c4f07bc6a"
+        },
+        "previousResolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "46a38d17-fbf9-43c1-ba1f-b4c9791a6c27",
+          "attemptId": "98e8dbcb-fc34-437a-9e0e-a986760fb9b7"
+        }
+      },
+      {
+        "occurrenceId": "999c581de1ebf62285b59a221855da91",
+        "position": 14,
+        "businessId": "2add7f08-ecc3-4707-8948-9616f1fa48a4",
+        "scope": {
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "region": "dialog",
+          "label": "Don’t show for 7 days",
+          "role": "checkbox",
+          "stableKey": "id:_r_1_",
+          "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176",
+          "kind": "check",
+          "value": false
+        },
+        "operationConditionKey": "2d3e4eb8d3f48fec22320af44869699657abee1a4e9c9888eafc985f668f1d3b",
+        "resolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "e8267c31-83cf-421b-83e4-118d76bbefb3",
+          "attemptId": "e7718bc9-81d4-4a21-aa44-e26c4f07bc6a"
+        },
+        "previousResolvedBy": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "46a38d17-fbf9-43c1-ba1f-b4c9791a6c27",
+          "attemptId": "98e8dbcb-fc34-437a-9e0e-a986760fb9b7"
+        }
+      }
+    ],
+    "semanticNewCoverageProven": false
+  },
+  "reviewDecisions": [
+    {
+      "id": "68d03d78-831e-4ba3-853a-1a45824437a8",
+      "purpose": "control-classification",
+      "status": "applied",
+      "observationId": "eb4c96d2-114d-4356-8296-c2d4686fb38b",
+      "startedAt": "2026-10-16T20:45:13.020Z",
+      "elapsedMs": 1069,
+      "resolution": {
+        "source": "jev",
+        "value": "interaction",
+        "reason": "retain_possible_interaction",
+        "policy": "classification",
+        "policyVersion": "program-first-v7"
+      },
+      "reason": null,
+      "target": {
+        "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1552",
+        "identityId": "85869b48-8ddd-4d2e-9896-eb965909e620",
+        "name": "Don’t show for 7 days",
+        "role": "generic"
+      }
+    },
+    {
+      "id": "a96d5ce4-e341-4a9e-acd9-1aa1aada0aae",
+      "purpose": "control-risk",
+      "status": "applied",
+      "observationId": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b",
+      "startedAt": "2026-10-16T20:45:27.455Z",
+      "elapsedMs": 1184,
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_click": false,
+          "external_click": null
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "reason": "used_in_review",
+      "target": {
+        "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1558",
+        "identityId": "6c56ed20-575c-4c3f-9f21-be32cd8a75bc",
+        "name": "Go to OKX Wallet",
+        "role": "button"
+      }
+    },
+    {
+      "id": "40811275-6536-4ad2-9c2c-c28c528b5b05",
+      "purpose": "probe-risk",
+      "status": "applied",
+      "observationId": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b",
+      "startedAt": "2026-10-16T20:45:28.957Z",
+      "elapsedMs": 466,
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": null,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "reason": "used_in_review",
+      "target": {
+        "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1558",
+        "identityId": "6c56ed20-575c-4c3f-9f21-be32cd8a75bc",
+        "name": "Go to OKX Wallet",
+        "role": "button"
+      }
+    },
+    {
+      "id": "3f546fab-889a-42d2-9b33-da92adda76ff",
+      "purpose": "probe-risk",
+      "status": "applied",
+      "observationId": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b",
+      "startedAt": "2026-10-16T20:45:29.586Z",
+      "elapsedMs": 540,
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": null,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "reason": "used_in_review",
+      "target": {
+        "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1552",
+        "identityId": "85869b48-8ddd-4d2e-9896-eb965909e620",
+        "name": "Don’t show for 7 days",
+        "role": "generic"
+      }
+    }
+  ],
+  "conclusions": [
+    "Target identities and historical successful evidence are retained. All three exact old/current correspondence queries decline equivalence because both samples are unavailable.",
+    "Both hidden selectors have pending hypotheses and identical semantic bindings with same-page collision count 2; identity review alone cannot fix the binding ambiguity.",
+    "The selectors are outside the active modal boundary, so current plugin identity review relevance excludes them. SDK guarded identity review exists, but no branch-condition dependency review contract is exposed.",
+    "Document reattachment clears round.tried. Failed correspondence leaves these ordinary candidates fresh; all matching prior plan rows are settled, so runtime appends three occurrences with the same scheduling scope/key. Equal unverified keys do not prove coverage.",
+    "All three new actions have reentry=false and no repetitionSource. This run does not establish necessary reentry or a loss of coverage history.",
+    "The original nine newlyResolved rows contain three newly introduced successful occurrences and six already-successful evidence refreshes, with zero historical unresolved-to-succeeded occurrences."
+  ],
+  "limits": [
+    "No browser/provider executed by this diagnosis.",
+    "No hidden selector was excluded or rewritten, and no later identity decision was applied retroactively to historical source conditions.",
+    "An unavailable old source cannot become known merely by resolving current identities. Future dependency review should retain uncertainty when bindings still collide.",
+    "This run has no unknown attempts; it is not a live test of unknown blocking."
+  ]
+}

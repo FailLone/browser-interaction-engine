@@ -1,0 +1,534 @@
+{
+  "generatedAt": "2026-10-16T21:03:43.056899+00:00",
+  "runId": "e926ae98-5c1a-4d6b-8cea-9b232fd47877",
+  "sourceRevision": "cdb8a67a9f7646d71823ef4153c027bc3cf660d9",
+  "frozenDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1-frozen-2",
+  "privateCopyDirectory": "/tmp/okx-run2-coverage-a8s84t8c/owned-copy",
+  "method": "Only retained observations, retained evidence artifacts and source code read. SQLite/SDK decoding occurs on the private whole-directory copy; no browser, provider, engine constructor, action or live observation. Frozen database hashes rechecked. Previously frozen coverage-diagnosis files unchanged.",
+  "databaseHashes": [
+    {
+      "path": ".runner-lock.sqlite",
+      "frozenSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copySHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "plugin/explorer.sqlite",
+      "frozenSHA256": "4856895cc4ab9b4a50c3002908428bcd3b6b8772c90975854b25dcb222e7dbf9",
+      "copySHA256": "4856895cc4ab9b4a50c3002908428bcd3b6b8772c90975854b25dcb222e7dbf9",
+      "originalSHA256": "4856895cc4ab9b4a50c3002908428bcd3b6b8772c90975854b25dcb222e7dbf9"
+    },
+    {
+      "path": "engine/engine.sqlite",
+      "frozenSHA256": "aaf40b60d88dbe8d0a07a01f1acfc495d31e962e7596f3e0365fde717f6b53e3",
+      "copySHA256": "aaf40b60d88dbe8d0a07a01f1acfc495d31e962e7596f3e0365fde717f6b53e3",
+      "originalSHA256": "aaf40b60d88dbe8d0a07a01f1acfc495d31e962e7596f3e0365fde717f6b53e3"
+    },
+    {
+      "path": "engine/evidence/.coordination/lock.sqlite",
+      "frozenSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copySHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "observations": [
+    {
+      "observationId": "8e894178-1943-4a1f-b75d-1ce665aa01cc",
+      "controls": [
+        {
+          "localId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1554",
+          "tag": "input",
+          "role": "checkbox",
+          "name": "Don’t show for 7 days",
+          "label": "Don’t show for 7 days",
+          "identityId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "reviewBinding": {
+            "parentInstanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1553",
+            "attributes": {
+              "type": "checkbox"
+            }
+          },
+          "actions": [
+            "check"
+          ],
+          "actionBasis": {
+            "check": {
+              "status": "supported",
+              "evidence": [
+                {
+                  "source": "html",
+                  "rule": "native-checkable/v1",
+                  "facts": {
+                    "tag": "input",
+                    "type": "checkbox"
+                  }
+                }
+              ]
+            }
+          },
+          "interactionHints": [
+            {
+              "source": "css",
+              "rule": "pointer-cursor/v1",
+              "facts": {
+                "cursor": "pointer",
+                "inherited": true
+              }
+            },
+            {
+              "source": "dom-signal",
+              "rule": "click-handler/v1",
+              "facts": {
+                "inlineAttribute": false,
+                "handlerProperty": true,
+                "purpose": "unknown"
+              }
+            }
+          ]
+        },
+        {
+          "localId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1552",
+          "tag": "div",
+          "role": "generic",
+          "name": "Don’t show for 7 days",
+          "label": "",
+          "identityId": "85869b48-8ddd-4d2e-9896-eb965909e620",
+          "reviewBinding": {
+            "parentInstanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1551",
+            "attributes": {}
+          },
+          "classificationBinding": {
+            "nodes": [
+              {
+                "instanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1552",
+                "parentInstanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1551",
+                "tag": "div",
+                "attributes": {
+                  "class": "oxnv oxnv-checkbox-var oxnv-checkbox-md oxnv-checkbox-wrapper"
+                }
+              },
+              {
+                "instanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1553",
+                "parentInstanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1552",
+                "tag": "span",
+                "attributes": {
+                  "class": "oxnv-checkbox"
+                }
+              },
+              {
+                "instanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1554",
+                "parentInstanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1553",
+                "tag": "input",
+                "attributes": {
+                  "class": "oxnv-checkbox-input",
+                  "id": "_r_1_",
+                  "type": "checkbox"
+                }
+              },
+              {
+                "instanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1555",
+                "parentInstanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1553",
+                "tag": "span",
+                "attributes": {
+                  "class": "oxnv-checkbox-inner"
+                }
+              },
+              {
+                "instanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1556",
+                "parentInstanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1552",
+                "tag": "label",
+                "attributes": {
+                  "class": "oxnv-checkbox-children",
+                  "data-testid": "okd-checkbox-label",
+                  "for": "_r_1_"
+                }
+              }
+            ],
+            "text": "Don’t show for 7 days",
+            "truncated": false,
+            "references": [
+              {
+                "id": "_r_1_",
+                "targetInstanceId": "8edd2618-4c9f-4c49-bcae-549260f5e1d6:1554"
+              }
+            ]
+          },
+          "actions": [],
+          "actionBasis": {},
+          "interactionHints": [
+            {
+              "source": "css",
+              "rule": "pointer-cursor/v1",
+              "facts": {
+                "cursor": "pointer",
+                "inherited": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "observationId": "eb4c96d2-114d-4356-8296-c2d4686fb38b",
+      "controls": [
+        {
+          "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1554",
+          "tag": "input",
+          "role": "checkbox",
+          "name": "Don’t show for 7 days",
+          "label": "Don’t show for 7 days",
+          "identityId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "reviewBinding": {
+            "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1553",
+            "attributes": {
+              "type": "checkbox"
+            }
+          },
+          "actions": [
+            "check"
+          ],
+          "actionBasis": {
+            "check": {
+              "status": "supported",
+              "evidence": [
+                {
+                  "source": "html",
+                  "rule": "native-checkable/v1",
+                  "facts": {
+                    "tag": "input",
+                    "type": "checkbox"
+                  }
+                }
+              ]
+            }
+          },
+          "interactionHints": [
+            {
+              "source": "css",
+              "rule": "pointer-cursor/v1",
+              "facts": {
+                "cursor": "pointer",
+                "inherited": true
+              }
+            },
+            {
+              "source": "dom-signal",
+              "rule": "click-handler/v1",
+              "facts": {
+                "inlineAttribute": false,
+                "handlerProperty": true,
+                "purpose": "unknown"
+              }
+            }
+          ]
+        },
+        {
+          "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1552",
+          "tag": "div",
+          "role": "generic",
+          "name": "Don’t show for 7 days",
+          "label": "",
+          "identityId": "85869b48-8ddd-4d2e-9896-eb965909e620",
+          "reviewBinding": {
+            "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1551",
+            "attributes": {}
+          },
+          "classificationBinding": {
+            "nodes": [
+              {
+                "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1552",
+                "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1551",
+                "tag": "div",
+                "attributes": {
+                  "class": "oxnv oxnv-checkbox-var oxnv-checkbox-md oxnv-checkbox-wrapper"
+                }
+              },
+              {
+                "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1553",
+                "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1552",
+                "tag": "span",
+                "attributes": {
+                  "class": "oxnv-checkbox"
+                }
+              },
+              {
+                "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1554",
+                "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1553",
+                "tag": "input",
+                "attributes": {
+                  "class": "oxnv-checkbox-input",
+                  "id": "_r_1_",
+                  "type": "checkbox"
+                }
+              },
+              {
+                "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1555",
+                "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1553",
+                "tag": "span",
+                "attributes": {
+                  "class": "oxnv-checkbox-inner"
+                }
+              },
+              {
+                "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1556",
+                "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1552",
+                "tag": "label",
+                "attributes": {
+                  "class": "oxnv-checkbox-children",
+                  "data-testid": "okd-checkbox-label",
+                  "for": "_r_1_"
+                }
+              }
+            ],
+            "text": "Don’t show for 7 days",
+            "truncated": false,
+            "references": [
+              {
+                "id": "_r_1_",
+                "targetInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1554"
+              }
+            ]
+          },
+          "actions": [],
+          "actionBasis": {},
+          "interactionHints": [
+            {
+              "source": "css",
+              "rule": "pointer-cursor/v1",
+              "facts": {
+                "cursor": "pointer",
+                "inherited": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "observationId": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b",
+      "controls": [
+        {
+          "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1554",
+          "tag": "input",
+          "role": "checkbox",
+          "name": "Don’t show for 7 days",
+          "label": "Don’t show for 7 days",
+          "identityId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+          "reviewBinding": {
+            "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1553",
+            "attributes": {
+              "type": "checkbox"
+            }
+          },
+          "actions": [
+            "check"
+          ],
+          "actionBasis": {
+            "check": {
+              "status": "supported",
+              "evidence": [
+                {
+                  "source": "html",
+                  "rule": "native-checkable/v1",
+                  "facts": {
+                    "tag": "input",
+                    "type": "checkbox"
+                  }
+                }
+              ]
+            }
+          },
+          "interactionHints": [
+            {
+              "source": "css",
+              "rule": "pointer-cursor/v1",
+              "facts": {
+                "cursor": "pointer",
+                "inherited": true
+              }
+            },
+            {
+              "source": "dom-signal",
+              "rule": "click-handler/v1",
+              "facts": {
+                "inlineAttribute": false,
+                "handlerProperty": true,
+                "purpose": "unknown"
+              }
+            }
+          ]
+        },
+        {
+          "localId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1552",
+          "tag": "div",
+          "role": "generic",
+          "name": "Don’t show for 7 days",
+          "label": "",
+          "identityId": "85869b48-8ddd-4d2e-9896-eb965909e620",
+          "reviewBinding": {
+            "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1551",
+            "attributes": {}
+          },
+          "classificationBinding": {
+            "nodes": [
+              {
+                "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1552",
+                "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1551",
+                "tag": "div",
+                "attributes": {
+                  "class": "oxnv oxnv-checkbox-var oxnv-checkbox-md oxnv-checkbox-wrapper"
+                }
+              },
+              {
+                "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1553",
+                "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1552",
+                "tag": "span",
+                "attributes": {
+                  "class": "oxnv-checkbox"
+                }
+              },
+              {
+                "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1554",
+                "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1553",
+                "tag": "input",
+                "attributes": {
+                  "class": "oxnv-checkbox-input",
+                  "id": "_r_1_",
+                  "type": "checkbox"
+                }
+              },
+              {
+                "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1555",
+                "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1553",
+                "tag": "span",
+                "attributes": {
+                  "class": "oxnv-checkbox-inner"
+                }
+              },
+              {
+                "instanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1556",
+                "parentInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1552",
+                "tag": "label",
+                "attributes": {
+                  "class": "oxnv-checkbox-children",
+                  "data-testid": "okd-checkbox-label",
+                  "for": "_r_1_"
+                }
+              }
+            ],
+            "text": "Don’t show for 7 days",
+            "truncated": false,
+            "references": [
+              {
+                "id": "_r_1_",
+                "targetInstanceId": "2e7a79bb-ec76-4aa6-a428-5d362d234a5c:1554"
+              }
+            ]
+          },
+          "actions": [],
+          "actionBasis": {},
+          "interactionHints": [
+            {
+              "source": "css",
+              "rule": "pointer-cursor/v1",
+              "facts": {
+                "cursor": "pointer",
+                "inherited": false
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "retainedDOM": [
+    {
+      "observationId": "8e894178-1943-4a1f-b75d-1ce665aa01cc",
+      "key": "8e894178-1943-4a1f-b75d-1ce665aa01cc.details.json",
+      "sha256": "a42f0314baf33b2f9f2deba9cffaaa27151dcd50a27e9e092c7b27cb87f111f9",
+      "expectedSHA256": "a42f0314baf33b2f9f2deba9cffaaa27151dcd50a27e9e092c7b27cb87f111f9",
+      "nodesTruncated": true,
+      "htmlTruncated": false,
+      "htmlSnippet": "<div class=\"global-kyc-ip-checkbox\"><div class=\"oxnv oxnv-checkbox-var oxnv-checkbox-md oxnv-checkbox-wrapper\"><span class=\"oxnv-checkbox\"><input class=\"oxnv-checkbox-input\" id=\"_r_1_\" type=\"checkbox\"><span class=\"oxnv-checkbox-inner\"></span></span><label for=\"_r_1_\" class=\"oxnv-checkbox-children\" data-testid=\"okd-checkbox-label\">Don’t show for 7 days</label></div></div>",
+      "targetAbsentFromBoundedNodeTable": true,
+      "hashVerified": true
+    },
+    {
+      "observationId": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b",
+      "key": "a1cba85a-3fa3-46d1-b2eb-1f668b62631b.details.json",
+      "sha256": "30e7a2cff047421f157439f0a84f25f7cf5684629dcdce40e7b3ac4421c06e82",
+      "expectedSHA256": "30e7a2cff047421f157439f0a84f25f7cf5684629dcdce40e7b3ac4421c06e82",
+      "nodesTruncated": true,
+      "htmlTruncated": false,
+      "htmlSnippet": "<div class=\"global-kyc-ip-checkbox\"><div class=\"oxnv oxnv-checkbox-var oxnv-checkbox-md oxnv-checkbox-wrapper\"><span class=\"oxnv-checkbox\"><input class=\"oxnv-checkbox-input\" id=\"_r_1_\" type=\"checkbox\"><span class=\"oxnv-checkbox-inner\"></span></span><label for=\"_r_1_\" class=\"oxnv-checkbox-children\" data-testid=\"okd-checkbox-label\">Don’t show for 7 days</label></div></div>",
+      "targetAbsentFromBoundedNodeTable": true,
+      "hashVerified": true
+    }
+  ],
+  "sourceReferences": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/action-evidence.ts",
+      "line": 4,
+      "sha256": "282c7e8436e49df49d83baac08fcce0a86048a804cee9601be90219035d35fc7",
+      "purpose": "collectActionEvidence: native button/link/summary/select/checkable/text/ARIA capabilities; no label or associated-control proxy rule"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/browser.ts",
+      "line": 53,
+      "sha256": "03782cdb75b13eac903864fea65b1840e1893ccbce0abff00e3fb1de78497047",
+      "purpose": "label() uses HTMLInputElement.labels for accessible naming; does not turn the label or its ancestor into an action target"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/browser.ts",
+      "line": 225,
+      "sha256": "03782cdb75b13eac903864fea65b1840e1893ccbce0abff00e3fb1de78497047",
+      "purpose": "primary discovery query includes inputs but not labels; supplemental scan admits an own pointer-cursor wrapper"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/browser.ts",
+      "line": 274,
+      "sha256": "03782cdb75b13eac903864fea65b1840e1893ccbce0abff00e3fb1de78497047",
+      "purpose": "classificationBinding retains bounded subtree and unique/missing/ambiguous IDREF target facts"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/browser.ts",
+      "line": 368,
+      "sha256": "03782cdb75b13eac903864fea65b1840e1893ccbce0abff00e3fb1de78497047",
+      "purpose": "reviewBinding records direct parent/own attributes; classificationBinding remains separate"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/browser.ts",
+      "line": 749,
+      "sha256": "03782cdb75b13eac903864fea65b1840e1893ccbce0abff00e3fb1de78497047",
+      "purpose": "native input check dispatch uses setChecked on the selected input target"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/tests/action-evidence.test.ts",
+      "line": 39,
+      "sha256": "7b2ef63213683f8652af7861fc285a1eaaaab45e9ea2219edd8bbf0ccd348467",
+      "purpose": "existing modal test exercises checkbox check and avoids automatically promoting text containers; no label proxy test"
+    }
+  ],
+  "readerHashes": {
+    "/tmp/okx-run2-coverage-a8s84t8c/read-label.ts": "d1516e915b52d2f8bd7477407ad0dbac19c0a40abcdc9b66dcba3ee413d3453d",
+    "/tmp/okx-run2-coverage-a8s84t8c/read-label-dom.mts": "3c6b99253dac68e22fdb21c442754292d8d0b5f9fb9cae476f0111fe0b07ae20"
+  },
+  "facts": [
+    "The review-only generic target is div.oxnv-checkbox-wrapper, local suffix :1552 and identity 85869b48-8ddd-4d2e-9896-eb965909e620. It is neither a label nor a span within a label.",
+    "Its complete untruncated classification subtree contains span :1553, input :1554 id=_r_1_ type=checkbox, span :1555, and a sibling label :1556 for=_r_1_. The label contains plain text only in retained HTML.",
+    "The classification IDREF reference resolves _r_1_ uniquely to input :1554; old and new retained HTML confirm the same structure.",
+    "The actual retained action controls are wrapper :1552 and checkbox :1554; label :1556 is not a separately captured action control.",
+    "Wrapper actions=[] and actionBasis={}; only own pointer-cursor hint exists. Checkbox native-checkable/v1 is already supported and was executed as check.",
+    "The adapter currently uses labels to name inputs but has no native-label activation or label-associated-control proxy capability."
+  ],
+  "interpretation": [
+    "Retained evidence proves the descendant label-to-checkbox HTML association; it does not make its ancestor div a native label activation target.",
+    "A geometry/hit test that accepts descendants is not a durable association between the wrapper action and label activation.",
+    "The material does not establish absence of all JavaScript handlers on the wrapper; unenumerated/delegated handlers remain an explicit limitation. Neither native-click permission nor a negative container-only classification is established solely by this tree."
+  ],
+  "disposition": {
+    "currentRegressionDefect": false,
+    "implementNow": false,
+    "followup": "A narrowly specified native-label capability may be considered later using explicit association and dispatch-time validation; never promote arbitrary ancestors. Root requested no native-label extension for this run."
+  }
+}
