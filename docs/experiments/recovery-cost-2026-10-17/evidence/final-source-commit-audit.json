@@ -1,0 +1,21 @@
+{
+  "revision": "7ec9665e2362f3945c8f62f93c72270e7fa1b62a",
+  "snapshot": "final-targeted/source-before.json",
+  "sourceFileCount": 413,
+  "allMatchCommitAndWorkingTree": true,
+  "protectedWorktreesReadOnlySnapshot": [
+    {
+      "path": "/Users/xietian/Projects/browser-interaction-engine",
+      "branch": "codex/single-selection-state-rule",
+      "commit": "6e111284ac3a6642844531dbc06bce462ca4293c",
+      "status": ""
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine",
+      "branch": "codex/autonomous-exploration",
+      "commit": "4857ad571c19995480a4c149abd9b2868a94c965",
+      "status": ""
+    }
+  ],
+  "note": "Final targeted/protocol manifests independently verify no source changes during each run; this audit does not claim full suite rerun on the final budget correction."
+}

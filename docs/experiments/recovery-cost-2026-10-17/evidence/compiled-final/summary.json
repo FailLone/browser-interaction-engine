@@ -1,0 +1,25 @@
+{
+  "revision": "7ec9665e2362f3945c8f62f93c72270e7fa1b62a",
+  "sourceFiles": 433,
+  "sourceUnchanged": true,
+  "workspaceDependencyLinks": 28,
+  "allWorkspaceLinksInsideArchive": true,
+  "compiledFilesRecorded": 567,
+  "build": "passed",
+  "publishedTypes": "passed",
+  "compiledApiSmoke": "passed",
+  "compiledExplorerUiSmoke": "passed",
+  "compiledNavigationPublicContract": "passed",
+  "actualBrowserActions": 2,
+  "mockProviderRequests": {
+    "jev": 1,
+    "llm": 1
+  },
+  "screenshot": "explorer-dashboard.png",
+  "screenshotReviewed": true,
+  "screenshotObservation": "Current plan completed; Alpha and Beta each show verified status, encountered control coverage is 2/2, and actual actions are 2. Whole-page completeness remains explicitly unproven. The image is a fixture rendering check, not a broad UI correctness assertion.",
+  "limits": [
+    "Owned fixture and explicit mock providers only; no real-site completeness claim.",
+    "Concurrent suite/protocol runs mean elapsed command durations are audit data, not performance measurements."
+  ]
+}

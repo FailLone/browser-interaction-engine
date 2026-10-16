@@ -1,0 +1,12 @@
+{
+  "revision": "0d01be1ee41850994ad30ac70516dbfce5da46ff",
+  "revisionMeaning": "Declared source label; dirty after source is identified by exact source-before/after hashes.",
+  "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "protocolSha256": {
+    "scripts/verify-exploration-conditions.ts": "4c977f147d123ea1adc7c3496cce927ae5be7603fff317b5700578b2732d8693",
+    "scripts/verify-exploration-continuation.ts": "7b193666d24f3d7b650667e6b5b640b27e2a281e2db5c45a8ed0e066dba7ff4f",
+    "scripts/verify-exploration-input-identity.ts": "7cfe18ff69e2fcdad84cda46b353d2c9d0c44c6ce6486ac36b75a322e52ab1e1",
+    "scripts/verify-exploration-recovery.ts": "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f"
+  },
+  "sourceFileCount": 413
+}

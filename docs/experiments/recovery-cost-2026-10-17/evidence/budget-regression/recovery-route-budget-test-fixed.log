@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-vs_25vrj
+
+ ✓ tests/recovery-route-cost.test.ts (11 tests | 9 skipped) 6736ms
+   ✓ fits a target recovery route to the remaining action budget without discarding cost ranking  3430ms
+   ✓ fits a checkpoint recovery route to the remaining action budget without discarding cost ranking  3305ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 9 skipped (11)
+   Start at  03:03:14
+   Duration  7.69s (transform 393ms, setup 0ms, collect 798ms, tests 6.74s, environment 0ms, prepare 39ms)
+

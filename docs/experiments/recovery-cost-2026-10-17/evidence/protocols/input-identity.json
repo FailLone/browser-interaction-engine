@@ -1,0 +1,2209 @@
+{
+  "revision": "0d01be1ee41850994ad30ac70516dbfce5da46ff",
+  "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "node": "v24.22.0",
+  "scriptSha256": "7cfe18ff69e2fcdad84cda46b353d2c9d0c44c6ce6486ac36b75a322e52ab1e1",
+  "method": "Public SDK guarded fill plus operationCorrespondences, explicit external DOM mutations; independent HTTP input-event oracle; not autonomous scheduler coverage",
+  "results": [
+    {
+      "scenario": "distinct-names",
+      "run": 1,
+      "fixtureSha256": "40ad1ecc3a58bd60bdf3e5afb11106e549d0e7d377029e515af860d8d7623d95",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        },
+        {
+          "branch": "C",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "d04df3b6-cfa2-44ed-9dc6-c402c4bd301c",
+              "attemptId": "7948de6b-6fc4-4cc5-8502-89019b1152b5",
+              "beforeId": "d74ebd7d-9312-4dca-a757-97812dd52a86",
+              "afterId": "67054cf8-0e1d-456d-ab8b-b3edf9579ef1"
+            },
+            "target": {
+              "sessionId": "d04df3b6-cfa2-44ed-9dc6-c402c4bd301c",
+              "observationId": "7ec8540d-8042-4a0c-83fa-1c3eb5e22647",
+              "actionId": "2e364b4a-c2f7-4760-81c0-de3e8738409a"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with A",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "d04df3b6-cfa2-44ed-9dc6-c402c4bd301c",
+              "attemptId": "7948de6b-6fc4-4cc5-8502-89019b1152b5",
+              "beforeId": "d74ebd7d-9312-4dca-a757-97812dd52a86",
+              "afterId": "67054cf8-0e1d-456d-ab8b-b3edf9579ef1"
+            },
+            "target": {
+              "sessionId": "d04df3b6-cfa2-44ed-9dc6-c402c4bd301c",
+              "observationId": "4dfbdfee-2582-4d94-b24d-26aad7aed7b7",
+              "actionId": "f6bf54c4-225a-49d9-b4ff-db5d2b31642e"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with B",
+          "expected": true,
+          "actual": true,
+          "reason": "equivalent_operation_sample",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": true,
+            "reason": "equivalent_operation_sample",
+            "source": {
+              "sessionId": "d04df3b6-cfa2-44ed-9dc6-c402c4bd301c",
+              "attemptId": "ab9cf367-9841-42b6-ad58-9c948e58b19a",
+              "beforeId": "7ec8540d-8042-4a0c-83fa-1c3eb5e22647",
+              "afterId": "088082e7-85c2-4895-9f39-29fb2d2af387"
+            },
+            "target": {
+              "sessionId": "d04df3b6-cfa2-44ed-9dc6-c402c4bd301c",
+              "observationId": "4dfbdfee-2582-4d94-b24d-26aad7aed7b7",
+              "actionId": "f6bf54c4-225a-49d9-b4ff-db5d2b31642e"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "attempt:ab9cf367-9841-42b6-ad58-9c948e58b19a",
+              "observation:7ec8540d-8042-4a0c-83fa-1c3eb5e22647",
+              "observation:088082e7-85c2-4895-9f39-29fb2d2af387",
+              "observation:4dfbdfee-2582-4d94-b24d-26aad7aed7b7"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "policy": "browser-controls-correspondence-v2"
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "owner changes, compare with B",
+          "expected": false,
+          "actual": false,
+          "reason": "operation_conditions_changed",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "operation_conditions_changed",
+            "source": {
+              "sessionId": "d04df3b6-cfa2-44ed-9dc6-c402c4bd301c",
+              "attemptId": "ab9cf367-9841-42b6-ad58-9c948e58b19a",
+              "beforeId": "7ec8540d-8042-4a0c-83fa-1c3eb5e22647",
+              "afterId": "088082e7-85c2-4895-9f39-29fb2d2af387"
+            },
+            "target": {
+              "sessionId": "d04df3b6-cfa2-44ed-9dc6-c402c4bd301c",
+              "observationId": "41332093-0c0f-4e72-a1e3-7f9cd5e4cb31",
+              "actionId": "1cd802c6-01e7-45b2-a13b-49e5515f16c7"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "7948de6b-6fc4-4cc5-8502-89019b1152b5",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "ab9cf367-9841-42b6-ad58-9c948e58b19a",
+          "status": "succeeded"
+        },
+        {
+          "owner": "C",
+          "id": "a08ff961-7b83-4be6-a94a-c8ade17faa59",
+          "status": "succeeded"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "scenario": "distinct-names",
+      "run": 2,
+      "fixtureSha256": "40ad1ecc3a58bd60bdf3e5afb11106e549d0e7d377029e515af860d8d7623d95",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        },
+        {
+          "branch": "C",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "5805b243-b1aa-4b40-997b-d11afde244de",
+              "attemptId": "b62934ce-5914-487f-ad40-d44fb3140252",
+              "beforeId": "516bca84-3a4f-4d46-8d44-2b5f16ff010d",
+              "afterId": "3c491f86-be12-46c2-9080-fc60b167140c"
+            },
+            "target": {
+              "sessionId": "5805b243-b1aa-4b40-997b-d11afde244de",
+              "observationId": "5a1fa9e4-0801-43e7-8b8b-dc7e42fff491",
+              "actionId": "25ac481d-bc60-4816-95fc-506f52f94e03"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with A",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "5805b243-b1aa-4b40-997b-d11afde244de",
+              "attemptId": "b62934ce-5914-487f-ad40-d44fb3140252",
+              "beforeId": "516bca84-3a4f-4d46-8d44-2b5f16ff010d",
+              "afterId": "3c491f86-be12-46c2-9080-fc60b167140c"
+            },
+            "target": {
+              "sessionId": "5805b243-b1aa-4b40-997b-d11afde244de",
+              "observationId": "5f802905-5b00-4bf1-b545-a47c3d1a21d6",
+              "actionId": "93cac455-9903-47ba-a906-84ddeac1217c"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with B",
+          "expected": true,
+          "actual": true,
+          "reason": "equivalent_operation_sample",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": true,
+            "reason": "equivalent_operation_sample",
+            "source": {
+              "sessionId": "5805b243-b1aa-4b40-997b-d11afde244de",
+              "attemptId": "181edb47-6e7d-4fd5-a9bb-2c33dd5d1a0e",
+              "beforeId": "5a1fa9e4-0801-43e7-8b8b-dc7e42fff491",
+              "afterId": "a362c2aa-1648-4c98-87a6-bbfa5ee06b03"
+            },
+            "target": {
+              "sessionId": "5805b243-b1aa-4b40-997b-d11afde244de",
+              "observationId": "5f802905-5b00-4bf1-b545-a47c3d1a21d6",
+              "actionId": "93cac455-9903-47ba-a906-84ddeac1217c"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "attempt:181edb47-6e7d-4fd5-a9bb-2c33dd5d1a0e",
+              "observation:5a1fa9e4-0801-43e7-8b8b-dc7e42fff491",
+              "observation:a362c2aa-1648-4c98-87a6-bbfa5ee06b03",
+              "observation:5f802905-5b00-4bf1-b545-a47c3d1a21d6"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "policy": "browser-controls-correspondence-v2"
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "owner changes, compare with B",
+          "expected": false,
+          "actual": false,
+          "reason": "operation_conditions_changed",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "operation_conditions_changed",
+            "source": {
+              "sessionId": "5805b243-b1aa-4b40-997b-d11afde244de",
+              "attemptId": "181edb47-6e7d-4fd5-a9bb-2c33dd5d1a0e",
+              "beforeId": "5a1fa9e4-0801-43e7-8b8b-dc7e42fff491",
+              "afterId": "a362c2aa-1648-4c98-87a6-bbfa5ee06b03"
+            },
+            "target": {
+              "sessionId": "5805b243-b1aa-4b40-997b-d11afde244de",
+              "observationId": "eb988bdd-3a79-4007-889b-84a0aca52d9b",
+              "actionId": "7c6333df-84b7-4031-9326-4393775d7427"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "b62934ce-5914-487f-ad40-d44fb3140252",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "181edb47-6e7d-4fd5-a9bb-2c33dd5d1a0e",
+          "status": "succeeded"
+        },
+        {
+          "owner": "C",
+          "id": "7b51a768-73d6-4dfb-842d-15bbb5b70201",
+          "status": "succeeded"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "scenario": "distinct-names",
+      "run": 3,
+      "fixtureSha256": "40ad1ecc3a58bd60bdf3e5afb11106e549d0e7d377029e515af860d8d7623d95",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        },
+        {
+          "branch": "C",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "02a25b9f-03a6-4113-bbea-0254579a3a29",
+              "attemptId": "f9893d31-ab81-4eed-8bf9-2f208b32e768",
+              "beforeId": "4c273e7c-8932-449d-8608-a89ee493b3bd",
+              "afterId": "32a92675-a0a3-4628-8c2e-d008a957c73c"
+            },
+            "target": {
+              "sessionId": "02a25b9f-03a6-4113-bbea-0254579a3a29",
+              "observationId": "d6545769-cd5d-4e46-995a-76c656981fe4",
+              "actionId": "ac98690a-5f8b-4e6b-aa44-3775f81de3e2"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with A",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "02a25b9f-03a6-4113-bbea-0254579a3a29",
+              "attemptId": "f9893d31-ab81-4eed-8bf9-2f208b32e768",
+              "beforeId": "4c273e7c-8932-449d-8608-a89ee493b3bd",
+              "afterId": "32a92675-a0a3-4628-8c2e-d008a957c73c"
+            },
+            "target": {
+              "sessionId": "02a25b9f-03a6-4113-bbea-0254579a3a29",
+              "observationId": "7ca5c526-c0ad-48e3-ae46-848a4d672fcf",
+              "actionId": "3fa69c8f-c67f-4197-93dd-ce8993a051b0"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with B",
+          "expected": true,
+          "actual": true,
+          "reason": "equivalent_operation_sample",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": true,
+            "reason": "equivalent_operation_sample",
+            "source": {
+              "sessionId": "02a25b9f-03a6-4113-bbea-0254579a3a29",
+              "attemptId": "87600af7-0196-45d6-aead-d6bf255fb633",
+              "beforeId": "d6545769-cd5d-4e46-995a-76c656981fe4",
+              "afterId": "e1528e97-0c59-4a08-bc47-9100b48886e0"
+            },
+            "target": {
+              "sessionId": "02a25b9f-03a6-4113-bbea-0254579a3a29",
+              "observationId": "7ca5c526-c0ad-48e3-ae46-848a4d672fcf",
+              "actionId": "3fa69c8f-c67f-4197-93dd-ce8993a051b0"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "attempt:87600af7-0196-45d6-aead-d6bf255fb633",
+              "observation:d6545769-cd5d-4e46-995a-76c656981fe4",
+              "observation:e1528e97-0c59-4a08-bc47-9100b48886e0",
+              "observation:7ca5c526-c0ad-48e3-ae46-848a4d672fcf"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "policy": "browser-controls-correspondence-v2"
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "owner changes, compare with B",
+          "expected": false,
+          "actual": false,
+          "reason": "operation_conditions_changed",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "operation_conditions_changed",
+            "source": {
+              "sessionId": "02a25b9f-03a6-4113-bbea-0254579a3a29",
+              "attemptId": "87600af7-0196-45d6-aead-d6bf255fb633",
+              "beforeId": "d6545769-cd5d-4e46-995a-76c656981fe4",
+              "afterId": "e1528e97-0c59-4a08-bc47-9100b48886e0"
+            },
+            "target": {
+              "sessionId": "02a25b9f-03a6-4113-bbea-0254579a3a29",
+              "observationId": "075f5dae-52f1-40eb-90a1-76bf2371c23c",
+              "actionId": "482176bd-0821-46d4-9c22-ed02dffed4e6"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "f9893d31-ab81-4eed-8bf9-2f208b32e768",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "87600af7-0196-45d6-aead-d6bf255fb633",
+          "status": "succeeded"
+        },
+        {
+          "owner": "C",
+          "id": "bca17d12-36a3-4872-bf3c-f530dde5f656",
+          "status": "succeeded"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "scenario": "distinct-names",
+      "run": 4,
+      "fixtureSha256": "40ad1ecc3a58bd60bdf3e5afb11106e549d0e7d377029e515af860d8d7623d95",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        },
+        {
+          "branch": "C",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "02c54933-70ff-4e3d-86cd-09e4f9e86830",
+              "attemptId": "84cb7d07-028e-4e5a-adcb-a1803b85765f",
+              "beforeId": "45a8f97e-45d2-4d0f-97af-765f26a82f80",
+              "afterId": "9cbbbd1e-ee07-49cb-bd2f-17d6bdb7404c"
+            },
+            "target": {
+              "sessionId": "02c54933-70ff-4e3d-86cd-09e4f9e86830",
+              "observationId": "a34ff685-1cd3-4005-ad1e-a95a55f8360a",
+              "actionId": "4b53f653-6e14-4f9e-9d01-32dc9ae22f39"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with A",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "02c54933-70ff-4e3d-86cd-09e4f9e86830",
+              "attemptId": "84cb7d07-028e-4e5a-adcb-a1803b85765f",
+              "beforeId": "45a8f97e-45d2-4d0f-97af-765f26a82f80",
+              "afterId": "9cbbbd1e-ee07-49cb-bd2f-17d6bdb7404c"
+            },
+            "target": {
+              "sessionId": "02c54933-70ff-4e3d-86cd-09e4f9e86830",
+              "observationId": "8f19cef1-18b1-4949-be5b-4b2245bd1f20",
+              "actionId": "2449775f-0a8a-4442-9744-5fecbb42b48d"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with B",
+          "expected": true,
+          "actual": true,
+          "reason": "equivalent_operation_sample",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": true,
+            "reason": "equivalent_operation_sample",
+            "source": {
+              "sessionId": "02c54933-70ff-4e3d-86cd-09e4f9e86830",
+              "attemptId": "476066ad-e746-4cdf-aa64-6c1958b362fa",
+              "beforeId": "a34ff685-1cd3-4005-ad1e-a95a55f8360a",
+              "afterId": "7b060b68-8f6d-48f3-85f1-61f1f53fa97b"
+            },
+            "target": {
+              "sessionId": "02c54933-70ff-4e3d-86cd-09e4f9e86830",
+              "observationId": "8f19cef1-18b1-4949-be5b-4b2245bd1f20",
+              "actionId": "2449775f-0a8a-4442-9744-5fecbb42b48d"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "attempt:476066ad-e746-4cdf-aa64-6c1958b362fa",
+              "observation:a34ff685-1cd3-4005-ad1e-a95a55f8360a",
+              "observation:7b060b68-8f6d-48f3-85f1-61f1f53fa97b",
+              "observation:8f19cef1-18b1-4949-be5b-4b2245bd1f20"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "policy": "browser-controls-correspondence-v2"
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "owner changes, compare with B",
+          "expected": false,
+          "actual": false,
+          "reason": "operation_conditions_changed",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "operation_conditions_changed",
+            "source": {
+              "sessionId": "02c54933-70ff-4e3d-86cd-09e4f9e86830",
+              "attemptId": "476066ad-e746-4cdf-aa64-6c1958b362fa",
+              "beforeId": "a34ff685-1cd3-4005-ad1e-a95a55f8360a",
+              "afterId": "7b060b68-8f6d-48f3-85f1-61f1f53fa97b"
+            },
+            "target": {
+              "sessionId": "02c54933-70ff-4e3d-86cd-09e4f9e86830",
+              "observationId": "5b42b917-1d97-4a12-a73c-46c053ee3aca",
+              "actionId": "a054315e-d09f-4794-8e71-824dea702ec3"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "84cb7d07-028e-4e5a-adcb-a1803b85765f",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "476066ad-e746-4cdf-aa64-6c1958b362fa",
+          "status": "succeeded"
+        },
+        {
+          "owner": "C",
+          "id": "cd9be5da-c13b-4bf3-8e76-1211f9993d49",
+          "status": "succeeded"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "scenario": "distinct-names",
+      "run": 5,
+      "fixtureSha256": "40ad1ecc3a58bd60bdf3e5afb11106e549d0e7d377029e515af860d8d7623d95",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        },
+        {
+          "branch": "C",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "1bad892c-f3f2-4dc1-b227-c972020fc29b",
+              "attemptId": "2bd863f0-86a1-40a2-9597-27b937e45969",
+              "beforeId": "59e907bd-0e99-4472-bf26-3250b0090538",
+              "afterId": "b4bc9150-ee65-4d53-88aa-13200ba79cb2"
+            },
+            "target": {
+              "sessionId": "1bad892c-f3f2-4dc1-b227-c972020fc29b",
+              "observationId": "79bf5e00-ce9b-4ed8-87a3-00e7bc97afe6",
+              "actionId": "5843d913-6fdd-4709-b997-5acf1cd9e4da"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with A",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "1bad892c-f3f2-4dc1-b227-c972020fc29b",
+              "attemptId": "2bd863f0-86a1-40a2-9597-27b937e45969",
+              "beforeId": "59e907bd-0e99-4472-bf26-3250b0090538",
+              "afterId": "b4bc9150-ee65-4d53-88aa-13200ba79cb2"
+            },
+            "target": {
+              "sessionId": "1bad892c-f3f2-4dc1-b227-c972020fc29b",
+              "observationId": "70ecdbfb-3f2f-4292-be42-c42bd5c57d77",
+              "actionId": "830691e5-75cf-4512-9ad0-46dd8d2eb26d"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with B",
+          "expected": true,
+          "actual": true,
+          "reason": "equivalent_operation_sample",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": true,
+            "reason": "equivalent_operation_sample",
+            "source": {
+              "sessionId": "1bad892c-f3f2-4dc1-b227-c972020fc29b",
+              "attemptId": "a35768a2-25ba-4dd7-b664-f7f4f4ce2920",
+              "beforeId": "79bf5e00-ce9b-4ed8-87a3-00e7bc97afe6",
+              "afterId": "dae48547-dd9e-4c7d-a9ef-b48372c1f072"
+            },
+            "target": {
+              "sessionId": "1bad892c-f3f2-4dc1-b227-c972020fc29b",
+              "observationId": "70ecdbfb-3f2f-4292-be42-c42bd5c57d77",
+              "actionId": "830691e5-75cf-4512-9ad0-46dd8d2eb26d"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "attempt:a35768a2-25ba-4dd7-b664-f7f4f4ce2920",
+              "observation:79bf5e00-ce9b-4ed8-87a3-00e7bc97afe6",
+              "observation:dae48547-dd9e-4c7d-a9ef-b48372c1f072",
+              "observation:70ecdbfb-3f2f-4292-be42-c42bd5c57d77"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "policy": "browser-controls-correspondence-v2"
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "owner changes, compare with B",
+          "expected": false,
+          "actual": false,
+          "reason": "operation_conditions_changed",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "operation_conditions_changed",
+            "source": {
+              "sessionId": "1bad892c-f3f2-4dc1-b227-c972020fc29b",
+              "attemptId": "a35768a2-25ba-4dd7-b664-f7f4f4ce2920",
+              "beforeId": "79bf5e00-ce9b-4ed8-87a3-00e7bc97afe6",
+              "afterId": "dae48547-dd9e-4c7d-a9ef-b48372c1f072"
+            },
+            "target": {
+              "sessionId": "1bad892c-f3f2-4dc1-b227-c972020fc29b",
+              "observationId": "5afba1b3-44a9-4121-bb41-842a38103989",
+              "actionId": "a0b15132-33b7-4f48-83d7-4011f91f86df"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "2bd863f0-86a1-40a2-9597-27b937e45969",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "a35768a2-25ba-4dd7-b664-f7f4f4ce2920",
+          "status": "succeeded"
+        },
+        {
+          "owner": "C",
+          "id": "5b187691-07b6-46aa-b50a-dca383538b56",
+          "status": "succeeded"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "scenario": "same-name-named-owners",
+      "run": 1,
+      "fixtureSha256": "5aa23d63edea3c93ba7cff87166872948e9f17ac3d253bfa73a358c0c24393ed",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        },
+        {
+          "branch": "C",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "0363583a-3d86-42c2-9cbd-ee41c3ef2843",
+              "attemptId": "30a39c56-eb6d-4a4f-b2e6-9ebe033d4d3a",
+              "beforeId": "999bdebb-b62e-492c-99e3-3a6e98f58316",
+              "afterId": "bd09fa42-0e1c-4285-ba16-609422f740a2"
+            },
+            "target": {
+              "sessionId": "0363583a-3d86-42c2-9cbd-ee41c3ef2843",
+              "observationId": "8b6107bb-600d-4d73-a1b1-0b29b34a8cf3",
+              "actionId": "e8bf243e-b9e4-48b7-8f67-90b85657e087"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with A",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "0363583a-3d86-42c2-9cbd-ee41c3ef2843",
+              "attemptId": "30a39c56-eb6d-4a4f-b2e6-9ebe033d4d3a",
+              "beforeId": "999bdebb-b62e-492c-99e3-3a6e98f58316",
+              "afterId": "bd09fa42-0e1c-4285-ba16-609422f740a2"
+            },
+            "target": {
+              "sessionId": "0363583a-3d86-42c2-9cbd-ee41c3ef2843",
+              "observationId": "e8fa9ad0-e2ad-4281-b67d-01b2ea844989",
+              "actionId": "3e5bdb29-2a0c-4f5f-96fc-bac05abb868a"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with B",
+          "expected": true,
+          "actual": true,
+          "reason": "equivalent_operation_sample",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": true,
+            "reason": "equivalent_operation_sample",
+            "source": {
+              "sessionId": "0363583a-3d86-42c2-9cbd-ee41c3ef2843",
+              "attemptId": "9111483e-48d3-4845-a9fd-36cddedc31ab",
+              "beforeId": "8b6107bb-600d-4d73-a1b1-0b29b34a8cf3",
+              "afterId": "3f1dff13-18d7-45bc-b5ed-4e2ad7913187"
+            },
+            "target": {
+              "sessionId": "0363583a-3d86-42c2-9cbd-ee41c3ef2843",
+              "observationId": "e8fa9ad0-e2ad-4281-b67d-01b2ea844989",
+              "actionId": "3e5bdb29-2a0c-4f5f-96fc-bac05abb868a"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "attempt:9111483e-48d3-4845-a9fd-36cddedc31ab",
+              "observation:8b6107bb-600d-4d73-a1b1-0b29b34a8cf3",
+              "observation:3f1dff13-18d7-45bc-b5ed-4e2ad7913187",
+              "observation:e8fa9ad0-e2ad-4281-b67d-01b2ea844989"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "policy": "browser-controls-correspondence-v2"
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "owner changes, compare with B",
+          "expected": false,
+          "actual": false,
+          "reason": "operation_conditions_changed",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "operation_conditions_changed",
+            "source": {
+              "sessionId": "0363583a-3d86-42c2-9cbd-ee41c3ef2843",
+              "attemptId": "9111483e-48d3-4845-a9fd-36cddedc31ab",
+              "beforeId": "8b6107bb-600d-4d73-a1b1-0b29b34a8cf3",
+              "afterId": "3f1dff13-18d7-45bc-b5ed-4e2ad7913187"
+            },
+            "target": {
+              "sessionId": "0363583a-3d86-42c2-9cbd-ee41c3ef2843",
+              "observationId": "440001d0-2535-4ad7-a85c-4e80ff3638a3",
+              "actionId": "2d4ef9d5-4ff5-473d-8713-8efda5548d82"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "30a39c56-eb6d-4a4f-b2e6-9ebe033d4d3a",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "9111483e-48d3-4845-a9fd-36cddedc31ab",
+          "status": "succeeded"
+        },
+        {
+          "owner": "C",
+          "id": "bda2a1e2-65af-4ccd-a949-47de4fbc8e5f",
+          "status": "succeeded"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "scenario": "same-name-named-owners",
+      "run": 2,
+      "fixtureSha256": "5aa23d63edea3c93ba7cff87166872948e9f17ac3d253bfa73a358c0c24393ed",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        },
+        {
+          "branch": "C",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "99b7623a-a7e1-43a1-9b59-7173b402d08e",
+              "attemptId": "2303b2eb-00f0-43c7-9ff2-14156371710b",
+              "beforeId": "76a5216c-1152-42e4-bcc8-ff30480bf128",
+              "afterId": "6e8f90f6-a6f4-44e6-b5f6-c2a700379086"
+            },
+            "target": {
+              "sessionId": "99b7623a-a7e1-43a1-9b59-7173b402d08e",
+              "observationId": "6ff2b511-5640-49e4-a756-76f0eb74eba3",
+              "actionId": "1da60873-3e27-4528-9ebc-db3d97729f7b"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with A",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "99b7623a-a7e1-43a1-9b59-7173b402d08e",
+              "attemptId": "2303b2eb-00f0-43c7-9ff2-14156371710b",
+              "beforeId": "76a5216c-1152-42e4-bcc8-ff30480bf128",
+              "afterId": "6e8f90f6-a6f4-44e6-b5f6-c2a700379086"
+            },
+            "target": {
+              "sessionId": "99b7623a-a7e1-43a1-9b59-7173b402d08e",
+              "observationId": "e62d5ca1-06b8-4a90-aa8f-e97a488390d1",
+              "actionId": "42a4f580-7c8b-4f94-a144-25601fb93a45"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with B",
+          "expected": true,
+          "actual": true,
+          "reason": "equivalent_operation_sample",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": true,
+            "reason": "equivalent_operation_sample",
+            "source": {
+              "sessionId": "99b7623a-a7e1-43a1-9b59-7173b402d08e",
+              "attemptId": "91828cd6-238f-40f6-9940-021661696e00",
+              "beforeId": "6ff2b511-5640-49e4-a756-76f0eb74eba3",
+              "afterId": "18a37193-c052-4aa6-8d4e-5bb75f3cc95e"
+            },
+            "target": {
+              "sessionId": "99b7623a-a7e1-43a1-9b59-7173b402d08e",
+              "observationId": "e62d5ca1-06b8-4a90-aa8f-e97a488390d1",
+              "actionId": "42a4f580-7c8b-4f94-a144-25601fb93a45"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "attempt:91828cd6-238f-40f6-9940-021661696e00",
+              "observation:6ff2b511-5640-49e4-a756-76f0eb74eba3",
+              "observation:18a37193-c052-4aa6-8d4e-5bb75f3cc95e",
+              "observation:e62d5ca1-06b8-4a90-aa8f-e97a488390d1"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "policy": "browser-controls-correspondence-v2"
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "owner changes, compare with B",
+          "expected": false,
+          "actual": false,
+          "reason": "operation_conditions_changed",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "operation_conditions_changed",
+            "source": {
+              "sessionId": "99b7623a-a7e1-43a1-9b59-7173b402d08e",
+              "attemptId": "91828cd6-238f-40f6-9940-021661696e00",
+              "beforeId": "6ff2b511-5640-49e4-a756-76f0eb74eba3",
+              "afterId": "18a37193-c052-4aa6-8d4e-5bb75f3cc95e"
+            },
+            "target": {
+              "sessionId": "99b7623a-a7e1-43a1-9b59-7173b402d08e",
+              "observationId": "5f8a5933-722e-4a91-8331-17b358471ad1",
+              "actionId": "331a524d-2147-4864-bc27-1353375dda55"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "2303b2eb-00f0-43c7-9ff2-14156371710b",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "91828cd6-238f-40f6-9940-021661696e00",
+          "status": "succeeded"
+        },
+        {
+          "owner": "C",
+          "id": "b99bfee9-71cf-43b0-9ebb-c191f04a7ec4",
+          "status": "succeeded"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "scenario": "same-name-named-owners",
+      "run": 3,
+      "fixtureSha256": "5aa23d63edea3c93ba7cff87166872948e9f17ac3d253bfa73a358c0c24393ed",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        },
+        {
+          "branch": "C",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "df34e927-5c4c-4dd8-9993-9861759cfe60",
+              "attemptId": "4a196470-16ec-43ed-9387-f13fa12731cd",
+              "beforeId": "93acc951-1d73-42e5-bec2-027216e02aca",
+              "afterId": "122c86bf-32b3-4fb2-91ad-e164396e65ac"
+            },
+            "target": {
+              "sessionId": "df34e927-5c4c-4dd8-9993-9861759cfe60",
+              "observationId": "a37e63c1-a42c-4154-a195-591357bb5bc0",
+              "actionId": "34621572-9773-48eb-a6e9-4c6fa13a7e10"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with A",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "df34e927-5c4c-4dd8-9993-9861759cfe60",
+              "attemptId": "4a196470-16ec-43ed-9387-f13fa12731cd",
+              "beforeId": "93acc951-1d73-42e5-bec2-027216e02aca",
+              "afterId": "122c86bf-32b3-4fb2-91ad-e164396e65ac"
+            },
+            "target": {
+              "sessionId": "df34e927-5c4c-4dd8-9993-9861759cfe60",
+              "observationId": "36b037f3-351d-4c85-94b2-cbcc5c3f89fa",
+              "actionId": "dd39343f-23c5-4487-9ecc-c397bdf671cd"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with B",
+          "expected": true,
+          "actual": true,
+          "reason": "equivalent_operation_sample",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": true,
+            "reason": "equivalent_operation_sample",
+            "source": {
+              "sessionId": "df34e927-5c4c-4dd8-9993-9861759cfe60",
+              "attemptId": "15cb94db-4e4b-4a5b-a308-3c74a4c5fb89",
+              "beforeId": "a37e63c1-a42c-4154-a195-591357bb5bc0",
+              "afterId": "cc963204-799a-49bd-bbec-b8d4b958b7b9"
+            },
+            "target": {
+              "sessionId": "df34e927-5c4c-4dd8-9993-9861759cfe60",
+              "observationId": "36b037f3-351d-4c85-94b2-cbcc5c3f89fa",
+              "actionId": "dd39343f-23c5-4487-9ecc-c397bdf671cd"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "attempt:15cb94db-4e4b-4a5b-a308-3c74a4c5fb89",
+              "observation:a37e63c1-a42c-4154-a195-591357bb5bc0",
+              "observation:cc963204-799a-49bd-bbec-b8d4b958b7b9",
+              "observation:36b037f3-351d-4c85-94b2-cbcc5c3f89fa"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "policy": "browser-controls-correspondence-v2"
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "owner changes, compare with B",
+          "expected": false,
+          "actual": false,
+          "reason": "operation_conditions_changed",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "operation_conditions_changed",
+            "source": {
+              "sessionId": "df34e927-5c4c-4dd8-9993-9861759cfe60",
+              "attemptId": "15cb94db-4e4b-4a5b-a308-3c74a4c5fb89",
+              "beforeId": "a37e63c1-a42c-4154-a195-591357bb5bc0",
+              "afterId": "cc963204-799a-49bd-bbec-b8d4b958b7b9"
+            },
+            "target": {
+              "sessionId": "df34e927-5c4c-4dd8-9993-9861759cfe60",
+              "observationId": "17abf3f1-fc63-4152-9f07-fb3d420202e6",
+              "actionId": "983998e9-708c-4000-a26a-28b292328c7f"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "4a196470-16ec-43ed-9387-f13fa12731cd",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "15cb94db-4e4b-4a5b-a308-3c74a4c5fb89",
+          "status": "succeeded"
+        },
+        {
+          "owner": "C",
+          "id": "b7eeb83e-70e3-4d28-8976-47d627cfe1ff",
+          "status": "succeeded"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "scenario": "same-name-named-owners",
+      "run": 4,
+      "fixtureSha256": "5aa23d63edea3c93ba7cff87166872948e9f17ac3d253bfa73a358c0c24393ed",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        },
+        {
+          "branch": "C",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "2c7d4f3b-1340-40c0-8b46-c4f39a4b2a47",
+              "attemptId": "eb6f8f2c-e64d-4ac5-9a47-5bc009c1a6b8",
+              "beforeId": "12a89b54-a521-4017-8fc4-1ee2b92dd045",
+              "afterId": "f055c30e-ab28-4429-a873-6a4495e72bf1"
+            },
+            "target": {
+              "sessionId": "2c7d4f3b-1340-40c0-8b46-c4f39a4b2a47",
+              "observationId": "f6450c1d-a730-458b-9de8-dd2043555063",
+              "actionId": "303d1e9e-e124-4f75-9b66-d208a4a4c966"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with A",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "2c7d4f3b-1340-40c0-8b46-c4f39a4b2a47",
+              "attemptId": "eb6f8f2c-e64d-4ac5-9a47-5bc009c1a6b8",
+              "beforeId": "12a89b54-a521-4017-8fc4-1ee2b92dd045",
+              "afterId": "f055c30e-ab28-4429-a873-6a4495e72bf1"
+            },
+            "target": {
+              "sessionId": "2c7d4f3b-1340-40c0-8b46-c4f39a4b2a47",
+              "observationId": "29ea4045-ac01-4eb3-9a17-6f2d7819a562",
+              "actionId": "aa8d3f17-c005-461b-b2aa-ad0ae09531b9"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with B",
+          "expected": true,
+          "actual": true,
+          "reason": "equivalent_operation_sample",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": true,
+            "reason": "equivalent_operation_sample",
+            "source": {
+              "sessionId": "2c7d4f3b-1340-40c0-8b46-c4f39a4b2a47",
+              "attemptId": "4d805350-1573-49bb-b609-b7d28d71c1e7",
+              "beforeId": "f6450c1d-a730-458b-9de8-dd2043555063",
+              "afterId": "cd1acb60-486e-4a6f-a445-bb3692b3f1c9"
+            },
+            "target": {
+              "sessionId": "2c7d4f3b-1340-40c0-8b46-c4f39a4b2a47",
+              "observationId": "29ea4045-ac01-4eb3-9a17-6f2d7819a562",
+              "actionId": "aa8d3f17-c005-461b-b2aa-ad0ae09531b9"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "attempt:4d805350-1573-49bb-b609-b7d28d71c1e7",
+              "observation:f6450c1d-a730-458b-9de8-dd2043555063",
+              "observation:cd1acb60-486e-4a6f-a445-bb3692b3f1c9",
+              "observation:29ea4045-ac01-4eb3-9a17-6f2d7819a562"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "policy": "browser-controls-correspondence-v2"
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "owner changes, compare with B",
+          "expected": false,
+          "actual": false,
+          "reason": "operation_conditions_changed",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "operation_conditions_changed",
+            "source": {
+              "sessionId": "2c7d4f3b-1340-40c0-8b46-c4f39a4b2a47",
+              "attemptId": "4d805350-1573-49bb-b609-b7d28d71c1e7",
+              "beforeId": "f6450c1d-a730-458b-9de8-dd2043555063",
+              "afterId": "cd1acb60-486e-4a6f-a445-bb3692b3f1c9"
+            },
+            "target": {
+              "sessionId": "2c7d4f3b-1340-40c0-8b46-c4f39a4b2a47",
+              "observationId": "17c8a852-a3f0-4c33-b0cb-6bbad53948cb",
+              "actionId": "85989a98-4e70-4505-bd95-1ca6c6d0daa7"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "eb6f8f2c-e64d-4ac5-9a47-5bc009c1a6b8",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "4d805350-1573-49bb-b609-b7d28d71c1e7",
+          "status": "succeeded"
+        },
+        {
+          "owner": "C",
+          "id": "4de021ac-d702-4b9b-a057-e18b662cb29b",
+          "status": "succeeded"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "scenario": "same-name-named-owners",
+      "run": 5,
+      "fixtureSha256": "5aa23d63edea3c93ba7cff87166872948e9f17ac3d253bfa73a358c0c24393ed",
+      "events": [
+        {
+          "branch": "A",
+          "value": "sample"
+        },
+        {
+          "branch": "B",
+          "value": "sample"
+        },
+        {
+          "branch": "C",
+          "value": "sample"
+        }
+      ],
+      "checks": [
+        {
+          "phase": "A disappears; B remains",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "b0f9349a-7c59-4717-884d-f599ca7fdb0a",
+              "attemptId": "a44d1d2f-d647-4804-a123-578d63f5acb3",
+              "beforeId": "447c149a-4566-4d34-82c0-62d15039d1a9",
+              "afterId": "8a384ec9-d355-4681-8422-908bc89c5fa6"
+            },
+            "target": {
+              "sessionId": "b0f9349a-7c59-4717-884d-f599ca7fdb0a",
+              "observationId": "d4222ca4-76db-49e1-a725-f7afd9d94cea",
+              "actionId": "c1cadb12-bbad-4fae-87de-87ad20ed3e8a"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with A",
+          "expected": false,
+          "actual": false,
+          "reason": "target_correspondence_ambiguous",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "target_correspondence_ambiguous",
+            "source": {
+              "sessionId": "b0f9349a-7c59-4717-884d-f599ca7fdb0a",
+              "attemptId": "a44d1d2f-d647-4804-a123-578d63f5acb3",
+              "beforeId": "447c149a-4566-4d34-82c0-62d15039d1a9",
+              "afterId": "8a384ec9-d355-4681-8422-908bc89c5fa6"
+            },
+            "target": {
+              "sessionId": "b0f9349a-7c59-4717-884d-f599ca7fdb0a",
+              "observationId": "eec7c098-d001-42e6-89d7-7bd2ec1bd2a3",
+              "actionId": "a059f886-1055-4b67-b467-50b18233ecc2"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "B rebuilt, compare with B",
+          "expected": true,
+          "actual": true,
+          "reason": "equivalent_operation_sample",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": true,
+            "reason": "equivalent_operation_sample",
+            "source": {
+              "sessionId": "b0f9349a-7c59-4717-884d-f599ca7fdb0a",
+              "attemptId": "2ab4b998-1b3b-4fd7-ab8e-da7fad9a7238",
+              "beforeId": "d4222ca4-76db-49e1-a725-f7afd9d94cea",
+              "afterId": "c9743834-a1f9-460b-b9cd-7cb690a9fa9d"
+            },
+            "target": {
+              "sessionId": "b0f9349a-7c59-4717-884d-f599ca7fdb0a",
+              "observationId": "eec7c098-d001-42e6-89d7-7bd2ec1bd2a3",
+              "actionId": "a059f886-1055-4b67-b467-50b18233ecc2"
+            },
+            "evidence": [
+              "captured-stable-key",
+              "semantic-ancestor-scope/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+              "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+              "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+              "attempt:2ab4b998-1b3b-4fd7-ab8e-da7fad9a7238",
+              "observation:d4222ca4-76db-49e1-a725-f7afd9d94cea",
+              "observation:c9743834-a1f9-460b-b9cd-7cb690a9fa9d",
+              "observation:eec7c098-d001-42e6-89d7-7bd2ec1bd2a3"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "policy": "browser-controls-correspondence-v2"
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        },
+        {
+          "phase": "owner changes, compare with B",
+          "expected": false,
+          "actual": false,
+          "reason": "operation_conditions_changed",
+          "sourceValue": "sample",
+          "targetValue": "sample",
+          "proof": {
+            "equivalent": false,
+            "reason": "operation_conditions_changed",
+            "source": {
+              "sessionId": "b0f9349a-7c59-4717-884d-f599ca7fdb0a",
+              "attemptId": "2ab4b998-1b3b-4fd7-ab8e-da7fad9a7238",
+              "beforeId": "d4222ca4-76db-49e1-a725-f7afd9d94cea",
+              "afterId": "c9743834-a1f9-460b-b9cd-7cb690a9fa9d"
+            },
+            "target": {
+              "sessionId": "b0f9349a-7c59-4717-884d-f599ca7fdb0a",
+              "observationId": "58dcddeb-ae49-463a-925c-14aa8144f8ac",
+              "actionId": "9f3aeae0-66af-4ec0-969a-e2a5bf39a24b"
+            },
+            "evidence": [],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false
+          },
+          "oracle": [
+            {
+              "branch": "A",
+              "value": "sample"
+            },
+            {
+              "branch": "B",
+              "value": "sample"
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "owner": "A",
+          "id": "a44d1d2f-d647-4804-a123-578d63f5acb3",
+          "status": "succeeded"
+        },
+        {
+          "owner": "B",
+          "id": "2ab4b998-1b3b-4fd7-ab8e-da7fad9a7238",
+          "status": "succeeded"
+        },
+        {
+          "owner": "C",
+          "id": "0c90ba9d-d323-405b-b0c1-01f2fa1ccd14",
+          "status": "succeeded"
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "benchmark": "engine-navigation-index-common-api-v1",
+  "variant": "baseline",
+  "revision": "f46a7506353b2ba9c0a3b43aaf218449a6c6021d",
+  "node": "v24.22.0",
+  "recordedAt": "2026-10-16T18:41:34.229Z",
+  "scriptSha256": "2472018aa805c813bf9a37b3a36d401046c6c04bc6c7d15a7fc0b80aae9c6d5e",
+  "sourceHashes": {
+    "packages/core/src/engine.ts": "bb0fc0a15adb38d907987822ebab4caec71b0cb39be647699fc6ce271b5cded9",
+    "packages/core/src/navigation-path.ts": "45de205f8748907f844556b31330b845e002eadf77f26cd2045e20982ffb46dc",
+    "packages/storage-memory/src/index.ts": "878d9ae586730c9853cab41c05b7e9936936ed9a2e6fb0604247e4b10f8ab6c6",
+    "examples/counter-adapter.ts": "3c2a995ca6e9f00cdd63be9381a29ba2093c83dd842b38ba4e227b3c55d9f705"
+  },
+  "scope": "Synthetic retained chain queried through actual InteractionEngine.navigationPath; no browser, disk database, service, replay, or recovery execution",
+  "fixture": {
+    "actualCounterExecutions": 1,
+    "syntheticChainEdges": 1000,
+    "syntheticChainObservations": 1001,
+    "syntheticPassiveObservations": 1000,
+    "retainedRows": {
+      "observation": 2003,
+      "state": 2003,
+      "visit": 2003,
+      "action": 1002,
+      "attempt": 1001,
+      "transition": 1001
+    },
+    "pathLength": 1000,
+    "pathSha256": "53d859760d3d87062b676ab87154d025a256d8ed66f6af84a4a8973bcc7501ab"
+  },
+  "protocol": {
+    "warmupQueries": 1,
+    "batches": 7,
+    "queriesPerBatch": 20,
+    "timedSection": "navigationPath plus exact full-path equality assertion",
+    "storeInstrumentation": "Counts get/list API calls and listed rows; excludes record writes and fixture setup"
+  },
+  "warmup": {
+    "elapsedMs": 14.006958999999995,
+    "io": {
+      "raw": {
+        "get": {
+          "state": 2,
+          "observation": 1005
+        },
+        "list": {
+          "attempt": 1,
+          "transition": 1
+        },
+        "listedRows": {
+          "attempt": 1001,
+          "transition": 1001
+        }
+      },
+      "queryCount": 1,
+      "endpointObservationReadFloor": 2,
+      "historicalObservationReads": 1003,
+      "attemptListCalls": 1,
+      "transitionListCalls": 1
+    },
+    "exactPathVerified": true
+  },
+  "steady": {
+    "samplesMs": [
+      251.881417,
+      249.69837500000006,
+      230.65512499999988,
+      250.68566699999997,
+      234.78433300000006,
+      244.51650000000018,
+      227.1468749999999
+    ],
+    "medianBatchMs": 244.51650000000018,
+    "medianPerQueryMs": 12.22582500000001,
+    "io": {
+      "raw": {
+        "get": {
+          "state": 280,
+          "observation": 140700
+        },
+        "list": {
+          "attempt": 140,
+          "transition": 140
+        },
+        "listedRows": {
+          "attempt": 140140,
+          "transition": 140140
+        }
+      },
+      "queryCount": 140,
+      "endpointObservationReadFloor": 280,
+      "historicalObservationReads": 140420,
+      "attemptListCalls": 140,
+      "transitionListCalls": 140
+    },
+    "verifiedIdenticalPaths": 140
+  },
+  "invalidation": {
+    "withdrawnPermission": {
+      "elapsedMs": 11.330915999999888,
+      "io": {
+        "raw": {
+          "get": {
+            "state": 2,
+            "observation": 1005
+          },
+          "list": {
+            "attempt": 1,
+            "transition": 1
+          },
+          "listedRows": {
+            "attempt": 1001,
+            "transition": 1001
+          }
+        },
+        "queryCount": 1,
+        "endpointObservationReadFloor": 2,
+        "historicalObservationReads": 1003,
+        "attemptListCalls": 1,
+        "transitionListCalls": 1
+      },
+      "pathAbsent": true
+    },
+    "restoredPermission": {
+      "elapsedMs": 11.789667000000009,
+      "io": {
+        "raw": {
+          "get": {
+            "state": 2,
+            "observation": 1005
+          },
+          "list": {
+            "attempt": 1,
+            "transition": 1
+          },
+          "listedRows": {
+            "attempt": 1001,
+            "transition": 1001
+          }
+        },
+        "queryCount": 1,
+        "endpointObservationReadFloor": 2,
+        "historicalObservationReads": 1003,
+        "attemptListCalls": 1,
+        "transitionListCalls": 1
+      },
+      "exactPathVerified": true
+    }
+  },
+  "memory": {
+    "caveat": "Whole-process snapshots include fixture, source runtime, results and GC timing; not isolated index footprint or retained-memory measurements",
+    "samples": {
+      "beforeFixture": {
+        "rss": 117047296,
+        "heapUsed": 13612240,
+        "heapTotal": 33521664,
+        "external": 4641992,
+        "arrayBuffers": 2003765
+      },
+      "afterFixture": {
+        "rss": 144408576,
+        "heapUsed": 23829656,
+        "heapTotal": 56524800,
+        "external": 4493411,
+        "arrayBuffers": 1853096
+      },
+      "afterWarmup": {
+        "rss": 146784256,
+        "heapUsed": 37061464,
+        "heapTotal": 58884096,
+        "external": 4524883,
+        "arrayBuffers": 1852344
+      },
+      "afterRepeatedQueries": {
+        "rss": 251445248,
+        "heapUsed": 30496944,
+        "heapTotal": 161382400,
+        "external": 4524131,
+        "arrayBuffers": 1852344
+      },
+      "afterInvalidationChecks": {
+        "rss": 251510784,
+        "heapUsed": 48909416,
+        "heapTotal": 161382400,
+        "external": 4524131,
+        "arrayBuffers": 1852344
+      }
+    }
+  }
+}

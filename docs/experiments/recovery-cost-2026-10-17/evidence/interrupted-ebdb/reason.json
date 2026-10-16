@@ -1,0 +1,4 @@
+{
+  "reason": "Stopped only these owned validation runs before fixing missing entityChanges forwarding in RetainedPersistence. These partial results are not final validation.",
+  "initialCommit": "ebdb65f1a43c5cf767b66b6c104ab578535a88c3"
+}

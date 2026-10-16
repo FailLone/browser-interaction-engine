@@ -1,0 +1,39 @@
+
+ RUN  v3.2.7 /private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-4z1qgefj
+
+ ❯ tests/recovery-route-cost.test.ts (9 tests | 1 failed | 8 skipped) 4500ms
+   ↓ learns a failed target route from actual recovery and reuses the working route on the next call
+   ↓ learns a failed checkpoint route from actual recovery and reuses the working route on the next call
+   ↓ retains a nested successful prefix while learning target route costs
+   ↓ retains a nested successful prefix while learning checkpoint route costs
+   × reaches a previously untried fifth route on the next call without increasing the four-plan limit 4500ms
+     → {"reason":"target_not_reached","firstAttempts":4,"secondClicks":[0,1,2,3]}: expected 'UNREACHABLE' to be 'TARGET_REACHED' // Object.is equality
+   ↓ does not transfer failure penalties from mode A to an independently recorded mode B
+   ↓ rechecks current replay permission even when the withdrawn route has learned the lowest cost
+   ↓ keeps an unknown outcome on the learned cheapest route unresolved and does not try alternatives
+   ↓ uses incremental facts through the actual BrowserEngine retention wrapper and invalidates revoked evidence
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/recovery-route-cost.test.ts > reaches a previously untried fifth route on the next call without increasing the four-plan limit
+AssertionError: {"reason":"target_not_reached","firstAttempts":4,"secondClicks":[0,1,2,3]}: expected 'UNREACHABLE' to be 'TARGET_REACHED' // Object.is equality
+
+Expected: "TARGET_REACHED"
+Received: "UNREACHABLE"
+
+ ❯ tests/recovery-route-cost.test.ts:152:122
+    150|   const second = await t.recover();
+    151|   const secondClicks = await t.clicks();
+    152|   expect(second.status, JSON.stringify({ reason: second.reason, firstA…
+       |                                                                                                                          ^
+    153|   expect(secondClicks).toEqual([4]);
+    154|   expect(second.attemptIds).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 skipped (9)
+   Start at  02:45:55
+   Duration  5.49s (transform 406ms, setup 0ms, collect 832ms, tests 4.50s, environment 0ms, prepare 40ms)
+

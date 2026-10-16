@@ -1,0 +1,2367 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-plugin.test.ts (95 tests) 92053ms
+   ✓ reconciles repeated legacy field gaps only after all matching controls are verified  931ms
+   ✓ reconciles repeated legacy field gaps only after partial matching controls are verified  502ms
+   ✓ reconciles repeated legacy field gaps only after across-rounds matching controls are verified  999ms
+   ✓ preserves a disappeared obligation while settling matching field gaps  2171ms
+   ✓ preserves a missing-source obligation while settling matching field gaps  805ms
+   ✓ preserves a unknown obligation while settling matching field gaps  736ms
+   ✓ preserves a capability obligation while settling matching field gaps  705ms
+   ✓ preserves historical field obligations when all retained action candidates are unavailable  1690ms
+   ✓ preserves historical field obligations when one retained action candidates are unavailable  1592ms
+   ✓ does not reuse a completed coarse field scope for a newly revealed semantic field  1171ms
+   ✓ uses public semantic context to distinguish distinct unnamed-key fields without guessing an occurrence  752ms
+   ✓ uses public semantic context to distinguish ambiguous unnamed-key fields without guessing an occurrence  491ms
+   ✓ matches contextual fields across rounds while keeping actual attempts in their original sessions  952ms
+   ✓ provides semantic field evidence with exact scopes so a target plan selects only the intended field  585ms
+   ✓ exits a reappearing boundary in same-document even when its close operation succeeded earlier  1348ms
+   ✓ exits a reappearing boundary in new-document even when its close operation succeeded earlier  1382ms
+   ✓ does not repeat an ineffective exit while the same boundary remains observed  710ms
+   ✓ restores an observed unfinished branch through the host without model ranking  1191ms
+   ✓ finishes available new controls before replaying an entry and returns for all 2 children  1653ms
+   ✓ finishes available new controls before replaying an entry and returns for all 3 children  2267ms
+   ✓ finishes available new controls before replaying an entry and returns for all 5 children  3584ms
+   ✓ does not replay an unchanged missing branch when unrelated work changes the coverage ledger  734ms
+   ✓ preserves branch retry limits across restart, unrelated gaps and duplicate evidence rows: current  808ms
+   ✓ preserves branch retry limits across restart, unrelated gaps and duplicate evidence rows: longer-path  826ms
+   ✓ preserves branch retry limits across restart, unrelated gaps and duplicate evidence rows: legacy-v2  805ms
+   ✓ retains host coverage limitations for whole-page without treating other successes as coverage  562ms
+   ✓ retains host coverage limitations for targeted without treating other successes as coverage  558ms
+   ✓ retains host coverage limitations for after-last-action without treating other successes as coverage  468ms
+   ✓ continues untested controls after persisting unsupported-content acceptance without clearing budgets or unknown outcomes (false)  1060ms
+   ✓ continues untested controls after persisting unsupported-content acceptance without clearing budgets or unknown outcomes (true)  1067ms
+   ✓ rejects unobserved, critical and unknown-dispatch limitation acceptance atomically  368ms
+   ✓ matches repeated records across fresh documents without treating history as a new execution  1795ms
+   ✓ migrates legacy scope keys using retained original evidence and preserves unresolved unmatched scopes  1285ms
+   ✓ does not arbitrarily execute colliding semantic record scopes  647ms
+   ✓ explores real browser actions with an independent ledger and leaves engine mode manual  737ms
+   ✓ scopes ungrouped candidates and guards application commands while a model is pending  709ms
+   ✓ continues remaining scopes in a fresh round without resetting total budget or replaying success  936ms
+   ✓ continues after the host time limit at after-action without resetting aggregate usage  967ms
+   ✓ continues after the host time limit at dispatch-preflight without resetting aggregate usage  1097ms
+   ✓ resumes an expired unplanned session without mistaking an empty plan for completion  982ms
+   ✓ traverses admissible actions on JEV ranking ties without LLM fallback or out-of-scope execution  580ms
+   ✓ does not ask for a follow-up plan merely because the session action budget was reached  911ms
+   ✓ retains sampled-out ranges and can explicitly select them for a later round  1201ms
+   ✓ records missing service configuration and exposes no key through HTTP  501ms
+   ✓ keeps exhausted totals until an explicit budget extension, then resumes a selected gap  1047ms
+   ✓ leaves absent targets unresolved instead of inferring completion  399ms
+   ✓ audits newly revealed controls when the opening action consumes the last action budget  562ms
+   ✓ reopens the recorded entry path after an action budget boundary (selected supplement: true)  1350ms
+   ✓ reopens the recorded entry path after an action budget boundary (selected supplement: false)  1522ms
+   ✓ explores a nested dialog and verifies return before continuing the parent branch  1456ms
+   ✓ reviews the active dialog before background controls and resumes background work after exit  1286ms
+   ✓ reviews an outside exit and verifies its close result before background work  1567ms
+   ✓ reviews an outside exit and verifies its noop result before background work  3103ms
+   ✓ reviews an outside exit and verifies its changed result before background work  1086ms
+   ✓ preserves real parent fields rather than default null/empty fields on a large page  6018ms
+   ✓ never replays an unknown dispatched outcome after restart  460ms
+   ✓ retries a required interface exit after a real browser restart without resetting history or totals  1408ms
+   ✓ isolates an unknown hyperlink without replaying it, including a host time limit: false  1520ms
+   ✓ isolates an unknown hyperlink without replaying it, including a host time limit: true  1430ms
+   ✓ keeps dirty unknown hyperlink outcomes blocked  447ms
+   ✓ keeps executing unknown hyperlink outcomes blocked  450ms
+   ✓ keeps unfinished unknown hyperlink outcomes blocked  516ms
+   ✓ keeps same-name ambiguous targets unresolved without selecting an arbitrary occurrence  463ms
+   ✓ revalidates changed dispatch bindings instead of treating old success as the new case  1352ms
+   ✓ grounds plans in accessible action names and records current members when retaining scopes  537ms
+   ✓ retries initial planning after a provider timeout without turning the error into an execution scope  766ms
+   ✓ retains all in-scope members with a program decision when sampling is not authorized  709ms
+   ✓ retains multiple scopes atomically and retries a stale batch without marking members executed  643ms
+   ✓ keeps JEV sampling and action choices while omitting the historical ledger from their prompts  623ms
+   ✓ does not grant an operation on ambiguous external-effect evidence, even if LLM would approve  603ms
+   ✓ preserves configuration, history and total counters while starting a fresh session for old routing rules  1054ms
+   ✓ finishes the exact settings flow without recovery or touching unrelated controls (named select: true)  1158ms
+   ✓ finishes the exact settings flow without recovery or touching unrelated controls (named select: false)  1164ms
+   ✓ restores legacy authority from the original plan, never from a page gap or derived outside target  1017ms
+   ✓ defaults an omitted or blank task to program-owned exhaustive coverage without LLM (undefined)  692ms
+   ✓ defaults an omitted or blank task to program-owned exhaustive coverage without LLM ()  696ms
+   ✓ defaults an omitted or blank task to program-owned exhaustive coverage without LLM (   )  700ms
+   ✓ uses JEV alone to recognize a written exhaustive task and discovers controls absent at startup  792ms
+   ✓ generates a typed target plan when JEV cannot establish unrestricted exhaustion ({ value: 'targeted', confidence: 1 })  558ms
+   ✓ generates a typed target plan when JEV cannot establish unrestricted exhaustion ({ value: 'uncertain', confidence: 1 })  563ms
+   ✓ generates a typed target plan when JEV cannot establish unrestricted exhaustion ({ value: 'exhaustive', confidence: 0.4 })  559ms
+   ✓ generates a typed target plan when JEV cannot establish unrestricted exhaustion ({ value: 'unsupported', confidence: 0.4 })  543ms
+   ✓ understands structured exhaustive intent with quoted exclusions without letting the model enumerate the root  583ms
+   ✓ allows clearing a goal to switch to default exhaustion and preserves cumulative usage  1277ms
+   ✓ preserves a default exhaustive root and its budgets after storage restart  899ms
+   ✓ does not release an ordinary idle session when starting a new default task  1121ms
+ ✓ tests/control-exploration.test.ts (7 tests) 48049ms
+   ✓ covers the entire fixture with generic defaults, renamed/reordered=false  18718ms
+   ✓ covers the entire fixture with generic defaults, renamed/reordered=true  18559ms
+   ✓ isolates passive volatility while preserving full evidence, strict checkpoints, and live preconditions  1163ms
+   ✓ does not transfer an unresolved instance target to a replacement node  532ms
+   ✓ does not accept a volatile editable target as settled or ignore a declared read-only context  2023ms
+   ✓ keeps exclusions, disabled controls and an inadequate budget visible as incomplete coverage  709ms
+   ✓ continues traversal through newly exposed controls instead of treating a scroll as a control  6343ms
+ ✓ tests/live-content.test.ts (33 tests) 40987ms
+   ✓ finishes finite control traversal while quotes and canvas never settle (variant false)  2469ms
+   ✓ finishes finite control traversal while quotes and canvas never settle (variant true)  2406ms
+   ✓ keeps a row binding through changing passive cells and reorder, but invalidates a recycled record  854ms
+   ✓ does not infer record identity from links shared by multiple rows  372ms
+   ✓ does not suppress autonomous changes in button semantics  1685ms
+   ✓ does not suppress autonomous changes in input semantics  1679ms
+   ✓ does not suppress autonomous changes in label semantics  1644ms
+   ✓ rechecks declared business context even when the same readout qualifies as live display  687ms
+   ✓ keeps strict stateful sampling strict on a perpetually changing link  712ms
+   ✓ stops repeated preflight invalidations across resume, then recovers after a successful action  2386ms
+   ✓ ignores unrelated layout movement but validates target layout and occlusion  1118ms
+   ✓ revokes a learned live projection when a numeric readout becomes meaningful text  2054ms
+   ✓ traverses records with no links or declared keys while formatted display cells keep updating  1516ms
+   ✓ does not merge duplicate projected descriptions or remove numeric record identifiers  560ms
+   ✓ does not reset preflight failures when their fresh captures alternate between complete and incomplete  1681ms
+   ✓ tolerates a slow formatted readout without waiting for two ticks, while retaining exact link semantics  931ms
+   ✓ records chart-period toggles and rejects changed selection before another action  907ms
+   ✓ validates the chosen weak target even when passive controls are excluded from global settling  652ms
+   ✓ does not inherit coverage after rebuilding a row with only inferred description identity  1188ms
+   ✓ does not inherit coverage after rebuilding a row with only inferred shared-destination identity  1178ms
+   ✓ retains coverage for an explicitly keyed record after rebuilding its price display  940ms
+   ✓ validates native field operations against their form while preserving other forms in evidence  904ms
+   ✓ rejects a changed native dependency: sibling-value  610ms
+   ✓ rejects a changed native dependency: external-associated-field  662ms
+   ✓ rejects a changed native dependency: form-destination  539ms
+   ✓ rejects a changed native dependency: target-position  664ms
+   ✓ keeps cross-form relationships and submission validation global  893ms
+   ✓ continues stable form operations while another form never settles and reports the remaining gap  1313ms
+   ✓ budgets stale form dependencies independently, keeps the failure across resume, and clears only verified recovery  2748ms
+   ✓ does not call an action successful just because an unrelated form settled afterward  2135ms
+   ✓ does not localize a declared business-context change or a newly opened modal  915ms
+   ✓ cannot reset the retry budget by rebuilding the form before every preflight  1327ms
+   ✓ does not ignore incoming relationships from controls outside the form  653ms
+ ✓ tests/explorer-plugin-semantic.test.ts (57 tests) 34326ms
+   ✓ uses an independently approved probe to reveal UI behind an interactive control with unresolved click purpose  1074ms
+   ✓ does not probe on uncertain probe evidence even for a probe_required classification  483ms
+   ✓ does not probe on external probe evidence even for a probe_required classification  469ms
+   ✓ retains a no-effect probe as evidence without repeating it or granting a click  623ms
+   ✓ persists unknown probe dispatch across restart and never blindly retries it  497ms
+   ✓ persists missing-record probe dispatch across restart and never blindly retries it  341ms
+   ✓ cancels a pending probe judgment on takeover without dispatching its late approval  352ms
+   ✓ waits for an issued probe on takeover, records its result and does not dispatch revealed controls  474ms
+   ✓ rejects stale probe approval after a new observation and never executes it  652ms
+   ✓ retains newly revealed controls when a probe consumes the last action budget  484ms
+   ✓ reopens a recorded probe prerequisite under fresh judgments for a selected follow-up scope  1411ms
+   ✓ keeps a missing probe capability as a gap while continuing other available controls  705ms
+   ✓ limits probes and revealed work to the accepted target scope  742ms
+   ✓ batches non-overlapping region judgments while retaining every source decision and current binding  3596ms
+   ✓ cancels prepared region judgments without submitting a partial partition  326ms
+   ✓ rejudges a deferred region after committing earlier clear regions  3852ms
+   ✓ discards all prepared regions when their source observation becomes stale  3888ms
+   ✓ retains an unresolved purpose after a position change without granting an operation  688ms
+   ✓ retains an unresolved purpose after a content change without granting an operation  772ms
+   ✓ batches clear classifications from one observation and preserves each decision as separate evidence  949ms
+   ✓ revisits an uncertain batch member using the new observation without applying its earlier answer  763ms
+   ✓ discards a stale prepared batch and reclassifies its targets using a fresh observation  915ms
+   ✓ remaps a uniquely evidenced legacy review gap and closes it with fresh classification, not an invented action  935ms
+   ✓ keeps named controls with empty explicit labels as distinct, selectable follow-up scopes  1221ms
+   ✓ drains distinct uncertain reviews before declaring no progress, refreshing only uncertainty  1239ms
+   ✓ drains distinct denied-interface reviews before declaring no progress, refreshing only uncertainty  669ms
+   ✓ drains distinct external-write reviews before declaring no progress, refreshing only uncertainty  657ms
+   ✓ counts identity resolutions as progress so several pending identities do not end the round early  1251ms
+   ✓ uses a bounded semantic fallback with grounded evidence on a real popup control  862ms
+   ✓ uses a bounded semantic fallback with invented-reference evidence on a real popup control  678ms
+   ✓ uses a bounded semantic fallback with uncertain evidence on a real popup control  694ms
+   ✓ uses a bounded semantic fallback with veto evidence on a real popup control  534ms
+   ✓ pauses an ambiguous purpose for missing LLM configuration and resumes with fresh evidence  749ms
+   ✓ cancels a pending semantic clarification on takeover and never applies its late answer  490ms
+ ✓ tests/recovery-route-cost.test.ts (9 tests) 21948ms
+   ✓ learns a failed target route from actual recovery and reuses the working route on the next call  2348ms
+   ✓ learns a failed checkpoint route from actual recovery and reuses the working route on the next call  2068ms
+   ✓ retains a nested successful prefix while learning target route costs  2797ms
+   ✓ retains a nested successful prefix while learning checkpoint route costs  2946ms
+   ✓ reaches a previously untried fifth route on the next call without increasing the four-plan limit  3562ms
+   ✓ does not transfer failure penalties from mode A to an independently recorded mode B  3250ms
+   ✓ rechecks current replay permission even when the withdrawn route has learned the lowest cost  2128ms
+   ✓ keeps an unknown outcome on the learned cheapest route unresolved and does not try alternatives  1888ms
+   ✓ uses incremental facts through the actual BrowserEngine retention wrapper and invalidates revoked evidence  960ms
+stderr | tests/ui-history.e2e.test.ts > changes the diff and both images with the selected visit, including repeated states
+2:49:23 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > changes the diff and both images with the selected visit, including repeated states
+2:49:23 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > changes the diff and both images with the selected visit, including repeated states
+2:49:23 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > changes the diff and both images with the selected visit, including repeated states
+2:49:23 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > compares supplemental observations to their parent and keeps history pinned during SSE refresh
+2:49:25 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > compares supplemental observations to their parent and keeps history pinned during SSE refresh
+2:49:25 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > compares supplemental observations to their parent and keeps history pinned during SSE refresh
+2:49:25 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > compares supplemental observations to their parent and keeps history pinned during SSE refresh
+2:49:25 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > ignores delayed history responses after selecting another visit or returning to current
+2:49:28 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > ignores delayed history responses after selecting another visit or returning to current
+2:49:28 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > ignores delayed history responses after selecting another visit or returning to current
+2:49:28 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > ignores delayed history responses after selecting another visit or returning to current
+2:49:28 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > clears a previous session comparison and ignores its outstanding history response
+2:49:30 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > clears a previous session comparison and ignores its outstanding history response
+2:49:30 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > clears a previous session comparison and ignores its outstanding history response
+2:49:30 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > clears a previous session comparison and ignores its outstanding history response
+2:49:30 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > clears a previous session comparison and ignores its outstanding history response
+2:49:30 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > clears a previous session comparison and ignores its outstanding history response
+2:49:30 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > clears a previous session comparison and ignores its outstanding history response
+2:49:30 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > clears a previous session comparison and ignores its outstanding history response
+2:49:30 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > shows a failed history read without displaying the latest action as its diff
+2:49:32 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > shows a failed history read without displaying the latest action as its diff
+2:49:32 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > shows a failed history read without displaying the latest action as its diff
+2:49:32 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > shows a failed history read without displaying the latest action as its diff
+2:49:32 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > loads the selected attempt when it is outside the dashboard first page
+2:49:34 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > loads the selected attempt when it is outside the dashboard first page
+2:49:34 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > loads the selected attempt when it is outside the dashboard first page
+2:49:34 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > loads the selected attempt when it is outside the dashboard first page
+2:49:34 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > loads the selected attempt when it is outside the dashboard first page
+2:49:35 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > loads the selected attempt when it is outside the dashboard first page
+2:49:35 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > loads the selected attempt when it is outside the dashboard first page
+2:49:35 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > loads the selected attempt when it is outside the dashboard first page
+2:49:35 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > shows readable field meaning, historical control evidence and matching screenshot regions
+2:49:36 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > shows readable field meaning, historical control evidence and matching screenshot regions
+2:49:36 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > shows readable field meaning, historical control evidence and matching screenshot regions
+2:49:36 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > shows readable field meaning, historical control evidence and matching screenshot regions
+2:49:36 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > ignores a delayed detail response after selecting another visit
+2:49:39 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > ignores a delayed detail response after selecting another visit
+2:49:39 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > ignores a delayed detail response after selecting another visit
+2:49:39 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > ignores a delayed detail response after selecting another visit
+2:49:39 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > preserves readable changes when evidence is released, and opens full historical evidence on demand
+2:49:41 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > preserves readable changes when evidence is released, and opens full historical evidence on demand
+2:49:41 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > preserves readable changes when evidence is released, and opens full historical evidence on demand
+2:49:41 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > preserves readable changes when evidence is released, and opens full historical evidence on demand
+2:49:41 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > shows an explicit image failure if availability changes after the detail response
+2:49:43 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > shows an explicit image failure if availability changes after the detail response
+2:49:43 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > shows an explicit image failure if availability changes after the detail response
+2:49:43 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > shows an explicit image failure if availability changes after the detail response
+2:49:43 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > keeps identity candidates inside gaps, including legacy supplements and uncertainty without changes
+2:49:45 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > keeps identity candidates inside gaps, including legacy supplements and uncertainty without changes
+2:49:45 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > keeps identity candidates inside gaps, including legacy supplements and uncertainty without changes
+2:49:45 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > keeps identity candidates inside gaps, including legacy supplements and uncertainty without changes
+2:49:45 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > keeps identity candidates inside gaps, including legacy supplements and uncertainty without changes
+2:49:46 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui-history.e2e.test.ts > keeps identity candidates inside gaps, including legacy supplements and uncertainty without changes
+2:49:46 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/ui-history.e2e.test.ts (11 tests) 25741ms
+   ✓ changes the diff and both images with the selected visit, including repeated states  3042ms
+   ✓ compares supplemental observations to their parent and keeps history pinned during SSE refresh  2356ms
+   ✓ ignores delayed history responses after selecting another visit or returning to current  1963ms
+   ✓ clears a previous session comparison and ignores its outstanding history response  2722ms
+   ✓ shows a failed history read without displaying the latest action as its diff  1978ms
+   ✓ loads the selected attempt when it is outside the dashboard first page  2171ms
+   ✓ shows readable field meaning, historical control evidence and matching screenshot regions  2403ms
+   ✓ ignores a delayed detail response after selecting another visit  1963ms
+   ✓ preserves readable changes when evidence is released, and opens full historical evidence on demand  2028ms
+   ✓ shows an explicit image failure if availability changes after the detail response  1895ms
+   ✓ keeps identity candidates inside gaps, including legacy supplements and uncertainty without changes  3052ms
+ ✓ tests/engine.e2e.test.ts (16 tests) 26077ms
+   ✓ Real Chromium interaction engine > tracks portal menus, persistent selector identity and cumulative parent effects  1579ms
+   ✓ Real Chromium interaction engine > matches React rebuilds and records business bindings independently  1025ms
+   ✓ Real Chromium interaction engine > does not silently match duplicate labels and accepts sourced decisions  1030ms
+   ✓ Real Chromium interaction engine > merges equivalent observable states but keeps separate paths  1573ms
+   ✓ Real Chromium interaction engine > returns verified, acceptable, changed, unreachable and unverified recovery results  3661ms
+   ✓ Real Chromium interaction engine > replays a checkpoint path from entry and verifies each intermediate state  2089ms
+   ✓ Real Chromium interaction engine > rejects stale observations, records gaps and executes the same request only once  1260ms
+   ✓ Real Chromium interaction engine > runs bounded DFS and preserves exclusions and remaining work  1505ms
+   ✓ Real Chromium interaction engine > serializes competing SDK commands and keeps the first source observation immutable  767ms
+   ✓ Real Chromium interaction engine > isolates hook failures and publishes checker issues without model dependencies  772ms
+   ✓ Real Chromium interaction engine > detects a reused node with changed business binding and context outside controls  955ms
+   ✓ Real Chromium interaction engine > retains unstable observations and returns an unverified checkpoint result  2337ms
+   ✓ Real Chromium interaction engine > uses reset evidence before replaying a write path and persists every recovery action  1733ms
+   ✓ Real Chromium interaction engine > validates native input constraints and replays caller supplied values  2009ms
+   ✓ Real Chromium interaction engine > stops a replay after a divergent intermediate observation  1977ms
+   ✓ Real Chromium interaction engine > starts a new visit root when reattaching a stopped session without losing its history  1766ms
+ ✓ tests/discovery-scans.test.ts (18 tests) 25227ms
+   ✓ locates omitted signals and supplements a bounded window without granting or executing an action  983ms
+   ✓ locates a depth limit and discovers a list only after bounded supplementation  372ms
+   ✓ locates a nodes limit and discovers a list only after bounded supplementation  395ms
+   ✓ reports partial sibling windows with exact owner and never calls them complete  928ms
+   ✓ locates the collection cap and expands it only to the explicitly requested bound  6894ms
+   ✓ retains the critical main-control cap even when supplementary signal scanning is requested  7614ms
+   ✓ replaces the active window rather than accumulating unbounded nodes, keeping both observations and records  2103ms
+   ✓ invalidates a supplemental window after insert and never revives it  506ms
+   ✓ invalidates a supplemental window after replace and never revives it  505ms
+   ✓ invalidates a supplemental window after reparent and never revives it  512ms
+   ✓ invalidates a supplemental window after url and never revives it  495ms
+   ✓ invalidates a supplemental window after reload and never revives it  500ms
+   ✓ retains a read-only scan through text changes but rejects a stale topology even when ordinary controls did not change  520ms
+   ✓ rechecks an active supplemental window before dispatching an otherwise unchanged native operation  434ms
+   ✓ rejects stale observations, arbitrary roots, empty evidence and invalid budgets before recording a plan  313ms
+   ✓ publishes queryable deduplicated requests and serves materials, commands and records through the SDK/HTTP  1226ms
+   ✓ keeps SQLite records across restart and invalidates the old document plan  668ms
+stderr | tests/boundary-dismissal.test.ts > reviews an exit in the UI with a stale-draft guard and displays independent verification results
+2:50:59 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/boundary-dismissal.test.ts > reviews an exit in the UI with a stale-draft guard and displays independent verification results
+2:50:59 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/boundary-dismissal.test.ts > reviews an exit in the UI with a stale-draft guard and displays independent verification results
+2:50:59 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/boundary-dismissal.test.ts > reviews an exit in the UI with a stale-draft guard and displays independent verification results
+2:50:59 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/boundary-dismissal.test.ts > reviews an exit in the UI with a stale-draft guard and displays independent verification results
+2:51:00 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/boundary-dismissal.test.ts > reviews an exit in the UI with a stale-draft guard and displays independent verification results
+2:51:00 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/boundary-dismissal.test.ts (21 tests) 23952ms
+   ✓ closes a deferred chooser through a reviewed point and continues the original chart sample  1783ms
+   ✓ reports a dispatched no-op as not_closed and does not reapprove the same failed point  971ms
+   ✓ rejects a reviewed point before dispatch when move changes  889ms
+   ✓ rejects a reviewed point before dispatch when replace changes  863ms
+   ✓ rejects a reviewed point before dispatch when cover changes  870ms
+   ✓ rejects a reviewed point before dispatch when value changes  868ms
+   ✓ rejects a reviewed point before dispatch when url changes  868ms
+   ✓ separates boundary disappearance from changes to caller-preserved values  1234ms
+   ✓ supports the HTTP/SDK review workflow and rejects stale input without writing a judgment  1171ms
+   ✓ rechecks the original exit contract after an external UI repair without requiring a business verifier  1283ms
+   ✓ calls the review hook with evidence and preserves defer without authorizing an outside click  877ms
+   ✓ requires fresh approval when the same chooser is reopened  1528ms
+   ✓ revalidates after pointer movement before issuing any click  1095ms
+   ✓ offers nested exits only inside the parent and verifies that the parent remains open  1135ms
+   ✓ accepts an upper hook approval and executes the resulting current action  765ms
+   ✓ never grants historical replay through broad caller interface or replay rules  901ms
+   ✓ records unknown verification and stops exploration when post-action capture fails  1053ms
+   ✓ reviews an exit in the UI with a stale-draft guard and displays independent verification results  2694ms
+   ✓ handles pointer departure before clicking: close  928ms
+   ✓ handles pointer departure before clicking: change-value  1063ms
+   ✓ handles pointer departure before clicking: replace-boundary  1111ms
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:04 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:04 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:04 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:04 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:06 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:06 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:07 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:07 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:08 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:08 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:09 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:09 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:11 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:11 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:12 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:12 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:13 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:13 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:14 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:14 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:15 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:15 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:17 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:17 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:18 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:18 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:19 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:19 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:21 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:21 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:22 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:22 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:23 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:23 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:24 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:24 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:25 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:25 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:26 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:26 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:26 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-automation-ui.test.ts > creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it
+2:51:26 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/rule-automation-ui.test.ts (1 test) 22749ms
+   ✓ creates an automatically checked session from the UI and shows a historical modal defect after DFS closes it  22749ms
+ ✓ tests/control-reviews.test.ts (22 tests) 23086ms
+   ✓ publishes deduplicated materials and executes a durable reviewed custom control without rewriting its observation  697ms
+   ✓ does not persist a late control hook result  5444ms
+   ✓ publishes queryable requests for the final caller policy and requests again after revocation  504ms
+   ✓ does not record an approval when its live preflight finishes after the hook deadline  5548ms
+   ✓ atomically rejects stale, duplicate, invisible and malformed reviews  419ms
+   ✓ invalidates replace conditions before dispatch and never revives an old judgment  620ms
+   ✓ invalidates href conditions before dispatch and never revives an old judgment  623ms
+   ✓ invalidates parent conditions before dispatch and never revives an old judgment  610ms
+   ✓ invalidates handler conditions before dispatch and never revives an old judgment  598ms
+   ✓ invalidates url conditions before dispatch and never revives an old judgment  616ms
+   ✓ invalidates context conditions before dispatch and never revives an old judgment  610ms
+   ✓ supports sampled inputs while preserving constraints, availability and native submission risk  675ms
+   ✓ binds associated form endpoints and refuses a judgment with unknown declared context  775ms
+   ✓ checks changed read-only target bindings without blocking unrelated actions  651ms
+   ✓ keeps reviewed field validation scoped while checking dependent control bindings (sameForm=false)  528ms
+   ✓ keeps reviewed field validation scoped while checking dependent control bindings (sameForm=true)  521ms
+   ✓ uses a sourced current exit, verifies its result and expires the boundary-bound review  574ms
+   ✓ supports reviewed hover without clicking and preserves occlusion and explicit exclusions  798ms
+   ✓ replaces and revokes queued judgments without resurrecting earlier approvals or erasing execution  748ms
+   ✓ serves review materials, records and revocation over HTTP with session isolation  440ms
+   ✓ keeps SQLite review history across restart but invalidates grants for the new browser document  790ms
+ ✓ tests/exploration-decision-reuse.test.ts (16 tests) 22612ms
+   ✓ keeps returned A pending until explicit reuse, maps exact samples, then resumes DFS without testing B  1338ms
+   ✓ explicitly reuses all while preserving its meaning  1242ms
+   ✓ explicitly reuses defer while preserving its meaning  955ms
+   ✓ explicitly reuses skip while preserving its meaning  950ms
+   ✓ revokes descendants, never falls back to an older grant, and accepts a fresh decision to resume  1359ms
+   ✓ fails closed on changed current operation values and reports a fresh-decision route  1345ms
+   ✓ invalidates an accepted all decision when new operation samples appear  1068ms
+   ✓ rejects stale or mixed invalid batches atomically and exposes the same protocol over HTTP  869ms
+   ✓ can accept through the hook, while a failed hook leaves the current group undecided  1202ms
+   ✓ does not register implicitly, and superseding a source decision withdraws its old reuse candidate  791ms
+   ✓ rejects a live target change after presenting reuse material without committing a decision  805ms
+   ✓ does not treat an externally removed operation as completed work  925ms
+   ✓ propagates region source withdrawal through accepted depth decisions  836ms
+   ✓ keeps source chains across SQLite restart and rejects another session’s source  1728ms
+   ✓ requires independent current purpose reuse before offering a depth sample for a rebuilt weak control  1355ms
+   ✓ ignores a late reuse-hook answer and leaves a resumable pending decision  5843ms
+ ✓ tests/region-review-reuse.test.ts (25 tests) 21788ms
+   ✓ reuses A boundaries explicitly after a new document without inheriting depth or operation purpose  1446ms
+   ✓ maps selected subsets of merged anchors exactly and never adds unselected current members  743ms
+   ✓ preserves an independent current region and its decision when reusing a rebuilt sibling  727ms
+   ✓ does not offer a region reuse candidate after label changes  591ms
+   ✓ does not offer a region reuse candidate after ancestor changes  588ms
+   ✓ does not offer a region reuse candidate after added changes  602ms
+   ✓ does not offer a region reuse candidate after removed changes  568ms
+   ✓ does not offer a region reuse candidate after member-label changes  579ms
+   ✓ does not offer a region reuse candidate after href changes  604ms
+   ✓ does not offer a region reuse candidate after form changes  596ms
+   ✓ does not offer a region reuse candidate after layout changes  592ms
+   ✓ does not offer a region reuse candidate after url changes  699ms
+   ✓ does not offer a region reuse candidate after context changes  587ms
+   ✓ rejects an entire malformed batch or stale base without replacing any partition  758ms
+   ✓ validates live structural evidence at initial opt-in, reuse, and prepared automated dispatch  1432ms
+   ✓ revokes a three-record source chain immediately without reviving prior scope decisions  1222ms
+   ✓ withdraws reuse sources on an explicit current-region replace  714ms
+   ✓ withdraws reuse sources on an explicit current-region remove  729ms
+   ✓ requires opt-in, complete bounded evidence and known context, and refuses active boundaries  1029ms
+   ✓ retains proof across SQLite restart, serves SDK/HTTP reuse, and isolates sessions  1420ms
+   ✓ keeps list depth independent and rejects changed record bindings within a reusable region  984ms
+   ✓ requires a new depth decision for an explicitly reused page traversal partition  2035ms
+   ✓ does not guess a same-named duplicate owner or silently retain a live-changed opted-in sibling  1074ms
+   ✓ respects rejected current candidates even when a historical boundary would otherwise match  886ms
+   ✓ contains malformed region hook results and exposes reuse candidates without automatic acceptance  579ms
+ ✓ tests/rule-automation.test.ts (3 tests) 21408ms
+   ✓ automatically checks the original page throughout real DFS, including the settings dialog, and resumes without duplicate results  19903ms
+   ✓ does not block exploration on a slow plugin and discards a late run after automatic checking is disabled  820ms
+   ✓ validates configuration, isolates a failed plugin and deduplicates repeated enable requests  685ms
+ ✓ tests/page-exploration.test.ts (19 tests) 20570ms
+   ✓ defaults to entry-page work before known navigation, then returns without spending the budget on the destination  1086ms
+   ✓ catches an unannounced button navigation and resumes the remaining entry-page controls  1099ms
+   ✓ uses the existing decision hook for a destination without implicitly permitting the next destination  1255ms
+   ✓ decides a pending page asynchronously through SDK/HTTP after returning to A, and only executes its selected sample  1880ms
+   ✓ can skip a static destination with no actions and retains the page-level request  1103ms
+   ✓ closes a current destination boundary before returning and never operates its unapproved content  1167ms
+   ✓ pauses with a return blocker when navigation replaced the source history entry  747ms
+   ✓ uses another observed source-page history entry only in the same declared context (changed=false)  1277ms
+   ✓ uses another observed source-page history entry only in the same declared context (changed=true)  910ms
+   ✓ explicit all retains cross-page exploration, while explicit single actions do not start a traversal  948ms
+   ✓ invalidates context-bound page decisions on business-context changes while ordinary scopes remain document-bound  862ms
+   ✓ gates same-document URL changes to /a?panel=b and verifies native return  1123ms
+   ✓ gates same-document URL changes to /a#b and verifies native return  1060ms
+   ✓ keeps an unapproved page untouched when dirty blocks the return  860ms
+   ✓ keeps an unapproved page untouched when excluded blocks the return  749ms
+   ✓ preserves the previous traversal policy for persisted legacy sessions with no page option  936ms
+   ✓ uses the actual initial redirect destination as the entry page  714ms
+   ✓ returns from a sampled page when its selected work exceeds the depth budget  936ms
+   ✓ keeps page batch decisions finite and includes the pending next destination after return  1858ms
+ ✓ tests/text-truncation.test.ts (44 tests) 20341ms
+   ✓ fits healthy without mistaking CSS or literal punctuation for actual elision  391ms
+   ✓ fits literal without mistaking CSS or literal punctuation for actual elision  354ms
+   ✓ fits ellipsis-fit without mistaking CSS or literal punctuation for actual elision  357ms
+   ✓ fits clamp-fit without mistaking CSS or literal punctuation for actual elision  356ms
+   ✓ fits wrap without mistaking CSS or literal punctuation for actual elision  363ms
+   ✓ fits native-modal without mistaking CSS or literal punctuation for actual elision  363ms
+   ✓ warns about hard-x using the built-in policy without a product requirement  340ms
+   ✓ warns about hard-y using the built-in policy without a product requirement  343ms
+   ✓ warns about ellipsis-vertical using the built-in policy without a product requirement  339ms
+   ✓ warns about clamp-partial using the built-in policy without a product requirement  346ms
+   ✓ warns about block-child using the built-in policy without a product requirement  349ms
+   ✓ warns about label using the built-in policy without a product requirement  354ms
+   ✓ records ellipsis overflow without inferring design compliance or a painted ellipsis  350ms
+   ✓ records nested overflow without inferring design compliance or a painted ellipsis  339ms
+   ✓ records rtl overflow without inferring design compliance or a painted ellipsis  350ms
+   ✓ records clamp overflow without inferring design compliance or a painted ellipsis  348ms
+   ✓ defers offscreen-hard rather than asserting a text defect  338ms
+   ✓ does not certify unsupported or incomplete transform text geometry  338ms
+   ✓ does not certify unsupported or incomplete vertical text geometry  343ms
+   ✓ does not certify unsupported or incomplete columns text geometry  336ms
+   ✓ does not certify unsupported or incomplete clip-margin text geometry  346ms
+   ✓ does not certify unsupported or incomplete absolute-escape text geometry  344ms
+   ✓ does not certify unsupported or incomplete fragments-budget text geometry  343ms
+   ✓ does not substitute metadata or editing values for a visible label (disabled)  355ms
+   ✓ does not substitute metadata or editing values for a visible label (empty)  345ms
+   ✓ does not substitute metadata or editing values for a visible label (title-only)  351ms
+   ✓ does not substitute metadata or editing values for a visible label (input-value)  349ms
+   ✓ uses captured text rectangles, remains read-only, and does not replace old evidence with live text  513ms
+   ✓ keeps old captures, loading fonts, missing ancestors and truncated text unknown  340ms
+   ✓ rechecks normal exploration scroll without extra actions and persists an immutable report  672ms
+   ✓ rechecks normal exploration modal-scroll without extra actions and persists an immutable report  556ms
+   ✓ rechecks normal exploration inner-scroll without extra actions and persists an immutable report  602ms
+   ✓ rechecks normal exploration label-scroll without extra actions and persists an immutable report  623ms
+   ✓ does not claim scrolling or upgrade severity when the page cancels movement  1581ms
+   ✓ keeps a hard-clip warning through elision and resolves only comparable geometry, then reopens on recurrence  845ms
+   ✓ does not transfer recovery across text-change even with an unchanged accessible name  694ms
+   ✓ does not transfer recovery across text-rebuild even with an unchanged accessible name  680ms
+   ✓ does not transfer recovery across control-rebuild even with an unchanged accessible name  690ms
+   ✓ retains missing evidence and removed targets as unresolved, and processes backlog without live DOM  1214ms
+   ✓ exposes proposal-only interfaces and refuses to silently execute requirements or agent decisions  339ms
+   ✓ retains the original clipped text when a changed label establishes a new baseline  667ms
+ ✓ tests/recovery-route-alternatives.test.ts (11 tests) 18481ms
+   ✓ reaches target through another recorded route after a known no-op  1494ms
+   ✓ reaches checkpoint through another recorded route after a known no-op  1341ms
+   ✓ replans target from the actual intermediate menu without reopening its successful prefix  1884ms
+   ✓ replans checkpoint from the actual intermediate menu without reopening its successful prefix  1974ms
+   ✓ does not physically retry the same failed operation through duplicate successful historical proofs  1608ms
+   ✓ keeps the session action budget across alternative route plans  1215ms
+   ✓ does not try an alternate route when a dispatched result is unknown  1006ms
+   ✓ does not turn an unavailable replay permission into an alternate route  1123ms
+   ✓ skips duplicate historical proofs rejected by current replay permission without consuming route plans  2488ms
+   ✓ strict checkpoint recovery respects withdrawn current replay permission and does not reopen entry  1330ms
+   ✓ bounds recovery alternatives and preserves unreachable work without reopening entry  3018ms
+ ✓ tests/control-classifications.test.ts (25 tests) 18773ms
+   ✓ classifies a weak display with provenance, removes review noise and never counts it as execution  457ms
+   ✓ reads classification history once per review material and immediately observes revocation and changed targets  1114ms
+   ✓ retires only an unattempted tentative container operation and keeps child operations available  670ms
+   ✓ records interaction without granting an operation or silently dismissing uncertainty  492ms
+   ✓ records probe_required without granting an operation or silently dismissing uncertainty  495ms
+   ✓ records unresolved without granting an operation or silently dismissing uncertainty  488ms
+   ✓ requires complete bounded structure and rejects stale, duplicate, hidden and evidence-free classifications  704ms
+   ✓ invalidates replace and keeps the old classification as history  509ms
+   ✓ invalidates parent and keeps the old classification as history  516ms
+   ✓ invalidates structure and keeps the old classification as history  523ms
+   ✓ invalidates text and keeps the old classification as history  510ms
+   ✓ invalidates handler and keeps the old classification as history  496ms
+   ✓ invalidates context and keeps the old classification as history  502ms
+   ✓ invalidates url and keeps the old classification as history  501ms
+   ✓ invalidates capability and keeps the old classification as history  496ms
+   ✓ rejects structure changed during review and an unknown declared context  678ms
+   ✓ lets a later supported review override a negative interpretation while preserving that interpretation as invalid history  500ms
+   ✓ does not erase executed tentative probes or unresolved observations in another context  543ms
+   ✓ replaces and revokes classifications without reviving an old dismissal  584ms
+   ✓ runs a classification hook without granting operations and suppresses duplicate requests  373ms
+   ✓ does not persist a classification whose live preflight finishes after the hook deadline  5564ms
+   ✓ publishes queryable deduplicated requests and supports HTTP classification, revocation and session isolation  678ms
+   ✓ preserves SQLite classification history but a new document needs a fresh decision  796ms
+ ✓ tests/structural-lists.test.ts (18 tests) 18248ms
+   ✓ defers nonsemantic repeated records, does other work first and executes only the caller sample  976ms
+   ✓ does not turn a flat button bar or matching classes into a list, and keeps explicit lists independent  314ms
+   ✓ recognizes native list records and separates corresponding operation slots without merging identities or purposes  745ms
+   ✓ offers tentative inherited-pointer rows for review without granting clicks or sharing a single approval  819ms
+   ✓ discovers pointer-only custom rows even when the cursor is inherited and no handler is enumerated  430ms
+   ✓ retains the collection when it grows or shrinks and rejects stale batch versions  629ms
+   ✓ does not transfer a sample or control review when a virtual row node represents a new record  549ms
+   ✓ requires a new collection decision after replace and never revives the old grant  549ms
+   ✓ requires a new collection decision after label and never revives the old grant  551ms
+   ✓ requires a new collection decision after parent and never revives the old grant  550ms
+   ✓ requires a new collection decision after context and never revives the old grant  558ms
+   ✓ keeps virtual scrolling gated through an empty window and traverses all only after an explicit decision  6695ms
+   ✓ does not infer a record list from flat menu commands  712ms
+   ✓ preserves discovery in all mode without granting tentative pointer-row clicks  404ms
+   ✓ keeps nested records in their nearest collection and reports oversized discovery limits  687ms
+   ✓ invalidates changed record operations without accumulating empty decision requests or reviving approvals  767ms
+   ✓ retains a hidden collection decision so a deferred popup can be reopened without fresh approval  2002ms
+   ✓ keeps duplicate controls within a custom record ambiguous despite distinct structural slots  307ms
+ ✓ tests/region-reviews.test.ts (17 tests) 18217ms
+   ✓ finds unlabelled containers, requires confirmation and separate decisions, and keeps ordinary value edits valid  1227ms
+   ✓ supports splits, merges and rejection while preserving uncovered work and atomically rejecting bad partitions  1162ms
+   ✓ invalidates affected region before dispatch after replace and never revives old approval  618ms
+   ✓ invalidates affected region before dispatch after move and never revives old approval  620ms
+   ✓ invalidates affected region before dispatch after heading and never revives old approval  770ms
+   ✓ invalidates affected region before dispatch after new-control and never revives old approval  621ms
+   ✓ invalidates affected region before dispatch after context and never revives old approval  607ms
+   ✓ invalidates affected region before dispatch after reload and never revives old approval  654ms
+   ✓ keeps same-name regions separate and exposes layout-only evidence without inventing a business label  314ms
+   ✓ keeps candidate review hooks bounded and never lets a scheduling hook authorize unassigned controls  593ms
+   ✓ uses a synchronous region-review result and then the existing exploration hook in one capture  815ms
+   ✓ queries and records through SDK/HTTP, checks live facts on review and rejects old observations  698ms
+   ✓ does not persist a region decision returned after the hook deadline  5625ms
+   ✓ keeps document traversal gated until it is explicitly assigned and an all decision permits discovery  1142ms
+   ✓ retains exits and page boundaries while requiring a new region review at a destination  1810ms
+   ✓ rejects a review for an inactive session without using another session browser  632ms
+   ✓ keeps a complete fallback for controls deeper than the candidate ancestor scan  307ms
+ ✓ tests/explorer-plugin-ui.test.ts (7 tests) 17717ms
+   ✓ shows probe model input, output and actual results separately from click coverage  1838ms
+   ✓ shows unchanged unresolved evidence as a program deferral with its original model reference  1379ms
+   ✓ distinguishes completed classification evidence from executed actions in the plan and inspector  1427ms
+   ✓ shows unsupported coverage as a program node with source evidence, not executed coverage  1272ms
+   ✓ shows a semantic LLM handoff, grounded input/output and the resulting accepted review  1735ms
+   ✓ integrates autonomous exploration, interleaves JEV/LLM decisions and restores task history  4620ms
+   ✓ creates blank exhaustive tasks without LLM and shows JEV task classification for written exhaustive requests  5445ms
+ ✓ tests/continuation.test.ts (14 tests) 16859ms
+   ✓ revalidates manual page changes, preserves unanswered work, and does not count fresh observation as execution  946ms
+   ✓ rejects stale continuation and never rewrites its observation to a newer version  603ms
+   ✓ does not clear business state on caller assertion or a mismatched UI expectation  793ms
+   ✓ verifies external business recovery, keeps old outcomes, and resumes only the approved sample  1112ms
+   ✓ keeps a fail external verification pending without automatic execution  782ms
+   ✓ keeps a unknown external verification pending without automatic execution  792ms
+   ✓ keeps a error external verification pending without automatic execution  799ms
+   ✓ rejects a scene that changes during external verification and retains the dirty marker  772ms
+   ✓ ignores a late verifier answer and can retry with a new current request  5982ms
+   ✓ deduplicates continuation requests and does not pause or rerun a completed request  810ms
+   ✓ persists interrupted answers and unknown operations across restart without replaying either  1418ms
+   ✓ does not replay an interrupted upstream answer and accepts a newly reviewed current answer  780ms
+   ✓ does not pause another session when an old session asks to continue  600ms
+   ✓ does not reset a consumed action budget when continuing  667ms
+ ✓ tests/exploration-target-visibility.test.ts (11 tests) 16757ms
+   ✓ captures native hidden descendants without hiding the active summary or requiring pointer hit testing for inputs  1090ms
+   ✓ recovers a hidden nested fill target before claiming arrival and dispatching it  1476ms
+   ✓ recovers a hidden nested select target before claiming arrival and dispatching it  1465ms
+   ✓ keeps the checkpoint recovery contract across a changed passive quote between nested replay steps  1519ms
+   ✓ keeps the target recovery contract across a changed passive quote between nested replay steps  1854ms
+   ✓ rejects dispatch if a native ancestor closes after arrival was observed  1379ms
+   ✓ does not certify arrival when the last replay step leaves target-missing  1699ms
+   ✓ does not certify arrival when the last replay step leaves recovery-unknown  1723ms
+   ✓ refuses the next replay step when unknown-source invalidates its evidence  1506ms
+   ✓ refuses the next replay step when nonreplayable-source invalidates its evidence  1505ms
+   ✓ refuses the next replay step when changed-mode invalidates its evidence  1540ms
+ ✓ tests/list-decisions.test.ts (14 tests) 16698ms
+   ✓ requests a list decision once, explores other work and waits without counting deferred choices as covered  891ms
+   ✓ accepts an immediate all decision but prioritizes ordinary work and keeps the original risk and permissions  1034ms
+   ✓ executes only explicitly sampled members, preserves remaining gaps, and can later exhaust the group  983ms
+   ✓ preserves deferred decisions and treats a failed or invalid hook as unanswered  1175ms
+   ✓ updates a growing list without repeating the request, and does not apply an old sample to a replacement business item  1048ms
+   ✓ exits a popup with deferred choices before exploring its parent, and later reenters after a decision  1937ms
+   ✓ defers list scrolling with its members, then discovers and executes virtualized choices after an all decision  5143ms
+   ✓ keeps a popup boundary when no exit works instead of dispatching parent work around the decision  567ms
+   ✓ serves durable group events and revision-checked decisions through the SDK and HTTP API  634ms
+   ✓ invalidates list ownership before dispatch and asks again for a replacement list, context or document  702ms
+   ✓ allows one explicit manual operation without implicitly approving the rest of the list  558ms
+   ✓ persists decisions and event cursors across restart before attaching a browser  301ms
+   ✓ supports an explicit whole-session all policy and does not lift disabled or excluded members through a group decision  1427ms
+ ✓ tests/nonmodal-reentry.test.ts (9 tests) 16429ms
+   ✓ re-enters nested nonmodal branches from observed reveals and preserves the current draft  2206ms
+   ✓ records a no-effect entry as unverified revelation and bounds retries without counting the missing work  1590ms
+   ✓ respects current entry permissions: not-replayable  1669ms
+   ✓ respects current entry permissions: excluded  1407ms
+   ✓ does not borrow a reveal path from a different declared business context  1298ms
+   ✓ requires fresh reveal evidence after the document is replaced  2164ms
+   ✓ uses a delayed reveal observed before the next action and cites the actual later observation  3180ms
+   ✓ does not attribute a later reveal across an intervening action without replay permission  1685ms
+   ✓ does not mistake an identity decision about a visible control for an observed reveal  1228ms
+ ✓ tests/interaction-freshness.test.ts (20 tests) 15906ms
+   ✓ records and dispatches a stable modal exit despite changing background controls, retaining full before/after evidence  893ms
+   ✓ settles the active boundary while native background controls keep updating, without calling the full page stable  580ms
+   ✓ rejects a current modal exit after inside-value changes  784ms
+   ✓ rejects a current modal exit after target-name changes  780ms
+   ✓ rejects a current modal exit after target-parent changes  784ms
+   ✓ rejects a current modal exit after target-replace changes  810ms
+   ✓ rejects a current modal exit after target-disable changes  779ms
+   ✓ rejects a current modal exit after target-handler changes  795ms
+   ✓ rejects a current modal exit after occlude changes  792ms
+   ✓ rejects a current modal exit after new-modal changes  792ms
+   ✓ rejects a current modal exit after owner-replace changes  780ms
+   ✓ rejects a current modal exit after url changes  778ms
+   ✓ rejects a current modal exit after context changes  791ms
+   ✓ keeps stateful preflight strict and does not ignore an outside target  922ms
+   ✓ does not accept an obsolete tentative target description as a current control judgment  521ms
+   ✓ returns by verified native history while unrelated destination controls change, without exploring them  928ms
+   ✓ does not use history-scoped freshness to ignore a changed modal  969ms
+   ✓ does not use history-scoped freshness to ignore a changed url  926ms
+   ✓ does not use history-scoped freshness to ignore a changed context  956ms
+   ✓ allows a current boundary Escape after background changes but does not grant whole-page stability  544ms
+ ✓ tests/observed-occlusion.test.ts (18 tests) 15616ms
+   ✓ rechecks modal scrolling without the inspector performing actions  718ms
+   ✓ rechecks horizontal scrolling without the inspector performing actions  598ms
+   ✓ rechecks nested scrolling without the inspector performing actions  611ms
+   ✓ requires an explicit current-position contract before escalating persistent obstruction  725ms
+   ✓ does not infer scroll recovery after rebuild  568ms
+   ✓ does not infer scroll recovery after rebind  572ms
+   ✓ does not infer scroll recovery after grow  584ms
+   ✓ does not resolve offscreen, missing, or closed-scope targets  1046ms
+   ✓ uses actual ancestor offsets rather than an unrelated scroll action  569ms
+   ✓ processes saved captures after exploration has already advanced  589ms
+   ✓ can replay the full automatic exploration backlog without blocking or moving the page  2035ms
+   ✓ does not mistake a scroll command cancelled by the page for actual movement  2062ms
+   ✓ scrolls the modal root through its bound control without allowing a container override  577ms
+   ✓ does not transfer a warning across an unresolved identity  587ms
+   ✓ preserves unknown when a historical hit grid or identity is unavailable  580ms
+   ✓ discovers scoped traversal, rejects stale containers and lets DFS scroll without an inspector  2136ms
+   ✓ keeps confirmed historical evidence when the current target disappears  708ms
+   ✓ does not create background warnings for an active non-modal dialog  315ms
+ ✓ tests/clipped-control.test.ts (32 tests) 15042ms
+   ✓ does not invent clipping for healthy  402ms
+   ✓ does not invent clipping for covered  306ms
+   ✓ does not invent clipping for native-modal  317ms
+   ✓ does not invent clipping for popover  315ms
+   ✓ records clip clipping with bounds and a sourced opt-in failure  360ms
+   ✓ records modal clipping with bounds and a sourced opt-in failure  304ms
+   ✓ records native-modal-clipped clipping with bounds and a sourced opt-in failure  324ms
+   ✓ records popover-clipped clipping with bounds and a sourced opt-in failure  318ms
+   ✓ keeps transform geometry unverified even under a strict requirement  301ms
+   ✓ keeps zoom geometry unverified even under a strict requirement  309ms
+   ✓ keeps ordinary viewport overflow pending and skips disabled controls by default  646ms
+   ✓ rechecks scroll through normal exploration without performing inspector actions  543ms
+   ✓ rechecks horizontal through normal exploration without performing inspector actions  567ms
+   ✓ does not claim recovery after rebuild  526ms
+   ✓ does not claim recovery after rebind  530ms
+   ✓ retains warnings while offscreen or missing, and resolves a comparable layout correction  1158ms
+   ✓ does not infer a scroll or escalate when the page cancels movement  1520ms
+   ✓ processes historical backlog without reading or changing the live page  568ms
+   ✓ keeps an existing warning until ordinary scrolling actually reveals the whole control, and reopens it on recurrence  818ms
+   ✓ does not transfer resolved geometry through ambiguous identity or a closed scope  1064ms
+   ✓ does not partly revise issues when the tracker capacity is exceeded  415ms
+   ✓ preserves confirmed clipping bounds separately from unavailable current evidence  467ms
+ ✓ tests/control-review-reuse.test.ts (19 tests) 14622ms
+   ✓ offers opted-in purposes after A→B→A without reactivating the old review or approving exploration depth  1595ms
+   ✓ rejects changed href instead of transplanting a same-named purpose  505ms
+   ✓ rejects changed label instead of transplanting a same-named purpose  504ms
+   ✓ rejects changed target-data instead of transplanting a same-named purpose  521ms
+   ✓ rejects changed ancestor-data instead of transplanting a same-named purpose  502ms
+   ✓ rejects changed ancestor-label instead of transplanting a same-named purpose  505ms
+   ✓ rejects changed handler instead of transplanting a same-named purpose  539ms
+   ✓ rejects changed parent instead of transplanting a same-named purpose  501ms
+   ✓ rejects changed url instead of transplanting a same-named purpose  642ms
+   ✓ rejects changed context instead of transplanting a same-named purpose  512ms
+   ✓ requires explicit opt-in and a known context, and refuses ordinary reuse for lists, exits and submissions  1118ms
+   ✓ validates the complete batch and current observation before creating any copies  640ms
+   ✓ checks live structural evidence both at reuse and again before dispatch  967ms
+   ✓ checks associated form endpoints across documents and preserves input constraints  986ms
+   ✓ serves reuse over HTTP and revokes an entire provenance chain without reviving older grants  1054ms
+   ✓ retains opt-in evidence across storage restart but still requires a fresh explicit reuse decision  797ms
+   ✓ permits explicit reuse for a rebuilt node but not a second indistinguishable live target  729ms
+   ✓ keeps caller exclusions and disabled/occluded target checks after reuse  1050ms
+   ✓ rejects missing bounded evidence and sources from another session  952ms
+ ✓ tests/scroll-traversal.test.ts (3 tests) 13422ms
+   ✓ traverses both ends from the middle of a page without abandoning the reverse sweep  4573ms
+   ✓ traverses both ends from the middle of a vertical-container without abandoning the reverse sweep  5428ms
+   ✓ traverses both ends from the middle of a horizontal-container without abandoning the reverse sweep  3420ms
+ ✓ tests/explorer-obligation-scheduler-integration.test.ts (11 tests) 13082ms
+   ✓ recovers a retained concrete obligation and actually executes it when the same-session traversal stack is empty  939ms
+   ✓ returns to an accepted broad root for fresh discovery even with no concrete pending item and an empty stack  922ms
+   ✓ a failed historical target does not starve another reachable obligation or turn the failed target into coverage  840ms
+   ✓ uses necessary nested reentry to execute retained work after losing the traversal stack  1376ms
+   ✓ uses necessary modal reentry to execute retained work after losing the traversal stack  1178ms
+   ✓ resumes retained nested work after actually closing the host and reopening the same SQLite session  1488ms
+   ✓ uses retained verified entry routes in a genuinely new round/session, never an old-session checkpoint  1998ms
+   ✓ does not end a round after three failed selections while a fifth recorded obligation remains reachable  859ms
+   ✓ schedules split A/B source conditions independently after losing the stack and never requeues the superseded parent  1243ms
+   ✓ recovers a same-page hidden nested target using retained work even though the traversal stack is empty  1212ms
+   ✓ recovers a same-page hidden modal target using retained work even though the traversal stack is empty  1027ms
+ ✓ tests/scroll-recovery.test.ts (15 tests) 12879ms
+   ✓ verifies fixed recovery and restores all starting scroll positions  926ms
+   ✓ verifies reverse-endpoint recovery and restores all starting scroll positions  918ms
+   ✓ verifies nested recovery and restores all starting scroll positions  878ms
+   ✓ verifies horizontal recovery and restores all starting scroll positions  920ms
+   ✓ limits error to a declared sampled-pointer requirement with no available scroll path  664ms
+   ✓ passes a healthy sample and does not treat exhausted probes as an error  1586ms
+   ✓ preserves uncertainty on replace instead of accepting recovery  694ms
+   ✓ preserves uncertainty on rebind instead of accepting recovery  688ms
+   ✓ preserves uncertainty on resize-target instead of accepting recovery  713ms
+   ✓ preserves uncertainty on restore-failed instead of accepting recovery  862ms
+   ✓ reserves action budget for restoration and does not mutate on a stale inspection  504ms
+   ✓ does not turn missing five-point evidence into a pass or a no-scroll error  357ms
+   ✓ keeps unknown mutation outcomes and their request IDs when a response is lost  706ms
+   ✓ keeps scroll probes inside the active overlay and enforces action budgets  1041ms
+   ✓ exposes guarded and idempotent scroll probes over HTTP, retaining report evidence  1387ms
+ ✓ tests/exploration-recovery.test.ts (9 tests) 12558ms
+   ✓ samples ordinary field values without duplicating the page or rewriting actual execution evidence  1597ms
+   ✓ retains distinct samples when constraints, structure, or declared business context changes  1779ms
+   ✓ keeps stateful exploration and legacy sessions on strict per-state cases  740ms
+   ✓ restores declared reversible fields locally with full verification and a durable recovery ledger  2017ms
+   ✓ stops a declared inverse on unexpected effects instead of accepting the target field alone  1201ms
+   ✓ reports the actual unknown action that blocked recovery and does not assume reload resets business state  1233ms
+   ✓ executes a configured document reset once, verifies it, and clears only reset-confirmed dirty origins  1683ms
+   ✓ does not bypass action budgets during local restoration  963ms
+   ✓ preserves boundary depth limits in representative mode while allowing verified exits  1309ms
+ ✓ tests/region-incremental.test.ts (12 tests) 12145ms
+   ✓ preserves the untouched all decision and gates an enlarged region until a new decision  1769ms
+   ✓ preserves the untouched sample decision and gates an enlarged region until a new decision  1505ms
+   ✓ preserves the untouched defer decision and gates an enlarged region until a new decision  1282ms
+   ✓ reports member changes and missing anchors from the original per-region evidence across multiple patches  1042ms
+   ✓ rejects stale bases, overlaps and conflicting rejection/removal atomically, and permits explicit removal  1023ms
+   ✓ requires a fresh full partition after url changes  752ms
+   ✓ requires a fresh full partition after context changes  753ms
+   ✓ requires a fresh full partition after reload changes  766ms
+   ✓ keeps unmentioned invalid regions invalid, never revives their decisions, and supports old records without per-region provenance  881ms
+   ✓ delivers deltas through hooks/events and supports partial commands over HTTP with live validation  1165ms
+   ✓ applies incremental hook results without resetting other exploration decisions  464ms
+   ✓ snapshots queued partial input and still resets every region on an explicit full replacement  742ms
+ ✓ tests/overlays.e2e.test.ts (11 tests) 12226ms
+   ✓ explores the initially open modal before parent controls and defers its close button  1166ms
+   ✓ explores the initially open aria before parent controls and defers its close button  1171ms
+   ✓ explores the initially open custom before parent controls and defers its close button  1095ms
+   ✓ explores the initially open popover before parent controls and defers its close button  1069ms
+   ✓ tracks nested portalled popovers and returns to their modal before the page  2382ms
+   ✓ keeps parent exploration suspended when no operation can close a modal  668ms
+   ✓ offers an exit at the depth limit, but still respects the action budget  849ms
+   ✓ detects newly opened overlays before using an old parent action  487ms
+   ✓ closes a popover and verifies the parent checkpoint during recovery  877ms
+   ✓ recovers through nested exits without executing a blocked parent action  1507ms
+   ✓ keeps inline expanded sections outside the exclusive boundary model  922ms
+ ✓ tests/dynamic-state-grouping.test.ts (18 tests) 11983ms
+   ✓ bounds a 100-tick graph membership index while retaining all 101 strict observations across persistence restart  5742ms
+   ✓ keeps mode changes outside the passive-value graph group  330ms
+   ✓ keeps editable-value changes outside the passive-value graph group  333ms
+   ✓ keeps owner changes outside the passive-value graph group  336ms
+   ✓ keeps type changes outside the passive-value graph group  364ms
+   ✓ keeps href changes outside the passive-value graph group  339ms
+   ✓ keeps disabled changes outside the passive-value graph group  339ms
+   ✓ keeps hidden changes outside the passive-value graph group  338ms
+   ✓ keeps checked changes outside the passive-value graph group  341ms
+   ✓ keeps expanded changes outside the passive-value graph group  342ms
+   ✓ does not treat a grouped graph node as a strict checkpoint or an executed target  691ms
+   ✓ does not grant a different input sample coverage merely because observations share a graph group  381ms
+   ✓ preserves an unknown outcome across restart and refuses target arrival and dispatch even inside the same graph group  664ms
+ ✓ tests/navigation-return.test.ts (11 tests) 11237ms
+   ✓ returns to a known native GET entry without replaying a nonreplayable prefix, including forward history  1418ms
+   ✓ continues original-page control work through native return without claiming checkpoint equality  1330ms
+   ✓ does not turn reaching the same URL into proof that the original state was restored  961ms
+   ✓ uses the exact native entry when multiple history entries share a URL  831ms
+   ✓ rejects a stale native history pointer even when URL and DOM remain unchanged  719ms
+   ✓ never revisits a POST result through native history, even when the post was outside the engine  1168ms
+   ✓ respects dirty restrictions on native return  999ms
+   ✓ respects excluded restrictions on native return  882ms
+   ✓ does not use a history entry from a replaced browser session  932ms
+   ✓ exits a boundary that appears on native return before continuing checkpoint recovery  1149ms
+   ✓ reports an unverified return honestly even when the history action itself succeeded  847ms
+ ✓ tests/reviewed-boundary-exit.test.ts (12 tests) 10884ms
+   ✓ accepts a sourced external toggle for the current boundary and verifies its actual exit  1031ms
+   ✓ uses a freshly reviewed exit during checkpoint recovery without granting historical replay  776ms
+   ✓ retires unused reviewed exits after observing their boundary closed, without counting them as executed  1358ms
+   ✓ rejects stale, mismatched and unsourced exit declarations without permitting background work  1000ms
+   ✓ retires old-document exits after navigation, including when the new document has a matching boundary key (false)  700ms
+   ✓ retires old-document exits after navigation, including when the new document has a matching boundary key (true)  893ms
+   ✓ does not accept a successful no-op click as an exit, or waive pointer interception  776ms
+   ✓ does not downgrade native submission risk or declare it a reviewed boundary exit  473ms
+   ✓ bounds ineffective exit attempts even when the sourced declaration refreshes each observation  924ms
+   ✓ does not reschedule an ineffective boundary exit just because its observation evidence changed  934ms
+   ✓ allows another exit attempt after an intervening interaction changes the boundary  1216ms
+   ✓ uses a unique current exit instance with ambiguous historical identity, without granting replay  801ms
+ ✓ tests/purpose-reuse.test.ts (11 tests) 9683ms
+   ✓ reuses one purpose judgment while executing every list item independently after an all decision  1307ms
+   ✓ keeps purpose reuse independent of pending, sample and defer traversal decisions  913ms
+   ✓ reuses for newly revealed matching members, but not changed structures, unrelated lists or submission actions  519ms
+   ✓ rejects dispatch after the current node or its dispatch attributes change, without granting historical identity  634ms
+   ✓ invalidates reuse on business context change and does not reactivate it when the context returns  644ms
+   ✓ invalidates list-owner reconstruction and document reload, and refuses unknown business context  1494ms
+   ✓ retains disabled, excluded and occluded target checks after accepting a group purpose  698ms
+   ✓ serves review material and durable records over HTTP, rejects stale input, and revokes already prepared actions  1160ms
+   ✓ retains purpose records across restart but invalidates them before use in a new browser document  716ms
+   ✓ supersedes an earlier purpose judgment so revoking its replacement cannot resurrect it  609ms
+   ✓ reuses a native-select purpose across values but detects a changed associated form endpoint before dispatch  988ms
+ ✓ tests/exploration-target-reach.test.ts (12 tests) 9640ms
+   ✓ verifies a ready target beside a ticking quote without claiming strict checkpoint restoration or execution  816ms
+   ✓ matches unexecuted rebuilt targets but rejects changed declared context and ambiguous bindings  798ms
+   ✓ exits an actual modal through the existing recovery ledger and verifies the target independently  827ms
+   ✓ reports actual same-URL partial recovery after a declared inverse diverges  973ms
+   ✓ preserves unknown outcomes and rejects unassessed repetition inside queued dispatch  581ms
+   ✓ rejects changed context and semantic form binding without attempting recovery  712ms
+   ✓ does not borrow readiness from a stable sibling form  751ms
+   ✓ revalidates repetition after an awaited driver validation rather than trusting the planning read  704ms
+   ✓ carries unexecuted target evidence into a fresh browser session without granting historical execution  695ms
+   ✓ reuses entry replay but stops at verified target arrival when unrelated document state differs  1310ms
+   ✓ reports arrival independently of pending region decisions and leaves actual dispatch gated  472ms
+   ✓ continues deterministic recovery for a settled mechanical obstruction without claiming early arrival  999ms
+ ✓ tests/frontier-recovery.test.ts (7 tests) 9298ms
+   ✓ keeps parent candidates inspectable without duplicating their frontier under an overlay  1602ms
+   ✓ preserves outer-layer work across a nested popup without creating inner-state copies  1009ms
+   ✓ omits legacy boundary-only rows consistently from API totals, reports and recovery counts without rewriting history  1088ms
+   ✓ can restore an earlier branch after Done closes settings and a later input changes  2020ms
+   ✓ treats native method=dialog dismissal as an interface operation  594ms
+   ✓ honors a dialog submitter override without treating every button inside its form as an exit  905ms
+   ✓ distinguishes form cancellation from submission and never submits a close-labelled button during recovery  2044ms
+ ✓ tests/observation-lifecycle.test.ts (9 tests) 8840ms
+   ✓ waits through a missing body after an action and compares the rebuilt document  759ms
+   ✓ persists a partial observation after the body disappears, without false removals or retries  2143ms
+   ✓ handles an absent document element as partial evidence  659ms
+   ✓ retries transient destroyed contexts and preserves persistent capture failures  1097ms
+   ✓ keeps a boundary open until a complete observation verifies its exit  1069ms
+   ✓ preserves observation facts when post-action discovery loses the execution context  531ms
+   ✓ re-samples a transition during detailed capture without repeating the controls action  766ms
+   ✓ re-samples a transition during detailed capture without repeating the stateful action  754ms
+   ✓ keeps persistent sampling/capture changes incomplete when the original observation budget runs out  1028ms
+ ✓ tests/classification-correspondence.test.ts (17 tests) 8693ms
+   ✓ reuses complete container evidence after reload and consistent internal/external IDREF renaming (external=false)  616ms
+   ✓ reuses complete container evidence after reload and consistent internal/external IDREF renaming (external=true)  525ms
+   ✓ supports a fresh session without inheriting identity, execution or source-record state  608ms
+   ✓ rejects changed or ambiguous captured evidence: subtree  517ms
+   ✓ rejects changed or ambiguous captured evidence: text  506ms
+   ✓ rejects changed or ambiguous captured evidence: interaction  479ms
+   ✓ rejects changed or ambiguous captured evidence: duplicate  501ms
+   ✓ rejects changed or ambiguous captured evidence: duplicate-idref  499ms
+   ✓ rejects changed or ambiguous captured evidence: external-text  497ms
+   ✓ rejects changed or ambiguous captured evidence: reference-topology  480ms
+   ✓ rejects changed or ambiguous captured evidence: owner  489ms
+   ✓ rejects stale requests and rechecks source revocation during application and current material reads  649ms
+   ✓ requires captured external reference evidence in legacy observations and preserves full attributes  340ms
+   ✓ allows layout and sibling-position changes without changing semantic ownership  496ms
+   ✓ rejects superseded source evidence, including an otherwise identical new classification  491ms
+   ✓ keeps known business context values in portable classification conditions  332ms
+   ✓ does not treat an incomplete same-name rival as evidence of unique correspondence  666ms
+ ✓ tests/inspection.test.ts (12 tests) 8482ms
+   ✓ publishes after persisted evidence, focuses popup scopes and compares restored parent with scope entry  1301ms
+   ✓ accepts a child scroll container, handles preexisting scroll and emits checks for style-only changes  1293ms
+   ✓ reports an initially open popup without inventing a before-entry baseline, and marks navigation/viewport changes  670ms
+   ✓ keeps finite independent leases, separates receipt from completion, bounds renewal and rejects conflicting results  540ms
+   ✓ restores durable delivery metadata with honest cache evidence availability  349ms
+   ✓ restores durable delivery metadata with honest persistent evidence availability  380ms
+   ✓ exposes replayable inspection and immutable capture queries through HTTP and SDK  577ms
+   ✓ reports disabled, missing screenshots, capacity failures and unstable captures explicitly  1253ms
+   ✓ handles background growth and scroll normalization, supports field projections and does not reinterpret unknown schemas  725ms
+   ✓ still emits an inspection when an action changed the page and then failed  536ms
+   ✓ rechecks strict delivery guarantees after a slow preflight and before starting the action  525ms
+ ✓ tests/rule-observation-status.test.ts (12 tests) 8256ms
+   ✓ keeps the current 'OCCLUSION_SUSPECTED' after a temporary interaction boundary, without adding actions  661ms
+   ✓ keeps the current 'CONTROL_CLIPPING_SUSPECTED' after a temporary interaction boundary, without adding actions  607ms
+   ✓ keeps the current 'TEXT_HARD_CLIP_SUSPECTED' after a temporary interaction boundary, without adding actions  713ms
+   ✓ does not downgrade a current clipping requirement failure when its instance is rebuilt  559ms
+   ✓ reports oversized button targets as unsupported, including on subsequent captures  903ms
+   ✓ reports oversized generic targets as unsupported, including on subsequent captures  831ms
+   ✓ recognizes an oversized scroll child without suppressing actual non-scroll clipping  535ms
+   ✓ does not mistake a partly offscreen container for a container that is too small  415ms
+   ✓ keeps the old label finding historical even after repeated healthy observations of a replacement  693ms
+   ✓ does not reopen a resolved 'OCCLUSION_SUSPECTED' when a healthy control is later rebuilt  643ms
+   ✓ does not reopen a resolved 'CONTROL_CLIPPING_SUSPECTED' when a healthy control is later rebuilt  798ms
+   ✓ does not reopen a resolved 'TEXT_HARD_CLIP_SUSPECTED' when a healthy control is later rebuilt  866ms
+ ✓ tests/exploration-scopes-browser.test.ts (12 tests) 8015ms
+   ✓ keeps new browser producers opt-in and permits custom scopes over arbitrary current actions  895ms
+   ✓ selects regions by external goals, continuing permitted work while another region is deferred or skipped  664ms
+   ✓ gates a single branch entry without preapproving the newly revealed child region, and always retains its exit  924ms
+   ✓ samples an input space without enumerating its remaining values or conflating scope and execution coverage  674ms
+   ✓ checks rebuilt region ownership before dispatch, invalidates its old decision, and never reuses it after document reload  613ms
+   ✓ invalidates input constraints and branch target changes while preserving ordinary safety blockers  502ms
+   ✓ combines list and generic scope decisions and exposes skip through the SDK/HTTP protocol  777ms
+   ✓ keeps identically named regions distinct using observed owner instances  542ms
+   ✓ binds a detected popup scope to its owner even without an inner semantic region  592ms
+   ✓ rejects a previously approved target moved into a different identically named region  891ms
+   ✓ organizes scopes by exact observed region and boundary owners, with stable collections across captures  407ms
+   ✓ queries unified material and atomically applies mixed sample decisions through SDK/HTTP  533ms
+ ✓ tests/exploration-contracts.test.ts (15 tests) 7892ms
+   ✓ returns cross-session operation evidence without granting identity or recording execution: same  696ms
+   ✓ returns cross-session operation evidence without granting identity or recording execution: other-control  614ms
+   ✓ returns cross-session operation evidence without granting identity or recording execution: binding  590ms
+   ✓ returns cross-session operation evidence without granting identity or recording execution: context  609ms
+   ✓ returns cross-session operation evidence without granting identity or recording execution: duplicate  633ms
+   ✓ invalidates portable operation evidence when options changes  547ms
+   ✓ invalidates portable operation evidence when form changes  555ms
+   ✓ rechecks traversal decisions at dispatch and keeps manual execution available without the plugin  422ms
+   ✓ exposes read-only host contracts and guarded execution over HTTP with the plugin disabled  392ms
+   ✓ returns a consistent read-only audit with unsupported contents and rebuilds it after review changes  337ms
+   ✓ projects current interpretations without scanning history, sharing full-audit proofs and rejecting stale observations  341ms
+   ✓ retains classification evidence only for its proven historical scene and invalidates it on revocation  383ms
+   ✓ tracks distinct boundary visits through existing scope lifecycle, including document replacement  690ms
+   ✓ reports unique occurrence continuity without treating changed operation conditions as equivalent  489ms
+   ✓ exposes unknown navigation facts without treating isolation or a new session as recovery  592ms
+ ✓ tests/image-resource.test.ts (11 tests) 7909ms
+   ✓ distinguishes native errors, selected responsive sources, successful zero-size SVG, missing sources and lazy requests without actions  650ms
+   ✓ applies only explicitly bound host requirements, exports inert provider interfaces, and ignores page claims  454ms
+   ✓ never treats incomplete, conflicting or legacy evidence and unfinished retries as a load failure  462ms
+   ✓ ignores forged load/error events and does not reuse an old native event after source declarations change  922ms
+   ✓ keeps a pending replacement with old intrinsic dimensions inconclusive, and discards an error after a successful fallback  922ms
+   ✓ resolves the same source after a later successful retry, without upgrading repeated failures or altering history  993ms
+   ✓ preserves the original finding after replace-node  692ms
+   ✓ preserves the original finding after fallback  710ms
+   ✓ preserves the original finding after close-scope  701ms
+   ✓ preserves the original finding after rename  682ms
+   ✓ preserves the original finding after missing-event  686ms
+stderr | tests/ui.e2e.test.ts > exposes the actual engine through the UI and renders a traversed Market flow
+3:00:55 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > exposes the actual engine through the UI and renders a traversed Market flow
+3:00:55 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > exposes the actual engine through the UI and renders a traversed Market flow
+3:00:55 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > exposes the actual engine through the UI and renders a traversed Market flow
+3:00:55 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > exposes the actual engine through the UI and renders a traversed Market flow
+3:00:56 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > exposes the actual engine through the UI and renders a traversed Market flow
+3:00:56 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > exposes the actual engine through the UI and renders a traversed Market flow
+3:00:57 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > exposes the actual engine through the UI and renders a traversed Market flow
+3:00:57 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > shows independent control coverage and allows exact current-node actions despite historical ambiguity
+3:00:58 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > shows independent control coverage and allows exact current-node actions despite historical ambiguity
+3:00:58 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > shows independent control coverage and allows exact current-node actions despite historical ambiguity
+3:00:58 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > shows independent control coverage and allows exact current-node actions despite historical ambiguity
+3:00:58 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > shows evidence and explicit probes separately from observed-only elements
+3:01:00 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > shows evidence and explicit probes separately from observed-only elements
+3:01:00 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > shows evidence and explicit probes separately from observed-only elements
+3:01:00 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/ui.e2e.test.ts > shows evidence and explicit probes separately from observed-only elements
+3:01:00 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/ui.e2e.test.ts (3 tests) 7614ms
+   ✓ exposes the actual engine through the UI and renders a traversed Market flow  3788ms
+   ✓ shows independent control coverage and allows exact current-node actions despite historical ambiguity  2335ms
+   ✓ shows evidence and explicit probes separately from observed-only elements  1490ms
+ ✓ tests/interventions.test.ts (14 tests) 7326ms
+   ✓ refreshes intervention work once for a batch while retaining every group decision event and constraint  545ms
+   ✓ rebuilds intervention work once for many invalidated scopes, retaining grants as revoked even if capture fails=false  473ms
+   ✓ rebuilds intervention work once for many invalidated scopes, retaining grants as revoked even if capture fails=true  474ms
+   ✓ organizes current causes and dependencies without mutating records or granting permission  317ms
+   ✓ checks a late answer inside the queue even when the underlying group revision is still valid  593ms
+   ✓ copies queued input and deduplicates concurrent and later responses without replay  467ms
+   ✓ rejects a response that targets another scope and leaves both undecided  459ms
+   ✓ keeps domain live validation and provides new material after a changed target  455ms
+   ✓ records a domain failure before enqueueing without an unhandled rejection or stuck request  594ms
+   ✓ keeps skipped work visible and reports request retirement separately from coverage  481ms
+   ✓ aggregates many recovery failures by the recorded root result  309ms
+   ✓ exposes the same current requests, guarded answers, and continuation through HTTP  874ms
+   ✓ runs a bounded external review pass and continues independent work while leaving unanswered requests  836ms
+   ✓ does not auto-refresh an answer from a slow external reviewer  448ms
+stderr | tests/identity-ui.test.ts > explains duplicate controls with exact historical screenshot positions and records an explicit independent decision
+3:01:11 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > explains duplicate controls with exact historical screenshot positions and records an explicit independent decision
+3:01:11 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > explains duplicate controls with exact historical screenshot positions and records an explicit independent decision
+3:01:11 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > explains duplicate controls with exact historical screenshot positions and records an explicit independent decision
+3:01:11 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > keeps indistinguishable rebuilt controls pending when the reviewer explicitly lacks evidence
+3:01:13 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > keeps indistinguishable rebuilt controls pending when the reviewer explicitly lacks evidence
+3:01:13 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > keeps indistinguishable rebuilt controls pending when the reviewer explicitly lacks evidence
+3:01:14 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > keeps indistinguishable rebuilt controls pending when the reviewer explicitly lacks evidence
+3:01:14 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > shows an honest fallback for expired screenshots and blocks confirmation when the original control is unavailable
+3:01:16 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > shows an honest fallback for expired screenshots and blocks confirmation when the original control is unavailable
+3:01:16 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > shows an honest fallback for expired screenshots and blocks confirmation when the original control is unavailable
+3:01:16 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > shows an honest fallback for expired screenshots and blocks confirmation when the original control is unavailable
+3:01:16 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > shows an honest fallback for expired screenshots and blocks confirmation when the original control is unavailable
+3:01:16 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > shows an honest fallback for expired screenshots and blocks confirmation when the original control is unavailable
+3:01:16 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > shows an honest fallback for expired screenshots and blocks confirmation when the original control is unavailable
+3:01:16 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/identity-ui.test.ts > shows an honest fallback for expired screenshots and blocks confirmation when the original control is unavailable
+3:01:16 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/identity-ui.test.ts (3 tests) 7200ms
+   ✓ explains duplicate controls with exact historical screenshot positions and records an explicit independent decision  2576ms
+   ✓ keeps indistinguishable rebuilt controls pending when the reviewer explicitly lacks evidence  2447ms
+   ✓ shows an honest fallback for expired screenshots and blocks confirmation when the original control is unavailable  2177ms
+ ✓ tests/container-scroll.test.ts (3 tests) 6812ms
+   ✓ traverses a virtual list viewport, exercises revealed inputs and returns without historical scroll recovery  5616ms
+   ✓ supports horizontal scroll and detects stale scroll positions even when text stays identical  839ms
+   ✓ does not treat clipped content or text editing scrollbars as traversal targets, and blocks an occluded viewport  355ms
+ ✓ tests/region-live-content.test.ts (7 tests) 6716ms
+   ✓ exits an obstruction and retains reviewed regions while background quotes never settle  1640ms
+   ✓ does not repeatedly request the same unassigned regions for passive quote updates  1140ms
+   ✓ invalidates a reviewed region and refuses dispatch when destination changes  834ms
+   ✓ invalidates a reviewed region and refuses dispatch when explicit-label changes  744ms
+   ✓ invalidates a reviewed region and refuses dispatch when readout-meaning changes  740ms
+   ✓ invalidates a reviewed region and refuses dispatch when operation-label changes  730ms
+   ✓ still expires an externally reviewed tentative target when its raw text changes  887ms
+ ✓ tests/components.e2e.test.ts (5 tests) 6493ms
+   ✓ discovers a tentative custom selector and keeps its search, list and exit in one boundary  1560ms
+   ✓ provides one tentative five-member group without invented values or merged identities, over SDK and HTTP  744ms
+   ✓ records explicit hover/focus probes with before/after evidence, budgets, current-instance guards and idempotency  2121ms
+   ✓ applies popup boundaries and live target revalidation to probes  1171ms
+   ✓ keeps equivalent component state across reload without equating node identities, and includes declared values in state  862ms
+ ✓ tests/identity-lists.e2e.test.ts (9 tests) 6460ms
+   ✓ recognizes keyed list records after reorder, rebuild, insertion and return from a virtual viewport  871ms
+   ✓ recognizes semantic list records after reorder, rebuild, insertion and return from a virtual viewport  759ms
+   ✓ keeps same-item duplicate buttons ambiguous and never transfers their decision to a recycled record  588ms
+   ✓ distinguishes repeated local control keys in separate named lists and refuses duplicate declared record keys  591ms
+   ✓ does not mistake reusable slot IDs or repeated test IDs for business record keys when row evidence is missing  434ms
+   ✓ ignores editable values in row descriptions and rejects overlong labels instead of matching truncated prefixes  591ms
+   ✓ keeps parent and tab identities when an unowned floating child panel loads, updates or filters its content  1138ms
+   ✓ separates nested record descriptions while retaining their complete parent binding  742ms
+   ✓ retains an ordinary positioned record label instead of treating every positioned node as a popup  712ms
+ ✓ tests/text-background.test.ts (7 tests) 5833ms
+   ✓ measures solid label colors, transparency, fill overrides and visible associated labels without acting  570ms
+   ✓ uses exact host requirements and keeps proposed agent judgments inert  520ms
+   ✓ does not certify incomplete evidence, unknown backgrounds or unsettled/effected rendering  529ms
+   ✓ resolves only the same label and keeps the original capture immutable  1048ms
+   ✓ does not confuse a text change with recovery  1049ms
+   ✓ does not confuse a node change with recovery  1035ms
+   ✓ does not confuse a scope change with recovery  1048ms
+ ✓ tests/record-scope-identity.test.ts (4 tests) 5760ms
+   ✓ keeps parent record binding independent of nested panel destinations (semantic=false)  1571ms
+   ✓ keeps parent record binding independent of nested panel destinations (semantic=true)  1520ms
+   ✓ keeps parent record binding independent of nested panel destinations (semantic=css)  1450ms
+   ✓ finishes DFS instead of reopening the same menu when child destinations change  1218ms
+ ✓ tests/image-aspect-ratio.test.ts (8 tests) 5732ms
+   ✓ measures ordinary non-interactive images, real object-fit, content boxes and composed 2D transforms  506ms
+   ✓ enforces only explicit requirements bound to the session, node instance and selected resource  448ms
+   ✓ keeps missing, legacy, loading, animated, complex and truncated evidence distinct from healthy results  500ms
+   ✓ resolves a measured recovery but never upgrades repeated warnings or treats a replacement as recovery  860ms
+   ✓ preserves the historical finding after replace-node  826ms
+   ✓ preserves the historical finding after replace-resource  813ms
+   ✓ preserves the historical finding after reload-same-resource  828ms
+   ✓ preserves the historical finding after close-scope  915ms
+ ✓ tests/exploration-review-core.test.ts (12 tests) 5083ms
+   ✓ ignores late batch results after a hook timeout  5009ms
+ ✓ tests/exploration-scopes-core.test.ts (12 tests) 5072ms
+   ✓ cannot commit a decision returned after its hook timeout  5004ms
+stderr | tests/exploration-review-ui.test.ts > reviews overlapping scopes together, refuses stale selections, and submits explicit samples without starting exploration
+3:02:16 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/exploration-review-ui.test.ts > reviews overlapping scopes together, refuses stale selections, and submits explicit samples without starting exploration
+3:02:16 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/exploration-review-ui.test.ts > reviews overlapping scopes together, refuses stale selections, and submits explicit samples without starting exploration
+3:02:16 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/exploration-review-ui.test.ts > reviews overlapping scopes together, refuses stale selections, and submits explicit samples without starting exploration
+3:02:16 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/exploration-review-ui.test.ts > reviews overlapping scopes together, refuses stale selections, and submits explicit samples without starting exploration
+3:02:17 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/exploration-review-ui.test.ts > reviews overlapping scopes together, refuses stale selections, and submits explicit samples without starting exploration
+3:02:17 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/exploration-review-ui.test.ts > shows withdrawn depth reuse as pending and resumes only after a fresh UI decision
+3:02:19 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/exploration-review-ui.test.ts > shows withdrawn depth reuse as pending and resumes only after a fresh UI decision
+3:02:19 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/exploration-review-ui.test.ts > shows withdrawn depth reuse as pending and resumes only after a fresh UI decision
+3:02:19 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/exploration-review-ui.test.ts > shows withdrawn depth reuse as pending and resumes only after a fresh UI decision
+3:02:19 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/exploration-review-ui.test.ts (2 tests) 4945ms
+   ✓ reviews overlapping scopes together, refuses stale selections, and submits explicit samples without starting exploration  2479ms
+   ✓ shows withdrawn depth reuse as pending and resumes only after a fresh UI decision  2465ms
+ ✓ tests/nonlocal-conditions.test.ts (6 tests) 5104ms
+   ✓ public exploration observes A and B once across forms, with the mode visible  929ms
+   ✓ public exploration observes A and B once across forms, with the mode hidden  668ms
+   ✓ public exploration observes A and B once across regions, with the mode visible  802ms
+   ✓ public exploration observes A and B once across regions, with the mode hidden  677ms
+   ✓ keeps cross-form source samples finite across A/B/A, hidden mode changes, price ticks and unrelated text fills  1637ms
+   ✓ refuses coverage from missing hidden selector state without creating a retry key per price tick  390ms
+ ✓ tests/rules.test.ts (15 tests) 4919ms
+   ✓ passes only the sampled hit for healthy, including descendant hits  393ms
+   ✓ limits a capture to the active popover without treating its background as healthy  303ms
+   ✓ excludes modal background while still inspecting controls in the modal  321ms
+   ✓ checks portalled nested-modal controls inside the logical modal scope  322ms
+   ✓ checks portalled nested-popover controls inside the logical modal scope  324ms
+   ✓ uses fresh captures after caller-controlled scrolling and never changes or substitutes historical evidence  407ms
+   ✓ validates plans before execution, isolates failures, and does not turn empty selection into pass  315ms
+   ✓ preserves four verdicts, warning/error severity and per-control evidence through HTTP and replay  465ms
+ ✓ tests/explorer-condition-migration.test.ts (11 tests) 4954ms
+   ✓ reopens a genuinely persisted v1 pending row, upgrades its exact source hint, and executes A/B without granting completion on migration  820ms
+   ✓ splits an already-invalidated coarse v1 A/B row and completes both children without treating the parent as successful  778ms
+   ✓ restarts with an unknown recovery result and blocks before key migration, observation or new session  409ms
+   ✓ does not borrow a sibling observation to narrow a keyed v1 obligation whose original source is missing  672ms
+   ✓ fails closed when transferred children are missing, rebound, unauthorized, excluded, or lose their retained source  311ms
+   ✓ prepares all children before an ID collision and retains the complete old gap without a partial split  317ms
+   ✓ settles the A child through current SDK history while B remains untested, and retains its condition after explicit supplement  624ms
+   ✓ blocks a persisted split with changed child authority before observation, session creation or dispatch  300ms
+ ✓ tests/explorer-shared-target-scope.test.ts (9 tests) 4594ms
+   ✓ dispatches both simultaneously available shared-id targets under their different captured owners  576ms
+   ✓ checks cold-rebuilt shared targets with retained and legacy scopes: same  599ms
+   ✓ checks cold-rebuilt shared targets with retained and legacy scopes: changed-owner  631ms
+   ✓ checks cold-rebuilt shared targets with retained and legacy scopes: changed-context  630ms
+   ✓ checks cold-rebuilt shared targets with retained and legacy scopes: unknown-source  629ms
+   ✓ checks cold-rebuilt shared targets with retained and legacy scopes: ambiguous-owner  601ms
+   ✓ never transfers A coverage or its pending target to rebuilt B, but retains B scope through reconstruction  427ms
+ ✓ tests/action-evidence.test.ts (6 tests) 4579ms
+   ✓ separates native/declared capabilities, weak hints and current actionability  518ms
+   ✓ never automatically clicks the modal text container and preserves its identity  1029ms
+   ✓ never automatically clicks the handler-modal text container and preserves its identity  1014ms
+   ✓ retains tentative operations in events/frontier, skips DFS and allows an explicit non-replayable probe  753ms
+   ✓ revalidates operation evidence when a handler disappears before execution  519ms
+   ✓ accepts an external action judgment with evidence without rewriting the original observation  712ms
+stderr | tests/evidence-ui.test.ts > opens historical event details in the UI, switches before/after, and reads DOM, screenshots and ARIA without execution
+3:02:48 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/evidence-ui.test.ts > opens historical event details in the UI, switches before/after, and reads DOM, screenshots and ARIA without execution
+3:02:48 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/evidence-ui.test.ts > opens historical event details in the UI, switches before/after, and reads DOM, screenshots and ARIA without execution
+3:02:48 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/evidence-ui.test.ts > opens historical event details in the UI, switches before/after, and reads DOM, screenshots and ARIA without execution
+3:02:48 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/evidence-ui.test.ts > shows missing detailed snapshots and events without observation references explicitly
+3:02:50 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/evidence-ui.test.ts > shows missing detailed snapshots and events without observation references explicitly
+3:02:50 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/evidence-ui.test.ts > shows missing detailed snapshots and events without observation references explicitly
+3:02:50 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/evidence-ui.test.ts > shows missing detailed snapshots and events without observation references explicitly
+3:02:50 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/evidence-ui.test.ts > opens an inline event snapshot after transient server evidence has been released without querying it again
+3:02:51 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/evidence-ui.test.ts > opens an inline event snapshot after transient server evidence has been released without querying it again
+3:02:51 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/evidence-ui.test.ts > opens an inline event snapshot after transient server evidence has been released without querying it again
+3:02:51 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/evidence-ui.test.ts > opens an inline event snapshot after transient server evidence has been released without querying it again
+3:02:51 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/evidence-ui.test.ts (3 tests) 4630ms
+   ✓ opens historical event details in the UI, switches before/after, and reads DOM, screenshots and ARIA without execution  2272ms
+   ✓ shows missing detailed snapshots and events without observation references explicitly  1120ms
+   ✓ opens an inline event snapshot after transient server evidence has been released without querying it again  1238ms
+ ✓ tests/explorer-scheduling.test.ts (36 tests) 4680ms
+   ✓ executes ready work before model review and retains a newly hidden unknown control as unfinished  608ms
+   ✓ finishes later noninteractive review without converting the deferred obligation into an executed action  759ms
+   ✓ restores a hidden native operation that was blocked only by host region review when ready work ran  1318ms
+   ✓ closes a tentative candidate through later noninteractive review without inventing a click or leaving a concrete obligation  733ms
+   ✓ restores a still-visible enabled operation made physically unreachable by an earlier local action  1242ms
+ ✓ tests/explorer-obligation-scheduler-safety.test.ts (9 tests) 4576ms
+   ✓ does not bypass exhausted legacy composite route debt with new per-item keys (orphaned=false)  669ms
+   ✓ does not bypass exhausted legacy composite route debt with new per-item keys (orphaned=true)  542ms
+   ✓ keeps an already associated composite debt after a fresh duplicate row ID is discovered and the historical stack disappears  377ms
+   ✓ never restores another session checkpoint when only historical target evidence survives and no EntryRoute exists  602ms
+   ✓ retained gaps and a historical root frame do not authorize returning to a page after its accepted scope is removed  382ms
+   ✓ a durable unknown in the old source session blocks cold-start scheduling before observation, replacement session or dispatch  375ms
+   ✓ does not turn an exhausted composite route into a fresh singleton route when native-link quote labels change  553ms
+   ✓ retained gaps do not authorize a local boundary exit after every accepted scope is removed  473ms
+   ✓ does not renew a failed route condition when a still-obstructed native target changes only its quote label  602ms
+ ✓ tests/boundary-regressions.test.ts (5 tests) 4575ms
+   ✓ links a hidden portalled popup to its visible opener, even when another hidden opener references it  1143ms
+   ✓ recognizes an expanded positioned popup without role semantics  780ms
+   ✓ does not reopen the browser behind a boundary whose exit controls have no effect  1321ms
+   ✓ excludes background work from the external strategy while a boundary is active  543ms
+   ✓ blocks an unclassified obstruction and revalidates the target when uncovered  753ms
+stderr | tests/frontier-ui.e2e.test.ts > shows completed parent work without legacy overlay duplicates and explains branch recovery failures
+3:03:11 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/frontier-ui.e2e.test.ts > shows completed parent work without legacy overlay duplicates and explains branch recovery failures
+3:03:11 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/frontier-ui.e2e.test.ts > shows completed parent work without legacy overlay duplicates and explains branch recovery failures
+3:03:11 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/frontier-ui.e2e.test.ts > shows completed parent work without legacy overlay duplicates and explains branch recovery failures
+3:03:11 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/frontier-ui.e2e.test.ts (1 test) 4306ms
+   ✓ shows completed parent work without legacy overlay duplicates and explains branch recovery failures  4305ms
+ ✓ tests/identity-context.e2e.test.ts (6 tests) 4426ms
+   ✓ uses distinct FAQ semantics, field descriptions and link destinations across reorder and rebuild  751ms
+   ✓ invalidates changed currency and link bindings on the same DOM instance  676ms
+   ✓ does not use truncated text, hidden popup options, input values or ordinal position as identity  634ms
+   ✓ keeps field and owned search identities when semantic or custom popup contents become visible  640ms
+   ✓ blocks applying an old review when a contextual binding changes without changing input attributes  1037ms
+   ✓ does not promote descriptive slot IDs inside a collection without row semantics into record identity  655ms
+ ✓ tests/storage-evidence-chunking.test.ts (8 tests) 4252ms
+   ✓ shares text blocks after changing-length insertion and reconstructs exact separate A/B occurrences after restart  1571ms
+   ✓ reads legacy raw, v2 compressed and v3 fixed blocks alongside new captures  1952ms
+   ✓ rechecks packing-cache file existence after collection and keeps binary/empty content byte exact  644ms
+ ✓ tests/exploration-audit.test.ts (7 tests) 4184ms
+   ✓ reports a completed sampled scope without claiming skipped members were executed or discovery complete  775ms
+   ✓ keeps unanswered decisions pending and distinguishes explicit skip from completion evidence  650ms
+   ✓ does not turn zero pending into completion when controls are excluded or a selected member is disabled  649ms
+   ✓ requires real attempt and observation records, and never hides a failed attempt behind a later skip  513ms
+   ✓ preserves a verified historical exclusion without authorizing cases observed after invalidation  533ms
+   ✓ rejects policy exclusion with missing, invalidated or mismatched scope evidence  539ms
+   ✓ keeps budget exhaustion explicit even when the scheduler has stopped  525ms
+ ✓ tests/explorer-return-to-scope.test.ts (5 tests) 4118ms
+   ✓ requests host-verified return to the accepted page after navigation without asking a model to rediscover the task boundary  1081ms
+   ✓ retains unfinished work after UNVERIFIED without inventing success or retrying the same route  550ms
+   ✓ retains unfinished work after UNREACHABLE without inventing success or retrying the same route  561ms
+   ✓ uses one strict checkpoint fallback after target verification is UNVERIFIED, then requires a real click before completion  962ms
+   ✓ uses one strict checkpoint fallback after target verification is UNREACHABLE, then requires a real click before completion  963ms
+ ✓ tests/exploration-scheduling.test.ts (4 tests) 4007ms
+   ✓ finishes newly revealed nonmodal controls before sibling actions dismiss them  1132ms
+   ✓ shares a failed reach across sibling work and revalidates it when the controls return  1613ms
+   ✓ retires an unattempted synthetic exit after closing the boundary without reopening it  914ms
+   ✓ names unnamed controls by role without inventing a close operation  347ms
+ ✓ tests/observed-ui-execution.test.ts (11 tests) 4175ms
+   ✓ explores a supported button without certifying its effect and retains the observed transition  542ms
+   ✓ keeps legacy risk gates and requires an explicit session opt-in  395ms
+   ✓ does not treat a no-change click as a functional failure or a business-effect guarantee  374ms
+   ✓ keeps stale decisions and unknown execution outcomes blocked while preserving old dirty evidence  342ms
+   ✓ supports the explicit contract over HTTP with no explorer plugin loaded  496ms
+   ✓ keeps supported unknown operations as correspondence evidence without replay authority  613ms
+   ✓ preserves opt-in and unassessed effects across restart without laundering an interrupted attempt  352ms
+   ✓ keeps reviewed traversal selections binding for supported unknown buttons  309ms
+ ❯ tests/observation-stability-window.test.ts (5 tests | 1 failed) 3992ms
+   ✓ does not let time spent processing the first sample prematurely finish a modal-opening action  696ms
+   ✓ keeps observing a modal activation until its changing global dependencies settle  817ms
+   × keeps a genuinely unsettled modal activation unknown and blocks further dispatch without repeating it 993ms
+     → expected { …(14) } to match object { status: 'unknown', …(1) }
+(32 matching properties omitted from actual)
+   ✓ preserves native field progress while passive quote values change in every sample  816ms
+   ✓ allows a native field action to use its own ready scope while an independent button keeps changing  670ms
+ ✓ tests/popup-scroll-scope.test.ts (1 test) 4006ms
+   ✓ scrolls a popup viewport outside its inner list and reaches every finite option  4005ms
+ ✓ tests/evidence-query.test.ts (6 tests) 3835ms
+   ✓ keeps detailed evidence and control meaning queryable after changes and browser shutdown (memory)  651ms
+   ✓ keeps detailed evidence and control meaning queryable after changes and browser shutdown (sqlite)  653ms
+   ✓ exposes HTTP/client queries, paginated DOM and before/after event evidence with session isolation  1102ms
+   ✓ reports capture truncation, disabled and legacy evidence without ever substituting live data  578ms
+   ✓ preserves primary observation when detailed storage fails and reports missing or corrupted evidence  427ms
+   ✓ bounds aggregate DOM data and exposes runtime drops rather than presenting a complete capture  389ms
+ ✓ tests/branch-conditions.test.ts (7 tests) 3865ms
+   ✓ explores the same native button from two observed form modes without transferring the first branch coverage  815ms
+   ✓ ignores passive quotes and input starting values, while sampling cross-form modes without assuming independence  641ms
+   ✓ bounds retries with unknown selector evidence despite passive price changes without granting coverage equivalence  707ms
+   ✓ keeps related tab modes and the target click toggle state while ignoring a select destination starting value  641ms
+   ✓ keeps source conditions portable across a fresh document and preserves changed semantic binding  401ms
+   ✓ does not treat disjoint semantic regions as evidence of behavioral independence  382ms
+ ✓ tests/identity-review.test.ts (6 tests) 3737ms
+   ✓ exports historical declared context and actual screenshots without writing or borrowing future candidate evidence  996ms
+   ✓ reports expired detailed evidence and blocks applying old decisions to recycled rows  737ms
+   ✓ makes truncated DOM and unavailable original observations explicit without preventing abstention  310ms
+   ✓ accepts real image references and guards HTTP decisions against newer observations  673ms
+   ✓ rejects live binding changes even when a caller bypasses the client review helper  518ms
+   ✓ snapshots SDK review guards and evidence before the command waits in the queue  502ms
+stderr | tests/region-review-ui.test.ts > confirms suggested regions separately from exploration and rejects stale UI drafts
+3:04:03 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/region-review-ui.test.ts > confirms suggested regions separately from exploration and rejects stale UI drafts
+3:04:03 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/region-review-ui.test.ts > confirms suggested regions separately from exploration and rejects stale UI drafts
+3:04:03 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/region-review-ui.test.ts > confirms suggested regions separately from exploration and rejects stale UI drafts
+3:04:03 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/region-review-ui.test.ts > confirms suggested regions separately from exploration and rejects stale UI drafts
+3:04:04 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/region-review-ui.test.ts > confirms suggested regions separately from exploration and rejects stale UI drafts
+3:04:04 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/region-review-ui.test.ts > confirms suggested regions separately from exploration and rejects stale UI drafts
+3:04:05 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/region-review-ui.test.ts > confirms suggested regions separately from exploration and rejects stale UI drafts
+3:04:05 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/region-review-ui.test.ts (1 test) 3615ms
+   ✓ confirms suggested regions separately from exploration and rejects stale UI drafts  3614ms
+ ✓ tests/modal-region-freshness.test.ts (5 tests) 3630ms
+   ✓ observes, reviews and exits a stable modal while unrelated region candidates keep changing  1193ms
+   ✓ rejects a modal region decision when its heading changes  613ms
+   ✓ rejects a modal region decision when its member changes  619ms
+   ✓ rejects a modal region decision when its owner changes  595ms
+   ✓ does not use modal readiness to approve a mixed page region  609ms
+ ✓ tests/coverage-reconciliation.test.ts (4 tests) 3668ms
+   ✓ reconciles successful current-instance work after identity decisions and rebuilds without redispatch or rewriting history  1366ms
+   ✓ keeps equivalent repeated reviews in one case while requiring a fresh review after node replacement  839ms
+   ✓ lets the caller resolve retained historical identity evidence after the target disappears through the public API  1054ms
+   ✓ never transfers coverage across pending identities, input samples, conditions, missing evidence or failed attempts  407ms
+ ✓ tests/snapshot-events.test.ts (5 tests) 3636ms
+   ✓ delivers isolated full snapshots without writing detailed evidence to disk or inflating the durable event log  406ms
+   ✓ reports slow subscribers without affecting other subscribers or committed execution  517ms
+   ✓ streams full snapshots over SSE with durable cursors and exposes retention status over HTTP  402ms
+   ✓ uses explicitly retained evidence for checkpoint verification and marks lost process memory unverified after restart  1154ms
+   ✓ returns verified checkpoints with persistent evidence after restart and preserves facts when evidence capacity is exhausted  1121ms
+ ✓ tests/explorer-completion-evidence.test.ts (7 tests) 3451ms
+   ✓ records every audit gap against one source without rereading the large observation for each target  548ms
+   ✓ batches duplicate historical task proofs while keeping same-name controls and current execution distinct  597ms
+   ✓ rebuilds task proof selection after scope acceptance changes and never treats review closure as executed evidence  346ms
+   ✓ retains the discovery observation for unexecuted siblings without inventing evidence for missing legacy rows  362ms
+   ✓ lets host evidence reconcile stale derived scope encodings without broadening user scopes or same-name controls  597ms
+   ✓ closes obsolete exact-scope blockers only with SDK-verified historical coverage, without inventing executions  350ms
+   ✓ lets the SDK match changed native record-link text only for derived evidence, preserving literal user scopes  650ms
+stderr | tests/image-aspect-ratio-integration.test.ts > detects images during ordinary DFS, persists their history, and displays their labels in the debug UI
+3:04:25 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/image-aspect-ratio-integration.test.ts > detects images during ordinary DFS, persists their history, and displays their labels in the debug UI
+3:04:25 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/image-aspect-ratio-integration.test.ts > detects images during ordinary DFS, persists their history, and displays their labels in the debug UI
+3:04:25 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/image-aspect-ratio-integration.test.ts > detects images during ordinary DFS, persists their history, and displays their labels in the debug UI
+3:04:25 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/image-aspect-ratio-integration.test.ts (1 test) 3400ms
+   ✓ detects images during ordinary DFS, persists their history, and displays their labels in the debug UI  3400ms
+stderr | tests/exploration-ui.test.ts > shows actual recovery origins and creates generic coverage sessions without application declarations
+3:04:29 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/exploration-ui.test.ts > shows actual recovery origins and creates generic coverage sessions without application declarations
+3:04:29 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/exploration-ui.test.ts > shows actual recovery origins and creates generic coverage sessions without application declarations
+3:04:29 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/exploration-ui.test.ts > shows actual recovery origins and creates generic coverage sessions without application declarations
+3:04:29 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/exploration-ui.test.ts (1 test) 3494ms
+   ✓ shows actual recovery origins and creates generic coverage sessions without application declarations  3493ms
+ ✓ tests/explorer-plugin-sync-ui.test.ts (1 test) 3188ms
+   ✓ discards a delayed previous task response and polls only incremental history for the selected task  3188ms
+stderr | tests/text-background-integration.test.ts > checks ordinary DFS and modal labels automatically, and preserves replayable results in the debug UI
+3:04:37 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/text-background-integration.test.ts > checks ordinary DFS and modal labels automatically, and preserves replayable results in the debug UI
+3:04:37 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/text-background-integration.test.ts > checks ordinary DFS and modal labels automatically, and preserves replayable results in the debug UI
+3:04:37 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/text-background-integration.test.ts > checks ordinary DFS and modal labels automatically, and preserves replayable results in the debug UI
+3:04:37 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/text-background-integration.test.ts (1 test) 3097ms
+   ✓ checks ordinary DFS and modal labels automatically, and preserves replayable results in the debug UI  3097ms
+ ✓ tests/explorer-recovery-outcomes.test.ts (5 tests) 3005ms
+   ✓ blocks strict checkpoint fallback before recovery when an earlier recovery result is unknown  467ms
+   ✓ resumes the original route once after explicit source verification and retains a failed retry limit  921ms
+   ✓ rediscovers a recovery crash from its source session before starting a new round without pendingDispatch  371ms
+   ✓ retains actual position and unknown recovery debt even when the host returns REACHED_VERIFIED  635ms
+   ✓ retains actual position and unknown recovery debt even when the host returns UNVERIFIED  609ms
+ ✓ tests/rule-plugins.test.ts (4 tests) 2847ms
+   ✓ runs all installed plugins, persists results, deduplicates retries and uses only history up to the selected task  823ms
+   ✓ rejects invalid selections and foreign tasks before reading evidence; enforces the replay bound  1062ms
+   ✓ isolates failed plugins and concurrent retries without blocking an exploration command  407ms
+   ✓ keeps saved runs after restart and reports missing historical evidence honestly  520ms
+ ✓ tests/disclosure-correspondence.test.ts (6 tests) 2872ms
+   ✓ binds disclosure records to the proven trigger and preserves correspondence across answer changes and collapse  688ms
+   ✓ discovers new disclosure operations and invalidates the old structural approval  354ms
+   ✓ compares a new document using public evidence without granting identity, replay or current execution  721ms
+   ✓ does not infer disclosure ownership from missing, external, duplicate or multiple targets  466ms
+   ✓ keeps same-name sibling disclosures ambiguous without inferring an equivalent target  390ms
+stderr | tests/page-exploration-ui.test.ts > shows pending destination pages and applies page permission without automatically executing them
+3:04:49 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/page-exploration-ui.test.ts > shows pending destination pages and applies page permission without automatically executing them
+3:04:49 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/page-exploration-ui.test.ts > shows pending destination pages and applies page permission without automatically executing them
+3:04:49 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/page-exploration-ui.test.ts > shows pending destination pages and applies page permission without automatically executing them
+3:04:49 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/page-exploration-ui.test.ts (1 test) 2766ms
+   ✓ shows pending destination pages and applies page permission without automatically executing them  2766ms
+ ✓ tests/frontier-coverage.test.ts (3 tests) 2595ms
+   ✓ exposes an untested input sample separately from successful work on the same control through SDK, HTTP, hooks and reports  2593ms
+ ✓ tests/observed-ui-probe.test.ts (8 tests) 2722ms
+   ✓ performs one current-instance hover probe without asserting business effects or replay permission  462ms
+   ✓ performs one current-instance focus probe without asserting business effects or replay permission  321ms
+   ✓ requires opt-in and never grants clicks, scrolling, parameters or ordinary execute access  383ms
+   ✓ rejects stale observations and revalidates the live target after an available query  342ms
+   ✓ inherits target scope selections and unknown frontier state instead of bypassing them with a probe action ID  325ms
+   ✓ accepts the guarded probe command with the explorer plugin disabled  394ms
+ ✓ tests/explorer-migration-split-integration.test.ts (5 tests) 2751ms
+   ✓ cold restart splits one retained A/B hint into pending work, executes both real branches, and never turns the parent into success  1201ms
+   ✓ keeps the missing part of a retained A/B source set unresolved instead of dropping it during split  377ms
+   ✓ keeps the unknown-context part of a retained A/B source set unresolved instead of dropping it during split  369ms
+   ✓ a durable unknown recovery blocks a cold restart before splitting hints or creating a replacement browser session  461ms
+   ✓ a split with a child silently made optional is reopened as a required accounting gap  342ms
+ ✓ tests/diff-details-http.test.ts (2 tests) 2590ms
+   ✓ serves the same historical details to HTTP, SDK, hooks and events, including after restart  1741ms
+   ✓ validates query arguments and rejects unavailable or cross-session diffs  848ms
+ ✓ tests/explorer-classification-reuse-ui.test.ts (1 test) 2707ms
+   ✓ shows actual classification reuse as program work and links to the original model input and output  2707ms
+stderr | tests/rule-defects-ui.test.ts > detects real fixture defects with sourced errors, preserves default warnings, and clears errors after repairing the same controls
+3:05:08 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-defects-ui.test.ts > detects real fixture defects with sourced errors, preserves default warnings, and clears errors after repairing the same controls
+3:05:08 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-defects-ui.test.ts > detects real fixture defects with sourced errors, preserves default warnings, and clears errors after repairing the same controls
+3:05:08 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-defects-ui.test.ts > detects real fixture defects with sourced errors, preserves default warnings, and clears errors after repairing the same controls
+3:05:08 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-defects-ui.test.ts > detects real fixture defects with sourced errors, preserves default warnings, and clears errors after repairing the same controls
+3:05:10 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-defects-ui.test.ts > detects real fixture defects with sourced errors, preserves default warnings, and clears errors after repairing the same controls
+3:05:10 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/rule-defects-ui.test.ts (1 test) 2684ms
+   ✓ detects real fixture defects with sourced errors, preserves default warnings, and clears errors after repairing the same controls  2683ms
+stderr | tests/image-resource-integration.test.ts > checks ordinary DFS and modal images automatically, and preserves replayable results in the debug UI
+3:05:13 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/image-resource-integration.test.ts > checks ordinary DFS and modal images automatically, and preserves replayable results in the debug UI
+3:05:13 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/image-resource-integration.test.ts > checks ordinary DFS and modal images automatically, and preserves replayable results in the debug UI
+3:05:13 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/image-resource-integration.test.ts > checks ordinary DFS and modal images automatically, and preserves replayable results in the debug UI
+3:05:13 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/image-resource-integration.test.ts (1 test) 2537ms
+   ✓ checks ordinary DFS and modal images automatically, and preserves replayable results in the debug UI  2536ms
+ ✓ tests/hover.test.ts (4 tests) 2622ms
+   ✓ executes a reviewed hover without clicking, retains the tooltip and stable trigger identity, and counts that operation  585ms
+   ✓ does not infer hover capability or schedule pointer hints without a sourced action judgment  518ms
+   ✓ blocks occluded, unreachable and replaced hover targets while allowing an ordinary below-fold target  703ms
+   ✓ does not treat hovering a close control as an exit or permit hovering its external toggle through a boundary  815ms
+ ✓ tests/explorer-navigation-return.test.ts (2 tests) 2445ms
+   ✓ returns from unknown-effect button navigation while retaining page obligations; unresolved execution=false  1459ms
+   ✓ returns from unknown-effect button navigation while retaining page obligations; unresolved execution=true  985ms
+ ✓ tests/control-name.test.ts (3 tests) 2323ms
+   ✓ keeps a reviewed generic selector distinct from its changing child popup while retaining complete text  1606ms
+   ✓ preserves explicit names including hidden referenced labels, and keeps ordinary positioned descriptions  432ms
+ ✓ tests/completion-audit.test.ts (6 tests) 2349ms
+   ✓ includes an observed control with no frontier action in the unified completion assessment  453ms
+   ✓ keeps read-only displays separate and never uses an empty action ledger as exhaustive discovery proof  384ms
+   ✓ reflects a supported external judgment without counting the judgment as execution  396ms
+   ✓ keeps action blockers, outstanding decisions and budgets visible in the unified report  386ms
+   ✓ retains exact destination skip provenance without erasing its discovery limits or authorizing another context  449ms
+ ✓ tests/explorer-runtime-delta.test.ts (4 tests) 2332ms
+   ✓ uses delta persistence in the public runtime and commits every active in-memory change together  835ms
+   ✓ retains a delta-written unknown dispatch across cold restart before any new browser or model work  485ms
+   ✓ rejects an inactive pause whose await window acquired a newer pending intent on another connection  756ms
+ ✓ tests/explorer-route-revisions.test.ts (4 tests) 2212ms
+   ✓ deduplicates a native route into the same named boundary across fresh documents  896ms
+   ✓ preserves observed mode/policy route revisions and selects a currently verified B route after historical A  872ms
+   ✓ does not downgrade a selected reentry into fresh execution when its permission changes during checkpoint creation  443ms
+stderr | tests/rule-plugins-ui.test.ts > selects installed plugins, shows warnings, keeps saved runs on reload and isolates a late result from a different task
+3:05:31 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-plugins-ui.test.ts > selects installed plugins, shows warnings, keeps saved runs on reload and isolates a late result from a different task
+3:05:31 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-plugins-ui.test.ts > selects installed plugins, shows warnings, keeps saved runs on reload and isolates a late result from a different task
+3:05:31 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-plugins-ui.test.ts > selects installed plugins, shows warnings, keeps saved runs on reload and isolates a late result from a different task
+3:05:31 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-plugins-ui.test.ts > selects installed plugins, shows warnings, keeps saved runs on reload and isolates a late result from a different task
+3:05:32 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-plugins-ui.test.ts > selects installed plugins, shows warnings, keeps saved runs on reload and isolates a late result from a different task
+3:05:32 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-plugins-ui.test.ts > selects installed plugins, shows warnings, keeps saved runs on reload and isolates a late result from a different task
+3:05:32 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/rule-plugins-ui.test.ts > selects installed plugins, shows warnings, keeps saved runs on reload and isolates a late result from a different task
+3:05:32 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/rule-plugins-ui.test.ts (1 test) 2200ms
+   ✓ selects installed plugins, shows warnings, keeps saved runs on reload and isolates a late result from a different task  2199ms
+ ✓ tests/structural-record-boundaries.test.ts (3 tests) 2365ms
+   ✓ does not infer repeated records from table cells with inherited pointer cursors  1113ms
+   ✓ does not infer repeated records from grid cells with inherited pointer cursors  896ms
+   ✓ retains explicit cell controls and independent nested lists inside a row  356ms
+ ✓ tests/current-exploration-snapshot.test.ts (5 tests) 2184ms
+   ✓ returns identical current facts without loading historical observations or claiming historical coverage  375ms
+   ✓ rebuilds review and sampling blockers on the same observation, and dispatch still revalidates  474ms
+   ✓ retains unknown outcomes and their execution blockers in the current-only query  372ms
+   ✓ uses fresh active-boundary facts on each dialog entry without reusing an earlier visit  606ms
+   ✓ rechecks classification evidence after revocation while preserving unsupported facts  356ms
+ ✓ tests/explorer-source-conditions.test.ts (3 tests) 2221ms
+   ✓ the actual plugin schedules a new mode branch in one round and reuses verified history when mode A returns  787ms
+   ✓ retains multiple successful source proofs when a legacy plan row points at the latest mode  785ms
+   ✓ does not skip a rebuilt shared-key button when its semantic owner changes, or repeat an unchanged owner rebuild  649ms
+stderr | tests/interventions-ui.test.ts > shows upstream causes, opens existing review, and verifies the current scene before continuing
+3:05:42 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/interventions-ui.test.ts > shows upstream causes, opens existing review, and verifies the current scene before continuing
+3:05:42 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/interventions-ui.test.ts > shows upstream causes, opens existing review, and verifies the current scene before continuing
+3:05:42 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/interventions-ui.test.ts > shows upstream causes, opens existing review, and verifies the current scene before continuing
+3:05:42 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/interventions-ui.test.ts (1 test) 1845ms
+   ✓ shows upstream causes, opens existing review, and verifies the current scene before continuing  1844ms
+ ✓ tests/rule-evidence-dependencies.test.ts (5 tests) 1897ms
+   ✓ uses complete geometry despite unresolved conditional popup relations on a control or ancestor  418ms
+   ✓ retains unknown for relevant or unrecognized evidence failures: FIELD_TRUNCATED  374ms
+   ✓ retains unknown for relevant or unrecognized evidence failures: UNRECOGNIZED_EVIDENCE_GAP  361ms
+   ✓ does not certify a field label when its required label relation is unresolved  347ms
+   ✓ checks the current capture even when logical identity cannot be shared across captures  361ms
+ ✓ tests/composite-popup.test.ts (3 tests) 1893ms
+   ✓ includes sibling search and close controls in a floating virtual-list popup, including empty search results  1274ms
+   ✓ keeps an unrelated landmark search outside the list boundary  302ms
+   ✓ does not combine separate popup lists through a shared positioned ancestor  316ms
+stderr | tests/inspection-ui.test.ts > shows the stored scope, baseline, required evidence and external verdict without operating the page
+3:05:50 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/inspection-ui.test.ts > shows the stored scope, baseline, required evidence and external verdict without operating the page
+3:05:50 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/inspection-ui.test.ts > shows the stored scope, baseline, required evidence and external verdict without operating the page
+3:05:50 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/inspection-ui.test.ts > shows the stored scope, baseline, required evidence and external verdict without operating the page
+3:05:50 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/inspection-ui.test.ts (1 test) 1740ms
+   ✓ shows the stored scope, baseline, required evidence and external verdict without operating the page  1740ms
+stderr | tests/components-ui.test.ts > shows a composite group, independent members and historical evidence through public read queries
+3:05:52 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/components-ui.test.ts > shows a composite group, independent members and historical evidence through public read queries
+3:05:52 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/components-ui.test.ts > shows a composite group, independent members and historical evidence through public read queries
+3:05:52 AM [vite] http proxy error: /plugins/explorer/v1/status
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+stderr | tests/components-ui.test.ts > shows a composite group, independent members and historical evidence through public read queries
+3:05:52 AM [vite] http proxy error: /plugins/explorer/v1/tasks?summary=true
+Error: connect ECONNREFUSED 127.0.0.1:4173
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+ ✓ tests/components-ui.test.ts (1 test) 1758ms
+   ✓ shows a composite group, independent members and historical evidence through public read queries  1758ms
+ ✓ tests/grouped-state-consumers.test.ts (8 tests) 1731ms
+   ✓ keeps execution frames separate when a grouped price observation changes  495ms
+   ✓ probe preparation and rollback preserve historical frames (changed facts: true)  319ms
+   ✓ does not skip unfinished target recovery merely because its frame shares the current graph group  611ms
+ ✓ tests/explorer-obligation-source-condition.test.ts (2 tests) 1715ms
+   ✓ control: the retained B condition is independently reachable by the real SDK from away  782ms
+   ✓ a failed A source does not spend the independent B source restoration budget for the same Run control  932ms
+ ✓ tests/input-reachability.test.ts (3 tests) 1650ms
+   ✓ blocks 'fill' outside the reachable scroll area and revalidates after revealing it  650ms
+   ✓ blocks 'select' outside the reachable scroll area and revalidates after revealing it  557ms
+   ✓ continues to fill an ordinary below-fold field reachable by document scrolling  441ms
+ ✓ tests/explorer-routine-ui-review.test.ts (23 tests) 1724ms
+   ✓ uses a model only to describe a captured tentative operation and executes it with effects still unassessed  814ms
+   ✓ validates generated sample ABC for a pattern-constrained native field at actual dispatch  504ms
+   ✓ validates generated sample invalid for a pattern-constrained native field at actual dispatch  385ms
+ ✓ tests/input-continuity-coverage.test.ts (3 tests) 1683ms
+   ✓ retains B coverage when A disappears, rebuilt B=false  542ms
+   ✓ retains B coverage when A disappears, rebuilt B=true  463ms
+   ✓ proves rebuilt shared-key button correspondence without granting replay or covering its siblings  677ms
+ ✓ tests/control-surroundings.test.ts (19 tests) 1651ms
+   ✓ finds real captured input relationships for an ARIA activation with no own subtree  318ms
+   ✓ rejects a changed live neighbor at submission before using its old context judgment  422ms
+   ✓ rejects a changed live neighbor at dispatch before using its old context judgment  420ms
+   ✓ executes a freshly reviewed context once and invalidates its changed post-action context  464ms
+ ✓ tests/explorer-program-first.test.ts (2 tests) 1519ms
+   ✓ exposes ordinary UI states without configured models or functionality verdicts  895ms
+   ✓ keeps native submission as an untested host constraint without asking a model to certify it  623ms
+ ✓ tests/memory-browser.test.ts (2 tests) 1458ms
+   ✓ uses browser execution and HTTP evidence queries with the memory plugin  1456ms
+ ✓ tests/external-exploration-review.test.ts (2 tests) 1402ms
+   ✓ runs the external example through HTTP, deciding new regions and list samples independently  981ms
+   ✓ leaves a stale external partition paused without rewriting its observation or deciding later scopes  421ms
+ ✓ tests/http.test.ts (1 test) 1380ms
+   ✓ serves the same session over HTTP, streams durable cursors and rejects invalid commands  1380ms
+ ✓ tests/explorer-path-lineage.test.ts (10 tests) 1224ms
+   ✓ records independent disclosures and their children on separate routes while preserving all execution obligations  1212ms
+ ✓ tests/reviewed-control-coverage.test.ts (1 test) 1134ms
+   ✓ counts a reviewed custom operation without inventing DOM capabilities or promoting tentative probes  1134ms
+ ✓ tests/operation-correspondence-batch.test.ts (34 tests) 1070ms
+   ✓ preserves browser cross-session correspondence and distinguishes same-name controls without changing execution records  678ms
+   ✓ recognizes the same browser occurrence despite repeated test IDs without covering its sibling  364ms
+ ✓ tests/representative-sampling-migration.test.ts (15 tests) 1061ms
+   ✓ uses the real browser v1 decoder to split retained A/B conditions, preserving strict states and executing each actual branch  812ms
+ ✓ tests/crash.test.ts (1 test) 1026ms
+   ✓ does not repeat a real submission after the process is killed before recording its result  1026ms
+ ✓ tests/explorer-reentry-progress.test.ts (5 tests) 927ms
+   ✓ requires observed target routes and a new child completion before repeating entry, across restart  926ms
+ ✓ tests/explorer-region-batching.test.ts (9 tests) 800ms
+   ✓ validates twelve local browser regions with one SDK recapture, retaining all members and no execution evidence  783ms
+ ✓ tests/native-link-operation-correspondence.test.ts (23 tests) 767ms
+   ✓ uses captured browser record/destination evidence across fresh sessions with changing quote text  739ms
+ ✓ tests/explorer-scope-source-recovery.test.ts (2 tests) 565ms
+   ✓ recovers unique retained peer sources once without changing execution, original scopes or authority  324ms
+ ✓ tests/explorer-navigation-position.test.ts (1 test) 473ms
+   ✓ persists the actual same-URL position after a partial failed return without dropping the pending branch  472ms
+ ✓ tests/retention.test.ts (8 tests) 246ms
+ ✓ tests/architecture.test.ts (3 tests) 198ms
+ ✓ tests/entity-changes.test.ts (16 tests) 152ms
+ ✓ tests/storage-sqlite-compression.test.ts (12 tests) 150ms
+ ✓ tests/frontier-scaling.test.ts (2 tests) 58ms
+ ✓ tests/explorer-plugin-sync.test.ts (5 tests) 61ms
+ ✓ tests/grouped-navigation-path.test.ts (9 tests) 57ms
+ ✓ tests/diff-details.test.ts (12 tests) 49ms
+ ✓ tests/navigation-index.test.ts (17 tests) 35ms
+ ✓ tests/identity-matching.test.ts (17 tests) 46ms
+ ✓ tests/explorer-obligation-lifecycle.test.ts (19 tests) 41ms
+ ✓ tests/explorer-store-delta.test.ts (13 tests) 39ms
+ ✓ tests/explorer-plugin-providers.test.ts (20 tests) 40ms
+ ✓ tests/core.test.ts (4 tests) 36ms
+ ✓ tests/explorer-store-normalized.test.ts (10 tests) 37ms
+ ✓ tests/storage-contract.test.ts (8 tests) 31ms
+ ✓ tests/storage-id-conflicts.test.ts (12 tests) 27ms
+ ✓ tests/navigation-cost.test.ts (12 tests) 25ms
+ ✓ tests/store.test.ts (2 tests) 22ms
+ ✓ tests/explorer-task-writer.test.ts (10 tests) 20ms
+ ✓ tests/explorer-router-budget.test.ts (9 tests) 18ms
+ ✓ tests/explorer-scope-migration-index.test.ts (6 tests) 18ms
+ ✓ tests/rule-requirements.test.ts (18 tests) 16ms
+ ✓ tests/scroll-traversal-order.test.ts (25 tests) 13ms
+ ✓ tests/model.test.ts (2 tests) 11ms
+ ✓ tests/frontier-comparison.test.ts (3 tests) 11ms
+ ✓ tests/explorer-classification-reuse.test.ts (11 tests) 7ms
+ ✓ tests/explorer-obligation-lifecycle-ui.test.ts (2 tests) 7ms
+ ✓ tests/observation-notice.test.ts (2 tests) 6ms
+ ✓ tests/explorer-obligation-scheduler.test.ts (7 tests) 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/observation-stability-window.test.ts > keeps a genuinely unsettled modal activation unknown and blocks further dispatch without repeating it
+AssertionError: expected { …(14) } to match object { status: 'unknown', …(1) }
+(32 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "reason": "Post-action dependencies did not settle",
++   "reason": "Post-action observation incomplete: DOM_CAPTURE_FAILED, UNSTABLE",
+    "status": "unknown",
+  }
+
+ ❯ tests/observation-stability-window.test.ts:106:19
+    104|   });
+    105|   const attempt = await f.execute('Open panel', 'click');
+    106|   expect(attempt).toMatchObject({ status: 'unknown', reason: 'Post-act…
+       |                   ^
+    107|   expect(f.engine.recoveryAssessment(f.sid).unknownAttempts.map(a => a…
+    108|   expect(await f.page.locator('#target').isEditable()).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 166 passed (167)
+      Tests  1 failed | 1658 passed (1659)
+   Start at  02:45:19
+   Duration  1276.12s (transform 1.74s, setup 0ms, collect 52.68s, tests 1200.04s, environment 14ms, prepare 5.47s)
+

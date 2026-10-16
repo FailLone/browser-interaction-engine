@@ -1,0 +1,43 @@
+{
+  "note": "Isolated real-browser proof; only recovery segment durations are synthetic. Both paths actually recorded and exact checkpoint canonical matched. No timing performance claim.",
+  "durations": [
+    {
+      "attemptId": "5ef98b96-2bdb-4d60-9e13-95504081500e",
+      "observedDurationMs": 154,
+      "injectedDurationMs": 10000,
+      "action": "Direct"
+    },
+    {
+      "attemptId": "b45d26b2-3e17-41af-b286-5753687f062b",
+      "observedDurationMs": 215,
+      "injectedDurationMs": 1,
+      "action": "Open routes"
+    },
+    {
+      "attemptId": "4c039eb5-e9ee-4cf4-9cf4-e4251a7c5953",
+      "observedDurationMs": 152,
+      "injectedDurationMs": 1,
+      "action": "Via menu"
+    }
+  ],
+  "weighted": {
+    "status": "UNREACHABLE",
+    "reason": "BUDGET_EXHAUSTED",
+    "attemptCount": 1,
+    "clicks": [
+      "open"
+    ],
+    "amountVisible": false,
+    "remainingActionsBefore": 1
+  },
+  "directOnlyControl": {
+    "status": "TARGET_REACHED",
+    "reason": "Recorded path verification: TARGET_REACHED",
+    "attemptCount": 1,
+    "clicks": [
+      "direct"
+    ],
+    "amountVisible": true,
+    "remainingActionsBefore": 1
+  }
+}

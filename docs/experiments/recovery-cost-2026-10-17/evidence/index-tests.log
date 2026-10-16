@@ -1,0 +1,13 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/architecture.test.ts (3 tests) 227ms
+ ✓ tests/entity-changes.test.ts (16 tests) 166ms
+ ✓ tests/navigation-index.test.ts (17 tests) 40ms
+ ✓ tests/navigation-cost.test.ts (12 tests) 27ms
+
+ Test Files  4 passed (4)
+      Tests  48 passed (48)
+   Start at  02:39:27
+   Duration  1.68s (transform 190ms, setup 0ms, collect 629ms, tests 459ms, environment 0ms, prepare 151ms)
+

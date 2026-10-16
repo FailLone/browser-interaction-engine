@@ -1,0 +1,6 @@
+{
+  "revision": "0d01be1ee41850994ad30ac70516dbfce5da46ff",
+  "scriptSha256": "513ed54352ca268be6195cbff4a403c0f875ed08d39afb3cceab8fb684d73b10",
+  "expectedPreFixFailure": true,
+  "note": "Owned actual browser fixture. Real recorded routes and matched recovery segments; only durationMs injected to control ranking. No task database or user browser."
+}

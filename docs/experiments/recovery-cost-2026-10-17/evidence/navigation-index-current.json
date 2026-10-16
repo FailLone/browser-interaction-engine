@@ -1,0 +1,174 @@
+{
+  "benchmark": "engine-navigation-index-common-api-v1",
+  "variant": "current",
+  "revision": "ebdb65f1a43c5cf767b66b6c104ab578535a88c3",
+  "node": "v24.22.0",
+  "recordedAt": "2026-10-16T18:41:34.619Z",
+  "scriptSha256": "2472018aa805c813bf9a37b3a36d401046c6c04bc6c7d15a7fc0b80aae9c6d5e",
+  "sourceHashes": {
+    "packages/core/src/engine.ts": "24368ffe7d74bcae9198bbe5d07c3890557a23325678c9e674f55b79f1d33ea4",
+    "packages/core/src/navigation-path.ts": "e03fdb96c16d65782118157be30d359aa801e4de504a2e31e36f6b005a0f1831",
+    "packages/storage-memory/src/index.ts": "b3af8920688a103442b928d1bd93fd2d0582b4270563ef1075ac05735928f3ba",
+    "examples/counter-adapter.ts": "3c2a995ca6e9f00cdd63be9381a29ba2093c83dd842b38ba4e227b3c55d9f705"
+  },
+  "scope": "Synthetic retained chain queried through actual InteractionEngine.navigationPath; no browser, disk database, service, replay, or recovery execution",
+  "fixture": {
+    "actualCounterExecutions": 1,
+    "syntheticChainEdges": 1000,
+    "syntheticChainObservations": 1001,
+    "syntheticPassiveObservations": 1000,
+    "retainedRows": {
+      "observation": 2003,
+      "state": 2003,
+      "visit": 2003,
+      "action": 1002,
+      "attempt": 1001,
+      "transition": 1001
+    },
+    "pathLength": 1000,
+    "pathSha256": "53d859760d3d87062b676ab87154d025a256d8ed66f6af84a4a8973bcc7501ab"
+  },
+  "protocol": {
+    "warmupQueries": 1,
+    "batches": 7,
+    "queriesPerBatch": 20,
+    "timedSection": "navigationPath plus exact full-path equality assertion",
+    "storeInstrumentation": "Counts get/list API calls and listed rows; excludes record writes and fixture setup"
+  },
+  "warmup": {
+    "elapsedMs": 32.51683399999999,
+    "io": {
+      "raw": {
+        "get": {
+          "state": 2,
+          "observation": 1005
+        },
+        "list": {
+          "attempt": 1,
+          "transition": 1
+        },
+        "listedRows": {
+          "attempt": 1001,
+          "transition": 1001
+        }
+      },
+      "queryCount": 1,
+      "endpointObservationReadFloor": 2,
+      "historicalObservationReads": 1003,
+      "attemptListCalls": 1,
+      "transitionListCalls": 1
+    },
+    "exactPathVerified": true
+  },
+  "steady": {
+    "samplesMs": [
+      5.066499999999991,
+      4.598959000000008,
+      4.416667000000018,
+      4.550540999999953,
+      4.785416999999995,
+      3.6518329999999537,
+      3.424624999999992
+    ],
+    "medianBatchMs": 4.550540999999953,
+    "medianPerQueryMs": 0.22752704999999765,
+    "io": {
+      "raw": {
+        "get": {
+          "state": 280,
+          "observation": 280
+        },
+        "list": {},
+        "listedRows": {}
+      },
+      "queryCount": 140,
+      "endpointObservationReadFloor": 280,
+      "historicalObservationReads": 0,
+      "attemptListCalls": 0,
+      "transitionListCalls": 0
+    },
+    "verifiedIdenticalPaths": 140
+  },
+  "invalidation": {
+    "withdrawnPermission": {
+      "elapsedMs": 0.18758399999995845,
+      "io": {
+        "raw": {
+          "get": {
+            "state": 2,
+            "observation": 2,
+            "attempt": 1
+          },
+          "list": {},
+          "listedRows": {}
+        },
+        "queryCount": 1,
+        "endpointObservationReadFloor": 2,
+        "historicalObservationReads": 0,
+        "attemptListCalls": 0,
+        "transitionListCalls": 0
+      },
+      "pathAbsent": true
+    },
+    "restoredPermission": {
+      "elapsedMs": 0.4597079999999778,
+      "io": {
+        "raw": {
+          "get": {
+            "state": 2,
+            "observation": 4,
+            "attempt": 1
+          },
+          "list": {},
+          "listedRows": {}
+        },
+        "queryCount": 1,
+        "endpointObservationReadFloor": 2,
+        "historicalObservationReads": 2,
+        "attemptListCalls": 0,
+        "transitionListCalls": 0
+      },
+      "exactPathVerified": true
+    }
+  },
+  "memory": {
+    "caveat": "Whole-process snapshots include fixture, source runtime, results and GC timing; not isolated index footprint or retained-memory measurements",
+    "samples": {
+      "beforeFixture": {
+        "rss": 85573632,
+        "heapUsed": 15569520,
+        "heapTotal": 31686656,
+        "external": 4117330,
+        "arrayBuffers": 1479055
+      },
+      "afterFixture": {
+        "rss": 114835456,
+        "heapUsed": 27995840,
+        "heapTotal": 55214080,
+        "external": 3866582,
+        "arrayBuffers": 1226219
+      },
+      "afterWarmup": {
+        "rss": 132530176,
+        "heapUsed": 33798080,
+        "heapTotal": 94535680,
+        "external": 3976852,
+        "arrayBuffers": 1305017
+      },
+      "afterRepeatedQueries": {
+        "rss": 150175744,
+        "heapUsed": 42714344,
+        "heapTotal": 96632832,
+        "external": 3887066,
+        "arrayBuffers": 1215231
+      },
+      "afterInvalidationChecks": {
+        "rss": 150175744,
+        "heapUsed": 43266184,
+        "heapTotal": 96632832,
+        "external": 3888920,
+        "arrayBuffers": 1217085
+      }
+    }
+  }
+}

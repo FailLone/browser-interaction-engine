@@ -1,0 +1,69 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/observation-stability-window.test.ts (5 tests) 4193ms
+   ✓ does not let time spent processing the first sample prematurely finish a modal-opening action  867ms
+   ✓ keeps observing a modal activation until its changing global dependencies settle  790ms
+   ✓ keeps a genuinely unsettled modal activation unknown and blocks further dispatch without repeating it  1034ms
+   ✓ preserves native field progress while passive quote values change in every sample  824ms
+   ✓ allows a native field action to use its own ready scope while an independent button keeps changing  677ms
+ ✓ tests/recovery-route-cost.test.ts (11 tests) 31446ms
+   ✓ learns a failed target route from actual recovery and reuses the working route on the next call  2661ms
+   ✓ learns a failed checkpoint route from actual recovery and reuses the working route on the next call  2608ms
+   ✓ retains a nested successful prefix while learning target route costs  3113ms
+   ✓ retains a nested successful prefix while learning checkpoint route costs  3177ms
+   ✓ reaches a previously untried fifth route on the next call without increasing the four-plan limit  3537ms
+   ✓ does not transfer failure penalties from mode A to an independently recorded mode B  3464ms
+   ✓ rechecks current replay permission even when the withdrawn route has learned the lowest cost  2496ms
+   ✓ keeps an unknown outcome on the learned cheapest route unresolved and does not try alternatives  2224ms
+   ✓ uses incremental facts through the actual BrowserEngine retention wrapper and invalidates revoked evidence  1206ms
+   ✓ fits a target recovery route to the remaining action budget without discarding cost ranking  3504ms
+   ✓ fits a checkpoint recovery route to the remaining action budget without discarding cost ranking  3455ms
+ ✓ tests/recovery-route-alternatives.test.ts (11 tests) 20609ms
+   ✓ reaches target through another recorded route after a known no-op  1633ms
+   ✓ reaches checkpoint through another recorded route after a known no-op  1550ms
+   ✓ replans target from the actual intermediate menu without reopening its successful prefix  1846ms
+   ✓ replans checkpoint from the actual intermediate menu without reopening its successful prefix  1895ms
+   ✓ does not physically retry the same failed operation through duplicate successful historical proofs  1983ms
+   ✓ keeps the session action budget across alternative route plans  1417ms
+   ✓ does not try an alternate route when a dispatched result is unknown  1310ms
+   ✓ does not turn an unavailable replay permission into an alternate route  1425ms
+   ✓ skips duplicate historical proofs rejected by current replay permission without consuming route plans  2945ms
+   ✓ strict checkpoint recovery respects withdrawn current replay permission and does not reopen entry  1451ms
+   ✓ bounds recovery alternatives and preserves unreachable work without reopening entry  3153ms
+ ✓ tests/exploration-recovery.test.ts (9 tests) 12734ms
+   ✓ samples ordinary field values without duplicating the page or rewriting actual execution evidence  1626ms
+   ✓ retains distinct samples when constraints, structure, or declared business context changes  1807ms
+   ✓ keeps stateful exploration and legacy sessions on strict per-state cases  748ms
+   ✓ restores declared reversible fields locally with full verification and a durable recovery ledger  2067ms
+   ✓ stops a declared inverse on unexpected effects instead of accepting the target field alone  1226ms
+   ✓ reports the actual unknown action that blocked recovery and does not assume reload resets business state  1222ms
+   ✓ executes a configured document reset once, verifies it, and clears only reset-confirmed dirty origins  1711ms
+   ✓ does not bypass action budgets during local restoration  960ms
+   ✓ preserves boundary depth limits in representative mode while allowing verified exits  1309ms
+ ✓ tests/exploration-target-reach.test.ts (12 tests) 10099ms
+   ✓ verifies a ready target beside a ticking quote without claiming strict checkpoint restoration or execution  822ms
+   ✓ matches unexecuted rebuilt targets but rejects changed declared context and ambiguous bindings  865ms
+   ✓ exits an actual modal through the existing recovery ledger and verifies the target independently  811ms
+   ✓ reports actual same-URL partial recovery after a declared inverse diverges  956ms
+   ✓ preserves unknown outcomes and rejects unassessed repetition inside queued dispatch  571ms
+   ✓ rejects changed context and semantic form binding without attempting recovery  892ms
+   ✓ does not borrow readiness from a stable sibling form  721ms
+   ✓ revalidates repetition after an awaited driver validation rather than trusting the planning read  714ms
+   ✓ carries unexecuted target evidence into a fresh browser session without granting historical execution  706ms
+   ✓ reuses entry replay but stops at verified target arrival when unrelated document state differs  1464ms
+   ✓ reports arrival independently of pending region decisions and leaves actual dispatch gated  526ms
+   ✓ continues deterministic recovery for a settled mechanical obstruction without claiming early arrival  1049ms
+ ✓ tests/retention.test.ts (8 tests) 258ms
+ ✓ tests/architecture.test.ts (3 tests) 218ms
+ ✓ tests/entity-changes.test.ts (16 tests) 157ms
+ ✓ tests/grouped-navigation-path.test.ts (9 tests) 55ms
+ ✓ tests/navigation-index.test.ts (17 tests) 40ms
+ ✓ tests/storage-contract.test.ts (8 tests) 34ms
+ ✓ tests/navigation-cost.test.ts (12 tests) 25ms
+
+ Test Files  12 passed (12)
+      Tests  121 passed (121)
+   Start at  03:07:44
+   Duration  84.57s (transform 602ms, setup 0ms, collect 3.07s, tests 79.87s, environment 1ms, prepare 397ms)
+

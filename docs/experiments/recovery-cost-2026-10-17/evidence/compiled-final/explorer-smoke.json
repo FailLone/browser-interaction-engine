@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-16T19:07:44.671Z",
+  "node": "v24.22.0",
+  "providers": "explicit mocks",
+  "target": "Explore Alpha and Beta on the local fixture",
+  "compiledPlugin": "passed",
+  "compiledUI": "passed",
+  "hostDispatchValidation": "passed",
+  "actualBrowserActions": 2,
+  "modelRequests": {
+    "jev": 1,
+    "llm": 1
+  },
+  "unresolved": [],
+  "untested": [],
+  "exhaustive": false,
+  "routineModelChecks": 0,
+  "screenshot": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-5jf98gai/.data/explorer-smoke-1792177663015/dashboard.png"
+}

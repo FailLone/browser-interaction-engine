@@ -1,0 +1,50 @@
+[
+  {
+    "name": "build",
+    "command": [
+      "/Users/xietian/.local/state/fnm_multishells/936_1792132519951/bin/pnpm",
+      "build"
+    ],
+    "cwd": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-w9u4nxng",
+    "startedAtEpoch": 1792176312.91677,
+    "elapsedSeconds": 5.846296072006226,
+    "exitCode": 0,
+    "log": "build.log"
+  },
+  {
+    "name": "navigation-public-contract",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      ".data/compiled-navigation-contract.mjs"
+    ],
+    "cwd": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-w9u4nxng",
+    "startedAtEpoch": 1792176318.83199,
+    "elapsedSeconds": 0.9840719699859619,
+    "exitCode": 0,
+    "log": "navigation-public-contract.log"
+  },
+  {
+    "name": "smoke-built",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "scripts/smoke-built.mjs"
+    ],
+    "cwd": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-w9u4nxng",
+    "startedAtEpoch": 1792176319.81644,
+    "elapsedSeconds": 2.529325008392334,
+    "exitCode": 0,
+    "log": "smoke-built.log"
+  },
+  {
+    "name": "smoke-explorer",
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "scripts/smoke-explorer.mjs"
+    ],
+    "cwd": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-w9u4nxng",
+    "startedAtEpoch": 1792176322.346904,
+    "elapsedSeconds": 2.123565196990967,
+    "exitCode": 0,
+    "log": "smoke-explorer.log"
+  }
+]

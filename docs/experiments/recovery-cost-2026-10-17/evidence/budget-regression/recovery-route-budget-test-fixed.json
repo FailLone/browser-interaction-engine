@@ -1,0 +1,22 @@
+{
+  "baseCommit": "0d01be1ee41850994ad30ac70516dbfce5da46ff",
+  "archive": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-vs_25vrj",
+  "exitCode": 0,
+  "command": [
+    "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-vs_25vrj/node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/recovery-route-cost.test.ts",
+    "-t",
+    "fits a .* recovery route"
+  ],
+  "log": "/tmp/recovery-route-budget-test-fixed.log",
+  "patches": {
+    "/tmp/recovery-route-budget-tests.patch": "bb93394272b0d63cf3e1c48ba44d69019d44dc842b3f729a3488acf81842d4ed",
+    "/tmp/recovery-budget-engine.patch": "accc62a7e41e39308ec33547cd1c65afad403d28c29f701cc66a2d76cf4125be"
+  },
+  "testSourceSha256": "482fff03d0d84e54d46dbe7998ed00663efd6ecf696f7ec19c29d29907201cc2",
+  "engineSourceSha256": "d2d8918a32866b3a0548cf4dae936f850e47e231b975c535f3b815de6fdfdcec",
+  "note": "Only temporary archive patched. No latency claim.",
+  "archiveRemoved": true
+}

@@ -1,0 +1,15 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/observation-stability-window.test.ts (5 tests) 4074ms
+   ✓ does not let time spent processing the first sample prematurely finish a modal-opening action  689ms
+   ✓ keeps observing a modal activation until its changing global dependencies settle  799ms
+   ✓ keeps a genuinely unsettled modal activation unknown and blocks further dispatch without repeating it  1071ms
+   ✓ preserves native field progress while passive quote values change in every sample  837ms
+   ✓ allows a native field action to use its own ready scope while an independent button keeps changing  676ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  03:05:03
+   Duration  5.03s (transform 395ms, setup 0ms, collect 792ms, tests 4.07s, environment 0ms, prepare 39ms)
+
