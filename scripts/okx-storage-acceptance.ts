@@ -137,12 +137,23 @@ export class AcceptanceProgress {
 }
 type PlanSnapshot = Pick<ReturnType<ExplorerStore['taskState']>, 'task' | 'plan'>;
 export function newlyResolvedOccurrences(before: PlanSnapshot, after: PlanSnapshot) {
-  const resolution = (item: Task['plan'][number]) => item.status === 'succeeded' && item.resolvedBy?.attemptId ? JSON.stringify([item.resolvedBy.sessionId, item.resolvedBy.attemptId]) : undefined;
-  const previous = new Map(before.task.plan.map((item, index) => [before.plan[index], resolution(item)]));
-  return after.task.plan.flatMap((item, position) => {
-    const occurrenceId = after.plan[position], resolved = resolution(item);
-    return resolved && previous.get(occurrenceId) !== resolved ? [{ occurrenceId, position, item }] : [];
+  return planResolutionChanges(before, after).newlyResolved;
+}
+export function planResolutionChanges(before: PlanSnapshot, after: PlanSnapshot) {
+  const previous = new Map(before.task.plan.map((item, index) => [before.plan[index], item]));
+  const rows = after.task.plan.flatMap((item, position) => {
+    if (item.status !== 'succeeded' || !item.resolvedBy?.attemptId) return [];
+    const occurrenceId = after.plan[position], prior = previous.get(occurrenceId);
+    return [{ occurrenceId, position, item, prior }];
   });
+  // Replacing the evidence of an already successful occurrence is not progress,
+  // including when it previously used only historical coverage evidence.
+  const newlyResolved = rows.filter(row => row.prior?.status !== 'succeeded').map(({ prior: _, ...row }) => row);
+  const evidenceRefreshes = rows.filter(row => row.prior?.status === 'succeeded' &&
+    JSON.stringify(row.prior.resolvedBy) !== JSON.stringify(row.item.resolvedBy)).map(({ prior, ...row }) => ({
+      ...row, previousResolvedBy: prior!.resolvedBy, previousCoverageResolvedBy: prior!.coverageResolvedBy
+    }));
+  return { newlyResolved, evidenceRefreshes };
 }
 export const budgetEnforcement = {
   modelRequests: 'Hard allowance at actual provider.decide entry; SDK reservations may also count a denied call.',
@@ -566,8 +577,8 @@ async function main() {
     windowBudget.reconcileActions(finalAttempts.filter(attempt => !baselineAttempts.has(attempt.id)).map(attempt => attempt.id));
     const settled = progressSnapshot(), successes = new Set(settled.successfulAttemptIds), finalUnknown = [...settled.unknownAttempts, ...settled.inFlightAttempts];
     if (finalUnknown.length) requestStop('settled_unknown_or_executing', finalUnknown);
-    const newlyResolved = newlyResolvedOccurrences(initialState, finalState);
-    atomicJson(join(runDirectory, 'coverage-review.json'), { exhaustive: false, newlySucceededExplorationAttemptIds: [...successes], newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, newlyResolvedPlanOccurrences: newlyResolved, newlyResolvedPlanItems: newlyResolved.map(row => row.item), historicalCoverageOnly: final.plan.filter(item => item.coverageResolvedBy), unresolved: final.plan.filter(item => item.required && !['succeeded', 'excluded', 'superseded'].includes(item.status)), unknownAttempts: finalUnknown, pendingDispatch: final.pendingDispatch, unverifiedRecoveries: final.unverifiedRecoveries, unverifiedNavigations: final.unverifiedNavigations, recoveries,
+    const { newlyResolved, evidenceRefreshes } = planResolutionChanges(initialState, finalState);
+    atomicJson(join(runDirectory, 'coverage-review.json'), { exhaustive: false, newlySucceededExplorationAttemptIds: [...successes], newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, newlyResolvedPlanOccurrences: newlyResolved, refreshedPlanEvidence: evidenceRefreshes, planProgressIsSemanticCoverageProof: false, newlyResolvedPlanItems: newlyResolved.map(row => row.item), historicalCoverageOnly: final.plan.filter(item => item.coverageResolvedBy), unresolved: final.plan.filter(item => item.required && !['succeeded', 'excluded', 'superseded'].includes(item.status)), unknownAttempts: finalUnknown, pendingDispatch: final.pendingDispatch, unverifiedRecoveries: final.unverifiedRecoveries, unverifiedNavigations: final.unverifiedNavigations, recoveries,
       recoveryFollowup: recoveries.map(recovery => ({ ...recovery, subsequentSuccessfulAttempts: finalAttempts.filter(attempt => successes.has(attempt.id) && attempt.sessionId === recovery.sessionId && attempt.beforeId === recovery.observationId).map(attempt => ({ sessionId: attempt.sessionId, attemptId: attempt.id, beforeId: attempt.beforeId })), targetReadinessOnly: recovery.status === 'TARGET_REACHED', wholeCheckpointVerified: recovery.checkpointVerified === true })) });
   } catch (error) { fatal = code(error); requestStop('runner_failure', { code: fatal }); await stopJob; }
   finally {

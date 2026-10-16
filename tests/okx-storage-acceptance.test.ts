@@ -11,7 +11,7 @@ import type { ActionAttempt, Observation } from '@interaction/browser';
 import { SqliteStore } from '@interaction/storage-sqlite';
 import { RetainedPersistence } from '@interaction/storage-retained';
 import { ExplorerPlugin, ExplorerStore, type ExplorerHost, type TaskStatus, type Task } from '@interaction/explorer-plugin';
-import { AcceptanceProgress, AcceptanceWindow, WindowBudgetExceeded, operationConditionCandidate, classifyAcceptanceAttempt, newlyResolvedOccurrences, createDiagnosticLogger, closeAcceptanceResources, settlePendingProviders, auditProtectedArtifact, settleOwnedTask, retainRecoveryResult, writeOwnedStopRequest, readOwnedStopRequest, pollOwnedStopRequests, type AcceptanceRunControl } from '../scripts/okx-storage-acceptance.js';
+import { AcceptanceProgress, AcceptanceWindow, WindowBudgetExceeded, operationConditionCandidate, classifyAcceptanceAttempt, newlyResolvedOccurrences, planResolutionChanges, createDiagnosticLogger, closeAcceptanceResources, settlePendingProviders, auditProtectedArtifact, settleOwnedTask, retainRecoveryResult, writeOwnedStopRequest, readOwnedStopRequest, pollOwnedStopRequests, type AcceptanceRunControl } from '../scripts/okx-storage-acceptance.js';
 
 it('audits retained bytes and media type without starting providers or a browser', async () => {
   const directory = mkdtempSync(join(tmpdir(), 'okx-audit-offline-'));
@@ -125,6 +125,32 @@ it('counts newly resolved duplicate business IDs independently using persisted o
     store.applyTaskDelta(task.id, before.version, { header, plan: { update: [{ occurrenceId: before.plan[1], value: { ...before.task.plan[1], status: 'succeeded', resolvedBy: { sessionId: 's', observationId: 'o', attemptId: 'new' } } }], order: [before.plan[1], before.plan[0]] } });
     const result = newlyResolvedOccurrences(before, store.taskState(task.id));
     expect(result).toHaveLength(1); expect(result[0]).toMatchObject({ occurrenceId: before.plan[1], position: 0, item: { id: 'same-business-id', resolvedBy: { attemptId: 'new' } } });
+  } finally { await plugin.close(); }
+});
+
+it('separates renewed success evidence from newly solved occurrences after resume', async () => {
+  const store = new ExplorerStore(':memory:'), host = { events: new EventEmitter(), async waitForIdle() {} }, plugin = new ExplorerPlugin(host as unknown as ExplorerHost, store);
+  try {
+    const task = plugin.create({ url: 'https://www.okx.com/convert/usd-to-btc', goal: '', coverageMode: 'all' });
+    const item = { id: 'reused-business-id', title: 'Target', scope: { label: 'Target' }, prerequisites: [], completion: 'Observed success', required: true, reason: 'fixture', evidence: [], attempts: [] };
+    task.plan = [
+      { ...item, status: 'succeeded', resolvedBy: { sessionId: 'old-session', observationId: 'old-observation', attemptId: 'old-attempt' } },
+      { ...item, status: 'succeeded' },
+      { ...item, status: 'unresolved' }
+    ] as Task['plan']; store.save(task);
+    const before = store.taskState(task.id), { plan: _, rounds: __, ...header } = before.task;
+    const resolved = (prior: Task['plan'][number]) => ({ ...prior, status: 'succeeded' as const, resolvedBy: { sessionId: 's', observationId: 'o', attemptId: 'new' } });
+    store.applyTaskDelta(task.id, before.version, { header, plan: {
+      update: before.plan.map((occurrenceId, index) => ({ occurrenceId, value: resolved(before.task.plan[index]) })),
+      append: [{ occurrenceId: 'a'.repeat(32), value: resolved({ ...item, status: 'pending' } as Task['plan'][number]) }],
+      order: [before.plan[2], before.plan[0], before.plan[1], 'a'.repeat(32)]
+    } });
+    const after = store.taskState(task.id), changes = planResolutionChanges(before, after);
+    expect(changes.newlyResolved.map(row => row.occurrenceId)).toEqual([before.plan[2], after.plan[3]]);
+    expect(changes.evidenceRefreshes.map(row => row.occurrenceId)).toEqual([before.plan[0], before.plan[1]]);
+    expect(changes.evidenceRefreshes[0].previousResolvedBy?.attemptId).toBe('old-attempt');
+    expect(newlyResolvedOccurrences(after, after)).toEqual([]);
+    expect(planResolutionChanges(after, after).evidenceRefreshes).toEqual([]);
   } finally { await plugin.close(); }
 });
 
