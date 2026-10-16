@@ -90,3 +90,38 @@ it('preserves browser cross-session correspondence and distinguishes same-name c
     expect(result.results.map(r=>r.equivalent)).toEqual([true,false]);expect(f.host.list(next.id,'attempt')).toEqual([]);expect(f.host.session(next.id).actionCount).toBe(0);expect(f.host.store.events(next.id)).toHaveLength(events);
   }finally{await f.close();}
 });
+
+it.each(['unchanged','other-instance','duplicate-instance','new-document','changed-context','changed-operation','review-withdrawn','unknown'] as const)('uses unique same-instance continuity despite repeated hints, preserving %s checks',change=>{
+ const f=fixture();
+ f.current.sessionId='old';f.current.instanceScope=f.before.instanceScope;
+ f.current.controls[0].instanceId=f.before.controls[0].instanceId;
+ const sibling={...f.before.controls[0],localId:'sibling',instanceId:'sibling-instance',identityId:'sibling-identity'};
+ f.before.controls.push(sibling);f.current.controls.push({...sibling});
+ f.target.sessionId='old';
+ if(change==='other-instance')f.current.controls[0].instanceId='replacement';
+ if(change==='duplicate-instance')f.current.controls[1].instanceId=f.current.controls[0].instanceId;
+ if(change==='new-document')f.current.instanceScope='replacement-document';
+ if(change==='changed-context'){f.current.context.tenant.value='two';f.target.preconditions.context=f.current.context;}
+ if(change==='changed-operation')f.current.semanticState='changed';
+ if(change==='review-withdrawn')f.target.basis.status='tentative';
+ if(change==='unknown')f.attempt.status='unknown';
+ f.before.id='continuity-before';f.current.id='continuity-current';f.attempt.beforeId=f.before.id;f.attempt.action.observationId=f.before.id;f.target.observationId=f.current.id;
+ for(const o of [f.before,f.current])f.store.put('observation',o);f.store.put('action',f.target);f.store.put('attempt',f.attempt);
+ const writes=vi.spyOn(f.store,'put');
+ const proof=f.host.operationCorrespondence('old',{observationId:f.current.id,...f.request});
+ expect(proof.equivalent).toBe(change==='unchanged');
+ expect(proof).toMatchObject({identityAuthorized:false,replayAuthorized:false,currentExecution:false});
+ if(change==='unchanged')expect(proof.evidence).toContain('nonunique-hint-not-used');
+ expect(writes).not.toHaveBeenCalled();f.store.close();
+});
+
+it('recognizes the same browser occurrence despite repeated test IDs without covering its sibling',async()=>{
+ const f=await explorerFixture('<button data-testid="repeat" type="button">First</button><button data-testid="repeat" type="button">Second</button>');
+ try{
+  const s=await f.host.createSession({url:f.url,headless:true,exploration:'controls',settleMs:0,observeTimeoutMs:100,interfaceActions:[{kind:'click'}]}),a=f.host.actions(s.id).find(a=>a.label==='First')!;
+  const attempt=await f.host.execute(s.id,a.id,'first'),current=f.host.observation(s.id);
+  const proof=(label:string)=>f.host.operationCorrespondence(s.id,{observationId:current.id,actionId:f.host.actions(s.id).find(a=>a.label===label)!.id,source:{sessionId:s.id,attemptId:attempt.id}});
+  expect(proof('First')).toMatchObject({equivalent:true,identityAuthorized:false,replayAuthorized:false,currentExecution:false});
+  expect(proof('First').evidence).toContain('current-instance-continuity');expect(proof('Second').equivalent).toBe(false);
+ }finally{await f.close();}
+});

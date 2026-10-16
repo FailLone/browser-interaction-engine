@@ -1,0 +1,865 @@
+{
+  "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+  "baseline": {
+    "at": "2026-10-16T06:43:21.965215+00:00",
+    "commit": "bd11c54",
+    "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+    "taskSnapshot": ".data/okx-reentry-progress-task-before.json",
+    "status": "paused",
+    "usage": {
+      "rounds": 13,
+      "actions": 189,
+      "durationMs": 26323456,
+      "modelRequests": 2938
+    },
+    "budget": {
+      "rounds": 19,
+      "actions": 1009,
+      "durationMs": 27000000,
+      "modelRequests": 3652
+    },
+    "decisionCursor": 3066,
+    "eventCursor": 41640,
+    "resumeAt": "2026-10-16T06:43:21.970702+00:00"
+  },
+  "auditedAt": "2026-10-16T06:55:21.292943+00:00",
+  "status": "blocked",
+  "reason": "capability_or_unknown_outcome",
+  "pendingDispatch": null,
+  "totals": {
+    "persistedUsage": {
+      "rounds": 13,
+      "actions": 212,
+      "durationMs": 26998943,
+      "modelRequests": 2996
+    },
+    "budget": {
+      "rounds": 19,
+      "actions": 1009,
+      "durationMs": 27000000,
+      "modelRequests": 3652
+    },
+    "usageDelta": {
+      "rounds": 0,
+      "actions": 23,
+      "durationMs": 675487,
+      "modelRequests": 58
+    },
+    "activeDurationDeltaMs": 675487,
+    "wallTimeSinceBaselineMs": 719327
+  },
+  "newExecution": {
+    "attemptCounts": {
+      "succeeded": 23
+    },
+    "verifiedCount": 23,
+    "verified": [
+      {
+        "id": "85efe63e-94f5-4fb2-8e41-1ede8ff43244",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:45:05.795Z",
+        "finishedAt": "2026-10-16T06:45:10.957Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "e737b9e6-d28d-4940-aa69-4d7a9a1181f6",
+        "afterId": "942bc675-33e7-4438-be28-53239e8c440f",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "fc3246db-0219-4525-8950-a06b4257bf56",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:45:25.357Z",
+        "finishedAt": "2026-10-16T06:45:38.219Z",
+        "label": "Search crypto",
+        "kind": "fill",
+        "value": "example",
+        "beforeId": "942bc675-33e7-4438-be28-53239e8c440f",
+        "afterId": "d43738f9-6757-4666-9d92-fcfd1311e006",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "testid:okd-input",
+        "region": "navigation:navContainer",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "f4a60cb0-9ee4-43d0-8f26-99ed02ac2ffe",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:45:49.589Z",
+        "finishedAt": "2026-10-16T06:45:55.441Z",
+        "label": "Where can I learn more about trading?",
+        "kind": "click",
+        "value": null,
+        "beforeId": "d43738f9-6757-4666-9d92-fcfd1311e006",
+        "afterId": "829bbfa0-e040-4d7f-9bc1-b6ae749f8e88",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "testid:okd-accordion-header",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "2e0a6921-9ab6-4a5f-b7b4-00515601b9a6",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:46:06.399Z",
+        "finishedAt": "2026-10-16T06:46:12.588Z",
+        "label": "Where can I find more information about Bitcoin (BTC)?",
+        "kind": "click",
+        "value": null,
+        "beforeId": "829bbfa0-e040-4d7f-9bc1-b6ae749f8e88",
+        "afterId": "14eb6084-4cca-426a-916e-3656d31debde",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "testid:okd-accordion-header",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "dd5489d5-0e79-4bee-bf3e-dfd0bef72eea",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:47:46.376Z",
+        "finishedAt": "2026-10-16T06:47:51.545Z",
+        "label": "Scrollable generic",
+        "kind": "scroll",
+        "value": {
+          "x": 840,
+          "y": 0
+        },
+        "beforeId": "fa9e7d81-4320-43d1-8680-4bc75de7dbe4",
+        "afterId": "9324412d-1736-4975-a2fd-80fdb08532de",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": null,
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "3e438238-cc91-4aa1-9846-559510ce4bb7",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:48:03.988Z",
+        "finishedAt": "2026-10-16T06:48:10.134Z",
+        "label": "Trade",
+        "kind": "click",
+        "value": null,
+        "beforeId": "9324412d-1736-4975-a2fd-80fdb08532de",
+        "afterId": "03ea4170-f31e-4074-a7e8-6240b1f64343",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "id:title-nav-trade",
+        "region": "navigation:navContainer",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "e7eb324d-44c5-4e26-99f7-114cfa23c9f0",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:48:22.702Z",
+        "finishedAt": "2026-10-16T06:48:29.314Z",
+        "label": "Scroll page",
+        "kind": "scroll",
+        "value": {
+          "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+          "containerNodeId": "c298fad5-e80c-46ef-81d9-57fad25550b6:510",
+          "left": 0,
+          "top": 675,
+          "expectedLeft": 0,
+          "expectedTop": 0,
+          "width": 1440,
+          "height": 900,
+          "maxLeft": 0,
+          "maxTop": 7031
+        },
+        "beforeId": "03ea4170-f31e-4074-a7e8-6240b1f64343",
+        "afterId": "64bf3cac-db7a-4adf-a58e-1696aff7a2d6",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": null,
+        "region": null,
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      },
+      {
+        "id": "b17009af-923e-4c77-a3a3-43833a48f17d",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:48:41.662Z",
+        "finishedAt": "2026-10-16T06:48:47.825Z",
+        "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+        "kind": "click",
+        "value": null,
+        "beforeId": "64bf3cac-db7a-4adf-a58e-1696aff7a2d6",
+        "afterId": "47077a1f-514a-4b54-a95e-36fb02e6cb78",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "testid:okd-accordion-header",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "3bad837e-10ea-489e-991f-97652564fbb6",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:49:00.843Z",
+        "finishedAt": "2026-10-16T06:49:07.065Z",
+        "label": "Trade",
+        "kind": "click",
+        "value": null,
+        "beforeId": "47077a1f-514a-4b54-a95e-36fb02e6cb78",
+        "afterId": "1c582b1a-7099-436d-b059-eb137adc12dc",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "id:title-nav-trade",
+        "region": "navigation:navContainer",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "a8f08111-eeff-49aa-bb61-f55afa46f7d6",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:49:20.177Z",
+        "finishedAt": "2026-10-16T06:49:26.840Z",
+        "label": "Scroll page",
+        "kind": "scroll",
+        "value": {
+          "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+          "containerNodeId": "c298fad5-e80c-46ef-81d9-57fad25550b6:510",
+          "left": 0,
+          "top": 675,
+          "expectedLeft": 0,
+          "expectedTop": 0,
+          "width": 1440,
+          "height": 900,
+          "maxLeft": 0,
+          "maxTop": 7159
+        },
+        "beforeId": "1c582b1a-7099-436d-b059-eb137adc12dc",
+        "afterId": "6d4ddc6d-a17e-4bf0-80a6-cc8562e61856",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": null,
+        "region": null,
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      },
+      {
+        "id": "981e890b-705e-4aaf-b4a5-8cf56b949d81",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:49:39.257Z",
+        "finishedAt": "2026-10-16T06:49:46.248Z",
+        "label": "Search crypto",
+        "kind": "fill",
+        "value": "example",
+        "beforeId": "6d4ddc6d-a17e-4bf0-80a6-cc8562e61856",
+        "afterId": "883d0a47-a724-4093-a8d0-4fe1045d5576",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "testid:okd-input",
+        "region": "navigation:navContainer",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "17d3ab8f-576e-4d31-b6cf-4e676157b8f7",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:49:59.626Z",
+        "finishedAt": "2026-10-16T06:50:05.828Z",
+        "label": "Trade",
+        "kind": "click",
+        "value": null,
+        "beforeId": "883d0a47-a724-4093-a8d0-4fe1045d5576",
+        "afterId": "f6612edf-e86a-4fd8-ae24-31701a9352b3",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "id:title-nav-trade",
+        "region": "navigation:navContainer",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "9dc9cc4c-c34d-48fe-acb2-1097ed26fc32",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:50:18.589Z",
+        "finishedAt": "2026-10-16T06:50:25.560Z",
+        "label": "Search crypto",
+        "kind": "fill",
+        "value": "example",
+        "beforeId": "f6612edf-e86a-4fd8-ae24-31701a9352b3",
+        "afterId": "c4308604-efcc-41da-81c3-97e6fa83e3dd",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "testid:okd-input",
+        "region": "navigation:navContainer",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "b4d9f96a-b64e-48aa-8f95-b65d6b9b060e",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:50:43.099Z",
+        "finishedAt": "2026-10-16T06:50:49.133Z",
+        "label": "Where can I learn more about trading?",
+        "kind": "click",
+        "value": null,
+        "beforeId": "c4308604-efcc-41da-81c3-97e6fa83e3dd",
+        "afterId": "fe6eca8e-5d43-4d01-b7d8-9656c408a8d0",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "testid:okd-accordion-header",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "1d311e94-ccd2-45ce-a32a-dbd17455ece3",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:51:02.111Z",
+        "finishedAt": "2026-10-16T06:51:07.905Z",
+        "label": "Where can I find more information about Bitcoin (BTC)?",
+        "kind": "click",
+        "value": null,
+        "beforeId": "fe6eca8e-5d43-4d01-b7d8-9656c408a8d0",
+        "afterId": "0fdc54e3-8879-4ec6-bd3b-6f681283e46b",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "testid:okd-accordion-header",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "120a6b23-dd8c-4510-9fd6-763670f94154",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:51:20.627Z",
+        "finishedAt": "2026-10-16T06:51:26.574Z",
+        "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+        "kind": "click",
+        "value": null,
+        "beforeId": "0fdc54e3-8879-4ec6-bd3b-6f681283e46b",
+        "afterId": "5de04dac-1318-4c6f-8065-6c9858b34f2b",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "testid:okd-accordion-header",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "b70770c2-e770-4ecb-ab2a-144eacb4442b",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:51:39.104Z",
+        "finishedAt": "2026-10-16T06:51:46.156Z",
+        "label": "Selected language and currency: English/USD",
+        "kind": "click",
+        "value": null,
+        "beforeId": "5de04dac-1318-4c6f-8065-6c9858b34f2b",
+        "afterId": "93116d72-109a-4adb-abf3-d000380fe785",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "id:language",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "2941ce20-4408-479b-b3b4-f5b309e80a04",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:52:02.976Z",
+        "finishedAt": "2026-10-16T06:52:09.417Z",
+        "label": "Where can I learn more about trading?",
+        "kind": "click",
+        "value": null,
+        "beforeId": "93116d72-109a-4adb-abf3-d000380fe785",
+        "afterId": "32263287-498b-4218-9d7c-3d3523037939",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "testid:okd-accordion-header",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "a83e68fe-77a4-49b5-b372-832da102a10e",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:52:22.577Z",
+        "finishedAt": "2026-10-16T06:52:29.054Z",
+        "label": "Where can I find more information about Bitcoin (BTC)?",
+        "kind": "click",
+        "value": null,
+        "beforeId": "32263287-498b-4218-9d7c-3d3523037939",
+        "afterId": "a3e44ec1-d316-48f0-a6cc-d3278ea8ac4d",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "testid:okd-accordion-header",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "365165d4-ba39-43ec-8e7c-c750302c33cd",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:52:44.032Z",
+        "finishedAt": "2026-10-16T06:52:51.107Z",
+        "label": "Selected language and currency: English/USD",
+        "kind": "click",
+        "value": null,
+        "beforeId": "a3e44ec1-d316-48f0-a6cc-d3278ea8ac4d",
+        "afterId": "b9e1f591-8a26-420d-bf5a-96ecd4ec7fbe",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "id:language",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "d87bee9e-1d51-4df4-b0ec-faadd6e3b042",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:53:08.262Z",
+        "finishedAt": "2026-10-16T06:53:14.831Z",
+        "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+        "kind": "click",
+        "value": null,
+        "beforeId": "b9e1f591-8a26-420d-bf5a-96ecd4ec7fbe",
+        "afterId": "504de7b1-244e-4dd4-8612-ec17e3141976",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": "testid:okd-accordion-header",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "bdf4714f-1864-44db-90f7-cf080faae65d",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:53:29.171Z",
+        "finishedAt": "2026-10-16T06:53:36.075Z",
+        "label": "Home",
+        "kind": "click",
+        "value": null,
+        "beforeId": "504de7b1-244e-4dd4-8612-ec17e3141976",
+        "afterId": "a045bc4f-f23a-47b2-b1c5-a3ab6ddb06f3",
+        "documentId": "c298fad5-e80c-46ef-81d9-57fad25550b6",
+        "stableKey": null,
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      },
+      {
+        "id": "9e1aae39-1b8c-4011-988b-90ac0efd725e",
+        "status": "succeeded",
+        "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+        "startedAt": "2026-10-16T06:53:49.146Z",
+        "finishedAt": "2026-10-16T06:53:53.302Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "a045bc4f-f23a-47b2-b1c5-a3ab6ddb06f3",
+        "afterId": "2ced676e-c3eb-49b9-84a2-d8ae3b467161",
+        "documentId": "6ff708d5-294a-4dd0-8949-71beb08b7d5a",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      }
+    ],
+    "nonSuccess": [],
+    "newlySucceededPlanRows": 8,
+    "newlySucceededExactLeafScopes": 2,
+    "newlySucceededOperationScopes": [
+      {
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+        "label": "Home",
+        "role": "link",
+        "kind": "click"
+      },
+      {
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+        "label": "Home",
+        "role": "link",
+        "stableKey": "explorer:context:v1:b9fca8cb7d29f29c50b13af6aa5eafd00c8a3e6c0f579d86e9dd08e1596330d1",
+        "kind": "click"
+      }
+    ],
+    "repeatedLabelKindValue": [
+      {
+        "label": "Close",
+        "kind": "click",
+        "count": 2,
+        "attemptIds": [
+          "85efe63e-94f5-4fb2-8e41-1ede8ff43244",
+          "9e1aae39-1b8c-4011-988b-90ac0efd725e"
+        ]
+      },
+      {
+        "label": "Search crypto",
+        "kind": "fill",
+        "count": 3,
+        "attemptIds": [
+          "fc3246db-0219-4525-8950-a06b4257bf56",
+          "981e890b-705e-4aaf-b4a5-8cf56b949d81",
+          "9dc9cc4c-c34d-48fe-acb2-1097ed26fc32"
+        ]
+      },
+      {
+        "label": "Where can I learn more about trading?",
+        "kind": "click",
+        "count": 3,
+        "attemptIds": [
+          "f4a60cb0-9ee4-43d0-8f26-99ed02ac2ffe",
+          "b4d9f96a-b64e-48aa-8f95-b65d6b9b060e",
+          "2941ce20-4408-479b-b3b4-f5b309e80a04"
+        ]
+      },
+      {
+        "label": "Where can I find more information about Bitcoin (BTC)?",
+        "kind": "click",
+        "count": 3,
+        "attemptIds": [
+          "2e0a6921-9ab6-4a5f-b7b4-00515601b9a6",
+          "1d311e94-ccd2-45ce-a32a-dbd17455ece3",
+          "a83e68fe-77a4-49b5-b372-832da102a10e"
+        ]
+      },
+      {
+        "label": "Trade",
+        "kind": "click",
+        "count": 3,
+        "attemptIds": [
+          "3e438238-cc91-4aa1-9846-559510ce4bb7",
+          "3bad837e-10ea-489e-991f-97652564fbb6",
+          "17d3ab8f-576e-4d31-b6cf-4e676157b8f7"
+        ]
+      },
+      {
+        "label": "I have some questions about buying cryptocurrency. Who can I speak to?",
+        "kind": "click",
+        "count": 3,
+        "attemptIds": [
+          "b17009af-923e-4c77-a3a3-43833a48f17d",
+          "120a6b23-dd8c-4510-9fd6-763670f94154",
+          "d87bee9e-1d51-4df4-b0ec-faadd6e3b042"
+        ]
+      },
+      {
+        "label": "Selected language and currency: English/USD",
+        "kind": "click",
+        "count": 2,
+        "attemptIds": [
+          "b70770c2-e770-4ecb-ab2a-144eacb4442b",
+          "365165d4-ba39-43ec-8e7c-c750302c33cd"
+        ]
+      }
+    ],
+    "historicalEvidenceNotCurrentSuccess": true,
+    "repetitionCaveat": "Matching labels/kinds/values only flag possible repeated work. They do not assert host operation equivalence, identity or new coverage."
+  },
+  "models": {
+    "jev": {
+      "requests": 57,
+      "purposeCounts": {
+        "region-review": 24,
+        "control-classification": 3,
+        "identity-review": 1,
+        "control-risk": 1,
+        "probe-risk": 2,
+        "next-action": 23,
+        "recovery-selection": 3
+      },
+      "statusCounts": {
+        "requested": 0,
+        "returned": 0,
+        "applied": 54,
+        "rejected": 3,
+        "stale": 0,
+        "failed": 0,
+        "cancelled": 0
+      },
+      "elapsedMsSum": 66325,
+      "elapsedMsMedian": 1104,
+      "elapsedMsP95NearestRank": 2601,
+      "missingDurationRequests": 0,
+      "reportedUsage": {
+        "input_tokens": 797460,
+        "output_tokens": 107209,
+        "cost": 0.03349332
+      },
+      "usageAvailableResponses": 57
+    },
+    "llm": {
+      "requests": 1,
+      "purposeCounts": {
+        "classification-clarification": 1
+      },
+      "statusCounts": {
+        "requested": 0,
+        "returned": 0,
+        "applied": 1,
+        "rejected": 0,
+        "stale": 0,
+        "failed": 0,
+        "cancelled": 0
+      },
+      "elapsedMsSum": 4244,
+      "elapsedMsMedian": 4244,
+      "elapsedMsP95NearestRank": 4244,
+      "missingDurationRequests": 0,
+      "reportedUsage": {
+        "prompt_tokens": 3881,
+        "completion_tokens": 568,
+        "total_tokens": 4449,
+        "cost": 0.0018459
+      },
+      "usageAvailableResponses": 1
+    }
+  },
+  "phases": {
+    "consecutiveActionDispatchIntervals": {
+      "count": 22,
+      "sumMs": 523601,
+      "p95MsNearestRank": 24473,
+      "medianMs": 19687.5,
+      "minMs": 16778,
+      "maxMs": 100016
+    },
+    "consecutiveActionVerifiedIntervals": {
+      "count": 22,
+      "sumMs": 523016,
+      "p95MsNearestRank": 27788,
+      "medianMs": 19708.5,
+      "minMs": 15000,
+      "maxMs": 98463
+    },
+    "dispatchValidationToDispatch": {
+      "count": 23,
+      "sumMs": 31451,
+      "p95MsNearestRank": 3268,
+      "medianMs": 1269,
+      "minMs": 128,
+      "maxMs": 3500
+    },
+    "actionDispatchToVerified": {
+      "count": 23,
+      "sumMs": 288792,
+      "p95MsNearestRank": 15020,
+      "medianMs": 12191,
+      "minMs": 9646,
+      "maxMs": 18590
+    },
+    "probeDispatchToVerified": {
+      "count": 0,
+      "sumMs": 0,
+      "p95MsNearestRank": null,
+      "medianMs": null,
+      "minMs": null,
+      "maxMs": null
+    },
+    "unmatchedActionDispatchEvents": 0,
+    "unmatchedProbeDispatchEvents": 0,
+    "jevNextActionRequest": {
+      "count": 23,
+      "sumMs": 39924,
+      "p95MsNearestRank": 2672,
+      "medianMs": 1636,
+      "minMs": 368,
+      "maxMs": 3992
+    },
+    "resumeAt": "2026-10-16T06:43:21.970702+00:00",
+    "resumeToReattachedMs": 32439
+  },
+  "previousPhaseComparison": {
+    "metricVersion": 3,
+    "fromEventSequence": 37591,
+    "fromAt": "2026-10-16T04:37:26.501Z",
+    "toEventSequence": 38596,
+    "toAt": "2026-10-16T04:46:56.160Z",
+    "phases": {
+      "consecutiveActionDispatchIntervals": {
+        "count": 19,
+        "sumMs": 490785,
+        "p95MsNearestRank": 94888,
+        "medianMs": 22064,
+        "minMs": 19100,
+        "maxMs": 94888
+      },
+      "consecutiveActionVerifiedIntervals": {
+        "count": 19,
+        "sumMs": 492697,
+        "p95MsNearestRank": 94303,
+        "medianMs": 22353,
+        "minMs": 19471,
+        "maxMs": 94303
+      },
+      "dispatchValidationToDispatch": {
+        "count": 20,
+        "sumMs": 124056,
+        "p95MsNearestRank": 6891,
+        "medianMs": 6620.5,
+        "minMs": 238,
+        "maxMs": 6961
+      },
+      "actionDispatchToVerified": {
+        "count": 20,
+        "sumMs": 176193,
+        "p95MsNearestRank": 10254,
+        "medianMs": 8599.5,
+        "minMs": 6663,
+        "maxMs": 10397
+      },
+      "probeDispatchToVerified": {
+        "count": 0,
+        "sumMs": 0,
+        "p95MsNearestRank": null,
+        "medianMs": null,
+        "minMs": null,
+        "maxMs": null
+      },
+      "unmatchedActionDispatchEvents": 0,
+      "unmatchedProbeDispatchEvents": 0,
+      "jevNextActionRequest": {
+        "count": 20,
+        "sumMs": 29755,
+        "p95MsNearestRank": 1671,
+        "medianMs": 1538.0,
+        "minMs": 399,
+        "maxMs": 1721
+      }
+    },
+    "note": "Prior run from round.reattached to task.paused; excludes attach cold-start."
+  },
+  "currentObserved": {
+    "sessionId": "59264662-03b7-46da-aa03-214a6f88eca7",
+    "sessionStatus": "paused",
+    "observationId": "50e176d7-ce9e-4507-868e-c668bee1fe7f",
+    "documentId": "6ff708d5-294a-4dd0-8949-71beb08b7d5a",
+    "capturedAt": "2026-10-16T06:54:20.396Z",
+    "url": "https://www.okx.com/",
+    "controls": 160,
+    "visibleEnabledControls": 115,
+    "storedCandidates": 106,
+    "rawCandidateBlockers": {
+      "outside_scrollable_area": 2
+    },
+    "rawBlockerCaveat": "Stored observation candidate facts only; no current SDK availability query or dispatch authorization asserted.",
+    "gapCodes": {
+      "STRUCTURAL_LIST_SCAN_TRUNCATED": 1,
+      "STRUCTURAL_DISCOVERY_LIMIT": 4,
+      "UNSUPPORTED_IFRAME": 1,
+      "EVENT_LISTENER_COVERAGE": 1,
+      "UNSTABLE": 1,
+      "INTERACTION_STABLE": 1
+    }
+  },
+  "remaining": {
+    "planRows": 2722,
+    "exactScopes": 1589,
+    "unfinishedExactScopes": 1516,
+    "reasonRows": {
+      "unknown_action_outcome": 3,
+      "UNKNOWN_DISPATCH_REQUIRES_REVIEW": 1,
+      "observation_incomplete": 1,
+      "boundary_preservation_limit": 1,
+      "recovery_unresolved": 1,
+      "operation_risk_unresolved": 45,
+      "operation_basis_unconfirmed": 124,
+      "observed_in_scope": 729,
+      "outside_active_boundary": 224,
+      "outside_scrollable_area": 19,
+      "operation_unavailable": 242,
+      "operation_not_executed": 453,
+      "pointer_intercepted": 87,
+      "region_review_required": 485,
+      "ambiguous_scope_match": 5,
+      "interface_risk_required": 8,
+      "probe_unresolved": 40,
+      "classification_unresolved": 90,
+      "boundary_exit_unresolved": 1,
+      "identity_unresolved": 6,
+      "Control is not visible or enabled": 1
+    },
+    "unknownAttempts": [
+      {
+        "attemptId": "a7e1dcc5-1692-4391-b573-ef3bd0c68324",
+        "sessionId": "27513942-05b7-43e6-bedd-712d0aadfd75",
+        "status": "unknown",
+        "afterId": "71987594-8de1-4da0-8322-28a2f8b91a72",
+        "sourceUrl": "https://www.okx.com/convert/btc-to-usd",
+        "targetUrl": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application"
+      }
+    ],
+    "acceptedUnsupported": [
+      {
+        "id": "fb6a2ddd-3472-466e-a2b3-9a866bbdcfc7",
+        "reason": "missing_capability:UNSUPPORTED_CANVAS",
+        "status": "untested",
+        "required": false,
+        "evidenceCount": 1
+      }
+    ],
+    "notExhaustive": true
+  },
+  "progressEvents": {
+    "round.reattached": 1,
+    "review.reopened": 3,
+    "decision.requested": 58,
+    "decision.returned": 58,
+    "decision.resolved": 57,
+    "decision.applied": 55,
+    "decision.effect": 82,
+    "scope.retained": 2,
+    "review.resolved": 3,
+    "scope.audit": 24,
+    "action.dispatch": 23,
+    "action.verified": 23,
+    "action.priority": 7,
+    "branch.reentry_deferred": 2,
+    "decision.rejected": 3,
+    "round.audit": 1
+  },
+  "lastEvents": [
+    {
+      "sequence": 42911,
+      "at": "2026-10-16T06:54:27.610Z",
+      "type": "interventions.updated",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 42912,
+      "at": "2026-10-16T06:54:32.030Z",
+      "type": "decision.requested",
+      "actor": "jev",
+      "decisionId": "4004d42d-7453-4d2f-ae98-2074007c5bd6"
+    },
+    {
+      "sequence": 42913,
+      "at": "2026-10-16T06:54:33.227Z",
+      "type": "decision.returned",
+      "actor": "jev",
+      "decisionId": "4004d42d-7453-4d2f-ae98-2074007c5bd6"
+    },
+    {
+      "sequence": 42914,
+      "at": "2026-10-16T06:54:33.228Z",
+      "type": "decision.resolved",
+      "actor": "program",
+      "decisionId": "4004d42d-7453-4d2f-ae98-2074007c5bd6"
+    },
+    {
+      "sequence": 42915,
+      "at": "2026-10-16T06:54:33.228Z",
+      "type": "decision.rejected",
+      "actor": "jev",
+      "decisionId": "4004d42d-7453-4d2f-ae98-2074007c5bd6"
+    },
+    {
+      "sequence": 42916,
+      "at": "2026-10-16T06:54:33.228Z",
+      "type": "decision.effect",
+      "actor": "jev",
+      "decisionId": "4004d42d-7453-4d2f-ae98-2074007c5bd6"
+    },
+    {
+      "sequence": 42917,
+      "at": "2026-10-16T06:54:37.310Z",
+      "type": "scope.audit",
+      "actor": "program",
+      "decisionId": null
+    },
+    {
+      "sequence": 42918,
+      "at": "2026-10-16T06:54:37.455Z",
+      "type": "round.audit",
+      "actor": "program",
+      "decisionId": null
+    }
+  ],
+  "readOnlyAudit": true
+}

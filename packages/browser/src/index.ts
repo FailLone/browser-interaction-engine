@@ -125,18 +125,19 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     }
     return this.historicalExplorationSnapshot(sid,observationId,options.includeCompletionAudit);
   }
-  private currentExplorationSnapshot(sid:string,observationId?:string) {
+  // Protected signatures retain their inferred shapes in published declarations.
+  protected currentExplorationSnapshot(sid:string,observationId?:string) {
     const {snapshot:base,material}=this.captureCurrentFacts(sid,observationId);
     return {...this.explorationFacts(sid,base,material.session),historyAuditIncluded:false as const,frontier:undefined,explorationAudit:undefined,completionAudit:undefined};
   }
-  private historicalExplorationSnapshot(sid:string,observationId?:string,includeCompletionAudit=false) {
+  protected historicalExplorationSnapshot(sid:string,observationId?:string,includeCompletionAudit=false) {
     const {snapshot:base,material}=this.captureAudit(sid,observationId),o=base.observation;
     let completionAudit:ReturnType<typeof auditBrowserCompletion>|undefined;
     if(includeCompletionAudit){const records=this.classifications.records(sid),coverage=describeControlCoverage(material.observations,material.attempts,material.allActions,records,material.hypotheses);
       completionAudit=auditBrowserCompletion(base.explorationAudit,coverage,material.observations,o.id,material.groups,records);}
     return {...this.explorationFacts(sid,base,material.session),historyAuditIncluded:true as const,frontier:base.frontier,explorationAudit:base.explorationAudit,completionAudit};
   }
-  private explorationFacts(sid:string,base:ReturnType<BrowserEngine['captureCurrentFacts']>['snapshot'],session:ReturnType<BrowserEngine['session']>) {
+  protected explorationFacts(sid:string,base:ReturnType<BrowserEngine['captureCurrentFacts']>['snapshot'],session:ReturnType<BrowserEngine['session']>) {
     const o=base.observation;
     const regions=this.regions.material(o,base.actions,session),{classifications,operations,nonInteractive}=this.interpretationMaterial(o,base.actions),discovery=this.discoveryScans.material(o);
     const obligations={criticalGaps:o.gaps.filter(g=>g.critical).map(g=>g.code),regions:regions.enabled?regions.unassignedControlIds:[],pageTraversal:regions.enabled&&regions.unassignedPageTraversal,

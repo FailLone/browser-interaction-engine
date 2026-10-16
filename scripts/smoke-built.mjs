@@ -1,3 +1,4 @@
+import './smoke-public-types.mjs';
 import { SqliteStore } from '@interaction/storage-sqlite';
 import { createServer as createFixture } from 'node:http';
 import { once } from 'node:events';

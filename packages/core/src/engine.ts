@@ -165,16 +165,23 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       const old=before.controls.find(c=>c.localId===attempt.action.localId),target=current.controls.find(c=>c.localId===action.localId);
       if(!old||!target){result.reason='target_correspondence_missing';return result;}
       const hint=getHint(target),prior=getHint(old);
+      const sameInstance=()=>before.sessionId===current.sessionId&&!!before.instanceScope&&before.instanceScope===current.instanceScope
+        &&!!old.instanceId&&old.instanceId===target.instanceId&&[before,current].every(o=>count(o,'instance',c=>c.instanceId,old.instanceId)===1);
       let evidence:string[];
       if(hint&&prior&&hint.key===prior.key){
-        if([before,current].some(o=>count(o,'hint',c=>getHint(c)?.key,hint.key)!==1)){result.reason='target_correspondence_ambiguous';return result;}
-        evidence=hint.evidence;
+        if([before,current].some(o=>count(o,'hint',c=>getHint(c)?.key,hint.key)!==1)){
+          // A repeated page-declared key is not identity evidence. It also
+          // cannot erase direct continuity of one unique, retained DOM instance.
+          // No resolved-identity fallback is allowed through this ambiguity.
+          if(!sameInstance()){result.reason='target_correspondence_ambiguous';return result;}
+          evidence=['current-instance-continuity','nonunique-hint-not-used'];
+        }else evidence=hint.evidence;
       }else if(before.sessionId===current.sessionId){
         const resolve=resolveIdentity(sessionId),identity=resolve(old);
-        const sameInstance=before.instanceScope===current.instanceScope&&old.instanceId===target.instanceId&&[before,current].every(o=>count(o,'instance',c=>c.instanceId,old.instanceId)===1);
+        const retainedInstance=sameInstance();
         const sameIdentity=identity&&identity===resolve(target)&&[before,current].every(o=>count(o,'identity',resolve,identity)===1);
-        if(!sameInstance&&!sameIdentity){result.reason='target_correspondence_missing';return result;}
-        evidence=[sameInstance?'current-instance-continuity':'resolved-identity-projection'];
+        if(!retainedInstance&&!sameIdentity){result.reason='target_correspondence_missing';return result;}
+        evidence=[retainedInstance?'current-instance-continuity':'resolved-identity-projection'];
       }else if(!hint&&!prior&&!old.identityScope&&!target.identityScope&&old.name&&target.name){
         // Reuse the adapter signature and local identity judgments. Uniqueness
         // is checked in both complete observations; this still grants no identity.

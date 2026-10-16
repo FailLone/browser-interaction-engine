@@ -240,7 +240,7 @@ export class ExplorerPlugin {
     if(!control||!control.visible||!control.enabled)throw new ExplorerError('PROBE_TARGET_UNAVAILABLE');
     if(task.plan.some(i=>!i.required&&i.reason==='user_excluded'&&controlInScope(i.scope,control,o,actions))||
       !task.plan.some(i=>i.required&&i.dispatchScope===true&&!['succeeded','excluded'].includes(i.status)&&[i.scope,...i.prerequisites].some(s=>controlInScope(s,control,o,actions))))throw new ExplorerError('PROBE_OUTSIDE_SCOPE');
-    const scope=scopeForControl(control,o),round=task.rounds.at(-1)!;
+    const scope=scopeForControl(control,o),round=task.rounds.at(-1)!,entryPath=this.pathResolver(round,o)(scope,localId);
     // Preserve the old page's obligations before a probe can reveal or hide UI.
     const snapshot=this.host.explorationSnapshot(o.sessionId,o.id,{includeHistoryAudit:false}),completed=completedOperations(this.host,task,o,[...actions,...snapshot.operationCandidates]);
     this.auditRemainingScopes(task,round,o,snapshot,completed);
@@ -258,7 +258,7 @@ export class ExplorerPlugin {
       if(!attempt?.id||attempt.requestId!==requestId||attempt.sessionId!==o.sessionId)throw new ExplorerError('PROBE_RESULT_UNVERIFIED');
       this.recordProbeOutcome(task,attempt,scope);
       if(['unknown','executing'].includes(attempt.status))throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
-      if(attempt.status==='succeeded'&&attempt.afterId)this.trackTransition(round,o,this.host.observation(o.sessionId,attempt.afterId),{...scope,kind});
+      if(attempt.status==='succeeded'&&attempt.afterId)this.trackTransition(round,o,this.host.observation(o.sessionId,attempt.afterId),{...scope,kind},entryPath);
       delete task.pendingDispatch;this.store.save(task);
     }catch(error){
       const code=(error as {code?:string}).code;
@@ -466,12 +466,12 @@ export class ExplorerPlugin {
     // Same-label targets must be disambiguated by scope/role/stable key. Never choose an arbitrary occurrence.
     const counts=new Map<string,number>();for(const a of actions){const k=digest(scopeFor(a,o));counts.set(k,(counts.get(k)||0)+1);}
     const unique=eligible.filter(a=>{if(counts.get(digest(scopeFor(a,o)))===1)return true;this.gap(task,'ambiguous_scope_match',scopeFor(a,o));return false;});
-    const recordedScopes=new Set(task.plan.filter(i=>i.required).map(i=>digest(i.scope)));
+    const recordedScopes=new Set(task.plan.filter(i=>i.required).map(i=>digest(i.scope))),pathFor=this.pathResolver(round,o);
     for(const candidate of unique.filter(a=>includesScope(task.plan,a,o)==='target')) {
       const scope=scopeFor(candidate,o),key=digest(scope);
       // A coarse historical gap can match several distinct current controls. Keep
       // each exact operation's evidence so one success never suppresses its peers.
-      if(!recordedScopes.has(key)){task.plan.push(this.newItem({title:`${candidate.kind} ${candidate.label}`,scope,prerequisites:[...round.entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false));recordedScopes.add(key);}
+      if(!recordedScopes.has(key)){task.plan.push(this.newItem({title:`${candidate.kind} ${candidate.label}`,scope,prerequisites:[...pathFor(scope,candidate.localId)],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false));recordedScopes.add(key);}
     }
     this.store.save(task);
     if(unique.length) {
@@ -507,12 +507,13 @@ export class ExplorerPlugin {
       if(frame?.stateId===o.stateId)frame.remaining=[...new Map([...frame.remaining,...remaining].map(scope=>[digest(scope),scope])).values()];
       else round.stack.push({checkpointId:checkpoint.id,observationId:o.id,stateId:o.stateId,used:[],path:[...round.entryPath],remaining:[...new Map(remaining.map(scope=>[digest(scope),scope])).values()]});
       this.assert(task,signal,o.id,selected.decision.revision);
+      const entryPath=this.pathForAction(round,action,o);
       const reentry=this.neededEntry(task,round,action,o);if(reentry)this.recordEntry(task,round,action,o);
       const purpose=reentry?'prerequisite':includesScope(task.plan,action,o);const items=task.plan.filter(i=>i.required&&!i.reason.startsWith('missing_capability:')&&matches(i.scope,action,o));
-      if(purpose==='target'&&!items.some(i=>i.scope.kind&&i.scope.label)) {const leaf=this.newItem({title:`${action.kind} ${action.label}`,scope:scopeFor(action,o),prerequisites:[...round.entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false);task.plan.push(leaf);items.push(leaf);}
+      if(purpose==='target'&&!items.some(i=>i.scope.kind&&i.scope.label)) {const leaf=this.newItem({title:`${action.kind} ${action.label}`,scope:scopeFor(action,o),prerequisites:[...entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false);task.plan.push(leaf);items.push(leaf);}
       const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,decisionId:selected.decision.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id};
       const attemptKey=this.attemptKey(round,action,o);round.tried.push(attemptKey);this.store.save(task);this.router.mark(selected.decision,'applied');this.router.effect(selected.decision,'action',{requestId,actionId:action.id,label:action.label,kind:action.kind,purpose,itemIds:items.map(i=>i.id)});this.event(task,'action.dispatch',{requestId,actionId:action.id,purpose,decisionId:selected.decision.id});
-      try {const attempt=await this.host.execute(sid,action.id,requestId,undefined,{observationId:o.id,profile:'interface-exploration'});this.recordOutcome(task,attempt,items.map(i=>i.id));if(attempt.status==='succeeded'&&attempt.afterId)this.trackTransition(round,o,this.host.observation(sid,attempt.afterId),scopeFor(action,o));
+      try {const attempt=await this.host.execute(sid,action.id,requestId,undefined,{observationId:o.id,profile:'interface-exploration'});this.recordOutcome(task,attempt,items.map(i=>i.id));if(attempt.status==='succeeded'&&attempt.afterId)this.trackTransition(round,o,this.host.observation(sid,attempt.afterId),scopeFor(action,o),entryPath);
       if(attempt.status==='unknown'||attempt.status==='executing')throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');delete task.pendingDispatch;this.store.save(task);
       if(action.kind==='dismiss') {
         const result=this.host.list<BoundaryExitResult>(sid,'boundary-exit-result').find(r=>r.attemptId===attempt.id);this.event(task,'boundary.exit_verified',{attemptId:attempt.id,result});
@@ -523,7 +524,7 @@ export class ExplorerPlugin {
     }
     // Record every remaining in-scope unavailable case, including ungrouped controls.
     for(const action of snapshot.operationCandidates.filter(a=>includesScope(task.plan,a,o)==='target'&&!completed.has(a))) {
-      const path=this.pathForAction(round,action,o);
+      const path=pathFor(scopeFor(action,o),action.localId);
       if(this.navigationIsUnverified(task,action,o)){this.gap(task,'unknown_action_outcome',scopeFor(action,o),true,path);continue;}
       if(round.tried.includes(this.attemptKey(round,action,o)))continue;
       if(!permitted(action,o,availability)){const gap=unexecutedAction(action,availability);this.gap(task,gap.reason,scopeFor(action,o),gap.required,path);}
@@ -562,12 +563,21 @@ export class ExplorerPlugin {
     return false;
   }
   private currentExit(a:ActionCandidate,o:Observation) {return a.boundary?.intent==='exit'&&a.boundary.key===o.boundaries?.at(-1)?.key;}
-  private trackTransition(round:Round,before:Observation,after:Observation,entry:Scope) {
+  private trackTransition(round:Round,before:Observation,after:Observation,entry:Scope,entryPath:Scope[]) {
     this.trackBoundary(round,after);
     const transition=this.host.interactionTransition(after.sessionId,before.id,after.id);
     if(!transition.verified)return;
-    if(transition.navigated||transition.entered.length||transition.revealedControlIds.length)round.entryPath.push(entry);
-    else if(transition.exited.length)round.entryPath.pop();
+    // A newly revealed branch descends from the route to its own entry control,
+    // not from every independent disclosure visited before it.
+    if(transition.navigated||transition.entered.length)round.entryPath=[...entryPath,entry];
+    else if(transition.exited.length){
+      // Restore the path observed outside the exited boundary; an intervening
+      // disclosure inside a modal is not the modal's parent route.
+      const boundaryKeys=(o:Observation)=>o.boundaries?.map(b=>b.key)||[];
+      const frame=[...round.stack].reverse().find(frame=>{try{const source=this.host.observation(before.sessionId,frame.observationId);return source.instanceScope===after.instanceScope&&digest(source.context)===digest(after.context)&&digest(boundaryKeys(source))===digest(boundaryKeys(after));}catch{return false;}});
+      if(frame)round.entryPath=[...frame.path];
+      else round.entryPath=entryPath.slice(0,Math.max(0,entryPath.length-transition.exited.length));
+    }else if(transition.revealedControlIds.length)round.entryPath=[...entryPath,entry];
   }
   private trackBoundary(round:Round,o:Observation) {
     const state=this.host.boundaryState(o.sessionId,o.id);if(!state.verified)return;
@@ -607,11 +617,36 @@ export class ExplorerPlugin {
     const pending=[...new Set(targets.map(i=>digest(i.scope)))].sort();
     return `branch-v3:${digest({scope:scopeFor(a,o),pending})}`;
   }
-  private pathForAction(round:Round,a:ActionCandidate,o:Observation) {
-    // A background sibling already belonged to an earlier frame. Opening the
-    // current dialog must not become a prerequisite for that sibling.
-    return round.stack.find(frame=>frame.remaining.some(scope=>matches(scope,a,o)))?.path||round.entryPath;
+  /** One synchronous path read. Occurrence continuity supplies route evidence only. */
+  private pathResolver(round:Round,o:Observation) {
+    const context=digest(o.context),material=new Map<Frame,{source:Observation;context:string;prior:Map<string,string>}|undefined>();
+    return (scope:Scope,localId?:string):Scope[]=>{
+      for(const frame of round.stack){
+        if(!material.has(frame)){
+          try{
+            const source=this.host.observation(o.sessionId,frame.observationId);
+            if(source.instanceScope!==o.instanceScope||digest(source.context)!==context){material.set(frame,undefined);continue;}
+            const transition=this.host.interactionTransition(o.sessionId,source.id,o.id);
+            material.set(frame,transition.verified?{source,context:digest(source.context),prior:new Map(transition.retainedControls.map(c=>[c.afterLocalId,c.beforeLocalId]))}:undefined);
+          }catch{material.set(frame,undefined);}
+        }
+        const data=material.get(frame);if(!data)continue;
+        // Matching names or old task scopes alone cannot remove a navigation or
+        // a changed declared context from the route to this occurrence.
+        if(data.source.instanceScope!==o.instanceScope||data.context!==context)continue;
+        const previous=localId&&data.source.controls.find(c=>c.localId===data!.prior.get(localId));
+        if(!previous||!previous.visible)continue;
+        if(frame.remaining.some(saved=>Object.entries(saved).every(([key,value])=>scope[key as keyof Scope]===value)))return frame.path;
+        // Already observed siblings can be absent from remaining (for example an
+        // earlier success or a not-yet-classified control). Region review labels
+        // do not change their route, but changed target semantics do.
+        const prior=scopeForControl(previous,data.source);
+        if(['url','label','role','stableKey'].every(key=>prior[key as keyof Scope]===scope[key as keyof Scope]))return frame.path;
+      }
+      return round.entryPath;
+    };
   }
+  private pathForAction(round:Round,a:ActionCandidate,o:Observation) {return this.pathResolver(round,o)(scopeFor(a,o),a.localId);}
   private neededEntry(task:Task,r:Round,a:ActionCandidate,o:Observation) {
     if(!includesScope(task.plan,a,o))return false;
     const targets=this.entryTargets(task,a,o);if(!targets.length||r.reentries.includes(this.entryKey(task,a,o,targets)))return false;
@@ -720,11 +755,11 @@ export class ExplorerPlugin {
     const scopes=task.plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='succeeded'&&!(i.scope.kind&&(i.scope.label||i.scope.stableKey||i.scope.value!==undefined)));
     if(!scopes.length)return incomplete;
     completed??=completedOperations(this.host,task,o,snapshot.operationCandidates);
-    const facts=snapshot.obligations,inScope=controlScopeMatcher(o,actions);
+    const facts=snapshot.obligations,inScope=controlScopeMatcher(o,actions),pathFor=this.pathResolver(round,o);
     for(const item of scopes) {
       const pending=snapshot.operationCandidates.filter(a=>matches(item.scope,a,o)&&includesScope(task.plan,a,o)==='target'&&(this.currentExit(a,o)||!completed.has(a))&&!round.tried.includes(this.attemptKey(round,a,o)));
       for(const action of pending) {
-        const path=this.pathForAction(round,action,o);
+        const path=pathFor(scopeFor(action,o),action.localId);
         if(this.navigationIsUnverified(task,action,o)){this.gap(task,'unknown_action_outcome',scopeFor(action,o),true,path,false,o);continue;}
         const control=o.controls.find(c=>c.localId===action.localId);
         const review=action.basis?.status!=='supported'&&control&&(facts.classifications.includes(control.localId)?'classification_unresolved':facts.operations.includes(control.localId)?'operation_basis_unconfirmed':undefined);
