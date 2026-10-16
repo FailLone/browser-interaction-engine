@@ -19,6 +19,8 @@ export interface PlanItem {
   required: boolean; reason: string; evidence: EvidenceRef[]; resolvedBy?: EvidenceRef;
   /** Classification evidence closes a review obligation, never an executed action. */
   reviewResolvedBy?: EvidenceRef & {classificationId:string;classification:'display'|'container'};
+  /** SDK-verified historical member coverage; no execution occurred for this row. */
+  coverageResolvedBy?: {observation:EvidenceRef; relatedItemIds:string[]};
   /** An obligation or gap is not execution authority. Only accepted plan scopes authorize dispatch. */
   dispatchScope?: boolean;
   attempts: { roundId: string; outcome: string; evidence?: EvidenceRef }[];

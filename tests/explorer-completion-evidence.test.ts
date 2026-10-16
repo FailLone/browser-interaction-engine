@@ -129,3 +129,40 @@ it('lets host evidence reconcile stale derived scope encodings without broadenin
     expect(completedOperations(f.host,task,o,actions).size).toBe(0);
   }finally{await plugin.close();await f.close();}
 });
+
+it('closes obsolete exact-scope blockers only with SDK-verified historical coverage, without inventing executions',async()=>{
+  const f=await explorerFixture('<button id="one" type="button">Run</button><button id="two" type="button">Run</button>'),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'));
+  try{
+    const s=await f.host.createSession({...options,url:f.url}),before=f.host.observation(s.id);
+    const a=f.host.actions(s.id).find(a=>a.kind==='click'&&before.controls.find(c=>c.localId===a.localId)?.stableKey==='id:one')!;
+    const attempt=await f.host.execute(s.id,a.id,'source');expect(attempt.status).toBe('succeeded');
+    const o=f.host.observation(s.id),task=plugin.create({url:f.url}),ref={sessionId:s.id,observationId:before.id,attemptId:attempt.id};
+    const proof:PlanItem={id:'proof',title:'Run',scope:scopeFor(a,before),prerequisites:[],completion:'Observed success',status:'succeeded',required:true,dispatchScope:false,reason:'action_verified',evidence:[ref],resolvedBy:ref,attempts:[]};
+    const gap=(id:string,reason:string):PlanItem=>({...structuredClone(proof),id,reason,status:'unresolved',resolvedBy:undefined,evidence:[{sessionId:s.id,observationId:before.id}]});
+    task.plan=[proof,gap('old','region_review_required'),gap('unknown','unknown_action_outcome'),gap('restore','checkpoint_unverified'),gap('unsupported','missing_capability:canvas'),{...gap('explicit','user_goal'),dispatchScope:true},{...gap('missing','operation_not_executed'),evidence:[]}];
+    const settle=plugin as unknown as {settleScopes(task:Task,o:Observation,incomplete:Set<string>,operationsOnly:boolean):void};
+    const count=f.host.list(s.id,'attempt').length;
+    settle.settleScopes(task,o,new Set(),true);
+    const old=task.plan[1];expect(old.status).toBe('succeeded');expect(old.coverageResolvedBy?.relatedItemIds).toEqual(['proof']);expect(old.resolvedBy).toBeUndefined();expect(old.attempts).toEqual([]);
+    expect(task.plan.slice(2).every(i=>i.status==='unresolved'&&!i.coverageResolvedBy)).toBe(true);
+    expect(f.host.list(s.id,'attempt')).toHaveLength(count);
+    const unresolved={...attempt,id:'unknown-attempt',status:'unknown' as const};f.host.store.put('attempt',unresolved);
+    const unknownGap=gap('legacy-unknown','frontier_unknown');unknownGap.evidence.push({...ref,attemptId:unresolved.id});task.plan.push(unknownGap);
+    settle.settleScopes(task,o,new Set(),true);expect(unknownGap.status).toBe('unresolved');expect(unknownGap.coverageResolvedBy).toBeUndefined();
+    // Unknown source evidence must never be laundered through a succeeded task row.
+    f.host.store.put('attempt',{...attempt,status:'unknown'});const later=gap('later','operation_not_executed');task.plan.push(later);
+    settle.settleScopes(task,o,new Set(),true);expect(later.status).toBe('unresolved');expect(later.coverageResolvedBy).toBeUndefined();
+  }finally{await plugin.close();await f.close();}
+});
+
+it('lets the SDK match changed native record-link text only for derived evidence, preserving literal user scopes',async()=>{
+  let quote='12.30';const f=await explorerFixture(()=>`<section id="records" aria-label="Records"><a href="/records/one"><span>One</span><span>$${quote}</span></a><a href="/records/two"><span>Two</span><span>$9</span></a><a href="/records/three"><span>Three</span><span>$8</span></a></section>`),plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'));
+  try{
+    const s=await f.host.createSession({...options,url:f.url}),before=f.host.observation(s.id),c=before.controls.find(c=>c.reviewBinding?.attributes.href==='/records/one')!,a=f.host.actions(s.id).find(a=>a.localId===c.localId)!;
+    const executed=await f.host.execute(s.id,a.id,'source');expect(executed.status).toBe('succeeded');await f.host.stop(s.id);
+    quote='12.80';const next=await f.host.createSession({...options,url:f.url}),o=f.host.observation(next.id),actions=f.host.actions(next.id),task=plugin.create({url:f.url}),ref={sessionId:s.id,observationId:before.id,attemptId:executed.id};
+    const proof:PlanItem={id:'proof',title:'One',scope:scopeFor(a,before),prerequisites:[],completion:'Observed click',status:'succeeded',required:true,dispatchScope:false,reason:'observed_in_scope',evidence:[ref],resolvedBy:ref,attempts:[]};task.plan=[proof];
+    const completed=completedOperations(f.host,task,o,actions);expect(completed.size).toBe(1);expect([...completed].map(a=>o.controls.find(c=>c.localId===a.localId)?.reviewBinding?.attributes.href)).toEqual(['/records/one']);
+    proof.dispatchScope=true;expect(completedOperations(f.host,task,o,actions).size).toBe(0);expect(f.host.list(next.id,'attempt')).toEqual([]);
+  }finally{await plugin.close();await f.close();}
+});

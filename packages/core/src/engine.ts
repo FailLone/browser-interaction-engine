@@ -139,6 +139,13 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const resolveIdentity=(sid:string)=>{if(!resolvers.has(sid))resolvers.set(sid,identityResolver(this.store.list<IdentityHypothesis>('hypothesis',sid)));return resolvers.get(sid)!;};
     const hints=new Map<Control,ReturnType<NonNullable<typeof this.adapter.controlCorrespondence>>>(),signatures=new Map<Control,string>();
     const getHint=(control:Control)=>{if(!hints.has(control))hints.set(control,this.adapter.controlCorrespondence?.(control));return hints.get(control);};
+    const operationHints=new Map<O,Map<string,Map<Control,ReturnType<typeof getHint>>>>();
+    const getOperationHint=(control:Control,kind:string,o:O)=>{
+      let kinds=operationHints.get(o);if(!kinds){kinds=new Map();operationHints.set(o,kinds);}
+      let controls=kinds.get(kind);if(!controls){controls=new Map();kinds.set(kind,controls);}
+      if(!controls.has(control))controls.set(control,this.adapter.operationCorrespondenceHint?.(control,kind,o)||getHint(control));
+      return controls.get(control);
+    };
     const getSignature=(control:Control)=>{if(!signatures.has(control))signatures.set(control,this.adapter.signature(control));return signatures.get(control)!;};
     const counts=new Map<O,Map<string,Map<string,number>>>();
     const count=(o:O,kind:string,key:(c:Control)=>string|undefined,value:string)=>{
@@ -164,12 +171,14 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if(after.gaps.some(g=>g.critical)){result.reason='source_result_incomplete';return result;}
       const old=before.controls.find(c=>c.localId===attempt.action.localId),target=current.controls.find(c=>c.localId===action.localId);
       if(!old||!target){result.reason='target_correspondence_missing';return result;}
-      const hint=getHint(target),prior=getHint(old);
+      const hint=getOperationHint(target,action.kind,current),prior=getOperationHint(old,attempt.action.kind,before);
+      const hintFor=(c:Control,o:O)=>getOperationHint(c,action.kind,o);
       const sameInstance=()=>before.sessionId===current.sessionId&&!!before.instanceScope&&before.instanceScope===current.instanceScope
         &&!!old.instanceId&&old.instanceId===target.instanceId&&[before,current].every(o=>count(o,'instance',c=>c.instanceId,old.instanceId)===1);
       let evidence:string[];
       if(hint&&prior&&hint.key===prior.key){
-        if([before,current].some(o=>count(o,'hint',c=>getHint(c)?.key,hint.key)!==1)){
+        if([before,current].some(o=>count(o,`hint:${action.kind}`,c=>hintFor(c,o)?.key,hint.key)!==1)){
+          if(hint.requiresUniqueTarget||prior.requiresUniqueTarget){result.reason='target_correspondence_ambiguous';return result;}
           // Component keys may be shared by unrelated controls. Prefer direct
           // instance continuity; otherwise require the existing resolved identity
           // AND unique matching adapter semantics in both complete observations.

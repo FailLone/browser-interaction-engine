@@ -102,12 +102,17 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       candidates.sort((a,b)=>Number(b.id===boundaryInstance)-Number(a.id===boundaryInstance)
         ||(boundaryIds?a.controlIds.filter(id=>!boundaryIds.has(id)).length-b.controlIds.filter(id=>!boundaryIds.has(id)).length:0)
         ||strength[b.basis]-strength[a.basis]||b.controlIds.length-a.controlIds.length);
-      const batch:{candidate:RegionCandidate;controlIds:string[];decision?:Decision}[]=[],reserved=new Set<string>();
+      const batch:{candidate:RegionCandidate;controlIds:string[];decision?:Decision}[]=[],reserved=new Set<string>(),overCapacity=new Set<string>();
+      // One current observation supplies every deterministic grouping. The SDK
+      // validates the whole command and recaptures once; five-item batches only
+      // repeated that capture without adding evidence. Its 500-region limit also
+      // includes regions retained by an incremental update (even invalidated ones).
+      const incremental=region.review&&region.delta?.canUpdate;
+      const existing=region.review?.regions.filter(r=>r.status==='active').map(r=>({key:r.key,label:r.label,candidateIds:r.anchors.map(a=>a.id),controlIds:r.controlIds,pageTraversal:r.pageTraversal})) || [];
+      const partitionKeys=new Set((incremental?region.review!.regions:existing).map(r=>r.key));
       const flush=async()=>{
         mark(key);
         // Keep unrelated current regions through the public incremental contract.
-        const incremental=region.review&&region.delta?.canUpdate;
-        const existing=region.review?.regions.filter(r=>r.status==='active').map(r=>({key:r.key,label:r.label,candidateIds:r.anchors.map(a=>a.id),controlIds:r.controlIds,pageTraversal:r.pageTraversal})) || [];
         const command={type:'reviewRegions',review:{observationId:o.id,source:observedUI?'explorer-program':source,evidence:observedUI?[`observation:${o.id}`]:batch.flatMap(entry=>entry.decision?evidence(entry.decision):[]),...(incremental?{update:{baseReviewId:region.review!.id}}:{}),regions:[...(incremental?[]:existing),...batch.map(({candidate,controlIds},index)=>({key:`explorer:${candidate.id}`,label:candidate.label,candidateIds:[candidate.id],controlIds,pageTraversal:index===0&&!boundary&&region.unassignedPageTraversal}))],rejectedCandidateIds:region.review?.rejectedCandidateIds||[]}};
         if(observedUI)await c.programApply!(command,'observed_region_partition');
         else await c.apply(batch.flatMap(entry=>entry.decision?[entry.decision]:[]),command);
@@ -116,7 +121,16 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       for(const candidate of candidates) {
         const controlIds=candidate.controlIds.filter(id=>region.unassignedControlIds.includes(id)&&!reserved.has(id));
         if(!controlIds.some(id=>relevantIds.has(id)))continue;
-        if(observedUI){batch.push({candidate,controlIds});controlIds.forEach(id=>reserved.add(id));if(batch.length>=5)return flush();continue;}
+        if(observedUI){
+          const regionKey=`explorer:${candidate.id}`;
+          if(!partitionKeys.has(regionKey)&&partitionKeys.size>=500){
+            // A capacity limit is unresolved coverage, never permission to drop
+            // existing decisions, sample members, or silently widen a region.
+            for(const id of controlIds)if(relevantIds.has(id))overCapacity.add(id);
+            continue;
+          }
+          partitionKeys.add(regionKey);batch.push({candidate,controlIds});controlIds.forEach(id=>reserved.add(id));continue;
+        }
         const d=await c.choose('region-review','Should this observed region be an exploration scope for the task? This is grouping, not action permission. Exact structural bindings remain with the host for fresh validation.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',candidate:regionEvidence(candidate),controls:region.controls.filter(x=>controlIds.includes(x.localId)),assignedElsewhere:candidate.controlIds.length-controlIds.length},{include:'Recognized coherent exploration region',uncertain:'Cannot decide its role'});
         // A refresh invalidates all prepared region bindings. Submit clear entries
         // first, then ask about this uncertain candidate against the new capture.
@@ -128,7 +142,9 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
         batch.push({candidate,controlIds,decision:d.decision});controlIds.forEach(id=>reserved.add(id));
         if(batch.length>=5)return flush();
       }
+      for(const control of o.controls)if(overCapacity.has(control.localId)&&!reserved.has(control.localId))c.gap('region_partition_capacity',scopeForControl(control,o));
       if(batch.length)return flush();
+      if(observedUI&&candidates.length)mark(key);
       if(!candidates.length){mark(key);c.gap('region_partition_unavailable',{url:o.url});}
     }
   }

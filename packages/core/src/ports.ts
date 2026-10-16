@@ -77,6 +77,8 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   explorationCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
   /** Portable observation evidence, without asserting logical identity or permission. */
   controlCorrespondence?(control: O['controls'][number]): import('./coverage-reconciliation.js').CorrespondenceHint | undefined;
+  /** Optional operation-specific evidence. Does not change control identity or persisted keys. */
+  operationCorrespondenceHint?(control: O['controls'][number], kind: string, observation: O): import('./coverage-reconciliation.js').CorrespondenceHint | undefined;
   /** Uses the adapter's operation sampling semantics with document-local identifiers projected out. */
   correspondenceCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
   /** Optional structural scope for representative depth budgets; raw visit depth is retained. */

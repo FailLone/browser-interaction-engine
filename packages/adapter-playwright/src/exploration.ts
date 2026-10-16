@@ -14,6 +14,29 @@ export function browserControlCorrespondence(c: Control): CorrespondenceHint | u
     invalidatedBy:['nonunique-correspondence','changed-owner-or-binding','changed-operation-conditions','changed-declared-context']} : undefined;
 }
 
+/** A native record link has a captured destination independent of its displayed
+ * quote/count. This is an operation reference, never a control identity. Explicit
+ * labels, record structure, ownership and navigation attributes remain semantic.
+ * Old observations/keys stay unchanged; no text is classified by a site pattern.
+ */
+export function browserOperationCorrespondenceHint(c:Control,kind:string,o:Pick<Observation,'url'>):CorrespondenceHint|undefined {
+  const item=c.structuralItem,context=c.identityContext,attributes=c.reviewBinding?.attributes;
+  if(kind!=='click'||c.tag!=='a'||c.role!=='link'||!item?.recordKey||!item.template
+    ||!context?.scope||!context.binding||!context.evidence.includes('link-destination/v1'))return;
+  const basis=c.actionBasis?.click,href=attributes?.href;
+  if(basis?.status!=='supported'||typeof href!=='string'||!basis.evidence.some(e=>e.source==='html'&&e.rule==='hyperlink/v1'&&e.facts.href===href))return;
+  try {
+    const record:unknown=JSON.parse(item.recordKey),destination=new URL(href,o.url);
+    if(!Array.isArray(record)||record.length!==2||record[0]!=='href'||typeof record[1]!=='string'
+      ||new URL(record[1],o.url).href!==destination.href||!['http:','https:'].includes(destination.protocol))return;
+    return {key:`browser-native-record-link:v1:${hash({destination:destination.href,tag:c.tag,role:c.role,label:c.label,
+      target:attributes?.target,download:attributes?.download,template:item.template,slot:item.slot,
+      scope:context.scope,binding:context.binding})}`,policy:'browser-native-record-link-v1',requiresUniqueTarget:true,
+      evidence:['captured-native-hyperlink-destination','captured-record-template-and-slot','captured-semantic-owner-and-binding','display-name-not-operation-identity'],
+      invalidatedBy:['nonunique-operation-reference','changed-destination-or-navigation-attributes','changed-record-template-or-slot','changed-owner-or-binding','changed-operation-conditions','changed-declared-context']};
+  }catch{return;}
+}
+
 /** Per-round scheduling hint; its historical encoding is retained for persisted retry ledgers. */
 export function browserOperationKey(a: ActionCandidate,o: Observation) {
   const c=o.controls.find(c=>c.localId===a.localId),r=o.regions.find(r=>r.key===c?.region);
@@ -57,6 +80,13 @@ export function controlCase(action: ActionCandidate, o: Observation, portable=fa
   };
   const c = o.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
   if (!c || o.gaps.some(g => g.critical)) return;
+  const native=portable&&browserOperationCorrespondenceHint(c,action.kind,o);
+  if(native&&action.basis?.status==='supported'&&action.basis.evidence.some(e=>e.source==='html'&&e.rule==='hyperlink/v1'&&e.facts.href===c.reviewBinding?.attributes.href)) {
+    const {valid:_valid,...constraints}=c.constraints,{instanceId:_instance,...form}=c.reviewBinding?.form||{};
+    return {key:hash({url:o.url,reference:native.key,boundary:o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})),
+      readOnly:c.readOnly,constraints,options:c.options,attributes:c.reviewBinding?.attributes,form,formOwner:formBinding(c),basis:action.basis,risk:action.risk}),
+      policy:'browser-native-record-link-operation-v1',evidence:[...native.evidence,'Same native navigation operation; displayed text remains retained observation evidence']};
+  }
   // Review record IDs identify evidence, not a new operation. Preserve the
   // reviewed DOM conditions and risk; dispatch still validates the exact review.
   const reviewed = action.basis?.evidence.some(e => e.rule === 'reviewed-control/v1');

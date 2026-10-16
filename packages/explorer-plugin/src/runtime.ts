@@ -70,7 +70,7 @@ export class ExplorerPlugin {
     if(input.goal!==undefined)task.goal=z.string().trim().max(20000).parse(input.goal);
     if(!task.goal&&!input.items&&!supplement&&task.coverageMode!=='all')throw new ExplorerError('EXHAUSTIVE_REQUIRES_ALL');
     if(input.items){const items=z.array(plannedScopeSchema).min(1).max(100).parse(input.items);task.plan=items.map(x=>this.newItem(x));task.intent={version:1,mode:'targeted',source:'user'};}
-    else if(supplement){task.intent={version:1,mode:'targeted',source:'user'};if(!input.itemIds?.length||input.itemIds.some(id=>!task.plan.some(i=>i.id===id)))throw new ExplorerError('INVALID_SCOPE');const ids=new Set(input.itemIds);task.acceptedLimitations=task.acceptedLimitations?.filter(x=>!task.plan.some(i=>ids.has(i.id)&&i.reason===`missing_capability:${x.code}`));for(const item of task.plan){item.required=ids.has(item.id);item.dispatchScope=item.required;if(item.required){item.status='pending';delete item.resolvedBy;delete item.reviewResolvedBy;}}}
+    else if(supplement){task.intent={version:1,mode:'targeted',source:'user'};if(!input.itemIds?.length||input.itemIds.some(id=>!task.plan.some(i=>i.id===id)))throw new ExplorerError('INVALID_SCOPE');const ids=new Set(input.itemIds);task.acceptedLimitations=task.acceptedLimitations?.filter(x=>!task.plan.some(i=>ids.has(i.id)&&i.reason===`missing_capability:${x.code}`));for(const item of task.plan){item.required=ids.has(item.id);item.dispatchScope=item.required;if(item.required){item.status='pending';delete item.resolvedBy;delete item.reviewResolvedBy;delete item.coverageResolvedBy;}}}
     else {task.plan=[];delete task.intent;}
     if(task.pendingDispatch)throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
     const round=task.rounds.at(-1);if(round){round.status='finished';round.endedAt=now();}
@@ -121,6 +121,7 @@ export class ExplorerPlugin {
     if(required && task.plan.length && !task.plan.some(i=>i.required&&i.dispatchScope===true&&Object.entries(i.scope).every(([k,v])=>scope[k as keyof Scope]===undefined||scope[k as keyof Scope]===v)))required=false;
     const key=JSON.stringify({reason,scope});let item=task.plan.find(i=>JSON.stringify({reason:i.reason,scope:i.scope})===key);
     if(!item){item={id:randomUUID(),title:reason,scope,prerequisites:[...prerequisites],completion:'Obtain fresh evidence and verify the requested operation',status:required?'unresolved':reason==='scope_excluded'?'excluded':'untested',required,dispatchScope:false,reason,evidence:[],attempts:[]};task.plan.push(item);}
+    if(item.coverageResolvedBy){const previous=item.coverageResolvedBy;delete item.coverageResolvedBy;item.status=item.required?'unresolved':'untested';this.event(task,'scope.coverage_reopened',{itemId:item.id,previous,reason:'new_unresolved_evidence'});}
     if(item.reviewResolvedBy){const previous=item.reviewResolvedBy;delete item.reviewResolvedBy;delete item.resolvedBy;item.status=item.required?'unresolved':'untested';this.event(task,'review.reopened',{itemId:item.id,previous,reason:'new_unresolved_evidence'});}
     // A synchronous audit already holds the source observation. Reading it once
     // per gap can deserialize hundreds of megabytes without adding evidence.
@@ -787,32 +788,52 @@ export class ExplorerPlugin {
     const key=digest(scopeFor(a,o));if(!(r.routeDeferrals||[]).includes(key)){(r.routeDeferrals??=[]).push(key);this.event(task,'branch.route_unverified',{scope:scopeFor(a,o),reason:'no_absent_target_with_observed_route',itemIds:targets.map(i=>i.id),executionAuthorized:false});this.store.save(task);}
     return false;
   }
-  private operationMembersVerified(task:Task,items:PlanItem[],current:Observation) {
+  private operationMembersVerified(task:Task,items:PlanItem[],current:Observation,requireRetainedSources=false,cache=new Map<string,{source:Observation;members:ActionCandidate[];completed:ReadonlySet<ActionCandidate>}>()) {
     const scope=items[0].scope,refs=new Map<string,{sessionId:string;observationId:string}>();
-    const add=(ref:{sessionId:string;observationId:string})=>refs.set(`${ref.sessionId}:${ref.observationId}`,ref);
+    const itemSources=new Map<PlanItem,Set<string>>();
+    const add=(ref:{sessionId:string;observationId:string},item?:PlanItem)=>{const key=`${ref.sessionId}:${ref.observationId}`;refs.set(key,ref);if(item){const keys=itemSources.get(item)||new Set<string>();keys.add(key);itemSources.set(item,keys);}};
     add({sessionId:current.sessionId,observationId:current.id});
     try {
       for(const item of items)for(const ref of item.evidence){
-        add(ref);
-        if(ref.attemptId){const attempt=this.host.list<ActionAttempt>(ref.sessionId,'attempt').find(a=>a.id===ref.attemptId);if(!attempt)return false;add({sessionId:ref.sessionId,observationId:attempt.beforeId});}
+        add(ref,item);
+        if(ref.attemptId){const attempt=this.host.list<ActionAttempt>(ref.sessionId,'attempt').find(a=>a.id===ref.attemptId);if(!attempt||['unknown','executing'].includes(attempt.status))return false;add({sessionId:ref.sessionId,observationId:attempt.beforeId},item);}
       }
-      let found=false;
+      let found=false;const matchedSources=new Set<string>();
       for(const ref of refs.values()) {
-        const source=ref.observationId===current.id?current:this.host.observation(ref.sessionId,ref.observationId);
-        const members=this.host.operationCoverageCandidates(ref.sessionId,source.id).filter(a=>matches(scope,a,source));
-        if(members.length)found=true;
+        const key=`${ref.sessionId}:${ref.observationId}`;
+        let facts=cache.get(key);
+        if(!facts){const source=ref.observationId===current.id?current:this.host.observation(ref.sessionId,ref.observationId),members=this.host.operationCoverageCandidates(ref.sessionId,source.id);
+          facts={source,members,completed:completedOperations(this.host,task,source,members)};
+          if(cache.size>=8)cache.delete(cache.keys().next().value!);cache.set(key,facts);
+        }
+        const {source,completed}=facts,members=facts.members.filter(a=>matches(scope,a,source));
+        if(members.length){found=true;matchedSources.add(`${ref.sessionId}:${ref.observationId}`);}
         // Retained sources matter too: a member disappearing from the current
         // page is not proof that the historical obligation was completed.
-        const completed=completedOperations(this.host,task,source,members);
         if(members.some(a=>!completed.has(a)))return false;
       }
-      return found;
+      return found&&(!requireRetainedSources||items.every(item=>[...(itemSources.get(item)||[])].some(key=>matchedSources.has(key))));
     }catch{return false;}
   }
   private settleScopes(task:Task,o:Observation,incomplete:Set<string>,operationsOnly=false) {
     const concrete=(item:PlanItem)=>!!(item.scope.kind&&(item.scope.label||item.scope.stableKey||item.scope.value!==undefined));
     const pending=task.plan.filter(i=>i.required&&['pending','unresolved'].includes(i.status)&&(!operationsOnly||concrete(i)||controlReviewGapReasons.has(i.reason)));
     const canSettle=(item:PlanItem)=>!!item.resolvedBy&&!incomplete.has(item.id)&&['pending','unresolved'].includes(item.status)&&!item.reason.startsWith('missing_capability:')&&item.reason!=='unknown_action_outcome'&&item.reason!=='checkpoint_unverified';
+    // Old blocker rows are independent obligations, but need not be executed
+    // again when the SDK can prove coverage for every retained member. Keep this
+    // distinct from resolvedBy: it is historical evidence, never a new attempt.
+    const successful=new Map<string,PlanItem[]>();
+    for(const item of task.plan)if(item.required&&item.status==='succeeded'&&item.resolvedBy?.attemptId){const key=digest(item.scope);successful.set(key,[...(successful.get(key)||[]),item]);}
+    // Synchronous, bounded facts cache; discarded before any observation/review change or await.
+    const coverageFacts=new Map<string,{source:Observation;members:ActionCandidate[];completed:ReadonlySet<ActionCandidate>}>();
+    const groups=new Map<string,PlanItem[]>();
+    for(const item of pending)if(concrete(item)&&item.evidence.length>0&&item.dispatchScope===false&&!item.reason.startsWith('missing_capability:')&&!['unknown_action_outcome','checkpoint_unverified'].includes(item.reason)&&!incomplete.has(item.id)){
+      const key=digest(item.scope);if(successful.has(key))groups.set(key,[...(groups.get(key)||[]),item]);
+    }
+    for(const [key,items] of groups)if(this.operationMembersVerified(task,items,o,true,coverageFacts)){
+      for(const item of items){item.status='succeeded';item.coverageResolvedBy={observation:{sessionId:o.sessionId,observationId:o.id},relatedItemIds:successful.get(key)!.map(i=>i.id)};}
+      this.event(task,'scope.coverage_reconciled',{itemIds:items.map(i=>i.id),relatedItemIds:successful.get(key)!.map(i=>i.id),observationId:o.id,currentExecution:false,executionAuthorized:false});
+    }
     let advanced:boolean;
     do {
       advanced=false;
@@ -823,7 +844,7 @@ export class ExplorerPlugin {
         if(unfinished.length!==peers.length||!peers.every(canSettle))continue;
         // Equal historical rows are evidence for the same obligation, not mutual
         // unfinished children. Settle them together only after every known member.
-        if(concrete(item)&&!this.operationMembersVerified(task,peers,o))continue;
+        if(concrete(item)&&!this.operationMembersVerified(task,peers,o,false,coverageFacts))continue;
         for(const peer of peers)peer.status='succeeded';advanced=true;
       }
     }while(advanced);

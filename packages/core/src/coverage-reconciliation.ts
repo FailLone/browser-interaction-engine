@@ -28,6 +28,8 @@ export interface EquivalentCoverage {
 /** A correspondence is evidence for scheduling, never an identity or replay grant. */
 export interface CorrespondenceHint {
   key: string; policy: string; evidence: string[]; invalidatedBy: string[];
+  /** Operation references may require uniqueness even when an instance/identity is retained. */
+  requiresUniqueTarget?: boolean;
 }
 export interface OperationCorrespondence {
   equivalent: boolean; reason: string; policy?: string; evidence: string[];

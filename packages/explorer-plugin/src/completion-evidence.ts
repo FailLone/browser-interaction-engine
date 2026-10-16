@@ -1,4 +1,4 @@
-import type { ActionCandidate, Observation } from '@interaction/browser';
+import { browserOperationCorrespondenceHint, type ActionCandidate, type Observation } from '@interaction/browser';
 import type { ExplorerHost, Task } from './types.js';
 import { scopeFor } from './policy.js';
 
@@ -14,15 +14,17 @@ export function completedOperations(host:ExplorerHost,task:Task,o:Observation,ac
   const requests:Parameters<ExplorerHost['operationCorrespondences']>[1]['requests']=[],requestIndex=new Map<string,number>(),indices=new Map<ActionCandidate,number[]>();
   for(const action of new Set(actions)) {
     const actual=scopeFor(action,o),matches:number[]=[];
+    const control=o.controls.find(c=>c.localId===action.localId),nativeLink=control&&browserOperationCorrespondenceHint(control,action.kind,o);
     for(const {item,fields} of proofs) {
       // Accepted user scopes retain their literal meaning. Program-derived rows
       // are immutable discovery records, not a second identity implementation:
       // legacy key encodings/review region names must not prevent the host from examining
       // their retained successful attempt. This filter only bounds the batch;
       // the host still proves target uniqueness, operation and context equality.
-      // Keep name/role filtering: the host's current portable operation contract
-      // also requires them, and comparing every click with every proof is costly.
-      if(!fields.every(([key,value])=>JSON.stringify(actual[key as keyof typeof actual])===JSON.stringify(value)))continue;
+      // Native record links may change their displayed name. Only that SDK hint
+      // relaxes the derived name prefilter; the batch still verifies both sides'
+      // destination, unique record, context and operation conditions.
+      if(!fields.every(([key,value])=>key==='label'&&item.dispatchScope===false&&nativeLink||JSON.stringify(actual[key as keyof typeof actual])===JSON.stringify(value)))continue;
       const ref=item.resolvedBy!,source={sessionId:ref.sessionId,attemptId:ref.attemptId!};
       const key=JSON.stringify([action.id,source.sessionId,source.attemptId]);
       let index=requestIndex.get(key);
