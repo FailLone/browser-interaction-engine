@@ -103,7 +103,12 @@ it('keeps a genuinely unsettled modal activation unknown and blocks further disp
     return original(detailed);
   });
   const attempt = await f.execute('Open panel', 'click');
-  expect(attempt).toMatchObject({ status: 'unknown', reason: 'Post-action dependencies did not settle' });
+  // The final DOM read may itself hit the observation deadline while the page
+  // keeps changing. Both paths must preserve unknown and block dispatch; the
+  // diagnostic wording depends on whether that last read finished in time.
+  expect(samples).toBeGreaterThanOrEqual(2);
+  expect(attempt.status).toBe('unknown');
+  expect(f.engine.observation(f.sid).gaps.some(gap => gap.code === 'UNSTABLE')).toBe(true);
   expect(f.engine.recoveryAssessment(f.sid).unknownAttempts.map(a => a.id)).toContain(attempt.id);
   expect(await f.page.locator('#target').isEditable()).toBe(true);
   await expect(f.execute('Target', 'fill')).rejects.toMatchObject({ code: 'UNKNOWN_ACTION_OUTCOME' });

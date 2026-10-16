@@ -6,6 +6,7 @@ import { recoverStore } from './recovery.js';
 import { migrateSamplingSources, sampledFrontierKey } from './sampling-migration.js';
 import { DiffQueries } from './diff-details.js';
 import { NavigationIndex } from './navigation-index.js';
+import type { RecordedNavigationEdge } from './navigation-path.js';
 import { describeFrontier, groupFrontier } from './frontier.js';
 import { ExplorationGroups, currentExplorationDecision, explorationGates, validateExplorationProposals } from './exploration-groups.js';
 import { explorationReviewMaterial } from './exploration-review.js';
@@ -1259,7 +1260,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         const current = this.observation(sessionId), actions = this.actions(sessionId);
         const currentConditions = new Map<string, string>();
         let firstRejected: { attemptId: string; reason: string } | undefined;
-        const path = graph.path(this.navigationKey(current), this.navigationKey(endpoints.target), edge => {
+        const firstEdgeAllowed = (edge: RecordedNavigationEdge) => {
           const old = this.owned<ActionAttempt>('attempt', edge.attemptId, sessionId);
           const matches = actions.filter(action => this.adapter.replayMatches(action, old.action));
           const rejected = (reason: string) => { firstRejected ??= { attemptId: old.id, reason }; return false; };
@@ -1274,7 +1275,22 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           }
           currentConditions.set(old.id, this.navigationCondition(matches[0], current, old.action.value));
           return true;
-        }, edge => index!.cost(edge.attemptId, target ? 'target' : 'checkpoint', currentConditions.get(edge.attemptId)));
+        };
+        const from = this.navigationKey(current), to = this.navigationKey(endpoints.target);
+        let path = graph.path(from, to, firstEdgeAllowed,
+          edge => index!.cost(edge.attemptId, target ? 'target' : 'checkpoint', currentConditions.get(edge.attemptId)));
+        const sessionForPath = this.session(sessionId);
+        const remainingActions = Math.max(0, sessionForPath.options.maxActions - sessionForPath.actionCount);
+        let selection = 'segment_cost';
+        if (path && path.length > remainingActions) {
+          // Preserve a known budget-feasible arrival over a cheaper, longer
+          // route. BFS uses the same current guards. This bounded fallback is
+          // not a globally cost-optimal search under a hop constraint.
+          const shortest = graph.path(from, to, firstEdgeAllowed);
+          if (shortest?.length && shortest.length <= remainingActions) {
+            path = shortest; selection = 'remaining_action_budget';
+          }
+        }
         if (!path?.length) {
           // Filtering unavailable first steps must not introduce entry/reset
           // fallback where the old recorded route would have stopped instead.
@@ -1287,7 +1303,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         }
         if (plan) strategies.push('recorded_path_alternative');
         this.emit(sessionId, 'checkpoint.path_selected', { checkpointId, observationId: current.id, path, plan: plan + 1,
-          scoring: 'conditioned-segment-cost-v1', estimatedCostMs: path.reduce((total, aid) => total + index!.cost(aid, target ? 'target' : 'checkpoint', currentConditions.get(aid)), 0),
+          scoring: 'conditioned-segment-cost-v1', selection, remainingActions, estimatedCostMs: path.reduce((total, aid) => total + index!.cost(aid, target ? 'target' : 'checkpoint', currentConditions.get(aid)), 0),
           index: { ...index!.metrics, edges: graph.size } });
         const beforeAttemptCount = performed.length;
         const replay = await this.replay(sessionId, path, false, performed, targetReached, dispatched);
