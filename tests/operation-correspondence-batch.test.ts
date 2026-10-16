@@ -125,3 +125,24 @@ it('recognizes the same browser occurrence despite repeated test IDs without cov
   expect(proof('First').evidence).toContain('current-instance-continuity');expect(proof('Second').equivalent).toBe(false);
  }finally{await f.close();}
 });
+
+it.each(['same','other-name','ambiguous','other-identity','pending','instance-only','changed-context','changed-operation','unknown'] as const)('refines a shared component key using unique semantics and existing identity, preserving %s',change=>{
+ const f=fixture();f.current.sessionId='old';f.target.sessionId='old';
+ f.current.controls[0].identityId=f.before.controls[0].identityId;f.target.controlId=f.current.controls[0].identityId;
+ const peer={...f.before.controls[0],localId:'peer',instanceId:'peer-instance',identityId:'peer-identity',name:'Other'};
+ f.before.controls.push(peer);f.current.controls.push({...peer,instanceId:'rebuilt-peer'});
+ if(change==='other-name')f.current.controls[0].name='Different';
+ if(change==='ambiguous')f.current.controls[1].name=f.current.controls[0].name;
+ if(change==='other-identity')f.current.controls[0].identityId='different-identity';
+ if(change==='pending')Object.assign(f.current.controls[0],{hypothesisId:'unresolved-hypothesis'});
+ if(change==='instance-only')Object.assign(f.current.controls[0],{identityScope:'instance'});
+ if(change==='changed-context'){f.current.context.tenant.value='two';f.target.preconditions.context=f.current.context;}
+ if(change==='changed-operation')f.current.semanticState='changed';
+ if(change==='unknown')f.attempt.status='unknown';
+ f.before.id='refined-before';f.current.id='refined-current';f.attempt.beforeId=f.before.id;f.attempt.action.observationId=f.before.id;f.target.observationId=f.current.id;
+ for(const o of [f.before,f.current])f.store.put('observation',o);f.store.put('action',f.target);f.store.put('attempt',f.attempt);
+ const writes=vi.spyOn(f.store,'put');const proof=f.host.operationCorrespondence('old',{observationId:f.current.id,...f.request});
+ expect(proof.equivalent).toBe(change==='same');
+ if(change==='same')expect(proof.evidence).toContain('shared-hint-refined-by-unique-semantics');
+ expect(proof).toMatchObject({identityAuthorized:false,replayAuthorized:false,currentExecution:false});expect(writes).not.toHaveBeenCalled();f.store.close();
+});

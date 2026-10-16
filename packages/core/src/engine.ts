@@ -170,11 +170,20 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       let evidence:string[];
       if(hint&&prior&&hint.key===prior.key){
         if([before,current].some(o=>count(o,'hint',c=>getHint(c)?.key,hint.key)!==1)){
-          // A repeated page-declared key is not identity evidence. It also
-          // cannot erase direct continuity of one unique, retained DOM instance.
-          // No resolved-identity fallback is allowed through this ambiguity.
-          if(!sameInstance()){result.reason='target_correspondence_ambiguous';return result;}
-          evidence=['current-instance-continuity','nonunique-hint-not-used'];
+          // Component keys may be shared by unrelated controls. Prefer direct
+          // instance continuity; otherwise require the existing resolved identity
+          // AND unique matching adapter semantics in both complete observations.
+          // A model's suggested candidate or an identity alias alone is not proof.
+          if(sameInstance())evidence=['current-instance-continuity','nonunique-hint-not-used'];
+          else {
+            const resolve=resolveIdentity(sessionId),identity=before.sessionId===sessionId&&resolve(old),signature=getSignature(old);
+            const refined=(c:Control)=>canonical([getHint(c)?.key,getSignature(c)]),key=refined(old);
+            if(!identity||identity!==resolve(target)||!(old.name||old.label)||signature!==getSignature(target)
+              ||[before,current].some(o=>count(o,'identity',resolve,identity)!==1||count(o,'hint-signature',refined,key)!==1)){
+              result.reason='target_correspondence_ambiguous';return result;
+            }
+            evidence=['shared-hint-refined-by-unique-semantics','resolved-identity-projection'];
+          }
         }else evidence=hint.evidence;
       }else if(before.sessionId===current.sessionId){
         const resolve=resolveIdentity(sessionId),identity=resolve(old);

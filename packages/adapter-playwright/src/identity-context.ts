@@ -52,6 +52,10 @@ export function collectIdentityContexts(elements: Element[], controls: Control[]
     // A local field wrapper must contain just this editable field. Hidden search
     // fields inside a popup are not peers of its visible amount input.
     for (let parent = el.parentElement, depth = 0; parent && parent !== document.body && depth < 3; parent = parent.parentElement, depth++) {
+      // A region/form heading describes its scope, not whichever field happens
+      // to remain after a sibling disappears. Stay inside a local field wrapper;
+      // scopeFor already records named owners independently of their child count.
+      if (label(parent) || parent.matches('main,header,footer,aside,nav,section,article,form,fieldset,[role=region],[role=group],[role=dialog]')) break;
       const peers = Array.from(parent.querySelectorAll('input:not([type=hidden]),textarea,select,[contenteditable=true]'))
         .filter(field => {
           if (field === el) return true;
