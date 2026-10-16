@@ -3,7 +3,7 @@ import { ExplorerPlugin, ExplorerStore, type PlanItem, type Task, type Round } f
 import type { Observation } from '@interaction/browser';
 import { completedOperations } from '../packages/explorer-plugin/src/completion-evidence.js';
 import { scopeFor } from '../packages/explorer-plugin/src/policy.js';
-import { explorerFixture } from './explorer-plugin-helpers.js';
+import { explorerFixture, fakeProviders } from './explorer-plugin-helpers.js';
 
 const options={headless:true,exploration:'controls',settleMs:0,observeTimeoutMs:100,interfaceActions:[{kind:'click'}]};
 
@@ -79,5 +79,53 @@ it('rebuilds task proof selection after scope acceptance changes and never treat
     expect(completedOperations(f.host,task,o,actions).size).toBe(0);expect(batch).toHaveBeenCalledTimes(1);
     item.resolvedBy=ref;
     expect(completedOperations(f.host,task,o,actions).size).toBe(1);expect(batch).toHaveBeenCalledTimes(2);
+  }finally{await plugin.close();await f.close();}
+});
+
+
+it('retains the discovery observation for unexecuted siblings without inventing evidence for missing legacy rows',async()=>{
+  const f=await explorerFixture('<button id="one" type="button" onclick="this.disabled=true">One</button><button id="two" type="button">Two</button>');
+  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),fakeProviders(f.url));
+  try{
+    const task=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:1}});
+    plugin.revise(task.id,{items:[{title:'All',scope:{url:f.url},prerequisites:[],completion:'Verify all',required:true,reason:'user goal'}]});
+    const saved=plugin.store.task(task.id);
+    saved.plan.push({id:'legacy-missing',title:'Old missing target',scope:{url:f.url,label:'Old missing target',kind:'click'},prerequisites:[],completion:'Verify',required:true,dispatchScope:false,status:'unresolved',reason:'observed_in_scope',evidence:[],attempts:[]});plugin.store.save(saved);
+    const session=await f.host.createSession({...options,url:f.url}),round:Round={id:'round',number:1,sessionId:session.id,startedAt:new Date().toISOString(),status:'running',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0};
+    saved.rounds=[round];saved.status='running';plugin.store.save(saved);
+    const runtime=plugin as unknown as {step(task:Task,round:Round,signal:AbortSignal):Promise<boolean>};
+    for(let n=0;n<15&&!f.host.session(session.id).actionCount;n++)await runtime.step(saved,round,new AbortController().signal);
+    const result=plugin.store.task(task.id),sid=session.id,attempt=f.host.list<any>(sid,'attempt')[0];
+    expect(attempt.status).toBe('succeeded');expect(result.usage.actions).toBe(1);
+    const sibling=result.plan.find(i=>i.reason==='observed_in_scope'&&i.scope.label==='Two')!;
+    expect(sibling).toBeDefined();expect(sibling.status).not.toBe('succeeded');expect(sibling.resolvedBy).toBeUndefined();expect(sibling.attempts).toEqual([]);
+    expect(sibling.evidence).toContainEqual({sessionId:sid,observationId:attempt.beforeId});
+    const source=f.host.observation(sid,sibling.evidence[0].observationId);
+    expect(f.host.actions(sid,source.id).some(a=>JSON.stringify(scopeFor(a,source))===JSON.stringify(sibling.scope))).toBe(true);
+    const legacy=result.plan.find(i=>i.id==='legacy-missing')!;
+    expect(legacy.evidence).toEqual([]);expect(legacy.status).not.toBe('succeeded');expect(legacy.resolvedBy).toBeUndefined();
+  }finally{await plugin.close();await f.close();}
+});
+
+it('lets host evidence reconcile stale derived scope encodings without broadening user scopes or same-name controls',async()=>{
+  const f=await explorerFixture('<button id="one" type="button">Run</button><button id="two" type="button">Run</button>');
+  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'));
+  try{
+    const first=await f.host.createSession({...options,url:f.url}),before=f.host.observation(first.id);
+    const source=f.host.actions(first.id).find(a=>a.localId===before.controls.find(c=>c.stableKey==='id:one')!.localId&&a.kind==='click')!;
+    const attempt=await f.host.execute(first.id,source.id,'original');expect(attempt.status).toBe('succeeded');await f.host.stop(first.id);
+    const next=await f.host.createSession({...options,url:f.url}),o=f.host.observation(next.id),actions=f.host.actions(next.id).filter(a=>a.kind==='click');
+    const task=plugin.create({url:f.url}),ref={sessionId:first.id,observationId:before.id,attemptId:attempt.id};
+    const item:PlanItem={id:'legacy-proof',title:'Recorded operation',scope:{...scopeFor(source,before),stableKey:'legacy-key-format',region:'Earlier review label'},prerequisites:[],completion:'Verify',status:'succeeded',required:true,dispatchScope:false,reason:'observed_in_scope',evidence:[ref],resolvedBy:ref,attempts:[]};task.plan=[item];
+    const saved=JSON.stringify(task),batch=vi.spyOn(f.host,'operationCorrespondences');
+    expect([...completedOperations(f.host,task,o,actions)].map(a=>o.controls.find(c=>c.localId===a.localId)?.stableKey)).toEqual(['id:one']);
+    expect(batch).toHaveBeenCalledTimes(1);expect(batch.mock.calls[0][1].requests).toHaveLength(2);
+    expect(JSON.stringify(task)).toBe(saved);expect(f.host.session(next.id).actionCount).toBe(0);expect(f.host.list(next.id,'attempt')).toEqual([]);
+    item.dispatchScope=true;
+    expect(completedOperations(f.host,task,o,actions).size).toBe(0);
+    delete item.dispatchScope;
+    expect(completedOperations(f.host,task,o,actions).size).toBe(0);
+    item.dispatchScope=false;f.host.store.put('attempt',{...attempt,status:'unknown'});
+    expect(completedOperations(f.host,task,o,actions).size).toBe(0);
   }finally{await plugin.close();await f.close();}
 });

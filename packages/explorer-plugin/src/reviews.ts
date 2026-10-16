@@ -37,7 +37,7 @@ export function unresolvedPurposeKey(o:Observation,item:ReturnType<ExplorerHost[
     return {...state,unknown:unknown?.filter(reason=>reason!=='off-viewport-hit-target')};
   })();
   return digest({protocol:'unresolved-purpose/v1',revision,instance:o.instanceScope,url:o.url,context:o.context,boundaries:o.boundaries,
-    control:{...item.control,rect:size,...(actionable?{actionable}:{})},reviews:item.reviews.map(r=>[r.id,r.status]),actions:item.actions.map(a=>({kind:a.kind,risk:a.risk,value:a.value,basis:a.basis}))});
+    surroundings:item.surroundings,control:{...item.control,rect:size,...(actionable?{actionable}:{})},reviews:item.reviews.map(r=>[r.id,r.status]),actions:item.actions.map(a=>({kind:a.kind,risk:a.risk,value:a.value,basis:a.basis}))});
 }
 /** The host retains exact bindings for validation; grouping needs semantic evidence, not repeated dispatch fingerprints. */
 function regionEvidence(candidate:RegionCandidate) {
@@ -197,39 +197,45 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(!kinds.length){mark(key);c.gap('operation_basis_unconfirmed',scopeForControl(item.control,o));continue;}
     const checks:NonNullable<ModelRequest['checks']>={};
     for(const kind of kinds){
-      checks[`interface_${kind}`]={instructions:`Does the captured evidence in material.control and material.actions positively establish that ${kind} changes only interface state (for example a local tab, expansion or input value)? A label or native element type alone is insufficient.`};
+      checks[`interface_${kind}`]={instructions:`Does the captured evidence in material.control, material.actions and material.surroundings positively establish that ${kind} changes only interface state (for example a local tab, expansion or input value)? A label or native element type alone is insufficient.`};
       checks[`external_${kind}`]={instructions:`Is there evidence that ${kind} submits business data, sends a message, purchases, deletes, authenticates, or performs another external/business write? Judge this effect independently of interface changes; an action can do both.`};
     }
-    const judged=await c.assess('control-risk',{control:item.control,actions:item.actions},checks);
+    const surroundings=item.surroundings;
+    const judged=await c.assess('control-risk',{control:item.control,actions:item.actions,...(surroundings?{surroundings}:{})},checks);
     let kind=kinds.find(k=>judged.values[`interface_${k}`]===true&&judged.values[`external_${k}`]===false);
     let decision=judged.decision;
     if(!kind){
-      const uncertain=kinds.filter(k=>judged.values[`interface_${k}`]!==false&&judged.values[`external_${k}`]!==true);
+      // A negative answer to 'is an interface effect established?' is not positive
+      // evidence of an external write. Complete local relationships may still need
+      // semantic interpretation; label-only negatives do not warrant another model.
+      const uncertain=kinds.filter(k=>judged.values[`external_${k}`]!==true&&(judged.values[`interface_${k}`]!==false||surroundings?.complete));
       // Refresh missing evidence once, not a confident veto. Rejection retains the
       // coverage gap; repeating the same question cannot supply an operation grant.
-      if(uncertain.length&&await c.refresh(judged.decision,`risk:${o.instanceScope}:${item.control.instanceId}`))return true;
-      // Missing semantics can be interpreted; a confident veto or missing structural evidence cannot.
+      if(!surroundings?.complete&&uncertain.length&&await c.refresh(judged.decision,`risk:${o.instanceScope}:${item.control.instanceId}`))return true;
+      // External-write evidence vetoes interpretation. Missing structural evidence cannot
+      // be invented by another model, and an uncertain semantic answer stays unresolved.
       const observed=o.controls.find(control=>control.localId===item.control.localId);
       const controlledIds=(observed?.controls||'').split(/\s+/).filter(Boolean);
       const controlled=o.controls.filter(control=>controlledIds.includes(control.reviewAttributes?.id||''));
       const effects=Object.fromEntries(uncertain.flatMap(k=>{
         const structure=item.control.actionBasis?.[k]?.evidence.filter(e=>e.source==='dom-structure')||[];
-        return structure.length||(k==='click'&&controlled.length)?[[k,{structure,controlled}]]:[];
+        return structure.length||(k==='click'&&(controlled.length||surroundings?.complete))?[[k,{structure,controlled,...(surroundings?.complete?{surroundings}:{})}]]:[];
       }));
       if(Object.keys(effects).length) {
-        const clarified=await c.clarify({key:`risk:${item.control.instanceId}`,purpose:'operation-clarification',parent:judged.decision,operation:true,instructions:'Resolve the remaining purpose ambiguity for one offered operation. Establish its interface effect from the captured relationship or controlled content, and separately rule out an external/business write. A popup relationship is evidence to interpret, not automatic permission. Return uncertain if either effect remains unclear.',options:{...Object.fromEntries(Object.keys(effects).map(k=>[k,`Review ${k} as interface-only if evidenced`])),uncertain:'Cannot establish a safe interface-only purpose'},evidence:{current:item.control,actions:semanticActions(item.actions),...Object.fromEntries(Object.entries(effects).map(([k,v])=>[`effect:${k}`,v]))},requiredEvidence:Object.fromEntries(Object.keys(effects).map(k=>[k,['current','actions',`effect:${k}`]]))});
+        const clarified=await c.clarify({key:`risk:${item.control.instanceId}`,purpose:'operation-clarification',parent:judged.decision,operation:true,instructions:'Resolve the remaining purpose ambiguity for one offered operation. Establish its interface effect from the captured relationship or controlled content, and separately rule out an external/business write. A popup or shared-container relationship is evidence to interpret, not automatic permission. Neighboring inputs do not imply a clear operation; establish the specific effect from all facts and do not infer safety from a label. Return uncertain if either effect remains unclear.',options:{...Object.fromEntries(Object.keys(effects).map(k=>[k,`Review ${k} as interface-only if evidenced`])),uncertain:'Cannot establish a safe interface-only purpose'},evidence:{current:item.control,actions:semanticActions(item.actions),...Object.fromEntries(Object.entries(effects).map(([k,v])=>[`effect:${k}`,v]))},requiredEvidence:Object.fromEntries(Object.keys(effects).map(k=>[k,['current','actions',`effect:${k}`]]))});
         if(clarified.value!=='uncertain'){kind=clarified.value;decision=clarified.decision;}
       }
       if(!kind){mark(key);(round.unresolvedPurposeReviews??={})[unresolvedKey]={decisionId:decision.id,observationId:o.id};c.gap('operation_risk_unresolved',scopeForControl(item.control,o));continue;}
     }
     const d={value:kind,decision};mark(key);
+    const contextBinding=surroundings?.complete?{surroundingContextKey:surroundings.key}:{};
     let samples:(string|boolean)[]|undefined;
     if(['fill','press'].includes(d.value)) {
       const generated=await c.generate('input-samples','Generate a small set of harmless representative input samples compatible with the observed constraints. Do not invent credentials, personal data or submission commands.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',control:item.control,kind:d.value},z.object({samples:z.array(z.string()).min(1).max(5)}).strict());
       samples=generated.value.samples;
-      await c.apply(generated.decision,{type:'reviewControls',review:{observationId:o.id,source,reviews:[{localId:item.control.localId,kind:d.value,risk:'interface',replayable:false,samples,reason:'Generated bounded input samples',evidence:[...evidence(d.decision),...evidence(generated.decision)]}]}});return true;
+      await c.apply(generated.decision,{type:'reviewControls',review:{observationId:o.id,source,reviews:[{localId:item.control.localId,...contextBinding,kind:d.value,risk:'interface',replayable:false,samples,reason:'Generated bounded input samples',evidence:[...evidence(d.decision),...evidence(generated.decision)]}]}});return true;
     }
-    await c.apply(d.decision,{type:'reviewControls',review:{observationId:o.id,source,reviews:[{localId:item.control.localId,kind:d.value,risk:'interface',replayable:false,reason:'Reviewed interface operation',evidence:evidence(d.decision)}]}});return true;
+    await c.apply(d.decision,{type:'reviewControls',review:{observationId:o.id,source,reviews:[{localId:item.control.localId,...contextBinding,kind:d.value,risk:'interface',replayable:false,reason:'Reviewed interface operation',evidence:evidence(d.decision)}]}});return true;
   }
   for(const {group,key,members,allowedReductions} of scopes) {
     const plan=decisionPlan(task.plan);

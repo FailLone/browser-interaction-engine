@@ -297,7 +297,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
         // Only commit after the bounded asynchronous preflight has returned.
         // A timed-out preflight must never write a late approval.
         const valid=await this.hook(o.sessionId,'controlReview-preflight',async()=>{
-          if(!(this.driver instanceof BrowserAdapter) || await this.driver.preflight(o,undefined,result.value!.reviews.map(r=>r.localId),result.value!.reviews.filter(r=>r.reuse).map(r=>r.localId))!=='valid')throw new EngineError('STALE_CONTROL_REVIEW','Control facts changed while being reviewed');
+          if(!(this.driver instanceof BrowserAdapter) || await this.driver.preflight(o,undefined,result.value!.reviews.map(r=>r.localId),result.value!.reviews.filter(r=>r.reuse).map(r=>r.localId),[],result.value!.reviews.filter(r=>r.surroundingContextKey).map(r=>r.localId))!=='valid')throw new EngineError('STALE_CONTROL_REVIEW','Control facts changed while being reviewed');
           return true;
         });
         if(valid.value)await this.hook(o.sessionId,'controlReview-record',()=>this.store.transaction(()=>this.controls.record(o,result.value!)));
@@ -378,7 +378,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       const o=this.observation(sid);
       if(input.observationId!==o.id)throw new EngineError('STALE_CONTROL_REVIEW','Review the latest observation');
       if(this.activeId!==sid||!(this.driver instanceof BrowserAdapter)||!this.driver.connected())throw new EngineError('BROWSER_UNAVAILABLE','Observe this session in a connected browser before reviewing controls');
-      if(await this.driver.preflight(o,undefined,input.reviews.map(r=>r.localId),input.reviews.filter(r=>r.reuse).map(r=>r.localId))!=='valid'){await this.capture(sid,'inspection');throw new EngineError('STALE_CONTROL_REVIEW','Control facts changed; review the new observation');}
+      if(await this.driver.preflight(o,undefined,input.reviews.map(r=>r.localId),input.reviews.filter(r=>r.reuse).map(r=>r.localId),[],input.reviews.filter(r=>r.surroundingContextKey).map(r=>r.localId))!=='valid'){await this.capture(sid,'inspection');throw new EngineError('STALE_CONTROL_REVIEW','Control facts changed; review the new observation');}
       const records=this.store.transaction(()=>this.controls.record(o,input));
       await this.capture(sid,'inspection');
       return records.map(r=>this.store.require<import('@interaction/adapter-playwright').ControlReviewRecord>('control-review',r.id));

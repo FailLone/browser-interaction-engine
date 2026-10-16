@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import type { EvidenceStore, InteractionDriver, HookInvoker, PreflightResult } from '@interaction/core';
 import { canonical, timeout, hash } from '@interaction/core';
 import { observableCanonical } from './model.js';
+import { controlSurroundingsReader } from './control-surroundings.js';
 import { interactionProjection } from './exploration.js';
 import { dependencyProjection, dependencyProjections, nativeFormScope } from './dependencies.js';
 import { activeInteractionIds, interactionScope, boundaryBinding, targetFacts } from './interaction-scope.js';
@@ -803,7 +804,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (o.overlays?.length) add('press', 'Escape');
     return actions;
   }
-  async preflight(current: Observation, action?: ActionCandidate, reviewTargetLocalIds: string[] = [], reuseTargetLocalIds: string[] = [], regionReuseCandidateIds: string[] = []): Promise<PreflightResult> {
+  async preflight(current: Observation, action?: ActionCandidate, reviewTargetLocalIds: string[] = [], reuseTargetLocalIds: string[] = [], regionReuseCandidateIds: string[] = [], surroundingTargetLocalIds: string[] = []): Promise<PreflightResult> {
     let live: Awaited<ReturnType<BrowserAdapter['readDOM']>>;
     try { live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
@@ -840,6 +841,16 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const reuseTargets = new Set([...reuseTargetLocalIds, ...(action?.localId && action.basis?.evidence.some(e => e.rule === 'reused-control-review/v1') ? [action.localId] : [])]);
     if ([...reuseTargets].some(id => canonical(current.controls.find(c => c.localId === id)?.reviewReuseBinding)
       !== canonical(live.controls.find(c => c.localId === id)?.reviewReuseBinding))) return 'stale';
+    const surroundingReferences=action?.basis?.evidence.filter(e=>e.rule==='reviewed-control/v1'&&typeof e.facts.surroundingContextKey==='string')||[];
+    const surroundingTargets=new Set([...surroundingTargetLocalIds,...(surroundingReferences.length&&action?.localId?[action.localId]:[])]);
+    if(surroundingTargets.size){
+      const beforeContext=controlSurroundingsReader(current),liveContext=controlSurroundingsReader(live);
+      for(const localId of surroundingTargets){
+        const before=current.controls.find(c=>c.localId===localId),after=live.controls.find(c=>c.localId===localId);
+        const old=before&&beforeContext(before),fresh=after&&liveContext(after);
+        if(!old?.complete||!fresh?.complete||old.key!==fresh.key||localId===action?.localId&&surroundingReferences.some(ref=>ref.facts.surroundingContextKey!==fresh.key))return 'stale';
+      }
+    }
     const activeIds = activeInteractionIds(current);
     const escapeExit = action?.kind === 'press' && action.value === 'Escape' && !action.controlId && !action.localId && action.boundary?.intent === 'exit' && action.boundary.key === current.boundaries?.at(-1)?.key;
     const scoped = this.options.exploration === 'controls' && !!activeIds && (escapeExit || reviewTargets.size > 0 && [...reviewTargets].every(id => activeIds.has(id)));

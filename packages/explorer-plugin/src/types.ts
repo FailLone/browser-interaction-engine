@@ -48,8 +48,16 @@ export interface Round {
   routeEvidenceChecked?: string[];
   policyVersion?: string;
 }
+/** Versioned projection of immutable observations for legacy hint migration only.
+ * Contains no identity, review or execution grants. Missing sources are not cached.
+ */
+export interface ScopeMigrationIndex {
+  version:1; keys:string[];
+  sources:Record<string,{sessionId:string;observationId:string;examinedKeys:number;matches:{stableKey:string;scope:Scope;key:string}[]}>;
+}
 export interface Task {
   id: string; goal: string; url: string; createdAt: string; updatedAt: string; revision: number;
+  scopeMigrationIndex?:ScopeMigrationIndex;
   status: TaskStatus; reason?: string; budget: Budget; usage: Budget; activeSince?: number;
   sessionOptions: Partial<SessionOptions>; plan: PlanItem[]; rounds: Round[];
   /** Per-session retained artifacts; no protected evidence is discarded to make room. */
