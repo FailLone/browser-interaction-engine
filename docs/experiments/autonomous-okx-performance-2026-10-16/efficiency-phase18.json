@@ -1,0 +1,892 @@
+{
+  "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+  "baseline": {
+    "taskId": "257f9b5f-79bf-4954-b8cc-11d1a379645d",
+    "at": "2026-10-16T10:13:15.857565+00:00",
+    "resumeAt": "2026-10-16T10:13:15.857565+00:00",
+    "taskSnapshot": ".data/okx-efficiency-phase18-before.json",
+    "usage": {
+      "rounds": 20,
+      "actions": 293,
+      "durationMs": 29601170,
+      "modelRequests": 3267
+    },
+    "decisionCursor": 3395,
+    "eventCursor": 51930
+  },
+  "auditedAt": "2026-10-16T10:24:05.344280+00:00",
+  "status": "budget_exhausted",
+  "reason": "BUDGET_EXHAUSTED",
+  "pendingDispatch": null,
+  "totals": {
+    "persistedUsage": {
+      "rounds": 20,
+      "actions": 317,
+      "durationMs": 30217040,
+      "modelRequests": 3287
+    },
+    "budget": {
+      "rounds": 26,
+      "actions": 1214,
+      "durationMs": 30210000,
+      "modelRequests": 3957
+    },
+    "usageDelta": {
+      "rounds": 0,
+      "actions": 24,
+      "durationMs": 615870,
+      "modelRequests": 20
+    },
+    "activeDurationDeltaMs": 615870,
+    "wallTimeSinceBaselineMs": 649487
+  },
+  "newExecution": {
+    "attemptCounts": {
+      "succeeded": 24
+    },
+    "verifiedCount": 24,
+    "verified": [
+      {
+        "id": "a8b08095-90e4-4869-b777-caa5e3fbd2d5",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:14:06.387Z",
+        "finishedAt": "2026-10-16T10:14:10.135Z",
+        "label": "hover: Don’t show for 7 days",
+        "kind": "hover",
+        "value": null,
+        "beforeId": "c7b929f9-bcea-4985-aeaa-1a6302bbca98",
+        "afterId": "1c2c41ea-f797-4f67-bbdf-cc82c860e07e",
+        "documentId": "7e8ded5b-af29-4b03-9dd2-ec5ab8367143",
+        "stableKey": null,
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "4de38d7b-31c9-460d-af9b-6407df9f8cda",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:14:16.402Z",
+        "finishedAt": "2026-10-16T10:14:20.341Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "1c2c41ea-f797-4f67-bbdf-cc82c860e07e",
+        "afterId": "84324df0-a055-4d5d-bbe2-6e74ddb2e1bb",
+        "documentId": "7e8ded5b-af29-4b03-9dd2-ec5ab8367143",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "1f997b7f-fb2c-4a26-b4ea-7f137e6c7533",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:14:40.531Z",
+        "finishedAt": "2026-10-16T10:14:44.421Z",
+        "label": "Scrollable generic",
+        "kind": "scroll",
+        "value": {
+          "x": 840,
+          "y": 0
+        },
+        "beforeId": "1c051df9-b0b8-486d-8872-d2d164ead1c3",
+        "afterId": "c49dc701-a1f5-4dfb-9822-b9b6910e2026",
+        "documentId": "7e8ded5b-af29-4b03-9dd2-ec5ab8367143",
+        "stableKey": null,
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "44632613-b064-4491-ad92-6a0b18dd8d19",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:14:57.592Z",
+        "finishedAt": "2026-10-16T10:15:02.249Z",
+        "label": "Scroll page",
+        "kind": "scroll",
+        "value": {
+          "documentId": "7e8ded5b-af29-4b03-9dd2-ec5ab8367143",
+          "containerNodeId": "7e8ded5b-af29-4b03-9dd2-ec5ab8367143:510",
+          "left": 0,
+          "top": 675,
+          "expectedLeft": 0,
+          "expectedTop": 0,
+          "width": 1440,
+          "height": 900,
+          "maxLeft": 0,
+          "maxTop": 6823
+        },
+        "beforeId": "c49dc701-a1f5-4dfb-9822-b9b6910e2026",
+        "afterId": "44177269-e3b0-46a9-9572-5e5542148839",
+        "documentId": "7e8ded5b-af29-4b03-9dd2-ec5ab8367143",
+        "stableKey": null,
+        "region": null,
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      },
+      {
+        "id": "e2e313a5-8efc-436a-b765-16b39902219b",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:15:14.948Z",
+        "finishedAt": "2026-10-16T10:15:18.280Z",
+        "label": "Log in",
+        "kind": "click",
+        "value": null,
+        "beforeId": "44177269-e3b0-46a9-9572-5e5542148839",
+        "afterId": "9aef7328-fd55-4a56-96da-5f340e304223",
+        "documentId": "7e8ded5b-af29-4b03-9dd2-ec5ab8367143",
+        "stableKey": null,
+        "region": "navigation:navContainer",
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      },
+      {
+        "id": "79389d97-77f5-444a-b740-0b19a1a67a8f",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:15:35.922Z",
+        "finishedAt": "2026-10-16T10:15:38.403Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "9aef7328-fd55-4a56-96da-5f340e304223",
+        "afterId": "6f9a2151-a8df-4c6e-b805-8c24998f15f9",
+        "documentId": "6a753922-8dc4-4fa2-9905-c5ab6c50c642",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "15481a2e-a118-4943-b3e7-ecae295a7b59",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:15:50.016Z",
+        "finishedAt": "2026-10-16T10:15:55.487Z",
+        "label": "Return to observed page",
+        "kind": "history",
+        "value": 4,
+        "beforeId": "847fc80d-2131-4fe9-96af-be3bb79fde7d",
+        "afterId": "b9a6a247-bdc8-40de-8d20-5e8017dcd95a",
+        "documentId": "6a753922-8dc4-4fa2-9905-c5ab6c50c642",
+        "stableKey": null,
+        "region": null,
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "3c86c04b-359c-4df8-95e1-13c675e0f23a",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:16:39.225Z",
+        "finishedAt": "2026-10-16T10:16:43.234Z",
+        "label": "hover: Don’t show for 7 days",
+        "kind": "hover",
+        "value": null,
+        "beforeId": "9a233831-63b0-445e-8c14-1618323b7600",
+        "afterId": "a19c03e0-d297-465a-987a-9369c66bef08",
+        "documentId": "96f0b523-a6d2-408a-9fa8-6414d419ac24",
+        "stableKey": null,
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "9b6ac0ee-c847-451d-81f2-f2aa50444bcd",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:16:50.121Z",
+        "finishedAt": "2026-10-16T10:16:54.420Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "a19c03e0-d297-465a-987a-9369c66bef08",
+        "afterId": "0c124533-9931-4e35-97dc-2f19fad22516",
+        "documentId": "96f0b523-a6d2-408a-9fa8-6414d419ac24",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "464baf5f-a1cf-45d5-b722-b5c82ee8f66f",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:17:18.240Z",
+        "finishedAt": "2026-10-16T10:17:23.202Z",
+        "label": "Scroll page",
+        "kind": "scroll",
+        "value": {
+          "documentId": "96f0b523-a6d2-408a-9fa8-6414d419ac24",
+          "containerNodeId": "96f0b523-a6d2-408a-9fa8-6414d419ac24:510",
+          "left": 0,
+          "top": 675,
+          "expectedLeft": 0,
+          "expectedTop": 0,
+          "width": 1440,
+          "height": 900,
+          "maxLeft": 0,
+          "maxTop": 6823
+        },
+        "beforeId": "f5fe3a44-cd1b-4808-8265-4a87eee47425",
+        "afterId": "87c329b3-948c-42b4-81b4-7b77ff0d0b8b",
+        "documentId": "96f0b523-a6d2-408a-9fa8-6414d419ac24",
+        "stableKey": null,
+        "region": null,
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      },
+      {
+        "id": "3890bb67-27da-49bf-a6a8-e2b1d4fa1b0a",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:17:37.001Z",
+        "finishedAt": "2026-10-16T10:17:40.087Z",
+        "label": "Sign up",
+        "kind": "click",
+        "value": null,
+        "beforeId": "87c329b3-948c-42b4-81b4-7b77ff0d0b8b",
+        "afterId": "9cee4c63-1100-4e57-a162-f115e8d5089f",
+        "documentId": "96f0b523-a6d2-408a-9fa8-6414d419ac24",
+        "stableKey": null,
+        "region": "navigation:navContainer",
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      },
+      {
+        "id": "9520e52b-0549-4e9a-a6de-4b511d52061c",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:17:57.078Z",
+        "finishedAt": "2026-10-16T10:17:59.126Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "9cee4c63-1100-4e57-a162-f115e8d5089f",
+        "afterId": "eb617b98-42b9-4ffb-99bf-596e47852e17",
+        "documentId": "cacd8574-98de-4215-aed0-aae99957988a",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "da9daa2b-da20-44ba-8160-63b2b6fb2703",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:18:11.149Z",
+        "finishedAt": "2026-10-16T10:18:16.356Z",
+        "label": "Return to observed page",
+        "kind": "history",
+        "value": 4,
+        "beforeId": "8366cb11-97a6-44d3-8839-4bcf18e55a35",
+        "afterId": "69bf691f-3e0b-46e4-b21c-8b86e1b1f5d0",
+        "documentId": "cacd8574-98de-4215-aed0-aae99957988a",
+        "stableKey": null,
+        "region": null,
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "1db22cfb-ce0b-4792-a8cd-0057f727e06b",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:19:01.430Z",
+        "finishedAt": "2026-10-16T10:19:05.397Z",
+        "label": "hover: Don’t show for 7 days",
+        "kind": "hover",
+        "value": null,
+        "beforeId": "29f5a2db-0df6-4a42-9990-242b635f53db",
+        "afterId": "52c5b131-e5db-43be-b95b-48400be27a0b",
+        "documentId": "b73fbb85-3327-4cc8-adea-ce4c8c1fb373",
+        "stableKey": null,
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "09e91e51-9d9d-4b95-857b-a19351373b0f",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:19:12.245Z",
+        "finishedAt": "2026-10-16T10:19:16.566Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "52c5b131-e5db-43be-b95b-48400be27a0b",
+        "afterId": "fe69799d-34e5-49b2-8f57-3fa97abc6820",
+        "documentId": "b73fbb85-3327-4cc8-adea-ce4c8c1fb373",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "7e8902be-5b19-4673-86d8-a44a0fd93140",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:19:40.276Z",
+        "finishedAt": "2026-10-16T10:19:45.056Z",
+        "label": "Scroll page",
+        "kind": "scroll",
+        "value": {
+          "documentId": "b73fbb85-3327-4cc8-adea-ce4c8c1fb373",
+          "containerNodeId": "b73fbb85-3327-4cc8-adea-ce4c8c1fb373:510",
+          "left": 0,
+          "top": 675,
+          "expectedLeft": 0,
+          "expectedTop": 0,
+          "width": 1440,
+          "height": 900,
+          "maxLeft": 0,
+          "maxTop": 6823
+        },
+        "beforeId": "4a872fd3-a296-42f3-8597-36934dd3f904",
+        "afterId": "e8fb3a8a-23f5-413c-9ee6-b9c46105771c",
+        "documentId": "b73fbb85-3327-4cc8-adea-ce4c8c1fb373",
+        "stableKey": null,
+        "region": null,
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      },
+      {
+        "id": "74edbe5a-b473-4085-8edd-fe59bdf6686c",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:19:59.098Z",
+        "finishedAt": "2026-10-16T10:20:01.922Z",
+        "label": "Convert BTC to USD",
+        "kind": "click",
+        "value": null,
+        "beforeId": "e8fb3a8a-23f5-413c-9ee6-b9c46105771c",
+        "afterId": "b7d6e177-7c93-40ea-88e3-e8cee869b113",
+        "documentId": "b73fbb85-3327-4cc8-adea-ce4c8c1fb373",
+        "stableKey": "testid:okd-button",
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      },
+      {
+        "id": "e6263cb4-eb07-4ddf-b9a4-997bd8b3ff18",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:20:08.387Z",
+        "finishedAt": "2026-10-16T10:20:10.607Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "b7d6e177-7c93-40ea-88e3-e8cee869b113",
+        "afterId": "07e10a25-cd26-44ae-816a-1a19c0cc57bd",
+        "documentId": "1bd233cc-6fdf-445d-8506-d4a07ea52d26",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "90c755ad-887a-4505-99a8-863660fdc797",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:20:23.747Z",
+        "finishedAt": "2026-10-16T10:20:28.892Z",
+        "label": "Return to observed page",
+        "kind": "history",
+        "value": 4,
+        "beforeId": "1848deb6-1936-424b-806a-5a69c57553d6",
+        "afterId": "f8738860-7c68-41c2-9219-b2fc71f77a36",
+        "documentId": "1bd233cc-6fdf-445d-8506-d4a07ea52d26",
+        "stableKey": null,
+        "region": null,
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "2b9d9061-e549-4297-9743-bad57ee838d8",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:21:15.563Z",
+        "finishedAt": "2026-10-16T10:21:19.588Z",
+        "label": "hover: Don’t show for 7 days",
+        "kind": "hover",
+        "value": null,
+        "beforeId": "57c7eaae-5012-42f2-b952-89d1929f676c",
+        "afterId": "82ef2b72-a6bb-450d-a083-7a36cf60cb2c",
+        "documentId": "4458b926-f5ea-4499-9f0b-cc5d1d939180",
+        "stableKey": null,
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "ec8755ce-e1eb-4142-9ec9-b44f66e6f860",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:21:27.025Z",
+        "finishedAt": "2026-10-16T10:21:31.286Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "82ef2b72-a6bb-450d-a083-7a36cf60cb2c",
+        "afterId": "d5e8dd08-e2ba-4a6b-a118-7005461471b0",
+        "documentId": "4458b926-f5ea-4499-9f0b-cc5d1d939180",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "3a12e9d1-46e4-44bc-855f-4d884a41f33f",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:21:56.039Z",
+        "finishedAt": "2026-10-16T10:22:03.754Z",
+        "label": "Learn more about BTC",
+        "kind": "click",
+        "value": null,
+        "beforeId": "d917c53e-4cd5-4d4b-89d1-37da4b7b24b7",
+        "afterId": "7ce21887-c9ac-47e8-a891-444ea03ce58f",
+        "documentId": "4458b926-f5ea-4499-9f0b-cc5d1d939180",
+        "stableKey": null,
+        "region": "document",
+        "sameLabelKindValueSucceededBeforeBaseline": false
+      },
+      {
+        "id": "6c1531ac-b0fb-4cd0-99d4-14c2f9fe9918",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:22:13.622Z",
+        "finishedAt": "2026-10-16T10:22:19.508Z",
+        "label": "Close",
+        "kind": "click",
+        "value": null,
+        "beforeId": "7ce21887-c9ac-47e8-a891-444ea03ce58f",
+        "afterId": "e45e743e-c81e-4506-80a3-6269db8b28de",
+        "documentId": "51076757-25a1-4c73-8c63-0e84caf7b857",
+        "stableKey": "testid:okd-button",
+        "region": "dialog:okd-dialog-window",
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      },
+      {
+        "id": "d531acf6-748f-4447-9464-a5f15f98567f",
+        "status": "succeeded",
+        "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+        "startedAt": "2026-10-16T10:22:40.774Z",
+        "finishedAt": "2026-10-16T10:22:47.322Z",
+        "label": "Return to observed page",
+        "kind": "history",
+        "value": 4,
+        "beforeId": "ad9cdf5d-38ee-4777-be73-65275c52f16d",
+        "afterId": "9f8bfdec-ffc1-4a76-80de-04a928bdec47",
+        "documentId": "51076757-25a1-4c73-8c63-0e84caf7b857",
+        "stableKey": null,
+        "region": null,
+        "sameLabelKindValueSucceededBeforeBaseline": true
+      }
+    ],
+    "nonSuccess": [],
+    "newlySucceededPlanRows": 24,
+    "newlySucceededExactLeafScopes": 6,
+    "newlySucceededOperationScopes": [
+      {
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "region": "Main menu",
+        "label": "Log in",
+        "role": "link",
+        "kind": "click"
+      },
+      {
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "region": "Main menu",
+        "label": "Sign up",
+        "role": "link",
+        "kind": "click"
+      },
+      {
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+        "label": "Convert BTC to USD",
+        "role": "link",
+        "stableKey": "testid:okd-button",
+        "kind": "click"
+      },
+      {
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "region": "Main menu",
+        "label": "Log in",
+        "role": "link",
+        "stableKey": "explorer:context:v1:7a9472c8ac23806391837064c3af5311ef8c09784855506d4c32018170922c85",
+        "kind": "click"
+      },
+      {
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "region": "Main menu",
+        "label": "Sign up",
+        "role": "link",
+        "stableKey": "explorer:context:v1:7b64f59e2a28ef31ccc8e5c4b8de7a3ef4345eb94075f5d675c7ace3f9f36b3f",
+        "kind": "click"
+      },
+      {
+        "url": "https://www.okx.com/convert/btc-to-usd",
+        "region": "BTC to USD | Convert Bitcoin to US Dollar | OKX",
+        "label": "Learn more about BTC",
+        "role": "link",
+        "stableKey": "explorer:context:v1:6d6c4b938b6d40b87ee8401ee75a1bef0b4232ab13d67f7c24e98736316d4b2f",
+        "kind": "click"
+      }
+    ],
+    "repeatedLabelKindValue": [
+      {
+        "label": "hover: Don’t show for 7 days",
+        "kind": "hover",
+        "count": 4,
+        "attemptIds": [
+          "a8b08095-90e4-4869-b777-caa5e3fbd2d5",
+          "3c86c04b-359c-4df8-95e1-13c675e0f23a",
+          "1db22cfb-ce0b-4792-a8cd-0057f727e06b",
+          "2b9d9061-e549-4297-9743-bad57ee838d8"
+        ]
+      },
+      {
+        "label": "Close",
+        "kind": "click",
+        "count": 8,
+        "attemptIds": [
+          "4de38d7b-31c9-460d-af9b-6407df9f8cda",
+          "79389d97-77f5-444a-b740-0b19a1a67a8f",
+          "9b6ac0ee-c847-451d-81f2-f2aa50444bcd",
+          "9520e52b-0549-4e9a-a6de-4b511d52061c",
+          "09e91e51-9d9d-4b95-857b-a19351373b0f",
+          "e6263cb4-eb07-4ddf-b9a4-997bd8b3ff18",
+          "ec8755ce-e1eb-4142-9ec9-b44f66e6f860",
+          "6c1531ac-b0fb-4cd0-99d4-14c2f9fe9918"
+        ]
+      },
+      {
+        "label": "Return to observed page",
+        "kind": "history",
+        "count": 4,
+        "attemptIds": [
+          "15481a2e-a118-4943-b3e7-ecae295a7b59",
+          "da9daa2b-da20-44ba-8160-63b2b6fb2703",
+          "90c755ad-887a-4505-99a8-863660fdc797",
+          "d531acf6-748f-4447-9464-a5f15f98567f"
+        ]
+      }
+    ],
+    "historicalEvidenceNotCurrentSuccess": true,
+    "repetitionCaveat": "Matching labels/kinds/values only flag possible repeated work. They do not assert host operation equivalence, identity or new coverage."
+  },
+  "models": {
+    "jev": {
+      "requests": 15,
+      "purposeCounts": {
+        "control-classification": 15
+      },
+      "statusCounts": {
+        "requested": 0,
+        "returned": 0,
+        "applied": 15,
+        "rejected": 0,
+        "stale": 0,
+        "failed": 0,
+        "cancelled": 0
+      },
+      "elapsedMsSum": 13899,
+      "elapsedMsMedian": 1128,
+      "elapsedMsP95NearestRank": 1275,
+      "missingDurationRequests": 0,
+      "reportedUsage": {
+        "input_tokens": 67191,
+        "output_tokens": 825,
+        "cost": 0.0028220219999999996
+      },
+      "usageAvailableResponses": 15
+    },
+    "llm": {
+      "requests": 5,
+      "purposeCounts": {
+        "classification-clarification": 5
+      },
+      "statusCounts": {
+        "requested": 0,
+        "returned": 0,
+        "applied": 5,
+        "rejected": 0,
+        "stale": 0,
+        "failed": 0,
+        "cancelled": 0
+      },
+      "elapsedMsSum": 16158,
+      "elapsedMsMedian": 2898,
+      "elapsedMsP95NearestRank": 3943,
+      "missingDurationRequests": 0,
+      "reportedUsage": {
+        "prompt_tokens": 19377,
+        "completion_tokens": 1655,
+        "total_tokens": 21032,
+        "cost": 0.0077991
+      },
+      "usageAvailableResponses": 5
+    }
+  },
+  "phases": {
+    "consecutiveActionDispatchIntervals": {
+      "count": 19,
+      "sumMs": 486769,
+      "p95MsNearestRank": 66714,
+      "medianMs": 19525,
+      "minMs": 9729,
+      "maxMs": 66714
+    },
+    "consecutiveActionVerifiedIntervals": {
+      "count": 15,
+      "sumMs": 480850,
+      "p95MsNearestRank": 81045,
+      "medianMs": 27949,
+      "minMs": 7499,
+      "maxMs": 81045
+    },
+    "dispatchValidationToDispatch": {
+      "count": 16,
+      "sumMs": 26196,
+      "p95MsNearestRank": 3057,
+      "medianMs": 1618.5,
+      "minMs": 238,
+      "maxMs": 3057
+    },
+    "actionDispatchToVerified": {
+      "count": 16,
+      "sumMs": 163369,
+      "p95MsNearestRank": 19709,
+      "medianMs": 9098.5,
+      "minMs": 5828,
+      "maxMs": 19709
+    },
+    "probeDispatchToVerified": {
+      "count": 4,
+      "sumMs": 24474,
+      "p95MsNearestRank": 6589,
+      "medianMs": 6180.0,
+      "minMs": 5525,
+      "maxMs": 6589
+    },
+    "unmatchedActionDispatchEvents": 0,
+    "unmatchedProbeDispatchEvents": 0,
+    "jevNextActionRequest": {
+      "count": 0,
+      "sumMs": 0,
+      "p95MsNearestRank": null,
+      "medianMs": null,
+      "minMs": null,
+      "maxMs": null
+    },
+    "resumeAt": "2026-10-16T10:13:15.857565+00:00",
+    "resumeToReattachedMs": 13870
+  },
+  "previousPhaseComparison": {
+    "metricVersion": 3,
+    "fromEventSequence": 37591,
+    "fromAt": "2026-10-16T04:37:26.501Z",
+    "toEventSequence": 38596,
+    "toAt": "2026-10-16T04:46:56.160Z",
+    "phases": {
+      "consecutiveActionDispatchIntervals": {
+        "count": 19,
+        "sumMs": 490785,
+        "p95MsNearestRank": 94888,
+        "medianMs": 22064,
+        "minMs": 19100,
+        "maxMs": 94888
+      },
+      "consecutiveActionVerifiedIntervals": {
+        "count": 19,
+        "sumMs": 492697,
+        "p95MsNearestRank": 94303,
+        "medianMs": 22353,
+        "minMs": 19471,
+        "maxMs": 94303
+      },
+      "dispatchValidationToDispatch": {
+        "count": 20,
+        "sumMs": 124056,
+        "p95MsNearestRank": 6891,
+        "medianMs": 6620.5,
+        "minMs": 238,
+        "maxMs": 6961
+      },
+      "actionDispatchToVerified": {
+        "count": 20,
+        "sumMs": 176193,
+        "p95MsNearestRank": 10254,
+        "medianMs": 8599.5,
+        "minMs": 6663,
+        "maxMs": 10397
+      },
+      "probeDispatchToVerified": {
+        "count": 0,
+        "sumMs": 0,
+        "p95MsNearestRank": null,
+        "medianMs": null,
+        "minMs": null,
+        "maxMs": null
+      },
+      "unmatchedActionDispatchEvents": 0,
+      "unmatchedProbeDispatchEvents": 0,
+      "jevNextActionRequest": {
+        "count": 20,
+        "sumMs": 29755,
+        "p95MsNearestRank": 1671,
+        "medianMs": 1538.0,
+        "minMs": 399,
+        "maxMs": 1721
+      }
+    },
+    "note": "Prior run from round.reattached to task.paused; excludes attach cold-start."
+  },
+  "currentObserved": {
+    "sessionId": "fcd09515-77e5-4799-b198-5acb41917abd",
+    "sessionStatus": "paused",
+    "observationId": "4eabb0cb-d479-4490-a5bb-ed3baa78dc66",
+    "documentId": "f65bb747-8c2b-454e-96ac-f2362c41b714",
+    "capturedAt": "2026-10-16T10:23:28.807Z",
+    "url": "https://www.okx.com/convert/btc-to-usd",
+    "controls": 302,
+    "visibleEnabledControls": 233,
+    "storedCandidates": 210,
+    "rawCandidateBlockers": {
+      "outside_active_boundary": 205,
+      "outside_scrollable_area": 2,
+      "pointer_intercepted": 11
+    },
+    "rawBlockerCaveat": "Stored observation candidate facts only; no current SDK availability query or dispatch authorization asserted.",
+    "gapCodes": {
+      "STRUCTURAL_LIST_SCAN_TRUNCATED": 1,
+      "STRUCTURAL_DISCOVERY_LIMIT": 17,
+      "UNSUPPORTED_CANVAS": 7,
+      "EVENT_LISTENER_COVERAGE": 1
+    }
+  },
+  "remaining": {
+    "planRows": 3960,
+    "exactScopes": 2124,
+    "unfinishedExactScopes": 2010,
+    "reasonRows": {
+      "unknown_action_outcome": 3,
+      "UNKNOWN_DISPATCH_REQUIRES_REVIEW": 1,
+      "observation_incomplete": 1,
+      "boundary_preservation_limit": 1,
+      "recovery_unresolved": 1,
+      "MODEL_OUTPUT_TRUNCATED": 1,
+      "checkpoint_unverified": 1,
+      "classification_unresolved": 101,
+      "operation_basis_unconfirmed": 129,
+      "probe_unresolved": 35,
+      "operation_risk_unresolved": 31,
+      "observed_in_scope": 1098,
+      "outside_active_boundary": 213,
+      "outside_scrollable_area": 33,
+      "entry_revalidation_deferred": 1,
+      "region_review_required": 627,
+      "awaiting_exploration_decision": 7,
+      "operation_unavailable": 218,
+      "pointer_intercepted": 104,
+      "ambiguous_scope_match": 6,
+      "operation_not_executed": 914,
+      "awaiting_list_decision": 143,
+      "boundary_exit_unresolved": 1,
+      "identity_unresolved": 7,
+      "interface_risk_required": 2
+    },
+    "unknownAttempts": [
+      {
+        "attemptId": "a7e1dcc5-1692-4391-b573-ef3bd0c68324",
+        "sessionId": "27513942-05b7-43e6-bedd-712d0aadfd75",
+        "status": "unknown",
+        "afterId": "71987594-8de1-4da0-8322-28a2f8b91a72",
+        "sourceUrl": "https://www.okx.com/convert/btc-to-usd",
+        "targetUrl": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application"
+      }
+    ],
+    "acceptedUnsupported": [
+      {
+        "id": "fb6a2ddd-3472-466e-a2b3-9a866bbdcfc7",
+        "reason": "missing_capability:UNSUPPORTED_CANVAS",
+        "status": "untested",
+        "required": false,
+        "evidenceCount": 1
+      }
+    ],
+    "notExhaustive": true
+  },
+  "progressEvents": {
+    "scope.source_recovered": 1,
+    "round.reattached": 1,
+    "review.reopened": 15,
+    "program.review": 14,
+    "scope.retained": 9,
+    "decision.requested": 20,
+    "decision.returned": 20,
+    "decision.resolved": 15,
+    "decision.applied": 20,
+    "decision.effect": 25,
+    "review.resolved": 12,
+    "probe.selected": 4,
+    "scope.audit": 20,
+    "probe.dispatch": 4,
+    "probe.verified": 4,
+    "action.selected": 16,
+    "action.validation": 16,
+    "action.scheduled": 16,
+    "action.dispatch": 16,
+    "action.verified": 16,
+    "branch.route_reconciled": 12,
+    "navigation.return_required": 4,
+    "recovery.selected": 4,
+    "recovery.result": 4,
+    "recovery.observed_scope": 4,
+    "task.halted": 1
+  },
+  "lastEvents": [
+    {
+      "sequence": 53954,
+      "at": "2026-10-16T10:23:30.147Z",
+      "type": "control.classification_requested",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 53955,
+      "at": "2026-10-16T10:23:30.147Z",
+      "type": "control.review_requested",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 53956,
+      "at": "2026-10-16T10:23:31.751Z",
+      "type": "interventions.updated",
+      "actor": "engine",
+      "decisionId": null
+    },
+    {
+      "sequence": 53957,
+      "at": "2026-10-16T10:23:31.752Z",
+      "type": "decision.applied",
+      "actor": "llm",
+      "decisionId": "063461f5-74d1-4ea6-8911-be77cb4e08ce"
+    },
+    {
+      "sequence": 53958,
+      "at": "2026-10-16T10:23:31.763Z",
+      "type": "decision.effect",
+      "actor": "llm",
+      "decisionId": "063461f5-74d1-4ea6-8911-be77cb4e08ce"
+    },
+    {
+      "sequence": 53959,
+      "at": "2026-10-16T10:23:31.764Z",
+      "type": "decision.applied",
+      "actor": "jev",
+      "decisionId": "230d5405-4d84-4067-9d72-55d6ca04b191"
+    },
+    {
+      "sequence": 53960,
+      "at": "2026-10-16T10:23:31.775Z",
+      "type": "decision.effect",
+      "actor": "jev",
+      "decisionId": "230d5405-4d84-4067-9d72-55d6ca04b191"
+    },
+    {
+      "sequence": 53961,
+      "at": "2026-10-16T10:23:31.952Z",
+      "type": "task.halted",
+      "actor": "program",
+      "decisionId": null
+    }
+  ],
+  "readOnlyAudit": true
+}
