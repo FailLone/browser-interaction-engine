@@ -1,6 +1,6 @@
 import { ExplorerError, type Decision, type ModelAnswer, type ModelRequest, type Providers } from './types.js';
 
-export const POLICY_VERSION = 'evidence-routing-v5';
+export const POLICY_VERSION = 'program-first-v6';
 
 /** Confidence never authorizes scope reduction. Each result keeps the raw answer in the ledger. */
 export function resolveJudgment(req:ModelRequest, answer:ModelAnswer, providers:Providers):Decision['resolution'] {

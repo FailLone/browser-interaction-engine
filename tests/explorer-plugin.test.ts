@@ -84,7 +84,7 @@ it('provides semantic field evidence with exact scopes so a target plan selects 
  p.llm.decide=async(r,s)=>{if(r.purpose!=='initial-plan')return original(r,s);const candidate=(r.state as any).material.observation.contextualActions?.find((a:any)=>a.context?.binding?.includes('Width'));expect(candidate).toBeDefined();return {model:'mock',value:{mode:'targeted',items:[{title:'Width',scope:candidate.scope,prerequisites:[],completion:'Fill Width',required:true,reason:'user target'}]}};};
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,goal:'Fill Width only',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),sid=v.task.rounds[0].sessionId,attempts=f.host.list<any>(sid,'attempt');expect(v.task.status).toBe('completed');expect(attempts).toHaveLength(1);const a=attempts[0];expect(f.host.observation(sid,a.beforeId).controls.find(c=>c.localId===a.action.localId)!.identityContext?.binding).toContain('Width');
-  const selection=v.decisions.find(d=>d.purpose==='next-action')!;expect((selection.request.options![String(selection.answer!.value)] as any).context.binding).toContain('Width');
+  expect(v.decisions.some(d=>d.purpose==='next-action')).toBe(false);expect(v.events.some(e=>e.type==='action.selected'&&(e.data as any).actionId===a.action.id)).toBe(true);
  }finally{await plugin.close();await f.close();}
 });
 
@@ -101,12 +101,12 @@ it('does not repeat an ineffective exit while the same boundary remains observed
  finally{await plugin.close();await f.close();}
 });
 
-it('grounds recovery judgments in both observations and the unfinished branch before verified restoration',async()=>{
+it('restores an observed unfinished branch through the host without model ranking',async()=>{
  const f=await explorerFixture(`<div id="choices">${['First','Second'].map(name=>`<button type="button" onclick="document.querySelector('#choices').hidden=true">${name}</button>`).join('')}</div>`),p=fakeProviders(f.url),original=p.jev.decide,requests:any[]=[];
  p.jev.decide=async(r,s)=>{if(r.purpose!=='recovery-selection')return original(r,s);const m=(r.state as any).material;requests.push(m);return {model:'mock',confidence:1,value:m.current?.observationId!==m.target?.observationId&&m.target?.url===f.url&&m.unfinishedTargets?.some((x:any)=>x.scope.label==='Second'&&x.currentlyExecutable===false)?'recover':'uncertain'};};
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:10}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');
-  expect(attempts.filter(a=>a.action.kind==='click').map(a=>a.action.label)).toEqual(['First','Second']);expect(v.task.status).toBe('completed');expect(requests).toHaveLength(1);expect(requests[0].goal).not.toBe('');expect(requests[0].unfinishedTargets.every((x:any)=>x.historicalEvidenceOnly)).toBe(true);
+  expect(attempts.filter(a=>a.action.kind==='click').map(a=>a.action.label)).toEqual(['First','Second']);expect(v.task.status).toBe('completed');expect(requests).toHaveLength(0);expect(v.events.some(e=>e.type==='recovery.selected'&&(e.data as any).unfinishedTargets>0)).toBe(true);
   expect(v.events.some(e=>e.type==='recovery.result'&&['REACHED_VERIFIED','REACHED_ACCEPTABLE'].includes((e.data as any).status))).toBe(true);expect(v.decisions.some(d=>d.actor==='llm')).toBe(false);
  }finally{await plugin.close();await f.close();}
 });
@@ -119,7 +119,7 @@ it.each([2,3,5])('finishes available new controls before replaying an entry and 
  try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:15}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),attempts=f.host.list<any>(v.task.rounds[0].sessionId,'attempt');
   expect(attempts.map(a=>a.action.label)).toEqual(['Open','First','Outside',...children.slice(1).flatMap(name=>['Open',name])]);expect(v.task.status).toBe('completed');
   expect(v.events.some(e=>e.type==='action.priority'&&(e.data as any).deferred.some((a:any)=>a.label==='Open'))).toBe(true);
-  const reentry=v.decisions.filter(d=>d.purpose==='next-action').map(d=>d.request.options![String(d.answer!.value)] as any).find(o=>o.reentry);expect(reentry).toMatchObject({label:'Open',purpose:'prerequisite',reentry:true});
+  const reentry=v.events.filter(e=>e.type==='action.selected').map(e=>e.data as any).find(o=>o.reentry);expect(reentry).toMatchObject({label:'Open',reentry:true});
   expect(children.every(name=>v.task.plan.some(i=>i.scope.label===name&&i.status==='succeeded'))).toBe(true);
  }finally{await plugin.close();await f.close();}
 });
@@ -139,13 +139,13 @@ it('does not replay an unchanged missing branch when unrelated work changes the 
 
 it.each(['current','longer-path','legacy-v2'])('preserves branch retry limits across restart, unrelated gaps and duplicate evidence rows: %s',async(mode)=>{
  const f=await explorerFixture(`<button id="open" type="button" onclick="document.getElementById('result').textContent='Opened'">Open</button><output id="result"></output><button type="button" onclick="this.disabled=true">Outside</button>`),p=fakeProviders(f.url),original=p.jev.decide,path=join(f.dir,'branch.sqlite');
- let began!:()=>void,release!:()=>void,hold=true;const waiting=new Promise<void>(r=>began=r);
- p.jev.decide=async(r,s)=>{if(r.purpose==='recovery-selection')return {model:'mock',value:'uncertain',confidence:1};if(hold&&r.purpose==='next-action'&&Object.values(r.options!).some((o:any)=>o.label==='Outside')&&!Object.values(r.options!).some((o:any)=>o.label==='Open')){hold=false;began();await new Promise<void>(resolve=>release=resolve);}return original(r,s);};
+ let pausing:Promise<unknown>|undefined;let began!:()=>void,hold=true;const waiting=new Promise<void>(r=>began=r);
+ f.host.events.on('event',event=>{if(hold&&event.type==='action.completed'&&(event.data as any).action?.label==='Open'){hold=false;began();pausing=plugin.pause(plugin.owner()!);}});
  let plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),p);
  try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:8}});
   plugin.revise(t.id,{items:[{title:'Page',scope:{url:f.url},prerequisites:[],completion:'Verify discovered controls',required:true,reason:'user scope'}]});
   const saved=plugin.store.task(t.id);saved.plan.push({...structuredClone(saved.plan[0]),id:'missing-child',scope:{url:f.url,label:'Child',kind:'click'},prerequisites:[{url:f.url,label:'Open',kind:'click'}],dispatchScope:false,status:'unresolved',reason:'operation_not_executed'});plugin.store.save(saved);
-  plugin.start(t.id);await waiting;await plugin.pause(t.id);release();const before=plugin.view(t.id),sid=before.task.rounds[0].sessionId;expect(before.task.usage.actions).toBe(1);await plugin.close();
+  plugin.start(t.id);await waiting;await pausing;const before=plugin.view(t.id),sid=before.task.rounds[0].sessionId;expect(before.task.usage.actions).toBe(1);await plugin.close();
   plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),p);const restored=plugin.store.task(t.id),child=restored.plan.find(i=>i.id==='missing-child')!;
   if(mode==='legacy-v2'){
     const source=f.host.list<any>(sid,'attempt').find(a=>a.action.label==='Open')!,o=f.host.observation(sid,source.beforeId);
@@ -157,7 +157,7 @@ it.each(['current','longer-path','legacy-v2'])('preserves branch retry limits ac
   expect(v.task.rounds).toHaveLength(1);expect(v.task.usage.actions).toBe(2);expect(v.task.usage.modelRequests).toBeGreaterThanOrEqual(before.task.usage.modelRequests);
   expect(f.host.list<any>(sid,'attempt').map(a=>a.action.label)).toEqual(['Open','Outside']);
   expect(v.task.plan.filter(i=>['missing-child','duplicate-child','unrelated-gap'].includes(i.id)).every(i=>i.status!=='succeeded')).toBe(true);expect(v.task.status).not.toBe('completed');
- }finally{release?.();await plugin.close();await f.close();}
+ }finally{await plugin.close();await f.close();}
 });
 
 it.each(['whole-page','targeted','after-last-action'] as const)('retains host coverage limitations for %s without treating other successes as coverage',async(mode)=>{
@@ -267,7 +267,7 @@ it('continues remaining scopes in a fresh round without resetting total budget o
  expect(task.status,JSON.stringify(task,null,2)).toBe('completed');expect(task.rounds).toHaveLength(2);expect(task.usage.actions).toBe(2);
  const actions=task.rounds.map(r=>f.host.list<any>(r.sessionId,'attempt').map(a=>a.action.label));expect(actions).toEqual([['Alpha'],['Beta']]);
  expect(task.plan.find(i=>i.scope.label==='Alpha')?.resolvedBy?.sessionId).toBe(task.rounds[0].sessionId);
- expect(providers.calls.some(r=>r.purpose==='followup-strategy')).toBe(true);expect(providers.calls.some(r=>r.purpose==='followup-plan')).toBe(false);
+ expect(providers.calls.some(r=>r.purpose==='followup-strategy')).toBe(false);expect(providers.calls.some(r=>r.purpose==='followup-plan')).toBe(false);
  }finally{await plugin.close();await f.close();}
 });
 it.each(['after-action','dispatch-preflight'] as const)('continues after the host time limit at %s without resetting aggregate usage',async(mode)=>{
@@ -294,7 +294,7 @@ it('resumes an expired unplanned session without mistaking an empty plan for com
  try{const t=plugin.create({url:f.url,goal:'Both controls',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:3,actions:5}});plugin.start(t.id);await plugin.waitForIdle();const before=plugin.view(t.id);
   expect(before.task.status).toBe('configuration_required');expect(before.task.plan).toHaveLength(0);expired.add(before.task.rounds[0].sessionId);
   plugin.router.providers.llm=providers.llm;plugin.start(t.id);await plugin.waitForIdle();const after=plugin.view(t.id);
-  expect(after.task.status,JSON.stringify(after.task)).toBe('completed');expect(after.task.rounds).toHaveLength(2);expect(after.task.usage.actions).toBe(2);expect(after.task.usage.modelRequests).toBeGreaterThan(before.task.usage.modelRequests);
+  expect(after.task.status,JSON.stringify(after.task)).toBe('completed');expect(after.task.rounds).toHaveLength(2);expect(after.task.usage.actions).toBe(2);expect(after.task.usage.modelRequests).toBeGreaterThanOrEqual(before.task.usage.modelRequests);
   expect(f.host.list<any>(before.task.rounds[0].sessionId,'attempt')).toHaveLength(0);expect(after.events.some(e=>e.type==='round.session_limit'&&(e.data as any).planInitialized===false)).toBe(true);
  }finally{await plugin.close();await f.close();}
 });
@@ -305,17 +305,17 @@ it('traverses admissible actions on JEV ranking ties without LLM fallback or out
  try{const t=plugin.create({url:f.url,goal:'Only Alpha',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
  expect(v.task.status).toBe('completed');expect(v.decisions.filter(d=>d.actor==='llm').map(d=>d.purpose)).toEqual(['initial-plan']);
  expect(f.host.list<any>(v.task.rounds[0].sessionId,'attempt').filter(a=>a.purpose==='external').map(a=>a.action.label)).toEqual(['Alpha']);
- expect(v.decisions.find(d=>d.purpose==='next-action')?.resolution).toMatchObject({source:'program',reason:'stable_candidate_order'});
+ expect(v.decisions.some(d=>d.purpose==='next-action')).toBe(false);expect(v.events.find(e=>e.type==='action.selected')?.data).toMatchObject({reason:'stable_candidate_order'});
  }finally{await plugin.close();await f.close();}
 });
-it('generates a follow-up plan only after JEV identifies a need for new planning',async()=>{
+it('does not ask for a follow-up plan merely because the session action budget was reached',async()=>{
  const f=await explorerFixture();const p=fakeProviders(f.url);const original=p.jev.decide;
  p.jev.decide=async(r,s)=>r.purpose==='followup-strategy'?{value:'replan',confidence:.95,model:'mock-jev'}:original(r,s);
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,goal:'Both buttons across rounds',sessionOptions:{maxActions:1,settleMs:0,observeTimeoutMs:100},budget:{rounds:3,actions:5}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
  expect(v.task.status).toBe('completed');expect(v.task.usage.actions).toBe(2);
  const strategy=v.decisions.findIndex(d=>d.purpose==='followup-strategy'),generation=v.decisions.findIndex(d=>d.purpose==='followup-plan');
- expect(strategy).toBeGreaterThan(-1);expect(generation).toBeGreaterThan(strategy);expect(v.decisions[generation].actor).toBe('llm');
+ expect(strategy).toBe(-1);expect(generation).toBe(-1);expect(v.events.some(e=>e.type==='plan.retained')).toBe(true);
  }finally{await plugin.close();await f.close();}
 });
 it('retains sampled-out ranges and can explicitly select them for a later round',async()=>{
@@ -337,7 +337,7 @@ it('restores paused tasks and counters from plugin storage without changing hist
 });
 it('records missing service configuration and exposes no key through HTTP',async()=>{
  const f=await explorerFixture();const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),{});const app=await createServer(f.host,{explorer:plugin});
- try{const t=plugin.create({url:f.url,goal:'Explore'});expect(plugin.start(t.id).status).toBe('configuration_required');expect(f.host.sessions()).toHaveLength(0);const response=await app.inject('/plugins/explorer/v1/status');expect(response.json().providers.llm.configured).toBe(false);expect(response.body).not.toMatch(/apiKey|authorization/);
+ try{const t=plugin.create({url:f.url,goal:'Explore'});plugin.start(t.id);await plugin.waitForIdle();expect(plugin.view(t.id).task.status).toBe('configuration_required');expect(f.host.sessions()).toHaveLength(1);expect(plugin.view(t.id).task.usage.actions).toBe(0);const response=await app.inject('/plugins/explorer/v1/status');expect(response.json().providers.llm.configured).toBe(false);expect(response.body).not.toMatch(/apiKey|authorization/);
  }finally{await app.close();await f.close();}
 });
 it('keeps exhausted totals until an explicit budget extension, then resumes a selected gap',async()=>{
@@ -388,9 +388,8 @@ it('reviews the active dialog before background controls and resumes background 
  const backgroundReview=view.decisions.find(d=>d.purpose==='control-classification'&&(d.request.state as any).material.control.name==='Background information');
  expect(backgroundReview).toBeDefined();expect(f.host.observation(sid,backgroundReview!.observationId).boundaries).toHaveLength(0);
  for(const d of view.decisions.filter(d=>d.purpose==='control-classification')){const o=f.host.observation(sid,d.observationId);if(o.boundaries?.length)expect(o.overlays?.find(b=>b.key===o.boundaries!.at(-1)!.key)?.controlIds).toContain((d.request.state as any).material.control.localId);}
- const regions=view.decisions.filter(d=>d.purpose==='region-review');expect(regions.length).toBeGreaterThan(1);
- expect((regions[0].request.state as any).material.controls.map((c:any)=>c.name||c.label)).not.toContain('Sibling');
- for(const d of regions){const material=(d.request.state as any).material;expect(material.candidate).not.toHaveProperty('binding');expect(material.candidate).not.toHaveProperty('reuseBinding');expect(material.candidate.memberCount).toBeGreaterThanOrEqual(material.controls.length);}
+ const regions=view.events.filter(e=>e.type==='program.review'&&(e.data as any).reason==='observed_region_partition');expect(regions.length).toBeGreaterThan(1);
+ const first=(regions[0].data as any).command.review.regions.flatMap((r:any)=>r.controlIds),source=f.host.observation(sid,(regions[0].data as any).sourceObservationId);expect(source.controls.filter(c=>first.includes(c.localId)).map(c=>c.name||c.label)).not.toContain('Sibling');expect(view.decisions.some(d=>d.purpose==='region-review')).toBe(false);
  expect(view.task.status,JSON.stringify(view.task,null,2)).toBe('completed');
  }finally{await plugin.close();await f.close();}
 });
@@ -398,7 +397,7 @@ it.each(['close','noop','changed'])('reviews an outside exit and verifies its %s
  const f=await explorerFixture(`<style>#outside{position:fixed;inset:0;background:#eee}#amount,#sibling{position:absolute;top:20px;z-index:1}#amount{left:10px}#sibling{left:400px}#panel{position:absolute;top:100px;left:100px;width:200px;height:160px;background:white;z-index:2}</style><div id="outside"></div><input id="amount" aria-label="Amount" value="42"><button id="sibling" type="button" onclick="this.disabled=true">Sibling</button><div id="panel" role="listbox" aria-label="Options"><button type="button" onclick="this.disabled=true">Inside</button></div><script>document.addEventListener('click',e=>{if(e.target.id==='outside'){${effect==='noop'?'':`panel.hidden=true;${effect==='changed'?"amount.value='99'":''}`}}})</script>`);
  const providers=fakeProviders(f.url),original=providers.jev.decide;providers.jev.decide=async(r,s)=>{const a=await original(r,s);if(r.purpose==='boundary-exit-risk'&&(r.state as any).material.candidate.selector!=='#outside')return {...a,value:{interface_exit:.01,external_exit:.5}};return a;};
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),providers);
- try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:20,modelRequests:100}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),sid=v.task.rounds[0].sessionId;const attempts=f.host.list<any>(sid,'attempt'),exits=f.host.list<any>(sid,'boundary-exit-result');
+ try{const t=plugin.create({url:f.url,sessionOptions:{executionPolicy:'interface-only',settleMs:0,observeTimeoutMs:100},budget:{rounds:1,actions:20,modelRequests:100}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id),sid=v.task.rounds[0].sessionId;const attempts=f.host.list<any>(sid,'attempt'),exits=f.host.list<any>(sid,'boundary-exit-result');
  expect(exits.length,JSON.stringify({task:v.task,decisions:v.decisions.map(d=>({purpose:d.purpose,status:d.status,reason:d.reason})),attempts:attempts.map(a=>({label:a.action.label,status:a.status}))},null,2)).toBeGreaterThan(0);
  if(effect!=='noop')expect(exits).toHaveLength(1);else {const values=attempts.filter(a=>a.action.kind==='dismiss').map(a=>a.action.value);expect(new Set(values).size).toBe(values.length);}
  expect(exits.every(r=>r.status===(effect==='close'?'verified':effect==='noop'?'not_closed':'changed'))).toBe(true);expect(v.decisions.some(d=>d.purpose==='boundary-exit-risk'&&d.status==='applied')).toBe(true);
@@ -411,7 +410,7 @@ it('preserves real parent fields rather than default null/empty fields on a larg
  const f=await explorerFixture(`<style>#outside{position:fixed;inset:0;background:#eee}#fields{position:absolute;top:20px;left:10px;z-index:1}#panel{position:absolute;top:100px;left:100px;width:200px;height:160px;background:white;z-index:2}</style><div id="outside"></div>${Array.from({length:125},(_,i)=>`<button type="button">Static ${i}</button>`).join('')}<div id="fields"><input aria-label="Amount" value="42"><input aria-label="Unchecked" type="checkbox"><select aria-label="Empty choice"></select><select aria-label="Selected choice"><option selected>A</option></select><input aria-label="Read only" value="retained" readonly></div><div id="panel" role="listbox" aria-label="Options"><button type="button" onclick="this.disabled=true">Inside</button></div><script>document.addEventListener('click',e=>{if(e.target.id==='outside')panel.hidden=true})</script>`);
  const providers=fakeProviders(f.url),original=providers.jev.decide;providers.jev.decide=async(r,s)=>{const a=await original(r,s);if(r.purpose==='boundary-exit-risk'&&(r.state as any).material.candidate.selector!=='#outside')return {...a,value:{interface_exit:.01,external_exit:.5}};return a;};
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),providers);
- try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:300},budget:{rounds:1,actions:3,modelRequests:30}});plugin.start(t.id);await plugin.waitForIdle();const view=plugin.view(t.id),sid=view.task.rounds[0].sessionId;
+ try{const t=plugin.create({url:f.url,sessionOptions:{executionPolicy:'interface-only',settleMs:0,observeTimeoutMs:300},budget:{rounds:1,actions:3,modelRequests:30}});plugin.start(t.id);await plugin.waitForIdle();const view=plugin.view(t.id),sid=view.task.rounds[0].sessionId;
   const exits=f.host.list<any>(sid,'boundary-exit-result');expect(exits.map(x=>x.status),JSON.stringify({reason:view.task.reason,plan:view.task.plan})).toEqual(['verified']);
   const judgment=view.decisions.find(d=>d.purpose==='boundary-exit-risk'&&d.status==='applied')!;const fields=(judgment.request.state as any).material.preserved;
   expect(fields.map((c:any)=>c.name).sort()).toEqual(['Amount','Empty choice','Read only','Selected choice','Unchecked']);expect(fields.find((c:any)=>c.name==='Unchecked').checked).toBe(false);expect(fields.find((c:any)=>c.name==='Empty choice').selected).toEqual([]);
@@ -430,21 +429,21 @@ it('retries a required interface exit after a real browser restart without reset
  const server=httpServer((_req,res)=>{res.setHeader('Content-Type','text/html');res.end('<!doctype html><main><h1>Page</h1><button id="sibling" type="button" onclick="this.disabled=true">Sibling</button><dialog aria-label="Notice"><button type="button" onclick="document.querySelector(\'dialog\').close()">Close</button></dialog></main><script>document.querySelector("dialog").showModal()</script>');});await new Promise<void>(r=>server.listen(0,'127.0.0.1',r));
  const url=`http://127.0.0.1:${(server.address() as {port:number}).port}/`,dir=mkdtempSync(join(tmpdir(),'explorer-reattach-')),path=join(dir,'plugin.sqlite');
  let host=new InteractionEngine({persistence:new SqliteStore(join(dir,'engine'))});const providers=fakeProviders(url),original=providers.jev.decide;
- let notified=false,notify!:()=>void;const waiting=new Promise<void>(resolve=>notify=resolve);
- providers.jev.decide=async(r,s)=>{const oid=(r.state as any).observationId;if(!notified&&host.sessions().length&&oid&&!host.observation(host.sessions()[0].id,oid).boundaries?.length){notified=true;notify();return new Promise(()=>{});}return original(r,s);};
+ let pausing:Promise<unknown>|undefined;let notified=false,notify!:()=>void;const waiting=new Promise<void>(resolve=>notify=resolve);
+ host.events.on('event',e=>{if(!notified&&e.type==='action.completed'&&(e.data as any).action.label==='Close'){notified=true;notify();pausing=plugin.pause(plugin.owner()!);}});
  let plugin=new ExplorerPlugin(host,new ExplorerStore(path),providers);
- try{const task=plugin.create({url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,modelRequests:100}});plugin.start(task.id);await waiting;await plugin.pause(task.id);const before=plugin.view(task.id),sid=before.task.rounds[0].sessionId,priorInstance=host.observation(sid).instanceScope;
+ try{const task=plugin.create({url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1,modelRequests:100}});plugin.start(task.id);await waiting;await pausing;const before=plugin.view(task.id),sid=before.task.rounds[0].sessionId,priorInstance=host.observation(sid).instanceScope;
   expect(host.list<any>(sid,'attempt').map(a=>a.action.label)).toEqual(['Close']);await plugin.close();await host.close();
   host=new InteractionEngine({persistence:new SqliteStore(join(dir,'engine'))});plugin=new ExplorerPlugin(host,new ExplorerStore(path),providers);plugin.start(task.id);await plugin.waitForIdle();const after=plugin.view(task.id);
   expect(host.observation(sid).instanceScope).not.toBe(priorInstance);expect(after.task.rounds).toHaveLength(1);expect(after.task.status,JSON.stringify(after.task)).toBe('completed');expect(host.list<any>(sid,'attempt').map(a=>a.action.label)).toEqual(['Close','Close','Sibling']);
-  expect(after.task.usage.actions).toBe(3);expect(after.task.usage.modelRequests).toBeGreaterThan(before.task.usage.modelRequests);expect(after.events.some(e=>e.type==='round.reattached'&&(e.data as any).attemptCacheReset)).toBe(true);
+  expect(after.task.usage.actions).toBe(3);expect(after.task.usage.modelRequests).toBeGreaterThanOrEqual(before.task.usage.modelRequests);expect(after.events.some(e=>e.type==='round.reattached'&&(e.data as any).attemptCacheReset)).toBe(true);
  }finally{await plugin.close();await host.close();await new Promise<void>(r=>server.close(()=>r()));rmSync(dir,{recursive:true,force:true});}
 });
 it.each([false,true])('isolates an unknown hyperlink without replaying it, including a host time limit: %s',async(timeLimit)=>{
  const f=await explorerFixture('<a href="?destination=1">Details</a><button type="button" onclick="this.disabled=true">Independent</button>'+(timeLimit?'<button type="button" onclick="this.disabled=true">Independent two</button>':'')),expired=new Set<string>();
  const providers=fakeProviders(f.url),original=providers.jev.decide;let unknownId:string|undefined;let links=0;const path=join(f.dir,'plugin.sqlite');
  providers.jev.decide=async(r,s)=>{if(r.purpose==='next-action'){const link=Object.entries(r.options!).find(([,a])=>(a as any).label==='Details');if(link)return {model:'mock',value:link[0],confidence:1};}return original(r,s);};
- const host=new Proxy(f.host,{get(target,key){if(key==='execute')return async(...args:Parameters<typeof target.execute>)=>{const a=await target.execute(...args);if(a.action.label==='Details'){links++;unknownId=a.id;const unknown={...a,status:'unknown' as const};target.store.put('attempt',unknown);return unknown;}if(timeLimit)expired.add(args[0]);return a;};if(key==='session')return(sid:string)=>{const s=target.session(sid);return expired.has(sid)?{...s,elapsedMs:s.options.maxDurationMs}:s;};if(key==='list')return (sid:string,kind:string)=>target.list<any>(sid,kind).map(x=>kind==='attempt'&&x.id===unknownId?{...x,status:'unknown'}:x);const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;}});
+ const host=new Proxy(f.host,{get(target,key){if(key==='explorationSnapshot')return(...args:Parameters<typeof target.explorationSnapshot>)=>{const v=target.explorationSnapshot(...args);if(links)return v;return {...v,availability:{...v.availability,actions:v.availability.actions.map(fact=>v.actions.find(a=>a.id===fact.actionId)?.label==='Details'?fact:{...fact,executable:false,blockers:[{code:'ACTION_BLOCKED',reason:'fixture_route_precondition',evidence:[]}]})}};};if(key==='actionAvailability')return(...args:Parameters<typeof target.actionAvailability>)=>{const v=target.actionAvailability(...args);if(links)return v;const actions=target.actions(args[0]);return {...v,actions:v.actions.map(fact=>actions.find(a=>a.id===fact.actionId)?.label==='Details'?fact:{...fact,executable:false,blockers:[{code:'ACTION_BLOCKED',reason:'fixture_route_precondition',evidence:[]}]})};};if(key==='execute')return async(...args:Parameters<typeof target.execute>)=>{const a=await target.execute(...args);if(a.action.label==='Details'){links++;unknownId=a.id;const unknown={...a,status:'unknown' as const};target.store.put('attempt',unknown);return unknown;}if(timeLimit)expired.add(args[0]);return a;};if(key==='session')return(sid:string)=>{const s=target.session(sid);return expired.has(sid)?{...s,elapsedMs:s.options.maxDurationMs}:s;};if(key==='list')return (sid:string,kind:string)=>target.list<any>(sid,kind).map(x=>kind==='attempt'&&x.id===unknownId?{...x,status:'unknown'}:x);const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;}});
  let plugin=new ExplorerPlugin(host,new ExplorerStore(path),providers);
  try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:3,actions:10,modelRequests:100}});plugin.start(t.id);await plugin.waitForIdle();let view=plugin.view(t.id);
  expect(links).toBe(1);expect(view.task.rounds).toHaveLength(timeLimit?3:2);expect(view.task.usage.actions).toBe(timeLimit?3:2);expect(view.task.unverifiedNavigations).toEqual([{sourceUrl:f.url,targetUrl:f.url+'?destination=1',evidence:expect.objectContaining({attemptId:unknownId,sessionId:view.task.rounds[0].sessionId})}]);
@@ -501,7 +500,7 @@ it('retries initial planning after a provider timeout without turning the error 
  p.llm.decide=async(r,s)=>{if(fail){fail=false;const {ExplorerError}=await import('@interaction/explorer-plugin');throw new ExplorerError('PROVIDER_TIMEOUT');}return original(r,s);};
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,goal:'Both controls',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();let view=plugin.view(t.id);expect(view.task.reason).toBe('PROVIDER_TIMEOUT');expect(view.task.plan).toEqual([]);expect(view.task.usage.actions).toBe(0);
- plugin.start(t.id);await plugin.waitForIdle();view=plugin.view(t.id);expect(view.task.status).toBe('completed');expect(view.decisions.filter(d=>d.purpose==='initial-plan')).toHaveLength(2);expect(view.events.some(e=>e.type==='decision.effect'&&(e.data as any).kind==='plan')).toBe(true);expect(view.events.some(e=>e.type==='action.verified'&&(e.data as any).decisionId)).toBe(true);
+ plugin.start(t.id);await plugin.waitForIdle();view=plugin.view(t.id);expect(view.task.status).toBe('completed');expect(view.decisions.filter(d=>d.purpose==='initial-plan')).toHaveLength(2);expect(view.events.some(e=>e.type==='decision.effect'&&(e.data as any).kind==='plan')).toBe(true);expect(view.events.some(e=>e.type==='action.verified'&&(e.data as any).requestId&&(e.data as any).attemptId)).toBe(true);
  }finally{await plugin.close();await f.close();}
 });
 
@@ -531,14 +530,14 @@ it('keeps JEV sampling and action choices while omitting the historical ledger f
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
  try{const t=plugin.create({url:f.url,goal:'Representative choices',coverageMode:'representative',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.revise(t.id,{items:[{title:'Choice scope',scope:{url:f.url},prerequisites:[],completion:'Verify selected choices',required:true,reason:'user scope'}]});
   const saved=plugin.store.task(t.id);for(let i=0;i<400;i++)saved.plan.push({id:`history-${i}`,title:'historical-ledger-marker',scope:{url:f.url,label:`Historical ${i}`},prerequisites:[],completion:'Unverified',required:i%2===0,dispatchScope:false,status:'untested',reason:'historical-ledger-marker',evidence:[],attempts:[]});plugin.store.save(saved);
-  plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);expect(requests).toBeGreaterThan(0);expect(selections).toBeGreaterThan(0);expect(v.task.plan.some(i=>i.reason==='sample_unselected'&&i.status==='untested')).toBe(true);expect(v.task.plan.filter(i=>i.title==='historical-ledger-marker')).toHaveLength(400);
+  plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);expect(requests).toBeGreaterThan(0);expect(selections).toBe(0);expect(v.events.some(e=>e.type==='action.selected')).toBe(true);expect(v.task.plan.some(i=>i.reason==='sample_unselected'&&i.status==='untested')).toBe(true);expect(v.task.plan.filter(i=>i.title==='historical-ledger-marker')).toHaveLength(400);
  }finally{await plugin.close();await f.close();}
 });
 it('does not grant an operation on ambiguous external-effect evidence, even if LLM would approve',async()=>{
  const f=await explorerFixture(),p=fakeProviders(f.url),original=p.jev.decide;
  p.jev.decide=async(r,s)=>r.kind==='checklist'?{value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,k.startsWith('interface_')?.99:.5])),model:'mock'}:original(r,s);
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p);
- try{const t=plugin.create({url:f.url,goal:'All buttons',sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
+ try{const t=plugin.create({url:f.url,goal:'All buttons',sessionOptions:{executionPolicy:'interface-only',settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
  expect(v.task.status).not.toBe('completed');expect(v.task.usage.actions).toBe(0);expect(v.task.plan.some(i=>i.required&&i.reason==='operation_risk_unresolved')).toBe(true);
  expect(v.decisions.filter(d=>d.actor==='llm').map(d=>d.purpose)).toEqual(['initial-plan']);
  const judgments=v.decisions.filter(d=>d.purpose==='control-risk');expect(judgments.length).toBeGreaterThan(0);expect(judgments.length).toBeLessThanOrEqual(4);
@@ -643,7 +642,7 @@ it('allows clearing a goal to switch to default exhaustion and preserves cumulat
 it('preserves a default exhaustive root and its budgets after storage restart',async()=>{
  const f=await explorerFixture(),p=fakeProviders(f.url),path=join(f.dir,'default.sqlite');let plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),{jev:p.jev});
  try{const t=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100,maxActions:1},budget:{rounds:1}});plugin.start(t.id);await plugin.waitForIdle();const before=plugin.view(t.id);await plugin.close();plugin=new ExplorerPlugin(f.host,new ExplorerStore(path),{jev:p.jev});plugin.extendBudget(t.id,{rounds:1,actions:2,durationMs:10000,modelRequests:30});plugin.start(t.id);await plugin.waitForIdle();const v=plugin.view(t.id);
- expect(v.task.status,JSON.stringify(v.task)).toBe('completed');expect(v.task.intent).toEqual(before.task.intent);expect(v.task.usage.actions).toBe(2);expect(v.task.usage.modelRequests).toBeGreaterThan(before.task.usage.modelRequests);expect(v.events.filter(e=>e.type==='plan.initialized')).toHaveLength(1);expect(v.decisions.some(d=>d.actor==='llm')).toBe(false);
+ expect(v.task.status,JSON.stringify(v.task)).toBe('completed');expect(v.task.intent).toEqual(before.task.intent);expect(v.task.usage.actions).toBe(2);expect(v.task.usage.modelRequests).toBeGreaterThanOrEqual(before.task.usage.modelRequests);expect(v.events.filter(e=>e.type==='plan.initialized')).toHaveLength(1);expect(v.decisions.some(d=>d.actor==='llm')).toBe(false);
  }finally{await plugin.close();await f.close();}
 });
 

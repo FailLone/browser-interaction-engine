@@ -73,7 +73,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   }
   /** Same verified-continuation ledger used by continueExploration; no implicit recovery. */
   recoveryAssessment(sid:string) {
-    return {sessionId:sid,observationId:this.observation(sid).id,unknownAttempts:this.unknownOutcomes(sid),blockingBoundaryExit:this.blockingBoundaryExit(sid),dirty:this.session(sid).dirty};
+    return {sessionId:sid,observationId:this.observation(sid).id,unknownAttempts:this.unknownOutcomes(sid),blockingBoundaryExit:this.blockingBoundaryExit(sid),dirty:this.session(sid).dirty,...(this.session(sid).options.executionPolicy==='observed-ui'?{verificationScope:'observed-ui' as const}:{}),unassessedEffectAttemptIds:this.session(sid).unassessedEffectAttemptIds||[]};
   }
   navigationIsolation(sid:string,attemptId:string) {
     const state=this.recoveryAssessment(sid),attempt=state.unknownAttempts.find(a=>a.id===attemptId),before=attempt&&this.observation(sid,attempt.beforeId),intent=attempt&&before&&navigationIntent(attempt.action,before);
@@ -191,7 +191,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       return (this.interventionRequests.get(id) || Promise.resolve({ continuation: previous, material: this.interventionMaterial(sid), session: this.session(sid) })) as Promise<{ continuation: ContinuationRecord; material: import('@interaction/adapter-playwright').InterventionMaterial; session: import('@interaction/adapter-playwright').Session }>;
     }
     if (this.activeId && this.activeId !== sid && !['stopped', 'finished'].includes(this.session(this.activeId).status)) throw new EngineError('ACTIVE_SESSION', 'A different session owns the interaction driver');
-    const record: ContinuationRecord = { id, sessionId: sid, requestId: parsed.requestId, input: parsed, at: now(), beforeId: parsed.observationId, status: 'queued', started: false, checks: [] };
+    const record: ContinuationRecord = { ...(this.session(sid).options.executionPolicy==='observed-ui'?{verificationScope:'observed-ui' as const}:{}),id, sessionId: sid, requestId: parsed.requestId, input: parsed, at: now(), beforeId: parsed.observationId, status: 'queued', started: false, checks: [] };
     this.store.put('continuation', record);
     // Pause settles any in-flight operation before validating the caller's source.
     const task = this.pause(sid).then(() => this.enqueueMeasured(sid, async () => {
@@ -523,7 +523,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       : eligible;
   }
   protected override explorationIdleReason(sid: string) { return this.pages.idleReason(sid, this.session(sid)) || this.regions.idleReason(sid, this.outstandingFrontier(sid)); }
-  protected override async runAction(sid: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: import('@interaction/core').ActionAttempt['purpose'] = 'external', guard?:import('@interaction/core').ExecutionGuard) {
+  protected override async runAction(sid: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: import('@interaction/core').ActionAttempt['purpose'] = 'external', guard?:import('@interaction/core').DispatchGuard) {
     const attempt = await super.runAction(sid, actionId, requestId, value, purpose, guard);
     this.boundaryExits.finishUnknown(attempt, this.driver instanceof BrowserAdapter ? this.driver.dismissalDispatch(attempt.action.id) : undefined);
     return attempt;
@@ -765,7 +765,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       case 'revokeRegionReuse': return this.revokeRegionReuse(sessionId, command.revocation);
       case 'describeComponent': { const { type: _, ...description } = command; return this.describeComponent(sessionId, description); }
       case 'scrollProbe': return this.scrollProbe(sessionId, command.observationId, command.localId, command.options, command.requestId);
-      case 'probe': return this.probe(sessionId, command.observationId, command.localId, command.kind, command.requestId);
+      case 'probe': return this.probe(sessionId, command.observationId, command.localId, command.kind, command.requestId,undefined,command.guard);
       case 'observe': return this.observe(sessionId);
       case 'inspect': return this.inspect(sessionId, command.region);
       case 'execute': return this.execute(sessionId, command.actionId, command.requestId, command.value, command.guard);

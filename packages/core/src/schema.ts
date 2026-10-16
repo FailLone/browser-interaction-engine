@@ -29,6 +29,7 @@ export const componentDescriptionSchema = z.object({
   evidence: z.array(z.object({ observationId: z.string().min(1), localId: z.string().min(1).optional(), componentId: z.string().min(1).optional() }).strict()).min(1).max(100),
 }).strict();
 export const sessionSchema = z.object({
+  executionPolicy: z.enum(['interface-only', 'observed-ui']).optional(),
   maxActions: z.number().int().positive().max(10000).default(100),
   maxDepth: z.number().int().positive().max(100).default(10),
   maxDurationMs: z.number().int().positive().max(86400000).default(600000),

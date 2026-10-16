@@ -1,4 +1,4 @@
-import { canonical, contextKey, EngineError, hash, id, now, type Persistence, type FrontierItem } from '@interaction/core';
+import { isObservedUIOperation, canonical, contextKey, EngineError, hash, id, now, type Persistence, type FrontierItem } from '@interaction/core';
 import { controlReviewSchema, revokeControlReviewSchema, reuseControlReviewsSchema, controlReviewConditions, controlReviewKey, controlReuseConditions, controlSurroundingsReader,
   type ActionCandidate, type Control, type Observation, type ControlReviewInput, type ControlReviewRecord, type ControlReviewMaterial, type RevokeControlReviewInput, type ReuseControlReviewsInput } from '@interaction/adapter-playwright';
 
@@ -31,13 +31,14 @@ export class ControlReviews {
       && (!r.exitBoundary || o.boundaries?.at(-1)?.key===r.exitBoundary);
   }
   material(o:Observation,actions:ActionCandidate[],nonInteractive=this.nonInteractive(o)):ControlReviewMaterial {
+    const observedUI=this.store.get<import('@interaction/adapter-playwright').Session>('session',o.sessionId)?.options.executionPolicy==='observed-ui';
     const records=this.records(o.sessionId),surroundings=controlSurroundingsReader(o);
     const controls=o.controls.filter(c=>c.visible).map(control=>{
       const candidates=actions.filter(a=>a.localId===control.localId);
       const reviews=records.filter(r=>r.conditions.target.instanceId===control.instanceId && r.conditions.instanceScope===o.instanceScope);
       const reviewed=(kind:string)=>reviews.some(r=>r.kind===kind&&this.matches(r,control,o));
       const needsReview=!control.readOnly && !nonInteractive.has(control.localId) && (!candidates.some(a=>a.basis?.status==='supported') && !Object.values(control.actionBasis||{}).some(b=>b.status==='supported') && !reviews.some(r=>this.matches(r,control,o))
-        || candidates.some(a=>(a.basis?.status!=='supported'||a.risk==='unknown'||['operation_requires_review','navigation_requires_review'].includes(a.exclusionReason||''))&&!reviewed(a.kind)));
+        || candidates.some(a=>(a.basis?.status!=='supported'||a.risk==='unknown'&&!(observedUI&&isObservedUIOperation(a,o))||['operation_requires_review','navigation_requires_review'].includes(a.exclusionReason||''))&&!reviewed(a.kind)));
       return {control,...(needsReview?{surroundings:surroundings(control)}:{}),actions:candidates,reviews,needsReview,reuseCandidates:this.reuseCandidates(control,o,records)};
     });
     return {sessionId:o.sessionId,observationId:o.id,url:o.url,instanceScope:o.instanceScope,context:o.context,gaps:o.gaps,controls,pendingControlIds:controls.filter(c=>c.needsReview).map(c=>c.control.localId)};

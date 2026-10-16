@@ -70,6 +70,9 @@ export interface ActionCandidate {
 export interface ActionAttempt {
   id: ID; sessionId: ID; requestId: string; action: ActionCandidate; startedAt: string; finishedAt?: string;
   beforeId: ID; afterId?: ID; status: 'executing' | 'succeeded' | 'failed' | 'blocked' | 'unknown';
+  executionProfile?: import('./execution-readiness.js').DispatchGuard['profile'];
+  /** UI operation observed; external/business effects are not certified. */
+  effectsAssessment?: 'not-assessed';
   purpose: 'exploration' | 'external' | 'recovery'; reason?: string; diff?: Diff; transitionId?: ID;
 }
 export interface Transition { id: ID; sessionId: ID; from: ID; to: ID; attemptId: ID; replayable: boolean }
@@ -118,11 +121,13 @@ export interface RecoveryDiagnostics {
   strategies: string[];
   dirtyActions: { attemptId: ID; label: string; risk: ActionCandidate['risk'] }[];
   resetAvailable: boolean;
+  verificationScope?: 'observed-ui';
+  unassessedEffectAttemptIds?: ID[];
 }
-export interface ReachResult { id: ID; sessionId: ID; checkpointId: ID; status: ReachStatus; observationId?: ID; reason: string; attemptIds: ID[]; checks: { name: string; result: 'pass' | 'fail' | 'unknown' }[]; remainingFrontier: number; diagnostics?: RecoveryDiagnostics }
-export interface SessionOptions { maxActions: number; maxDepth: number; maxDurationMs: number; context: Record<string, Json>; exploration?: 'controls' | 'representative' | 'stateful'; evidenceRetention?: import('./ports.js').EvidenceRetentionPolicy }
+export interface ReachResult { verificationScope?: 'observed-ui'; id: ID; sessionId: ID; checkpointId: ID; status: ReachStatus; observationId?: ID; reason: string; attemptIds: ID[]; checks: { name: string; result: 'pass' | 'fail' | 'unknown' }[]; remainingFrontier: number; diagnostics?: RecoveryDiagnostics }
+export interface SessionOptions { executionPolicy?: 'interface-only' | 'observed-ui'; maxActions: number; maxDepth: number; maxDurationMs: number; context: Record<string, Json>; exploration?: 'controls' | 'representative' | 'stateful'; evidenceRetention?: import('./ports.js').EvidenceRetentionPolicy }
 export interface ValidationFailure { scopeKey: string; count: number; observationIds: ID[]; evidence: string[] }
-export interface Session<S extends SessionOptions = SessionOptions> { id: ID; options: S; createdAt: string; status: 'idle' | 'running' | 'paused' | 'stopped' | 'finished'; currentObservationId?: ID; actionCount: number; elapsedMs: number; stopReason?: string; mode: 'manual' | 'dfs'; dirty: boolean; dirtyAttemptIds?: ID[]; validationFailures?: ValidationFailure[]; observationFailures?: { count: number; kind: 'incomplete' | 'stale'; observationIds: ID[] } }
+export interface Session<S extends SessionOptions = SessionOptions> { id: ID; options: S; createdAt: string; status: 'idle' | 'running' | 'paused' | 'stopped' | 'finished'; currentObservationId?: ID; actionCount: number; elapsedMs: number; stopReason?: string; mode: 'manual' | 'dfs'; dirty: boolean; dirtyAttemptIds?: ID[]; /** Not a successful business-state verification or replay grant. */ unassessedEffectAttemptIds?: ID[]; validationFailures?: ValidationFailure[]; observationFailures?: { count: number; kind: 'incomplete' | 'stale'; observationIds: ID[] } }
 export interface EngineEvent { sequence: number; sessionId: ID; type: string; at: string; data: unknown }
 export interface Issue { id: ID; sessionId: ID; observationId: ID; source: string; severity: 'info' | 'warning' | 'error'; message: string; evidence?: string[] }
 export interface Graph { states: UIState[]; transitions: Transition[]; visits: Visit[] }

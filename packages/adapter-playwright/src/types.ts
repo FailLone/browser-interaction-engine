@@ -120,6 +120,8 @@ export interface Observation extends CoreObservation<Control> {
 export interface ContextRule { key: string; selector: string; attribute?: string; required?: boolean }
 export interface MatchRule { role?: string; name?: string; stableKey?: string; kind?: ActionKind; urlIncludes?: string }
 export interface SessionOptions {
+  /** Explicit authorization to explore captured UI operations without certifying business effects. */
+  executionPolicy?: 'interface-only' | 'observed-ui';
   url: string; headless: boolean; viewport: { width: number; height: number };
   maxActions: number; maxDepth: number; maxDurationMs: number;
   actionTimeoutMs: number; settleMs: number; observeTimeoutMs: number;

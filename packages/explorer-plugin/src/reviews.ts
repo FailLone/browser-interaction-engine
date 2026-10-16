@@ -13,7 +13,11 @@ export interface ReviewContext {
   clarify(request:SemanticReview):Promise<{value:string;decision:Decision}>;
   generate<T>(purpose:string,instructions:string,state:unknown,schema:z.ZodType<T>):Promise<{value:T;decision:Decision}>;
   apply(decision:Decision|Decision[],command:unknown):Promise<void>;
+  /** Deterministic bookkeeping/observation decisions, with no fabricated model record. */
+  programApply?(command:unknown,reason:string):Promise<void>;
   probe(decision:Decision,localId:string,kind:'hover'|'focus'):Promise<void>;
+  /** An SDK-available bounded observation, not model authorization or execution coverage. */
+  programProbe?(localId:string,kind:'hover'|'focus',reason:string):Promise<void>;
   defer(decision:Decision,reason:string):void;
   unchanged?(evidence:{sourceDecisionId:string;sourceObservationId:string;scope:Scope}):void;
   retain(groups:RetainedScope[]):Promise<void>;
@@ -48,6 +52,8 @@ function regionEvidence(candidate:RegionCandidate) {
 /** Submit one guarded review command at a time; it may recapture and invalidate all other material. */
 export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const {host,task,observation:o}=c;const sid=o.sessionId;const round=task.rounds.at(-1)!;
+  const sessionOptions=host.session?.(sid)?.options;
+  const observedUI=!!sessionOptions&&'executionPolicy' in sessionOptions&&sessionOptions.executionPolicy==='observed-ui';
   const done=(key:string)=>round.reviewed.includes(key);const mark=(key:string)=>round.reviewed.push(key);
   const available=host.actions(sid);
   const boundary=o.boundaries?.at(-1),overlay=o.overlays?.find(b=>b.key===boundary?.key);
@@ -84,6 +90,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     for(const control of o.controls)if(control.hypothesisId&&pendingIdentities.has(control.hypothesisId))retain('identity_unresolved',control);
     return false;
   }
+  if(observedUI&&!c.programApply){c.gap('missing_capability:program_review',{url:o.url});return false;}
   const region=host.regionReviewMaterial(sid);
   const broad=pendingPlan.some(i=>i.required&&i.dispatchScope===true&&broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url));
   if(region.enabled&&(region.unassignedControlIds.some(id=>relevantIds.has(id))||(!boundary&&region.unassignedPageTraversal&&broad))) {
@@ -95,18 +102,21 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       candidates.sort((a,b)=>Number(b.id===boundaryInstance)-Number(a.id===boundaryInstance)
         ||(boundaryIds?a.controlIds.filter(id=>!boundaryIds.has(id)).length-b.controlIds.filter(id=>!boundaryIds.has(id)).length:0)
         ||strength[b.basis]-strength[a.basis]||b.controlIds.length-a.controlIds.length);
-      const batch:{candidate:RegionCandidate;controlIds:string[];decision:Decision}[]=[],reserved=new Set<string>();
+      const batch:{candidate:RegionCandidate;controlIds:string[];decision?:Decision}[]=[],reserved=new Set<string>();
       const flush=async()=>{
         mark(key);
         // Keep unrelated current regions through the public incremental contract.
         const incremental=region.review&&region.delta?.canUpdate;
         const existing=region.review?.regions.filter(r=>r.status==='active').map(r=>({key:r.key,label:r.label,candidateIds:r.anchors.map(a=>a.id),controlIds:r.controlIds,pageTraversal:r.pageTraversal})) || [];
-        await c.apply(batch.map(entry=>entry.decision),{type:'reviewRegions',review:{observationId:o.id,source,evidence:batch.flatMap(entry=>evidence(entry.decision)),...(incremental?{update:{baseReviewId:region.review!.id}}:{}),regions:[...(incremental?[]:existing),...batch.map(({candidate,controlIds},index)=>({key:`explorer:${candidate.id}`,label:candidate.label,candidateIds:[candidate.id],controlIds,pageTraversal:index===0&&!boundary&&region.unassignedPageTraversal}))],rejectedCandidateIds:region.review?.rejectedCandidateIds||[]}});
+        const command={type:'reviewRegions',review:{observationId:o.id,source:observedUI?'explorer-program':source,evidence:observedUI?[`observation:${o.id}`]:batch.flatMap(entry=>entry.decision?evidence(entry.decision):[]),...(incremental?{update:{baseReviewId:region.review!.id}}:{}),regions:[...(incremental?[]:existing),...batch.map(({candidate,controlIds},index)=>({key:`explorer:${candidate.id}`,label:candidate.label,candidateIds:[candidate.id],controlIds,pageTraversal:index===0&&!boundary&&region.unassignedPageTraversal}))],rejectedCandidateIds:region.review?.rejectedCandidateIds||[]}};
+        if(observedUI)await c.programApply!(command,'observed_region_partition');
+        else await c.apply(batch.flatMap(entry=>entry.decision?[entry.decision]:[]),command);
         return true;
       };
       for(const candidate of candidates) {
         const controlIds=candidate.controlIds.filter(id=>region.unassignedControlIds.includes(id)&&!reserved.has(id));
         if(!controlIds.some(id=>relevantIds.has(id)))continue;
+        if(observedUI){batch.push({candidate,controlIds});controlIds.forEach(id=>reserved.add(id));if(batch.length>=5)return flush();continue;}
         const d=await c.choose('region-review','Should this observed region be an exploration scope for the task? This is grouping, not action permission. Exact structural bindings remain with the host for fresh validation.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',candidate:regionEvidence(candidate),controls:region.controls.filter(x=>controlIds.includes(x.localId)),assignedElsewhere:candidate.controlIds.length-controlIds.length},{include:'Recognized coherent exploration region',uncertain:'Cannot decide its role'});
         // A refresh invalidates all prepared region bindings. Submit clear entries
         // first, then ask about this uncertain candidate against the new capture.
@@ -137,6 +147,19 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     for(const s of retained)mark(s.key);
     await c.retain(retained.map(({group,members})=>({id:group.id,revision:group.revision,label:group.label,memberKeys:members.map(m=>m.key),actionIds:members.map(m=>m.actionId),historicalMemberCount:group.members.length-members.length})));
     return true;
+  }
+  if(observedUI){
+    const hypothesis=host.list<IdentityHypothesis>(sid,'hypothesis').find(h=>h.status==='pending'&&!done(`identity:${h.id}`)&&o.controls.some(x=>x.hypothesisId===h.id&&relevantIds.has(x.localId)));
+    if(hypothesis){mark(`identity:${hypothesis.id}`);await c.programApply!({type:'resolveIdentity',hypothesisId:hypothesis.id,identityId:hypothesis.provisionalIdentityId,source:'explorer-program',evidence:[`observation:${o.id}`,'Keep current occurrence independent'],guard:{observationId:o.id,revision:hypothesis.revisions.length}},'independent_current_occurrence');return true;}
+    // Exhaust bounded observation supplied by the SDK before asking a model to
+    // interpret a weak candidate. This never dispatches an interaction.
+    if(!boundary){
+      const discovery=host.discoveryScanMaterial(sid).discovery;
+      if(discovery&&(discovery.signal.omitted>0||discovery.structural.omittedLocations>0)){
+        const target=discovery.targets.find(t=>!done(`scan-target:${discovery.topologyKey}:${t.id}`));
+        if(target){mark(`scan-target:${discovery.topologyKey}:${target.id}`);mark(`scan:${discovery.topologyKey}:${discovery.supplement?.targetId||''}`);await c.programApply!({type:'supplementDiscovery',scan:{observationId:o.id,targetId:target.id,source:'explorer-program',evidence:[`observation:${o.id}`],budget:{elements:1000}}},'bounded_discovery_target');return true;}
+      }
+    }
   }
   const classifications=host.controlClassificationMaterial(sid);
   const classificationBatch:{key:string;localId:string;value:string;decision:Decision}[]=[];
@@ -186,8 +209,49 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(d.value==='uncertain'){for(const control of current)c.gap('identity_unresolved',scopeForControl(control,o));continue;}
     await c.apply(d.decision,{type:'resolveIdentity',hypothesisId:h.id,identityId:d.value==='independent'?h.provisionalIdentityId:d.value,source,evidence:evidence(d.decision),guard:{observationId:o.id,revision:h.revisions.length}});return true;
   }
+  // Missing input content is separate from operation permission. Native supported
+  // fields can need samples even when no operation review is pending.
+  const sampleCandidates=available.filter(a=>a.kind==='fill'&&a.localId&&relevantIds.has(a.localId)&&a.basis?.status==='supported'&&a.risk!=='submission');
+  const readiness=sampleCandidates.length?host.actionAvailability?.(sid,o.id):undefined;
+  for(const action of sampleCandidates){
+    if(action.exclusionReason!=='input_sample_required'&&!readiness?.actions.find(a=>a.actionId===action.id)?.blockers.some(b=>b.code==='INPUT_REQUIRED'))continue;
+    const target=o.controls.find(control=>control.localId===action.localId)!;
+    const key=`input-samples:${digest({revision:task.revision,instance:o.instanceScope,target:target.instanceId,constraints:target.constraints,basis:target.actionBasis?.fill,context:o.context})}`;
+    if(done(key))continue;
+    const generated=await c.generate('input-samples','Supply a small bounded set of synthetic input strings matching the captured field constraints. This only supplies content for an already supported fill operation; it does not approve risk, authorize submission, predict behavior or claim execution. Do not supply credentials, personal data or payment information. Return an empty list if no appropriate sample can be supplied.',{observationId:o.id,goal:task.goal,control:target,kind:'fill',constraints:target.constraints,missing:'input_sample_required'},z.object({samples:z.array(z.string()).max(5)}).strict());
+    mark(key);
+    if(!generated.value.samples.length){c.gap('input_samples_unavailable',scopeForControl(target,o));continue;}
+    await c.apply(generated.decision,{type:'reviewControls',review:{observationId:o.id,source:'explorer-input-samples',reviews:[{localId:target.localId,kind:'fill',risk:action.risk,replayable:false,samples:[...new Set(generated.value.samples)],reason:'Supply content for an already supported fill; retain its existing risk and validate constraints at dispatch',evidence:[`observation:${o.id}`,`action:${action.id}`,...evidence(generated.decision)]}]}});return true;
+  }
   const control=host.controlReviewMaterial(sid);
   for(const item of control.controls.filter(i=>i.needsReview&&relevantIds.has(i.control.localId))) {
+    if(observedUI){
+      const key=`operation-description:${unresolvedPurposeKey(o,item,task.revision)}`;if(done(key))continue;
+      // Only describe operations already suggested by captured own-node evidence.
+      // Names or descendant controls cannot invent an operation type or target.
+      const offered=Object.fromEntries(Object.entries(item.control.actionBasis||{}).filter(([kind,basis])=>
+        ['click','fill','select','check','press','hover'].includes(kind)&&basis.status!=='supported'&&basis.evidence.length>0
+        &&!basis.evidence.some(e=>e.facts.submitsForm===true)&&!item.actions.some(a=>a.kind===kind&&a.risk==='submission')));
+      if(!Object.keys(offered).length){mark(key);c.gap('operation_basis_unconfirmed',scopeForControl(item.control,o));continue;}
+      const surroundings=item.surroundings?.complete?item.surroundings:undefined;
+      const options={...Object.fromEntries(Object.entries(offered).map(([kind,basis])=>[kind,{operation:kind,capturedBasis:basis}])),uncertain:'Current evidence does not identify an operation on this occurrence'};
+      let selected=await c.choose('control-operation','Identify which offered operation applies to this current occurrence so exploration can continue. Use captured operation evidence, semantic role and local structure; handlers on containers may only delegate to children. Select only an offered kind on this target. Do not infer a new input capability, business permission or functional outcome from its name. This describes an operation, not whether its implementation is interface-only or behaves correctly. Use uncertain when the target or operation remains ambiguous.',{observationId:o.id,control:item.control,offeredOperations:offered,...(surroundings?{surroundings}:{})},options);
+      if(selected.value==='uncertain'){
+        const complete=surroundings||item.control.classificationBinding&&!item.control.classificationBinding.truncated;
+        if(!complete&&await c.refresh(selected.decision,`operation:${o.instanceScope}:${item.control.instanceId}`))return true;
+        if(complete)selected=await c.clarify({key:`operation-description:${item.control.instanceId}`,purpose:'operation-description',parent:selected.decision,operation:false,options,evidence:{current:item.control,offeredOperations:offered,...(surroundings?{surroundings}:{})},requiredEvidence:Object.fromEntries(Object.keys(offered).map(kind=>[kind,['current','offeredOperations',...(surroundings?['surroundings']:[])]])),instructions:'Resolve the remaining operation/target ambiguity using the captured own-node basis and complete structure. Select only an offered operation on the current target; do not promote a container because its descendants are interactive. This is a description for bounded exploration, not a pure-UI risk certificate or a prediction of correct behavior. Do not infer business authorization, invent input capabilities or claim execution occurred. Return uncertain if the evidence still does not distinguish the target operation.'});
+      }
+      if(!Object.hasOwn(offered,selected.value)){mark(key);c.gap('operation_basis_unconfirmed',scopeForControl(item.control,o));continue;}
+      let samples:(string|boolean)[]|undefined;const decisions=[selected.decision];
+      if(['fill','select','press','check'].includes(selected.value)){
+        samples=[...new Set(item.actions.filter(a=>a.kind===selected.value&&a.risk!=='submission'&&typeof a.value===(selected.value==='check'?'boolean':'string')).map(a=>a.value as string|boolean))];
+        if(!samples.length&&['fill','press'].includes(selected.value)){
+          const generated=await c.generate('input-samples','Supply a small bounded set of input values compatible with the captured field constraints and exploration task. Do not supply credentials, personal data, authentication, payment or submission commands. Samples are proposed input content, not claims of expected functional outcomes.',{observationId:o.id,goal:task.goal,control:item.control,kind:selected.value},z.object({samples:z.array(z.string()).min(1).max(5)}).strict());samples=generated.value.samples;decisions.push(generated.decision);
+        }
+        if(!samples.length){mark(key);c.gap('input_samples_unavailable',scopeForControl(item.control,o));continue;}
+      }
+      mark(key);await c.apply(decisions,{type:'reviewControls',review:{observationId:o.id,source,reviews:[{localId:item.control.localId,kind:selected.value,risk:'unknown',replayable:false,...(samples?{samples}:{}),...(surroundings?{surroundingContextKey:surroundings.key}:{}),reason:'Describe a captured operation on the current instance; effects remain unassessed',evidence:decisions.flatMap(evidence)}]}});return true;
+    }
     const unresolvedKey=unresolvedPurposeKey(o,item,task.revision),key=digest({type:'control',unresolvedKey,x:item.control.rect.x,y:item.control.rect.y});if(done(key))continue;
     const previous=round.unresolvedPurposeReviews?.[unresolvedKey];
     if(previous){mark(key);c.unchanged?.({sourceDecisionId:previous.decisionId,sourceObservationId:previous.observationId,scope:scopeForControl(item.control,o)});continue;}
@@ -265,7 +329,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     return true;
   }
   // Purpose evidence is reviewed proactively, even if DFS would never pause here.
-  for(const group of material.groups.filter(g=>g.kind==='similar-list'&&g.members.some(m=>available.some(a=>a.id===m.actionId&&inCurrentBoundary(a)&&includesScope(pendingPlan,a,o))))) {
+  for(const group of material.groups.filter(g=>!observedUI&&g.kind==='similar-list'&&g.members.some(m=>available.some(a=>a.id===m.actionId&&inCurrentBoundary(a)&&includesScope(pendingPlan,a,o))))) {
     const p=host.purposeReviewMaterial(sid,group.id);
     const active=host.list<PurposeReview>(sid,'purpose-review').filter(r=>r.status==='active');
     for(const condition of p.conditions) {
@@ -282,6 +346,14 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const classified=host.controlClassificationMaterial(sid);
   for(const item of host.controlReviewMaterial(sid).controls)if(item.needsReview||classified.controls.some(x=>x.control.localId===item.control.localId&&x.classifications.some(r=>r.status==='active'&&r.classification==='probe_required'))) {
     if(!relevant(item.control))continue;
+    if(observedUI){
+      const key=`probe:${o.instanceScope}:${item.control.instanceId}`;if(done(key))continue;
+      if(!host.probeAvailability||!c.programProbe){c.gap('missing_capability:bounded_observation',scopeForControl(item.control,o));continue;}
+      const availability=(['hover','focus'] as const).map(kind=>host.probeAvailability!(sid,o.id,item.control.localId,kind));
+      const ready=availability.find(a=>a.executable);
+      if(!ready){for(const reason of new Set(availability.flatMap(a=>a.blockers.map(b=>b.reason))))c.gap(`probe_blocked:${reason}`,scopeForControl(item.control,o));continue;}
+      mark(key);await c.programProbe(item.control.localId,ready.kind as 'hover'|'focus','sdk_bounded_observation');return true;
+    }
     const key=`probe:${o.instanceScope}:${item.control.instanceId}`;if(done(key))continue;
     const checks:NonNullable<ModelRequest['checks']>={};
     for(const kind of ['hover','focus']) {
@@ -296,6 +368,9 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   // Page-wide discovery can wait; it must not starve an already observed modal's work/exit.
   if(boundary) {
     if(c.hasPendingAction())return false;
+    // Ordinary supported exits are dispatched by the SDK candidate loop. An
+    // outside point is not a supported operation that a model can manufacture.
+    if(observedUI){c.gap('boundary_exit_unresolved',{url:o.url,region:boundary.name});return false;}
     if(!host.boundaryExitMaterial){c.gap('missing_capability:boundaryExitReview',{url:o.url});return false;}
     const exits=host.boundaryExitMaterial(sid);
     // Preserve parent inputs/selections. A geometric outside point is not itself
@@ -325,6 +400,12 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       const options:Record<string,unknown>={uncertain:'Cannot target the missing evidence'};
       for(const t of scan.discovery.targets)options[t.id]=t;
       if(Object.keys(options).length===1){mark(key);c.gap('discovery_incomplete',{url:o.url});return false;}
+      if(observedUI){
+        const target=scan.discovery.targets.find(t=>!done(`scan-target:${scan.discovery!.topologyKey}:${t.id}`));
+        if(!target){mark(key);c.gap('discovery_incomplete',{url:o.url});return false;}
+        mark(key);mark(`scan-target:${scan.discovery.topologyKey}:${target.id}`);
+        await c.programApply!({type:'supplementDiscovery',scan:{observationId:o.id,targetId:target.id,source:'explorer-program',evidence:[`observation:${o.id}`],budget:{elements:1000}}},'bounded_discovery_target');return true;
+      }
       const d=await c.choose('discovery-scan','Select an observed bounded target to investigate omitted discovery evidence. The full discovery material is evidence; choose only an option offered in this batch.',{observationId:o.id,discovery:scan.discovery},options);mark(key);
       if(d.value!=='uncertain'){await c.apply(d.decision,{type:'supplementDiscovery',scan:{observationId:o.id,targetId:d.value,source,evidence:evidence(d.decision),budget:{elements:1000}}});return true;}
       c.gap('discovery_incomplete',{url:o.url});

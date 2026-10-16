@@ -8,7 +8,7 @@ import { describeFrontier, groupFrontier } from './frontier.js';
 import { ExplorationGroups, currentExplorationDecision, explorationGates, validateExplorationProposals } from './exploration-groups.js';
 import { explorationReviewMaterial } from './exploration-review.js';
 import { auditExploration } from './exploration-audit.js';
-import type { ActionAvailability, ExecutionBlocker, ExecutionGuard } from './execution-readiness.js';
+import { isObservedUIOperation, isObservedUIProbe, type ProbeGuard, type ProbeAvailability, type DispatchGuard, type ActionAvailability, type ExecutionBlocker, type ExecutionGuard } from './execution-readiness.js';
 import { identityResolver, operationSample, type OperationCorrespondence, reconcileCoverage } from './coverage-reconciliation.js';
 import type { ExplorationGroup, ExplorationGroupDecision, ExplorationGroupResolution } from './types.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
@@ -195,26 +195,34 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     } catch { return result; }
     };
   }
-  private executionBlockers(original:ActionCandidate,o:O,purpose:ActionAttempt['purpose'],value?:ActionCandidate['value'],guard?:ExecutionGuard,material?:{frontier:FrontierItem[];groups:ExplorationGroup[]}):ExecutionBlocker[] {
+  private executionBlockers(original:ActionCandidate,o:O,purpose:ActionAttempt['purpose'],value?:ActionCandidate['value'],guard?:DispatchGuard,material?:{frontier:FrontierItem[];groups:ExplorationGroup[]}):ExecutionBlocker[] {
     const blockers:ExecutionBlocker[]=[],add=(code:string,reason:string,evidence:string[]=[])=>blockers.push({code,reason,evidence});
     if(original.observationId!==o.id||guard&&guard.observationId!==o.id)add('STALE_OBSERVATION','Choose an action from the latest observation',[o.id,original.observationId]);
     const action=structuredClone(original);if(value!==undefined){action.value=value;if(action.exclusionReason==='input_sample_required'){action.excluded=false;delete action.exclusionReason;}}
     if(action.excluded)add(action.exclusionReason==='input_sample_required'?'INPUT_REQUIRED':'ACTION_EXCLUDED',action.exclusionReason||'Action excluded');
-    if(action.basis?.status==='tentative'&&purpose!=='external')add('ACTION_BLOCKED','action_basis_unconfirmed');
+    const boundedProbe=guard?.profile==='observed-ui-probe'&&isObservedUIProbe(action,o);
+    if(action.basis?.status==='tentative'&&purpose!=='external'&&!boundedProbe)add('ACTION_BLOCKED','action_basis_unconfirmed');
     if(!this.targetResolved(action,o))add('IDENTITY_AMBIGUOUS','Resolve the identity before acting');
     try {
       const constrained=['recovery-entry','recovery-reset'].includes(action.source)?action:this.constrain(structuredClone(action),o,this.session(o.sessionId));
+      action.risk=constrained.risk;
       for(const b of constrained.preconditions.blockers||[])add('ACTION_BLOCKED',b.code,b.evidence);
       if(constrained.excluded&&!action.excluded)add('ACTION_EXCLUDED',constrained.exclusionReason||'Action excluded');
     }catch(e){const error=e as EngineError;add(error.code||'ACTION_BLOCKED',error.message);}
     const c=o.controls.find(c=>c.localId===action.localId);if(c&&(!c.visible||!c.enabled))add('ACTION_BLOCKED','Control is not visible or enabled');
     if(guard){
-      if(action.basis?.status!=='supported')add('ACTION_BLOCKED','action_basis_unconfirmed');
-      if(action.risk!=='interface')add('ACTION_BLOCKED','interface_risk_required');
-      const f=(material?.frontier||this.frontier(o.sessionId)).find(f=>f.action.id===action.id);
+      if(action.basis?.status!=='supported'&&!boundedProbe)add('ACTION_BLOCKED','action_basis_unconfirmed');
+      const observedUI=guard.profile==='observed-ui-exploration'||guard.profile==='observed-ui-probe';
+      if(guard.profile==='observed-ui-probe'&&!boundedProbe)add('ACTION_BLOCKED','bounded_probe_required');
+      if(observedUI&&this.session(o.sessionId).options.executionPolicy!=='observed-ui')add('ACTION_BLOCKED','observed_ui_authorization_required');
+      if(action.risk!=='interface'&&!(observedUI&&(boundedProbe||isObservedUIOperation(action,o))))add('ACTION_BLOCKED',observedUI&&action.risk==='submission'?'submission_not_authorized':'interface_risk_required');
+      const frontier=material?.frontier||this.frontier(o.sessionId);
+      const f=frontier.find(f=>f.action.id===action.id);
       if(f&&['unknown','executing','blocked','deferred','skipped','needs_revalidation'].includes(f.status))add('ACTION_BLOCKED',f.reason||`frontier_${f.status}`,[f.id]);
       const groups=material?.groups||this.store.list<ExplorationGroup>('exploration-group',o.sessionId);
-      const refs=f?.explorationGroups||groups.flatMap(g=>g.members.filter(m=>m.actionId===action.id).map(m=>({groupId:g.id,memberKey:m.key})));
+      const probeTargets=boundedProbe?frontier.filter(item=>item.action.observationId===o.id&&item.action.localId===action.localId):[];
+      for(const item of probeTargets)if(['unknown','executing'].includes(item.status))add('ACTION_BLOCKED',item.reason||`frontier_${item.status}`,[item.id]);
+      const refs=boundedProbe?probeTargets.flatMap(item=>item.explorationGroups||[]):f?.explorationGroups||groups.flatMap(g=>g.members.filter(m=>m.actionId===action.id).map(m=>({groupId:g.id,memberKey:m.key})));
       for(const gate of explorationGates(refs,new Map(groups.map(g=>[g.id,g]))))blockers.push({code:'ACTION_BLOCKED',reason:gate.reason,evidence:[gate.selection.groupId],selection:gate.selection});
     }
     return blockers;
@@ -224,13 +232,13 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const o=this.observation(sessionId);return this.availabilityFrom(o,this.actions(sessionId),this.frontier(sessionId),this.store.list<ExplorationGroup>('exploration-group',sessionId),observationId);
   }
   private availabilityFrom(o:O,candidates:ActionCandidate[],frontier:FrontierItem[],groups:ExplorationGroup[],expectedId=o.id):ActionAvailability {
-    const sessionId=o.sessionId,guard:ExecutionGuard={profile:'interface-exploration',observationId:expectedId},sessionBlockers=this.executionSessionBlockers(o,'exploration'),validate=this.preparedActionValidator(o,'exploration',groups);
+    const sessionId=o.sessionId,guard:ExecutionGuard={profile:this.session(sessionId).options.executionPolicy==='observed-ui'?'observed-ui-exploration':'interface-exploration',observationId:expectedId},sessionBlockers=this.executionSessionBlockers(o,'exploration'),validate=this.preparedActionValidator(o,'exploration',groups);
     const actions=candidates.map(a=>{const blockers=[...sessionBlockers,...this.executionBlockers(a,o,'exploration',undefined,guard,{frontier,groups})];
       try{validate(a);}catch(e){const error=e as EngineError;blockers.push({code:error.code||'ACTION_BLOCKED',reason:error.message,evidence:[]});}
       return {actionId:a.id,executable:!blockers.length,blockers};});
-    return {sessionId,observationId:o.id,revision:hash({observationId:o.id,groups,actions}),profile:guard.profile,actions,dispatchRevalidationRequired:true};
+    return {sessionId,observationId:o.id,revision:hash({observationId:o.id,profile:guard.profile,groups,actions}),profile:guard.profile,actions,dispatchRevalidationRequired:true};
   }
-  private assertExecution(original:ActionCandidate,o:O,purpose:ActionAttempt['purpose'],value?:ActionCandidate['value'],guard?:ExecutionGuard) {
+  private assertExecution(original:ActionCandidate,o:O,purpose:ActionAttempt['purpose'],value?:ActionCandidate['value'],guard?:DispatchGuard) {
     const blockers=[...this.executionSessionBlockers(o,purpose),...this.executionBlockers(original,o,purpose,value,guard)];if(blockers.length)throw new EngineError(blockers[0].code,blockers[0].reason,{observationId:o.id,blockers});
   }
   /** Current ledgers shared by fact queries and the historical audit. */
@@ -637,7 +645,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     this.emit(sessionId, 'exploration.dependencies_invalidated', { ...failure, blocked: failure.count >= 3 });
     return failure.count >= 3;
   }
-  protected async runAction(sessionId: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: ActionAttempt['purpose'] = 'external', guard?:ExecutionGuard): Promise<ActionAttempt> {
+  protected async runAction(sessionId: string, actionId: string, requestId: string, value?: ActionCandidate['value'], purpose: ActionAttempt['purpose'] = 'external', guard?:DispatchGuard): Promise<ActionAttempt> {
     const validationPurpose=guard?'exploration':purpose;
     const payload = canonical({ actionId, value }); const prior = this.store.request(sessionId, requestId);
     if (prior) { if (prior.payload !== payload) throw new EngineError('REQUEST_CONFLICT', 'Request ID was used with different parameters'); return this.owned<ActionAttempt>('attempt', prior.attemptId, sessionId); }
@@ -675,11 +683,14 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     await this.beforeAction(sessionId);
     this.assertExecution(original,this.observation(sessionId),validationPurpose,value,guard);
     this.validatePreparedAction(action, current, validationPurpose);
-    const attempt: ActionAttempt = { id: id(), sessionId, requestId, action, startedAt: now(), beforeId: current.id, status: 'executing', purpose };
+    const unassessed=session.options.executionPolicy==='observed-ui'&&(guard?.profile==='observed-ui-exploration'&&isObservedUIOperation(action,current)||guard?.profile==='observed-ui-probe'&&isObservedUIProbe(action,current));
+    if(unassessed)action.replayable=false;
+    const attempt: ActionAttempt = { ...(guard?{executionProfile:guard.profile}:{}),...(unassessed?{effectsAssessment:'not-assessed' as const}:{}),id: id(), sessionId, requestId, action, startedAt: now(), beforeId: current.id, status: 'executing', purpose };
     const started = Date.now();
     this.store.transaction(() => {
       session.actionCount++;
-      if (action.risk !== 'interface') { session.dirty = true; (session.dirtyAttemptIds ??= []).push(attempt.id); }
+      if(unassessed)(session.unassessedEffectAttemptIds??=[]).push(attempt.id);
+      else if (action.risk !== 'interface') { session.dirty = true; (session.dirtyAttemptIds ??= []).push(attempt.id); }
       this.store.put('session', session);
       const key = this.frontierKey(action, current);
       if (!this.store.list<FrontierItem>('frontier', sessionId).some(f => f.key === key)) {
@@ -720,29 +731,45 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     return this.owned<ActionAttempt>('attempt', attempt.id, sessionId);
   }
   async execute(sessionId: string, actionId: string, requestId: string, value?: ActionCandidate['value'], guard?:ExecutionGuard) {
-    if(guard&&(guard.profile!=='interface-exploration'||typeof guard.observationId!=='string'||!guard.observationId))throw new EngineError('INVALID_INPUT','A guarded execution requires its observation and supported profile');
+    if(guard&&(!['interface-exploration','observed-ui-exploration'].includes(guard.profile)||typeof guard.observationId!=='string'||!guard.observationId))throw new EngineError('INVALID_INPUT','A guarded execution requires its observation and supported profile');
     const executionGuard=guard&&structuredClone(guard);
     this.pauseRequested = true;
     return this.enqueue(async () => { const s = this.session(sessionId); s.mode = 'manual'; if (s.status === 'running') s.status = 'paused'; this.store.put('session', s); return this.runAction(sessionId, actionId, requestId, value, 'external', executionGuard); });
   }
-  probe(sessionId: string, observationId: string, localId: string, kind: string, requestId: string, parameters?: ActionCandidate['value']) {
+  private probeCandidate(sessionId:string,observationId:string,localId:string,kind:string,parameters?:ActionCandidate['value'],guard?:ProbeGuard) {
+    const o=this.observation(sessionId),session=this.session(sessionId);
+    if(o.id!==observationId)throw new EngineError('STALE_OBSERVATION','Probe a control from the current observation');
+    const matches=o.controls.filter(c=>c.localId===localId);
+    if(matches.length!==1)throw new EngineError(matches.length?'TARGET_AMBIGUOUS':'TARGET_MISSING','Probe requires one current target');
+    if(!this.adapter.probeAction)throw new EngineError('UNSUPPORTED_PROBE','Adapter does not support probes');
+    const actionId=`probe:${hash({sessionId,observationId,localId,kind,...(parameters===undefined?{}:{parameters}),...(guard?{profile:guard.profile}:{})})}`;
+    return this.constrain({...this.adapter.probeAction(kind,matches[0],o,session,parameters),id:actionId},o,session);
+  }
+  /** Read-only feasibility of one bounded observation probe. Dispatch repeats these checks. */
+  probeAvailability(sessionId:string,observationId:string,localId:string,kind:string):ProbeAvailability {
+    const o=this.observation(sessionId),guard:ProbeGuard={observationId,profile:'observed-ui-probe'},blockers:ExecutionBlocker[]=[],frontier=this.frontier(sessionId),groups=this.store.list<ExplorationGroup>('exploration-group',sessionId);
+    try {
+      if(!['hover','focus'].includes(kind))throw new EngineError('UNSUPPORTED_PROBE','Observed UI probes support only hover and focus');
+      const action=this.probeCandidate(sessionId,observationId,localId,kind,undefined,guard);
+      blockers.push(...this.executionSessionBlockers(o,'exploration'),...this.executionBlockers(action,o,'exploration',undefined,guard,{frontier,groups}));
+      try{this.preparedActionValidator(o,'exploration',groups)(action);}catch(error){const e=error as EngineError;blockers.push({code:e.code||'ACTION_BLOCKED',reason:e.message,evidence:[]});}
+    }catch(error){const e=error as EngineError;blockers.push({code:e.code||'ACTION_BLOCKED',reason:e.message,evidence:[]});}
+    return {sessionId,observationId:o.id,localId,kind,profile:'observed-ui-probe',revision:hash({observationId:o.id,localId,kind,groups,blockers}),executable:!blockers.length,blockers,dispatchRevalidationRequired:true};
+  }
+  probe(sessionId: string, observationId: string, localId: string, kind: string, requestId: string, parameters?: ActionCandidate['value'],guard?:ProbeGuard) {
     if (![observationId, localId, kind, requestId].every(v => typeof v === 'string' && v.trim())) throw new EngineError('INVALID_INPUT', 'Probe requires observation, target, kind and request ID');
-    const probeParameters = parameters === undefined ? undefined : structuredClone(parameters);
+    if(guard&&(guard.profile!=='observed-ui-probe'||guard.observationId!==observationId||!['hover','focus'].includes(kind)||parameters!==undefined))throw new EngineError('INVALID_INPUT','A guarded UI probe requires its source observation, hover or focus, and no parameters');
+    const probeParameters = parameters === undefined ? undefined : structuredClone(parameters),probeGuard=guard&&structuredClone(guard);
     this.pauseRequested = true;
     return this.enqueue(async () => {
       const session = this.session(sessionId);
-      const actionId = `probe:${hash({ sessionId, observationId, localId, kind, ...(probeParameters === undefined ? {} : { parameters: probeParameters }) })}`;
+      const actionId = `probe:${hash({ sessionId, observationId, localId, kind, ...(probeParameters === undefined ? {} : { parameters: probeParameters }),...(probeGuard?{profile:probeGuard.profile}:{}) })}`;
       // A completed request remains repeatable even after its observation is stale.
-      if (this.store.request(sessionId, requestId)) return this.runAction(sessionId, actionId, requestId);
-      const o = this.observation(sessionId);
-      if (o.id !== observationId) throw new EngineError('STALE_OBSERVATION', 'Probe a control from the current observation');
-      const control = o.controls.find(c => c.localId === localId);
-      if (!control) throw new EngineError('TARGET_MISSING', 'Probe target is absent from the observation');
-      if (!this.adapter.probeAction) throw new EngineError('UNSUPPORTED_PROBE', 'Adapter does not support probes');
-      const action = this.constrain({ ...this.adapter.probeAction(kind, control, o, session, probeParameters), id: actionId }, o, session);
+      if (this.store.request(sessionId, requestId)) return this.runAction(sessionId, actionId, requestId,undefined,'external',probeGuard);
+      const action=this.probeCandidate(sessionId,observationId,localId,kind,probeParameters,probeGuard);
       if (!this.store.get('action', actionId)) this.store.put('action', action);
       session.mode = 'manual'; if (session.status === 'running') session.status = 'paused'; this.store.put('session', session);
-      return this.runAction(sessionId, actionId, requestId);
+      return this.runAction(sessionId, actionId, requestId,undefined,'external',probeGuard);
     });
   }
   componentDescriptions(sessionId: string, observationId: string, componentId?: string) {
@@ -964,8 +991,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       const dirtyActions = (session.dirtyAttemptIds || []).flatMap(attemptId => {
         const a = this.store.get<ActionAttempt>('attempt', attemptId); return a ? [{ attemptId, label: a.action.label, risk: a.action.risk }] : [];
       });
-      const diagnostics = { strategies, dirtyActions, resetAvailable: !!this.hooks.reset || !!this.adapter.resetAction?.(this.observation(sessionId), session) };
-      const result: ReachResult = { id: id(), sessionId, checkpointId, status, reason, checks, attemptIds: performed, observationId: session.currentObservationId, remainingFrontier: this.frontier(sessionId).filter(f => f.status !== 'executed').length, diagnostics };
+      const verification=session.options.executionPolicy==='observed-ui'?{verificationScope:'observed-ui' as const}:{};
+      const diagnostics = { ...verification,unassessedEffectAttemptIds:session.unassessedEffectAttemptIds||[],strategies, dirtyActions, resetAvailable: !!this.hooks.reset || !!this.adapter.resetAction?.(this.observation(sessionId), session) };
+      const result: ReachResult = { ...verification,id: id(), sessionId, checkpointId, status, reason, checks, attemptIds: performed, observationId: session.currentObservationId, remainingFrontier: this.frontier(sessionId).filter(f => f.status !== 'executed').length, diagnostics };
       this.store.put('reach', result); this.emit(sessionId, 'checkpoint.result', result); return result;
     };
     try {

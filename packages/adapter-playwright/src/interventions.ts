@@ -32,6 +32,8 @@ export interface InterventionResponseRecord {
   error?: { code: string; message: string };
 }
 export interface ContinuationRecord {
+  /** UI-state verification never certifies effects excluded from the exploration contract. */
+  verificationScope?: 'observed-ui';
   id: string; sessionId: string; requestId: string; input: ContinueExplorationInput; at: string;
   status: 'queued' | 'verifying' | 'started' | 'needs_review' | 'failed' | 'interrupted';
   beforeId: string; afterId?: string; finishedAt?: string; started: boolean;

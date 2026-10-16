@@ -29,6 +29,7 @@ export const reuseRegionReviewsSchema = z.object({
 }).strict();
 export const revokeRegionReuseSchema = z.object({reviewId:z.string().min(1),regionKey:z.string().min(1),source:z.string().trim().min(1),reason:z.string().trim().min(1)}).strict();
 export const sessionSchema = z.object({
+  executionPolicy: z.enum(['interface-only', 'observed-ui']).optional(),
   url: z.url().refine(v => ['http:', 'https:'].includes(new URL(v).protocol), 'Only HTTP(S) URLs are supported'),
   headless: z.boolean().default(false), viewport: z.object({ width: z.number().int().min(320).max(3840), height: z.number().int().min(240).max(2160) }).default({ width: 1440, height: 900 }),
   maxActions: z.number().int().positive().max(10000).default(100), maxDepth: z.number().int().positive().max(100).default(10), maxDurationMs: z.number().int().positive().max(86400000).default(600000),
@@ -65,11 +66,11 @@ const baseCommandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('revokeRegionReuse'), revocation: revokeRegionReuseSchema }).strict(),
   z.object({ type: z.literal('reviewListPurpose'), review: listPurposeReviewSchema }).strict(),
   z.object({ type: z.literal('revokePurposeReview'), revocation: revokePurposeReviewSchema }).strict(),
-  z.object({ type: z.literal('probe'), observationId: z.string().min(1), localId: z.string().min(1), kind: z.enum(['hover', 'focus']), requestId: z.string().trim().min(1) }).strict(),
+  z.object({ type: z.literal('probe'), observationId: z.string().min(1), localId: z.string().min(1), kind: z.enum(['hover', 'focus']), requestId: z.string().trim().min(1), guard:z.object({observationId:z.string().min(1),profile:z.literal('observed-ui-probe')}).strict().optional() }).strict(),
   componentDescriptionSchema.extend({ type: z.literal('describeComponent') }),
   z.object({ type: z.literal('observe') }),
   z.object({ type: z.literal('inspect'), region: z.string() }),
-  z.object({ type: z.literal('execute'), actionId: z.string(), requestId: z.string().min(1), value: z.union([z.string(), z.boolean(), z.number()]).optional(), guard:z.object({observationId:z.string().min(1),profile:z.literal('interface-exploration')}).strict().optional() }),
+  z.object({ type: z.literal('execute'), actionId: z.string(), requestId: z.string().min(1), value: z.union([z.string(), z.boolean(), z.number()]).optional(), guard:z.object({observationId:z.string().min(1),profile:z.enum(['interface-exploration','observed-ui-exploration'])}).strict().optional() }),
   z.object({ type: z.literal('explore') }), z.object({ type: z.literal('pause') }), z.object({ type: z.literal('resume') }), z.object({ type: z.literal('stop') }),
   z.object({ type: z.literal('resolveIdentity'), hypothesisId: z.string(), identityId: z.string(), source: z.string().trim().min(1), evidence: z.array(z.string().trim().min(1)).min(1), guard: z.object({ observationId: z.string().min(1), revision: z.number().int().nonnegative(), scope: z.literal('historical').optional() }).strict().optional() }),
   z.object({ type: z.literal('decideExplorationGroups'), resolutions: explorationGroupResolutionsSchema }).strict(),

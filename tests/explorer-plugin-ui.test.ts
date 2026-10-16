@@ -10,7 +10,7 @@ it('shows probe model input, output and actual results separately from click cov
  p.jev.decide=async(r,s)=>r.purpose==='control-classification'?{model:'mock',value:'interaction',confidence:1}:r.purpose==='control-risk'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,.01]))}:r.purpose==='probe-risk'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,k==='interface_hover'?.99:.01]))}:original(r,s);
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p),app=await createServer(f.host,{explorer:plugin});await app.listen({host:'127.0.0.1',port:0});const origin=`http://127.0.0.1:${(app.server.address() as {port:number}).port}`;
  const ui=await createViteServer({root:resolve('apps/ui'),logLevel:'error',server:{port:0,strictPort:false,proxy:{'/v1':origin,'/plugins':origin}}});await ui.listen();const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1500,height:1100}});
- try{const task=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(task.id);await plugin.waitForIdle();const v=plugin.view(task.id),attempt=f.host.list<any>(v.task.rounds[0].sessionId,'attempt')[0];expect(attempt.action.kind).toBe('hover');
+ try{const task=plugin.create({url:f.url,sessionOptions:{executionPolicy:'interface-only',settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(task.id);await plugin.waitForIdle();const v=plugin.view(task.id),attempt=f.host.list<any>(v.task.rounds[0].sessionId,'attempt')[0];expect(attempt.action.kind).toBe('hover');
   await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as {port:number}).port}`);await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);
   await page.getByLabel('包含模型决策的遍历路径').getByRole('button').filter({hasText:'判断观察探测的用途与风险'}).filter({hasText:'JEV'}).first().click();
   expect(await page.getByRole('tabpanel',{name:'模型输入'}).innerText()).toContain('interface_hover');
@@ -24,7 +24,7 @@ it('shows unchanged unresolved evidence as a program deferral with its original 
  p.jev.decide=async(r,s)=>r.purpose==='control-classification'?{model:'mock',value:'interaction',confidence:1}:r.purpose==='control-risk'&&(r.state as any).material.control.stableKey==='id:unclear'?{model:'mock',value:Object.fromEntries(Object.keys(r.checks!).map(k=>[k,.01]))}:original(r,s);
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),p),app=await createServer(f.host,{explorer:plugin});await app.listen({host:'127.0.0.1',port:0});const origin=`http://127.0.0.1:${(app.server.address() as {port:number}).port}`;
  const ui=await createViteServer({root:resolve('apps/ui'),logLevel:'error',server:{port:0,strictPort:false,proxy:{'/v1':origin,'/plugins':origin}}});await ui.listen();const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1500,height:1100}});
- try{const task=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(task.id);await plugin.waitForIdle();const source=plugin.view(task.id).decisions.find(d=>d.purpose==='control-risk'&&(d.request.state as any).material.control.stableKey==='id:unclear')!;
+ try{const task=plugin.create({url:f.url,sessionOptions:{executionPolicy:'interface-only',settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.start(task.id);await plugin.waitForIdle();const source=plugin.view(task.id).decisions.find(d=>d.purpose==='control-risk'&&(d.request.state as any).material.control.stableKey==='id:unclear')!;
   await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as {port:number}).port}`);await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);
   const node=page.getByLabel('包含模型决策的遍历路径').getByRole('button').filter({hasText:'用途证据未变，保留待测'}).first();expect(await node.innerText()).toContain('程序');await node.click();const inspector=page.getByLabel('探索决策详情');expect(await inspector.innerText()).toContain('本次未重复调用模型');expect(await inspector.innerText()).toContain(source.id);expect(await inspector.innerText()).toContain('"executionAuthorized": false');
  }finally{await browser.close();await ui.close();await app.close();await f.close();}
@@ -34,7 +34,7 @@ it('distinguishes completed classification evidence from executed actions in the
  const ui=await createViteServer({root:resolve('apps/ui'),logLevel:'error',server:{port:0,strictPort:false,proxy:{'/v1':origin,'/plugins':origin}}});await ui.listen();const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1500,height:1100}});
  try{const task=plugin.create({url:f.url,sessionOptions:{settleMs:0,observeTimeoutMs:100},budget:{rounds:1}});plugin.revise(task.id,{items:[{title:'All controls',scope:{url:f.url},required:true,prerequisites:[],completion:'Verify observed controls',reason:'user scope'}]});const saved=plugin.store.task(task.id);saved.plan.push({id:'review-gap',title:'Review Details',scope:{url:f.url,label:'Details',stableKey:'id:details'},required:true,dispatchScope:false,prerequisites:[],completion:'Resolve classification',reason:'classification_unresolved',status:'unresolved',attempts:[],evidence:[]});plugin.store.save(saved);plugin.start(task.id);await plugin.waitForIdle();expect(plugin.view(task.id).task.status).toBe('completed');
   await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as {port:number}).port}`);await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);
-  await page.getByLabel('包含模型决策的遍历路径').getByRole('button').filter({hasText:'分类已验证，关闭审阅缺口'}).click();const inspector=page.getByLabel('探索决策详情');expect(await inspector.innerText()).toContain('不代表执行了操作');expect(await inspector.innerText()).toContain('classificationId');expect(await inspector.innerText()).toContain('"executed": false');
+  await page.getByLabel('包含模型决策的遍历路径').getByRole('button').filter({hasText:'分类已验证，关闭审阅缺口'}).first().click();const inspector=page.getByLabel('探索决策详情');expect(await inspector.innerText()).toContain('不代表执行了操作');expect(await inspector.innerText()).toContain('classificationId');expect(await inspector.innerText()).toContain('"executed": false');
   const row=page.locator('.explorer-plan-item').filter({hasText:'Review Details'});expect(await row.innerText()).toContain('有分类证据（不计操作次数）');expect(await row.innerText()).not.toContain('有实际执行证据');await row.getByText('范围、前置条件与证据',{exact:true}).click();expect(await row.innerText()).toContain('reviewResolvedBy');
  }finally{await browser.close();await ui.close();await app.close();await f.close();}
 });
@@ -56,7 +56,7 @@ it('shows a semantic LLM handoff, grounded input/output and the resulting accept
  providers.llm.decide=async(r,s)=>r.purpose==='operation-clarification'?{model:'mock-llm',value:{choice:'click',evidenceRefs:['current','actions','effect:click'],reason:'Captured relationship to the child choice panel.',interfaceOnly:true,externalWrite:false}}:original(r,s);
  const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'),providers),app=await createServer(f.host,{explorer:plugin});await app.listen({host:'127.0.0.1',port:0});const origin=`http://127.0.0.1:${(app.server.address() as {port:number}).port}`;
  const ui=await createViteServer({root:resolve('apps/ui'),logLevel:'error',server:{port:0,strictPort:false,proxy:{'/v1':origin,'/plugins':origin}}});await ui.listen();const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1500,height:1100}});const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
- try {const task=plugin.create({url:f.url,goal:'Open Picker',sessionOptions:{settleMs:0,observeTimeoutMs:300},budget:{rounds:1}});plugin.start(task.id);await plugin.waitForIdle();expect(plugin.view(task.id).task.status).toBe('completed');
+ try {const task=plugin.create({url:f.url,goal:'Open Picker',sessionOptions:{executionPolicy:'interface-only',settleMs:0,observeTimeoutMs:300},budget:{rounds:1}});plugin.start(task.id);await plugin.waitForIdle();expect(plugin.view(task.id).task.status).toBe('completed');
   await page.goto(`http://127.0.0.1:${(ui.httpServer!.address() as {port:number}).port}`);await page.getByLabel('探索任务',{exact:true}).selectOption(task.id);
   const timeline=page.getByLabel('包含模型决策的遍历路径');await timeline.getByRole('button').filter({hasText:'澄清控件用途'}).first().click();
   const inspector=page.getByLabel('探索决策详情');expect(await inspector.innerText()).toContain('JEV 补充观察后仍有歧义');
@@ -80,17 +80,14 @@ it('integrates autonomous exploration, interleaves JEV/LLM decisions and restore
  await page.getByRole('tab',{name:'输出',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'模型输出'}).innerText()).toContain('items');
  await page.getByRole('tab',{name:'决策影响',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('已生成探索计划');
  await page.getByRole('button',{name:'返回页面证据'}).click();expect(await page.getByLabel('探索决策详情').count()).toBe(0);
- await timeline.getByRole('button').filter({hasText:'选择下一步'}).filter({hasText:'请求判断'}).first().click();
- await page.getByRole('tab',{name:'决策影响',exact:true}).click();
- const dispatchImpact=await page.getByRole('tabpanel',{name:'决策影响'}).innerText();
- expect(dispatchImpact).toContain('核对宿主执行约束');expect(dispatchImpact).toContain('dispatchRevalidationRequired');expect(dispatchImpact).toContain('observationId');expect(dispatchImpact).toContain('revision');
+ await timeline.getByRole('button').filter({hasText:'程序选择下一步'}).first().click();
+ const dispatchImpact=await page.getByLabel('探索决策详情').innerText();
+ expect(dispatchImpact).toContain('派发前复验');expect(dispatchImpact).toContain('dispatchRevalidationRequired');expect(dispatchImpact).toContain('observationId');expect(dispatchImpact).toContain('revision');
  const firstAttempt=f.host.list<any>(plugin.view(task.id).task.rounds[0].sessionId,'attempt')[0];expect(dispatchImpact).toContain(firstAttempt.id);
  await page.getByRole('button',{name:'返回页面证据'}).click();
- await timeline.getByRole('button').filter({hasText:'识别探索区域'}).first().click();
- await page.getByRole('tab',{name:'决策影响',exact:true}).click();
- expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('不排除候选');
- expect(await page.getByRole('tabpanel',{name:'决策影响'}).innerText()).toContain('evidence-routing-v5');
- await page.getByRole('tab',{name:'输出',exact:true}).click();expect(await page.getByRole('tabpanel',{name:'模型输出'}).innerText()).toContain('include');
+ await timeline.getByRole('button').filter({hasText:'程序整理观察范围'}).first().click();
+ expect(await page.getByLabel('探索决策详情').innerText()).toContain('observed_region_partition');
+ expect(await page.getByLabel('探索决策详情').innerText()).toContain('sourceObservationId');
  await page.getByRole('button',{name:'返回页面证据'}).click();
  expect(await page.getByLabel('遍历范围',{exact:true}).inputValue()).toBe('all');
  await timeline.getByRole('button').filter({hasText:'程序保留全部已发现成员'}).first().click();
