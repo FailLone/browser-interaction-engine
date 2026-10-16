@@ -106,6 +106,9 @@ it.each(['unchanged','other-instance','duplicate-instance','new-document','chang
  if(change==='review-withdrawn')f.target.basis.status='tentative';
  if(change==='unknown')f.attempt.status='unknown';
  f.before.id='continuity-before';f.current.id='continuity-current';f.attempt.beforeId=f.before.id;f.attempt.action.observationId=f.before.id;f.target.observationId=f.current.id;
+ // This candidate belongs to the new fixture observation/session; retain the
+ // original persisted candidate under its original owner.
+ f.target.id='continuity-action';f.request.actionId=f.target.id;
  for(const o of [f.before,f.current])f.store.put('observation',o);f.store.put('action',f.target);f.store.put('attempt',f.attempt);
  const writes=vi.spyOn(f.store,'put');
  const proof=f.host.operationCorrespondence('old',{observationId:f.current.id,...f.request});
@@ -141,6 +144,7 @@ it.each(['same','new-session','new-session-pending','new-session-ambiguous','oth
  if(change==='changed-operation')f.current.semanticState='changed';
  if(change==='unknown')f.attempt.status='unknown';
  f.before.id='refined-before';f.current.id='refined-current';f.attempt.beforeId=f.before.id;f.attempt.action.observationId=f.before.id;f.target.observationId=f.current.id;
+ f.target.id='refined-action';f.request.actionId=f.target.id;
  for(const o of [f.before,f.current])f.store.put('observation',o);f.store.put('action',f.target);f.store.put('attempt',f.attempt);
  const writes=vi.spyOn(f.store,'put');const proof=f.host.operationCorrespondence(f.current.sessionId,{observationId:f.current.id,...f.request});
  expect(proof.equivalent).toBe(change==='same'||change==='new-session');

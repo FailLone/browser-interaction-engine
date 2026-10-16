@@ -53,6 +53,7 @@ it.each(['destination','target','download','role','tag','template','slot','owner
 
 it('does not use same-instance continuity to bypass an ambiguous native record reference',()=>{
   const f=fixture();f.current.sessionId='old';f.current.instanceScope=f.before.instanceScope;f.current.controls[0].instanceId=f.before.controls[0].instanceId;f.target.sessionId='old';
+  f.target.id='same-session-target'; // Do not change the owner of the persisted cross-session candidate.
   f.current.controls.push({...structuredClone(f.current.controls[0]),localId:'duplicate',instanceId:'duplicate',name:'Other price'});f.save();
   expect(f.host.operationCorrespondence('old',{observationId:f.current.id,actionId:f.target.id,source:{sessionId:'old',attemptId:f.attempt.id}})).toMatchObject({equivalent:false,reason:'target_correspondence_ambiguous'});f.store.close();
 });
