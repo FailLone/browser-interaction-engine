@@ -1,0 +1,23 @@
+{
+  "storageAndRuntimeCommit": "70b8cb4b7a9ed9b844c5157d7fd2f6e9ed9f254d",
+  "instrumentationCommit": "2ff9e4bd064d6ff6b6eef73acbed9da763d78857",
+  "changedSourceFilesSinceFullSuite": [
+    "scripts/okx-storage-acceptance.ts",
+    "tests/okx-storage-acceptance.test.ts"
+  ],
+  "onlyChangedSuiteRetested": true,
+  "initialFullRun": {
+    "passedFiles": 171,
+    "passedTests": 1727,
+    "failedFiles": 1,
+    "failure": "New acceptance script could not load better-sqlite3 from root; not a test assertion failure."
+  },
+  "changedSuiteFinal": {
+    "passedFiles": 1,
+    "passedTests": 19,
+    "exitCode": 0
+  },
+  "typecheckRootAndCore": 0,
+  "actualTsxHelp": 0,
+  "limits": "Not represented as one fully green original full-suite invocation. No full suite repeated after script-only fixes."
+}

@@ -1,0 +1,98 @@
+[
+  {
+    "mode": "baseline",
+    "repeat": 0,
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--import",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/loader.mjs",
+      "--conditions=development",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/scripts/benchmark-evidence-collection.ts",
+      "--source-root=/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-qj42tfyd",
+      "--repetitions=1",
+      "--output=/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/evidence-store/baseline-0.json"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 0.5550379753112793
+  },
+  {
+    "mode": "current",
+    "repeat": 0,
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--import",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/loader.mjs",
+      "--conditions=development",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/scripts/benchmark-evidence-collection.ts",
+      "--source-root=/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "--repetitions=1",
+      "--output=/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/evidence-store/current-0.json"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 0.42992281913757324
+  },
+  {
+    "mode": "current",
+    "repeat": 1,
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--import",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/loader.mjs",
+      "--conditions=development",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/scripts/benchmark-evidence-collection.ts",
+      "--source-root=/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "--repetitions=1",
+      "--output=/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/evidence-store/current-1.json"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 0.4032161235809326
+  },
+  {
+    "mode": "baseline",
+    "repeat": 1,
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--import",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/loader.mjs",
+      "--conditions=development",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/scripts/benchmark-evidence-collection.ts",
+      "--source-root=/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-qj42tfyd",
+      "--repetitions=1",
+      "--output=/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/evidence-store/baseline-1.json"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 0.48846912384033203
+  },
+  {
+    "mode": "baseline",
+    "repeat": 2,
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--import",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/loader.mjs",
+      "--conditions=development",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/scripts/benchmark-evidence-collection.ts",
+      "--source-root=/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-qj42tfyd",
+      "--repetitions=1",
+      "--output=/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/evidence-store/baseline-2.json"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 0.4938995838165283
+  },
+  {
+    "mode": "current",
+    "repeat": 2,
+    "command": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--import",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/tsx/dist/loader.mjs",
+      "--conditions=development",
+      "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/scripts/benchmark-evidence-collection.ts",
+      "--source-root=/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+      "--repetitions=1",
+      "--output=/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/evidence-store/current-2.json"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 0.45122814178466797
+  }
+]

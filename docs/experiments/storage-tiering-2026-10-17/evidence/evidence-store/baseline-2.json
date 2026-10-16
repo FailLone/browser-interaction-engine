@@ -1,0 +1,37 @@
+{
+  "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-qj42tfyd",
+  "sourceHashes": {
+    "packages/storage-sqlite/src/evidence.ts": "9f0ddc486b00a10b3a992deb531b82b56c28c59dd2defe614679f034ad954252",
+    "packages/storage-sqlite/src/evidence-lock.ts": null,
+    "packages/storage-sqlite/src/evidence-chunks.ts": "be9bdf5db8520981f97af70f72041d8e53ea8b08aab60bbeca3641052d91b4f6",
+    "packages/core/src/util.ts": "151756df450fa10d9ea54ef3ebc599b088be91e49ee432207410d209e7f77683"
+  },
+  "sourceHash": "0b27fe07edf2c3f220471f6146994f1f06f0d89e310d4b9587616231d5ce3e0b",
+  "benchmarkHash": "101ef67ec369827d891ec0a585a68b5cd3287688c6002caa0953c281492cdaaa",
+  "node": "v24.22.0",
+  "repetitions": 1,
+  "count": 64,
+  "keep": 8,
+  "fixtureHash": "abe1e2d6d22c349b4a57e756228e853360deeb3b766347ba8fb2549ea50a2d07",
+  "runs": [
+    {
+      "repetition": 0,
+      "putMs": 111.58874999999999,
+      "readMs": 79.90595800000003,
+      "deleteMs": 130.232084,
+      "before": {
+        "bytes": 265777,
+        "allocatedBytes": 536576,
+        "files": 131
+      },
+      "after": {
+        "bytes": 38287,
+        "allocatedBytes": 77824,
+        "files": 19
+      },
+      "deletionMode": "legacy-per-capture",
+      "exactReads": 72
+    }
+  ],
+  "limits": "Isolated evidence store microbenchmark, not browser exploration. Disk includes manifests, blocks and coordination files. Elapsed reads include exact-byte assertions. No claim of multi-writer business metadata safety."
+}

@@ -1,0 +1,1579 @@
+{
+  "protocol": "observation-structure-sharing-v1",
+  "baselineCommit": "5696125ea3da0909d2daadfa150fa7ad8e94687e",
+  "baselineHashes": {
+    "index.ts": "5acc96523c64a7fdfa9bddab31cd63f7edfe2ede85aab145e464c50166f0bbdc",
+    "entity-codec.ts": "84ce68a16a1273b12ed5762d67cb1814f7c6e13584a36117b6f5dd4ad03e6ffa",
+    "evidence.ts": "9f0ddc486b00a10b3a992deb531b82b56c28c59dd2defe614679f034ad954252",
+    "evidence-chunks.ts": "be9bdf5db8520981f97af70f72041d8e53ea8b08aab60bbeca3641052d91b4f6"
+  },
+  "baselineIsolation": "Full git archive, workspace package imports resolve within archive; only installed third-party dependencies are shared read-only.",
+  "capturedFixtureSha256": "7473c26c7a47e7357f30755643cfb54789b94e7299c37ce20d0934b2a4e48ac2",
+  "headCommit": "5696125ea3da0909d2daadfa150fa7ad8e94687e",
+  "sourceDirtySha256": "0904782693fe61f722bfb0eec84bdd7ffa2c59bc2379d40b36368fe354a1f5cb",
+  "sourceHashes": {
+    "packages/storage-sqlite/src/entity-codec.ts": "ed035f7715e30bc19683050683ee2ae7cd285406d49e53f94c57cade6eda7da9",
+    "packages/storage-sqlite/src/evidence-chunks.ts": "be9bdf5db8520981f97af70f72041d8e53ea8b08aab60bbeca3641052d91b4f6",
+    "packages/storage-sqlite/src/evidence-lock.ts": "6a3ff26c8636b8bde2cc2bbc1f19faf4a42e3c20bdeacfbaf255aa99336df7ea",
+    "packages/storage-sqlite/src/evidence.ts": "b096524f1740c0d6c29e5eccc3dab43a2025866979e436330e5a88990fa69ff1",
+    "packages/storage-sqlite/src/index.ts": "941d82647dfcde8af3b4ee655c1f28d69ec65cfb65c3d2f62cace40eae00eb6d",
+    "packages/storage-sqlite/src/observation-store.ts": "56ec8a8ae989d82ede21776984a3dbd2bd6eb954e2c962dfa62c1a2c3bada857",
+    "packages/storage-sqlite/src/observation-structure.ts": "ec3d9385632b23da5fa3160fb0af7dae2bfb5c23a8e3bf6c22b4755971ad0825"
+  },
+  "status": " M ROADMAP.md\n M packages/core/src/entity-changes.ts\n M packages/core/src/ports.ts\n M packages/explorer-plugin/README.md\n M packages/explorer-plugin/src/store.ts\n M packages/storage-memory/src/index.ts\n M packages/storage-retained/src/index.ts\n M packages/storage-sqlite/src/entity-codec.ts\n M packages/storage-sqlite/src/evidence.ts\n M packages/storage-sqlite/src/index.ts\n M tests/explorer-store-normalized.test.ts\n M tests/storage-sqlite-compression.test.ts\n?? docs/experiments/storage-tiering-2026-10-17/\n?? docs/exploration-optimization-goal.md\n?? packages/explorer-plugin/src/task-codec.ts\n?? packages/storage-sqlite/src/evidence-lock.ts\n?? packages/storage-sqlite/src/observation-store.ts\n?? packages/storage-sqlite/src/observation-structure.ts\n?? scripts/benchmark-evidence-collection.ts\n?? scripts/benchmark-explorer-packed-store.ts\n?? scripts/okx-storage-acceptance.ts\n?? tests/evidence-collection.test.ts\n?? tests/explorer-store-packed.test.ts\n?? tests/fixtures/evidence-lock-owner.ts\n?? tests/fixtures/observation-sharing-captured.json\n?? tests/retention-accounting.test.ts\n?? tests/storage-observation-sharing.benchmark.ts\n?? tests/storage-observation-sharing.capture.ts\n?? tests/storage-observation-sharing.crash-child.ts\n?? tests/storage-observation-sharing.test.ts\n",
+  "node": "v24.22.0",
+  "repetitions": 3,
+  "frames": 36,
+  "measurement": "Synthetic structure-rich observations plus one real repository-fixture capture repeated with new observation IDs/timestamps, in independent temporary SQLite databases. Gzip baseline loaded from complete isolated git archive. Alternating order, exact JSON round trips on warm and reopened reads. Closed DB and active WAL sizes include object/pack tables and indexes. No live-site performance claim.",
+  "workloads": [
+    {
+      "name": "captured-fixture-stable",
+      "inputBytes": 2523950,
+      "inputSha256": "4d70e72b0aed5b8878b2b168eb5a0e0ca746d537eb7a362cb7ab7e7aea66a816"
+    },
+    {
+      "name": "one-control-change",
+      "inputBytes": 13390908,
+      "inputSha256": "069fbeb82f5bee17629cd947cf2082383baa3f154c603cef6cd49982efcb3ee8"
+    },
+    {
+      "name": "reorder-and-insert",
+      "inputBytes": 13409429,
+      "inputSha256": "0b2e76a63356ef30543d6ccff372bbe1adee12962b66a28aec8b00ed43300405"
+    },
+    {
+      "name": "all-controls-change",
+      "inputBytes": 13520509,
+      "inputSha256": "022293d796e04aecb178582cdd8f346a7a75b1f1ef29eb2117e0c549a0ed32be"
+    },
+    {
+      "name": "high-entropy-text",
+      "inputBytes": 6916957,
+      "inputSha256": "6011bd8815662397fad00b8b5d55d96e2d0c7b5533927ed172705a2d0af3b490"
+    },
+    {
+      "name": "non-observation-entities",
+      "inputBytes": 518670,
+      "inputSha256": "37a870e18e243a8265a673d7f7e3ebc0df3d0d0ef74ba64faa4d7e93edb72a1a"
+    },
+    {
+      "name": "small-observation",
+      "inputBytes": 21256,
+      "inputSha256": "21ffb98c8974f906684655f725ed3f9f7817cc0a3be3ff7895594a4717eb3786"
+    }
+  ],
+  "runs": [
+    {
+      "repetition": 0,
+      "mode": "baseline",
+      "workload": "captured-fixture-stable",
+      "frames": 36,
+      "writeMs": 39.46566699999994,
+      "writeCpuMs": 42.95,
+      "warmReadMs": 25.12587499999995,
+      "listReadMs": 20.987915999999814,
+      "openMs": 0.5833750000001601,
+      "restartReadMs": 22.151542000000063,
+      "activeDisk": {
+        "fileBytes": 972136,
+        "allocatedBytes": 974848,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 935272
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 339968,
+        "allocatedBytes": 339968,
+        "files": {
+          "engine.sqlite": 339968
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 0,
+      "mode": "new",
+      "workload": "captured-fixture-stable",
+      "frames": 36,
+      "writeMs": 41.96229100000005,
+      "writeCpuMs": 59.312,
+      "warmReadMs": 22.610165999999936,
+      "listReadMs": 20.407042000000047,
+      "openMs": 0.642084000000068,
+      "restartReadMs": 24.887207999999873,
+      "activeDisk": {
+        "fileBytes": 724936,
+        "allocatedBytes": 724992,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 688072
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 143360,
+        "allocatedBytes": 143360,
+        "files": {
+          "engine.sqlite": 143360
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 36,
+        "manifestBytes": 62820,
+        "objects": 22,
+        "referencedObjects": 22,
+        "orphanObjects": 0,
+        "objectBytes": 68326,
+        "referencedObjectBytes": 68326,
+        "packs": 2,
+        "packedBytes": 6685,
+        "packLogicalBytes": 68326,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 0,
+      "mode": "baseline",
+      "workload": "one-control-change",
+      "frames": 36,
+      "writeMs": 124.8721660000001,
+      "writeCpuMs": 126.362,
+      "warmReadMs": 81.25645799999984,
+      "listReadMs": 87.37491599999998,
+      "openMs": 0.614917000000105,
+      "restartReadMs": 86.80679199999986,
+      "activeDisk": {
+        "fileBytes": 1268776,
+        "allocatedBytes": 1269760,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1231912
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 634880,
+        "allocatedBytes": 634880,
+        "files": {
+          "engine.sqlite": 634880
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 0,
+      "mode": "new",
+      "workload": "one-control-change",
+      "frames": 36,
+      "writeMs": 178.8528749999998,
+      "writeCpuMs": 190.647,
+      "warmReadMs": 93.49516700000004,
+      "listReadMs": 91.97441700000013,
+      "openMs": 0.6359999999999673,
+      "restartReadMs": 110.3232079999998,
+      "activeDisk": {
+        "fileBytes": 1882656,
+        "allocatedBytes": 1884160,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1845792
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 352256,
+        "allocatedBytes": 352256,
+        "files": {
+          "engine.sqlite": 352256
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 36,
+        "manifestBytes": 74618,
+        "objects": 737,
+        "referencedObjects": 737,
+        "orphanObjects": 0,
+        "objectBytes": 389247,
+        "referencedObjectBytes": 389247,
+        "packs": 41,
+        "packedBytes": 34789,
+        "packLogicalBytes": 389247,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 0,
+      "mode": "baseline",
+      "workload": "reorder-and-insert",
+      "frames": 36,
+      "writeMs": 125.27204200000006,
+      "writeCpuMs": 125.133,
+      "warmReadMs": 82.71291599999995,
+      "listReadMs": 82.81091699999979,
+      "openMs": 0.6077080000000024,
+      "restartReadMs": 85.26145799999995,
+      "activeDisk": {
+        "fileBytes": 1268776,
+        "allocatedBytes": 1269760,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1231912
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 634880,
+        "allocatedBytes": 634880,
+        "files": {
+          "engine.sqlite": 634880
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 0,
+      "mode": "new",
+      "workload": "reorder-and-insert",
+      "frames": 36,
+      "writeMs": 170.10037499999999,
+      "writeCpuMs": 184.902,
+      "warmReadMs": 91.26966700000003,
+      "listReadMs": 92.49066700000003,
+      "openMs": 0.8325829999998859,
+      "restartReadMs": 97.4912089999998,
+      "activeDisk": {
+        "fileBytes": 1895016,
+        "allocatedBytes": 1896448,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1858152
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 352256,
+        "allocatedBytes": 352256,
+        "files": {
+          "engine.sqlite": 352256
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 36,
+        "manifestBytes": 74693,
+        "objects": 738,
+        "referencedObjects": 738,
+        "orphanObjects": 0,
+        "objectBytes": 389637,
+        "referencedObjectBytes": 389637,
+        "packs": 41,
+        "packedBytes": 34711,
+        "packLogicalBytes": 389637,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 0,
+      "mode": "baseline",
+      "workload": "all-controls-change",
+      "frames": 36,
+      "writeMs": 127.4302090000001,
+      "writeCpuMs": 127.478,
+      "warmReadMs": 84.57379199999968,
+      "listReadMs": 85.09095900000011,
+      "openMs": 0.6262910000000375,
+      "restartReadMs": 85.68604200000027,
+      "activeDisk": {
+        "fileBytes": 1417096,
+        "allocatedBytes": 1417216,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1380232
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 782336,
+        "allocatedBytes": 782336,
+        "files": {
+          "engine.sqlite": 782336
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 0,
+      "mode": "new",
+      "workload": "all-controls-change",
+      "frames": 36,
+      "writeMs": 171.7702079999999,
+      "writeCpuMs": 172.457,
+      "warmReadMs": 86.15895799999998,
+      "listReadMs": 90.19583300000022,
+      "openMs": 0.6684580000001006,
+      "restartReadMs": 88.40925000000016,
+      "activeDisk": {
+        "fileBytes": 1565416,
+        "allocatedBytes": 1568768,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1528552
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 905216,
+        "allocatedBytes": 905216,
+        "files": {
+          "engine.sqlite": 905216
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 1,
+        "manifestBytes": 658305,
+        "objects": 702,
+        "referencedObjects": 702,
+        "orphanObjects": 0,
+        "objectBytes": 374648,
+        "referencedObjectBytes": 374648,
+        "packs": 6,
+        "packedBytes": 18978,
+        "packLogicalBytes": 374648,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 0,
+      "mode": "baseline",
+      "workload": "high-entropy-text",
+      "frames": 36,
+      "writeMs": 151.4253749999998,
+      "writeCpuMs": 149.593,
+      "warmReadMs": 42.87995799999999,
+      "listReadMs": 40.38395799999989,
+      "openMs": 0.5893749999995634,
+      "restartReadMs": 42.42675000000054,
+      "activeDisk": {
+        "fileBytes": 8028216,
+        "allocatedBytes": 8032256,
+        "files": {
+          "engine.sqlite": 3772416,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 4223032
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 5206016,
+        "allocatedBytes": 5206016,
+        "files": {
+          "engine.sqlite": 5206016
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 0,
+      "mode": "new",
+      "workload": "high-entropy-text",
+      "frames": 36,
+      "writeMs": 171.4985829999996,
+      "writeCpuMs": 176.106,
+      "warmReadMs": 43.651208000000224,
+      "listReadMs": 41.91487499999948,
+      "openMs": 0.7303750000000946,
+      "restartReadMs": 43.50762500000019,
+      "activeDisk": {
+        "fileBytes": 8094016,
+        "allocatedBytes": 8097792,
+        "files": {
+          "engine.sqlite": 3792896,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 4268352
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 5226496,
+        "allocatedBytes": 5226496,
+        "files": {
+          "engine.sqlite": 5226496
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 1,
+        "manifestBytes": 4966347,
+        "objects": 23,
+        "referencedObjects": 23,
+        "orphanObjects": 0,
+        "objectBytes": 191933,
+        "referencedObjectBytes": 191933,
+        "packs": 4,
+        "packedBytes": 141485,
+        "packLogicalBytes": 191933,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 0,
+      "mode": "baseline",
+      "workload": "non-observation-entities",
+      "frames": 3600,
+      "writeMs": 128.51466700000037,
+      "writeCpuMs": 120.037,
+      "warmReadMs": 28.615125000000262,
+      "listReadMs": 4.148917000000438,
+      "openMs": 0.715874999999869,
+      "restartReadMs": 29.87512500000048,
+      "activeDisk": {
+        "fileBytes": 5066280,
+        "allocatedBytes": 5066752,
+        "files": {
+          "engine.sqlite": 901120,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 4132392
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 933888,
+        "allocatedBytes": 933888,
+        "files": {
+          "engine.sqlite": 933888
+        }
+      },
+      "verifiedReads": 10800
+    },
+    {
+      "repetition": 0,
+      "mode": "new",
+      "workload": "non-observation-entities",
+      "frames": 3600,
+      "writeMs": 128.8879160000006,
+      "writeCpuMs": 120.751,
+      "warmReadMs": 27.651625000000422,
+      "listReadMs": 4.261375000000044,
+      "openMs": 0.7074169999996229,
+      "restartReadMs": 30.120375000000422,
+      "activeDisk": {
+        "fileBytes": 5099120,
+        "allocatedBytes": 5099520,
+        "files": {
+          "engine.sqlite": 921600,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 4144752
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 954368,
+        "allocatedBytes": 954368,
+        "files": {
+          "engine.sqlite": 954368
+        }
+      },
+      "stats": {
+        "observations": 0,
+        "sharedObservations": 0,
+        "manifestBytes": 0,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 10800
+    },
+    {
+      "repetition": 0,
+      "mode": "baseline",
+      "workload": "small-observation",
+      "frames": 36,
+      "writeMs": 1.9871249999996508,
+      "writeCpuMs": 1.986,
+      "warmReadMs": 0.4523330000001806,
+      "listReadMs": 0.17450000000008004,
+      "openMs": 0.4293340000003809,
+      "restartReadMs": 0.44504199999937555,
+      "activeDisk": {
+        "fileBytes": 572496,
+        "allocatedBytes": 573440,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 535632
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 69632,
+        "allocatedBytes": 69632,
+        "files": {
+          "engine.sqlite": 69632
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 0,
+      "mode": "new",
+      "workload": "small-observation",
+      "frames": 36,
+      "writeMs": 2.053165999999692,
+      "writeCpuMs": 2.431,
+      "warmReadMs": 0.6947910000008051,
+      "listReadMs": 0.18866700000035053,
+      "openMs": 0.4903340000000753,
+      "restartReadMs": 0.7078330000003916,
+      "activeDisk": {
+        "fileBytes": 593096,
+        "allocatedBytes": 593920,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 556232
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 90112,
+        "allocatedBytes": 90112,
+        "files": {
+          "engine.sqlite": 90112
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 0,
+        "manifestBytes": 21256,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 1,
+      "mode": "new",
+      "workload": "captured-fixture-stable",
+      "frames": 36,
+      "writeMs": 34.968166999999994,
+      "writeCpuMs": 40.474,
+      "warmReadMs": 21.359958000000006,
+      "listReadMs": 20.454415999999583,
+      "openMs": 0.5996249999998327,
+      "restartReadMs": 22.095832999999402,
+      "activeDisk": {
+        "fileBytes": 724936,
+        "allocatedBytes": 724992,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 688072
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 143360,
+        "allocatedBytes": 143360,
+        "files": {
+          "engine.sqlite": 143360
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 36,
+        "manifestBytes": 62820,
+        "objects": 22,
+        "referencedObjects": 22,
+        "orphanObjects": 0,
+        "objectBytes": 68326,
+        "referencedObjectBytes": 68326,
+        "packs": 2,
+        "packedBytes": 6685,
+        "packLogicalBytes": 68326,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 1,
+      "mode": "baseline",
+      "workload": "captured-fixture-stable",
+      "frames": 36,
+      "writeMs": 35.342125000000124,
+      "writeCpuMs": 35.606,
+      "warmReadMs": 27.81041699999969,
+      "listReadMs": 20.832917000000634,
+      "openMs": 0.60674999999992,
+      "restartReadMs": 21.711750000000393,
+      "activeDisk": {
+        "fileBytes": 972136,
+        "allocatedBytes": 974848,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 935272
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 339968,
+        "allocatedBytes": 339968,
+        "files": {
+          "engine.sqlite": 339968
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 1,
+      "mode": "new",
+      "workload": "one-control-change",
+      "frames": 36,
+      "writeMs": 176.1824999999999,
+      "writeCpuMs": 191.868,
+      "warmReadMs": 89.78279199999997,
+      "listReadMs": 93.70499999999993,
+      "openMs": 0.7105000000001382,
+      "restartReadMs": 102.51658300000054,
+      "activeDisk": {
+        "fileBytes": 1882656,
+        "allocatedBytes": 1884160,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1845792
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 352256,
+        "allocatedBytes": 352256,
+        "files": {
+          "engine.sqlite": 352256
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 36,
+        "manifestBytes": 74618,
+        "objects": 737,
+        "referencedObjects": 737,
+        "orphanObjects": 0,
+        "objectBytes": 389247,
+        "referencedObjectBytes": 389247,
+        "packs": 41,
+        "packedBytes": 34789,
+        "packLogicalBytes": 389247,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 1,
+      "mode": "baseline",
+      "workload": "one-control-change",
+      "frames": 36,
+      "writeMs": 121.92191700000058,
+      "writeCpuMs": 122.339,
+      "warmReadMs": 81.51845799999955,
+      "listReadMs": 83.52100000000064,
+      "openMs": 0.5910829999993439,
+      "restartReadMs": 84.90695899999992,
+      "activeDisk": {
+        "fileBytes": 1268776,
+        "allocatedBytes": 1269760,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1231912
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 634880,
+        "allocatedBytes": 634880,
+        "files": {
+          "engine.sqlite": 634880
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 1,
+      "mode": "new",
+      "workload": "reorder-and-insert",
+      "frames": 36,
+      "writeMs": 173.69937500000015,
+      "writeCpuMs": 195.25,
+      "warmReadMs": 90.16329199999927,
+      "listReadMs": 91.7206669999996,
+      "openMs": 0.6559170000000449,
+      "restartReadMs": 95.24487499999941,
+      "activeDisk": {
+        "fileBytes": 1895016,
+        "allocatedBytes": 1896448,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1858152
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 352256,
+        "allocatedBytes": 352256,
+        "files": {
+          "engine.sqlite": 352256
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 36,
+        "manifestBytes": 74693,
+        "objects": 738,
+        "referencedObjects": 738,
+        "orphanObjects": 0,
+        "objectBytes": 389637,
+        "referencedObjectBytes": 389637,
+        "packs": 41,
+        "packedBytes": 34711,
+        "packLogicalBytes": 389637,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 1,
+      "mode": "baseline",
+      "workload": "reorder-and-insert",
+      "frames": 36,
+      "writeMs": 121.49041699999998,
+      "writeCpuMs": 121.492,
+      "warmReadMs": 82.9349170000005,
+      "listReadMs": 83.08533299999999,
+      "openMs": 0.5218750000003638,
+      "restartReadMs": 83.46620799999982,
+      "activeDisk": {
+        "fileBytes": 1268776,
+        "allocatedBytes": 1269760,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1231912
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 634880,
+        "allocatedBytes": 634880,
+        "files": {
+          "engine.sqlite": 634880
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 1,
+      "mode": "new",
+      "workload": "all-controls-change",
+      "frames": 36,
+      "writeMs": 170.8043749999997,
+      "writeCpuMs": 171.021,
+      "warmReadMs": 86.08291699999972,
+      "listReadMs": 84.62304100000074,
+      "openMs": 0.795165999999881,
+      "restartReadMs": 87.61937499999931,
+      "activeDisk": {
+        "fileBytes": 1565416,
+        "allocatedBytes": 1568768,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1528552
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 905216,
+        "allocatedBytes": 905216,
+        "files": {
+          "engine.sqlite": 905216
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 1,
+        "manifestBytes": 658305,
+        "objects": 702,
+        "referencedObjects": 702,
+        "orphanObjects": 0,
+        "objectBytes": 374648,
+        "referencedObjectBytes": 374648,
+        "packs": 6,
+        "packedBytes": 18978,
+        "packLogicalBytes": 374648,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 1,
+      "mode": "baseline",
+      "workload": "all-controls-change",
+      "frames": 36,
+      "writeMs": 124.96958300000006,
+      "writeCpuMs": 124.938,
+      "warmReadMs": 89.6352080000006,
+      "listReadMs": 83.06879199999912,
+      "openMs": 0.5357500000000073,
+      "restartReadMs": 84.60708400000021,
+      "activeDisk": {
+        "fileBytes": 1417096,
+        "allocatedBytes": 1417216,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1380232
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 782336,
+        "allocatedBytes": 782336,
+        "files": {
+          "engine.sqlite": 782336
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 1,
+      "mode": "new",
+      "workload": "high-entropy-text",
+      "frames": 36,
+      "writeMs": 164.79812499999935,
+      "writeCpuMs": 165.366,
+      "warmReadMs": 43.84004100000038,
+      "listReadMs": 41.99091700000008,
+      "openMs": 0.6019999999998618,
+      "restartReadMs": 43.579625000000306,
+      "activeDisk": {
+        "fileBytes": 8094016,
+        "allocatedBytes": 8097792,
+        "files": {
+          "engine.sqlite": 3792896,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 4268352
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 5226496,
+        "allocatedBytes": 5226496,
+        "files": {
+          "engine.sqlite": 5226496
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 1,
+        "manifestBytes": 4966347,
+        "objects": 23,
+        "referencedObjects": 23,
+        "orphanObjects": 0,
+        "objectBytes": 191933,
+        "referencedObjectBytes": 191933,
+        "packs": 4,
+        "packedBytes": 141485,
+        "packLogicalBytes": 191933,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 1,
+      "mode": "baseline",
+      "workload": "high-entropy-text",
+      "frames": 36,
+      "writeMs": 148.5953750000008,
+      "writeCpuMs": 146.609,
+      "warmReadMs": 45.60658299999977,
+      "listReadMs": 40.89116699999977,
+      "openMs": 0.5429579999999987,
+      "restartReadMs": 42.50208300000031,
+      "activeDisk": {
+        "fileBytes": 8028216,
+        "allocatedBytes": 8032256,
+        "files": {
+          "engine.sqlite": 3772416,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 4223032
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 5206016,
+        "allocatedBytes": 5206016,
+        "files": {
+          "engine.sqlite": 5206016
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 1,
+      "mode": "new",
+      "workload": "non-observation-entities",
+      "frames": 3600,
+      "writeMs": 130.80754199999956,
+      "writeCpuMs": 122.299,
+      "warmReadMs": 27.440708000000086,
+      "listReadMs": 4.10162500000115,
+      "openMs": 0.6765840000007302,
+      "restartReadMs": 29.70770900000025,
+      "activeDisk": {
+        "fileBytes": 5099120,
+        "allocatedBytes": 5099520,
+        "files": {
+          "engine.sqlite": 921600,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 4144752
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 954368,
+        "allocatedBytes": 954368,
+        "files": {
+          "engine.sqlite": 954368
+        }
+      },
+      "stats": {
+        "observations": 0,
+        "sharedObservations": 0,
+        "manifestBytes": 0,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 10800
+    },
+    {
+      "repetition": 1,
+      "mode": "baseline",
+      "workload": "non-observation-entities",
+      "frames": 3600,
+      "writeMs": 139.54462500000045,
+      "writeCpuMs": 129.208,
+      "warmReadMs": 26.69116699999904,
+      "listReadMs": 4.067791999999827,
+      "openMs": 0.581291999998939,
+      "restartReadMs": 29.189667000000554,
+      "activeDisk": {
+        "fileBytes": 5066280,
+        "allocatedBytes": 5066752,
+        "files": {
+          "engine.sqlite": 901120,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 4132392
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 933888,
+        "allocatedBytes": 933888,
+        "files": {
+          "engine.sqlite": 933888
+        }
+      },
+      "verifiedReads": 10800
+    },
+    {
+      "repetition": 1,
+      "mode": "new",
+      "workload": "small-observation",
+      "frames": 36,
+      "writeMs": 1.9758330000004207,
+      "writeCpuMs": 1.975,
+      "warmReadMs": 0.7096660000006523,
+      "listReadMs": 0.20041700000001583,
+      "openMs": 0.5184589999989839,
+      "restartReadMs": 0.7200419999990118,
+      "activeDisk": {
+        "fileBytes": 593096,
+        "allocatedBytes": 593920,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 556232
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 90112,
+        "allocatedBytes": 90112,
+        "files": {
+          "engine.sqlite": 90112
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 0,
+        "manifestBytes": 21256,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 1,
+      "mode": "baseline",
+      "workload": "small-observation",
+      "frames": 36,
+      "writeMs": 1.685790999999881,
+      "writeCpuMs": 1.686,
+      "warmReadMs": 0.3936249999987922,
+      "listReadMs": 0.17470800000046438,
+      "openMs": 0.5205409999998665,
+      "restartReadMs": 0.4300409999996191,
+      "activeDisk": {
+        "fileBytes": 572496,
+        "allocatedBytes": 573440,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 535632
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 69632,
+        "allocatedBytes": 69632,
+        "files": {
+          "engine.sqlite": 69632
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 2,
+      "mode": "baseline",
+      "workload": "captured-fixture-stable",
+      "frames": 36,
+      "writeMs": 35.13141700000051,
+      "writeCpuMs": 35.133,
+      "warmReadMs": 21.575208999998722,
+      "listReadMs": 20.11354200000096,
+      "openMs": 0.5257920000003651,
+      "restartReadMs": 26.377333999998882,
+      "activeDisk": {
+        "fileBytes": 972136,
+        "allocatedBytes": 974848,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 935272
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 339968,
+        "allocatedBytes": 339968,
+        "files": {
+          "engine.sqlite": 339968
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 2,
+      "mode": "new",
+      "workload": "captured-fixture-stable",
+      "frames": 36,
+      "writeMs": 34.985500000000684,
+      "writeCpuMs": 41.216,
+      "warmReadMs": 21.550624999999854,
+      "listReadMs": 19.529249999999593,
+      "openMs": 0.5916660000002594,
+      "restartReadMs": 22.02599999999984,
+      "activeDisk": {
+        "fileBytes": 724936,
+        "allocatedBytes": 724992,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 688072
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 143360,
+        "allocatedBytes": 143360,
+        "files": {
+          "engine.sqlite": 143360
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 36,
+        "manifestBytes": 62820,
+        "objects": 22,
+        "referencedObjects": 22,
+        "orphanObjects": 0,
+        "objectBytes": 68326,
+        "referencedObjectBytes": 68326,
+        "packs": 2,
+        "packedBytes": 6685,
+        "packLogicalBytes": 68326,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 2,
+      "mode": "baseline",
+      "workload": "one-control-change",
+      "frames": 36,
+      "writeMs": 124.39445799999885,
+      "writeCpuMs": 126.55,
+      "warmReadMs": 81.90824999999859,
+      "listReadMs": 82.67720799999915,
+      "openMs": 0.5737079999998969,
+      "restartReadMs": 83.78654199999983,
+      "activeDisk": {
+        "fileBytes": 1268776,
+        "allocatedBytes": 1269760,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1231912
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 634880,
+        "allocatedBytes": 634880,
+        "files": {
+          "engine.sqlite": 634880
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 2,
+      "mode": "new",
+      "workload": "one-control-change",
+      "frames": 36,
+      "writeMs": 177.22637499999837,
+      "writeCpuMs": 198.627,
+      "warmReadMs": 90.86583400000018,
+      "listReadMs": 91.08416699999907,
+      "openMs": 0.6287499999998545,
+      "restartReadMs": 96.55737500000032,
+      "activeDisk": {
+        "fileBytes": 1882656,
+        "allocatedBytes": 1884160,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1845792
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 352256,
+        "allocatedBytes": 352256,
+        "files": {
+          "engine.sqlite": 352256
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 36,
+        "manifestBytes": 74618,
+        "objects": 737,
+        "referencedObjects": 737,
+        "orphanObjects": 0,
+        "objectBytes": 389247,
+        "referencedObjectBytes": 389247,
+        "packs": 41,
+        "packedBytes": 34789,
+        "packLogicalBytes": 389247,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 2,
+      "mode": "baseline",
+      "workload": "reorder-and-insert",
+      "frames": 36,
+      "writeMs": 123.05595899999935,
+      "writeCpuMs": 123.31,
+      "warmReadMs": 81.48899999999958,
+      "listReadMs": 82.9639589999988,
+      "openMs": 0.6532080000015412,
+      "restartReadMs": 83.30737500000032,
+      "activeDisk": {
+        "fileBytes": 1268776,
+        "allocatedBytes": 1269760,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1231912
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 634880,
+        "allocatedBytes": 634880,
+        "files": {
+          "engine.sqlite": 634880
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 2,
+      "mode": "new",
+      "workload": "reorder-and-insert",
+      "frames": 36,
+      "writeMs": 172.61741600000096,
+      "writeCpuMs": 186.106,
+      "warmReadMs": 91.8097089999992,
+      "listReadMs": 89.65504200000032,
+      "openMs": 0.8016250000000582,
+      "restartReadMs": 95.63166699999965,
+      "activeDisk": {
+        "fileBytes": 1895016,
+        "allocatedBytes": 1896448,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1858152
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 352256,
+        "allocatedBytes": 352256,
+        "files": {
+          "engine.sqlite": 352256
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 36,
+        "manifestBytes": 74693,
+        "objects": 738,
+        "referencedObjects": 738,
+        "orphanObjects": 0,
+        "objectBytes": 389637,
+        "referencedObjectBytes": 389637,
+        "packs": 41,
+        "packedBytes": 34711,
+        "packLogicalBytes": 389637,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 2,
+      "mode": "baseline",
+      "workload": "all-controls-change",
+      "frames": 36,
+      "writeMs": 126.58491700000013,
+      "writeCpuMs": 126.723,
+      "warmReadMs": 82.11545800000022,
+      "listReadMs": 83.19245800000135,
+      "openMs": 0.5655420000002778,
+      "restartReadMs": 83.86995799999931,
+      "activeDisk": {
+        "fileBytes": 1417096,
+        "allocatedBytes": 1417216,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1380232
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 782336,
+        "allocatedBytes": 782336,
+        "files": {
+          "engine.sqlite": 782336
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 2,
+      "mode": "new",
+      "workload": "all-controls-change",
+      "frames": 36,
+      "writeMs": 171.94687499999964,
+      "writeCpuMs": 174.377,
+      "warmReadMs": 85.22308399999929,
+      "listReadMs": 88.36737499999981,
+      "openMs": 0.7759160000005068,
+      "restartReadMs": 85.70699999999852,
+      "activeDisk": {
+        "fileBytes": 1565416,
+        "allocatedBytes": 1568768,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 1528552
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 905216,
+        "allocatedBytes": 905216,
+        "files": {
+          "engine.sqlite": 905216
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 1,
+        "manifestBytes": 658305,
+        "objects": 702,
+        "referencedObjects": 702,
+        "orphanObjects": 0,
+        "objectBytes": 374648,
+        "referencedObjectBytes": 374648,
+        "packs": 6,
+        "packedBytes": 18978,
+        "packLogicalBytes": 374648,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 2,
+      "mode": "baseline",
+      "workload": "high-entropy-text",
+      "frames": 36,
+      "writeMs": 149.7519169999996,
+      "writeCpuMs": 150.045,
+      "warmReadMs": 40.492041999999856,
+      "listReadMs": 43.23083399999996,
+      "openMs": 0.6017499999998108,
+      "restartReadMs": 44.204375000001164,
+      "activeDisk": {
+        "fileBytes": 8028216,
+        "allocatedBytes": 8032256,
+        "files": {
+          "engine.sqlite": 3772416,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 4223032
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 5206016,
+        "allocatedBytes": 5206016,
+        "files": {
+          "engine.sqlite": 5206016
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 2,
+      "mode": "new",
+      "workload": "high-entropy-text",
+      "frames": 36,
+      "writeMs": 167.02033400000073,
+      "writeCpuMs": 166.834,
+      "warmReadMs": 43.96891700000015,
+      "listReadMs": 41.57670800000051,
+      "openMs": 0.6173340000004828,
+      "restartReadMs": 42.37095799999952,
+      "activeDisk": {
+        "fileBytes": 8094016,
+        "allocatedBytes": 8097792,
+        "files": {
+          "engine.sqlite": 3792896,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 4268352
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 5226496,
+        "allocatedBytes": 5226496,
+        "files": {
+          "engine.sqlite": 5226496
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 1,
+        "manifestBytes": 4966347,
+        "objects": 23,
+        "referencedObjects": 23,
+        "orphanObjects": 0,
+        "objectBytes": 191933,
+        "referencedObjectBytes": 191933,
+        "packs": 4,
+        "packedBytes": 141485,
+        "packLogicalBytes": 191933,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 2,
+      "mode": "baseline",
+      "workload": "non-observation-entities",
+      "frames": 3600,
+      "writeMs": 124.45091700000012,
+      "writeCpuMs": 116.224,
+      "warmReadMs": 26.973167000000103,
+      "listReadMs": 4.24054199999955,
+      "openMs": 0.6950840000008611,
+      "restartReadMs": 32.25575000000026,
+      "activeDisk": {
+        "fileBytes": 5066280,
+        "allocatedBytes": 5066752,
+        "files": {
+          "engine.sqlite": 901120,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 4132392
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 933888,
+        "allocatedBytes": 933888,
+        "files": {
+          "engine.sqlite": 933888
+        }
+      },
+      "verifiedReads": 10800
+    },
+    {
+      "repetition": 2,
+      "mode": "new",
+      "workload": "non-observation-entities",
+      "frames": 3600,
+      "writeMs": 131.64233299999978,
+      "writeCpuMs": 125.813,
+      "warmReadMs": 29.063916000000972,
+      "listReadMs": 4.114417000000685,
+      "openMs": 0.6562080000003334,
+      "restartReadMs": 29.634500000000116,
+      "activeDisk": {
+        "fileBytes": 5099120,
+        "allocatedBytes": 5099520,
+        "files": {
+          "engine.sqlite": 921600,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 4144752
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 954368,
+        "allocatedBytes": 954368,
+        "files": {
+          "engine.sqlite": 954368
+        }
+      },
+      "stats": {
+        "observations": 0,
+        "sharedObservations": 0,
+        "manifestBytes": 0,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 10800
+    },
+    {
+      "repetition": 2,
+      "mode": "baseline",
+      "workload": "small-observation",
+      "frames": 36,
+      "writeMs": 1.7394999999996799,
+      "writeCpuMs": 1.739,
+      "warmReadMs": 0.3997909999998228,
+      "listReadMs": 0.17879100000027393,
+      "openMs": 0.5047919999997248,
+      "restartReadMs": 0.44904200000019046,
+      "activeDisk": {
+        "fileBytes": 572496,
+        "allocatedBytes": 573440,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 535632
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 69632,
+        "allocatedBytes": 69632,
+        "files": {
+          "engine.sqlite": 69632
+        }
+      },
+      "verifiedReads": 108
+    },
+    {
+      "repetition": 2,
+      "mode": "new",
+      "workload": "small-observation",
+      "frames": 36,
+      "writeMs": 1.945916999999099,
+      "writeCpuMs": 1.945,
+      "warmReadMs": 0.670165999999881,
+      "listReadMs": 0.17950000000018917,
+      "openMs": 0.6494160000002012,
+      "restartReadMs": 0.6947500000005675,
+      "activeDisk": {
+        "fileBytes": 593096,
+        "allocatedBytes": 593920,
+        "files": {
+          "engine.sqlite": 4096,
+          "engine.sqlite-shm": 32768,
+          "engine.sqlite-wal": 556232
+        }
+      },
+      "closedDisk": {
+        "fileBytes": 90112,
+        "allocatedBytes": 90112,
+        "files": {
+          "engine.sqlite": 90112
+        }
+      },
+      "stats": {
+        "observations": 36,
+        "sharedObservations": 0,
+        "manifestBytes": 21256,
+        "objects": 0,
+        "referencedObjects": 0,
+        "orphanObjects": 0,
+        "objectBytes": 0,
+        "referencedObjectBytes": 0,
+        "packs": 0,
+        "packedBytes": 0,
+        "packLogicalBytes": 0,
+        "fragmentedBytes": 0
+      },
+      "verifiedReads": 108
+    }
+  ]
+}

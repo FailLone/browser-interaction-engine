@@ -1,0 +1,15 @@
+Published exploration snapshot types: passed
+{
+  componentContract: 'passed',
+  probeContract: 'passed',
+  inspectionContract: 'passed',
+  at: '2026-10-16T19:46:46.892Z',
+  node: 'v24.22.0',
+  compiledAPI: 'passed',
+  staticUI: 'passed',
+  chromiumExecution: 'passed',
+  historicalEvidence: 'passed',
+  snapshotDelivery: 'passed',
+  cachedEvidence: 'passed',
+  attemptId: '7a3ef75d-d873-4a41-84b2-9dd91a208f2b'
+}

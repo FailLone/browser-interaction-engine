@@ -1,0 +1,252 @@
+{
+  "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "sourceHashes": {
+    "packages/explorer-plugin/src/store.ts": "dd03aa9d1d9c7c878db17803805365d187f8addf3f9db3cb282966fba634b4f6",
+    "packages/explorer-plugin/src/task-codec.ts": "55db37c81424545296371d202eaa8d093e43c394a241b8f9aa0db8295dc6a873"
+  },
+  "benchmarkHash": "e1bb418b079f8ded3ffc7ed2db180420ae8e4b36e3262d174137e6de97ec02da",
+  "mode": "delta",
+  "count": 5000,
+  "activeCount": 5000,
+  "iterations": 80,
+  "reads": 100,
+  "header": "small",
+  "headerBytes": 395,
+  "fixtureHash": "646637add7e9794931e1545af06d8763f006c7749ef9bb4c2953f436c66aa022",
+  "finalHash": "cacdb79084e3dcc1328d82248f3dfda9aba7080a3c06f34b608d731ab54057d4",
+  "node": "v24.22.0",
+  "initialWrite": {
+    "count": 1,
+    "totalMs": 84.190666,
+    "medianMs": 84.190666,
+    "p95Ms": 84.190666,
+    "maxMs": 84.190666,
+    "cpuMs": 104.069,
+    "memory": {
+      "beforeHeap": 12763744,
+      "beforeRss": 86114304,
+      "peakHeap": 23756488,
+      "peakRss": 119406592
+    }
+  },
+  "firstFullRead": {
+    "count": 1,
+    "totalMs": 21.27849999999998,
+    "medianMs": 21.27849999999998,
+    "p95Ms": 21.27849999999998,
+    "maxMs": 21.27849999999998,
+    "cpuMs": 32.938,
+    "memory": {
+      "beforeHeap": 23781624,
+      "beforeRss": 119439360,
+      "peakHeap": 29826104,
+      "peakRss": 130220032
+    }
+  },
+  "saves": {
+    "count": 80,
+    "totalMs": 9.311997999999988,
+    "medianMs": 0.09933300000000145,
+    "p95Ms": 0.14500000000001023,
+    "maxMs": 1.0425000000000182,
+    "cpuMs": 9.618,
+    "memory": {
+      "beforeHeap": 34689800,
+      "beforeRss": 144244736,
+      "peakHeap": 36060280,
+      "peakRss": 144326656
+    }
+  },
+  "headerOnlyWrites": {
+    "count": 20,
+    "totalMs": 0.638666000000029,
+    "medianMs": 0.030624999999986358,
+    "p95Ms": 0.060041000000012446,
+    "maxMs": 0.060041000000012446,
+    "cpuMs": 0.695,
+    "memory": {
+      "beforeHeap": 36081752,
+      "beforeRss": 144326656,
+      "peakHeap": 36280936,
+      "peakRss": 144326656
+    }
+  },
+  "activeReads": {
+    "count": 100,
+    "totalMs": 9.119587000000166,
+    "medianMs": 0.08762500000000273,
+    "p95Ms": 0.10708299999998871,
+    "maxMs": 0.19183300000000258,
+    "cpuMs": 10.202,
+    "memory": {
+      "beforeHeap": 36286080,
+      "beforeRss": 144326656,
+      "peakHeap": 39685512,
+      "peakRss": 145457152
+    }
+  },
+  "headerReads": {
+    "count": 100,
+    "totalMs": 0.641003999999981,
+    "medianMs": 0.005416999999994232,
+    "p95Ms": 0.01029199999999264,
+    "maxMs": 0.04349999999999454,
+    "cpuMs": 1.012,
+    "memory": {
+      "beforeHeap": 39702832,
+      "beforeRss": 145457152,
+      "peakHeap": 40155792,
+      "peakRss": 145457152
+    }
+  },
+  "ownerReads": {
+    "count": 100,
+    "totalMs": 1.7050370000000044,
+    "medianMs": 0.015541999999982181,
+    "p95Ms": 0.019332999999988942,
+    "maxMs": 0.12916699999999537,
+    "cpuMs": 1.938,
+    "memory": {
+      "beforeHeap": 40030352,
+      "beforeRss": 145457152,
+      "peakHeap": 40875272,
+      "peakRss": 145522688
+    }
+  },
+  "fullReads": {
+    "count": 60,
+    "totalMs": 979.2942929999994,
+    "medianMs": 15.639958999999976,
+    "p95Ms": 18.73845799999998,
+    "maxMs": 19.487416999999994,
+    "cpuMs": 1001.071,
+    "memory": {
+      "beforeHeap": 40891624,
+      "beforeRss": 145522688,
+      "peakHeap": 63637720,
+      "peakRss": 186482688
+    }
+  },
+  "checkoutReads": {
+    "count": 30,
+    "totalMs": 484.88775200000055,
+    "medianMs": 15.659000000000106,
+    "p95Ms": 17.293750000000045,
+    "maxMs": 17.313499999999976,
+    "cpuMs": 485.424,
+    "memory": {
+      "beforeHeap": 63648248,
+      "beforeRss": 186482688,
+      "peakHeap": 63648248,
+      "peakRss": 186515456
+    }
+  },
+  "reopenMs": 0.5575830000000224,
+  "restartFirstRead": {
+    "count": 1,
+    "totalMs": 18.6423749999999,
+    "medianMs": 18.6423749999999,
+    "p95Ms": 18.6423749999999,
+    "maxMs": 18.6423749999999,
+    "cpuMs": 20.483,
+    "memory": {
+      "beforeHeap": 66631776,
+      "beforeRss": 189415424,
+      "peakHeap": 66631776,
+      "peakRss": 189415424
+    }
+  },
+  "activeQueryPlan": {
+    "sql": "SELECT * FROM task_items INDEXED BY task_active_items WHERE task_id=? AND kind=? AND position>? AND status IN (?,?,?) AND kind='plan' AND status IN ('pending','unresolved','blocked') AND required=? ORDER BY position LIMIT ?",
+    "plan": [
+      {
+        "id": 10,
+        "parent": 0,
+        "notused": 49,
+        "detail": "SEARCH task_items USING INDEX task_active_items (task_id=? AND position>?)"
+      }
+    ]
+  },
+  "coldQueryPlan": [
+    {
+      "id": 4,
+      "parent": 0,
+      "notused": 62,
+      "detail": "SEARCH task_items USING INDEX task_cold_items (task_id=?)"
+    }
+  ],
+  "initialBytes": {
+    "database": 4657152,
+    "wal": 0,
+    "sharedMemory": 32768,
+    "total": 4689920
+  },
+  "afterWrites": {
+    "database": 4657152,
+    "wal": 2657432,
+    "sharedMemory": 32768,
+    "total": 7347352
+  },
+  "closedBytes": {
+    "database": 4657152,
+    "wal": 0,
+    "sharedMemory": 0,
+    "total": 4657152
+  },
+  "maintenance": {
+    "timing": {
+      "count": 1,
+      "totalMs": 57.1736249999999,
+      "medianMs": 57.1736249999999,
+      "p95Ms": 57.1736249999999,
+      "maxMs": 57.1736249999999,
+      "cpuMs": 55.007,
+      "memory": {
+        "beforeHeap": 56671816,
+        "beforeRss": 217497600,
+        "peakHeap": 70332376,
+        "peakRss": 222347264
+      }
+    },
+    "beforeBytes": {
+      "database": 4657152,
+      "wal": 3617392,
+      "sharedMemory": 32768,
+      "total": 8307312
+    },
+    "afterBytes": {
+      "database": 2347008,
+      "wal": 0,
+      "sharedMemory": 32768,
+      "total": 2379776
+    },
+    "cleanup": {
+      "before": {
+        "occurrences": 2501,
+        "chunks": 0,
+        "hotItems": 2501,
+        "archivedItems": 0,
+        "compressedBytes": 0
+      },
+      "after": {
+        "occurrences": 2501,
+        "chunks": 0,
+        "hotItems": 2501,
+        "archivedItems": 0,
+        "compressedBytes": 0
+      },
+      "removed": [],
+      "reclaimed": true,
+      "pageCount": 573,
+      "freePages": 0
+    },
+    "finalHash": "d67d0e59d8df065aa7a5539e5d78b9f3066d8eefe8509fc167ca5783c08e487f"
+  },
+  "processPeakRss": 238338048,
+  "walPolicy": {
+    "autocheckpointPages": 1000,
+    "initialCheckpoint": true,
+    "finalCloseCheckpointsWal": true
+  },
+  "scope": "Persistence microbenchmark, not end-to-end exploration. Full reads/checkout verify all records. Header serialized once in both variants; v4 additionally compresses large headers. Full-read samples include JS allocation but timing excludes memory snapshots; RSS is process-level high-water, not isolated read memory. Initial/steady/closed files precede explicit maintenance and have no VACUUM. Maintenance removes half the occurrences in both variants, verifies exact state/handles, then v4 repacks+collects+VACUUM while v3 VACUUMs only."
+}

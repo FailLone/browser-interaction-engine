@@ -1,0 +1,25 @@
+{
+  "revision": "70b8cb4b7a9ed9b844c5157d7fd2f6e9ed9f254d",
+  "sourceFiles": 450,
+  "sourceUnchanged": true,
+  "workspaceDependencyLinks": 28,
+  "allWorkspaceLinksInsideArchive": true,
+  "compiledFilesRecorded": 583,
+  "build": "passed",
+  "publishedTypes": "passed",
+  "compiledApiSmoke": "passed",
+  "compiledExplorerUiSmoke": "passed",
+  "compiledNavigationPublicContract": "passed",
+  "actualBrowserActions": 2,
+  "mockProviderRequests": {
+    "jev": 1,
+    "llm": 1
+  },
+  "screenshot": "explorer-dashboard.png",
+  "screenshotReviewed": true,
+  "limits": [
+    "Owned fixture and explicit mock providers only; no real-site completeness claim.",
+    "Concurrent suite/protocol runs mean elapsed command durations are audit data, not performance measurements."
+  ],
+  "visualReview": "Dashboard displays completed two-control fixture, actual 2 actions, JEV/LLM split, retained pending/discovery limitations; no clipping or blank UI observed."
+}

@@ -1,0 +1,18 @@
+{
+  "baseline": {
+    "revision": "5696125",
+    "sourceRoot": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-qj42tfyd",
+    "cleanup": "Remove only this generated archive when finished."
+  },
+  "command": [
+    "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+    "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-qj42tfyd/node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/evidence-collection.test.ts",
+    "-t",
+    "does not collect a second"
+  ],
+  "exitCode": 1,
+  "testSha256": "7d19b89c1983c3301b118415c70e2a241ed44af2af6c36818facb268a3f58d50",
+  "expectation": "Baseline fails because published manifest references a blob removed by overlapping GC; both operations settled before cleanup. No production data involved."
+}

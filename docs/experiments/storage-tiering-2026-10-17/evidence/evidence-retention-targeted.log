@@ -1,0 +1,23 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/storage-evidence-chunking.test.ts (8 tests) 4176ms
+   ✓ shares text blocks after changing-length insertion and reconstructs exact separate A/B occurrences after restart  1608ms
+   ✓ reads legacy raw, v2 compressed and v3 fixed blocks alongside new captures  1890ms
+   ✓ rechecks packing-cache file existence after collection and keeps binary/empty content byte exact  595ms
+ ✓ tests/evidence-collection.test.ts (9 tests) 430ms
+ ✓ tests/retention.test.ts (8 tests) 262ms
+stdout | tests/retention-accounting.test.ts > keeps warm artifact writes independent of 100 retained observations
+{"retentionWarmPut":{"history":100,"gets":5,"lists":0}}
+
+stdout | tests/retention-accounting.test.ts > keeps warm artifact writes independent of 1000 retained observations
+{"retentionWarmPut":{"history":1000,"gets":5,"lists":0}}
+
+ ✓ tests/retention-accounting.test.ts (16 tests) 264ms
+ ✓ tests/entity-changes.test.ts (16 tests) 160ms
+
+ Test Files  5 passed (5)
+      Tests  57 passed (57)
+   Start at  03:37:58
+   Duration  6.44s (transform 195ms, setup 0ms, collect 509ms, tests 5.29s, environment 0ms, prepare 162ms)
+

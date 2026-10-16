@@ -1,0 +1,228 @@
+{
+  "sourceRoot": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/explorer-store-baseline-sti_9uy0",
+  "sourceHashes": {
+    "packages/explorer-plugin/src/store.ts": "7fbc85607f66a1799b201697062cf36838fb855e44ce7273027bc1e0bcec5481",
+    "packages/explorer-plugin/src/task-codec.ts": null
+  },
+  "benchmarkHash": "e1bb418b079f8ded3ffc7ed2db180420ae8e4b36e3262d174137e6de97ec02da",
+  "mode": "delta",
+  "count": 5000,
+  "activeCount": 5000,
+  "iterations": 80,
+  "reads": 100,
+  "header": "small",
+  "headerBytes": 395,
+  "fixtureHash": "646637add7e9794931e1545af06d8763f006c7749ef9bb4c2953f436c66aa022",
+  "finalHash": "cacdb79084e3dcc1328d82248f3dfda9aba7080a3c06f34b608d731ab54057d4",
+  "node": "v24.22.0",
+  "initialWrite": {
+    "count": 1,
+    "totalMs": 59.808833,
+    "medianMs": 59.808833,
+    "p95Ms": 59.808833,
+    "maxMs": 59.808833,
+    "cpuMs": 63.783,
+    "memory": {
+      "beforeHeap": 12459784,
+      "beforeRss": 85704704,
+      "peakHeap": 16581072,
+      "peakRss": 106725376
+    }
+  },
+  "firstFullRead": {
+    "count": 1,
+    "totalMs": 20.154708,
+    "medianMs": 20.154708,
+    "p95Ms": 20.154708,
+    "maxMs": 20.154708,
+    "cpuMs": 36.453,
+    "memory": {
+      "beforeHeap": 16904624,
+      "beforeRss": 106758144,
+      "peakHeap": 23428576,
+      "peakRss": 116604928
+    }
+  },
+  "saves": {
+    "count": 80,
+    "totalMs": 10.06987600000005,
+    "medianMs": 0.109375,
+    "p95Ms": 0.16591700000000742,
+    "maxMs": 1.0767920000000117,
+    "cpuMs": 11.45,
+    "memory": {
+      "beforeHeap": 28474144,
+      "beforeRss": 141033472,
+      "peakHeap": 29636968,
+      "peakRss": 143179776
+    }
+  },
+  "headerOnlyWrites": {
+    "count": 20,
+    "totalMs": 0.8042910000000631,
+    "medianMs": 0.03745800000001509,
+    "p95Ms": 0.0681250000000091,
+    "maxMs": 0.0681250000000091,
+    "cpuMs": 0.939,
+    "memory": {
+      "beforeHeap": 29661880,
+      "beforeRss": 143179776,
+      "peakHeap": 29828744,
+      "peakRss": 143327232
+    }
+  },
+  "activeReads": {
+    "count": 100,
+    "totalMs": 8.546582000000114,
+    "medianMs": 0.0821250000000191,
+    "p95Ms": 0.10329200000001038,
+    "maxMs": 0.19008300000001555,
+    "cpuMs": 10.069,
+    "memory": {
+      "beforeHeap": 29833888,
+      "beforeRss": 143327232,
+      "peakHeap": 32744592,
+      "peakRss": 144474112
+    }
+  },
+  "headerReads": {
+    "count": 100,
+    "totalMs": 1.0482540000000142,
+    "medianMs": 0.009041999999993777,
+    "p95Ms": 0.013834000000002789,
+    "maxMs": 0.05995800000002305,
+    "cpuMs": 1.389,
+    "memory": {
+      "beforeHeap": 32761840,
+      "beforeRss": 144474112,
+      "peakHeap": 32974744,
+      "peakRss": 144883712
+    }
+  },
+  "ownerReads": {
+    "count": 100,
+    "totalMs": 1.7255440000001272,
+    "medianMs": 0.015500000000002956,
+    "p95Ms": 0.021332999999998492,
+    "maxMs": 0.08437499999999432,
+    "cpuMs": 2.057,
+    "memory": {
+      "beforeHeap": 32991496,
+      "beforeRss": 144900096,
+      "peakHeap": 33264144,
+      "peakRss": 145342464
+    }
+  },
+  "fullReads": {
+    "count": 60,
+    "totalMs": 927.8097049999999,
+    "medianMs": 14.880167000000029,
+    "p95Ms": 18.724124999999987,
+    "maxMs": 18.89162500000009,
+    "cpuMs": 957.911,
+    "memory": {
+      "beforeHeap": 33223144,
+      "beforeRss": 145342464,
+      "peakHeap": 83172304,
+      "peakRss": 258949120
+    }
+  },
+  "checkoutReads": {
+    "count": 30,
+    "totalMs": 534.2567059999994,
+    "medianMs": 17.068457999999964,
+    "p95Ms": 20.3940419999999,
+    "maxMs": 21.353958999999804,
+    "cpuMs": 547.224,
+    "memory": {
+      "beforeHeap": 71453848,
+      "beforeRss": 258949120,
+      "peakHeap": 88874112,
+      "peakRss": 260079616
+    }
+  },
+  "reopenMs": 0.570084000000179,
+  "restartFirstRead": {
+    "count": 1,
+    "totalMs": 18.79170799999997,
+    "medianMs": 18.79170799999997,
+    "p95Ms": 18.79170799999997,
+    "maxMs": 18.79170799999997,
+    "cpuMs": 21.784,
+    "memory": {
+      "beforeHeap": 91070856,
+      "beforeRss": 262963200,
+      "peakHeap": 91070856,
+      "peakRss": 263012352
+    }
+  },
+  "activeQueryPlan": {
+    "sql": "SELECT kind,position,json,content_hash,occurrence_id FROM task_items INDEXED BY task_active_items WHERE task_id=? AND kind=? AND position>? AND json_extract(json,'$.status') IN (?,?,?) AND kind='plan' AND json_extract(json,'$.status') IN ('pending','unresolved','blocked') AND json_extract(json,'$.required')=? ORDER BY position LIMIT ?",
+    "plan": [
+      {
+        "id": 10,
+        "parent": 0,
+        "notused": 50,
+        "detail": "SEARCH task_items USING INDEX task_active_items (task_id=? AND position>?)"
+      }
+    ]
+  },
+  "coldQueryPlan": null,
+  "initialBytes": {
+    "database": 4628480,
+    "wal": 0,
+    "sharedMemory": 32768,
+    "total": 4661248
+  },
+  "afterWrites": {
+    "database": 4628480,
+    "wal": 1648032,
+    "sharedMemory": 32768,
+    "total": 6309280
+  },
+  "closedBytes": {
+    "database": 4628480,
+    "wal": 0,
+    "sharedMemory": 0,
+    "total": 4628480
+  },
+  "maintenance": {
+    "timing": {
+      "count": 1,
+      "totalMs": 11.311083000000053,
+      "medianMs": 11.311083000000053,
+      "p95Ms": 11.311083000000053,
+      "maxMs": 11.311083000000053,
+      "cpuMs": 9.164,
+      "memory": {
+        "beforeHeap": 76443736,
+        "beforeRss": 274939904,
+        "peakHeap": 76446440,
+        "peakRss": 277757952
+      }
+    },
+    "beforeBytes": {
+      "database": 4628480,
+      "wal": 3613272,
+      "sharedMemory": 32768,
+      "total": 8274520
+    },
+    "afterBytes": {
+      "database": 2330624,
+      "wal": 0,
+      "sharedMemory": 32768,
+      "total": 2363392
+    },
+    "cleanup": {
+      "baseline": "VACUUM only; v3 has no compressed blocks"
+    },
+    "finalHash": "d67d0e59d8df065aa7a5539e5d78b9f3066d8eefe8509fc167ca5783c08e487f"
+  },
+  "processPeakRss": 279199744,
+  "walPolicy": {
+    "autocheckpointPages": 1000,
+    "initialCheckpoint": true,
+    "finalCloseCheckpointsWal": true
+  },
+  "scope": "Persistence microbenchmark, not end-to-end exploration. Full reads/checkout verify all records. Header serialized once in both variants; v4 additionally compresses large headers. Full-read samples include JS allocation but timing excludes memory snapshots; RSS is process-level high-water, not isolated read memory. Initial/steady/closed files precede explicit maintenance and have no VACUUM. Maintenance removes half the occurrences in both variants, verifies exact state/handles, then v4 repacks+collects+VACUUM while v3 VACUUMs only."
+}

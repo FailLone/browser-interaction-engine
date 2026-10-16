@@ -1,0 +1,5 @@
+{
+  "archive": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-qj42tfyd",
+  "removed": true,
+  "scope": "Only root-owned temporary baseline archive; committed source is reproducible with prepare-baseline.py."
+}

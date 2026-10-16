@@ -1,0 +1,78 @@
+{
+  "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "sourceHash": "8101786d11612038cfd52a2bc2005eb1892202b180328f63621ae208d3694413",
+  "benchmarkHash": "29cd1ed93f29a686147d25a70ca7bf0ccd7381ea1619abc5e8e70a4a64d6a95a",
+  "mode": "delta",
+  "count": 5000,
+  "iterations": 80,
+  "reads": 100,
+  "header": "large",
+  "headerBytes": 1191215,
+  "fixtureHash": "e0adade2250261fcc4168051a91386993d880302bf4b7b7078b0ad1cdc3e23e1",
+  "finalHash": "2a43046d580f85294653a499de322c9e5d18b55cae9b5a4e61be9bbc14b5359a",
+  "node": "v24.22.0",
+  "saves": {
+    "count": 80,
+    "totalMs": 899.6512070000002,
+    "medianMs": 11.089833999999996,
+    "p95Ms": 13.817000000000007,
+    "maxMs": 15.451291999999967,
+    "cpuMs": 996.186
+  },
+  "activeReads": {
+    "count": 100,
+    "totalMs": 7.678575000000819,
+    "medianMs": 0.06962499999985994,
+    "p95Ms": 0.10620799999992414,
+    "maxMs": 0.2207090000001699,
+    "cpuMs": 11.434
+  },
+  "headerReads": {
+    "count": 100,
+    "totalMs": 647.7789959999991,
+    "medianMs": 6.26929199999995,
+    "p95Ms": 9.092833999999812,
+    "maxMs": 11.728583000000071,
+    "cpuMs": 753.735
+  },
+  "ownerReads": {
+    "count": 100,
+    "totalMs": 1.1279199999996763,
+    "medianMs": 0.007458000000042375,
+    "p95Ms": 0.020375000000058208,
+    "maxMs": 0.21404099999995196,
+    "cpuMs": 1.315
+  },
+  "fullReads": {
+    "count": 20,
+    "totalMs": 570.4594989999994,
+    "medianMs": 28.41320900000028,
+    "p95Ms": 33.80791700000009,
+    "maxMs": 33.80791700000009,
+    "cpuMs": 631.103
+  },
+  "initialBytes": {
+    "database": 5021696,
+    "wal": 0,
+    "sharedMemory": 32768,
+    "total": 5054464
+  },
+  "afterWrites": {
+    "database": 5074944,
+    "wal": 4198312,
+    "sharedMemory": 32768,
+    "total": 9306024
+  },
+  "closedBytes": {
+    "database": 5074944,
+    "wal": 0,
+    "sharedMemory": 0,
+    "total": 5074944
+  },
+  "walPolicy": {
+    "autocheckpointPages": 1000,
+    "initialCheckpoint": true,
+    "finalCloseCheckpointsWal": true
+  },
+  "scope": "persistence microbenchmark, not end-to-end exploration; header still serialized in full; active query is not a full-history integrity audit; no VACUUM"
+}

@@ -1,0 +1,73 @@
+{
+  "recordedAt": "2026-10-16T20:12:34.918057+00:00",
+  "workspace": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "baselineCommit": "70b8cb4",
+  "node": "v24.22.0",
+  "sourceFrozen": true,
+  "source": {
+    "scripts/okx-storage-acceptance.ts": {
+      "sha256": "66e8bc7e45d541eca76676a35748a29aa18af8eab8e6c278d4b37c1dc93e142f",
+      "baselineSha256": "9a1c4ea18379598e9f8d4d97122d4ab73674691b054d50f35b8bb150ea413d7f",
+      "matchesValidatedCommit": true
+    },
+    "tests/okx-storage-acceptance.test.ts": {
+      "sha256": "5f1aa73fc4eaf524e4761f9f78deb6d5ce903cd18085e23db7871e3d49d8fa0d",
+      "baselineSha256": "f30aee6b16f4392191ccfe0e27f1251430cebb0c8e2ebf45fddbafed9f5203e5",
+      "matchesValidatedCommit": true
+    }
+  },
+  "validation": {
+    "tests": {
+      "command": "pnpm exec vitest run tests/okx-storage-acceptance.test.ts",
+      "exitCode": 0,
+      "filesPassed": 1,
+      "testsPassed": 19,
+      "log": "tests-final.log"
+    },
+    "typecheck": {
+      "command": "pnpm typecheck",
+      "checks": [
+        "tsc --noEmit",
+        "tsc -p packages/core/tsconfig.json"
+      ],
+      "exitCode": 0,
+      "log": "typecheck-final.log"
+    },
+    "diffCheck": {
+      "command": "git diff --check -- scripts/okx-storage-acceptance.ts tests/okx-storage-acceptance.test.ts",
+      "exitCode": 0
+    },
+    "priorFullSuite": {
+      "reportedBy": "root",
+      "filesPassed": 171,
+      "testsPassed": 1727,
+      "harnessSuiteFailedBeforeCollection": true,
+      "originalFiveHelpersActuallyExecuted": false,
+      "reason": "Bare runtime better-sqlite3 import was not declared at workspace root and failed module resolution."
+    },
+    "localRepairAttempts": {
+      "tests-initial.log": "import.meta.resolve is unsupported by Vitest SSR; replaced by createRequire anchored at the declared storage-sqlite package. No tests ran in that attempt.",
+      "typecheck-initial.log": "Three local type errors were fixed; final root/core typecheck passes."
+    },
+    "environment": "Ran against the real worktree and its existing dependency layout; no temporary dependency symlink, package.json or lockfile change.",
+    "externalActivity": "No browser, live provider, real site or real database was started or modified by these checks."
+  },
+  "budgetEnforcement": {
+    "modelRequests": "Hard actual provider.decide entry allowance. SDK task usage may include a reservation rejected before the provider call.",
+    "rounds": "Hard new createSession entry allowance; existing resumed session does not consume a new slot; failed creation consumes a slot.",
+    "actions": "Soft threshold of distinct SDK action.started IDs, reconciled to final new attempts. In-flight recovery may exceed it. No SDK hook, public execute/probe rejection or old-session budget mutation added.",
+    "durationMs": "Provider/session calls check the deadline; timer requests pause. In-flight SDK work settles and may overrun. Summary reports actual overshoot.",
+    "cancellation": "New recovery API calls reject when stopping is already set. A recovery already inside SDK internals settles intact; no internal-attempt immediate-stop claim."
+  },
+  "metricLimits": [
+    "browserOperationKey plus arrival conditions is a candidate hint, not semantic uniqueness, equivalent identity or coverage proof; shared-name/identifier collisions remain possible.",
+    "Missing source targets, unresolved identity or missing conditions produce unkeyed successful attempts and conservatively defer progress/repeated-route guards while those successes remain valid.",
+    "Live executing attempts are disclosed separately; preexisting or settled executing attempts still block acceptance.",
+    "Latest attempt status replaces event-counting; final reconciliation retracts successes that became unknown and recalculates candidate progress.",
+    "Plan resolution deltas include persisted occurrence handles so duplicate business IDs remain independent.",
+    "Provider usage is parsed-answer usage, not billing reconciliation. Shutdown waits up to 5 seconds for underlying calls and explicitly lists any remaining request IDs.",
+    "Diagnostic writes never throw through SDK callbacks; resource cleanup proceeds independently after individual failures. A full disk may prevent the summary file itself, so console failure and exit status remain necessary."
+  ],
+  "patch": "/tmp/okx-acceptance-review-70b8cb4.z8pRqr/harness-review.patch",
+  "validatedSourceCommit": "2ff9e4bd064d6ff6b6eef73acbed9da763d78857"
+}

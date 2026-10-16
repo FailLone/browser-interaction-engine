@@ -1,0 +1,373 @@
+{
+  "sourceRoot": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "sourceHashes": {
+    "packages/explorer-plugin/src/store.ts": "dd03aa9d1d9c7c878db17803805365d187f8addf3f9db3cb282966fba634b4f6",
+    "packages/explorer-plugin/src/task-codec.ts": "55db37c81424545296371d202eaa8d093e43c394a241b8f9aa0db8295dc6a873"
+  },
+  "benchmarkHash": "e1bb418b079f8ded3ffc7ed2db180420ae8e4b36e3262d174137e6de97ec02da",
+  "mode": "delta",
+  "count": 5000,
+  "activeCount": 10,
+  "iterations": 80,
+  "reads": 100,
+  "header": "large",
+  "headerBytes": 1191215,
+  "fixtureHash": "e0adade2250261fcc4168051a91386993d880302bf4b7b7078b0ad1cdc3e23e1",
+  "finalHash": "c445727de4da94dc95630711159c2503836c1f22a5c6ffe0d1a48fca54343f2a",
+  "node": "v24.22.0",
+  "initialWrite": {
+    "count": 1,
+    "totalMs": 110.90066700000001,
+    "medianMs": 110.90066700000001,
+    "p95Ms": 110.90066700000001,
+    "maxMs": 110.90066700000001,
+    "cpuMs": 208.987,
+    "memory": {
+      "beforeHeap": 19292408,
+      "beforeRss": 97878016,
+      "peakHeap": 41469056,
+      "peakRss": 146849792
+    }
+  },
+  "firstFullRead": {
+    "count": 1,
+    "totalMs": 20.688625000000002,
+    "medianMs": 20.688625000000002,
+    "p95Ms": 20.688625000000002,
+    "maxMs": 20.688625000000002,
+    "cpuMs": 28.092,
+    "memory": {
+      "beforeHeap": 41493000,
+      "beforeRss": 146882560,
+      "peakHeap": 41493000,
+      "peakRss": 148291584
+    }
+  },
+  "saves": {
+    "count": 80,
+    "totalMs": 206.56067099999999,
+    "medianMs": 2.502999999999986,
+    "p95Ms": 2.874583000000001,
+    "maxMs": 4.22583400000002,
+    "cpuMs": 220.53,
+    "memory": {
+      "beforeHeap": 55529016,
+      "beforeRss": 167493632,
+      "peakHeap": 89640104,
+      "peakRss": 249233408
+    }
+  },
+  "headerOnlyWrites": {
+    "count": 20,
+    "totalMs": 49.292914999999766,
+    "medianMs": 2.4355830000000083,
+    "p95Ms": 3.0884169999999926,
+    "maxMs": 3.0884169999999926,
+    "cpuMs": 49.927,
+    "memory": {
+      "beforeHeap": 64704264,
+      "beforeRss": 249233408,
+      "peakHeap": 69536176,
+      "peakRss": 254017536
+    }
+  },
+  "activeReads": {
+    "count": 100,
+    "totalMs": 9.947128000000248,
+    "medianMs": 0.09529100000003154,
+    "p95Ms": 0.11754200000001447,
+    "maxMs": 0.31087500000001,
+    "cpuMs": 11.247,
+    "memory": {
+      "beforeHeap": 54857120,
+      "beforeRss": 239828992,
+      "peakHeap": 58485816,
+      "peakRss": 242679808
+    }
+  },
+  "headerReads": {
+    "count": 100,
+    "totalMs": 299.78091800000044,
+    "medianMs": 2.824707999999987,
+    "p95Ms": 4.333041999999978,
+    "maxMs": 5.285290999999916,
+    "cpuMs": 405.409,
+    "memory": {
+      "beforeHeap": 58503160,
+      "beforeRss": 242679808,
+      "peakHeap": 72895664,
+      "peakRss": 270270464
+    }
+  },
+  "ownerReads": {
+    "count": 100,
+    "totalMs": 2.9994560000003503,
+    "medianMs": 0.02629100000001472,
+    "p95Ms": 0.033625000000029104,
+    "maxMs": 0.285541999999964,
+    "cpuMs": 3.384,
+    "memory": {
+      "beforeHeap": 41625624,
+      "beforeRss": 270270464,
+      "peakHeap": 42498864,
+      "peakRss": 270303232
+    }
+  },
+  "fullReads": {
+    "count": 60,
+    "totalMs": 980.3173740000005,
+    "medianMs": 15.78287499999999,
+    "p95Ms": 20.04316599999993,
+    "maxMs": 21.337583999999993,
+    "cpuMs": 1106.574,
+    "memory": {
+      "beforeHeap": 42516144,
+      "beforeRss": 270303232,
+      "peakHeap": 90208976,
+      "peakRss": 343670784
+    }
+  },
+  "checkoutReads": {
+    "count": 30,
+    "totalMs": 482.1987930000005,
+    "medianMs": 15.78666700000008,
+    "p95Ms": 16.702084000000013,
+    "maxMs": 20.92895899999985,
+    "cpuMs": 510.802,
+    "memory": {
+      "beforeHeap": 39032704,
+      "beforeRss": 343179264,
+      "peakHeap": 90196632,
+      "peakRss": 343752704
+    }
+  },
+  "reopenMs": 0.9304999999999382,
+  "restartFirstRead": {
+    "count": 1,
+    "totalMs": 15.861875000000055,
+    "medianMs": 15.861875000000055,
+    "p95Ms": 15.861875000000055,
+    "maxMs": 15.861875000000055,
+    "cpuMs": 15.901,
+    "memory": {
+      "beforeHeap": 73540768,
+      "beforeRss": 347537408,
+      "peakHeap": 89676752,
+      "peakRss": 347717632
+    }
+  },
+  "activeQueryPlan": {
+    "sql": "SELECT * FROM task_items INDEXED BY task_active_items WHERE task_id=? AND kind=? AND position>? AND status IN (?,?,?) AND kind='plan' AND status IN ('pending','unresolved','blocked') AND required=? ORDER BY position LIMIT ?",
+    "plan": [
+      {
+        "id": 10,
+        "parent": 0,
+        "notused": 49,
+        "detail": "SEARCH task_items USING INDEX task_active_items (task_id=? AND position>?)"
+      }
+    ]
+  },
+  "coldQueryPlan": [
+    {
+      "id": 4,
+      "parent": 0,
+      "notused": 62,
+      "detail": "SEARCH task_items USING INDEX task_cold_items (task_id=?)"
+    }
+  ],
+  "initialBytes": {
+    "database": 1486848,
+    "wal": 0,
+    "sharedMemory": 32768,
+    "total": 1519616
+  },
+  "afterWrites": {
+    "database": 1486848,
+    "wal": 3283672,
+    "sharedMemory": 32768,
+    "total": 4803288
+  },
+  "closedBytes": {
+    "database": 1503232,
+    "wal": 0,
+    "sharedMemory": 0,
+    "total": 1503232
+  },
+  "maintenance": {
+    "timing": {
+      "count": 1,
+      "totalMs": 118.60070799999994,
+      "medianMs": 118.60070799999994,
+      "p95Ms": 118.60070799999994,
+      "maxMs": 118.60070799999994,
+      "cpuMs": 153.127,
+      "memory": {
+        "beforeHeap": 70386704,
+        "beforeRss": 364675072,
+        "peakHeap": 86283504,
+        "peakRss": 364675072
+      }
+    },
+    "beforeBytes": {
+      "database": 1503232,
+      "wal": 1149512,
+      "sharedMemory": 32768,
+      "total": 2685512
+    },
+    "afterBytes": {
+      "database": 782336,
+      "wal": 0,
+      "sharedMemory": 32768,
+      "total": 815104
+    },
+    "cleanup": {
+      "before": {
+        "occurrences": 2501,
+        "chunks": 20,
+        "hotItems": 11,
+        "archivedItems": 2490,
+        "compressedBytes": 247048
+      },
+      "after": {
+        "occurrences": 2501,
+        "chunks": 10,
+        "hotItems": 11,
+        "archivedItems": 2490,
+        "compressedBytes": 123295
+      },
+      "removed": [
+        {
+          "id": 1,
+          "content_hash": "2256f33dc871eea6bd94383c2a10c75f61985d672345800f8ecaf46322621dd9",
+          "raw_size": 59099,
+          "storedBytes": 12809
+        },
+        {
+          "id": 2,
+          "content_hash": "be30a009408d0c767246f4aaca8808d5835950d5db17c600e968fdf586a9fa21",
+          "raw_size": 59649,
+          "storedBytes": 12541
+        },
+        {
+          "id": 3,
+          "content_hash": "8f668bb861240e36eb35ddb308c130718122e19c80a2ca3cd81e6b1c53226e45",
+          "raw_size": 59649,
+          "storedBytes": 12488
+        },
+        {
+          "id": 4,
+          "content_hash": "e5d920f0ee44df81c3f859060d54de25c4a725e0b91495473d6f9964522feed7",
+          "raw_size": 59769,
+          "storedBytes": 12655
+        },
+        {
+          "id": 5,
+          "content_hash": "14f264f56d2b5e0c8393877367d872cdf139efabd486c6d3143302dd79443d5c",
+          "raw_size": 60929,
+          "storedBytes": 12626
+        },
+        {
+          "id": 6,
+          "content_hash": "cb02dd2e983de20133c3a09b6f9096f23cb009fdfa2ddee7e4403bb7e74c3cd0",
+          "raw_size": 60929,
+          "storedBytes": 12669
+        },
+        {
+          "id": 7,
+          "content_hash": "df9b396261b53ef8543514c940e16914e846efaa3c1cff55311431df8585efef",
+          "raw_size": 60929,
+          "storedBytes": 12749
+        },
+        {
+          "id": 8,
+          "content_hash": "e882020726038c5b457695da75e39460c77b34cdeb2bd6e75df5bd5bd1d9adb4",
+          "raw_size": 60929,
+          "storedBytes": 12696
+        },
+        {
+          "id": 9,
+          "content_hash": "b0d82883d12862bc292700dfbcae1b42a1b3a5ac78b45d8e27a414a0dd7b1829",
+          "raw_size": 60929,
+          "storedBytes": 12534
+        },
+        {
+          "id": 10,
+          "content_hash": "1c4597107d46b6eaf9236d1564a4d9ae9d1881fd6a98ab7e75046185dca7a671",
+          "raw_size": 60929,
+          "storedBytes": 12622
+        },
+        {
+          "id": 11,
+          "content_hash": "9d27a8e6f043ff93e0a7906e527837175e840eb0adb7cccd8c0de2c5459604ce",
+          "raw_size": 60929,
+          "storedBytes": 12591
+        },
+        {
+          "id": 12,
+          "content_hash": "46b252632b48b6f447ef17af80307923e9818a64f847ef578f7d38f8b1b3e474",
+          "raw_size": 60929,
+          "storedBytes": 12793
+        },
+        {
+          "id": 13,
+          "content_hash": "5067b345366a9f8103989353f7bf7c734e1a33efda6212ad9ff828114fe35fd4",
+          "raw_size": 60929,
+          "storedBytes": 12706
+        },
+        {
+          "id": 14,
+          "content_hash": "2bf3923ef300d0f573437721e4b81c2d088ffc448f6cb26f045b0a2246779511",
+          "raw_size": 60929,
+          "storedBytes": 12599
+        },
+        {
+          "id": 15,
+          "content_hash": "07f40838f7668f15a0f0bfbae7f21212bfc836ddbc13dd2bce16db5291f33309",
+          "raw_size": 60929,
+          "storedBytes": 12609
+        },
+        {
+          "id": 16,
+          "content_hash": "3468ef80b3f646047f746d462e7d26a47d85e25e2b0d3c9748c4ef57e5f21a2b",
+          "raw_size": 60929,
+          "storedBytes": 12859
+        },
+        {
+          "id": 17,
+          "content_hash": "66028da61843d0614b6b923ff5a0ed0cb5c961ab80b59c13e0bfd54a77a87722",
+          "raw_size": 60929,
+          "storedBytes": 12591
+        },
+        {
+          "id": 18,
+          "content_hash": "567e11a89214db95e8cdf56512bd35ee3a390d11ca203c22478c51a96c64d111",
+          "raw_size": 60929,
+          "storedBytes": 12626
+        },
+        {
+          "id": 19,
+          "content_hash": "da7cc4f9a7535e9eb36f2f4c9c2305e8ac366418668ab8310c3b53994e4a8622",
+          "raw_size": 60929,
+          "storedBytes": 12761
+        },
+        {
+          "id": 20,
+          "content_hash": "4249e83cf6ec52165a83d023325c81bd1dcf5d186159042cf604dddace355768",
+          "raw_size": 30119,
+          "storedBytes": 6524
+        }
+      ],
+      "reclaimed": true,
+      "pageCount": 191,
+      "freePages": 0
+    },
+    "finalHash": "0f3b1af6a8446b9495583c7dadcbd44f159e18cbe7f7dedd3bdcfb8aba4a940f"
+  },
+  "processPeakRss": 378208256,
+  "walPolicy": {
+    "autocheckpointPages": 1000,
+    "initialCheckpoint": true,
+    "finalCloseCheckpointsWal": true
+  },
+  "scope": "Persistence microbenchmark, not end-to-end exploration. Full reads/checkout verify all records. Header serialized once in both variants; v4 additionally compresses large headers. Full-read samples include JS allocation but timing excludes memory snapshots; RSS is process-level high-water, not isolated read memory. Initial/steady/closed files precede explicit maintenance and have no VACUUM. Maintenance removes half the occurrences in both variants, verifies exact state/handles, then v4 repacks+collects+VACUUM while v3 VACUUMs only."
+}
