@@ -45,9 +45,11 @@ type DOMSnapshot = {
   ownerDependencies?: Observation['ownerDependencies'];
   scroll: Observation['scroll']; scrollContainers?: Observation['scrollContainers']; gaps: Gap[]; detailDom?: DomEvidence;
 };
+type OwnerDependencyCollector = (controls: Control[], elements: Element[], instance: (el: Element) => string,
+  documentId: string, priorityLocalIds: string[]) => Observation['ownerDependencies'];
 
 // Runs in the page without framework knowledge or DOM mutation.
-function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, scrollCollector: typeof collectScrollContainers, exitCollector: typeof collectBoundaryExits, ownerCollector: typeof collectOwnerDependencies | undefined, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan) {
+function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, scrollCollector: typeof collectScrollContainers, exitCollector: typeof collectBoundaryExits, ownerCollector: OwnerDependencyCollector | undefined, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
@@ -449,7 +451,12 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   const scrollSurfaces = scrollCollector(layers.overlays);
   if (scrollSurfaces.truncated) gaps.push({ code: 'SCROLL_CONTAINERS_TRUNCATED', message: 'Scroll container inventory was truncated' });
   if (scrollSurfaces.unsupported) gaps.push({ code: 'SCROLL_WRITING_MODE_UNSUPPORTED', message: 'Scroll traversal supports horizontal-tb, ltr containers' });
-  const ownerDependencies = ownerCollector?.(controls, all.slice(0, 1500), instance, tracker.documentId);
+  // Prioritize every member of the observed exclusive interaction boundary,
+  // including ordinary buttons. This only allocates evidence: global selectors
+  // and native inputs remain required, and no coverage/identity is inferred.
+  const active = layers.overlays.at(-1);
+  const priorityLocalIds = active && active.key === layers.boundaries.at(-1)?.key ? [...new Set([...active.exitControlIds, ...active.controlIds])] : [];
+  const ownerDependencies = ownerCollector?.(controls, all.slice(0, 1500), instance, tracker.documentId, priorityLocalIds);
   if (ownerDependencies && all.length !== controls.length) { ownerDependencies.inventoryComplete = false; ownerDependencies.complete = false; ownerDependencies.reasons.push('control_inventory_truncated'); }
   return { ...(ownerDependencies ? { ownerDependencies } : {}), scrollContainers: scrollSurfaces.containers, documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, components, ...layers, boundaryExitCandidates: exitCollector(layers.overlays, instance, selector), discoveryScan, discoveryTopology, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
@@ -525,7 +532,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // inside the serialized closure so development and compiled execution agree.
     const args = `, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? discoverStructuralLists.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? describeStructuralLists.toString() : 'undefined'}, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}, ${this.discoveryPlan?.status === 'active' ? JSON.stringify(this.discoveryPlan) : 'undefined'}`;
     const ownerCollector = ownerDependencies && this.options.exploration === 'controls'
-      ? `(controls, elements, instance, documentId) => (${collectOwnerDependencies.toString()})(controls, elements, instance, documentId, undefined, (${createOwnerDependencyCodec.toString()}))`
+      ? `(controls, elements, instance, documentId, priorityLocalIds) => (${collectOwnerDependencies.toString()})(controls, elements, instance, documentId, undefined, (${createOwnerDependencyCodec.toString()}), priorityLocalIds)`
       : 'undefined';
     const source = `(() => { const __name = (fn) => fn; const dom = (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}, ${collectScrollContainers.toString()}, ${collectBoundaryExits.toString()}, ${ownerCollector}${args}); if (dom.ownerDependencies) dom.ownerDependencies = JSON.stringify(dom.ownerDependencies); return dom; })()`;
     // Preserve arbitrary legal HTML attribute keys across the automation protocol.

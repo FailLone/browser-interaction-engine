@@ -4,12 +4,12 @@ import type { createOwnerDependencyCodec } from './owner-dependency-codec.js';
 export function collectOwnerDependencies(controls: Control[], elements: Element[], instance: (el: Element) => string, documentId: string,
   limits?: OwnerDependencyLimits): OwnerDependencies;
 export function collectOwnerDependencies(controls: Control[], elements: Element[], instance: (el: Element) => string, documentId: string,
-  limits: OwnerDependencyLimits | undefined, codecFactory: typeof createOwnerDependencyCodec): OwnerDependencySnapshot;
+  limits: OwnerDependencyLimits | undefined, codecFactory: typeof createOwnerDependencyCodec, priorityLocalIds?: readonly string[]): OwnerDependencySnapshot;
 
 /** Runs within one collectDOM evaluation. Bounded observable evidence only;
  * neither a business dependency discovery algorithm nor an identity grant. */
 export function collectOwnerDependencies(controls: Control[], elements: Element[], instance: (el: Element) => string, documentId: string,
-  requestedLimits?: OwnerDependencyLimits, codecFactory?: typeof createOwnerDependencyCodec): OwnerDependencySnapshot {
+  requestedLimits?: OwnerDependencyLimits, codecFactory?: typeof createOwnerDependencyCodec, priorityLocalIds: readonly string[] = []): OwnerDependencySnapshot {
   const limits = requestedLimits ?? (codecFactory ? { nodes: 768, references: 64, bytes: 196608, depth: 16 }
     : { nodes: 512, references: 64, bytes: 131072, depth: 16 });
   const result: OwnerDependencies = { version: 'browser-owner-dependencies-v2', documentId, baseURI: document.baseURI,
@@ -227,9 +227,13 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
     // repeated request. An unretained closure is never a complete root grant.
     closures.set(owner, closure); return closure;
   };
-  const selectorIds = new Set(result.selectorIds);
+  const selectorIds = new Set(result.selectorIds), priorityIds = new Set(priorityLocalIds);
+  const priorityOrder = new Map([...priorityIds].map((localId, index) => [localId, index]));
   const required = (control: Control) => selectorIds.has(control.localId) || ['input', 'select', 'textarea'].includes(control.tag) || control.editable;
-  const requiredEntries = entries.filter(entry => required(entry.control)), optionalEntries = entries.filter(entry => !required(entry.control));
+  const requiredEntries = entries.filter(entry => required(entry.control));
+  const priorityEntries = entries.filter(entry => !required(entry.control) && priorityIds.has(entry.control.localId))
+    .sort((a, b) => priorityOrder.get(a.control.localId)! - priorityOrder.get(b.control.localId)!);
+  const optionalEntries = entries.filter(entry => !required(entry.control) && !priorityIds.has(entry.control.localId));
   const finishRoot = (root: OwnerDependencies['roots'][number] | NonNullable<OwnerDependencies['nativeRoots']>[number], closure: OwnerDependencyClosure, index: number, native: boolean) => {
     const captured = closure.nodeIds.includes(root.instanceId);
     const next = { ...root, complete: closure.complete && captured,
@@ -243,6 +247,9 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
   // consume the shared budget. Every closure still uses the same hard limits.
   for (const { owner, root, index } of nativeEntries) finishRoot(root, buildClosure(owner), index, true);
   for (const { owner, root, index } of requiredEntries) finishRoot(root, buildClosure(owner), index, false);
+  // New boundary priority cannot take capacity away from the original global
+  // prerequisites. Its explicit order lets observed exits precede large panels.
+  for (const { owner, root, index } of priorityEntries) finishRoot(root, buildClosure(owner), index, false);
   // The larger compact profile is reserved for required evidence. Optional
   // owners may use the ordinary 128 KiB allowance or the already-paid required
   // payload, never the extra headroom merely because it is available.

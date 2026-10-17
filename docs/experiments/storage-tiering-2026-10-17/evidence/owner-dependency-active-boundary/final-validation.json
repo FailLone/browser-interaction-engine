@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/owner-dependency-active-boundary.test.ts",
+    "-t",
+    "retains ordinary active-boundary targets"
+  ],
+  "exitCode": 0,
+  "started": 1792215160.9053361,
+  "finished": 1792215162.354644,
+  "history": [
+    "validation.json",
+    "retry-validation.json"
+  ],
+  "scope": "Prioritize all current observed exclusive-boundary members for new capture only; global selector/native dependencies and hard budgets unchanged. Does not solve arbitrary ordinary targets outside that boundary.",
+  "refinement": "Original global selector/native/editable roots first; observed active boundary priority second; capped optional last. Global selector fixture occurs after boundary in DOM.",
+  "resources": "One owned headless HTTPS fixture, every request fulfilled in memory, finally closed; no service/database/existing browser."
+}

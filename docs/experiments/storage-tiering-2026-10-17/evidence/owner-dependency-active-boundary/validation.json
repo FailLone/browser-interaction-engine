@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/owner-dependency-active-boundary.test.ts",
+    "-t",
+    "retains ordinary active-boundary targets"
+  ],
+  "exitCode": 1,
+  "started": 1792215084.411677,
+  "finished": 1792215085.745481,
+  "scope": "Prioritize all current observed exclusive-boundary members for new capture only; global selector/native dependencies and hard budgets unchanged. Does not solve arbitrary ordinary targets outside that boundary.",
+  "resources": "One owned headless about:blank fixture browser, closed in finally; no service, database or existing browser access."
+}

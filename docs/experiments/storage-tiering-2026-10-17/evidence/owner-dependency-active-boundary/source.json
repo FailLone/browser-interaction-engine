@@ -1,0 +1,9 @@
+{
+  "baseCommit": "8b9f6934988dd60cccbff74721d13003560317e2",
+  "files": {
+    "packages/adapter-playwright/src/browser.ts": "7bf23557999d1b2fc7ba2dc41f843d3c422d330a059cfd1186a2c6fdc60794fc",
+    "packages/adapter-playwright/src/owner-dependencies.ts": "5338605f730e4df6f4475b9c536994f3974e4a51bc451618ae1d676bc4d89d9a",
+    "tests/owner-dependency-active-boundary.test.ts": "19458365f29bc1d845c228dcbb46f7cf3d19ee2b08eac6d6f1d30546c63e19f7"
+  },
+  "scope": "Prioritize all current observed exclusive-boundary members for new capture only; global selector/native dependencies and hard budgets unchanged. Does not solve arbitrary ordinary targets outside that boundary."
+}
