@@ -1,0 +1,127 @@
+{
+  "productCommit": "bb7561ac53b863d7f655f5dcf72adc9046e31357",
+  "limitMs": 240000,
+  "elapsedMs": 29579.616458999997,
+  "deadline": false,
+  "closure": {
+    "status": "closed",
+    "elapsedMs": 39.34179199999926
+  },
+  "verdict": "targeted_recovery_passed",
+  "api": {
+    "name": "reachControlReviewTarget",
+    "calls": 1,
+    "elapsedMs": 29377.376833,
+    "status": "CURRENT_REVIEWABLE",
+    "reason": "Target arrival verification: CURRENT_REVIEWABLE",
+    "strategies": [
+      "verify_current"
+    ],
+    "sourceEquivalent": "equivalent",
+    "checks": [
+      {
+        "name": "unresolved-execution-outcomes",
+        "result": "pass"
+      },
+      {
+        "name": "clean-session",
+        "result": "pass"
+      },
+      {
+        "name": "known-declared-context",
+        "result": "pass"
+      },
+      {
+        "name": "current-review-material",
+        "result": "pass"
+      },
+      {
+        "name": "historical-review-source-conditions",
+        "result": "pass"
+      },
+      {
+        "name": "live-review-target-preflight",
+        "result": "pass"
+      }
+    ]
+  },
+  "localExit": {
+    "attempts": 0,
+    "attemptIds": [],
+    "attemptElapsedMs": 0,
+    "status": "not_triggered"
+  },
+  "localRecordedReplay": {
+    "attempts": 0,
+    "elapsedMs": 0
+  },
+  "wholePageReplay": {
+    "entryAttempts": 0,
+    "replayedAttempts": 0,
+    "entryElapsedMs": 0,
+    "replayElapsedMs": 0,
+    "status": "not_triggered"
+  },
+  "initialization": {
+    "driverStarts": 1,
+    "elapsedMs": 727.6348330000001,
+    "note": "Initial fresh browser attachment is not an entry replay attempt."
+  },
+  "arrivalPreflight": {
+    "calls": 1,
+    "elapsedMs": 701.7258750000001,
+    "results": [
+      "valid"
+    ]
+  },
+  "newCoverageGranted": false,
+  "modelCalls": 0,
+  "pluginTaskDatabaseOpened": false,
+  "calls": [
+    {
+      "id": 1,
+      "method": "start",
+      "startedMs": 215.536584,
+      "elapsedMs": 727.6348330000001,
+      "outcome": "returned"
+    },
+    {
+      "id": 2,
+      "method": "capture",
+      "startedMs": 945.135084,
+      "elapsedMs": 4123.330583000001,
+      "outcome": "returned"
+    },
+    {
+      "id": 3,
+      "method": "capture",
+      "startedMs": 17945.743917,
+      "elapsedMs": 3332.5656249999993,
+      "outcome": "returned"
+    },
+    {
+      "id": 4,
+      "method": "preflight",
+      "startedMs": 28747.970542,
+      "reviewTargetIds": [
+        "43132728-ac6b-4c8c-9358-f72dac68537e:1387"
+      ],
+      "elapsedMs": 701.7258750000001,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 5,
+      "method": "close",
+      "startedMs": 29540.304459,
+      "elapsedMs": 36.69895800000086,
+      "outcome": "returned"
+    }
+  ],
+  "limitations": [
+    "One fixed SDK recovery, not an autonomous plugin continuation or exhaustion test.",
+    "Untriggered local/whole-page paths remain unvalidated.",
+    "Driver timings overlap API/attempt timings; do not sum them.",
+    "Successful arrival grants neither operation execution nor historical coverage."
+  ]
+}
