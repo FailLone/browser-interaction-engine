@@ -1,4 +1,4 @@
-# Finite UI coverage contract (implementation in progress)
+# Finite UI coverage contract
 
 `finite-ui-v1` is an explicit caller-selected sampling policy persisted on sessions and observations. It is not the default for retained tasks. The old 217-row ledger, including all 164 remaining required rows, is retained unchanged in the source archive. `legacy-164.json` enumerates each outstanding row, reason, source, attempt and route. `legacy-condition-explanation.json` explains each resolvable source projection and the proposed finite key without granting historical completion or modifying the old task.
 

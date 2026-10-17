@@ -1,0 +1,2679 @@
+{
+  "accepted": false,
+  "reason": "strict_pending_child_reentry_not_established",
+  "taskId": "4286073e-83d1-4ca7-9faf-51c10a130144",
+  "taskStatus": "blocked",
+  "taskReason": "capability_or_unknown_outcome",
+  "elapsedMs": 165271,
+  "actions": 2,
+  "chains": [],
+  "coverage": {
+    "finite": {
+      "total": 180,
+      "verified": 0,
+      "remaining": 180
+    },
+    "observedCombinations": 2,
+    "unknownDependencies": [
+      "unobserved JavaScript dependencies",
+      "unobserved condition combinations",
+      "unbounded free-input values",
+      "unassessed business effects"
+    ],
+    "exhaustive": false
+  },
+  "remaining": [
+    {
+      "itemId": "efa3f409-a642-4efc-b167-ed8d210fa561",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc"
+      },
+      "status": "unresolved",
+      "reason": "program_exhaustive_root"
+    },
+    {
+      "itemId": "2bf686ab-328d-4351-a716-4ca3007f172f",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc"
+      },
+      "status": "unresolved",
+      "reason": "missing_capability:UNSUPPORTED_CANVAS"
+    },
+    {
+      "itemId": "ea07dc01-70d3-42a5-8fb2-524723bb5e48",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "div 容器"
+      },
+      "status": "unresolved",
+      "reason": "region_unresolved"
+    },
+    {
+      "itemId": "978811df-4d46-430b-824b-cd890b533027",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "dialog",
+        "label": "前往 OKX Wallet",
+        "role": "button",
+        "stableKey": "testid:okd-button",
+        "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176"
+      },
+      "status": "unresolved",
+      "reason": "operation_risk_unresolved"
+    },
+    {
+      "itemId": "8dd06ad7-936a-4cc9-afc2-09da5bd3d6fb",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "dialog",
+        "label": "7天内不再提示",
+        "role": "generic",
+        "stableKey": "explorer:context:v1:b0f6e040c47acba5ddacbeee7720d8440cee9e2a78a6e238d80a295008722db2",
+        "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176"
+      },
+      "status": "unresolved",
+      "reason": "operation_basis_unconfirmed"
+    },
+    {
+      "itemId": "2f152541-d767-4eb0-ae97-700da16da40d",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "dialog",
+        "label": "前往 OKX Wallet",
+        "role": "button",
+        "stableKey": "testid:okd-button",
+        "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176"
+      },
+      "status": "unresolved",
+      "reason": "probe_unresolved"
+    },
+    {
+      "itemId": "53fa8088-aa3c-4d75-bcd4-984cd6734930",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "dialog",
+        "label": "7天内不再提示",
+        "role": "generic",
+        "stableKey": "explorer:context:v1:b0f6e040c47acba5ddacbeee7720d8440cee9e2a78a6e238d80a295008722db2",
+        "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176"
+      },
+      "status": "unresolved",
+      "reason": "probe_unresolved"
+    },
+    {
+      "itemId": "483bce86-3454-4fc0-9eed-bba6e4b9fbde",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "dialog",
+        "label": "公告",
+        "role": "link",
+        "stableKey": "explorer:context:v1:513b29b073a63a0ebd727cacdba03e022e5823584dce670425b566ab2f2a336d",
+        "targetBinding": "browser-target-binding:v1:777c1eac73aec317a8be4f3a5824e9f0881b763b1e9c51bf39d920bae005c33d",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "656f2307-1e0d-442d-a4e1-ee745dd3fef9",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "dialog",
+        "label": "7天内不再提示",
+        "role": "checkbox",
+        "stableKey": "id:_r_1_",
+        "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176",
+        "kind": "check",
+        "value": true
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "6e71bffd-8e1c-40e7-87d7-000d5a558733",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "dialog",
+        "label": "前往 OKX Wallet",
+        "role": "button",
+        "stableKey": "testid:okd-button",
+        "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "interface_risk_required"
+    },
+    {
+      "itemId": "0922a651-f0c7-404c-8700-4a7cb38ea16d",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "今天 USD 兑 Bitcoin (BTC) 的汇率是多少？"
+      },
+      "status": "unresolved",
+      "reason": "region_unresolved"
+    },
+    {
+      "itemId": "26711cb7-f823-46f8-b4e6-b62a9661660b",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "跳转至主要内容",
+        "role": "button",
+        "stableKey": "explorer:context:v1:0e0cd21543a6bfae179522747deedbb0e674ecb749a752d18d5edc35219e6c94",
+        "targetBinding": "browser-target-binding:v1:1f6721da853e3cedee14e4ee7abba91b2c975d2062569d6c6cc7adb1acf33877",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "outside_scrollable_area"
+    },
+    {
+      "itemId": "3679b93c-081d-4313-baba-b7e6f59ce41d",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "欧易标志，访问首页",
+        "role": "link",
+        "stableKey": "explorer:context:v1:1e9fbee5831af3beb5c36aa028bcf30c1b69d68b2fe2a3650081ee9037463372",
+        "targetBinding": "browser-target-binding:v1:046e1fba85c91d17de5a657ea7344f149902240f6c2081e6be0e63e3cfdb5a7b",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "e2b94dbf-4408-4edc-94cb-950cf1c46e39",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "主导航菜单",
+        "label": "市场",
+        "role": "link",
+        "stableKey": "explorer:context:v1:5fbdb477aa79243ef75eb2e6497df4c9c6d87893fd7492c0ea743b4e9395614f",
+        "targetBinding": "browser-target-binding:v1:f314c15b8928913be0791f8cb8eccbcb6d0d378b8a587bde7441126cf011a76d",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "349dd3e0-45e6-476f-85cc-6749736611a3",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "主导航菜单",
+        "label": "交易",
+        "role": "button",
+        "stableKey": "id:title-nav-trade",
+        "targetBinding": "browser-target-binding:v1:6f51e07783a07f64d3b8858f98fa66f7afa7f4a9aded177b1873eb7d263be9dd",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "a3d9539d-6f19-4579-9e9c-0e198cc8ec73",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "主导航菜单",
+        "label": "机构客户",
+        "role": "button",
+        "stableKey": "id:title-nav-institutions",
+        "targetBinding": "browser-target-binding:v1:6f51e07783a07f64d3b8858f98fa66f7afa7f4a9aded177b1873eb7d263be9dd",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "ad3f16e8-3ef8-4d24-af03-e5d6c624c1ba",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "主导航菜单",
+        "label": "新手学院",
+        "role": "button",
+        "stableKey": "explorer:context:v1:280702d99f99df391e6ee1ed65650d84732db0cc004be07a669b1438b592cf11",
+        "targetBinding": "browser-target-binding:v1:6f51e07783a07f64d3b8858f98fa66f7afa7f4a9aded177b1873eb7d263be9dd",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "6f35fec7-55b5-40dc-b4cb-090ed8f3ae4b",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "主导航菜单",
+        "label": "更多",
+        "role": "button",
+        "stableKey": "explorer:context:v1:fc97e80182316547e7289be93ce363eba078bd016e93231e6c8675e7daf096d3",
+        "targetBinding": "browser-target-binding:v1:6f51e07783a07f64d3b8858f98fa66f7afa7f4a9aded177b1873eb7d263be9dd",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "02b8ddc1-6256-4d9b-b7d6-0e3a2dc6946e",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "主导航菜单",
+        "label": "下载 App。菜单包括二维码和其他下载选项。",
+        "role": "button",
+        "stableKey": "explorer:context:v1:5bafaa97fe775896ba714dbc707111134094aa7d045e722cb263aea1bdd1e00e",
+        "targetBinding": "browser-target-binding:v1:6f51e07783a07f64d3b8858f98fa66f7afa7f4a9aded177b1873eb7d263be9dd",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "interface_risk_required"
+    },
+    {
+      "itemId": "2aeead37-7b10-413a-8a70-851e114afc13",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "主导航菜单",
+        "label": "通知和公告",
+        "role": "button",
+        "stableKey": "explorer:context:v1:57f962eda2146d78c99ce4660ad29038ba7b83f51d867444ce83db46bcb7640f",
+        "targetBinding": "browser-target-binding:v1:6f51e07783a07f64d3b8858f98fa66f7afa7f4a9aded177b1873eb7d263be9dd",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "c6f17a92-b5b8-46e7-a1d8-8f16d1e2631c",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "主导航菜单",
+        "label": "获取帮助或关注我们的社交媒体",
+        "role": "button",
+        "stableKey": "explorer:context:v1:da1e05435942796fbb867341f1e970741334eded7037207be6e7e03c3523cd8d",
+        "targetBinding": "browser-target-binding:v1:6f51e07783a07f64d3b8858f98fa66f7afa7f4a9aded177b1873eb7d263be9dd",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "interface_risk_required"
+    },
+    {
+      "itemId": "3a982dfd-503d-40d1-99ff-0e1beb380c1b",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "主导航菜单",
+        "label": "更改语言或货币",
+        "role": "button",
+        "stableKey": "explorer:context:v1:700f08b84faf870357f1dcfddbc83915e92900dfa93daa77c2962b7ba1776f97",
+        "targetBinding": "browser-target-binding:v1:6f51e07783a07f64d3b8858f98fa66f7afa7f4a9aded177b1873eb7d263be9dd",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "e4349825-36ab-48c3-b699-87700ce95ee4",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "首页",
+        "role": "link",
+        "stableKey": "explorer:context:v1:ac1d75e1868c33c68a7540d363ba60c4335019d24225011865064c8690710fbd",
+        "targetBinding": "browser-target-binding:v1:5291a3ba1f36a00a1808d23f91bba7c53cc92571ca6ed0978f7577d80f44f24d",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "e7b47f20-2086-4e3d-a7b7-9b44ed55a97a",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "计算器",
+        "role": "link",
+        "stableKey": "explorer:context:v1:85ca375f0370926e33f9a35861bde1adbfe9abec2e491e512874940dafa70fb8",
+        "targetBinding": "browser-target-binding:v1:821cb4edb0c559af0cc462d476d4bd283311141e8e71ae3c10fa22926b6bfb03",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "5a85412b-af7f-4b56-a86f-5e6e7d2bfb35",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "Unnamed button",
+        "role": "button",
+        "stableKey": "explorer:context:v1:7eda8554ed7d74fcce537eca15f4f87a5ff210f9de32f9b2d9f9692527ac81f0",
+        "targetBinding": "browser-target-binding:v1:1e81721684e9be041759dcab0eb1bae6c5506ca5ca44fcad7743eb96180d79bc",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "interface_risk_required"
+    },
+    {
+      "itemId": "d46be23f-18dc-411e-b67d-6ea4b28986ce",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 小时",
+        "role": "tab",
+        "stableKey": "explorer:record:v1:54b993c7ba5fc16b2cca3ea1ec7ce974df55a43fef30216df0c7ba89f901f923",
+        "targetBinding": "browser-target-binding:v1:7b2784ce361afe3004bd1ec43ac91e3ff85421ff988cb0f6403d3c4dcaf64d2b",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "1444f619-675e-4b47-bbcc-5d127325ee46",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 日",
+        "role": "tab",
+        "stableKey": "explorer:record:v1:d4d90c519e106cb9cf921e70235c0a93b654f9f87732c3ba8ca957eb2e8c9b91",
+        "targetBinding": "browser-target-binding:v1:f82a935825a3780287f39e6cc51646b93504eaa82c90d3928ae06b492d8f1bad",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "609538a3-224a-433d-8087-17d92f401350",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 周",
+        "role": "tab",
+        "stableKey": "explorer:record:v1:96ef7082c0dc59323782a51f903e404a21aa0141e6b3267667d0160deb355050",
+        "targetBinding": "browser-target-binding:v1:f01e93d2b249952fb4828693da7c07e614f3d297fd5649b812f9936fb764006e",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "54eda3a5-9c59-4337-ada7-5ae1c4b61ecf",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 月",
+        "role": "tab",
+        "stableKey": "explorer:record:v1:ec39b28dbea1cd2297983a43969e45db813ac85f0389acc64a76d71a473f1406",
+        "targetBinding": "browser-target-binding:v1:e7fa400ce57bb14569b4a4a28421fc4907f3ec803b8e49b9d5e247a087944737",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "ffce4a46-7f26-429c-87fb-370c4fa6dd0e",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 年",
+        "role": "tab",
+        "stableKey": "explorer:record:v1:7b3d0fba24e3f39f7e766b56443ebdcd96bcb3c3900af2ab96d771bc8f401b39",
+        "targetBinding": "browser-target-binding:v1:13b04008abeedbd66dac9f8fdaf79f4be3d75b0ccc9a391be344bf82271f35f9",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "77cd277d-f9d3-4932-a80e-9ab675dc91c3",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "2 年",
+        "role": "tab",
+        "stableKey": "explorer:record:v1:429c24e1d34aeee964817e768de12772654801adffb75da0eab3b5ced171c850",
+        "targetBinding": "browser-target-binding:v1:6bc108ab3c1cdecd4efb94d61f1157e0c2a27f7f39ca459006af7babe5a32309",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "7188a86a-d9e1-480b-8439-bd9577aaa4bb",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "Bitcoin (BTC) 价格",
+        "role": "link",
+        "stableKey": "explorer:context:v1:4ee69ec4701cec17194d49d88431544ce5de68f452b555865a0b530dcb5cda2a",
+        "targetBinding": "browser-target-binding:v1:78c0db0aa64176d19c1ed142bdabb1b67ffa726a4d64c54b26b5964869a477ee",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "1e369113-9993-43f7-ae6e-a51d62e99775",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "Unnamed button",
+        "role": "button",
+        "stableKey": "explorer:context:v1:7629c929c33b2eb2a1efb9e213493cbad1260d5e918350878712b07bca101db3",
+        "targetBinding": "browser-target-binding:v1:642db193850aad6e97fdf86fd91740d91564ce44775ea5f1ed5bd116520459f2",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "interface_risk_required"
+    },
+    {
+      "itemId": "f2909676-ca73-482a-9a71-73fd4ab51e50",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "深入了解BTC",
+        "role": "link",
+        "stableKey": "explorer:context:v1:3df422b5f77e48ad4fe9a2da39d811e4282df14710983a0f82f23d52b640e35b",
+        "targetBinding": "browser-target-binding:v1:dfa67b3a1b58b01a362719aee8052a491a05a9dbe8f8a086ea0aff3331b97820",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "b65a07a9-94e2-4edf-a712-0480859388e6",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "ִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִִ了解更多 BTC 兑 USD",
+        "role": "link",
+        "stableKey": "testid:okd-asLink",
+        "targetBinding": "browser-target-binding:v1:130147ea10e1744521f855f2c17f7e0c41f2b81abba16bf70b88c068928dfc00",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "3124375f-0703-4c48-bb61-ef3c481ce40e",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "今天 USD 兑 Bitcoin (BTC) 的汇率是多少？",
+        "role": "button",
+        "stableKey": "explorer:record:v1:c32ab93c88cdda7fb66ed5da6c1268755ae22653ca1199ba62ecf40e9a406536",
+        "targetBinding": "browser-target-binding:v1:a6a97d31036cc54337213435c44e80d21f06a100acd48d0580cdc3426534516e",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "8105e4a0-fac7-4fe9-a790-ece0566c24ea",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "Bitcoin 共有多少？",
+        "role": "button",
+        "stableKey": "explorer:record:v1:4d17b7e6c6a8eb52307d236dd623705ba3ab8c0ff224c8621325d3dd8386736a",
+        "targetBinding": "browser-target-binding:v1:fa5a79aede42ac082b3370cab47747ca850b2610162efb763f5512650275a0c6",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "7ee7a4f1-cd91-4996-bbf8-d627fb1166c5",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "我刚刚购买了 Bitcoin，购买 BTC 后如何增加我的利润？",
+        "role": "button",
+        "stableKey": "explorer:record:v1:68bb582ee9bfde1444b41ac792dd3e6c232c4dcb2cfbd2a233e4526cc3e9da37",
+        "targetBinding": "browser-target-binding:v1:df5ec41958a4448e90330068e27b891ed25e45502384b6572c247e77cd9de3c2",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "49d1afb9-d98e-4fdd-83b4-f258ee06859a",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 的历史最高价格与今天的市场价格相比如何？",
+        "role": "button",
+        "stableKey": "explorer:record:v1:878fa48f7a72411ac6c0e630df8f6b74b9c05e1c7f3607e29dbea24d35be0916",
+        "targetBinding": "browser-target-binding:v1:236a76ec99f40199113d1b0495ac8585aeb65698ed318aeba4d286eac710353d",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "29e6df42-b80d-470a-8820-6d3c7fd16b3b",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "对于购买 BTC，我有一些问题，我应该联系谁？",
+        "role": "button",
+        "stableKey": "explorer:record:v1:76c96e736766d9f88b50ab46a9e175c19a6e2af453a8f73c77c11d460cd58616",
+        "targetBinding": "browser-target-binding:v1:5693b92bff880d053131ef956aadae6c64f263e41c27e44dc1355709e716d4c5",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "1294331d-b3dd-417f-8605-da1cb843c927",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "我可以在哪里了解更多关于Bitcoin (BTC) 的情况？",
+        "role": "button",
+        "stableKey": "explorer:record:v1:cc0dae6ef889b6c28e4514bb9ed24171e322f4ef9217e41712c4934e2853b7a5",
+        "targetBinding": "browser-target-binding:v1:5c38329068e412cb243931edf821b06b24b910faed61a1fa345f858203bef174",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "056e0d53-572f-4fce-9ee0-d8f75c85243c",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "关于购买数字货币等问题，我可以向谁咨询？",
+        "role": "button",
+        "stableKey": "testid:okd-accordion-header",
+        "targetBinding": "browser-target-binding:v1:3fcb801f1d862f0b98cdb586adb7df1baf418c5628d803c84654fa2c66a8ed6e",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "20a6b94c-fe29-415c-8f6a-c687c3c5dd48",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "今天 $1 价值多少 Bitcoin？",
+        "role": "button",
+        "stableKey": "explorer:record:v1:a62226a09576f639c2bc6dd85b3d50eaa20646578c8f2476c57b2e416d6986e4",
+        "targetBinding": "browser-target-binding:v1:071934ad87c17d15215fb851b0cc8b85d10772dd6241b97d7d0991d873de59d8",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "4861b9c7-e3fe-4214-8e04-8ae0975c0690",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "今天 1 Bitcoin 价值多少 USD？",
+        "role": "button",
+        "stableKey": "explorer:record:v1:16429a70c26327da1dbff1bb7a1a6241af550d16d6ed7df3894a470b7b2f1c78",
+        "targetBinding": "browser-target-binding:v1:b4c6152891d4f4d9d3540d79390247edef21beb7906d6fbe86deef8d5fbeb763",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "7b313711-9d0a-4e68-be83-6f35c5157ff4",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "如何使用数字货币计算器查看 BTC 兑换 USD 价格？",
+        "role": "button",
+        "stableKey": "explorer:record:v1:4035ee41082eed89a8fb8fee6fc24f1df69ef679d8c1cea62aab3de4d03f78e7",
+        "targetBinding": "browser-target-binding:v1:86f48a384bc2dce5ee5bc9c0079ad7d0f73442930a10703c4986ab8a3750aa8a",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "41a9dbbf-01c3-4688-bf71-e6e8727cd1a9",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 PKR",
+        "role": "link",
+        "stableKey": "explorer:record:v1:8d980e3b7813246c1384c8323ee90e487a0f0d99001aef38311994b0069b5dde",
+        "targetBinding": "browser-target-binding:v1:67a337d11a8c07944626bc9fd0dbdb6cd01d80fa4d452499f97aac722e025279",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "e51caec4-4e15-441d-ac74-55e3c43969ac",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 PHP",
+        "role": "link",
+        "stableKey": "explorer:record:v1:2c2e432f5ebb36ce2945256c745aab411e5a594267f93ed209cc70ffe6f89a01",
+        "targetBinding": "browser-target-binding:v1:8139cc25462d05419cad7a7443f53ac05183ee18dd2b0091f23453d3f55a13ee",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "ddc54194-6fc9-420d-9693-8b323a5098a8",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 CNY",
+        "role": "link",
+        "stableKey": "explorer:record:v1:f4a712bc911bda68f5664a305aca02bd643771ce1997b424aa1adf4fa6f2b991",
+        "targetBinding": "browser-target-binding:v1:fb869f68a8f1d51e82aa632edf61050f081f204dd145a0f161c11f8bf6c4b3a3",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "a681d30f-8a37-45a6-b382-1fa2aede2a1b",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 VND",
+        "role": "link",
+        "stableKey": "explorer:record:v1:3b49b3c5ce5dab555add36218d2bb3dd2700f2e810bcecf7678f4c72fd6949e9",
+        "targetBinding": "browser-target-binding:v1:045f12d3b47a13131e29bf4e6536427225d15bbfcdb0d9dd24102fdb1cf61a11",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "1cb19fe8-0825-47d9-a588-dce934d5f758",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 EUR",
+        "role": "link",
+        "stableKey": "explorer:record:v1:3900fd64b4def402898be7a1d4fd5b4bb5134c9d943e91fe1f328c1bd548a180",
+        "targetBinding": "browser-target-binding:v1:248a2afcf2188cef586f32a2758932a28df32e390e4c97904a48df9184cd479a",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "3c3fb3cc-ce0d-410c-bf2a-50b165c1028d",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 IDR",
+        "role": "link",
+        "stableKey": "explorer:record:v1:2b985192b12e5e4100010e9c5fe0199f640b047bf1129b1d40ae19321d9de1f3",
+        "targetBinding": "browser-target-binding:v1:d4b6931ab5293fdbe22d5de99a446a396f0c5e39f0c1662b910d55078b45a0a2",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "64ee3185-e4d4-4e42-9ecd-7918c34ae92a",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 UAH",
+        "role": "link",
+        "stableKey": "explorer:record:v1:19def389b8862a84c93c190280c2c558b5ccaaffe58454ff0b12eccadfe05829",
+        "targetBinding": "browser-target-binding:v1:89dfb1c78e3a1af534f61cc7b8a5c562c9115ee4d00796a752ce01c49fc41502",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "26f23b58-5f49-4f5f-8982-4c51dcd344f1",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 GBP",
+        "role": "link",
+        "stableKey": "explorer:record:v1:78977b62bd136bc72e42e962f0381b7ac5f17b0d58b44d0f74b94e8473c67505",
+        "targetBinding": "browser-target-binding:v1:1cb97fec737d8ace7b9a60d3900a5cb9292f095e05b31b9bff8a07261cf9f308",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "9c3a68b9-8d61-4f73-a624-ce4cfcf87a86",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 MYR",
+        "role": "link",
+        "stableKey": "explorer:record:v1:b03641e7856ce4b432c182becf4cf98fd42ef990615e602309d612bbda06d3df",
+        "targetBinding": "browser-target-binding:v1:9328176886f1566a8d5d0462b691cf9a282e8b8c00f2aef5b7a67adadf7fedd8",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "721beb8c-e81d-4de8-b059-c57208b1e6c3",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 MUR",
+        "role": "link",
+        "stableKey": "explorer:record:v1:197bc2bc57b4c2a404f98df1d5e6d97ba550f7205d284c2e12b19f407256eeb3",
+        "targetBinding": "browser-target-binding:v1:c778a36df31188d55fe0463c49834c97c036bf68157dfa40929f5d3e73121a8b",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "4b6d9855-0b6e-420a-9690-fa01c57c4dfa",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 SEK",
+        "role": "link",
+        "stableKey": "explorer:record:v1:f25c6220ae67d94cf4a9dbe5a11d61fe3b157bfcf38f67ba91123ab4501ce6b8",
+        "targetBinding": "browser-target-binding:v1:56f23dac006b2250cf67cf268a94827e61900374e4d1b1126f4b50dc36d1f620",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "b223e508-a032-4224-9464-1b34a5f1759e",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 HRK",
+        "role": "link",
+        "stableKey": "explorer:record:v1:cc70e93d395eae142dacf5463d2cef8862945d45fea66e4a7569a5c5fa9efda4",
+        "targetBinding": "browser-target-binding:v1:be3502f278bbb6301f46869aea93ae6b092e5506b68ca85dbc5e3818c3ce92ef",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "5f1a3f4b-0a42-40ed-9b59-40feca938844",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 BBD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:61c9d27887fc35f73994183e27460b2fa1fedb46847ca643b243377df89d212a",
+        "targetBinding": "browser-target-binding:v1:36ef49d9e1d180e439c3ed28c0736d3dcae6332a9c59e32344adb0cc7d064684",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "a56a53f2-3b8e-46fc-9443-832d991fa4e5",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 TTD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:827d6057ccd7638825ac057c8a21a51da31b41462aa68a46e1f976df5737df26",
+        "targetBinding": "browser-target-binding:v1:691f720f1a8f8f852ce6f413fc2b9d2a8181a3e7065aeefbd733af1c6e123540",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "168192a5-ed41-4702-bde9-1087fd903b79",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 AZN",
+        "role": "link",
+        "stableKey": "explorer:record:v1:453f054b938b32e15a4116084f616920514128d60a5c515238b76651cbc560eb",
+        "targetBinding": "browser-target-binding:v1:39531b3d80cc90622a6bad9d2c9ca96e9c2f36de4c3adabd18182ecf053e74a4",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "bdd56018-1499-4cc3-867e-9007e2cead79",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 ILS",
+        "role": "link",
+        "stableKey": "explorer:record:v1:afd7585a7bef93c74ac1793c128dbc49f59a2f9727cb8d68122892fa7883520a",
+        "targetBinding": "browser-target-binding:v1:f05433f70847a3f8f9f442b22e8c85672c01deda6cf52df5f95fbccb4bfe55a6",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "0f26207f-4106-43dc-a4a9-e12b4b4a7d9a",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 GHS",
+        "role": "link",
+        "stableKey": "explorer:record:v1:22d571505a23c55ac13329a86e6188de2cb381d1639f8891afce943cf1768705",
+        "targetBinding": "browser-target-binding:v1:b67c574613413e25f2fb6995e9399e1733fb991aee53ceb32a5420f8b4d8ccb7",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "5d525f02-f3ba-4d7a-a1e0-c7c86bf982d0",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 HKD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:0ad6ef43f2ad0e9ab06f0d9f9e0728d0df8de932a96bd59fee6a390a2664b70a",
+        "targetBinding": "browser-target-binding:v1:76b7f4c67d4db56c36a81da87095c7712b00445bd723f27516090de1f453bb24",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "75d5f378-d1bc-41be-9744-0f7b7970593f",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC 兑 RUB",
+        "role": "link",
+        "stableKey": "explorer:record:v1:eddc310eda014e86a81b652e4e47e43d006a1d3efe612c66603e02e126ec7548",
+        "targetBinding": "browser-target-binding:v1:26c64711f4ab8ad2c8125259510b70fd579cc8d11f1c9e2587f88dc72b9488b9",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "3766bbf0-4eef-4a7e-a26a-6d24c0424482",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 ETH",
+        "role": "link",
+        "stableKey": "explorer:record:v1:d0c973c33606d5f4e18ebc0a897dae3f169da4885f4d018fd641c64c935d8eb8",
+        "targetBinding": "browser-target-binding:v1:33681b99ce1e598a51cc13ca126704999bdc8e02bcb2b7b94def3747f7392cd6",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "28b6d777-e2df-488e-9f5b-be9cf3429da0",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 USDT",
+        "role": "link",
+        "stableKey": "explorer:record:v1:b0679522c4b846d03f029c92db6611cadfe5c4371d797d76bbf9b89dcfe53187",
+        "targetBinding": "browser-target-binding:v1:cbe75b0c0472a406985046b32397f00eaadb501697bb62fe7124d963d9f0486c",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "ceb1e653-0ffa-47a2-b89a-6195a7c0c420",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 BNB",
+        "role": "link",
+        "stableKey": "explorer:record:v1:58a7b92d34d6b54fefa4392842d1f7d351228bac0770645bae249875295f4990",
+        "targetBinding": "browser-target-binding:v1:3c23a52782bc84d283629a979e404f6972e198bba2aa5143a7c9d88b80615b7e",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "7ec66108-cf48-4c15-bc7c-11cded51e65b",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 XRP",
+        "role": "link",
+        "stableKey": "explorer:record:v1:422766bfbd45a1713d4f38837230c695e04d6ee2d6a148149363d2d09186cba2",
+        "targetBinding": "browser-target-binding:v1:92bce763fce371e8e53195009138d4f7f3aa180d6ca2f62e63bec85a174bf552",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "62523556-b81f-4407-93d8-0f9655974d99",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 USDC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:3152c07199dd64c7e7b2481beba3c35d2c6c34c28b87593cb219786960fc9c2a",
+        "targetBinding": "browser-target-binding:v1:76bd3c1f9faf08358f960ade2179aaf0d4f5dbaba11c4a609bfc87634fe1d204",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "aeebca90-b3c4-4076-bae8-56a9f4c18449",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 SOL",
+        "role": "link",
+        "stableKey": "explorer:record:v1:54ec7b98326cb4131637adbd7d4c94f7ecc8e282e3417df1f02f20855792deae",
+        "targetBinding": "browser-target-binding:v1:88417c52e8a43baf461ef627e1eaba9709e5443e40ccd1bdeff8b63d44b859da",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "d007a850-b1fa-426c-bd31-f932d44c9f44",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 TRX",
+        "role": "link",
+        "stableKey": "explorer:record:v1:f6564f435f0cb2554edbdc4c82a90082fa70da9f6333a25914b299935a3a8433",
+        "targetBinding": "browser-target-binding:v1:4d57fb21e04a99027e47d269473a844f05180478dac84ca939fab311557b3857",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "6afcc100-7710-4926-a0ca-8cc4f4e9664d",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 WBTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:b4d70dee0f85450d60fd0c03449ae74cb63940bbc0b062a9a8428acb46f8f275",
+        "targetBinding": "browser-target-binding:v1:cef83731260922dc9c3ad8021edb5b069be36cadf6c621b6412fd31fc4f64246",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "cf9cb823-9485-48e0-8a24-d95c6bde30d3",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 ZEC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:9e9f7de131d3a250a0ada9f65900cb80eae532ea0170b921e30af992c0e41eaa",
+        "targetBinding": "browser-target-binding:v1:e17723bf0540677427f8f422431632b39d0e3b81ff8f86722ae13cddc2ffd850",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "8179b162-9ac6-435c-b7ff-1d798c1ec987",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 OKT",
+        "role": "link",
+        "stableKey": "explorer:record:v1:99489f7dd3209460f6812d8bc69c3146804d872c3490b24cddf2d5f12a8e538e",
+        "targetBinding": "browser-target-binding:v1:d3e390e9e93b70d94b9649666c820f6992a71d1a4287a91ea56e53cdbc8afbb0",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "37721646-0ddc-41b6-8222-139dd3d5fc24",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 xUSO",
+        "role": "link",
+        "stableKey": "explorer:record:v1:33afd28bf647f386f2299f057381fd1017dad5d6ca30f940e9a1380dba0461fe",
+        "targetBinding": "browser-target-binding:v1:623ede5a593c3438101beeace5539e5350f14c2bcf835abb4153d7da440e8c2b",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "f97e79b2-f8f4-4fec-939b-3da6909b47ee",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 PENGU",
+        "role": "link",
+        "stableKey": "explorer:record:v1:74a5a72948b68b9443215724d8bfe8ec6b5207a07126d1ed5a435deb80af6ff6",
+        "targetBinding": "browser-target-binding:v1:e1fb2f748d9fe24ade75b6650a6b96731b44fdc83c974f321e9886f8a66c05da",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "d9f410d5-44bb-440e-b4e2-f3b2a0c3a240",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 ACE",
+        "role": "link",
+        "stableKey": "explorer:record:v1:cc9e82659e2e0276536e702a3b601c53bf0fceb12252961a72079c971c9c80a8",
+        "targetBinding": "browser-target-binding:v1:0c347d1de38661e7a7b07ec36ceb9dec5d8fc5e0adec4e2b92fa149035a356ba",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "63bcc15f-1e82-4f77-9641-e109f2d3a576",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 ID",
+        "role": "link",
+        "stableKey": "explorer:record:v1:b903e0d415a1e4197d514917d9823d4f8b7f8e6d1d7f91116d8e346274b3f70d",
+        "targetBinding": "browser-target-binding:v1:3392222eff1e6edb0c8bc29f022e24c41c23f5c7637be3cc2bf7b9e5ee5c8def",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "a922983e-c55d-4adf-a942-9d8cb1784c05",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 RDNT",
+        "role": "link",
+        "stableKey": "explorer:record:v1:84721c5066b7bf33acf2865d36d3b28435f1cd938b3eab3ddf868560661dcd22",
+        "targetBinding": "browser-target-binding:v1:47239036d6a07fb5b2da161f848d02e5f8e629c7abf5831adb34cb81c6a7bfba",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "c76339bf-01f9-4b20-8c6f-0a265df53c64",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 RENDER",
+        "role": "link",
+        "stableKey": "explorer:record:v1:ef3bfe4ed765e7dbf1e418cbcf9c6dc2e08ed9157dcfd86a871d8cf07fdc06b1",
+        "targetBinding": "browser-target-binding:v1:d8e236e5b3200c2e5ed8c71ff90508d88fffa6aae1a16123679d1e8de6071962",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "a4009428-bc55-41f4-9cb3-a572f68bb65d",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 HOOD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:1f681ec5dbdea7b540acba46bad9f0865bbe5d674f86c123c5e0c05270e8d49b",
+        "targetBinding": "browser-target-binding:v1:bc2753600b5c61276af30bbc7e11bc6ef2a70f02e7755d65da424c1491d66943",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "419aad51-f8f7-49e1-a309-2786949ca541",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 GOOGL",
+        "role": "link",
+        "stableKey": "explorer:record:v1:7e32bb845ba0318482d01a9f6b944e0a6b29bafff1c94e6e2e9001948e6bb41b",
+        "targetBinding": "browser-target-binding:v1:b91a9241e892f319da829a01ab8fa0df2fa9762732e31cafa687e773d79c1dfe",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "8f0e7894-1a4b-4433-bbcf-897882c7b471",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD 兑 SHLD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:da7065113bad87a89c41cf0691a789ada8aeaf66478b8bbd0574f2c2032b2fa7",
+        "targetBinding": "browser-target-binding:v1:5f39d7fb77c721fe71be048da51d19f3ac3af966faa593f7ca68225ea1aec41c",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "576fcede-d23b-4cbf-a031-07249c445410",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "ETH 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:a1c0f07c86b444cf24314d0653885f69b707832c64c4138e19e3c0e6b2962a25",
+        "targetBinding": "browser-target-binding:v1:ffce4f6e2a6702588723c65ea1d379bd42ed775f41320cb69692cf00847edfcb",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "af288f52-e5de-41f7-9051-caf6f9aaf2d2",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USDT 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:11f50e2837aac26c7ccac5b0fd4fcbf469e86645da4c4403a957958ada3e21bd",
+        "targetBinding": "browser-target-binding:v1:2683b24fad8813a63a96b5b8b6c1a4857e8f16c811088f31da11f3c4ae8c5e29",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "cd7f7077-c63d-4d05-8b77-df7806f9d668",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BNB 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:dc8900273b9ff95bd46c70694acaee94a6ddd737ac049664048e6b6db9bed68a",
+        "targetBinding": "browser-target-binding:v1:720f4d99bb2442806269247d9e45a1f6d14d8ff7b2ec5b1d1efe59a2f736144b",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "9dcf3cfb-8f9c-463c-885e-80b29a7d32f8",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "XRP 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:1310decec3ce630ed313f0c2b0493a79ba17aa28e524b31b505dca3f21da35fd",
+        "targetBinding": "browser-target-binding:v1:4ff7f85b2feff0f65f73721022a2876b9e58ce68e46e80aac3b03f4d8ed97406",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "ea6b5b9f-7cc3-48a8-8d15-6b767a2c2c8b",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USDC 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:77d9c19ea839001dd6bc0e1f957a66dbacd39f693c47340cb694a7516a3a57ff",
+        "targetBinding": "browser-target-binding:v1:e575ed6aa629fc819f606bd0ac217b210508c6490966a961268e3b4e82cf10a6",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "cbdd42b1-b070-4ff2-aec5-0ef4c66a869c",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "SOL 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:1b02435453346e5bff7be8e651df4e97d40bf2dc2dd3a38929917dd07e4cfc3d",
+        "targetBinding": "browser-target-binding:v1:9ba498e727e19b3b265fc7484641795bded4f26ccda9851720011ea23d177b35",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "52797bff-f015-4e88-b403-b15a7d5de74a",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "TRX 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:4d4c9b76564ac1f1171b9e9fa01200cd2d5a75c4982a8083189ab4e5d82f54e6",
+        "targetBinding": "browser-target-binding:v1:c57f8dd1aa7a1745c5d33eebfb3ab2d18f453adcf16bff6c288551a95f35fc26",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "758afc8a-b7fc-4cae-9bf2-ee4d4065146f",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "WBTC 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:f8248726dda1f502ba616f6dd0d4d0c22caa9873d28febd5e3646a1f2a7a5c7f",
+        "targetBinding": "browser-target-binding:v1:060adf415becb905983005fc41876543ed6bfd7fc936b35e378eda19e1ea7b78",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "adb16dda-643c-498f-bbd1-4b1cffa6f873",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "ZEC 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:d4645cf0f67ddfbadd8ff8d15c4b7398e83339afaf66ac41c4e789611fdb0c0a",
+        "targetBinding": "browser-target-binding:v1:4bb57e04d9a381984f34a5ae267e6fcdc25bedb2b6e782ef300b73ff559dfc86",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "811efc76-f949-46ca-af35-e066b1ea5342",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "OKT 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:8bc9c30c7386f6e634a62b16281d9104ef594570916c9c67f0c89abc66e5f838",
+        "targetBinding": "browser-target-binding:v1:db4c5e9f1f7d0b35c04ac80f894575ff372d941a1f43fd41a9a14673d437f46a",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "769b4e39-35af-4799-ad1b-30effb38ea2d",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "xUSO 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:50b8e63f4bccfb10b093a7f89eea048f12589846496cbca24a70076b3fc1b9f0",
+        "targetBinding": "browser-target-binding:v1:2db841eb284ee24d78e3ef0cfc51e297237a7a2e938b779a562ad68c4eb16107",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "10558253-bcd8-4604-a324-05560a778f6e",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "PENGU 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:e6e1c83d5ad74d456b9c93c60abe602486657fe87625681d35ed02f8a68f4029",
+        "targetBinding": "browser-target-binding:v1:578063989aeda4258380c9597f5c2d885a7bcf9c4b3286b5ce60189e8b37f362",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "f36b0ab6-d411-41d7-9a2b-1f7b802ab6e8",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "ACE 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:d51f546ffed994b24dca8e47db9842dad8736b3f4cfd3cabb813a88d8b39b6c0",
+        "targetBinding": "browser-target-binding:v1:7990ee98618eb507faa0a8a97d4e56e02719fbffb69c466cf520c1552b27d35b",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "2bb0b9ad-e257-45aa-9427-2d8741d5115b",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "ID 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:1434248fddbae3c47eb8524c049d5233b3fb8bc447bff2c76ca20754a8034293",
+        "targetBinding": "browser-target-binding:v1:fba348e5ee3e14b2847d3ccb34372079a55dc298d4944e60fd11e554802a4209",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "7d46e1a2-1ffe-4d4b-b4b3-b51a1a9f9433",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "RDNT 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:b80e9033d9396cc30f492ae692491cb728d0a6d536853e637a739ea7d43108a9",
+        "targetBinding": "browser-target-binding:v1:2c87e2cfbafa0530eacf45b626f78eec84ab0cb1283eba10922fe20faff50086",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "d3de8cd3-3ff4-4fb9-aca9-f80feb238661",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "RENDER 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:8ca690f90eab79a5048f383a7ec36be8f33f034ea9e44cb32bff4d88570af885",
+        "targetBinding": "browser-target-binding:v1:c256572723eb0158f3d9a7738d1a55554f5e42d2a01643cba0ac8eb35f92d041",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "2ca03f4d-1ab0-40eb-be06-ec8df0155864",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "HOOD 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:4443a89946b8846b3f649ea9468d140ade6eda5c5111db032a9125c1e7fe29bb",
+        "targetBinding": "browser-target-binding:v1:f5adc4bf947f7fa1674c7d18ab76b5ced634d8369c5b8d14e853a0b20869bda3",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "ff4ab539-8891-445b-b545-856341cd207f",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "GOOGL 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:13f50e76ca3d429c7eb10e1caa08e0d102c769692aab6526cfd77fa10e1b3ac5",
+        "targetBinding": "browser-target-binding:v1:f0e6a985e52a0796d9a197c844cd783e33114d8e842a30757385c83e373f44f2",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "e537dccb-a2a1-495f-98bc-28ff35728cbe",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "SHLD 兑 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:9f36101c3d25ac0dafcec6b7a0192647561258d5386193ac981ad6c264159548",
+        "targetBinding": "browser-target-binding:v1:2db899960960e5b632860a9b71d0548f3a6483b0c18c35495b3f54f9b4bf11b2",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "c1691211-f9fa-4d77-940a-0b8e4c4757fc",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "在新页面中查看如何购买此代币的说明",
+        "role": "link",
+        "stableKey": "explorer:record:v1:02d993cea9277607d8739a430733d50c54da78d4e1a6c691818531aa4408af3e",
+        "targetBinding": "browser-target-binding:v1:c6564f974ec2dd5646aadc80ae78906e97a5be0f9b8b3acdf2843f64bb6b496f",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "23d66b65-a7c3-4c88-ae43-0caf0d83baa9",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "查看价格",
+        "role": "link",
+        "stableKey": "explorer:record:v1:a7b62b4620acd0551b80ff0e868e3fda439c48c5f140f2c2d260d8175ce876d2",
+        "targetBinding": "browser-target-binding:v1:faf48be941df21b969d9fa774865815f5657d113ed487a78236606a73fba1389",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "47636dc2-afff-4758-b0a8-e2cb1d77f807",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "在新页面中查看此代币的“价格预测”",
+        "role": "link",
+        "stableKey": "explorer:record:v1:a9c052997b2b0b1f3781dc970ad597748cd824fc1af6154fae309a3aa002f330",
+        "targetBinding": "browser-target-binding:v1:5e28a795c79410941f7679ea2dd6803808e5b74a8926c209cafce7aae379ad7e",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "d26ca593-6fb0-4cc4-b52a-8aeb20509180",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "深入了解BTC",
+        "role": "link",
+        "stableKey": "explorer:context:v1:361124fb62982229ced7c4d1a62371648bcbc3df8c50a5fdcbf9019dd1dad671",
+        "targetBinding": "browser-target-binding:v1:d75b5338979097e1231611a9844842146bb63278e7e354cb3c5e0c54b72b8536",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "06848d29-3a7f-4dad-8b5a-15e970ef5730",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "服务条款",
+        "role": "link",
+        "stableKey": "explorer:record:v1:780da7f8200bbe0d4f7ed32d0b5fb96d4bb9d894c6f13d830d228493864fe025",
+        "targetBinding": "browser-target-binding:v1:0004ec199aee42f7bde9f68a8e8a718bea4c92166ed0e92d9e117020070da877",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "683ba363-e3f4-4da7-9d7a-6d72fec77003",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "风险提示",
+        "role": "link",
+        "stableKey": "explorer:record:v1:838244c305f15a020b7ee7383a7c7738ed401246561ad5a129dba83e7d25cc73",
+        "targetBinding": "browser-target-binding:v1:bde17046c689ffab22689ed55890caa5cf3c246b521813051e85b9f1d30e923a",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "91b15c4f-776f-4b75-932d-f80034f6f0b5",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "服务条款",
+        "role": "link",
+        "stableKey": "explorer:record:v1:3723e79282fca5a5e6a2f1e63fe1d5bbd8b7ef2615cea6c769f7de55a8822f77",
+        "targetBinding": "browser-target-binding:v1:568288c8d437cedad4de68959f6beffdbc3dbbe8666496e84b199efde021092c",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "d667e7bc-8783-46ed-ae38-43fe4c4d204a",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "上一步",
+        "role": "button",
+        "stableKey": "explorer:context:v1:192dd004bc5411984d5ea6125bc2c1f292f3ef69732374ab1d7be739811da8d8",
+        "targetBinding": "browser-target-binding:v1:3fcb801f1d862f0b98cdb586adb7df1baf418c5628d803c84654fa2c66a8ed6e",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "Control is not visible or enabled"
+    },
+    {
+      "itemId": "3746b2b5-fe4e-4a32-989d-dba22235ec94",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 PKR兑0.0₇4 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:38056007dde435f16eaa2d7d242e9203faaf8f9aa41fe8196c2f326d0d599c6c",
+        "targetBinding": "browser-target-binding:v1:e36b77b3bcf97847aba444295ad61861a132a4185b9359db886d20239408f11b",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "e67875ae-36bf-4181-b725-327e01374757",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 PHP兑0.0₆19 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:7437c3f0d06f77bd922317dee05d95f4f37e3116dda6418a466f5c6d5badb6f0",
+        "targetBinding": "browser-target-binding:v1:d25cae41fe1fea241cfc48528f22642386efec84c7987be8c4069a5fc12febb1",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "434567e7-6738-4948-99d4-e9601446e3cf",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 CNY兑0.0₅183 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:3f1da82d7fe30123876d5810ee1e9a5085163e7e6935d98d83af95604e4d97ea",
+        "targetBinding": "browser-target-binding:v1:6c5edb3530a39aae32d3b541dcb857eeccc7b6823cced7723622c5a5447f63ab",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "e78901c4-693f-45d9-9cc3-2f9950bc021e",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 VND兑0.0₉4733 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:472477394964dc2f8e120574581ddda4a8f80a5fa4c51add82d3be9848feecc0",
+        "targetBinding": "browser-target-binding:v1:94924be4770d2166aa6e561582195554458ad887f2cee879e3c73f80a9e6dd02",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "c95b3f0c-28da-4efb-b7f6-556345227bb7",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 EUR兑0.0₄1377 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:0de7293dae550dbf8739fe5afe777a9f4f9aa20c17990206e61a7c02a463faac",
+        "targetBinding": "browser-target-binding:v1:a26efec4e0b28970f2c285181ee41e844c363cf98d4a65616b70f9282df629a2",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "61497ea8-2658-4521-a998-184b03afb32d",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 IDR兑0.0₉67963 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:dc1c3c1a760b9bf04ad227b1c32b64df7670ad6780f30b51de39903c36107d78",
+        "targetBinding": "browser-target-binding:v1:bcdac7923c5adf3c667168440c700f7b955111a46a4551ccfcf883e83900c02b",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "pointer_intercepted"
+    },
+    {
+      "itemId": "c59208f6-c358-431c-a57d-5c983c10cf78",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 UAH兑0.0₆27 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:677aa764bf550ec04f6ae9dbc3244223d68e7b160301b62cc6cdb0360c974150",
+        "targetBinding": "browser-target-binding:v1:c5eda4398ecae67c3fd22e306415a0ac5619668d3e95bdd691061180989cf63d",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "dd6c7b2c-2b46-4f47-b1ac-fea670ffdb2c",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 GBP兑0.0₄1633 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:985b08f9f59e9d77c5f58e660b39b0d1cc407f1c6fad2f80b07586be0e231c68",
+        "targetBinding": "browser-target-binding:v1:8816d231a1bd7fd14a539b9994587b68abe28914b494edc7a64ccf3ade9a8ed9",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "9899ff96-349e-4b20-a516-46218e06f25c",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 MYR兑0.0₅3 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:bf4d20033c768592e133f1fc4730e1d44f089fd0e0e8bd155fc6189995b21fd8",
+        "targetBinding": "browser-target-binding:v1:9c55795f5e79202f95fc79044b32c6d7a01e98c414daf185af0822724ecc81cb",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "6857f6a3-9aaf-4ab7-bb6e-e507788f8a07",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 MUR兑0.0₆26 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:5b1526f3cccc3e36f8f61d8f339c01cace3294ef0d36f4c91e1e6236d07f9ffb",
+        "targetBinding": "browser-target-binding:v1:569b57f1fdfb7e220d6cea56f50218c9e4b3756322d28652401faa3398664eb2",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "e285a194-c394-4fcc-baa1-2ef76e1130b6",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 SEK兑0.0₅124 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:692545da851fc6728849610bc7ef293fe91f34427d9351001882aa64d8e31a4f",
+        "targetBinding": "browser-target-binding:v1:92e0d77e8196a624c890ed86ed83185eea97154b915387767c7e5000eaa46ae3",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "f3659fc7-e0ab-4d3f-852a-28a98f1715e9",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 HRK兑0.0₅183 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:66e2b7b36408993053f6a169ff9d8b58fa12631dc87a3a5553f0bdbc1c766e88",
+        "targetBinding": "browser-target-binding:v1:cde900e442edaf282982d0ccc68f17e8dd9ecc2bddfac08206a31ca7d133c754",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "2d47d4eb-7b8f-4712-94aa-9fb367699887",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 BBD兑0.0₅61 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:ac239f97d606b32579f2d26afb56bcf22f62cf23ee84c74e88c83735867aebdb",
+        "targetBinding": "browser-target-binding:v1:ddc47d524acb29a1edcc18ce58b257c46b8c3b93ad550d69aebf4a97715971a3",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "cad6eafb-669e-47fe-8031-435ff598fa14",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 TTD兑0.0₅181 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:038ff6943b1d6eb5f2bee149dc1612f49fd0d558a29bfddd9df9435ffb1e9a6a",
+        "targetBinding": "browser-target-binding:v1:f9f02d886888bcb8fe6f4187113cf45d69043b5deaee4c5008d5b4a2f542bd6a",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "2b653471-cdd3-4348-9861-87f9de357e85",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 AZN兑0.0₅721 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:7b33c3005565baeba1454edc3288311da05146a2d02169c412d817df2ffdf281",
+        "targetBinding": "browser-target-binding:v1:27eed78a61ab3b3620943a10cfbb308d1fc85875c81082feabf7d37e95e794a6",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "5806e5e2-2247-43f8-bb10-cba7a620c89f",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 ILS兑0.0₅394 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:0dfb807de20e3f9635640351211691021cc87c7e58687cef25529440e2766b8d",
+        "targetBinding": "browser-target-binding:v1:c256188298a4b7081bad3d5d0b80d551bcc4f162d7bbea9f21e038fc2f9a97cb",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "f419d639-1edd-4dde-8448-45e901015a6a",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 GHS兑0.0₅105 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:71bbd10457767a7853752ddf92da9d2aa0fc40966aa551d381016d0e945d1ab1",
+        "targetBinding": "browser-target-binding:v1:e5a0098aac9225a6822921976ceb63e6c48c69005d95aacfb6ca477b01369d16",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "08a68688-5219-419e-9c8b-5a7781dc6af2",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 HKD兑0.0₅156 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:eb2c2f411206a87babd65a7ac0f0ffa2552f204610685534df90f90ba143f611",
+        "targetBinding": "browser-target-binding:v1:05fba8596461f481afdd513178f3702c33c9f63c353671e636a6a5388a3bf97a",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "e631cd5c-85bc-48be-98fb-a8b5b711a444",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "1 RUB兑0.0₆15 BTC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:93d5cbb3b8140b7cd6de1f33a882a5263a3c7effb2d75fa2d80caf29b9232956",
+        "targetBinding": "browser-target-binding:v1:a44accdc0f0c8380cce4129cb30509b6a75f83ca7747828576f21956bc005344",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "d79e7e71-8f71-4245-b37a-191f83fa17d1",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "下一步",
+        "role": "button",
+        "stableKey": "explorer:context:v1:9dae9e910953f4530429e4e8931d5e58d1a6786027dc37e3b4e84673da6500a1",
+        "targetBinding": "browser-target-binding:v1:3fcb801f1d862f0b98cdb586adb7df1baf418c5628d803c84654fa2c66a8ed6e",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "interface_risk_required"
+    },
+    {
+      "itemId": "5df4c16b-b84c-4242-a610-7273934fbd20",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "选择的语言和货币：简体中文/USD",
+        "role": "button",
+        "stableKey": "id:language",
+        "targetBinding": "browser-target-binding:v1:a90688bea3150953533591d9edf4da873365c13d85d8d08e9180a7bf00101dec",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "itemId": "58383c45-98ca-43b1-a549-849cd7a4c600",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "关于我们",
+        "role": "link",
+        "stableKey": "explorer:record:v1:55c82762d953432b70a7798656839f01aea6ad7307855107a3f11ed73d62769c",
+        "targetBinding": "browser-target-binding:v1:bf47cc87756505eaf36771fd69ef50775b6f58d3ca2ec832e46d360f9554d372",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "4a3aa1f7-5755-4dbc-8bc1-35554ba4500c",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "候选人隐私声明",
+        "role": "link",
+        "stableKey": "explorer:record:v1:1b318a407fd83a85fb57025d151a929715528c7433341b8fafecd2213b06e25c",
+        "targetBinding": "browser-target-binding:v1:2edf3834a855e12b643ecd017aad6b294832a7143173391724607a79569c902d",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "72159b41-5744-437d-89df-b16b8ff26f0e",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "就业机会",
+        "role": "link",
+        "stableKey": "explorer:record:v1:1e3f02d279a84572c8c7b7be5c19a62745228c4ab7ba64601aabd6230761d495",
+        "targetBinding": "browser-target-binding:v1:1732fc199762635be33ed3c773f041af94599dd94c28e6fac92d7b06d703e3e6",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "44d458e8-212b-46fb-ba3d-2a07795670ec",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "联系我们",
+        "role": "link",
+        "stableKey": "explorer:record:v1:55f31d2a89088aa2915e42b841cbe6a09e9905249a181dc365d9fe5f9c2a1be8",
+        "targetBinding": "browser-target-binding:v1:df4bc5d21be5994afb43aebffb054d960f60d91cd4fc6a60f0f0a2170b2a26d6",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "6dc74b12-93d6-4c4d-869a-36401d9bae6b",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "服务条款",
+        "role": "link",
+        "stableKey": "explorer:record:v1:780da7f8200bbe0d4f7ed32d0b5fb96d4bb9d894c6f13d830d228493864fe025",
+        "targetBinding": "browser-target-binding:v1:e31dc707914a02dea43c9a8b640539120d7b4a825a58a930556658db306ade49",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "82897593-ca5c-4977-94d4-76d6f113ff26",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "隐私政策",
+        "role": "link",
+        "stableKey": "explorer:record:v1:a5e68b8040fcad335a5312288d589cd5cc45ae8a215dddb304df04d7dd0b818d",
+        "targetBinding": "browser-target-binding:v1:ec97cd3647ed488d28fa1fbcfab85089ff6d74b007958101fed4f9cc172da3cb",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "31ff856b-4b8d-468e-ae10-73d2a2e7bf35",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "免责声明",
+        "role": "link",
+        "stableKey": "explorer:record:v1:0bb4f0d71f49d0a75c870e2784b55ee5049653f600d3663edde00570bc0a526b",
+        "targetBinding": "browser-target-binding:v1:10c30365458648c52db3ba80b58f7e2d6b778f4db53b52e8f33a2b428fad45f8",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "d4d573d6-985f-48fc-9ecb-1d86192af220",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "廉正举报",
+        "role": "link",
+        "stableKey": "explorer:record:v1:2d3e6732e2f553bad1f4cc76ce535fdbcc17c09448f77aa2b4ac667ad5aaae8a",
+        "targetBinding": "browser-target-binding:v1:06d3f02088e1691919de0ae4b16ba810b64dbc12004e2a1654eac563b22c3518",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "e71b5c7f-efa5-427a-a391-96077ddcd991",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "执法请求",
+        "role": "link",
+        "stableKey": "explorer:record:v1:df29ac5e50e91072f99565a515763f711a7cad8d789dea0cdf9c3ea0332b5e69",
+        "targetBinding": "browser-target-binding:v1:b637604023f7c53a173ec82868164830c705ad6220b482d53b69b0531b026e41",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "c22d2298-8765-4524-9464-42df662226dd",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "欧易 App",
+        "role": "link",
+        "stableKey": "explorer:record:v1:f6e238700df41eb7371b1fdccee0ba5c03f5e554b065d1af1e56c66b274529ce",
+        "targetBinding": "browser-target-binding:v1:525d73eb6ce0025c5b812a88720ed7ba371c766093f82d43f1e01dcee96d85a8",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "992acf87-05a6-4d8b-8c19-f1762c78dc1a",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "快捷买币",
+        "role": "link",
+        "stableKey": "explorer:record:v1:d2a96f17f078e4150887339ba175fd5c56f0420a16bde568eac75ad0b2ff979a",
+        "targetBinding": "browser-target-binding:v1:9f2b7760c42e35b10ff183295cbdac6e29e48fe83b699eca1e10cd9b10015129",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "2f1bdec3-b9fd-4b3b-8a57-f3d695d15e04",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "闪兑",
+        "role": "link",
+        "stableKey": "explorer:record:v1:6957cfb5bd3a146400c70d6064bd42b30f1e7a839277ce3788a92d172cfc2dc8",
+        "targetBinding": "browser-target-binding:v1:1c9dd2996bc1fc180fc21fdd8503717dec3f43f1bfa8af2b759e41f2ea0d0849",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "b0d9f724-acaf-42e0-8069-cec438a434d6",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "交易",
+        "role": "link",
+        "stableKey": "explorer:record:v1:4d401aef924d98ca3e2c94e682b236eca952a9a655cc7f68c5166da2c81806e7",
+        "targetBinding": "browser-target-binding:v1:5ebe97d98bf4c0fe317527c017b554a68dca4f8c1e5353b3bcfab1d71284c9a2",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "26fafd9e-7bc2-42e7-bf41-f627a70d241f",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "浏览所有数字货币",
+        "role": "link",
+        "stableKey": "explorer:record:v1:fb9b80f18794f4236117693223d2f0f7db637c7753065f3d0e77713b08d53e83",
+        "targetBinding": "browser-target-binding:v1:1eb349d36c2815d12972f1426386b8dfb73fd0971cacef4c811dafbfa0c410eb",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "d54a5abc-392e-40a9-acd3-4983fb2a6cb9",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "新手学院",
+        "role": "link",
+        "stableKey": "explorer:record:v1:0d3045b0c45ad4b29880350f8575d28aabc5c6fd1dad00c0e96d51d61adc0bb6",
+        "targetBinding": "browser-target-binding:v1:37c6d66a8f976abe4deb36994fa971afc7558bab0f38693ba66804ce5c247362",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "0d30268e-93f2-4a93-9334-48b949c9709f",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "TradingView",
+        "role": "link",
+        "stableKey": "explorer:record:v1:740ec3d4462bb53b1ab45398d178044f65ef9daec62ca0a6bd67430d050299df",
+        "targetBinding": "browser-target-binding:v1:9714fde7d2222213017a2751510f0493cdff6072e6ef6dbdbe12a633b3016cc2",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "7ce50d4e-e2e5-4a0f-bb39-f6aed894e0e1",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "X-RWA",
+        "role": "link",
+        "stableKey": "explorer:record:v1:7c345faf23db57ae310ca1aee384de1ba1b22d17150fba10c77a7b67c7a0fee1",
+        "targetBinding": "browser-target-binding:v1:d4c4e07715d923491197d5e2233d879e99f819f01cddd7235b197f419a50a0ed",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "e331356d-70a2-4ded-a778-e868be849b7b",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "结果市场",
+        "role": "link",
+        "stableKey": "explorer:record:v1:d1df55103862232ab40831d1630308b0cb7c0f871017e4af98c83e8480712753",
+        "targetBinding": "browser-target-binding:v1:5acc4a091e5116c3f951be0fa5ca3f2404ecda861cb05b71833ad9ae2fbab6f3",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "f5ae379f-afdf-4e90-b212-af7c49a53e3e",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "API",
+        "role": "link",
+        "stableKey": "explorer:record:v1:78c8dd4ea704dcf4f14cb8c541a833d19ea8ea4b0a2d8b90e8b9ceda99fd06b9",
+        "targetBinding": "browser-target-binding:v1:ff31a430b46eeaa30d7ed95d4fc443be4c6dc8b34ab781a008af4a24c20eb936",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "980aa295-cd84-4f9f-9d44-855eb7d77b1c",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "历史行情数据",
+        "role": "link",
+        "stableKey": "explorer:record:v1:3d5df240a7d7dafb9865a07268c74c482a5d99f60b1a818577f0d02fafba85b8",
+        "targetBinding": "browser-target-binding:v1:d48f10b7c99517d3e82c4a0a8dca081c97c6d34914ab52d2ad0eabc3fadd5d2d",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "d1564175-6d5d-4c75-a446-f6cc71d426ab",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "CEX 费率标准",
+        "role": "link",
+        "stableKey": "explorer:record:v1:55f72fdab6f67a15d18d0760a221d1521d5d27ee30ee8c3e23aa3a0ae7a76791",
+        "targetBinding": "browser-target-binding:v1:d6d0a5580b61662afa3788eb8f3da78074971687bd4916ef4854cb89cd0ab86f",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "ffbafc63-733f-47f2-9471-b5d65a0d3f63",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "上币申请",
+        "role": "link",
+        "stableKey": "explorer:record:v1:7e41b14d55bd6a093c5f36c7a7c8fe8f4082bbdaef17f8ba407de570da4fe0e4",
+        "targetBinding": "browser-target-binding:v1:b25cc1b58c98ebcebe1c0840c4296d8b19b2c8195290e154f917274a97351d77",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "f52ecf78-2c43-48f5-acd8-198a36e9a71f",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "帮助中心",
+        "role": "link",
+        "stableKey": "explorer:record:v1:7c1ecaa3558abff693402ef2a9a358a890ced46110b7eda915217eda86c2a15c",
+        "targetBinding": "browser-target-binding:v1:aaaad463bc8c93a25a3d723ee8a8dc72e67b8839d410903dc973bee782e2e71a",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "bd08b6cf-af7a-4581-bb3a-8af2b4badaca",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "官方渠道验证",
+        "role": "link",
+        "stableKey": "explorer:record:v1:a82d27d33a1fc67d1bc50c30f27096229bebabeb3276e11c1d0b4ed77d3369d7",
+        "targetBinding": "browser-target-binding:v1:be0321cc960164d070c6ccc06da9430f099c1d6f66d9e3480184e47e6e6104f3",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "66c52955-5489-4ad0-98da-fa26e8582bfc",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "公告",
+        "role": "link",
+        "stableKey": "explorer:record:v1:3006c046d5ccc02c1871a7367416f8f01f303640f1a974cdfb8364082d109495",
+        "targetBinding": "browser-target-binding:v1:94b515f9aae30c9debdc04b37720f2763a395622ed1145ccac1d890eb63e2fbe",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "6ec03e43-cd3b-4964-a30b-5fef922a58df",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "加入社群",
+        "role": "link",
+        "stableKey": "explorer:record:v1:c0dd7f840f455b856aa8e979463892c9555b267b1eee96ef75ebee6ce93574ce",
+        "targetBinding": "browser-target-binding:v1:00ead806a8ee04e6b5695e5bbe3a03f1df4bfdf45a80b18ee69b1d8c47a341fe",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "bf11772d-5cf3-4cb4-b3b2-afa6d99894d1",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "BTC 兑换 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:6f360fe994562b952953bd9dfd280d0ae658b9ac2c22809d35bf84ca67928c03",
+        "targetBinding": "browser-target-binding:v1:182f0b19bad3de2497f412234d757f1c58c535056630448259c8d1e7f3782ee2",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "e86b6d22-7ed6-498a-bdad-4970d6a45fbb",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "ETH 兑换 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:033a378a9c7ba9023ef3fc9b3cc2ab7453de80009684bb5ef6cb9240bba39afd",
+        "targetBinding": "browser-target-binding:v1:2f9e64cc6c3fff076a14038e91d936c11e216de571705898525f78087cd86774",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "095115f8-45ff-4c3f-87cb-62bfde5451be",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "USDT 兑换 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:7d1437723097d14a03dc4018615e6a25ec9298079dafc04d4134032b31de8cc7",
+        "targetBinding": "browser-target-binding:v1:d0753ae49f6909bd7ff794e70f7f16845477c779e3e30c48033fbea5059c4982",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "55b671a1-69e8-4fbd-abf9-7e584a8e1b03",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "SOL 兑换 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:c1e821f3a5944f45245328f7998e51d68a25424084abbaed25f6484710d23516",
+        "targetBinding": "browser-target-binding:v1:6f79424e35b5f39b20726882a31983c80f0094f60593d1b6f2a253721bd2a087",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "58cc439f-5d30-4f75-b78c-6ce26bbdf495",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "XRP 兑换 USD",
+        "role": "link",
+        "stableKey": "explorer:record:v1:105de9ec775f44084e4be9fba543ac0f854c8838eb1c581b1514703fe559f7ad",
+        "targetBinding": "browser-target-binding:v1:99f8809072a873ccb9d1b9d3d3f6ba537cef6c8a90809a9ef28fbacae438912f",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "35433a3e-4dd5-44b9-8a92-b28427140938",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "BTC USDC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:98b3244022f7e7325ab1fbf3434e7de1e8331244185ed1b537913eae9ad6c826",
+        "targetBinding": "browser-target-binding:v1:743ba0ab8d59f4146e26e681c835afcd8fe1a0cbf65e4d64f1950ab3f908067e",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "cccd938c-0a15-44ee-a14a-09d1c8a5b14d",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "ETH USDC",
+        "role": "link",
+        "stableKey": "explorer:record:v1:b8ae1ae2f0e6d774838cc38faa5bda0294da21ec6bd7180edfaab1b454dd3efb",
+        "targetBinding": "browser-target-binding:v1:6a8955f156dbd749b5b29e0886da21e3f0406eb1f3d84938fec19d3143f9f6f7",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "47101a8f-1a85-498f-ba93-21f20b5e1e06",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "BTC USDT",
+        "role": "link",
+        "stableKey": "explorer:record:v1:33b5676f172befa0c9879131ca356ffc44c33aac6bd1f605ddf78355c0989458",
+        "targetBinding": "browser-target-binding:v1:33bcf36983013c6797cd4a534e30d3d82b20d7f828ca773d7906542d3b11ba06",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "0c7c0b62-71c4-4688-a5c0-95d63899bf11",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "ETH USDT",
+        "role": "link",
+        "stableKey": "explorer:record:v1:09f151d2f6f3c734c689cd38a081a74ae98b6ef520f981ac201ca4287cbf9d78",
+        "targetBinding": "browser-target-binding:v1:fcab7df7f6cf8779a02b45622c58de6d7e41d0059a24179b21466b74ae659d77",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "7de32c8d-f5ad-4162-877d-788fec0a4b5c",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "SOL USDT",
+        "role": "link",
+        "stableKey": "explorer:record:v1:660ef8cb24de111efd71d42a7bea3ebdf786cd5c7c6596eb0289c3c076559bd7",
+        "targetBinding": "browser-target-binding:v1:3f6cf19860c3cb8082e77c3194d1c45f29759e10479b37109554a5f94f6e7b6c",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "985d3a3c-c1ad-4020-b06f-0dda0e6d8f98",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "XRP USDT",
+        "role": "link",
+        "stableKey": "explorer:record:v1:a7a8fc39b084419b7ba8b1683327d2b7fa6ce2a447fdba33d41fd48b13f59eb4",
+        "targetBinding": "browser-target-binding:v1:237ece977a32fddedd90d5960d72e064574195f6ff48418adffb11135147bc1e",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "a3099fea-1ee0-4223-bc6b-5ed17e1e87bb",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "比特币 (BTC) 价格",
+        "role": "link",
+        "stableKey": "explorer:record:v1:dc7b136c3df6baaab7a7347b680e8ea29131072f5e86e0b2cdccaa7f3be94932",
+        "targetBinding": "browser-target-binding:v1:d66c38218498bf40e651ee5bb5777fbe2ebfb8e8cbe76182351127bccbc870c1",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "8328902b-3688-494a-bc49-3695ae25718f",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "以太坊 (ETH) 价格",
+        "role": "link",
+        "stableKey": "explorer:record:v1:1715481973a98afcb67b8a401f62efbebd6c516a5d229f0e2c83fdcbfff69fba",
+        "targetBinding": "browser-target-binding:v1:059fd946957ac605b428c2e98e7e6117699dd800ef93105c0c70c9129cc7567b",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "0761b18b-2482-48c4-943a-a94d3a4421a8",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "Solana 价格",
+        "role": "link",
+        "stableKey": "explorer:record:v1:3692305b32f42fdce693fe2f44841c1924b583bde41060368a9527bfc6c99505",
+        "targetBinding": "browser-target-binding:v1:91546b3e2b427d137d5d753a8f98b9f954d698451778e56ed8d9f152d5a870c6",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "dba39062-207f-46b9-86b7-c4f3bc11e474",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "XRP 价格",
+        "role": "link",
+        "stableKey": "explorer:record:v1:745f0f01158daf55f9a9a552af9b1593dbee2d68acb70a8d22265db208966cf3",
+        "targetBinding": "browser-target-binding:v1:b108f4c90557c7cb2dacbd08f68ab31c6c5af5623366c132a4579a2d85ef1572",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "21a75df8-62a9-47d1-a3b4-cf07038b6174",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "比特币价格预测",
+        "role": "link",
+        "stableKey": "explorer:record:v1:60b43dd85b6532444a53c9d0b007d5ee0395d263fee7c4c4e119281b991c076e",
+        "targetBinding": "browser-target-binding:v1:8632a87c29a5bfe67052f3a9bc818a7ade32380ebde4577d633a182c43ab675d",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "d12174d3-eddb-418f-94e7-e78551266b1d",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "以太坊价格预测",
+        "role": "link",
+        "stableKey": "explorer:record:v1:e50ac4b6feb823f3d50645913c5f2c74ad6dfcbe630c071e174fa6fc819f5453",
+        "targetBinding": "browser-target-binding:v1:96faff2c14bedbaa653c53e4901ead43f45c133182468c8c184135fd5fb11b83",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "0541512a-9dfa-47be-935a-413a48b25363",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "瑞波币价格预测",
+        "role": "link",
+        "stableKey": "explorer:record:v1:b8b127c376f4f970e1c5b035fb0616065ad134c5da550e8773af0a93d2cb58b1",
+        "targetBinding": "browser-target-binding:v1:a22ac04e01a2cf57b8144702e2abfafd317cbf6a8333d9b6a7af7156db464e71",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "91f5b5ef-0c09-4741-8773-f48cc2644962",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "如何购买数字货币",
+        "role": "link",
+        "stableKey": "explorer:record:v1:b68f2b65b1a4aaf86c7184d401f6b52eedee6a6264535594db360ae7a9ee842e",
+        "targetBinding": "browser-target-binding:v1:104abea738c7402c8cadef63b5c54255090db8f226fbe078ca0606486ec663c8",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "393e436c-6ba1-49f8-811b-214d413b4dee",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "如何购买比特币",
+        "role": "link",
+        "stableKey": "explorer:record:v1:bfb94d119c0896ec4f7273919a3eda02475b506c521756813a293a92fcbb0d5b",
+        "targetBinding": "browser-target-binding:v1:ee36d90bf337bedec4fd6c8d49ea7b3daab35a72fd1c8cc28d74947c134a0966",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "339af26a-0278-486a-8205-aad6f35f6a90",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "如何购买以太坊",
+        "role": "link",
+        "stableKey": "explorer:record:v1:f59e5e5fc14f3fed26b6563c2c5ddb977df27ebda3d6ebc2a4ce7a0f6f0f72bb",
+        "targetBinding": "browser-target-binding:v1:5e195d560330bad22203d10d7eb397272bb6f8f431f88625ea44a4c364106307",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "7fe91f47-db3e-4fc4-a091-30c6736d58fc",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易目录",
+        "label": "如何购买 Solana",
+        "role": "link",
+        "stableKey": "explorer:record:v1:c7969594b9519be5d84da7a4bfb4dd2d0ee872bfd658abb502b87b62ee5d4581",
+        "targetBinding": "browser-target-binding:v1:811859cb9b65ef0bacb58784b47a020a40f5b589ce92f3a613d9b476d332996a",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "2f45dd1c-28da-4c3f-a989-b3d9d415e0e6",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易社群",
+        "label": "X",
+        "role": "link",
+        "stableKey": "explorer:record:v1:989eba8fcfe506d3b9e16d7f741389e741700f7b3ff9e659929c6eb5596c3bde",
+        "targetBinding": "browser-target-binding:v1:9412f32731cd5b4f5305cd2aa3e67ddd9e5aaff56b84b4992ba71b63f90e7cb4",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "baf3267b-0a25-4328-ae69-2cdd5a1d7841",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易社群",
+        "label": "Telegram",
+        "role": "link",
+        "stableKey": "explorer:record:v1:17480e6f1a5d3b589489b011c4de6ee19553e1416b47e4dbe1bf46e639965dd5",
+        "targetBinding": "browser-target-binding:v1:e5c17ea6ef965885bee0367571c694ccb7f55213125e157e895b5f3720b307c8",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "032bc5ca-3431-4ad3-8303-4d57f36a73f4",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易社群",
+        "label": "Discord",
+        "role": "link",
+        "stableKey": "explorer:record:v1:177375c7bc04b1d9dcc3e676624bce6c64342965d497d217f006de57c1ad7676",
+        "targetBinding": "browser-target-binding:v1:49e7ccbfd479b6caeea18a7151bb16a7e023b2d58c764ae47c964d6ed5f1f1af",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "3d216960-6ea8-45f5-ba75-5e093b2e8dd6",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易社群",
+        "label": "Line",
+        "role": "link",
+        "stableKey": "explorer:record:v1:532cb5b54fc4026c558fc205c4505309035ee3b349ceb6915d3c8f4a63350dcd",
+        "targetBinding": "browser-target-binding:v1:e715ec2b30eb54cd6a8c8b61d570cc2c3c2210a08367688f72a03c60a5ad01ee",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "1e5fd083-c096-4739-8d12-19597a558322",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易社群",
+        "label": "YouTube",
+        "role": "link",
+        "stableKey": "explorer:record:v1:dbaff7e5592d03eac92c54fd3a4dd676f954597e17c73dea2b53fc52ae5dd5bd",
+        "targetBinding": "browser-target-binding:v1:7657d5b0c2bbc98240f1710f87e0949ad4de2ebc034dd5e4a055a8baf2cbda4c",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "6118758e-d968-4997-ad53-0efa4492a4ea",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易社群",
+        "label": "Facebook",
+        "role": "link",
+        "stableKey": "explorer:record:v1:68c45e48dcd23b7c6ae3aea8bdd6c35e9f1f806bf68d77d84ba43f18c60b0102",
+        "targetBinding": "browser-target-binding:v1:0f1b17424dddc985986afb89800b83f6cb5ede3aaa10aed7ce0a133f4469c447",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "da285c22-7ecc-4147-87ef-226f08a77dd4",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易社群",
+        "label": "Instagram",
+        "role": "link",
+        "stableKey": "explorer:record:v1:d938f611f4db0751ed1f516aaca36c9f6a8c5a7d9f9cf2818b5944558a17f100",
+        "targetBinding": "browser-target-binding:v1:1d57f6e7ecbaf39ad887697f497ce3191ad54d79733dde8204e8a38cb9b72588",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "6f004d76-a145-4f9f-a9e0-a0c1f77b49e4",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易社群",
+        "label": "TradingView",
+        "role": "link",
+        "stableKey": "explorer:record:v1:62341de8d3d2d2e41d5942f3ce88097cf86596b8d477f947e1cced714e75d61c",
+        "targetBinding": "browser-target-binding:v1:5f7f1f931cbf49332a14710d9a78eaa2938367e0c1e4ad07c527f7fe6365011b",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "01ccdfa4-4920-4c4e-ba5b-6b9042c75533",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "欧易社群",
+        "label": "欧易社群页面和社交媒体",
+        "role": "link",
+        "stableKey": "explorer:record:v1:ca7623592b4e611dffdb65b2e9c5e3594b38026d5d83799f40812332a5a816b9",
+        "targetBinding": "browser-target-binding:v1:e5c17ea6ef965885bee0367571c694ccb7f55213125e157e895b5f3720b307c8",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "itemId": "520ab800-e3d2-4771-9eb6-adf5c801208c",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "USD",
+        "role": "generic",
+        "stableKey": "explorer:context:v1:29e5b2366ff54e476263ef3609b0ea4702956586c7dc05c9b83c9461f8878595",
+        "targetBinding": "browser-target-binding:v1:642db193850aad6e97fdf86fd91740d91564ce44775ea5f1ed5bd116520459f2"
+      },
+      "status": "unresolved",
+      "reason": "operation_basis_unconfirmed"
+    },
+    {
+      "itemId": "d145ff37-556f-4736-8a00-d143c458ec7d",
+      "scope": {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "region": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易",
+        "label": "BTC",
+        "role": "generic",
+        "stableKey": "explorer:context:v1:455e6722089220f9ae7249da3e3a1488b7a5cde5740e0488145336fd3165dca9",
+        "targetBinding": "browser-target-binding:v1:642db193850aad6e97fdf86fd91740d91564ce44775ea5f1ed5bd116520459f2"
+      },
+      "status": "unresolved",
+      "reason": "operation_basis_unconfirmed"
+    }
+  ],
+  "unsuccessfulExecutions": [],
+  "scopeRefusals": [],
+  "calls": {
+    "jev": 43,
+    "llm": 2
+  },
+  "navigation": [
+    {
+      "at": 1792267738516,
+      "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+      "title": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易"
+    },
+    {
+      "at": 1792267806580,
+      "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+      "title": "转换 USD 到 BTC | 美元 兑换 Bitcoin 转换器 | 欧易"
+    }
+  ],
+  "noExhaustionClaim": true
+}
