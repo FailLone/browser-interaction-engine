@@ -1,0 +1,13 @@
+{
+  "sourceHead": "d7c38f3a54ec37951a92f1f84d799cabea2dc930",
+  "comparison": "6fd612c packages/tests identical to frozen 09449a4",
+  "selectedProductAndTests": [
+    "packages/adapter-playwright/src/region-candidates.ts",
+    "packages/explorer-plugin/src/obligation-scheduler.ts",
+    "packages/explorer-plugin/src/runtime.ts",
+    "tests/explorer-review-handoff.test.ts",
+    "tests/explorer-sample-priority.test.ts",
+    "tests/readonly-label-stability.test.ts"
+  ],
+  "method": "checked diff application; copied final harness"
+}

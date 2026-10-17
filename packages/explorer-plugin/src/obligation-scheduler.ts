@@ -63,3 +63,14 @@ export function bindScheduledRoute(schedule:ObligationSchedule,key:string,route:
 export function routeDebtAllows(schedule:ObligationSchedule,key:string):boolean {
   return !!schedule.routes[key]||!schedule.legacyUnmappedRouteKeys.length;
 }
+
+/** Exploration order only. Conditions and target correspondence remain intact;
+ * this prevents changing selector combinations from starving unseen controls.
+ * Matching display names alone never share this priority hint. */
+export function operationSamplePriority(plan:readonly PlanItem[]):(item:PlanItem)=>number {
+  const key=(item:PlanItem)=>JSON.stringify(Object.entries(item.scope).sort(([a],[b])=>a.localeCompare(b)));
+  const successes=new Map<string,number>();
+  for(const item of plan)if(item.scope.kind&&item.scope.stableKey&&item.status==='succeeded'
+    &&item.conditionCompletion?.status==='verified'&&item.resolvedBy?.attemptId){const k=key(item);successes.set(k,(successes.get(k)||0)+1);}
+  return item=>item.scope.kind&&item.scope.stableKey?(successes.get(key(item))||0):0;
+}

@@ -31,7 +31,7 @@ import { currentObligationTarget } from './current-obligation-target.js';
 import {auditGapIndex,type AuditGapIndex} from './audit-gap-index.js';
 import {observationActionIndex} from './observation-action-index.js';
 import {createCurrentSourceExclusion} from './current-source-exclusion.js';
-import { initialSchedule, orderedObligations, unfinishedObligations, selectObligation, reserveObligation, bindScheduledRoute, routeDebtAllows, localSelectionLimit, type ObligationSelection } from './obligation-scheduler.js';
+import { initialSchedule, orderedObligations, operationSamplePriority, unfinishedObligations, selectObligation, reserveObligation, bindScheduledRoute, routeDebtAllows, localSelectionLimit, type ObligationSelection } from './obligation-scheduler.js';
 import type { Checkpoint } from '@interaction/browser';
 
 const requiredCapabilities: (keyof ExplorerHost)[]=['operationCoverageCandidates','actionAvailability','operationCorrespondences','explorationSnapshot','controlInterpretationSnapshot','boundaryState','interactionTransition','navigationIsolation','recoveryAssessment','sessions','session','createSession','observation','observe','actions','execute','command','getFrontier','report','list','regionReviewMaterial','explorationReviewMaterial','controlClassificationMaterial','controlReviewMaterial','purposeReviewMaterial','discoveryScanMaterial','createCheckpoint','reachCheckpoint','pause','stop','pinEvidence','unpinEvidence'];
@@ -1309,7 +1309,8 @@ export class ExplorerPlugin {
     const arrived=schedule.selection&&schedule.selection.kind!=='current'?schedule.selection.itemId:undefined;
     const arrivedTarget=arrived&&projection.entries.find(entry=>entry.itemId===arrived&&entry.currentActionId
       &&(['active','alias'].includes(entry.state))&&(entry.reason==='current_target_observed'||entry.source&&entry.correspondence));
-    const ordered=orderedObligations(task.plan,schedule),targetOrder=new Map(ordered.map((item,index)=>[item.id,index]));
+    const samplePriority=operationSamplePriority(task.plan);
+    const ordered=orderedObligations(task.plan,schedule).sort((a,b)=>samplePriority(a)-samplePriority(b)),targetOrder=new Map(ordered.map((item,index)=>[item.id,index]));
     const orderedActions=unique.slice().sort((a,b)=>Number(a.boundary?.intent==='exit')-Number(b.boundary?.intent==='exit')||Number(!!navigationTarget(a,o))-Number(!!navigationTarget(b,o)));
     const local:ObligationSelection[]=[],reentries:ObligationSelection[]=[];
     for(const action of orderedActions){
@@ -1328,7 +1329,7 @@ export class ExplorerPlugin {
       }
     }
     const locality=(choice:ObligationSelection)=>{const path=byId.get(choice.itemId)?.prerequisites||[];let shared=0;while(shared<path.length&&shared<round.entryPath.length&&digest(path[shared])===digest(round.entryPath[shared]))shared++;return shared;};
-    local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||locality(b)-locality(a)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+    local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||locality(b)-locality(a)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     const inPlace=local.filter(choice=>{const action=actions.find(action=>action.id===choice.actionId)!;return action.boundary?.intent!=='exit'&&!navigationTarget(action,o);});
     if(inPlace.length){local.splice(0,local.length,...local.filter(choice=>choice.itemId===arrived||inPlace.includes(choice)));}
     // Finish the selected recovered child once before fairness sends us away.
@@ -1407,7 +1408,7 @@ export class ExplorerPlugin {
       if(reentry&&!repetition?.repeatable)throw new ExplorerError('REENTRY_EVIDENCE_CHANGED');
       const reentryItem=reentry?this.recordEntry(task,round,action,o):undefined;
       const purpose=reentry?'prerequisite':includesScope(task.plan,action,o);const items=task.plan.filter(i=>i.required&&schedulableObligation(i)&&!i.reason.startsWith('missing_capability:')&&matches(i.scope,action,o)&&(!boundOperationCondition(i)||boundOperationCondition(i)===keyFor(action,o)));
-      if(selection?.itemId===arrived&&!items.some(item=>item.id===selection.itemId)){
+      if(purpose==='target'&&selection?.itemId===arrived&&!items.some(item=>item.id===selection.itemId)){
         const item=byId.get(selection.itemId),binding=currentObligationTarget(this.host,item,o,this.host.actions(sid,o.id));
         if(!item||binding?.currentActionId!==action.id||!binding.source||!binding.correspondence)throw new ExplorerError('STALE_DECISION');
         items.push(item);

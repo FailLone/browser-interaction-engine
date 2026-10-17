@@ -24,7 +24,7 @@ export function collectRegionCandidates(controls: Control[], elements: Element[]
   // Aggregate text of a passive/tentative container is evidence, not the name
   // of an established operation. Keep explicit labels and record bindings;
   // reviewed operations separately retain their exact target conditions.
-  const memberName = (c: Control) => c.liveContent?.name ?? (c.label || (Object.values(c.actionBasis || {}).some(b => b.status === 'supported') ? c.name : undefined));
+  const memberName = (c: Control) => c.nativeReadOnly === true && c.readOnly && ['input','textarea'].includes(c.tag) && c.actions.length > 0 && c.actions.every(kind => kind === 'fill') ? undefined : c.liveContent?.name ?? (c.label || (Object.values(c.actionBasis || {}).some(b => b.status === 'supported') ? c.name : undefined));
   // Reuse describes structure, not historical identity. Keep full attributes and
   // explicit labels, but not geometry, inline styles or native disabled readiness.
   // Disabled is enforced by fresh action preconditions; it does not change this

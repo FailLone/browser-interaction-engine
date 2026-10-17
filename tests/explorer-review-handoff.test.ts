@@ -325,16 +325,16 @@ function arrivedChildFixture(options: { outcome?: 'succeeded' | 'unknown'; recei
     currentObservationId: current.id, options: { executionPolicy: 'interface-only' } })) as unknown as ExplorerHost['session'];
   const availability = (sid: string, id?: string) => ({ sessionId: sid, observationId: readObservation(sid, id).id, revision: 'fixture-availability',
     actions: readActions(sid, id).map(action => ({ actionId: action.id, executable: true, blockers: [] })) });
-  f.host.actionAvailability = vi.fn(availability) as ExplorerHost['actionAvailability'];
-  f.host.explorationSnapshot = vi.fn((sid, id) => ({ actions: readActions(sid, id), operationCandidates: readActions(sid, id), availability: availability(sid, id) })) as ExplorerHost['explorationSnapshot'];
+  f.host.actionAvailability = vi.fn(availability) as unknown as ExplorerHost['actionAvailability'];
+  f.host.explorationSnapshot = vi.fn((sid, id) => ({ actions: readActions(sid, id), operationCandidates: readActions(sid, id), availability: availability(sid, id) })) as unknown as ExplorerHost['explorationSnapshot'];
   const operations = () => ({ sessionId: current.sessionId, observationId: current.id,
     controls: current.controls.map(control => ({ control, actions: readActions(current.sessionId).filter(a => a.localId === control.localId), reviews: [], needsReview: false })) });
-  f.host.controlReviewMaterial = vi.fn(operations) as ExplorerHost['controlReviewMaterial'];
+  f.host.controlReviewMaterial = vi.fn(operations) as unknown as ExplorerHost['controlReviewMaterial'];
   f.host.controlInterpretationSnapshot = vi.fn(() => ({ actions: readActions(current.sessionId),
-    classifications: { sessionId: current.sessionId, observationId: current.id, controls: [] }, operations: operations(), nonInteractive: [], retainedClassifications: [] })) as ExplorerHost['controlInterpretationSnapshot'];
+    classifications: { sessionId: current.sessionId, observationId: current.id, controls: [] }, operations: operations(), nonInteractive: [], retainedClassifications: [] })) as unknown as ExplorerHost['controlInterpretationSnapshot'];
   f.host.recoveryAssessment = vi.fn(() => ({ observationId: current.id, blockingBoundaryExit: false,
     unknownAttempts: (f.attempts.get(before.sessionId) || []).filter(a => a.status === 'unknown') })) as unknown as ExplorerHost['recoveryAssessment'];
-  f.host.explorationTargetCorrespondences = vi.fn((sid, input) => ({ sessionId: sid, observationId: input.observationId,
+  f.host.explorationTargetCorrespondences = vi.fn((sid: string, input: Parameters<NonNullable<ExplorerHost['explorationTargetCorrespondences']>>[1]): ReturnType<NonNullable<ExplorerHost['explorationTargetCorrespondences']>> => ({ sessionId: sid, observationId: input.observationId,
     results: input.requests.map(request => {
       const equivalent = correspondence && sid === before.sessionId && input.observationId === before.id && request.actionId === navigation.id
         && request.source.sessionId === original.sessionId && request.source.observationId === original.id && request.source.actionId === originalAction.id;
@@ -353,8 +353,8 @@ function arrivedChildFixture(options: { outcome?: 'succeeded' | 'unknown'; recei
       evidence: [], identityAuthorized: false, replayAuthorized: false, currentExecution: false, arrivalVerified: false };
   };
   f.host.operationReceiptCondition = vi.fn(receipt);
-  f.host.operationReceiptConditions = vi.fn((sid, input) => ({ sessionId: sid, results: input.attemptIds.map(attemptId => receipt(sid, { attemptId })) }));
-  f.host.operationCorrespondences = vi.fn((sid, input) => ({ sessionId: sid, observationId: input.observationId,
+  f.host.operationReceiptConditions = vi.fn((sid, input) => ({ sessionId: sid, results: input.attemptIds.map((attemptId: string) => receipt(sid, { attemptId })) }));
+  f.host.operationCorrespondences = vi.fn((sid: string, input: Parameters<ExplorerHost['operationCorrespondences']>[1]): ReturnType<ExplorerHost['operationCorrespondences']> => ({ sessionId: sid, observationId: input.observationId,
     results: input.requests.map(request => {
       const actual = (f.attempts.get(request.source.sessionId) || []).find(a => a.id === request.source.attemptId);
       return { equivalent: !!actual && actual.status === 'succeeded' && options.receiptVerified !== false

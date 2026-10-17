@@ -1,0 +1,17 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine
+
+ ✓ tests/explorer-review-handoff.test.ts (15 tests) 53ms
+ ✓ tests/native-navigation-operation-reference.test.ts (26 tests) 96ms
+ ✓ tests/explorer-operation-source-completion.test.ts (21 tests) 21ms
+ ✓ tests/explorer-target-review.test.ts (12 tests) 20ms
+ ✓ tests/readonly-label-stability.test.ts (2 tests) 2430ms
+   ✓ settles an unowned native checkbox while a passive readonly label keeps refreshing  1352ms
+   ✓ still withholds success when an actionable control keeps changing its name  1077ms
+ ✓ tests/explorer-sample-priority.test.ts (2 tests) 9ms
+
+ Test Files  6 passed (6)
+      Tests  78 passed (78)
+   Start at  02:57:03
+   Duration  5.61s (transform 642ms, setup 0ms, collect 2.17s, tests 2.63s, environment 0ms, prepare 203ms)
+
