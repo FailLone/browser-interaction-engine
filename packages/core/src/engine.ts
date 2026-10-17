@@ -256,9 +256,11 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         const before=source.controls.filter(c=>c.localId===input.source.localId),after=current.controls.filter(c=>c.localId===input.localId);
         if(before.length!==1||after.length!==1){result.reason='review_target_missing_or_ambiguous';return result;}
         const facts=reader===null?undefined:reader?reader(before[0],after[0]):this.adapter.controlReviewTargetCorrespondence?.(before[0],source,after[0],current);
-        if(facts){result.targetMatched=facts.targetMatched;result.reviewable=facts.reviewable;result.sourceEquivalent=facts.sourceEquivalent;
-          result.reason=facts.reason;result.conditionKey=facts.conditionKey;result.currentMaterialKey=facts.currentMaterialKey;result.evidence=[...facts.evidence];
-          result.sourceConditionAssessment=facts.sourceConditionAssessment;result.currentConditionAssessment=facts.currentConditionAssessment;}
+        // Copy every adapter fact before publishing any success. A throwing
+        // getter/iterator must not leave a partially accepted proof in catch.
+        if(facts)return {...result,targetMatched:facts.targetMatched,reviewable:facts.reviewable,sourceEquivalent:facts.sourceEquivalent,
+          reason:facts.reason,conditionKey:facts.conditionKey,currentMaterialKey:facts.currentMaterialKey,evidence:[...facts.evidence],
+          sourceConditionAssessment:facts.sourceConditionAssessment,currentConditionAssessment:facts.currentConditionAssessment};
         return result;
       }catch{return result;}
   }
@@ -282,7 +284,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       const ref=input.requests[indices[0]].source;
       const source=ref.sessionId===sessionId&&ref.observationId===input.observationId?current:read(ref.sessionId,ref.observationId);
       let reader:ControlReviewTargetCorrespondenceReader<O>|null|undefined;
-      try{if(source&&current)reader=this.adapter.createControlReviewTargetCorrespondenceReader?.(source,current);}
+      try{if(source&&current&&this.adapter.createControlReviewTargetCorrespondenceReader){
+        const created=this.adapter.createControlReviewTargetCorrespondenceReader(source,current);
+        reader=typeof created==='function'?created:null;
+      }}
       catch{reader=null;} // A failed factory must not silently switch correspondence contracts.
       for(const index of indices)results[index]=this.recordedControlReviewCorrespondence(sessionId,{...input.requests[index],observationId:input.observationId},current,source,reader);
     }

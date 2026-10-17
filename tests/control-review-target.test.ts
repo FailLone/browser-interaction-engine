@@ -358,6 +358,24 @@ it('preserves an adapter callback override in its inherited batch reader',()=>{
   expect(browser.controlReviewTargetCorrespondence).toHaveBeenCalledWith(o.controls[0],o,o.controls[0],o);
 });
 
+it('does not publish partial success when adapter evidence cannot be consumed',async()=>{
+  const f=await fixture(0);try{
+    const input={observationId:f.source.id,localId:'usd',source:{sessionId:f.session.id,observationId:f.source.id,localId:'usd'}};
+    const broken={targetMatched:true,reviewable:true,sourceEquivalent:'equivalent' as const,reason:'partial-proof',
+      get evidence():string[]{throw Error('damaged evidence');}};
+    const expected={targetMatched:false,reviewable:false,sourceEquivalent:'unknown',reason:'review_target_evidence_unavailable',
+      evidence:[],coverageGranted:false,executionAuthorized:false,preflightRequired:true};
+    f.platform.createControlReviewTargetCorrespondenceReader=()=>()=>broken;
+    expect(f.engine.controlReviewTargetCorrespondence(f.session.id,input)).toMatchObject(expected);
+    delete f.platform.createControlReviewTargetCorrespondenceReader;
+    f.platform.controlReviewTargetCorrespondence=()=>broken;
+    expect(f.engine.controlReviewTargetCorrespondence(f.session.id,input)).toMatchObject(expected);
+    f.platform.controlReviewTargetCorrespondence=browserControlReviewTargetCorrespondence;
+    f.platform.createControlReviewTargetCorrespondenceReader=()=>undefined as never;
+    expect(f.engine.controlReviewTargetCorrespondence(f.session.id,input)).toMatchObject(expected);
+  }finally{await f.engine.close();}
+});
+
 it('stops remaining recorded replay steps when review arrival verification requests resolution',async()=>{
   const f=await fixture();try{
     await f.engine.reachControlReviewTarget(f.session.id,f.input);
