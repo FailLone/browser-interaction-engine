@@ -10,6 +10,8 @@ export interface OwnerDependencyBuilder {
   addClosure(value: OwnerDependencyClosure): boolean;
   replaceRoot(index: number, value: OwnerDependencyRoot): boolean;
   replaceNativeRoot(index: number, value: OwnerDependencyNativeRoot): boolean;
+  /** Lower only future payload capacity; retain existing rows and final-summary headroom. */
+  capPayloadBytes(maximum: number): boolean;
   finish(summary: Summary): CompactOwnerDependencies | undefined;
   stats(): { wireBytes: number; expandedBytes: number; reservedBytes: number; failure?: Failure };
 }
@@ -22,7 +24,7 @@ export interface OwnerDependencyCodec {
 /** Self-contained so the adapter can inject this factory into one DOM evaluation.
  * No gzip, global memo, logical identity inference, or authorization is involved. */
 export function createOwnerDependencyCodec(): OwnerDependencyCodec {
-  const MAX = { bytes: 131072, expanded: 1048576, nodes: 512, references: 64, depth: 16,
+  const MAX = { bytes: 196608, expanded: 1048576, nodes: 768, references: 64, depth: 16,
     ids: 8192, roots: 1500, nativeRoots: 512, closures: 2012, members: 65536, statusReserve: 1024 };
   const own = (o: object, k: string) => Object.hasOwn(o, k);
   const bad = (): never => { throw new Error('invalid_graph'); };
@@ -184,7 +186,7 @@ export function createOwnerDependencyCodec(): OwnerDependencyCodec {
       graph.nativeRoots = nativeRoots.map(root => rawRoot(root, intern, true) as CompactOwnerDependencies['nativeRoots'][number]);
       if (new Set(roots.map(root => root.localId)).size !== roots.length || new Set(nativeRoots.map(root => root.instanceId)).size !== nativeRoots.length
         || new Set(selectors).size !== selectors.length || new Set(natives).size !== natives.length) return;
-      let wireBytes = size(graph), expandedBytes = size(initial), failure: Failure | undefined;
+      let wireBytes = size(graph), expandedBytes = size(initial), payloadCeiling = h.limits.bytes, failure: Failure | undefined;
       if (wireBytes + MAX.statusReserve > h.limits.bytes || expandedBytes + MAX.statusReserve > MAX.expanded) return;
       const rowSizes: Record<string, number[]> = { nodes: [], references: [], closures: [], roots: roots.map(root => size(root)), nativeRoots: nativeRoots.map(root => size(root)) };
       const seenNodes = new Set<string>(), seenClosures = new Set<string>();
@@ -210,7 +212,7 @@ export function createOwnerDependencyCodec(): OwnerDependencyCodec {
           const dictionaryBytes = added.reduce((total, value, index) => total + size(value) + (ids.length + index ? 1 : 0), 0);
           const wireDelta = size(row) - (replace === undefined ? -(rows.length ? 1 : 0) : size(rows[replace]));
           const rawDelta = rawBytes - (replace === undefined ? -(rows.length ? 1 : 0) : rowSizes[table][replace]);
-          if (wireBytes + dictionaryBytes + wireDelta + MAX.statusReserve > h.limits.bytes) { failure = 'byte_budget'; return false; }
+          if (wireBytes + dictionaryBytes + wireDelta + MAX.statusReserve > payloadCeiling) { failure = 'byte_budget'; return false; }
           if (expandedBytes + rawDelta + MAX.statusReserve > MAX.expanded) { failure = 'raw_byte_budget'; return false; }
           for (const value of added) { idsByValue.set(value, ids.length); ids.push(value); }
           if (replace === undefined) { rows.push(row); rowSizes[table].push(rawBytes); }
@@ -224,6 +226,10 @@ export function createOwnerDependencyCodec(): OwnerDependencyCodec {
         addReference: value => { const index = graph.references.length; return transact('references', value) ? index : undefined; },
         addClosure: value => transact('closures', value), replaceRoot: (index, value) => transact('roots', value, index),
         replaceNativeRoot: (index, value) => transact('nativeRoots', value, index),
+        capPayloadBytes: maximum => {
+          if (!Number.isSafeInteger(maximum) || maximum > payloadCeiling || maximum < wireBytes + MAX.statusReserve) return false;
+          payloadCeiling = maximum; return true;
+        },
         finish: value => {
           try {
             const next = summary(value), before = { inventoryComplete: graph.inventoryComplete, complete: graph.complete, reasons: graph.reasons };

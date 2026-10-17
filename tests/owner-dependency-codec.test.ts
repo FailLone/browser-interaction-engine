@@ -95,7 +95,7 @@ describe('strict wire rejection', () => {
     ['out of range reference row', w => w.closures[0][3] = [w.references.length]], ['duplicate node identity', w => w.nodes.push(w.nodes[0])],
     ['unknown header property', w => w.authorization = true], ['unknown ancestry', w => w.ancestry = 'all-ancestors'],
     ['missing native inventory', w => delete w.nativeInputIds], ['lookup missing document', w => w.references[0].push([w.ids.length, 0])],
-    ['lookup invalid count', w => w.references[0].push([0, 3])], ['limits increased', w => w.limits.nodes = 513],
+    ['lookup invalid count', w => w.references[0].push([0, 3])], ['limits increased', w => w.limits.nodes = 769],
     ['prototype attribute value', w => w.nodes[0][3].x = { value: 'bad' }],
   ];
   it.each(changes)('rejects %s', (_name, change) => {
@@ -139,4 +139,63 @@ it('compresses exact repeated typed IDs while preserving every raw dependency re
 it('factory remains browser-serializable without imports or module helpers', () => {
   const isolated = new Function(`const __name = fn => fn; return (${createOwnerDependencyCodec.toString()})();`)() as ReturnType<typeof createOwnerDependencyCodec>;
   expect(canonical(isolated.decode(isolated.encode(graph())))).toBe(canonical(graph()));
+});
+
+describe('compact resource profile', () => {
+  function initial(): OwnerDependencies {
+    return { ...empty(), limits: { nodes: 768, references: 64, bytes: 196608, depth: 16 },
+      roots: [], nativeRoots: [], selectorIds: [], nativeInputIds: [] };
+  }
+  const summary = { inventoryComplete: true, complete: false, reasons: [] };
+
+  it('accepts 768 nodes and rejects the 769th without changing the bounded graph', () => {
+    const builder = codec.createBuilder(initial())!;
+    for (let i = 0; i < 768; i++) expect(builder.addNode(node(`node-${i}`))).toBe(true);
+    const wire = builder.finish(summary)!;
+    expect(codec.decode(wire)?.nodes).toHaveLength(768);
+    expect(builder.addNode(node('node-768'))).toBe(false);
+    expect(builder.stats().failure).toBe('node_budget'); expect(builder.finish(summary)).toEqual(wire);
+    const extra = structuredClone(wire), index = extra.ids.push('node-768') - 1, extraNode = structuredClone(extra.nodes[0]);
+    extraNode[0] = index; extra.nodes.push(extraNode);
+    expect(codec.decode(extra)).toBeUndefined();
+    const declared = structuredClone(wire); declared.limits.nodes = 769;
+    expect(codec.decode(declared)).toBeUndefined();
+    expect(codec.createBuilder({ ...initial(), limits: { ...initial().limits, nodes: 769 } })).toBeUndefined();
+  });
+
+  it('accepts wire up to 196608 bytes and rejects payload or declarations beyond that bound', () => {
+    const builder = codec.createBuilder(initial())!;
+    const value = node('large', { attributes: { payload: 'x'.repeat(150000) } });
+    expect(builder.addNode(value)).toBe(true);
+    const wire = builder.finish(summary)!;
+    expect(byteLength(wire)).toBeGreaterThan(131072); expect(byteLength(wire)).toBeLessThan(196608);
+    expect(codec.decode(wire)?.nodes).toEqual([value]);
+    const boundary = structuredClone(wire);
+    boundary.nodes[0][3].payload += 'x'.repeat(196608 - byteLength(boundary));
+    expect(byteLength(boundary)).toBe(196608); expect(codec.decode(boundary)).toBeDefined();
+    boundary.nodes[0][3].payload += 'x'; expect(codec.decode(boundary)).toBeUndefined();
+    const declared = structuredClone(wire); declared.limits.bytes = 196609;
+    expect(codec.decode(declared)).toBeUndefined();
+    expect(builder.replaceNode(0, node('large', { attributes: { payload: 'x'.repeat(196608) } }))).toBe(false);
+    expect(builder.stats().failure).toBe('byte_budget'); expect(builder.finish(summary)).toEqual(wire);
+  });
+
+  it('caps later payload transactionally while final summary still uses the hard byte bound', () => {
+    const builder = codec.createBuilder(initial())!;
+    expect(builder.addNode(node('required'))).toBe(true);
+    const wire = builder.finish(summary)!, counters = builder.stats(), cap = counters.wireBytes + counters.reservedBytes + 256;
+    expect(builder.capPayloadBytes(cap)).toBe(true);
+    for (const invalid of [counters.wireBytes + counters.reservedBytes - 1, cap + 1, 196609, NaN, cap - 0.5]) {
+      expect(builder.capPayloadBytes(invalid)).toBe(false);
+      expect(builder.finish(summary)).toEqual(wire); expect(builder.stats()).toEqual(counters);
+    }
+    expect(builder.addNode(node('never-intern', { attributes: { payload: 'x'.repeat(1000) } }))).toBe(false);
+    expect(builder.replaceNode(0, node('required', { parentId: 'never-intern-parent', attributes: { payload: 'x'.repeat(1000) } }))).toBe(false);
+    expect(builder.stats().failure).toBe('byte_budget'); expect(builder.finish(summary)).toEqual(wire);
+    expect(builder.addNode(node('small-optional'))).toBe(true);
+    expect(codec.decode(builder.finish(summary))?.nodes.map(n => n.id)).toEqual(['required', 'small-optional']);
+    const final = builder.finish({ ...summary, reasons: ['x'.repeat(2048)] })!;
+    expect(byteLength(final)).toBeGreaterThan(cap); expect(byteLength(final)).toBeLessThan(196608);
+    expect(codec.decode(final)?.reasons).toEqual(['x'.repeat(2048)]);
+  });
 });
