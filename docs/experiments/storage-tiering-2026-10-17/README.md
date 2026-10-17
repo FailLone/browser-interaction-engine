@@ -261,3 +261,5 @@ UI 依赖回归在 `d103747` 修复：将浏览器所需纯函数提取到独立
 [专项与归档](evidence/real-okx-6/normalization-factory-validation/README.md)包含69/69测试、根类型检查及先前fixture类型错误；新增outcome对照保留完整task/events和冻结原事实，独立静态审阅无阻断。跨来源SDK对应和撤销review后的下一次outcome没有新增集成试验；既有只读链经静态核对未变。缓存仅同步存活，但除了8个派生SourceRecord，还有原reader缓存和按session保存的完整attempt账本，不能称整个调用只持有8份材料或固定字节。该计算修复的阶段性交付不缩小完整目标；任务库压缩/全量读取、结构共享和历史分层仍需真实验收，当前继续最终协议与隔离编译，随后合并及真实第七窗。
 
 最终产品 `900edf7` 的[原80次协议复验](evidence/run6-factory-protocols/README.md)完成：8条执行命令退出0，462份源码前后不变；与125a10c逐trial的行为投影80/80相同，原摘要器348/348完整性检查通过，假覆盖/假到达为0，unknown负例仍阻断。这里是协议行为投影一致，不声称原始浏览器记录逐字相同。[完整独立archive的构建验收](evidence/run6-factory-compiled/summary.json)五阶段全部通过，488输入哈希不变、623编译文件有摘要、28个workspace链接指向archive自身；两次实际本地fixture操作成功、显式mock JEV/LLM各1，代理和主线程实际查看截图，界面仍保留整页穷尽未证明。没有重跑2100项全套；上一轮原全套失败和版本重叠边界仍保留。两项验证并行，耗时不用作提速证据。
+
+产品900edf7连同上述记录已通过d3e1973快进[合入main](evidence/main-merge-run6-fixes.json)，包含autonomous4857ad5；原工作区6e11128、分支和未提交状态全部不变，main未执行安装或构建。完整目标仍未完成，接下来以同一独立任务/会话接续第七窗，检查新观察与真实恢复成本，不重置旧覆盖、失败债或预算使用。
