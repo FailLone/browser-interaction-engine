@@ -1,0 +1,13 @@
+{
+  "reason": "Temporary config resolves ambient types relative to its own folder; attached existing workspace node_modules. No source/test changes.",
+  "argv": [
+    "pnpm",
+    "exec",
+    "tsc",
+    "-p",
+    "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-compact-capture-types-mblqo4u7/tsconfig.json"
+  ],
+  "exitCode": 0,
+  "started": 1792213280.127576,
+  "finished": 1792213281.94903
+}

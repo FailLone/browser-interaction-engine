@@ -1,20 +1,29 @@
-import type { Control, OwnerDependencies, OwnerDependencyLimits, OwnerDependencyNode, OwnerDependencyReference, OwnerDependencyClosure } from './types.js';
+import type { Control, OwnerDependencies, OwnerDependencySnapshot, OwnerDependencyLimits, OwnerDependencyNode, OwnerDependencyReference, OwnerDependencyClosure } from './types.js';
+import type { createOwnerDependencyCodec } from './owner-dependency-codec.js';
+
+export function collectOwnerDependencies(controls: Control[], elements: Element[], instance: (el: Element) => string, documentId: string,
+  limits?: OwnerDependencyLimits): OwnerDependencies;
+export function collectOwnerDependencies(controls: Control[], elements: Element[], instance: (el: Element) => string, documentId: string,
+  limits: OwnerDependencyLimits | undefined, codecFactory: typeof createOwnerDependencyCodec): OwnerDependencySnapshot;
 
 /** Runs within one collectDOM evaluation. Bounded observable evidence only;
  * neither a business dependency discovery algorithm nor an identity grant. */
 export function collectOwnerDependencies(controls: Control[], elements: Element[], instance: (el: Element) => string, documentId: string,
-  limits: OwnerDependencyLimits = { nodes: 512, references: 64, bytes: 131072, depth: 16 }): OwnerDependencies {
+  limits: OwnerDependencyLimits = { nodes: 512, references: 64, bytes: 131072, depth: 16 }, codecFactory?: typeof createOwnerDependencyCodec): OwnerDependencySnapshot {
   const result: OwnerDependencies = { version: 'browser-owner-dependencies-v2', documentId, baseURI: document.baseURI,
     selectorIds: controls.filter(c => c.checked != null || c.pressed != null || c.expanded != null || c.tag === 'select'
       || ['checkbox', 'radio', 'switch', 'tab', 'option', 'treeitem'].includes(c.role)).map(c => c.localId),
     inventoryComplete: true, nativeInputIds: [], nativeRoots: [], roots: [], closures: [], nodes: [], references: [], limits: { ...limits }, complete: false, reasons: [] };
   const reasons = new Set<string>(), encoder = new TextEncoder();
   const size = (value: unknown) => encoder.encode(JSON.stringify(value)).byteLength;
+  const codec = codecFactory?.(), rawLimit = codec ? 1048576 : limits.bytes;
+  let builder: ReturnType<ReturnType<typeof createOwnerDependencyCodec>['createBuilder']>;
   // Inventory is reserved in full before payload. The remaining fixed allowance
   // covers the bounded global reason set; payload entries are charged once.
-  let bytes = 0;
-  const reserve = (additional: number) => {
-    if (bytes + additional > limits.bytes) { reasons.add('byte_budget'); return false; }
+  let bytes = 0, budgetFailure = 'byte_budget';
+  const reserve = (additional: number, commit?: () => boolean) => {
+    if (bytes + additional > rawLimit) { budgetFailure = codec ? 'raw_byte_budget' : 'byte_budget'; reasons.add(budgetFailure); return false; }
+    if (commit && !commit()) { budgetFailure = builder?.stats().failure || 'byte_budget'; reasons.add(budgetFailure); return false; }
     bytes += additional; return true;
   };
   const incompleteInventory = () => {
@@ -22,7 +31,9 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
     // Never preserve a partial graph as a seemingly complete root inventory.
     result.roots = []; result.nativeRoots = []; result.closures = []; result.nodes = []; result.references = [];
     if (size(result) > limits.bytes) { result.selectorIds = []; result.nativeInputIds = []; result.baseURI = ''; }
-    return result;
+    // Failure evidence is small and carries no complete inventory grant. A
+    // compact codec rejection must never be repaired by a successful raw graph.
+    return codec?.encode(result) || result;
   };
   const itemSelector = '[data-row-key],[data-item-key],li,tr,[role=row],[role=listitem],[role=treeitem],[role=option]';
   const ownerOf = (element: Element) => element.closest(itemSelector) || element.parentElement || element;
@@ -47,18 +58,22 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
   }
   // A failed root has a real, pre-paid inventory entry. Optional payload cannot
   // consume the space needed to report later roots or invalidate earlier ones.
-  const nativeEntries = nativeOnly.map(element => {
+  const nativeEntries = nativeOnly.map((element, index) => {
     const owner = ownerOf(element), ownerId = instance(owner);
     const root = { instanceId: instance(element), ownerId, closureId: ownerId, complete: false, reasons: ['byte_budget'] };
-    result.nativeRoots!.push(root); return { element, owner, root };
+    result.nativeRoots!.push(root); return { element, owner, root, index };
   });
   const entries = controls.map((control, index) => {
     const element = elements[index], owner = ownerOf(element), ownerId = instance(owner);
     const root = { localId: control.localId, instanceId: control.instanceId, ownerId, closureId: ownerId, complete: false, reasons: ['byte_budget'] };
-    result.roots.push(root); return { control, element, owner, root };
+    result.roots.push(root); return { control, element, owner, root, index };
   });
   bytes = size(result) + 1024;
-  if (bytes > limits.bytes) { reasons.add('byte_budget'); return incompleteInventory(); }
+  if (bytes > rawLimit) { reasons.add(codec ? 'raw_byte_budget' : 'byte_budget'); return incompleteInventory(); }
+  if (codec) {
+    builder = codec.createBuilder(result);
+    if (!builder) { reasons.add('byte_budget'); return incompleteInventory(); }
+  }
   const idrefAttributes = new Set(['for', 'aria-labelledby', 'aria-describedby', 'aria-controls', 'aria-owns', 'aria-activedescendant', 'aria-details', 'aria-errormessage', 'headers', 'list', 'form', 'popovertarget', 'commandfor']);
   const nodes = new Map<Element, OwnerDependencyNode | undefined>(), nodeIndices = new Map<string, number>();
   const nodeFailures = new Map<Element, string[]>(), expanded = new Map<Element, { children: Element[]; reasons: string[] }>();
@@ -73,11 +88,11 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
     const attributes: Record<string, string> = Object.create(null); let characters = 0;
     for (const attribute of el.attributes) {
       characters += attribute.name.length + attribute.value.length;
-      if (characters > limits.bytes) { fail(local, 'byte_budget'); break; }
+      if (characters > rawLimit) { fail(local, codec ? 'raw_byte_budget' : 'byte_budget'); break; }
       attributes[attribute.name] = attribute.value;
     }
     const live: NonNullable<OwnerDependencyNode['live']> = {}, resolved: NonNullable<OwnerDependencyNode['resolved']> = {};
-    const value = (text: string) => { if (text.length > limits.bytes) { fail(local, 'byte_budget'); return undefined; } return text; };
+    const value = (text: string) => { if (text.length > rawLimit) { fail(local, codec ? 'raw_byte_budget' : 'byte_budget'); return undefined; } return text; };
     if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) live.value = value(el.value);
     if (el instanceof HTMLInputElement) { live.checked = el.checked; live.indeterminate = el.indeterminate; }
     if (el instanceof HTMLOptionElement) live.selected = el.selected;
@@ -103,7 +118,9 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
     const node: OwnerDependencyNode = { id: instance(el), parentId: el.parentElement ? instance(el.parentElement) : '', tag: el.tagName.toLowerCase(),
       attributes, childrenComplete: false, ...(Object.keys(live).length ? { live } : {}), ...(Object.keys(associated).length ? { associations: associated } : {}),
       ...(Object.keys(resolved).length ? { resolved } : {}), complete: !local.size, reasons: [...local] };
-    if (!reserve(size(node) + 1)) { nodes.set(el, undefined); nodeFailures.set(el, ['byte_budget']); return; }
+    if (!reserve(size(node) + 1, builder && (() => builder!.addNode(node)))) {
+      nodes.set(el, undefined); nodeFailures.set(el, [budgetFailure]); return;
+    }
     nodes.set(el, node); nodeIndices.set(node.id, result.nodes.length); result.nodes.push(node); return node;
   };
   const expand = (el: Element, node: OwnerDependencyNode) => {
@@ -115,13 +132,13 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
       if (child instanceof Element) { elements.push(child); children.push({ nodeId: instance(child) }); }
       else if (child.nodeType === Node.TEXT_NODE) {
         characters += child.textContent?.length || 0;
-        if (characters > limits.bytes) { fail(local, 'byte_budget'); break; }
+        if (characters > rawLimit) { fail(local, codec ? 'raw_byte_budget' : 'byte_budget'); break; }
         children.push({ text: child.textContent || '' });
       } else if (child.nodeType !== Node.COMMENT_NODE) fail(local, 'unsupported_child_node');
     }
     const updated = { ...node, children, childrenComplete: !local.size };
-    if (reserve(Math.max(0, size(updated) - size(node)))) Object.assign(node, updated);
-    else { fail(local, 'byte_budget'); elements.length = 0; }
+    if (reserve(Math.max(0, size(updated) - size(node)), builder && (() => builder!.replaceNode(nodeIndices.get(node.id)!, updated)))) Object.assign(node, updated);
+    else { fail(local, budgetFailure); elements.length = 0; }
     const entry = { children: elements, reasons: [...local] }; expanded.set(el, entry); return entry;
   };
   const readReferences = (el: Element, node: OwnerDependencyNode) => {
@@ -133,7 +150,7 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
       // At most two matches are required to prove ambiguity; no first-match
       // inference or traversal into an arbitrarily chosen duplicate target.
       const ref: OwnerDependencyReference = { sourceId: node.id, attribute, token, status, targetIds: matches.slice(0, 2).map(instance) };
-      if (!reserve(size(ref) + 1)) { fail(local, 'byte_budget'); return; }
+      if (!reserve(size(ref) + 1, builder && (() => builder!.addReference(ref) !== undefined))) { fail(local, budgetFailure); return; }
       indices.push(result.references.length); result.references.push(ref);
       if (status === 'unique') targets.push(matches[0]); else fail(local, status === 'missing' ? 'missing_idref' : 'ambiguous_idref');
     };
@@ -186,8 +203,8 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
     }
     const closure: OwnerDependencyClosure = { id: instance(owner), subtreeId: instance(owner), nodeIds: [...members].sort(),
       referenceIds: [...refIds].sort((a, b) => a - b), subtreeIds: [...subtreeIds].sort(), complete: !local.size, reasons: [...local].sort() };
-    if (reserve(size(closure) + 1)) result.closures.push(closure);
-    else { closure.complete = false; closure.reasons = [...new Set([...closure.reasons, 'byte_budget'])]; }
+    if (reserve(size(closure) + 1, builder && (() => builder!.addClosure(closure)))) result.closures.push(closure);
+    else { closure.complete = false; closure.reasons = [...new Set([...closure.reasons, budgetFailure])]; }
     // Cache failed owners too: unchanged remaining capacity cannot complete a
     // repeated request. An unretained closure is never a complete root grant.
     closures.set(owner, closure); return closure;
@@ -195,22 +212,28 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
   const selectorIds = new Set(result.selectorIds);
   const required = (control: Control) => selectorIds.has(control.localId) || ['input', 'select', 'textarea'].includes(control.tag) || control.editable;
   const order = entries.sort((a, b) => Number(required(b.control)) - Number(required(a.control)));
-  const finishRoot = (root: OwnerDependencies['roots'][number] | NonNullable<OwnerDependencies['nativeRoots']>[number], closure: OwnerDependencyClosure) => {
+  const finishRoot = (root: OwnerDependencies['roots'][number] | NonNullable<OwnerDependencies['nativeRoots']>[number], closure: OwnerDependencyClosure, index: number, native: boolean) => {
     const captured = closure.nodeIds.includes(root.instanceId);
     const next = { ...root, complete: closure.complete && captured,
       reasons: [...new Set([...closure.reasons, ...(!captured ? ['target_not_captured'] : [])])].sort() };
     // If even extra diagnostic detail cannot fit, retain the already reserved
     // explicit byte-budget failure rather than discard the complete inventory.
-    if (reserve(Math.max(0, size(next) - size(root)))) Object.assign(root, next);
+    if (reserve(Math.max(0, size(next) - size(root)), builder && (() => native
+      ? builder!.replaceNativeRoot(index, next) : builder!.replaceRoot(index, next as OwnerDependencies['roots'][number])))) Object.assign(root, next);
   };
   // Required nonlocal fields are collected before unrelated control owners can
   // consume the shared budget. Every closure still uses the same hard limits.
-  for (const { owner, root } of nativeEntries) finishRoot(root, buildClosure(owner));
-  for (const { owner, root } of order) finishRoot(root, buildClosure(owner));
+  for (const { owner, root, index } of nativeEntries) finishRoot(root, buildClosure(owner), index, true);
+  for (const { owner, root, index } of order) finishRoot(root, buildClosure(owner), index, false);
   result.complete = [...result.roots, ...result.nativeRoots!].every(root => root.complete); result.reasons = [...reasons].sort();
   // Defensive invariant check, not the ordinary payload-exhaustion path. Shared
   // complete subtrees are cached; later ancestor-only expansion cannot alter
   // their attributes/native values/references or required closure membership.
-  if (size(result) > limits.bytes) { reasons.add('byte_budget'); return incompleteInventory(); }
+  if (size(result) > rawLimit) { reasons.add(codec ? 'raw_byte_budget' : 'byte_budget'); return incompleteInventory(); }
+  if (builder) {
+    const compact = builder.finish({ inventoryComplete: result.inventoryComplete, complete: result.complete, reasons: result.reasons });
+    if (compact) return compact;
+    reasons.add(builder.stats().failure || 'byte_budget'); return incompleteInventory();
+  }
   return result;
 }
