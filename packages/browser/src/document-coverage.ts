@@ -1,4 +1,5 @@
 import { canonical, hash, type ActionAttempt, type ActionCandidate, type ExplorationCase } from '@interaction/core';
+import { createOwnerDependencyCodec } from '@interaction/adapter-playwright';
 import type { Control, Observation, OwnerDependencies, OwnerDependencyNode, OwnerDependencyReference, OwnerDependencyNativeRoot } from '@interaction/adapter-playwright';
 
 /** Re-read revocable authority on every comparison. This callback grants neither
@@ -31,14 +32,18 @@ interface GraphIndex {
   inventory: string;
   projections: Map<string, string | undefined>;
 }
-function index(o: Observation): GraphIndex | undefined {
-  const g = o.ownerDependencies;
+function index(o: Observation, decode: ReturnType<typeof createOwnerDependencyCodec>['decode']): GraphIndex | undefined {
+  const snapshot = o.ownerDependencies, compact = snapshot?.version === 'browser-owner-dependencies-v3';
+  // Compact wire/expanded budgets are checked by the codec. Legacy evidence
+  // retains its original raw representation and byte ceiling unchanged.
+  const g = compact ? decode(snapshot) : snapshot;
   if (!g || !['browser-owner-dependencies-v1', 'browser-owner-dependencies-v2'].includes(g.version) || !g.inventoryComplete || g.documentId !== o.documentId || !g.baseURI) return;
+  if (g.ancestry !== undefined && g.ancestry !== 'node-bounded-v1') return;
   const maximum = { nodes: 512, references: 64, bytes: 131072, depth: 16 };
   if (!g.limits || Object.entries(maximum).some(([key, max]) => {
     const value = g.limits[key as keyof typeof maximum]; return !Number.isInteger(value) || value <= 0 || value > max;
   }) || g.nodes.length > g.limits.nodes || g.references.length > g.limits.references
-    || Buffer.byteLength(JSON.stringify(g), 'utf8') > g.limits.bytes) return;
+    || !compact && Buffer.byteLength(JSON.stringify(g), 'utf8') > g.limits.bytes) return;
   const controls = new Map(o.controls.map(c => [c.localId, c])), nodes = new Map(g.nodes.map(n => [n.id, n]));
   const roots = new Map(g.roots.map(r => [r.localId, r])), closures = new Map(g.closures.map(c => [c.id, c]));
   if (controls.size !== o.controls.length || roots.size !== g.roots.length || nodes.size !== g.nodes.length || closures.size !== g.closures.length
@@ -80,7 +85,8 @@ function rootProjection(i: GraphIndex, root: OwnerDependencyNativeRoot, instance
     const result: OwnerDependencyNode[] = [], seen = new Set<string>();
     let node = i.nodes.get(id);
     while (node) {
-      if (seen.has(node.id) || result.length > i.graph.limits.depth || !allowed.has(node.id)) { valid = false; break; }
+      const maximum = i.graph.ancestry === 'node-bounded-v1' ? i.graph.limits.nodes : i.graph.limits.depth + 1;
+      if (seen.has(node.id) || result.length >= maximum || !allowed.has(node.id)) { valid = false; break; }
       seen.add(node.id); result.push(node);
       if (!node.parentId) { if (node.tag !== 'html') valid = false; break; }
       node = i.nodes.get(node.parentId); if (!node) valid = false;
@@ -121,7 +127,17 @@ function rootProjection(i: GraphIndex, root: OwnerDependencyNativeRoot, instance
     if (edges.length !== expected.length || new Set(edges.map(e => refKey(e.value))).size !== edges.length) { valid = false; return; }
     for (const e of expected) {
       const edge = edges.find(r => r.value.attribute === e.attribute && r.value.token === e.token);
-      if (!edge || !allowedRefs.has(edge.index) || edge.value.status !== 'unique' || edge.value.targetIds.length !== 1) { valid = false; return; }
+      if (!edge || !allowedRefs.has(edge.index)) { valid = false; return; }
+      const lookup = edge.value.lookup;
+      if (lookup !== undefined && (!lookup || lookup.scope !== 'document-light-dom' || lookup.documentId !== i.graph.documentId
+        || !Number.isInteger(lookup.matches) || lookup.matches < 0 || lookup.matches > 2
+        || lookup.matches !== Math.min(2, edge.value.targetIds.length))) { valid = false; return; }
+      // A zero result is a new producer assertion about a complete light-DOM
+      // lookup, not an inference from this bounded node subset. Old missing
+      // edges, native association targets and contradictory evidence fail shut.
+      if (edge.value.status === 'missing' && lookup?.matches === 0 && !e.target && edge.value.targetIds.length === 0
+        && !i.graph.nodes.some(n => n.attributes.id === e.token)) { refs.add(edge.index); continue; }
+      if (edge.value.status !== 'unique' || edge.value.targetIds.length !== 1 || lookup && lookup.matches !== 1) { valid = false; return; }
       const target = i.nodes.get(edge.value.targetIds[0]);
       if (!target || e.target && target.id !== e.target || !e.target && (target.attributes.id !== e.token
         || i.graph.nodes.filter(n => n.attributes.id === e.token).length !== 1)
@@ -148,6 +164,7 @@ function rootProjection(i: GraphIndex, root: OwnerDependencyNativeRoot, instance
   for (const id of members) ancestry(id);
   if (!valid) return;
   const projection = canonical({ owner: owner.id, subtreeIds: sorted([...subtrees]),
+    ...(i.graph.ancestry ? { ancestry: i.graph.ancestry } : {}),
     nodes: sorted([...members]).map(id => {
       const n = i.nodes.get(id)!;
       return { id: n.id, parentId: n.parentId, tag: n.tag, attributes: n.attributes, live: n.live, resolved: n.resolved,
@@ -217,9 +234,10 @@ function actionConditions(a: ActionCandidate) {
  * mutable observation edits or review revisions. Authority is never memoized.
  * This policy is intentionally unavailable to target arrival and replay. */
 export function documentCoverageReader(authority: RetainedCoverageAuthority) {
+  const { decode } = createOwnerDependencyCodec();
   const indexes = new WeakMap<Observation, GraphIndex | undefined>();
   const samples = new WeakMap<Observation, Map<string, string | undefined>>();
-  const read = (o: Observation) => { if (!indexes.has(o)) indexes.set(o, index(o)); return indexes.get(o); };
+  const read = (o: Observation) => { if (!indexes.has(o)) indexes.set(o, index(o, decode)); return indexes.get(o); };
   const sample = (o: Observation, i: GraphIndex, c: Control) => {
     let values = samples.get(o); if (!values) { values = new Map(); samples.set(o, values); }
     if (!values.has(c.localId)) values.set(c.localId, conditions(o, i, c)); return values.get(c.localId);

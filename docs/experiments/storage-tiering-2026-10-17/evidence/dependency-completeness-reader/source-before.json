@@ -1,0 +1,11 @@
+{
+  "head": "d14273167743f7085e1798474d3907bf875f3a85",
+  "sourceSha256": {
+    "packages/browser/src/document-coverage.ts": "29ffc5dbe8e2443014eb3deb613b235f9bc1dec55e1894f91ee8f0fdd8558e47",
+    "packages/adapter-playwright/src/owner-dependency-codec.ts": "e855d25e7ff2dcc58be9240348963e0441e60cfdabd282fe30fe58df21e4344f",
+    "packages/adapter-playwright/src/types.ts": "0570285b04721df724b3625e14ad5921d636166dd30ee6ce33fb5c4a5e111be7",
+    "packages/adapter-playwright/src/index.ts": "8d4162bad2f51be37fc6794ccb964bd8424250eb3e4a393ff92d6af7231594d6",
+    "tests/owner-dependency-absence.test.ts": "0cc8f43fec40d2007c0e424367d09a374bc677ba905a1558272040b8aad81c5d"
+  },
+  "scope": "Synthetic retained proof only, no live page or database"
+}
