@@ -1,0 +1,19 @@
+{
+  "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v8",
+  "destination": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-recovery-acceptance-20261017-v17",
+  "sourceRunId": "053f55b8-df94-46d3-9e0c-1a76c79d6111",
+  "productCommit": "0c255e64cf3efa79c0f230799d8718de028579af",
+  "createdAt": "2026-10-17T13:14:46.584054+00:00",
+  "engineFilesCopied": 7260,
+  "engineBytesCopied": 179254264,
+  "sourceInventorySha256": "e4e47545183362bceb7a4f918c6c38838dbfccd740cea2cc783e760ff2ac0a8e",
+  "sourceDatabase": {
+    "path": "engine/engine.sqlite",
+    "bytes": 149336064,
+    "sha256": "664500f08e9fb1610a2248cafebdb46afbf49d68e0ad482169130a77647e5af8"
+  },
+  "sourceUnchangedAfterPreparation": true,
+  "pluginDatabaseCopied": false,
+  "databaseOpened": false,
+  "browserStarted": false
+}

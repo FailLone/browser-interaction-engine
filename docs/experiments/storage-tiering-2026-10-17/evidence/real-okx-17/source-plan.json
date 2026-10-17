@@ -1,0 +1,129 @@
+{
+  "checkpoint": {
+    "id": "b06556a8-969d-433a-a85e-69e5d1be0d94",
+    "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+    "name": "explorer 1/5",
+    "observationId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+    "stateId": "31248f69d27269a9803875743a219c4a5c04561eff594a04c76eb8358a6020b6",
+    "context": {},
+    "predicates": [],
+    "acceptable": [],
+    "path": [
+      "41645f20-829c-4590-9c4b-7bc3fef4b29e",
+      "d603901b-7293-47ec-85d3-6baf62a83e82",
+      "9146bc44-4b4c-4eb0-a449-29440fc3bad6",
+      "42002819-a04d-432a-8f27-f7e8ce94c3a1"
+    ],
+    "createdAt": "2026-10-17T06:35:53.009Z"
+  },
+  "observation": {
+    "id": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+    "url": "https://www.okx.com/convert/usd-to-btc",
+    "boundaries": [],
+    "controls": 292
+  },
+  "targetMatches": [
+    {
+      "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1746",
+      "name": "",
+      "label": "",
+      "role": "button",
+      "visible": true,
+      "binding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+    },
+    {
+      "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1810",
+      "name": "USD",
+      "label": "",
+      "role": "generic",
+      "visible": true,
+      "classificationNodes": 58,
+      "binding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+    },
+    {
+      "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1818",
+      "name": "BTC",
+      "label": "",
+      "role": "generic",
+      "visible": true,
+      "classificationNodes": 58,
+      "binding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+    },
+    {
+      "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1759",
+      "name": "",
+      "label": "",
+      "role": "img",
+      "visible": true,
+      "classificationNodes": 1,
+      "binding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+    }
+  ],
+  "usdCandidates": [
+    {
+      "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1833",
+      "role": "button"
+    },
+    {
+      "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1810",
+      "role": "generic",
+      "binding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+    }
+  ],
+  "path": [
+    {
+      "id": "41645f20-829c-4590-9c4b-7bc3fef4b29e",
+      "status": "succeeded",
+      "kind": "check",
+      "label": "Don’t show for 7 days",
+      "value": true,
+      "source": "dom-actions-v2",
+      "replayable": true,
+      "boundary": {
+        "key": "dialog:okd-dialog-window",
+        "intent": "interact"
+      },
+      "beforeId": "d7da102e-f331-47c6-bec5-96a33ce9cb20",
+      "afterId": "e852a4c7-8b9e-46a0-b35a-8bc36339e596"
+    },
+    {
+      "id": "d603901b-7293-47ec-85d3-6baf62a83e82",
+      "status": "succeeded",
+      "kind": "check",
+      "label": "Don’t show for 7 days",
+      "value": false,
+      "source": "dom-actions-v2",
+      "replayable": true,
+      "boundary": {
+        "key": "dialog:okd-dialog-window",
+        "intent": "interact"
+      },
+      "beforeId": "e852a4c7-8b9e-46a0-b35a-8bc36339e596",
+      "afterId": "08c766c7-0d26-481e-81b7-69c302dcb7aa"
+    },
+    {
+      "id": "9146bc44-4b4c-4eb0-a449-29440fc3bad6",
+      "status": "succeeded",
+      "kind": "click",
+      "label": "Close",
+      "source": "dom-actions-v2",
+      "replayable": true,
+      "boundary": {
+        "key": "dialog:okd-dialog-window",
+        "intent": "exit"
+      },
+      "beforeId": "ab266706-1d93-4c0c-adfd-e5e9f0dcecbe",
+      "afterId": "ba4f54b4-e386-4b61-b194-abf9a5436812"
+    },
+    {
+      "id": "42002819-a04d-432a-8f27-f7e8ce94c3a1",
+      "status": "succeeded",
+      "kind": "click",
+      "label": "Trade",
+      "source": "dom-actions-v2",
+      "replayable": true,
+      "beforeId": "ba4f54b4-e386-4b61-b194-abf9a5436812",
+      "afterId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc"
+    }
+  ]
+}

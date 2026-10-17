@@ -1,0 +1,166 @@
+{
+  "productCommit": "0c255e64cf3efa79c0f230799d8718de028579af",
+  "limitMs": 240000,
+  "elapsedMs": 52091.081416,
+  "deadline": false,
+  "closure": {
+    "status": "closed",
+    "elapsedMs": 40.12212500000169
+  },
+  "stopReason": "local_recovery_not_verified",
+  "verdict": "not_accepted",
+  "cases": [
+    {
+      "name": "local",
+      "accepted": false,
+      "elapsedMs": 23811.236708000004,
+      "finalObservation": {
+        "id": "f156ab06-f2e7-4188-bd38-e456f0da1d76",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "instanceScope": "a23f6de6-1678-448c-ad88-ddcfbd811db1",
+        "browserSessionId": "a50cc366-cab2-4a79-818e-614358773740",
+        "boundaries": [],
+        "criticalGaps": []
+      },
+      "localExit": {
+        "attempts": 1,
+        "verified": true,
+        "elapsedMs": 6121
+      },
+      "localRecordedReplay": {
+        "attempts": 0,
+        "elapsedMs": 0
+      },
+      "wholePageReplay": {
+        "entryAttempts": 0,
+        "entryElapsedMs": 0,
+        "replayedAttempts": 0,
+        "replayElapsedMs": 0
+      },
+      "arrivalPreflight": [],
+      "classification": "recovery_not_verified",
+      "status": "UNVERIFIED",
+      "reason": "Verification after boundary exit attempt: UNVERIFIED",
+      "strategies": [
+        "verify_current",
+        "boundary_exit"
+      ],
+      "sourceEquivalent": "unknown",
+      "checks": [
+        {
+          "name": "unresolved-execution-outcomes",
+          "result": "pass"
+        },
+        {
+          "name": "clean-session",
+          "result": "pass"
+        },
+        {
+          "name": "known-declared-context",
+          "result": "pass"
+        },
+        {
+          "name": "current-review-material",
+          "result": "pass"
+        },
+        {
+          "name": "historical-review-source-conditions",
+          "result": "unknown"
+        }
+      ],
+      "attemptIds": [
+        "f1e7b1b3-f05f-42c6-9665-ac5a81efc194"
+      ]
+    }
+  ],
+  "globalNotRun": true,
+  "modelCalls": 0,
+  "pluginTaskDatabaseOpened": false,
+  "newCoverageGranted": false,
+  "calls": [
+    {
+      "id": 1,
+      "method": "start",
+      "startedMs": 205.12333300000006,
+      "elapsedMs": 838.5235829999999,
+      "outcome": "returned"
+    },
+    {
+      "id": 2,
+      "method": "capture",
+      "startedMs": 1045.3775409999998,
+      "elapsedMs": 4037.6481670000003,
+      "outcome": "returned"
+    },
+    {
+      "id": 3,
+      "method": "capture",
+      "startedMs": 17548.176541,
+      "elapsedMs": 3332.358291999997,
+      "outcome": "returned"
+    },
+    {
+      "id": 4,
+      "method": "capture",
+      "startedMs": 28226.694165999997,
+      "elapsedMs": 3332.038042,
+      "outcome": "returned"
+    },
+    {
+      "id": 5,
+      "method": "preflight",
+      "startedMs": 39314.712125000005,
+      "action": {
+        "id": "04cc4da0-9a52-4549-9917-7cf9625a4953",
+        "kind": "click",
+        "label": "Close",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "elapsedMs": 738.6048329999976,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 6,
+      "method": "execute",
+      "startedMs": 40134.919916000006,
+      "action": {
+        "id": "04cc4da0-9a52-4549-9917-7cf9625a4953",
+        "kind": "click",
+        "label": "Close",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "elapsedMs": 753.0243339999943,
+      "outcome": "returned"
+    },
+    {
+      "id": 7,
+      "method": "capture",
+      "startedMs": 40910.01475,
+      "elapsedMs": 3442.9863330000007,
+      "outcome": "returned"
+    },
+    {
+      "id": 8,
+      "method": "close",
+      "startedMs": 52051.021833000006,
+      "elapsedMs": 35.30329199999687,
+      "outcome": "returned"
+    }
+  ],
+  "limitations": [
+    "This is target-directed SDK recovery, not strict checkpoint equality or a plugin continuation.",
+    "Two cases share the clock and browser; global setup is a real external navigation recorded separately, not a recovery success.",
+    "Missing required strategy is unexercised, never counted as success.",
+    "Driver/API/attempt timings overlap.",
+    "Historical source, unknown outcomes, replay permissions and graph edges remain unchanged."
+  ]
+}
