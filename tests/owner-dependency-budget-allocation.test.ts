@@ -81,7 +81,9 @@ it('does not change required proof when a later optional owner expands a shared 
   delete earlierMain.children; earlierMain.childrenComplete = false; compactOwnerGraph(earlier);
   const witness = structuredClone(f.after); witness.ownerDependencyDispatch!.graphKey = hash(earlier.ownerDependencies);
   expect(f.compare(f.before, earlier, witness)).toEqual(proof);
-  const reordered = structuredClone(f.before); mutableOwnerGraph(reordered).roots.reverse(); compactOwnerGraph(reordered);
+  // Reorder the same valid wire rows, preserving dictionary indices and bytes.
+  // Raw re-encoding may choose different indices and reject a near-cap graph.
+  const reordered = structuredClone(f.before); reordered.ownerDependencies!.roots.reverse();
   witness.ownerDependencyDispatch!.graphKey = hash(reordered.ownerDependencies);
   expect(f.compare(reordered, reordered, witness)).toEqual(proof); // Root inventory order is not condition semantics.
   expect(hash(f.host.observation(f.sid, f.before.id).ownerDependencies)).toBe(hash(f.before.ownerDependencies));

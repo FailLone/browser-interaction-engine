@@ -1,0 +1,68 @@
+{
+  "head": "c892990190236818f2b8bf76c0ecb461fbb23c9b",
+  "reason": "Production now serializes compact v3; verify real dispatch hash, receipt/frontier/plugin consumption, A/B and unknown guards, and optional exhaustion across that changed boundary.",
+  "sourceBefore": {
+    "packages/adapter-playwright/src/browser.ts": "c59126cd8283b075860919788e69b78bd6b06198e76f449d5ffa192c9bbe16cb",
+    "packages/adapter-playwright/src/owner-dependencies.ts": "1c8a1a06e7cbdd21981a2865a293396226cb87a576c38d038a57a55380b24fc0",
+    "packages/adapter-playwright/src/owner-dependency-codec.ts": "e855d25e7ff2dcc58be9240348963e0441e60cfdabd282fe30fe58df21e4344f",
+    "packages/adapter-playwright/src/types.ts": "0570285b04721df724b3625e14ad5921d636166dd30ee6ce33fb5c4a5e111be7",
+    "packages/browser/src/document-coverage.ts": "29ffc5dbe8e2443014eb3deb613b235f9bc1dec55e1894f91ee8f0fdd8558e47",
+    "tests/owner-dependency-helpers.ts": "3578b02541dc9b72591c56de7662ffdb0a3e07ca14118ebbe055bc88aeb47626",
+    "tests/document-operation-coverage.test.ts": "27081c0697c5743fc9920c2506efd2e93d5b1d31101edb7aeeb5fb72bf3b8634",
+    "tests/document-dispatch-witness.test.ts": "56cd723594ab5d55204b5eeb16106e463be34c6968aa07116c10e1adef1f6cb0",
+    "tests/owner-dependency-budget-allocation.test.ts": "625a2b1971f25d6bb49ff5db6b32df71cad581f419eb0408b5c94919d0de79d9",
+    "tests/native-dependency-coverage.test.ts": "bacde36f87a1dcda8a4a691925ac1873e95f6ef8e9b9b9163df16d64a00ba1cc"
+  },
+  "steps": [
+    {
+      "name": "types",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "seconds": 7.6734137535095215,
+      "logSha256": "c4826c0bcec3b7398a6dba4e3b1bb68d1dc30320104f803cc5ae8a8081a66a7a"
+    },
+    {
+      "name": "production-boundaries",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/document-operation-coverage.test.ts",
+        "tests/document-dispatch-witness.test.ts",
+        "tests/owner-dependency-budget-allocation.test.ts",
+        "tests/native-dependency-coverage.test.ts",
+        "-t",
+        "seed checkpoint|shares receipt coverage|consumes the public proof|retains an unknown receipt|does not credit retained owner A|binds a stable actual supplied value|preserves complete required roots|does not change required proof|proves a stable complete real receipt|rejects a changed nonlocal hidden value"
+      ],
+      "exitCode": 1,
+      "seconds": 7.378744125366211,
+      "logSha256": "bba0a59198c64eb6bf3340e6ca4ac5b92f3764c82638067dac346267c8b912c2"
+    }
+  ],
+  "priorTypeFailure": {
+    "run": 1,
+    "exitCode": 2,
+    "file": "tests/document-dispatch-witness.test.ts",
+    "diagnosis": "Seven TS2339 errors from direct raw graph property access after Observation became a union. The read-only test helper now decodes the graph; no product change or behavior rerun.",
+    "repeatReason": "Fix the reported consumer type errors; this final integration type check also includes new collector contracts."
+  },
+  "scope": "Owned ephemeral local fixture servers/browsers and in-memory stores only. No existing browser, original task database, service, full suite, or performance benchmark.",
+  "sourceAfter": {
+    "packages/adapter-playwright/src/browser.ts": "c59126cd8283b075860919788e69b78bd6b06198e76f449d5ffa192c9bbe16cb",
+    "packages/adapter-playwright/src/owner-dependencies.ts": "1c8a1a06e7cbdd21981a2865a293396226cb87a576c38d038a57a55380b24fc0",
+    "packages/adapter-playwright/src/owner-dependency-codec.ts": "e855d25e7ff2dcc58be9240348963e0441e60cfdabd282fe30fe58df21e4344f",
+    "packages/adapter-playwright/src/types.ts": "0570285b04721df724b3625e14ad5921d636166dd30ee6ce33fb5c4a5e111be7",
+    "packages/browser/src/document-coverage.ts": "29ffc5dbe8e2443014eb3deb613b235f9bc1dec55e1894f91ee8f0fdd8558e47",
+    "tests/owner-dependency-helpers.ts": "3578b02541dc9b72591c56de7662ffdb0a3e07ca14118ebbe055bc88aeb47626",
+    "tests/document-operation-coverage.test.ts": "27081c0697c5743fc9920c2506efd2e93d5b1d31101edb7aeeb5fb72bf3b8634",
+    "tests/document-dispatch-witness.test.ts": "56cd723594ab5d55204b5eeb16106e463be34c6968aa07116c10e1adef1f6cb0",
+    "tests/owner-dependency-budget-allocation.test.ts": "625a2b1971f25d6bb49ff5db6b32df71cad581f419eb0408b5c94919d0de79d9",
+    "tests/native-dependency-coverage.test.ts": "bacde36f87a1dcda8a4a691925ac1873e95f6ef8e9b9b9163df16d64a00ba1cc"
+  },
+  "sourcesUnchanged": true,
+  "allPassed": false
+}

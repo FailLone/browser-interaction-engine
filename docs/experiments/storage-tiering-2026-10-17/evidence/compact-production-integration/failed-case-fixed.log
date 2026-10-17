@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/owner-dependency-budget-allocation.test.ts (5 tests | 4 skipped) 904ms
+   ✓ does not change required proof when a later optional owner expands a shared ancestor before failing  904ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 4 skipped (5)
+   Start at  13:09:50
+   Duration  1.84s (transform 412ms, setup 0ms, collect 797ms, tests 904ms, environment 0ms, prepare 35ms)
+
