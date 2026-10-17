@@ -1,0 +1,54 @@
+{
+  "readOnlyOwnedDatabase": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-plugin-loop-20261017-v1/engine/engine.sqlite",
+  "receipts": [
+    {
+      "id": "3829cddb-72b9-47a1-8cad-b9cc6d03333b",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "requestId": "1bd25ef0-7ed5-48c6-ac0c-70b678e3a286",
+      "status": "succeeded",
+      "beforeId": "6920fcd3-9b22-4b14-bc3b-3c46f0fe27bd",
+      "afterId": "cc788b64-ef0b-4f62-ad76-94e4f32da437",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "action": {
+        "kind": "check",
+        "value": true,
+        "label": "Don\u2019t show for 7 days",
+        "id": "7f5459fb-4df2-4eb0-b6c1-be1db40ac061"
+      }
+    },
+    {
+      "id": "3fffa7b5-4f63-45d6-b682-52971edfbe32",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "requestId": "abc3aa61-e1b1-4464-8b42-53b33811c717",
+      "status": "succeeded",
+      "beforeId": "cc788b64-ef0b-4f62-ad76-94e4f32da437",
+      "afterId": "9ce86df7-96e3-4516-8b0f-66d5b4355bea",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "action": {
+        "kind": "check",
+        "value": false,
+        "label": "Don\u2019t show for 7 days",
+        "id": "98d2e026-bcd3-4704-b6fe-0b999921831d"
+      }
+    },
+    {
+      "id": "0debe56e-cb20-4b78-b611-952a3c26a34a",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "requestId": "5d99cf6f-f68f-4707-83b5-1e7de65aef8a",
+      "status": "succeeded",
+      "beforeId": "e2c5395a-d69b-43b2-a44d-2dbf55ac81e9",
+      "afterId": "cc3ff40c-0ca8-4766-af35-8f5681349212",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "action": {
+        "kind": "click",
+        "value": null,
+        "label": "Close",
+        "id": "fc3bf208-45c4-4424-8069-8112a7d0f62f"
+      }
+    }
+  ],
+  "doesNotProveRecoveryLoop": true
+}
