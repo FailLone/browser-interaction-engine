@@ -3,6 +3,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { BrowserEngine, type ActionCandidate, type Observation } from '@interaction/browser';
 import { MemoryStore } from '@interaction/storage-memory';
 import { createRecoverySelectionView } from '../packages/browser/src/recovery-selection-view.js';
+import { acceptanceHost } from '../scripts/okx-storage-acceptance.js';
 import { RegionReviews } from '../packages/browser/src/region-reviews.js';
 
 const engines: BrowserEngine[] = [];
@@ -240,4 +241,27 @@ it('validates the requested current cursor and isolates the input ID from later 
   const input = { observationId: 'current' }, view = f.engine.recoverySelectionView('session', input)!;
   input.observationId = 'source';
   expect(view.source('source').transition.afterId).toBe('current');
+});
+
+
+it('acceptance facade preserves SDK view eligibility, forwarding and stale fences', async () => {
+  const f = browserFixture(), metrics: Parameters<typeof acceptanceHost>[2] = {};
+  const before = Object.getOwnPropertyDescriptors(f.engine);
+  const failure = new Error('budget stop');
+  const facade = acceptanceHost(f.engine, { createSession: async () => { throw failure; } }, metrics);
+  const view = facade.recoverySelectionView('session', { observationId: 'current' })!;
+  expect(view).toBeDefined();
+  expect(view.current).toEqual(f.create()!.current);
+  expect(view.source('source')).toEqual(f.create()!.source('source'));
+  expect(view.anchor!('source')).toEqual(f.create()!.anchor!('source'));
+  expect(view.reviewMaterial!('source')).toEqual(f.create()!.reviewMaterial!('source'));
+  expect(metrics.recoverySelectionView).toMatchObject({ calls: 1, viewsAvailable: 1, viewsUnavailable: 0, returned: 1 });
+  await expect(facade.createSession({ url: 'https://fixture.invalid/' })).rejects.toBe(failure);
+  expect(metrics.createSession).toMatchObject({ calls: 1, threw: 1 });
+  expect(Object.getOwnPropertyDescriptors(f.engine)).toEqual(before);
+  expect(f.create()).toBeDefined();
+  f.store.put('control-review', { id: 'changed', sessionId: 'session', status: 'revoked' });
+  expectStale(view.assertCurrent);
+  const next = facade.recoverySelectionView('session', { observationId: 'current' })!;
+  next.close(); expectStale(next.assertCurrent);
 });

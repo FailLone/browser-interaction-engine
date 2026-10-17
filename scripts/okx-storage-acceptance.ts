@@ -55,6 +55,39 @@ function args(argv: string[]) {
 interface Marker { format: typeof FORMAT; directory: string; owner: string; createdAt: string; url: string; taskId?: string }
 interface Cursors { plugin: number; engine: Record<string, number> }
 interface Guard { at: string; reason: string; details?: unknown; prior?: { status: string; reason?: string; usage: Budget } }
+export interface AcceptanceCallMetric {
+  calls: number; returned: number; threw: number; elapsedMs: number; maxMs: number;
+  arrayItems: number; viewsAvailable: number; viewsUnavailable: number;
+}
+/** Instrument the consumer boundary, never SDK instances/prototypes. All reads
+ * retain the original SDK receiver and all results/errors retain their identity.
+ * Inclusive timings overlap; arrayItems is returned rows, not unique coverage.
+ * The selection view itself is passed through unchanged, including its fences. */
+export function acceptanceHost<T extends object>(raw: T, overrides: Partial<T>, metrics: Record<string, AcceptanceCallMetric>): T {
+  const bound = new Map<PropertyKey, { method: Function; wrapper: Function }>();
+  return new Proxy(raw, { get(target, key) {
+    const method = Object.hasOwn(overrides, key) ? Reflect.get(overrides, key) : Reflect.get(target, key, target);
+    if (typeof method !== 'function') return method;
+    const previous = bound.get(key); if (previous?.method === method) return previous.wrapper;
+    const wrapper = (...args: unknown[]) => {
+      const name = String(key), row = metrics[name] ??= { calls: 0, returned: 0, threw: 0, elapsedMs: 0, maxMs: 0, arrayItems: 0, viewsAvailable: 0, viewsUnavailable: 0 };
+      row.calls++; const began = performance.now();
+      const finish = (failed: boolean, value: unknown) => {
+        const elapsed = performance.now() - began; row.elapsedMs += elapsed; row.maxMs = Math.max(row.maxMs, elapsed);
+        if (failed) row.threw++; else {
+          row.returned++; if (Array.isArray(value)) row.arrayItems += value.length;
+          if (key === 'recoverySelectionView') { if (value === undefined) row.viewsUnavailable++; else row.viewsAvailable++; }
+        }
+      };
+      let result: unknown;
+      try { result = Reflect.apply(method, target, args); }
+      catch (error) { finish(true, error); throw error; }
+      if (result instanceof Promise) return result.then(value => { finish(false, value); return value; }, error => { finish(true, error); throw error; });
+      finish(false, result); return result;
+    };
+    bound.set(key, { method, wrapper }); return wrapper;
+  } });
+}
 export type AcceptanceRecoveryApi = 'reachCheckpoint' | 'reachExplorationTarget' | 'returnToObservedSource';
 export interface AcceptanceRecoveryFailure { outcome: 'threw'; api: AcceptanceRecoveryApi; sessionId: string; elapsedMs: number; code: string }
 type AcceptanceRecoveryReport<T> = AcceptanceRecoveryFailure | { outcome: 'returned'; api: AcceptanceRecoveryApi; sessionId: string; elapsedMs: number; result: T };
@@ -418,6 +451,7 @@ async function main() {
   const guards: Guard[] = [], cursors: Cursors = { plugin: 0, engine: {} }, sessions = new Set<string>();
   const pendingProviders = new Map<string, Promise<unknown>>();
   let providerSettlement: Awaited<ReturnType<typeof settlePendingProviders>> | undefined;
+  const hostCalls: Record<string, AcceptanceCallMetric> = {};
   const providerCounts = { jev: { started: 0, returned: 0, failed: 0, cancelled: 0, elapsedMs: 0, usage: {} as Record<string, number> }, llm: { started: 0, returned: 0, failed: 0, cancelled: 0, elapsedMs: 0, usage: {} as Record<string, number> } };
   const baselineSuccesses = new Set<string>(), baselineAttempts = new Set<string>(), observations = new Set<string>();
   const windowBudget = new AcceptanceWindow(config.budget);
@@ -563,7 +597,7 @@ async function main() {
     const planCounts = pluginMetrics!.prepare('SELECT status,required,COUNT(*) AS count FROM task_items WHERE task_id=? AND kind=\'plan\' GROUP BY status,required').all(taskId);
     const metrics = progressSnapshot(), unknown = metrics.unknownAttempts;
     const storage = await disk(directory);
-    log('sample', { status: task.status, reason: task.reason, usage: task.usage, durationUncertainty: task.durationUncertainty, budget: task.budget, planCounts, planCount: state.planCount, roundCount: state.roundCount, pendingDispatch: task.pendingDispatch, unverifiedRecoveries: task.unverifiedRecoveries, unverifiedNavigations: task.unverifiedNavigations, unknown, inFlightAttempts: metrics.inFlightAttempts, cursors, providers: providerCounts, attempts: metrics.counts, newlySucceededExplorationAttempts: metrics.successfulAttemptIds.length, newOperationConditionCandidates: metrics.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: metrics.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: metrics.progressGuardsDeferred, unkeyedSuccessfulAttempts: metrics.unkeyedSuccessfulAttempts, historicalUnkeyedSuccessfulAttempts: metrics.historicalUnkeyedSuccessfulAttempts, progressEvidenceWindow: metrics.progressEvidenceWindow, budgetEnforcement, windowBudget: windowBudget.snapshot(), newObservations: observations.size, disk: storage, exhaustive: false });
+    log('sample', { status: task.status, reason: task.reason, usage: task.usage, durationUncertainty: task.durationUncertainty, budget: task.budget, planCounts, planCount: state.planCount, roundCount: state.roundCount, pendingDispatch: task.pendingDispatch, unverifiedRecoveries: task.unverifiedRecoveries, unverifiedNavigations: task.unverifiedNavigations, unknown, inFlightAttempts: metrics.inFlightAttempts, cursors, providers: providerCounts, hostCalls, attempts: metrics.counts, newlySucceededExplorationAttempts: metrics.successfulAttemptIds.length, newOperationConditionCandidates: metrics.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: metrics.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: metrics.progressGuardsDeferred, unkeyedSuccessfulAttempts: metrics.unkeyedSuccessfulAttempts, historicalUnkeyedSuccessfulAttempts: metrics.historicalUnkeyedSuccessfulAttempts, progressEvidenceWindow: metrics.progressEvidenceWindow, budgetEnforcement, windowBudget: windowBudget.snapshot(), newObservations: observations.size, disk: storage, exhaustive: false });
     if (unknown.length) requestStop('unknown_attempt', unknown);
     if (task.unverifiedRecoveries?.length || task.unverifiedNavigations?.length) requestStop('unverified_outcome', { recovery: task.unverifiedRecoveries, navigation: task.unverifiedNavigations });
     if (storage.total > config.maxDisk || storage.availableBytes < 1024 ** 3) requestStop('disk_guard', storage);
@@ -583,7 +617,7 @@ async function main() {
     pluginMetrics = new SqliteDatabase(join(directory, 'plugin', 'explorer.sqlite'), { readonly: true, fileMustExist: true });
     // Fence public entries without rewriting task/session limits or SDK outcomes.
     const createSession = host.createSession.bind(host);
-    host.createSession = async (...input) => { enterWindow('round'); return createSession(...input); };
+    const entries: Partial<BrowserEngine> = { createSession: async (...input) => { enterWindow('round'); return createSession(...input); } };
     // A recovery API may dispatch several internal attempts. Its entry is checked,
     // but an already running recovery is not interrupted or recast as unknown.
     const reportRecovery = (completion: AcceptanceRecoveryReport<{ status: string; observationId?: string; attemptIds: string[]; matchedActionIds?: string[]; checkpointVerified?: boolean }>) => {
@@ -595,17 +629,17 @@ async function main() {
       recoveries.push(record); log('recovery.returned', { ...record, result });
     };
     const checkpoint = host.reachCheckpoint.bind(host);
-    host.reachCheckpoint = async (...input) => {
+    entries.reachCheckpoint = async (...input) => {
       if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
       return observeRecoveryCall('reachCheckpoint', input[0], () => checkpoint(...input), reportRecovery, requestStop);
     };
     const target = host.reachExplorationTarget.bind(host);
-    host.reachExplorationTarget = async (...input) => {
+    entries.reachExplorationTarget = async (...input) => {
       if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
       return observeRecoveryCall('reachExplorationTarget', input[0], () => target(...input), reportRecovery, requestStop);
     };
     const sourceReturn = host.returnToObservedSource.bind(host);
-    host.returnToObservedSource = async (...input) => {
+    entries.returnToObservedSource = async (...input) => {
       if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
       return observeRecoveryCall('returnToObservedSource', input[0], () => sourceReturn(...input), reportRecovery, requestStop);
     };
@@ -616,7 +650,7 @@ async function main() {
       return saved;
     };
     host.events.on('event', engineEvent);
-    plugin = new ExplorerPlugin(host, pluginStore, { ...configured, jev: provider('jev', configured.jev), llm: provider('llm', configured.llm) });
+    plugin = new ExplorerPlugin(acceptanceHost(host, entries, hostCalls), pluginStore, { ...configured, jev: provider('jev', configured.jev), llm: provider('llm', configured.llm) });
     if (!config.resume) { const created = plugin.create(createTaskSchema.parse({ url: marker.url, goal: '', coverageMode: 'all', budget: config.budget, sessionOptions: { headless: true, executionPolicy: 'interface-only' } })); taskId = created.id; marker.taskId = taskId; atomicJson(markerPath, marker); }
     runControl = { format: FORMAT, directory, owner: marker.owner, taskId, runId, pid: process.pid, startedAt: now(), state: 'active' };
     atomicJson(join(directory, 'active-run.json'), runControl);
@@ -685,7 +719,7 @@ async function main() {
     if (!providerSettlement.settled) { fatal ||= 'PROVIDER_SETTLEMENT_INCOMPLETE'; log('provider.settlement_incomplete', providerSettlement); }
     const settled = progressSnapshot();
     // Close releases SQLite WAL handles before the final physical-byte snapshot.
-    try { atomicJson(join(runDirectory, 'summary.json'), { format: FORMAT, runId, taskId, finishedAt: now(), started, fatal, guards, originalStop: guards[0], finalStatus: final?.status, finalReason: final?.reason, usageBefore: initial?.usage, usageAfter: final?.usage, durationAccounting: { before: initial?.durationUncertainty, after: final?.durationUncertainty, aggregateExact: !!final && final.activeSince === undefined && !(initial?.durationUncertainty || final.durationUncertainty) }, providerCounts, providerSettlement, diagnosticFailure: diagnostics.failure, unknownAttempts: settled.unknownAttempts, inFlightAttempts: settled.inFlightAttempts, attemptCounts: settled.counts, newSuccessfulExplorationAttempts: settled.successfulAttemptIds.length, newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, unkeyedSuccessfulAttempts: settled.unkeyedSuccessfulAttempts, historicalUnkeyedSuccessfulAttempts: settled.historicalUnkeyedSuccessfulAttempts, progressEvidenceWindow: settled.progressEvidenceWindow, budgetEnforcement, windowBudget: windowBudget.snapshot(), overshoot: windowBudget.snapshot().overshoot, recoveryCalls: recoveries.length + recoveryFailures.length, recoveryReturnedCalls: recoveries.length, recoveryThrownCalls: recoveryFailures.length, recoveryFailures, recoveryElapsedMs: [...recoveries, ...recoveryFailures].reduce((sum, recovery) => sum + recovery.elapsedMs, 0), cursors, diskAfterClose: await disk(directory), exhaustive: false, reviewRequired: true }); }
+    try { atomicJson(join(runDirectory, 'summary.json'), { format: FORMAT, runId, taskId, finishedAt: now(), started, fatal, guards, originalStop: guards[0], finalStatus: final?.status, finalReason: final?.reason, usageBefore: initial?.usage, usageAfter: final?.usage, durationAccounting: { before: initial?.durationUncertainty, after: final?.durationUncertainty, aggregateExact: !!final && final.activeSince === undefined && !(initial?.durationUncertainty || final.durationUncertainty) }, providerCounts, hostCalls, providerSettlement, diagnosticFailure: diagnostics.failure, unknownAttempts: settled.unknownAttempts, inFlightAttempts: settled.inFlightAttempts, attemptCounts: settled.counts, newSuccessfulExplorationAttempts: settled.successfulAttemptIds.length, newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, unkeyedSuccessfulAttempts: settled.unkeyedSuccessfulAttempts, historicalUnkeyedSuccessfulAttempts: settled.historicalUnkeyedSuccessfulAttempts, progressEvidenceWindow: settled.progressEvidenceWindow, budgetEnforcement, windowBudget: windowBudget.snapshot(), overshoot: windowBudget.snapshot().overshoot, recoveryCalls: recoveries.length + recoveryFailures.length, recoveryReturnedCalls: recoveries.length, recoveryThrownCalls: recoveryFailures.length, recoveryFailures, recoveryElapsedMs: [...recoveries, ...recoveryFailures].reduce((sum, recovery) => sum + recovery.elapsedMs, 0), cursors, diskAfterClose: await disk(directory), exhaustive: false, reviewRequired: true }); }
     catch (error) { fatal ||= code(error); log('summary.failed', { code: code(error) }); }
     finally { await closeAcceptanceResources([
       { name: 'stopControl', close: () => { if (runControl) atomicJson(join(directory, 'active-run.json'), { ...runControl, state: 'finished', finishedAt: now() }); } },
