@@ -258,3 +258,80 @@ it('keeps A and B source arrival budgets separate while unknown debt crosses bot
     expect(f.host.reachControlReviewTarget).not.toHaveBeenCalled();
   }finally{await f.plugin.close();}
 });
+
+function unavailableReviewSource(f:ReturnType<typeof classificationFixture>) {
+  const read=f.host.controlReviewTargetCorrespondence!;
+  const unavailable=new Set([f.source.id]);
+  const correspondence=vi.fn((sid:string,input:Parameters<typeof read>[1])=>{
+    const proof=read(sid,input);
+    return unavailable.has(input.source.observationId)?{...proof,conditionKey:undefined,
+      sourceConditionAssessment:{status:'unavailable' as const,reason:'selector_identity_unresolved',localId:'missing-mode'}}:proof;
+  });
+  f.host.controlReviewTargetCorrespondence=correspondence;
+  return {unavailable,correspondence};
+}
+
+it('retains explicitly incomplete review sources and selects a different source without spending a recovery',async()=>{
+  const f=classificationFixture();try{
+    const b={...structuredClone(f.source),id:'source-b',canonical:'source-b',stateId:'source-b'};b.controls[1].checked=true;
+    f.setCurrent(b);retainBranchCheckpoint(f,b);
+    f.setCurrent({...structuredClone(f.source),id:'live',canonical:'live',stateId:'live'});
+    f.review.evidence=[{sessionId:'session',observationId:b.id},{sessionId:'session',observationId:f.source.id}];
+    const plan=structuredClone(f.task.plan),audit=unavailableReviewSource(f);
+    const selected=await f.select();
+    expect(selected).toMatchObject({itemId:'review',source:{id:b.id},requireSourceEquivalent:true});
+    expect(audit.correspondence).toHaveBeenCalledTimes(2); // one existing self-query per source
+    expect(f.task.plan).toEqual(plan);expect(f.task.routeRetries).toBeUndefined();
+    expect(f.host.reachControlReviewTarget).not.toHaveBeenCalled();expect(f.host.reachCheckpoint).not.toHaveBeenCalled();
+  }finally{await f.plugin.close();}
+});
+
+it('defers an incomplete review item and advances to another item while retaining both obligations',async()=>{
+  const f=classificationFixture();try{
+    const b={...structuredClone(f.source),id:'other-source',canonical:'other-source',stateId:'other-source'};b.controls[1].checked=true;
+    f.setCurrent(b);retainBranchCheckpoint(f,b);
+    f.setCurrent({...structuredClone(f.source),id:'live',canonical:'live',stateId:'live'});
+    f.task.plan.push({...structuredClone(f.review),id:'other-review',evidence:[{sessionId:'session',observationId:b.id}]});
+    const plan=structuredClone(f.task.plan);unavailableReviewSource(f);
+    expect(await f.select()).toMatchObject({itemId:'other-review',source:{id:b.id},requireSourceEquivalent:true});
+    expect(f.task.scheduling!.deferred?.review.reason).toBe('review_source_conditions_unavailable:selector_identity_unresolved');
+    expect(f.task.plan).toEqual(plan);expect(f.task.routeRetries).toBeUndefined();
+  }finally{await f.plugin.close();}
+});
+
+it('reconsiders a source when its explicit assessment changes and rejects a newly unavailable final selection',async()=>{
+  const f=classificationFixture();try{
+    const audit=unavailableReviewSource(f);
+    expect(await f.select()).toBeUndefined();expect(await f.select()).toBeUndefined();
+    expect(f.events.filter(e=>e.type==='obligation.route_unavailable')).toHaveLength(1);
+    expect(f.review.status).toBe('unresolved');expect(f.task.routeRetries).toBeUndefined();
+    audit.unavailable.clear();const selected=await f.select();expect(selected.source.id).toBe(f.source.id);
+    audit.unavailable.add(f.source.id);
+    expect(()=>selected.revalidate()).toThrowError(expect.objectContaining({code:'STALE_DECISION'}));
+    expect(f.host.reachControlReviewTarget).not.toHaveBeenCalled();
+  }finally{await f.plugin.close();}
+});
+
+it('still obtains new review material with incomplete history and preserves unknown debt after restart',async()=>{
+  const f=classificationFixture();try{
+    unavailableReviewSource(f);f.revoked.add(f.current().id);
+    expect(await f.select()).toMatchObject({requireSourceEquivalent:false,source:{id:f.source.id}});
+    f.task.routeRetries=JSON.parse(JSON.stringify(recordRouteRetry(undefined,{routeKey:'old-unknown',conditionVersion:'old',outcome:'unknown',reason:'interrupted execution'})));
+    expect(await f.select()).toBeUndefined();expect(f.task.scheduling!.deferred?.review.reason).toBe('source_return_unknown_route_debt');
+    expect(f.host.reachControlReviewTarget).not.toHaveBeenCalled();expect(f.review.status).toBe('unresolved');
+  }finally{await f.plugin.close();}
+});
+
+it.each(['legacy-no-assessment','mismatched-reference','contradictory-key'])('does not exclude a source on %s diagnostic hints',async kind=>{
+  const f=classificationFixture();try{
+    const read=f.host.controlReviewTargetCorrespondence!;
+    f.host.controlReviewTargetCorrespondence=(sid,input)=>{
+      const proof=read(sid,input);
+      return {...proof,conditionKey:kind==='contradictory-key'?proof.conditionKey:undefined,
+        source:kind==='mismatched-reference'?{...proof.source,observationId:'other'}:proof.source,
+        ...kind==='legacy-no-assessment'?{}:{sourceConditionAssessment:{status:'unavailable',reason:'selector_identity_unresolved'}}};
+    };
+    expect(await f.select()).toMatchObject({source:{id:f.source.id},requireSourceEquivalent:true});
+    expect(f.task.scheduling!.deferred?.review).toBeUndefined();
+  }finally{await f.plugin.close();}
+});

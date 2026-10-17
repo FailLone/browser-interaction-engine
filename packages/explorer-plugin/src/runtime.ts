@@ -859,7 +859,8 @@ export class ExplorerPlugin {
     const reviewMaterials=new Map<string,ReturnType<ExplorerHost['controlReviewMaterial']>|undefined>();
     let currentIndex:ReturnType<typeof observationActionIndex>|undefined,currentInScope:ReturnType<typeof controlScopeMatcher>|undefined;
     let reviewInterpretations:ReturnType<ExplorerHost['controlInterpretationSnapshot']>|undefined,interpretationsRead=false;
-    const reviewedScopes=new Map<string,boolean>(),reviewSourceConditions=new Map<string,string|undefined>();
+    type ReviewSourceFacts={condition?:string;unavailableReason?:string};
+    const reviewedScopes=new Map<string,boolean>(),reviewSourceConditions=new Map<string,ReviewSourceFacts>();
     const clearReviewConditions=()=>{reviewInterpretations=undefined;interpretationsRead=false;reviewedScopes.clear();reviewSourceConditions.clear();};
     const currentReviewComplete=(scope:Scope)=>{
       const key=digest(scope);if(reviewedScopes.has(key))return reviewedScopes.get(key)!;
@@ -874,18 +875,26 @@ export class ExplorerPlugin {
         &&row.localId===controls[0].localId&&['display','container'].includes(row.classification));
       reviewedScopes.set(key,complete);return complete;
     };
-    const reviewSourceCondition=(source:Observation,localId:string)=>{
-      const key=JSON.stringify([source.sessionId,source.id,localId]);if(reviewSourceConditions.has(key))return reviewSourceConditions.get(key);
-      let condition:string|undefined;
+    const reviewSourceFacts=(source:Observation,localId:string):ReviewSourceFacts=>{
+      const key=JSON.stringify([source.sessionId,source.id,localId]),cached=reviewSourceConditions.get(key);if(cached)return cached;
+      const facts:ReviewSourceFacts={};
       try{const proof=this.host.controlReviewTargetCorrespondence?.(source.sessionId,{observationId:source.id,localId,source:{sessionId:source.sessionId,observationId:source.id,localId}});
-        if(proof?.targetMatched&&proof.reviewable&&proof.sourceEquivalent==='equivalent'&&proof.conditionKey
+        if(proof?.targetMatched&&proof.reviewable&&proof.sourceEquivalent==='equivalent'
           &&proof.source.sessionId===source.sessionId&&proof.source.observationId===source.id&&proof.source.localId===localId
           &&proof.target.sessionId===source.sessionId&&proof.target.observationId===source.id&&proof.target.localId===localId
           &&proof.preflightRequired===true&&proof.identityAuthorized===false&&proof.replayAuthorized===false
-          &&proof.executionAuthorized===false&&proof.currentExecution===false&&proof.coverageGranted===false&&proof.checkpointVerified===false)condition=proof.conditionKey;
+          &&proof.executionAuthorized===false&&proof.currentExecution===false&&proof.coverageGranted===false&&proof.checkpointVerified===false){
+          if(proof.conditionKey)facts.condition=proof.conditionKey;
+          // Reflexive review evidence belongs to one captured occurrence. Only
+          // an explicit SDK assessment can say that its portable source facts
+          // are unavailable; an older host's absent key/field cannot do so.
+          else if(proof.sourceConditionAssessment?.status==='unavailable'&&proof.sourceConditionAssessment.reason)
+            facts.unavailableReason=proof.sourceConditionAssessment.reason;
+        }
       }catch{/* Missing source conditions keep conservative route debt. */}
-      reviewSourceConditions.set(key,condition);return condition;
+      reviewSourceConditions.set(key,facts);return facts;
     };
+    const reviewSourceCondition=(source:Observation,localId:string)=>reviewSourceFacts(source,localId).condition;
     let currentSourceExclusion=createCurrentSourceExclusion(o);
     const targetConditions=(facts:Retained,action:ActionCandidate)=>{
       const conditions=facts.conditions??=new Map();
@@ -1052,7 +1061,8 @@ export class ExplorerPlugin {
       if(transitionCaptured&&!fresh.transition)fresh.transition=this.host.interactionTransition(o.sessionId,fresh.source.id,o.id);
       if(digest({source:fresh.source,sourceActions:fresh.actions,transition:fresh.transition})!==factsKey)throw new ExplorerError('STALE_DECISION');
       if(recovery.reviewLocalId&&(currentReviewComplete(item.scope)!==!!recovery.requireSourceEquivalent
-        ||reviewSourceCondition(fresh.source,recovery.reviewLocalId)!==sourceCondition))throw new ExplorerError('STALE_DECISION');
+        ||reviewSourceCondition(fresh.source,recovery.reviewLocalId)!==sourceCondition
+        ||recovery.requireSourceEquivalent&&reviewSourceFacts(fresh.source,recovery.reviewLocalId).unavailableReason))throw new ExplorerError('STALE_DECISION');
       if(routeCondition(route,readRouteSource)!==recovery.conditionVersion||!routeDebtAllows(schedule,recovery.routeKey)
         ||!routeRetryEligibility(task.routeRetries,recovery.routeKey,recovery.conditionVersion).allowed
         ||unassociatedRouteDebt(relatedRoutes(item,memberKey),recovery.routeKey,sourceCondition,route.arrivalMode,!!recovery.requireSourceEquivalent)
@@ -1119,8 +1129,16 @@ export class ExplorerPlugin {
         if(reviewTarget&&reviewControls.length!==1){reason='source_review_target_not_unique';continue;}
         const reviewLocalId=reviewControls[0]?.localId;
         const requireSourceEquivalent=reviewTarget&&currentReviewComplete(item.scope);
+        const sourceReview=reviewLocalId?reviewSourceFacts(source,reviewLocalId):undefined;
+        if(requireSourceEquivalent&&sourceReview?.unavailableReason){
+          // Preserve this occurrence as debt and consider other sources/items.
+          // Replaying cannot add missing facts to the retained source record.
+          // This is a fresh selection fact, never a permanent plan exclusion or
+          // a consumed retry. New-material arrival still accepts unknown history.
+          reason=`review_source_conditions_unavailable:${sourceReview.unavailableReason}`;continue;
+        }
         const hint=round.stack.find(frame=>frame.observationId===source.id&&frame.checkpointId===checkpoint.id);
-        const memberKey=recoveryRouteKey(source,sourceActions,[item.scope]),sourceCondition=reviewLocalId?reviewSourceCondition(source,reviewLocalId):item.scope.kind&&targets.length===1?targetConditions(facts,targets[0])?.key:undefined;
+        const memberKey=recoveryRouteKey(source,sourceActions,[item.scope]),sourceCondition=reviewLocalId?sourceReview?.condition:item.scope.kind&&targets.length===1?targetConditions(facts,targets[0])?.key:undefined;
         const strictSourceFallback=!!item.scope.kind&&!sourceCondition,family=relatedRoutes(item,memberKey);
         const related=family.filter(([,route])=>sameArrival(route,arrivalMode,requireSourceEquivalent)&&(!route.sourceCondition||route.sourceCondition===sourceCondition));
         const old=related.find(([key,route])=>route.memberKeys?.includes(memberKey)||recoveryRouteKey(source,sourceActions,route.targets,route.path)===key);
