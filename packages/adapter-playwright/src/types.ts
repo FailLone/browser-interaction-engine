@@ -30,6 +30,7 @@ export interface OwnerDependencyNode {
 export interface OwnerDependencyReference {
   sourceId: string; attribute: string; token: string;
   status: 'unique' | 'missing' | 'ambiguous'; targetIds: string[];
+  lookup?: { scope: 'document-light-dom'; documentId: string; matches: number };
 }
 export interface OwnerDependencyClosure {
   id: string; subtreeId: string; nodeIds: string[]; referenceIds: number[];
@@ -64,7 +65,25 @@ export interface OwnerDependencies {
   limits: OwnerDependencyLimits;
   /** Summary of all roots; consumers must inspect each required root/closure. */
   complete: boolean; reasons: string[];
+  ancestry?: 'node-bounded-v1';
 }
+/** IDs index a string dictionary, not necessarily a captured node. */
+export type CompactOwnerDependencyNode = [number, number, string, Record<string, string>, boolean,
+  (number | string)[] | null, OwnerDependencyNode['live'] | null, OwnerDependencyNode['resolved'] | null,
+  [number | null, number[] | null] | null, boolean, string[]];
+export type CompactOwnerDependencyRoot = [number, number, number, number, boolean, string[]];
+export type CompactOwnerDependencyNativeRoot = [number, number, number, boolean, string[]];
+export type CompactOwnerDependencyClosure = [number, number, number[], number[], number[], boolean, string[]];
+export type CompactOwnerDependencyReference = [number, string, string, 0 | 1 | 2, number[], [number, number]?];
+/** Compact transport only; decoding restores v2 raw dependency semantics. */
+export interface CompactOwnerDependencies {
+  version: 'browser-owner-dependencies-v3'; semanticVersion: 2; documentId: string; baseURI: string;
+  inventoryComplete: boolean; complete: boolean; reasons: string[]; ancestry?: 'node-bounded-v1';
+  limits: OwnerDependencyLimits; ids: string[]; selectorIds: number[]; nativeInputIds: number[];
+  nodes: CompactOwnerDependencyNode[]; roots: CompactOwnerDependencyRoot[]; nativeRoots: CompactOwnerDependencyNativeRoot[];
+  closures: CompactOwnerDependencyClosure[]; references: CompactOwnerDependencyReference[];
+}
+export type OwnerDependencySnapshot = OwnerDependencies | CompactOwnerDependencies;
 /** Last bounded DOM sample immediately before a native control command. This
  * binds retained source evidence to a dispatch, not an atomic input transaction
  * or an execution/replay grant. Missing legacy witnesses cannot be reconstructed. */
@@ -167,7 +186,7 @@ export interface Observation extends CoreObservation<Control> {
   id: ID; sessionId: ID; capturedAt: string; screenshotAt?: string;
   url: string; title: string; text: string; viewport: { width: number; height: number }; scroll: { x: number; y: number; maxY: number };
   documentId: string; controls: Control[]; regions: Region[]; context: Context;
-  ownerDependencies?: OwnerDependencies;
+  ownerDependencies?: OwnerDependencySnapshot;
   ownerDependencyDispatch?: OwnerDependencyDispatch;
   components?: BrowserComponent[];
   scrollContainers?: ScrollContainer[];

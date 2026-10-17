@@ -1,0 +1,91 @@
+{
+  "format": "owner-dependency-codec-validation-v1",
+  "at": "2026-10-17T05:02:12.446849+00:00",
+  "baseCommit": "d14273167743f7085e1798474d3907bf875f3a85",
+  "workingHead": "d14273167743f7085e1798474d3907bf875f3a85",
+  "conclusion": "Lossless bounded v3 codec and transactional incremental builder only; no coverage, recovery or real-page performance conclusion.",
+  "sourceFiles": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/owner-dependency-codec.ts",
+      "bytes": 23104,
+      "sha256": "e855d25e7ff2dcc58be9240348963e0441e60cfdabd282fe30fe58df21e4344f"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/types.ts",
+      "bytes": 19219,
+      "sha256": "0570285b04721df724b3625e14ad5921d636166dd30ee6ce33fb5c4a5e111be7"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/index.ts",
+      "bytes": 9965,
+      "sha256": "8d4162bad2f51be37fc6794ccb964bd8424250eb3e4a393ff92d6af7231594d6"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/tests/owner-dependency-codec.test.ts",
+      "bytes": 11436,
+      "sha256": "467b1d58fa5e7dec57835936890a67f3aed7e7cb3dac6e31b05ac173f3d0d067"
+    }
+  ],
+  "validation": {
+    "test": {
+      "command": "pnpm exec vitest run tests/owner-dependency-codec.test.ts --reporter=dot",
+      "exitCode": 0,
+      "files": 1,
+      "passed": 29,
+      "failed": 0,
+      "durationMs": 438,
+      "testDurationMs": 77,
+      "executions": 1,
+      "coverage": [
+        "JSON semantic roundtrip and hash equality",
+        "missing vs empty fields, legal __proto__ and Unicode",
+        "uncaptured IDs remain incomplete evidence",
+        "lookup and ancestry optional lossless fields",
+        "legacy v1/v2 not upgraded by decoder",
+        "incremental exact byte accounting",
+        "transactional dictionary/row/counter rollback",
+        "native/control root replacement",
+        "malformed indexes/tuples/dictionaries/header/limits rejection",
+        "wire ceiling and expanded dictionary-bomb rejection",
+        "cycles/accessors/non-enumerable/symbol shape guards",
+        "finite repeated-ID representation example",
+        "self-contained serialized factory"
+      ]
+    },
+    "targetedTypecheck": {
+      "command": "pnpm exec tsc --noEmit --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext --customConditions development --lib ES2023,DOM,DOM.Iterable packages/adapter-playwright/src/owner-dependency-codec.ts tests/owner-dependency-codec.test.ts",
+      "exitCode": 0,
+      "scope": "Before the descriptor-only own-property guard hardening. Final integrated typecheck belongs to the parent checkpoint."
+    },
+    "diffCheck": true
+  },
+  "bounds": {
+    "wireBytes": 131072,
+    "expandedJsonBytes": 1048576,
+    "nodes": 512,
+    "references": 64,
+    "depth": 16,
+    "dictionaryIds": 8192,
+    "controlRoots": 1500,
+    "nativeRoots": 512,
+    "closures": 2012,
+    "jsonWalkStepsAndArrayItems": 65536,
+    "summaryReserveBytes": 1024
+  },
+  "boundaries": {
+    "browserProcesses": 0,
+    "databaseOpens": 0,
+    "services": 0,
+    "productionCollectorChanged": false,
+    "readerChanged": false,
+    "oldEvidenceRewritten": false,
+    "fullSuiteRun": false
+  },
+  "limitations": [
+    "Pure codec tests do not prove SDK authorization or recovery behavior.",
+    "The finite compression example is synthetic and not a timing benchmark.",
+    "Graph semantic completeness remains the existing reader responsibility.",
+    "Lookup and ancestry fields are preserved but do not receive new meaning from this codec.",
+    "Rejected transactions do not mutate earlier completed rows or the ID dictionary."
+  ]
+}

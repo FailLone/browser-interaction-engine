@@ -20,6 +20,8 @@ import { listGroups, structuralListGroups } from './list-groups.js';
 import { decisionScopes } from './decision-scopes.js';
 import type { ActionCandidate, Control, EngineHooks, Observation, Session, SessionOptions } from './types.js';
 export * from './types.js';
+export { createOwnerDependencyCodec } from './owner-dependency-codec.js';
+export type { OwnerDependencyCodec, OwnerDependencyBuilder } from './owner-dependency-codec.js';
 export * from './boundary-exit.js';
 export * from './purpose-review.js';
 export * from './control-review.js';
