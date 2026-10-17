@@ -1,0 +1,91 @@
+{
+  "baseCommit": "5b05d3939919d16d8c52203f0f37f0c3dd5e774c",
+  "command": "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node node_modules/vitest/vitest.mjs run tests/native-navigation-operation-reference.test.ts",
+  "runs": [
+    {
+      "log": "test.log",
+      "exitCode": 1,
+      "passed": 4,
+      "failed": 20,
+      "cause": "Fixture reused immutable observation IDs; all 20 failures occurred in MemoryStore.put before the negative proof assertions."
+    },
+    {
+      "log": "fixture-recheck.log",
+      "exitCode": 0,
+      "passed": 24,
+      "failed": 0,
+      "reason": "Parent-authorized fixture-only correction: each save gets new observation IDs and session cursor; product unchanged between runs."
+    }
+  ],
+  "files": {
+    "packages/adapter-playwright/src/native-navigation.ts": "8446997554a05c4d4110fd994665339b77b2808bb54fac315c0adb8f4d67f6f5",
+    "packages/adapter-playwright/src/exploration.ts": "15890559ffc3c1a9fffac8edf508060bec741dd1a1e0620f5910a3177ceb71f3",
+    "packages/adapter-playwright/src/branch-conditions.ts": "e045f81a0a351204fec4eebcf3d44262408018616be94d1251cda2d9b29cd1b8",
+    "packages/adapter-playwright/src/target-arrival.ts": "0d3b1562ea98b235ea7a96820c678702dcc07348ec62539df75f1803fe610b78",
+    "tests/native-navigation-operation-reference.test.ts": "559d32608408d1fa6811a78c723095fa329e9661924bd997c679e58a84ec8b60"
+  },
+  "constraints": {
+    "browserDriverCalls": 0,
+    "persistentDatabaseOpened": false,
+    "servicesStarted": false,
+    "gitCommitCreated": false
+  },
+  "scope": "Pure MemoryStore + InteractionEngine operation/target correspondence and adapter projections; no real-page arrival, execution, replay or performance conclusion.",
+  "queryReaderCheckpoint": {
+    "contract": "Explicit synchronous per-query/per-observation reader; public helper remains uncached; custom operation hint overrides retain their original calls. No reader survives another query, await, mutation or dispatch.",
+    "command": "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node node_modules/vitest/vitest.mjs run tests/native-navigation-operation-reference.test.ts -t 'synchronous query|query-local factory'",
+    "log": "query-reader-tests.log",
+    "exitCode": 0,
+    "passed": 2,
+    "skippedPreviouslyPassed": 24,
+    "files": {
+      "packages/core/src/ports.ts": "47a2845f82c06c35628537f9286604616fc9d421683684b61bd135b06fe9e36e",
+      "packages/core/src/engine.ts": "85b5682e8db8abc7b6f291468570d4b2551a1745a9e21341f9c68c84303362d6",
+      "packages/adapter-playwright/src/index.ts": "96298760284ca8a10ab886d12346293e7649fb2ab7185743a6693852265c69ef",
+      "packages/adapter-playwright/src/native-navigation.ts": "8446997554a05c4d4110fd994665339b77b2808bb54fac315c0adb8f4d67f6f5",
+      "packages/adapter-playwright/src/exploration.ts": "045493c29fbe03f1ea3a38413aa993865668a8c91930438ba486b4c0f63cb6f2",
+      "packages/adapter-playwright/src/branch-conditions.ts": "e045f81a0a351204fec4eebcf3d44262408018616be94d1251cda2d9b29cd1b8",
+      "packages/adapter-playwright/src/target-arrival.ts": "0d3b1562ea98b235ea7a96820c678702dcc07348ec62539df75f1803fe610b78",
+      "tests/native-navigation-operation-reference.test.ts": "8f56900ddd9df1a425b8ff58780ab61c139276e2ab1542f439de7e45bccffaeb"
+    }
+  },
+  "realQuery": {
+    "script": "real-query.ts",
+    "scriptSha256": "7c40224f28f0af967f624d315fa4532ad7a902708a3268339cd0f02e91484b30",
+    "result": "real-query-result.json",
+    "resultSha256": "f7cf2bd220a025af7cc1a70c21e86a1a13e04b12c1b185b6dc34f535990b795e",
+    "log": "real-query.log",
+    "executions": 1,
+    "exitCode": 0,
+    "queryCompleted": true,
+    "sdkEquivalent": true,
+    "sdkReason": "equivalent_observed_target",
+    "allThreeReferenceKeysEqual": true,
+    "allThreeBranchKeysEqual": true,
+    "allThreeTargetKeysEqual": true,
+    "modeConditions": 28,
+    "acceptedOwnerNodes": 59,
+    "outerHeaderMissingIdrefStillRejected": true,
+    "querySqlChanges": 0,
+    "driverCalls": 0,
+    "sourceUnchanged": true,
+    "closed": true,
+    "temporaryCopyRemoved": true,
+    "boundary": "Final frame only uses the public SDK current-target API. Trade-after is a recorded projection, not a forged current cursor. No live availability, arrival, dispatch or child completion is claimed."
+  },
+  "typeOnlyFollowup": {
+    "reason": "Root integrated typecheck found TS2352 at ancestor-to-TreeNode cast. row() only consumes tag/attributes; its input now explicitly uses Pick<Node,tag|attributes> and removes the cast.",
+    "file": "packages/adapter-playwright/src/native-navigation.ts",
+    "beforeSha256": "8446997554a05c4d4110fd994665339b77b2808bb54fac315c0adb8f4d67f6f5",
+    "afterSha256": "8e9a024dd5cc1cf9c2f7a3a2c1d516dde2aea48bb1e56af4dcae495464b18a62",
+    "behaviorChange": false,
+    "checksRerun": false,
+    "typecheckOwner": "root"
+  },
+  "publicReaderExportFollowup": {
+    "file": "packages/adapter-playwright/src/index.ts",
+    "sha256": "5e837995f942b0a2d787133c4e6bb1e0969ccd062a1ec998d431fc3c69d87641",
+    "change": "Export existing createBrowserOperationCorrespondenceHintReader for plugin-owned synchronous projection scopes; no helper implementation change or new cache.",
+    "checksRerun": false
+  }
+}

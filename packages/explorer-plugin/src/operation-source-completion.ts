@@ -1,6 +1,7 @@
 import type { ActionAttempt, ActionCandidate, Observation } from '@interaction/browser';
 import type { ExplorerHost, PlanItem, Task } from './types.js';
-import { controlInScope, matches } from './policy.js';
+import { controlInScope, keyFor, matches, schedulingKeyFor } from './policy.js';
+import { boundOperationCondition, validOperationSchedulingNormalization } from './plan-state.js';
 import {receiptConditionReader} from './receipt-condition.js';
 
 /** A retry budget is not coverage. Only a retained receipt checked against the
@@ -51,14 +52,66 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
     const sources=new Map<string,{sessionId:string;observationId:string}>(),receipts=new Map<string,ActionAttempt>();
     const addSource=(sessionId:string,observationId:string)=>sources.set(`${sessionId}:${observationId}`,{sessionId,observationId});
     const refs=[...item.evidence,...item.attempts.flatMap(a=>a.evidence?[a.evidence]:[]),...(item.resolvedBy?[item.resolvedBy]:[])];
+    if(item.attempts.some(a=>['unknown','executing'].includes(a.outcome)&&!a.evidence?.attemptId))return;
+    for(const ref of refs)if(!ref.attemptId)addSource(ref.sessionId,ref.observationId);
+    const hasDiscoverySources=sources.size>0;
     for(const ref of refs){
-      if(!ref.attemptId){addSource(ref.sessionId,ref.observationId);continue;}
+      if(!ref.attemptId)continue;
       const attempt=readAttempt(ref.sessionId,ref.attemptId);
       if(!attempt||attempt.sessionId!==ref.sessionId||![attempt.beforeId,attempt.afterId].includes(ref.observationId)||['unknown','executing'].includes(attempt.status))return;
-      addSource(attempt.sessionId,attempt.beforeId);
+      // A receipt proves execution; its rebuilt before-frame is not another
+      // discovery under the original literal scope. Receipt-only legacy items
+      // retain their old exact-before interpretation, never an invented source.
+      if(!hasDiscoverySources)addSource(attempt.sessionId,attempt.beforeId);
       if(attempt.status==='succeeded'&&attempt.afterId&&(!accept||accept(attempt)))receipts.set(`${attempt.sessionId}:${attempt.id}`,attempt);
     }
     return {sources,receipts};
+  };
+  const readSource=(sessionId:string,observationId:string)=>{
+    const key=`${sessionId}:${observationId}`;let facts=observations.get(key);
+    if(!facts){
+      const observation=host.observation(sessionId,observationId);
+      if(observation.sessionId!==sessionId||observation.id!==observationId)throw Error('Source observation ownership mismatch');
+      facts={observation,actions:host.operationCoverageCandidates(sessionId,observationId)};
+      if(observations.size>=8)observations.delete(observations.keys().next().value!);
+      observations.set(key,facts);
+    }
+    return facts;
+  };
+  /** Attribution of one actual attempt to a program-derived child, not success
+   * or permission. Original scope/condition apply to the retained source only;
+   * SDK correspondence must freshly bind its uniquely mapped current action. */
+  const associate=(item:PlanItem,attempt:ActionAttempt):boolean=>{
+    try{
+      const condition=boundOperationCondition(item),query=host.explorationTargetCorrespondences;
+      if(!query||!condition||!item.scope.kind||!item.required
+        ||item.dispatchScope!==false&&item.conditionLineage?.kind!=='condition'
+        ||['succeeded','excluded','superseded'].includes(item.status)||['split','invalidated'].includes(item.conditionMigration?.status||'')
+        ||!['browser-operation-key-v2','browser-operation-key-v3'].includes(item.operationConditionPolicy||''))return false;
+      const collected=collect(item);if(!collected||!collected.sources.size)return false;
+      const before=readSource(attempt.sessionId,attempt.beforeId),actual=attempt.action;
+      const candidates=before.actions.filter(a=>a.id===actual.id&&a.sessionId===attempt.sessionId&&a.observationId===attempt.beforeId);
+      if(actual.sessionId!==attempt.sessionId||actual.observationId!==attempt.beforeId||candidates.length!==1)return false;
+      const target=candidates[0];
+      if(target.localId!==actual.localId||target.controlId!==actual.controlId||target.kind!==actual.kind||target.risk!==actual.risk
+        ||JSON.stringify(target.value)!==JSON.stringify(actual.value))return false;
+      const legacy=item.operationConditionPolicy==='browser-operation-key-v2'&&!validOperationSchedulingNormalization(item);
+      let associated=false;
+      for(const ref of collected.sources.values()){
+        const {observation,actions}=readSource(ref.sessionId,ref.observationId);
+        const originals=actions.filter(a=>a.sessionId===ref.sessionId&&a.observationId===ref.observationId&&matches(item.scope,a,observation)
+          &&(legacy?keyFor(a,observation):schedulingKeyFor(a,observation))===condition);
+        if(originals.length!==1)continue;
+        const source={...ref,actionId:originals[0].id};
+        const result=query.call(host,attempt.sessionId,{observationId:attempt.beforeId,requests:[{actionId:actual.id,source}]});
+        const proof=result?.results?.[0];
+        if(result?.sessionId===attempt.sessionId&&result.observationId===attempt.beforeId&&result.results.length===1
+          &&proof?.equivalent&&proof.identityAuthorized===false&&proof.replayAuthorized===false&&proof.currentExecution===false
+          &&proof.target.sessionId===attempt.sessionId&&proof.target.observationId===attempt.beforeId&&proof.target.actionId===actual.id
+          &&proof.source.sessionId===source.sessionId&&proof.source.observationId===source.observationId&&proof.source.actionId===source.actionId)associated=true;
+      }
+      return associated;
+    }catch{return false;}
   };
   const complete=(item:PlanItem):boolean=>{
     try {
@@ -71,16 +124,8 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
         candidates.forEach((attempt,index)=>{if(!proofs[index].conditionVerified)receipts.delete(`${attempt.sessionId}:${attempt.id}`);});
       }
       if(!sources.size||!receipts.size)return false;
-      for(const [sourceKey,ref] of sources){
-        let facts=observations.get(sourceKey);
-        if(!facts){
-          const observation=host.observation(ref.sessionId,ref.observationId);
-          if(observation.sessionId!==ref.sessionId||observation.id!==ref.observationId)return false;
-          facts={observation,actions:host.operationCoverageCandidates(ref.sessionId,ref.observationId)};
-          if(observations.size>=8)observations.delete(observations.keys().next().value!);
-          observations.set(sourceKey,facts);
-        }
-        const {observation,actions}=facts;
+      for(const ref of sources.values()){
+        const {observation,actions}=readSource(ref.sessionId,ref.observationId);
         const members=actions.filter(action=>action.sessionId===ref.sessionId&&action.observationId===ref.observationId&&matches(item.scope,action,observation));
         if(!members.length||observation.controls.some(control=>control.visible&&controlInScope(item.scope,control,observation,actions)&&!members.some(action=>action.localId===control.localId)))return false;
         const remaining=members.filter(action=>![...receipts.values()].some(attempt=>attempt.sessionId===ref.sessionId&&attempt.beforeId===ref.observationId
@@ -92,6 +137,7 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
         for(const action of remaining)if(!requests.some((request,index)=>{
           const proof=result.results[index];
           return request.actionId===action.id&&proof?.equivalent&&proof.target.sessionId===ref.sessionId&&proof.target.observationId===ref.observationId&&proof.target.actionId===action.id
+            &&proof.identityAuthorized===false&&proof.replayAuthorized===false&&proof.currentExecution===false
             &&proof.source.sessionId===request.source.sessionId&&proof.source.attemptId===request.source.attemptId;
         }))return false;
       }
@@ -104,5 +150,5 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
     for(const item of items){try{const collected=collect(item);if(collected)candidates.push(...collected.receipts.values());}catch{/* The item retains its normal evidence-unavailable result. */}}
     try{condition.many(candidates);}catch{/* Per-item reads retain the original fail-closed boundary. */}
   };
-  return Object.assign(complete,{prepare});
+  return Object.assign(complete,{prepare,associate});
 }

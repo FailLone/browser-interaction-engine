@@ -175,6 +175,10 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   controlCorrespondence?(control: O['controls'][number]): import('./coverage-reconciliation.js').CorrespondenceHint | undefined;
   /** Optional operation-specific evidence. Does not change control identity or persisted keys. */
   operationCorrespondenceHint?(control: O['controls'][number], kind: string, observation: O): import('./coverage-reconciliation.js').CorrespondenceHint | undefined;
+  /** Optional query-local derivation. Called once per recorded observation in a
+   * synchronous correspondence query; never reused across queries, mutation,
+   * await or dispatch. Implementations must preserve public hook overrides. */
+  createOperationCorrespondenceHintReader?(observation: O): (control: O['controls'][number], kind: string) => import('./coverage-reconciliation.js').CorrespondenceHint | undefined;
   /** Portable operation equivalence for correspondence and coverage reconciliation.
    * May be stricter than explorationCase queue sampling; undefined never falls
    * back to that broader sample when this contract is implemented. */

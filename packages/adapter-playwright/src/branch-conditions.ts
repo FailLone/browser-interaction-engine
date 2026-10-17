@@ -2,6 +2,7 @@ import { canonical, hash, type ReviewConditionAssessment } from '@interaction/co
 import type { ActionCandidate, Control, Observation } from './types.js';
 import { formBinding } from './util.js';
 import { modeStructureReader } from './mode-structure.js';
+import { nativeNavigationOperationReference } from './native-navigation.js';
 
 /** A bound on evidence, not permission to ignore additional dependencies. */
 export const MAX_BRANCH_CONDITIONS = 32;
@@ -100,7 +101,13 @@ export function browserPortableBranchConditions(action: Pick<ActionCandidate, 'k
   const conditions=observedModeConditions(target,o,['fill','select','check'].includes(action.kind),'v3').conditions;
   // The new structural dependency proof must not authorize its own unresolved
   // operation target. Older nonstructural sampling retains its prior contract.
-  return conditions?.policy==='browser-branch-conditions-v4'&&(target.identityScope==='instance'||target.hypothesisId)?undefined:conditions;
+  if(conditions?.policy==='browser-branch-conditions-v4'&&(target.identityScope==='instance'||target.hypothesisId)){
+    // A mode tree alone never authorizes its operation target. A separate,
+    // complete native navigation reference may describe that operation while
+    // its control identity remains correctly bound to the captured instance.
+    if(target.hypothesisId||action.kind!=='click'||!nativeNavigationOperationReference(target,o))return;
+  }
+  return conditions;
 }
 
 /** Interpretation has no destination input: retain the target's own mode too. */

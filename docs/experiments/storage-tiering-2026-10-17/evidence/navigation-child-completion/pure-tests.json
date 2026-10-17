@@ -1,0 +1,21 @@
+{
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/explorer-operation-source-completion.test.ts",
+    "--reporter=verbose"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 1.540329334,
+  "before": {
+    "packages/explorer-plugin/src/operation-source-completion.ts": "a7e88f6ba88834856d10f490ad442ff1f3a2152490cfddd1c300d508f4e8c7c1",
+    "tests/explorer-operation-source-completion.test.ts": "e86aa6885b0ae400e6bf2636f8b506419073c60abe70cacfdbfaa55c7a9dfba6"
+  },
+  "after": {
+    "packages/explorer-plugin/src/operation-source-completion.ts": "a7e88f6ba88834856d10f490ad442ff1f3a2152490cfddd1c300d508f4e8c7c1",
+    "tests/explorer-operation-source-completion.test.ts": "e86aa6885b0ae400e6bf2636f8b506419073c60abe70cacfdbfaa55c7a9dfba6"
+  },
+  "scope": "Pure helper contract only; no engine, database, browser or server instantiated."
+}

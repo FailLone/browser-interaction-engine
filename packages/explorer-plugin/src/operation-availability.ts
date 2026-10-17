@@ -6,6 +6,7 @@ import type { PlanItem, Scope } from './types.js';
 // results, permissions, sampling, semantic reviews and capability gaps remain
 // independent obligations, even when their literal scopes happen to match.
 const availabilityReasons=new Set(['operation_not_executed','region_review_required','pointer_intercepted','outside_active_boundary','outside_scrollable_area','not_editable','Control is not visible or enabled']);
+export const isOperationAvailabilityReason=(reason:string)=>availabilityReasons.has(reason);
 export function availabilityObligation(plan:PlanItem[],reason:string,scope:Scope,condition:string,required:boolean,prerequisites:Scope[]=[]):PlanItem|undefined {
   if(!required||!availabilityReasons.has(reason)||!scope.kind)return;
   const scopeKey=digest(scope);

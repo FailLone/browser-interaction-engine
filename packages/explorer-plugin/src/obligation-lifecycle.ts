@@ -3,6 +3,7 @@ import { browserControlCorrespondence, browserOperationCorrespondenceHint, brows
 import type { EvidenceRef, ExplorerHost, PlanItem, Scope, Task } from './types.js';
 import { broadScope, controlScopeMatcher, digest, matches, scopeFor } from './policy.js';
 import {observationActionIndex} from './observation-action-index.js';
+import {isOperationAvailabilityReason} from './operation-availability.js';
 
 /** A scheduling view of the immutable discovery ledger, never coverage or permission. */
 export type ObligationState = 'active' | 'waiting' | 'unreachable' | 'alias' | 'resolved' | 'excluded' | 'authority' | 'superseded';
@@ -83,13 +84,12 @@ export function recoveryRouteKey(source:Observation,actions:ActionCandidate[],ta
     targets:[...new Set(targets.map(scope=>digest(semantic(scope))))].sort(),path:path.map(semantic)});
 }
 
-const passiveOperationReasons=new Set(['observed_in_scope','operation_not_executed']);
 function aliasCandidate(item:PlanItem):boolean {
   // Unknown, attempted, recovery and capability obligations must never disappear
   // behind another row, even when the target itself has a positive match.
   return item.required&&item.dispatchScope===false&&!!item.scope.kind&&!!(item.scope.label||item.scope.stableKey)
     &&!(item.conditionCompletion?.status==='unverified'&&item.conditionCompletion.waiting!==false)
-    &&['pending','unresolved','blocked'].includes(item.status)&&passiveOperationReasons.has(item.reason)
+    &&['pending','unresolved','blocked'].includes(item.status)&&(item.reason==='observed_in_scope'||isOperationAvailabilityReason(item.reason))
     &&item.attempts.length===0&&!item.resolvedBy&&!item.reviewResolvedBy&&!item.coverageResolvedBy
     &&item.evidence.every(e=>!e.attemptId);
 }

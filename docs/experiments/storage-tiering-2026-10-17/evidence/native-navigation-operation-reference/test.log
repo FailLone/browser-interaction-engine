@@ -1,0 +1,116 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ❯ tests/native-navigation-operation-reference.test.ts (24 tests | 20 failed) 79ms
+   ✓ proves only the native navigation operation across rebuilt li instances, including portable target conditions and all modes 25ms
+   ✓ supports a named ul with complete external IDREF evidence without requiring a nav tag 3ms
+   × refuses incomplete, changed or ambiguous navigation facts: destination 5ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: target 3ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: download 2ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: owner 2ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: owner-attributes 3ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: target-attributes 2ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: subtree-attributes 2ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: truncated 2ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: missing-idref 2ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: ambiguous-idref 2ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: nested-unresolved-idref 2ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: empty-owner-label 2ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: duplicate-destination 2ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: unobserved-rival 2ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: duplicate-owner 2ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: broken-parent 3ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: hypothesis 2ms
+     → Observations cannot be overwritten
+   × refuses incomplete, changed or ambiguous navigation facts: non-native 2ms
+     → Observations cannot be overwritten
+   ✓ refuses incomplete, changed or ambiguous navigation facts: unknown 2ms
+   × retains nonlocal A/B mode dependencies and refuses missing or changed modes 4ms
+     → Observations cannot be overwritten
+   × keeps a hidden mode outside the navigation owner in the complete operation conditions 1ms
+     → Observations cannot be overwritten
+   ✓ does not migrate arbitrary instance controls or accept a URL-only legacy caller as complete structure 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 20 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: destination
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: target
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: download
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: owner
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: owner-attributes
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: target-attributes
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: subtree-attributes
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: truncated
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: missing-idref
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: ambiguous-idref
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: nested-unresolved-idref
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: empty-owner-label
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: duplicate-destination
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: unobserved-rival
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: duplicate-owner
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: broken-parent
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: hypothesis
+ FAIL  tests/native-navigation-operation-reference.test.ts > refuses incomplete, changed or ambiguous navigation facts: non-native
+EngineError: Observations cannot be overwritten
+ ❯ MemoryStore.put packages/storage-memory/src/index.ts:50:62
+     48|     if (prior && (prior.kind !== kind || prior.sessionId !== sessionId…
+     49|     if (kind === 'observation' && prior) {
+     50|       if (canonical(prior.value) !== canonical(value)) throw new Engin…
+       |                                                              ^
+     51|       return;
+     52|     }
+ ❯ Object.save tests/native-navigation-operation-reference.test.ts:42:57
+ ❯ tests/native-navigation-operation-reference.test.ts:90:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/20]⎯
+
+ FAIL  tests/native-navigation-operation-reference.test.ts > retains nonlocal A/B mode dependencies and refuses missing or changed modes
+EngineError: Observations cannot be overwritten
+ ❯ MemoryStore.put packages/storage-memory/src/index.ts:50:62
+     48|     if (prior && (prior.kind !== kind || prior.sessionId !== sessionId…
+     49|     if (kind === 'observation' && prior) {
+     50|       if (canonical(prior.value) !== canonical(value)) throw new Engin…
+       |                                                              ^
+     51|       return;
+     52|     }
+ ❯ Object.save tests/native-navigation-operation-reference.test.ts:42:57
+ ❯ tests/native-navigation-operation-reference.test.ts:95:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/20]⎯
+
+ FAIL  tests/native-navigation-operation-reference.test.ts > keeps a hidden mode outside the navigation owner in the complete operation conditions
+EngineError: Observations cannot be overwritten
+ ❯ MemoryStore.put packages/storage-memory/src/index.ts:50:62
+     48|     if (prior && (prior.kind !== kind || prior.sessionId !== sessionId…
+     49|     if (kind === 'observation' && prior) {
+     50|       if (canonical(prior.value) !== canonical(value)) throw new Engin…
+       |                                                              ^
+     51|       return;
+     52|     }
+ ❯ Object.save tests/native-navigation-operation-reference.test.ts:42:57
+ ❯ tests/native-navigation-operation-reference.test.ts:110:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/20]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  20 failed | 4 passed (24)
+   Start at  00:57:09
+   Duration  835ms (transform 330ms, setup 0ms, collect 612ms, tests 79ms, environment 0ms, prepare 35ms)
+

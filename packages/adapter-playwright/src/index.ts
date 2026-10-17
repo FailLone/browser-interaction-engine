@@ -10,8 +10,8 @@ import { observableCanonical, compareObservations, browserStateGrouping } from '
 import { sessionSchema } from './schema.js';
 import { signature } from './util.js';
 import { constrain, hasDeclaredBoundaryExit, hasObservedBoundaryExit } from './policy.js';
-import { browserControlCorrespondence, browserOperationCorrespondenceHint, controlCase, controlsTraversalCase, explorationCase, restorationStep, verifyRestorationStep } from './exploration.js';
-export { browserControlCorrespondence, browserControlBindingKey, browserOperationCorrespondenceHint, browserOperationKey, browserOperationSchedulingKey, legacyBrowserOperationKey } from './exploration.js';
+import { browserControlCorrespondence, browserOperationCorrespondenceHint, createBrowserOperationCorrespondenceHintReader, controlCase, controlsTraversalCase, explorationCase, restorationStep, verifyRestorationStep } from './exploration.js';
+export { browserControlCorrespondence, browserControlBindingKey, browserOperationCorrespondenceHint, createBrowserOperationCorrespondenceHintReader, browserOperationKey, browserOperationSchedulingKey, legacyBrowserOperationKey } from './exploration.js';
 export { navigationIntent, type NavigationIntent } from './navigation.js';
 import { historyReturn, observedSourcePosition } from './navigation.js';
 import { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';
@@ -51,6 +51,11 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   }
   controlCorrespondence = browserControlCorrespondence;
   operationCorrespondenceHint = browserOperationCorrespondenceHint;
+  createOperationCorrespondenceHintReader(observation:Observation) {
+    return this.operationCorrespondenceHint===browserOperationCorrespondenceHint
+      ?createBrowserOperationCorrespondenceHintReader(observation)
+      :(control:Control,kind:string)=>this.operationCorrespondenceHint(control,kind,observation);
+  }
   correspondenceCase(a: ActionCandidate,o: Observation) { return controlCase(a,o,true); }
   private static readonly defaultCorrespondenceCase=PlaywrightAdapter.prototype.correspondenceCase;
   get receiptIdentityScope() {

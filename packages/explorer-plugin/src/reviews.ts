@@ -11,6 +11,10 @@ export interface ReviewContext {
   host:ExplorerHost;task:Task;observation:Observation;
   /** Yield to local actions only while the scheduler can still prefer them to recovery. */
   allowLocalActionYield?:boolean;
+  /** One freshly bound selected child can continue after recovery at the local quota. */
+  allowPriorityActionYield?:boolean;
+  /** Current SDK-corresponding child actions. Ordering only; never execution permission. */
+  priorityActionIds?:readonly string[];
   choose(purpose:string,instructions:string,state:unknown,options:Record<string,unknown>,constraints?:ChoiceConstraints):Promise<{value:string;decision:Decision}>;
   assess(purpose:string,state:unknown,checks:NonNullable<ModelRequest['checks']>):Promise<{values:Record<string,boolean|null>;decision:Decision}>;
   refresh(decision:Decision,key:string):Promise<boolean>;
@@ -74,18 +78,23 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(task.plan.some(i=>!i.required&&i.reason==='user_excluded'&&inScope(i.scope,control)))return false;
     return pendingPlan.some(i=>i.required&&i.dispatchScope===true&&[i.scope,...i.prerequisites].some(scope=>inScope(scope,control)));
   };
-  const relevantIds=new Set(o.controls.filter(relevant).map(c=>c.localId));
-  // Yield only to fresh, independently executable in-place work. Reentry waits
-  // for review of new work; a ready exit/history/link
-  // must not make unresolved modal contents disappear before their review.
+  const allRelevantIds=new Set(o.controls.filter(relevant).map(c=>c.localId));
+  const requested=new Set(c.priorityActionIds||[]),actionCounts=new Map<string,number>();
+  for(const action of available)actionCounts.set(action.id,(actionCounts.get(action.id)||0)+1);
+  const priority=available.filter(action=>requested.has(action.id)&&actionCounts.get(action.id)===1&&action.sessionId===sid&&action.observationId===o.id
+    &&inCurrentBoundary(action)&&!!includesScope(task.plan,action,o)&&(!action.localId||o.controls.filter(control=>control.localId===action.localId).length===1));
+  const priorityIds=new Set(priority.map(action=>action.id)),priorityControls=new Set(priority.flatMap(action=>action.localId&&allRelevantIds.has(action.localId)?[action.localId]:[]));
+  const priorityFilter=(action:ActionCandidate)=>priorityIds.has(action.id)&&action.sessionId===sid&&action.observationId===o.id;
+  // Ordinary early yield stays in place. A selected child may also navigate,
+  // but only after fresh SDK availability and retention of unresolved controls.
   const inPlace=(a:ActionCandidate)=>inCurrentBoundary(a)&&!['dismiss','history'].includes(a.kind)&&a.boundary?.intent!=='exit'&&!navigationTarget(a,o);
-  if(c.allowLocalActionYield!==false&&available.some(inPlace)&&c.hasPendingAction(inPlace,true)) {
+  const retainBeforeYield=()=>{
     // Local actions and scrolling may hide current controls too. Retain obligations
     // before yielding; these are evidence gaps, never new dispatch authority. A later
     // pass reviews them normally because no reviewed key or decision is fabricated.
     const recorded=new Set(task.plan.filter(i=>i.status==='unresolved'&&i.required).map(i=>digest({reason:i.reason,scope:i.scope})));
     const retain=(reason:string,control:Observation['controls'][number])=>{
-      if(!relevantIds.has(control.localId))return;
+      if(!allRelevantIds.has(control.localId))return;
       const scope=scopeForControl(control,o),key=digest({reason,scope});if(recorded.has(key))return;
       c.gap(reason,scope,true,round.entryPath);recorded.add(key);
     };
@@ -94,11 +103,62 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     for(const item of interpretations.operations.controls)if(item.needsReview)retain('operation_basis_unconfirmed',item.control);
     const pendingIdentities=new Set(host.list<IdentityHypothesis>(sid,'hypothesis').filter(h=>h.status==='pending').map(h=>h.id));
     for(const control of o.controls)if(control.hypothesisId&&pendingIdentities.has(control.hypothesisId))retain('identity_unresolved',control);
-    return false;
-  }
+  };
+  // These read models live only inside this call. Every command/probe that can
+  // recapture returns immediately; the next step rebuilds all material.
+  let regions:ReturnType<ExplorerHost['regionReviewMaterial']>|undefined;
+  let exploration:ReturnType<ExplorerHost['explorationReviewMaterial']>|{groups:ExplorationGroup[]}|undefined;
+  let classification:ReturnType<ExplorerHost['controlClassificationMaterial']>|undefined;
+  let operations:ReturnType<ExplorerHost['controlReviewMaterial']>|undefined;
+  const readRegions=()=>regions??=host.regionReviewMaterial(sid);
+  const readExploration=()=>exploration??=(available.length?host.explorationReviewMaterial(sid):{groups:[]});
+  const readClassification=()=>classification??=host.controlClassificationMaterial(sid);
+  const readOperations=()=>operations??=host.controlReviewMaterial(sid);
+  const pendingScopes=(focused:boolean)=>readExploration().groups.filter(g=>g.status==='pending'||!g.decisions.length).flatMap(group=>{
+    const key=`group:${group.id}:${group.revision}`;if(done(key))return [];
+    const members=group.members.filter(m=>available.some(a=>a.id===m.actionId));
+    if(!members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return inCurrentBoundary(action)&&includesScope(pendingPlan,action,o);})
+      ||focused&&!members.some(m=>priorityIds.has(m.actionId)))return [];
+    const explicit=members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&schedulableObligation(i)&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
+    return [{group,key,members,allowedReductions:task.coverageMode==='representative'&&!explicit?['sample']:[]}];
+  });
+  const retainGroups=(scopes:ReturnType<typeof pendingScopes>)=>{
+    const retained=scopes.filter(s=>!s.allowedReductions.length).slice(0,50);
+    if(!retained.length)return false;
+    for(const s of retained)mark(s.key);
+    return c.retain(retained.map(({group,members})=>({id:group.id,revision:group.revision,label:group.label,memberKeys:members.map(m=>m.key),actionIds:members.map(m=>m.actionId),historicalMemberCount:group.members.length-members.length})));
+  };
+  const reviewGroup=async({group,key,members,allowedReductions}:ReturnType<typeof pendingScopes>[number])=>{
+    const plan=decisionPlan(task.plan);
+    const d=await c.choose('scope-review','Choose exhaustive traversal or representative sampling of current observed members. Sampling requires the supplied user permission; every omitted member remains untested. Never skip a group based only on confidence. Program scope matching still limits execution to the selected task.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',coverageMode:task.coverageMode||'all',allowedReductions,plan,group:{...group,members,historicalMemberCount:group.members.length-members.length}},
+      {all:'Keep all observed members available for in-scope traversal',sample:'User explicitly permits representative sampling',defer:'Cannot proceed yet',skip:'Outside the task',uncertain:'Unable to decide'},{allowedReductions});
+    const mode=d.value==='uncertain'?'defer':d.value;let memberKeys:string[]=[];
+    if(mode==='sample') {
+      // Deterministic batching avoids silently discarding candidates above JEV's option limit.
+      for(let offset=0;offset<members.length;offset+=200) {
+        const options:Record<string,unknown>=Object.fromEntries(members.slice(offset,offset+200).map(m=>[m.key,{label:m.label,kind:m.kind,value:m.value,risk:m.risk}]));
+        options.none='No representative needed from this batch';options.uncertain='Cannot choose';
+        const sample=await c.choose('sample-selection','Select one representative from this batch, or none. Each batch is reviewed; no omitted member counts as covered.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',groupLabel:group.label,batch:offset/200},options);
+        if(!['none','uncertain'].includes(sample.value))memberKeys.push(sample.value);
+      }
+    }
+    mark(key);
+    const finalMode=mode==='sample'&&!memberKeys.length?'defer':mode;
+    await c.apply(d.decision,{type:'decideExplorationGroup',groupId:group.id,revision:group.revision,decision:{mode:finalMode,...(finalMode==='sample'?{memberKeys}:{}),source,evidence:evidence(d.decision)}});
+    for(const member of members)if(finalMode==='skip'||(finalMode==='sample'&&!memberKeys.includes(member.key))) {
+      const action=host.actions(sid).find(a=>a.id===member.actionId);
+      if(action){const s={url:o.url,label:action.label,kind:action.kind,...(action.value===undefined?{}:{value:action.value as string|boolean|number})};c.gap(finalMode==='skip'?'scope_excluded':'sample_unselected',s,false);}
+    }
+    if(finalMode==='defer')c.gap('scope_deferred',{url:o.url,region:group.label});
+    return true;
+  };
+  for(const focused of priorityIds.size?[true,false]:[false]) {
+  const relevantIds=focused?priorityControls:allRelevantIds;
+  if((focused?(c.allowPriorityActionYield??c.allowLocalActionYield):c.allowLocalActionYield)!==false&&(focused?c.hasPendingAction(priorityFilter,true):available.some(inPlace)&&c.hasPendingAction(inPlace,true))){retainBeforeYield();return false;}
   if(observedUI&&!c.programApply){c.gap('missing_capability:program_review',{url:o.url});return false;}
-  const region=host.regionReviewMaterial(sid);
-  const broad=pendingPlan.some(i=>i.required&&i.dispatchScope===true&&broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url));
+  if(focused){const scopes=pendingScopes(true),retained=retainGroups(scopes);if(retained){await retained;return true;}if(scopes.length)return reviewGroup(scopes[0]);}
+  const region=readRegions();
+  const broad=!focused&&pendingPlan.some(i=>i.required&&i.dispatchScope===true&&broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url));
   if(region.enabled&&(region.unassignedControlIds.some(id=>relevantIds.has(id))||(!boundary&&region.unassignedPageTraversal&&broad))) {
     // Reuse only a fresh SDK mapping of an explicitly reusable source. This
     // task/rule scope does not inherit dispatch, depth or completion decisions.
@@ -117,7 +177,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
         evidence:[`observation:${o.id}`,'SDK verified explicitly reusable region boundaries'],regions:reuse.map(({reviewId,regionKey,conditionKey})=>({reviewId,regionKey,conditionKey}))}},'region_reused',
         {sourceReviews:reuse.map(({reviewId,regionKey})=>({reviewId,regionKey})),currentExecution:false,executionAuthorized:false,coverageGranted:false});return true;}
     }
-    const key=digest({type:'regions',instance:o.instanceScope,candidates:region.candidates,unassigned:region.unassignedControlIds,review:region.review&&{id:region.review.id,regions:region.review.regions.map(r=>r.status)}});
+    const key=digest({type:'regions',instance:o.instanceScope,candidates:region.candidates,unassigned:region.unassignedControlIds,review:region.review&&{id:region.review.id,regions:region.review.regions.map(r=>r.status)},...(focused?{priorityControlIds:[...priorityControls].sort()}:{})});
     if(!done(key)) {
       const boundaryInstance=o.regions.find(r=>r.key===boundary?.key)?.instanceId;
       const candidates=region.candidates.filter(r=>r.controlIds.some(id=>relevantIds.has(id)&&region.unassignedControlIds.includes(id)));
@@ -138,7 +198,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       const flush=async()=>{
         mark(key);
         // Keep unrelated current regions through the public incremental contract.
-        const command={type:'reviewRegions',review:{observationId:o.id,source:observedUI?'explorer-program':source,evidence:observedUI?[`observation:${o.id}`]:batch.flatMap(entry=>entry.decision?evidence(entry.decision):[]),...(incremental?{update:{baseReviewId:region.review!.id}}:{}),regions:[...(incremental?[]:existing),...batch.map(({candidate,controlIds,decision},index)=>({key:`explorer:${candidate.id}`,label:candidate.label,candidateIds:[candidate.id],controlIds,pageTraversal:index===0&&!boundary&&region.unassignedPageTraversal,
+        const command={type:'reviewRegions',review:{observationId:o.id,source:observedUI?'explorer-program':source,evidence:observedUI?[`observation:${o.id}`]:batch.flatMap(entry=>entry.decision?evidence(entry.decision):[]),...(incremental?{update:{baseReviewId:region.review!.id}}:{}),regions:[...(incremental?[]:existing),...batch.map(({candidate,controlIds,decision},index)=>({key:`explorer:${candidate.id}`,label:candidate.label,candidateIds:[candidate.id],controlIds,pageTraversal:!focused&&index===0&&!boundary&&region.unassignedPageTraversal,
           ...(decision&&reusableScene&&candidate.reuseBinding&&bindingCounts.get(digest(candidate.reuseBinding))===1?{reuse:{binding:'same-url-context' as const,businessScope}}:{})}))],rejectedCandidateIds:region.review?.rejectedCandidateIds||[]}};
         if(observedUI)await c.programApply!(command,'observed_region_partition');
         else await c.apply(batch.flatMap(entry=>entry.decision?[entry.decision]:[]),command);
@@ -173,28 +233,14 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       if(!candidates.length){mark(key);c.gap('region_partition_unavailable',{url:o.url});}
     }
   }
-  const material=available.length?host.explorationReviewMaterial(sid):{groups:[]};
-  // Keeping every observed member is a fixed program rule unless the user
-  // permits sampling. It needs neither a model call nor the historical ledger.
-  const scopes=material.groups.filter(g=>g.status==='pending'||!g.decisions.length).flatMap(group=>{
-    const key=`group:${group.id}:${group.revision}`;if(done(key))return [];
-    const members=group.members.filter(m=>available.some(a=>a.id===m.actionId));
-    if(!members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return inCurrentBoundary(action)&&includesScope(pendingPlan,action,o);}))return [];
-    const explicit=members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&schedulableObligation(i)&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
-    return [{group,key,members,allowedReductions:task.coverageMode==='representative'&&!explicit?['sample']:[]}];
-  });
-  const retained=scopes.filter(s=>!s.allowedReductions.length).slice(0,50);
-  if(retained.length){
-    for(const s of retained)mark(s.key);
-    await c.retain(retained.map(({group,members})=>({id:group.id,revision:group.revision,label:group.label,memberKeys:members.map(m=>m.key),actionIds:members.map(m=>m.actionId),historicalMemberCount:group.members.length-members.length})));
-    return true;
-  }
+  const material=readExploration(),scopes=focused?[]:pendingScopes(false);
+  const retained=retainGroups(scopes);if(retained){await retained;return true;}
   if(observedUI){
     const hypothesis=host.list<IdentityHypothesis>(sid,'hypothesis').find(h=>h.status==='pending'&&!done(`identity:${h.id}`)&&o.controls.some(x=>x.hypothesisId===h.id&&relevantIds.has(x.localId)));
     if(hypothesis){mark(`identity:${hypothesis.id}`);await c.programApply!({type:'resolveIdentity',hypothesisId:hypothesis.id,identityId:hypothesis.provisionalIdentityId,source:'explorer-program',evidence:[`observation:${o.id}`,'Keep current occurrence independent'],guard:{observationId:o.id,revision:hypothesis.revisions.length}},'independent_current_occurrence');return true;}
     // Exhaust bounded observation supplied by the SDK before asking a model to
     // interpret a weak candidate. This never dispatches an interaction.
-    if(!boundary){
+    if(!focused&&!boundary){
       const discovery=host.discoveryScanMaterial(sid).discovery;
       if(discovery&&(discovery.signal.omitted>0||discovery.structural.omittedLocations>0)){
         const target=discovery.targets.find(t=>!done(`scan-target:${discovery.topologyKey}:${t.id}`));
@@ -202,7 +248,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       }
     }
   }
-  const classifications=host.controlClassificationMaterial(sid);
+  const classifications=readClassification();
   if(c.programApply){
     const [reuse]=reusableClassifications(host,task,o,classifications.controls.filter(i=>i.needsClassification&&relevantIds.has(i.control.localId)).map(i=>i.control));
     if(reuse){await c.programApply({type:'classifyControls',classification:{observationId:o.id,source:'explorer-program',classifications:reuse.classifications}},'classification_reused',{proofs:reuse.proofs,sourceDecisionIds:reuse.sourceDecisionIds,currentExecution:false,executionAuthorized:false});return true;}
@@ -268,7 +314,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(!generated.value.samples.length){c.gap('input_samples_unavailable',scopeForControl(target,o));continue;}
     await c.apply(generated.decision,{type:'reviewControls',review:{observationId:o.id,source:'explorer-input-samples',reviews:[{localId:target.localId,kind:'fill',risk:action.risk,replayable:false,samples:[...new Set(generated.value.samples)],reason:'Supply content for an already supported fill; retain its existing risk and validate constraints at dispatch',evidence:[`observation:${o.id}`,`action:${action.id}`,...evidence(generated.decision)]}]}});return true;
   }
-  const control=host.controlReviewMaterial(sid);
+  const control=readOperations();
   for(const item of control.controls.filter(i=>i.needsReview&&relevantIds.has(i.control.localId))) {
     if(observedUI){
       const key=`operation-description:${unresolvedPurposeKey(o,item,task.revision)}`;if(done(key))continue;
@@ -349,32 +395,9 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     }
     await c.apply(d.decision,{type:'reviewControls',review:{observationId:o.id,source,reviews:[{localId:item.control.localId,...contextBinding,kind:d.value,risk:'interface',replayable:false,reason:'Reviewed interface operation',evidence:evidence(d.decision)}]}});return true;
   }
-  for(const {group,key,members,allowedReductions} of scopes) {
-    const plan=decisionPlan(task.plan);
-    const d=await c.choose('scope-review','Choose exhaustive traversal or representative sampling of current observed members. Sampling requires the supplied user permission; every omitted member remains untested. Never skip a group based only on confidence. Program scope matching still limits execution to the selected task.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',coverageMode:task.coverageMode||'all',allowedReductions,plan,group:{...group,members,historicalMemberCount:group.members.length-members.length}},
-      {all:'Keep all observed members available for in-scope traversal',sample:'User explicitly permits representative sampling',defer:'Cannot proceed yet',skip:'Outside the task',uncertain:'Unable to decide'},{allowedReductions});
-    const mode=d.value==='uncertain'?'defer':d.value;let memberKeys:string[]=[];
-    if(mode==='sample') {
-      // Deterministic batching avoids silently discarding candidates above JEV's option limit.
-      for(let offset=0;offset<members.length;offset+=200) {
-        const options:Record<string,unknown>=Object.fromEntries(members.slice(offset,offset+200).map(m=>[m.key,{label:m.label,kind:m.kind,value:m.value,risk:m.risk}]));
-        options.none='No representative needed from this batch';options.uncertain='Cannot choose';
-        const sample=await c.choose('sample-selection','Select one representative from this batch, or none. Each batch is reviewed; no omitted member counts as covered.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',groupLabel:group.label,batch:offset/200},options);
-        if(!['none','uncertain'].includes(sample.value))memberKeys.push(sample.value);
-      }
-    }
-    mark(key);
-    const finalMode=mode==='sample'&&!memberKeys.length?'defer':mode;
-    await c.apply(d.decision,{type:'decideExplorationGroup',groupId:group.id,revision:group.revision,decision:{mode:finalMode,...(finalMode==='sample'?{memberKeys}:{}),source,evidence:evidence(d.decision)}});
-    for(const member of members)if(finalMode==='skip'||(finalMode==='sample'&&!memberKeys.includes(member.key))) {
-      const action=host.actions(sid).find(a=>a.id===member.actionId);
-      if(action){const s={url:o.url,label:action.label,kind:action.kind,...(action.value===undefined?{}:{value:action.value as string|boolean|number})};c.gap(finalMode==='skip'?'scope_excluded':'sample_unselected',s,false);}
-    }
-    if(finalMode==='defer')c.gap('scope_deferred',{url:o.url,region:group.label});
-    return true;
-  }
+  if(scopes.length)return reviewGroup(scopes[0]);
   // Purpose evidence is reviewed proactively, even if DFS would never pause here.
-  for(const group of material.groups.filter(g=>!observedUI&&g.kind==='similar-list'&&g.members.some(m=>available.some(a=>a.id===m.actionId&&inCurrentBoundary(a)&&includesScope(pendingPlan,a,o))))) {
+  for(const group of material.groups.filter(g=>!observedUI&&(!focused||g.members.some(m=>priorityIds.has(m.actionId)))&&g.kind==='similar-list'&&g.members.some(m=>available.some(a=>a.id===m.actionId&&inCurrentBoundary(a)&&includesScope(pendingPlan,a,o))))) {
     const p=host.purposeReviewMaterial(sid,group.id);
     const active=host.list<PurposeReview>(sid,'purpose-review').filter(r=>r.status==='active');
     for(const condition of p.conditions) {
@@ -388,9 +411,9 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   }
   // An interactive classification does not resolve purpose. A bounded probe has
   // its own evidence gate, independent of classification and click permission.
-  const classified=host.controlClassificationMaterial(sid);
-  for(const item of host.controlReviewMaterial(sid).controls)if(item.needsReview||classified.controls.some(x=>x.control.localId===item.control.localId&&x.classifications.some(r=>r.status==='active'&&r.classification==='probe_required'))) {
-    if(!relevant(item.control))continue;
+  const classified=readClassification();
+  for(const item of readOperations().controls)if(item.needsReview||classified.controls.some(x=>x.control.localId===item.control.localId&&x.classifications.some(r=>r.status==='active'&&r.classification==='probe_required'))) {
+    if(!relevantIds.has(item.control.localId))continue;
     if(observedUI){
       const key=`probe:${o.instanceScope}:${item.control.instanceId}`;if(done(key))continue;
       if(!host.probeAvailability||!c.programProbe){c.gap('missing_capability:bounded_observation',scopeForControl(item.control,o));continue;}
@@ -410,6 +433,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(!kind){c.gap('probe_unresolved',scopeForControl(item.control,o));c.unresolvedReview?.({localId:item.control.localId,decisionId:d.decision.id,kind:'probe'});continue;}
     await c.probe(d.decision,item.control.localId,kind);return true;
   }
+  if(focused)continue;
   // Page-wide discovery can wait; it must not starve an already observed modal's work/exit.
   if(boundary) {
     if(c.hasPendingAction())return false;
@@ -455,6 +479,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       if(d.value!=='uncertain'){await c.apply(d.decision,{type:'supplementDiscovery',scan:{observationId:o.id,targetId:d.value,source,evidence:evidence(d.decision),budget:{elements:1000}}});return true;}
       c.gap('discovery_incomplete',{url:o.url});
     }
+  }
   }
   return false;
 }

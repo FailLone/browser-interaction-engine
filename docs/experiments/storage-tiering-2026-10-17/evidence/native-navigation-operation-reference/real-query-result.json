@@ -1,0 +1,1316 @@
+{
+  "scope": "Recorded navigation operation/target facts only; constructor-idempotent private copy. No frontier, permission change, historic current cursor, dispatch or arrival.",
+  "startedAt": "2026-10-17T17:04:28.332Z",
+  "scriptSha256": "7c40224f28f0af967f624d315fa4532ad7a902708a3268339cd0f02e91484b30",
+  "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-plugin-loop-20261018-v3/engine",
+  "sourceBefore": {
+    "engine.sqlite": "c10cbff8135b2c6fa7ca0685198c3653917858bcbfe556603cf27fb36d75e508",
+    "engine.sqlite-wal": "eee54c553fc80b3250f431602113915245a90c5d208a1d27c0cc0eec55a18a44",
+    "engine.sqlite-shm": "b484221c757dcf383a4d7bef0781b23a219e02755cb488f377ed33f2adad76cc"
+  },
+  "sourceReference": {
+    "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+    "observationId": "fb945d9c-9b51-4a7c-a1ed-2e966944ffc1",
+    "actionId": "46c85a1e-37f8-4332-ad9a-909134b75964"
+  },
+  "inputs": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/plugin-loop-3/audit.json",
+      "sha256": "ab6ca5ffa4341dd38dc48784527f4ab608c65e14a9e6414fe9892a2d0fd72b39"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/plugin-loop-target-review/query-result.json",
+      "sha256": "313d68885b1a159ad9c22f0221449a69ca56a84615cff58fbdb2821c4b1bbde2"
+    }
+  ],
+  "temporaryDirectory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-native-navigation-LBvA6m",
+  "constructorWrites": [
+    {
+      "kind": "session",
+      "id": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "beforeSha256": "82f6bdd53eb6dd13babe5692b994499e33d45cdb932981f8a47fc6ebe52239d8",
+      "afterSha256": "82f6bdd53eb6dd13babe5692b994499e33d45cdb932981f8a47fc6ebe52239d8",
+      "byteEquivalent": true
+    }
+  ],
+  "writeAttempts": {
+    "constructor.put": 1
+  },
+  "observations": [
+    {
+      "kind": "source",
+      "id": "fb945d9c-9b51-4a7c-a1ed-2e966944ffc1",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "logicalSha256": "5f94250aa6873049bab802a0b75e138f6048f1c54bcf83fb74c371a939de754a",
+      "actionId": "46c85a1e-37f8-4332-ad9a-909134b75964",
+      "control": {
+        "localId": "b9eeda45-e0a5-4f52-b950-76f98659d314:1463",
+        "instanceId": "b9eeda45-e0a5-4f52-b950-76f98659d314:1463",
+        "tag": "a",
+        "role": "link",
+        "name": "ConvertQuick conversion, zero trading fees, no slippage",
+        "identityScope": "instance",
+        "stableKeySha256": "0acc806699f679df0979bf2bc6462d0fb11397fa612d6173319f4929de1ec2ce",
+        "replayable": false,
+        "nativeBasis": "supported"
+      },
+      "reference": {
+        "key": "browser-native-navigation:v1:34e90cd2bcd5a902b765e68fc44747c34eea4611592147f7296985d7ecc25c3e",
+        "policy": "browser-native-navigation-v1",
+        "requiresUniqueTarget": true,
+        "evidence": [
+          "complete-semantic-navigation-owner",
+          "complete-classification-subtree",
+          "captured-idref-topology",
+          "unique-native-navigation-destination",
+          "operation-reference-not-control-identity"
+        ],
+        "invalidatedBy": [
+          "changed-owner-or-subtree",
+          "changed-or-missing-idref",
+          "nonunique-navigation-destination",
+          "changed-navigation-attributes",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ]
+      },
+      "branch": {
+        "policy": "browser-branch-conditions-v4",
+        "key": "15d090d6b7969489f55e41db87cc97326c764ed09700dd652f488e2077625305",
+        "conditions": 28
+      },
+      "branchAssessment": {
+        "status": "available",
+        "reason": "observed_branch_conditions_available"
+      },
+      "portableTargetConditions": {
+        "policy": "browser-native-navigation-target-v1",
+        "key": "0e648511abf79a44f536bb6cab12f377466242391960a1e5965ca2de22135c71",
+        "evidence": [
+          "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+          "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+          "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+          "Unique anchored fragments in complete captured trees resolve mode references; identity and execution authority remain unchanged",
+          "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded"
+        ]
+      },
+      "firstProjectionRejection": null,
+      "owners": [
+        {
+          "localId": "b9eeda45-e0a5-4f52-b950-76f98659d314:643",
+          "tag": "header",
+          "role": "generic",
+          "name": "Skip to main contentMarketsTradeTrading instrumentsConvertQuick conversion, zero trading fees, no slippageSpotBuy and sell crypto with easePowerful toolsFlash EarnEarn rewards on new listings, spot, futures, and more trading campaignsAgent Trade KitAutomate your trades with AI agents and community-built skillsRFQCustom multi-leg strategies and block tradesInstitutionalLearnMoreLog inSign up",
+          "label": "",
+          "nodes": 191,
+          "truncated": false,
+          "ancestry": [
+            {
+              "tag": "body",
+              "label": "",
+              "attributes": [
+                "id",
+                "class",
+                "broker-style",
+                "data-responsive",
+                "data-nav",
+                "data-frozen-count"
+              ],
+              "attributesSha256": "97a7d8fbedb638b0d5d7bba506d66cca5966e9201b1ae75e6e4bca3e5f246fbd"
+            },
+            {
+              "tag": "html",
+              "label": "",
+              "attributes": [
+                "lang",
+                "dir",
+                "class"
+              ],
+              "attributesSha256": "754fc13f95c2638e9548af539a2c58573f3345f401349194adfd20461d0af4d8"
+            }
+          ],
+          "references": [
+            {
+              "id": "trading-group-1",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "b9eeda45-e0a5-4f52-b950-76f98659d314:1570",
+              "external": false,
+              "externalTextPresent": false
+            },
+            {
+              "id": "trading-group-2",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "b9eeda45-e0a5-4f52-b950-76f98659d314:1578",
+              "external": false,
+              "externalTextPresent": false
+            },
+            {
+              "id": "title-nav-institutions",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "b9eeda45-e0a5-4f52-b950-76f98659d314:1483",
+              "external": false,
+              "externalTextPresent": false
+            },
+            {
+              "id": "navColumnContainer",
+              "missing": true,
+              "ambiguous": false,
+              "external": false,
+              "externalTextPresent": false
+            }
+          ],
+          "parents": [
+            {
+              "tag": "li",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "c726324d9f8b70c0b3a0f3b265535833db6647e0cc3ee0f33674ced15c071057"
+            },
+            {
+              "tag": "ul",
+              "attributes": [
+                "aria-labelledby",
+                "class"
+              ],
+              "attributesSha256": "c12696a2ffa995e16929d6b64cd3726ec5b83154a64111483c89dc62ae3bc83e"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "style"
+              ],
+              "attributesSha256": "8b0ec7de66fbf02f0c15a988d9ab6c821e76d754c4b19f3aa54c89d9889b973a"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "5739e2843fe5ff1ff4836e4e9566c8ece302c5d0c2032d9f818d59f737bddb0b"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "style"
+              ],
+              "attributesSha256": "e2736d6d3630f20bc939ca4f0b47eb621129f4ba8b34b492d928f78dffbb34a5"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "704203a65c73f22c60956476dc8643f4766cced8cc320d5b6319a8172b4e7e76"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "7b02ff7eb4b521540226d07c0ca5dc6841f4f9ca46981e89c9a277a2684d2ae7"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "e5ebcc4e321d7af906bccdd7477ba3d490a4716f0a850956e731787a0d00c973"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "d62bf3c9a8b27b557a2fcada24e0ccaaa1c2ee5c337572161992d977bc28dc54"
+            },
+            {
+              "tag": "nav",
+              "attributes": [
+                "aria-label",
+                "class",
+                "data-from",
+                "id"
+              ],
+              "attributesSha256": "c05df036b42ac033dbf78e53ba08c4d5e10242bf0594230bf12140df1d088196"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "data-from"
+              ],
+              "attributesSha256": "005d6d10ccc9e843bae0564f81cba41b9038684a8c811c2ff705db716aa36ada"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "cd4bceef96e87553e642c63434e5df1e1b6f06ac666962899326879a23d78e00"
+            },
+            {
+              "tag": "header",
+              "attributes": [
+                "class",
+                "data-chain",
+                "id"
+              ],
+              "attributesSha256": "a20250a504a69c6b44a566fffcc10cb4f7d064eb4f3d308fa9b8785ffe665f7a"
+            }
+          ],
+          "recordedPreconditionFailures": [
+            "owner_idref_incomplete"
+          ],
+          "firstRecordedPreconditionFailure": "owner_idref_incomplete",
+          "classificationProjectionAvailable": true,
+          "classificationConditionKey": "2652a872fcb36130ed895985cf8bc5f6bd12c423bc289c610605b58dc42ae33a"
+        },
+        {
+          "localId": "b9eeda45-e0a5-4f52-b950-76f98659d314:1382",
+          "tag": "div",
+          "role": "generic",
+          "name": "TradeTrading instrumentsConvertQuick conversion, zero trading fees, no slippageSpotBuy and sell crypto with easePowerful toolsFlash EarnEarn rewards on new listings, spot, futures, and more trading campaignsAgent Trade KitAutomate your trades with AI agents and community-built skillsRFQCustom multi-leg strategies and block trades",
+          "label": "",
+          "nodes": 59,
+          "truncated": false,
+          "ancestry": [
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "7b02ff7eb4b521540226d07c0ca5dc6841f4f9ca46981e89c9a277a2684d2ae7"
+            },
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "e5ebcc4e321d7af906bccdd7477ba3d490a4716f0a850956e731787a0d00c973"
+            },
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "d62bf3c9a8b27b557a2fcada24e0ccaaa1c2ee5c337572161992d977bc28dc54"
+            },
+            {
+              "tag": "nav",
+              "label": "Main menu",
+              "attributes": [
+                "id",
+                "class",
+                "data-from",
+                "aria-label"
+              ],
+              "attributesSha256": "c05df036b42ac033dbf78e53ba08c4d5e10242bf0594230bf12140df1d088196"
+            },
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class",
+                "data-from"
+              ],
+              "attributesSha256": "005d6d10ccc9e843bae0564f81cba41b9038684a8c811c2ff705db716aa36ada"
+            },
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "cd4bceef96e87553e642c63434e5df1e1b6f06ac666962899326879a23d78e00"
+            },
+            {
+              "tag": "header",
+              "label": "",
+              "attributes": [
+                "id",
+                "class",
+                "data-chain"
+              ],
+              "attributesSha256": "a20250a504a69c6b44a566fffcc10cb4f7d064eb4f3d308fa9b8785ffe665f7a"
+            },
+            {
+              "tag": "body",
+              "label": "",
+              "attributes": [
+                "id",
+                "class",
+                "broker-style",
+                "data-responsive",
+                "data-nav",
+                "data-frozen-count"
+              ],
+              "attributesSha256": "97a7d8fbedb638b0d5d7bba506d66cca5966e9201b1ae75e6e4bca3e5f246fbd"
+            },
+            {
+              "tag": "html",
+              "label": "",
+              "attributes": [
+                "lang",
+                "dir",
+                "class"
+              ],
+              "attributesSha256": "754fc13f95c2638e9548af539a2c58573f3345f401349194adfd20461d0af4d8"
+            }
+          ],
+          "references": [
+            {
+              "id": "trading-group-1",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "b9eeda45-e0a5-4f52-b950-76f98659d314:1570",
+              "external": false,
+              "externalTextPresent": false
+            },
+            {
+              "id": "trading-group-2",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "b9eeda45-e0a5-4f52-b950-76f98659d314:1578",
+              "external": false,
+              "externalTextPresent": false
+            }
+          ],
+          "parents": [
+            {
+              "tag": "li",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "c726324d9f8b70c0b3a0f3b265535833db6647e0cc3ee0f33674ced15c071057"
+            },
+            {
+              "tag": "ul",
+              "attributes": [
+                "aria-labelledby",
+                "class"
+              ],
+              "attributesSha256": "c12696a2ffa995e16929d6b64cd3726ec5b83154a64111483c89dc62ae3bc83e"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "style"
+              ],
+              "attributesSha256": "8b0ec7de66fbf02f0c15a988d9ab6c821e76d754c4b19f3aa54c89d9889b973a"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "5739e2843fe5ff1ff4836e4e9566c8ece302c5d0c2032d9f818d59f737bddb0b"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "style"
+              ],
+              "attributesSha256": "e2736d6d3630f20bc939ca4f0b47eb621129f4ba8b34b492d928f78dffbb34a5"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "704203a65c73f22c60956476dc8643f4766cced8cc320d5b6319a8172b4e7e76"
+            }
+          ],
+          "recordedPreconditionFailures": [],
+          "firstRecordedPreconditionFailure": null,
+          "classificationProjectionAvailable": true,
+          "classificationConditionKey": "6d601a405d02efd458c5a7fe0806913cdd608bbe16449543409c4c8182313ab6"
+        }
+      ],
+      "historicalCurrentOnlyQuerySkipped": false
+    },
+    {
+      "kind": "trade-after",
+      "id": "ac63485c-0195-4321-9395-ffdbe6ce01fa",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "logicalSha256": "ac675cf9e76536523891552a2666820132f9b24afd4023d238086caf8ca15d99",
+      "actionId": "e996fb90-f3a9-471f-9f6f-588c3bae0467",
+      "control": {
+        "localId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1463",
+        "instanceId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1463",
+        "tag": "a",
+        "role": "link",
+        "name": "ConvertQuick conversion, zero trading fees, no slippage",
+        "identityScope": "instance",
+        "stableKeySha256": "babc1d981db4a07d2df9c389c8df1d5136313681279d9da479400b5a96985f77",
+        "replayable": false,
+        "nativeBasis": "supported"
+      },
+      "reference": {
+        "key": "browser-native-navigation:v1:34e90cd2bcd5a902b765e68fc44747c34eea4611592147f7296985d7ecc25c3e",
+        "policy": "browser-native-navigation-v1",
+        "requiresUniqueTarget": true,
+        "evidence": [
+          "complete-semantic-navigation-owner",
+          "complete-classification-subtree",
+          "captured-idref-topology",
+          "unique-native-navigation-destination",
+          "operation-reference-not-control-identity"
+        ],
+        "invalidatedBy": [
+          "changed-owner-or-subtree",
+          "changed-or-missing-idref",
+          "nonunique-navigation-destination",
+          "changed-navigation-attributes",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ]
+      },
+      "branch": {
+        "policy": "browser-branch-conditions-v4",
+        "key": "15d090d6b7969489f55e41db87cc97326c764ed09700dd652f488e2077625305",
+        "conditions": 28
+      },
+      "branchAssessment": {
+        "status": "available",
+        "reason": "observed_branch_conditions_available"
+      },
+      "portableTargetConditions": {
+        "policy": "browser-native-navigation-target-v1",
+        "key": "0e648511abf79a44f536bb6cab12f377466242391960a1e5965ca2de22135c71",
+        "evidence": [
+          "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+          "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+          "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+          "Unique anchored fragments in complete captured trees resolve mode references; identity and execution authority remain unchanged",
+          "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded"
+        ]
+      },
+      "firstProjectionRejection": null,
+      "owners": [
+        {
+          "localId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:643",
+          "tag": "header",
+          "role": "generic",
+          "name": "Skip to main contentMarketsTradeTrading instrumentsConvertQuick conversion, zero trading fees, no slippageSpotBuy and sell crypto with easePowerful toolsFlash EarnEarn rewards on new listings, spot, futures, and more trading campaignsAgent Trade KitAutomate your trades with AI agents and community-built skillsRFQCustom multi-leg strategies and block tradesInstitutionalLearnMoreLog inSign up",
+          "label": "",
+          "nodes": 191,
+          "truncated": false,
+          "ancestry": [
+            {
+              "tag": "body",
+              "label": "",
+              "attributes": [
+                "id",
+                "class",
+                "broker-style",
+                "data-responsive",
+                "data-nav",
+                "data-frozen-count"
+              ],
+              "attributesSha256": "97a7d8fbedb638b0d5d7bba506d66cca5966e9201b1ae75e6e4bca3e5f246fbd"
+            },
+            {
+              "tag": "html",
+              "label": "",
+              "attributes": [
+                "lang",
+                "dir",
+                "class"
+              ],
+              "attributesSha256": "754fc13f95c2638e9548af539a2c58573f3345f401349194adfd20461d0af4d8"
+            }
+          ],
+          "references": [
+            {
+              "id": "trading-group-1",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1570",
+              "external": false,
+              "externalTextPresent": false
+            },
+            {
+              "id": "trading-group-2",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1578",
+              "external": false,
+              "externalTextPresent": false
+            },
+            {
+              "id": "title-nav-institutions",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1483",
+              "external": false,
+              "externalTextPresent": false
+            },
+            {
+              "id": "navColumnContainer",
+              "missing": true,
+              "ambiguous": false,
+              "external": false,
+              "externalTextPresent": false
+            }
+          ],
+          "parents": [
+            {
+              "tag": "li",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "c726324d9f8b70c0b3a0f3b265535833db6647e0cc3ee0f33674ced15c071057"
+            },
+            {
+              "tag": "ul",
+              "attributes": [
+                "aria-labelledby",
+                "class"
+              ],
+              "attributesSha256": "c12696a2ffa995e16929d6b64cd3726ec5b83154a64111483c89dc62ae3bc83e"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "style"
+              ],
+              "attributesSha256": "8b0ec7de66fbf02f0c15a988d9ab6c821e76d754c4b19f3aa54c89d9889b973a"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "5739e2843fe5ff1ff4836e4e9566c8ece302c5d0c2032d9f818d59f737bddb0b"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "style"
+              ],
+              "attributesSha256": "e2736d6d3630f20bc939ca4f0b47eb621129f4ba8b34b492d928f78dffbb34a5"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "704203a65c73f22c60956476dc8643f4766cced8cc320d5b6319a8172b4e7e76"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "7b02ff7eb4b521540226d07c0ca5dc6841f4f9ca46981e89c9a277a2684d2ae7"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "e5ebcc4e321d7af906bccdd7477ba3d490a4716f0a850956e731787a0d00c973"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "d62bf3c9a8b27b557a2fcada24e0ccaaa1c2ee5c337572161992d977bc28dc54"
+            },
+            {
+              "tag": "nav",
+              "attributes": [
+                "aria-label",
+                "class",
+                "data-from",
+                "id"
+              ],
+              "attributesSha256": "c05df036b42ac033dbf78e53ba08c4d5e10242bf0594230bf12140df1d088196"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "data-from"
+              ],
+              "attributesSha256": "005d6d10ccc9e843bae0564f81cba41b9038684a8c811c2ff705db716aa36ada"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "cd4bceef96e87553e642c63434e5df1e1b6f06ac666962899326879a23d78e00"
+            },
+            {
+              "tag": "header",
+              "attributes": [
+                "class",
+                "data-chain",
+                "id"
+              ],
+              "attributesSha256": "a20250a504a69c6b44a566fffcc10cb4f7d064eb4f3d308fa9b8785ffe665f7a"
+            }
+          ],
+          "recordedPreconditionFailures": [
+            "owner_idref_incomplete"
+          ],
+          "firstRecordedPreconditionFailure": "owner_idref_incomplete",
+          "classificationProjectionAvailable": true,
+          "classificationConditionKey": "0e0fa626d12fb7caf06c56bb7f1b56e105b209c293b2fcaf8eee6f446aca03f0"
+        },
+        {
+          "localId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1382",
+          "tag": "div",
+          "role": "generic",
+          "name": "TradeTrading instrumentsConvertQuick conversion, zero trading fees, no slippageSpotBuy and sell crypto with easePowerful toolsFlash EarnEarn rewards on new listings, spot, futures, and more trading campaignsAgent Trade KitAutomate your trades with AI agents and community-built skillsRFQCustom multi-leg strategies and block trades",
+          "label": "",
+          "nodes": 59,
+          "truncated": false,
+          "ancestry": [
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "7b02ff7eb4b521540226d07c0ca5dc6841f4f9ca46981e89c9a277a2684d2ae7"
+            },
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "e5ebcc4e321d7af906bccdd7477ba3d490a4716f0a850956e731787a0d00c973"
+            },
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "d62bf3c9a8b27b557a2fcada24e0ccaaa1c2ee5c337572161992d977bc28dc54"
+            },
+            {
+              "tag": "nav",
+              "label": "Main menu",
+              "attributes": [
+                "id",
+                "class",
+                "data-from",
+                "aria-label"
+              ],
+              "attributesSha256": "c05df036b42ac033dbf78e53ba08c4d5e10242bf0594230bf12140df1d088196"
+            },
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class",
+                "data-from"
+              ],
+              "attributesSha256": "005d6d10ccc9e843bae0564f81cba41b9038684a8c811c2ff705db716aa36ada"
+            },
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "cd4bceef96e87553e642c63434e5df1e1b6f06ac666962899326879a23d78e00"
+            },
+            {
+              "tag": "header",
+              "label": "",
+              "attributes": [
+                "id",
+                "class",
+                "data-chain"
+              ],
+              "attributesSha256": "a20250a504a69c6b44a566fffcc10cb4f7d064eb4f3d308fa9b8785ffe665f7a"
+            },
+            {
+              "tag": "body",
+              "label": "",
+              "attributes": [
+                "id",
+                "class",
+                "broker-style",
+                "data-responsive",
+                "data-nav",
+                "data-frozen-count"
+              ],
+              "attributesSha256": "97a7d8fbedb638b0d5d7bba506d66cca5966e9201b1ae75e6e4bca3e5f246fbd"
+            },
+            {
+              "tag": "html",
+              "label": "",
+              "attributes": [
+                "lang",
+                "dir",
+                "class"
+              ],
+              "attributesSha256": "754fc13f95c2638e9548af539a2c58573f3345f401349194adfd20461d0af4d8"
+            }
+          ],
+          "references": [
+            {
+              "id": "trading-group-1",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1570",
+              "external": false,
+              "externalTextPresent": false
+            },
+            {
+              "id": "trading-group-2",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1578",
+              "external": false,
+              "externalTextPresent": false
+            }
+          ],
+          "parents": [
+            {
+              "tag": "li",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "c726324d9f8b70c0b3a0f3b265535833db6647e0cc3ee0f33674ced15c071057"
+            },
+            {
+              "tag": "ul",
+              "attributes": [
+                "aria-labelledby",
+                "class"
+              ],
+              "attributesSha256": "c12696a2ffa995e16929d6b64cd3726ec5b83154a64111483c89dc62ae3bc83e"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "style"
+              ],
+              "attributesSha256": "8b0ec7de66fbf02f0c15a988d9ab6c821e76d754c4b19f3aa54c89d9889b973a"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "5739e2843fe5ff1ff4836e4e9566c8ece302c5d0c2032d9f818d59f737bddb0b"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "style"
+              ],
+              "attributesSha256": "e2736d6d3630f20bc939ca4f0b47eb621129f4ba8b34b492d928f78dffbb34a5"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "704203a65c73f22c60956476dc8643f4766cced8cc320d5b6319a8172b4e7e76"
+            }
+          ],
+          "recordedPreconditionFailures": [],
+          "firstRecordedPreconditionFailure": null,
+          "classificationProjectionAvailable": true,
+          "classificationConditionKey": "6d601a405d02efd458c5a7fe0806913cdd608bbe16449543409c4c8182313ab6"
+        }
+      ],
+      "historicalCurrentOnlyQuerySkipped": true
+    },
+    {
+      "kind": "current",
+      "id": "d6863bdc-eb8f-4a93-b74b-bf630afb1d7a",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "logicalSha256": "dc186a1b35a103cbfd8a9e1805728bc7dfb5272f368bae0481ea06f62ea6caee",
+      "actionId": "cb153349-88cf-4fa0-90af-f2e92a36ef97",
+      "control": {
+        "localId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1463",
+        "instanceId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1463",
+        "tag": "a",
+        "role": "link",
+        "name": "ConvertQuick conversion, zero trading fees, no slippage",
+        "identityScope": "instance",
+        "stableKeySha256": "babc1d981db4a07d2df9c389c8df1d5136313681279d9da479400b5a96985f77",
+        "replayable": false,
+        "nativeBasis": "supported"
+      },
+      "reference": {
+        "key": "browser-native-navigation:v1:34e90cd2bcd5a902b765e68fc44747c34eea4611592147f7296985d7ecc25c3e",
+        "policy": "browser-native-navigation-v1",
+        "requiresUniqueTarget": true,
+        "evidence": [
+          "complete-semantic-navigation-owner",
+          "complete-classification-subtree",
+          "captured-idref-topology",
+          "unique-native-navigation-destination",
+          "operation-reference-not-control-identity"
+        ],
+        "invalidatedBy": [
+          "changed-owner-or-subtree",
+          "changed-or-missing-idref",
+          "nonunique-navigation-destination",
+          "changed-navigation-attributes",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ]
+      },
+      "branch": {
+        "policy": "browser-branch-conditions-v4",
+        "key": "15d090d6b7969489f55e41db87cc97326c764ed09700dd652f488e2077625305",
+        "conditions": 28
+      },
+      "branchAssessment": {
+        "status": "available",
+        "reason": "observed_branch_conditions_available"
+      },
+      "portableTargetConditions": {
+        "policy": "browser-native-navigation-target-v1",
+        "key": "0e648511abf79a44f536bb6cab12f377466242391960a1e5965ca2de22135c71",
+        "evidence": [
+          "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+          "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+          "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+          "Unique anchored fragments in complete captured trees resolve mode references; identity and execution authority remain unchanged",
+          "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded"
+        ]
+      },
+      "firstProjectionRejection": null,
+      "owners": [
+        {
+          "localId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:643",
+          "tag": "header",
+          "role": "generic",
+          "name": "Skip to main contentMarketsTradeTrading instrumentsConvertQuick conversion, zero trading fees, no slippageSpotBuy and sell crypto with easePowerful toolsFlash EarnEarn rewards on new listings, spot, futures, and more trading campaignsAgent Trade KitAutomate your trades with AI agents and community-built skillsRFQCustom multi-leg strategies and block tradesInstitutionalLearnMoreLog inSign up",
+          "label": "",
+          "nodes": 191,
+          "truncated": false,
+          "ancestry": [
+            {
+              "tag": "body",
+              "label": "",
+              "attributes": [
+                "id",
+                "class",
+                "broker-style",
+                "data-responsive",
+                "data-nav",
+                "data-frozen-count"
+              ],
+              "attributesSha256": "97a7d8fbedb638b0d5d7bba506d66cca5966e9201b1ae75e6e4bca3e5f246fbd"
+            },
+            {
+              "tag": "html",
+              "label": "",
+              "attributes": [
+                "lang",
+                "dir",
+                "class"
+              ],
+              "attributesSha256": "754fc13f95c2638e9548af539a2c58573f3345f401349194adfd20461d0af4d8"
+            }
+          ],
+          "references": [
+            {
+              "id": "trading-group-1",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1570",
+              "external": false,
+              "externalTextPresent": false
+            },
+            {
+              "id": "trading-group-2",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1578",
+              "external": false,
+              "externalTextPresent": false
+            },
+            {
+              "id": "title-nav-institutions",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1483",
+              "external": false,
+              "externalTextPresent": false
+            },
+            {
+              "id": "navColumnContainer",
+              "missing": true,
+              "ambiguous": false,
+              "external": false,
+              "externalTextPresent": false
+            }
+          ],
+          "parents": [
+            {
+              "tag": "li",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "c726324d9f8b70c0b3a0f3b265535833db6647e0cc3ee0f33674ced15c071057"
+            },
+            {
+              "tag": "ul",
+              "attributes": [
+                "aria-labelledby",
+                "class"
+              ],
+              "attributesSha256": "c12696a2ffa995e16929d6b64cd3726ec5b83154a64111483c89dc62ae3bc83e"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "style"
+              ],
+              "attributesSha256": "8b0ec7de66fbf02f0c15a988d9ab6c821e76d754c4b19f3aa54c89d9889b973a"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "5739e2843fe5ff1ff4836e4e9566c8ece302c5d0c2032d9f818d59f737bddb0b"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "style"
+              ],
+              "attributesSha256": "e2736d6d3630f20bc939ca4f0b47eb621129f4ba8b34b492d928f78dffbb34a5"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "704203a65c73f22c60956476dc8643f4766cced8cc320d5b6319a8172b4e7e76"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "7b02ff7eb4b521540226d07c0ca5dc6841f4f9ca46981e89c9a277a2684d2ae7"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "e5ebcc4e321d7af906bccdd7477ba3d490a4716f0a850956e731787a0d00c973"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "d62bf3c9a8b27b557a2fcada24e0ccaaa1c2ee5c337572161992d977bc28dc54"
+            },
+            {
+              "tag": "nav",
+              "attributes": [
+                "aria-label",
+                "class",
+                "data-from",
+                "id"
+              ],
+              "attributesSha256": "c05df036b42ac033dbf78e53ba08c4d5e10242bf0594230bf12140df1d088196"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "data-from"
+              ],
+              "attributesSha256": "005d6d10ccc9e843bae0564f81cba41b9038684a8c811c2ff705db716aa36ada"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "cd4bceef96e87553e642c63434e5df1e1b6f06ac666962899326879a23d78e00"
+            },
+            {
+              "tag": "header",
+              "attributes": [
+                "class",
+                "data-chain",
+                "id"
+              ],
+              "attributesSha256": "a20250a504a69c6b44a566fffcc10cb4f7d064eb4f3d308fa9b8785ffe665f7a"
+            }
+          ],
+          "recordedPreconditionFailures": [
+            "owner_idref_incomplete"
+          ],
+          "firstRecordedPreconditionFailure": "owner_idref_incomplete",
+          "classificationProjectionAvailable": true,
+          "classificationConditionKey": "0e0fa626d12fb7caf06c56bb7f1b56e105b209c293b2fcaf8eee6f446aca03f0"
+        },
+        {
+          "localId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1382",
+          "tag": "div",
+          "role": "generic",
+          "name": "TradeTrading instrumentsConvertQuick conversion, zero trading fees, no slippageSpotBuy and sell crypto with easePowerful toolsFlash EarnEarn rewards on new listings, spot, futures, and more trading campaignsAgent Trade KitAutomate your trades with AI agents and community-built skillsRFQCustom multi-leg strategies and block trades",
+          "label": "",
+          "nodes": 59,
+          "truncated": false,
+          "ancestry": [
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "7b02ff7eb4b521540226d07c0ca5dc6841f4f9ca46981e89c9a277a2684d2ae7"
+            },
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "e5ebcc4e321d7af906bccdd7477ba3d490a4716f0a850956e731787a0d00c973"
+            },
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "d62bf3c9a8b27b557a2fcada24e0ccaaa1c2ee5c337572161992d977bc28dc54"
+            },
+            {
+              "tag": "nav",
+              "label": "Main menu",
+              "attributes": [
+                "id",
+                "class",
+                "data-from",
+                "aria-label"
+              ],
+              "attributesSha256": "c05df036b42ac033dbf78e53ba08c4d5e10242bf0594230bf12140df1d088196"
+            },
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class",
+                "data-from"
+              ],
+              "attributesSha256": "005d6d10ccc9e843bae0564f81cba41b9038684a8c811c2ff705db716aa36ada"
+            },
+            {
+              "tag": "div",
+              "label": "",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "cd4bceef96e87553e642c63434e5df1e1b6f06ac666962899326879a23d78e00"
+            },
+            {
+              "tag": "header",
+              "label": "",
+              "attributes": [
+                "id",
+                "class",
+                "data-chain"
+              ],
+              "attributesSha256": "a20250a504a69c6b44a566fffcc10cb4f7d064eb4f3d308fa9b8785ffe665f7a"
+            },
+            {
+              "tag": "body",
+              "label": "",
+              "attributes": [
+                "id",
+                "class",
+                "broker-style",
+                "data-responsive",
+                "data-nav",
+                "data-frozen-count"
+              ],
+              "attributesSha256": "97a7d8fbedb638b0d5d7bba506d66cca5966e9201b1ae75e6e4bca3e5f246fbd"
+            },
+            {
+              "tag": "html",
+              "label": "",
+              "attributes": [
+                "lang",
+                "dir",
+                "class"
+              ],
+              "attributesSha256": "754fc13f95c2638e9548af539a2c58573f3345f401349194adfd20461d0af4d8"
+            }
+          ],
+          "references": [
+            {
+              "id": "trading-group-1",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1570",
+              "external": false,
+              "externalTextPresent": false
+            },
+            {
+              "id": "trading-group-2",
+              "missing": false,
+              "ambiguous": false,
+              "targetInstanceId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1578",
+              "external": false,
+              "externalTextPresent": false
+            }
+          ],
+          "parents": [
+            {
+              "tag": "li",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "c726324d9f8b70c0b3a0f3b265535833db6647e0cc3ee0f33674ced15c071057"
+            },
+            {
+              "tag": "ul",
+              "attributes": [
+                "aria-labelledby",
+                "class"
+              ],
+              "attributesSha256": "c12696a2ffa995e16929d6b64cd3726ec5b83154a64111483c89dc62ae3bc83e"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "style"
+              ],
+              "attributesSha256": "8b0ec7de66fbf02f0c15a988d9ab6c821e76d754c4b19f3aa54c89d9889b973a"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "5739e2843fe5ff1ff4836e4e9566c8ece302c5d0c2032d9f818d59f737bddb0b"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class",
+                "style"
+              ],
+              "attributesSha256": "e2736d6d3630f20bc939ca4f0b47eb621129f4ba8b34b492d928f78dffbb34a5"
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                "class"
+              ],
+              "attributesSha256": "704203a65c73f22c60956476dc8643f4766cced8cc320d5b6319a8172b4e7e76"
+            }
+          ],
+          "recordedPreconditionFailures": [],
+          "firstRecordedPreconditionFailure": null,
+          "classificationProjectionAvailable": true,
+          "classificationConditionKey": "6d601a405d02efd458c5a7fe0806913cdd608bbe16449543409c4c8182313ab6"
+        }
+      ],
+      "historicalCurrentOnlyQuerySkipped": false
+    }
+  ],
+  "storeConstructorSqlChanges": 1,
+  "engineConstructorSqlChanges": 1,
+  "sdk": {
+    "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+    "observationId": "d6863bdc-eb8f-4a93-b74b-bf630afb1d7a",
+    "results": [
+      {
+        "equivalent": true,
+        "reason": "equivalent_observed_target",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "fb945d9c-9b51-4a7c-a1ed-2e966944ffc1",
+          "actionId": "46c85a1e-37f8-4332-ad9a-909134b75964"
+        },
+        "target": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "d6863bdc-eb8f-4a93-b74b-bf630afb1d7a",
+          "actionId": "cb153349-88cf-4fa0-90af-f2e92a36ef97"
+        },
+        "evidence": [
+          "complete-semantic-navigation-owner",
+          "complete-classification-subtree",
+          "captured-idref-topology",
+          "unique-native-navigation-destination",
+          "operation-reference-not-control-identity",
+          "complete-semantic-navigation-owner",
+          "complete-classification-subtree",
+          "captured-idref-topology",
+          "unique-native-navigation-destination",
+          "operation-reference-not-control-identity",
+          "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+          "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+          "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+          "Unique anchored fragments in complete captured trees resolve mode references; identity and execution authority remain unchanged",
+          "Same native navigation operation; displayed text remains retained observation evidence",
+          "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+          "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+          "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+          "Unique anchored fragments in complete captured trees resolve mode references; identity and execution authority remain unchanged",
+          "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+          "observation:fb945d9c-9b51-4a7c-a1ed-2e966944ffc1",
+          "observation:d6863bdc-eb8f-4a93-b74b-bf630afb1d7a"
+        ],
+        "invalidatedBy": [
+          "observation-or-review-change",
+          "nonunique-correspondence",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "conditionKey": "2879e83a74ead9346423e248f6ae8351449f56d613ddf415d12e59dab8e261ab",
+        "policy": "browser-native-navigation-operation-v1"
+      }
+    ]
+  },
+  "querySqlChanges": 0,
+  "queryCompleted": true,
+  "closed": true,
+  "driverCalls": 0,
+  "sourceAfter": {
+    "engine.sqlite": "c10cbff8135b2c6fa7ca0685198c3653917858bcbfe556603cf27fb36d75e508",
+    "engine.sqlite-wal": "eee54c553fc80b3250f431602113915245a90c5d208a1d27c0cc0eec55a18a44",
+    "engine.sqlite-shm": "b484221c757dcf383a4d7bef0781b23a219e02755cb488f377ed33f2adad76cc"
+  },
+  "sourceUnchanged": true,
+  "temporaryCopyRemoved": true,
+  "finishedAt": "2026-10-17T17:04:28.860Z"
+}

@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/native-navigation-operation-reference.test.ts (26 tests | 24 skipped) 26ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 24 skipped (26)
+   Start at  01:01:37
+   Duration  835ms (transform 336ms, setup 0ms, collect 654ms, tests 26ms, environment 0ms, prepare 36ms)
+

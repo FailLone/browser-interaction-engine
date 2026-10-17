@@ -2,6 +2,7 @@ import { hash, type ExplorationCase, type ExecutionBlocker } from '@interaction/
 import { browserPortableBranchConditions } from './branch-conditions.js';
 import { formBinding } from './util.js';
 import type { ActionCandidate, Observation } from './types.js';
+import { nativeNavigationOperationReference } from './native-navigation.js';
 
 /** Portable target preconditions. This deliberately does not claim DOM or business-state equality. */
 export function browserTargetConditions(action:ActionCandidate,o:Observation):ExplorationCase|undefined {
@@ -14,8 +15,10 @@ export function browserTargetConditions(action:ActionCandidate,o:Observation):Ex
     if(!boundary.name||!overlay)return;
     boundaries.push({name:boundary.name,kind:overlay.kind,region:region?{label:region.label,role:region.role}:boundary.region});
   }
-  const policy=branch.policy==='browser-branch-conditions-v4'?'browser-target-arrival-v2':'browser-target-arrival-v1';
+  const navigation=action.kind==='click'&&nativeNavigationOperationReference(target,o);
+  const policy=navigation?'browser-native-navigation-target-v1':branch.policy==='browser-branch-conditions-v4'?'browser-target-arrival-v2':'browser-target-arrival-v1';
   return {policy,key:hash({policy,url:o.url,branch:branch.key,boundaries,form:formBinding(target),
+    ...(navigation?{operationReference:navigation.key}:{}),
     binding:target.identityContext&&{scope:target.identityContext.scope,binding:target.identityContext.binding}}),
     evidence:[...branch.evidence,'Matching observed URL, boundary stack, native form and semantic binding; passive text excluded']};
 }

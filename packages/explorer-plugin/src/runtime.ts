@@ -27,6 +27,7 @@ import { completedOperations } from './completion-evidence.js';
 import { exactSourceExecution, operationSourceCompletion } from './operation-source-completion.js';
 import {receiptConditionReader} from './receipt-condition.js';
 import { availabilityObligation } from './operation-availability.js';
+import { currentObligationTarget } from './current-obligation-target.js';
 import {auditGapIndex,type AuditGapIndex} from './audit-gap-index.js';
 import {observationActionIndex} from './observation-action-index.js';
 import {createCurrentSourceExclusion} from './current-source-exclusion.js';
@@ -550,7 +551,12 @@ export class ExplorerPlugin {
     let sourceObservation:Observation|undefined,sourceKey:string|undefined;const source=()=>sourceObservation??=this.host.observation(attempt.sessionId,attempt.beforeId),operationKey=()=>sourceKey??=keyFor(attempt.action,source());
     for(const item of task.plan.filter(i=>itemIds.includes(i.id)&&schedulableObligation(i)&&!(i.dispatchScope===false&&i.status==='succeeded')&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome'&&i.reason!=='checkpoint_unverified')) {
       const condition=boundOperationCondition(item);
-      if(condition&&condition!==operationKey())continue;
+      // A rebuilt target may have a new scheduling key. Only a fresh SDK proof
+      // to this item's retained source can associate the actual receipt; the
+      // original scope/key stay unchanged and all sources must still complete.
+      const rebound=item.dispatchScope===false&&((condition&&condition!==operationKey())||!matches(item.scope,attempt.action,source()))
+        &&sourcesCompleted.associate(item,attempt);
+      if(condition&&condition!==operationKey()&&!rebound)continue;
       this.changedPlan(task,item);
       if(!item.attempts.some(x=>x.evidence?.attemptId===attempt.id))item.attempts.push({roundId:round.id,outcome:attempt.status,evidence:ref});
       item.evidence.push(ref);
@@ -562,8 +568,8 @@ export class ExplorerPlugin {
         // rows may span several modes; retain the actual attempt but let SDK
         // coverage reconciliation validate every retained source before settling.
         const direct=!!condition||item.dispatchScope!==false;
-        const exact=item.dispatchScope===true?matches(item.scope,attempt.action,before):digest(item.scope)===digest(scopeFor(attempt.action,before));
-        if(direct&&concrete&&exact&&this.host.actions(attempt.sessionId,before.id).filter(a=>matches(item.scope,a,before)).length===1){
+        const exact=rebound||(item.dispatchScope===true?matches(item.scope,attempt.action,before):digest(item.scope)===digest(scopeFor(attempt.action,before)));
+        if(direct&&concrete&&exact&&this.host.actions(attempt.sessionId,before.id).filter(a=>rebound?a.id===attempt.action.id&&a.localId===attempt.action.localId:matches(item.scope,a,before)).length===1){
           const proof=readCondition(attempt),requiresSources=item.dispatchScope!==true||!!condition||!!item.conditionLineage||item.conditionCompletion?.retainedSourcesRequired===true,
             verified=proof.conditionVerified&&(!requiresSources||sourcesCompleted(item));
           item.conditionCompletion={policy:'operation-receipt-completion-v1',status:verified?'verified':'unverified',reason:verified?proof.reason:proof.conditionVerified?'retained_source_conditions_unverified':proof.reason,source:ref,retainedSourcesRequired:requiresSources||!verified,...verified?{}:{waiting:true}};
@@ -1233,8 +1239,13 @@ export class ExplorerPlugin {
     // Authority rows define permission; concrete unfinished children define work.
     // A completed one-shot goal with no remaining children does not become a monitor.
     if(task.plan.length&&!task.plan.some(i=>i.required&&isUnfinished(i)))return false;
+    const reviewSelection=task.scheduling?.selection;
+    const reviewTarget=reviewSelection&&reviewSelection.kind!=='current'
+      ?currentObligationTarget(this.host,task.plan.find(item=>item.id===reviewSelection.itemId),o,this.host.actions(sid,o.id)):undefined;
     const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id),unresolvedBefore=new Set(Object.keys(round.unresolvedPurposeReviews||{})),unresolvedReviews:UnresolvedReview[]=[];
     try { const reviewed=await reviewNext({host:this.host,task,observation:o,
+      priorityActionIds:reviewTarget?.currentActionId?[reviewTarget.currentActionId]:undefined,
+      allowPriorityActionYield:!!reviewTarget&&(reviewTarget.reason==='current_target_observed'||!!reviewTarget.source&&!!reviewTarget.correspondence),
       // At the local quota, review current material before fairness can send us
       // elsewhere. Reviewing does not reserve an action or reset the quota.
       allowLocalActionYield:(task.scheduling?.localSelections??0)<localSelectionLimit,
@@ -1291,10 +1302,13 @@ export class ExplorerPlugin {
         const previous=item.prerequisites;this.changedPlan(task,item);item.prerequisites=[...path];this.event(task,'branch.route_reconciled',{itemId:item.id,previous,prerequisites:path,evidence:{sessionId:o.sessionId,observationId:o.id},scopeUnchanged:true,executionAuthorized:false});
       }
     }
-    this.auditRemainingScopes(task,round,o,snapshot,completed);
+    const incomplete=this.auditRemainingScopes(task,round,o,snapshot,completed);
     const routeCondition=this.routeConditionReader(o,actions);
-    this.updateObligations(task,o,snapshot.operationCandidates,routeCondition);
+    const projection=this.updateObligations(task,o,snapshot.operationCandidates,routeCondition);
     const schedule=this.initializeScheduling(task),pending=unfinishedObligations(task.plan),byId=new Map(pending.map(item=>[item.id,item]));
+    const arrived=schedule.selection&&schedule.selection.kind!=='current'?schedule.selection.itemId:undefined;
+    const arrivedTarget=arrived&&projection.entries.find(entry=>entry.itemId===arrived&&entry.currentActionId
+      &&(['active','alias'].includes(entry.state))&&(entry.reason==='current_target_observed'||entry.source&&entry.correspondence));
     const ordered=orderedObligations(task.plan,schedule),targetOrder=new Map(ordered.map((item,index)=>[item.id,index]));
     const orderedActions=unique.slice().sort((a,b)=>Number(a.boundary?.intent==='exit')-Number(b.boundary?.intent==='exit')||Number(!!navigationTarget(a,o))-Number(!!navigationTarget(b,o)));
     const local:ObligationSelection[]=[],reentries:ObligationSelection[]=[];
@@ -1305,7 +1319,8 @@ export class ExplorerPlugin {
         // Boundary exits and page traversal serve existing work without creating
         // a recurring goal for an otherwise completed one-shot request.
         const prerequisite=includesScope(task.plan,action,o)==='prerequisite'?pending.find(item=>item.dispatchScope===true)||pending[0]:undefined;
-        const owner=item||prerequisite;if(owner)local.push({itemId:owner.id,kind:'current',actionId:action.id,source:{sessionId:sid,observationId:o.id}});
+        const owner=arrivedTarget&&arrivedTarget.currentActionId===action.id&&byId.get(arrivedTarget.itemId)||item||prerequisite;
+        if(owner)local.push({itemId:owner.id,kind:'current',actionId:action.id,source:{sessionId:sid,observationId:o.id}});
       }else{
         const targets=this.entryTargets(task,action,o).sort((a,b)=>(targetOrder.get(a.id)??Infinity)-(targetOrder.get(b.id)??Infinity));
         const target=this.reentryTarget(task,action,o,targets,true);
@@ -1313,10 +1328,13 @@ export class ExplorerPlugin {
       }
     }
     const locality=(choice:ObligationSelection)=>{const path=byId.get(choice.itemId)?.prerequisites||[];let shared=0;while(shared<path.length&&shared<round.entryPath.length&&digest(path[shared])===digest(round.entryPath[shared]))shared++;return shared;};
-    const arrived=schedule.selection&&schedule.selection.kind!=='current'?schedule.selection.itemId:undefined;
     local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||locality(b)-locality(a)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     const inPlace=local.filter(choice=>{const action=actions.find(action=>action.id===choice.actionId)!;return action.boundary?.intent!=='exit'&&!navigationTarget(action,o);});
-    if(inPlace.length){local.splice(0,local.length,...inPlace);}
+    if(inPlace.length){local.splice(0,local.length,...local.filter(choice=>choice.itemId===arrived||inPlace.includes(choice)));}
+    // Finish the selected recovered child once before fairness sends us away.
+    // Its current target was just projected; reservation changes the selection
+    // to current, so this exception never resets or renews the ordinary quota.
+    const arrivedChoice=arrivedTarget&&local.find(choice=>choice.itemId===arrived&&choice.actionId===arrivedTarget.currentActionId);
     // Once current boundary work is done, use its already admissible local exit
     // before spending a remote recovery turn. Keep the fairness counter: the
     // next observation rebuilds candidates and resumes ordinary scheduling.
@@ -1328,7 +1346,7 @@ export class ExplorerPlugin {
     }):undefined;
     reentries.sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     let recovery:ScheduledRecovery|undefined;
-    if(!boundaryExit&&(!local.length||schedule.localSelections>=localSelectionLimit)){
+    if(!boundaryExit&&!arrivedChoice&&(!local.length||schedule.localSelections>=localSelectionLimit)){
       const recoveryRevision=task.revision,observationKey=digest(o),actionsKey=digest(actions),availabilityRevision=availability.revision;
       recovery=await this.scheduledRecovery(task,round,o,actions,availability,routeCondition,signal);
       // Even a short async selection has a final microtask boundary. Check it
@@ -1339,7 +1357,7 @@ export class ExplorerPlugin {
     }
     const remote:ObligationSelection[]=[...reentries,...recovery?[{itemId:recovery.itemId,kind:broadScope(byId.get(recovery.itemId)!.scope)?'inspect' as const:'recovery' as const,source:{sessionId:sid,observationId:recovery.source.id},routeKey:recovery.routeKey}]:[]]
       .sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
-    const selection=boundaryExit||selectObligation(schedule,local,remote),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
+    const selection=boundaryExit||arrivedChoice||selectObligation(schedule,local,remote),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
     if(recovery&&(selection?.kind==='recovery'||selection?.kind==='inspect'))recovery.revalidate();
     const schedulingBefore={cursor:schedule.cursor,localSelections:schedule.localSelections,selection:schedule.selection};
     if(selection){if(selectedAction)schedule.selection={...selection};else reserveObligation(schedule,selection);if(schedule.deferred)delete schedule.deferred[selection.itemId];this.event(task,'obligation.selected',{...selection,sourceObservationId:o.id,coverageGranted:false,executionAuthorized:false});}
@@ -1366,10 +1384,19 @@ export class ExplorerPlugin {
       // shared only by the following synchronous audit and path bookkeeping.
       const completed=completedOperations(this.host,task,o,snapshot.operationCandidates);
       const reviews=task.plan.filter(i=>i.required&&isUnfinished(i)&&controlReviewGapReasons.has(i.reason)&&!i.scope.kind&&i.evidence.some(e=>e.observationId===o.id));
+      // Focused review may yield to a navigation target before whole-page
+      // discovery finishes. Retain its exact source on the existing accepted
+      // page obligation and checkpoint; no new authority or completion claim.
+      const deferredPages=selection?.itemId===arrived&&navigationTarget(action,o)
+        ?task.plan.filter(item=>item.required&&pageSourceObligation(item)&&item.scope.url===o.url&&incomplete.has(item.id)):[];
+      for(const item of deferredPages)if(!item.evidence.some(ref=>!ref.attemptId&&ref.sessionId===sid&&ref.observationId===o.id)){
+        this.changedPlan(task,item);item.evidence.push({sessionId:sid,observationId:o.id});
+        this.event(task,'review.source_deferred',{itemId:item.id,sourceObservationId:o.id,checkpointId:checkpoint.id,retainedInPlan:true,coverageGranted:false});
+      }
       // Reviewed executable operations have comparable operation samples. An
       // unreviewed candidate is instead retained as a review obligation above:
       // its missing basis/risk is not an executable operation to replay later.
-      const remaining=[...snapshot.operationCandidates.filter(a=>a.id!==action.id&&a.basis?.status==='supported'&&includesScope(task.plan,a,o)==='target'&&!this.navigationIsUnverified(task,a,o)&&!completed.has(a)).map(a=>scopeFor(a,o)),...reviews.map(i=>i.scope)];
+      const remaining=[...snapshot.operationCandidates.filter(a=>a.id!==action.id&&a.basis?.status==='supported'&&includesScope(task.plan,a,o)==='target'&&!this.navigationIsUnverified(task,a,o)&&!completed.has(a)).map(a=>scopeFor(a,o)),...reviews.map(i=>i.scope),...deferredPages.map(i=>i.scope)];
       const frame=round.stack.at(-1);
       if(frame&&sameObservedState(this.host.observation(sid,frame.observationId),o))frame.remaining=[...new Map([...frame.remaining,...remaining].map(scope=>[digest(scope),scope])).values()];
       else round.stack.push({checkpointId:checkpoint.id,observationId:o.id,stateId:o.stateId,used:[],path:[...round.entryPath],remaining:[...new Map(remaining.map(scope=>[digest(scope),scope])).values()]});
@@ -1380,6 +1407,11 @@ export class ExplorerPlugin {
       if(reentry&&!repetition?.repeatable)throw new ExplorerError('REENTRY_EVIDENCE_CHANGED');
       const reentryItem=reentry?this.recordEntry(task,round,action,o):undefined;
       const purpose=reentry?'prerequisite':includesScope(task.plan,action,o);const items=task.plan.filter(i=>i.required&&schedulableObligation(i)&&!i.reason.startsWith('missing_capability:')&&matches(i.scope,action,o)&&(!boundOperationCondition(i)||boundOperationCondition(i)===keyFor(action,o)));
+      if(selection?.itemId===arrived&&!items.some(item=>item.id===selection.itemId)){
+        const item=byId.get(selection.itemId),binding=currentObligationTarget(this.host,item,o,this.host.actions(sid,o.id));
+        if(!item||binding?.currentActionId!==action.id||!binding.source||!binding.correspondence)throw new ExplorerError('STALE_DECISION');
+        items.push(item);
+      }
       if(purpose==='target'&&!items.some(i=>i.scope.kind&&i.scope.label)) {const leaf=this.newItem({title:`${action.kind} ${action.label}`,scope:scopeFor(action,o),prerequisites:[...entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false,o,keyFor(action,o));this.appendPlan(task,leaf);items.push(leaf);}
       reserveObligation(schedule,selection!);
       // A fresh entry can also be the necessary route to an existing child.

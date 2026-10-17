@@ -4,7 +4,8 @@ import {PlaywrightAdapter} from '@interaction/adapter-playwright';
 import {MemoryStore} from '@interaction/storage-memory';
 import type {ActionCandidate,Observation} from '@interaction/browser';
 import type {PlanItem} from '@interaction/explorer-plugin';
-import {keyFor,scopeFor} from '../packages/explorer-plugin/src/policy.js';
+import {keyFor,scopeFor,schedulingKeyFor} from '../packages/explorer-plugin/src/policy.js';
+import {currentObligationTarget} from '../packages/explorer-plugin/src/current-obligation-target.js';
 import {projectObligations,recoveryConditionVersion,recoveryRouteConditionVersion,recoveryRouteKey,recordRouteRetry,routeRetryEligibility,releaseRouteRetryForProgress,releaseRouteRetriesForVerifiedRecovery,type RouteRetryLedger} from '../packages/explorer-plugin/src/obligation-lifecycle.js';
 
 /** Exercises the real SDK target correspondence; no browser, service or database. */
@@ -42,6 +43,28 @@ it('converges changing unexecuted native-link labels only through SDK proof, wit
   const restarted=JSON.parse(JSON.stringify(result.projection));
   expect(projectObligations(f.host,task,current.o,[current.action],restarted).events).toEqual([]);
   f.store.close();
+});
+
+it('continues a retained availability gap only through fresh SDK correspondence, without rewriting its original scope or key',()=>{
+  const f=fixture(),old=f.observation('old','Asset $100'),current=f.observation('current','Asset $200');
+  const item={...f.item(old),reason:'region_review_required',operationConditionKey:schedulingKeyFor(old.action,old.o),operationConditionPolicy:'browser-operation-key-v3' as const};
+  const before=JSON.stringify(item);
+  expect(currentObligationTarget(f.host,item,current.o,[current.action])).toMatchObject({itemId:item.id,state:'active',currentActionId:current.action.id,
+    source:{sessionId:old.o.sessionId,observationId:old.o.id,actionId:old.action.id},correspondence:{policy:expect.any(String)}});
+  expect(JSON.stringify(item)).toBe(before);
+  // Neither the saved hint nor equal names overrides a new declared context.
+  const changed=f.observation('other','Asset $200','other');
+  expect(currentObligationTarget(f.host,item,changed.o,[changed.action])).toBeUndefined();
+  expect(JSON.stringify(item)).toBe(before);f.store.close();
+});
+
+it('keeps unknown and semantic-review obligations out of availability continuation',()=>{
+  const f=fixture(),old=f.observation('old','Asset $100'),current=f.observation('current','Asset $200'),item=f.item(old);
+  const query=vi.spyOn(f.host,'explorationTargetCorrespondences');
+  expect(currentObligationTarget(f.host,{...item,attempts:[{roundId:'old',outcome:'unknown'}]},current.o,[current.action])).toBeUndefined();
+  expect(query).not.toHaveBeenCalled();
+  expect(currentObligationTarget(f.host,{...item,reason:'operation_risk_unresolved'},current.o,[current.action])).toBeUndefined();
+  expect(query).not.toHaveBeenCalled();f.store.close();
 });
 
 it('keeps the same control in a changed UI mode as a separate unresolved condition',()=>{

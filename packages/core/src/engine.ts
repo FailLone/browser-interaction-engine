@@ -334,10 +334,15 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const hints=new Map<Control,ReturnType<NonNullable<typeof this.adapter.controlCorrespondence>>>(),signatures=new Map<Control,string>();
     const getHint=(control:Control)=>{if(!hints.has(control))hints.set(control,this.adapter.controlCorrespondence?.(control));return hints.get(control);};
     const operationHints=new Map<O,Map<string,Map<Control,ReturnType<typeof getHint>>>>();
+    const operationHintReaders=new Map<O,ReturnType<NonNullable<typeof this.adapter.createOperationCorrespondenceHintReader>>|undefined>();
     const getOperationHint=(control:Control,kind:string,o:O)=>{
       let kinds=operationHints.get(o);if(!kinds){kinds=new Map();operationHints.set(o,kinds);}
       let controls=kinds.get(kind);if(!controls){controls=new Map();kinds.set(kind,controls);}
-      if(!controls.has(control))controls.set(control,this.adapter.operationCorrespondenceHint?.(control,kind,o)||getHint(control));
+      if(!controls.has(control)){
+        if(!operationHintReaders.has(o))operationHintReaders.set(o,this.adapter.createOperationCorrespondenceHintReader?.(o));
+        const read=operationHintReaders.get(o);
+        controls.set(control,(read?read(control,kind):this.adapter.operationCorrespondenceHint?.(control,kind,o))||getHint(control));
+      }
       return controls.get(control);
     };
     const getSignature=(control:Control)=>{if(!signatures.has(control))signatures.set(control,this.adapter.signature(control));return signatures.get(control)!;};

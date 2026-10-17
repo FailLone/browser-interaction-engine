@@ -1,0 +1,957 @@
+diff --git a/packages/adapter-playwright/src/branch-conditions.ts b/packages/adapter-playwright/src/branch-conditions.ts
+index 5f99c43..d9e6bf8 100644
+--- a/packages/adapter-playwright/src/branch-conditions.ts
++++ b/packages/adapter-playwright/src/branch-conditions.ts
+@@ -2,6 +2,7 @@ import { canonical, hash, type ReviewConditionAssessment } from '@interaction/co
+ import type { ActionCandidate, Control, Observation } from './types.js';
+ import { formBinding } from './util.js';
+ import { modeStructureReader } from './mode-structure.js';
++import { nativeNavigationOperationReference } from './native-navigation.js';
+ 
+ /** A bound on evidence, not permission to ignore additional dependencies. */
+ export const MAX_BRANCH_CONDITIONS = 32;
+@@ -100,7 +101,13 @@ export function browserPortableBranchConditions(action: Pick<ActionCandidate, 'k
+   const conditions=observedModeConditions(target,o,['fill','select','check'].includes(action.kind),'v3').conditions;
+   // The new structural dependency proof must not authorize its own unresolved
+   // operation target. Older nonstructural sampling retains its prior contract.
+-  return conditions?.policy==='browser-branch-conditions-v4'&&(target.identityScope==='instance'||target.hypothesisId)?undefined:conditions;
++  if(conditions?.policy==='browser-branch-conditions-v4'&&(target.identityScope==='instance'||target.hypothesisId)){
++    // A mode tree alone never authorizes its operation target. A separate,
++    // complete native navigation reference may describe that operation while
++    // its control identity remains correctly bound to the captured instance.
++    if(target.hypothesisId||action.kind!=='click'||!nativeNavigationOperationReference(target,o))return;
++  }
++  return conditions;
+ }
+ 
+ /** Interpretation has no destination input: retain the target's own mode too. */
+diff --git a/packages/adapter-playwright/src/exploration.ts b/packages/adapter-playwright/src/exploration.ts
+index 93d4832..7e900c5 100644
+--- a/packages/adapter-playwright/src/exploration.ts
++++ b/packages/adapter-playwright/src/exploration.ts
+@@ -4,6 +4,7 @@ import { readonlyReadout, observableCanonical } from './model.js';
+ import { constrain } from './policy.js';
+ import { ruleMatches, signature, formBinding } from './util.js';
+ import { browserBranchConditions, browserPortableBranchConditions } from './branch-conditions.js';
++import { nativeNavigationOperationReader, nativeNavigationOperationReference } from './native-navigation.js';
+ 
+ /** Opaque compatibility keys remain readable by existing consumers. They are hints, not identities. */
+ export function browserControlCorrespondence(c: Control): CorrespondenceHint | undefined {
+@@ -36,6 +37,18 @@ export function browserControlBindingKey(c:Control):string|undefined {
+  * Old observations/keys stay unchanged; no text is classified by a site pattern.
+  */
+ export function browserOperationCorrespondenceHint(c:Control,kind:string,o:Pick<Observation,'url'>):CorrespondenceHint|undefined {
++  return nativeRecordLinkReference(c,kind,o)||(kind==='click'?nativeNavigationOperationReference(c,o):undefined);
++}
++/** One synchronous query owns this reader, just like the mode-structure reader.
++ * Never retain it across mutation, await, a later query or a dispatch. The public
++ * single-target helper deliberately creates fresh derived facts on every call. */
++export function createBrowserOperationCorrespondenceHintReader(o:Observation) {
++  let navigation:ReturnType<typeof nativeNavigationOperationReader>|undefined;
++  return (c:Control,kind:string):CorrespondenceHint|undefined=>nativeRecordLinkReference(c,kind,o)
++    ||(kind==='click'&&c.tag==='a'&&c.role==='link'&&!c.hypothesisId&&!c.readiness&&c.actionBasis?.click?.status==='supported'
++      ?(navigation??=nativeNavigationOperationReader(o))(c):undefined);
++}
++function nativeRecordLinkReference(c:Control,kind:string,o:Pick<Observation,'url'>):CorrespondenceHint|undefined {
+   const item=c.structuralItem,context=c.identityContext,attributes=c.reviewBinding?.attributes;
+   if(kind!=='click'||c.tag!=='a'||c.role!=='link'||!item?.recordKey||!item.template
+     ||!context?.scope||!context.binding||!context.evidence.includes('link-destination/v1'))return;
+@@ -148,7 +161,7 @@ function controlCaseProjection(action:ActionCandidate,o:Observation,portable:boo
+     const {valid:_valid,...constraints}=c.constraints,{instanceId:_instance,...form}=c.reviewBinding?.form||{};
+     return {key:hash({url:o.url,reference:native.key,branch:branch?.key,boundary:o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})),
+       readOnly:c.readOnly,constraints,options:c.options,attributes:c.reviewBinding?.attributes,form,formOwner:formBinding(c),basis:action.basis,risk:action.risk}),
+-      policy:'browser-native-record-link-operation-v2',identityConflictScope,evidence:[...native.evidence,...branch?.evidence||[],'Same native navigation operation; displayed text remains retained observation evidence']};
++      policy:native.policy==='browser-native-navigation-v1'?'browser-native-navigation-operation-v1':'browser-native-record-link-operation-v2',identityConflictScope,evidence:[...native.evidence,...branch?.evidence||[],'Same native navigation operation; displayed text remains retained observation evidence']};
+   }
+   // Review record IDs identify evidence, not a new operation. Preserve the
+   // reviewed DOM conditions and risk; dispatch still validates the exact review.
+diff --git a/packages/adapter-playwright/src/index.ts b/packages/adapter-playwright/src/index.ts
+index b44a753..69459f5 100644
+--- a/packages/adapter-playwright/src/index.ts
++++ b/packages/adapter-playwright/src/index.ts
+@@ -10,8 +10,8 @@ import { observableCanonical, compareObservations, browserStateGrouping } from '
+ import { sessionSchema } from './schema.js';
+ import { signature } from './util.js';
+ import { constrain, hasDeclaredBoundaryExit, hasObservedBoundaryExit } from './policy.js';
+-import { browserControlCorrespondence, browserOperationCorrespondenceHint, controlCase, controlsTraversalCase, explorationCase, restorationStep, verifyRestorationStep } from './exploration.js';
+-export { browserControlCorrespondence, browserControlBindingKey, browserOperationCorrespondenceHint, browserOperationKey, browserOperationSchedulingKey, legacyBrowserOperationKey } from './exploration.js';
++import { browserControlCorrespondence, browserOperationCorrespondenceHint, createBrowserOperationCorrespondenceHintReader, controlCase, controlsTraversalCase, explorationCase, restorationStep, verifyRestorationStep } from './exploration.js';
++export { browserControlCorrespondence, browserControlBindingKey, browserOperationCorrespondenceHint, createBrowserOperationCorrespondenceHintReader, browserOperationKey, browserOperationSchedulingKey, legacyBrowserOperationKey } from './exploration.js';
+ export { navigationIntent, type NavigationIntent } from './navigation.js';
+ import { historyReturn, observedSourcePosition } from './navigation.js';
+ import { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';
+@@ -51,6 +51,11 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
+   }
+   controlCorrespondence = browserControlCorrespondence;
+   operationCorrespondenceHint = browserOperationCorrespondenceHint;
++  createOperationCorrespondenceHintReader(observation:Observation) {
++    return this.operationCorrespondenceHint===browserOperationCorrespondenceHint
++      ?createBrowserOperationCorrespondenceHintReader(observation)
++      :(control:Control,kind:string)=>this.operationCorrespondenceHint(control,kind,observation);
++  }
+   correspondenceCase(a: ActionCandidate,o: Observation) { return controlCase(a,o,true); }
+   private static readonly defaultCorrespondenceCase=PlaywrightAdapter.prototype.correspondenceCase;
+   get receiptIdentityScope() {
+diff --git a/packages/adapter-playwright/src/target-arrival.ts b/packages/adapter-playwright/src/target-arrival.ts
+index 6358aaa..ca26056 100644
+--- a/packages/adapter-playwright/src/target-arrival.ts
++++ b/packages/adapter-playwright/src/target-arrival.ts
+@@ -2,6 +2,7 @@ import { hash, type ExplorationCase, type ExecutionBlocker } from '@interaction/
+ import { browserPortableBranchConditions } from './branch-conditions.js';
+ import { formBinding } from './util.js';
+ import type { ActionCandidate, Observation } from './types.js';
++import { nativeNavigationOperationReference } from './native-navigation.js';
+ 
+ /** Portable target preconditions. This deliberately does not claim DOM or business-state equality. */
+ export function browserTargetConditions(action:ActionCandidate,o:Observation):ExplorationCase|undefined {
+@@ -14,8 +15,10 @@ export function browserTargetConditions(action:ActionCandidate,o:Observation):Ex
+     if(!boundary.name||!overlay)return;
+     boundaries.push({name:boundary.name,kind:overlay.kind,region:region?{label:region.label,role:region.role}:boundary.region});
+   }
+-  const policy=branch.policy==='browser-branch-conditions-v4'?'browser-target-arrival-v2':'browser-target-arrival-v1';
++  const navigation=action.kind==='click'&&nativeNavigationOperationReference(target,o);
++  const policy=navigation?'browser-native-navigation-target-v1':branch.policy==='browser-branch-conditions-v4'?'browser-target-arrival-v2':'browser-target-arrival-v1';
+   return {policy,key:hash({policy,url:o.url,branch:branch.key,boundaries,form:formBinding(target),
++    ...(navigation?{operationReference:navigation.key}:{}),
+     binding:target.identityContext&&{scope:target.identityContext.scope,binding:target.identityContext.binding}}),
+     evidence:[...branch.evidence,'Matching observed URL, boundary stack, native form and semantic binding; passive text excluded']};
+ }
+diff --git a/packages/core/src/engine.ts b/packages/core/src/engine.ts
+index 666c511..4c8764a 100644
+--- a/packages/core/src/engine.ts
++++ b/packages/core/src/engine.ts
+@@ -334,10 +334,15 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
+     const hints=new Map<Control,ReturnType<NonNullable<typeof this.adapter.controlCorrespondence>>>(),signatures=new Map<Control,string>();
+     const getHint=(control:Control)=>{if(!hints.has(control))hints.set(control,this.adapter.controlCorrespondence?.(control));return hints.get(control);};
+     const operationHints=new Map<O,Map<string,Map<Control,ReturnType<typeof getHint>>>>();
++    const operationHintReaders=new Map<O,ReturnType<NonNullable<typeof this.adapter.createOperationCorrespondenceHintReader>>|undefined>();
+     const getOperationHint=(control:Control,kind:string,o:O)=>{
+       let kinds=operationHints.get(o);if(!kinds){kinds=new Map();operationHints.set(o,kinds);}
+       let controls=kinds.get(kind);if(!controls){controls=new Map();kinds.set(kind,controls);}
+-      if(!controls.has(control))controls.set(control,this.adapter.operationCorrespondenceHint?.(control,kind,o)||getHint(control));
++      if(!controls.has(control)){
++        if(!operationHintReaders.has(o))operationHintReaders.set(o,this.adapter.createOperationCorrespondenceHintReader?.(o));
++        const read=operationHintReaders.get(o);
++        controls.set(control,(read?read(control,kind):this.adapter.operationCorrespondenceHint?.(control,kind,o))||getHint(control));
++      }
+       return controls.get(control);
+     };
+     const getSignature=(control:Control)=>{if(!signatures.has(control))signatures.set(control,this.adapter.signature(control));return signatures.get(control)!;};
+diff --git a/packages/core/src/ports.ts b/packages/core/src/ports.ts
+index 2249966..66d93db 100644
+--- a/packages/core/src/ports.ts
++++ b/packages/core/src/ports.ts
+@@ -175,6 +175,10 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
+   controlCorrespondence?(control: O['controls'][number]): import('./coverage-reconciliation.js').CorrespondenceHint | undefined;
+   /** Optional operation-specific evidence. Does not change control identity or persisted keys. */
+   operationCorrespondenceHint?(control: O['controls'][number], kind: string, observation: O): import('./coverage-reconciliation.js').CorrespondenceHint | undefined;
++  /** Optional query-local derivation. Called once per recorded observation in a
++   * synchronous correspondence query; never reused across queries, mutation,
++   * await or dispatch. Implementations must preserve public hook overrides. */
++  createOperationCorrespondenceHintReader?(observation: O): (control: O['controls'][number], kind: string) => import('./coverage-reconciliation.js').CorrespondenceHint | undefined;
+   /** Portable operation equivalence for correspondence and coverage reconciliation.
+    * May be stricter than explorationCase queue sampling; undefined never falls
+    * back to that broader sample when this contract is implemented. */
+diff --git a/packages/explorer-plugin/src/obligation-lifecycle.ts b/packages/explorer-plugin/src/obligation-lifecycle.ts
+index b62821d..e9c05df 100644
+--- a/packages/explorer-plugin/src/obligation-lifecycle.ts
++++ b/packages/explorer-plugin/src/obligation-lifecycle.ts
+@@ -3,6 +3,7 @@ import { browserControlCorrespondence, browserOperationCorrespondenceHint, brows
+ import type { EvidenceRef, ExplorerHost, PlanItem, Scope, Task } from './types.js';
+ import { broadScope, controlScopeMatcher, digest, matches, scopeFor } from './policy.js';
+ import {observationActionIndex} from './observation-action-index.js';
++import {isOperationAvailabilityReason} from './operation-availability.js';
+ 
+ /** A scheduling view of the immutable discovery ledger, never coverage or permission. */
+ export type ObligationState = 'active' | 'waiting' | 'unreachable' | 'alias' | 'resolved' | 'excluded' | 'authority' | 'superseded';
+@@ -83,13 +84,12 @@ export function recoveryRouteKey(source:Observation,actions:ActionCandidate[],ta
+     targets:[...new Set(targets.map(scope=>digest(semantic(scope))))].sort(),path:path.map(semantic)});
+ }
+ 
+-const passiveOperationReasons=new Set(['observed_in_scope','operation_not_executed']);
+ function aliasCandidate(item:PlanItem):boolean {
+   // Unknown, attempted, recovery and capability obligations must never disappear
+   // behind another row, even when the target itself has a positive match.
+   return item.required&&item.dispatchScope===false&&!!item.scope.kind&&!!(item.scope.label||item.scope.stableKey)
+     &&!(item.conditionCompletion?.status==='unverified'&&item.conditionCompletion.waiting!==false)
+-    &&['pending','unresolved','blocked'].includes(item.status)&&passiveOperationReasons.has(item.reason)
++    &&['pending','unresolved','blocked'].includes(item.status)&&(item.reason==='observed_in_scope'||isOperationAvailabilityReason(item.reason))
+     &&item.attempts.length===0&&!item.resolvedBy&&!item.reviewResolvedBy&&!item.coverageResolvedBy
+     &&item.evidence.every(e=>!e.attemptId);
+ }
+diff --git a/packages/explorer-plugin/src/operation-availability.ts b/packages/explorer-plugin/src/operation-availability.ts
+index 37c59fa..c4655d0 100644
+--- a/packages/explorer-plugin/src/operation-availability.ts
++++ b/packages/explorer-plugin/src/operation-availability.ts
+@@ -6,6 +6,7 @@ import type { PlanItem, Scope } from './types.js';
+ // results, permissions, sampling, semantic reviews and capability gaps remain
+ // independent obligations, even when their literal scopes happen to match.
+ const availabilityReasons=new Set(['operation_not_executed','region_review_required','pointer_intercepted','outside_active_boundary','outside_scrollable_area','not_editable','Control is not visible or enabled']);
++export const isOperationAvailabilityReason=(reason:string)=>availabilityReasons.has(reason);
+ export function availabilityObligation(plan:PlanItem[],reason:string,scope:Scope,condition:string,required:boolean,prerequisites:Scope[]=[]):PlanItem|undefined {
+   if(!required||!availabilityReasons.has(reason)||!scope.kind)return;
+   const scopeKey=digest(scope);
+diff --git a/packages/explorer-plugin/src/operation-source-completion.ts b/packages/explorer-plugin/src/operation-source-completion.ts
+index bc2b393..c78f93c 100644
+--- a/packages/explorer-plugin/src/operation-source-completion.ts
++++ b/packages/explorer-plugin/src/operation-source-completion.ts
+@@ -1,6 +1,7 @@
+ import type { ActionAttempt, ActionCandidate, Observation } from '@interaction/browser';
+ import type { ExplorerHost, PlanItem, Task } from './types.js';
+-import { controlInScope, matches } from './policy.js';
++import { controlInScope, keyFor, matches, schedulingKeyFor } from './policy.js';
++import { boundOperationCondition, validOperationSchedulingNormalization } from './plan-state.js';
+ import {receiptConditionReader} from './receipt-condition.js';
+ 
+ /** A retry budget is not coverage. Only a retained receipt checked against the
+@@ -51,15 +52,67 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
+     const sources=new Map<string,{sessionId:string;observationId:string}>(),receipts=new Map<string,ActionAttempt>();
+     const addSource=(sessionId:string,observationId:string)=>sources.set(`${sessionId}:${observationId}`,{sessionId,observationId});
+     const refs=[...item.evidence,...item.attempts.flatMap(a=>a.evidence?[a.evidence]:[]),...(item.resolvedBy?[item.resolvedBy]:[])];
++    if(item.attempts.some(a=>['unknown','executing'].includes(a.outcome)&&!a.evidence?.attemptId))return;
++    for(const ref of refs)if(!ref.attemptId)addSource(ref.sessionId,ref.observationId);
++    const hasDiscoverySources=sources.size>0;
+     for(const ref of refs){
+-      if(!ref.attemptId){addSource(ref.sessionId,ref.observationId);continue;}
++      if(!ref.attemptId)continue;
+       const attempt=readAttempt(ref.sessionId,ref.attemptId);
+       if(!attempt||attempt.sessionId!==ref.sessionId||![attempt.beforeId,attempt.afterId].includes(ref.observationId)||['unknown','executing'].includes(attempt.status))return;
+-      addSource(attempt.sessionId,attempt.beforeId);
++      // A receipt proves execution; its rebuilt before-frame is not another
++      // discovery under the original literal scope. Receipt-only legacy items
++      // retain their old exact-before interpretation, never an invented source.
++      if(!hasDiscoverySources)addSource(attempt.sessionId,attempt.beforeId);
+       if(attempt.status==='succeeded'&&attempt.afterId&&(!accept||accept(attempt)))receipts.set(`${attempt.sessionId}:${attempt.id}`,attempt);
+     }
+     return {sources,receipts};
+   };
++  const readSource=(sessionId:string,observationId:string)=>{
++    const key=`${sessionId}:${observationId}`;let facts=observations.get(key);
++    if(!facts){
++      const observation=host.observation(sessionId,observationId);
++      if(observation.sessionId!==sessionId||observation.id!==observationId)throw Error('Source observation ownership mismatch');
++      facts={observation,actions:host.operationCoverageCandidates(sessionId,observationId)};
++      if(observations.size>=8)observations.delete(observations.keys().next().value!);
++      observations.set(key,facts);
++    }
++    return facts;
++  };
++  /** Attribution of one actual attempt to a program-derived child, not success
++   * or permission. Original scope/condition apply to the retained source only;
++   * SDK correspondence must freshly bind its uniquely mapped current action. */
++  const associate=(item:PlanItem,attempt:ActionAttempt):boolean=>{
++    try{
++      const condition=boundOperationCondition(item),query=host.explorationTargetCorrespondences;
++      if(!query||!condition||!item.scope.kind||!item.required
++        ||item.dispatchScope!==false&&item.conditionLineage?.kind!=='condition'
++        ||['succeeded','excluded','superseded'].includes(item.status)||['split','invalidated'].includes(item.conditionMigration?.status||'')
++        ||!['browser-operation-key-v2','browser-operation-key-v3'].includes(item.operationConditionPolicy||''))return false;
++      const collected=collect(item);if(!collected||!collected.sources.size)return false;
++      const before=readSource(attempt.sessionId,attempt.beforeId),actual=attempt.action;
++      const candidates=before.actions.filter(a=>a.id===actual.id&&a.sessionId===attempt.sessionId&&a.observationId===attempt.beforeId);
++      if(actual.sessionId!==attempt.sessionId||actual.observationId!==attempt.beforeId||candidates.length!==1)return false;
++      const target=candidates[0];
++      if(target.localId!==actual.localId||target.controlId!==actual.controlId||target.kind!==actual.kind||target.risk!==actual.risk
++        ||JSON.stringify(target.value)!==JSON.stringify(actual.value))return false;
++      const legacy=item.operationConditionPolicy==='browser-operation-key-v2'&&!validOperationSchedulingNormalization(item);
++      let associated=false;
++      for(const ref of collected.sources.values()){
++        const {observation,actions}=readSource(ref.sessionId,ref.observationId);
++        const originals=actions.filter(a=>a.sessionId===ref.sessionId&&a.observationId===ref.observationId&&matches(item.scope,a,observation)
++          &&(legacy?keyFor(a,observation):schedulingKeyFor(a,observation))===condition);
++        if(originals.length!==1)continue;
++        const source={...ref,actionId:originals[0].id};
++        const result=query.call(host,attempt.sessionId,{observationId:attempt.beforeId,requests:[{actionId:actual.id,source}]});
++        const proof=result?.results?.[0];
++        if(result?.sessionId===attempt.sessionId&&result.observationId===attempt.beforeId&&result.results.length===1
++          &&proof?.equivalent&&proof.identityAuthorized===false&&proof.replayAuthorized===false&&proof.currentExecution===false
++          &&proof.target.sessionId===attempt.sessionId&&proof.target.observationId===attempt.beforeId&&proof.target.actionId===actual.id
++          &&proof.source.sessionId===source.sessionId&&proof.source.observationId===source.observationId&&proof.source.actionId===source.actionId)associated=true;
++      }
++      return associated;
++    }catch{return false;}
++  };
+   const complete=(item:PlanItem):boolean=>{
+     try {
+       // Old hosts retain their original per-reference lazy single-query path.
+@@ -71,16 +124,8 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
+         candidates.forEach((attempt,index)=>{if(!proofs[index].conditionVerified)receipts.delete(`${attempt.sessionId}:${attempt.id}`);});
+       }
+       if(!sources.size||!receipts.size)return false;
+-      for(const [sourceKey,ref] of sources){
+-        let facts=observations.get(sourceKey);
+-        if(!facts){
+-          const observation=host.observation(ref.sessionId,ref.observationId);
+-          if(observation.sessionId!==ref.sessionId||observation.id!==ref.observationId)return false;
+-          facts={observation,actions:host.operationCoverageCandidates(ref.sessionId,ref.observationId)};
+-          if(observations.size>=8)observations.delete(observations.keys().next().value!);
+-          observations.set(sourceKey,facts);
+-        }
+-        const {observation,actions}=facts;
++      for(const ref of sources.values()){
++        const {observation,actions}=readSource(ref.sessionId,ref.observationId);
+         const members=actions.filter(action=>action.sessionId===ref.sessionId&&action.observationId===ref.observationId&&matches(item.scope,action,observation));
+         if(!members.length||observation.controls.some(control=>control.visible&&controlInScope(item.scope,control,observation,actions)&&!members.some(action=>action.localId===control.localId)))return false;
+         const remaining=members.filter(action=>![...receipts.values()].some(attempt=>attempt.sessionId===ref.sessionId&&attempt.beforeId===ref.observationId
+@@ -92,6 +137,7 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
+         for(const action of remaining)if(!requests.some((request,index)=>{
+           const proof=result.results[index];
+           return request.actionId===action.id&&proof?.equivalent&&proof.target.sessionId===ref.sessionId&&proof.target.observationId===ref.observationId&&proof.target.actionId===action.id
++            &&proof.identityAuthorized===false&&proof.replayAuthorized===false&&proof.currentExecution===false
+             &&proof.source.sessionId===request.source.sessionId&&proof.source.attemptId===request.source.attemptId;
+         }))return false;
+       }
+@@ -104,5 +150,5 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
+     for(const item of items){try{const collected=collect(item);if(collected)candidates.push(...collected.receipts.values());}catch{/* The item retains its normal evidence-unavailable result. */}}
+     try{condition.many(candidates);}catch{/* Per-item reads retain the original fail-closed boundary. */}
+   };
+-  return Object.assign(complete,{prepare});
++  return Object.assign(complete,{prepare,associate});
+ }
+diff --git a/packages/explorer-plugin/src/reviews.ts b/packages/explorer-plugin/src/reviews.ts
+index 2912ee5..044b5ff 100644
+--- a/packages/explorer-plugin/src/reviews.ts
++++ b/packages/explorer-plugin/src/reviews.ts
+@@ -11,6 +11,10 @@ export interface ReviewContext {
+   host:ExplorerHost;task:Task;observation:Observation;
+   /** Yield to local actions only while the scheduler can still prefer them to recovery. */
+   allowLocalActionYield?:boolean;
++  /** One freshly bound selected child can continue after recovery at the local quota. */
++  allowPriorityActionYield?:boolean;
++  /** Current SDK-corresponding child actions. Ordering only; never execution permission. */
++  priorityActionIds?:readonly string[];
+   choose(purpose:string,instructions:string,state:unknown,options:Record<string,unknown>,constraints?:ChoiceConstraints):Promise<{value:string;decision:Decision}>;
+   assess(purpose:string,state:unknown,checks:NonNullable<ModelRequest['checks']>):Promise<{values:Record<string,boolean|null>;decision:Decision}>;
+   refresh(decision:Decision,key:string):Promise<boolean>;
+@@ -74,18 +78,23 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
+     if(task.plan.some(i=>!i.required&&i.reason==='user_excluded'&&inScope(i.scope,control)))return false;
+     return pendingPlan.some(i=>i.required&&i.dispatchScope===true&&[i.scope,...i.prerequisites].some(scope=>inScope(scope,control)));
+   };
+-  const relevantIds=new Set(o.controls.filter(relevant).map(c=>c.localId));
+-  // Yield only to fresh, independently executable in-place work. Reentry waits
+-  // for review of new work; a ready exit/history/link
+-  // must not make unresolved modal contents disappear before their review.
++  const allRelevantIds=new Set(o.controls.filter(relevant).map(c=>c.localId));
++  const requested=new Set(c.priorityActionIds||[]),actionCounts=new Map<string,number>();
++  for(const action of available)actionCounts.set(action.id,(actionCounts.get(action.id)||0)+1);
++  const priority=available.filter(action=>requested.has(action.id)&&actionCounts.get(action.id)===1&&action.sessionId===sid&&action.observationId===o.id
++    &&inCurrentBoundary(action)&&!!includesScope(task.plan,action,o)&&(!action.localId||o.controls.filter(control=>control.localId===action.localId).length===1));
++  const priorityIds=new Set(priority.map(action=>action.id)),priorityControls=new Set(priority.flatMap(action=>action.localId&&allRelevantIds.has(action.localId)?[action.localId]:[]));
++  const priorityFilter=(action:ActionCandidate)=>priorityIds.has(action.id)&&action.sessionId===sid&&action.observationId===o.id;
++  // Ordinary early yield stays in place. A selected child may also navigate,
++  // but only after fresh SDK availability and retention of unresolved controls.
+   const inPlace=(a:ActionCandidate)=>inCurrentBoundary(a)&&!['dismiss','history'].includes(a.kind)&&a.boundary?.intent!=='exit'&&!navigationTarget(a,o);
+-  if(c.allowLocalActionYield!==false&&available.some(inPlace)&&c.hasPendingAction(inPlace,true)) {
++  const retainBeforeYield=()=>{
+     // Local actions and scrolling may hide current controls too. Retain obligations
+     // before yielding; these are evidence gaps, never new dispatch authority. A later
+     // pass reviews them normally because no reviewed key or decision is fabricated.
+     const recorded=new Set(task.plan.filter(i=>i.status==='unresolved'&&i.required).map(i=>digest({reason:i.reason,scope:i.scope})));
+     const retain=(reason:string,control:Observation['controls'][number])=>{
+-      if(!relevantIds.has(control.localId))return;
++      if(!allRelevantIds.has(control.localId))return;
+       const scope=scopeForControl(control,o),key=digest({reason,scope});if(recorded.has(key))return;
+       c.gap(reason,scope,true,round.entryPath);recorded.add(key);
+     };
+@@ -94,11 +103,62 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
+     for(const item of interpretations.operations.controls)if(item.needsReview)retain('operation_basis_unconfirmed',item.control);
+     const pendingIdentities=new Set(host.list<IdentityHypothesis>(sid,'hypothesis').filter(h=>h.status==='pending').map(h=>h.id));
+     for(const control of o.controls)if(control.hypothesisId&&pendingIdentities.has(control.hypothesisId))retain('identity_unresolved',control);
+-    return false;
+-  }
++  };
++  // These read models live only inside this call. Every command/probe that can
++  // recapture returns immediately; the next step rebuilds all material.
++  let regions:ReturnType<ExplorerHost['regionReviewMaterial']>|undefined;
++  let exploration:ReturnType<ExplorerHost['explorationReviewMaterial']>|{groups:ExplorationGroup[]}|undefined;
++  let classification:ReturnType<ExplorerHost['controlClassificationMaterial']>|undefined;
++  let operations:ReturnType<ExplorerHost['controlReviewMaterial']>|undefined;
++  const readRegions=()=>regions??=host.regionReviewMaterial(sid);
++  const readExploration=()=>exploration??=(available.length?host.explorationReviewMaterial(sid):{groups:[]});
++  const readClassification=()=>classification??=host.controlClassificationMaterial(sid);
++  const readOperations=()=>operations??=host.controlReviewMaterial(sid);
++  const pendingScopes=(focused:boolean)=>readExploration().groups.filter(g=>g.status==='pending'||!g.decisions.length).flatMap(group=>{
++    const key=`group:${group.id}:${group.revision}`;if(done(key))return [];
++    const members=group.members.filter(m=>available.some(a=>a.id===m.actionId));
++    if(!members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return inCurrentBoundary(action)&&includesScope(pendingPlan,action,o);})
++      ||focused&&!members.some(m=>priorityIds.has(m.actionId)))return [];
++    const explicit=members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&schedulableObligation(i)&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
++    return [{group,key,members,allowedReductions:task.coverageMode==='representative'&&!explicit?['sample']:[]}];
++  });
++  const retainGroups=(scopes:ReturnType<typeof pendingScopes>)=>{
++    const retained=scopes.filter(s=>!s.allowedReductions.length).slice(0,50);
++    if(!retained.length)return false;
++    for(const s of retained)mark(s.key);
++    return c.retain(retained.map(({group,members})=>({id:group.id,revision:group.revision,label:group.label,memberKeys:members.map(m=>m.key),actionIds:members.map(m=>m.actionId),historicalMemberCount:group.members.length-members.length})));
++  };
++  const reviewGroup=async({group,key,members,allowedReductions}:ReturnType<typeof pendingScopes>[number])=>{
++    const plan=decisionPlan(task.plan);
++    const d=await c.choose('scope-review','Choose exhaustive traversal or representative sampling of current observed members. Sampling requires the supplied user permission; every omitted member remains untested. Never skip a group based only on confidence. Program scope matching still limits execution to the selected task.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',coverageMode:task.coverageMode||'all',allowedReductions,plan,group:{...group,members,historicalMemberCount:group.members.length-members.length}},
++      {all:'Keep all observed members available for in-scope traversal',sample:'User explicitly permits representative sampling',defer:'Cannot proceed yet',skip:'Outside the task',uncertain:'Unable to decide'},{allowedReductions});
++    const mode=d.value==='uncertain'?'defer':d.value;let memberKeys:string[]=[];
++    if(mode==='sample') {
++      // Deterministic batching avoids silently discarding candidates above JEV's option limit.
++      for(let offset=0;offset<members.length;offset+=200) {
++        const options:Record<string,unknown>=Object.fromEntries(members.slice(offset,offset+200).map(m=>[m.key,{label:m.label,kind:m.kind,value:m.value,risk:m.risk}]));
++        options.none='No representative needed from this batch';options.uncertain='Cannot choose';
++        const sample=await c.choose('sample-selection','Select one representative from this batch, or none. Each batch is reviewed; no omitted member counts as covered.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',groupLabel:group.label,batch:offset/200},options);
++        if(!['none','uncertain'].includes(sample.value))memberKeys.push(sample.value);
++      }
++    }
++    mark(key);
++    const finalMode=mode==='sample'&&!memberKeys.length?'defer':mode;
++    await c.apply(d.decision,{type:'decideExplorationGroup',groupId:group.id,revision:group.revision,decision:{mode:finalMode,...(finalMode==='sample'?{memberKeys}:{}),source,evidence:evidence(d.decision)}});
++    for(const member of members)if(finalMode==='skip'||(finalMode==='sample'&&!memberKeys.includes(member.key))) {
++      const action=host.actions(sid).find(a=>a.id===member.actionId);
++      if(action){const s={url:o.url,label:action.label,kind:action.kind,...(action.value===undefined?{}:{value:action.value as string|boolean|number})};c.gap(finalMode==='skip'?'scope_excluded':'sample_unselected',s,false);}
++    }
++    if(finalMode==='defer')c.gap('scope_deferred',{url:o.url,region:group.label});
++    return true;
++  };
++  for(const focused of priorityIds.size?[true,false]:[false]) {
++  const relevantIds=focused?priorityControls:allRelevantIds;
++  if((focused?(c.allowPriorityActionYield??c.allowLocalActionYield):c.allowLocalActionYield)!==false&&(focused?c.hasPendingAction(priorityFilter,true):available.some(inPlace)&&c.hasPendingAction(inPlace,true))){retainBeforeYield();return false;}
+   if(observedUI&&!c.programApply){c.gap('missing_capability:program_review',{url:o.url});return false;}
+-  const region=host.regionReviewMaterial(sid);
+-  const broad=pendingPlan.some(i=>i.required&&i.dispatchScope===true&&broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url));
++  if(focused){const scopes=pendingScopes(true),retained=retainGroups(scopes);if(retained){await retained;return true;}if(scopes.length)return reviewGroup(scopes[0]);}
++  const region=readRegions();
++  const broad=!focused&&pendingPlan.some(i=>i.required&&i.dispatchScope===true&&broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url));
+   if(region.enabled&&(region.unassignedControlIds.some(id=>relevantIds.has(id))||(!boundary&&region.unassignedPageTraversal&&broad))) {
+     // Reuse only a fresh SDK mapping of an explicitly reusable source. This
+     // task/rule scope does not inherit dispatch, depth or completion decisions.
+@@ -117,7 +177,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
+         evidence:[`observation:${o.id}`,'SDK verified explicitly reusable region boundaries'],regions:reuse.map(({reviewId,regionKey,conditionKey})=>({reviewId,regionKey,conditionKey}))}},'region_reused',
+         {sourceReviews:reuse.map(({reviewId,regionKey})=>({reviewId,regionKey})),currentExecution:false,executionAuthorized:false,coverageGranted:false});return true;}
+     }
+-    const key=digest({type:'regions',instance:o.instanceScope,candidates:region.candidates,unassigned:region.unassignedControlIds,review:region.review&&{id:region.review.id,regions:region.review.regions.map(r=>r.status)}});
++    const key=digest({type:'regions',instance:o.instanceScope,candidates:region.candidates,unassigned:region.unassignedControlIds,review:region.review&&{id:region.review.id,regions:region.review.regions.map(r=>r.status)},...(focused?{priorityControlIds:[...priorityControls].sort()}:{})});
+     if(!done(key)) {
+       const boundaryInstance=o.regions.find(r=>r.key===boundary?.key)?.instanceId;
+       const candidates=region.candidates.filter(r=>r.controlIds.some(id=>relevantIds.has(id)&&region.unassignedControlIds.includes(id)));
+@@ -138,7 +198,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
+       const flush=async()=>{
+         mark(key);
+         // Keep unrelated current regions through the public incremental contract.
+-        const command={type:'reviewRegions',review:{observationId:o.id,source:observedUI?'explorer-program':source,evidence:observedUI?[`observation:${o.id}`]:batch.flatMap(entry=>entry.decision?evidence(entry.decision):[]),...(incremental?{update:{baseReviewId:region.review!.id}}:{}),regions:[...(incremental?[]:existing),...batch.map(({candidate,controlIds,decision},index)=>({key:`explorer:${candidate.id}`,label:candidate.label,candidateIds:[candidate.id],controlIds,pageTraversal:index===0&&!boundary&&region.unassignedPageTraversal,
++        const command={type:'reviewRegions',review:{observationId:o.id,source:observedUI?'explorer-program':source,evidence:observedUI?[`observation:${o.id}`]:batch.flatMap(entry=>entry.decision?evidence(entry.decision):[]),...(incremental?{update:{baseReviewId:region.review!.id}}:{}),regions:[...(incremental?[]:existing),...batch.map(({candidate,controlIds,decision},index)=>({key:`explorer:${candidate.id}`,label:candidate.label,candidateIds:[candidate.id],controlIds,pageTraversal:!focused&&index===0&&!boundary&&region.unassignedPageTraversal,
+           ...(decision&&reusableScene&&candidate.reuseBinding&&bindingCounts.get(digest(candidate.reuseBinding))===1?{reuse:{binding:'same-url-context' as const,businessScope}}:{})}))],rejectedCandidateIds:region.review?.rejectedCandidateIds||[]}};
+         if(observedUI)await c.programApply!(command,'observed_region_partition');
+         else await c.apply(batch.flatMap(entry=>entry.decision?[entry.decision]:[]),command);
+@@ -173,28 +233,14 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
+       if(!candidates.length){mark(key);c.gap('region_partition_unavailable',{url:o.url});}
+     }
+   }
+-  const material=available.length?host.explorationReviewMaterial(sid):{groups:[]};
+-  // Keeping every observed member is a fixed program rule unless the user
+-  // permits sampling. It needs neither a model call nor the historical ledger.
+-  const scopes=material.groups.filter(g=>g.status==='pending'||!g.decisions.length).flatMap(group=>{
+-    const key=`group:${group.id}:${group.revision}`;if(done(key))return [];
+-    const members=group.members.filter(m=>available.some(a=>a.id===m.actionId));
+-    if(!members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return inCurrentBoundary(action)&&includesScope(pendingPlan,action,o);}))return [];
+-    const explicit=members.some(m=>{const action=available.find(a=>a.id===m.actionId)!;return task.plan.some(i=>i.required&&schedulableObligation(i)&&i.scope.label&&i.scope.kind&&matches(i.scope,action,o));});
+-    return [{group,key,members,allowedReductions:task.coverageMode==='representative'&&!explicit?['sample']:[]}];
+-  });
+-  const retained=scopes.filter(s=>!s.allowedReductions.length).slice(0,50);
+-  if(retained.length){
+-    for(const s of retained)mark(s.key);
+-    await c.retain(retained.map(({group,members})=>({id:group.id,revision:group.revision,label:group.label,memberKeys:members.map(m=>m.key),actionIds:members.map(m=>m.actionId),historicalMemberCount:group.members.length-members.length})));
+-    return true;
+-  }
++  const material=readExploration(),scopes=focused?[]:pendingScopes(false);
++  const retained=retainGroups(scopes);if(retained){await retained;return true;}
+   if(observedUI){
+     const hypothesis=host.list<IdentityHypothesis>(sid,'hypothesis').find(h=>h.status==='pending'&&!done(`identity:${h.id}`)&&o.controls.some(x=>x.hypothesisId===h.id&&relevantIds.has(x.localId)));
+     if(hypothesis){mark(`identity:${hypothesis.id}`);await c.programApply!({type:'resolveIdentity',hypothesisId:hypothesis.id,identityId:hypothesis.provisionalIdentityId,source:'explorer-program',evidence:[`observation:${o.id}`,'Keep current occurrence independent'],guard:{observationId:o.id,revision:hypothesis.revisions.length}},'independent_current_occurrence');return true;}
+     // Exhaust bounded observation supplied by the SDK before asking a model to
+     // interpret a weak candidate. This never dispatches an interaction.
+-    if(!boundary){
++    if(!focused&&!boundary){
+       const discovery=host.discoveryScanMaterial(sid).discovery;
+       if(discovery&&(discovery.signal.omitted>0||discovery.structural.omittedLocations>0)){
+         const target=discovery.targets.find(t=>!done(`scan-target:${discovery.topologyKey}:${t.id}`));
+@@ -202,7 +248,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
+       }
+     }
+   }
+-  const classifications=host.controlClassificationMaterial(sid);
++  const classifications=readClassification();
+   if(c.programApply){
+     const [reuse]=reusableClassifications(host,task,o,classifications.controls.filter(i=>i.needsClassification&&relevantIds.has(i.control.localId)).map(i=>i.control));
+     if(reuse){await c.programApply({type:'classifyControls',classification:{observationId:o.id,source:'explorer-program',classifications:reuse.classifications}},'classification_reused',{proofs:reuse.proofs,sourceDecisionIds:reuse.sourceDecisionIds,currentExecution:false,executionAuthorized:false});return true;}
+@@ -268,7 +314,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
+     if(!generated.value.samples.length){c.gap('input_samples_unavailable',scopeForControl(target,o));continue;}
+     await c.apply(generated.decision,{type:'reviewControls',review:{observationId:o.id,source:'explorer-input-samples',reviews:[{localId:target.localId,kind:'fill',risk:action.risk,replayable:false,samples:[...new Set(generated.value.samples)],reason:'Supply content for an already supported fill; retain its existing risk and validate constraints at dispatch',evidence:[`observation:${o.id}`,`action:${action.id}`,...evidence(generated.decision)]}]}});return true;
+   }
+-  const control=host.controlReviewMaterial(sid);
++  const control=readOperations();
+   for(const item of control.controls.filter(i=>i.needsReview&&relevantIds.has(i.control.localId))) {
+     if(observedUI){
+       const key=`operation-description:${unresolvedPurposeKey(o,item,task.revision)}`;if(done(key))continue;
+@@ -349,32 +395,9 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
+     }
+     await c.apply(d.decision,{type:'reviewControls',review:{observationId:o.id,source,reviews:[{localId:item.control.localId,...contextBinding,kind:d.value,risk:'interface',replayable:false,reason:'Reviewed interface operation',evidence:evidence(d.decision)}]}});return true;
+   }
+-  for(const {group,key,members,allowedReductions} of scopes) {
+-    const plan=decisionPlan(task.plan);
+-    const d=await c.choose('scope-review','Choose exhaustive traversal or representative sampling of current observed members. Sampling requires the supplied user permission; every omitted member remains untested. Never skip a group based only on confidence. Program scope matching still limits execution to the selected task.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',coverageMode:task.coverageMode||'all',allowedReductions,plan,group:{...group,members,historicalMemberCount:group.members.length-members.length}},
+-      {all:'Keep all observed members available for in-scope traversal',sample:'User explicitly permits representative sampling',defer:'Cannot proceed yet',skip:'Outside the task',uncertain:'Unable to decide'},{allowedReductions});
+-    const mode=d.value==='uncertain'?'defer':d.value;let memberKeys:string[]=[];
+-    if(mode==='sample') {
+-      // Deterministic batching avoids silently discarding candidates above JEV's option limit.
+-      for(let offset=0;offset<members.length;offset+=200) {
+-        const options:Record<string,unknown>=Object.fromEntries(members.slice(offset,offset+200).map(m=>[m.key,{label:m.label,kind:m.kind,value:m.value,risk:m.risk}]));
+-        options.none='No representative needed from this batch';options.uncertain='Cannot choose';
+-        const sample=await c.choose('sample-selection','Select one representative from this batch, or none. Each batch is reviewed; no omitted member counts as covered.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',groupLabel:group.label,batch:offset/200},options);
+-        if(!['none','uncertain'].includes(sample.value))memberKeys.push(sample.value);
+-      }
+-    }
+-    mark(key);
+-    const finalMode=mode==='sample'&&!memberKeys.length?'defer':mode;
+-    await c.apply(d.decision,{type:'decideExplorationGroup',groupId:group.id,revision:group.revision,decision:{mode:finalMode,...(finalMode==='sample'?{memberKeys}:{}),source,evidence:evidence(d.decision)}});
+-    for(const member of members)if(finalMode==='skip'||(finalMode==='sample'&&!memberKeys.includes(member.key))) {
+-      const action=host.actions(sid).find(a=>a.id===member.actionId);
+-      if(action){const s={url:o.url,label:action.label,kind:action.kind,...(action.value===undefined?{}:{value:action.value as string|boolean|number})};c.gap(finalMode==='skip'?'scope_excluded':'sample_unselected',s,false);}
+-    }
+-    if(finalMode==='defer')c.gap('scope_deferred',{url:o.url,region:group.label});
+-    return true;
+-  }
++  if(scopes.length)return reviewGroup(scopes[0]);
+   // Purpose evidence is reviewed proactively, even if DFS would never pause here.
+-  for(const group of material.groups.filter(g=>!observedUI&&g.kind==='similar-list'&&g.members.some(m=>available.some(a=>a.id===m.actionId&&inCurrentBoundary(a)&&includesScope(pendingPlan,a,o))))) {
++  for(const group of material.groups.filter(g=>!observedUI&&(!focused||g.members.some(m=>priorityIds.has(m.actionId)))&&g.kind==='similar-list'&&g.members.some(m=>available.some(a=>a.id===m.actionId&&inCurrentBoundary(a)&&includesScope(pendingPlan,a,o))))) {
+     const p=host.purposeReviewMaterial(sid,group.id);
+     const active=host.list<PurposeReview>(sid,'purpose-review').filter(r=>r.status==='active');
+     for(const condition of p.conditions) {
+@@ -388,9 +411,9 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
+   }
+   // An interactive classification does not resolve purpose. A bounded probe has
+   // its own evidence gate, independent of classification and click permission.
+-  const classified=host.controlClassificationMaterial(sid);
+-  for(const item of host.controlReviewMaterial(sid).controls)if(item.needsReview||classified.controls.some(x=>x.control.localId===item.control.localId&&x.classifications.some(r=>r.status==='active'&&r.classification==='probe_required'))) {
+-    if(!relevant(item.control))continue;
++  const classified=readClassification();
++  for(const item of readOperations().controls)if(item.needsReview||classified.controls.some(x=>x.control.localId===item.control.localId&&x.classifications.some(r=>r.status==='active'&&r.classification==='probe_required'))) {
++    if(!relevantIds.has(item.control.localId))continue;
+     if(observedUI){
+       const key=`probe:${o.instanceScope}:${item.control.instanceId}`;if(done(key))continue;
+       if(!host.probeAvailability||!c.programProbe){c.gap('missing_capability:bounded_observation',scopeForControl(item.control,o));continue;}
+@@ -410,6 +433,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
+     if(!kind){c.gap('probe_unresolved',scopeForControl(item.control,o));c.unresolvedReview?.({localId:item.control.localId,decisionId:d.decision.id,kind:'probe'});continue;}
+     await c.probe(d.decision,item.control.localId,kind);return true;
+   }
++  if(focused)continue;
+   // Page-wide discovery can wait; it must not starve an already observed modal's work/exit.
+   if(boundary) {
+     if(c.hasPendingAction())return false;
+@@ -456,5 +480,6 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
+       c.gap('discovery_incomplete',{url:o.url});
+     }
+   }
++  }
+   return false;
+ }
+diff --git a/packages/explorer-plugin/src/runtime.ts b/packages/explorer-plugin/src/runtime.ts
+index 220535b..afa6067 100644
+--- a/packages/explorer-plugin/src/runtime.ts
++++ b/packages/explorer-plugin/src/runtime.ts
+@@ -27,6 +27,7 @@ import { completedOperations } from './completion-evidence.js';
+ import { exactSourceExecution, operationSourceCompletion } from './operation-source-completion.js';
+ import {receiptConditionReader} from './receipt-condition.js';
+ import { availabilityObligation } from './operation-availability.js';
++import { currentObligationTarget } from './current-obligation-target.js';
+ import {auditGapIndex,type AuditGapIndex} from './audit-gap-index.js';
+ import {observationActionIndex} from './observation-action-index.js';
+ import {createCurrentSourceExclusion} from './current-source-exclusion.js';
+@@ -550,7 +551,12 @@ export class ExplorerPlugin {
+     let sourceObservation:Observation|undefined,sourceKey:string|undefined;const source=()=>sourceObservation??=this.host.observation(attempt.sessionId,attempt.beforeId),operationKey=()=>sourceKey??=keyFor(attempt.action,source());
+     for(const item of task.plan.filter(i=>itemIds.includes(i.id)&&schedulableObligation(i)&&!(i.dispatchScope===false&&i.status==='succeeded')&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome'&&i.reason!=='checkpoint_unverified')) {
+       const condition=boundOperationCondition(item);
+-      if(condition&&condition!==operationKey())continue;
++      // A rebuilt target may have a new scheduling key. Only a fresh SDK proof
++      // to this item's retained source can associate the actual receipt; the
++      // original scope/key stay unchanged and all sources must still complete.
++      const rebound=item.dispatchScope===false&&((condition&&condition!==operationKey())||!matches(item.scope,attempt.action,source()))
++        &&sourcesCompleted.associate(item,attempt);
++      if(condition&&condition!==operationKey()&&!rebound)continue;
+       this.changedPlan(task,item);
+       if(!item.attempts.some(x=>x.evidence?.attemptId===attempt.id))item.attempts.push({roundId:round.id,outcome:attempt.status,evidence:ref});
+       item.evidence.push(ref);
+@@ -562,8 +568,8 @@ export class ExplorerPlugin {
+         // rows may span several modes; retain the actual attempt but let SDK
+         // coverage reconciliation validate every retained source before settling.
+         const direct=!!condition||item.dispatchScope!==false;
+-        const exact=item.dispatchScope===true?matches(item.scope,attempt.action,before):digest(item.scope)===digest(scopeFor(attempt.action,before));
+-        if(direct&&concrete&&exact&&this.host.actions(attempt.sessionId,before.id).filter(a=>matches(item.scope,a,before)).length===1){
++        const exact=rebound||(item.dispatchScope===true?matches(item.scope,attempt.action,before):digest(item.scope)===digest(scopeFor(attempt.action,before)));
++        if(direct&&concrete&&exact&&this.host.actions(attempt.sessionId,before.id).filter(a=>rebound?a.id===attempt.action.id&&a.localId===attempt.action.localId:matches(item.scope,a,before)).length===1){
+           const proof=readCondition(attempt),requiresSources=item.dispatchScope!==true||!!condition||!!item.conditionLineage||item.conditionCompletion?.retainedSourcesRequired===true,
+             verified=proof.conditionVerified&&(!requiresSources||sourcesCompleted(item));
+           item.conditionCompletion={policy:'operation-receipt-completion-v1',status:verified?'verified':'unverified',reason:verified?proof.reason:proof.conditionVerified?'retained_source_conditions_unverified':proof.reason,source:ref,retainedSourcesRequired:requiresSources||!verified,...verified?{}:{waiting:true}};
+@@ -1233,8 +1239,13 @@ export class ExplorerPlugin {
+     // Authority rows define permission; concrete unfinished children define work.
+     // A completed one-shot goal with no remaining children does not become a monitor.
+     if(task.plan.length&&!task.plan.some(i=>i.required&&isUnfinished(i)))return false;
++    const reviewSelection=task.scheduling?.selection;
++    const reviewTarget=reviewSelection&&reviewSelection.kind!=='current'
++      ?currentObligationTarget(this.host,task.plan.find(item=>item.id===reviewSelection.itemId),o,this.host.actions(sid,o.id)):undefined;
+     const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id),unresolvedBefore=new Set(Object.keys(round.unresolvedPurposeReviews||{})),unresolvedReviews:UnresolvedReview[]=[];
+     try { const reviewed=await reviewNext({host:this.host,task,observation:o,
++      priorityActionIds:reviewTarget?.currentActionId?[reviewTarget.currentActionId]:undefined,
++      allowPriorityActionYield:!!reviewTarget&&(reviewTarget.reason==='current_target_observed'||!!reviewTarget.source&&!!reviewTarget.correspondence),
+       // At the local quota, review current material before fairness can send us
+       // elsewhere. Reviewing does not reserve an action or reset the quota.
+       allowLocalActionYield:(task.scheduling?.localSelections??0)<localSelectionLimit,
+@@ -1291,10 +1302,13 @@ export class ExplorerPlugin {
+         const previous=item.prerequisites;this.changedPlan(task,item);item.prerequisites=[...path];this.event(task,'branch.route_reconciled',{itemId:item.id,previous,prerequisites:path,evidence:{sessionId:o.sessionId,observationId:o.id},scopeUnchanged:true,executionAuthorized:false});
+       }
+     }
+-    this.auditRemainingScopes(task,round,o,snapshot,completed);
++    const incomplete=this.auditRemainingScopes(task,round,o,snapshot,completed);
+     const routeCondition=this.routeConditionReader(o,actions);
+-    this.updateObligations(task,o,snapshot.operationCandidates,routeCondition);
++    const projection=this.updateObligations(task,o,snapshot.operationCandidates,routeCondition);
+     const schedule=this.initializeScheduling(task),pending=unfinishedObligations(task.plan),byId=new Map(pending.map(item=>[item.id,item]));
++    const arrived=schedule.selection&&schedule.selection.kind!=='current'?schedule.selection.itemId:undefined;
++    const arrivedTarget=arrived&&projection.entries.find(entry=>entry.itemId===arrived&&entry.currentActionId
++      &&(['active','alias'].includes(entry.state))&&(entry.reason==='current_target_observed'||entry.source&&entry.correspondence));
+     const ordered=orderedObligations(task.plan,schedule),targetOrder=new Map(ordered.map((item,index)=>[item.id,index]));
+     const orderedActions=unique.slice().sort((a,b)=>Number(a.boundary?.intent==='exit')-Number(b.boundary?.intent==='exit')||Number(!!navigationTarget(a,o))-Number(!!navigationTarget(b,o)));
+     const local:ObligationSelection[]=[],reentries:ObligationSelection[]=[];
+@@ -1305,7 +1319,8 @@ export class ExplorerPlugin {
+         // Boundary exits and page traversal serve existing work without creating
+         // a recurring goal for an otherwise completed one-shot request.
+         const prerequisite=includesScope(task.plan,action,o)==='prerequisite'?pending.find(item=>item.dispatchScope===true)||pending[0]:undefined;
+-        const owner=item||prerequisite;if(owner)local.push({itemId:owner.id,kind:'current',actionId:action.id,source:{sessionId:sid,observationId:o.id}});
++        const owner=arrivedTarget&&arrivedTarget.currentActionId===action.id&&byId.get(arrivedTarget.itemId)||item||prerequisite;
++        if(owner)local.push({itemId:owner.id,kind:'current',actionId:action.id,source:{sessionId:sid,observationId:o.id}});
+       }else{
+         const targets=this.entryTargets(task,action,o).sort((a,b)=>(targetOrder.get(a.id)??Infinity)-(targetOrder.get(b.id)??Infinity));
+         const target=this.reentryTarget(task,action,o,targets,true);
+@@ -1313,10 +1328,13 @@ export class ExplorerPlugin {
+       }
+     }
+     const locality=(choice:ObligationSelection)=>{const path=byId.get(choice.itemId)?.prerequisites||[];let shared=0;while(shared<path.length&&shared<round.entryPath.length&&digest(path[shared])===digest(round.entryPath[shared]))shared++;return shared;};
+-    const arrived=schedule.selection&&schedule.selection.kind!=='current'?schedule.selection.itemId:undefined;
+     local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||locality(b)-locality(a)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+     const inPlace=local.filter(choice=>{const action=actions.find(action=>action.id===choice.actionId)!;return action.boundary?.intent!=='exit'&&!navigationTarget(action,o);});
+-    if(inPlace.length){local.splice(0,local.length,...inPlace);}
++    if(inPlace.length){local.splice(0,local.length,...local.filter(choice=>choice.itemId===arrived||inPlace.includes(choice)));}
++    // Finish the selected recovered child once before fairness sends us away.
++    // Its current target was just projected; reservation changes the selection
++    // to current, so this exception never resets or renews the ordinary quota.
++    const arrivedChoice=arrivedTarget&&local.find(choice=>choice.itemId===arrived&&choice.actionId===arrivedTarget.currentActionId);
+     // Once current boundary work is done, use its already admissible local exit
+     // before spending a remote recovery turn. Keep the fairness counter: the
+     // next observation rebuilds candidates and resumes ordinary scheduling.
+@@ -1328,7 +1346,7 @@ export class ExplorerPlugin {
+     }):undefined;
+     reentries.sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+     let recovery:ScheduledRecovery|undefined;
+-    if(!boundaryExit&&(!local.length||schedule.localSelections>=localSelectionLimit)){
++    if(!boundaryExit&&!arrivedChoice&&(!local.length||schedule.localSelections>=localSelectionLimit)){
+       const recoveryRevision=task.revision,observationKey=digest(o),actionsKey=digest(actions),availabilityRevision=availability.revision;
+       recovery=await this.scheduledRecovery(task,round,o,actions,availability,routeCondition,signal);
+       // Even a short async selection has a final microtask boundary. Check it
+@@ -1339,7 +1357,7 @@ export class ExplorerPlugin {
+     }
+     const remote:ObligationSelection[]=[...reentries,...recovery?[{itemId:recovery.itemId,kind:broadScope(byId.get(recovery.itemId)!.scope)?'inspect' as const:'recovery' as const,source:{sessionId:sid,observationId:recovery.source.id},routeKey:recovery.routeKey}]:[]]
+       .sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+-    const selection=boundaryExit||selectObligation(schedule,local,remote),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
++    const selection=boundaryExit||arrivedChoice||selectObligation(schedule,local,remote),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
+     if(recovery&&(selection?.kind==='recovery'||selection?.kind==='inspect'))recovery.revalidate();
+     const schedulingBefore={cursor:schedule.cursor,localSelections:schedule.localSelections,selection:schedule.selection};
+     if(selection){if(selectedAction)schedule.selection={...selection};else reserveObligation(schedule,selection);if(schedule.deferred)delete schedule.deferred[selection.itemId];this.event(task,'obligation.selected',{...selection,sourceObservationId:o.id,coverageGranted:false,executionAuthorized:false});}
+@@ -1366,10 +1384,19 @@ export class ExplorerPlugin {
+       // shared only by the following synchronous audit and path bookkeeping.
+       const completed=completedOperations(this.host,task,o,snapshot.operationCandidates);
+       const reviews=task.plan.filter(i=>i.required&&isUnfinished(i)&&controlReviewGapReasons.has(i.reason)&&!i.scope.kind&&i.evidence.some(e=>e.observationId===o.id));
++      // Focused review may yield to a navigation target before whole-page
++      // discovery finishes. Retain its exact source on the existing accepted
++      // page obligation and checkpoint; no new authority or completion claim.
++      const deferredPages=selection?.itemId===arrived&&navigationTarget(action,o)
++        ?task.plan.filter(item=>item.required&&pageSourceObligation(item)&&item.scope.url===o.url&&incomplete.has(item.id)):[];
++      for(const item of deferredPages)if(!item.evidence.some(ref=>!ref.attemptId&&ref.sessionId===sid&&ref.observationId===o.id)){
++        this.changedPlan(task,item);item.evidence.push({sessionId:sid,observationId:o.id});
++        this.event(task,'review.source_deferred',{itemId:item.id,sourceObservationId:o.id,checkpointId:checkpoint.id,retainedInPlan:true,coverageGranted:false});
++      }
+       // Reviewed executable operations have comparable operation samples. An
+       // unreviewed candidate is instead retained as a review obligation above:
+       // its missing basis/risk is not an executable operation to replay later.
+-      const remaining=[...snapshot.operationCandidates.filter(a=>a.id!==action.id&&a.basis?.status==='supported'&&includesScope(task.plan,a,o)==='target'&&!this.navigationIsUnverified(task,a,o)&&!completed.has(a)).map(a=>scopeFor(a,o)),...reviews.map(i=>i.scope)];
++      const remaining=[...snapshot.operationCandidates.filter(a=>a.id!==action.id&&a.basis?.status==='supported'&&includesScope(task.plan,a,o)==='target'&&!this.navigationIsUnverified(task,a,o)&&!completed.has(a)).map(a=>scopeFor(a,o)),...reviews.map(i=>i.scope),...deferredPages.map(i=>i.scope)];
+       const frame=round.stack.at(-1);
+       if(frame&&sameObservedState(this.host.observation(sid,frame.observationId),o))frame.remaining=[...new Map([...frame.remaining,...remaining].map(scope=>[digest(scope),scope])).values()];
+       else round.stack.push({checkpointId:checkpoint.id,observationId:o.id,stateId:o.stateId,used:[],path:[...round.entryPath],remaining:[...new Map(remaining.map(scope=>[digest(scope),scope])).values()]});
+@@ -1380,6 +1407,11 @@ export class ExplorerPlugin {
+       if(reentry&&!repetition?.repeatable)throw new ExplorerError('REENTRY_EVIDENCE_CHANGED');
+       const reentryItem=reentry?this.recordEntry(task,round,action,o):undefined;
+       const purpose=reentry?'prerequisite':includesScope(task.plan,action,o);const items=task.plan.filter(i=>i.required&&schedulableObligation(i)&&!i.reason.startsWith('missing_capability:')&&matches(i.scope,action,o)&&(!boundOperationCondition(i)||boundOperationCondition(i)===keyFor(action,o)));
++      if(selection?.itemId===arrived&&!items.some(item=>item.id===selection.itemId)){
++        const item=byId.get(selection.itemId),binding=currentObligationTarget(this.host,item,o,this.host.actions(sid,o.id));
++        if(!item||binding?.currentActionId!==action.id||!binding.source||!binding.correspondence)throw new ExplorerError('STALE_DECISION');
++        items.push(item);
++      }
+       if(purpose==='target'&&!items.some(i=>i.scope.kind&&i.scope.label)) {const leaf=this.newItem({title:`${action.kind} ${action.label}`,scope:scopeFor(action,o),prerequisites:[...entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false,o,keyFor(action,o));this.appendPlan(task,leaf);items.push(leaf);}
+       reserveObligation(schedule,selection!);
+       // A fresh entry can also be the necessary route to an existing child.
+diff --git a/tests/explorer-obligation-lifecycle.test.ts b/tests/explorer-obligation-lifecycle.test.ts
+index e0b0d91..3720214 100644
+--- a/tests/explorer-obligation-lifecycle.test.ts
++++ b/tests/explorer-obligation-lifecycle.test.ts
+@@ -4,7 +4,8 @@ import {PlaywrightAdapter} from '@interaction/adapter-playwright';
+ import {MemoryStore} from '@interaction/storage-memory';
+ import type {ActionCandidate,Observation} from '@interaction/browser';
+ import type {PlanItem} from '@interaction/explorer-plugin';
+-import {keyFor,scopeFor} from '../packages/explorer-plugin/src/policy.js';
++import {keyFor,scopeFor,schedulingKeyFor} from '../packages/explorer-plugin/src/policy.js';
++import {currentObligationTarget} from '../packages/explorer-plugin/src/current-obligation-target.js';
+ import {projectObligations,recoveryConditionVersion,recoveryRouteConditionVersion,recoveryRouteKey,recordRouteRetry,routeRetryEligibility,releaseRouteRetryForProgress,releaseRouteRetriesForVerifiedRecovery,type RouteRetryLedger} from '../packages/explorer-plugin/src/obligation-lifecycle.js';
+ 
+ /** Exercises the real SDK target correspondence; no browser, service or database. */
+@@ -44,6 +45,28 @@ it('converges changing unexecuted native-link labels only through SDK proof, wit
+   f.store.close();
+ });
+ 
++it('continues a retained availability gap only through fresh SDK correspondence, without rewriting its original scope or key',()=>{
++  const f=fixture(),old=f.observation('old','Asset $100'),current=f.observation('current','Asset $200');
++  const item={...f.item(old),reason:'region_review_required',operationConditionKey:schedulingKeyFor(old.action,old.o),operationConditionPolicy:'browser-operation-key-v3' as const};
++  const before=JSON.stringify(item);
++  expect(currentObligationTarget(f.host,item,current.o,[current.action])).toMatchObject({itemId:item.id,state:'active',currentActionId:current.action.id,
++    source:{sessionId:old.o.sessionId,observationId:old.o.id,actionId:old.action.id},correspondence:{policy:expect.any(String)}});
++  expect(JSON.stringify(item)).toBe(before);
++  // Neither the saved hint nor equal names overrides a new declared context.
++  const changed=f.observation('other','Asset $200','other');
++  expect(currentObligationTarget(f.host,item,changed.o,[changed.action])).toBeUndefined();
++  expect(JSON.stringify(item)).toBe(before);f.store.close();
++});
++
++it('keeps unknown and semantic-review obligations out of availability continuation',()=>{
++  const f=fixture(),old=f.observation('old','Asset $100'),current=f.observation('current','Asset $200'),item=f.item(old);
++  const query=vi.spyOn(f.host,'explorationTargetCorrespondences');
++  expect(currentObligationTarget(f.host,{...item,attempts:[{roundId:'old',outcome:'unknown'}]},current.o,[current.action])).toBeUndefined();
++  expect(query).not.toHaveBeenCalled();
++  expect(currentObligationTarget(f.host,{...item,reason:'operation_risk_unresolved'},current.o,[current.action])).toBeUndefined();
++  expect(query).not.toHaveBeenCalled();f.store.close();
++});
++
+ it('keeps the same control in a changed UI mode as a separate unresolved condition',()=>{
+   const f=fixture(),old=f.observation('old','Run'),current=f.observation('current','Run');
+   for(const [source,selected] of [[old,['selected']],[current,[]]] as const){
+diff --git a/tests/explorer-review-handoff.test.ts b/tests/explorer-review-handoff.test.ts
+index 0af1b7d..f9d4d19 100644
+--- a/tests/explorer-review-handoff.test.ts
++++ b/tests/explorer-review-handoff.test.ts
+@@ -1,10 +1,11 @@
+ import { EventEmitter } from 'node:events';
+ import { expect, it, vi } from 'vitest';
+-import type { ActionAttempt, ActionCandidate, Observation } from '@interaction/browser';
++import { hash } from '@interaction/core';
++import type { ActionAttempt, ActionCandidate, Observation, OperationReceiptCondition } from '@interaction/browser';
+ import { ExplorerPlugin, type Decision, type ExplorerHost, type ExplorerStore, type PlanItem, type Round, type Scope, type Task } from '@interaction/explorer-plugin';
+ import { localSelectionLimit, type ObligationSelection } from '../packages/explorer-plugin/src/obligation-scheduler.js';
+ import { recordRouteRetry } from '../packages/explorer-plugin/src/obligation-lifecycle.js';
+-import { digest, keyFor, scopeFor, schedulingKeyFor } from '../packages/explorer-plugin/src/policy.js';
++import { digest, keyFor, matches, navigationTarget, scopeFor, schedulingKeyFor } from '../packages/explorer-plugin/src/policy.js';
+ 
+ const url = 'https://review-handoff.fixture.invalid/';
+ const remoteSelected = new Error('Remote selected; stop before reservation or browser effects');
+@@ -89,7 +90,8 @@ function fixture(count = localSelectionLimit, continueDispatch = false) {
+     checkpointId: 'old-checkpoint', targets: [review.scope], path: [], itemIds: [review.id], memberKeys: ['old-route'], pathKeys: [] } }, legacyUnmappedRouteKeys: [] };
+   const runtime = plugin as any;
+   runtime.retainHostLimitations = runtime.reconcileReviewLedger = runtime.applyReviewRecoveryChanges = async () => {};
+-  runtime.auditRemainingScopes = runtime.updateObligations = () => {};
++  runtime.auditRemainingScopes = () => new Set<string>();
++  runtime.updateObligations = () => ({entries:[]});
+   runtime.normalizeScheduling = () => false;
+   runtime.gap = () => item('fixture-gap', { url });
+   let race = false;
+@@ -276,3 +278,188 @@ it('preserves the selected reentry child when several children share the same en
+     expect(f.recorded).toHaveBeenCalledOnce(); expect(f.entry.attempts).toHaveLength(1);
+   } finally { await f.plugin.close(); }
+ });
++
++// SDK correspondence/receipt answers are external facts. The child projection,
++// checkpoint-await revalidation, reservation, association and per-source
++// completion below run through their production implementations.
++function arrivedChildFixture(options: { outcome?: 'succeeded' | 'unknown'; receiptVerified?: boolean; revokeAtCheckpoint?: boolean; sourceAlreadyRetained?: boolean } = {}) {
++  const f = fixture(1, true), runtime = f.plugin as any, before = f.host.observation(f.round.sessionId);
++  const inPlaceControl = before.controls[1];
++  inPlaceControl.region = 'document';
++  const inPlaceAction = f.host.actions(before.sessionId)[0];
++  delete inPlaceAction.boundary;
++  const destination = new URL('convert', url).href;
++  const nativeBasis = { status: 'supported' as const, evidence: [{ source: 'html', rule: 'hyperlink/v1', facts: { href: destination } }] };
++  const link: Control = { ...structuredClone(inPlaceControl), localId: 'rebuilt-convert', instanceId: 'rebuilt-convert-instance',
++    identityId: 'rebuilt-convert-identity', stableKey: 'id:rebuilt-convert', tag: 'a', role: 'link', name: 'Convert', label: 'Convert',
++    constraints: { ...inPlaceControl.constraints, type: 'a' }, actionBasis: { click: nativeBasis },
++    reviewBinding: { parentInstanceId: 'current-navigation', attributes: { id: 'rebuilt-convert', href: destination } } };
++  before.controls = [inPlaceControl, link]; before.boundaries = []; before.overlays = [];
++  const navigation: ActionCandidate = { ...inPlaceAction, id: 'current-convert-action', localId: link.localId,
++    controlId: link.identityId, label: link.name, basis: nativeBasis };
++  const currentActions = [inPlaceAction, navigation]; // In-place work is deliberately first.
++  const original = structuredClone(before);
++  original.id = 'original-convert-source'; original.documentId = original.instanceScope = 'original-document';
++  original.stateId = 'original-state'; original.canonical = 'original';
++  const oldLink: Control = { ...structuredClone(link), localId: 'original-convert', instanceId: 'original-convert-instance',
++    identityId: 'original-convert-identity', stableKey: 'id:original-convert',
++    reviewBinding: { parentInstanceId: 'original-navigation', attributes: { id: 'original-convert', href: destination } } };
++  original.controls = [oldLink];
++  const originalAction: ActionCandidate = { ...navigation, id: 'original-convert-action', observationId: original.id,
++    stateId: original.stateId, localId: oldLink.localId, controlId: oldLink.identityId };
++  const after = { ...structuredClone(before), id: 'convert-after', stateId: 'convert-state', url: destination };
++  const observations = new Map([before, original, after].map(o => [o.id, o]));
++  const actionSets = new Map([[before.id, currentActions], [original.id, [originalAction]], [after.id, [] as ActionCandidate[]]]);
++  let current = before, correspondence = true, checkpointCreated = false;
++  const freshChecks: { afterCheckpoint: boolean; equivalent: boolean }[] = [];
++  const readObservation = (sid: string, id?: string) => {
++    const value = id ? observations.get(id) : current;
++    if (!value || value.sessionId !== sid) throw Error('Unknown fixture observation');
++    return value;
++  };
++  const readActions = (sid: string, id?: string) => actionSets.get(readObservation(sid, id).id) || [];
++  f.host.observation = readObservation as ExplorerHost['observation'];
++  f.host.actions = vi.fn(readActions) as ExplorerHost['actions'];
++  f.host.operationCoverageCandidates = vi.fn(readActions) as ExplorerHost['operationCoverageCandidates'];
++  f.host.session = vi.fn(() => ({ id: before.sessionId, actionCount: (f.attempts.get(before.sessionId) || []).length,
++    currentObservationId: current.id, options: { executionPolicy: 'interface-only' } })) as unknown as ExplorerHost['session'];
++  const availability = (sid: string, id?: string) => ({ sessionId: sid, observationId: readObservation(sid, id).id, revision: 'fixture-availability',
++    actions: readActions(sid, id).map(action => ({ actionId: action.id, executable: true, blockers: [] })) });
++  f.host.actionAvailability = vi.fn(availability) as ExplorerHost['actionAvailability'];
++  f.host.explorationSnapshot = vi.fn((sid, id) => ({ actions: readActions(sid, id), operationCandidates: readActions(sid, id), availability: availability(sid, id) })) as ExplorerHost['explorationSnapshot'];
++  const operations = () => ({ sessionId: current.sessionId, observationId: current.id,
++    controls: current.controls.map(control => ({ control, actions: readActions(current.sessionId).filter(a => a.localId === control.localId), reviews: [], needsReview: false })) });
++  f.host.controlReviewMaterial = vi.fn(operations) as ExplorerHost['controlReviewMaterial'];
++  f.host.controlInterpretationSnapshot = vi.fn(() => ({ actions: readActions(current.sessionId),
++    classifications: { sessionId: current.sessionId, observationId: current.id, controls: [] }, operations: operations(), nonInteractive: [], retainedClassifications: [] })) as ExplorerHost['controlInterpretationSnapshot'];
++  f.host.recoveryAssessment = vi.fn(() => ({ observationId: current.id, blockingBoundaryExit: false,
++    unknownAttempts: (f.attempts.get(before.sessionId) || []).filter(a => a.status === 'unknown') })) as unknown as ExplorerHost['recoveryAssessment'];
++  f.host.explorationTargetCorrespondences = vi.fn((sid, input) => ({ sessionId: sid, observationId: input.observationId,
++    results: input.requests.map(request => {
++      const equivalent = correspondence && sid === before.sessionId && input.observationId === before.id && request.actionId === navigation.id
++        && request.source.sessionId === original.sessionId && request.source.observationId === original.id && request.source.actionId === originalAction.id;
++      freshChecks.push({ afterCheckpoint: checkpointCreated, equivalent });
++      return { equivalent, reason: equivalent ? 'native-navigation-equivalent' : 'source-evidence-revoked', policy: 'fixture-native-navigation',
++        source: request.source, target: { sessionId: sid, observationId: input.observationId, actionId: request.actionId }, evidence: [], invalidatedBy: [],
++        identityAuthorized: false, replayAuthorized: false, currentExecution: false };
++    }) }));
++  const receipt = (sid: string, input: { attemptId: string }): OperationReceiptCondition => {
++    const actual = (f.attempts.get(sid) || []).find(a => a.id === input.attemptId)!;
++    const verified = options.receiptVerified !== false && actual.status === 'succeeded' && !!actual.afterId;
++    return { actualSuccess: actual.status === 'succeeded', conditionVerified: verified, status: verified ? 'portable' : 'unavailable',
++      reason: verified ? 'retained-source-receipt-verified' : 'receipt-condition-unavailable',
++      ...(verified ? { policy: 'fixture-operation-receipt', conditionKey: 'retained-native-operation' } : {}),
++      source: { sessionId: sid, attemptId: actual.id, beforeId: actual.beforeId, afterId: actual.afterId, actionId: actual.action.id, actionKey: hash(actual.action) },
++      evidence: [], identityAuthorized: false, replayAuthorized: false, currentExecution: false, arrivalVerified: false };
++  };
++  f.host.operationReceiptCondition = vi.fn(receipt);
++  f.host.operationReceiptConditions = vi.fn((sid, input) => ({ sessionId: sid, results: input.attemptIds.map(attemptId => receipt(sid, { attemptId })) }));
++  f.host.operationCorrespondences = vi.fn((sid, input) => ({ sessionId: sid, observationId: input.observationId,
++    results: input.requests.map(request => {
++      const actual = (f.attempts.get(request.source.sessionId) || []).find(a => a.id === request.source.attemptId);
++      return { equivalent: !!actual && actual.status === 'succeeded' && options.receiptVerified !== false
++          && sid === original.sessionId && input.observationId === original.id && request.actionId === originalAction.id && actual.action.id === navigation.id,
++        reason: 'retained-original-operation-covered', policy: 'fixture-operation-correspondence', source: request.source,
++        target: { sessionId: sid, observationId: input.observationId, actionId: request.actionId }, evidence: [], invalidatedBy: [],
++        identityAuthorized: false, replayAuthorized: false, currentExecution: false };
++    }) }));
++  const sourceRef = { sessionId: original.sessionId, observationId: original.id };
++  const child: PlanItem = { ...item('selected-original-child', scopeFor(originalAction, original), false), status: 'unresolved',
++    reason: 'region_review_required', evidence: [sourceRef], operationConditionPolicy: 'browser-operation-key-v3',
++    operationConditionKey: schedulingKeyFor(originalAction, original) };
++  const authority = item('original-page-authority', { url }), inPlace = item('adjacent-in-place', scopeFor(inPlaceAction, before));
++  if (options.sourceAlreadyRetained) authority.evidence.push({ sessionId: before.sessionId, observationId: before.id });
++  f.task.plan = [authority, inPlace, child];
++  f.task.scheduling = { version: 1, localSelections: 1, cursor: child.id, selection: { itemId: child.id, kind: 'recovery', source: sourceRef }, routes: {}, legacyUnmappedRouteKeys: [] };
++  f.task.routeRetries = undefined;
++  f.clearClassification(); f.remote.mockImplementation(async () => undefined);
++  delete runtime.updateObligations; // Exercise production projectObligations and its SDK mapping.
++  runtime.auditRemainingScopes = () => new Set([authority.id]);
++  runtime.settleScopes = () => {}; // Whole-page completion is outside this receipt/child test.
++  f.host.interactionTransition = vi.fn(() => ({ verified: false })) as unknown as ExplorerHost['interactionTransition'];
++  f.host.createCheckpoint = vi.fn(async () => {
++    checkpointCreated = true;
++    if (options.revokeAtCheckpoint) correspondence = false;
++    return { id: 'arrived-child-checkpoint' };
++  }) as unknown as ExplorerHost['createCheckpoint'];
++  let atDispatch: Task | undefined;
++  f.host.execute = vi.fn(async (sid, actionId, requestId, _value, guard) => {
++    expect(actionId).toBe(navigation.id); expect(sid).toBe(before.sessionId);
++    expect(guard).toMatchObject({ observationId: before.id, profile: 'interface-exploration' });
++    atDispatch = structuredClone(f.task);
++    const actual: ActionAttempt = { id: 'actual-arrived-child', sessionId: sid, requestId, action: navigation, beforeId: before.id,
++      ...(options.outcome === 'unknown' ? {} : { afterId: after.id }), status: options.outcome || 'succeeded',
++      startedAt: '2026-10-18T00:00:00Z', purpose: 'exploration', executionProfile: 'interface-exploration' };
++    f.attempts.set(sid, [actual]); if (actual.status === 'succeeded') current = after;
++    return actual;
++  });
++  const originalContract = structuredClone({ scope: child.scope, operationConditionKey: child.operationConditionKey, operationConditionPolicy: child.operationConditionPolicy });
++  const recorded = vi.spyOn(runtime, 'recordOutcome');
++  const assertOriginalContract = () => {
++    expect({ scope: child.scope, operationConditionKey: child.operationConditionKey, operationConditionPolicy: child.operationConditionPolicy }).toEqual(originalContract);
++    expect(child.evidence.filter(ref => !ref.attemptId)).toEqual([sourceRef]);
++  };
++  return { ...f, before, original, navigation, inPlaceAction, child, authority, inPlace, freshChecks, recorded,
++    atDispatch: () => atDispatch, assertOriginalContract };
++}
++
++it.each([false, true])('dispatches the SDK-mapped selected child before in-place work and retains page discovery once (source retained=%s)', async sourceAlreadyRetained => {
++  const f = arrivedChildFixture({ sourceAlreadyRetained }); try {
++    expect(matches(f.child.scope, f.navigation, f.before)).toBe(false);
++    expect(schedulingKeyFor(f.navigation, f.before)).not.toBe(f.child.operationConditionKey);
++    expect(navigationTarget(f.navigation, f.before)).toBe(new URL('convert', url).href);
++    expect(navigationTarget(f.inPlaceAction, f.before)).toBeUndefined();
++    expect(await f.step()).toBe(true);
++    expect(f.events.find(e => e.type === 'obligation.selected')?.data).toMatchObject({ itemId: f.child.id, actionId: f.navigation.id, kind: 'current' });
++    expect(f.atDispatch()?.pendingDispatch?.itemIds).toContain(f.child.id);
++    expect(f.atDispatch()?.pendingDispatch?.itemIds).not.toContain(f.inPlace.id);
++    expect(f.recorded).toHaveBeenCalledOnce(); expect(f.recorded.mock.calls[0][2]).toContain(f.child.id);
++    expect(f.child).toMatchObject({ status: 'succeeded', conditionCompletion: { status: 'verified', retainedSourcesRequired: true },
++      resolvedBy: { attemptId: 'actual-arrived-child', observationId: 'convert-after' } });
++    expect(f.child.attempts).toEqual([expect.objectContaining({ outcome: 'succeeded', evidence: expect.objectContaining({ attemptId: 'actual-arrived-child' }) })]);
++    f.assertOriginalContract();
++    expect(f.host.operationCorrespondences).toHaveBeenCalledWith(f.original.sessionId, expect.objectContaining({ observationId: f.original.id,
++      requests: [expect.objectContaining({ actionId: 'original-convert-action', source: { sessionId: f.before.sessionId, attemptId: 'actual-arrived-child' } })] }));
++    expect(f.freshChecks.some(check => check.afterCheckpoint && check.equivalent)).toBe(true);
++    expect(f.authority.evidence.filter(ref => !ref.attemptId)).toEqual([{ sessionId: f.before.sessionId, observationId: f.before.id }]);
++    expect(f.task.plan.filter(row => row.id === f.authority.id)).toHaveLength(1);
++    expect(f.authority.status).not.toBe('succeeded'); expect(f.authority.conditionCompletion).toBeUndefined();
++    expect(f.round.stack).toHaveLength(1);
++    expect(f.round.stack[0]).toMatchObject({ checkpointId: 'arrived-child-checkpoint', observationId: f.before.id,
++      remaining: expect.arrayContaining([f.authority.scope, f.inPlace.scope]) });
++    expect(f.events.filter(e => e.type === 'review.source_deferred')).toHaveLength(sourceAlreadyRetained ? 0 : 1);
++    expect(f.inPlace.attempts).toEqual([]); expect(f.inPlace.status).toBe('pending');
++    expect(f.host.execute).toHaveBeenCalledOnce(); expect(f.choose).not.toHaveBeenCalled(); expect(f.remote).not.toHaveBeenCalled();
++    expect(f.task.pendingDispatch).toBeUndefined();
++  } finally { await f.plugin.close(); }
++});
++
++it('rejects a selected child when SDK correspondence is revoked during the checkpoint await', async () => {
++  const f = arrivedChildFixture({ revokeAtCheckpoint: true }); try {
++    await expect(f.step()).rejects.toMatchObject({ code: 'STALE_DECISION' });
++    expect(f.events.find(e => e.type === 'obligation.selected')?.data).toMatchObject({ itemId: f.child.id, actionId: f.navigation.id });
++    expect(f.freshChecks).toEqual(expect.arrayContaining([{ afterCheckpoint: false, equivalent: true }, { afterCheckpoint: true, equivalent: false }]));
++    expect(f.host.createCheckpoint).toHaveBeenCalledOnce(); expect(f.host.execute).not.toHaveBeenCalled();
++    expect(f.recorded).not.toHaveBeenCalled(); expect(f.child.attempts).toEqual([]); expect(f.child.status).toBe('unresolved');
++    expect(f.task.pendingDispatch).toBeUndefined(); f.assertOriginalContract();
++  } finally { await f.plugin.close(); }
++});
++
++it.each(['unknown', 'unverified-receipt'] as const)('keeps the original child unfinished after an attributed %s outcome', async outcome => {
++  const f = arrivedChildFixture({ outcome: outcome === 'unknown' ? 'unknown' : 'succeeded', receiptVerified: outcome !== 'unverified-receipt' }); try {
++    if (outcome === 'unknown') await expect(f.step()).rejects.toMatchObject({ code: 'UNKNOWN_DISPATCH_REQUIRES_REVIEW' });
++    else expect(await f.step()).toBe(true);
++    expect(f.host.execute).toHaveBeenCalledOnce(); expect(f.atDispatch()?.pendingDispatch?.itemIds).toContain(f.child.id);
++    expect(f.child.status).toBe('unresolved'); expect(f.child.conditionCompletion?.status).not.toBe('verified');
++    expect(f.child.attempts).toEqual([expect.objectContaining({ outcome: outcome === 'unknown' ? 'unknown' : 'succeeded',
++      evidence: expect.objectContaining({ attemptId: 'actual-arrived-child' }) })]);
++    if (outcome === 'unknown') {
++      expect(f.child.reason).toBe('unknown_action_outcome'); expect(f.task.pendingDispatch?.itemIds).toContain(f.child.id);
++      expect(f.attempts.get(f.before.sessionId)?.[0].status).toBe('unknown');
++    } else {
++      expect(f.child.conditionCompletion).toMatchObject({ status: 'unverified', waiting: true, reason: 'receipt-condition-unavailable' });
++      expect(f.task.pendingDispatch).toBeUndefined();
++    }
++    expect(f.host.operationCorrespondences).not.toHaveBeenCalled(); f.assertOriginalContract();
++  } finally { await f.plugin.close(); }
++});

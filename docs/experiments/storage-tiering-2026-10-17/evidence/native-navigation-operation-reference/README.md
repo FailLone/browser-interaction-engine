@@ -1,0 +1,11 @@
+# Native navigation operation reference
+
+The new proof describes a native navigation operation in a complete captured semantic owner. It preserves control identityScope, stableKey, instance target and replayable=false. SDK correspondence and portable target conditions consume it independently of mode references; all captured nonlocal mode conditions still participate.
+
+The dedicated pure suite passed 24/24. The first 4/24 run is retained: the other 20 cases failed at fixture observation-ID overwrite protection. Only the fixture was corrected before the authorized rerun; see checkpoint.json and both logs. No browser, service or persistent database was used.
+
+Limits: this is bounded recorded-fact comparison, not arbitrary JavaScript/business equivalence. Whole-owner classification content remains part of the proof, so changing owner text or unsupported/missing dependencies conservatively prevents reuse. Existing mode proofs are not relaxed. No real Convert, arrival, replay, dispatch, coverage-completion or performance result is claimed. Legacy URL-only hint callers remain safe; old native-record-link code and keys are retained, but the existing browser-containing native-link suite was not rerun.
+
+The follow-up query-local factory removes repeated owner projection during SDK uniqueness counting. Its two dedicated tests passed; the original 24 were not rerun. Each synchronous query owns its reader, and later queries read fresh mutable facts. Public helper calls remain uncached and overridden operation hints keep their original behavior.
+
+The single isolated real-material query then succeeded: source, Trade-after and final Convert share the navigation reference, all 28 mode conditions and portable target key. The public SDK returned equivalent_observed_target for the final frame against the original source. A complete 59-node Trade owner supplies the proof; the 191-node outer header still fails its missing navColumnContainer dependency. Constructor recovery repeated one identical session put in the private copy; query SQL changes and driver calls were zero, source hashes were unchanged, and the copy was closed and removed. See real-query-result.json. Identity/replay/current-execution permissions remain false. This establishes recorded correspondence, not actual arrival or successful continuation.

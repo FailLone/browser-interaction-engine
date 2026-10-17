@@ -4,6 +4,7 @@ import { readonlyReadout, observableCanonical } from './model.js';
 import { constrain } from './policy.js';
 import { ruleMatches, signature, formBinding } from './util.js';
 import { browserBranchConditions, browserPortableBranchConditions } from './branch-conditions.js';
+import { nativeNavigationOperationReader, nativeNavigationOperationReference } from './native-navigation.js';
 
 /** Opaque compatibility keys remain readable by existing consumers. They are hints, not identities. */
 export function browserControlCorrespondence(c: Control): CorrespondenceHint | undefined {
@@ -36,6 +37,18 @@ export function browserControlBindingKey(c:Control):string|undefined {
  * Old observations/keys stay unchanged; no text is classified by a site pattern.
  */
 export function browserOperationCorrespondenceHint(c:Control,kind:string,o:Pick<Observation,'url'>):CorrespondenceHint|undefined {
+  return nativeRecordLinkReference(c,kind,o)||(kind==='click'?nativeNavigationOperationReference(c,o):undefined);
+}
+/** One synchronous query owns this reader, just like the mode-structure reader.
+ * Never retain it across mutation, await, a later query or a dispatch. The public
+ * single-target helper deliberately creates fresh derived facts on every call. */
+export function createBrowserOperationCorrespondenceHintReader(o:Observation) {
+  let navigation:ReturnType<typeof nativeNavigationOperationReader>|undefined;
+  return (c:Control,kind:string):CorrespondenceHint|undefined=>nativeRecordLinkReference(c,kind,o)
+    ||(kind==='click'&&c.tag==='a'&&c.role==='link'&&!c.hypothesisId&&!c.readiness&&c.actionBasis?.click?.status==='supported'
+      ?(navigation??=nativeNavigationOperationReader(o))(c):undefined);
+}
+function nativeRecordLinkReference(c:Control,kind:string,o:Pick<Observation,'url'>):CorrespondenceHint|undefined {
   const item=c.structuralItem,context=c.identityContext,attributes=c.reviewBinding?.attributes;
   if(kind!=='click'||c.tag!=='a'||c.role!=='link'||!item?.recordKey||!item.template
     ||!context?.scope||!context.binding||!context.evidence.includes('link-destination/v1'))return;
@@ -148,7 +161,7 @@ function controlCaseProjection(action:ActionCandidate,o:Observation,portable:boo
     const {valid:_valid,...constraints}=c.constraints,{instanceId:_instance,...form}=c.reviewBinding?.form||{};
     return {key:hash({url:o.url,reference:native.key,branch:branch?.key,boundary:o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})),
       readOnly:c.readOnly,constraints,options:c.options,attributes:c.reviewBinding?.attributes,form,formOwner:formBinding(c),basis:action.basis,risk:action.risk}),
-      policy:'browser-native-record-link-operation-v2',identityConflictScope,evidence:[...native.evidence,...branch?.evidence||[],'Same native navigation operation; displayed text remains retained observation evidence']};
+      policy:native.policy==='browser-native-navigation-v1'?'browser-native-navigation-operation-v1':'browser-native-record-link-operation-v2',identityConflictScope,evidence:[...native.evidence,...branch?.evidence||[],'Same native navigation operation; displayed text remains retained observation evidence']};
   }
   // Review record IDs identify evidence, not a new operation. Preserve the
   // reviewed DOM conditions and risk; dispatch still validates the exact review.
