@@ -1,0 +1,674 @@
+{
+  "format": "real-okx-window-outcome-v1",
+  "windowNumber": 15,
+  "runId": "053f55b8-df94-46d3-9e0c-1a76c79d6111",
+  "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+  "productCommit": "adb891dce0868a51b1ae7c30b56b97bcf9d689dd",
+  "sourceRevision": "1a9846411a48345f9485b1ed4314af1efbfcbea7",
+  "verdict": "not_accepted",
+  "reason": "Real plugin continuation stopped on UNVERIFIED historical dialog source conditions before any local/global recovery action; no new exploration or verified coverage. Safe refusal is established; the recovery goal is not accepted.",
+  "source": {
+    "workspace": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+    "branch": "codex/exploration-layered-refactor",
+    "trackedChangesAtLaunch": [],
+    "productCodeChangedDuringRun": false,
+    "acceptanceOnlyCommit": "1a9846411a48345f9485b1ed4314af1efbfcbea7",
+    "preexistingUntrackedPreserved": [
+      "docs/experiments/storage-tiering-2026-10-17/evidence/okx-launch-7.json",
+      "docs/experiments/storage-tiering-2026-10-17/evidence/okx-launch-7.log",
+      "docs/experiments/storage-tiering-2026-10-17/evidence/task-store-full-read/performance-checkpoint-5eca079/"
+    ]
+  },
+  "window": {
+    "limitMs": 240000,
+    "usageMs": 181223,
+    "stopReason": "recovery_not_verified",
+    "stopRequestAfterStartMs": 175737,
+    "settlementMs": 5487,
+    "processStartToFinishedMs": 199985,
+    "overshoot": {
+      "actions": 0,
+      "modelRequests": 0,
+      "rounds": 0,
+      "durationMs": 0
+    },
+    "furtherWindowStarted": false,
+    "note": "Stopped early by recovery guard, not time exhaustion. Normal pause/closure completed."
+  },
+  "comparison": {
+    "priorWindow": 14,
+    "sameFrozenInputDirectory": ".data/okx-storage-acceptance-20261017-v5",
+    "initialTaskExactlyEqualIncludingScheduleDebtBudgetUsage": true,
+    "priorSelectedItemId": "92e78cad-25e8-495e-a317-6194ec309298",
+    "newSelectedItemId": "8a77d2f6-5659-45d9-b7cf-32d9113610f8",
+    "sameTarget": false,
+    "priorRecoveryStatus": "UNREACHABLE/replay_state_diverged",
+    "newRecoveryStatus": "UNVERIFIED/historical-review-source-conditions unknown",
+    "speedupEstablished": false,
+    "note": "Same persisted input and limits, but different selected target and actual work. 10.607 s here versus 54.719 s previously is not recovery speedup: no replay was attempted here."
+  },
+  "behavior": {
+    "selectedTarget": {
+      "id": "8a77d2f6-5659-45d9-b7cf-32d9113610f8",
+      "scope": {
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "region": "dialog",
+        "label": "OKX Exchange products aren’t available in your regionOKX Exchange is currently not available in Hong Kong SAR (China) due to local laws and regulations. OKX has announced that it has ceased operating a virtual asset trading platform in Hong Kong since May 2024.If you don't reside in Hong Kong SAR (China), you may continue using OKX Exchange with a valid government-issued ID.Don’t show for 7 daysGo to OKX WalletClose",
+        "role": "dialog",
+        "stableKey": "testid:okd-dialog-window"
+      },
+      "reason": "classification_unresolved",
+      "status": "unresolved",
+      "sourceCount": 21,
+      "verifiedSourceBindings": 1
+    },
+    "selection": {
+      "reason": "unfinished_observed_targets",
+      "itemId": "8a77d2f6-5659-45d9-b7cf-32d9113610f8",
+      "routeKey": "b7ba5c427204fb885289ad35bba95a9415088d132314a56c8d7cc85b1f3e675a",
+      "checkpointId": "4f356761-4352-4f62-a0c4-8197b90933d2",
+      "sourceObservationId": "d7da102e-f331-47c6-bec5-96a33ce9cb20",
+      "currentObservationId": "7546132e-34ba-4038-88de-ff9d4fc0dea4",
+      "unfinishedTargets": 1,
+      "hostVerificationRequired": true,
+      "arrivalMode": "control-review"
+    },
+    "recovery": {
+      "id": "f78cb36e-2624-4b37-af20-720a686d317f",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "checkpointId": "4f356761-4352-4f62-a0c4-8197b90933d2",
+      "reason": "Target arrival verification: UNVERIFIED",
+      "checks": [
+        {
+          "name": "unresolved-execution-outcomes",
+          "result": "pass"
+        },
+        {
+          "name": "clean-session",
+          "result": "pass"
+        },
+        {
+          "name": "known-declared-context",
+          "result": "pass"
+        },
+        {
+          "name": "current-review-material",
+          "result": "pass"
+        },
+        {
+          "name": "historical-review-source-conditions",
+          "result": "unknown"
+        }
+      ],
+      "attemptIds": [],
+      "observationId": "da11249a-1e18-41cc-b9ff-f1d2d6ca6323",
+      "remainingFrontier": 3045,
+      "diagnostics": {
+        "unassessedEffectAttemptIds": [],
+        "strategies": [
+          "verify_current"
+        ],
+        "dirtyActions": [],
+        "resetAvailable": false
+      },
+      "status": "UNVERIFIED",
+      "requireSourceEquivalent": true,
+      "targetObservationId": "d7da102e-f331-47c6-bec5-96a33ce9cb20",
+      "targetLocalId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1376",
+      "sourceEquivalent": "unknown",
+      "proof": {
+        "targetMatched": true,
+        "reviewable": true,
+        "sourceEquivalent": "unknown",
+        "reason": "current_review_material_available",
+        "evidence": [
+          "unique-captured-target-semantics",
+          "complete-classification-subtree",
+          "captured-idref-topology",
+          "unchanged-classification-conditions",
+          "unique-captured-control-and-owner"
+        ],
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "d7da102e-f331-47c6-bec5-96a33ce9cb20",
+          "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1376"
+        },
+        "target": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "da11249a-1e18-41cc-b9ff-f1d2d6ca6323",
+          "localId": "8ec10d18-e97b-4630-9783-949cc30e2353:1376"
+        },
+        "preflightRequired": true,
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "executionAuthorized": false,
+        "currentExecution": false,
+        "coverageGranted": false,
+        "checkpointVerified": false,
+        "currentMaterialKey": "cec3f767c5dfe51987a6425ce4ede36c27bd1cd5c3c67a4837f2244018d85d98"
+      },
+      "checkpointVerified": false,
+      "currentExecution": false,
+      "executionAuthorized": false,
+      "coverageGranted": false
+    },
+    "recoveryCalls": 1,
+    "recoveryVerified": 0,
+    "recoveryElapsedMs": 10606.991209,
+    "localReplayAttempts": 0,
+    "entryReplayAttempts": 0,
+    "newExplorationSuccesses": 0,
+    "newOperationConditionCandidates": 0,
+    "newVerifiedCoverage": 0,
+    "newObservations": 7,
+    "classificationReuseEvents": 1,
+    "reviewResolvedEvents": 0,
+    "newlyResolvedPlanOccurrences": [],
+    "planCountBefore": 1241,
+    "planCountAfter": 1241,
+    "oldPlanIdsPreserved": true,
+    "sourceOccurrenceKeysPreserved": true,
+    "requiredUnfinishedBefore": 1235,
+    "requiredUnfinishedAfter": 1237,
+    "reopenedLegacyReviews": [
+      {
+        "id": "dae8f2d9-5411-4e9a-a4c1-b304396c54ae",
+        "before": "succeeded",
+        "after": "unresolved"
+      },
+      {
+        "id": "8a77d2f6-5659-45d9-b7cf-32d9113610f8",
+        "before": "succeeded",
+        "after": "unresolved"
+      }
+    ],
+    "routeUnavailableEvents": 358,
+    "unknownAttempts": [],
+    "inFlightAttempts": [],
+    "pendingDispatch": null,
+    "unverifiedRecoveries": null,
+    "necessaryReentries": 0,
+    "unreasonedRetries": 0,
+    "repeatMetricLimit": "No page actions occurred; zero retries does not establish improved repeat suppression.",
+    "abCoverageAndUnknownRestartRegression": "Not exercised by this real window; prior bounded fixture evidence is not upgraded to real OKX proof."
+  },
+  "stageMeasurements": {
+    "startupFirstSampleMs": 65845,
+    "startupObservationReads": {
+      "calls": 1958,
+      "returned": 1958,
+      "threw": 0,
+      "elapsedMs": 30271.091733999852,
+      "maxMs": 42.285375000001295,
+      "arrayItems": 0,
+      "viewsAvailable": 0,
+      "viewsUnavailable": 0
+    },
+    "startupActionListReads": {
+      "calls": 1830,
+      "returned": 1830,
+      "threw": 0,
+      "elapsedMs": 25992.608542000125,
+      "maxMs": 33.92195899999933,
+      "arrayItems": 384144,
+      "viewsAvailable": 0,
+      "viewsUnavailable": 0
+    },
+    "reattachObserveHostCall": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "elapsedMs": 26436.266749999995,
+      "maxMs": 26436.266749999995,
+      "arrayItems": 0,
+      "viewsAvailable": 0,
+      "viewsUnavailable": 0
+    },
+    "reattachedToRecoverySelectedWallMs": 72984,
+    "recoveryMs": 10606.991209,
+    "providerCounts": {
+      "jev": {
+        "started": 6,
+        "returned": 6,
+        "failed": 0,
+        "cancelled": 0,
+        "elapsedMs": 6619.318708000006,
+        "usage": {
+          "input_tokens": 40286,
+          "output_tokens": 794,
+          "cost": 0.001692012
+        }
+      },
+      "llm": {
+        "started": 0,
+        "returned": 0,
+        "failed": 0,
+        "cancelled": 0,
+        "elapsedMs": 0,
+        "usage": {}
+      }
+    },
+    "hostCalls": {
+      "list": {
+        "calls": 15,
+        "returned": 15,
+        "threw": 0,
+        "elapsedMs": 101.04112600004191,
+        "maxMs": 78.19870800001081,
+        "arrayItems": 5972,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "operationReceiptConditions": {
+        "calls": 1,
+        "returned": 1,
+        "threw": 0,
+        "elapsedMs": 2112.8605829999997,
+        "maxMs": 2112.8605829999997,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "observation": {
+        "calls": 2211,
+        "returned": 2211,
+        "threw": 0,
+        "elapsedMs": 34342.49502899968,
+        "maxMs": 43.37770899999305,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "operationCoverageCandidates": {
+        "calls": 10,
+        "returned": 10,
+        "threw": 0,
+        "elapsedMs": 137.91383399999722,
+        "maxMs": 23.709207999998398,
+        "arrayItems": 878,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "operationCorrespondences": {
+        "calls": 7,
+        "returned": 7,
+        "threw": 0,
+        "elapsedMs": 373.0628739999993,
+        "maxMs": 62.872959000000264,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "sessions": {
+        "calls": 1,
+        "returned": 1,
+        "threw": 0,
+        "elapsedMs": 17.72466700000041,
+        "maxMs": 17.72466700000041,
+        "arrayItems": 1,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "session": {
+        "calls": 312,
+        "returned": 312,
+        "threw": 0,
+        "elapsedMs": 9.2116279996917,
+        "maxMs": 0.09316600000602193,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "actions": {
+        "calls": 1991,
+        "returned": 1991,
+        "threw": 0,
+        "elapsedMs": 28436.853584999924,
+        "maxMs": 33.92195899999933,
+        "arrayItems": 417981,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "recoveryAssessment": {
+        "calls": 12,
+        "returned": 12,
+        "threw": 0,
+        "elapsedMs": 220.35949699997582,
+        "maxMs": 31.239750000007916,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "observe": {
+        "calls": 1,
+        "returned": 1,
+        "threw": 0,
+        "elapsedMs": 26436.266749999995,
+        "maxMs": 26436.266749999995,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "boundaryState": {
+        "calls": 6,
+        "returned": 6,
+        "threw": 0,
+        "elapsedMs": 84.19316599998274,
+        "maxMs": 23.245082999987062,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "controlInterpretationSnapshot": {
+        "calls": 12,
+        "returned": 12,
+        "threw": 0,
+        "elapsedMs": 1675.0428309999843,
+        "maxMs": 157.3522079999966,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "controlReviewTargetCorrespondences": {
+        "calls": 5,
+        "returned": 5,
+        "threw": 0,
+        "elapsedMs": 2709.7930429999833,
+        "maxMs": 552.3505839999998,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "pinEvidence": {
+        "calls": 9,
+        "returned": 9,
+        "threw": 0,
+        "elapsedMs": 1175.043542000014,
+        "maxMs": 139.58874999999534,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "controlReviewMaterial": {
+        "calls": 4,
+        "returned": 4,
+        "threw": 0,
+        "elapsedMs": 250.6666239999613,
+        "maxMs": 76.00316699998803,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "actionAvailability": {
+        "calls": 4,
+        "returned": 4,
+        "threw": 0,
+        "elapsedMs": 829.8932930000155,
+        "maxMs": 228.5997090000019,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "regionReviewMaterial": {
+        "calls": 6,
+        "returned": 6,
+        "threw": 0,
+        "elapsedMs": 216.80891699998756,
+        "maxMs": 49.17025000001013,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "command": {
+        "calls": 5,
+        "returned": 5,
+        "threw": 0,
+        "elapsedMs": 48498.35762399997,
+        "maxMs": 11201.608707999985,
+        "arrayItems": 3,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "explorationReviewMaterial": {
+        "calls": 5,
+        "returned": 5,
+        "threw": 0,
+        "elapsedMs": 352.2767080000194,
+        "maxMs": 72.62595800001873,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "controlClassificationMaterial": {
+        "calls": 5,
+        "returned": 5,
+        "threw": 0,
+        "elapsedMs": 238.48670800002583,
+        "maxMs": 56.194750000024214,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "classificationCorrespondences": {
+        "calls": 1,
+        "returned": 1,
+        "threw": 0,
+        "elapsedMs": 71.79941599999438,
+        "maxMs": 71.79941599999438,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "explorationSnapshot": {
+        "calls": 1,
+        "returned": 1,
+        "threw": 0,
+        "elapsedMs": 299.3945830000157,
+        "maxMs": 299.3945830000157,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "explorationTargetCorrespondences": {
+        "calls": 1,
+        "returned": 1,
+        "threw": 0,
+        "elapsedMs": 35.64650000000256,
+        "maxMs": 35.64650000000256,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "recoverySelectionView": {
+        "calls": 1,
+        "returned": 1,
+        "threw": 0,
+        "elapsedMs": 250.4994580000057,
+        "maxMs": 250.4994580000057,
+        "arrayItems": 0,
+        "viewsAvailable": 1,
+        "viewsUnavailable": 0
+      },
+      "controlReviewTargetCorrespondence": {
+        "calls": 2,
+        "returned": 2,
+        "threw": 0,
+        "elapsedMs": 27.441707999969367,
+        "maxMs": 13.750540999986697,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "recoverySourceMaterial": {
+        "calls": 1,
+        "returned": 1,
+        "threw": 0,
+        "elapsedMs": 29.087750000006054,
+        "maxMs": 29.087750000006054,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "reachControlReviewTarget": {
+        "calls": 1,
+        "returned": 1,
+        "threw": 0,
+        "elapsedMs": 10613.947832999984,
+        "maxMs": 10613.947832999984,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "pause": {
+        "calls": 1,
+        "returned": 1,
+        "threw": 0,
+        "elapsedMs": 4798.51466700001,
+        "maxMs": 4798.51466700001,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      }
+    },
+    "note": "Host durations are inclusive method measurements, not mutually exclusive CPU stages. Startup first-sample time is a checkpoint, not an exact stage boundary. Provider decide calls are not billable HTTP request counts."
+  },
+  "storage": {
+    "bytesByCategory": {
+      "engineDatabase": {
+        "before": 143814656,
+        "after": 149336064,
+        "delta": 5521408
+      },
+      "pluginDatabase": {
+        "before": 22384640,
+        "after": 22949888,
+        "delta": 565248
+      },
+      "evidenceManifests": {
+        "before": 4806156,
+        "after": 5013966,
+        "delta": 207810
+      },
+      "evidenceBlobs": {
+        "before": 24280226,
+        "after": 24904234,
+        "delta": 624008
+      }
+    },
+    "runtimeDataGrowthBytes": 6918474,
+    "runnerAndLogsAfterCloseBytes": 12775720,
+    "shrinkageEstablished": false,
+    "note": "Logical database/evidence bytes, 7 new observations and 0 page actions. Input databases were independent COW clones; evidence was copied, no hardlinks. Fewer bytes than prior run is not a compression gain because actual work differs."
+  },
+  "diagnosis": {
+    "facts": [
+      "The historical region dialog is uniquely matched and current review material is complete, while sourceEquivalent remains unknown.",
+      "Current container interpretation causes the scheduler to require historical source equivalence for already reviewed current material.",
+      "The core returns UNVERIFIED before live target preflight and before boundary exit, recorded path, suffix replay or entry reset.",
+      "The harness pauses on that returned non-success. It did not fabricate coverage or a completed source.",
+      "Two legacy aggregate review completions reopen because one source proof cannot cover all retained source occurrences."
+    ],
+    "callChain": [
+      {
+        "file": "packages/explorer-plugin/src/runtime.ts",
+        "line": 864,
+        "detail": "currentReviewComplete examines the current visible scope and display/container interpretation"
+      },
+      {
+        "file": "packages/explorer-plugin/src/runtime.ts",
+        "line": 1121,
+        "detail": "requireSourceEquivalent = reviewTarget && currentReviewComplete(item.scope)"
+      },
+      {
+        "file": "packages/explorer-plugin/src/runtime.ts",
+        "line": 1395,
+        "detail": "passes requirement to reachControlReviewTarget"
+      },
+      {
+        "file": "packages/adapter-playwright/src/review-target.ts",
+        "line": 131,
+        "detail": "missing source/current projection or incomparable rule versions keep sourceEquivalent unknown"
+      },
+      {
+        "file": "packages/core/src/engine.ts",
+        "line": 1617,
+        "detail": "unknown historical source equivalence returns UNVERIFIED"
+      },
+      {
+        "file": "packages/core/src/engine.ts",
+        "line": 1676,
+        "detail": "terminal result returns before local/global strategies"
+      }
+    ],
+    "unresolvedCause": "The current proof has no conditionKey. review-target.ts:115,131 therefore establish that current mode or boundary projection is unavailable, but do not identify the missing selector/field. Do not attribute this result to dynamic prices without a targeted retained-record diagnosis.",
+    "nextBoundedInvestigation": "Diagnose the unavailable branch/boundary projection in the two retained observations, and distinguish a recoverable UI difference from incomplete historical evidence. Design scheduler handling that preserves old debt and permits other safe current work without treating unknown as success. Do not fix this by loosening source equivalence or repeatedly replaying/re-reviewing the same dialog.",
+    "notEstablished": [
+      "Necessity of full replay for this target",
+      "Actual success rate of local or global replay on OKX",
+      "Source-unknown being caused by prices or dynamic text",
+      "General recovery, performance or storage improvement"
+    ]
+  },
+  "sourceEvidence": {
+    "manifest": "frozen-input.json",
+    "postRunAudit": "integrity-audit.json",
+    "closedRawEvidenceManifest": "closed-evidence.json",
+    "canonicalRunDirectory": ".data/okx-storage-acceptance-20261017-v8/runs/053f55b8-df94-46d3-9e0c-1a76c79d6111",
+    "recoveryMetricLine": 694
+  },
+  "harnessValidation": {
+    "scope": "Observe the new reachControlReviewTarget API; no product behavior edits.",
+    "passingFocusedTests": "4 passed / 43 skipped after wrapper completion; then 3 passed / 10 skipped for final API observer cases.",
+    "typecheck": "Final root typecheck passed.",
+    "initialFailures": "First focused run preceded the completed wrapper change and failed; first typecheck exposed a missing API entry in the test status map. Both fixed in acceptance commit. All logs retained once in harness-checks; these were harness staging errors, not observed product regressions.",
+    "realWindows": 1,
+    "broadSuitesRerun": false
+  },
+  "closure": {
+    "activeRunState": "finished",
+    "exitCode": 2,
+    "signal": null,
+    "providerSettlement": {
+      "settled": true,
+      "remainingPendingRequestIds": [],
+      "sampledAt": "2026-10-17T11:50:50.029Z",
+      "waitLimitMs": 5000
+    },
+    "closeFailureEvents": [],
+    "lastEvidenceAudit": {
+      "full": true,
+      "protectedKeys": 226,
+      "checkedKeys": 226,
+      "cursor": 488
+    },
+    "sourceFilesUnchanged": true,
+    "protectedWorktrees": [
+      {
+        "path": "/Users/xietian/Projects/browser-interaction-engine",
+        "branch": "codex/single-selection-state-rule",
+        "commit": "6e111284ac3a6642844531dbc06bce462ca4293c",
+        "status": ""
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine",
+        "branch": "codex/autonomous-exploration",
+        "commit": "4857ad571c19995480a4c149abd9b2868a94c965",
+        "status": ""
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine",
+        "branch": "main",
+        "commit": "e07dc174acfc287817c56bba19a4d3e1ad290aa1",
+        "status": ""
+      }
+    ],
+    "walBytesAfterClose": 0
+  },
+  "limits": [
+    "One bounded real window does not establish population recovery rate or exhaustive page coverage.",
+    "The run is not accepted even though the safety refusal is correct. The recovery main objective remains without real-page success evidence.",
+    "A/B changes and unresolved-execution-across-restart blocking were not exercised; no claim of fresh validation for them.",
+    "Historical task duration retains prior interruption uncertainty; current window measurement is independently bounded.",
+    "Required unfinished count increased by two reopened existing reviews; no new plan IDs. This is not proof that pending scope will converge."
+  ]
+}

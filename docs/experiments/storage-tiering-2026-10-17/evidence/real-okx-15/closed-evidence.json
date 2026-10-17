@@ -1,0 +1,52 @@
+{
+  "runId": "053f55b8-df94-46d3-9e0c-1a76c79d6111",
+  "canonicalFiles": [
+    {
+      "path": ".data/okx-storage-acceptance-20261017-v8/runs/053f55b8-df94-46d3-9e0c-1a76c79d6111/coverage-review.json",
+      "bytes": 3314751,
+      "sha256": "9cc77065c1af5d39560a5e4d515fb5f1cba10f5b374207aed6fcd117c876d99a"
+    },
+    {
+      "path": ".data/okx-storage-acceptance-20261017-v8/runs/053f55b8-df94-46d3-9e0c-1a76c79d6111/cursors.json",
+      "bytes": 90,
+      "sha256": "348b8a594d5eb140a6946c0b99cbf3aae91bad3456e39889a089aba058549ee7"
+    },
+    {
+      "path": ".data/okx-storage-acceptance-20261017-v8/runs/053f55b8-df94-46d3-9e0c-1a76c79d6111/metrics.jsonl",
+      "bytes": 1040637,
+      "sha256": "7036ababab78a832fde273af46babb7df52004866e1ca57d93a0070fd5701a20"
+    },
+    {
+      "path": ".data/okx-storage-acceptance-20261017-v8/runs/053f55b8-df94-46d3-9e0c-1a76c79d6111/plan-occurrences-after.json",
+      "bytes": 47161,
+      "sha256": "a20d004871320ae2362eec71a48214cf1ea270fe5edba431fef6fab08a88c4e3"
+    },
+    {
+      "path": ".data/okx-storage-acceptance-20261017-v8/runs/053f55b8-df94-46d3-9e0c-1a76c79d6111/plan-occurrences-before.json",
+      "bytes": 47161,
+      "sha256": "a20d004871320ae2362eec71a48214cf1ea270fe5edba431fef6fab08a88c4e3"
+    },
+    {
+      "path": ".data/okx-storage-acceptance-20261017-v8/runs/053f55b8-df94-46d3-9e0c-1a76c79d6111/summary.json",
+      "bytes": 63777,
+      "sha256": "8215cb39d517900430fa83b9a8439098bab31953c9a95755620b17f49557819c"
+    },
+    {
+      "path": ".data/okx-storage-acceptance-20261017-v8/runs/053f55b8-df94-46d3-9e0c-1a76c79d6111/task-after.json",
+      "bytes": 4043839,
+      "sha256": "1454bc29cda3c7e68b45ce64e78e23e9b9c96df9911a4b502343c069ff52bb70"
+    },
+    {
+      "path": ".data/okx-storage-acceptance-20261017-v8/runs/053f55b8-df94-46d3-9e0c-1a76c79d6111/task-before.json",
+      "bytes": 4280748,
+      "sha256": "f02ec00c20712401e492d5f9f9a84d24071b47eb992b77f6ccdf710acab1b4d8"
+    },
+    {
+      "path": "docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-15/frozen-input.json",
+      "bytes": 1576413,
+      "sha256": "5b6e13085edd2fff04d7d422c31d91d5c2eb09cc1a2290eeb0f903d9d8b28708"
+    }
+  ],
+  "rawEvidenceCopied": false,
+  "note": "Runtime JSON/JSONL are retained once in the owned run directory; no databases or raw run evidence duplicated into this report."
+}

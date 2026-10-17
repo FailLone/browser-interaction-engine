@@ -1,0 +1,2 @@
+tests/okx-recovery-exception-stop.test.ts(8,28): error TS7053: Element implicitly has an 'any' type because expression of type 'AcceptanceRecoveryApi' can't be used to index type '{ reachCheckpoint: string; reachExplorationTarget: string; returnToObservedSource: string; }'.
+  Property 'reachControlReviewTarget' does not exist on type '{ reachCheckpoint: string; reachExplorationTarget: string; returnToObservedSource: string; }'.
