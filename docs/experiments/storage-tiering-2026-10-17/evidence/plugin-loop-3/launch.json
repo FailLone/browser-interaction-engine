@@ -1,0 +1,28 @@
+{
+  "startedAt": "2026-10-17T16:24:03.657Z",
+  "sourceRevision": "ce5481c6be4814bf3e9a90d9174e9d7a7c253cdb",
+  "directory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-plugin-loop-20261018-v3",
+  "limitMs": 240000,
+  "cleanupGraceMs": 2000,
+  "args": [
+    "--conditions=development",
+    "--import",
+    "tsx",
+    "scripts/okx-plugin-loop-acceptance.ts",
+    "--run",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-plugin-loop-20261018-v3",
+    "--evidence",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/plugin-loop-3"
+  ],
+  "runnerSha256": "58ab041cdb3c64af2ef4d7d8340e0a8fe670b47cef2ef8d2556f9cbdc13555cf",
+  "providerConfiguration": "Existing EXPLORER provider whitelist only; values not recorded. No database or service configuration inherited.",
+  "processOwnership": "New isolated process group; only this child and its descendants may be terminated.",
+  "timedOut": true,
+  "pid": 95727,
+  "deadlineAt": "2026-10-17T16:28:03.661Z",
+  "cleanupDeadlineAt": "2026-10-17T16:28:05.663Z",
+  "finishedAt": "2026-10-17T16:28:05.687Z",
+  "elapsedMs": 242028.833125,
+  "exitCode": null,
+  "signal": "SIGKILL"
+}
