@@ -1,0 +1,27 @@
+{
+  "format": "okx-plugin-loop-acceptance-v1",
+  "status": "prepared_not_executed",
+  "scope": "One actual plugin-selected pending operation: legal recovery, verified arrival, guarded new execution, and persisted verified completion of the same original plan occurrence. No exhaustion claim.",
+  "entry": "ExplorerPlugin.start(existingTaskId), using scripts/okx-plugin-loop-acceptance.ts --run <prepared independent directory>",
+  "input": "A byte copy of the closed v8 engine and plugin databases, independent mutable files, immutable evidence blobs may be hard-linked. Preserve original task plan, scope authority, route debt, session permissions, budgets and usage.",
+  "preparationContract": {
+    "file": "preparation.json in this evidence directory, supplied by the parent before execution",
+    "requiredFields": ["source", "destination", "productCommit", "pluginDatabaseCopied=true", "sourceUnchangedAfterPreparation=true"],
+    "ownership": "Copied owner.json must name the independent canonical destination and existing taskId. The harness never opens source databases and rejects hard-linked mutable databases. The parent verifies source hashes before and after."
+  },
+  "window": { "totalMs": 240000, "stopNewCallsAndPauseMs": 235000, "actions": 20, "providerRequests": 80, "newSessions": 1, "externalSupervisor": "Parent supplies the run20-style owned process supervisor. An unsettled or killed process never passes. No extension or automatic rerun." },
+  "configuration": "Both real providers must be configured through providersFromEnv before databases or browsers are opened. Only call counts and durations are reported; no environment files, secrets, provider request state or responses are copied by this harness.",
+  "closedLoop": [
+    "The baseline item is required, concrete, unfinished, and has no successful attempt or resolution; its occurrence ID and full prior evidence are retained.",
+    "The real plugin emits recovery.selected for that item and recovery.result with a legal verified arrival status. At least one recovery attempt actually succeeds; current-state verification alone does not demonstrate restored traversal.",
+    "The plugin independently emits action.selected and action.scheduled for the same item; the harness forwards the original SDK action, request, value and guard unchanged.",
+    "A read-only SDK correspondence binds that chosen action to the unique historical action matching the selected item's scope. A correspondence read never authorizes dispatch.",
+    "The actual non-recovery, non-reentry receipt succeeds under the original observation-bound exploration guard, has complete before/after observations, and is byte-equivalent to its persisted receipt.",
+    "After recordOutcome is persisted, the same occurrence is succeeded, resolvedBy and conditionCompletion.source reference the new receipt, conditionCompletion is verified, and the fresh SDK receipt condition is verified.",
+    "The session and task have no unknown/executing, dirty, pendingDispatch, unverifiedRecovery or unverifiedNavigation. The harness then requests ordinary plugin pause and waits for settlement."
+  ],
+  "failureStops": ["First returned unverified recovery or thrown recovery", "unknown execution", "provider or decision failure", "instrumentation failure", "window budget", "plugin halt without a complete loop"],
+  "notAllowed": ["Selecting SDK actions in the harness", "Replacing plugin inputs with 2/3 or other samples", "Changing plan, permissions, groups, source paths or route debt", "continue-scope or task budget extension", "Fake providers", "Calling private scheduler/step methods as the real entry", "Treating review completion, candidate readiness, a new observation or unrelated action success as the closed loop"],
+  "evidence": ["invocation.json", "task-before.json", "plan-occurrences-before.json", "preflight.json", "timeline.jsonl", "loop.json when verified", "task-after.json", "plan-occurrences-after.json", "plan-changes.json", "settled-assessments.json", "outcome.json"],
+  "limits": "Successful continuation and condition completion are separate checks. Novelty is relative to the retained input and chosen pending occurrence, not all experiments or all semantic branches. This is one bounded real chain, not an automatic exploration success rate or a performance comparison. API timings overlap."
+}
