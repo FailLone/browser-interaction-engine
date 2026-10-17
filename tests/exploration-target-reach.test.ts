@@ -126,16 +126,16 @@ it('carries unexecuted target evidence into a fresh browser session without gran
  expect(t.engine.list<ActionAttempt>(t.sessionId,'attempt')).toEqual([]);expect(t.engine.list<ActionAttempt>(session.id,'attempt')).toEqual([]);
 });
 
-it('reuses entry replay but stops at verified target arrival when unrelated document state differs',async()=>{
+it('continues a verified recorded source path without entry reload when only unrelated document state differs',async()=>{
  const t=await fixture('<button id="open" type="button" aria-expanded="false" onclick="this.setAttribute(\'aria-expanded\',\'true\');document.querySelector(\'#details\').hidden=false">Open</button><form id="details" hidden><label>Amount<input id="amount" value="1"></label></form><label>Quote<input id="quote" readonly></label><script>const visit=Number(localStorage.visit||0)+1;localStorage.visit=String(visit);document.querySelector("#quote").value=String(visit)</script>',{interfaceActions:[{stableKey:'id:open'}],replayable:[{stableKey:'id:open'}]});
  const open=action(t,'Open'),first=await t.engine.execute(t.sessionId,open.id,crypto.randomUUID()),input=await target(t,action(t,'Amount','fill')),original=t.engine.observation(t.sessionId);
  expect(first.action.replayable).toBe(true);
  await pageOf(t.engine).evaluate(()=>{(document.querySelector('#details') as HTMLElement).hidden=true;document.querySelector('#open')!.setAttribute('aria-expanded','false');(document.querySelector('#quote') as HTMLInputElement).value='different';});await t.engine.observe(t.sessionId);
  const result=await t.engine.reachExplorationTarget(t.sessionId,input);
- expect(result.status,JSON.stringify(result)).toBe('TARGET_REACHED');expect(result.diagnostics?.strategies).toContain('entry_replay');
+ expect(result.status,JSON.stringify(result)).toBe('TARGET_REACHED');expect(result.diagnostics?.strategies).toContain('recorded_source_path');expect(result.diagnostics?.strategies).not.toContain('entry_replay');
  expect(t.engine.observation(t.sessionId).canonical).not.toBe(original.canonical);
- expect(result.attemptIds).toHaveLength(2);
- const replay=t.engine.list<ActionAttempt>(t.sessionId,'attempt').find(a=>a.id===result.attemptIds[1])!;
+ expect(result.attemptIds).toHaveLength(1);
+ const replay=t.engine.list<ActionAttempt>(t.sessionId,'attempt').find(a=>a.id===result.attemptIds[0])!;
  expect(replay).toMatchObject({purpose:'recovery',status:'succeeded',repetitionSource:{sessionId:t.sessionId,attemptId:first.id}});
 });
 

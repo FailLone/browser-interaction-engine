@@ -1808,6 +1808,45 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         verification = await verify(); checks = verification.checks;
         if (verification.status) { status = verification.status; reason = `Verification after declared local restoration: ${status}`; return finish(); }
       }
+      // Exact graph nodes may differ only in passive observations. For a
+      // directed goal, consider a suffix of its OWN recorded path before
+      // reopening the entry. The suffix is a hint, not a restored prefix:
+      // every dispatched step still needs current source conditions and rights.
+      if (directed && !this.session(sessionId).dirty && !this.observation(sessionId).boundaries?.length) {
+        if (this.unverifiedRecoveryAttempts(sessionId).length) { status = 'UNVERIFIED'; reason = 'Unknown execution outcome requires explicit recovery verification'; return finish(); }
+        const current = this.observation(sessionId), actions = this.actions(sessionId), liveSession = this.session(sessionId);
+        const remainingActions = Math.max(0, liveSession.options.maxActions - liveSession.actionCount);
+        const scanLimit = 16, assessmentLimit = 4, rejected: Record<string, number> = {};
+        let scanned = 0, assessed = 0, selected: string[] | undefined;
+        for (let start = checkpoint.path.length - 1; start >= 0 && scanned < scanLimit && assessed < assessmentLimit; start--) {
+          scanned++;
+          if (checkpoint.path.length - start > remainingActions) break;
+          const old = this.owned<ActionAttempt>('attempt', checkpoint.path[start], sessionId), first = this.recordedFirstStep(old, current, actions);
+          if (first.reason) { rejected[first.reason] = (rejected[first.reason] || 0) + 1; continue; }
+          if (dispatched.has(this.replayDispatchKey(current, first.action!, old.action.value))) continue;
+          assessed++;
+          const proof = this.repetitionAssessment(sessionId, { observationId: current.id, actionId: first.action!.id, source: { sessionId, attemptId: old.id } });
+          if (!proof.repeatable) { rejected[proof.reason] = (rejected[proof.reason] || 0) + 1; continue; }
+          selected = checkpoint.path.slice(start); break;
+        }
+        this.emit(sessionId, 'checkpoint.source_path_assessed', { checkpointId, observationId: current.id, scanned, assessed, scanLimit, assessmentLimit, rejected, path: selected, remainingActions });
+        if (selected) {
+          strategies.push('recorded_source_path');
+          const replay = await this.replay(sessionId, selected, false, performed, targetReached, dispatched);
+          if (reviewStop) { status = reviewStop; reason = 'Review target verification requires resolution before further replay'; return finish(); }
+          if (this.unverifiedRecoveryAttempts(sessionId).length) {
+            status = 'UNVERIFIED'; reason = 'Unknown execution outcome requires explicit recovery verification';
+            checks = [{ name: 'unresolved-execution-outcomes', result: 'unknown' }]; return finish();
+          }
+          verification = await verify(); checks = verification.checks;
+          status = verification.status || (replay.failure === 'preconditions_changed' ? 'PRECONDITIONS_CHANGED' : 'UNREACHABLE');
+          reason = replay.failure || `Recorded source path verification: ${status}`;
+          // A failed attempted suffix must not become an excuse to reopen and
+          // repeat it. Keep its real result and leave the target outstanding.
+          if (replay.failure) this.emit(sessionId, 'checkpoint.path_failed', { checkpointId, path: selected, failedAttemptId: replay.failedAttemptId, reason: replay.failure, observationId: this.observation(sessionId).id });
+          return finish();
+        }
+      }
       let session = this.session(sessionId); let resetConfirmed = false; let entryReopened = false;
       if (session.dirty && this.hooks.reset) {
         await this.beforeAction(sessionId);
