@@ -26,6 +26,7 @@ import { collectActionEvidence } from './action-evidence.js';
 import { collectEvidence } from './collect-evidence.js';
 import { installImageResourceEvidence } from './image-resource-evidence.js';
 import { collectIdentityContexts } from './identity-context.js';
+import { collectOwnerDependencies } from './owner-dependencies.js';
 import { collectPopupRelations } from './popup-relations.js';
 import { collectComponents } from './components.js';
 import { evidenceOptionsSchema } from './schema.js';
@@ -40,11 +41,12 @@ type DOMSnapshot = {
   components?: Observation['components']; regionCandidates?: Observation['regionCandidates']; structuralLists?: Observation['structuralLists'];
   boundaryExitCandidates?: Observation['boundaryExitCandidates'];
   actionDiscovery?: Observation['actionDiscovery']; discoveryScan?: DiscoverySnapshot;
+  ownerDependencies?: Observation['ownerDependencies'];
   scroll: Observation['scroll']; scrollContainers?: Observation['scrollContainers']; gaps: Gap[]; detailDom?: DomEvidence;
 };
 
 // Runs in the page without framework knowledge or DOM mutation.
-function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, scrollCollector: typeof collectScrollContainers, exitCollector: typeof collectBoundaryExits, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan) {
+function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, scrollCollector: typeof collectScrollContainers, exitCollector: typeof collectBoundaryExits, ownerCollector: typeof collectOwnerDependencies | undefined, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
@@ -446,7 +448,9 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   const scrollSurfaces = scrollCollector(layers.overlays);
   if (scrollSurfaces.truncated) gaps.push({ code: 'SCROLL_CONTAINERS_TRUNCATED', message: 'Scroll container inventory was truncated' });
   if (scrollSurfaces.unsupported) gaps.push({ code: 'SCROLL_WRITING_MODE_UNSUPPORTED', message: 'Scroll traversal supports horizontal-tb, ltr containers' });
-  return { scrollContainers: scrollSurfaces.containers, documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, components, ...layers, boundaryExitCandidates: exitCollector(layers.overlays, instance, selector), discoveryScan, discoveryTopology, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
+  const ownerDependencies = ownerCollector?.(controls, all.slice(0, 1500), instance, tracker.documentId);
+  if (ownerDependencies && all.length !== controls.length) { ownerDependencies.inventoryComplete = false; ownerDependencies.complete = false; ownerDependencies.reasons.push('control_inventory_truncated'); }
+  return { ...(ownerDependencies ? { ownerDependencies } : {}), scrollContainers: scrollSurfaces.containers, documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, components, ...layers, boundaryExitCandidates: exitCollector(layers.overlays, instance, selector), discoveryScan, discoveryTopology, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
 
 export class BrowserAdapter implements InteractionDriver<Observation, SessionOptions> {
@@ -514,8 +518,10 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
     const args = `, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? discoverStructuralLists.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? describeStructuralLists.toString() : 'undefined'}, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}, ${this.discoveryPlan?.status === 'active' ? JSON.stringify(this.discoveryPlan) : 'undefined'}`;
-    const source = `(() => { const __name = (fn) => fn; return (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}, ${collectScrollContainers.toString()}, ${collectBoundaryExits.toString()}${args}); })()`;
-    const raw = await this.page.evaluate(source) as DOMSnapshot & { discoveryTopology: string[][]; discoveryScan: DiscoverySnapshot };
+    const source = `(() => { const __name = (fn) => fn; const dom = (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}, ${collectScrollContainers.toString()}, ${collectBoundaryExits.toString()}, ${this.options.exploration === 'controls' ? collectOwnerDependencies.toString() : 'undefined'}${args}); if (dom.ownerDependencies) dom.ownerDependencies = JSON.stringify(dom.ownerDependencies); return dom; })()`;
+    // Preserve arbitrary legal HTML attribute keys across the automation protocol.
+    const transferred = await this.page.evaluate(source) as Omit<DOMSnapshot, 'ownerDependencies'> & { ownerDependencies?: string; discoveryTopology: string[][]; discoveryScan: DiscoverySnapshot };
+    const raw = { ...transferred, ...(transferred.ownerDependencies ? { ownerDependencies: JSON.parse(transferred.ownerDependencies) as NonNullable<DOMSnapshot['ownerDependencies']> } : { ownerDependencies: undefined }) };
     const { discoveryTopology, ...dom } = raw;
     dom.discoveryScan.topologyKey = hash(discoveryTopology);
     const plan = this.discoveryPlan;

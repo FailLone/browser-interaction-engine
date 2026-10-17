@@ -12,6 +12,52 @@ export interface BrowserHistory {
   entries: { id: number; url: string; method?: string }[];
 }
 export interface BrowserComponent extends InteractionComponent { rootNodeId: string; rect: Rect }
+/** Bounds on raw capture, never permission to omit dependencies from a proof. */
+export interface OwnerDependencyLimits { nodes: number; references: number; bytes: number; depth: number }
+export interface OwnerDependencyNode {
+  id: string; parentId: string; tag: string; attributes: Record<string, string>;
+  /** False for ancestor-only nodes or an incomplete child inventory. */
+  childrenComplete: boolean;
+  children?: ({ nodeId: string } | { text: string })[];
+  /** Native properties may differ from their serialized HTML attributes. */
+  live?: { value?: string; checked?: boolean; indeterminate?: boolean; selected?: boolean; disabled?: boolean; readOnly?: boolean; multiple?: boolean };
+  /** Explicit native association inventories; empty formId/labelIds mean none,
+   * rather than an omitted capture. Associated targets also have reference edges. */
+  associations?: { formId?: string; labelIds?: string[] };
+  resolved?: { href?: string; src?: string; action?: string; formAction?: string };
+  complete: boolean; reasons: string[];
+}
+export interface OwnerDependencyReference {
+  sourceId: string; attribute: string; token: string;
+  status: 'unique' | 'missing' | 'ambiguous'; targetIds: string[];
+}
+export interface OwnerDependencyClosure {
+  id: string; subtreeId: string; nodeIds: string[]; referenceIds: number[];
+  /** All subtree roots, including transitive external IDREF targets. Ancestors
+   * contribute their own attributes/references but not unrelated child trees. */
+  subtreeIds: string[];
+  complete: boolean; reasons: string[];
+}
+export interface OwnerDependencyRoot {
+  localId: string; instanceId: string; ownerId: string; closureId: string;
+  complete: boolean; reasons: string[];
+}
+/** Immutable raw DOM projection. A complete graph describes this bounded capture
+ * contract, not arbitrary JavaScript/business state. Missing legacy evidence is
+ * unknown. It never changes logical identity or grants coverage/replay/dispatch. */
+export interface OwnerDependencies {
+  version: 'browser-owner-dependencies-v1'; documentId: string; baseURI: string;
+  /** Complete inventory from retained controls, including hidden/unknown modes. */
+  selectorIds: string[];
+  /** Root/selector membership was retained in full. Unlike complete, this does
+   * not require unrelated target roots to have complete local captures. */
+  inventoryComplete: boolean;
+  roots: OwnerDependencyRoot[]; closures: OwnerDependencyClosure[];
+  nodes: OwnerDependencyNode[]; references: OwnerDependencyReference[];
+  limits: OwnerDependencyLimits;
+  /** Summary of all roots; consumers must inspect each required root/closure. */
+  complete: boolean; reasons: string[];
+}
 export interface ScrollContainer {
   nodeId: string; selector: string; name: string; root: boolean; boundaryKey?: string;
   left: number; top: number; maxLeft: number; maxTop: number; width: number; height: number;
@@ -105,6 +151,7 @@ export interface Observation extends CoreObservation<Control> {
   id: ID; sessionId: ID; capturedAt: string; screenshotAt?: string;
   url: string; title: string; text: string; viewport: { width: number; height: number }; scroll: { x: number; y: number; maxY: number };
   documentId: string; controls: Control[]; regions: Region[]; context: Context;
+  ownerDependencies?: OwnerDependencies;
   components?: BrowserComponent[];
   scrollContainers?: ScrollContainer[];
   overlays?: Overlay[];
