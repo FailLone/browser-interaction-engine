@@ -3,7 +3,7 @@ import { observedPosition, reconcileRecoveryPosition, routeAttempt } from './nav
 import { projectObligations, recoveryConditionVersion, recoveryRouteConditionVersion, recoveryRouteKey, recordRouteRetry, retainRouteFailureCondition, routeRetryEligibility, releaseRouteRetriesForVerifiedRecovery } from './obligation-lifecycle.js';
 import {capturedRoute,routeFinder,routeMatches,routeKey} from './reentry-evidence.js';
 import { randomUUID } from 'node:crypto';
-import { browserOperationCorrespondenceHint, browserTargetConditions, sameObservedState } from '@interaction/browser';
+import { browserOperationCorrespondenceHint, browserTargetConditions, hasReviewedDismissal, sameObservedState } from '@interaction/browser';
 import { z } from 'zod';
 import type { ActionCandidate, ActionAttempt, Observation, EngineEvent, BoundaryExitResult, ContinuationRecord, IdentityHypothesis } from '@interaction/browser';
 import { ExplorerError, type Task, type Round, type Frame, type PlanItem, type Scope, type ExplorerHost, type Providers, type Decision, type ModelRequest } from './types.js';
@@ -961,12 +961,21 @@ export class ExplorerPlugin {
     local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||locality(b)-locality(a)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     const inPlace=local.filter(choice=>{const action=actions.find(action=>action.id===choice.actionId)!;return action.boundary?.intent!=='exit'&&!navigationTarget(action,o);});
     if(inPlace.length){local.splice(0,local.length,...inPlace);}
+    // Once current boundary work is done, use its already admissible local exit
+    // before spending a remote recovery turn. Keep the fairness counter: the
+    // next observation rebuilds candidates and resumes ordinary scheduling.
+    const activeOverlay=o.overlays?.at(-1);
+    const boundaryExit=!inPlace.length&&activeOverlay&&activeOverlay.key===o.boundaries?.at(-1)?.key?local.find(choice=>{
+      const action=actions.find(action=>action.id===choice.actionId)!;
+      return this.currentExit(action,o)&&(action.localId?activeOverlay.controlIds.includes(action.localId)||activeOverlay.exitControlIds.includes(action.localId)
+        :!action.controlId&&(action.kind==='press'&&action.value==='Escape'||hasReviewedDismissal(action,o)));
+    }):undefined;
     reentries.sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     let recovery:ScheduledRecovery|undefined;
-    if(!local.length||schedule.localSelections>=localSelectionLimit)recovery=this.scheduledRecovery(task,round,o,actions,availability,routeCondition);
+    if(!boundaryExit&&(!local.length||schedule.localSelections>=localSelectionLimit))recovery=this.scheduledRecovery(task,round,o,actions,availability,routeCondition);
     const remote:ObligationSelection[]=[...reentries,...recovery?[{itemId:recovery.itemId,kind:broadScope(byId.get(recovery.itemId)!.scope)?'inspect' as const:'recovery' as const,source:{sessionId:sid,observationId:recovery.source.id},routeKey:recovery.routeKey}]:[]]
       .sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
-    const selection=selectObligation(schedule,local,remote),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
+    const selection=boundaryExit||selectObligation(schedule,local,remote),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
     const schedulingBefore={cursor:schedule.cursor,localSelections:schedule.localSelections,selection:schedule.selection};
     if(selection){if(selectedAction)schedule.selection={...selection};else reserveObligation(schedule,selection);if(schedule.deferred)delete schedule.deferred[selection.itemId];this.event(task,'obligation.selected',{...selection,sourceObservationId:o.id,coverageGranted:false,executionAuthorized:false});}
     if(selection?.kind!=='recovery'&&selection?.kind!=='inspect')recovery=undefined;
