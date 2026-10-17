@@ -88,3 +88,19 @@ it('reports sampled obligations separately from observed combinations and unprov
  const altered=structuredClone(receipt);delete altered.dispatchWitness;f.host.store.put('attempt',altered);expect(coverageLedger(f.host,task).finite).toMatchObject({verified:0,remaining:['sample','related']});
  }finally{await f.close();}
 });
+
+
+it('persists current classification proof for a newly retained review source before leaving the scene',async()=>{
+ const {ExplorerPlugin,ExplorerStore}=await import('@interaction/explorer-plugin');const {scopeForControl}=await import('../packages/explorer-plugin/src/policy.js');
+ const f=await explorerFixture('<section role="dialog" aria-label="Settings"><label>Mode<select id="mode"><option>A</option><option>B</option></select></label><button>Done</button></section>');
+ const plugin=new ExplorerPlugin(f.host,new ExplorerStore(':memory:'));
+ try{const s=await f.host.createSession({url:f.url,headless:true,coveragePolicy:'finite-ui-v1'}),before=f.host.observation(s.id),c=before.controls.find(c=>c.role==='dialog')!;
+ await f.host.command(s.id,{type:'classifyControls',classification:{observationId:before.id,source:'test',classifications:[{localId:c.localId,classification:'container',reason:'Owned fixture container',evidence:['complete fixture subtree']}]}});
+ const o=f.host.observation(s.id);const task=plugin.create({url:f.url,coverageMode:'all'});task.status='running';task.rounds=[{id:'round',number:1,sessionId:s.id,startedAt:new Date().toISOString(),status:'running',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0}];
+ const item={id:'review-source',title:'Review',scope:scopeForControl(c,before),prerequisites:[],required:true,dispatchScope:false,status:'unresolved',reason:'classification_unresolved',completion:'Interpret retained source',evidence:[{sessionId:s.id,observationId:before.id}],attempts:[]} as any;task.plan=[item];
+ await (plugin as any).applyReviewRecoveryChanges(task,o,new AbortController().signal,[{itemId:item.id,source:{sessionId:s.id,observationId:o.id}}]);
+ expect(item.status).toBe('succeeded');expect(item.reviewSourceProofs.bindings.map((b:any)=>b.source.observationId)).toEqual([before.id,o.id]);
+ const proof=item.reviewResolvedBy;await f.host.command(s.id,{type:'revokeControlClassification',revocation:{classificationId:proof.classificationId,source:'test',reason:'negative revoked proof'}});
+ (plugin as any).retractReviewLedger(task,f.host.observation(s.id));expect(item.status).toBe('unresolved');
+ }finally{await plugin.close();await f.close();}
+});

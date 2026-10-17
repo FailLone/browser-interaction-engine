@@ -94,3 +94,12 @@ it('propagates stale SDK review rejection without falling through to unrelated r
  const f=fixture();f.classifications.controls[0].needsClassification=true;f.c.apply=vi.fn(async()=>{throw Object.assign(new Error('capture changed'),{code:'STALE_DECISION'});});
  await expect(reviewNext(f.c)).rejects.toMatchObject({code:'STALE_DECISION'});expect(f.c.programApply).not.toHaveBeenCalled();expect(f.c.task.plan[0].status).toBe('pending');
 });
+
+
+it('reviews relevant finite classification before yielding a selected child that can change its source conditions',async()=>{
+ const f=fixture();f.o.coveragePolicy='finite-ui-v1';f.regions.unassignedControlIds=[];f.regions.unassignedPageTraversal=false;
+ f.classifications.controls[2].needsClassification=true;f.c.hasPendingAction=vi.fn(()=>true);
+ expect(await reviewNext(f.c)).toBe(true);expect(f.choose).toHaveBeenCalledWith('control-classification',expect.any(String),expect.objectContaining({control:f.controls[2]}),expect.anything(),expect.anything());
+ expect(f.c.hasPendingAction).not.toHaveBeenCalled();
+ f.classifications.controls[2].needsClassification=false;expect(await reviewNext(f.c)).toBe(false);expect(f.c.hasPendingAction).toHaveBeenCalled();
+});

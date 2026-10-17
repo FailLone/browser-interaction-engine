@@ -283,6 +283,9 @@ export class ExplorerPlugin {
         {...change,coverageGranted:false,executionAuthorized:false});
     }
     this.persist(task);
+    // Newly retained sources may already have a valid current interpretation.
+    // Preserve that proof before a following child action can leave the scene.
+    if(changes.some(change=>change.source))await this.reconcileReviewLedger(task,o,signal);
   }
   private async decide(task:Task,signal:AbortSignal,request:Omit<ModelRequest,'id'>,validate?:(v:unknown)=>unknown) {
     const revision=task.revision,oid=(request.state as {observationId?:string})?.observationId;

@@ -1,0 +1,25 @@
+# Persistent goal and resume checkpoint
+
+Status: active. The app goal API can create and read a goal and update its status, but cannot update its objective. Do not mark complete or pause merely to replace objective text. This file records the additional explicit user requirement and must be read on every continuation (see root AGENTS.md).
+
+## Actual app goal objective, read 2026-10-18 Asia/Shanghai
+
+在 /Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine 延续现有实现，完成有限覆盖规则与任务生成一致化及真实自主探索闭环。用现有 /?defects=off 测试页、真实 ExplorerPlugin/SDK/Playwright/SQLite/JEV/LLM，在每轮跨进程共享的 240 秒、80 次真实浏览器动作预算内通过原独立 23 分支完整验收，证明原未完成子目标离开后严格重入、真实执行和持久化完成，真实进程重启后保留完成项并继续未完成项，无非必要重复且任务实际完成；失败保存完整证据后修复再开新轮，不泄漏路线、不伪造、不删义务或放宽通过标准。保留目标身份、条件校验及负例，分别报告有限操作、已观测条件组合和未知依赖。首次通过后冻结代码至少独立复验一次，再在相同外层预算评测 OKX 公开页面重入续测，仅公开导航，不登录、交易或绕过限制；如未成立明确审计结论并定位相关原因。最终提交代码和必要证据、基线、Crawljax 到 TS 机制对应、覆盖账本、完整验收及复验、重入/重启证明、可复现命令、OKX 结果和剩余限制。全部真实完成后才标 complete。
+
+## Required Crawljax implementation basis
+
+Use `/Users/xietian/Experiments/crawljax-okx-20261018/v3` source, protocol and results as continuing technical evidence. Implement the verified useful state normalization, graph path restoration and replay mechanisms in the existing Node/TypeScript engine. Distinguish navigation-state equivalence, target-control correspondence and immutable coverage obligations. Preserve the original unfinished child across recovery, reobserve and verify arrival, execute the child and close it with an actual receipt. Distinguish exploration deduplication from recovery: clickOnce/already-executed filtering must not block necessary restoration steps. Never replay old DOM handles. Keep the existing generic popup adapter fixed and audit occlusion and boundary order. Custom v3 equality success is not native Crawljax whole-site exhaustion. FRAGGEN remains separate and is not silently transplanted.
+
+Deliver an auditable table: Crawljax mechanism and source evidence → adopted/rejected and why → concrete TS implementation → positive/negative tests and real reentry evidence. This is an implementation/verification requirement, not just a final appendix.
+
+## Fixed acceptance and safety boundaries
+
+Existing test site `/?defects=off`, actual ExplorerPlugin + SDK + Playwright + SQLite + JEV/LLM. 23 independent audit branches may not be supplied to the explorer. Each fresh run: 240 seconds including browser creation, waits, process restart and final audit; 80 actual browser commands including failed and recovery actions. Current internal scheduler limit: 3 rounds, predeclared in protocol. No forged model/receipt/database completion, route lists, deletion of duties or retroactive failed-run relabeling. Full branch coverage, original pending child reentry/arrival/dispatch/durable receipt, real process restart with pending continuation, preserved prior receipts, no unnecessary duplicate completion and actual task completion are all required. First full pass must be followed by an independent complete rerun with unchanged product. Only then evaluate OKX public pages in the same external budgets, without login, trades or region/identity evasion; a documented bounded failure is a valid OKX evaluation outcome, never a success claim.
+
+## Current state and next steps
+
+Workspace: `/Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine`. Original refactor remains untouched. Baseline freeze `09449a4`, selected fixes `0fc7f37`, finite contract `328d029`, target/witness/classification fixes `cb11497`, source-linked ledger audit `5f13fc4`.
+
+Runs 1 and 2 failed. Run 3 covered 23/23 and all original reentry/restart checks in 79.460 seconds/35 actions, but FAIL remains because the new ledger omitted nine related receipt-backed discovery rows. Fixed by revalidating every retained source using existing SDK correspondence, never trusting linked success flags. 53 related tests and typecheck passed. Run 4 (5f13fc4) failed after 75.792 seconds/44 actions: 23/23 branches, 37/37 operation obligations, two strict reentries and restart continuation passed; unresolved dialog classification source history caused repeated recovery and five duplicate completions, task blocked. Offline copy `.data/finite-run-4-offline` proves the selected child changed conditions before container review, and newly retained interpreted sources were not reconciled before leaving. Fix: finite review yield considers all relevant visible controls, and newly retained sources are reconciled immediately. 63 regression tests passed; next run is Run 5. Never open a live worker database with ExplorerStore: its constructor recovers state. Offline diagnostics must use independent copies. Do not edit product while an acceptance run is live.
+
+If Run 4 passes, run a fresh confirmation with exactly the same code. Archive every run's protocol, source manifest/diff, timeline, audit, ledger, tasks and persistence archive. Then evaluate OKX. Keep the goal active until all required implementation, verification, commits and report are done. Update this checkpoint as work proceeds.
