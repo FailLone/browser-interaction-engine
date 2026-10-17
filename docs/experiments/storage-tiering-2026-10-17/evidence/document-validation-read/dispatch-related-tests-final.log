@@ -1,0 +1,16 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/document-dispatch-witness.test.ts (5 tests) 2539ms
+   ✓ does not credit retained owner A when the real dispatch ran under changed owner B  501ms
+   ✓ binds a stable actual supplied value and rejects missing, changed, or borrowed witnesses  850ms
+   ✓ does not turn an actual-value witness into equivalence between different review/native bases  402ms
+   ✓ does not borrow preparation when the second beforeAction hook changes owner  401ms
+   ✓ does not borrow preparation when the second beforeAction hook changes declared-context  383ms
+ ✓ tests/document-coverage-graph.test.ts (72 tests) 61ms
+
+ Test Files  2 passed (2)
+      Tests  77 passed (77)
+   Start at  10:49:57
+   Duration  3.74s (transform 412ms, setup 0ms, collect 862ms, tests 2.60s, environment 0ms, prepare 69ms)
+

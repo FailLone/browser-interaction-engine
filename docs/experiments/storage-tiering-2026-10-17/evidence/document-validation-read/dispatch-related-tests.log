@@ -1,0 +1,46 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ❯ tests/document-dispatch-witness.test.ts (4 tests | 1 failed) 1728ms
+   ✓ does not credit retained owner A when the real dispatch ran under changed owner B  509ms
+   × binds a stable actual supplied value and rejects missing, changed, or borrowed witnesses 416ms
+     → expected { equivalent: false, …(8) } to match object { equivalent: true, …(4) }
+(12 matching properties omitted from actual)
+   ✓ does not borrow preparation when the second beforeAction hook changes owner  404ms
+   ✓ does not borrow preparation when the second beforeAction hook changes declared-context  399ms
+ ✓ tests/document-coverage-graph.test.ts (72 tests) 59ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/document-dispatch-witness.test.ts > binds a stable actual supplied value and rejects missing, changed, or borrowed witnesses
+AssertionError: expected { equivalent: false, …(8) } to match object { equivalent: true, …(4) }
+(12 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "currentExecution": false,
+-   "equivalent": true,
++   "equivalent": false,
+    "identityAuthorized": false,
+-   "policy": "browser-document-coverage-v1",
+    "replayAuthorized": false,
+  }
+
+ ❯ tests/document-dispatch-witness.test.ts:147:21
+    145|     expect(after.ownerDependencyDispatch).toMatchObject({ beforeId: f.…
+    146|     expect(after.ownerDependencyDispatch!.actionKey).not.toBe(hash(f.s…
+    147|     expect(query()).toMatchObject({ equivalent: true, policy: 'browser…
+       |                     ^
+    148|     const variants = [undefined, { ...after.ownerDependencyDispatch!, …
+    149|       { ...after.ownerDependencyDispatch!, graphKey: 'other' }, { ...a…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 75 passed (76)
+   Start at  10:45:53
+   Duration  2.97s (transform 431ms, setup 0ms, collect 902ms, tests 1.79s, environment 0ms, prepare 71ms)
+

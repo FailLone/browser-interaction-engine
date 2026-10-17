@@ -464,6 +464,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   private entryMethods = new Map<number, string>();
   private lastDocumentResponse?: { url: string; method: string };
   private discoveryPlan?: DiscoveryScanPlan & { status: 'active' | 'invalidated'; reason?: string };
+  private preparedOwnerDispatch?: { action: ActionCandidate; beforeId: string; graphKey: string; context: Context;
+    documentId: string; instanceScope: string; browserSessionId: string; url: string };
+  private ownerDispatch?: Observation['ownerDependencyDispatch'];
   setDiscoveryScan(plan: DiscoveryScanPlan) { this.discoveryPlan = { ...structuredClone(plan), status: 'active' }; }
   async validateDiscoveryScan(current: Observation) {
     const live = await timeout(this.readDOM(false, false), this.options.observeTimeoutMs, 'Discovery validation deadline exceeded');
@@ -535,6 +538,17 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     return dom;
   }
   async capture(observationId: string, captureContext?: CaptureContext<Observation>) {
+    // A capture consumes the slot even on failure, mismatch or ordinary observe.
+    const dispatch = this.ownerDispatch; this.ownerDispatch = undefined; this.preparedOwnerDispatch = undefined;
+    const dispatched = captureContext?.afterAction;
+    const ownerDependencyDispatch = dispatch && dispatched && dispatch.beforeId === dispatched.before.id
+      && dispatch.sessionId === dispatched.before.sessionId && dispatch.actionId === dispatched.action.id
+      && dispatched.before.ownerDependencies?.inventoryComplete
+      && dispatch.documentId === dispatched.before.documentId && dispatch.instanceScope === dispatched.before.instanceScope
+      && dispatch.browserSessionId === dispatched.before.navigation?.browserSessionId && dispatch.browserSessionId === this.navigationSessionId
+      && dispatch.url === dispatched.before.url
+      && dispatch.actionKey === hash(dispatched.action) && dispatch.graphKey === hash(dispatched.before.ownerDependencies)
+      && dispatch.contextKey === hash(dispatched.before.context) ? dispatch : undefined;
     if (!this.page) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
     const deadline = Date.now() + this.options.observeTimeoutMs;
     let stable = false; let interactionStable = false; let captureRetries = 0;
@@ -695,7 +709,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if (evidenceManifest.gaps.length || dom.detailDom?.nodes.some(n => n.gaps.length)) evidenceManifest.status = 'partial';
     }
     const { detailDom: _, ...observation } = dom;
-    return { ...observation, navigation, evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
+    return { ...observation, ...(ownerDependencyDispatch ? { ownerDependencyDispatch } : {}), navigation, evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
   }
   private lastDismissal?: BoundaryExitDispatch & { actionId: string };
   dismissalDispatch(actionId: string): BoundaryExitDispatch | undefined {
@@ -703,6 +717,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const { actionId: _id, ...dispatch } = this.lastDismissal; return { ...dispatch };
   }
   async execute(action: ActionCandidate, control?: Control) {
+    const prepared = this.preparedOwnerDispatch; this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined;
     this.liveEpoch++;
     const page = this.page!;
     if (action.kind === 'scroll' && action.source === 'scroll-traversal') return this.traversalScroll(action, true);
@@ -741,6 +756,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const sameInstance = await target.evaluate((el, expected) => (window as any).__interactionEvidenceTracker?.ids.get(el) === expected, control.instanceId);
     if (!sameInstance) throw new EngineError('STALE_TARGET', 'Target was rebuilt after observation');
     const clickOptions = control.actionable.clickPoint ? { position: control.actionable.clickPoint } : {};
+    // No witness for multi-stage scroll/dismiss/history or custom dispatch/read
+    // implementations. Capture failure only withholds coverage evidence.
+    if (action.kind !== 'scroll') this.ownerDispatch = await this.dispatchWitness(prepared, action, control);
     if (action.kind === 'scroll') {
       const delta = typeof action.value === 'object' && action.value !== null ? action.value as { x: number; y: number } : { x: 0, y: Number(action.value) };
       await target.hover(clickOptions);
@@ -840,6 +858,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     return actions;
   }
   async preflight(current: Observation, action?: ActionCandidate, reviewTargetLocalIds: string[] = [], reuseTargetLocalIds: string[] = [], regionReuseCandidateIds: string[] = [], surroundingTargetLocalIds: string[] = []): Promise<PreflightResult> {
+    this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined;
     let live: Awaited<ReturnType<BrowserAdapter['readDOM']>>;
     try { live = await timeout(this.readDOM(false, false), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
@@ -940,7 +959,39 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     }
     // A submission or externally reviewed operation must retain its exact target text.
     if (target && action?.risk !== 'interface' && target.displayedText !== live.controls.find(c => c.instanceId === target.instanceId)?.displayedText) return 'stale';
+    if (action && target && action.observationId === current.id && current.ownerDependencies?.inventoryComplete
+      && current.navigation?.browserSessionId === this.navigationSessionId && current.instanceScope && !this.hooks.context && !this.options.contextRules.length) {
+      this.preparedOwnerDispatch = { action: structuredClone(action), beforeId: current.id, graphKey: hash(current.ownerDependencies),
+        context: structuredClone(current.context), documentId: current.documentId, instanceScope: current.instanceScope,
+        browserSessionId: this.navigationSessionId, url: current.url };
+    }
     return 'valid';
+  }
+  private async dispatchWitness(prepared: BrowserAdapter['preparedOwnerDispatch'], action: ActionCandidate, control: Control): Promise<Observation['ownerDependencyDispatch']> {
+    try {
+      if (!prepared || this.execute !== defaultExecute || this.readDOM !== defaultReadDOM
+        || this.hooks.context || this.options.contextRules.length || action.risk !== 'interface' || action.basis?.status !== 'supported'
+        || action.observationId !== prepared.beforeId || action.sessionId !== prepared.action.sessionId
+        || prepared.browserSessionId !== this.navigationSessionId) return;
+      // Core can supply an input value and lift only the corresponding missing-
+      // input exclusion. All other action facts must still be the prepared ones.
+      const comparable = { ...action, value: prepared.action.value,
+        ...(prepared.action.exclusionReason === 'input_sample_required' ? { excluded: prepared.action.excluded, exclusionReason: prepared.action.exclusionReason } : {}) };
+      if (canonical(comparable) !== canonical(prepared.action)) return;
+      // DOM rules/custom hooks are sampled separately from the owner graph. A
+      // second asynchronous read cannot prove they belonged to its final sample.
+      const context: Context = Object.fromEntries(Object.entries(this.options.context).map(([key, value]) => [key, { value, status: 'known', source: 'declared' }]));
+      if (canonical(context) !== canonical(prepared.context) || canonical(action.preconditions.context) !== canonical(prepared.context)) return;
+      const live = await timeout(this.readDOM(false, true), this.options.observeTimeoutMs, 'Dispatch evidence deadline exceeded');
+      if (this.execute !== defaultExecute || this.readDOM !== defaultReadDOM
+        || prepared.browserSessionId !== this.navigationSessionId || live.documentId !== prepared.documentId || live.url !== prepared.url
+        || live.gaps.some(g => g.critical) || !live.ownerDependencies?.inventoryComplete || hash(live.ownerDependencies) !== prepared.graphKey
+        || live.controls.filter(c => c.localId === action.localId && c.instanceId === control.instanceId).length !== 1
+        || live.controls.filter(c => c.instanceId === control.instanceId).length !== 1) return;
+      return { version: 'browser-owner-dispatch-v1', sessionId: action.sessionId, beforeId: prepared.beforeId, actionId: action.id,
+        actionKey: hash(action), graphKey: prepared.graphKey, contextKey: hash(context), documentId: live.documentId,
+        instanceScope: prepared.instanceScope, browserSessionId: prepared.browserSessionId, url: live.url, capturedAt: now() };
+    } catch { return; }
   }
   async validateDismissal(action: ActionCandidate, acceptClosedAfterMove = false) {
     const ref = dismissalReference(action);
@@ -1000,8 +1051,14 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     await target.evaluate(scrollProbeInPage, { options, instanceId: control.instanceId, boundarySelector: active?.selector, perform });
   }
   async reopen() {
+    this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined;
     const storageState = await this.context!.storageState(); await this.close();
     this.options = { ...this.options, storageState }; await this.start();
   }
-  async close() { await this.context?.close().catch(() => {}); await this.browser?.close().catch(() => {}); this.page = undefined; }
+  async close() { this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined; await this.context?.close().catch(() => {}); await this.browser?.close().catch(() => {}); this.page = undefined; }
 }
+
+// Capture implementation authority once. Later prototype replacement or an
+// instance decorator cannot acquire this driver's dispatch evidence contract.
+const defaultExecute = BrowserAdapter.prototype.execute;
+const defaultReadDOM = BrowserAdapter.prototype.readDOM;

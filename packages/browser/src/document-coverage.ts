@@ -210,6 +210,16 @@ export function documentCoverageReader(authority: RetainedCoverageAuthority) {
         || !knownContext(o) || !knownContext(before) || canonical(o.context) !== canonical(before.context)
         || canonical(action.preconditions.context) !== canonical(o.context) || canonical(attempt.action.preconditions.context) !== canonical(before.context)
         || action.kind !== attempt.action.kind || canonical(action.value) !== canonical(attempt.action.value)) return;
+      // Successful status alone does not bind the retained graph to the actual
+      // dispatch: DOM owner facts may have changed after its before capture.
+      const witness = after.ownerDependencyDispatch;
+      if (!witness || witness.version !== 'browser-owner-dispatch-v1' || witness.sessionId !== attempt.sessionId
+        || witness.beforeId !== before.id || witness.actionId !== attempt.action.id || witness.actionKey !== hash(attempt.action)
+        || witness.graphKey !== hash(before.ownerDependencies) || witness.contextKey !== hash(before.context)
+        || witness.documentId !== before.documentId || witness.instanceScope !== before.instanceScope
+        || witness.browserSessionId !== before.navigation?.browserSessionId || witness.url !== before.url) return;
+      const dispatchAt = Date.parse(witness.capturedAt), startedAt = Date.parse(attempt.startedAt), afterAt = Date.parse(after.capturedAt);
+      if (![dispatchAt, startedAt, afterAt].every(Number.isFinite) || dispatchAt < startedAt || dispatchAt > afterAt) return;
       const current = read(o), source = read(before); if (!current || !source || current.inventory !== source.inventory) return;
       const c = target(action, o, current), old = target(attempt.action, before, source);
       if (!c || !old || c.instanceId !== old.instanceId) return;

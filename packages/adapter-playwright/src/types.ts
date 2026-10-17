@@ -58,6 +58,15 @@ export interface OwnerDependencies {
   /** Summary of all roots; consumers must inspect each required root/closure. */
   complete: boolean; reasons: string[];
 }
+/** Last bounded DOM sample immediately before a native control command. This
+ * binds retained source evidence to a dispatch, not an atomic input transaction
+ * or an execution/replay grant. Missing legacy witnesses cannot be reconstructed. */
+export interface OwnerDependencyDispatch {
+  version: 'browser-owner-dispatch-v1';
+  sessionId: string; beforeId: string; actionId: string; actionKey: string;
+  graphKey: string; contextKey: string; documentId: string; instanceScope: string;
+  browserSessionId: string; url: string; capturedAt: string;
+}
 export interface ScrollContainer {
   nodeId: string; selector: string; name: string; root: boolean; boundaryKey?: string;
   left: number; top: number; maxLeft: number; maxTop: number; width: number; height: number;
@@ -152,6 +161,7 @@ export interface Observation extends CoreObservation<Control> {
   url: string; title: string; text: string; viewport: { width: number; height: number }; scroll: { x: number; y: number; maxY: number };
   documentId: string; controls: Control[]; regions: Region[]; context: Context;
   ownerDependencies?: OwnerDependencies;
+  ownerDependencyDispatch?: OwnerDependencyDispatch;
   components?: BrowserComponent[];
   scrollContainers?: ScrollContainer[];
   overlays?: Overlay[];

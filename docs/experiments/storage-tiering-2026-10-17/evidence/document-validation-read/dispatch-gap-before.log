@@ -1,0 +1,34 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ❯ tests/document-dispatch-witness.test.ts (1 test | 1 failed) 503ms
+   × does not credit retained owner A when the real dispatch ran under changed owner B 503ms
+     → expected true to be false // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/document-dispatch-witness.test.ts > does not credit retained owner A when the real dispatch ran under changed owner B
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/document-dispatch-witness.test.ts:94:30
+     92|     expect(host.list(session.id, 'attempt')).toHaveLength(1);
+     93|     // Safety oracle: the actual B receipt cannot complete the unexecu…
+     94|     expect(proof.equivalent).toBe(false);
+       |                              ^
+     95|   } finally {
+     96|     await host.close();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  10:37:04
+   Duration  1.45s (transform 417ms, setup 0ms, collect 804ms, tests 503ms, environment 0ms, prepare 38ms)
+

@@ -1,0 +1,200 @@
+{
+  "baseCommit": "b7a058e293fed78568e46910b02283fcc1eb9f86",
+  "sourceState": "uncommitted frozen witness patch",
+  "scope": "historical cross-observation document coverage receipt validation only",
+  "sourceSha256": {
+    "packages/adapter-playwright/src/browser.ts": "2779d6f9168f92c4860c274380ef65bae9985daa546fced39725d9758cead832",
+    "packages/adapter-playwright/src/types.ts": "1fc6539704ce7a3e7db03edb98ba0b6bff956531fbaad7dc53bd0ec173851bf8",
+    "packages/browser/src/document-coverage.ts": "e039690151549ca78a6d33ae80386d78830117d5a850ae5d290e9568bd904802",
+    "tests/document-dispatch-witness.test.ts": "23f20724839f134467ff58b8a7eec1c6b149937254441c90da50d4107bcbbb6c",
+    "tests/document-coverage-graph.test.ts": "007cced81f74ce4c2a90ca9ef38483e86aba87328230c482e160d0a371d2073e"
+  },
+  "runs": [
+    {
+      "log": "dispatch-gap-before.log",
+      "exitCode": 1,
+      "passed": 0,
+      "failed": 1,
+      "command": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--conditions=development",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/document-dispatch-witness.test.ts"
+      ],
+      "environment": {
+        "BIE_DISPATCH_GAP_EVIDENCE": "docs/experiments/storage-tiering-2026-10-17/evidence/document-validation-read/dispatch-gap-before.json"
+      },
+      "reason": "Original actual local A-to-B counterexample before the witness correction, after the validation optimization; forced graph-on also reproduced the old behavior. Exact hashes retained inside JSON."
+    },
+    {
+      "log": "dispatch-gap-after.log",
+      "exitCode": 0,
+      "passed": 1,
+      "failed": 0,
+      "command": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--conditions=development",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/document-dispatch-witness.test.ts"
+      ],
+      "environment": {
+        "BIE_DISPATCH_GAP_EVIDENCE": "docs/experiments/storage-tiering-2026-10-17/evidence/document-validation-read/dispatch-gap-after.json"
+      },
+      "reason": "First witness correction against the same real counterexample; WIP source hashes are retained inside JSON."
+    },
+    {
+      "log": "dispatch-related-tests.log",
+      "exitCode": 1,
+      "passed": 75,
+      "failed": 1,
+      "command": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--conditions=development",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/document-dispatch-witness.test.ts",
+        "tests/document-coverage-graph.test.ts"
+      ],
+      "reason": "Initial related set; stable checkbox sample had different native/review basis, correctly refused by existing coverage contract."
+    },
+    {
+      "log": "dispatch-stable-checkpoint.log",
+      "exitCode": 1,
+      "passed": 0,
+      "failed": 1,
+      "skipped": 4,
+      "command": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--conditions=development",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/document-dispatch-witness.test.ts",
+        "-t",
+        "binds a stable actual supplied value"
+      ],
+      "reason": "Consistent reviewed fill positive reached proof; corrupt-evidence fixture attempted immutable observation overwrite and was rejected."
+    },
+    {
+      "log": "dispatch-stable-checkpoint-2.log",
+      "exitCode": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 4,
+      "command": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--conditions=development",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/document-dispatch-witness.test.ts",
+        "-t",
+        "binds a stable actual supplied value"
+      ],
+      "reason": "Use independent MemoryStore clones for corrupt-evidence variants; stable positive and cleanup paths passed."
+    },
+    {
+      "log": "dispatch-related-tests-final.log",
+      "exitCode": 0,
+      "passed": 77,
+      "failed": 0,
+      "command": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--conditions=development",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/document-dispatch-witness.test.ts",
+        "tests/document-coverage-graph.test.ts"
+      ],
+      "reason": "Final changed test fixture plus existing graph consumer checkpoint; product guards unchanged since initial related set except previously recorded hardening."
+    }
+  ],
+  "existingRegressionCheckpoint": "dispatch-existing-checkpoint.json",
+  "existingRegressionPassed": 44,
+  "rootTypecheck": {
+    "checkpoint": "dispatch-types-checkpoint.json",
+    "exitCode": 0,
+    "scope": "root and core"
+  },
+  "artifacts": {
+    "dispatch-existing-checkpoint.json": {
+      "bytes": 2304,
+      "sha256": "4beb33a3196b1c783ed71281e85faae5d74407c1d284a6660e90b51441bbdf1d"
+    },
+    "dispatch-existing-regressions.log": {
+      "bytes": 2332,
+      "sha256": "d8a0f0d6c4963e76c295ededadd55f23b4b321ad68f16fd984b91a4d44165646"
+    },
+    "dispatch-gap-after.json": {
+      "bytes": 9550,
+      "sha256": "70a0527a57f2726118cef61e27333311c78f53820432ce2b4c289f0a4504fa89"
+    },
+    "dispatch-gap-after.log": {
+      "bytes": 442,
+      "sha256": "668ee371dc92f7bf35d9a04de396c5163d3d77c2ee3e3f7c0717876773e778c5"
+    },
+    "dispatch-gap-before.json": {
+      "bytes": 10257,
+      "sha256": "784d15d802ddf0fef151ace303cca3f9dbbb3aae0d99ca76f5ac3afe6dc1d3ff"
+    },
+    "dispatch-gap-before.log": {
+      "bytes": 1239,
+      "sha256": "bd56f7cbe1ebc15925eeaf40865ff739879e9e830f09aa1048f40e814fc482e4"
+    },
+    "dispatch-related-tests-final.log": {
+      "bytes": 906,
+      "sha256": "8d749db15611b18e539092bb49dac9c042431be4e54d90ed14815febc0d0ef03"
+    },
+    "dispatch-related-tests.log": {
+      "bytes": 2116,
+      "sha256": "457e5c5e40ca98d16608384221e0dc5fe166286a420728010a4d7765751aab31"
+    },
+    "dispatch-stable-checkpoint-2.log": {
+      "bytes": 474,
+      "sha256": "839b128166f5fba19eb245e519a6a26d780518f1ac78df91747d175151bebdd1"
+    },
+    "dispatch-stable-checkpoint.log": {
+      "bytes": 1667,
+      "sha256": "1193338f5a93c2bb3cc7d73ab70d9761d78f0a6fea478f966a701ba3d24c3926"
+    },
+    "dispatch-typecheck.log": {
+      "bytes": 188,
+      "sha256": "c4826c0bcec3b7398a6dba4e3b1bb68d1dc30320104f803cc5ae8a8081a66a7a"
+    },
+    "dispatch-types-checkpoint.json": {
+      "bytes": 1296,
+      "sha256": "56f5f40d6d8abb9ba6691de364c7eaf3b0b192dfa4da159ce5155d95e65a6ef6"
+    },
+    "dispatch-witness.md": {
+      "bytes": 4995,
+      "sha256": "ceae269ee943e99530ea835b3390dea6f8230b79ca28102b42626bfe977a4f70"
+    }
+  },
+  "boundaries": {
+    "noPerformanceClaim": true,
+    "newNormalCommandCost": "additional full DOM/owner graph read before native command",
+    "noAtomicDOMInputClaim": true,
+    "ownBeforeExactReceiptCompletionUnchanged": true,
+    "legacyReceiptBackfill": false,
+    "realResourcesUsed": false,
+    "cleanup": "Every owned headless browser/server and Memory clone closes in test finally; no persistent task resources created."
+  },
+  "protectedWorktrees": {
+    "/Users/xietian/Projects/browser-interaction-engine": {
+      "branch": "codex/single-selection-state-rule",
+      "commit": "6e111284ac3a6642844531dbc06bce462ca4293c",
+      "status": ""
+    },
+    "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine": {
+      "branch": "codex/autonomous-exploration",
+      "commit": "4857ad571c19995480a4c149abd9b2868a94c965",
+      "status": ""
+    },
+    "/Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine": {
+      "branch": "main",
+      "commit": "069b65b47d951cdcced4d895e2abe33738267e5a",
+      "status": ""
+    }
+  },
+  "taskStoreSha256": "cc60e84799f47ecd6ff33c0f8780c5e5bab0c7d16186c506a38e2cdafcaa5b33"
+}

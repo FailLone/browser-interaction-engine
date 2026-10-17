@@ -1,4 +1,5 @@
 import { expect, it, vi } from 'vitest';
+import { hash } from '@interaction/core';
 import type { ActionAttempt, ActionCandidate, Control, Observation, OwnerDependencies, OwnerDependencyNode } from '@interaction/browser';
 import { documentCoverageReader, type RetainedCoverageAuthority } from '../packages/browser/src/document-coverage.js';
 
@@ -31,7 +32,7 @@ function fixture() {
     controls, regions: [], context: { account: { value: 'A', status: 'known', source: 'declared' } }, boundaries: [], gaps: [], stable: true,
     fingerprint: 'fingerprint', canonical: 'canonical', ruleVersion: 'observable-v7', cause: 'inspection', ownerDependencies: graph };
   const current = structuredClone(before); current.id = 'current';
-  const after = structuredClone(before); after.id = 'after'; after.controls = []; delete after.ownerDependencies;
+  const after = structuredClone(before); after.id = 'after'; after.capturedAt = '2026-10-17T00:00:02Z'; after.controls = []; delete after.ownerDependencies;
   const action: ActionCandidate = { id: 'current-action', sessionId: 'session', observationId: 'current', stateId: 'state', localId: 'run', controlId: 'identity:run',
     kind: 'click', label: 'run', preconditions: { context: current.context, visible: true, enabled: true, identityResolved: false, targetResolved: true },
     target: { kind: 'instance', instanceScope: current.instanceScope, instanceId: 'run', evidence: ['native'] },
@@ -39,13 +40,21 @@ function fixture() {
   const prior = structuredClone(action); prior.id = 'prior-action'; prior.observationId = before.id;
   const attempt: ActionAttempt = { id: 'receipt', sessionId: 'session', requestId: 'request', action: prior, beforeId: before.id, afterId: after.id,
     status: 'succeeded', startedAt: '2026-10-17T00:00:01Z', finishedAt: '2026-10-17T00:00:02Z', purpose: 'exploration' };
-  return { before, current, after, action, attempt };
+  const result = { before, current, after, action, attempt }; witness(result); return result;
 }
 type F = ReturnType<typeof fixture>;
+// Pure graph fixtures explicitly model the producer's dispatch receipt. This is
+// not used by integration fixtures, whose witnesses come from real execution.
+function witness(f: { before: Observation; after: Observation; attempt: ActionAttempt }) {
+  f.after.ownerDependencyDispatch = { version: 'browser-owner-dispatch-v1', sessionId: f.attempt.sessionId, beforeId: f.before.id,
+    actionId: f.attempt.action.id, actionKey: hash(f.attempt.action), graphKey: hash(f.before.ownerDependencies), contextKey: hash(f.before.context),
+    documentId: f.before.documentId, instanceScope: f.before.instanceScope!, browserSessionId: f.before.navigation!.browserSessionId,
+    url: f.before.url, capturedAt: f.attempt.startedAt };
+}
 const run = (f: F, auth = authority) => documentCoverageReader(auth)(f.action, f.current, f.attempt, f.before, f.after);
 const graph = (o: Observation) => o.ownerDependencies!;
 const n = (o: Observation, id: string) => graph(o).nodes.find(n => n.id === id)!;
-function both(f: F, change: (o: Observation) => void) { change(f.before); change(f.current); }
+function both(f: F, change: (o: Observation) => void) { change(f.before); change(f.current); witness(f); }
 function reference(o: Observation) {
   n(o, 'run').attributes['aria-describedby'] = 'description';
   graph(o).nodes.push(node('description', 'span', 'body', { id: 'description' }, [{ text: 'Full dependency' }]));
