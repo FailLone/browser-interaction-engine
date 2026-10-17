@@ -1,0 +1,50 @@
+{
+  "at": "2026-10-17T05:19:17.546294+00:00",
+  "mainBefore": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine",
+    "branch": "main",
+    "head": "a82f6c5010903f762e0d7740c404c1f903d16df5",
+    "status": ""
+  },
+  "mainAfter": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine",
+    "branch": "main",
+    "head": "8b9f6934988dd60cccbff74721d13003560317e2",
+    "status": ""
+  },
+  "productRevision": "60eaab54412e6a38c2cfc74283fe09fb17eca87f",
+  "mergedRevision": "8b9f6934988dd60cccbff74721d13003560317e2",
+  "releaseValidationSha256": "e1fdadc7e1513785565411d34e3534461fcf377dfd4e68a03293a91d45e50469",
+  "productFilesMatchValidatedRevision": true,
+  "autonomousAncestor": "4857ad571c19995480a4c149abd9b2868a94c965",
+  "protectedBefore": [
+    {
+      "path": "/Users/xietian/Projects/browser-interaction-engine",
+      "branch": "codex/single-selection-state-rule",
+      "head": "6e111284ac3a6642844531dbc06bce462ca4293c",
+      "status": ""
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine",
+      "branch": "codex/autonomous-exploration",
+      "head": "4857ad571c19995480a4c149abd9b2868a94c965",
+      "status": ""
+    }
+  ],
+  "protectedAfter": [
+    {
+      "path": "/Users/xietian/Projects/browser-interaction-engine",
+      "branch": "codex/single-selection-state-rule",
+      "head": "6e111284ac3a6642844531dbc06bce462ca4293c",
+      "status": ""
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine",
+      "branch": "codex/autonomous-exploration",
+      "head": "4857ad571c19995480a4c149abd9b2868a94c965",
+      "status": ""
+    }
+  ],
+  "protectedUnchanged": true,
+  "mode": "fast-forward only; no build, browser, service or database action in main/protected worktrees"
+}

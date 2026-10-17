@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-17T05:35:29.037762+00:00",
+  "ownedDirectory": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run9-receipt-audit-0ky2fc2g",
+  "databaseSha256BeforeRemoval": "06bb98083f6674e9a3c084bb04f83d1093905c87c58491bfa1e4579f617c204c",
+  "removedFiles": [
+    "ownership.json",
+    "engine/engine.sqlite-wal",
+    "engine/engine.sqlite-shm",
+    "engine/engine.sqlite"
+  ],
+  "originalEvidenceRemoved": false,
+  "reason": "All sole-copy audit, read-only diagnosis and one static admission finished. Retain authoritative frozen source plus hashes and outputs once."
+}

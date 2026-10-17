@@ -1,0 +1,1707 @@
+{
+  "format": "run9-recovery-readonly-diagnosis-v1",
+  "at": "2026-10-17T05:29:02.933Z",
+  "commit": "8b9f6934988dd60cccbff74721d13003560317e2",
+  "database": {
+    "before": [
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run9-receipt-audit-0ky2fc2g/engine/engine.sqlite",
+        "bytes": 119025664,
+        "sha256": "06bb98083f6674e9a3c084bb04f83d1093905c87c58491bfa1e4579f617c204c"
+      },
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run9-receipt-audit-0ky2fc2g/engine/engine.sqlite-wal",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run9-receipt-audit-0ky2fc2g/engine/engine.sqlite-shm",
+        "bytes": 32768,
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+      }
+    ],
+    "after": [
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run9-receipt-audit-0ky2fc2g/engine/engine.sqlite",
+        "bytes": 119025664,
+        "sha256": "06bb98083f6674e9a3c084bb04f83d1093905c87c58491bfa1e4579f617c204c"
+      },
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run9-receipt-audit-0ky2fc2g/engine/engine.sqlite-wal",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run9-receipt-audit-0ky2fc2g/engine/engine.sqlite-shm",
+        "bytes": 32768,
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+      }
+    ],
+    "unchanged": true,
+    "readOnly": true,
+    "originalOpened": false,
+    "handleClosed": true,
+    "supplementaryRead": {
+      "reason": "Parent requested Close overlay/controlIds/exitControlIds membership",
+      "observationsDecoded": 1,
+      "hashesEqualRecordedBeforeAndAfter": true,
+      "handleClosed": true
+    },
+    "classificationRead": {
+      "reason": "Parent requested existing pure classification identity/condition proof",
+      "observationsDecoded": 3,
+      "hashesEqualRecordedBeforeAndAfter": true,
+      "handleClosed": true,
+      "preflightRetry": {
+        "reason": "First invocation failed module resolution for a nonexistent utility path; switched to the existing public core export before any database access.",
+        "databaseOpened": false,
+        "projectionCalls": 0
+      }
+    },
+    "actionRead": {
+      "reason": "Parent requested retained current/Close-before local exit candidates without host validation",
+      "actionRows": 2,
+      "hashesEqualRecordedBeforeAndAfter": true,
+      "handleClosed": true
+    }
+  },
+  "inputs": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v2/runs/de69fc46-de8e-481e-9cc4-bef75e269fcd/task-before.json",
+      "bytes": 3894529,
+      "sha256": "d2b343e8bfbc5841b5db249efa2473374b9f1932807c3611222532e26e11cb5c"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v2/runs/de69fc46-de8e-481e-9cc4-bef75e269fcd/task-after.json",
+      "bytes": 3077452,
+      "sha256": "d8fcd76cee8bc39e90761c4a20da91a9624270b51a250b5a0714d507ff11c752"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v2/runs/de69fc46-de8e-481e-9cc4-bef75e269fcd/summary.json",
+      "bytes": 41877,
+      "sha256": "68f4771e8a6c1363c284d5ac3af3c8b55be3d9470e291329fe14831535ed9783"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v2/runs/de69fc46-de8e-481e-9cc4-bef75e269fcd/metrics.jsonl",
+      "bytes": 987377,
+      "sha256": "897f11fd530c48c3ca567567a24e3448a862e05bd8088b652327e718f1681267"
+    }
+  ],
+  "boundaries": {
+    "sdkConstructed": false,
+    "sdkBatchQueries": 0,
+    "browserProcesses": 0,
+    "services": 0,
+    "testsRun": 0,
+    "originalDatabaseOpened": false
+  },
+  "facts": {
+    "item": {
+      "id": "92e78cad-25e8-495e-a317-6194ec309298",
+      "scope": {
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "region": "USD to BTC | Convert US Dollar to Bitcoin | OKX",
+        "label": "USD",
+        "role": "generic",
+        "stableKey": "explorer:context:v1:7a5f4856c599cefd78d49e7d24a672236d37a85df9554bdae2fa300e7fdcda43",
+        "targetBinding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+      },
+      "reason": "classification_unresolved",
+      "statusBefore": "unresolved",
+      "statusAfter": "unresolved",
+      "dispatchScope": false,
+      "prerequisites": [],
+      "evidenceCount": 22,
+      "pageSourceEligible": false
+    },
+    "observationSummaries": {
+      "source": {
+        "id": "e6b34ad6-8e3f-4ec1-a126-e525899b75d3",
+        "capturedAt": "2026-10-17T04:04:18.660Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "stateId": "99dcb696d5de1906ba4585f3cbbd02e62ddcaa0c0ec1cc347a10e975fc4d4014",
+        "canonicalHash": "9cd7136b74fce6b43863923639532bd1658f5a2f59f50e2e4cc75e2120dc414f",
+        "stable": true,
+        "documentId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53",
+        "instanceScope": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53",
+        "context": {},
+        "controlCount": 292,
+        "boundaries": [],
+        "overlays": [],
+        "navigation": {
+          "browserSessionId": "2f714cb0-5d7b-4e3e-a2ee-6d75f9641f31",
+          "currentIndex": 1,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            },
+            {
+              "id": 6,
+              "url": "https://www.okx.com/help/withdrawal-of-okx-hks-vasp-license-application",
+              "method": "GET"
+            }
+          ]
+        },
+        "usdCandidates": [
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1784",
+            "tag": "button",
+            "role": "button",
+            "name": "USD",
+            "label": "",
+            "visible": false,
+            "enabled": true,
+            "value": "",
+            "scope": {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "region": "listbox",
+              "label": "USD",
+              "role": "button"
+            }
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1740",
+            "tag": "div",
+            "role": "generic",
+            "name": "USD",
+            "label": "",
+            "visible": true,
+            "enabled": true,
+            "value": "",
+            "scope": {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "region": "USD to BTC | Convert US Dollar to Bitcoin | OKX",
+              "label": "USD",
+              "role": "generic",
+              "stableKey": "explorer:context:v1:7a5f4856c599cefd78d49e7d24a672236d37a85df9554bdae2fa300e7fdcda43",
+              "targetBinding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+            }
+          }
+        ],
+        "inputs": [
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1760",
+            "name": "Search crypto",
+            "value": "",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1762",
+            "name": "",
+            "value": "",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1782",
+            "name": "Search",
+            "value": "",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1558",
+            "name": "0",
+            "value": "1",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1796",
+            "name": "Search",
+            "value": "",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1562",
+            "name": "0",
+            "value": "0.00001226",
+            "visible": true,
+            "enabled": true
+          }
+        ],
+        "exitControls": [],
+        "matchingControlIds": [
+          "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1740"
+        ],
+        "criticalGaps": []
+      },
+      "current": {
+        "id": "235a58e9-9023-4a62-bbf6-2d0e4383369d",
+        "capturedAt": "2026-10-17T05:20:50.747Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "stateId": "6da18ccc2d8bbc4551ea55d74c7a0382838fc053627a529edeb8867562756810",
+        "canonicalHash": "682f76810f81419456f67ee2dafec2062fbd8a7704627b2bd26635163900dbeb",
+        "stable": true,
+        "documentId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef",
+        "instanceScope": "46ed9401-2473-46d9-b0e8-8638a8ba73ef",
+        "context": {},
+        "controlCount": 305,
+        "boundaries": [
+          {
+            "key": "dialog:okd-dialog-window",
+            "name": "dialog",
+            "region": "document",
+            "evidence": [
+              "aria-modal"
+            ]
+          }
+        ],
+        "overlays": [
+          {
+            "key": "dialog:okd-dialog-window",
+            "controlCount": 9
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "37a4a568-343d-4b44-b026-6b9ed8bed78c",
+          "currentIndex": 1,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            }
+          ]
+        },
+        "usdCandidates": [
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:2368",
+            "tag": "button",
+            "role": "button",
+            "name": "USD",
+            "label": "",
+            "visible": false,
+            "enabled": true,
+            "value": "",
+            "scope": {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "region": "listbox",
+              "label": "USD",
+              "role": "button"
+            }
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1943",
+            "tag": "div",
+            "role": "generic",
+            "name": "USD",
+            "label": "",
+            "visible": true,
+            "enabled": true,
+            "value": "",
+            "scope": {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "region": "Buy Bitcoin & Crypto | Crypto Exchange, App & Wallet | OKX",
+              "label": "USD",
+              "role": "generic",
+              "stableKey": "explorer:context:v1:7a5f4856c599cefd78d49e7d24a672236d37a85df9554bdae2fa300e7fdcda43",
+              "targetBinding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+            }
+          }
+        ],
+        "inputs": [
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1015",
+            "name": "Search crypto",
+            "value": "",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1017",
+            "name": "",
+            "value": "",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:2366",
+            "name": "Search",
+            "value": "",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1836",
+            "name": "0",
+            "value": "1",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:2380",
+            "name": "Search",
+            "value": "",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1840",
+            "name": "0",
+            "value": "0.00001225",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:723",
+            "name": "Don’t show for 7 days",
+            "value": "on",
+            "visible": true,
+            "enabled": true
+          }
+        ],
+        "exitControls": [
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:729",
+            "tag": "button",
+            "role": "button",
+            "name": "Close",
+            "label": "",
+            "visible": true,
+            "enabled": true,
+            "value": "",
+            "scope": {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "region": "dialog",
+              "label": "Close",
+              "role": "button",
+              "stableKey": "testid:okd-button",
+              "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176"
+            }
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:711",
+            "tag": "i",
+            "role": "img",
+            "name": "Close",
+            "label": "Close",
+            "visible": false,
+            "enabled": true,
+            "value": "",
+            "scope": {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "region": "dialog",
+              "label": "Close",
+              "role": "img",
+              "stableKey": "testid:okd-dialog-top-close-icon"
+            }
+          }
+        ],
+        "matchingControlIds": [],
+        "criticalGaps": []
+      },
+      "closeBefore": {
+        "id": "0d1b8016-1020-4b6b-a473-440efff9e745",
+        "capturedAt": "2026-10-17T05:22:50.414Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "stateId": "6da18ccc2d8bbc4551ea55d74c7a0382838fc053627a529edeb8867562756810",
+        "canonicalHash": "682f76810f81419456f67ee2dafec2062fbd8a7704627b2bd26635163900dbeb",
+        "stable": true,
+        "documentId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef",
+        "instanceScope": "46ed9401-2473-46d9-b0e8-8638a8ba73ef",
+        "context": {},
+        "controlCount": 305,
+        "boundaries": [
+          {
+            "key": "dialog:okd-dialog-window",
+            "name": "dialog",
+            "region": "document",
+            "evidence": [
+              "aria-modal"
+            ]
+          }
+        ],
+        "overlays": [
+          {
+            "key": "dialog:okd-dialog-window",
+            "controlCount": 9
+          }
+        ],
+        "navigation": {
+          "browserSessionId": "37a4a568-343d-4b44-b026-6b9ed8bed78c",
+          "currentIndex": 1,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            }
+          ]
+        },
+        "usdCandidates": [
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:2368",
+            "tag": "button",
+            "role": "button",
+            "name": "USD",
+            "label": "",
+            "visible": false,
+            "enabled": true,
+            "value": "",
+            "scope": {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "region": "listbox",
+              "label": "USD",
+              "role": "button"
+            }
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1943",
+            "tag": "div",
+            "role": "generic",
+            "name": "USD",
+            "label": "",
+            "visible": true,
+            "enabled": true,
+            "value": "",
+            "scope": {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "region": "Buy Bitcoin & Crypto | Crypto Exchange, App & Wallet | OKX",
+              "label": "USD",
+              "role": "generic",
+              "stableKey": "explorer:context:v1:7a5f4856c599cefd78d49e7d24a672236d37a85df9554bdae2fa300e7fdcda43",
+              "targetBinding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+            }
+          }
+        ],
+        "inputs": [
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1015",
+            "name": "Search crypto",
+            "value": "",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1017",
+            "name": "",
+            "value": "",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:2366",
+            "name": "Search",
+            "value": "",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1836",
+            "name": "0",
+            "value": "1",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:2380",
+            "name": "Search",
+            "value": "",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1840",
+            "name": "0",
+            "value": "0.00001225",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:723",
+            "name": "Don’t show for 7 days",
+            "value": "on",
+            "visible": true,
+            "enabled": true
+          }
+        ],
+        "exitControls": [
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:729",
+            "tag": "button",
+            "role": "button",
+            "name": "Close",
+            "label": "",
+            "visible": true,
+            "enabled": true,
+            "value": "",
+            "scope": {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "region": "dialog",
+              "label": "Close",
+              "role": "button",
+              "stableKey": "testid:okd-button",
+              "targetBinding": "browser-target-binding:v1:c9875264faab056bfb8f01f5d6df5573795bc2f8da677b04dd6697a2590ac176"
+            }
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:711",
+            "tag": "i",
+            "role": "img",
+            "name": "Close",
+            "label": "Close",
+            "visible": false,
+            "enabled": true,
+            "value": "",
+            "scope": {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "region": "dialog",
+              "label": "Close",
+              "role": "img",
+              "stableKey": "testid:okd-dialog-top-close-icon"
+            }
+          }
+        ],
+        "matchingControlIds": [],
+        "criticalGaps": []
+      },
+      "after": {
+        "id": "dfede8b5-02a5-4386-b2bb-ccdccff4eeb3",
+        "capturedAt": "2026-10-17T05:23:00.436Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "stateId": "3ffcf29cc11488b4bba50b01062f0c3d513478065f455230de22a8f143259c89",
+        "canonicalHash": "ff5f9b7e505cdaaec6f4ff02ccc3837ae8ce33a4e98a77407b2834ac691e3b3e",
+        "stable": true,
+        "documentId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef",
+        "instanceScope": "46ed9401-2473-46d9-b0e8-8638a8ba73ef",
+        "context": {},
+        "controlCount": 296,
+        "boundaries": [],
+        "overlays": [],
+        "navigation": {
+          "browserSessionId": "37a4a568-343d-4b44-b026-6b9ed8bed78c",
+          "currentIndex": 1,
+          "entries": [
+            {
+              "id": 2,
+              "url": "about:blank"
+            },
+            {
+              "id": 4,
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "method": "GET"
+            }
+          ]
+        },
+        "usdCandidates": [
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:2368",
+            "tag": "button",
+            "role": "button",
+            "name": "USD",
+            "label": "",
+            "visible": false,
+            "enabled": true,
+            "value": "",
+            "scope": {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "region": "listbox",
+              "label": "USD",
+              "role": "button"
+            }
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1943",
+            "tag": "div",
+            "role": "generic",
+            "name": "USD",
+            "label": "",
+            "visible": true,
+            "enabled": true,
+            "value": "",
+            "scope": {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "region": "Buy Bitcoin & Crypto | Crypto Exchange, App & Wallet | OKX",
+              "label": "USD",
+              "role": "generic",
+              "stableKey": "explorer:context:v1:7a5f4856c599cefd78d49e7d24a672236d37a85df9554bdae2fa300e7fdcda43",
+              "targetBinding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+            }
+          }
+        ],
+        "inputs": [
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1015",
+            "name": "Search crypto",
+            "value": "",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1017",
+            "name": "",
+            "value": "",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:2366",
+            "name": "Search",
+            "value": "",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1836",
+            "name": "0",
+            "value": "1",
+            "visible": true,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:2380",
+            "name": "Search",
+            "value": "",
+            "visible": false,
+            "enabled": true
+          },
+          {
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1840",
+            "name": "0",
+            "value": "0.00001225",
+            "visible": true,
+            "enabled": true
+          }
+        ],
+        "exitControls": [],
+        "matchingControlIds": [],
+        "criticalGaps": []
+      }
+    },
+    "checkpoints": [
+      {
+        "id": "b1e80845-ab4f-4c31-809d-ba37be180e92",
+        "observationId": "5f80a3df-8355-444a-8499-4a625cb89577",
+        "pathLength": 4,
+        "nonreplayable": [
+          "90102e0e-7a04-4b24-9abf-38f4f48498a9"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "5aae901e-91a6-4184-9055-1c08b11d25d1",
+        "observationId": "c446073e-8db5-49cd-b6d3-0052622bb861",
+        "pathLength": 5,
+        "nonreplayable": [
+          "90102e0e-7a04-4b24-9abf-38f4f48498a9"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "9418acb4-bd87-4198-bc71-3abf4d148fb1",
+        "observationId": "f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4",
+        "pathLength": 6,
+        "nonreplayable": [
+          "90102e0e-7a04-4b24-9abf-38f4f48498a9"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "4391fdff-f488-498d-ab11-dddfe27f6b2e",
+        "observationId": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+        "pathLength": 7,
+        "nonreplayable": [
+          "90102e0e-7a04-4b24-9abf-38f4f48498a9"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "de202f93-2d9b-4789-b26c-4b0f378bc9f3",
+        "observationId": "c11abe9e-e2a4-44f2-bf53-64ebf22a1dd2",
+        "pathLength": 4,
+        "nonreplayable": [
+          "afca7c56-cc59-4292-abed-fa3ac34e3a2d"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "492a20e3-24be-46ed-b2fa-2a5ee5304e92",
+        "observationId": "22adf3b5-f26f-4c85-9744-0ab1572e9897",
+        "pathLength": 4,
+        "nonreplayable": [
+          "2b310018-b8b7-4ec5-b08a-a22d08ba1824"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "b328194a-e732-4ed1-b421-eb4ac08990fb",
+        "observationId": "63f3d18a-777a-41ee-8aa1-486471e35d0d",
+        "pathLength": 5,
+        "nonreplayable": [
+          "2b310018-b8b7-4ec5-b08a-a22d08ba1824"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "fb000566-3221-472f-8cc9-308690846551",
+        "observationId": "24f495c2-06fb-42a4-acc6-35d3cd6caad8",
+        "pathLength": 6,
+        "nonreplayable": [
+          "2b310018-b8b7-4ec5-b08a-a22d08ba1824",
+          "cb163309-02f7-4d65-b68a-624d88f10fe2"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": false,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "2e215879-41ef-4409-8d67-c82a79c589b4",
+        "observationId": "1ea431eb-205f-42cd-ba28-7055e514d098",
+        "pathLength": 6,
+        "nonreplayable": [
+          "2b310018-b8b7-4ec5-b08a-a22d08ba1824",
+          "cb163309-02f7-4d65-b68a-624d88f10fe2"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "c8782f2c-adb6-4115-82e1-c1e9ca60de6c",
+        "observationId": "0c118da8-74a7-4b61-b96b-daa3ecca1094",
+        "pathLength": 7,
+        "nonreplayable": [
+          "2b310018-b8b7-4ec5-b08a-a22d08ba1824",
+          "cb163309-02f7-4d65-b68a-624d88f10fe2"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "d43e6f7d-2d7d-4b84-82df-962f68aa9455",
+        "observationId": "b443222e-b4ec-4e54-8d20-2f51b5010477",
+        "pathLength": 4,
+        "nonreplayable": [
+          "8adea6ea-1c6d-4477-9bdc-c104aaf2f5eb"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "7e8dcde1-7904-4794-9450-3f8c4b77f06d",
+        "observationId": "2db6a2df-57bc-4de9-b500-666dd2360fa2",
+        "pathLength": 5,
+        "nonreplayable": [
+          "8adea6ea-1c6d-4477-9bdc-c104aaf2f5eb"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "e889a3ed-c541-402f-bd72-349eb1550364",
+        "observationId": "9fa262e0-cd20-4bd8-823d-abba6c4e49e0",
+        "pathLength": 6,
+        "nonreplayable": [
+          "8adea6ea-1c6d-4477-9bdc-c104aaf2f5eb",
+          "d11700cd-5f4b-4be4-be51-f06d43b55cd4"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": false,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "212f5925-6a81-4cc9-bbb4-a6ab2f3fcb53",
+        "observationId": "1ed23726-5e7b-49a8-b885-4631d40d627c",
+        "pathLength": 6,
+        "nonreplayable": [
+          "8adea6ea-1c6d-4477-9bdc-c104aaf2f5eb",
+          "d11700cd-5f4b-4be4-be51-f06d43b55cd4"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "56f4e611-5047-4ad7-b434-817c152bc510",
+        "observationId": "7433cba2-6c16-4fb5-a749-6bbecf7fedbe",
+        "pathLength": 7,
+        "nonreplayable": [
+          "8adea6ea-1c6d-4477-9bdc-c104aaf2f5eb",
+          "d11700cd-5f4b-4be4-be51-f06d43b55cd4"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "7d9ff8da-ee91-4749-89d6-b0bda496439f",
+        "observationId": "25553f40-d039-4dab-a579-cff944af186b",
+        "pathLength": 8,
+        "nonreplayable": [
+          "8adea6ea-1c6d-4477-9bdc-c104aaf2f5eb",
+          "d11700cd-5f4b-4be4-be51-f06d43b55cd4"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "6efbd77a-9974-44df-927a-4cbd76ddba81",
+        "observationId": "61216887-dce3-4c8e-a963-2a6c78a24600",
+        "pathLength": 9,
+        "nonreplayable": [
+          "8adea6ea-1c6d-4477-9bdc-c104aaf2f5eb",
+          "d11700cd-5f4b-4be4-be51-f06d43b55cd4"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "4a355f96-beb3-4434-9ceb-1f1f9769e45c",
+        "observationId": "850f805d-2950-483e-9dfe-d4c5816b0c6b",
+        "pathLength": 10,
+        "nonreplayable": [
+          "8adea6ea-1c6d-4477-9bdc-c104aaf2f5eb",
+          "d11700cd-5f4b-4be4-be51-f06d43b55cd4"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "d8d76773-2a73-4181-ac21-ed95e48eff54",
+        "observationId": "02768907-5f9f-4fa2-b625-eda4525f883d",
+        "pathLength": 11,
+        "nonreplayable": [
+          "8adea6ea-1c6d-4477-9bdc-c104aaf2f5eb",
+          "d11700cd-5f4b-4be4-be51-f06d43b55cd4"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      },
+      {
+        "id": "fab896e5-dae5-45e7-a62f-fd5755eae2b3",
+        "observationId": "e6b34ad6-8e3f-4ec1-a126-e525899b75d3",
+        "pathLength": 12,
+        "nonreplayable": [
+          "8adea6ea-1c6d-4477-9bdc-c104aaf2f5eb",
+          "d11700cd-5f4b-4be4-be51-f06d43b55cd4"
+        ],
+        "unknown": [],
+        "nativeAnchor": false,
+        "stable": true,
+        "criticalGaps": [],
+        "scopeMatchCount": 1
+      }
+    ],
+    "selectedCheckpoint": {
+      "id": "fab896e5-dae5-45e7-a62f-fd5755eae2b3",
+      "observationId": "e6b34ad6-8e3f-4ec1-a126-e525899b75d3",
+      "stateId": "99dcb696d5de1906ba4585f3cbbd02e62ddcaa0c0ec1cc347a10e975fc4d4014",
+      "predicates": [],
+      "acceptable": [],
+      "pathLength": 12,
+      "nonreplayable": [
+        {
+          "id": "8adea6ea-1c6d-4477-9bdc-c104aaf2f5eb",
+          "beforeId": "ead6e6a4-fe98-4f48-a4f0-72045ec8de0c",
+          "afterId": "b443222e-b4ec-4e54-8d20-2f51b5010477",
+          "status": "succeeded",
+          "purpose": "recovery",
+          "action": {
+            "id": "50d3934b-4d14-4988-b803-26d38beb9a7a",
+            "kind": "history",
+            "label": "Return to observed page",
+            "replayable": false,
+            "risk": "interface",
+            "basis": "supported"
+          },
+          "value": 4
+        },
+        {
+          "id": "d11700cd-5f4b-4be4-be51-f06d43b55cd4",
+          "beforeId": "2db6a2df-57bc-4de9-b500-666dd2360fa2",
+          "afterId": "9fa262e0-cd20-4bd8-823d-abba6c4e49e0",
+          "status": "succeeded",
+          "purpose": "external",
+          "action": {
+            "id": "65c7cecc-facc-4095-aef2-f8039ec2c39b",
+            "kind": "click",
+            "label": "Open Spot sub-menu",
+            "replayable": false,
+            "risk": "interface",
+            "basis": "supported"
+          }
+        }
+      ],
+      "pathActions": [
+        {
+          "id": "5b5f5d87-0f4e-4bf2-8948-f813b4fa35d5",
+          "label": "Don’t show for 7 days",
+          "kind": "check",
+          "replayable": true,
+          "status": "succeeded"
+        },
+        {
+          "id": "a947c4d3-48d9-4c69-b041-56c2dc5de305",
+          "label": "Don’t show for 7 days",
+          "kind": "check",
+          "replayable": true,
+          "status": "succeeded"
+        },
+        {
+          "id": "6569ccfc-ba05-411d-8833-e068842ba682",
+          "label": "announced",
+          "kind": "click",
+          "replayable": true,
+          "status": "succeeded"
+        },
+        {
+          "id": "8adea6ea-1c6d-4477-9bdc-c104aaf2f5eb",
+          "label": "Return to observed page",
+          "kind": "history",
+          "replayable": false,
+          "status": "succeeded"
+        },
+        {
+          "id": "af01aef8-2fdf-4156-babf-3da08ca5ad91",
+          "label": "Trade",
+          "kind": "click",
+          "replayable": true,
+          "status": "succeeded"
+        },
+        {
+          "id": "d11700cd-5f4b-4be4-be51-f06d43b55cd4",
+          "label": "Open Spot sub-menu",
+          "kind": "click",
+          "replayable": false,
+          "status": "succeeded"
+        },
+        {
+          "id": "e338802c-e94e-4cc9-a0d1-d2b6a38887e1",
+          "label": "1W",
+          "kind": "click",
+          "replayable": true,
+          "status": "succeeded"
+        },
+        {
+          "id": "3bfee0ae-3f99-4c03-a629-838210d1ba42",
+          "label": "1M",
+          "kind": "click",
+          "replayable": true,
+          "status": "succeeded"
+        },
+        {
+          "id": "51194100-bc75-4eff-84b2-036ebf00aef8",
+          "label": "1Y",
+          "kind": "click",
+          "replayable": true,
+          "status": "succeeded"
+        },
+        {
+          "id": "c03082b7-e5fb-4ad0-9f5c-e41be11395f2",
+          "label": "2Y",
+          "kind": "click",
+          "replayable": true,
+          "status": "succeeded"
+        },
+        {
+          "id": "d59854ec-9a9f-49f8-9cfe-f18bb098acd3",
+          "label": "0",
+          "kind": "fill",
+          "replayable": true,
+          "status": "succeeded"
+        },
+        {
+          "id": "b418dc95-d980-49fe-8e7a-bfbd9f546a89",
+          "label": "0",
+          "kind": "fill",
+          "replayable": true,
+          "status": "succeeded"
+        }
+      ]
+    },
+    "recoveryAttempt": {
+      "id": "56495e4c-b4e6-4099-b3c0-116c26b7aed5",
+      "beforeId": "0d1b8016-1020-4b6b-a473-440efff9e745",
+      "afterId": "dfede8b5-02a5-4386-b2bb-ccdccff4eeb3",
+      "status": "succeeded",
+      "purpose": "recovery",
+      "action": {
+        "id": "59bc5c4b-4839-4bad-b828-075b790beb5a",
+        "kind": "click",
+        "label": "Close",
+        "replayable": true,
+        "risk": "interface",
+        "basis": "supported"
+      }
+    },
+    "selectedRoute": [
+      [
+        "59eb78902a0697f2d7feebb46e92b01ade34676203d56c147b95e150440f0308",
+        {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "e6b34ad6-8e3f-4ec1-a126-e525899b75d3",
+          "checkpointId": "fab896e5-dae5-45e7-a62f-fd5755eae2b3",
+          "targets": [
+            {
+              "url": "https://www.okx.com/convert/usd-to-btc",
+              "region": "USD to BTC | Convert US Dollar to Bitcoin | OKX",
+              "label": "USD",
+              "role": "generic",
+              "stableKey": "explorer:context:v1:7a5f4856c599cefd78d49e7d24a672236d37a85df9554bdae2fa300e7fdcda43",
+              "targetBinding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+            }
+          ],
+          "path": [],
+          "itemIds": [
+            "92e78cad-25e8-495e-a317-6194ec309298"
+          ],
+          "memberKeys": [
+            "59eb78902a0697f2d7feebb46e92b01ade34676203d56c147b95e150440f0308"
+          ],
+          "pathKeys": [],
+          "failure": {
+            "status": "unreachable",
+            "reason": "Checkpoint path contains actions without replay permission",
+            "conditionVersion": "613636bec2298b894b26fcc0bd8d6988679dcdf22c7e3b5520c0378b2fac5bcb",
+            "targets": [
+              {
+                "url": "https://www.okx.com/convert/usd-to-btc",
+                "region": "USD to BTC | Convert US Dollar to Bitcoin | OKX",
+                "label": "USD",
+                "role": "generic",
+                "stableKey": "explorer:context:v1:7a5f4856c599cefd78d49e7d24a672236d37a85df9554bdae2fa300e7fdcda43",
+                "targetBinding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+              }
+            ]
+          }
+        }
+      ]
+    ],
+    "events": [
+      {
+        "type": "obligation.selected",
+        "sequence": 9118,
+        "observationId": "235a58e9-9023-4a62-bbf6-2d0e4383369d",
+        "at": "2026-10-17T05:22:47.190Z",
+        "data": {
+          "itemId": "92e78cad-25e8-495e-a317-6194ec309298",
+          "kind": "recovery",
+          "source": {
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "e6b34ad6-8e3f-4ec1-a126-e525899b75d3"
+          },
+          "routeKey": "59eb78902a0697f2d7feebb46e92b01ade34676203d56c147b95e150440f0308",
+          "sourceObservationId": "235a58e9-9023-4a62-bbf6-2d0e4383369d",
+          "coverageGranted": false,
+          "executionAuthorized": false
+        }
+      },
+      {
+        "type": "recovery.selected",
+        "sequence": 9119,
+        "observationId": "235a58e9-9023-4a62-bbf6-2d0e4383369d",
+        "at": "2026-10-17T05:22:47.274Z",
+        "data": {
+          "reason": "unfinished_observed_targets",
+          "itemId": "92e78cad-25e8-495e-a317-6194ec309298",
+          "routeKey": "59eb78902a0697f2d7feebb46e92b01ade34676203d56c147b95e150440f0308",
+          "checkpointId": "fab896e5-dae5-45e7-a62f-fd5755eae2b3",
+          "sourceObservationId": "e6b34ad6-8e3f-4ec1-a126-e525899b75d3",
+          "currentObservationId": "235a58e9-9023-4a62-bbf6-2d0e4383369d",
+          "unfinishedTargets": 1,
+          "hostVerificationRequired": true
+        }
+      },
+      {
+        "type": "recovery.position_reconciled",
+        "sequence": 9169,
+        "observationId": "dfede8b5-02a5-4386-b2bb-ccdccff4eeb3",
+        "at": "2026-10-17T05:23:11.288Z",
+        "data": {
+          "previous": [],
+          "path": [],
+          "position": {
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "dfede8b5-02a5-4386-b2bb-ccdccff4eeb3",
+            "instanceScope": "46ed9401-2473-46d9-b0e8-8638a8ba73ef",
+            "url": "https://www.okx.com/convert/usd-to-btc",
+            "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "boundaryKeys": []
+          },
+          "pathVerified": false,
+          "reason": "recovery_moved_browser",
+          "checkpointVerified": false
+        }
+      },
+      {
+        "type": "recovery.result",
+        "sequence": 9170,
+        "observationId": "dfede8b5-02a5-4386-b2bb-ccdccff4eeb3",
+        "at": "2026-10-17T05:23:11.303Z",
+        "data": {
+          "id": "cfea3435-1cc8-42be-8985-f83840b01186",
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "checkpointId": "fab896e5-dae5-45e7-a62f-fd5755eae2b3",
+          "reason": "Checkpoint path contains actions without replay permission",
+          "checks": [
+            {
+              "name": "observable-state",
+              "result": "fail"
+            }
+          ],
+          "attemptIds": [
+            "56495e4c-b4e6-4099-b3c0-116c26b7aed5"
+          ],
+          "observationId": "dfede8b5-02a5-4386-b2bb-ccdccff4eeb3",
+          "remainingFrontier": 2520,
+          "diagnostics": {
+            "unassessedEffectAttemptIds": [],
+            "strategies": [
+              "verify_current",
+              "boundary_exit",
+              "recorded_path",
+              "declared_local_restore"
+            ],
+            "dirtyActions": [],
+            "resetAvailable": false
+          },
+          "status": "UNREACHABLE"
+        }
+      }
+    ],
+    "sourceCurrentOccurrence": {
+      "sameInstanceScope": false,
+      "sourceMatchingInstanceIds": [
+        "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1740"
+      ],
+      "currentSameInstance": []
+    },
+    "pageAuthorities": [
+      {
+        "id": "bf26248e-e22f-4c69-80b0-1e4edfe65dca",
+        "scope": {
+          "url": "https://www.okx.com/convert/usd-to-btc"
+        },
+        "status": "pending",
+        "pageSourceEligible": true,
+        "urlDiffersFromCurrent": false
+      }
+    ],
+    "observationsDecoded": [
+      "e6b34ad6-8e3f-4ec1-a126-e525899b75d3",
+      "235a58e9-9023-4a62-bbf6-2d0e4383369d",
+      "0d1b8016-1020-4b6b-a473-440efff9e745",
+      "dfede8b5-02a5-4386-b2bb-ccdccff4eeb3",
+      "5f80a3df-8355-444a-8499-4a625cb89577",
+      "c446073e-8db5-49cd-b6d3-0052622bb861",
+      "f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4",
+      "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+      "c11abe9e-e2a4-44f2-bf53-64ebf22a1dd2",
+      "22adf3b5-f26f-4c85-9744-0ab1572e9897",
+      "63f3d18a-777a-41ee-8aa1-486471e35d0d",
+      "24f495c2-06fb-42a4-acc6-35d3cd6caad8",
+      "1ea431eb-205f-42cd-ba28-7055e514d098",
+      "0c118da8-74a7-4b61-b96b-daa3ecca1094",
+      "b443222e-b4ec-4e54-8d20-2f51b5010477",
+      "2db6a2df-57bc-4de9-b500-666dd2360fa2",
+      "9fa262e0-cd20-4bd8-823d-abba6c4e49e0",
+      "1ed23726-5e7b-49a8-b885-4631d40d627c",
+      "7433cba2-6c16-4fb5-a749-6bbecf7fedbe",
+      "25553f40-d039-4dab-a579-cff944af186b",
+      "61216887-dce3-4c8e-a963-2a6c78a24600",
+      "850f805d-2950-483e-9dfe-d4c5816b0c6b",
+      "02768907-5f9f-4fa2-b625-eda4525f883d"
+    ],
+    "closeOverlayMembership": {
+      "observationId": "0d1b8016-1020-4b6b-a473-440efff9e745",
+      "close": {
+        "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:729",
+        "name": "Close",
+        "visible": true,
+        "enabled": true
+      },
+      "activeBoundary": {
+        "key": "dialog:okd-dialog-window",
+        "name": "dialog",
+        "region": "document",
+        "evidence": [
+          "aria-modal"
+        ]
+      },
+      "overlays": [
+        {
+          "key": "dialog:okd-dialog-window",
+          "kind": "modal",
+          "active": true,
+          "controlCount": 9,
+          "exitControlCount": 1,
+          "closeInControlIds": true,
+          "closeInExitControlIds": true,
+          "usdInControlIds": false,
+          "controlLocalIdSuffixes": [
+            "545",
+            "717",
+            "723",
+            "727",
+            "729",
+            "731",
+            "709",
+            "711",
+            "721"
+          ],
+          "exitControlLocalIdSuffixes": [
+            "729"
+          ],
+          "keys": [
+            "key",
+            "name",
+            "kind",
+            "selector",
+            "parentRegion",
+            "evidence",
+            "controlIds",
+            "exitControlIds"
+          ]
+        }
+      ],
+      "documentRegion": {
+        "key": "document",
+        "role": "document",
+        "label": "Buy Bitcoin & Crypto | Crypto Exchange, App & Wallet | OKX"
+      },
+      "usdRegion": "document",
+      "ownerDependencyWireVersion": "browser-owner-dependencies-v3"
+    },
+    "classificationProjection": {
+      "source": {
+        "observationId": "e6b34ad6-8e3f-4ec1-a126-e525899b75d3",
+        "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1740",
+        "candidateCount": 1,
+        "visible": true,
+        "enabled": true,
+        "activeReviewTarget": true,
+        "hypothesisId": null,
+        "classificationExactPresent": true,
+        "portableProjection": {
+          "identityKey": "d3dbd71b5e1a336e363b9852e352f9dadd0090456bb4c70c844aab8804db2813",
+          "conditionKey": "0cd63bc09acc4485982eb112c32f4a165a78571226b332075a21c5aff2da722c",
+          "policy": "classification-correspondence/v1",
+          "evidence": [
+            "unique-captured-target-semantics",
+            "complete-classification-subtree",
+            "captured-idref-topology",
+            "unchanged-classification-conditions"
+          ]
+        },
+        "classificationBinding": {
+          "present": true,
+          "truncated": false,
+          "nodes": 58,
+          "references": 0,
+          "text": "USDUSDAEDALLANGARSAUD",
+          "normalizedNodesSha256": "a72417413c2566488f0164a1e2ebb428d9724fdb0f0bc9a691c23691da9bebbe"
+        },
+        "reviewReuseBinding": {
+          "present": true,
+          "ancestors": 15,
+          "sha256": "431add15a365564083846a8ab1711e8a0977b93a22b8c0cd57034a7edab87fd6"
+        },
+        "region": [
+          {
+            "key": "document",
+            "label": "USD to BTC | Convert US Dollar to Bitcoin | OKX",
+            "role": "document"
+          }
+        ],
+        "factHashes": {
+          "identityContext": "79d4748974deb7329beee4faa5dc4fda1f2b935046a010a3bf9ac91b0d79cc6a",
+          "reviewBinding": "036cf2b71b1dc392f06737b08ffc3b9626b61c10a012ba3133fff2105ed8ac6f",
+          "actionBasis": "2c8f7ed82ef0bb03d7903d0a2130acb34512d36341d799c0dd431ad1e57cdc30",
+          "interactionHints": "e9fbbfe70b563c9e597e8cf12a8c02939de23dcbc380d5d2138433fe8b1b6f76",
+          "options": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "list": null,
+          "structuralItem": null
+        }
+      },
+      "current": {
+        "observationId": "235a58e9-9023-4a62-bbf6-2d0e4383369d",
+        "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1943",
+        "candidateCount": 1,
+        "visible": true,
+        "enabled": true,
+        "activeReviewTarget": false,
+        "hypothesisId": null,
+        "classificationExactPresent": true,
+        "portableProjection": {
+          "identityKey": "72dd6b562824b55be92bb583a8f604b7feda27a904641fce50a838107563ff18",
+          "conditionKey": "bf683bd21dbd841cc9748398686ff6d8b9bf03b247b54141b4ba7ab1e75921f4",
+          "policy": "classification-correspondence/v1",
+          "evidence": [
+            "unique-captured-target-semantics",
+            "complete-classification-subtree",
+            "captured-idref-topology",
+            "unchanged-classification-conditions"
+          ]
+        },
+        "classificationBinding": {
+          "present": true,
+          "truncated": false,
+          "nodes": 58,
+          "references": 0,
+          "text": "USDUSDAEDALLANGARSAUD",
+          "normalizedNodesSha256": "a72417413c2566488f0164a1e2ebb428d9724fdb0f0bc9a691c23691da9bebbe"
+        },
+        "reviewReuseBinding": {
+          "present": true,
+          "ancestors": 15,
+          "sha256": "e695ca7ef9c5e5b7dc497c74bc65f603c03346d488ea5c5601a5650c65847352"
+        },
+        "region": [
+          {
+            "key": "document",
+            "label": "Buy Bitcoin & Crypto | Crypto Exchange, App & Wallet | OKX",
+            "role": "document"
+          }
+        ],
+        "factHashes": {
+          "identityContext": "79d4748974deb7329beee4faa5dc4fda1f2b935046a010a3bf9ac91b0d79cc6a",
+          "reviewBinding": "b0a3e11da2fe3ff4cceae79dc0fb21849b6bc47a00447f8bd39bb1b6e9f98813",
+          "actionBasis": "2c8f7ed82ef0bb03d7903d0a2130acb34512d36341d799c0dd431ad1e57cdc30",
+          "interactionHints": "e9fbbfe70b563c9e597e8cf12a8c02939de23dcbc380d5d2138433fe8b1b6f76",
+          "options": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "list": null,
+          "structuralItem": null
+        }
+      },
+      "after": {
+        "observationId": "dfede8b5-02a5-4386-b2bb-ccdccff4eeb3",
+        "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:1943",
+        "candidateCount": 1,
+        "visible": true,
+        "enabled": true,
+        "activeReviewTarget": true,
+        "hypothesisId": null,
+        "classificationExactPresent": true,
+        "portableProjection": {
+          "identityKey": "72dd6b562824b55be92bb583a8f604b7feda27a904641fce50a838107563ff18",
+          "conditionKey": "bf683bd21dbd841cc9748398686ff6d8b9bf03b247b54141b4ba7ab1e75921f4",
+          "policy": "classification-correspondence/v1",
+          "evidence": [
+            "unique-captured-target-semantics",
+            "complete-classification-subtree",
+            "captured-idref-topology",
+            "unchanged-classification-conditions"
+          ]
+        },
+        "classificationBinding": {
+          "present": true,
+          "truncated": false,
+          "nodes": 58,
+          "references": 0,
+          "text": "USDUSDAEDALLANGARSAUD",
+          "normalizedNodesSha256": "a72417413c2566488f0164a1e2ebb428d9724fdb0f0bc9a691c23691da9bebbe"
+        },
+        "reviewReuseBinding": {
+          "present": true,
+          "ancestors": 15,
+          "sha256": "e695ca7ef9c5e5b7dc497c74bc65f603c03346d488ea5c5601a5650c65847352"
+        },
+        "region": [
+          {
+            "key": "document",
+            "label": "Buy Bitcoin & Crypto | Crypto Exchange, App & Wallet | OKX",
+            "role": "document"
+          }
+        ],
+        "factHashes": {
+          "identityContext": "79d4748974deb7329beee4faa5dc4fda1f2b935046a010a3bf9ac91b0d79cc6a",
+          "reviewBinding": "b0a3e11da2fe3ff4cceae79dc0fb21849b6bc47a00447f8bd39bb1b6e9f98813",
+          "actionBasis": "2c8f7ed82ef0bb03d7903d0a2130acb34512d36341d799c0dd431ad1e57cdc30",
+          "interactionHints": "e9fbbfe70b563c9e597e8cf12a8c02939de23dcbc380d5d2138433fe8b1b6f76",
+          "options": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "list": null,
+          "structuralItem": null
+        }
+      }
+    },
+    "localScheduling": {
+      "localSelectionLimit": 4,
+      "beforeLocalSelections": 4,
+      "afterLocalSelections": 0,
+      "beforeSelection": {
+        "itemId": "fff0c504-35bd-4c72-aaf8-ccd69a102c7d",
+        "kind": "current",
+        "actionId": "989f5ec7-f9c1-4ec9-8663-2068a9cfa7bb",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "e6b34ad6-8e3f-4ec1-a126-e525899b75d3"
+        }
+      },
+      "afterSelection": {
+        "itemId": "92e78cad-25e8-495e-a317-6194ec309298",
+        "kind": "recovery",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "e6b34ad6-8e3f-4ec1-a126-e525899b75d3"
+        },
+        "routeKey": "59eb78902a0697f2d7feebb46e92b01ade34676203d56c147b95e150440f0308"
+      },
+      "actionValidationEvents": 0,
+      "closeCandidates": {
+        "current": [
+          {
+            "id": "0909edc4-9d19-41f7-bb0c-e1da04ec4c7a",
+            "observationId": "235a58e9-9023-4a62-bbf6-2d0e4383369d",
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:729",
+            "label": "Close",
+            "kind": "click",
+            "controlId": "4709b88c-622a-4e5e-bfde-7d846d8f6f35",
+            "boundary": {
+              "key": "dialog:okd-dialog-window",
+              "intent": "exit"
+            },
+            "risk": "interface",
+            "replayable": true,
+            "basis": {
+              "status": "supported",
+              "evidence": [
+                {
+                  "source": "html",
+                  "rule": "native-button/v1",
+                  "facts": {
+                    "tag": "button",
+                    "type": "button",
+                    "submitsForm": false
+                  }
+                }
+              ]
+            },
+            "excluded": false,
+            "preconditions": {
+              "context": {},
+              "visible": true,
+              "enabled": true,
+              "identityResolved": true,
+              "blockers": [],
+              "targetResolved": true
+            }
+          }
+        ],
+        "closeBefore": [
+          {
+            "id": "59bc5c4b-4839-4bad-b828-075b790beb5a",
+            "observationId": "0d1b8016-1020-4b6b-a473-440efff9e745",
+            "localId": "46ed9401-2473-46d9-b0e8-8638a8ba73ef:729",
+            "label": "Close",
+            "kind": "click",
+            "controlId": "4709b88c-622a-4e5e-bfde-7d846d8f6f35",
+            "boundary": {
+              "key": "dialog:okd-dialog-window",
+              "intent": "exit"
+            },
+            "risk": "interface",
+            "replayable": true,
+            "basis": {
+              "status": "supported",
+              "evidence": [
+                {
+                  "source": "html",
+                  "rule": "native-button/v1",
+                  "facts": {
+                    "tag": "button",
+                    "type": "button",
+                    "submitsForm": false
+                  }
+                }
+              ]
+            },
+            "excluded": false,
+            "preconditions": {
+              "context": {},
+              "visible": true,
+              "enabled": true,
+              "identityResolved": true,
+              "blockers": [],
+              "targetResolved": true
+            }
+          }
+        ]
+      },
+      "limitation": "No retained local candidate array or per-action availability snapshot in run exports; candidate attributes alone are not dispatch authorization."
+    },
+    "candidateCheckpointSummary": {
+      "evidenceReferences": 22,
+      "retainedCheckpoints": 20,
+      "withCurrentNativeHistoryAnchor": 0,
+      "withFullyReplayableEntryPath": 0,
+      "scope": "Only checkpoints directly referenced by the selected unresolved item; this is not an exhaustive navigation-graph search."
+    }
+  },
+  "findings": [
+    {
+      "status": "observed",
+      "claim": "The old USD generic scope has one match at source and none at current/Close-before/after. The generic USD candidate preserves URL, role, label, stableKey and targetBinding, while document-region label changes with document.title. The native USD button remains hidden and has a distinct role/region."
+    },
+    {
+      "status": "observed",
+      "claim": "The browserSessionId and instanceScope differ from source. Same-instance continuity cannot suppress recovery; all 20 candidate checkpoints lack a current native history anchor and contain nonreplayable entry steps."
+    },
+    {
+      "status": "observed",
+      "claim": "The actual classification projection exists on both sides with complete 58-node subtrees but both identityKey and conditionKey differ. No valid existing SDK classification correspondence was established. Current USD is outside the active modal; only after Close is it an active review target."
+    },
+    {
+      "status": "observed",
+      "claim": "The selected strict checkpoint contains nonreplayable historical Return to observed page and Open Spot sub-menu. SDK performs one verified Close, then reports UNREACHABLE without claiming strict arrival or completing the USD item."
+    },
+    {
+      "status": "observed",
+      "claim": "The persisted localSelections is 4, equal to the fairness limit. Current Close has supported native-button basis, resolved identity/target, visible/enabled true, replayable true and no recorded precondition blockers. It belongs to the active modal exit set."
+    },
+    {
+      "status": "inference",
+      "claim": "Fairness can choose the stale remote review route over an otherwise ready local exit. The run does not retain the local candidate array or availability snapshot, so exact ready-local membership at selection time is not proven."
+    },
+    {
+      "status": "not_proven",
+      "claim": "No omitted legal strict recovery route, safe classification reuse, replay authorization, or full recovery success is established by these reads."
+    }
+  ],
+  "recommendation": {
+    "singleConclusion": "Prioritize an already eligible and SDK-available exit from the active exclusive interaction boundary before remote recovery fairness, then reobserve and schedule again.",
+    "requiredGates": [
+      "Use only current SDK availability plus the existing scope, uniqueness and local eligibility gates.",
+      "Require an exit belonging to the current exclusive boundary; do not infer from Close text.",
+      "Keep unknown-outcome, boundary-verification, retry and dispatch revalidation gates.",
+      "Do not change old USD review scope, mark it complete, transfer classification, reset remote debt or claim checkpoint arrival."
+    ],
+    "notIncluded": "Document-title-dependent review identity is a separate contract weakness. Existing identity/condition keys fail here; changing or ignoring region labels requires separately defined SDK evidence, not a scheduler shortcut.",
+    "suggestedSmallChecks": [
+      "At localSelections=4, an eligible active-modal exit precedes a stale remote review route; post-exit scheduling rebuilds current facts.",
+      "An unavailable/ambiguous/stale exit or unknown outcome cannot gain priority or execution permission.",
+      "Absent an exclusive boundary, existing finite fairness remains unchanged.",
+      "A/B target changes and real context/region changes retain distinct unresolved work; no classification or coverage completion is granted."
+    ]
+  },
+  "sourceReferences": [
+    {
+      "path": "packages/adapter-playwright/src/browser.ts",
+      "line": 227,
+      "meaning": "document region label comes from document.title"
+    },
+    {
+      "path": "packages/explorer-plugin/src/policy.ts",
+      "line": 54,
+      "meaning": "control scope compares region label exactly"
+    },
+    {
+      "path": "packages/browser/src/index.ts",
+      "line": 134,
+      "meaning": "retained occurrence continuity requires unchanged instanceScope"
+    },
+    {
+      "path": "packages/adapter-playwright/src/classification-correspondence.ts",
+      "line": 39,
+      "meaning": "portable target includes region label and role"
+    },
+    {
+      "path": "packages/explorer-plugin/src/runtime.ts",
+      "line": 809,
+      "meaning": "current review occurrence suppression uses exact scope or retained local IDs"
+    },
+    {
+      "path": "packages/explorer-plugin/src/runtime.ts",
+      "line": 966,
+      "meaning": "local limit can trigger remote recovery selection"
+    },
+    {
+      "path": "packages/explorer-plugin/src/obligation-scheduler.ts",
+      "line": 50,
+      "meaning": "remote selection wins after four local selections"
+    },
+    {
+      "path": "packages/explorer-plugin/src/source-return.ts",
+      "line": 9,
+      "meaning": "native source-position arrival is restricted to page discovery obligations"
+    },
+    {
+      "path": "packages/core/src/engine.ts",
+      "line": 1532,
+      "meaning": "strict entry replay rejects paths with nonreplayable actions"
+    }
+  ],
+  "limitations": [
+    "No product code, browser, service, original task database, SDK host/batch, or test was run.",
+    "Only direct read-only SQLite handles with the existing entity decoder and pure classification/scope projections were used.",
+    "One classification helper launch failed import resolution before any database access; its correction is recorded.",
+    "No full observation, HTML, owner graph or task export was copied.",
+    "Current candidate attributes and later successful Close do not substitute for the missing selection-time availability/local-array evidence.",
+    "No timing or recovery-rate improvement is measured; the recorded recovery took approximately 23.9 seconds and still failed strict checkpoint arrival."
+  ]
+}
