@@ -2,7 +2,7 @@
 
 本次完整目标：完成可行的恢复、性能、存储优化，包括 Observation 结构共享、历史分层与按引用回收、任务库压缩和全量读取优化；验证后将 refactor 与 autonomous-exploration 的代码一并合入 main；再以真实 OKX USD→BTC 页面持续探索，发现异常立即停止该轮、保留证据并修复。队列为空、模拟测试或单次恢复成功均不构成穷尽证明。
 
-当前 main 为 `d71f1d5`（含 autonomous），产品 `f3c4316` 已通过固定提交的隔离发布检查。第十一窗已结算冻结：4/4 实际操作取得 document 条件覆盖；原 header 审阅项以 `current_review_occurrence_present` 暂缓，保留未完成状态且不授予覆盖，已证实本次错误回退修复生效。随后另一个历史 Main menu / Trade / generic 审阅项严格恢复 UNREACHABLE，15.885 秒、恢复动作 0。第 3 项的真实到达及后续新覆盖验收门仍未通过，不能宣布完结或穷尽；本窗没有新增性能结论。最终事实见[第十一窗报告](experiments/storage-tiering-2026-10-17/evidence/real-okx-11/README.md)。
+当前 main 为 `a5adfb6`（含 autonomous），新增恢复候选产品 `c3a7d1a` 已通过固定提交的隔离发布检查。第十一窗已结算冻结：4/4 实际操作取得 document 条件覆盖；原 header 审阅项以 `current_review_occurrence_present` 暂缓，保留未完成状态且不授予覆盖，已证实本次错误回退修复生效。随后另一个历史 Main menu / Trade / generic 审阅项严格恢复 UNREACHABLE，15.885 秒、恢复动作 0。第 3 项的真实到达及后续新覆盖验收门仍未通过，不能宣布完结或穷尽；本窗没有新增性能结论。最终事实见[第十一窗报告](experiments/storage-tiering-2026-10-17/evidence/real-okx-11/README.md)。
 
 `f3c4316` 只在当前无活动边界时将已在场审阅项整体暂缓；有活动边界时沿用原行为，未改变分类、身份、覆盖或 unknown 契约。新增反例在旧版失败，修复后相关文件一次 17/17 通过；[定向检查点](experiments/storage-tiering-2026-10-17/evidence/review-present-source-fallback/README.md)、[发布检查](experiments/storage-tiering-2026-10-17/evidence/review-present-source-release/validation.json)与真实复验分别支持各自结论。第十窗的 4/4 条件覆盖和严格恢复失败完整保留于[原报告](experiments/storage-tiering-2026-10-17/evidence/real-okx-10/README.md)，不回填旧结果。
 

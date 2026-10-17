@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-17T06:27:02.527521+00:00",
+  "mainBefore": "d71f1d52a4d4840526f282f923769c7d037ec525",
+  "mainAfter": "a5adfb6b2e7d1e01d5eff8f1e3f7a7c5520e6627",
+  "product": "c3a7d1a5cf08de45900b28d3aa134fbf9c600768",
+  "autonomous": "4857ad571c19995480a4c149abd9b2868a94c965",
+  "fastForward": true,
+  "mainClean": true,
+  "typesRerunAtMerge": false,
+  "browserServiceDatabaseOperation": false
+}

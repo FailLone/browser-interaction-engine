@@ -1,0 +1,16 @@
+{
+  "window": 12,
+  "productCommit": "c3a7d1a5cf08de45900b28d3aa134fbf9c600768",
+  "publishedMainCommit": "a5adfb6b2e7d1e01d5eff8f1e3f7a7c5520e6627",
+  "source": ".data/okx-storage-acceptance-20261017-v4",
+  "destination": ".data/okx-storage-acceptance-20261017-v5",
+  "priorClosedEvidence": "../real-okx-11/closed-evidence.json",
+  "priorClosedEvidenceSha256": "ba9f8ffe64a9633fc2e354c479117fb525b6ef65438ef16307b31b372fcd8424",
+  "priorRunId": "01958656-8614-4f9b-b571-a182b5cd8bbc",
+  "runner": "scripts/okx-storage-acceptance.ts",
+  "runnerSha256": "460ec47b91dbec868028cef02a486f6de12f291f80ebe9f0a4da5e712a86c078",
+  "node": "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+  "providerEnvironment": "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine/.env.explorer.local",
+  "budget": { "rounds": 1, "actions": 20, "modelRequests": 80, "minutes": 8, "sampleSeconds": 30, "stallMinutes": 5 },
+  "purpose": "One bounded continuation solely to verify that checkpointRecoveryCandidates prevents explicitly no-known-path historical sources from consuming strict recovery attempts while retaining pending work and existing debts. Report actual arrival and subsequent condition coverage separately. Preserve prior usage; add exactly one unchanged 8-minute, 20-action, 80-model-request, 1-round window and retain every existing stop gate. No performance comparison, assumed arrival or exhaustion claim."
+}
