@@ -716,6 +716,14 @@ export class ExplorerPlugin {
         if(source.gaps.some(g=>g.critical)||Object.values(source.context).some(value=>value.status!=='known'))continue;
         if(item.scope.url&&item.scope.url!==source.url)continue;
         if(returnToSource&&!sourceReturnCondition(source,o)){reason='native_source_position_unavailable';continue;}
+        if(!item.scope.kind&&controlReviewGapReasons.has(item.reason)){
+          // A checkpoint can restore only its captured scene. Hidden/background
+          // nodes are retained work, not evidence of a place where that work can
+          // be reviewed. Revealing them requires a separately observed entry.
+          const active=source.boundaries?.at(-1),members=active&&new Set(source.overlays?.find(overlay=>overlay.key===active.key)?.controlIds||[]);
+          const inScope=facts.inScope??=controlScopeMatcher(source,sourceActions);
+          if(!source.controls.some(control=>control.visible&&(!active||members!.has(control.localId))&&inScope(item.scope,control))){reason='source_review_target_not_available';continue;}
+        }
         const index=facts.index??=observationActionIndex(source,sourceActions),condition=boundOperationCondition(item);
         const targets=index.matching(item.scope).filter(action=>!condition||condition===index.condition(action));
         if(item.scope.kind&&(targets.length!==1||!targetConditions(facts,targets[0])))continue;
