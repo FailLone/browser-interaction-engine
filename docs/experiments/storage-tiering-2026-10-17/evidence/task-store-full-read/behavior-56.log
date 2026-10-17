@@ -1,0 +1,14 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-store-packed.test.ts (17 tests) 599ms
+ ✓ tests/explorer-store-read-cost.test.ts (12 tests) 85ms
+ ✓ tests/explorer-store-normalized.test.ts (10 tests) 49ms
+ ✓ tests/explorer-store-write-cost.test.ts (7 tests) 40ms
+ ✓ tests/explorer-task-writer.test.ts (10 tests) 26ms
+
+ Test Files  5 passed (5)
+      Tests  56 passed (56)
+   Start at  10:05:37
+   Duration  1.59s (transform 81ms, setup 0ms, collect 154ms, tests 798ms, environment 0ms, prepare 164ms)
+

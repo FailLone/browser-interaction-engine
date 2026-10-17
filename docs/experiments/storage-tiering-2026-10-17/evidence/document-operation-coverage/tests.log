@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/document-operation-coverage.test.ts (24 tests) 602ms
+
+ Test Files  1 passed (1)
+      Tests  24 passed (24)
+   Start at  10:20:24
+   Duration  1.69s (transform 539ms, setup 0ms, collect 955ms, tests 602ms, environment 0ms, prepare 36ms)
+

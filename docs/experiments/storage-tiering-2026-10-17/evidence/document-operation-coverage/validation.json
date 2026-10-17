@@ -1,0 +1,52 @@
+{
+  "baseCommit": "e762c0d04bae79beb81d09aaf3b72d0943026b74",
+  "commands": [
+    {
+      "command": "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node --conditions=development node_modules/vitest/vitest.mjs run tests/document-operation-coverage.test.ts -t 'seed checkpoint'",
+      "exitCode": 0,
+      "passed": 1,
+      "skipped": 23,
+      "log": "seed.log",
+      "purpose": "Required one-fixture behavior checkpoint before expanding MemoryStore counterexamples."
+    },
+    {
+      "command": "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node --conditions=development node_modules/vitest/vitest.mjs run tests/document-operation-coverage.test.ts",
+      "exitCode": 0,
+      "passed": 24,
+      "skipped": 0,
+      "log": "tests.log",
+      "purpose": "Single final scoped integration pass; re-creates the local seed once and runs all in-memory variants and plugin/frontier consumption."
+    }
+  ],
+  "sourceHashesAfterValidation": {
+    "packages/browser/src/control-reviews.ts": "655f34bdf4010b8221ce46862f9f49dcf7c12e72cc8df9d4c6da828a070e28ee",
+    "tests/document-coverage-review-authority.test.ts": "065bccbd24a085cf73910f2ccf87046c81550356a89c0f3ca42b844b8d1b923b",
+    "tests/document-operation-coverage.test.ts": "33bea5673e11fa6b930ef7f02c2c05823431e57242f6b6ac891f061bebf7755f",
+    "packages/browser/src/document-coverage.ts": "ff7a44e41c9e7f7caa34323b8f6b6b47cadcec505463b9b8d801c7f3008e0e34",
+    "packages/browser/src/index.ts": "fd1584f103c954ca6a21ad53afbfa43134278a0e25617830688f136c874d75fc",
+    "packages/core/src/engine.ts": "3abb374120721a9990a4a09b419fa4f2f6b06c6a373e245f65bf5d316dadd027",
+    "packages/core/src/coverage-reconciliation.ts": "367b3f417780d9606f50e336a0f9bb3cfa296737842f18c395eb35dc723de3b7",
+    "packages/adapter-playwright/src/types.ts": "be275677321f06167705a578a39a2c099386e6bf7e91493eacebabfbb5a9c297",
+    "packages/adapter-playwright/src/owner-dependencies.ts": "16631648c616c9e8c40b2ef3884e8dd73bbde1f9c7db25f9c6d44a4c4c7210b1",
+    "packages/adapter-playwright/src/browser.ts": "4cf486182176536bcce477312b5014107a308f874fe299c01a3fab5152aae645"
+  },
+  "frozenOwnedFiles": [
+    "packages/browser/src/control-reviews.ts",
+    "tests/document-coverage-review-authority.test.ts",
+    "tests/document-operation-coverage.test.ts"
+  ],
+  "logHashes": {
+    "seed.log": "c86c1bad781096f3d214bb434e3d67cc4f8fb170bc08d048dde0527c8bb54475",
+    "tests.log": "726d8cfef6dd3fdf52a56e89a50a2f04fbf9a4b36ec40fff6612a009c1db7eaa"
+  },
+  "previousAuthorityValidation": "../document-coverage-review-authority/validation.json",
+  "previousAuthorityNote": "The earlier 101-test run predates the additive reviewSource return. This integration includes the actual reviewSource owner-mismatch rejection; the 101-test group was not rerun.",
+  "limits": [
+    "No standalone typecheck; root owns aggregate typecheck.",
+    "No full suite, 80-trial protocol, benchmark or real OKX/provider resource.",
+    "One real localhost checkbox receipt per invocation; independent MemoryStore clones thereafter.",
+    "Post-validation source hashes are recorded; concurrent files owned by other agents were not independently frozen by this agent.",
+    "After-observation validation intentionally does not require the target or owner graph to remain; checks the owned successful receipt boundary."
+  ],
+  "cleanup": "Each local BrowserEngine and localhost server closes in finally; each MemoryStore-host and plugin closes in finally. No persistent task DB or fixture directory created."
+}

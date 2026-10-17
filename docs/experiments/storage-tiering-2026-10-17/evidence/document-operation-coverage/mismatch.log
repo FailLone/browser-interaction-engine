@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/retained-coverage-mismatch.test.ts (2 tests) 14ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  10:17:38
+   Duration  343ms (transform 134ms, setup 0ms, collect 194ms, tests 14ms, environment 0ms, prepare 36ms)
+

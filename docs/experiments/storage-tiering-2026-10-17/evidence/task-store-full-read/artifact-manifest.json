@@ -1,0 +1,62 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 3228,
+    "sha256": "52d25299c60dac266fde87f11b1209d0671520e3cd26472cfe1576e94b68c0f7"
+  },
+  {
+    "path": "attribution.json",
+    "bytes": 2680,
+    "sha256": "fb3186b4924d68f735d688639227e9bbcee267f90f02fbd60b0ce3c2bfd78b4e"
+  },
+  {
+    "path": "attribution.mjs",
+    "bytes": 4712,
+    "sha256": "2d116b8fe70d4e9c7c7379cc7ff18cb103a4b5c3e99fd9c902b862a98dfb5ed3"
+  },
+  {
+    "path": "behavior-56.log",
+    "bytes": 583,
+    "sha256": "b356d7fc8c9952ee6c2ca457c6f438c364189b0a79157cb17e4e83038494fe37"
+  },
+  {
+    "path": "candidate.patch",
+    "bytes": 15026,
+    "sha256": "fa09e95c752ccc35bf7c1b72abae062cdf6df6f9967e0bc16768093903a71fcb"
+  },
+  {
+    "path": "checkpoint.json",
+    "bytes": 2875,
+    "sha256": "5d1f8c7429a93e565668ce75e69f516c95d911ad573ed6a175a1b3d13731d1e5"
+  },
+  {
+    "path": "checks.json",
+    "bytes": 612,
+    "sha256": "e9cf1993db5c7166be0256b9d3ed1d3ec9c8ccbef6c16cc1f2b873a260edda56"
+  },
+  {
+    "path": "feasibility.json",
+    "bytes": 1468,
+    "sha256": "d2b93eae2bd0c56b63ebcbb6e39b2a1db8b8c1ccdddc28d05a7e39e867b8b750"
+  },
+  {
+    "path": "feasibility.mjs",
+    "bytes": 2836,
+    "sha256": "92ce1f2be839dc463bf01543937e950992f544546e72f6baa4409607b16ed139"
+  },
+  {
+    "path": "sealed-candidate.json",
+    "bytes": 1616,
+    "sha256": "dcb7c388de4efeccd72dab977e80713cb3ab6f40b6159ebb3695a9eefb3095c7"
+  },
+  {
+    "path": "typecheck.log",
+    "bytes": 188,
+    "sha256": "c4826c0bcec3b7398a6dba4e3b1bb68d1dc30320104f803cc5ae8a8081a66a7a"
+  },
+  {
+    "path": "worker.ts",
+    "bytes": 5950,
+    "sha256": "bccb395a67a6334b125a4e989e2cc7dabf9c8d6d473c9c7bfc854730450736fa"
+  }
+]

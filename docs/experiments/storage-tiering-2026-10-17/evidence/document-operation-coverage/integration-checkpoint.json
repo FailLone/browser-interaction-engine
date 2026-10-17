@@ -1,0 +1,80 @@
+{
+  "baseCommit": "e762c0d04bae79beb81d09aaf3b72d0943026b74",
+  "captureCommit": "67ffbeecc0d4651568ac54b95b3966b28d86d2f2",
+  "productCommit": "a5d526726d60f4a748abd5d1d4c164f09afc1a91",
+  "workspace": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "branch": "codex/exploration-layered-refactor",
+  "productSourceSha256": {
+    "packages/adapter-playwright/src/browser.ts": "4cf486182176536bcce477312b5014107a308f874fe299c01a3fab5152aae645",
+    "packages/adapter-playwright/src/owner-dependencies.ts": "d47b55bc5c53b6aae6d2db494310cb6ba3687be6251abc68c3fff8a78e72518c",
+    "packages/adapter-playwright/src/types.ts": "be275677321f06167705a578a39a2c099386e6bf7e91493eacebabfbb5a9c297",
+    "packages/browser/src/control-reviews.ts": "655f34bdf4010b8221ce46862f9f49dcf7c12e72cc8df9d4c6da828a070e28ee",
+    "packages/browser/src/document-coverage.ts": "ff7a44e41c9e7f7caa34323b8f6b6b47cadcec505463b9b8d801c7f3008e0e34",
+    "packages/browser/src/index.ts": "fd1584f103c954ca6a21ad53afbfa43134278a0e25617830688f136c874d75fc",
+    "packages/core/src/coverage-reconciliation.ts": "367b3f417780d9606f50e336a0f9bb3cfa296737842f18c395eb35dc723de3b7",
+    "packages/core/src/engine.ts": "3abb374120721a9990a4a09b419fa4f2f6b06c6a373e245f65bf5d316dadd027",
+    "tests/document-coverage-graph.test.ts": "2fecd2871d4867acb949288d99f35ff7c9fedf71674d79eed15a8f82696210c8",
+    "tests/document-coverage-review-authority.test.ts": "065bccbd24a085cf73910f2ccf87046c81550356a89c0f3ca42b844b8d1b923b",
+    "tests/document-operation-coverage.test.ts": "33bea5673e11fa6b930ef7f02c2c05823431e57242f6b6ac891f061bebf7755f",
+    "tests/owner-dependencies-capture.test.ts": "9b60b9403a408a99a8fe732e58b900d60f14e6cb3761e016eec1bb1ff3c2e89b",
+    "tests/receipt-coverage-reconciliation.test.ts": "dcdfb520c7c6057384fb30bf8ab072dc107f56a1e426bf51a8005ea8c2c1646f",
+    "tests/retained-coverage-mismatch.test.ts": "9118777d1b869e114756f03c54995e23fd520b2f6fcef5fefd3d08bfe6dfa7ff"
+  },
+  "checks": [
+    {
+      "command": "node node_modules/vitest/vitest.mjs run tests/receipt-coverage-reconciliation.test.ts tests/operation-correspondence-batch.test.ts tests/coverage-reconciliation.test.ts",
+      "passed": 49,
+      "exitCode": 0,
+      "log": "existing-regression.log",
+      "reason": "New receipt fallback changes shared core correspondence and frontier paths; run their affected original regressions and final new exclusion contract."
+    },
+    {
+      "command": "node node_modules/vitest/vitest.mjs run tests/retained-coverage-mismatch.test.ts",
+      "passed": 2,
+      "exitCode": 0,
+      "log": "mismatch.log",
+      "reason": "Static review found known portable mismatch could become fallback eligible after a failed historical projection; regression covers refusal plus existing valid clarification. First test run also passed; repeated only because shell status capture used a reserved zsh variable."
+    },
+    {
+      "command": "node node_modules/typescript/bin/tsc -p packages/core/tsconfig.json",
+      "exitCode": 0,
+      "log": "core-types.log"
+    }
+  ],
+  "rootTypecheck": "../document-owner-dependencies/validation.json",
+  "captureAndGraphChecks": "../document-owner-dependencies/validation.json",
+  "publicPluginIntegration": "validation.json",
+  "authorityCheckpoint": "../document-coverage-review-authority/validation.json",
+  "deferredTaskReadCandidate": "../task-store-full-read/sealed-candidate.json",
+  "artifactSha256": {
+    "existing-regression.log": "f00d1e44cdcfe226b19ce345a8df5b86bd06297ae67b87fa753190bee3223b6b",
+    "mismatch.log": "d22dcfc7df177d2c4153c0272caabea8e08e2ed259d560c2d1ef3f59e50de3cc",
+    "core-types.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "otherWorkspaces": {
+    "original": {
+      "path": "/Users/xietian/Projects/browser-interaction-engine",
+      "branch": "codex/single-selection-state-rule",
+      "commit": "6e111284ac3a6642844531dbc06bce462ca4293c",
+      "status": ""
+    },
+    "main": {
+      "path": "/Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine",
+      "branch": "main",
+      "commit": "069b65b47d951cdcced4d895e2abe33738267e5a",
+      "status": ""
+    },
+    "autonomous": {
+      "path": "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine",
+      "branch": "codex/autonomous-exploration",
+      "commit": "4857ad571c19995480a4c149abd9b2868a94c965",
+      "status": ""
+    }
+  },
+  "limitations": [
+    "No full suite, 80-protocol or real OKX rerun. No main merge.",
+    "Collector native-inventory guard follows the integration checkpoint; only its new case and final root types were rerun. Prior source hashes retained.",
+    "No new recovery/performance/net-storage claim.",
+    "Original okx-launch-7 untracked artifacts are preserved."
+  ]
+}
