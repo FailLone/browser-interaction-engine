@@ -1,0 +1,1 @@
+packages/browser/src/document-coverage.ts(90,32): error TS2304: Cannot find name 'control'.

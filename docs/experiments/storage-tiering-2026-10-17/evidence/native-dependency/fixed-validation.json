@@ -1,0 +1,47 @@
+{
+  "reason": "Refactored closure target retained one stale control variable; replace with passed native/control instanceId. All initial failures were recorded, no policy relaxation.",
+  "results": [
+    {
+      "name": "targeted-fixed",
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/native-dependency-coverage.test.ts",
+        "tests/document-coverage-graph.test.ts"
+      ],
+      "exitCode": 0,
+      "started": 1792210703.615753,
+      "finished": 1792210706.749377
+    },
+    {
+      "name": "legacy-v1-fixed",
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/operation-receipt-batch.test.ts",
+        "-t",
+        "preserves full single-query results"
+      ],
+      "exitCode": 0,
+      "started": 1792210706.7494762,
+      "finished": 1792210708.1344981
+    },
+    {
+      "name": "types-fixed",
+      "argv": [
+        "pnpm",
+        "exec",
+        "tsc",
+        "-p",
+        ".data/native-check.json"
+      ],
+      "exitCode": 0,
+      "started": 1792210708.134572,
+      "finished": 1792210710.5308092
+    }
+  ]
+}

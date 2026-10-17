@@ -42,16 +42,23 @@ export interface OwnerDependencyRoot {
   localId: string; instanceId: string; ownerId: string; closureId: string;
   complete: boolean; reasons: string[];
 }
+/** Raw native field evidence only; never a logical control or action target. */
+export type OwnerDependencyNativeRoot = Omit<OwnerDependencyRoot, 'localId'>;
 /** Immutable raw DOM projection. A complete graph describes this bounded capture
  * contract, not arbitrary JavaScript/business state. Missing legacy evidence is
  * unknown. It never changes logical identity or grants coverage/replay/dispatch. */
 export interface OwnerDependencies {
-  version: 'browser-owner-dependencies-v1'; documentId: string; baseURI: string;
+  version: 'browser-owner-dependencies-v1' | 'browser-owner-dependencies-v2'; documentId: string; baseURI: string;
   /** Complete inventory from retained controls, including hidden/unknown modes. */
   selectorIds: string[];
   /** Root/selector membership was retained in full. Unlike complete, this does
    * not require unrelated target roots to have complete local captures. */
   inventoryComplete: boolean;
+  /** Required by v2: all light-DOM input/select/textarea instances, including
+   * fields omitted from the action/control inventory. V1 proved no such omissions. */
+  nativeInputIds?: string[];
+  /** V2 roots only for native fields absent from controls. No identity grant. */
+  nativeRoots?: OwnerDependencyNativeRoot[];
   roots: OwnerDependencyRoot[]; closures: OwnerDependencyClosure[];
   nodes: OwnerDependencyNode[]; references: OwnerDependencyReference[];
   limits: OwnerDependencyLimits;

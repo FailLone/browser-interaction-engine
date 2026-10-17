@@ -1,0 +1,241 @@
+
+ RUN  v3.2.7 /private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-native-dependency-9ca7280-ul1cksd6/archive
+
+ ❯ tests/document-coverage-graph.test.ts (72 tests | 10 failed) 46ms
+   × returns coverage-only conditions for a real success even when the result removed the target and changed context/modes 13ms
+     → Cannot read properties of undefined (reading 'policy')
+   × canonicalizes graph index order and reference indexes while preserving DOM child order 2ms
+     → expected undefined to be defined
+   × does not import unrelated children later expanded on an ancestor by another root 3ms
+     → expected undefined to be 'browser-document-coverage-v1' // Object.is equality
+   × retains native empty associations and validates explicit label/form references 1ms
+     → expected undefined to be defined
+   ✓ rejects missing or different authority/conditions: no-graph 0ms
+   ✓ rejects missing or different authority/conditions: inventory 0ms
+   ✓ rejects missing or different authority/conditions: browser 0ms
+   ✓ rejects missing or different authority/conditions: document 0ms
+   ✓ rejects missing or different authority/conditions: scope 0ms
+   ✓ rejects missing or different authority/conditions: session 0ms
+   ✓ rejects missing or different authority/conditions: rule 0ms
+   ✓ rejects missing or different authority/conditions: url 0ms
+   ✓ rejects missing or different authority/conditions: unknown-context 0ms
+   ✓ rejects missing or different authority/conditions: context 0ms
+   ✓ rejects missing or different authority/conditions: critical 0ms
+   ✓ rejects missing or different authority/conditions: boundary 0ms
+   ✓ rejects missing or different authority/conditions: state-owner 0ms
+   ✓ rejects missing or different authority/conditions: control-owner 0ms
+   ✓ rejects missing or different authority/conditions: target-owner 0ms
+   ✓ rejects missing or different authority/conditions: kind 0ms
+   ✓ rejects missing or different authority/conditions: value 0ms
+   ✓ rejects missing or different authority/conditions: risk 0ms
+   ✓ rejects missing or different authority/conditions: basis 0ms
+   ✓ rejects missing or different authority/conditions: unknown-receipt 0ms
+   ✓ rejects missing or different authority/conditions: after-owner 0ms
+   ✓ rejects missing or different authority/conditions: after-document 0ms
+   ✓ rejects missing or different authority/conditions: after-browser 0ms
+   ✓ rejects missing or different authority/conditions: after-critical 0ms
+   ✓ retains raw nonlocal and target conditions: parent-record 0ms
+   ✓ retains raw nonlocal and target conditions: sibling-href 0ms
+   ✓ retains raw nonlocal and target conditions: text 0ms
+   ✓ retains raw nonlocal and target conditions: native-value 0ms
+   ✓ retains raw nonlocal and target conditions: target-value 0ms
+   ✓ retains raw nonlocal and target conditions: checked 0ms
+   ✓ retains raw nonlocal and target conditions: hidden-mode 0ms
+   ✓ retains raw nonlocal and target conditions: new-control 0ms
+   ✓ retains raw nonlocal and target conditions: replaced-instance 0ms
+   ✓ retains raw nonlocal and target conditions: hypothesis 0ms
+   ✓ retains raw nonlocal and target conditions: readiness 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: missing-node 1ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: missing-child 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: missing-parent 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: parent-cycle 1ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: missing-subtree 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: false-children 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: duplicate-root 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: wrong-root 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: missing-selector 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: duplicate-instance 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: native-label-inventory 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: native-form-inventory 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: native-live 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: unknown-checkbox 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: unknown-tab 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: node-budget 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: byte-budget 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: depth-budget 0ms
+   ✓ does not trust matching complete booleans over invalid raw evidence: future-version 0ms
+   ✓ validates every transitive IDREF edge: missing-edge 1ms
+   ✓ validates every transitive IDREF edge: duplicate-edge 0ms
+   ✓ validates every transitive IDREF edge: ambiguous 1ms
+   ✓ validates every transitive IDREF edge: missing-target 0ms
+   ✓ validates every transitive IDREF edge: wrong-target-id 0ms
+   ✓ validates every transitive IDREF edge: foreign-source 0ms
+   ✓ validates every transitive IDREF edge: missing-member 1ms
+   ✓ validates every transitive IDREF edge: missing-target-subtree 1ms
+   × requires original review owner evidence and rejects owner rebinding 1ms
+     → expected undefined to be defined
+   × rechecks authority each call and rejects legacy evidence before invoking the authority 1ms
+     → expected undefined to be defined
+   × fresh queries reject edited same-ID raw material and never expose a shared mutable result 0ms
+     → Cannot read properties of undefined (reading 'evidence')
+   × checks the review-source target owner without imposing its unrelated global selector state 1ms
+     → expected undefined to be defined
+   × compares legal prototype-named attributes as data 1ms
+     → expected undefined to be defined
+   × accepts explicit unselected component state and rejects conflicting or changed memberships 1ms
+     → expected undefined to be defined
+ ❯ tests/native-dependency-coverage.test.ts (4 tests | 2 failed) 1416ms
+   × proves a stable complete real receipt while retaining hidden native fields outside all action and identity inventories 432ms
+     → expected { actualSuccess: true, …(9) } to match object { actualSuccess: true, …(6) }
+(9 matching properties omitted from actual)
+   × rejects a changed nonlocal hidden value or IDREF binding while identical retained A evidence remains usable 334ms
+     → expected undefined to be defined
+   ✓ rejects absent, omitted or malformed v2 native proof even when both sides claim completeness  345ms
+   ✓ keeps shared node/byte limits and refuses a truncated native dependency instead of waiving it  304ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/document-coverage-graph.test.ts > returns coverage-only conditions for a real success even when the result removed the target and changed context/modes
+TypeError: Cannot read properties of undefined (reading 'policy')
+ ❯ tests/document-coverage-graph.test.ts:68:17
+     66|   const f = fixture(); f.after.context.account.value = 'changed'; f.af…
+     67|   const saved = structuredClone(f), result = run(f)!;
+     68|   expect(result.policy).toBe('browser-document-coverage-v1'); expect(r…
+       |                 ^
+     69|   f.attempt.id = 'another-real-receipt'; expect(run(f)?.key).toBe(resu…
+     70| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  tests/document-coverage-graph.test.ts > canonicalizes graph index order and reference indexes while preserving DOM child order
+AssertionError: expected undefined to be defined
+ ❯ tests/document-coverage-graph.test.ts:73:20
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  tests/document-coverage-graph.test.ts > does not import unrelated children later expanded on an ancestor by another root
+AssertionError: expected undefined to be 'browser-document-coverage-v1' // Object.is equality
+
+- Expected: 
+"browser-document-coverage-v1"
+
++ Received: 
+undefined
+
+ ❯ tests/document-coverage-graph.test.ts:80:26
+     78| it('does not import unrelated children later expanded on an ancestor b…
+     79|   const f = fixture(); n(f.current, 'body').childrenComplete = true; n…
+     80|   expect(run(f)?.policy).toBe('browser-document-coverage-v1');
+       |                          ^
+     81| });
+     82| it('retains native empty associations and validates explicit label/for…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  tests/document-coverage-graph.test.ts > retains native empty associations and validates explicit label/form references
+AssertionError: expected undefined to be defined
+ ❯ tests/document-coverage-graph.test.ts:88:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  tests/document-coverage-graph.test.ts > requires original review owner evidence and rejects owner rebinding
+AssertionError: expected undefined to be defined
+ ❯ tests/document-coverage-graph.test.ts:173:24
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  tests/document-coverage-graph.test.ts > rechecks authority each call and rejects legacy evidence before invoking the authority
+AssertionError: expected undefined to be defined
+ ❯ tests/document-coverage-graph.test.ts:178:69
+    176| it('rechecks authority each call and rejects legacy evidence before in…
+    177|   const f = fixture(), fn = vi.fn(authority), reader = documentCoverag…
+    178|   expect(reader(f.action, f.current, f.attempt, f.before, f.after)).to…
+       |                                                                     ^
+    179|   fn.mockReturnValueOnce(undefined); expect(reader(f.action, f.current…
+    180|   delete f.current.ownerDependencies; expect(run(f, fn)).toBeUndefined…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  tests/document-coverage-graph.test.ts > fresh queries reject edited same-ID raw material and never expose a shared mutable result
+TypeError: Cannot read properties of undefined (reading 'evidence')
+ ❯ tests/document-coverage-graph.test.ts:184:9
+    182| it('fresh queries reject edited same-ID raw material and never expose …
+    183|   const f = fixture(), reader = documentCoverageReader(authority), fir…
+    184|   first.evidence.push('caller mutation'); expect(reader(f.action, f.cu…
+       |         ^
+    185|   n(f.current, 'owner').attributes['data-record'] = 'B'; expect(run(f)…
+    186| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  tests/document-coverage-graph.test.ts > checks the review-source target owner without imposing its unrelated global selector state
+AssertionError: expected undefined to be defined
+ ❯ tests/document-coverage-graph.test.ts:198:24
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  tests/document-coverage-graph.test.ts > compares legal prototype-named attributes as data
+AssertionError: expected undefined to be defined
+ ❯ tests/document-coverage-graph.test.ts:203:18
+    201| it('compares legal prototype-named attributes as data', () => {
+    202|   const f = fixture(); both(f, o => { n(o, 'owner').attributes = JSON.…
+    203|   expect(run(f)).toBeDefined(); Object.defineProperty(n(f.current, 'ow…
+       |                  ^
+    204| });
+    205| it('accepts explicit unselected component state and rejects conflictin…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  tests/document-coverage-graph.test.ts > accepts explicit unselected component state and rejects conflicting or changed memberships
+AssertionError: expected undefined to be defined
+ ❯ tests/document-coverage-graph.test.ts:207:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  tests/native-dependency-coverage.test.ts > proves a stable complete real receipt while retaining hidden native fields outside all action and identity inventories
+AssertionError: expected { actualSuccess: true, …(9) } to match object { actualSuccess: true, …(6) }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "actualSuccess": true,
+    "arrivalVerified": false,
+-   "conditionVerified": true,
++   "conditionVerified": false,
+    "currentExecution": false,
+    "identityAuthorized": false,
+    "replayAuthorized": false,
+-   "status": "document",
++   "status": "unavailable",
+  }
+
+ ❯ tests/native-dependency-coverage.test.ts:39:21
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  tests/native-dependency-coverage.test.ts > rejects a changed nonlocal hidden value or IDREF binding while identical retained A evidence remains usable
+AssertionError: expected undefined to be defined
+ ❯ tests/native-dependency-coverage.test.ts:43:58
+     41| 
+     42| it('rejects a changed nonlocal hidden value or IDREF binding while ide…
+     43|   const f = await fixture(); expect(f.compare(f.before)).toBeDefined();
+       |                                                          ^
+     44|   await f.page.locator('#flag').uncheck(); // Restore the action's own…
+     45|   await f.page.locator('#business').evaluate(el => { (el as HTMLInputE…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  12 failed | 64 passed (76)
+   Start at  12:17:33
+   Duration  2.67s (transform 464ms, setup 0ms, collect 940ms, tests 1.46s, environment 0ms, prepare 67ms)
+

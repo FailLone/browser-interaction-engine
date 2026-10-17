@@ -143,13 +143,18 @@ it.each([
   expect(graph.limits).toMatchObject(limits); expect(Buffer.byteLength(JSON.stringify(graph))).toBeLessThanOrEqual(graph.limits.bytes);
 });
 
-it('declines unretained native input dependencies without changing the old control inventory', async () => {
+it('retains formerly omitted native inputs as dependencies without changing the control inventory', async () => {
   const f = await fixture('<section><button id="mode" aria-expanded="false">Mode</button></section><div><input id="hidden-business" type="hidden" value="A"></div>');
   const before = f.current();
   expect(before.controls.some(c => c.selector === '#hidden-business')).toBe(false);
-  expect(before.ownerDependencies).toMatchObject({ inventoryComplete: false, complete: false, reasons: ['unretained_native_input'], roots: [], nodes: [], closures: [], references: [] });
+  expect(before.ownerDependencies).toMatchObject({ version: 'browser-owner-dependencies-v2', inventoryComplete: true, complete: true, reasons: [] });
+  const graph = before.ownerDependencies!, hidden = graph.nodes.find(node => node.attributes.id === 'hidden-business')!;
+  expect(graph.nativeInputIds).toContain(hidden.id); expect(graph.nativeRoots).toEqual([expect.objectContaining({ instanceId: hidden.id, complete: true })]);
+  expect(hidden.live?.value).toBe('A');
   await f.page.locator('#hidden-business').evaluate(el => { (el as HTMLInputElement).value = 'B'; });
   const after = await f.observe();
   expect(after.controls).toEqual(before.controls);
-  expect(after.ownerDependencies).toMatchObject({ inventoryComplete: false, complete: false, reasons: ['unretained_native_input'] });
+  expect(after.ownerDependencies?.nodes.find(node => node.id === hidden.id)?.live?.value).toBe('B');
+  expect(after.ownerDependencies?.nativeInputIds).toEqual(graph.nativeInputIds);
+  expect(f.engine.actions(f.sid).some(action => action.localId === hidden.id)).toBe(false);
 });

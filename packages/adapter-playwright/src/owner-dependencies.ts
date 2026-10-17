@@ -4,10 +4,10 @@ import type { Control, OwnerDependencies, OwnerDependencyLimits, OwnerDependency
  * neither a business dependency discovery algorithm nor an identity grant. */
 export function collectOwnerDependencies(controls: Control[], elements: Element[], instance: (el: Element) => string, documentId: string,
   limits: OwnerDependencyLimits = { nodes: 512, references: 64, bytes: 131072, depth: 16 }): OwnerDependencies {
-  const result: OwnerDependencies = { version: 'browser-owner-dependencies-v1', documentId, baseURI: document.baseURI,
+  const result: OwnerDependencies = { version: 'browser-owner-dependencies-v2', documentId, baseURI: document.baseURI,
     selectorIds: controls.filter(c => c.checked != null || c.pressed != null || c.expanded != null || c.tag === 'select'
       || ['checkbox', 'radio', 'switch', 'tab', 'option', 'treeitem'].includes(c.role)).map(c => c.localId),
-    inventoryComplete: true, roots: [], closures: [], nodes: [], references: [], limits: { ...limits }, complete: false, reasons: [] };
+    inventoryComplete: true, nativeInputIds: [], nativeRoots: [], roots: [], closures: [], nodes: [], references: [], limits: { ...limits }, complete: false, reasons: [] };
   const reasons = new Set<string>(), encoder = new TextEncoder();
   const size = (value: unknown) => encoder.encode(JSON.stringify(value)).byteLength;
   // Reserve room for bounded status/reason metadata. Entries are charged once;
@@ -20,17 +20,21 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
   const incompleteInventory = () => {
     result.inventoryComplete = false; result.complete = false; result.reasons = [...reasons];
     // Never preserve a partial graph as a seemingly complete root inventory.
-    result.roots = []; result.closures = []; result.nodes = []; result.references = [];
-    if (size(result) > limits.bytes) { result.selectorIds = []; result.baseURI = ''; }
+    result.roots = []; result.nativeRoots = []; result.closures = []; result.nodes = []; result.references = [];
+    if (size(result) > limits.bytes) { result.selectorIds = []; result.nativeInputIds = []; result.baseURI = ''; }
     return result;
   };
   if (bytes > limits.bytes) { reasons.add('byte_budget'); return incompleteInventory(); }
-  // Native fields can affect operations outside their local DOM owner. The
-  // existing action inventory excludes hidden inputs; do not silently claim
-  // a complete dependency inventory or create new logical controls for them.
+  // Native fields can affect operations outside their local DOM owner. Retain
+  // omitted fields as bounded dependencies, without inventing controls/actions.
   const retainedElements = new Set(elements);
-  for (const input of document.querySelectorAll('input,select,textarea')) if (!retainedElements.has(input)) {
-    reasons.add('unretained_native_input'); return incompleteInventory();
+  const nativeOnly: Element[] = [];
+  for (const input of document.querySelectorAll('input,select,textarea')) {
+    if (result.nativeInputIds!.length >= limits.nodes) { reasons.add('native_input_budget'); return incompleteInventory(); }
+    const inputId = instance(input);
+    if (!reserve(size(inputId) + 1)) return incompleteInventory();
+    result.nativeInputIds!.push(inputId);
+    if (!retainedElements.has(input)) nativeOnly.push(input);
   }
   const itemSelector = '[data-row-key],[data-item-key],li,tr,[role=row],[role=listitem],[role=treeitem],[role=option]';
   const idrefAttributes = new Set(['for', 'aria-labelledby', 'aria-describedby', 'aria-controls', 'aria-owns', 'aria-activedescendant', 'aria-details', 'aria-errormessage', 'headers', 'list', 'form', 'popovertarget', 'commandfor']);
@@ -165,6 +169,16 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
   };
   const selectorIds = new Set(result.selectorIds), order = controls.map((control, index) => ({ control, element: elements[index] }))
     .sort((a, b) => Number(selectorIds.has(b.control.localId)) - Number(selectorIds.has(a.control.localId)));
+  // Required nonlocal fields are collected before unrelated control owners can
+  // consume the shared budget. Every closure still uses the same hard limits.
+  for (const element of nativeOnly) {
+    const owner = element.closest(itemSelector) || element.parentElement || element;
+    const closure = buildClosure(owner), instanceId = instance(element), complete = closure.complete && closure.nodeIds.includes(instanceId);
+    const root = { instanceId, ownerId: instance(owner), closureId: closure.id, complete,
+      reasons: [...new Set([...closure.reasons, ...(!closure.nodeIds.includes(instanceId) ? ['target_not_captured'] : [])])].sort() };
+    if (!reserve(size(root) + 1)) return incompleteInventory();
+    result.nativeRoots!.push(root);
+  }
   for (const { control, element } of order) {
     if (!element || instance(element) !== control.instanceId) { reasons.add('control_element_mismatch'); return incompleteInventory(); }
     const owner = element.closest(itemSelector) || element.parentElement || element;
@@ -174,7 +188,7 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
     if (!reserve(size(root) + 1)) return incompleteInventory();
     result.roots.push(root);
   }
-  result.complete = result.roots.every(root => root.complete); result.reasons = [...reasons].sort();
+  result.complete = [...result.roots, ...result.nativeRoots!].every(root => root.complete); result.reasons = [...reasons].sort();
   // Includes inventory/closure metadata in the byte ceiling, not just raw nodes.
   if (size(result) > limits.bytes) { reasons.add('byte_budget'); return incompleteInventory(); }
   return result;

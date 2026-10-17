@@ -1,0 +1,1 @@
+{"extends": "../tsconfig.json", "compilerOptions": {"noEmit": true}, "include": ["../tests/native-dependency-coverage.test.ts", "../tests/owner-dependencies-capture.test.ts", "../tests/owner-dependency-validation.test.ts", "../tests/document-coverage-graph.test.ts"]}

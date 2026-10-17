@@ -1,0 +1,178 @@
+
+ RUN  v3.2.7 /private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-native-dependency-9ca7280-ul1cksd6/archive
+
+ ❯ tests/operation-receipt-batch.test.ts (17 tests | 1 failed | 16 skipped) 34ms
+   ↓ baseline: records four distinct real receipts and eight single queries at the SDK store boundary
+   × preserves full single-query results while reducing ledger reads for four distinct receipts 32ms
+     → expected [ { actualSuccess: true, …(9) }, …(3) ] to deeply equal [ Array(4) ]
+   ↓ keeps input order, duplicates, missing and foreign failures isolated, and empty batches empty
+   ↓ re-reads unknown on the next batch without changing actual successes
+   ↓ re-reads executing on the next batch without changing actual successes
+   ↓ re-reads dirty on the next batch without changing actual successes
+   ↓ re-reads boundary on the next batch without changing actual successes
+   ↓ re-reads pending on the next batch without changing actual successes
+   ↓ keeps custom unknown hooks per receipt, including the retained-reader availability check
+   ↓ keeps custom retained factories per receipt and does not let a first grant mask later denial
+   ↓ contains a throwing custom unknown hook to its receipt and retries later items
+   ↓ contains a throwing custom retained hook to its receipt and retries later items
+   ↓ honors a per-receipt denial hook and rechecks its authority in a new batch
+   ↓ honors a custom single-query override and contains its exceptions per input
+   ↓ honors a core prototype single-query replacement after defaults were captured
+   ↓ honors a browser prototype single-query replacement after defaults were captured
+   ↓ does not treat a prototype protected-hook replacement as a cacheable default
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/operation-receipt-batch.test.ts > preserves full single-query results while reducing ledger reads for four distinct receipts
+AssertionError: expected [ { actualSuccess: true, …(9) }, …(3) ] to deeply equal [ Array(4) ]
+
+- Expected
++ Received
+
+  [
+    {
+      "actualSuccess": true,
+      "arrivalVerified": false,
+-     "conditionKey": "360b2ecda9aabda91204bb8440237d2b8c45e1bc82d1da13da551e60c0162d04",
+-     "conditionVerified": true,
++     "conditionVerified": false,
+      "currentExecution": false,
+      "evidence": [
+        "actual-succeeded-attempt:345e7ed5-c598-41d5-9539-cc3884bf8fd6",
+-       "actual-succeeded-attempt:345e7ed5-c598-41d5-9539-cc3884bf8fd6",
+-       "native-supported-operation-authority",
+-       "same-document-complete-owner-dependencies",
+-       "all-captured-modes-and-native-inputs",
+-       "coverage-only-not-identity-arrival-or-replay",
+-       "undeclared-JavaScript-business-state-requires-context",
+      ],
+      "identityAuthorized": false,
+-     "policy": "browser-document-coverage-v1",
+-     "reason": "retained_receipt_operation_sample",
++     "reason": "retained_receipt_condition_unverified",
+      "replayAuthorized": false,
+      "source": {
+        "actionId": "23024fb0-5ca1-4173-8a79-e579556870ad",
+        "actionKey": "5f9eeeb4ee0fa22c7f887fd7c876a02f3145e8394d51dfaf53ea5625130fc7cf",
+        "afterId": "c9bf0c04-d668-4e0e-b11c-ff183ef798d0",
+        "attemptId": "345e7ed5-c598-41d5-9539-cc3884bf8fd6",
+        "beforeId": "7b38e194-bd4b-48dd-a631-72faad79277d",
+        "sessionId": "b870edb9-655d-44e9-ae06-7706dda9dbab",
+      },
+-     "status": "document",
++     "status": "unavailable",
+    },
+    {
+      "actualSuccess": true,
+      "arrivalVerified": false,
+-     "conditionKey": "a300df8794558c44f10a536f993a1103910552e388b45acc76cbf5add3b9be41",
+-     "conditionVerified": true,
++     "conditionVerified": false,
+      "currentExecution": false,
+      "evidence": [
+-       "actual-succeeded-attempt:82ed7ecf-fcda-489e-9ceb-a4a1d3e269f0",
+        "actual-succeeded-attempt:82ed7ecf-fcda-489e-9ceb-a4a1d3e269f0",
+-       "native-supported-operation-authority",
+-       "same-document-complete-owner-dependencies",
+-       "all-captured-modes-and-native-inputs",
+-       "coverage-only-not-identity-arrival-or-replay",
+-       "undeclared-JavaScript-business-state-requires-context",
+      ],
+      "identityAuthorized": false,
+-     "policy": "browser-document-coverage-v1",
+-     "reason": "retained_receipt_operation_sample",
++     "reason": "retained_receipt_condition_unverified",
+      "replayAuthorized": false,
+      "source": {
+        "actionId": "4fa6ac5f-c7c7-47b5-91a8-5f9c23e28a2e",
+        "actionKey": "1dca95ba8813f555f24a6550f60040e55ba29b99a345250dc71368489df39b5c",
+        "afterId": "a852ce6a-f3f9-432e-bed5-de2f32e22d48",
+        "attemptId": "82ed7ecf-fcda-489e-9ceb-a4a1d3e269f0",
+        "beforeId": "c9bf0c04-d668-4e0e-b11c-ff183ef798d0",
+        "sessionId": "b870edb9-655d-44e9-ae06-7706dda9dbab",
+      },
+-     "status": "document",
++     "status": "unavailable",
+    },
+    {
+      "actualSuccess": true,
+      "arrivalVerified": false,
+-     "conditionKey": "360b2ecda9aabda91204bb8440237d2b8c45e1bc82d1da13da551e60c0162d04",
+-     "conditionVerified": true,
++     "conditionVerified": false,
+      "currentExecution": false,
+      "evidence": [
+-       "actual-succeeded-attempt:4651533c-c303-48da-a393-5bb51f78d395",
+        "actual-succeeded-attempt:4651533c-c303-48da-a393-5bb51f78d395",
+-       "native-supported-operation-authority",
+-       "same-document-complete-owner-dependencies",
+-       "all-captured-modes-and-native-inputs",
+-       "coverage-only-not-identity-arrival-or-replay",
+-       "undeclared-JavaScript-business-state-requires-context",
+      ],
+      "identityAuthorized": false,
+-     "policy": "browser-document-coverage-v1",
+-     "reason": "retained_receipt_operation_sample",
++     "reason": "retained_receipt_condition_unverified",
+      "replayAuthorized": false,
+      "source": {
+        "actionId": "c767229b-0e88-4834-b9ea-c469e7458bd6",
+        "actionKey": "892c79f13fd137c7071c2cd471f03314c0f011291755fbce1983b4c3de361457",
+        "afterId": "a33155bd-f376-4e7f-a2c6-2797e5d351a7",
+        "attemptId": "4651533c-c303-48da-a393-5bb51f78d395",
+        "beforeId": "a852ce6a-f3f9-432e-bed5-de2f32e22d48",
+        "sessionId": "b870edb9-655d-44e9-ae06-7706dda9dbab",
+      },
+-     "status": "document",
++     "status": "unavailable",
+    },
+    {
+      "actualSuccess": true,
+      "arrivalVerified": false,
+-     "conditionKey": "a300df8794558c44f10a536f993a1103910552e388b45acc76cbf5add3b9be41",
+-     "conditionVerified": true,
++     "conditionVerified": false,
+      "currentExecution": false,
+      "evidence": [
+-       "actual-succeeded-attempt:adcdf2d3-7dce-43d5-b541-65d1d8bfeb19",
+        "actual-succeeded-attempt:adcdf2d3-7dce-43d5-b541-65d1d8bfeb19",
+-       "native-supported-operation-authority",
+-       "same-document-complete-owner-dependencies",
+-       "all-captured-modes-and-native-inputs",
+-       "coverage-only-not-identity-arrival-or-replay",
+-       "undeclared-JavaScript-business-state-requires-context",
+      ],
+      "identityAuthorized": false,
+-     "policy": "browser-document-coverage-v1",
+-     "reason": "retained_receipt_operation_sample",
++     "reason": "retained_receipt_condition_unverified",
+      "replayAuthorized": false,
+      "source": {
+        "actionId": "ab4e98b0-17ca-47a9-b2c8-0fbd49a04430",
+        "actionKey": "5335510fe90ac99bd87f7ebea5663f843d097640ad9567e91a9bb212e07f24e7",
+        "afterId": "57587bd3-b225-4ad5-9c34-fabeb43ae0fa",
+        "attemptId": "adcdf2d3-7dce-43d5-b541-65d1d8bfeb19",
+        "beforeId": "a33155bd-f376-4e7f-a2c6-2797e5d351a7",
+        "sessionId": "b870edb9-655d-44e9-ae06-7706dda9dbab",
+      },
+-     "status": "document",
++     "status": "unavailable",
+    },
+  ]
+
+ ❯ tests/operation-receipt-batch.test.ts:105:38
+    103|       const reference = JSON.parse(readFileSync(referencePath, 'utf8')…
+    104|       expect(digest(seed.rows)).toBe(reference.fixtureRowsSha256);
+    105|       expect(singleDistinct.results).toEqual(reference.distinct.result…
+       |                                      ^
+    106|       expect(batchDistinct.results).toEqual(reference.distinct.results…
+    107|       expect(batchWithDuplicates.results).toEqual(reference.withDuplic…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 16 skipped (17)
+   Start at  12:17:40
+   Duration  868ms (transform 385ms, setup 0ms, collect 695ms, tests 34ms, environment 0ms, prepare 36ms)
+

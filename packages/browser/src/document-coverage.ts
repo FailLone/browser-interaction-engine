@@ -1,5 +1,5 @@
 import { canonical, hash, type ActionAttempt, type ActionCandidate, type ExplorationCase } from '@interaction/core';
-import type { Control, Observation, OwnerDependencies, OwnerDependencyNode, OwnerDependencyReference } from '@interaction/adapter-playwright';
+import type { Control, Observation, OwnerDependencies, OwnerDependencyNode, OwnerDependencyReference, OwnerDependencyNativeRoot } from '@interaction/adapter-playwright';
 
 /** Re-read revocable authority on every comparison. This callback grants neither
  * document equivalence nor execution permission; the reader proves conditions. */
@@ -24,6 +24,7 @@ interface GraphIndex {
   controls: Map<string, Control>;
   nodes: Map<string, OwnerDependencyNode>;
   roots: Map<string, OwnerDependencies['roots'][number]>;
+  nativeRoots: Map<string, OwnerDependencyNativeRoot>;
   closures: Map<string, OwnerDependencies['closures'][number]>;
   references: Map<string, { value: OwnerDependencyReference; index: number }[]>;
   selectors: string[];
@@ -32,7 +33,7 @@ interface GraphIndex {
 }
 function index(o: Observation): GraphIndex | undefined {
   const g = o.ownerDependencies;
-  if (!g || g.version !== 'browser-owner-dependencies-v1' || !g.inventoryComplete || g.documentId !== o.documentId || !g.baseURI) return;
+  if (!g || !['browser-owner-dependencies-v1', 'browser-owner-dependencies-v2'].includes(g.version) || !g.inventoryComplete || g.documentId !== o.documentId || !g.baseURI) return;
   const maximum = { nodes: 512, references: 64, bytes: 131072, depth: 16 };
   if (!g.limits || Object.entries(maximum).some(([key, max]) => {
     const value = g.limits[key as keyof typeof maximum]; return !Number.isInteger(value) || value <= 0 || value > max;
@@ -46,23 +47,31 @@ function index(o: Observation): GraphIndex | undefined {
     || g.nodes.some(n => !n.id || !n.tag || !n.attributes || typeof n.parentId !== 'string')) return;
   const selectors = o.controls.filter(selector).map(c => c.localId);
   if (!equalSet(g.selectorIds, selectors)) return;
+  const nativeRoots = new Map((g.nativeRoots || []).map(root => [root.instanceId, root]));
+  if (g.version === 'browser-owner-dependencies-v2') {
+    if (!Array.isArray(g.nativeInputIds) || !Array.isArray(g.nativeRoots) || g.nativeInputIds.some(id => !id)
+      || nativeRoots.size !== g.nativeRoots.length || g.nativeInputIds.length > g.limits.nodes) return;
+    const nativeControls = o.controls.filter(c => ['input', 'select', 'textarea'].includes(c.tag)).map(c => c.instanceId);
+    if (!equalSet(g.nativeInputIds, [...nativeControls, ...nativeRoots.keys()])
+      || !equalSet(g.nativeInputIds, g.nodes.filter(n => ['input', 'select', 'textarea'].includes(n.tag)).map(n => n.id))
+      || [...nativeRoots.keys()].some(id => o.controls.some(c => c.instanceId === id))) return;
+  } else if (g.nativeInputIds !== undefined || g.nativeRoots !== undefined) return;
   const references = new Map<string, { value: OwnerDependencyReference; index: number }[]>();
   g.references.forEach((value, index) => references.set(value.sourceId, [...(references.get(value.sourceId) || []), { value, index }]));
-  return { graph: g, controls, nodes, roots, closures, references, selectors,
+  return { graph: g, controls, nodes, roots, nativeRoots, closures, references, selectors,
     inventory: canonical(o.controls.map(c => [c.localId, c.instanceId]).sort((a, b) => canonical(a).localeCompare(canonical(b)))), projections: new Map() };
 }
 
 /** Reconstruct a required closure from raw edges. Ancestor-only nodes contribute
  * their own attributes and references, never children appended by another root. */
-function closureProjection(i: GraphIndex, localId: string): string | undefined {
-  if (i.projections.has(localId)) return i.projections.get(localId);
-  i.projections.set(localId, undefined);
-  const root = i.roots.get(localId), control = i.controls.get(localId);
-  if (!root || !control || !root.complete || root.reasons.length) return;
+function rootProjection(i: GraphIndex, root: OwnerDependencyNativeRoot, instanceId: string, key: string): string | undefined {
+  if (i.projections.has(key)) return i.projections.get(key);
+  i.projections.set(key, undefined);
+  if (!root.complete || root.reasons.length || root.instanceId !== instanceId) return;
   const closure = i.closures.get(root.closureId);
   if (!closure || !closure.complete || closure.reasons.length || closure.id !== root.ownerId || closure.subtreeId !== root.ownerId
     || !equalSet(closure.nodeIds, [...new Set(closure.nodeIds)]) || !equalSet(closure.subtreeIds, [...new Set(closure.subtreeIds)])
-    || new Set(closure.referenceIds).size !== closure.referenceIds.length || !closure.nodeIds.includes(control.instanceId)) return;
+    || new Set(closure.referenceIds).size !== closure.referenceIds.length || !closure.nodeIds.includes(instanceId)) return;
   const allowed = new Set(closure.nodeIds), allowedRefs = new Set(closure.referenceIds);
   if (closure.nodeIds.some(id => !i.nodes.has(id)) || closure.referenceIds.some(n => !Number.isInteger(n) || n < 0 || !i.graph.references[n])) return;
   const members = new Set<string>(), subtrees = new Set<string>(), refs = new Set<number>(), expanded = new Set<string>(), visited = new Map<string, number>();
@@ -78,7 +87,7 @@ function closureProjection(i: GraphIndex, localId: string): string | undefined {
     }
     return result;
   };
-  const targetChain = ancestry(control.instanceId), owner = targetChain.find(record) || targetChain[1] || targetChain[0];
+  const targetChain = ancestry(instanceId), owner = targetChain.find(record) || targetChain[1] || targetChain[0];
   if (!valid || !owner || owner.id !== root.ownerId || ['body', 'html'].includes(owner.tag)) return;
   const ancestors = (id: string, depth: number) => { for (const node of ancestry(id).slice(1)) visit(node.id, false, depth); };
   const visit = (id: string, tree: boolean, depth: number) => {
@@ -145,7 +154,21 @@ function closureProjection(i: GraphIndex, localId: string): string | undefined {
         associations: n.associations ? { ...n.associations, ...(n.associations.labelIds ? { labelIds: sorted(n.associations.labelIds) } : {}) } : undefined,
         ...(expanded.has(id) ? { children: n.children } : {}) };
     }), references: [...refs].map(id => i.graph.references[id]).sort((a, b) => refKey(a).localeCompare(refKey(b))) });
-  i.projections.set(localId, projection); return projection;
+  i.projections.set(key, projection); return projection;
+}
+function closureProjection(i: GraphIndex, localId: string): string | undefined {
+  const root = i.roots.get(localId), control = i.controls.get(localId);
+  return root && control ? rootProjection(i, root, control.instanceId, `control:${localId}`) : undefined;
+}
+function nativeProjection(i: GraphIndex): string | undefined {
+  if (i.graph.version === 'browser-owner-dependencies-v1') return canonical({ version: 1 });
+  const roots: { instanceId: string; closure: string }[] = [];
+  for (const instanceId of sorted([...i.nativeRoots.keys()])) {
+    const closure = rootProjection(i, i.nativeRoots.get(instanceId)!, instanceId, `native:${instanceId}`);
+    if (!closure) return;
+    roots.push({ instanceId, closure });
+  }
+  return canonical({ version: 2, ids: sorted(i.graph.nativeInputIds!), roots });
 }
 function target(a: ActionCandidate, o: Observation, i: GraphIndex) {
   const c = a.localId && i.controls.get(a.localId);
@@ -154,6 +177,7 @@ function target(a: ActionCandidate, o: Observation, i: GraphIndex) {
   return c;
 }
 function conditions(o: Observation, i: GraphIndex, c: Control): string | undefined {
+  const nativeInputs = nativeProjection(i); if (!nativeInputs) return;
   const required = new Set([c.localId, ...i.selectors, ...o.controls.filter(c => ['input', 'select', 'textarea'].includes(c.tag) || c.editable).map(c => c.localId)]);
   const components = o.components || [];
   const result: unknown[] = [];
@@ -172,6 +196,7 @@ function conditions(o: Observation, i: GraphIndex, c: Control): string | undefin
     result.push({ control, closure });
   }
   return canonical({ baseURI: i.graph.baseURI, inventory: i.inventory, selectors: sorted(i.selectors), controls: result,
+    ...(i.graph.version === 'browser-owner-dependencies-v2' ? { nativeInputs } : {}),
     // Component membership can supply explicit unselected state; retain the
     // whole captured membership, not a first matching boolean.
     components: [...components].sort((a, b) => a.id.localeCompare(b.id)), boundaries: o.boundaries || [] });
@@ -240,7 +265,7 @@ export function documentCoverageReader(authority: RetainedCoverageAuthority) {
           || review.url !== before.url || !knownContext(review) || canonical(review.context) !== canonical(before.context)
           || review.gaps.some(g => g.critical) || reviewed.instanceId !== old.instanceId || reviewed.hypothesisId || reviewed.readiness) return;
         const origin = read(review), retained = origin?.controls.get(reviewed.localId);
-        if (!origin || !retained || canonical(retained) !== canonical(reviewed)
+        if (!origin || !retained || canonical(retained) !== canonical(reviewed) || nativeProjection(origin) !== nativeProjection(source)
           || closureProjection(origin, reviewed.localId) !== closureProjection(source, old.localId)) return;
       } else if ([granted.source, granted.target].some(a => a.basis?.evidence.some(e =>
         ['reviewed-control/v1', 'reused-control-review/v1'].includes(e.rule)))) return;

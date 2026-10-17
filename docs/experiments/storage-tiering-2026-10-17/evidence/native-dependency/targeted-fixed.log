@@ -1,0 +1,14 @@
+
+ RUN  v3.2.7 /private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-native-dependency-9ca7280-ul1cksd6/archive
+
+ ✓ tests/native-dependency-coverage.test.ts (4 tests) 1476ms
+   ✓ proves a stable complete real receipt while retaining hidden native fields outside all action and identity inventories  416ms
+   ✓ rejects a changed nonlocal hidden value or IDREF binding while identical retained A evidence remains usable  425ms
+   ✓ keeps shared node/byte limits and refuses a truncated native dependency instead of waiving it  335ms
+ ✓ tests/document-coverage-graph.test.ts (72 tests) 59ms
+
+ Test Files  2 passed (2)
+      Tests  76 passed (76)
+   Start at  12:18:23
+   Duration  2.66s (transform 420ms, setup 0ms, collect 857ms, tests 1.53s, environment 0ms, prepare 67ms)
+
