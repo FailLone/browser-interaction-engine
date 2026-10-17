@@ -1,0 +1,26 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+stdout | tests/review-target-live-recovery.test.ts > replays a nested review source after a real browser restart and retains unknown blocking across another restart
+live-recovery-stages [{"name":"setup","ms":381},{"name":"restart","ms":25,"visits":1},{"name":"recovery","ms":1238,"visits":3},{"result":"CURRENT_REVIEWABLE","reason":"Entry replay verification: CURRENT_REVIEWABLE","checks":[{"name":"unresolved-execution-outcomes","result":"pass"},{"name":"clean-session","result":"pass"},{"name":"known-declared-context","result":"pass"},{"name":"current-review-material","result":"pass"},{"name":"historical-review-source-conditions","result":"pass"},{"name":"live-review-target-preflight","result":"pass"}],"attempts":3,"strategies":["verify_current","boundary_exit","recorded_path","declared_local_restore","entry_replay"]},{"name":"new-input","ms":180,"visits":3},{"receipt":{"status":"succeeded","conditionVerified":true,"reason":"portable_operation_sample"},"recoveryOperations":["Reopen session entry","Outer","Inner"]},{"name":"unknown-restart","ms":1,"visits":3}]
+
+stdout | tests/review-target-live-recovery.test.ts > stops after the first inverse for removed-review-target
+live-recovery-stages [{"name":"setup","ms":307},{"name":"removed-review-target","ms":322,"visits":1}]
+
+stdout | tests/review-target-live-recovery.test.ts > stops after the first inverse for changed-editable-sibling
+live-recovery-stages [{"name":"setup","ms":304},{"name":"changed-editable-sibling","ms":336,"visits":1}]
+
+stdout | tests/review-target-live-recovery.test.ts > stops after the first inverse for strict-checkpoint
+live-recovery-stages [{"name":"setup","ms":302},{"name":"strict-checkpoint","ms":337,"visits":1}]
+
+ ✓ tests/review-target-live-recovery.test.ts (6 tests | 2 skipped) 5486ms
+   ✓ replays a nested review source after a real browser restart and retains unknown blocking across another restart  2272ms
+   ✓ stops after the first inverse for removed-review-target  1058ms
+   ✓ stops after the first inverse for changed-editable-sibling  1086ms
+   ✓ stops after the first inverse for strict-checkpoint  1069ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed | 2 skipped (6)
+   Start at  19:29:59
+   Duration  6.44s (transform 430ms, setup 0ms, collect 811ms, tests 5.49s, environment 0ms, prepare 35ms)
+

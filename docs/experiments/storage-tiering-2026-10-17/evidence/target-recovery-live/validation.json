@@ -1,0 +1,106 @@
+{
+  "baseCommit": "e07dc174acfc287817c56bba19a4d3e1ad290aa1",
+  "productCommit": "adb891dce0868a51b1ae7c30b56b97bcf9d689dd",
+  "branch": "codex/exploration-layered-refactor",
+  "workspace": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "node": "24.22.0",
+  "recordedAt": "2026-10-17T19:42:28.477256+08:00",
+  "files": [
+    {
+      "file": "01-initial-counterexamples.log",
+      "bytes": 17308,
+      "sha256": "bb60505e962ced4acb9df8b1d0ab23acd9da4a95c0755ff5fc454ad8d5f9bcbb",
+      "reason": "新真实适配器反例：隐藏嵌套菜单、双逆操作价格变化、实际浏览器重启；3失败，4.33秒。"
+    },
+    {
+      "file": "02-hidden-target-fix.log",
+      "bytes": 4788,
+      "sha256": "db52c9b7f36575ea8b6855fa4152776b720f5546d5d03cdbd35e97e2ff3ced3e",
+      "reason": "只验证隐藏分流修复；两例到达且输入成功，断言误将external写成exploration，2失败，4.77秒。"
+    },
+    {
+      "file": "03-local-step-fix.log",
+      "bytes": 4661,
+      "sha256": "21170140d991e29fd5b98d795a38b5b1258b793929979ef43d3aacc1afadb3cc",
+      "reason": "增加逐步后置条件，重跑受影响三例及既有Next消失负例；3通过，1测试辅助函数读取空driver失败，7.66秒。"
+    },
+    {
+      "file": "04-negative-guards.log",
+      "bytes": 2421,
+      "sha256": "d89caaa6ae91db33dba5fbb0a8d20af7b19f9b368a25ca31d57be93002c9b4db",
+      "reason": "修正空driver断言；补目标消失、可编辑兄弟变化、严格检查点三负例；4通过，6.44秒。"
+    },
+    {
+      "file": "05-native-readonly.log",
+      "bytes": 1740,
+      "sha256": "501bbee273eb03ed6fe3340fb55339749f92868818609dcfa5569065a8214a3e",
+      "reason": "审查发现ARIA-only不能视为原生只读；收窄后验证正例和新负例，2通过，3.62秒。"
+    },
+    {
+      "file": "06-source-path-before.log",
+      "bytes": 2949,
+      "sha256": "cca5fcbb08486a6b76fafa7b4f88e9bc31e8f1e6c44ce7ec4c2410974d9f43ee",
+      "reason": "新反例：局部菜单关闭且价格变化，实际多做一次entry；1失败，3.04秒。"
+    },
+    {
+      "file": "07-source-path-after.log",
+      "bytes": 4212,
+      "sha256": "8e4665bd74a1130a87ec9e663c2d35fc2eb9321e15013ad5dada9e7eabc98a25",
+      "reason": "有界后缀选路、必要entry、失败不追加entry、restart接续；4通过，8.03秒。"
+    },
+    {
+      "file": "08-record-contracts.log",
+      "bytes": 469,
+      "sha256": "c2a7070a33ad6d8fb41432b8c83a16f8700caa6e57612f67fd02549876aeef12",
+      "reason": "验证42项已有记录/严格图/候选契约；全通过，1.39秒。此时尚未增加后缀段，不能声称42项在最终commit重跑。"
+    },
+    {
+      "file": "09-live-integration.log",
+      "bytes": 8747,
+      "sha256": "5e04d2169934e958517a257bfd705451ec789dc2bd4f71acf43c250083e8cce4",
+      "reason": "选路改变后统一验证新10例+已有操作到达12例；22通过，24.70秒。"
+    },
+    {
+      "file": "10-stop-is-sticky.log",
+      "bytes": 717,
+      "sha256": "d9cafec6e5e0fe50088e9e52d665115ccc5564b382823a69d607d7617f32e33d",
+      "reason": "审查发现后缀verify重复调用可能覆盖UNVERIFIED；补终止门后仅重跑新增故障注入用例，1通过，2.59秒。"
+    },
+    {
+      "file": "types-initial-error.log",
+      "bytes": 182,
+      "sha256": "cd1d0f657d995c8292add1a97e7861b7f5120952a9f2691e486d3f8ab0abd94f",
+      "reason": "初次类型检查：optional readOnly与boolean返回类型不一致，后改为显式true比较。"
+    },
+    {
+      "file": "types-union-error.log",
+      "bytes": 631,
+      "sha256": "2cc6c33ec9f8f4bf43cec4547abb76fca54768378873c112c605a37d32cba13e",
+      "reason": "第二次类型检查：测试stage泛型的两种Promise联合，后改为async返回统一union。"
+    }
+  ],
+  "finalTypes": [
+    {
+      "command": "node node_modules/typescript/bin/tsc --noEmit",
+      "exitCode": 0,
+      "stdoutBytes": 0
+    },
+    {
+      "command": "node node_modules/typescript/bin/tsc -p packages/core/tsconfig.json",
+      "exitCode": 0,
+      "stdoutBytes": 0
+    }
+  ],
+  "existingWorktreesUnchanged": {
+    "codex/single-selection-state-rule": "6e11128",
+    "codex/autonomous-exploration": "4857ad5",
+    "main": "e07dc17"
+  },
+  "limitations": [
+    "Not a new OKX acceptance run",
+    "Not a performance benchmark",
+    "SDK/adapter behavior; plugin pending-list discharge not exercised",
+    "Unknown ledger and one preflight case use explicit fault injection"
+  ],
+  "rawEvidenceBytes": 48825
+}

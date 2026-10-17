@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/grouped-navigation-path.test.ts (9 tests) 50ms
+ ✓ tests/checkpoint-recovery-candidates.test.ts (18 tests) 26ms
+ ✓ tests/control-review-target.test.ts (15 tests) 85ms
+
+ Test Files  3 passed (3)
+      Tests  42 passed (42)
+   Start at  19:31:15
+   Duration  1.39s (transform 430ms, setup 0ms, collect 861ms, tests 161ms, environment 0ms, prepare 96ms)
+

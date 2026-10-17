@@ -1,0 +1,14 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+stdout | tests/review-target-live-recovery.test.ts > preserves an unknown arrival preflight without immediately retrying it to success
+live-recovery-stages [{"name":"setup","ms":398},{"name":"unknown-arrival-preflight","ms":550,"visits":1}]
+
+ ✓ tests/review-target-live-recovery.test.ts (11 tests | 10 skipped) 1567ms
+   ✓ preserves an unknown arrival preflight without immediately retrying it to success  1566ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 10 skipped (11)
+   Start at  19:37:57
+   Duration  2.59s (transform 455ms, setup 0ms, collect 877ms, tests 1.57s, environment 0ms, prepare 37ms)
+

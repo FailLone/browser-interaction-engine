@@ -1,0 +1,63 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+stdout | tests/review-target-live-recovery.test.ts > locally reopens retained hidden nested review targets without entry reload (changed quote: false)
+live-recovery-stages [{"name":"setup","ms":380},{"name":"recovery","ms":560,"visits":1},{"result":"CURRENT_REVIEWABLE","reason":"Recorded path verification: CURRENT_REVIEWABLE","checks":[{"name":"unresolved-execution-outcomes","result":"pass"},{"name":"clean-session","result":"pass"},{"name":"known-declared-context","result":"pass"},{"name":"current-review-material","result":"pass"},{"name":"historical-review-source-conditions","result":"pass"},{"name":"live-review-target-preflight","result":"pass"}],"attempts":2,"strategies":["verify_current","boundary_exit","recorded_path"]},{"name":"new-input","ms":184,"visits":1},{"receipt":{"status":"succeeded","conditionVerified":true,"reason":"portable_operation_sample"},"recoveryOperations":["Outer","Inner"]}]
+
+stdout | tests/review-target-live-recovery.test.ts > locally reopens retained hidden nested review targets without entry reload (changed quote: true)
+live-recovery-stages [{"name":"setup","ms":323},{"name":"recovery","ms":562,"visits":1},{"result":"CURRENT_REVIEWABLE","reason":"Recorded source path verification: CURRENT_REVIEWABLE","checks":[{"name":"unresolved-execution-outcomes","result":"pass"},{"name":"clean-session","result":"pass"},{"name":"known-declared-context","result":"pass"},{"name":"current-review-material","result":"pass"},{"name":"historical-review-source-conditions","result":"pass"},{"name":"live-review-target-preflight","result":"pass"}],"attempts":2,"strategies":["verify_current","boundary_exit","recorded_path","declared_local_restore","recorded_source_path"]},{"name":"new-input","ms":174,"visits":1},{"receipt":{"status":"succeeded","conditionVerified":true,"reason":"portable_operation_sample"},"recoveryOperations":["Outer","Inner"]}]
+
+stdout | tests/review-target-live-recovery.test.ts > restores multiple declared modes despite passive quote changes while preserving distinct A/B conditions
+live-recovery-stages [{"name":"setup","ms":324},{"name":"recovery","ms":548,"visits":1},{"result":"CURRENT_REVIEWABLE","reason":"Verification after declared local restoration: CURRENT_REVIEWABLE","checks":[{"name":"unresolved-execution-outcomes","result":"pass"},{"name":"clean-session","result":"pass"},{"name":"known-declared-context","result":"pass"},{"name":"current-review-material","result":"pass"},{"name":"historical-review-source-conditions","result":"pass"},{"name":"live-review-target-preflight","result":"pass"}],"attempts":2,"strategies":["verify_current","boundary_exit","recorded_path","declared_local_restore"]},{"name":"new-input","ms":173,"visits":1},{"receipt":{"status":"succeeded","conditionVerified":true,"reason":"portable_operation_sample"},"recoveryOperations":["Mode","Option"]}]
+
+stdout | tests/review-target-live-recovery.test.ts > replays a nested review source after a real browser restart and retains unknown blocking across another restart
+live-recovery-stages [{"name":"setup","ms":301},{"name":"restart","ms":18,"visits":1},{"name":"recovery","ms":907,"visits":2},{"result":"CURRENT_REVIEWABLE","reason":"Recorded source path verification: CURRENT_REVIEWABLE","checks":[{"name":"unresolved-execution-outcomes","result":"pass"},{"name":"clean-session","result":"pass"},{"name":"known-declared-context","result":"pass"},{"name":"current-review-material","result":"pass"},{"name":"historical-review-source-conditions","result":"pass"},{"name":"live-review-target-preflight","result":"pass"}],"attempts":2,"strategies":["verify_current","boundary_exit","recorded_path","declared_local_restore","recorded_source_path"]},{"name":"new-input","ms":175,"visits":2},{"receipt":{"status":"succeeded","conditionVerified":true,"reason":"portable_operation_sample"},"recoveryOperations":["Outer","Inner"]},{"name":"unknown-restart","ms":2,"visits":2}]
+
+stdout | tests/review-target-live-recovery.test.ts > uses full entry replay when a changed mode prevents every current path continuation
+live-recovery-stages [{"name":"setup","ms":304},{"name":"recovery","ms":929,"visits":2},{"result":"CURRENT_REVIEWABLE","reason":"Entry replay verification: CURRENT_REVIEWABLE","checks":[{"name":"unresolved-execution-outcomes","result":"pass"},{"name":"clean-session","result":"pass"},{"name":"known-declared-context","result":"pass"},{"name":"current-review-material","result":"pass"},{"name":"historical-review-source-conditions","result":"pass"},{"name":"live-review-target-preflight","result":"pass"}],"attempts":3,"strategies":["verify_current","boundary_exit","recorded_path","declared_local_restore","entry_replay"]},{"name":"new-input","ms":191,"visits":2},{"receipt":{"status":"succeeded","conditionVerified":true,"reason":"portable_operation_sample"},"recoveryOperations":["Reopen session entry","Outer","Inner"]}]
+
+stdout | tests/review-target-live-recovery.test.ts > keeps a failed source path outstanding without retrying through entry reload
+live-recovery-stages [{"name":"setup","ms":303},{"name":"failed-source-path","ms":541,"visits":1},{"status":"UNREACHABLE","reason":"target_not_reached","attempts":2,"strategies":["verify_current","boundary_exit","recorded_path","declared_local_restore","recorded_source_path"]}]
+
+stdout | tests/review-target-live-recovery.test.ts > stops after the first inverse for removed-review-target
+live-recovery-stages [{"name":"setup","ms":314},{"name":"removed-review-target","ms":336,"visits":1}]
+
+stdout | tests/review-target-live-recovery.test.ts > stops after the first inverse for changed-editable-sibling
+live-recovery-stages [{"name":"setup","ms":307},{"name":"changed-editable-sibling","ms":353,"visits":1}]
+
+stdout | tests/review-target-live-recovery.test.ts > stops after the first inverse for aria-readonly-sibling
+live-recovery-stages [{"name":"setup","ms":318},{"name":"aria-readonly-sibling","ms":353,"visits":1}]
+
+stdout | tests/review-target-live-recovery.test.ts > stops after the first inverse for strict-checkpoint
+live-recovery-stages [{"name":"setup","ms":311},{"name":"strict-checkpoint","ms":336,"visits":1}]
+
+ ✓ tests/review-target-live-recovery.test.ts (10 tests) 14585ms
+   ✓ locally reopens retained hidden nested review targets without entry reload (changed quote: false)  1702ms
+   ✓ locally reopens retained hidden nested review targets without entry reload (changed quote: true)  1625ms
+   ✓ restores multiple declared modes despite passive quote changes while preserving distinct A/B conditions  1496ms
+   ✓ replays a nested review source after a real browser restart and retains unknown blocking across another restart  1828ms
+   ✓ uses full entry replay when a changed mode prevents every current path continuation  2204ms
+   ✓ keeps a failed source path outstanding without retrying through entry reload  1389ms
+   ✓ stops after the first inverse for removed-review-target  1073ms
+   ✓ stops after the first inverse for changed-editable-sibling  1087ms
+   ✓ stops after the first inverse for aria-readonly-sibling  1092ms
+   ✓ stops after the first inverse for strict-checkpoint  1090ms
+ ✓ tests/exploration-target-reach.test.ts (12 tests) 8622ms
+   ✓ verifies a ready target beside a ticking quote without claiming strict checkpoint restoration or execution  884ms
+   ✓ matches unexecuted rebuilt targets but rejects changed declared context and ambiguous bindings  681ms
+   ✓ exits an actual modal through the existing recovery ledger and verifies the target independently  797ms
+   ✓ reports actual same-URL partial recovery after a declared inverse diverges  801ms
+   ✓ preserves unknown outcomes and rejects unassessed repetition inside queued dispatch  484ms
+   ✓ rejects changed context and semantic form binding without attempting recovery  714ms
+   ✓ does not borrow readiness from a stable sibling form  774ms
+   ✓ revalidates repetition after an awaited driver validation rather than trusting the planning read  581ms
+   ✓ carries unexecuted target evidence into a fresh browser session without granting historical execution  603ms
+   ✓ continues a verified recorded source path without entry reload when only unrelated document state differs  947ms
+   ✓ reports arrival independently of pending region decisions and leaves actual dispatch gated  431ms
+   ✓ continues deterministic recovery for a settled mechanical obstruction without claiming early arrival  925ms
+
+ Test Files  2 passed (2)
+      Tests  22 passed (22)
+   Start at  19:36:46
+   Duration  24.70s (transform 444ms, setup 0ms, collect 1.22s, tests 23.21s, environment 0ms, prepare 69ms)
+

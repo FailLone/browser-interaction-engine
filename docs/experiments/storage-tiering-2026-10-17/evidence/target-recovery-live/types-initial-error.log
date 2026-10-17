@@ -1,0 +1,2 @@
+packages/adapter-playwright/src/model.ts(21,3): error TS2322: Type 'boolean | undefined' is not assignable to type 'boolean'.
+  Type 'undefined' is not assignable to type 'boolean'.

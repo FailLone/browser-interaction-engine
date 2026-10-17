@@ -1,0 +1,44 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+stdout | tests/review-target-live-recovery.test.ts > locally reopens retained hidden nested review targets without entry reload (changed quote: true)
+live-recovery-stages [{"name":"setup","ms":384},{"name":"recovery","ms":929,"visits":2},{"result":"CURRENT_REVIEWABLE","reason":"Entry replay verification: CURRENT_REVIEWABLE","checks":[{"name":"unresolved-execution-outcomes","result":"pass"},{"name":"clean-session","result":"pass"},{"name":"known-declared-context","result":"pass"},{"name":"current-review-material","result":"pass"},{"name":"historical-review-source-conditions","result":"pass"},{"name":"live-review-target-preflight","result":"pass"}],"attempts":3,"strategies":["verify_current","boundary_exit","recorded_path","declared_local_restore","entry_replay"]},{"name":"new-input","ms":186,"visits":2},{"receipt":{"status":"succeeded","conditionVerified":true,"reason":"portable_operation_sample"},"recoveryOperations":["Reopen session entry","Outer","Inner"]}]
+
+ ❯ tests/review-target-live-recovery.test.ts (8 tests | 1 failed | 7 skipped) 2093ms
+   ↓ locally reopens retained hidden nested review targets without entry reload (changed quote: false)
+   × locally reopens retained hidden nested review targets without entry reload (changed quote: true) 2093ms
+     → expected [ …(3) ] to have a length of 2 but got 3
+   ↓ restores multiple declared modes despite passive quote changes while preserving distinct A/B conditions
+   ↓ replays a nested review source after a real browser restart and retains unknown blocking across another restart
+   ↓ stops after the first inverse for removed-review-target
+   ↓ stops after the first inverse for changed-editable-sibling
+   ↓ stops after the first inverse for aria-readonly-sibling
+   ↓ stops after the first inverse for strict-checkpoint
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/review-target-live-recovery.test.ts > locally reopens retained hidden nested review targets without entry reload (changed quote: true)
+AssertionError: expected [ …(3) ] to have a length of 2 but got 3
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ tests/review-target-live-recovery.test.ts:60:94
+     58|  await t.engine.observe(t.sessionId);
+     59|  const result=await reachAndContinue(t,input);
+     60|  expect(result.diagnostics?.strategies).toContain('recorded_path');exp…
+       |                                                                                              ^
+     61|  expect(t.visits()).toBe(visits);expect(result.diagnostics?.strategies…
+     62| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 skipped (8)
+   Start at  19:34:38
+   Duration  3.04s (transform 429ms, setup 0ms, collect 810ms, tests 2.09s, environment 0ms, prepare 36ms)
+

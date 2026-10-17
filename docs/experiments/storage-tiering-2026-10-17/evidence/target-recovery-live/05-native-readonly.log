@@ -1,0 +1,18 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+stdout | tests/review-target-live-recovery.test.ts > restores multiple declared modes despite passive quote changes while preserving distinct A/B conditions
+live-recovery-stages [{"name":"setup","ms":388},{"name":"recovery","ms":556,"visits":1},{"result":"CURRENT_REVIEWABLE","reason":"Verification after declared local restoration: CURRENT_REVIEWABLE","checks":[{"name":"unresolved-execution-outcomes","result":"pass"},{"name":"clean-session","result":"pass"},{"name":"known-declared-context","result":"pass"},{"name":"current-review-material","result":"pass"},{"name":"historical-review-source-conditions","result":"pass"},{"name":"live-review-target-preflight","result":"pass"}],"attempts":2,"strategies":["verify_current","boundary_exit","recorded_path","declared_local_restore"]},{"name":"new-input","ms":174,"visits":1},{"receipt":{"status":"succeeded","conditionVerified":true,"reason":"portable_operation_sample"},"recoveryOperations":["Mode","Option"]}]
+
+stdout | tests/review-target-live-recovery.test.ts > stops after the first inverse for aria-readonly-sibling
+live-recovery-stages [{"name":"setup","ms":310},{"name":"aria-readonly-sibling","ms":334,"visits":1}]
+
+ ✓ tests/review-target-live-recovery.test.ts (7 tests | 5 skipped) 2667ms
+   ✓ restores multiple declared modes despite passive quote changes while preserving distinct A/B conditions  1594ms
+   ✓ stops after the first inverse for aria-readonly-sibling  1072ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 5 skipped (7)
+   Start at  19:33:49
+   Duration  3.62s (transform 431ms, setup 0ms, collect 814ms, tests 2.67s, environment 0ms, prepare 34ms)
+
