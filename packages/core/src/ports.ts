@@ -150,6 +150,10 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   stateGrouping?(observation: O, session: Session<S>): import('./types.js').StateGrouping | undefined;
   compare(before: O, after: O, region?: string): Diff;
   constrain(action: ActionCandidate, observation: O, session: Session<S>): ActionCandidate;
+  /** Caller-scoped authorization; never inferred from page text or model output. */
+  /** Opt-in finite UI execution coverage, without asserting business effects. */
+  observedUICoverage?(action: ActionCandidate, observation: O, session: Session<S>): boolean;
+  submissionAuthorized?(action: ActionCandidate, observation: O, session: Session<S>): boolean;
   testPredicate(predicate: Predicate, observation: O): 'pass' | 'fail' | 'unknown';
   replayMatches(candidate: ActionCandidate, recorded: ActionCandidate): boolean;
   scopeBefore?(action: ActionCandidate, observation: O): ScopeStart | undefined;

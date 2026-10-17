@@ -1329,7 +1329,8 @@ export class ExplorerPlugin {
       }
     }
     const locality=(choice:ObligationSelection)=>{const path=byId.get(choice.itemId)?.prerequisites||[];let shared=0;while(shared<path.length&&shared<round.entryPath.length&&digest(path[shared])===digest(round.entryPath[shared]))shared++;return shared;};
-    local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||locality(b)-locality(a)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+    const closing=(choice:ObligationSelection)=>{const action=actions.find(a=>a.id===choice.actionId);return o.coveragePolicy==='finite-ui-v1'&&action?.kind==='click'&&o.controls.find(c=>c.localId===action.localId)?.expanded===true?1:0;};
+    local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||closing(a)-closing(b)||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||locality(b)-locality(a)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     const inPlace=local.filter(choice=>{const action=actions.find(action=>action.id===choice.actionId)!;return action.boundary?.intent!=='exit'&&!navigationTarget(action,o);});
     if(inPlace.length){local.splice(0,local.length,...local.filter(choice=>choice.itemId===arrived||inPlace.includes(choice)));}
     // Finish the selected recovered child once before fairness sends us away.

@@ -722,7 +722,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if (evidenceManifest.gaps.length || dom.detailDom?.nodes.some(n => n.gaps.length)) evidenceManifest.status = 'partial';
     }
     const { detailDom: _, ...observation } = dom;
-    return { ...observation, ...(ownerDependencyDispatch ? { ownerDependencyDispatch } : {}), navigation, evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
+    return { ...observation, ...(this.options.coveragePolicy ? {coveragePolicy:this.options.coveragePolicy}:{}), ...(ownerDependencyDispatch ? { ownerDependencyDispatch } : {}), navigation, evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
   }
   private lastDismissal?: BoundaryExitDispatch & { actionId: string };
   dismissalDispatch(actionId: string): BoundaryExitDispatch | undefined {
@@ -843,7 +843,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
             const targets = [Math.min(max, (Math.floor(position / step) + 1) * step), Math.max(0, (Math.ceil(position / step) - 1) * step)];
             for (const next of targets) if (Math.abs(next - position) > 1) add(kind, { x: axis === 'x' ? next - position : 0, y: axis === 'y' ? next - position : 0 }, c);
           }
-        } else if (kind === 'select') for (const option of c.options.filter(x => !x.disabled && x.value !== c.value)) add(kind, option.value, c);
+        } else if (kind === 'select') for (const option of c.options.filter(x => !x.disabled && (session.options.coveragePolicy==='finite-ui-v1'||x.value !== c.value))) add(kind, option.value, c);
         else if (kind === 'check') { if (!['radio', 'menuitemradio'].includes(c.role) || !c.checked) add(kind, !c.checked, c); }
         else add(kind, undefined, c);
       }

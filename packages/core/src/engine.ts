@@ -210,7 +210,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if([before,after].some(o=>o.gaps.some(g=>g.critical)))return unavailable('source_result_incomplete');
       const times=[before.capturedAt,attempt.startedAt,after.capturedAt].map(Date.parse);
       if(times.some(t=>!Number.isFinite(t))||times[0]>times[1]||times[1]>times[2])return unavailable('source_timing_unverified');
-      if(action.risk!=='interface'||action.basis?.status!=='supported')return unavailable('source_operation_unassessed');
+      const finiteUI=attempt.executionProfile==='observed-ui-exploration'&&this.adapter.observedUICoverage?.(action,before,session);
+      if(action.basis?.status!=='supported'||action.risk!=='interface'&&!finiteUI)return unavailable('source_operation_unassessed');
+      if(finiteUI)result.evidence.push('Finite UI execution verified; business effects remain unassessed');
       if(Object.values(before.context).some(c=>c.status!=='known')||canonical(action.preconditions.context)!==canonical(before.context))return unavailable('source_conditions_unknown');
       const targets=before.controls.filter(c=>c.localId===action.localId),target=targets[0];
       if(targets.length!==1||!target.instanceId||before.controls.filter(c=>c.instanceId===target.instanceId).length!==1
@@ -488,7 +490,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       const observedUI=guard.profile==='observed-ui-exploration'||guard.profile==='observed-ui-probe';
       if(guard.profile==='observed-ui-probe'&&!boundedProbe)add('ACTION_BLOCKED','bounded_probe_required');
       if(observedUI&&this.session(o.sessionId).options.executionPolicy!=='observed-ui')add('ACTION_BLOCKED','observed_ui_authorization_required');
-      if(action.risk!=='interface'&&!(observedUI&&(boundedProbe||isObservedUIOperation(action,o))))add('ACTION_BLOCKED',observedUI&&action.risk==='submission'?'submission_not_authorized':'interface_risk_required');
+      if(action.risk!=='interface'&&!(observedUI&&(boundedProbe||isObservedUIOperation(action,o)||action.risk==='submission'&&this.adapter.submissionAuthorized?.(action,o,this.session(o.sessionId)))))add('ACTION_BLOCKED',observedUI&&action.risk==='submission'?'submission_not_authorized':'interface_risk_required');
       const frontier=material?.frontier||this.frontier(o.sessionId);
       const f=frontier.find(f=>f.action.id===action.id);
       if(f&&['unknown','executing','blocked','deferred','skipped','needs_revalidation'].includes(f.status))add('ACTION_BLOCKED',f.reason||`frontier_${f.status}`,[f.id]);
@@ -1022,7 +1024,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     this.assertExecution(original,this.observation(sessionId),validationPurpose,value,guard);
     this.validatePreparedAction(action, current, validationPurpose);
     validateRecovery?.();
-    const unassessed=session.options.executionPolicy==='observed-ui'&&(guard?.profile==='observed-ui-exploration'&&isObservedUIOperation(action,current)||guard?.profile==='observed-ui-probe'&&isObservedUIProbe(action,current));
+    const unassessed=session.options.executionPolicy==='observed-ui'&&(guard?.profile==='observed-ui-exploration'&&(isObservedUIOperation(action,current)||action.risk==='submission'&&this.adapter.submissionAuthorized?.(action,current,session))||guard?.profile==='observed-ui-probe'&&isObservedUIProbe(action,current));
     if(unassessed)action.replayable=false;
     const attempt: ActionAttempt = { ...(guard?{executionProfile:guard.profile}:{}),...(guard&&'repetitionSource' in guard&&guard.repetitionSource?{repetitionSource:structuredClone(guard.repetitionSource)}:{}),...(unassessed?{effectsAssessment:'not-assessed' as const}:{}),id: id(), sessionId, requestId, action, startedAt: now(), beforeId: current.id, status: 'executing', purpose };
     const started = Date.now();

@@ -1,3 +1,4 @@
+import {finiteInstanceBinding} from './finite-coverage.js';
 import { canonical, hash, id, type CorrespondenceHint, type ExplorationCase, type RestorationStep } from '@interaction/core';
 import type { ActionCandidate, Control, Observation, Session } from './types.js';
 import { readonlyReadout, observableCanonical } from './model.js';
@@ -26,7 +27,8 @@ function controlTargetBinding(c:Control) {
  * or operation-equivalence proof. It stays independent of sibling count, DOM
  * order, instance IDs and current field values. Equal bindings may remain
  * ambiguous; execution and historical coverage still require SDK validation. */
-export function browserControlBindingKey(c:Control):string|undefined {
+export function browserControlBindingKey(c:Control,o?:Observation):string|undefined {
+  const instance=o&&finiteInstanceBinding(c,o);if(instance)return instance;
   const binding=controlTargetBinding(c);
   return binding?`browser-target-binding:v1:${hash(binding)}`:undefined;
 }
@@ -93,7 +95,7 @@ function operationKey(a: ActionCandidate,o: Observation,version:'v1'|'v2'|'v3') 
   }
   const branchVersion=version==='v1'?'v1':'v2';
   const branch=c?browserBranchConditions(a,o,branchVersion):undefined;
-  const targetBinding=c&&controlTargetBinding(c);
+  const targetBinding=c&&(o.coveragePolicy==='finite-ui-v1'?browserControlBindingKey(c,o):controlTargetBinding(c));
   // A shared stable key is not the complete target binding. Its changed owner
   // must not inherit a spent retry key; instance/document IDs remain excluded.
   // Controls without source modes or semantic bindings retain their legacy key.
@@ -154,6 +156,7 @@ function controlCaseProjection(action:ActionCandidate,o:Observation,portable:boo
   };
   const c = o.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
   if (!c || o.gaps.some(g => g.critical)) return;
+  if(portable&&o.coveragePolicy==='finite-ui-v1'&&(c.hypothesisId||c.identityScope==='instance'))return;
   const branch = sourceConditions?(portable?browserPortableBranchConditions(action,o):browserBranchConditions(action,o)):undefined;if(sourceConditions&&!branch)return;
   const identityConflictScope=portable&&branch?{policy:'captured-operation-controls-v1' as const,localIds:branch.identityLocalIds}:undefined;
   const native=portable&&browserOperationCorrespondenceHint(c,action.kind,o);
@@ -171,7 +174,7 @@ function controlCaseProjection(action:ActionCandidate,o:Observation,portable:boo
   const { instanceId: _formInstance, ...reviewForm } = c.reviewBinding?.form || {};
   const reviewBinding = reviewed ? { name: c.name, tag: c.tag, readOnly: c.readOnly,
     attributes: c.reviewBinding?.attributes, form: reviewForm } : undefined;
-  return { key: hash({ url: o.url, ...(sourceConditions?{branch:branch?.key}:{}), boundary: portable?o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})):o.boundaries?.map(b => b.key) || [], shape: shape(c,portable),
+  return { key: hash({ url: o.url, ...(sourceConditions?{branch:branch?.key}:{}), boundary: portable?o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})):o.boundaries?.map(b => b.key) || [], shape: shape(c,portable), ...(o.coveragePolicy==='finite-ui-v1'?{targetReference:finiteInstanceBinding(c,o)}:{}),
     instance: !portable&&(c.hypothesisId || c.identityScope === 'instance') ? c.instanceId : undefined,
     basis, reviewBinding, risk: action.risk, scroll: action.kind === 'scroll' ? c.scroll : undefined }), policy: portable?'browser-controls-correspondence-v2':sourceConditions?'browser-controls-live-v4':'browser-controls-live-v3',
     identityConflictScope, evidence: ['One operation sample per encountered control, target constraints, option and declared context',

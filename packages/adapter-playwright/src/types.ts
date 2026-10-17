@@ -186,6 +186,7 @@ export interface RegionReviewMaterial {
   review?: RegionReviewRecord; delta?: RegionReviewDelta; reuseCandidates?: RegionReuseCandidate[]; unassignedControlIds: string[]; unassignedPageTraversal: boolean;
 }
 export interface Observation extends CoreObservation<Control> {
+  coveragePolicy?: 'finite-ui-v1';
   id: ID; sessionId: ID; capturedAt: string; screenshotAt?: string;
   url: string; title: string; text: string; viewport: { width: number; height: number }; scroll: { x: number; y: number; maxY: number };
   documentId: string; controls: Control[]; regions: Region[]; context: Context;
@@ -208,6 +209,8 @@ export interface Observation extends CoreObservation<Control> {
 export interface ContextRule { key: string; selector: string; attribute?: string; required?: boolean }
 export interface MatchRule { role?: string; name?: string; stableKey?: string; kind?: ActionKind; urlIncludes?: string }
 export interface SessionOptions {
+  coveragePolicy?: 'finite-ui-v1';
+  localSimulation?: { url: string };
   /** Explicit authorization to explore captured UI operations without certifying business effects. */
   executionPolicy?: 'interface-only' | 'observed-ui';
   url: string; headless: boolean; viewport: { width: number; height: number };

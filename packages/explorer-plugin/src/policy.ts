@@ -8,7 +8,7 @@ export const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(
 export const navigationTarget=(a:ActionCandidate,o:Observation)=>navigationIntent(a,o)?.targetUrl;
 export const scopeControlKey=(c:Observation['controls'][number])=>browserControlCorrespondence(c)?.key;
 function actionScope(action:ActionCandidate,o:Observation,c:Observation['controls'][number]|undefined,r:Observation['regions'][number]|undefined):Scope {
-  const key=c&&scopeControlKey(c),targetBinding=c&&browserControlBindingKey(c);
+  const key=c&&scopeControlKey(c),targetBinding=c&&browserControlBindingKey(c,o);
   return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(key?{stableKey:key}:{}),...(targetBinding?{targetBinding}:{})}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};
 }
 export function scopeFor(action:ActionCandidate,o:Observation):Scope {const c=o.controls.find(c=>c.localId===action.localId);return actionScope(action,o,c,o.regions.find(r=>r.key===c?.region));}
@@ -22,7 +22,7 @@ export function actionScopeReader(o:Observation) {
 }
 /** Review gaps bind to the observed control, including controls without an explicit label or an action yet. */
 export function scopeForControl(c:Observation['controls'][number],o:Observation):Scope {
-  const label=c.name||c.label,region=o.regions.find(r=>r.key===c.region)?.label,stableKey=scopeControlKey(c),targetBinding=browserControlBindingKey(c);
+  const label=c.name||c.label,region=o.regions.find(r=>r.key===c.region)?.label,stableKey=scopeControlKey(c),targetBinding=browserControlBindingKey(c,o);
   return {url:o.url,...(region?{region}:{}),...(label?{label}:{}),...(c.role?{role:c.role}:{}),...(stableKey?{stableKey}:{}),...(targetBinding?{targetBinding}:{})};
 }
 /** Model-only view: retain equality hints without repeated document/DOM fingerprints. */
@@ -38,7 +38,7 @@ export function matches(scope:Scope,action:ActionCandidate,o:Observation) {
 /** Only page/region scopes imply discovery navigation; an unnamed operation is still bounded. */
 export const broadScope=(scope:Scope)=>!scope.label&&!scope.role&&!scope.stableKey&&!scope.targetBinding&&!scope.kind&&scope.value===undefined;
 function controlScope(control:Observation['controls'][number],o:Observation):Scope {
-  return {url:o.url,region:o.regions.find(r=>r.key===control.region)?.label,label:control.name||control.label,role:control.role,stableKey:scopeControlKey(control),targetBinding:browserControlBindingKey(control)};
+  return {url:o.url,region:o.regions.find(r=>r.key===control.region)?.label,label:control.name||control.label,role:control.role,stableKey:scopeControlKey(control),targetBinding:browserControlBindingKey(control,o)};
 }
 function matchesControlScope(scope:Scope,actual:Scope) {
   if((scope.kind||scope.value!==undefined)&&!scope.label&&!scope.stableKey)return false;

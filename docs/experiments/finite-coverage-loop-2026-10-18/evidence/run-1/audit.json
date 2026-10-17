@@ -1,0 +1,766 @@
+{
+  "auditorSha256": "3d02e54c21f3169af5e875422a3b8bff52c20579f499822760122d38f6235f48",
+  "passed": false,
+  "taskId": "cd7e1fa9-8e12-4b20-981a-f761d1922287",
+  "status": "budget_exhausted",
+  "reason": "ROUND_BUDGET_EXHAUSTED",
+  "elapsedMs": 219889,
+  "actions": 55,
+  "protocolMissing": [
+    "pair:BTC/USDT"
+  ],
+  "covered": [
+    "pair:ETH/USDT",
+    "mode:Limit",
+    "price:1",
+    "mode:Market",
+    "amount:1",
+    "unit:Base asset",
+    "post-only:true",
+    "settings:IOC",
+    "settings:GTC",
+    "settings:Done",
+    "submit",
+    "rebuild",
+    "duplicate:-1",
+    "reference:0:sample",
+    "reference:1:sample",
+    "quick-market",
+    "reset",
+    "unit:USDT",
+    "post-only:false",
+    "background:true",
+    "background:false",
+    "duplicate:open",
+    "duplicate:close"
+  ],
+  "restart": {
+    "occurred": true,
+    "processes": [
+      23707,
+      23739
+    ],
+    "boundary": "cd7e1fa9-8e12-4b20-981a-f761d1922287",
+    "postRestartSuccessfulAttempts": 50
+  },
+  "reentryChains": [
+    {
+      "itemId": "7fcfb780-51a0-439a-8d86-07a0a1774a3c",
+      "label": "Market",
+      "entryAttemptId": "207bf7af-c42c-4985-b601-a820568a3271",
+      "childAttemptId": "0df58584-8835-40e9-8c6e-76d473ace977",
+      "checks": {
+        "originalDiscovered": true,
+        "absent": true,
+        "pluginSelected": true,
+        "entryActuallyExecuted": true,
+        "targetCorrespondence": true,
+        "childExecuted": true,
+        "durableCompletion": true,
+        "independentDOM": true
+      },
+      "passed": true,
+      "proof": {
+        "equivalent": true,
+        "reason": "equivalent_observed_target",
+        "source": {
+          "sessionId": "da0c0d06-8dac-4673-8332-7124010f4a4e",
+          "observationId": "c094ba24-3f4d-49f8-a9d6-917bd9b34dd2",
+          "actionId": "fdc86701-588e-4a44-9c58-5aeba5b10555"
+        },
+        "target": {
+          "sessionId": "da0c0d06-8dac-4673-8332-7124010f4a4e",
+          "observationId": "ba5cb2cb-d417-4730-9564-f380bfba0d6d",
+          "actionId": "58dd159f-f29c-4220-a9fc-c45d482b5001"
+        },
+        "evidence": [
+          "captured-semantic-context",
+          "semantic-ancestor-scope/v1",
+          "One operation sample per encountered control, target constraints, option and declared context",
+          "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+          "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+          "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+          "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+          "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+          "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+          "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+          "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+          "observation:c094ba24-3f4d-49f8-a9d6-917bd9b34dd2",
+          "observation:ba5cb2cb-d417-4730-9564-f380bfba0d6d"
+        ],
+        "invalidatedBy": [
+          "observation-or-review-change",
+          "nonunique-correspondence",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "conditionKey": "fe9243b607d7e74cc75d220271d53a7b5a1a355ae955c86c424c161115a74433",
+        "policy": "browser-controls-correspondence-v2"
+      }
+    }
+  ],
+  "completedBeforeRestartPreserved": true,
+  "duplicateCompletedConditionAttempts": [
+    "f46ac54a-f37f-4d01-9acb-64f10b0c4bf2",
+    "1f6c0331-5a50-4cd8-bba3-0f4cd65b0a53",
+    "84d02a35-87b8-4e3a-9e2a-f25210338980",
+    "8c043014-7228-4eee-9097-cda89083e8cd",
+    "4e0591f9-5b1f-4221-96e2-610c5066ce79",
+    "d284ea49-8c5c-4a7a-93e6-c5de189899aa"
+  ],
+  "necessaryReentryProposals": 1,
+  "executedReentries": 1,
+  "noProgressReentries": 0,
+  "reentryEvidence": [
+    {
+      "taskId": "cd7e1fa9-8e12-4b20-981a-f761d1922287",
+      "type": "branch.reentry_planned",
+      "actor": "program",
+      "sessionId": "da0c0d06-8dac-4673-8332-7124010f4a4e",
+      "observationId": "96f2bdda-d82e-47e1-b6c4-3e08f6617554",
+      "data": {
+        "scope": {
+          "url": "http://127.0.0.1:64274/?defects=off",
+          "region": "Order form",
+          "label": "Order type",
+          "role": "button",
+          "stableKey": "id:order-type",
+          "targetBinding": "browser-target-binding:v1:fcbb94d0f4b52c2bb47e635188c9d124bd9fa08cd7a278e66d68a01f774b15ef",
+          "kind": "click"
+        },
+        "itemId": "7fcfb780-51a0-439a-8d86-07a0a1774a3c",
+        "target": {
+          "url": "http://127.0.0.1:64274/?defects=off",
+          "region": "Order types",
+          "label": "Market",
+          "role": "menuitem",
+          "stableKey": "explorer:context:v1:664a0a221b94ec60fff5fd402f2649eaca9fbef48f4d0ac4593d8491c1cc5a99",
+          "targetBinding": "browser-target-binding:v1:34fb57872f03cd766c08b40ee98943ce35da8ba072317bfb7f887d5ee0284c7a",
+          "kind": "click"
+        },
+        "route": [
+          {
+            "entry": {
+              "url": "http://127.0.0.1:64274/?defects=off",
+              "region": "Order form",
+              "label": "Order type",
+              "role": "button",
+              "stableKey": "id:order-type",
+              "targetBinding": "browser-target-binding:v1:fcbb94d0f4b52c2bb47e635188c9d124bd9fa08cd7a278e66d68a01f774b15ef",
+              "kind": "click"
+            },
+            "targets": [
+              {
+                "url": "http://127.0.0.1:64274/?defects=off",
+                "label": "Limit",
+                "role": "menuitem",
+                "stableKey": "explorer:context:v1:cd4b93699a57ec7455c8996b889d8db122adf8fbd658636cab23b585e08c3180"
+              },
+              {
+                "url": "http://127.0.0.1:64274/?defects=off",
+                "label": "Market",
+                "role": "menuitem",
+                "stableKey": "explorer:context:v1:664a0a221b94ec60fff5fd402f2649eaca9fbef48f4d0ac4593d8491c1cc5a99"
+              }
+            ],
+            "evidence": {
+              "sessionId": "da0c0d06-8dac-4673-8332-7124010f4a4e",
+              "beforeId": "b28de1d8-8c1d-4bef-80b0-03f8c6c578ea",
+              "observationId": "19b8935f-8790-457b-baaa-97d25bc160e6",
+              "attemptId": "b5fadf8f-4453-4253-ac74-78541e3ea40d"
+            }
+          }
+        ],
+        "reason": "observed_route_to_absent_unfinished_target",
+        "executionAuthorized": false
+      },
+      "at": "2026-10-17T19:00:47.460Z",
+      "sequence": 286
+    }
+  ],
+  "atomicSuccessCount": 18,
+  "resolvedPlanRows": 19,
+  "durableVerifiedAtomicSuccessCount": 18,
+  "remaining": [
+    {
+      "id": "75a60d53-0d90-409d-ae92-0a421ece49f3",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off"
+      },
+      "status": "unresolved",
+      "reason": "program_exhaustive_root"
+    },
+    {
+      "id": "642289f5-a1bf-4ec4-8f7d-770656e821fe",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeLimit ⌄PriceAmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 0Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refresh",
+        "role": "generic",
+        "stableKey": "id:root"
+      },
+      "status": "unresolved",
+      "reason": "classification_unresolved"
+    },
+    {
+      "id": "262d3986-5454-4347-97cc-b41b118c8355",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeLimit ⌄PriceAmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 0Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refresh",
+        "role": "generic",
+        "stableKey": "id:root"
+      },
+      "status": "unresolved",
+      "reason": "operation_basis_unconfirmed"
+    },
+    {
+      "id": "a94cdfbb-322a-44ed-b0da-a5f31693134f",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Order form",
+        "label": "Submit test order",
+        "role": "button",
+        "stableKey": "id:submit",
+        "targetBinding": "browser-target-binding:v1:fcbb94d0f4b52c2bb47e635188c9d124bd9fa08cd7a278e66d68a01f774b15ef",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "observed_in_scope"
+    },
+    {
+      "id": "dd6a9287-49eb-4b5a-9635-e9d7e7459cd0",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Rebuild inputs",
+        "role": "button",
+        "stableKey": "id:rebuild",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "observed_in_scope"
+    },
+    {
+      "id": "95641fc9-4096-4be3-a77b-f04159419dd8",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Quick Market",
+        "role": "button",
+        "stableKey": "id:quick-market",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "observed_in_scope"
+    },
+    {
+      "id": "8ba0d9cc-642c-417f-ad67-2fbf424d324a",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Reset interface",
+        "role": "button",
+        "stableKey": "id:reset-interface",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "observed_in_scope"
+    },
+    {
+      "id": "eef5e3ce-587b-4d4a-9f04-c6dcd91042c5",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeMarket ⌄AmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 0Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refresh",
+        "role": "generic",
+        "stableKey": "id:root"
+      },
+      "status": "unresolved",
+      "reason": "classification_unresolved"
+    },
+    {
+      "id": "ddbdf089-801f-4e1e-ae98-564b9a261f4e",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeMarket ⌄AmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 0Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refresh",
+        "role": "generic",
+        "stableKey": "id:root"
+      },
+      "status": "unresolved",
+      "reason": "operation_basis_unconfirmed"
+    },
+    {
+      "id": "54442c57-b231-4d25-b53e-2e1b04e794e4",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeMarket ⌄AmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 0Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refresh",
+        "role": "generic",
+        "stableKey": "id:root",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "action_basis_unconfirmed"
+    },
+    {
+      "id": "eff4d938-271a-40df-8277-38edb9a1e1a5",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Other settings",
+        "label": "Other settings",
+        "role": "dialog",
+        "stableKey": "id:settings-dialog"
+      },
+      "status": "unresolved",
+      "reason": "classification_unresolved"
+    },
+    {
+      "id": "19993e2e-0763-44a1-ba82-995844bb8a04",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Other settings",
+        "label": "Other settings",
+        "role": "dialog",
+        "stableKey": "id:settings-dialog"
+      },
+      "status": "unresolved",
+      "reason": "operation_basis_unconfirmed"
+    },
+    {
+      "id": "a5eb3630-7ad4-463a-b882-a4f3d629124c",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeMarket ⌄AmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 1Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refresh",
+        "role": "generic",
+        "stableKey": "id:root"
+      },
+      "status": "unresolved",
+      "reason": "classification_unresolved"
+    },
+    {
+      "id": "616f256b-7a5d-48cd-960b-d6ba4311a0f2",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeMarket ⌄AmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 1Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refresh",
+        "role": "generic",
+        "stableKey": "id:root"
+      },
+      "status": "unresolved",
+      "reason": "operation_basis_unconfirmed"
+    },
+    {
+      "id": "aac37c9f-cb16-46f8-9828-4ba4f40f4b78",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Order form",
+        "label": "Submit test order",
+        "role": "button",
+        "stableKey": "id:submit",
+        "targetBinding": "browser-target-binding:v1:fcbb94d0f4b52c2bb47e635188c9d124bd9fa08cd7a278e66d68a01f774b15ef",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "095419f4-a32f-4589-a73a-9c37b30846d1",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Rebuild inputs",
+        "role": "button",
+        "stableKey": "id:rebuild",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "9aa31a35-4ff0-4129-9dfa-4de7afbb460f",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeMarket ⌄AmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 1Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refreshReferenceReference",
+        "role": "generic",
+        "stableKey": "id:root"
+      },
+      "status": "unresolved",
+      "reason": "classification_unresolved"
+    },
+    {
+      "id": "25e3b98e-854b-4831-ba20-c5e4b255a1bc",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeMarket ⌄AmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 1Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refreshReferenceReference",
+        "role": "generic",
+        "stableKey": "id:root"
+      },
+      "status": "unresolved",
+      "reason": "operation_basis_unconfirmed"
+    },
+    {
+      "id": "75d8f71f-c040-46a2-b29c-b0bb36cf68b6",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:13eaa894e3c96a12c62b665b67ecb208f8dd01856f6174d983eb9b56bd7c7efe"
+      },
+      "status": "unresolved",
+      "reason": "identity_unresolved"
+    },
+    {
+      "id": "4bbf9d37-9c24-437d-9af3-c1f00f44b612",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:90c028a830fe69f04e4598702d0ac0ca18763f01478fb3ab7170adc04d2b4b1c"
+      },
+      "status": "unresolved",
+      "reason": "identity_unresolved"
+    },
+    {
+      "id": "309e2ac7-4083-43eb-93e8-43b965bbe36c",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:13eaa894e3c96a12c62b665b67ecb208f8dd01856f6174d983eb9b56bd7c7efe",
+        "kind": "fill",
+        "value": "sample"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "id": "4833a86f-f012-4b9a-abc4-19a77e402612",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:90c028a830fe69f04e4598702d0ac0ca18763f01478fb3ab7170adc04d2b4b1c",
+        "kind": "fill",
+        "value": "sample"
+      },
+      "status": "unresolved",
+      "reason": "region_review_required"
+    },
+    {
+      "id": "7cf3eaa0-d6ab-41bc-813a-de3de8538fa7",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeMarket ⌄AmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 1Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refresh",
+        "role": "generic",
+        "stableKey": "id:root",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "action_basis_unconfirmed"
+    },
+    {
+      "id": "ebd49cdb-97c0-462d-ad69-d34d16dd919b",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:502f5fc8ffc70c8baef51be5c174964414cedb0109d290379a8050ce1c3d0718"
+      },
+      "status": "unresolved",
+      "reason": "identity_unresolved"
+    },
+    {
+      "id": "aadf652a-a789-474a-8e62-b45cb2a2d97c",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:4244e14858be9176748bcf7c8f10c7d90f812eb606830bd7a464e7bdd58316c4"
+      },
+      "status": "unresolved",
+      "reason": "identity_unresolved"
+    },
+    {
+      "id": "4879878f-fbce-4c33-b7fd-fc4b7c758f43",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:502f5fc8ffc70c8baef51be5c174964414cedb0109d290379a8050ce1c3d0718",
+        "kind": "fill",
+        "value": "sample"
+      },
+      "status": "unresolved",
+      "reason": "observed_in_scope"
+    },
+    {
+      "id": "984d2929-e307-40e6-8415-fbac3a9b17e9",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:4244e14858be9176748bcf7c8f10c7d90f812eb606830bd7a464e7bdd58316c4",
+        "kind": "fill",
+        "value": "sample"
+      },
+      "status": "unresolved",
+      "reason": "observed_in_scope"
+    },
+    {
+      "id": "e3d4cc33-d89d-4073-83b5-4e6ae9f03669",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Quick Market",
+        "role": "button",
+        "stableKey": "id:quick-market",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "edd86bc7-31fd-4d22-aa66-2ff5936d4ecf",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeLimit ⌄PriceAmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 1Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refreshReferenceReference",
+        "role": "generic",
+        "stableKey": "id:root"
+      },
+      "status": "unresolved",
+      "reason": "operation_basis_unconfirmed"
+    },
+    {
+      "id": "cce8d64c-d6e6-40ae-a6e2-616426a75842",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Reset interface",
+        "role": "button",
+        "stableKey": "id:reset-interface",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "99a2e3a4-5c98-4115-9631-7fa26911f744",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeLimit ⌄PriceAmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 1Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refreshReferenceReference",
+        "role": "generic",
+        "stableKey": "id:root",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "action_basis_unconfirmed"
+    },
+    {
+      "id": "c85e037c-df3e-4cd6-90ed-405584622126",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeLimit ⌄PriceAmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 1Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refreshReferenceReference",
+        "role": "generic",
+        "stableKey": "id:root"
+      },
+      "status": "unresolved",
+      "reason": "classification_unresolved"
+    },
+    {
+      "id": "1034ebff-b78b-45f6-a66b-5ca932a0ec94",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off"
+      },
+      "status": "unresolved",
+      "reason": "checkpoint_unverified"
+    },
+    {
+      "id": "aa575012-ee6c-4d85-898e-106ab53dffe8",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Quick Market",
+        "role": "button",
+        "stableKey": "id:quick-market",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "e1587a3f-9964-4ed5-b54a-6ecccb7ed12d",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Reset interface",
+        "role": "button",
+        "stableKey": "id:reset-interface",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "7329c4a0-f199-4596-b29a-4e715e670a7f",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeLimit ⌄PriceAmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 1Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refresh",
+        "role": "generic",
+        "stableKey": "id:root"
+      },
+      "status": "unresolved",
+      "reason": "classification_unresolved"
+    },
+    {
+      "id": "63a27f9e-f282-4e41-90ab-06af40ce2190",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeLimit ⌄PriceAmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 1Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refresh",
+        "role": "generic",
+        "stableKey": "id:root"
+      },
+      "status": "unresolved",
+      "reason": "operation_basis_unconfirmed"
+    },
+    {
+      "id": "df2cd2ed-2b9f-4f27-9a84-953af1bac545",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Order form",
+        "label": "Submit test order",
+        "role": "button",
+        "stableKey": "id:submit",
+        "targetBinding": "browser-target-binding:v1:fcbb94d0f4b52c2bb47e635188c9d124bd9fa08cd7a278e66d68a01f774b15ef",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "6f84ea5c-6dd0-4449-bb4a-15a80e53c69f",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Rebuild inputs",
+        "role": "button",
+        "stableKey": "id:rebuild",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "4856a60c-b2b5-4960-89cb-51d231fe746d",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Interaction test exchange",
+        "label": "INTERACTION LAB / TEST ENVIRONMENTOrder workspaceA small exchange built to exercise identity, context and verified recovery.Trading pairBTC/USDTETH/USDTOrder typeLimit ⌄PriceAmountAmount unitUSDTBase asset Post onlyOther settingsSubmit test orderSubmitted orders: 1Identity & recovery fixturesRebuild inputsDuplicate controlsQuick MarketReset interface Background refresh",
+        "role": "generic",
+        "stableKey": "id:root",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "action_basis_unconfirmed"
+    },
+    {
+      "id": "7077afa4-fc8b-44e2-8752-0aaa0cd08c76",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Quick Market",
+        "role": "button",
+        "stableKey": "id:quick-market",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "9edd4ca5-0cc8-46d0-b84c-000d097a5916",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Reset interface",
+        "role": "button",
+        "stableKey": "id:reset-interface",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "dc9e29ec-fc82-4be8-b08e-f5529450ee7a",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Order form",
+        "label": "Submit test order",
+        "role": "button",
+        "stableKey": "id:submit",
+        "targetBinding": "browser-target-binding:v1:fcbb94d0f4b52c2bb47e635188c9d124bd9fa08cd7a278e66d68a01f774b15ef",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "431bd871-5248-47ce-b096-48d20f76c0b6",
+      "scope": {
+        "url": "http://127.0.0.1:64274/?defects=off",
+        "region": "Test controls",
+        "label": "Rebuild inputs",
+        "role": "button",
+        "stableKey": "id:rebuild",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    }
+  ],
+  "calls": {
+    "jev": 34,
+    "llm": 12
+  },
+  "failure": "Full original-child correspondence and receipt audit remains required; missing branches or scenarios cannot pass"
+}

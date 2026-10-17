@@ -1,3 +1,4 @@
+import {finiteNavigationState} from './finite-coverage.js';
 import type { Observation, Diff, Control, Session, StateGrouping } from './types.js';
 import { canonical, signature, formBinding } from './util.js';
 import { structuralStateKeys } from './structural-state-key.js';
@@ -30,6 +31,7 @@ export function readonlyReadout(c: Control): boolean {
  * remain in observations, strict path checks and stateful traversal samples. */
 export function browserStateGrouping(o: Observation, session: Session): StateGrouping | undefined {
   if (!['controls', 'representative'].includes(session.options.exploration || '') || o.gaps.some(g => g.critical)) return;
+  if(o.coveragePolicy==='finite-ui-v1')return {policy:'finite-ui-navigation-v1',canonical:canonical(finiteNavigationState(o)),evidence:['Finite observable navigation state; never identity, arrival, coverage or business equivalence','Native passive readonly field names/values omitted; enabled state, controls, modes, editable values, options, constraints, URL and boundaries preserved']};
   const controls = o.controls.map(c => {
     const readout = readonlyReadout(c);
     return { ...c, ...(readout ? { value: '' } : {}),

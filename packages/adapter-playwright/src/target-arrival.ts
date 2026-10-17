@@ -16,7 +16,7 @@ export function browserTargetConditions(action:ActionCandidate,o:Observation):Ex
     boundaries.push({name:boundary.name,kind:overlay.kind,region:region?{label:region.label,role:region.role}:boundary.region});
   }
   const navigation=action.kind==='click'&&nativeNavigationOperationReference(target,o);
-  const policy=navigation?'browser-native-navigation-target-v1':branch.policy==='browser-branch-conditions-v4'?'browser-target-arrival-v2':'browser-target-arrival-v1';
+  const policy=o.coveragePolicy==='finite-ui-v1'?'finite-ui-target-arrival-v1':navigation?'browser-native-navigation-target-v1':branch.policy==='browser-branch-conditions-v4'?'browser-target-arrival-v2':'browser-target-arrival-v1';
   return {policy,key:hash({policy,url:o.url,branch:branch.key,boundaries,form:formBinding(target),
     ...(navigation?{operationReference:navigation.key}:{}),
     binding:target.identityContext&&{scope:target.identityContext.scope,binding:target.identityContext.binding}}),

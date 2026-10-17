@@ -1,0 +1,10 @@
+{
+  "revision": "0fc7f37dddf12aef5d78324bb07d32540c312ea6",
+  "files": {
+    "scripts/local-loop-worker.ts": "fc1dc9d12c0dc52d2bb74ee85351273b52a7635b12c9209731d7b3adb70ba7f2",
+    "scripts/local-loop-acceptance.mjs": "805115216f2ae41d44aae5a5c69f51fb4e8a92cd565da9bec1dc513780f8068a",
+    "scripts/local-loop-audit.ts": "3d02e54c21f3169af5e875422a3b8bff52c20579f499822760122d38f6235f48",
+    "packages/explorer-plugin/src/runtime.ts": "07d42f0e8cfd95ad654abc2f16a0f80381aeb6832cde3bff799a2e887557b2be",
+    "packages/explorer-plugin/src/obligation-scheduler.ts": "a367ce718f4f3663805de4ae60628848cba70e5153dedcbcb83ddcbf15021477"
+  }
+}

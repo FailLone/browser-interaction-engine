@@ -229,6 +229,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   }
   protected override receiptConditionBlocker(attempt:import('@interaction/core').ActionAttempt,before:Observation,_after:Observation) {
     if(this.blockingBoundaryExit(attempt.sessionId))return 'boundary_exit_unverified';
+    if(attempt.executionProfile==='observed-ui-exploration'&&this.adapter.observedUICoverage?.(attempt.action,before,this.session(attempt.sessionId)))return;
     if(!this.controls.coverageAuthority(attempt.action,before,attempt,before))return 'source_authority_unavailable';
   }
   protected override retainedReceiptConditionUnavailableReason(_attempt:import('@interaction/core').ActionAttempt,before:Observation,after:Observation) {

@@ -154,7 +154,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   };
   for(const focused of priorityIds.size?[true,false]:[false]) {
   const relevantIds=focused?priorityControls:allRelevantIds;
-  if((focused?(c.allowPriorityActionYield??c.allowLocalActionYield):c.allowLocalActionYield)!==false&&(focused?c.hasPendingAction(priorityFilter,true):available.some(inPlace)&&c.hasPendingAction(inPlace,true))){retainBeforeYield();return false;}
+  if(o.coveragePolicy!=='finite-ui-v1'&&(focused?(c.allowPriorityActionYield??c.allowLocalActionYield):c.allowLocalActionYield)!==false&&(focused?c.hasPendingAction(priorityFilter,true):available.some(inPlace)&&c.hasPendingAction(inPlace,true))){retainBeforeYield();return false;}
   if(observedUI&&!c.programApply){c.gap('missing_capability:program_review',{url:o.url});return false;}
   if(focused){const scopes=pendingScopes(true),retained=retainGroups(scopes);if(retained){await retained;return true;}if(scopes.length)return reviewGroup(scopes[0]);}
   const region=readRegions();
@@ -280,6 +280,13 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   if(classificationBatch.length)return flushClassifications();
   for(const h of host.list<IdentityHypothesis>(sid,'hypothesis').filter(h=>h.status==='pending'&&o.controls.some(x=>x.hypothesisId===h.id&&relevantIds.has(x.localId)))) {
     const key=`identity:${h.id}`;if(done(key))continue;
+    if(o.coveragePolicy==='finite-ui-v1'&&c.programApply){
+      const targets=o.controls.filter(x=>x.hypothesisId===h.id);
+      if(targets.length===1&&targets[0].instanceId&&o.controls.filter(x=>x.instanceId===targets[0].instanceId).length===1){
+        await c.programApply({type:'resolveIdentity',hypothesisId:h.id,identityId:h.provisionalIdentityId,source:'finite-ui-current-instance',
+          evidence:[`observation:${o.id}`,`instance:${targets[0].instanceId}`,'Keep current occurrence independent; no historical identity or coverage inherited'],guard:{observationId:o.id,revision:h.revisions.length}},'independent_current_target',{hypothesisId:h.id});return true;
+      }
+    }
     const identities=host.list<ControlIdentity>(sid,'identity');
     const candidates=h.candidateIds.map(id=>{const identity=identities.find(x=>x.id===id);const occurrence=identity?.occurrences.at(-1);let historical:unknown;try{if(occurrence)historical=host.observation(sid,occurrence.observationId).controls.find(x=>x.localId===occurrence.localId);}catch{}return {id,occurrence,historical};});
     const options:Record<string,unknown>={independent:'Keep this occurrence independent',uncertain:'Insufficient historical evidence'};

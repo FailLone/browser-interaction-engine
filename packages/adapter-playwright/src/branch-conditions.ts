@@ -1,3 +1,4 @@
+import {finiteOperationConditions} from './finite-coverage.js';
 import { canonical, hash, type ReviewConditionAssessment } from '@interaction/core';
 import type { ActionCandidate, Control, Observation } from './types.js';
 import { formBinding } from './util.js';
@@ -7,7 +8,7 @@ import { nativeNavigationOperationReference } from './native-navigation.js';
 /** A bound on evidence, not permission to ignore additional dependencies. */
 export const MAX_BRANCH_CONDITIONS = 32;
 export interface BrowserBranchConditions {
-  policy: 'browser-branch-conditions-v1' | 'browser-branch-conditions-v2' | 'browser-branch-conditions-v4';
+  policy: 'browser-branch-conditions-v1' | 'browser-branch-conditions-v2' | 'browser-branch-conditions-v4' | 'finite-ui-v1';
   key: string;
   conditions: { binding: string; state: Record<string, string[] | boolean | 'mixed'>; relation: string }[];
   evidence: string[];
@@ -88,6 +89,7 @@ function regionAncestors(o: Observation) {
  * and free-text dependencies still require declared context rules.
  */
 export function browserBranchConditions(action: Pick<ActionCandidate, 'kind' | 'localId'>, o: Observation, version: 'v1' | 'v2' = 'v2'): BrowserBranchConditions | undefined {
+  if(o.coveragePolicy==='finite-ui-v1')return finiteOperationConditions(action,o);
   const target = o.controls.find(c => c.localId === action.localId);
   return target && observedModeConditions(target, o, ['fill', 'select', 'check'].includes(action.kind), version).conditions;
 }
@@ -96,6 +98,7 @@ export function browserBranchConditions(action: Pick<ActionCandidate, 'kind' | '
  * as review. Scheduling and retained v1/v2 keys remain unchanged. This only
  * supplies prerequisites; a target's identity and replay rights are separate. */
 export function browserPortableBranchConditions(action: Pick<ActionCandidate, 'kind' | 'localId'>, o: Observation): BrowserBranchConditions | undefined {
+  if(o.coveragePolicy==='finite-ui-v1')return finiteOperationConditions(action,o);
   const target=o.controls.find(c=>c.localId===action.localId);
   if(!target)return;
   const conditions=observedModeConditions(target,o,['fill','select','check'].includes(action.kind),'v3').conditions;

@@ -29,6 +29,8 @@ export const reuseRegionReviewsSchema = z.object({
 }).strict();
 export const revokeRegionReuseSchema = z.object({reviewId:z.string().min(1),regionKey:z.string().min(1),source:z.string().trim().min(1),reason:z.string().trim().min(1)}).strict();
 export const sessionSchema = z.object({
+  coveragePolicy: z.literal('finite-ui-v1').optional(),
+  localSimulation: z.object({url:z.url().refine(v=>['127.0.0.1','localhost','[::1]'].includes(new URL(v).hostname),'Local simulation requires a loopback URL')}).strict().optional(),
   executionPolicy: z.enum(['interface-only', 'observed-ui']).optional(),
   url: z.url().refine(v => ['http:', 'https:'].includes(new URL(v).protocol), 'Only HTTP(S) URLs are supported'),
   headless: z.boolean().default(false), viewport: z.object({ width: z.number().int().min(320).max(3840), height: z.number().int().min(240).max(2160) }).default({ width: 1440, height: 900 }),
