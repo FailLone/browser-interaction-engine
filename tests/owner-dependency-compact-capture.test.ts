@@ -51,7 +51,8 @@ function root(result: Awaited<ReturnType<typeof capture>>, id: string) {
   return result.decoded!.roots.find(item => item.localId === localId)!;
 }
 function legacyFacts(graph: OwnerDependencies) {
-  return { ...graph, references: graph.references.map(({ lookup: _lookup, ...ref }) => ref) };
+  const { ancestry: _ancestry, ...facts } = graph;
+  return { ...facts, references: graph.references.map(({ lookup: _lookup, ...ref }) => ref) };
 }
 
 it('incrementally retains a complete graph larger than the wire cap with exactly the same raw semantic facts', async () => {
@@ -82,17 +83,34 @@ it('rejects oversized raw candidate values without constructing an unbounded exp
   expect(result.progress.maxExpanded).toBeLessThan(100000);
 });
 
-it('records explicit negative light-DOM lookup while legacy absence and deep ancestry remain unavailable', async () => {
-  const deep = '<div>'.repeat(19) + '<button data-control id="deep" aria-expanded="false">Deep</button>' + '</div>'.repeat(19);
-  const result = await capture(`<main><section><button data-control id="missing" aria-expanded="false" aria-controls="absent">Missing</button></section>${deep}</main>`);
+it('records explicit negative light-DOM lookup while legacy absence remains unavailable', async () => {
+  const result = await capture('<main><section><button data-control id="missing" aria-expanded="false" aria-controls="absent">Missing</button></section></main>');
   bounds(result);
   const legacyMissing = result.raw!.roots.find(item => item.localId === root(result, 'missing').localId)!;
   expect(legacyMissing).toMatchObject({ complete: false, reasons: expect.arrayContaining(['missing_idref']) });
   expect(root(result, 'missing')).toMatchObject({ complete: true, reasons: [] });
-  expect(root(result, 'deep')).toMatchObject({ complete: false, reasons: expect.arrayContaining(['ancestor_depth']) });
-  expect(result.decoded!.ancestry).toBeUndefined();
   expect(result.decoded!.references.find(ref => ref.token === 'absent')).toMatchObject({ status: 'missing', targetIds: [],
     lookup: { scope: 'document-light-dom', documentId: result.decoded!.documentId, matches: 0 } });
+});
+
+it('retains complete node-bounded ancestry while preserving subtree depth and total node limits', async () => {
+  const nested = '<div>'.repeat(19), closing = '</div>'.repeat(19);
+  const result = await capture(`<main>${nested}<button data-control id="deep" aria-expanded="false">Deep</button>${closing}<section><button data-control id="subtree" aria-expanded="false">Subtree</button>${nested}<span>Leaf</span>${closing}</section></main>`);
+  bounds(result); expect(result.decoded!.ancestry).toBe('node-bounded-v1');
+  const deep = root(result, 'deep');
+  expect(result.raw!.roots.find(item => item.localId === deep.localId)).toMatchObject({ complete: false, reasons: expect.arrayContaining(['ancestor_depth']) });
+  expect(deep).toMatchObject({ complete: true, reasons: [] });
+  const closure = result.decoded!.closures.find(item => item.id === deep.closureId)!;
+  let node = result.decoded!.nodes.find(item => item.id === deep.instanceId)!;
+  const chain = [node];
+  while (node.parentId) { node = result.decoded!.nodes.find(item => item.id === node.parentId)!; chain.push(node); }
+  expect(chain.length).toBeGreaterThan(17); expect(node.tag).toBe('html');
+  expect(chain.every(item => closure.nodeIds.includes(item.id))).toBe(true);
+  expect(root(result, 'subtree')).toMatchObject({ complete: false, reasons: expect.arrayContaining(['dependency_depth']) });
+  const over = await capture('<main id="chain"></main><button data-control id="over" aria-expanded="false">Over</button>', false,
+    `(() => { let node = document.querySelector('#chain'); for (let i = 0; i < 513; i++) { const child = document.createElement('div'); node.append(child); node = child; } node.append(document.querySelector('#over')); })()`);
+  bounds(over); expect(over.decoded!.inventoryComplete).toBe(true);
+  expect(root(over, 'over')).toMatchObject({ complete: false, reasons: expect.arrayContaining(['node_budget']) });
 });
 
 it.each([

@@ -17,6 +17,7 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
   const reasons = new Set<string>(), encoder = new TextEncoder();
   const size = (value: unknown) => encoder.encode(JSON.stringify(value)).byteLength;
   const codec = codecFactory?.(), rawLimit = codec ? 1048576 : limits.bytes;
+  if (codec) result.ancestry = 'node-bounded-v1';
   let builder: ReturnType<ReturnType<typeof createOwnerDependencyCodec>['createBuilder']>;
   // Inventory is reserved in full before payload. The remaining fixed allowance
   // covers the bounded global reason set; payload entries are charged once.
@@ -184,7 +185,10 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
     const ancestors = (el: Element, depth: number) => {
       let parent = el.parentElement, steps = 0;
       while (parent) {
-        if (++steps > limits.depth) { fail(local, 'ancestor_depth'); break; }
+        // Ancestors are a linear context chain, independent of recursive
+        // subtree/reference expansion. The compact contract still requires the
+        // whole chain to html and pays every node under the same global cap.
+        if (++steps > (codec ? limits.nodes - 1 : limits.depth)) { fail(local, codec ? 'node_budget' : 'ancestor_depth'); break; }
         visit(parent, false, depth); parent = parent.parentElement;
       }
     };
