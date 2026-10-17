@@ -88,12 +88,12 @@ export function acceptanceHost<T extends object>(raw: T, overrides: Partial<T>, 
     bound.set(key, { method, wrapper }); return wrapper;
   } });
 }
-export type AcceptanceRecoveryApi = 'reachCheckpoint' | 'reachExplorationTarget' | 'returnToObservedSource';
+export type AcceptanceRecoveryApi = 'reachCheckpoint' | 'reachExplorationTarget' | 'reachControlReviewTarget' | 'returnToObservedSource';
 export interface AcceptanceRecoveryFailure { outcome: 'threw'; api: AcceptanceRecoveryApi; sessionId: string; elapsedMs: number; code: string }
 type AcceptanceRecoveryReport<T> = AcceptanceRecoveryFailure | { outcome: 'returned'; api: AcceptanceRecoveryApi; sessionId: string; elapsedMs: number; result: T };
 /** Retain the SDK outcome unchanged and stop before the caller schedules more work. */
 export function retainRecoveryResult<T extends { status: string }>(api: AcceptanceRecoveryApi, sessionId: string, result: T, stop: (reason: string, details: unknown) => void): T {
-  const successful = api === 'reachCheckpoint' ? ['REACHED_VERIFIED', 'REACHED_ACCEPTABLE'].includes(result.status) : api === 'returnToObservedSource' ? result.status === 'SOURCE_REACHED' : result.status === 'TARGET_REACHED';
+  const successful = api === 'reachCheckpoint' ? ['REACHED_VERIFIED', 'REACHED_ACCEPTABLE'].includes(result.status) : api === 'returnToObservedSource' ? result.status === 'SOURCE_REACHED' : api === 'reachControlReviewTarget' ? result.status === 'CURRENT_REVIEWABLE' : result.status === 'TARGET_REACHED';
   if (!successful) stop('recovery_not_verified', { api, sessionId, result });
   return result;
 }
@@ -639,6 +639,11 @@ async function main() {
       return observeRecoveryCall('reachExplorationTarget', input[0], () => target(...input), reportRecovery, requestStop);
     };
     const sourceReturn = host.returnToObservedSource.bind(host);
+    const reviewTarget = host.reachControlReviewTarget.bind(host);
+    entries.reachControlReviewTarget = async (...input) => {
+      if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
+      return observeRecoveryCall('reachControlReviewTarget', input[0], () => reviewTarget(...input), reportRecovery, requestStop);
+    };
     entries.returnToObservedSource = async (...input) => {
       if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
       return observeRecoveryCall('returnToObservedSource', input[0], () => sourceReturn(...input), reportRecovery, requestStop);
@@ -703,7 +708,7 @@ async function main() {
     if (finalUnknown.length) requestStop('settled_unknown_or_executing', finalUnknown);
     const { newlyResolved, evidenceRefreshes } = planResolutionChanges(initialState, finalState);
     atomicJson(join(runDirectory, 'coverage-review.json'), { exhaustive: false, newlySucceededExplorationAttemptIds: [...successes], newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, unkeyedSuccessfulAttempts: settled.unkeyedSuccessfulAttempts, historicalUnkeyedSuccessfulAttempts: settled.historicalUnkeyedSuccessfulAttempts, progressEvidenceWindow: settled.progressEvidenceWindow, newlyResolvedPlanOccurrences: newlyResolved, refreshedPlanEvidence: evidenceRefreshes, planProgressIsSemanticCoverageProof: false, newlyResolvedPlanItems: newlyResolved.map(row => row.item), historicalCoverageOnly: final.plan.filter(item => item.coverageResolvedBy), unresolved: final.plan.filter(item => item.required && !['succeeded', 'excluded', 'superseded'].includes(item.status)), unknownAttempts: finalUnknown, pendingDispatch: final.pendingDispatch, unverifiedRecoveries: final.unverifiedRecoveries, unverifiedNavigations: final.unverifiedNavigations, recoveries, recoveryFailures,
-      recoveryFollowup: recoveries.map(recovery => ({ ...recovery, subsequentSuccessfulAttempts: finalAttempts.filter(attempt => successes.has(attempt.id) && attempt.sessionId === recovery.sessionId && attempt.beforeId === recovery.observationId).map(attempt => ({ sessionId: attempt.sessionId, attemptId: attempt.id, beforeId: attempt.beforeId })), targetReadinessOnly: recovery.status === 'TARGET_REACHED', wholeCheckpointVerified: recovery.checkpointVerified === true })) });
+      recoveryFollowup: recoveries.map(recovery => ({ ...recovery, subsequentSuccessfulAttempts: finalAttempts.filter(attempt => successes.has(attempt.id) && attempt.sessionId === recovery.sessionId && attempt.beforeId === recovery.observationId).map(attempt => ({ sessionId: attempt.sessionId, attemptId: attempt.id, beforeId: attempt.beforeId })), targetReadinessOnly: recovery.status === 'TARGET_REACHED', reviewMaterialOnly: recovery.status === 'CURRENT_REVIEWABLE', wholeCheckpointVerified: recovery.checkpointVerified === true })) });
   } catch (error) { fatal = code(error); requestStop('runner_failure', { code: fatal }); await stopJob; }
   finally {
     clearTimeout(deadlineTimer); stopPolling?.(); stopProgressWatch?.();

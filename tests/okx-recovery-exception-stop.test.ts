@@ -1,8 +1,8 @@
 import { expect, it, vi } from 'vitest';
 import { observeRecoveryCall, type AcceptanceRecoveryApi } from '../scripts/okx-storage-acceptance.js';
 
-const apis: AcceptanceRecoveryApi[] = ['reachCheckpoint', 'reachExplorationTarget', 'returnToObservedSource'];
-const successful = { reachCheckpoint: 'REACHED_VERIFIED', reachExplorationTarget: 'TARGET_REACHED', returnToObservedSource: 'SOURCE_REACHED' };
+const apis: AcceptanceRecoveryApi[] = ['reachCheckpoint', 'reachExplorationTarget', 'reachControlReviewTarget', 'returnToObservedSource'];
+const successful = { reachCheckpoint: 'REACHED_VERIFIED', reachExplorationTarget: 'TARGET_REACHED', reachControlReviewTarget: 'CURRENT_REVIEWABLE', returnToObservedSource: 'SOURCE_REACHED' };
 
 it.each(apis)('%s records a returned success without changing its result or requesting stop', async api => {
   const result = { status: successful[api], attemptIds: ['actual-recovery-attempt'], checkpointVerified: api === 'reachCheckpoint' };

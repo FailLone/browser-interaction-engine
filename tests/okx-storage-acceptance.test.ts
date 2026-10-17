@@ -305,13 +305,13 @@ it('bounds waiting for a request that ignores cancellation and explicitly report
   } finally { vi.useRealTimers(); }
 });
 
-it.each(['reachCheckpoint', 'reachExplorationTarget', 'returnToObservedSource'] as const)('stops immediately on each non-successful %s outcome while preserving its evidence', api => {
+it.each(['reachCheckpoint', 'reachExplorationTarget', 'reachControlReviewTarget', 'returnToObservedSource'] as const)('stops immediately on each non-successful %s outcome while preserving its evidence', api => {
   for (const status of ['UNVERIFIED', 'UNREACHABLE', 'PRECONDITIONS_CHANGED']) {
     const stop = vi.fn(), result = { status, reason: 'replay_target_not_unique_or_missing', attemptIds: ['recovery-attempt'], checks: [{ result: 'unknown' }] };
     expect(retainRecoveryResult(api, 'session', result, stop)).toBe(result);
     expect(stop).toHaveBeenCalledExactlyOnceWith('recovery_not_verified', { api, sessionId: 'session', result });
   }
-  for (const status of api === 'reachCheckpoint' ? ['REACHED_VERIFIED', 'REACHED_ACCEPTABLE'] : api === 'returnToObservedSource' ? ['SOURCE_REACHED'] : ['TARGET_REACHED']) {
+  for (const status of api === 'reachCheckpoint' ? ['REACHED_VERIFIED', 'REACHED_ACCEPTABLE'] : api === 'returnToObservedSource' ? ['SOURCE_REACHED'] : api === 'reachControlReviewTarget' ? ['CURRENT_REVIEWABLE'] : ['TARGET_REACHED']) {
     const stop = vi.fn(), result = { status };
     expect(retainRecoveryResult(api, 'session', result, stop)).toBe(result); expect(stop).not.toHaveBeenCalled();
   }
