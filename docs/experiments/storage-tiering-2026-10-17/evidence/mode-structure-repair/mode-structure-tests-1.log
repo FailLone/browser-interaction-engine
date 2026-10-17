@@ -1,0 +1,83 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ❯ tests/control-review-target.test.ts (30 tests | 1 failed) 137ms
+   ✓ verifies historical review conditions after 0 boundary exits with rebuilt same-name hidden modes 30ms
+   ✓ verifies historical review conditions after 2 boundary exits with rebuilt same-name hidden modes 26ms
+   ✓ stops after 1 existing boundary exits at current review material, without whole-page replay 8ms
+   ✓ stops after 2 existing boundary exits at current review material, without whole-page replay 11ms
+   ✓ keeps current reviewability separate from changed nonlocal A/B conditions 1ms
+   ✓ binds negative waiting to raw mode facts even when another missing mode prevents equivalence 1ms
+   ✓ settles only the same recorded occurrence when missing branches prevent historical equivalence 1ms
+   ✓ reports the first portable selector rejection 'selector_state_missing' while preserving reflexive review proof 0ms
+   ✓ reports the first portable selector rejection 'selector_unstable' while preserving reflexive review proof 0ms
+   ✓ reports the first portable selector rejection 'selector_identity_hypothesis' while preserving reflexive review proof 0ms
+   ✓ reports the first portable selector rejection 'selector_instance_bound' while preserving reflexive review proof 0ms
+   ✓ reports the first portable selector rejection 'selector_record_key_missing' while preserving reflexive review proof 0ms
+   × reports the first portable selector rejection 'selector_binding_duplicate' while preserving reflexive review proof 6ms
+     → expected { targetMatched: true, …(7) } to match object { targetMatched: true, …(5) }
+(2 matching properties omitted from actual)
+   ✓ reports the first portable selector rejection 'selector_limit_exceeded' while preserving reflexive review proof 2ms
+   ✓ keeps source and current condition diagnostics separate without changing available keys or evidence 6ms
+   ✓ reports unavailable historical review conditions for 'review_classification_material_incomp…' without weakening the current proof 0ms
+   ✓ reports unavailable historical review conditions for 'review_boundary_name_missing' without weakening the current proof 0ms
+   ✓ reports unavailable historical review conditions for 'review_boundary_overlay_missing' without weakening the current proof 0ms
+   ✓ reports unavailable historical review conditions for 'review_rule_version_incompatible' without weakening the current proof 0ms
+   ✓ passes portable condition diagnostics through SDK self queries without authorizing historical recovery 2ms
+   ✓ compares complete v7 and v8 review conditions without migrating strict checkpoints or merging A/B 1ms
+   ✓ requires historical A conditions and uses an existing safe local restoration instead of accepting current B 9ms
+   ✓ stops historical review recovery with unknown branch evidence without performing actions 4ms
+   ✓ does not reset negative navigation waiting for passive component prices but does for selected modes 0ms
+   ✓ shares document projections across target keys without changing captured facts 1ms
+   ✓ rejects incomplete competitors and changed owners without trusting names or shared keys 0ms
+   ✓ rejects a stale live review target and never labels it arrived 3ms
+   ✓ blocks a retained unknown after restart before driver attachment or new material can change its result 7ms
+   ✓ queries historical record batches once per observation without mutation or full action/history reads 3ms
+   ✓ stops remaining recorded replay steps when review arrival verification requests resolution 11ms
+ ✓ tests/explorer-review-arrival.test.ts (26 tests) 66ms
+ ✓ tests/mode-structure.test.ts (15 tests) 29ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/control-review-target.test.ts > reports the first portable selector rejection 'selector_binding_duplicate' while preserving reflexive review proof
+AssertionError: expected { targetMatched: true, …(7) } to match object { targetMatched: true, …(5) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -1,15 +1,15 @@
+  {
+    "currentConditionAssessment": {
+-     "localId": "duplicate-mode",
++     "localId": "mode",
+      "reason": "selector_binding_duplicate",
+      "status": "unavailable",
+    },
+    "reason": "same_recorded_review_occurrence",
+    "reviewable": true,
+    "sourceConditionAssessment": {
+-     "localId": "duplicate-mode",
++     "localId": "mode",
+      "reason": "selector_binding_duplicate",
+      "status": "unavailable",
+    },
+    "sourceEquivalent": "equivalent",
+    "targetMatched": true,
+
+ ❯ tests/control-review-target.test.ts:145:18
+    143|   const o=observed();change(o);o.controls.push({...control('later-miss…
+    144|   const snapshot=structuredClone(o),result=browserControlReviewTargetC…
+    145|   expect(result).toMatchObject({targetMatched:true,reviewable:true,sou…
+       |                  ^
+    146|     sourceConditionAssessment:{status:'unavailable',reason,localId},cu…
+    147|   expect(result.conditionKey).toBeUndefined();expect(result.currentMat…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 70 passed (71)
+   Start at  20:48:08
+   Duration  2.11s (transform 662ms, setup 0ms, collect 1.45s, tests 233ms, environment 0ms, prepare 105ms)
+
