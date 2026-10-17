@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-receipt-condition-batch.test.ts (16 tests | 15 skipped) 20ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 15 skipped (16)
+   Start at  11:46:46
+   Duration  1.06s (transform 529ms, setup 0ms, collect 899ms, tests 20ms, environment 0ms, prepare 36ms)
+

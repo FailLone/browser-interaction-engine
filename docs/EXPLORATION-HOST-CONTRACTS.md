@@ -34,6 +34,10 @@
 
 `engine.operationReceiptCondition(sessionId, {attemptId})` 单独检查一次实际执行记录的条件证明。`actualSuccess` 描述原尝试是否成功；`conditionVerified` 描述该尝试是否满足返回的条件策略。查询使用 `attempt.action` 的实际输入值，不以同 ID 的原候选替代；它同步读取保留证据，不连接浏览器、不补写旧证据。每次查询重新核对未知执行结果、脏会话、身份歧义、未验证退出和审阅来源撤回。
 
+批量接口 `engine.operationReceiptConditions(sessionId, {attemptIds})` 返回 `{sessionId, results}`，保留请求顺序及重复项，空输入返回空结果；缺失、错误归属或查询异常不授权相应项。默认实现与单项查询共用核对逻辑，在本次同步调用内共享会话、原始观察、身份账本和默认恢复账本读取，以及同文档依赖索引；返回后释放，下次查询重新读取撤回和 unknown。自定义单项接口仍逐项调用，自定义组合检查不会被默认缓存绕过。它不提供跨连接事务快照，也不消除每个 receipt 的审阅权限检查。
+
+插件启动和终审只汇总已经筛选出的待核对来源，按 session 批量读取；未知或缺失的尝试引用不会进入正向证明。新执行仍先单独检查当前 receipt，拒绝后不预取历史条件证明。旧宿主不提供批量能力时保留惰性单项查询；批量响应数量、顺序、归属不符时拒绝该批，不回退到另一条查询把异常掩盖为成功。缓存仅属于本次同步核对，源观察派生材料仍保留 8 份上限；完整 receipt 账本及批量请求材料不是固定字节上限。
+
 结果为 `portable / document / unavailable`。`portable` 沿用适配器已有的操作条件抽样策略，不能解读成对任意 JavaScript 业务状态的证明；`document` 要求完整的同文档依赖及与实际派发、输入、before/after 绑定的采样证明。缺图、缺派发证明的旧记录不会自动补齐。返回的 `identityAuthorized / replayAuthorized / currentExecution / arrivalVerified` 均为 `false`；此接口不判断页面已经恢复，也不授予重放许可。
 
 插件直接结案、同来源成员核对和审计免缺口都使用这一查询。成功但缺少条件证明时，实际尝试、输入、执行预算和来源引用保留，待测项记录 `conditionCompletion: unverified`，继续计入未完成范围。同步核对内可以复用同一 receipt 的结果，跨调用重新读取。SDK 的 `controlCoverage` 成功次数仍是历史执行汇总，不能替代这里的条件完成证明。

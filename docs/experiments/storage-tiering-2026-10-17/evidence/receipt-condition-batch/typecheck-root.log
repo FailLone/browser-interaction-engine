@@ -1,0 +1,15 @@
+tests/explorer-receipt-condition-batch.test.ts(123,121): error TS2339: Property 'attemptId' does not exist on type 'never'.
+tests/operation-receipt-batch.test.ts(206,24): error TS2416: Property 'receiptConditionBlocker' in type 'Custom' is not assignable to the same property in base type 'BrowserEngine'.
+  Type '(attempt: ActionAttempt, before: Observation, after: Observation) => "boundary_exit_unverified" | "source_authority_unavailable" | "custom-authority-denied" | undefined' is not assignable to type '(attempt: ActionAttempt, before: Observation, _after: Observation) => "boundary_exit_unverified" | "source_authority_unavailable" | undefined'.
+    Type '"boundary_exit_unverified" | "source_authority_unavailable" | "custom-authority-denied" | undefined' is not assignable to type '"boundary_exit_unverified" | "source_authority_unavailable" | undefined'.
+      Type '"custom-authority-denied"' is not assignable to type '"boundary_exit_unverified" | "source_authority_unavailable" | undefined'.
+tests/operation-receipt-batch.test.ts(211,21): error TS2345: Argument of type 'typeof Custom' is not assignable to parameter of type 'new (options: { persistence: Persistence; hooks?: EngineHooks | undefined; retention?: RetentionOptions | undefined; }) => BrowserEngine'.
+  Types of construct signatures are incompatible.
+    Type 'new (options: { persistence: Persistence; hooks?: EngineHooks | undefined; retention?: RetentionOptions | undefined; }) => Custom' is not assignable to type 'new (options: { persistence: Persistence; hooks?: EngineHooks | undefined; retention?: RetentionOptions | undefined; }) => BrowserEngine'.
+      Construct signature return types 'Custom' and 'BrowserEngine' are incompatible.
+        The types returned by 'receiptConditionBlocker(...)' are incompatible between these types.
+          Type '"boundary_exit_unverified" | "source_authority_unavailable" | "custom-authority-denied" | undefined' is not assignable to type '"boundary_exit_unverified" | "source_authority_unavailable" | undefined'.
+            Type '"custom-authority-denied"' is not assignable to type '"boundary_exit_unverified" | "source_authority_unavailable" | undefined'.
+tests/operation-receipt-batch.test.ts(213,107): error TS2339: Property 'calls' does not exist on type 'BrowserEngine'.
+tests/operation-receipt-batch.test.ts(214,12): error TS2339: Property 'revoked' does not exist on type 'BrowserEngine'.
+tests/operation-receipt-batch.test.ts(216,19): error TS2339: Property 'calls' does not exist on type 'BrowserEngine'.

@@ -465,22 +465,34 @@ export class ExplorerPlugin {
       const attempt=sessions.get(ref.sessionId)!.get(ref.attemptId);
       return attempt&&[attempt.beforeId,attempt.afterId].includes(ref.observationId)?attempt:undefined;
     };
-    for(const item of task.plan.filter(i=>i.scope.kind&&!i.reviewResolvedBy&&!isSuperseded(i)&&!['split','invalidated'].includes(i.conditionMigration?.status||'')
-      &&(i.status==='succeeded'||i.conditionCompletion?.status==='unverified'&&['pending','unresolved','blocked'].includes(i.status)))){
-      let verified=false,reason='retained_source_conditions_unverified';
+    const eligible=task.plan.filter(i=>i.scope.kind&&!i.reviewResolvedBy&&!isSuperseded(i)&&!['split','invalidated'].includes(i.conditionMigration?.status||'')
+      &&(i.status==='succeeded'||i.conditionCompletion?.status==='unverified'&&['pending','unresolved','blocked'].includes(i.status)));
+    type CompletionInput={item?:PlanItem;attempt?:ActionAttempt;reason?:string};
+    const inputFor=(item:PlanItem):CompletionInput=>{
       try {
         if(item.coverageResolvedBy){
           const ids=new Set(item.coverageResolvedBy.relatedItemIds),peers=task.plan.filter(peer=>ids.has(peer.id));
-          if(!ids.size||peers.length!==ids.size)reason='related_coverage_receipt_missing';
-          else {
-            const refs=peers.flatMap(peer=>[...peer.attempts,...peer.resolvedBy?[{roundId:'retained-proof',outcome:'succeeded',evidence:peer.resolvedBy}]:[]]);
-            verified=complete({...item,evidence:[...item.evidence,...peers.flatMap(peer=>peer.evidence.filter(ref=>!!ref.attemptId))],attempts:[...item.attempts,...refs]});
-          }
-        }else if(item.dispatchScope===true&&item.resolvedBy&&!boundOperationCondition(item)&&!item.conditionLineage&&item.conditionCompletion?.retainedSourcesRequired!==true){
-          const attempt=read(item.resolvedBy);
-          if(attempt){const proof=condition(attempt);reason=proof.reason;
-            verified=proof.conditionVerified&&matches(item.scope,attempt.action,this.host.observation(attempt.sessionId,attempt.beforeId));}
-        }else verified=complete(item);
+          if(!ids.size||peers.length!==ids.size)return {reason:'related_coverage_receipt_missing'};
+          const refs=peers.flatMap(peer=>[...peer.attempts,...peer.resolvedBy?[{roundId:'retained-proof',outcome:'succeeded',evidence:peer.resolvedBy}]:[]]);
+          return {item:{...item,evidence:[...item.evidence,...peers.flatMap(peer=>peer.evidence.filter(ref=>!!ref.attemptId))],attempts:[...item.attempts,...refs]}};
+        }
+        if(item.dispatchScope===true&&item.resolvedBy&&!boundOperationCondition(item)&&!item.conditionLineage&&item.conditionCompletion?.retainedSourcesRequired!==true)return {attempt:read(item.resolvedBy)};
+        return {item};
+      }catch{return {reason:'receipt_condition_evidence_unavailable'};}
+    };
+    const prepared=new Map<PlanItem,CompletionInput>();
+    if(this.host.operationReceiptConditions){
+      for(const item of eligible)prepared.set(item,inputFor(item));
+      complete.prepare([...prepared.values()].flatMap(input=>input.item?[input.item]:[]),[...prepared.values()].flatMap(input=>input.attempt?[input.attempt]:[]));
+    }
+    for(const item of eligible){
+      let verified=false,reason='retained_source_conditions_unverified';
+      try {
+        const input=prepared.get(item)||inputFor(item);
+        if(input.reason)reason=input.reason;
+        else if(input.attempt){const proof=condition(input.attempt);reason=proof.reason;
+          verified=proof.conditionVerified&&matches(item.scope,input.attempt.action,this.host.observation(input.attempt.sessionId,input.attempt.beforeId));}
+        else if(input.item)verified=complete(input.item);
       }catch{reason='receipt_condition_evidence_unavailable';}
       const status=verified?'succeeded':'unresolved';
       const audit:NonNullable<PlanItem['conditionCompletion']>={policy:'operation-receipt-completion-v1',status:verified?'verified':'unverified',reason:verified?'all_retained_source_conditions_verified':reason,...item.resolvedBy?{source:item.resolvedBy}:{},retainedSourcesRequired:!verified||item.dispatchScope!==true||!!boundOperationCondition(item)||!!item.conditionLineage||item.conditionCompletion?.retainedSourcesRequired===true,...verified?{}:{waiting:item.conditionCompletion?.waiting??true}};

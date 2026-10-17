@@ -1,0 +1,269 @@
+{
+  "distinctRealReceipts": 4,
+  "queries": 8,
+  "attemptIds": [
+    "95ce718d-bc96-45a3-8153-9a28f7caad28",
+    "5a444f20-1fee-444c-bfe9-487aebb77f64",
+    "d298e663-071c-41aa-b1f8-48ce2f40bb6f",
+    "48764952-c735-49b8-949c-5c89debdcdce",
+    "95ce718d-bc96-45a3-8153-9a28f7caad28",
+    "d298e663-071c-41aa-b1f8-48ce2f40bb6f",
+    "5a444f20-1fee-444c-bfe9-487aebb77f64",
+    "48764952-c735-49b8-949c-5c89debdcdce"
+  ],
+  "calls": {
+    "require": 0,
+    "list": 0,
+    "get": 88,
+    "requireByKind": {},
+    "listByKind": {},
+    "getByKind": {
+      "session": 64,
+      "attempt": 8,
+      "observation": 16
+    },
+    "listedRows": 0
+  },
+  "results": [
+    {
+      "actualSuccess": true,
+      "conditionVerified": true,
+      "status": "document",
+      "reason": "retained_receipt_operation_sample",
+      "source": {
+        "sessionId": "9e5c20d0-f7a1-49c3-b85a-21a08996ff3d",
+        "attemptId": "95ce718d-bc96-45a3-8153-9a28f7caad28",
+        "beforeId": "60c288fe-3556-4f23-8e05-6052fec09b94",
+        "afterId": "9abfc9ce-63ba-4c7b-985c-7978dcf9017e",
+        "actionId": "e202a992-8340-4a1f-a152-d385c2d9f447",
+        "actionKey": "326c4cd4d23663bfb3cb285401cfe5225a7197d9f00f14adf531865e6855bc76"
+      },
+      "evidence": [
+        "actual-succeeded-attempt:95ce718d-bc96-45a3-8153-9a28f7caad28",
+        "actual-succeeded-attempt:95ce718d-bc96-45a3-8153-9a28f7caad28",
+        "native-supported-operation-authority",
+        "same-document-complete-owner-dependencies",
+        "all-captured-modes-and-native-inputs",
+        "coverage-only-not-identity-arrival-or-replay",
+        "undeclared-JavaScript-business-state-requires-context"
+      ],
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "currentExecution": false,
+      "arrivalVerified": false,
+      "policy": "browser-document-coverage-v1",
+      "conditionKey": "4307ba54eecc8daa5f967af2ee694ec83d888e7b23ccd28e24a8000d6b081c05"
+    },
+    {
+      "actualSuccess": true,
+      "conditionVerified": true,
+      "status": "document",
+      "reason": "retained_receipt_operation_sample",
+      "source": {
+        "sessionId": "9e5c20d0-f7a1-49c3-b85a-21a08996ff3d",
+        "attemptId": "5a444f20-1fee-444c-bfe9-487aebb77f64",
+        "beforeId": "9abfc9ce-63ba-4c7b-985c-7978dcf9017e",
+        "afterId": "2a584f62-0765-4892-b9ef-793228c14d96",
+        "actionId": "92dbcf9f-6bc2-4490-969f-5acfb6fe4594",
+        "actionKey": "56f5b4c0c80f5d26ab1bbd80e6eb1723096e91ed29d1442c4535de30050fa3b0"
+      },
+      "evidence": [
+        "actual-succeeded-attempt:5a444f20-1fee-444c-bfe9-487aebb77f64",
+        "actual-succeeded-attempt:5a444f20-1fee-444c-bfe9-487aebb77f64",
+        "native-supported-operation-authority",
+        "same-document-complete-owner-dependencies",
+        "all-captured-modes-and-native-inputs",
+        "coverage-only-not-identity-arrival-or-replay",
+        "undeclared-JavaScript-business-state-requires-context"
+      ],
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "currentExecution": false,
+      "arrivalVerified": false,
+      "policy": "browser-document-coverage-v1",
+      "conditionKey": "a1872581ab3adbc04b541eb3a3f81727df76084088456f6aa7ccdfcdc348f8bd"
+    },
+    {
+      "actualSuccess": true,
+      "conditionVerified": true,
+      "status": "document",
+      "reason": "retained_receipt_operation_sample",
+      "source": {
+        "sessionId": "9e5c20d0-f7a1-49c3-b85a-21a08996ff3d",
+        "attemptId": "d298e663-071c-41aa-b1f8-48ce2f40bb6f",
+        "beforeId": "2a584f62-0765-4892-b9ef-793228c14d96",
+        "afterId": "fcea659a-d8d3-47c3-bee9-a23a42f1b061",
+        "actionId": "7dd1e5af-18a7-4ef3-a365-d9256809c7a3",
+        "actionKey": "293c81192a8ea1b9d17eee26b15e2906200224d99d0e49f60df6c818401f56d9"
+      },
+      "evidence": [
+        "actual-succeeded-attempt:d298e663-071c-41aa-b1f8-48ce2f40bb6f",
+        "actual-succeeded-attempt:d298e663-071c-41aa-b1f8-48ce2f40bb6f",
+        "native-supported-operation-authority",
+        "same-document-complete-owner-dependencies",
+        "all-captured-modes-and-native-inputs",
+        "coverage-only-not-identity-arrival-or-replay",
+        "undeclared-JavaScript-business-state-requires-context"
+      ],
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "currentExecution": false,
+      "arrivalVerified": false,
+      "policy": "browser-document-coverage-v1",
+      "conditionKey": "4307ba54eecc8daa5f967af2ee694ec83d888e7b23ccd28e24a8000d6b081c05"
+    },
+    {
+      "actualSuccess": true,
+      "conditionVerified": true,
+      "status": "document",
+      "reason": "retained_receipt_operation_sample",
+      "source": {
+        "sessionId": "9e5c20d0-f7a1-49c3-b85a-21a08996ff3d",
+        "attemptId": "48764952-c735-49b8-949c-5c89debdcdce",
+        "beforeId": "fcea659a-d8d3-47c3-bee9-a23a42f1b061",
+        "afterId": "d89cf60b-0b92-4b60-b248-d77d50a78c20",
+        "actionId": "26fe3653-b66a-4877-a884-a3b5cc886244",
+        "actionKey": "eabdb2704fb0df01d53330586309c47b1ac588a74a744dfb49916b3fc37825f1"
+      },
+      "evidence": [
+        "actual-succeeded-attempt:48764952-c735-49b8-949c-5c89debdcdce",
+        "actual-succeeded-attempt:48764952-c735-49b8-949c-5c89debdcdce",
+        "native-supported-operation-authority",
+        "same-document-complete-owner-dependencies",
+        "all-captured-modes-and-native-inputs",
+        "coverage-only-not-identity-arrival-or-replay",
+        "undeclared-JavaScript-business-state-requires-context"
+      ],
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "currentExecution": false,
+      "arrivalVerified": false,
+      "policy": "browser-document-coverage-v1",
+      "conditionKey": "a1872581ab3adbc04b541eb3a3f81727df76084088456f6aa7ccdfcdc348f8bd"
+    },
+    {
+      "actualSuccess": true,
+      "conditionVerified": true,
+      "status": "document",
+      "reason": "retained_receipt_operation_sample",
+      "source": {
+        "sessionId": "9e5c20d0-f7a1-49c3-b85a-21a08996ff3d",
+        "attemptId": "95ce718d-bc96-45a3-8153-9a28f7caad28",
+        "beforeId": "60c288fe-3556-4f23-8e05-6052fec09b94",
+        "afterId": "9abfc9ce-63ba-4c7b-985c-7978dcf9017e",
+        "actionId": "e202a992-8340-4a1f-a152-d385c2d9f447",
+        "actionKey": "326c4cd4d23663bfb3cb285401cfe5225a7197d9f00f14adf531865e6855bc76"
+      },
+      "evidence": [
+        "actual-succeeded-attempt:95ce718d-bc96-45a3-8153-9a28f7caad28",
+        "actual-succeeded-attempt:95ce718d-bc96-45a3-8153-9a28f7caad28",
+        "native-supported-operation-authority",
+        "same-document-complete-owner-dependencies",
+        "all-captured-modes-and-native-inputs",
+        "coverage-only-not-identity-arrival-or-replay",
+        "undeclared-JavaScript-business-state-requires-context"
+      ],
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "currentExecution": false,
+      "arrivalVerified": false,
+      "policy": "browser-document-coverage-v1",
+      "conditionKey": "4307ba54eecc8daa5f967af2ee694ec83d888e7b23ccd28e24a8000d6b081c05"
+    },
+    {
+      "actualSuccess": true,
+      "conditionVerified": true,
+      "status": "document",
+      "reason": "retained_receipt_operation_sample",
+      "source": {
+        "sessionId": "9e5c20d0-f7a1-49c3-b85a-21a08996ff3d",
+        "attemptId": "d298e663-071c-41aa-b1f8-48ce2f40bb6f",
+        "beforeId": "2a584f62-0765-4892-b9ef-793228c14d96",
+        "afterId": "fcea659a-d8d3-47c3-bee9-a23a42f1b061",
+        "actionId": "7dd1e5af-18a7-4ef3-a365-d9256809c7a3",
+        "actionKey": "293c81192a8ea1b9d17eee26b15e2906200224d99d0e49f60df6c818401f56d9"
+      },
+      "evidence": [
+        "actual-succeeded-attempt:d298e663-071c-41aa-b1f8-48ce2f40bb6f",
+        "actual-succeeded-attempt:d298e663-071c-41aa-b1f8-48ce2f40bb6f",
+        "native-supported-operation-authority",
+        "same-document-complete-owner-dependencies",
+        "all-captured-modes-and-native-inputs",
+        "coverage-only-not-identity-arrival-or-replay",
+        "undeclared-JavaScript-business-state-requires-context"
+      ],
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "currentExecution": false,
+      "arrivalVerified": false,
+      "policy": "browser-document-coverage-v1",
+      "conditionKey": "4307ba54eecc8daa5f967af2ee694ec83d888e7b23ccd28e24a8000d6b081c05"
+    },
+    {
+      "actualSuccess": true,
+      "conditionVerified": true,
+      "status": "document",
+      "reason": "retained_receipt_operation_sample",
+      "source": {
+        "sessionId": "9e5c20d0-f7a1-49c3-b85a-21a08996ff3d",
+        "attemptId": "5a444f20-1fee-444c-bfe9-487aebb77f64",
+        "beforeId": "9abfc9ce-63ba-4c7b-985c-7978dcf9017e",
+        "afterId": "2a584f62-0765-4892-b9ef-793228c14d96",
+        "actionId": "92dbcf9f-6bc2-4490-969f-5acfb6fe4594",
+        "actionKey": "56f5b4c0c80f5d26ab1bbd80e6eb1723096e91ed29d1442c4535de30050fa3b0"
+      },
+      "evidence": [
+        "actual-succeeded-attempt:5a444f20-1fee-444c-bfe9-487aebb77f64",
+        "actual-succeeded-attempt:5a444f20-1fee-444c-bfe9-487aebb77f64",
+        "native-supported-operation-authority",
+        "same-document-complete-owner-dependencies",
+        "all-captured-modes-and-native-inputs",
+        "coverage-only-not-identity-arrival-or-replay",
+        "undeclared-JavaScript-business-state-requires-context"
+      ],
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "currentExecution": false,
+      "arrivalVerified": false,
+      "policy": "browser-document-coverage-v1",
+      "conditionKey": "a1872581ab3adbc04b541eb3a3f81727df76084088456f6aa7ccdfcdc348f8bd"
+    },
+    {
+      "actualSuccess": true,
+      "conditionVerified": true,
+      "status": "document",
+      "reason": "retained_receipt_operation_sample",
+      "source": {
+        "sessionId": "9e5c20d0-f7a1-49c3-b85a-21a08996ff3d",
+        "attemptId": "48764952-c735-49b8-949c-5c89debdcdce",
+        "beforeId": "fcea659a-d8d3-47c3-bee9-a23a42f1b061",
+        "afterId": "d89cf60b-0b92-4b60-b248-d77d50a78c20",
+        "actionId": "26fe3653-b66a-4877-a884-a3b5cc886244",
+        "actionKey": "eabdb2704fb0df01d53330586309c47b1ac588a74a744dfb49916b3fc37825f1"
+      },
+      "evidence": [
+        "actual-succeeded-attempt:48764952-c735-49b8-949c-5c89debdcdce",
+        "actual-succeeded-attempt:48764952-c735-49b8-949c-5c89debdcdce",
+        "native-supported-operation-authority",
+        "same-document-complete-owner-dependencies",
+        "all-captured-modes-and-native-inputs",
+        "coverage-only-not-identity-arrival-or-replay",
+        "undeclared-JavaScript-business-state-requires-context"
+      ],
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "currentExecution": false,
+      "arrivalVerified": false,
+      "policy": "browser-document-coverage-v1",
+      "conditionKey": "a1872581ab3adbc04b541eb3a3f81727df76084088456f6aa7ccdfcdc348f8bd"
+    }
+  ],
+  "resultSha256": "fe146fc66c1a74500addd91c36a141cf0aa159760b4d714e118c01b76428f8d8",
+  "fixtureRowsSha256": "b0f378b739b72e31e697b10ceb4cc67609415f3dc10ee0f7103df731ab3d065d",
+  "sourceSha256": {
+    "packages/core/src/engine.ts": "7a035929324a002cbda65a9b4b0b38bd7b9ee35095869a79f57c90b9f54182bf",
+    "packages/core/src/coverage-reconciliation.ts": "e59ddb09c34a7fd967fa5161d3ed312ec2d97e6036d5c85f7dbdc976641e7da2",
+    "packages/browser/src/index.ts": "d1e5a67c227b3f5e73f1fbcaa29510a0a34aa0db654b8b62e83d850c4a5b3119"
+  },
+  "timingClaim": false
+}

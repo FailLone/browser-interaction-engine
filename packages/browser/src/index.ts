@@ -40,6 +40,11 @@ export * from './inspection-types.js';
 export { inspectionResultSchema, completeInspectionSchema, inspectionConsumerSchema, inspectionPageSchema, validateInspectionOptions } from './inspection.js';
 /** Browser composition only. The caller chooses persistence; there is no implicit disk storage. */
 export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
+  private static readonly browserReceiptDefaults = {
+    unknown: BrowserEngine.prototype.unverifiedRecoveryAttempts,
+    unknownOutcomes: BrowserEngine.prototype.unknownOutcomes,
+    retained: BrowserEngine.prototype.retainedReceiptCoverageReader,
+  };
   declare readonly store: RetainedPersistence;
   private readonly inspections: InspectionCoordinator;
   private readonly interventions: Interventions;
@@ -74,6 +79,24 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   }
   protected override unverifiedRecoveryAttempts(sid:string) {
     return [...this.unknownOutcomes(sid),...this.list<import('@interaction/core').ActionAttempt>(sid,'attempt').filter(a=>a.status==='executing')];
+  }
+  protected override receiptConditionQuery() {
+    const base=super.receiptConditionQuery(),unknown=new Map<string,ReturnType<typeof base.unknown>>();
+    let retained:ReturnType<typeof base.retained>,readRetained=false;
+    return {
+      unknown:(sid:string)=>{
+        if(this.unverifiedRecoveryAttempts!==BrowserEngine.browserReceiptDefaults.unknown||this.unknownOutcomes!==BrowserEngine.browserReceiptDefaults.unknownOutcomes)return base.unknown(sid);
+        if(!unknown.has(sid))unknown.set(sid,base.unknown(sid));
+        return unknown.get(sid)!;
+      },
+      retained:()=>{
+        if(this.retainedReceiptCoverageReader!==BrowserEngine.browserReceiptDefaults.retained
+          ||this.unverifiedRecoveryAttempts!==BrowserEngine.browserReceiptDefaults.unknown
+          ||this.unknownOutcomes!==BrowserEngine.browserReceiptDefaults.unknownOutcomes)return base.retained();
+        if(!readRetained){retained=base.retained();readRetained=true;}
+        return retained;
+      },
+    };
   }
   /** Same verified-continuation ledger used by continueExploration; no implicit recovery. */
   recoveryAssessment(sid:string) {

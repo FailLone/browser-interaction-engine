@@ -267,3 +267,6 @@ UI 依赖回归在 `d103747` 修复：将浏览器所需纯函数提取到独立
 第七窗已终止并[全量冻结](evidence/real-okx-7/README.md)。后续 `855a3a4`/`875ce50` 的[组合读取对照](evidence/real-okx-7/source-material-isolation/README.md)在完整输出字节相同的三对进程中把候选筛选中位从35.896降至25.305秒（−29.51%）；初版复制成本的负样本也保留。`e06f057` [拒绝隐藏审阅来源](evidence/real-okx-7/recovery-diagnosis.md)，[冻结行为对照](evidence/real-okx-7/review-source-counterfactual/README.md)不再选择这类候选，但没有可验证替代路线，全部803计划与6个路线债保留。[80次原协议](evidence/run7-fixes-protocols/README.md)的行为投影和348项完整性检查保持，最终专项及证据边界见[验证记录](evidence/run7-fixes-validation/README.md)。
 
 本轮[热写对照](evidence/task-store-hot-write/report.md)省去未变化记录解码与小冷包JSON传输；run7两种常见CAS减少约13.5%/15.8%，但历史夹具changed-round CAS慢12.67%，写事务体增加约0.52–0.75毫秒。没有新布局、压缩或完整读取收益。进一步任务库压缩/全量读取仍在后续计划，当前优先解决恢复路线与真实非局部绑定缺证；没有启动真实第八窗、合并main或宣称穷尽。
+
+
+第 3 项条件结案读取的[批量查询检查点](evidence/receipt-condition-batch/README.md)完成：固定 `5eca079` 与候选四个不同的本地真实 receipt 全字段一致，记录读取 44→17、列表读取 56→23。SDK 默认账本/观察在同步调用内共享，插件只批量核对已筛选来源，新回执仍先单独核验；异常响应、自定义检查、A/B 与 unknown 约束保留。专项与最终根/core 类型检查通过，测试夹具修正及最初无效计数均留档。边界检查仍逐项扫描账本，不声称整体线性复杂度、真实恢复提速或存储缩小。此代码检查点之后安排发布验收、合并及独立真实续测，任务库进一步压缩和完整读取优化继续后置。

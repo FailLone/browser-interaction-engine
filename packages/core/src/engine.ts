@@ -18,6 +18,12 @@ import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone
 import type { EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
 import { EngineError, type ActionCandidate, type ActionAttempt, type Checkpoint, type ControlIdentity, type EngineHooks, type FrontierItem, type Graph, type IdentityHypothesis, type IdentityReviewGuard, type InteractionScope, type Issue, type Observation, type Predicate, type ReachResult, type Session, type SessionOptions, type Transition, type UIState, type Visit } from './types.js';
 export class InteractionEngine<O extends Observation = Observation, S extends SessionOptions = SessionOptions> {
+  private static readonly receiptDefaults = {
+    single: InteractionEngine.prototype.operationReceiptCondition,
+    unknown: InteractionEngine.prototype.unverifiedRecoveryAttempts,
+    retained: InteractionEngine.prototype.retainedReceiptCoverageReader,
+    session: InteractionEngine.prototype.session,
+  };
   readonly store: Persistence;
   readonly events = new EventBus();
   private readonly adapter: InteractionAdapter<O, S>;
@@ -56,6 +62,24 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   /** Receipt conditions also re-read composition-owned revocable authority. */
   protected receiptConditionBlocker(_attempt:ActionAttempt,_before:O,_after:O):string|undefined { return; }
   protected retainedReceiptConditionUnavailableReason(_attempt:ActionAttempt,_before:O,_after:O):string { return 'operation_conditions_unavailable'; }
+  /** One synchronous query only. Custom composition hooks retain their per-item
+   * calls; known default readers may share immutable facts and ledger scans. */
+  protected receiptConditionQuery() {
+    const unknown=new Map<string,ActionAttempt[]>();
+    let retained:ReceiptCoverageReader<O>|undefined,readRetained=false;
+    return {
+      unknown:(sid:string)=>{
+        if(this.unverifiedRecoveryAttempts!==InteractionEngine.receiptDefaults.unknown)return this.unverifiedRecoveryAttempts(sid);
+        if(!unknown.has(sid))unknown.set(sid,this.unverifiedRecoveryAttempts(sid));
+        return unknown.get(sid)!;
+      },
+      retained:()=>{
+        if(this.retainedReceiptCoverageReader!==InteractionEngine.receiptDefaults.retained)return this.retainedReceiptCoverageReader();
+        if(!readRetained){retained=this.retainedReceiptCoverageReader();readRetained=true;}
+        return retained;
+      },
+    };
+  }
   /** Reviewed capabilities precede caller action policy, which may still veto them. */
   protected async reviewActions(actions: ActionCandidate[], _observation: O): Promise<ActionCandidate[]> { return actions; }
   protected executionSessionBlockers(_observation:O,_purpose:ActionAttempt['purpose']):ExecutionBlocker[]{return [];}
@@ -139,11 +163,40 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
    * turning execution accounting into condition coverage. The actual action is
    * authoritative, including supplied input variants sharing a candidate ID. */
   operationReceiptCondition(sessionId:string,input:{attemptId:string}):OperationReceiptCondition {
-    const result:OperationReceiptCondition={actualSuccess:false,conditionVerified:false,status:'unavailable',reason:'evidence_unavailable',
-      source:{sessionId,attemptId:input.attemptId},evidence:[],identityAuthorized:false,replayAuthorized:false,currentExecution:false,arrivalVerified:false};
+    return this.receiptConditionReader()(sessionId,input);
+  }
+  /** Ordered, read-only batch. No cached proof survives this synchronous call.
+   * Custom single-query policies remain authoritative, including their denials. */
+  operationReceiptConditions(sessionId:string,input:{attemptIds:string[]}) {
+    const read=this.operationReceiptCondition===InteractionEngine.receiptDefaults.single
+      ?this.receiptConditionReader():(sid:string,request:{attemptId:string})=>this.operationReceiptCondition(sid,request);
+    return {sessionId,results:input.attemptIds.map(attemptId=>{
+      try{return read(sessionId,{attemptId});}
+      catch{return this.unavailableReceiptCondition(sessionId,attemptId);}
+    })};
+  }
+  private unavailableReceiptCondition(sessionId:string,attemptId:string):OperationReceiptCondition {
+    return {actualSuccess:false,conditionVerified:false,status:'unavailable',reason:'evidence_unavailable',
+      source:{sessionId,attemptId},evidence:[],identityAuthorized:false,replayAuthorized:false,currentExecution:false,arrivalVerified:false};
+  }
+  private receiptConditionReader() {
+    const records=new Map<string,unknown>();
+    const memo=<T>(key:string,load:()=>T):T=>{
+      if(!records.has(key))records.set(key,load());
+      return records.get(key) as T;
+    };
+    const owned=<T extends {sessionId:string}>(kind:string,id:string,sid:string)=>{
+      const entity=memo<T>(canonical([kind,id]),()=>this.store.require<T>(kind,id));
+      if(entity.sessionId!==sid)throw new EngineError('NOT_FOUND',`${kind} does not belong to session`);
+      return entity;
+    };
+    let query:ReturnType<InteractionEngine<O,S>['receiptConditionQuery']>|undefined;
+    return (sessionId:string,input:{attemptId:string}):OperationReceiptCondition=>{
+    const result=this.unavailableReceiptCondition(sessionId,input.attemptId);
     const unavailable=(reason:string)=>{result.reason=reason;return result;};
     try {
-      const session=this.session(sessionId),attempt=this.owned<ActionAttempt>('attempt',input.attemptId,sessionId);
+      const session=this.session===InteractionEngine.receiptDefaults.session?memo<Session<S>>(canonical(['session',sessionId]),()=>this.session(sessionId)):this.session(sessionId),
+        attempt=owned<ActionAttempt>('attempt',input.attemptId,sessionId);
       if(attempt.id!==input.attemptId)return unavailable('source_ownership_mismatch');
       const action=attempt.action;
       result.actualSuccess=attempt.status==='succeeded';
@@ -151,7 +204,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if(!result.actualSuccess)return unavailable('source_not_succeeded');
       result.evidence.push(`actual-succeeded-attempt:${attempt.id}`);
       if(!attempt.afterId)return unavailable('source_result_missing');
-      const before=this.owned<O>('observation',attempt.beforeId,sessionId),after=this.owned<O>('observation',attempt.afterId,sessionId);
+      const before=owned<O>('observation',attempt.beforeId,sessionId),after=owned<O>('observation',attempt.afterId,sessionId);
       if(before.id!==attempt.beforeId||after.id!==attempt.afterId||action.sessionId!==sessionId||action.observationId!==before.id||action.stateId!==before.stateId)return unavailable('source_ownership_mismatch');
       if([before,after].some(o=>o.gaps.some(g=>g.critical)))return unavailable('source_result_incomplete');
       const times=[before.capturedAt,attempt.startedAt,after.capturedAt].map(Date.parse);
@@ -162,9 +215,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if(targets.length!==1||!target.instanceId||before.controls.filter(c=>c.instanceId===target.instanceId).length!==1
         ||action.controlId&&action.controlId!==target.identityId
         ||action.target&&(action.target.instanceId!==target.instanceId||action.target.instanceScope!==before.instanceScope))return unavailable('source_target_not_unique');
-      if(this.unverifiedRecoveryAttempts(sessionId).length)return unavailable('unknown_execution_outcome');
+      query??=this.receiptConditionQuery();
+      if(query.unknown(sessionId).length)return unavailable('unknown_execution_outcome');
       if(session.dirty)return unavailable('dirty_session');
-      const hypotheses=this.store.list<IdentityHypothesis>('hypothesis',sessionId);
+      const hypotheses=memo(canonical(['hypotheses',sessionId]),()=>this.store.list<IdentityHypothesis>('hypothesis',sessionId));
       if(hypotheses.some(h=>h.status==='pending'))return unavailable('identity_pending');
       if(target.hypothesisId&&!hypotheses.some(h=>h.id===target.hypothesisId&&h.sessionId===sessionId&&h.status==='resolved'))return unavailable('source_identity_unverified');
       const blocked=this.receiptConditionBlocker(attempt,before,after);if(blocked)return unavailable(blocked);
@@ -173,10 +227,11 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         return {...result,conditionVerified:true,status:'portable',reason:'portable_operation_sample',policy:portable.policy,conditionKey:portable.key,
           evidence:[...result.evidence,...portable.evidence]};
       }
-      const retained=this.retainedReceiptCoverageReader()?.(action,before,attempt,before,after);
+      const retained=query.retained()?.(action,before,attempt,before,after);
       return retained?{...result,conditionVerified:true,status:'document',reason:'retained_receipt_operation_sample',policy:retained.policy,conditionKey:retained.key,
         evidence:[...result.evidence,...retained.evidence]}:unavailable(this.retainedReceiptConditionUnavailableReason(attempt,before,after));
     }catch{return result;}
+    };
   }
   /** Match observed operation targets without inventing historical execution or coverage. */
   explorationTargetCorrespondences(sessionId:string,input:{observationId:string;requests:{actionId:string;source:ExplorationTargetReference}[]}) {

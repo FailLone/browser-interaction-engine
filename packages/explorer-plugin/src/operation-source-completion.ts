@@ -45,20 +45,30 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
     }
     return attempts.get(key);
   };
-  return (item:PlanItem):boolean=>{
+  // Collect only receipts referenced by this already-selected obligation. A
+  // missing/unknown ref invalidates the whole item before a batch proof read.
+  const collect=(item:PlanItem,accept?:(attempt:ActionAttempt)=>boolean)=>{
+    const sources=new Map<string,{sessionId:string;observationId:string}>(),receipts=new Map<string,ActionAttempt>();
+    const addSource=(sessionId:string,observationId:string)=>sources.set(`${sessionId}:${observationId}`,{sessionId,observationId});
+    const refs=[...item.evidence,...item.attempts.flatMap(a=>a.evidence?[a.evidence]:[]),...(item.resolvedBy?[item.resolvedBy]:[])];
+    for(const ref of refs){
+      if(!ref.attemptId){addSource(ref.sessionId,ref.observationId);continue;}
+      const attempt=readAttempt(ref.sessionId,ref.attemptId);
+      if(!attempt||attempt.sessionId!==ref.sessionId||![attempt.beforeId,attempt.afterId].includes(ref.observationId)||['unknown','executing'].includes(attempt.status))return;
+      addSource(attempt.sessionId,attempt.beforeId);
+      if(attempt.status==='succeeded'&&attempt.afterId&&(!accept||accept(attempt)))receipts.set(`${attempt.sessionId}:${attempt.id}`,attempt);
+    }
+    return {sources,receipts};
+  };
+  const complete=(item:PlanItem):boolean=>{
     try {
-      const sources=new Map<string,{sessionId:string;observationId:string}>();
-      const receipts=new Map<string,ActionAttempt>();
-      const addSource=(sessionId:string,observationId:string)=>sources.set(`${sessionId}:${observationId}`,{sessionId,observationId});
-      // The current successful attempt is evidence even if an old source keeps
-      // the aggregate item unresolved. A prior unknown outcome stays a blocker.
-      const refs=[...item.evidence,...item.attempts.flatMap(a=>a.evidence?[a.evidence]:[]),...(item.resolvedBy?[item.resolvedBy]:[])];
-      for(const ref of refs){
-        if(!ref.attemptId){addSource(ref.sessionId,ref.observationId);continue;}
-        const attempt=readAttempt(ref.sessionId,ref.attemptId);
-        if(!attempt||attempt.sessionId!==ref.sessionId||![attempt.beforeId,attempt.afterId].includes(ref.observationId)||['unknown','executing'].includes(attempt.status))return false;
-        addSource(attempt.sessionId,attempt.beforeId);
-        if(attempt.status==='succeeded'&&attempt.afterId&&condition(attempt).conditionVerified)receipts.set(`${attempt.sessionId}:${attempt.id}`,attempt);
+      // Old hosts retain their original per-reference lazy single-query path.
+      const collected=collect(item,host.operationReceiptConditions?undefined:attempt=>condition(attempt).conditionVerified);
+      if(!collected)return false;
+      const {sources,receipts}=collected;
+      if(host.operationReceiptConditions){
+        const candidates=[...receipts.values()],proofs=condition.many(candidates);
+        candidates.forEach((attempt,index)=>{if(!proofs[index].conditionVerified)receipts.delete(`${attempt.sessionId}:${attempt.id}`);});
       }
       if(!sources.size||!receipts.size)return false;
       for(const [sourceKey,ref] of sources){
@@ -88,4 +98,11 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
       return true;
     }catch{return false;}
   };
+  const prepare=(items:readonly PlanItem[],directAttempts:readonly ActionAttempt[]=[])=>{
+    if(!host.operationReceiptConditions)return;
+    const candidates=[...directAttempts];
+    for(const item of items){try{const collected=collect(item);if(collected)candidates.push(...collected.receipts.values());}catch{/* The item retains its normal evidence-unavailable result. */}}
+    try{condition.many(candidates);}catch{/* Per-item reads retain the original fail-closed boundary. */}
+  };
+  return Object.assign(complete,{prepare});
 }
