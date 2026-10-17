@@ -1,0 +1,18 @@
+{
+  "root": "/Users/xietian/Experiments/crawljax-okx-20261018",
+  "files": {
+    "v3/PROTOCOL.txt": "c604d719c69cd36cc38c42b560ae73ca950aeed4ebbac1a4f9e364bf049730d9",
+    "v3/NORMALIZATION-RULES.txt": "bbea2d4c6a9f7343f41c0bd5b88d44b154ea4f3f64a083f7d78ea7760c6e9b80",
+    "v3/launcher/src/main/java/NormalizedFactory.java": "2a624f805c7816cf9a7f9e92dfddbf865c5c7d64df516c7ca52d3230ce7392c6",
+    "v3/launcher/src/main/java/Surface.java": "dfa3fa42d2221462afe39b8044c9cc1260acbbf4cefc4c1895e91781f82e656e",
+    "v3/launcher/src/main/java/Recovery.java": "a445629f58bfd63aadac90f19eee3bad25d552dac1cdbca7a22e5170cb90d4fc",
+    "v3/launcher/src/main/java/Baseline.java": "873e3757d75483dd5fee383e059cf9f8e2a5f8dcdac2e75b362b2fd1f0e94da0",
+    "v3/launcher/src/main/java/EligibilityAdapter.java": "0765d42ff2036797bf34485a4654e695808a0cbdf48ddb54a571a5fbf8708363",
+    "v3/launcher/src/main/java/OfflineCheck.java": "7cb65bd06435fce514f397853cce20edf53dbe39868b67cce5d97bed1da0ea8e",
+    "v3/audit-chain.py": "053cddcc4980c3a9ede473ee1e686b22177b3c688f21993e0eaf0c3717adc870",
+    "v3/evidence/final-audit.json": "6fd7b5b8fae5f59c1e7cab6112881ef79c7ddd91cd8f17a4d89d451f3ff315f8",
+    "v3/evidence/okx-A/chain-audit.json": "64bb386ed3eb2562cbab8bba50cc87c6f5ffe4b774d619387f369cf21c0fa21c",
+    "upstream/core/src/main/java/com/crawljax/core/Crawler.java": "6552c6e9ff8027af6c9de1f0ff1ab2a27d34623716f3d9dba32866f00daed248",
+    "upstream/core/src/main/java/com/crawljax/core/state/InMemoryStateFlowGraph.java": "303dfab5922d5a2e62a38df514147d55004dd3d55b85ddd4d2bd4dc9bcc1211b"
+  }
+}
