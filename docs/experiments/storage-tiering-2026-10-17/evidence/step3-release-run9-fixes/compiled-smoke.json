@@ -1,0 +1,18 @@
+{
+  "node": "v24.22.0",
+  "resolved": {
+    "@interaction/adapter-playwright": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-step3-release-run9-fixes-oxycspmw/archive/packages/adapter-playwright/dist/index.js",
+    "@interaction/browser": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-step3-release-run9-fixes-oxycspmw/archive/packages/browser/dist/index.js",
+    "@interaction/explorer-plugin": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-step3-release-run9-fixes-oxycspmw/archive/packages/explorer-plugin/dist/index.js"
+  },
+  "compiledPublicInterfaces": "passed",
+  "emittedCollectorSeventhArgument": "passed",
+  "typeConsumerUsesPublishedDeclarations": true,
+  "instantiatedHosts": 0,
+  "instantiatedStores": 0,
+  "browserDriverCalls": 0,
+  "retainedReceiptsRead": 0,
+  "startedServices": 0,
+  "openedPersistentTaskDatabases": 0,
+  "scope": "Compiled release interfaces only. Source behavior is covered separately; no live recovery, receipt batch, or performance conclusion."
+}

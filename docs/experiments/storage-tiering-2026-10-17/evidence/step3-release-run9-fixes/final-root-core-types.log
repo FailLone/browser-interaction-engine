@@ -1,0 +1,4 @@
+
+> browser-interaction-engine@0.1.0 typecheck /private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-step3-release-run9-fixes-oxycspmw/archive
+> tsc --noEmit && tsc -p packages/core/tsconfig.json
+
