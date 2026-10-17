@@ -215,6 +215,10 @@ export async function runPluginLoopAcceptance(argv: string[]) {
           } else requestStop('plugin_recovery_not_verified', data);
         }
         if (saved.type === 'recovery.contract_rejected' || saved.type === 'recovery.blocked' || saved.type === 'decision.failed') requestStop(saved.type, data);
+        // Dismissal verification occurs synchronously after action.verified and
+        // its persistence. Reject it before the queued loop audit can pass.
+        if (saved.type === 'boundary.exit_verified' && (!data.result || ['changed', 'unverified'].includes(data.result.status)))
+          requestStop('boundary_exit_not_verified', data);
         if (saved.type === 'action.selected') currentSelection = structuredClone(data);
         if (saved.type === 'action.scheduled') scheduled.set(data.requestId, structuredClone(data));
         // recordOutcome emits this before its caller flushes pendingDispatch and
