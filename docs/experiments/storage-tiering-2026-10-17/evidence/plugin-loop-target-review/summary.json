@@ -1,0 +1,120 @@
+{
+  "scope": "One offline Convert-target diagnosis; no browser, plugin run, permission change or historical availability reconstruction.",
+  "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-plugin-loop-20261018-v3/engine",
+  "details": {
+    "path": "query-result.json",
+    "sha256": "313d68885b1a159ad9c22f0221449a69ca56a84615cff58fbdb2821c4b1bbde2"
+  },
+  "target": {
+    "itemId": "82185523-1a52-4b51-bea9-0fe38afee887",
+    "occurrenceId": "7aab57965c9474c776d4b8e8d333f53c",
+    "tradeAfterObservationId": "ac63485c-0195-4321-9395-ffdbe6ce01fa",
+    "currentObservationId": "d6863bdc-eb8f-4a93-b74b-bf630afb1d7a",
+    "localId": "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1463",
+    "actionId": "cb153349-88cf-4fa0-90af-f2e92a36ef97"
+  },
+  "facts": {
+    "bothObservations": {
+      "matchingControls": 1,
+      "matchingClickActions": 1,
+      "nativeSupported": true,
+      "risk": "interface",
+      "visible": true,
+      "enabled": true,
+      "hitTarget": true,
+      "identityResolved": true,
+      "targetResolved": true,
+      "targetHypothesisAbsent": true,
+      "identityScope": "instance",
+      "portableTargetConditionsAvailable": false,
+      "originalScopeMatches": false,
+      "differentScopeFields": [
+        "stableKey"
+      ]
+    },
+    "currentAvailability": {
+      "actionId": "cb153349-88cf-4fa0-90af-f2e92a36ef97",
+      "executable": false,
+      "blockers": [
+        {
+          "code": "ACTION_BLOCKED",
+          "reason": "awaiting_exploration_decision",
+          "evidence": [
+            "17244712-3841-4684-aa26-9cfc3cd51609"
+          ]
+        },
+        {
+          "code": "ACTION_BLOCKED",
+          "reason": "awaiting_exploration_decision",
+          "evidence": [
+            "78e85510-f5d4-4700-a270-26a8900914fd"
+          ],
+          "selection": {
+            "state": "pending",
+            "groupId": "78e85510-f5d4-4700-a270-26a8900914fd",
+            "revision": 1,
+            "memberKey": "42ad3536a63c037e9decee2243ade7302d39383b11280577a7c00b6e5ea233d5"
+          }
+        }
+      ]
+    },
+    "targetReviewObligations": {
+      "regions": [],
+      "classifications": [],
+      "operations": []
+    },
+    "targetRegion": [
+      {
+        "key": "explorer:4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1372",
+        "label": "Main menu",
+        "status": "active",
+        "reviewId": "3d8ae830-f90d-4d90-a6c2-5b0648014dce",
+        "controlIds": [
+          "4f28b07f-6c6e-4782-b0ef-c255515e5ed0:1463"
+        ]
+      }
+    ],
+    "pendingTargetGroups": [
+      {
+        "id": "78e85510-f5d4-4700-a270-26a8900914fd",
+        "label": "Main menu",
+        "status": "pending"
+      }
+    ],
+    "faqRegionsContainTarget": false,
+    "historicalTargetCorrespondence": {
+      "equivalent": false,
+      "reason": "target_correspondence_missing",
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "currentExecution": false
+    }
+  },
+  "conclusions": [
+    "The current SDK execution blockers are pending exploration decisions for the Main menu target, not absent target classification, identity resolution, operation review or region assignment.",
+    "FAQ regions do not contain this target and are not its reported execution blockers. This does not prove every unrelated region review was avoidable or semantically redundant.",
+    "Completing the Main menu decision would not by itself prove completion of the original occurrence: current stableKey differs, portable target conditions are unavailable and SDK target correspondence is false."
+  ],
+  "limits": [
+    "The Trade-after frame has recorded action/precondition facts only; no historical availability was reconstructed with newer reviews.",
+    "No live preflight, dispatch, receipt or new coverage is claimed.",
+    "The query used constructor-recovered copy state; its sole constructor session put was byte-equivalent with no changed fields."
+  ],
+  "safety": {
+    "querySqlChanges": 0,
+    "driverCalls": 0,
+    "constructorWrites": [
+      {
+        "method": "put",
+        "kind": "session",
+        "id": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "beforeSha256": "82f6bdd53eb6dd13babe5692b994499e33d45cdb932981f8a47fc6ebe52239d8",
+        "afterSha256": "82f6bdd53eb6dd13babe5692b994499e33d45cdb932981f8a47fc6ebe52239d8",
+        "changedFields": []
+      }
+    ],
+    "sourceDatabaseAndSidecarsUnchanged": true,
+    "temporaryCopyRemoved": true,
+    "firstFailurePreserved": "result.json"
+  }
+}
