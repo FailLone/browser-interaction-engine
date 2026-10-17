@@ -1,0 +1,576 @@
+{
+  "method": "Same unmodified summarizer.behavior projection; paired by protocol/scenario/run-or-iteration-or-replicate. No oracle or ignored-field change.",
+  "summarizerSha256": "d3218b0bdaf619aa57c119fededcfd4420fed5a0d56ed1458a65d1bfff09cf8c",
+  "comparisons": {
+    "900edf7": {
+      "baselineDirectory": "run6-factory-protocols",
+      "pairedTrials": 80,
+      "equalTrials": 80,
+      "changedTrials": 0,
+      "allBehaviorEqual": true,
+      "changedFieldCounts": {},
+      "trials": [
+        {
+          "kind": "conditions",
+          "scenario": "nonlocal-dependency",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "nonlocal-dependency",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "nonlocal-dependency",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "nonlocal-dependency",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "nonlocal-dependency",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "price-known",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "price-known",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "price-known",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "price-known",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "price-known",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "price-unknown",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "price-unknown",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "price-unknown",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "price-unknown",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "price-unknown",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "public-form-cycle",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "public-form-cycle",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "public-form-cycle",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "public-form-cycle",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "public-form-cycle",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "shared-id-rebuild",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "shared-id-rebuild",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "shared-id-rebuild",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "shared-id-rebuild",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "conditions",
+          "scenario": "shared-id-rebuild",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "cold_nested_restart",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "cold_nested_restart",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "cold_nested_restart",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "cold_nested_restart",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "cold_nested_restart",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "failed_recovery_restart",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "failed_recovery_restart",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "failed_recovery_restart",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "failed_recovery_restart",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "failed_recovery_restart",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "unknown_recovery_restart",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "unknown_recovery_restart",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "unknown_recovery_restart",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "unknown_recovery_restart",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "continuation",
+          "scenario": "unknown_recovery_restart",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "inputIdentity",
+          "scenario": "distinct-names",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "inputIdentity",
+          "scenario": "distinct-names",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "inputIdentity",
+          "scenario": "distinct-names",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "inputIdentity",
+          "scenario": "distinct-names",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "inputIdentity",
+          "scenario": "distinct-names",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "inputIdentity",
+          "scenario": "same-name-named-owners",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "inputIdentity",
+          "scenario": "same-name-named-owners",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "inputIdentity",
+          "scenario": "same-name-named-owners",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "inputIdentity",
+          "scenario": "same-name-named-owners",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "inputIdentity",
+          "scenario": "same-name-named-owners",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "local_inverse_diverges",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "local_inverse_diverges",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "local_inverse_diverges",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "local_inverse_diverges",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "local_inverse_diverges",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "modal_reentry_changed_quote",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "modal_reentry_changed_quote",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "modal_reentry_changed_quote",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "modal_reentry_changed_quote",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "modal_reentry_changed_quote",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "nested_changed_quote",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "nested_changed_quote",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "nested_changed_quote",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "nested_changed_quote",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "nested_changed_quote",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "nested_static",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "nested_static",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "nested_static",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "nested_static",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "nested_static",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "ready_target_ticking_quote",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "ready_target_ticking_quote",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "ready_target_ticking_quote",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "ready_target_ticking_quote",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "ready_target_ticking_quote",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "unknown_outcome_injected",
+          "repeat": 1,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "unknown_outcome_injected",
+          "repeat": 2,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "unknown_outcome_injected",
+          "repeat": 3,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "unknown_outcome_injected",
+          "repeat": 4,
+          "equal": true,
+          "differences": []
+        },
+        {
+          "kind": "recovery",
+          "scenario": "unknown_outcome_injected",
+          "repeat": 5,
+          "equal": true,
+          "differences": []
+        }
+      ]
+    }
+  }
+}

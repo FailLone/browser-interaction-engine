@@ -1,0 +1,181 @@
+{
+  "baseline": {
+    "revision": "069b65b47d951cdcced4d895e2abe33738267e5a",
+    "samplesMs": [
+      43023.232208,
+      42361.731457999995,
+      42231.891959
+    ],
+    "medianMs": 42361.731457999995,
+    "reads": {
+      "require": {
+        "calls": 4429,
+        "uniqueKeys": 34,
+        "elapsedMs": 27698.43584499986,
+        "logicalReturnedJsonBytes": 8142560448
+      },
+      "list": {
+        "calls": 1,
+        "uniqueKeys": 1,
+        "elapsedMs": 0.22433300000000145,
+        "logicalReturnedJsonBytes": 13597
+      },
+      "listByObservation": {
+        "calls": 656,
+        "uniqueKeys": 32,
+        "elapsedMs": 437.50523600002896,
+        "logicalReturnedJsonBytes": 107024836
+      }
+    },
+    "events": {
+      "count": 270,
+      "types": {
+        "obligation.route_unavailable": 270
+      },
+      "sha256": "4f8361aaca4379f8f660def2cae893a13bf631f5b20ebd319f67c56ed3262ae2"
+    },
+    "completeSemanticSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+    "byteCounts": {
+      "inputTask": 2188693,
+      "resultTask": 2234061,
+      "selected": 3625128,
+      "events": 118660,
+      "material": 128651417
+    },
+    "maxRSS": [
+      1637984,
+      1646144,
+      1636496
+    ]
+  },
+  "current": {
+    "revision": "cbd5b878329f8d3e454e8fd5110d0e2da4f749a7",
+    "samplesMs": [
+      35991.93925,
+      35732.3555,
+      35737.052792
+    ],
+    "medianMs": 35737.052792,
+    "reads": {
+      "require": {
+        "calls": 3889,
+        "uniqueKeys": 34,
+        "elapsedMs": 24459.475454000058,
+        "logicalReturnedJsonBytes": 7164420918
+      },
+      "list": {
+        "calls": 1,
+        "uniqueKeys": 1,
+        "elapsedMs": 0.2216249999999036,
+        "logicalReturnedJsonBytes": 13597
+      },
+      "listByObservation": {
+        "calls": 656,
+        "uniqueKeys": 32,
+        "elapsedMs": 463.7650889999775,
+        "logicalReturnedJsonBytes": 107024836
+      }
+    },
+    "events": {
+      "count": 270,
+      "types": {
+        "obligation.route_unavailable": 270
+      },
+      "sha256": "4f8361aaca4379f8f660def2cae893a13bf631f5b20ebd319f67c56ed3262ae2"
+    },
+    "completeSemanticSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+    "byteCounts": {
+      "inputTask": 2188693,
+      "resultTask": 2234061,
+      "selected": 3625128,
+      "events": 118660,
+      "material": 128651417
+    },
+    "maxRSS": [
+      1822528,
+      1814192,
+      1816496
+    ]
+  },
+  "ratio": 0.8436164330872995,
+  "semanticComparisons": [
+    {
+      "label": "cursor-cross-semantic",
+      "equal": true,
+      "left": "controlled-sqlite-semantic.json",
+      "right": "patched-cursor-semantic.json",
+      "leftSha256": "d6e1240f36433e051cefa69f986a94a0e285a84a20a4f2f115c32d0d291f2399",
+      "rightSha256": "d6e1240f36433e051cefa69f986a94a0e285a84a20a4f2f115c32d0d291f2399",
+      "comparison": "Entire input, entire selected result, entire task, ordered full events. No normalization or omitted fields."
+    },
+    {
+      "label": "fresh-cross-semantic-1",
+      "equal": true,
+      "left": "pair-1-1-baseline-semantic.json",
+      "right": "pair-1-2-current-semantic.json",
+      "leftSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "rightSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "comparison": "Entire input, entire selected result, entire task, ordered full events. No normalization or omitted fields."
+    },
+    {
+      "label": "fresh-cross-semantic-2",
+      "equal": true,
+      "left": "pair-2-1-baseline-semantic.json",
+      "right": "pair-2-2-current-semantic.json",
+      "leftSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "rightSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "comparison": "Entire input, entire selected result, entire task, ordered full events. No normalization or omitted fields."
+    },
+    {
+      "label": "fresh-within-baseline-2",
+      "equal": true,
+      "left": "pair-1-1-baseline-semantic.json",
+      "right": "pair-2-1-baseline-semantic.json",
+      "leftSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "rightSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "comparison": "Entire input, entire selected result, entire task, ordered full events. No normalization or omitted fields."
+    },
+    {
+      "label": "fresh-within-current-2",
+      "equal": true,
+      "left": "pair-1-2-current-semantic.json",
+      "right": "pair-2-2-current-semantic.json",
+      "leftSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "rightSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "comparison": "Entire input, entire selected result, entire task, ordered full events. No normalization or omitted fields."
+    },
+    {
+      "label": "fresh-cross-semantic-3",
+      "equal": true,
+      "left": "pair-3-1-baseline-semantic.json",
+      "right": "pair-3-2-current-semantic.json",
+      "leftSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "rightSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "comparison": "Entire input, entire selected result, entire task, ordered full events. No normalization or omitted fields."
+    },
+    {
+      "label": "fresh-within-baseline-3",
+      "equal": true,
+      "left": "pair-1-1-baseline-semantic.json",
+      "right": "pair-3-1-baseline-semantic.json",
+      "leftSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "rightSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "comparison": "Entire input, entire selected result, entire task, ordered full events. No normalization or omitted fields."
+    },
+    {
+      "label": "fresh-within-current-3",
+      "equal": true,
+      "left": "pair-1-2-current-semantic.json",
+      "right": "pair-3-2-current-semantic.json",
+      "leftSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "rightSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "comparison": "Entire input, entire selected result, entire task, ordered full events. No normalization or omitted fields."
+    }
+  ],
+  "limits": [
+    "Counterfactual final task with real prior cursor; fresh current-reason cache only. All route failure debt/plan/source retained.",
+    "One synchronous selector, no actual recovery, browser/provider, task-store writes, or end-to-end speed claim.",
+    "Three serial fresh-process samples/version; controlled cursor baseline profile is excluded from these medians.",
+    "Time includes readonly SQLite/codec reads. Host return JSON byte accounting, material/report serialization, imports and setup excluded."
+  ]
+}

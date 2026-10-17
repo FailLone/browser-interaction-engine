@@ -1,0 +1,36 @@
+{
+  "revision": "cbd5b878329f8d3e454e8fd5110d0e2da4f749a7",
+  "base": "069b65b47d951cdcced4d895e2abe33738267e5a",
+  "sourceSha256": {
+    "packages/explorer-plugin/src/runtime.ts": "758abe14b3904b98d5242e10eed9227ff1dd0cc79c0380ee577e3077ddcb7dea",
+    "packages/explorer-plugin/src/policy.ts": "335a4c548ad33e279b022907b3311cb62f1f01f174bc2d440098e8099db68264",
+    "tests/explorer-recovery-selection-index.test.ts": "342f8168d9f8d8d3d2c1422ac9ced4a542d3122d27d38e3c8bd0bb267f7dd65a"
+  },
+  "related": {
+    "files": 6,
+    "testsPassed": 80,
+    "exitCode": 0
+  },
+  "newSelectionTests": {
+    "files": 1,
+    "testsPassed": 13,
+    "exitCode": 0
+  },
+  "types": {
+    "root": true,
+    "core": true,
+    "exitCode": 0,
+    "finalFrozenTestSourceVerified": true,
+    "log": "typecheck-final.log"
+  },
+  "original80TrialProtocol": {
+    "trials": 80,
+    "behaviorProjectionMatches": 80,
+    "differences": 0,
+    "integrityChecksPerVersion": 348,
+    "sourceFilesUnchanged": 463,
+    "baseline": "900edf7d5c60c3ddcf9265538758033ccecc5832",
+    "report": "../run7-selection-protocols/README.md"
+  },
+  "fullSuite": "not rerun"
+}

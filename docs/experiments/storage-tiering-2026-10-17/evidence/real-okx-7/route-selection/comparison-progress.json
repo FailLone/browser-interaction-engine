@@ -1,0 +1,114 @@
+[
+  {
+    "name": "patched-cursor",
+    "variant": "current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/patched/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/patched-cursor-config.json"
+    ],
+    "startedEpoch": 1792199299.761238,
+    "pid": 33143,
+    "exitCode": 0,
+    "finishedEpoch": 1792199337.9275892
+  },
+  {
+    "name": "pair-1-1-baseline",
+    "variant": "baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/pair-1-1-baseline-config.json"
+    ],
+    "startedEpoch": 1792199338.038162,
+    "pid": 33325,
+    "exitCode": 0,
+    "finishedEpoch": 1792199383.35085
+  },
+  {
+    "name": "pair-1-2-current",
+    "variant": "current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/patched/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/pair-1-2-current-config.json"
+    ],
+    "startedEpoch": 1792199383.365334,
+    "pid": 33579,
+    "exitCode": 0,
+    "finishedEpoch": 1792199421.692277
+  },
+  {
+    "name": "pair-2-1-baseline",
+    "variant": "baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/pair-2-1-baseline-config.json"
+    ],
+    "startedEpoch": 1792199421.817724,
+    "pid": 33859,
+    "exitCode": 0,
+    "finishedEpoch": 1792199466.4759
+  },
+  {
+    "name": "pair-2-2-current",
+    "variant": "current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/patched/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/pair-2-2-current-config.json"
+    ],
+    "startedEpoch": 1792199466.484751,
+    "pid": 34037,
+    "exitCode": 0,
+    "finishedEpoch": 1792199504.548758
+  },
+  {
+    "name": "pair-3-1-baseline",
+    "variant": "baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/pair-3-1-baseline-config.json"
+    ],
+    "startedEpoch": 1792199504.8769941,
+    "pid": 34170,
+    "exitCode": 0,
+    "finishedEpoch": 1792199549.424257
+  },
+  {
+    "name": "pair-3-2-current",
+    "variant": "current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/patched/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/pair-3-2-current-config.json"
+    ],
+    "startedEpoch": 1792199549.434071,
+    "pid": 34265,
+    "exitCode": 0,
+    "finishedEpoch": 1792199587.4819462
+  }
+]

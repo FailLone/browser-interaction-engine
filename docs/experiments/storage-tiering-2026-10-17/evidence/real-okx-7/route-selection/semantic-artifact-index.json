@@ -1,0 +1,101 @@
+{
+  "policy": "Complete input/selected/task/events retained losslessly, deduplicated only by exact JSON byte SHA256; every trial maps to its complete content. Raw filenames in comparison records resolve through this index.",
+  "artifacts": [
+    {
+      "originalPath": "controlled-memory-semantic.json",
+      "logicalBytes": 8096697,
+      "logicalSha256": "d6e1240f36433e051cefa69f986a94a0e285a84a20a4f2f115c32d0d291f2399",
+      "archivePath": "semantic-objects/d6e1240f36433e051cefa69f986a94a0e285a84a20a4f2f115c32d0d291f2399.json.gz",
+      "storedBytes": 893843,
+      "storedSha256": "653b3ac1b5ba49f17ed05ab1df2004c7cc8eadf87e339d3cf84e8dbd289b708a"
+    },
+    {
+      "originalPath": "controlled-sqlite-semantic.json",
+      "logicalBytes": 8096697,
+      "logicalSha256": "d6e1240f36433e051cefa69f986a94a0e285a84a20a4f2f115c32d0d291f2399",
+      "archivePath": "semantic-objects/d6e1240f36433e051cefa69f986a94a0e285a84a20a4f2f115c32d0d291f2399.json.gz",
+      "storedBytes": 893843,
+      "storedSha256": "653b3ac1b5ba49f17ed05ab1df2004c7cc8eadf87e339d3cf84e8dbd289b708a"
+    },
+    {
+      "originalPath": "cursor-cross-semantic.json",
+      "logicalBytes": 440,
+      "logicalSha256": "7128cb575f5f40589f40a2357a3301e3c2a52903e50a28b7d564a863a1bde169",
+      "archivePath": "semantic-objects/7128cb575f5f40589f40a2357a3301e3c2a52903e50a28b7d564a863a1bde169.json.gz",
+      "storedBytes": 256,
+      "storedSha256": "3e779a9dd95e7156f5de357062b22198052f822bab7c1d4dcee9a370dd7ab70c"
+    },
+    {
+      "originalPath": "memory-semantic.json",
+      "logicalBytes": 8094856,
+      "logicalSha256": "6e0c8425ac1d224b4d9a26e925225a6b1d3d4d1fbac827c4ca5bb76aa320fb94",
+      "archivePath": "semantic-objects/6e0c8425ac1d224b4d9a26e925225a6b1d3d4d1fbac827c4ca5bb76aa320fb94.json.gz",
+      "storedBytes": 893408,
+      "storedSha256": "0bc36d339f38cb16b843ab8d9282f460bdc6efca580a0a82f27bb984c53c96f7"
+    },
+    {
+      "originalPath": "pair-1-1-baseline-semantic.json",
+      "logicalBytes": 8166582,
+      "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "archivePath": "semantic-objects/7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6.json.gz",
+      "storedBytes": 893727,
+      "storedSha256": "2a0d8f40feb1940d99350a2c63f97a751eb6b154b318df01cf6bc7d67a28f98e"
+    },
+    {
+      "originalPath": "pair-1-2-current-semantic.json",
+      "logicalBytes": 8166582,
+      "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "archivePath": "semantic-objects/7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6.json.gz",
+      "storedBytes": 893727,
+      "storedSha256": "2a0d8f40feb1940d99350a2c63f97a751eb6b154b318df01cf6bc7d67a28f98e"
+    },
+    {
+      "originalPath": "pair-2-1-baseline-semantic.json",
+      "logicalBytes": 8166582,
+      "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "archivePath": "semantic-objects/7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6.json.gz",
+      "storedBytes": 893727,
+      "storedSha256": "2a0d8f40feb1940d99350a2c63f97a751eb6b154b318df01cf6bc7d67a28f98e"
+    },
+    {
+      "originalPath": "pair-2-2-current-semantic.json",
+      "logicalBytes": 8166582,
+      "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "archivePath": "semantic-objects/7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6.json.gz",
+      "storedBytes": 893727,
+      "storedSha256": "2a0d8f40feb1940d99350a2c63f97a751eb6b154b318df01cf6bc7d67a28f98e"
+    },
+    {
+      "originalPath": "pair-3-1-baseline-semantic.json",
+      "logicalBytes": 8166582,
+      "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "archivePath": "semantic-objects/7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6.json.gz",
+      "storedBytes": 893727,
+      "storedSha256": "2a0d8f40feb1940d99350a2c63f97a751eb6b154b318df01cf6bc7d67a28f98e"
+    },
+    {
+      "originalPath": "pair-3-2-current-semantic.json",
+      "logicalBytes": 8166582,
+      "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "archivePath": "semantic-objects/7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6.json.gz",
+      "storedBytes": 893727,
+      "storedSha256": "2a0d8f40feb1940d99350a2c63f97a751eb6b154b318df01cf6bc7d67a28f98e"
+    },
+    {
+      "originalPath": "patched-cursor-semantic.json",
+      "logicalBytes": 8096697,
+      "logicalSha256": "d6e1240f36433e051cefa69f986a94a0e285a84a20a4f2f115c32d0d291f2399",
+      "archivePath": "semantic-objects/d6e1240f36433e051cefa69f986a94a0e285a84a20a4f2f115c32d0d291f2399.json.gz",
+      "storedBytes": 893843,
+      "storedSha256": "653b3ac1b5ba49f17ed05ab1df2004c7cc8eadf87e339d3cf84e8dbd289b708a"
+    },
+    {
+      "originalPath": "sqlite-semantic.json",
+      "logicalBytes": 8094856,
+      "logicalSha256": "6e0c8425ac1d224b4d9a26e925225a6b1d3d4d1fbac827c4ca5bb76aa320fb94",
+      "archivePath": "semantic-objects/6e0c8425ac1d224b4d9a26e925225a6b1d3d4d1fbac827c4ca5bb76aa320fb94.json.gz",
+      "storedBytes": 893408,
+      "storedSha256": "0bc36d339f38cb16b843ab8d9282f460bdc6efca580a0a82f27bb984c53c96f7"
+    }
+  ]
+}

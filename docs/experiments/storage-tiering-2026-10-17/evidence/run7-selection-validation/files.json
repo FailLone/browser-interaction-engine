@@ -1,0 +1,30 @@
+{
+  "README.md": {
+    "sha256": "dd1231d3ed9ac3891cf256f9a6d499cff548228762e5ef3089c3176b4ccc63e2",
+    "bytes": 3678
+  },
+  "related-80.log": {
+    "sha256": "016783cb09aec2ce9dcdbaad5d7fe150934f1c7daca28cb93ebda99c1043d0e0",
+    "bytes": 696
+  },
+  "selection-13.log": {
+    "sha256": "9b7df98d70d18691af10466315a42011ecd67afccccba6b4e254c96b735d618c",
+    "bytes": 358
+  },
+  "typecheck-final.log": {
+    "sha256": "c4826c0bcec3b7398a6dba4e3b1bb68d1dc30320104f803cc5ae8a8081a66a7a",
+    "bytes": 188
+  },
+  "typecheck.log": {
+    "sha256": "c4826c0bcec3b7398a6dba4e3b1bb68d1dc30320104f803cc5ae8a8081a66a7a",
+    "bytes": 188
+  },
+  "validation.json": {
+    "sha256": "728c00e07a8560fe8eb01048d61fa2067834575c2ae6b4c78631936cada2910e",
+    "bytes": 1130
+  },
+  "workspace-audit.json": {
+    "sha256": "80a09e7233d0ce996c43aa1fd719b7b999d64705ea82333d6010c5c8a6782bbf",
+    "bytes": 951
+  }
+}

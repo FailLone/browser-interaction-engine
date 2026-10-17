@@ -1,0 +1,1021 @@
+[
+  {
+    "profile": "sqlite.cpuprofile",
+    "sha256": "dfddeb428df523baa9980c79e5a15017de53c0c3cad160da4235b579d5a7b0dc",
+    "allSampledMs": 1078.708,
+    "scheduledRecoveryStackSampledMs": 138.625,
+    "inclusiveGroupsMs": {
+      "storage_sqlite_inclusive": 56.667,
+      "decoder_inclusive": 56.667,
+      "scope_projection_inclusive": 49.916,
+      "interaction_transition_inclusive": 26.625,
+      "target_conditions_inclusive": 8.168
+    },
+    "inclusiveTop": [
+      {
+        "function": "scheduledRecovery",
+        "file": "/packages/explorer-plugin/src/runtime.ts",
+        "profilerLine": 1,
+        "sampledMs": 138.625,
+        "percentOfSelectedStacks": 100.0
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/runtime.ts",
+        "profilerLine": 1,
+        "sampledMs": 103.001,
+        "percentOfSelectedStacks": 74.30189359783589
+      },
+      {
+        "function": "",
+        "file": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/baseline/.data/worker.ts",
+        "profilerLine": 1,
+        "sampledMs": 58.167,
+        "percentOfSelectedStacks": 41.95996393146979
+      },
+      {
+        "function": "read",
+        "file": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/baseline/.data/worker.ts",
+        "profilerLine": 1,
+        "sampledMs": 56.667,
+        "percentOfSelectedStacks": 40.87790802524797
+      },
+      {
+        "function": "decodeStoredEntity",
+        "file": "/packages/storage-sqlite/src/entity-codec.ts",
+        "profilerLine": 1,
+        "sampledMs": 56.667,
+        "percentOfSelectedStacks": 40.87790802524797
+      },
+      {
+        "function": "sqliteTransaction",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/better-sqlite3@12.11.1/node_modules/better-sqlite3/lib/methods/transaction.js",
+        "profilerLine": 52,
+        "sampledMs": 55.209,
+        "percentOfSelectedStacks": 39.826149684400356
+      },
+      {
+        "function": "get",
+        "file": "/packages/storage-sqlite/src/index.ts",
+        "profilerLine": 10,
+        "sampledMs": 55.209,
+        "percentOfSelectedStacks": 39.826149684400356
+      },
+      {
+        "function": "require",
+        "file": "/packages/storage-sqlite/src/index.ts",
+        "profilerLine": 10,
+        "sampledMs": 55.209,
+        "percentOfSelectedStacks": 39.826149684400356
+      },
+      {
+        "function": "",
+        "file": "/packages/storage-sqlite/src/index.ts",
+        "profilerLine": 10,
+        "sampledMs": 55.209,
+        "percentOfSelectedStacks": 39.826149684400356
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 48.291,
+        "percentOfSelectedStacks": 34.83570784490532
+      },
+      {
+        "function": "",
+        "file": "/packages/core/src/util.ts",
+        "profilerLine": 1,
+        "sampledMs": 46.374,
+        "percentOfSelectedStacks": 33.45284039675383
+      },
+      {
+        "function": "matches",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 45.833,
+        "percentOfSelectedStacks": 33.06257889990983
+      },
+      {
+        "function": "scopeFor",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 45.416,
+        "percentOfSelectedStacks": 32.76176735798016
+      },
+      {
+        "function": "actionScope",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 43.332,
+        "percentOfSelectedStacks": 31.25843101893598
+      },
+      {
+        "function": "browserControlCorrespondence",
+        "file": "/packages/adapter-playwright/src/exploration.ts",
+        "profilerLine": 1,
+        "sampledMs": 35.249,
+        "percentOfSelectedStacks": 25.42759242560866
+      },
+      {
+        "function": "prioritizeReviewAnchors",
+        "file": "/packages/explorer-plugin/src/review-recovery.ts",
+        "profilerLine": 1,
+        "sampledMs": 31.542,
+        "percentOfSelectedStacks": 22.753471596032462
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/review-recovery.ts",
+        "profilerLine": 1,
+        "sampledMs": 31.542,
+        "percentOfSelectedStacks": 22.753471596032462
+      },
+      {
+        "function": "interactionTransition",
+        "file": "/packages/browser/src/index.ts",
+        "profilerLine": 1,
+        "sampledMs": 26.625,
+        "percentOfSelectedStacks": 19.206492335437332
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/obligation-lifecycle.ts",
+        "profilerLine": 1,
+        "sampledMs": 21.458,
+        "percentOfSelectedStacks": 15.47917042380523
+      },
+      {
+        "function": "recoveryRouteKey",
+        "file": "/packages/explorer-plugin/src/obligation-lifecycle.ts",
+        "profilerLine": 1,
+        "sampledMs": 19.874,
+        "percentOfSelectedStacks": 14.336519386834986
+      },
+      {
+        "function": "hashC",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+        "profilerLine": 629,
+        "sampledMs": 18.333,
+        "percentOfSelectedStacks": 13.224887285843101
+      },
+      {
+        "function": "controlInScope",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 16.625,
+        "percentOfSelectedStacks": 11.99278629395852
+      },
+      {
+        "function": "canonical",
+        "file": "/packages/core/src/util.ts",
+        "profilerLine": 1,
+        "sampledMs": 15.583,
+        "percentOfSelectedStacks": 11.24111812443643
+      },
+      {
+        "function": "browserControlBindingKey",
+        "file": "/packages/adapter-playwright/src/exploration.ts",
+        "profilerLine": 1,
+        "sampledMs": 14.125,
+        "percentOfSelectedStacks": 10.18935978358882
+      },
+      {
+        "function": "process",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+        "profilerLine": 72,
+        "sampledMs": 12.125,
+        "percentOfSelectedStacks": 8.746618575293057
+      },
+      {
+        "function": "update",
+        "file": "node:internal/crypto/hash",
+        "profilerLine": 186,
+        "sampledMs": 10.709,
+        "percentOfSelectedStacks": 7.725157799819657
+      },
+      {
+        "function": "update",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/_md.js",
+        "profilerLine": 80,
+        "sampledMs": 10.583,
+        "percentOfSelectedStacks": 7.634265103697024
+      },
+      {
+        "function": "utf8ToBytes",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+        "profilerLine": 488,
+        "sampledMs": 9.458,
+        "percentOfSelectedStacks": 6.822723174030658
+      },
+      {
+        "function": "",
+        "file": "/packages/storage-sqlite/src/entity-codec.ts",
+        "profilerLine": 1,
+        "sampledMs": 9.042,
+        "percentOfSelectedStacks": 6.52263300270514
+      },
+      {
+        "function": "",
+        "file": "/packages/storage-sqlite/src/observation-store.ts",
+        "profilerLine": 11,
+        "sampledMs": 9.041,
+        "percentOfSelectedStacks": 6.521911632100992
+      },
+      {
+        "function": "browserTargetConditions",
+        "file": "/packages/adapter-playwright/src/target-arrival.ts",
+        "profilerLine": 1,
+        "sampledMs": 8.168,
+        "percentOfSelectedStacks": 5.892155094679892
+      },
+      {
+        "function": "encode",
+        "file": "node:internal/encoding",
+        "profilerLine": 355,
+        "sampledMs": 6.416,
+        "percentOfSelectedStacks": 4.6283137962128045
+      },
+      {
+        "function": "controlScope",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 6.042,
+        "percentOfSelectedStacks": 4.358521190261497
+      },
+      {
+        "function": "browserBranchConditions",
+        "file": "/packages/adapter-playwright/src/branch-conditions.ts",
+        "profilerLine": 1,
+        "sampledMs": 6.0,
+        "percentOfSelectedStacks": 4.328223624887286
+      },
+      {
+        "function": "",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+        "profilerLine": 378,
+        "sampledMs": 4.5,
+        "percentOfSelectedStacks": 3.2461677186654643
+      }
+    ],
+    "selfTop": [
+      {
+        "function": "decodeStoredEntity",
+        "file": "/packages/storage-sqlite/src/entity-codec.ts",
+        "profilerLine": 1,
+        "sampledMs": 35.626,
+        "percentOfSelectedStacks": 25.69954914337241
+      },
+      {
+        "function": "process",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+        "profilerLine": 72,
+        "sampledMs": 12.125,
+        "percentOfSelectedStacks": 8.746618575293057
+      },
+      {
+        "function": "",
+        "file": "/packages/core/src/util.ts",
+        "profilerLine": 1,
+        "sampledMs": 12.041,
+        "percentOfSelectedStacks": 8.686023444544636
+      },
+      {
+        "function": "update",
+        "file": "node:internal/crypto/hash",
+        "profilerLine": 186,
+        "sampledMs": 10.709,
+        "percentOfSelectedStacks": 7.725157799819657
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/runtime.ts",
+        "profilerLine": 1,
+        "sampledMs": 9.083,
+        "percentOfSelectedStacks": 6.552209197475204
+      },
+      {
+        "function": "canonical",
+        "file": "/packages/core/src/util.ts",
+        "profilerLine": 1,
+        "sampledMs": 6.542,
+        "percentOfSelectedStacks": 4.719206492335437
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 5.5,
+        "percentOfSelectedStacks": 3.967538322813345
+      },
+      {
+        "function": "encode",
+        "file": "node:internal/encoding",
+        "profilerLine": 355,
+        "sampledMs": 3.416,
+        "percentOfSelectedStacks": 2.4642019837691613
+      },
+      {
+        "function": "browserBranchConditions",
+        "file": "/packages/adapter-playwright/src/branch-conditions.ts",
+        "profilerLine": 1,
+        "sampledMs": 3.083,
+        "percentOfSelectedStacks": 2.2239855725879174
+      },
+      {
+        "function": "utf8ToBytes",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+        "profilerLine": 488,
+        "sampledMs": 3.042,
+        "percentOfSelectedStacks": 2.194409377817854
+      },
+      {
+        "function": "matches",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 3.0,
+        "percentOfSelectedStacks": 2.164111812443643
+      },
+      {
+        "function": "",
+        "file": "/packages/storage-sqlite/src/observation-store.ts",
+        "profilerLine": 11,
+        "sampledMs": 2.958,
+        "percentOfSelectedStacks": 2.1338142470694317
+      },
+      {
+        "function": "utf8Slice",
+        "file": "",
+        "profilerLine": 0,
+        "sampledMs": 2.958,
+        "percentOfSelectedStacks": 2.1338142470694317
+      },
+      {
+        "function": "",
+        "file": "/packages/adapter-playwright/src/target-arrival.ts",
+        "profilerLine": 1,
+        "sampledMs": 2.168,
+        "percentOfSelectedStacks": 1.5639314697926059
+      },
+      {
+        "function": "processChunkSync",
+        "file": "node:zlib",
+        "profilerLine": 421,
+        "sampledMs": 1.541,
+        "percentOfSelectedStacks": 1.1116321009918846
+      },
+      {
+        "function": "scheduledRecovery",
+        "file": "/packages/explorer-plugin/src/runtime.ts",
+        "profilerLine": 1,
+        "sampledMs": 1.5,
+        "percentOfSelectedStacks": 1.0820559062218216
+      },
+      {
+        "function": "rememberDecoded",
+        "file": "/packages/storage-sqlite/src/observation-store.ts",
+        "profilerLine": 11,
+        "sampledMs": 1.5,
+        "percentOfSelectedStacks": 1.0820559062218216
+      },
+      {
+        "function": "_SHA256",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+        "profilerLine": 123,
+        "sampledMs": 1.5,
+        "percentOfSelectedStacks": 1.0820559062218216
+      },
+      {
+        "function": "digest",
+        "file": "node:internal/crypto/hash",
+        "profilerLine": 204,
+        "sampledMs": 1.5,
+        "percentOfSelectedStacks": 1.0820559062218216
+      },
+      {
+        "function": "",
+        "file": "/packages/browser/src/index.ts",
+        "profilerLine": 1,
+        "sampledMs": 1.5,
+        "percentOfSelectedStacks": 1.0820559062218216
+      },
+      {
+        "function": "validateEncoder",
+        "file": "node:internal/encoding",
+        "profilerLine": 68,
+        "sampledMs": 1.5,
+        "percentOfSelectedStacks": 1.0820559062218216
+      },
+      {
+        "function": "browserControlCorrespondence",
+        "file": "/packages/adapter-playwright/src/exploration.ts",
+        "profilerLine": 1,
+        "sampledMs": 1.5,
+        "percentOfSelectedStacks": 1.0820559062218216
+      },
+      {
+        "function": "browserControlBindingKey",
+        "file": "/packages/adapter-playwright/src/exploration.ts",
+        "profilerLine": 1,
+        "sampledMs": 1.5,
+        "percentOfSelectedStacks": 1.0820559062218216
+      },
+      {
+        "function": "SHA2_32B",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+        "profilerLine": 42,
+        "sampledMs": 1.5,
+        "percentOfSelectedStacks": 1.0820559062218216
+      },
+      {
+        "function": "",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+        "profilerLine": 378,
+        "sampledMs": 1.5,
+        "percentOfSelectedStacks": 1.0820559062218216
+      },
+      {
+        "function": "encodeUtf8String",
+        "file": "",
+        "profilerLine": 0,
+        "sampledMs": 1.5,
+        "percentOfSelectedStacks": 1.0820559062218216
+      },
+      {
+        "function": "componentAncestors",
+        "file": "/packages/adapter-playwright/src/branch-conditions.ts",
+        "profilerLine": 1,
+        "sampledMs": 1.459,
+        "percentOfSelectedStacks": 1.0524797114517583
+      },
+      {
+        "function": "",
+        "file": "/packages/adapter-playwright/src/branch-conditions.ts",
+        "profilerLine": 1,
+        "sampledMs": 1.458,
+        "percentOfSelectedStacks": 1.0517583408476103
+      },
+      {
+        "function": "",
+        "file": "/packages/storage-sqlite/src/entity-codec.ts",
+        "profilerLine": 1,
+        "sampledMs": 1.417,
+        "percentOfSelectedStacks": 1.0221821460775473
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/obligation-lifecycle.ts",
+        "profilerLine": 1,
+        "sampledMs": 1.375,
+        "percentOfSelectedStacks": 0.9918845807033363
+      },
+      {
+        "function": "digestInto",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/_md.js",
+        "profilerLine": 115,
+        "sampledMs": 1.083,
+        "percentOfSelectedStacks": 0.781244364292155
+      },
+      {
+        "function": "parse",
+        "file": "",
+        "profilerLine": 0,
+        "sampledMs": 0.833,
+        "percentOfSelectedStacks": 0.6009017132551848
+      },
+      {
+        "function": "digest",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/_md.js",
+        "profilerLine": 154,
+        "sampledMs": 0.625,
+        "percentOfSelectedStacks": 0.4508566275924256
+      },
+      {
+        "function": "recoveryRouteConditionVersion",
+        "file": "/packages/explorer-plugin/src/obligation-lifecycle.ts",
+        "profilerLine": 1,
+        "sampledMs": 0.083,
+        "percentOfSelectedStacks": 0.05987376014427412
+      }
+    ],
+    "limits": [
+      "Samples include only stacks containing scheduledRecovery; GC or JIT attributed to other roots is excluded.",
+      "Inclusive rows/groups overlap and must not be added.",
+      "TSX transpilation often reports line1; source function names/file paths, not these generated line numbers, identify locations.",
+      "Profile is diagnostic and excluded from formal paired medians."
+    ]
+  },
+  {
+    "profile": "controlled-sqlite.cpuprofile",
+    "sha256": "ab43505fd1646106e49bc4119d98c3e61604ad5bf7722fb7df7048439f3e5d9b",
+    "allSampledMs": 41152.875,
+    "scheduledRecoveryStackSampledMs": 35221.753,
+    "inclusiveGroupsMs": {
+      "storage_sqlite_inclusive": 23590.166,
+      "decoder_inclusive": 23186.078,
+      "scope_projection_inclusive": 8280.726,
+      "target_conditions_inclusive": 34.458,
+      "interaction_transition_inclusive": 7654.035
+    },
+    "inclusiveTop": [
+      {
+        "function": "scheduledRecovery",
+        "file": "/packages/explorer-plugin/src/runtime.ts",
+        "profilerLine": 1,
+        "sampledMs": 35221.753,
+        "percentOfSelectedStacks": 100.0
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/runtime.ts",
+        "profilerLine": 1,
+        "sampledMs": 24929.051,
+        "percentOfSelectedStacks": 70.77742836933754
+      },
+      {
+        "function": "",
+        "file": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/baseline/.data/worker.ts",
+        "profilerLine": 1,
+        "sampledMs": 23881.665,
+        "percentOfSelectedStacks": 67.80373765042302
+      },
+      {
+        "function": "read",
+        "file": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/baseline/.data/worker.ts",
+        "profilerLine": 1,
+        "sampledMs": 23609.707,
+        "percentOfSelectedStacks": 67.03160685954501
+      },
+      {
+        "function": "decodeStoredEntity",
+        "file": "/packages/storage-sqlite/src/entity-codec.ts",
+        "profilerLine": 1,
+        "sampledMs": 23186.078,
+        "percentOfSelectedStacks": 65.82885866015812
+      },
+      {
+        "function": "get",
+        "file": "/packages/storage-sqlite/src/index.ts",
+        "profilerLine": 10,
+        "sampledMs": 23158.33,
+        "percentOfSelectedStacks": 65.75007779993233
+      },
+      {
+        "function": "require",
+        "file": "/packages/storage-sqlite/src/index.ts",
+        "profilerLine": 10,
+        "sampledMs": 23158.33,
+        "percentOfSelectedStacks": 65.75007779993233
+      },
+      {
+        "function": "sqliteTransaction",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/better-sqlite3@12.11.1/node_modules/better-sqlite3/lib/methods/transaction.js",
+        "profilerLine": 52,
+        "sampledMs": 23020.952,
+        "percentOfSelectedStacks": 65.36004042728936
+      },
+      {
+        "function": "",
+        "file": "/packages/storage-sqlite/src/index.ts",
+        "profilerLine": 10,
+        "sampledMs": 22990.456,
+        "percentOfSelectedStacks": 65.2734575703827
+      },
+      {
+        "function": "",
+        "file": "/packages/core/src/util.ts",
+        "profilerLine": 1,
+        "sampledMs": 8724.631,
+        "percentOfSelectedStacks": 24.77057572915238
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/review-recovery.ts",
+        "profilerLine": 1,
+        "sampledMs": 7664.085,
+        "percentOfSelectedStacks": 21.759521736467804
+      },
+      {
+        "function": "prioritizeReviewAnchors",
+        "file": "/packages/explorer-plugin/src/review-recovery.ts",
+        "profilerLine": 1,
+        "sampledMs": 7661.127,
+        "percentOfSelectedStacks": 21.751123517333166
+      },
+      {
+        "function": "interactionTransition",
+        "file": "/packages/browser/src/index.ts",
+        "profilerLine": 1,
+        "sampledMs": 7654.035,
+        "percentOfSelectedStacks": 21.730988233322744
+      },
+      {
+        "function": "matches",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 7648.811,
+        "percentOfSelectedStacks": 21.716156489996393
+      },
+      {
+        "function": "scopeFor",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 7188.43,
+        "percentOfSelectedStacks": 20.40906368288938
+      },
+      {
+        "function": "actionScope",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 6786.556,
+        "percentOfSelectedStacks": 19.268081290559273
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 6000.259,
+        "percentOfSelectedStacks": 17.035662591807966
+      },
+      {
+        "function": "controlInScope",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 4955.248,
+        "percentOfSelectedStacks": 14.068714864930204
+      },
+      {
+        "function": "browserControlBindingKey",
+        "file": "/packages/adapter-playwright/src/exploration.ts",
+        "profilerLine": 1,
+        "sampledMs": 4771.677,
+        "percentOfSelectedStacks": 13.547528426537998
+      },
+      {
+        "function": "browserControlCorrespondence",
+        "file": "/packages/adapter-playwright/src/exploration.ts",
+        "profilerLine": 1,
+        "sampledMs": 4156.246,
+        "percentOfSelectedStacks": 11.800224707725365
+      },
+      {
+        "function": "hashC",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+        "profilerLine": 629,
+        "sampledMs": 3659.781,
+        "percentOfSelectedStacks": 10.390683848132147
+      },
+      {
+        "function": "",
+        "file": "/packages/storage-sqlite/src/entity-codec.ts",
+        "profilerLine": 1,
+        "sampledMs": 3355.672,
+        "percentOfSelectedStacks": 9.52727139958082
+      },
+      {
+        "function": "update",
+        "file": "node:internal/crypto/hash",
+        "profilerLine": 186,
+        "sampledMs": 3126.247,
+        "percentOfSelectedStacks": 8.87589836882906
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/obligation-lifecycle.ts",
+        "profilerLine": 1,
+        "sampledMs": 2572.834,
+        "percentOfSelectedStacks": 7.304673336389589
+      },
+      {
+        "function": "recoveryRouteKey",
+        "file": "/packages/explorer-plugin/src/obligation-lifecycle.ts",
+        "profilerLine": 1,
+        "sampledMs": 2532.375,
+        "percentOfSelectedStacks": 7.189803982783026
+      },
+      {
+        "function": "canonical",
+        "file": "/packages/core/src/util.ts",
+        "profilerLine": 1,
+        "sampledMs": 2526.417,
+        "percentOfSelectedStacks": 7.172888300023001
+      },
+      {
+        "function": "process",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+        "profilerLine": 72,
+        "sampledMs": 2378.566,
+        "percentOfSelectedStacks": 6.753116461863781
+      },
+      {
+        "function": "controlScope",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 2331.949,
+        "percentOfSelectedStacks": 6.620763594588833
+      },
+      {
+        "function": "utf8ToBytes",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+        "profilerLine": 488,
+        "sampledMs": 2242.051,
+        "percentOfSelectedStacks": 6.365529279590372
+      },
+      {
+        "function": "update",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/_md.js",
+        "profilerLine": 80,
+        "sampledMs": 2030.694,
+        "percentOfSelectedStacks": 5.7654540930997955
+      },
+      {
+        "function": "encode",
+        "file": "node:internal/encoding",
+        "profilerLine": 355,
+        "sampledMs": 1038.142,
+        "percentOfSelectedStacks": 2.947445574330159
+      },
+      {
+        "function": "toString",
+        "file": "node:buffer",
+        "profilerLine": 918,
+        "sampledMs": 978.346,
+        "percentOfSelectedStacks": 2.777675489348869
+      },
+      {
+        "function": "utf8Slice",
+        "file": "",
+        "profilerLine": 0,
+        "sampledMs": 899.469,
+        "percentOfSelectedStacks": 2.5537314965555518
+      },
+      {
+        "function": "_SHA256",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+        "profilerLine": 123,
+        "sampledMs": 899.463,
+        "percentOfSelectedStacks": 2.553714461628301
+      },
+      {
+        "function": "",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+        "profilerLine": 378,
+        "sampledMs": 899.463,
+        "percentOfSelectedStacks": 2.553714461628301
+      }
+    ],
+    "selfTop": [
+      {
+        "function": "decodeStoredEntity",
+        "file": "/packages/storage-sqlite/src/entity-codec.ts",
+        "profilerLine": 1,
+        "sampledMs": 16522.661,
+        "percentOfSelectedStacks": 46.91038802072117
+      },
+      {
+        "function": "update",
+        "file": "node:internal/crypto/hash",
+        "profilerLine": 186,
+        "sampledMs": 3126.247,
+        "percentOfSelectedStacks": 8.87589836882906
+      },
+      {
+        "function": "process",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+        "profilerLine": 72,
+        "sampledMs": 2378.566,
+        "percentOfSelectedStacks": 6.753116461863781
+      },
+      {
+        "function": "canonical",
+        "file": "/packages/core/src/util.ts",
+        "profilerLine": 1,
+        "sampledMs": 1837.055,
+        "percentOfSelectedStacks": 5.215683046780778
+      },
+      {
+        "function": "utf8ToBytes",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+        "profilerLine": 488,
+        "sampledMs": 1179.742,
+        "percentOfSelectedStacks": 3.349469857448606
+      },
+      {
+        "function": "",
+        "file": "/packages/core/src/util.ts",
+        "profilerLine": 1,
+        "sampledMs": 986.701,
+        "percentOfSelectedStacks": 2.8013966255455824
+      },
+      {
+        "function": "utf8Slice",
+        "file": "",
+        "profilerLine": 0,
+        "sampledMs": 899.469,
+        "percentOfSelectedStacks": 2.5537314965555518
+      },
+      {
+        "function": "encode",
+        "file": "node:internal/encoding",
+        "profilerLine": 355,
+        "sampledMs": 852.344,
+        "percentOfSelectedStacks": 2.419936338773371
+      },
+      {
+        "function": "createView",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+        "profilerLine": 246,
+        "sampledMs": 811.38,
+        "percentOfSelectedStacks": 2.3036332121232013
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 742.498,
+        "percentOfSelectedStacks": 2.1080665689751443
+      },
+      {
+        "function": "",
+        "file": "/packages/storage-sqlite/src/observation-store.ts",
+        "profilerLine": 11,
+        "sampledMs": 606.729,
+        "percentOfSelectedStacks": 1.7225973959899155
+      },
+      {
+        "function": "processChunkSync",
+        "file": "node:zlib",
+        "profilerLine": 421,
+        "sampledMs": 589.207,
+        "percentOfSelectedStacks": 1.6728497301085494
+      },
+      {
+        "function": "concat",
+        "file": "node:buffer",
+        "profilerLine": 628,
+        "sampledMs": 541.372,
+        "percentOfSelectedStacks": 1.537038772601693
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/runtime.ts",
+        "profilerLine": 1,
+        "sampledMs": 385.956,
+        "percentOfSelectedStacks": 1.0957887303337799
+      },
+      {
+        "function": "sharedObservationLayout",
+        "file": "/packages/storage-sqlite/src/entity-codec.ts",
+        "profilerLine": 1,
+        "sampledMs": 351.678,
+        "percentOfSelectedStacks": 0.9984681909500643
+      },
+      {
+        "function": "matches",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 290.172,
+        "percentOfSelectedStacks": 0.8238431517023017
+      },
+      {
+        "function": "",
+        "file": "/packages/explorer-plugin/src/obligation-lifecycle.ts",
+        "profilerLine": 1,
+        "sampledMs": 271.421,
+        "percentOfSelectedStacks": 0.7706061648890673
+      },
+      {
+        "function": "controlInScope",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 197.209,
+        "percentOfSelectedStacks": 0.5599068280332328
+      },
+      {
+        "function": "encodeUtf8String",
+        "file": "",
+        "profilerLine": 0,
+        "sampledMs": 185.798,
+        "percentOfSelectedStacks": 0.5275092355567879
+      },
+      {
+        "function": "scopeFor",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 178.581,
+        "percentOfSelectedStacks": 0.5070190572286393
+      },
+      {
+        "function": "actionScope",
+        "file": "/packages/explorer-plugin/src/policy.ts",
+        "profilerLine": 1,
+        "sampledMs": 159.08,
+        "percentOfSelectedStacks": 0.4516527045090572
+      },
+      {
+        "function": "",
+        "file": "/packages/browser/src/index.ts",
+        "profilerLine": 1,
+        "sampledMs": 145.421,
+        "percentOfSelectedStacks": 0.4128726926226528
+      },
+      {
+        "function": "browserControlCorrespondence",
+        "file": "/packages/adapter-playwright/src/exploration.ts",
+        "profilerLine": 1,
+        "sampledMs": 131.671,
+        "percentOfSelectedStacks": 0.3738343176729449
+      },
+      {
+        "function": "prepare",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/better-sqlite3@12.11.1/node_modules/better-sqlite3/lib/methods/wrappers.js",
+        "profilerLine": 4,
+        "sampledMs": 128.504,
+        "percentOfSelectedStacks": 0.36484271523907397
+      },
+      {
+        "function": "update",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/_md.js",
+        "profilerLine": 80,
+        "sampledMs": 123.043,
+        "percentOfSelectedStacks": 0.3493380922863209
+      },
+      {
+        "function": "clean",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+        "profilerLine": 231,
+        "sampledMs": 96.501,
+        "percentOfSelectedStacks": 0.2739812524379465
+      },
+      {
+        "function": "listByObservation",
+        "file": "/packages/storage-sqlite/src/index.ts",
+        "profilerLine": 10,
+        "sampledMs": 93.459,
+        "percentOfSelectedStacks": 0.2653445443218002
+      },
+      {
+        "function": "utf8Write",
+        "file": "node:internal/buffer",
+        "profilerLine": 988,
+        "sampledMs": 80.084,
+        "percentOfSelectedStacks": 0.22737085232526613
+      },
+      {
+        "function": "digestInto",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/_md.js",
+        "profilerLine": 115,
+        "sampledMs": 79.833,
+        "percentOfSelectedStacks": 0.22665822453527512
+      },
+      {
+        "function": "toString",
+        "file": "node:buffer",
+        "profilerLine": 918,
+        "sampledMs": 78.877,
+        "percentOfSelectedStacks": 0.22394399279331723
+      },
+      {
+        "function": "interactionTransition",
+        "file": "/packages/browser/src/index.ts",
+        "profilerLine": 1,
+        "sampledMs": 77.245,
+        "percentOfSelectedStacks": 0.21931049258110463
+      },
+      {
+        "function": "browserControlBindingKey",
+        "file": "/packages/adapter-playwright/src/exploration.ts",
+        "profilerLine": 1,
+        "sampledMs": 72.123,
+        "percentOfSelectedStacks": 0.20476834301802072
+      },
+      {
+        "function": "",
+        "file": "/packages/storage-sqlite/src/entity-codec.ts",
+        "profilerLine": 1,
+        "sampledMs": 71.875,
+        "percentOfSelectedStacks": 0.20406423269165508
+      },
+      {
+        "function": "HashMD",
+        "file": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/_md.js",
+        "profilerLine": 72,
+        "sampledMs": 67.498,
+        "percentOfSelectedStacks": 0.19163725326220987
+      },
+      {
+        "function": "",
+        "file": "/packages/storage-sqlite/src/index.ts",
+        "profilerLine": 10,
+        "sampledMs": 65.296,
+        "percentOfSelectedStacks": 0.185385434961173
+      }
+    ],
+    "limits": [
+      "Samples include only stacks containing scheduledRecovery; GC or JIT attributed to other roots is excluded.",
+      "Inclusive rows/groups overlap and must not be added.",
+      "TSX transpilation often reports line1; source function names/file paths, not these generated line numbers, identify locations.",
+      "Profile is diagnostic and excluded from formal paired medians."
+    ]
+  }
+]

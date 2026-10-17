@@ -1,0 +1,6 @@
+{
+  "equal": true,
+  "policy": "Entire input/selected/task/events compared structurally, order retained; no fields or IDs removed",
+  "sqliteSha256": "6e0c8425ac1d224b4d9a26e925225a6b1d3d4d1fbac827c4ca5bb76aa320fb94",
+  "memorySha256": "6e0c8425ac1d224b4d9a26e925225a6b1d3d4d1fbac827c4ca5bb76aa320fb94"
+}

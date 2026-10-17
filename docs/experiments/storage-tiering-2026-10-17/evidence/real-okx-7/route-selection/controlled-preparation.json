@@ -1,0 +1,37 @@
+{
+  "description": "Final task, cursor restored from actual prior obligation.selected sequence4918. In fresh-deferrals only, clear current scan-reason cache scheduling.deferred; all route failure debt remains. Not exact pre-selection task; not expected to reproduce original selected item.",
+  "case": "cursor",
+  "sourceInputSha256": "84f5eb322938b10a9ad645060f132badf56be1ba0381f16b91e72162edf8ec85",
+  "input": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-route-owned-opfd95rh/controlled-input.json",
+  "inputSha256": "0fc76ee9a089aaac9f71e704f03a6a928b657ad85146e723eeab74fd8473270f",
+  "taskSha256": "27bbbb0a99859ac7384c97aaca63cfff01db1c0f88d867e59c9685a5a79a72ac",
+  "onlyChangedPaths": [
+    "task.scheduling.cursor"
+  ],
+  "from": "35a22c35-fa78-47fb-8681-2ac3250539cd",
+  "to": "5480402f-ee64-49fc-9f3e-1cfe5ffce00f",
+  "sourceEvent": {
+    "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+    "type": "obligation.selected",
+    "actor": "program",
+    "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+    "observationId": "0c118da8-74a7-4b61-b96b-daa3ecca1094",
+    "data": {
+      "itemId": "5480402f-ee64-49fc-9f3e-1cfe5ffce00f",
+      "kind": "current",
+      "actionId": "8c17f68a-6897-4668-98c0-33170f7e5426",
+      "source": {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "0c118da8-74a7-4b61-b96b-daa3ecca1094"
+      },
+      "sourceObservationId": "0c118da8-74a7-4b61-b96b-daa3ecca1094",
+      "coverageGranted": false,
+      "executionAuthorized": false
+    },
+    "at": "2026-10-17T00:55:19.851Z",
+    "sequence": 4918
+  },
+  "allOtherFieldsEqual": true,
+  "originalFailureDebtPreserved": true,
+  "runtimeWorkerUnchanged": true
+}

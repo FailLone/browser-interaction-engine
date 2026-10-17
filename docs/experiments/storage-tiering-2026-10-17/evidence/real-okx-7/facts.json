@@ -1,0 +1,912 @@
+{
+  "kind": "run7 raw JSON/JSONL fact aggregation only",
+  "runId": "e38c02f1-d0b9-4c8c-bb9d-474cb0c1db1e",
+  "source": {
+    "revision": "069b65b47d951cdcced4d895e2abe33738267e5a",
+    "treeSha256": "f8dbbf5ad51ba85357c187fecc8e95b2ae6250c450cdb45b7f3d3391e4516328",
+    "scriptSha256": "a068cb311969b0919f44994ce2401c8d764626252e5b4620c830260885655fa2",
+    "node": "v24.22.0"
+  },
+  "inputs": {
+    "run/summary.json": {
+      "sha256": "2d1e42addf34d04159b2c43b64d16e4af8ef5fe20603a075cb9d3f1731d023f8",
+      "bytes": 32796
+    },
+    "run/metrics.jsonl": {
+      "sha256": "e56b7e583580075271736ea694b430771e7180b53ca072b204dcc487e8220c47",
+      "bytes": 3171078
+    },
+    "run/task-before.json": {
+      "sha256": "b4e50873f9f85fb9a0081cf38ae27515a5f056e635ff26f5cdd2dee7780feee2",
+      "bytes": 1480384
+    },
+    "run/task-after.json": {
+      "sha256": "58c165dcd0823c7e8355694402197b449100ed80bce3fed337d8920361bc4e08",
+      "bytes": 2885667
+    },
+    "run/plan-occurrences-before.json": {
+      "sha256": "c7739fd05905a1445b25d1b76455794514dec82e1c08cd4b59578b4efe931919",
+      "bytes": 27401
+    },
+    "run/plan-occurrences-after.json": {
+      "sha256": "119e2b9498c2c5844074d7d8afe0766e78dd7689aa654fec9d8b54875de290ca",
+      "bytes": 30517
+    },
+    "freeze.json": {
+      "sha256": "632994249127f4fa42cc95875744feed3f97115fc1711b04484108d6d879d55f",
+      "bytes": 898
+    },
+    "../real-okx-6/summary.json": {
+      "sha256": "3f6b16298a2c7a392a4af9476d38f1a6d2a491464d12a0069f08bcb155feadd9",
+      "bytes": 25382
+    }
+  },
+  "databaseBrowserProviderAccessInThisAnalysis": false,
+  "originalStop": {
+    "at": "2026-10-17T00:56:31.510Z",
+    "reason": "recovery_not_verified",
+    "details": {
+      "api": "reachCheckpoint",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "result": {
+        "id": "1fee6dd0-865c-416c-b905-fd4db8621a44",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "checkpointId": "b1e80845-ab4f-4c31-809d-ba37be180e92",
+        "reason": "Checkpoint path contains actions without replay permission",
+        "checks": [
+          {
+            "name": "observable-state",
+            "result": "fail"
+          }
+        ],
+        "attemptIds": [],
+        "observationId": "f5d928b6-a530-4ba8-90df-96a2cb877393",
+        "remainingFrontier": 2098,
+        "diagnostics": {
+          "unassessedEffectAttemptIds": [],
+          "strategies": [
+            "verify_current",
+            "boundary_exit",
+            "recorded_path",
+            "declared_local_restore"
+          ],
+          "dirtyActions": [],
+          "resetAvailable": false
+        },
+        "status": "UNREACHABLE"
+      }
+    },
+    "prior": {
+      "status": "running",
+      "usage": {
+        "rounds": 1,
+        "actions": 39,
+        "durationMs": 763954,
+        "modelRequests": 123
+      }
+    }
+  },
+  "finalState": {
+    "status": "paused",
+    "reason": "user_paused",
+    "reviewRequired": true,
+    "exhaustive": false
+  },
+  "windowBudget": {
+    "usage": {
+      "actions": 8,
+      "modelRequests": 27,
+      "rounds": 0,
+      "durationMs": 347130
+    },
+    "startedAt": 1792198247296,
+    "overshoot": {
+      "actions": 0,
+      "modelRequests": 0,
+      "rounds": 0,
+      "durationMs": 0
+    }
+  },
+  "durationAccounting": {
+    "before": {
+      "interruptions": 1,
+      "additionalMsUpperBound": 1724737,
+      "budgetBasis": "persisted-activity-lower-bound"
+    },
+    "after": {
+      "interruptions": 1,
+      "additionalMsUpperBound": 1724737,
+      "budgetBasis": "persisted-activity-lower-bound"
+    },
+    "aggregateExact": false
+  },
+  "recoveries": [
+    {
+      "returnedAt": "2026-10-17T00:52:54.504Z",
+      "api": "returnToObservedSource",
+      "status": "SOURCE_REACHED",
+      "elapsedMs": 14761.087249999997,
+      "attemptIds": [
+        "2b310018-b8b7-4ec5-b08a-a22d08ba1824"
+      ],
+      "result": {
+        "id": "7f14f18e-ae5a-48ee-8689-4f73c472debd",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "sourceObservationId": "b1d59647-7a88-44a2-88de-0cb6addbac25",
+        "observationId": "22adf3b5-f26f-4c85-9744-0ab1572e9897",
+        "status": "SOURCE_REACHED",
+        "reason": "observed_source_position_reached",
+        "attemptIds": [
+          "2b310018-b8b7-4ec5-b08a-a22d08ba1824"
+        ],
+        "checks": [
+          {
+            "name": "unresolved-execution-outcomes",
+            "result": "pass"
+          },
+          {
+            "name": "clean-session",
+            "result": "pass"
+          },
+          {
+            "name": "known-declared-context",
+            "result": "pass"
+          },
+          {
+            "name": "observation-rules",
+            "result": "pass"
+          },
+          {
+            "name": "observation-completeness",
+            "result": "pass"
+          },
+          {
+            "name": "native-history-evidence",
+            "result": "pass"
+          },
+          {
+            "name": "native-browser-session",
+            "result": "pass"
+          },
+          {
+            "name": "native-source-get",
+            "result": "pass"
+          },
+          {
+            "name": "native-source-entry",
+            "result": "pass"
+          },
+          {
+            "name": "native-current-position",
+            "result": "pass"
+          },
+          {
+            "name": "observed-source-position",
+            "result": "pass"
+          }
+        ],
+        "diagnostics": {
+          "unassessedEffectAttemptIds": []
+        },
+        "checkpointVerified": false,
+        "currentExecution": false,
+        "executionAuthorized": false,
+        "sourceStateRestored": false
+      },
+      "selection": {
+        "sequence": 3516,
+        "at": "2026-10-17T00:52:39.743Z",
+        "reason": "unfinished_observed_targets",
+        "itemId": "bf26248e-e22f-4c69-80b0-1e4edfe65dca",
+        "routeKey": "a49c93ff02777c572486e0e9e5d15f47c1b2349565aa1e3c4ee02935750a25c2",
+        "checkpointId": "1bca15a5-0179-46a8-a548-19d479b25185",
+        "sourceObservationId": "b1d59647-7a88-44a2-88de-0cb6addbac25",
+        "currentObservationId": "68832317-14e2-43f4-b4d9-bc148b3f380d",
+        "unfinishedTargets": 1,
+        "hostVerificationRequired": true,
+        "arrivalMode": "observed-source"
+      },
+      "item": {
+        "id": "bf26248e-e22f-4c69-80b0-1e4edfe65dca",
+        "title": "穷尽当前页面已发现的交互",
+        "scope": {
+          "url": "https://www.okx.com/convert/usd-to-btc"
+        },
+        "prerequisites": [],
+        "status": "pending",
+        "reason": "program_exhaustive_root",
+        "dispatchScope": true
+      }
+    },
+    {
+      "returnedAt": "2026-10-17T00:56:31.509Z",
+      "api": "reachCheckpoint",
+      "status": "UNREACHABLE",
+      "elapsedMs": 11424.334709000017,
+      "attemptIds": [],
+      "result": {
+        "id": "1fee6dd0-865c-416c-b905-fd4db8621a44",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "checkpointId": "b1e80845-ab4f-4c31-809d-ba37be180e92",
+        "reason": "Checkpoint path contains actions without replay permission",
+        "checks": [
+          {
+            "name": "observable-state",
+            "result": "fail"
+          }
+        ],
+        "attemptIds": [],
+        "observationId": "f5d928b6-a530-4ba8-90df-96a2cb877393",
+        "remainingFrontier": 2098,
+        "diagnostics": {
+          "unassessedEffectAttemptIds": [],
+          "strategies": [
+            "verify_current",
+            "boundary_exit",
+            "recorded_path",
+            "declared_local_restore"
+          ],
+          "dirtyActions": [],
+          "resetAvailable": false
+        },
+        "status": "UNREACHABLE"
+      },
+      "selection": {
+        "sequence": 5369,
+        "at": "2026-10-17T00:56:20.084Z",
+        "reason": "unfinished_observed_targets",
+        "itemId": "35a22c35-fa78-47fb-8681-2ac3250539cd",
+        "routeKey": "81e29bcd996aaf7d85f98e9b18c2060fc37838cc603166d51d2d5ffa20fab3b0",
+        "checkpointId": "b1e80845-ab4f-4c31-809d-ba37be180e92",
+        "sourceObservationId": "5f80a3df-8355-444a-8499-4a625cb89577",
+        "currentObservationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+        "unfinishedTargets": 1,
+        "hostVerificationRequired": true
+      },
+      "item": {
+        "id": "35a22c35-fa78-47fb-8681-2ac3250539cd",
+        "title": "identity_unresolved",
+        "scope": {
+          "url": "https://www.okx.com/convert/usd-to-btc",
+          "region": "Main menu",
+          "label": "Open sub-menu",
+          "role": "button"
+        },
+        "prerequisites": [],
+        "status": "unresolved",
+        "reason": "identity_unresolved",
+        "dispatchScope": false
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "engineEventType": "action.completed",
+      "id": "c1f06ae0-0167-410e-ab89-df29b531f0c9",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "beforeId": "f339f385-9c0a-44b8-ab26-f6807ea5cf6f",
+      "afterId": "c694a01b-113c-4c02-a9b7-6e273cd499c9",
+      "requestId": "5564c076-e4e7-4e23-adc9-fa8fe459c63e",
+      "kind": "check",
+      "label": "Don’t show for 7 days",
+      "elapsedMs": 4234,
+      "metricAt": "2026-10-17T00:51:19.608Z",
+      "actionId": "157971e7-46f1-40af-9659-d0d5603e5a05",
+      "inputValue": true,
+      "selectionSequence": 3302
+    },
+    {
+      "engineEventType": "action.completed",
+      "id": "b815f3bd-c0b5-4963-a5c9-89b32693db4c",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "beforeId": "c694a01b-113c-4c02-a9b7-6e273cd499c9",
+      "afterId": "4533e4ba-8b9e-4367-9476-f5aede15e2f2",
+      "requestId": "f507e3a5-2464-4443-94a0-31411fe54957",
+      "kind": "check",
+      "label": "Don’t show for 7 days",
+      "elapsedMs": 4237,
+      "metricAt": "2026-10-17T00:51:34.335Z",
+      "actionId": "8b9e1d8d-7a94-4d91-8d76-2d8c52a65958",
+      "inputValue": false,
+      "selectionSequence": 3334
+    },
+    {
+      "engineEventType": "action.completed",
+      "id": "474c6736-1ad8-45c5-9c1e-44616f693b20",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "beforeId": "b1d59647-7a88-44a2-88de-0cb6addbac25",
+      "afterId": "68832317-14e2-43f4-b4d9-bc148b3f380d",
+      "requestId": "cd504fbb-152c-4cd1-a5b8-ce4689093912",
+      "kind": "click",
+      "label": "announced",
+      "elapsedMs": 4557,
+      "metricAt": "2026-10-17T00:52:31.020Z",
+      "actionId": "787f4ba7-5366-425c-bb5f-5e3b600a24e6",
+      "inputValue": null,
+      "selectionSequence": 3451
+    },
+    {
+      "engineEventType": "action.completed",
+      "id": "2b310018-b8b7-4ec5-b08a-a22d08ba1824",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "recovery",
+      "beforeId": "fe45dbf7-cf1c-494c-bdf2-b5cf1bd59684",
+      "afterId": "22adf3b5-f26f-4c85-9744-0ab1572e9897",
+      "requestId": "d00f0228-f356-462e-9b7b-bfa3bb4c14e5",
+      "kind": "history",
+      "label": "Return to observed page",
+      "elapsedMs": 7131,
+      "metricAt": "2026-10-17T00:52:52.315Z"
+    },
+    {
+      "engineEventType": "action.completed",
+      "id": "bab6bbad-e3b9-43ee-a2f5-16c311f7c70d",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "beforeId": "22adf3b5-f26f-4c85-9744-0ab1572e9897",
+      "afterId": "05de318e-ab4d-4ff2-9d62-a3400a64b15c",
+      "requestId": "8e156696-f90c-436c-acf5-db35b10e47cb",
+      "kind": "click",
+      "label": "Trade",
+      "elapsedMs": 5125,
+      "metricAt": "2026-10-17T00:53:06.448Z",
+      "actionId": "50b9e676-7297-42bc-8d5e-d173ff8477f3",
+      "inputValue": null,
+      "selectionSequence": 3708
+    },
+    {
+      "engineEventType": "action.completed",
+      "id": "cb163309-02f7-4d65-b68a-624d88f10fe2",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "beforeId": "63f3d18a-777a-41ee-8aa1-486471e35d0d",
+      "afterId": "24f495c2-06fb-42a4-acc6-35d3cd6caad8",
+      "requestId": "767168f1-ca70-4198-94b0-8e6cfe8c673f",
+      "kind": "click",
+      "label": "Open Spot sub-menu",
+      "elapsedMs": 4536,
+      "metricAt": "2026-10-17T00:54:26.964Z",
+      "actionId": "77e5f912-4f26-44f2-b1a5-81b22aa13ee3",
+      "inputValue": null,
+      "selectionSequence": 4212
+    },
+    {
+      "engineEventType": "action.completed",
+      "id": "d365179e-0702-4aa0-a4e5-17d0b45d5ef0",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "beforeId": "1ea431eb-205f-42cd-ba28-7055e514d098",
+      "afterId": "0c118da8-74a7-4b61-b96b-daa3ecca1094",
+      "requestId": "4c42a9b6-f478-46d0-82a2-0b588e4aa3e1",
+      "kind": "click",
+      "label": "1W",
+      "elapsedMs": 5232,
+      "metricAt": "2026-10-17T00:55:09.181Z",
+      "actionId": "ac67ed43-b4fa-4729-a81a-f59baf22de7e",
+      "inputValue": null,
+      "selectionSequence": 4692
+    },
+    {
+      "engineEventType": "action.completed",
+      "id": "81026291-a5f8-4f9a-9564-9d0bc1cba0fd",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "status": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "beforeId": "0c118da8-74a7-4b61-b96b-daa3ecca1094",
+      "afterId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+      "requestId": "8464baeb-471f-4470-843b-a8dacf086481",
+      "kind": "click",
+      "label": "1M",
+      "elapsedMs": 5179,
+      "metricAt": "2026-10-17T00:55:28.331Z",
+      "actionId": "8c17f68a-6897-4668-98c0-33170f7e5426",
+      "inputValue": null,
+      "selectionSequence": 4919
+    }
+  ],
+  "attemptCount": 8,
+  "successfulExplorationAttempts": 7,
+  "successfulRecoveryAttempts": 1,
+  "unexecutedSelectedActions": [
+    {
+      "sequence": 4448,
+      "at": "2026-10-17T00:54:36.840Z",
+      "actionId": "a63fa141-adf4-4f40-8810-12da4ea0b728",
+      "label": "1W",
+      "sourceObservationId": "24f495c2-06fb-42a4-acc6-35d3cd6caad8"
+    }
+  ],
+  "stepInvalidations": [
+    {
+      "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+      "type": "step.invalidated",
+      "actor": "program",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "observationId": "76c8ec48-face-4cc1-8cd6-7dccbdc30bf8",
+      "data": {
+        "reason": "STALE_OBSERVATION"
+      },
+      "at": "2026-10-17T00:54:47.410Z",
+      "sequence": 4504
+    }
+  ],
+  "providers": {
+    "jev": {
+      "started": 27,
+      "returned": 27,
+      "failed": 0,
+      "cancelled": 0,
+      "elapsedMs": 19222.406584999953,
+      "usage": {
+        "input_tokens": 62649,
+        "output_tokens": 1269,
+        "cost": 0.002631258
+      }
+    },
+    "llm": {
+      "started": 0,
+      "returned": 0,
+      "failed": 0,
+      "cancelled": 0,
+      "elapsedMs": 0,
+      "usage": {}
+    }
+  },
+  "providerPurposeCounts": [
+    {
+      "actor": "jev",
+      "purpose": "region-review",
+      "count": 22
+    },
+    {
+      "actor": "jev",
+      "purpose": "control-classification",
+      "count": 1
+    },
+    {
+      "actor": "jev",
+      "purpose": "identity-review",
+      "count": 1
+    },
+    {
+      "actor": "jev",
+      "purpose": "control-risk",
+      "count": 1
+    },
+    {
+      "actor": "jev",
+      "purpose": "probe-risk",
+      "count": 2
+    }
+  ],
+  "plan": {
+    "before": 721,
+    "after": 803,
+    "added": 82,
+    "removedIds": [],
+    "beforeStatus": {
+      "pending": 181,
+      "unresolved": 509,
+      "succeeded": 30,
+      "untested": 1
+    },
+    "afterStatus": {
+      "pending": 189,
+      "unresolved": 579,
+      "succeeded": 34,
+      "untested": 1
+    },
+    "statusDelta": {
+      "pending": 8,
+      "unresolved": 70,
+      "untested": 0,
+      "succeeded": 4
+    },
+    "newRowStatus": {
+      "pending": 8,
+      "succeeded": 4,
+      "unresolved": 70
+    },
+    "newRowReasons": {
+      "observed_in_scope": 12,
+      "operation_not_executed": 3,
+      "region_review_required": 49,
+      "pointer_intercepted": 2,
+      "classification_unresolved": 7,
+      "operation_basis_unconfirmed": 7,
+      "identity_unresolved": 1,
+      "Control is not visible or enabled": 1
+    },
+    "retainedRowStatusChanges": [],
+    "addedItemIds": [
+      "4fe8ca5a-7f14-4772-8ca3-1519d91ec8f2",
+      "4243996e-dc2b-44b6-a37b-fc783952adb5",
+      "095f186b-62d9-49fa-b545-27e9fa9729f3",
+      "a5556d84-d99f-472b-b6a7-a41cdcfc68bb",
+      "6daee8cf-0e16-41fd-a250-cbb4c1c321c6",
+      "aa3c658c-95e5-487c-8bae-623c9e6c00d3",
+      "4dc1bdd9-5d86-42d1-8aa5-c67c416ab142",
+      "8cbb193a-3888-4ab4-b86c-d2fa9f314821",
+      "3bc65b20-0ea8-4a67-b036-fbb6396c4835",
+      "fdd39d20-5bd5-46ba-a69c-3a6ac47d42ca",
+      "4d6d130f-1e77-4c28-ab93-375a48883083",
+      "6e708d46-28fb-4de3-ab12-cd8ac23cc4e2",
+      "462ebee2-ec42-4b22-ae93-d65b0dde449e",
+      "13af9896-1946-4b1f-95d9-9de7bde54395",
+      "6b89439e-1e43-4c51-a25a-765d5157d791",
+      "662e187b-3cb8-41e8-874e-2271476eb966",
+      "391f5e2b-cf83-44fc-9e91-50ee6f689ef2",
+      "c19b1a33-c946-4ca5-866b-64ea4b1a5446",
+      "c2ff3c9a-3ab1-436b-9a9a-b7141783014b",
+      "4692a3cf-5c4d-4291-8a7a-efe6b273b5ef",
+      "578ddf05-f564-4a77-98df-d44b89184b27",
+      "2a61f1dc-7715-4571-b016-2730a0a13382",
+      "b451080f-395b-4d8b-af56-866bd383cba1",
+      "a7688566-be12-48f1-85ea-73d97cadfb46",
+      "60a66cc4-52c9-4359-876c-658a67053a87",
+      "b405fb03-eea7-4896-88aa-b7772db8e25f",
+      "55762eba-fe83-4dee-a64c-07313dcbedb0",
+      "aa329daf-e3e4-41d4-968d-d15188347261",
+      "d618a5c9-f7d5-48b9-af6f-3fe14d449b5f",
+      "4dc5a446-054a-4312-96f1-84cd43ceef57",
+      "fe8126fd-349b-4679-838b-0af89e3c76a6",
+      "02d9c4da-6f2d-4e4c-a80e-b364304d754b",
+      "934a2b5f-92b3-4151-a48d-270c99ed3a66",
+      "d0531f76-3078-4c2c-8995-8a09743a47c4",
+      "4861c766-0c3e-4cc9-9715-1d93ba20a329",
+      "22003225-9c36-4dc1-ab65-8d9d27c83155",
+      "12aa3c24-3f8a-4471-8dbd-08af7febce57",
+      "8fddb5e2-23bb-48ca-9128-81eec78bc447",
+      "79839d41-f326-46fc-a67e-d8f4f72a7816",
+      "bfcee7bb-b6a5-4dc8-896a-da3acc50766b",
+      "16c05a61-9be0-4413-a9f3-441eb3cb54bc",
+      "ad7f9177-a84f-4c76-8bdc-284717e6cf2b",
+      "9eb7bdc9-54c7-4fd5-868d-d6a9aca3944e",
+      "bd345425-ee8e-488d-b4df-eff8d1f8c4f1",
+      "4bbb03fb-1304-4333-83cc-7c87547a7c1d",
+      "2d9bd92f-1893-44ef-b5e3-b70c5e56ad0d",
+      "7401415b-86fe-4e43-b20b-d18f915c7b9a",
+      "73dd42be-9479-4c5c-b30d-20ba97a105e2",
+      "70b490b1-61dd-4adc-bd77-f2d5abae6abc",
+      "09e06b35-da05-4fc8-881c-73146c3e147d",
+      "53dd23cb-cc43-453e-9a50-ac8bd2dd7a8d",
+      "0b701fca-96a4-4826-85ce-cc299efe9642",
+      "ca006e7d-770e-4bb7-aed5-17b7fc9c4808",
+      "066dbfb1-e9c7-496d-9654-d6070c6205a9",
+      "9c6e3885-e802-42d1-9a54-f9ee600fa061",
+      "00f35f32-dbc0-424d-be16-d203c0532c9b",
+      "702ce12f-6be5-4dba-8eed-93aea29f4cdf",
+      "a04981a4-9bac-40da-95c4-feffd0c12983",
+      "b4c69341-c3c6-4f9f-a6f9-d1041c8b2cdf",
+      "bb788c69-8d92-48e6-859c-f5df141e1856",
+      "3516e15c-2d5f-42e0-b789-8a2cde340e55",
+      "f502e346-eb7f-4b66-864a-154b2ac3490b",
+      "0710f060-0015-4700-980b-fbc8232b67b1",
+      "dfd2926a-fa17-43de-a30f-edb93495f3a9",
+      "3b133082-1673-4639-bf7b-9c458392918a",
+      "6278acdd-d142-40c0-89d1-15a5fea6995e",
+      "8fd18eb0-3b4a-4648-9605-4b7d1043c8da",
+      "2943073c-edbd-4b27-b712-88648919e33e",
+      "11bab68c-dc82-464c-9033-8123f090e6e9",
+      "bf095644-b48f-42fd-8c21-3626ce9783a8",
+      "946049d7-01aa-4709-a1ac-9e06280e1b82",
+      "0a8a5403-1203-4d15-a0d6-572dea884039",
+      "a6cbf208-b369-40fc-b848-2d6a3849f114",
+      "45a18cfd-ae5e-4466-a850-20fc1618b3fc",
+      "e5fe776d-ed7a-4eff-a0ed-63544c20d7f8",
+      "abfa2128-f901-435b-9418-0d693644bb85",
+      "751a356e-f83a-44c5-84a5-8b92a5f8462d",
+      "3f48ec8c-d5d2-4197-bab9-5eb663786d6e",
+      "735b986a-4c78-47d4-aad4-c3984e859471",
+      "40da620c-e0e2-427f-aa7c-ce9b682a58d7",
+      "9ee67ea5-5818-45b5-84e0-611f489d8466",
+      "4a00eb77-a331-4cd9-b482-736d9d59ccc1"
+    ],
+    "occurrences": {
+      "before": 721,
+      "after": 803,
+      "beforeUnique": 721,
+      "afterUnique": 803,
+      "oldPrefixPreserved": true
+    },
+    "exportBytes": {
+      "before": 1480384,
+      "after": 2885667,
+      "note": "Pretty JSON export bytes, not physical task DB allocation or write volume."
+    }
+  },
+  "coverage": {
+    "newOperationConditionCandidates": 0,
+    "unkeyedSuccessfulAttemptIds": [
+      "c1f06ae0-0167-410e-ab89-df29b531f0c9",
+      "b815f3bd-c0b5-4963-a5c9-89b32693db4c",
+      "474c6736-1ad8-45c5-9c1e-44616f693b20",
+      "bab6bbad-e3b9-43ee-a2f5-16c311f7c70d",
+      "cb163309-02f7-4d65-b68a-624d88f10fe2",
+      "d365179e-0702-4aa0-a4e5-17d0b45d5ef0",
+      "81026291-a5f8-4f9a-9564-9d0bc1cba0fd"
+    ],
+    "unkeyedReasons": {
+      "target_conditions_unavailable": 7
+    },
+    "semanticCoverageEstablished": false,
+    "progressAuditWindowStatus": "pending",
+    "progressAuditWindowElapsedMs": 347130,
+    "unknownAttempts": [],
+    "inFlightAttempts": []
+  },
+  "observedCosts": {
+    "routeCandidateWindow": {
+      "startSequence": 5138,
+      "startAt": "2026-10-17T00:55:36.104Z",
+      "endSequence": 5369,
+      "endAt": "2026-10-17T00:56:20.084Z",
+      "elapsedMs": 43980,
+      "eventsBetween": {
+        "obligation.route_unavailable": 229,
+        "obligation.selected": 1
+      },
+      "status": "Needs profiling; event interval is not a measured method CPU duration or verified bottleneck attribution."
+    },
+    "regionBatches": [
+      {
+        "regionReviewedSequence": 2522,
+        "reviewedAt": "2026-10-17T00:53:15.840Z",
+        "sourceObservationId": "05de318e-ab4d-4ff2-9d62-a3400a64b15c",
+        "newObservationSequence": 2536,
+        "newObservationAt": "2026-10-17T00:53:20.072Z",
+        "newObservationId": "fd2591f8-72d2-4fcb-9490-7ee341aafded",
+        "reviewToObservationEventMs": 4232,
+        "regionProviderCalls": 5,
+        "providerElapsedMsSum": 2800.37279199998
+      },
+      {
+        "regionReviewedSequence": 2540,
+        "reviewedAt": "2026-10-17T00:53:27.872Z",
+        "sourceObservationId": "fd2591f8-72d2-4fcb-9490-7ee341aafded",
+        "newObservationSequence": 2554,
+        "newObservationAt": "2026-10-17T00:53:32.140Z",
+        "newObservationId": "31bb400d-13ab-40ec-bd02-dd9df6fc5bb3",
+        "reviewToObservationEventMs": 4268,
+        "regionProviderCalls": 5,
+        "providerElapsedMsSum": 2854.794166000007
+      },
+      {
+        "regionReviewedSequence": 2558,
+        "reviewedAt": "2026-10-17T00:53:40.138Z",
+        "sourceObservationId": "31bb400d-13ab-40ec-bd02-dd9df6fc5bb3",
+        "newObservationSequence": 2572,
+        "newObservationAt": "2026-10-17T00:53:44.399Z",
+        "newObservationId": "40701b0d-3fdb-4514-b376-2704b9480d98",
+        "reviewToObservationEventMs": 4261,
+        "regionProviderCalls": 5,
+        "providerElapsedMsSum": 2865.099001000024
+      },
+      {
+        "regionReviewedSequence": 2576,
+        "reviewedAt": "2026-10-17T00:53:52.997Z",
+        "sourceObservationId": "40701b0d-3fdb-4514-b376-2704b9480d98",
+        "newObservationSequence": 2590,
+        "newObservationAt": "2026-10-17T00:53:57.274Z",
+        "newObservationId": "b6b79bde-bbba-49cd-ba52-e8c7fdb9f35b",
+        "reviewToObservationEventMs": 4277,
+        "regionProviderCalls": 5,
+        "providerElapsedMsSum": 3321.7750839999935
+      },
+      {
+        "regionReviewedSequence": 2594,
+        "reviewedAt": "2026-10-17T00:54:03.088Z",
+        "sourceObservationId": "b6b79bde-bbba-49cd-ba52-e8c7fdb9f35b",
+        "newObservationSequence": 2603,
+        "newObservationAt": "2026-10-17T00:54:07.389Z",
+        "newObservationId": "63f3d18a-777a-41ee-8aa1-486471e35d0d",
+        "reviewToObservationEventMs": 4301,
+        "regionProviderCalls": 1,
+        "providerElapsedMsSum": 1127.264750000002
+      }
+    ],
+    "regionReviewToNewObservationEventMsSum": 21339,
+    "regionCostLimits": "Five repeated review/capture cycles are observed; intervals include wall time and cannot be treated as isolated capture CPU or proof every capture is avoidable."
+  },
+  "disk": {
+    "run6AfterClose": {
+      "engineDatabase": 74858496,
+      "engineWal": 0,
+      "engineShm": 0,
+      "pluginDatabase": 6598656,
+      "pluginWal": 0,
+      "pluginShm": 0,
+      "evidenceManifests": 2362245,
+      "evidenceBlobs": 12174588,
+      "evidenceOther": 0,
+      "runnerAndLogs": 14470129,
+      "total": 110464114,
+      "availableBytes": 107856973824
+    },
+    "run7AfterClose": {
+      "engineDatabase": 93876224,
+      "engineWal": 0,
+      "engineShm": 0,
+      "pluginDatabase": 11325440,
+      "pluginWal": 0,
+      "pluginShm": 0,
+      "evidenceManifests": 3015629,
+      "evidenceBlobs": 15154692,
+      "evidenceOther": 0,
+      "runnerAndLogs": 23930296,
+      "total": 147302281,
+      "availableBytes": 104133685248
+    },
+    "deltaFromRun6Close": {
+      "engineDatabase": 19017728,
+      "engineWal": 0,
+      "engineShm": 0,
+      "pluginDatabase": 4726784,
+      "pluginWal": 0,
+      "pluginShm": 0,
+      "evidenceManifests": 653384,
+      "evidenceBlobs": 2980104,
+      "evidenceOther": 0,
+      "runnerAndLogs": 9460167,
+      "total": 36838167
+    },
+    "run7FirstLiveSample": {
+      "engineDatabase": 74858496,
+      "engineWal": 0,
+      "engineShm": 32768,
+      "pluginDatabase": 6598656,
+      "pluginWal": 1779872,
+      "pluginShm": 32768,
+      "evidenceManifests": 2362245,
+      "evidenceBlobs": 12174588,
+      "evidenceOther": 0,
+      "runnerAndLogs": 16140934,
+      "total": 113980327,
+      "availableBytes": 104169738240
+    },
+    "freeze": {
+      "at": "2026-10-17T01:00:23.190434+00:00",
+      "sourceRevision": "069b65b47d951cdcced4d895e2abe33738267e5a",
+      "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1",
+      "frozen": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1-frozen-7",
+      "runId": "e38c02f1-d0b9-4c8c-bb9d-474cb0c1db1e",
+      "files": 4511,
+      "bytes": 147334611,
+      "allHashesEqual": true,
+      "sourceUnchangedDuringCopy": true,
+      "sqliteIntegrity": {
+        "plugin/explorer.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "engine/engine.sqlite": [
+          [
+            "ok"
+          ]
+        ]
+      },
+      "processPresent": false,
+      "walShmFiles": 0,
+      "operatorStopAfterTerminal": {
+        "result": "NO_ACTIVE_OWNED_RUN",
+        "exitCode": 2,
+        "overridesOriginalStop": false
+      }
+    },
+    "freezeMinusAfterCloseBytes": 32330,
+    "comparisonLimit": "Same retained task lineage, additional records and different sampling times; not a fresh DB or matched-workload performance comparison.",
+    "freezeDifferenceExplanation": "32330 bytes of summary/metadata were written after the diskAfterClose measurement; this is not DB growth, contradiction or compression savings."
+  },
+  "metricTypeCounts": {
+    "run.preflight": 1,
+    "run.ready": 1,
+    "evidence.audit": 13,
+    "progress.audit_window": 1,
+    "start.requested": 1,
+    "plugin.event": 2192,
+    "sample": 11,
+    "engine.event": 576,
+    "progress.guards_deferred": 1,
+    "coverage.condition_candidate": 7,
+    "attempt.completed": 8,
+    "provider.started": 27,
+    "provider.returned": 27,
+    "route.guard_deferred": 2,
+    "recovery.returned": 2,
+    "stop.requested": 1,
+    "stop.settled": 1
+  },
+  "pluginEventTypeCounts": {
+    "operation.scheduling_normalized": 719,
+    "exploration.group_invalidated": 65,
+    "region.review_invalidated": 3,
+    "region.review_requested": 13,
+    "exploration.group_detected": 64,
+    "identity.ambiguous": 24,
+    "action.tentative": 161,
+    "observation.external_change": 3,
+    "observation.created": 23,
+    "frontier.updated": 61,
+    "scope.opened": 1,
+    "interaction.boundary_changed": 2,
+    "boundary.exit_review_requested": 1,
+    "discovery.scan_requested": 8,
+    "control.classification_requested": 12,
+    "control.review_requested": 11,
+    "exploration.review_requested": 10,
+    "interventions.updated": 25,
+    "session.reattached": 1,
+    "round.reattached": 1,
+    "review.reopened": 2,
+    "review.recovery_released": 4,
+    "scope.availability_updated": 259,
+    "scope.audit": 10,
+    "obligations.reconciled": 9,
+    "obligation.selected": 10,
+    "action.selected": 8,
+    "checkpoint.created": 8,
+    "review.source_retained": 181,
+    "action.validation": 8,
+    "action.scheduled": 8,
+    "action.dispatch": 8,
+    "action.started": 8,
+    "action.completed": 8,
+    "observation.diff": 8,
+    "action.verified": 7,
+    "decision.requested": 27,
+    "decision.returned": 27,
+    "decision.resolved": 27,
+    "region.reviewed": 6,
+    "decision.applied": 27,
+    "decision.effect": 27,
+    "exploration.group_decided": 38,
+    "exploration.groups_decided": 2,
+    "scope.retained": 2,
+    "control.classified": 2,
+    "classification.reused": 1,
+    "review.resolved": 2,
+    "identity.resolved": 1,
+    "review.recovery_waiting": 2,
+    "control.classification_invalidated": 2,
+    "exploration.group_updated": 1,
+    "scope.interrupted": 1,
+    "navigation.return_required": 1,
+    "obligation.route_unavailable": 230,
+    "recovery.selected": 2,
+    "exploration.source_return_result": 1,
+    "recovery.position_reconciled": 2,
+    "recovery.result": 2,
+    "recovery.source_reached": 1,
+    "step.invalidated": 1,
+    "checkpoint.result": 1,
+    "session.paused": 1,
+    "task.paused": 1
+  },
+  "nextWork": "Profile/optimize route candidate calculation next; further task DB compression and whole-read reductions are subsequent work. No new real experiment started by this analysis.",
+  "productSourceWritesByThisAnalysis": false,
+  "providerElapsedAccounting": {
+    "reportedPrimary": "summary.providerCounts.jev.elapsedMs controlled-wrapper aggregate",
+    "summaryElapsedMs": 19222.406584999953,
+    "metricsReturnedElapsedMsSum": 19201.33550000003,
+    "differenceMs": 21.071084999923187,
+    "interpretation": "Different measurement/aggregation points; retain both and use the controlled-wrapper summary as the primary figure, not as a matched-workload performance comparison."
+  }
+}

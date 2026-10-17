@@ -1,0 +1,25 @@
+{
+  "protectedWorkspaces": [
+    {
+      "path": "/Users/xietian/Projects/browser-interaction-engine",
+      "branch": "codex/single-selection-state-rule",
+      "commit": "6e111284ac3a6642844531dbc06bce462ca4293c",
+      "statusPorcelain": ""
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine",
+      "branch": "main",
+      "commit": "069b65b47d951cdcced4d895e2abe33738267e5a",
+      "statusPorcelain": ""
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine",
+      "branch": "codex/autonomous-exploration",
+      "commit": "4857ad571c19995480a4c149abd9b2868a94c965",
+      "statusPorcelain": ""
+    }
+  ],
+  "productRevision": "cbd5b878329f8d3e454e8fd5110d0e2da4f749a7",
+  "mainUpdatedThisStage": false,
+  "originalResources": "No browser/service/database changes; fixed readonly private copies and owned fixture resources only."
+}

@@ -1,0 +1,9 @@
+{
+  "label": "fresh-within-baseline-3",
+  "equal": true,
+  "left": "pair-1-1-baseline-semantic.json",
+  "right": "pair-3-1-baseline-semantic.json",
+  "leftSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+  "rightSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+  "comparison": "Entire input, entire selected result, entire task, ordered full events. No normalization or omitted fields."
+}
