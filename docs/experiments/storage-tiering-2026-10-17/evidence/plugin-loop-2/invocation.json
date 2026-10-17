@@ -1,0 +1,12 @@
+{
+  "directory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-plugin-loop-20261017-v2",
+  "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v8",
+  "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+  "productCommit": "43724d2705e7c678f104205f4ad9ba75b0e84021",
+  "limitMs": 240000,
+  "internalStopMs": 235000,
+  "runnerSha256": "145e4c3ba25f3e874f9e84ecf34905997041523bc0bd325fb4fec1fbfa57b632",
+  "protocolSha256": "7ab856935ec105be106af3cb89c0a8cfcc5479641cf0b3092990f110a945ff2f",
+  "importedInstrumentationSha256": "6494baafa7decfed11bf3fd1f7041877b04fe6f0cf163054cc3dd81bdc58d94f",
+  "providerValuesRecorded": false
+}

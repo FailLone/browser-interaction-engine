@@ -1,0 +1,126 @@
+{
+  "topSelfSamples": [
+    {
+      "function": "(garbage collector)",
+      "url": "",
+      "line": 0,
+      "selfSampledMs": 2473.623
+    },
+    {
+      "function": "decodeStoredEntity",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/entity-codec.ts",
+      "line": 1,
+      "selfSampledMs": 1488.784
+    },
+    {
+      "function": "update",
+      "url": "",
+      "line": 0,
+      "selfSampledMs": 266.174
+    },
+    {
+      "function": "all",
+      "url": "",
+      "line": 0,
+      "selfSampledMs": 106.542
+    },
+    {
+      "function": "utf8Slice",
+      "url": "",
+      "line": 0,
+      "selfSampledMs": 81.041
+    },
+    {
+      "function": "post",
+      "url": "node:inspector",
+      "line": 115,
+      "selfSampledMs": 61.5
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/observation-store.ts",
+      "line": 11,
+      "selfSampledMs": 60.79
+    },
+    {
+      "function": "writeSync",
+      "url": "",
+      "line": 0,
+      "selfSampledMs": 60.086
+    },
+    {
+      "function": "concat",
+      "url": "node:buffer",
+      "line": 628,
+      "selfSampledMs": 51.336
+    },
+    {
+      "function": "update",
+      "url": "",
+      "line": 0,
+      "selfSampledMs": 37.667
+    },
+    {
+      "function": "sharedObservationLayout",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/entity-codec.ts",
+      "line": 1,
+      "selfSampledMs": 33.247
+    },
+    {
+      "function": "update",
+      "url": "",
+      "line": 0,
+      "selfSampledMs": 28.04
+    },
+    {
+      "function": "modeStructureReader",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "selfSampledMs": 26.252
+    },
+    {
+      "function": "writeSync",
+      "url": "",
+      "line": 0,
+      "selfSampledMs": 25.168
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/exploration-review.ts",
+      "line": 1,
+      "selfSampledMs": 21.042
+    },
+    {
+      "function": "process",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+      "line": 72,
+      "selfSampledMs": 17.668
+    },
+    {
+      "function": "writeSync",
+      "url": "",
+      "line": 0,
+      "selfSampledMs": 16.669
+    },
+    {
+      "function": "digest",
+      "url": "node:internal/crypto/hash",
+      "line": 204,
+      "selfSampledMs": 16.419
+    },
+    {
+      "function": "rememberDecoded",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/observation-store.ts",
+      "line": 11,
+      "selfSampledMs": 15.916
+    },
+    {
+      "function": "observedModeConditions",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/branch-conditions.ts",
+      "line": 1,
+      "selfSampledMs": 14.418
+    }
+  ],
+  "sampledMs": 5653.0,
+  "limitation": "Sampling identifies self activity; API timings are separately nested and must not be added."
+}

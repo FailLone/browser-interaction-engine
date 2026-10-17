@@ -1,0 +1,369 @@
+{
+  "status": "completed",
+  "elapsedMs": 5591.3153330000005,
+  "material": {
+    "observationId": "da11249a-1e18-41cc-b9ff-f1d2d6ca6323",
+    "revision": "afdc0f53347d807eca3b85a5cdbcaa3a5473e40709cc3dda645801dab740bbf2",
+    "items": 80,
+    "ready": 45,
+    "bytes": 131005,
+    "sha256": "985da00f5318523eda39e5c664fdc608240ee962ee51e5c984f24a8e18cf5c55"
+  },
+  "metrics": {
+    "store.list:inspection-delivery": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 16.367250000000013,
+      "selfMs": 16.367250000000013,
+      "rows": 0,
+      "maxMs": 16.367250000000013
+    },
+    "engine.interventionMaterial": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 5591.265625,
+      "selfMs": 58.98787599999832,
+      "rows": 0,
+      "maxMs": 5591.265625
+    },
+    "engine.observation": {
+      "calls": 12,
+      "returned": 12,
+      "threw": 0,
+      "totalMs": 193.06574700000158,
+      "selfMs": 0.18941599999891423,
+      "rows": 0,
+      "maxMs": 30.508834000000206
+    },
+    "store.require:session": {
+      "calls": 20,
+      "returned": 20,
+      "threw": 0,
+      "totalMs": 1.1054990000020553,
+      "selfMs": 1.1054990000020553,
+      "rows": 0,
+      "maxMs": 0.157708000000639
+    },
+    "store.require:observation": {
+      "calls": 12,
+      "returned": 12,
+      "threw": 0,
+      "totalMs": 192.05079100000137,
+      "selfMs": 192.05079100000137,
+      "rows": 0,
+      "maxMs": 30.47020799999973
+    },
+    "engine.getFrontier": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 5191.017084,
+      "selfMs": 0.02583299999969313,
+      "rows": 3073,
+      "maxMs": 5191.017084
+    },
+    "engine.coverageMaterial": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 5190.970167,
+      "selfMs": 0.8506250000000364,
+      "rows": 0,
+      "maxMs": 5190.970167
+    },
+    "store.list:frontier": {
+      "calls": 2,
+      "returned": 2,
+      "threw": 0,
+      "totalMs": 31.577916999999616,
+      "selfMs": 31.577916999999616,
+      "rows": 6146,
+      "maxMs": 16.229542000000038
+    },
+    "store.list:attempt": {
+      "calls": 12,
+      "returned": 12,
+      "threw": 0,
+      "totalMs": 27.375707999999122,
+      "selfMs": 27.375707999999122,
+      "rows": 780,
+      "maxMs": 2.7141249999999673
+    },
+    "store.list:hypothesis": {
+      "calls": 3,
+      "returned": 3,
+      "threw": 0,
+      "totalMs": 2.759958000000097,
+      "selfMs": 2.759958000000097,
+      "rows": 771,
+      "maxMs": 1.0340830000000096
+    },
+    "store.list:exploration-group": {
+      "calls": 3,
+      "returned": 3,
+      "threw": 0,
+      "totalMs": 30.444083999999975,
+      "selfMs": 30.444083999999975,
+      "rows": 1662,
+      "maxMs": 10.844875000000002
+    },
+    "engine.reconcileMaterial": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 5159.273542,
+      "selfMs": 65.67216400000052,
+      "rows": 0,
+      "maxMs": 5159.273542
+    },
+    "store.list:observation": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 4840.0605,
+      "selfMs": 4840.0605,
+      "rows": 176,
+      "maxMs": 4840.0605
+    },
+    "engine.retainedReceiptCoverageReader": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 0.5456249999997453,
+      "selfMs": 0.5456249999997453,
+      "rows": 0,
+      "maxMs": 0.5456249999997453
+    },
+    "adapter.correspondenceCase": {
+      "calls": 68,
+      "returned": 68,
+      "threw": 0,
+      "totalMs": 252.99525300000005,
+      "selfMs": 252.99525300000005,
+      "rows": 0,
+      "maxMs": 14.445082999999613
+    },
+    "engine.actions": {
+      "calls": 5,
+      "returned": 5,
+      "threw": 0,
+      "totalMs": 78.61904200000026,
+      "selfMs": 0.11675099999865779,
+      "rows": 1050,
+      "maxMs": 23.451583000000028
+    },
+    "store.listByObservation:action": {
+      "calls": 5,
+      "returned": 5,
+      "threw": 0,
+      "totalMs": 3.834751000000324,
+      "selfMs": 3.834751000000324,
+      "rows": 1050,
+      "maxMs": 0.8516669999999067
+    },
+    "store.list:continuation": {
+      "calls": 2,
+      "returned": 2,
+      "threw": 0,
+      "totalMs": 0.05220900000040274,
+      "selfMs": 0.05220900000040274,
+      "rows": 0,
+      "maxMs": 0.03625000000010914
+    },
+    "engine.boundaryExitMaterial": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 45.551040999999714,
+      "selfMs": 0.387748999998621,
+      "rows": 0,
+      "maxMs": 45.551040999999714
+    },
+    "store.get:boundary-exit-episode": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 0.03787499999998545,
+      "selfMs": 0.03787499999998545,
+      "rows": 0,
+      "maxMs": 0.03787499999998545
+    },
+    "store.list:scope": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 0.13708299999962037,
+      "selfMs": 0.13708299999962037,
+      "rows": 13,
+      "maxMs": 0.13708299999962037
+    },
+    "store.list:boundary-exit-review": {
+      "calls": 9,
+      "returned": 9,
+      "threw": 0,
+      "totalMs": 0.17708400000174152,
+      "selfMs": 0.17708400000174152,
+      "rows": 0,
+      "maxMs": 0.03487500000028376
+    },
+    "store.list:boundary-exit-result": {
+      "calls": 2,
+      "returned": 2,
+      "threw": 0,
+      "totalMs": 0.0365830000000642,
+      "selfMs": 0.0365830000000642,
+      "rows": 0,
+      "maxMs": 0.023708000000624452
+    },
+    "engine.blockingBoundaryExit": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 2.338875000000371,
+      "selfMs": 0.06683300000076997,
+      "rows": 0,
+      "maxMs": 2.338875000000371
+    },
+    "engine.regionReviewMaterial": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 51.123083000000406,
+      "selfMs": 2.0916229999993448,
+      "rows": 0,
+      "maxMs": 51.123083000000406
+    },
+    "store.list:region-review": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 5.207459000000199,
+      "selfMs": 5.207459000000199,
+      "rows": 32,
+      "maxMs": 5.207459000000199
+    },
+    "engine.controlReviewMaterial": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 75.4124580000007,
+      "selfMs": 28.79387400000178,
+      "rows": 0,
+      "maxMs": 75.4124580000007
+    },
+    "store.list:control-classification": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 0.6091249999999491,
+      "selfMs": 0.6091249999999491,
+      "rows": 24,
+      "maxMs": 0.6091249999999491
+    },
+    "store.get:control-classification": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 0.049624999999650754,
+      "selfMs": 0.049624999999650754,
+      "rows": 0,
+      "maxMs": 0.049624999999650754
+    },
+    "store.get:observation": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 17.92620899999929,
+      "selfMs": 17.92620899999929,
+      "rows": 0,
+      "maxMs": 17.92620899999929
+    },
+    "store.get:session": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 0.08462500000041473,
+      "selfMs": 0.08462500000041473,
+      "rows": 0,
+      "maxMs": 0.08462500000041473
+    },
+    "store.list:control-review": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 0.028667000000496046,
+      "selfMs": 0.028667000000496046,
+      "rows": 0,
+      "maxMs": 0.028667000000496046
+    },
+    "engine.explorationReviewMaterial": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 64.003917,
+      "selfMs": 25.85649999999987,
+      "rows": 0,
+      "maxMs": 64.003917
+    },
+    "engine.explorationDecisionReuseMaterial": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 46.0605829999995,
+      "selfMs": 0.6032089999998789,
+      "rows": 0,
+      "maxMs": 46.0605829999995
+    },
+    "store.get:region-review": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 0.07787499999994907,
+      "selfMs": 0.07787499999994907,
+      "rows": 0,
+      "maxMs": 0.07787499999994907
+    },
+    "engine.discoveryScanMaterial": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 12.722749999999905,
+      "selfMs": 0.2552929999992557,
+      "rows": 0,
+      "maxMs": 12.722749999999905
+    },
+    "store.list:discovery-scan": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 0.06504099999983737,
+      "selfMs": 0.06504099999983737,
+      "rows": 0,
+      "maxMs": 0.06504099999983737
+    },
+    "store.list:intervention-response": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 0.02570800000012241,
+      "selfMs": 0.02570800000012241,
+      "rows": 0,
+      "maxMs": 0.02570800000012241
+    },
+    "store.get:intervention-snapshot": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "totalMs": 0.10262500000044383,
+      "selfMs": 0.10262500000044383,
+      "rows": 0,
+      "maxMs": 0.10262500000044383
+    }
+  },
+  "queryDatabaseChanges": 0,
+  "browserStarted": false,
+  "taskDatabaseOpened": false,
+  "limitation": "One instrumented synchronous query on a copied frozen v8 database after normal constructor restart bookkeeping; not an end-to-end recovery benchmark. Self time excludes only wrapped children, not all callees. CPU sampling adds overhead."
+}
