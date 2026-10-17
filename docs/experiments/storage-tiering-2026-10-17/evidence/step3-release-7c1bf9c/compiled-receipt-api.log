@@ -1,0 +1,24 @@
+{
+  "node": "v24.22.0",
+  "resolved": {
+    "@interaction/browser": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-step3-release-7c1bf9c-1c605ucq/archive/packages/browser/dist/index.js",
+    "@interaction/core": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-step3-release-7c1bf9c-1c605ucq/archive/packages/core/dist/index.js",
+    "@interaction/storage-memory": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-step3-release-7c1bf9c-1c605ucq/archive/packages/storage-memory/dist/index.js",
+    "@interaction/explorer-plugin": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-step3-release-7c1bf9c-1c605ucq/archive/packages/explorer-plugin/dist/index.js"
+  },
+  "publicReceiptDeclarations": "passed",
+  "compiledBatchAPI": "passed",
+  "retainedReceiptCount": 4,
+  "fullBaselineEquality": true,
+  "resultSha256": "7ca13d2156f8f25995ea409053cd926237647bfdf9ff65e8c30b4911d7ab04ad",
+  "fixtureRowsSha256": "03088fc22a41faa18b1a120e191b4cb18dff50cec20d8a5abbb7202034eeb1a4",
+  "falseAuthorityFlags": "passed",
+  "missingReceiptRejected": true,
+  "nextCallUnknownRejected": true,
+  "queryWrites": 0,
+  "queryEvents": 0,
+  "browserDriverCalls": 0,
+  "startedServices": 0,
+  "openedPersistentTaskDatabases": 0,
+  "scope": "Compiled API/declaration checkpoint. Retained local receipts only; no live recovery or performance claim."
+}

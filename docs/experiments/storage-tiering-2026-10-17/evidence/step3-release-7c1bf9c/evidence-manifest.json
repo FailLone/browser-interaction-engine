@@ -1,0 +1,57 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 3136,
+    "sha256": "ee23372e18f5ca80865c61dce7c4fc6ea1a5cb2a039b8cc99cc9bea09f1ed1fe"
+  },
+  {
+    "path": "artifact-manifest.json",
+    "bytes": 108431,
+    "sha256": "2d66f3a8c36d4836c34b71d610a6f4fe56e6740a87d2da8efc47639b9fb21b65"
+  },
+  {
+    "path": "build.log",
+    "bytes": 1397,
+    "sha256": "80316cd39938997501603aa10e31a0aa0b7d6ec02cab7b40143ac2d6ff06245c"
+  },
+  {
+    "path": "compiled-receipt-api.log",
+    "bytes": 1409,
+    "sha256": "ba0577b656b815993f7c829302952578354af543ded4e14195026601730625e9"
+  },
+  {
+    "path": "compiled-smoke.json",
+    "bytes": 9802,
+    "sha256": "3b00ed204afebb5d5eb90b324af14f167592ea070971de198007a0500bd7a3a8"
+  },
+  {
+    "path": "compiled-smoke.mjs",
+    "bytes": 7269,
+    "sha256": "39ea468b664b941510e49f3e9dbc7cb5c1326d9467f56f82f4058784c7a134da"
+  },
+  {
+    "path": "preparation.json",
+    "bytes": 9147,
+    "sha256": "3bf1a2c7c8fd0df6c2387f8e5f72db5e0935e1217fe622e6a091839f20859f9f"
+  },
+  {
+    "path": "published-snapshot-types.log",
+    "bytes": 45,
+    "sha256": "9c220acbcc081ff7dfa808522a0c301e713dd96f7f867687232baa93f7921584"
+  },
+  {
+    "path": "runner.py",
+    "bytes": 6133,
+    "sha256": "2f25132b9b412ebe4ee570e712df455e6a277f88e55cbfc6d6ecb38cd779818b"
+  },
+  {
+    "path": "source-manifest.json",
+    "bytes": 81997,
+    "sha256": "852895846f2d890a193b7877d2beb82d950a9eb1221c59165da7ea21b9c8c115"
+  },
+  {
+    "path": "validation.json",
+    "bytes": 10321,
+    "sha256": "bfa38e051ff11ad69b2f803e8bfa7d9c7a376e4a83e200a0fb6f9634b0f0ae04"
+  }
+]
