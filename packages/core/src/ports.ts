@@ -38,6 +38,13 @@ export interface EntityChanges {
 /** Synchronous atomic record transactions; asynchronous binary evidence is separate. */
 export interface Persistence {
   readonly evidence: EvidenceStore;
+  /** Optional value-isolation guarantee for get/require/list/listByObservation.
+   * Every returned record (including nested objects/arrays) is detached from
+   * stored state and all other read results. Callers may mutate it without
+   * affecting storage or another read. Missing means unknown, not detached.
+   * This is neither a freshness/snapshot guarantee nor execution authority.
+   * Decorators or overrides must withdraw it if their reads return aliases. */
+  readonly recordReadIsolation?: 'detached';
   transaction<T>(fn: () => T): T;
   put<T extends { id: string; sessionId?: string }>(kind: string, value: T): void;
   get<T>(kind: string, id: string): T | undefined;

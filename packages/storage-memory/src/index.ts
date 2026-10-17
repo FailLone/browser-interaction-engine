@@ -12,6 +12,7 @@ export class MemoryEvidenceStore implements EvidenceStore {
 /** No disk writes. A fresh instance represents a fresh, empty database. */
 export class MemoryStore implements Persistence {
   readonly evidence = new MemoryEvidenceStore();
+  get recordReadIsolation(): Persistence['recordReadIsolation'] { return 'detached'; }
   private entities = new Map<string, { kind: string; sessionId: string; value: object }>();
   private log: EngineEvent[] = [];
   private requests = new Map<string, { attemptId: string; payload: string }>();

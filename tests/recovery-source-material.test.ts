@@ -2,9 +2,16 @@ import {afterEach,expect,it,vi} from 'vitest';
 import {BrowserEngine,type ActionCandidate,type Observation} from '@interaction/browser';
 import {EngineError,type Persistence} from '@interaction/core';
 import {MemoryStore} from '@interaction/storage-memory';
+import {SqliteStore} from '@interaction/storage-sqlite';
+import {RetainedPersistence} from '@interaction/storage-retained';
+import {mkdtempSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 
 const engines:BrowserEngine[]=[];
-afterEach(async()=>{vi.restoreAllMocks();for(const engine of engines.splice(0))await engine.close();});
+const directories:string[]=[];
+afterEach(async()=>{vi.restoreAllMocks();for(const engine of engines.splice(0))await engine.close();for(const path of directories.splice(0))rmSync(path,{recursive:true,force:true});});
+function withdrawIsolation(store:Persistence) {Object.defineProperty(store,'recordReadIsolation',{get:()=>undefined,configurable:true});}
 
 function observation(id:string,patch:Partial<Observation>={}):Observation {
   return {id,sessionId:'session',capturedAt:'2026-10-17T00:00:00.000Z',instanceScope:'document',documentId:'document',
@@ -62,7 +69,7 @@ it.each([['','current'],['source','']] as const)('requires explicit nonempty IDs
 });
 
 it('preserves action occurrence order, falsy inputs, unsupported candidates and indexed/fallback equality',()=>{
-  const f=fixture();
+  const f=fixture();withdrawIsolation(f.engine.store);
   const rows=[f.sourceAction,{...f.sourceAction},action(f.source,'same-id',{value:true}),action(f.source,'same-id',{kind:'fill',value:0}),
     action(f.source,'same-id',{kind:'fill',value:''}),action(f.current,'unrelated')];
   const expected=rows.filter(row=>row.observationId==='source');
@@ -75,7 +82,7 @@ it('preserves action occurrence order, falsy inputs, unsupported candidates and 
 });
 
 it('isolates mutable returned nested facts and arrays without freezing store-owned values',()=>{
-  const f=fixture(),source=f.source,rows=[f.sourceAction];
+  const f=fixture(),source=f.source,rows=[f.sourceAction];withdrawIsolation(f.engine.store);
   // A legacy third-party store may return borrowed values rather than clones.
   f.engine.store.require=<T>(kind:string,id:string):T=>{
     if(kind==='observation'&&id==='source')return source as T;
@@ -94,7 +101,7 @@ it('isolates mutable returned nested facts and arrays without freezing store-own
 });
 
 it('reloads same-ID source facts and mutable action reviews on the next call without change-feed support',()=>{
-  const f=fixture(),source=f.source,rows=[f.sourceAction];
+  const f=fixture(),source=f.source,rows=[f.sourceAction];withdrawIsolation(f.engine.store);
   f.engine.store.require=<T>(_kind:string,id:string):T=>(id==='source'?source:f.current) as T;
   f.engine.store.listByObservation=undefined;f.engine.store.entityChanges=undefined;f.engine.store.list=()=>rows as never;
   const first=f.read();
@@ -108,7 +115,7 @@ it('reloads same-ID source facts and mutable action reviews on the next call wit
 });
 
 it.each(['duplicate source instance','duplicate comparison instance','new document','critical source','critical comparison'] as const)('keeps conservative occurrence projection for %s',variant=>{
-  const f=fixture(),before=structuredClone(f.source),after=structuredClone(f.current);
+  const f=fixture(),before=structuredClone(f.source),after=structuredClone(f.current);withdrawIsolation(f.engine.store);
   if(variant==='duplicate source instance')before.controls.push({...before.controls[0],localId:'duplicate'});
   if(variant==='duplicate comparison instance')after.controls.push({...after.controls[0],localId:'duplicate'});
   if(variant==='new document')after.instanceScope='new-document';
@@ -173,4 +180,67 @@ it.each(['current','source'])('preserves a decorated observation method and its 
   const expectedSequence=[...sequence];sequence=[];
   expect(f.read('source',comparison)).toEqual(expected);expect(sequence).toEqual(expectedSequence);
   expect(sequence).toEqual(['source','source','source',comparison]);
+});
+
+it.each(['memory','sqlite'] as const)('%s declares detached entity reads and avoids copying isolated source material again',kind=>{
+  let store:Persistence;
+  if(kind==='memory')store=new MemoryStore();else{const path=mkdtempSync(join(tmpdir(),'source-material-isolation-'));directories.push(path);store=new SqliteStore(path);}
+  const f=fixture(store);expect(store.recordReadIsolation).toBe('detached');expect(f.engine.store.recordReadIsolation).toBe('detached');
+  const read=f.engine.store.require,readActions=f.engine.store.listByObservation!;let source:Observation|undefined,actions:ActionCandidate[]|undefined;
+  f.engine.store.require=<T>(kind:string,id:string):T=>{const value=read<T>(kind,id);if(kind==='observation'&&id==='source')source=value as Observation;return value;};
+  f.engine.store.listByObservation=<T>(kind:string,sid:string,oid:string):T[]=>{const value=readActions<T>(kind,sid,oid);if(kind==='action')actions=value as ActionCandidate[];return value;};
+  const first=f.read();expect(first.source).toBe(source);expect(first.actions).toBe(actions);
+  const next=f.read();expect(next.source).not.toBe(first.source);expect(next.actions).not.toBe(first.actions);
+  first.source.controls[0].name='caller changed';first.source.context.account.value='caller context';
+  first.actions[0].preconditions.context.account.value='caller action context';first.actions.push({...first.actions[0],id:'caller extra'});
+  first.transition.retainedControls[0].afterLocalId='caller target';
+  expect(f.read()).toEqual(next);expect(store.require<Observation>('observation','source').controls[0].name).toBe('Mode');
+  const records=[store.get<ActionCandidate>('action','action')!,store.require<ActionCandidate>('action','action'),store.list<ActionCandidate>('action','session')[0],store.listByObservation!<ActionCandidate>('action','session','source')[0]];
+  for(let i=0;i<records.length;i++){
+    records[i].preconditions.context.account.value=`mutation-${i}`;
+    expect(store.require<ActionCandidate>('action','action').preconditions.context.account.value).toBe('A');
+    expect(records.slice(i+1).every(record=>record.preconditions.context.account.value==='A')).toBe(true);
+  }
+});
+
+it('retention forwards the current backing declaration, including its withdrawal',()=>{
+  const backing=new MemoryStore();let isolation:Persistence['recordReadIsolation']='detached';
+  Object.defineProperty(backing,'recordReadIsolation',{get:()=>isolation});
+  const retained=new RetainedPersistence(backing);
+  try{expect(retained.recordReadIsolation).toBe('detached');isolation=undefined;expect(retained.recordReadIsolation).toBeUndefined();}
+  finally{retained.close();}
+});
+
+it.each(['get','require','list','listByObservation'] as const)('retention does not transfer a replacement %s declaration to its older bound reader',method=>{
+  const backing=new MemoryStore();let isolation:Persistence['recordReadIsolation'];
+  Object.defineProperty(backing,'recordReadIsolation',{get:()=>isolation});
+  const retained=new RetainedPersistence(backing),original=backing[method];
+  try{
+    expect(retained.recordReadIsolation).toBeUndefined();
+    Object.defineProperty(backing,method,{value:original.bind(backing),writable:true,configurable:true});
+    isolation='detached';expect(retained.recordReadIsolation).toBeUndefined();
+    Object.defineProperty(backing,method,{value:original});expect(retained.recordReadIsolation).toBe('detached');
+    isolation=undefined;expect(retained.recordReadIsolation).toBeUndefined();
+  }finally{retained.close();}
+});
+
+it('copies the old borrowed retention reader after its backing replaces that reader and grants isolation',()=>{
+  const backing=new MemoryStore(),read=backing.require.bind(backing),source=observation('source');
+  let isolation:Persistence['recordReadIsolation'];
+  Object.defineProperty(backing,'recordReadIsolation',{get:()=>isolation});
+  backing.require=<T>(kind:string,id:string):T=>kind==='observation'&&id==='source'?source as T:read<T>(kind,id);
+  const f=fixture(backing);backing.require=read;isolation='detached';
+  expect(backing.recordReadIsolation).toBe('detached');expect(f.engine.store.recordReadIsolation).toBeUndefined();
+  const result=f.read();expect(result.source).not.toBe(source);
+  result.source.controls[0].name='caller mutation';expect(source.controls[0].name).toBe('Mode');
+});
+
+it('copies defensively if a read withdraws its isolation declaration',()=>{
+  const f=fixture();let isolation:Persistence['recordReadIsolation']='detached';
+  Object.defineProperty(f.engine.store,'recordReadIsolation',{get:()=>isolation});
+  const source=f.source,actions=[f.sourceAction];
+  f.engine.store.require=<T>(_kind:string,id:string):T=>{isolation=undefined;return (id==='source'?source:f.current) as T;};
+  f.engine.store.listByObservation=()=>actions as never;
+  const result=f.read();expect(result.source).not.toBe(source);expect(result.actions).not.toBe(actions);
+  result.source.controls[0].name='caller mutation';expect(source.controls[0].name).toBe('Mode');
 });

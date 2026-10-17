@@ -93,14 +93,18 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   recoverySourceMaterial(sid:string,input:{sourceObservationId:string;currentObservationId:string}) {
     const {sourceObservationId,currentObservationId}=input;
     if(!sourceObservationId||!currentObservationId)throw new EngineError('INVALID_QUERY','Recovery source material requires two explicit observation IDs');
+    const baseReads=()=>this.observation===CoreEngine.prototype.observation&&this.actions===CoreEngine.prototype.actions&&this.interactionTransition===BrowserEngine.prototype.interactionTransition;
+    const detached=this.store.recordReadIsolation==='detached'&&baseReads();
     const {observation:source,actions}=this.observationActions(sid,sourceObservationId);
     const readTransition=this.interactionTransition;
     const transition=readTransition===BrowserEngine.prototype.interactionTransition&&this.observation===CoreEngine.prototype.observation
       ?this.transitionForObservations(source,currentObservationId===sourceObservationId?source:this.observation(sid,currentObservationId),sourceObservationId,currentObservationId)
       :readTransition.call(this,sid,sourceObservationId,currentObservationId);
-    // A third-party store may return borrowed objects. Isolate the public result
-    // without freezing store-owned facts or assuming callers never mutate them.
-    return clone({source,actions,transition});
+    // Explicit storage isolation avoids copying already-detached values. Unknown
+    // stores and custom SDK projections still receive the defensive copy. Check
+    // again in case a read withdrew the declaration or replaced a public method.
+    const material={source,actions,transition};
+    return detached&&this.store.recordReadIsolation==='detached'&&baseReads()?material:clone(material);
   }
   private transitionForObservations(before:Observation,after:Observation,beforeId:string,afterId:string) {
     const verified=!after.gaps.some(g=>g.critical),documentChanged=before.instanceScope!==after.instanceScope;

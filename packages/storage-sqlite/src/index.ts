@@ -28,6 +28,7 @@ const actionObservationProjection=`CASE WHEN compressed_json IS NULL AND json_va
 
 export class SqliteStore implements Persistence {
   readonly evidence: EvidenceStore;
+  get recordReadIsolation(): Persistence['recordReadIsolation'] { return 'detached'; }
   readonly db: Database.Database;
   private readonly observations: ObservationObjectStore;
   private readonly changes = new BoundedEntityChanges();
