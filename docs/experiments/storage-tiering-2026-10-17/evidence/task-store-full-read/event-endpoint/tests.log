@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-plugin-sync.test.ts (5 tests) 87ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  11:23:38
+   Duration  384ms (transform 62ms, setup 0ms, collect 160ms, tests 87ms, environment 0ms, prepare 35ms)
+

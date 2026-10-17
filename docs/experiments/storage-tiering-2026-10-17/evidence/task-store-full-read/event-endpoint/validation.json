@@ -1,0 +1,9 @@
+{
+  "base": "5eca079d01e88dbc7da5e1f61f5553499dd25d8e",
+  "command": "pnpm exec vitest run tests/explorer-plugin-sync.test.ts",
+  "exitCode": 0,
+  "passed": 5,
+  "sourceSha256": "7ffe1ed25d9ad1b4c1cbd8d9d09359abb81a3dc41f80ac4f88a138fdac07f3a9",
+  "logSha256": "1a3f491dc06a9bd43a8c0661a82ac5ae192e600f077623210165508adc194c5b",
+  "originalBrowserOrTaskDatabaseUsed": false
+}
