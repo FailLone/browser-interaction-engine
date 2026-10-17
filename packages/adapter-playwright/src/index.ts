@@ -15,8 +15,8 @@ export { browserControlCorrespondence, browserControlBindingKey, browserOperatio
 export { navigationIntent, type NavigationIntent } from './navigation.js';
 import { historyReturn, observedSourcePosition } from './navigation.js';
 import { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';
-import { browserControlReviewTargetCorrespondence } from './review-target.js';
-export { browserControlReviewTargetCorrespondence, browserControlReviewMaterialKey, createBrowserControlReviewMaterialKey } from './review-target.js';
+import { browserControlReviewTargetCorrespondence, createBrowserControlReviewTargetCorrespondenceReader } from './review-target.js';
+export { browserControlReviewTargetCorrespondence, createBrowserControlReviewTargetCorrespondenceReader, browserControlReviewMaterialKey, createBrowserControlReviewMaterialKey } from './review-target.js';
 export { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';
 import { listGroups, structuralListGroups } from './list-groups.js';
 import { decisionScopes } from './decision-scopes.js';
@@ -42,6 +42,13 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   explorationTargetReady = browserTargetReady;
   explorationTargetRecoverable = browserTargetRecoverable;
   controlReviewTargetCorrespondence = browserControlReviewTargetCorrespondence;
+  createControlReviewTargetCorrespondenceReader(before: Observation, current: Observation) {
+    // An existing callback override remains authoritative; only the default
+    // closed projection chain opts into shared derived facts.
+    return this.controlReviewTargetCorrespondence === browserControlReviewTargetCorrespondence
+      ? createBrowserControlReviewTargetCorrespondenceReader(before, current)
+      : (source: Control, target: Control) => this.controlReviewTargetCorrespondence(source, before, target, current);
+  }
   controlCorrespondence = browserControlCorrespondence;
   operationCorrespondenceHint = browserOperationCorrespondenceHint;
   correspondenceCase(a: ActionCandidate,o: Observation) { return controlCase(a,o,true); }

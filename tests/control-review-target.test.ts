@@ -1,8 +1,8 @@
 import { expect, it, vi } from 'vitest';
 import { InteractionEngine, id, now, type ActionAttempt, type InteractionAdapter, type InteractionDriver, type ObservationData } from '@interaction/core';
 import { MemoryStore } from '@interaction/storage-memory';
-import { PlaywrightAdapter, browserControlReviewMaterialKey, createBrowserControlReviewMaterialKey, browserControlReviewTargetCorrespondence, type ActionCandidate, type Control, type Observation, type Session, type SessionOptions } from '@interaction/browser';
-import { modeStructureFixture } from './fixtures/mode-structure.js';
+import { PlaywrightAdapter, browserControlReviewMaterialKey, createBrowserControlReviewMaterialKey, browserControlReviewTargetCorrespondence, createBrowserControlReviewTargetCorrespondenceReader, type ActionCandidate, type Control, type Observation, type Session, type SessionOptions } from '@interaction/browser';
+import { modeStructureFixture, setModeExpanded } from './fixtures/mode-structure.js';
 
 const url='https://review-target.fixture.invalid/';
 function control(localId:string,role='generic',name='USD'):Control {
@@ -63,7 +63,8 @@ function adapter(driver:Driver):InteractionAdapter<Observation,SessionOptions>&{
   return {ruleVersion:browser.ruleVersion,parseOptions:browser.parseOptions,createDriver:vi.fn(()=>driver),signature:browser.signature,
     normalize:browser.normalize,compare:browser.compare,constrain:a=>a,testPredicate:browser.testPredicate,replayMatches:browser.replayMatches,
     returnAction:browser.returnAction,entryAction:browser.entryAction,controlCorrespondence:browser.controlCorrespondence,
-    controlReviewTargetCorrespondence:browser.controlReviewTargetCorrespondence};
+    controlReviewTargetCorrespondence:browser.controlReviewTargetCorrespondence,
+    createControlReviewTargetCorrespondenceReader:browser.createControlReviewTargetCorrespondenceReader};
 }
 async function fixture(layers=1,unknownMode=false,structuredModes=false) {
   const driver=new Driver();driver.unknownMode=unknownMode;driver.structuredModes=structuredModes;
@@ -300,17 +301,61 @@ it('blocks a retained unknown after restart before driver attachment or new mate
 
 it('queries historical record batches once per observation without mutation or full action/history reads',async()=>{
   const f=await fixture(0);try{
+    const factory=vi.spyOn(f.platform,'createControlReviewTargetCorrespondenceReader');
     const current=f.engine.observation(f.session.id),list=vi.spyOn(f.store,'list'),put=vi.spyOn(f.store,'put'),get=vi.spyOn(f.store,'get');
     const source={sessionId:f.session.id,observationId:current.id,localId:'usd'};
     const batch=f.engine.controlReviewTargetCorrespondences(f.session.id,{observationId:f.source.id,requests:[{localId:'usd',source},{localId:'usd',source},
       {localId:'mode',source:{...source,localId:'mode'}}]});
     expect(batch.results).toHaveLength(3);
+    expect(factory).toHaveBeenCalledTimes(1);
     expect(batch.results.every(r=>r.targetMatched&&r.reviewable&&r.sourceEquivalent==='equivalent'&&r.preflightRequired&&!r.executionAuthorized&&!r.currentExecution&&!r.coverageGranted)).toBe(true);
     expect(list).not.toHaveBeenCalled();expect(put).not.toHaveBeenCalled();
     expect(get.mock.calls.filter(([kind])=>kind==='observation').map(([,id])=>id)).toEqual([f.source.id,current.id]);
     expect(f.engine.controlReviewTargetCorrespondence(f.session.id,{observationId:'missing',localId:'usd',source})).toMatchObject({reviewable:false,sourceEquivalent:'unknown'});
     await expect(f.engine.reachControlReviewTarget(f.session.id,{...f.input,currentObservationId:f.source.id})).rejects.toThrow('Browser cursor changed');
   }finally{await f.engine.close();}
+});
+
+it('shares retained mode trees across review targets and rebuilds evidence for the next batch',()=>{
+  const before=modeStructureFixture(),current=modeStructureFixture({documentId:'new-document'});
+  const addTarget=(f:ReturnType<typeof modeStructureFixture>)=>{
+    const c=structuredClone(f.target);c.localId='other';c.instanceId+='-other';c.stableKey='id:other';c.identityContext!.binding='other';
+    c.classificationBinding!.nodes[0].instanceId=c.instanceId;f.observation.controls.push(c);return c;
+  };
+  const oldOther=addTarget(before),newOther=addTarget(current);
+  const expected=[browserControlReviewTargetCorrespondence(before.target,before.observation,current.target,current.observation),
+    browserControlReviewTargetCorrespondence(oldOther,before.observation,newOther,current.observation)];
+  const reads=[0,0];[before,current].forEach((f,index)=>{
+    const binding=f.owner.classificationBinding;Object.defineProperty(f.owner,'classificationBinding',{get:()=>{reads[index]++;return binding;}});
+  });
+  const read=createBrowserControlReviewTargetCorrespondenceReader(before.observation,current.observation);
+  expect(read(before.target,current.target)).toEqual(expected[0]);const once=[...reads];expect(once.every(n=>n>0)).toBe(true);
+  expect(read(oldOther,newOther)).toEqual(expected[1]);expect(read(before.target,current.target)).toEqual(expected[0]);expect(reads).toEqual(once);
+  // No cache outlives a synchronous pair/batch; changed mode facts invalidate it.
+  setModeExpanded(current,'b',true);
+  expect(createBrowserControlReviewTargetCorrespondenceReader(before.observation,current.observation)(before.target,current.target)).toMatchObject({sourceEquivalent:'different'});
+  expect(reads.every((n,i)=>n>once[i])).toBe(true);
+});
+
+it('keeps legacy review adapters compatible and fails closed on a broken batch reader',async()=>{
+  const f=await fixture(0);try{
+    const input={observationId:f.source.id,localId:'usd',source:{sessionId:f.session.id,observationId:f.source.id,localId:'usd'}};
+    delete f.platform.createControlReviewTargetCorrespondenceReader;
+    expect(f.engine.controlReviewTargetCorrespondence(f.session.id,input)).toMatchObject({sourceEquivalent:'equivalent'});
+    f.platform.createControlReviewTargetCorrespondenceReader=()=>{throw Error('reader construction failed');};
+    expect(f.engine.controlReviewTargetCorrespondence(f.session.id,input)).toMatchObject({targetMatched:false,sourceEquivalent:'unknown',coverageGranted:false});
+    f.platform.createControlReviewTargetCorrespondenceReader=()=>()=>{throw Error('reader projection failed');};
+    expect(f.engine.controlReviewTargetCorrespondence(f.session.id,input)).toMatchObject({targetMatched:false,sourceEquivalent:'unknown',coverageGranted:false});
+  }finally{await f.engine.close();}
+});
+
+it('preserves an adapter callback override in its inherited batch reader',()=>{
+  const browser=new PlaywrightAdapter(),o=observed();
+  const custom={targetMatched:false,reviewable:false,sourceEquivalent:'unknown' as const,reason:'custom-adapter-restriction',evidence:[]};
+  browser.controlReviewTargetCorrespondence=vi.fn(()=>custom);
+  const result=browser.createControlReviewTargetCorrespondenceReader(o,o)(o.controls[0],o.controls[0]);
+  expect(result).toEqual(custom);
+  expect(browser.controlReviewTargetCorrespondence).toHaveBeenCalledWith(o.controls[0],o,o.controls[0],o);
 });
 
 it('stops remaining recorded replay steps when review arrival verification requests resolution',async()=>{

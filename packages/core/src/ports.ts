@@ -1,5 +1,9 @@
 import type { ActionCandidate, Context, Control, Diff, EngineEvent, EngineHooks, InteractionScope, Observation, Predicate, Session, SessionOptions } from './types.js';
 
+export type ControlReviewTargetCorrespondenceReader<O extends Observation = Observation> =
+  (source: O['controls'][number], target: O['controls'][number]) =>
+    Pick<import('./types.js').ControlReviewTargetCorrespondence, 'targetMatched' | 'reviewable' | 'sourceEquivalent' | 'reason' | 'conditionKey' | 'currentMaterialKey' | 'evidence' | 'sourceConditionAssessment' | 'currentConditionAssessment'>;
+
 export interface Evidence { data: Uint8Array; mediaType: string }
 export interface EvidenceRetentionPolicy { mode: 'transient' | 'cache' | 'persistent'; ttlMs: number; maxBytes: number; maxObservations: number }
 export interface EvidenceAvailability {
@@ -169,7 +173,12 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   /** Recorded control interpretation facts, distinct from operation/whole-page
    * arrival. Live target preflight is still required before reporting arrival. */
   controlReviewTargetCorrespondence?(source: O['controls'][number], before: O, target: O['controls'][number], current: O):
-    Pick<import('./types.js').ControlReviewTargetCorrespondence, 'targetMatched' | 'reviewable' | 'sourceEquivalent' | 'reason' | 'conditionKey' | 'currentMaterialKey' | 'evidence' | 'sourceConditionAssessment' | 'currentConditionAssessment'>;
+    ReturnType<ControlReviewTargetCorrespondenceReader<O>>;
+  /** Optional equivalent reader for one synchronous recorded observation pair.
+   * Share only derived facts within the current batch; never retain across
+   * calls/awaits or cache live preflight, execution, identity or coverage grants.
+   * Missing support uses the legacy callback; reader failures stay unknown. */
+  createControlReviewTargetCorrespondenceReader?(before: O, current: O): ControlReviewTargetCorrespondenceReader<O>;
   /** Optional structural scope for representative depth budgets; raw visit depth is retained. */
   explorationScope?(observation: O): string;
   /** Partial captures must establish readiness for the dispatched operation itself. */

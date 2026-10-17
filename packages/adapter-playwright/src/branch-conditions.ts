@@ -94,11 +94,11 @@ export function browserReviewBranchConditions(target: Control, o: Observation): 
 }
 
 /** The same projection and first rejection, without a second selector scan. */
-export function assessBrowserReviewBranchConditions(target: Control, o: Observation): BrowserBranchConditionsAssessment {
-  return observedModeConditions(target, o, false, 'v3');
+export function assessBrowserReviewBranchConditions(target: Control, o: Observation, structure?: ReturnType<typeof modeStructureReader>): BrowserBranchConditionsAssessment {
+  return observedModeConditions(target, o, false, 'v3', structure);
 }
 
-function observedModeConditions(target: Control, o: Observation, omitTargetMode: boolean, version: 'v1' | 'v2' | 'v3'): BrowserBranchConditionsAssessment {
+function observedModeConditions(target: Control, o: Observation, omitTargetMode: boolean, version: 'v1' | 'v2' | 'v3', structure?: ReturnType<typeof modeStructureReader>): BrowserBranchConditionsAssessment {
   const unavailable = (reason: string, localId?: string): BrowserBranchConditionsAssessment =>
     ({ assessment: { status: 'unavailable', reason, ...(localId ? { localId } : {}) } });
   if (!target) return unavailable('review_target_missing');
@@ -111,7 +111,7 @@ function observedModeConditions(target: Control, o: Observation, omitTargetMode:
   const rows:{c:Control;state:Exclude<ReturnType<typeof selectorState>,undefined>;base?:string}[]=[],counts=new Map<string,number>();
   for (const c of o.controls) {
     // v1 exists only to verify persisted scheduling keys against their retained
-    // source. Current correspondence, coverage and recovery always use v2.
+    // source. Operations retain v2; review conditions may use structural v3.
     if (version === 'v1' && !c.visible) continue;
     const state = selectorState(c, selections); if (state === undefined) continue;
     // The sample's destination value is already part of the operation key. Its
@@ -120,7 +120,7 @@ function observedModeConditions(target: Control, o: Observation, omitTargetMode:
     const base=binding(c,true);if(base)counts.set(base,(counts.get(base)||0)+1);
     rows.push({c,state,base});
   }
-  let structure:ReturnType<typeof modeStructureReader>|undefined,usedStructure=false;
+  let usedStructure=false;
   for(const {c,state,base} of rows){
     let relation: string;
     if (c === target) relation = 'target-mode';

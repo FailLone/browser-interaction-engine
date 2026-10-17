@@ -3,6 +3,7 @@ import { classificationCorrespondenceConditions } from './classification-corresp
 import { browserControlBindingKey, browserControlCorrespondence } from './exploration.js';
 import { assessBrowserReviewBranchConditions, type BrowserBranchConditionsAssessment } from './branch-conditions.js';
 import { activeInteractionIds } from './interaction-scope.js';
+import { modeStructureReader } from './mode-structure.js';
 import type { Control, Observation } from './types.js';
 
 type Facts = Pick<ControlReviewTargetCorrespondence, 'targetMatched' | 'reviewable' | 'sourceEquivalent' | 'reason' | 'conditionKey' | 'currentMaterialKey' | 'evidence' | 'sourceConditionAssessment' | 'currentConditionAssessment'>;
@@ -78,9 +79,43 @@ export function browserControlReviewMaterialKey(target: Control, o: Observation)
   return createBrowserControlReviewMaterialKey(o)(target);
 }
 
+/** Derived facts for one synchronous pair only. The same captured observation
+ * shares its lazy structure/material readers and per-target branch projection;
+ * no result, authority, live readiness or state survives the caller's batch. */
+export function createBrowserControlReviewTargetCorrespondenceReader(before: Observation, current: Observation): (source: Control, target: Control) => Facts {
+  const observationReader = (o: Observation) => {
+    let structure: ReturnType<typeof modeStructureReader> | undefined;
+    let material: ReturnType<typeof createBrowserControlReviewMaterialKey> | undefined;
+    const readStructure: ReturnType<typeof modeStructureReader> = target => (structure ??= modeStructureReader(o))(target);
+    const assessments = new WeakMap<Control, BrowserBranchConditionsAssessment>();
+    return {
+      material: (target: Control) => (material ??= createBrowserControlReviewMaterialKey(o))(target),
+      branch: (target: Control) => {
+        let assessment = assessments.get(target);
+        if (!assessment) {
+          assessment = assessBrowserReviewBranchConditions(target, o, readStructure);
+          assessments.set(target, assessment);
+        }
+        return assessment;
+      },
+    };
+  };
+  const prior = observationReader(before), present = before === current ? prior : observationReader(current);
+  return (source, target) => recordedBrowserControlReviewTargetCorrespondence(source, before, target, current, prior, present);
+}
+
 /** Match a real captured control for NEW interpretation. Historical source
  * equivalence is a separate output and keeps all observed nonlocal modes. */
 export function browserControlReviewTargetCorrespondence(source: Control, before: Observation, target: Control, current: Observation): Facts {
+  return createBrowserControlReviewTargetCorrespondenceReader(before, current)(source, target);
+}
+
+type ObservationReviewReader = {
+  material: (target: Control) => string | undefined;
+  branch: (target: Control) => BrowserBranchConditionsAssessment;
+};
+function recordedBrowserControlReviewTargetCorrespondence(source: Control, before: Observation, target: Control, current: Observation,
+  prior: ObservationReviewReader, present: ObservationReviewReader): Facts {
   const result: Facts = { targetMatched: false, reviewable: false, sourceEquivalent: 'unknown', reason: 'review_target_not_corresponding', evidence: [] };
   const sameRecord = before === current && source === target;
   const currentUnavailable = (reason: string) => {
@@ -119,7 +154,7 @@ export function browserControlReviewTargetCorrespondence(source: Control, before
   }
   const now = classificationCorrespondenceConditions(target, current);
   if (!now) { currentUnavailable('review_classification_material_incomplete'); result.reason = 'review_material_incomplete'; return result; }
-  result.currentMaterialKey = browserControlReviewMaterialKey(target, current);
+  result.currentMaterialKey = present.material(target);
   result.evidence = [...now.evidence, retained ? 'retained-current-instance' : 'unique-captured-control-and-owner'];
   const active = activeInteractionIds(current);
   if (current.boundaries?.length && (!active || !active.has(target.localId))) {
@@ -131,7 +166,7 @@ export function browserControlReviewTargetCorrespondence(source: Control, before
     result.reason = 'review_target_unsettled'; return result;
   }
   result.reviewable = true; result.reason = 'current_review_material_available';
-  const modeAssessment = assessBrowserReviewBranchConditions(target, current), modes = modeAssessment.conditions, boundary = boundaries(current);
+  const modeAssessment = present.branch(target), modes = modeAssessment.conditions, boundary = boundaries(current);
   result.currentConditionAssessment = conditionAssessment(true, modeAssessment, boundary);
   const condition = (classification: string, modes: string, boundaryFacts: NonNullable<ReturnType<typeof boundaries>['facts']>) =>
     hash({ policy: 'control-review-source/v1', classification, modes, boundaries: boundaryFacts });
@@ -147,7 +182,7 @@ export function browserControlReviewTargetCorrespondence(source: Control, before
     result.sourceEquivalent = 'equivalent';
     result.reason = 'same_recorded_review_occurrence'; result.evidence.push('same-owned-observation-and-control-record'); return result;
   }
-  const old = classificationCorrespondenceConditions(source, before), priorModeAssessment = assessBrowserReviewBranchConditions(source, before), priorModes = priorModeAssessment.conditions;
+  const old = classificationCorrespondenceConditions(source, before), priorModeAssessment = prior.branch(source), priorModes = priorModeAssessment.conditions;
   const oldBoundary = boundaries(before);
   // v8 changed only canonical state encoding, not captured classification or
   // selector evidence. Permit this explicit pair under the same complete
@@ -156,8 +191,8 @@ export function browserControlReviewTargetCorrespondence(source: Control, before
     || ['observable-v7', 'observable-v8'].includes(before.ruleVersion) && ['observable-v7', 'observable-v8'].includes(current.ruleVersion);
   result.sourceConditionAssessment = conditionAssessment(!!old, priorModeAssessment, oldBoundary, comparableRules);
   if (!old || !priorModes || !modes || !oldBoundary.facts || !boundary.facts || !comparableRules) return result;
-  const prior = condition(old.conditionKey, priorModes.key, oldBoundary.facts);
-  result.sourceEquivalent = old.identityKey === now.identityKey && prior === result.conditionKey ? 'equivalent' : 'different';
+  const priorCondition = condition(old.conditionKey, priorModes.key, oldBoundary.facts);
+  result.sourceEquivalent = old.identityKey === now.identityKey && priorCondition === result.conditionKey ? 'equivalent' : 'different';
   result.reason = result.sourceEquivalent === 'equivalent' ? 'equivalent_review_source_conditions' : 'review_source_conditions_changed';
   return result;
 }

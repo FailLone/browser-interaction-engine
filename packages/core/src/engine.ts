@@ -15,7 +15,7 @@ import { isObservedUIOperation, isObservedUIProbe, type ProbeGuard, type ProbeAv
 import { identityResolver, operationSample, type OperationCorrespondence, type OperationReceiptCondition, type ReceiptCoverageReader, reconcileCoverage } from './coverage-reconciliation.js';
 import type { ExplorationGroup, ExplorationGroupDecision, ExplorationGroupResolution } from './types.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
-import type { EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
+import type { ControlReviewTargetCorrespondenceReader, EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
 import { EngineError, type ActionCandidate, type ActionAttempt, type Checkpoint, type ControlIdentity, type EngineHooks, type FrontierItem, type Graph, type IdentityHypothesis, type IdentityReviewGuard, type InteractionScope, type Issue, type Observation, type Predicate, type ReachResult, type Session, type SessionOptions, type Transition, type UIState, type Visit } from './types.js';
 export class InteractionEngine<O extends Observation = Observation, S extends SessionOptions = SessionOptions> {
   private static readonly receiptDefaults = {
@@ -247,7 +247,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const read=this.correspondenceReader();
     return {sessionId,observationId:input.observationId,results:input.requests.map(request=>read(sessionId,{...request,observationId:input.observationId}) as ExplorationTargetCorrespondence)};
   }
-  private recordedControlReviewCorrespondence(sessionId:string,input:{observationId:string;localId:string;source:ControlReviewTargetReference},current:O|undefined,source:O|undefined):ControlReviewTargetCorrespondence {
+  private recordedControlReviewCorrespondence(sessionId:string,input:{observationId:string;localId:string;source:ControlReviewTargetReference},current:O|undefined,source:O|undefined,reader?:ControlReviewTargetCorrespondenceReader<O>|null):ControlReviewTargetCorrespondence {
       const result:ControlReviewTargetCorrespondence={targetMatched:false,reviewable:false,sourceEquivalent:'unknown',reason:'review_target_evidence_unavailable',evidence:[],
         source:{...input.source},target:{sessionId,observationId:input.observationId,localId:input.localId},preflightRequired:true,
         identityAuthorized:false,replayAuthorized:false,executionAuthorized:false,currentExecution:false,coverageGranted:false,checkpointVerified:false};
@@ -255,7 +255,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if(!current||!source)return result;
         const before=source.controls.filter(c=>c.localId===input.source.localId),after=current.controls.filter(c=>c.localId===input.localId);
         if(before.length!==1||after.length!==1){result.reason='review_target_missing_or_ambiguous';return result;}
-        const facts=this.adapter.controlReviewTargetCorrespondence?.(before[0],source,after[0],current);
+        const facts=reader===null?undefined:reader?reader(before[0],after[0]):this.adapter.controlReviewTargetCorrespondence?.(before[0],source,after[0],current);
         if(facts){result.targetMatched=facts.targetMatched;result.reviewable=facts.reviewable;result.sourceEquivalent=facts.sourceEquivalent;
           result.reason=facts.reason;result.conditionKey=facts.conditionKey;result.currentMaterialKey=facts.currentMaterialKey;result.evidence=[...facts.evidence];
           result.sourceConditionAssessment=facts.sourceConditionAssessment;result.currentConditionAssessment=facts.currentConditionAssessment;}
@@ -281,7 +281,10 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     for(const indices of groups.values()){
       const ref=input.requests[indices[0]].source;
       const source=ref.sessionId===sessionId&&ref.observationId===input.observationId?current:read(ref.sessionId,ref.observationId);
-      for(const index of indices)results[index]=this.recordedControlReviewCorrespondence(sessionId,{...input.requests[index],observationId:input.observationId},current,source);
+      let reader:ControlReviewTargetCorrespondenceReader<O>|null|undefined;
+      try{if(source&&current)reader=this.adapter.createControlReviewTargetCorrespondenceReader?.(source,current);}
+      catch{reader=null;} // A failed factory must not silently switch correspondence contracts.
+      for(const index of indices)results[index]=this.recordedControlReviewCorrespondence(sessionId,{...input.requests[index],observationId:input.observationId},current,source,reader);
     }
     return {sessionId,observationId:input.observationId,results};
   }
