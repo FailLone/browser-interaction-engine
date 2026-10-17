@@ -1426,7 +1426,8 @@ export class ExplorerPlugin {
         ||result.proof.target.sessionId!==sid||result.proof.target.observationId!==result.observationId||result.proof.target.localId!==result.matchedLocalId
         ||result.proof.preflightRequired!==true||result.proof.identityAuthorized!==false||result.proof.replayAuthorized!==false
         ||result.proof.currentExecution!==false||result.proof.executionAuthorized!==false||result.proof.coverageGranted!==false||result.proof.checkpointVerified!==false);
-      if(invalidReviewResult||![...acceptedStatuses,'UNVERIFIED','UNREACHABLE','PRECONDITIONS_CHANGED'].includes(result.status)){
+      const contractRejected=invalidReviewResult||![...acceptedStatuses,'UNVERIFIED','UNREACHABLE','PRECONDITIONS_CHANGED'].includes(result.status);
+      if(contractRejected){
         this.event(task,'recovery.contract_rejected',{resultId:result.id,hostResultStatus:result.status,acceptedStatuses,checkpointVerified:false,executionAuthorized:false});
         result={...result,status:'UNVERIFIED',reason:'host_recovery_contract_mismatch',checkpointVerified:false};
       }
@@ -1434,19 +1435,43 @@ export class ExplorerPlugin {
       const unknownAttemptIds=unresolved.filter(r=>r.sessionId===sid).flatMap(r=>r.attemptIds).filter(id=>result.attemptIds.includes(id));
       const failed=['UNREACHABLE','UNVERIFIED','PRECONDITIONS_CHANGED'].includes(status);
       const materialAvailable=!unknown&&result.status==='CURRENT_REVIEWABLE';
+      const reviewProof='proof' in result?result.proof:undefined;
+      // No attempt was dispatched and the recorded target is reviewable. This
+      // is missing historical review evidence, not a failed page restoration.
+      // Unknown execution and any performed recovery keep the ordinary failure
+      // path, regardless of what the review proof claims.
+      const reviewSourceUnverified=!contractRejected&&!unknown&&!!recovery.reviewLocalId&&!!recovery.requireSourceEquivalent
+        &&result.status==='UNVERIFIED'&&result.attemptIds.length===0&&'requireSourceEquivalent' in result&&result.requireSourceEquivalent
+        &&result.sessionId===sid&&result.checkpointId===frame.checkpointId&&result.observationId===actual.id
+        &&result.targetObservationId===source.id&&result.targetLocalId===recovery.reviewLocalId
+        &&result.checkpointVerified===false&&result.coverageGranted===false&&result.executionAuthorized===false&&result.currentExecution===false
+        &&result.sourceEquivalent==='unknown'&&reviewProof?.sourceEquivalent==='unknown'&&reviewProof.targetMatched&&reviewProof.reviewable
+        &&reviewProof.source.sessionId===sid&&reviewProof.source.observationId===source.id&&reviewProof.source.localId===recovery.reviewLocalId
+        &&reviewProof.target.sessionId===sid&&reviewProof.target.observationId===actual.id
+        &&reviewProof.preflightRequired===true&&reviewProof.identityAuthorized===false&&reviewProof.replayAuthorized===false
+        &&reviewProof.executionAuthorized===false&&reviewProof.currentExecution===false&&reviewProof.coverageGranted===false&&reviewProof.checkpointVerified===false
+        &&actual.controls.filter(control=>control.localId===reviewProof.target.localId).length===1
+        &&result.checks.some(check=>check.name==='historical-review-source-conditions'&&check.result==='unknown');
+      const failureReason=reviewSourceUnverified?'review_source_conditions_unavailable':result.reason;
       const actualCondition=failed||materialAvailable?this.routeConditionReader(actual,this.host.actions(sid,actual.id))(schedule.routes[routeKey]):undefined;
-      if(failed)frame.recoveryFailure={status:status==='UNREACHABLE'?'unreachable':'invalidated',reason:unknown?'unknown_action_outcome':result.reason,conditionVersion:actualCondition||recovery.conditionVersion,targets:remaining};
+      if(failed)frame.recoveryFailure={status:status==='UNREACHABLE'?'unreachable':'invalidated',reason:unknown?'unknown_action_outcome':failureReason,conditionVersion:actualCondition||recovery.conditionVersion,targets:remaining};
       else delete frame.recoveryFailure;
       const savedRoute=schedule.routes[routeKey];if(savedRoute)savedRoute.failure=frame.recoveryFailure;
       const resultCondition=materialAvailable&&actualCondition?{conditionVersion:actualCondition,evidence:{sessionId:sid,observationId:actual.id},basis:'review-material-observed' as const}
-        :failed&&!unknown&&actualCondition?recoveryFailureCondition(actual,actualCondition,result.reason):undefined;
-      task.routeRetries=recordRouteRetry(task.routeRetries,{routeKey,conditionVersion:frame.recoveryConditionVersion,attemptKey:recoveryAttemptKey,outcome:unknown?'unknown':materialAvailable?'review_material_available':result.status==='SOURCE_REACHED'||result.status==='TARGET_REACHED'||result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'?'verified':result.status==='UNREACHABLE'?'unreachable':'unverified',reason:result.reason,evidence:{sessionId:sid,observationId:actual.id},...(resultCondition?{resultCondition}:{}),...(unknownAttemptIds.length?{unknownSource:{sessionId:sid,attemptIds:unknownAttemptIds}}:{})});
+        :failed&&!unknown&&actualCondition?recoveryFailureCondition(actual,actualCondition,failureReason):undefined;
+      task.routeRetries=recordRouteRetry(task.routeRetries,{routeKey,conditionVersion:frame.recoveryConditionVersion,attemptKey:recoveryAttemptKey,outcome:unknown?'unknown':materialAvailable?'review_material_available':result.status==='SOURCE_REACHED'||result.status==='TARGET_REACHED'||result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'?'verified':result.status==='UNREACHABLE'?'unreachable':'unverified',reason:failureReason,evidence:{sessionId:sid,observationId:actual.id},...(resultCondition?{resultCondition}:{}),...(unknownAttemptIds.length?{unknownSource:{sessionId:sid,attemptIds:unknownAttemptIds}}:{})});
       const position=reconcileRecoveryPosition(round,o,actual,{...result,status},status==='REACHED_VERIFIED'||status==='REACHED_ACCEPTABLE'?frame.path:undefined);
       if(unknown){round.entryPath=[];position.path=[];position.reason='unknown_execution_outcome';}
       this.retractReviewLedger(task,actual);
       this.event(task,'recovery.position_reconciled',position);this.persist(task);
       this.syncUsage(task);this.event(task,'recovery.result',unknown?{...result,status:'UNVERIFIED',hostResultStatus:result.status,reason:'Unknown recovery outcome requires explicit source verification',checkpointVerified:false}:result);
       if(unknown){this.event(task,'recovery.blocked',{resultId:result.id,reason:'unknown_action_outcome',observationId:actual.id,checkpointVerified:false,executionAuthorized:false});throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');}
+      if(reviewSourceUnverified){
+        this.event(task,'recovery.review_source_unverified',{resultId:result.id,itemId,reason:failureReason,sourceObservationId:source.id,
+          observationId:actual.id,localId:recovery.reviewLocalId,checkpointVerified:false,coverageGranted:false,currentExecution:false,
+          continueFromCurrentObservation:true});
+        return true;
+      }
       if(result.status==='CURRENT_REVIEWABLE'){
         this.event(task,'recovery.review_material_available',{resultId:result.id,sourceObservationId:source.id,observationId:actual.id,localId:result.matchedLocalId,sourceEquivalent:result.sourceEquivalent,
           checkpointVerified:false,coverageGranted:false,currentExecution:false,executionAuthorized:false,continueFromCurrentObservation:true});

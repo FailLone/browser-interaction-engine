@@ -335,3 +335,76 @@ it.each(['legacy-no-assessment','mismatched-reference','contradictory-key'])('do
     expect(f.task.scheduling!.deferred?.review).toBeUndefined();
   }finally{await f.plugin.close();}
 });
+
+function sourceProofRefusal(f:ReturnType<typeof classificationFixture>,attemptIds:string[]=[],unknown=false) {
+  // The target is already exposed, as in the retained OKX failure. The base
+  // fixture's unrelated modal would legitimately add a missing-exit gap.
+  f.setCurrent({...structuredClone(f.source),id:'review-current',canonical:'review-current',stateId:'review-current'});
+  f.host.reachControlReviewTarget=vi.fn(async(sid:string,input:Parameters<NonNullable<ExplorerHost['reachControlReviewTarget']>>[1]):ReturnType<NonNullable<ExplorerHost['reachControlReviewTarget']>>=>{
+    const proof=f.host.controlReviewTargetCorrespondence!(sid,{observationId:f.current().id,localId:input.localId,
+      source:{sessionId:sid,observationId:input.observationId,localId:input.localId}});
+    if(unknown)f.unknown();
+    return {id:'source-refusal',sessionId:sid,checkpointId:input.checkpointId,observationId:f.current().id,status:'UNVERIFIED',
+      reason:'Target arrival verification: UNVERIFIED',attemptIds,checks:[{name:'historical-review-source-conditions',result:'unknown'}],remainingFrontier:0,
+      requireSourceEquivalent:true,targetObservationId:input.observationId,targetLocalId:input.localId,sourceEquivalent:'unknown',
+      proof:{...proof,sourceEquivalent:'unknown',currentConditionAssessment:{status:'unavailable',reason:'selector_state_missing',localId:'missing-mode'}},
+      checkpointVerified:false,coverageGranted:false,currentExecution:false,executionAuthorized:false};
+  });
+  const gaps=vi.fn(f.recordGap);(f.plugin as any).gap=gaps;return gaps;
+}
+
+it('records a zero-action historical review refusal without inventing checkpoint failure evidence',async()=>{
+  const f=classificationFixture();try{
+    const gaps=sourceProofRefusal(f),plan=structuredClone(f.task.plan);
+    expect(await f.step()).toBe(true);expect(gaps).not.toHaveBeenCalled();expect(f.task.plan).toEqual(plan);
+    const record=Object.values(f.task.routeRetries!.routes).flatMap(route=>Object.values(route.conditions))[0];
+    expect(record).toMatchObject({outcome:'unverified',reason:'review_source_conditions_unavailable',attempts:1});
+    expect(f.events.find(e=>e.type==='recovery.review_source_unverified')?.data).toMatchObject({itemId:'review',sourceObservationId:'source',
+      reason:'review_source_conditions_unavailable',checkpointVerified:false,coverageGranted:false,currentExecution:false});
+    expect(f.events.find(e=>e.type==='recovery.result')?.data.reason).toBe('Target arrival verification: UNVERIFIED');
+    expect(await f.select()).toBeUndefined();expect(f.host.reachControlReviewTarget).toHaveBeenCalledOnce();
+  }finally{await f.plugin.close();}
+});
+
+it('keeps checkpoint failure evidence when a historical review refusal follows an actual recovery attempt',async()=>{
+  const f=classificationFixture();try{
+    const gaps=sourceProofRefusal(f,['boundary-exit']);
+    expect(await f.step()).toBe(true);
+    expect(gaps).toHaveBeenCalledWith(f.task,'checkpoint_unverified',{url});
+    expect(f.events.some(e=>e.type==='recovery.review_source_unverified')).toBe(false);
+    expect(f.review.status).toBe('unresolved');
+  }finally{await f.plugin.close();}
+});
+
+it('blocks unknown execution discovered after historical review refusal instead of treating it as source-only debt',async()=>{
+  const f=classificationFixture();try{
+    sourceProofRefusal(f,[],true);
+    await expect(f.step()).rejects.toMatchObject({code:'UNKNOWN_DISPATCH_REQUIRES_REVIEW'});
+    expect(f.events.some(e=>e.type==='recovery.review_source_unverified')).toBe(false);
+    expect(Object.values(f.task.routeRetries!.routes).flatMap(route=>Object.values(route.conditions)).some(row=>row.outcome==='unknown')).toBe(true);
+    expect(f.review.status).toBe('unresolved');
+  }finally{await f.plugin.close();}
+});
+
+it.each(['rejected-success','proof-authority','missing-target','ambiguous-target'])('does not normalize historical review refusal with %s facts',async kind=>{
+  const f=classificationFixture();try{
+    const gaps=sourceProofRefusal(f),reach=f.host.reachControlReviewTarget!;
+    f.host.reachControlReviewTarget=vi.fn(async(sid,input)=>{
+      const result=await reach(sid,input);
+      if(kind==='rejected-success')return {...result,status:'CURRENT_REVIEWABLE' as const,matchedLocalId:'usd'};
+      // Deliberately malformed host facts must retain the ordinary failure path.
+      if(kind==='proof-authority')return {...result,proof:{...result.proof!,executionAuthorized:true as unknown as false}};
+      if(kind==='missing-target')return {...result,proof:{...result.proof!,target:{...result.proof!.target,localId:'absent'}}};
+      f.current().controls.push(structuredClone(f.current().controls[0]));return result;
+    });
+    expect(await f.step()).toBe(true);
+    expect(gaps).toHaveBeenCalledWith(f.task,'checkpoint_unverified',{url});
+    expect(f.events.some(e=>e.type==='recovery.review_source_unverified')).toBe(false);
+    expect(f.review.status).toBe('unresolved');
+    if(kind==='rejected-success'){
+      expect(f.events.find(e=>e.type==='recovery.contract_rejected')?.data.hostResultStatus).toBe('CURRENT_REVIEWABLE');
+      expect(Object.values(f.task.routeRetries!.routes).flatMap(route=>Object.values(route.conditions))).toEqual([
+        expect.objectContaining({outcome:'unverified',reason:'host_recovery_contract_mismatch'})]);
+    }
+  }finally{await f.plugin.close();}
+});
