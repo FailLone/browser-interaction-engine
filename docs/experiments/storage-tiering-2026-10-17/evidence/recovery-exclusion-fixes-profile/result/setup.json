@@ -1,0 +1,405 @@
+{
+  "revision": "63c57e5b435864cf4948afe385b50e479e849a67",
+  "workerHardDeadlineSeconds": 240,
+  "terminationGraceSeconds": 5,
+  "killGraceSeconds": 5,
+  "repeats": 0,
+  "sourceInputs": {
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-12/closed-evidence.json": {
+      "bytes": 1377,
+      "sha256": "75f9e85c048cb755b7fff7ab08e61016524e3e1717fb6ee7b23b241062a7d20b"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/runs/bb1d2382-753b-43e4-849c-4ca04066b822/task-after.json": {
+      "bytes": 4280748,
+      "sha256": "f02ec00c20712401e492d5f9f9a84d24071b47eb992b77f6ccdf710acab1b4d8"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/runs/bb1d2382-753b-43e4-849c-4ca04066b822/task-before.json": {
+      "bytes": 3960244,
+      "sha256": "bfc8bf0c15b7039e5f622a47ebba0551645f10b62bd158ce994760456a03eb9c"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/runs/bb1d2382-753b-43e4-849c-4ca04066b822/coverage-review.json": {
+      "bytes": 3310305,
+      "sha256": "f934e2eed1641cbdc6022a1e6bd887286f147d03791b3b9213efd7cd17b7a67a"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/runs/bb1d2382-753b-43e4-849c-4ca04066b822/metrics.jsonl": {
+      "bytes": 2111020,
+      "sha256": "594fb75fa2fe683161c0d3a35a54f9ea4be2e1380b17ccaa1a812a2d7732f5a4"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/engine/engine.sqlite": {
+      "bytes": 143814656,
+      "sha256": "55bff5f72d7c84bf7352481fba4fc1c8492cd8db7533c62d6cb43dff4495b7f7"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/engine/engine.sqlite-wal": null,
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/engine/engine.sqlite-shm": null,
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/plugin/explorer.sqlite": {
+      "bytes": 22384640,
+      "sha256": "315ec00a561413e504987df46f572ed2ec74e4bc48e53fade80eb499e8f3a14c"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/plugin/explorer.sqlite-wal": null,
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/plugin/explorer.sqlite-shm": null
+  },
+  "scriptsAndHelpers": {
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes-profile/runner.py": "79460bb99b292f7f2ae632a8c86a6a86d4f43785a0e15d859ab1933ca621e754",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes-profile/worker.ts": "a166d1c974fa67e5af375d72590fd1b266b859326499a3b648cb56e1547eee80",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-selection-profile/runner.py": "193ce969a2ad5d7bfe56db62fa23474e199e57f1522e5b50d696335979d4a560",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-anchor-material/runner.py": "9cbfb50c421ac130f308aeeaa1ac19cf6cb69a2b7a057b272b43e08591171740",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-6/audit-serial/runner.py": "94e597ed0b633c273e3d0402a70146c8b4a33e1b466a55ad70410076f2051c37"
+  },
+  "ownedDirectory": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq",
+  "commands": [],
+  "cleanupErrors": [],
+  "archive": {
+    "revision": "63c57e5b435864cf4948afe385b50e479e849a67",
+    "root": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate",
+    "archiveInputs": [
+      "package.json",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml",
+      "tsconfig.json",
+      "tsconfig.build.json",
+      ".node-version",
+      "packages",
+      "apps",
+      "scripts"
+    ],
+    "archiveSha256": "2d268725e47997d9530f4b855ade96701f2d94eaf8d7a72d768ad089a936d04b",
+    "workspaceLinks": [
+      {
+        "name": "@interaction/adapter-playwright",
+        "link": "node_modules/@interaction/adapter-playwright",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/adapter-playwright"
+      },
+      {
+        "name": "@interaction/browser",
+        "link": "node_modules/@interaction/browser",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/browser"
+      },
+      {
+        "name": "@interaction/client",
+        "link": "node_modules/@interaction/client",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/client"
+      },
+      {
+        "name": "@interaction/core",
+        "link": "node_modules/@interaction/core",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/core"
+      },
+      {
+        "name": "@interaction/explorer-plugin",
+        "link": "node_modules/@interaction/explorer-plugin",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/explorer-plugin"
+      },
+      {
+        "name": "@interaction/rules",
+        "link": "node_modules/@interaction/rules",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/rules"
+      },
+      {
+        "name": "@interaction/storage-memory",
+        "link": "node_modules/@interaction/storage-memory",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/storage-memory"
+      },
+      {
+        "name": "@interaction/storage-retained",
+        "link": "node_modules/@interaction/storage-retained",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/storage-retained"
+      },
+      {
+        "name": "@interaction/storage-sqlite",
+        "link": "node_modules/@interaction/storage-sqlite",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/storage-sqlite"
+      },
+      {
+        "name": "@interaction/core",
+        "link": "packages/adapter-playwright/node_modules/@interaction/core",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/core"
+      },
+      {
+        "name": "@interaction/adapter-playwright",
+        "link": "packages/browser/node_modules/@interaction/adapter-playwright",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/adapter-playwright"
+      },
+      {
+        "name": "@interaction/core",
+        "link": "packages/browser/node_modules/@interaction/core",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/core"
+      },
+      {
+        "name": "@interaction/storage-retained",
+        "link": "packages/browser/node_modules/@interaction/storage-retained",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/storage-retained"
+      },
+      {
+        "name": "@interaction/browser",
+        "link": "packages/client/node_modules/@interaction/browser",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/browser"
+      },
+      {
+        "name": "@interaction/rules",
+        "link": "packages/client/node_modules/@interaction/rules",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/rules"
+      },
+      {
+        "name": "@interaction/browser",
+        "link": "packages/explorer-plugin/node_modules/@interaction/browser",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/browser"
+      },
+      {
+        "name": "@interaction/adapter-playwright",
+        "link": "packages/rules/node_modules/@interaction/adapter-playwright",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/adapter-playwright"
+      },
+      {
+        "name": "@interaction/browser",
+        "link": "packages/rules/node_modules/@interaction/browser",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/browser"
+      },
+      {
+        "name": "@interaction/core",
+        "link": "packages/storage-memory/node_modules/@interaction/core",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/core"
+      },
+      {
+        "name": "@interaction/core",
+        "link": "packages/storage-retained/node_modules/@interaction/core",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/core"
+      },
+      {
+        "name": "@interaction/core",
+        "link": "packages/storage-sqlite/node_modules/@interaction/core",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/core"
+      },
+      {
+        "name": "@interaction/browser",
+        "link": "apps/server/node_modules/@interaction/browser",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/browser"
+      },
+      {
+        "name": "@interaction/explorer-plugin",
+        "link": "apps/server/node_modules/@interaction/explorer-plugin",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/explorer-plugin"
+      },
+      {
+        "name": "@interaction/rules",
+        "link": "apps/server/node_modules/@interaction/rules",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/rules"
+      },
+      {
+        "name": "@interaction/storage-sqlite",
+        "link": "apps/server/node_modules/@interaction/storage-sqlite",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/storage-sqlite"
+      },
+      {
+        "name": "@interaction/browser",
+        "link": "apps/ui/node_modules/@interaction/browser",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/browser"
+      },
+      {
+        "name": "@interaction/client",
+        "link": "apps/ui/node_modules/@interaction/client",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/client"
+      },
+      {
+        "name": "@interaction/explorer-plugin",
+        "link": "apps/ui/node_modules/@interaction/explorer-plugin",
+        "target": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-fo65pxlq/candidate/packages/explorer-plugin"
+      }
+    ],
+    "externalDependencies": [
+      {
+        "name": "@fastify/static",
+        "link": "node_modules/@fastify/static",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@fastify+static@8.3.0/node_modules/@fastify/static"
+      },
+      {
+        "name": "@types/better-sqlite3",
+        "link": "node_modules/@types/better-sqlite3",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@types+better-sqlite3@7.6.13/node_modules/@types/better-sqlite3"
+      },
+      {
+        "name": "@types/node",
+        "link": "node_modules/@types/node",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node"
+      },
+      {
+        "name": "@types/react",
+        "link": "node_modules/@types/react",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@types+react@19.3.0/node_modules/@types/react"
+      },
+      {
+        "name": "@types/react-dom",
+        "link": "node_modules/@types/react-dom",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@types+react-dom@19.3.0_@types+react@19.3.0/node_modules/@types/react-dom"
+      },
+      {
+        "name": "@vitejs/plugin-react",
+        "link": "node_modules/@vitejs/plugin-react",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@vitejs+plugin-react@5.2.0_vite@7.3.7_@types+node@24.19.2_tsx@4.23.15_/node_modules/@vitejs/plugin-react"
+      },
+      {
+        "name": "fastify",
+        "link": "node_modules/fastify",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/fastify@5.12.7/node_modules/fastify"
+      },
+      {
+        "name": "playwright",
+        "link": "node_modules/playwright",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/playwright@1.64.1/node_modules/playwright"
+      },
+      {
+        "name": "react",
+        "link": "node_modules/react",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/react@19.3.0/node_modules/react"
+      },
+      {
+        "name": "react-dom",
+        "link": "node_modules/react-dom",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/react-dom@19.3.0_react@19.3.0/node_modules/react-dom"
+      },
+      {
+        "name": "tsx",
+        "link": "node_modules/tsx",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx"
+      },
+      {
+        "name": "typescript",
+        "link": "node_modules/typescript",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript"
+      },
+      {
+        "name": "vite",
+        "link": "node_modules/vite",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/vite@7.3.7_@types+node@24.19.2_tsx@4.23.15/node_modules/vite"
+      },
+      {
+        "name": "vitest",
+        "link": "node_modules/vitest",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/vitest@3.2.7_@types+node@24.19.2_tsx@4.23.15/node_modules/vitest"
+      },
+      {
+        "name": "zod",
+        "link": "node_modules/zod",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/zod@4.6.7/node_modules/zod"
+      },
+      {
+        "name": "playwright",
+        "link": "packages/adapter-playwright/node_modules/playwright",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/playwright@1.64.1/node_modules/playwright"
+      },
+      {
+        "name": "zod",
+        "link": "packages/adapter-playwright/node_modules/zod",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/zod@4.6.7/node_modules/zod"
+      },
+      {
+        "name": "@noble/hashes",
+        "link": "packages/core/node_modules/@noble/hashes",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes"
+      },
+      {
+        "name": "zod",
+        "link": "packages/core/node_modules/zod",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/zod@4.6.7/node_modules/zod"
+      },
+      {
+        "name": "better-sqlite3",
+        "link": "packages/explorer-plugin/node_modules/better-sqlite3",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/better-sqlite3@12.11.1/node_modules/better-sqlite3"
+      },
+      {
+        "name": "fastify",
+        "link": "packages/explorer-plugin/node_modules/fastify",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/fastify@5.12.7/node_modules/fastify"
+      },
+      {
+        "name": "react",
+        "link": "packages/explorer-plugin/node_modules/react",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/react@19.3.0/node_modules/react"
+      },
+      {
+        "name": "zod",
+        "link": "packages/explorer-plugin/node_modules/zod",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/zod@4.6.7/node_modules/zod"
+      },
+      {
+        "name": "zod",
+        "link": "packages/rules/node_modules/zod",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/zod@4.6.7/node_modules/zod"
+      },
+      {
+        "name": "better-sqlite3",
+        "link": "packages/storage-sqlite/node_modules/better-sqlite3",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/better-sqlite3@12.11.1/node_modules/better-sqlite3"
+      },
+      {
+        "name": "@fastify/static",
+        "link": "apps/server/node_modules/@fastify/static",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@fastify+static@8.3.0/node_modules/@fastify/static"
+      },
+      {
+        "name": "fastify",
+        "link": "apps/server/node_modules/fastify",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/fastify@5.12.7/node_modules/fastify"
+      },
+      {
+        "name": "zod",
+        "link": "apps/server/node_modules/zod",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/zod@4.6.7/node_modules/zod"
+      },
+      {
+        "name": "react",
+        "link": "apps/test-site/node_modules/react",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/react@19.3.0/node_modules/react"
+      },
+      {
+        "name": "react-dom",
+        "link": "apps/test-site/node_modules/react-dom",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/react-dom@19.3.0_react@19.3.0/node_modules/react-dom"
+      },
+      {
+        "name": "react",
+        "link": "apps/ui/node_modules/react",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/react@19.3.0/node_modules/react"
+      },
+      {
+        "name": "react-dom",
+        "link": "apps/ui/node_modules/react-dom",
+        "target": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/react-dom@19.3.0_react@19.3.0/node_modules/react-dom"
+      }
+    ],
+    "workerSha256": "a166d1c974fa67e5af375d72590fd1b266b859326499a3b648cb56e1547eee80",
+    "instrumentation": {
+      "productFilesChanged": [],
+      "workerForwardingChanges": [
+        "optional host read allowed",
+        "view review forwarding type",
+        "view actual material quantities",
+        "optional view read forwarded",
+        "host review IDs counted",
+        "host actual material quantities"
+      ],
+      "baseWorkerReference": "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-selection-epoch-profile/worker.ts",
+      "baseWorkerSha256": "068a120ab57f2af054fda9b0d32aaa0e9a9fb28159b303bf7c9d9f8059b24225",
+      "instrumentedBaseWorkerSha256": "2d4b56b2ed337a64561721470b79a82a092ba30effbbd37947181f823593c980",
+      "patch": "worker.forwarding.patch",
+      "patchSha256": "bacdb9da548522965a2b43fcec0ac6078b2fb3ae908dbf578d13efc3b9f0ac96",
+      "extraProtectedFiles": {
+        "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes-profile/runner.py": "79460bb99b292f7f2ae632a8c86a6a86d4f43785a0e15d859ab1933ca621e754",
+        "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes-profile/worker.ts": "a166d1c974fa67e5af375d72590fd1b266b859326499a3b648cb56e1547eee80",
+        "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-selection-epoch-profile/runner.py": "bd0712599fe4979ebddb55f08c3ee9abdfa14361e3f13e54f05b4cf0eab25a2f",
+        "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-selection-epoch-profile/worker.ts": "068a120ab57f2af054fda9b0d32aaa0e9a9fb28159b303bf7c9d9f8059b24225",
+        "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-selection-epoch-profile/result/semantic-264bde57836f0ab768bb49251eeb31ec5cba844f252a62f2ca1e2c07ee66e5d6.json.gz": "0338dff992c98dcaeafb9eede052504622a67dc59f2659e3cdfa867ec19f1730",
+        "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-selection-exclusion-diagnostic/result/diagnostic-verification.json": "840819e5c7755f8f10b3b5cc5c074b2f6e1e0c74a9aaa23e794846bc4bf6d855",
+        "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-selection-exclusion-diagnostic/result/worker.jsonl.gz": "fcabdfabf4790e772b352e39cc67a884c7c5633a7d1f1d0812d924e8932d0114"
+      }
+    },
+    "sourceManifest": {
+      "path": "source-manifest.json",
+      "sha256": "4dee79285b166f2f30458928a52e5f58d19b94d28293734c30e465dc1067a644"
+    }
+  },
+  "inputTransformation": "Only in-memory task.status paused to running; plan/budget/usage/cursor/retry debt retained",
+  "instrumentation": "Host/view facades only; optional recoveryReviewMaterial/reviewMaterial forwarded and counted. All product sources and default method identities unchanged.",
+  "browserGuard": "Playwright browser-type launch/connect entry points throw before any browser is created or connected",
+  "comparisonLimit": "Behavior intentionally changes. Earlier selected return can reduce examined work, so elapsed time/read reduction is not a pure performance gain. No browser restoration or dispatch."
+}

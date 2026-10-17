@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-current-source-exclusion.test.ts (8 tests) 37ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  16:37:05
+   Duration  1.22s (transform 603ms, setup 0ms, collect 1.03s, tests 37ms, environment 0ms, prepare 38ms)
+

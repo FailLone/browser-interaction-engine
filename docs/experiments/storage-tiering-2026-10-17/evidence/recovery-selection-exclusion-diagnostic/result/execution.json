@@ -1,0 +1,95 @@
+{
+  "revision": "551a6b9020b919862434346d276a21fe3d1f4ac1",
+  "workerHardDeadlineSeconds": 240,
+  "terminationGraceSeconds": 5,
+  "killGraceSeconds": 5,
+  "repeats": 0,
+  "sourceInputs": {
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-12/closed-evidence.json": {
+      "bytes": 1377,
+      "sha256": "75f9e85c048cb755b7fff7ab08e61016524e3e1717fb6ee7b23b241062a7d20b"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/runs/bb1d2382-753b-43e4-849c-4ca04066b822/task-after.json": {
+      "bytes": 4280748,
+      "sha256": "f02ec00c20712401e492d5f9f9a84d24071b47eb992b77f6ccdf710acab1b4d8"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/runs/bb1d2382-753b-43e4-849c-4ca04066b822/task-before.json": {
+      "bytes": 3960244,
+      "sha256": "bfc8bf0c15b7039e5f622a47ebba0551645f10b62bd158ce994760456a03eb9c"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/runs/bb1d2382-753b-43e4-849c-4ca04066b822/coverage-review.json": {
+      "bytes": 3310305,
+      "sha256": "f934e2eed1641cbdc6022a1e6bd887286f147d03791b3b9213efd7cd17b7a67a"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/runs/bb1d2382-753b-43e4-849c-4ca04066b822/metrics.jsonl": {
+      "bytes": 2111020,
+      "sha256": "594fb75fa2fe683161c0d3a35a54f9ea4be2e1380b17ccaa1a812a2d7732f5a4"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/engine/engine.sqlite": {
+      "bytes": 143814656,
+      "sha256": "55bff5f72d7c84bf7352481fba4fc1c8492cd8db7533c62d6cb43dff4495b7f7"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/engine/engine.sqlite-wal": null,
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/engine/engine.sqlite-shm": null,
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/plugin/explorer.sqlite": {
+      "bytes": 22384640,
+      "sha256": "315ec00a561413e504987df46f572ed2ec74e4bc48e53fade80eb499e8f3a14c"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/plugin/explorer.sqlite-wal": null,
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/plugin/explorer.sqlite-shm": null
+  },
+  "scriptsAndHelpers": {
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-selection-exclusion-diagnostic/runner.py": "a6737bc690822f7e75a26e745ccd495965cd071f3ffdcbfeb7a006001ca3b53d",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-selection-exclusion-diagnostic/worker.ts": "8fa40d8ae499bf3fc9596ea150b6b2916907518db65bad845b84e1cdcac83016",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-selection-profile/runner.py": "193ce969a2ad5d7bfe56db62fa23474e199e57f1522e5b50d696335979d4a560",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-anchor-material/runner.py": "9cbfb50c421ac130f308aeeaa1ac19cf6cb69a2b7a057b272b43e08591171740",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-6/audit-serial/runner.py": "94e597ed0b633c273e3d0402a70146c8b4a33e1b466a55ad70410076f2051c37"
+  },
+  "ownedDirectory": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-zvos70b4",
+  "commands": [
+    {
+      "argv": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--max-old-space-size=6144",
+        "--conditions=development",
+        "--import=tsx",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-zvos70b4/candidate/.data/worker.ts",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-selection-epoch-zvos70b4/config.json"
+      ],
+      "startedEpoch": 1792225841.733909,
+      "telemetry": "worker.jsonl",
+      "stderr": "worker.stderr.log",
+      "pid": 10783,
+      "exitCode": 0,
+      "finishedEpoch": 1792225855.637269
+    }
+  ],
+  "cleanupErrors": [],
+  "completed": true,
+  "timedOut": false,
+  "workerExited": true,
+  "inputsUnchanged": true,
+  "scriptsUnchanged": true,
+  "archiveSourcesUnchanged": true,
+  "archiveWorkerUnchanged": true,
+  "copyAfterWorker": {
+    "main": {
+      "bytes": 143814656,
+      "sha256": "55bff5f72d7c84bf7352481fba4fc1c8492cd8db7533c62d6cb43dff4495b7f7"
+    },
+    "-wal": null,
+    "-shm": null
+  },
+  "semanticArtifact": {
+    "path": "recovery-selection-epoch-profile/result/semantic-264bde57836f0ab768bb49251eeb31ec5cba844f252a62f2ca1e2c07ee66e5d6.json.gz",
+    "logicalSha256": "264bde57836f0ab768bb49251eeb31ec5cba844f252a62f2ca1e2c07ee66e5d6",
+    "logicalBytes": 3390001,
+    "gzipSha256": "0338dff992c98dcaeafb9eede052504622a67dc59f2659e3cdfa867ec19f1730",
+    "pathBase": "docs/experiments/storage-tiering-2026-10-17/evidence",
+    "reusedExistingOracle": true
+  },
+  "temporaryDirectoryRemoved": true,
+  "parentCleanupMs": 29.77562500000097,
+  "extraScriptsUnchanged": true,
+  "diagnosticWorkerUnchanged": true
+}

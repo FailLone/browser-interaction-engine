@@ -1,0 +1,152 @@
+
+ RUN  v3.2.7 /private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-exclusion-red-eytq9afc/source
+
+ ❯ tests/explorer-current-source-exclusion.test.ts (8 tests | 5 failed) 37ms
+   × current review presence does not erase a retained occurrence in a different captured mode 23ms
+     → {"pending":{"conditionVersion":"ca0195c517a6d6d672f3750b0f399c45902d80d8de03e8010188a7f109911bbd","reason":"current_review_occurrence_present"}}: expected undefined to match object { itemId: 'pending', …(1) }
+   × an equivalent recent review source cannot stop the older A-condition candidate 4ms
+     → {"pending":{"conditionVersion":"ca0195c517a6d6d672f3750b0f399c45902d80d8de03e8010188a7f109911bbd","reason":"current_review_occurrence_present"}}: expected undefined to match object { itemId: 'pending', …(2) }
+   × shared same-name hints do not let current B suppress the absent A review source 2ms
+     → {"pending":{"conditionVersion":"ca0195c517a6d6d672f3750b0f399c45902d80d8de03e8010188a7f109911bbd","reason":"current_review_occurrence_present"}}: expected undefined to match object { itemId: 'pending', …(1) }
+   ✓ verified unchanged review conditions still avoid restoring that source 1ms
+   × current B policy denial cannot exclude an independently retained A operation condition 3ms
+     → {"pending":{"conditionVersion":"ca0195c517a6d6d672f3750b0f399c45902d80d8de03e8010188a7f109911bbd","reason":"current_target_policy_blocked"}}: expected undefined to match object { itemId: 'pending', …(2) }
+   ✓ verified same-condition current policy denial still avoids pointless recovery 1ms
+   ✓ disabled current evidence only excludes its own source condition (current mode A) 1ms
+   × disabled current evidence only excludes its own source condition (current mode B) 2ms
+     → {"pending":{"conditionVersion":"ca0195c517a6d6d672f3750b0f399c45902d80d8de03e8010188a7f109911bbd","reason":"source_target_already_disabled"}}: expected undefined to match object { itemId: 'pending', …(1) }
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/explorer-current-source-exclusion.test.ts > current review presence does not erase a retained occurrence in a different captured mode
+AssertionError: {"pending":{"conditionVersion":"ca0195c517a6d6d672f3750b0f399c45902d80d8de03e8010188a7f109911bbd","reason":"current_review_occurrence_present"}}: expected undefined to match object { itemId: 'pending', …(1) }
+
+- Expected: 
+{
+  "itemId": "pending",
+  "source": {
+    "id": "source-A",
+  },
+}
+
++ Received: 
+undefined
+
+ ❯ tests/explorer-current-source-exclusion.test.ts:144:75
+    142|     expect(browserTargetConditions(action(source), source)!.key).not.t…
+    143|     const before = f.retained();
+    144|     expect(await f.select(), JSON.stringify(f.task.scheduling?.deferre…
+       |                                                                           ^
+    145|     expect(f.retained()).toEqual(before); f.noEffects();
+    146|   } finally { await f.close(); }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/explorer-current-source-exclusion.test.ts > an equivalent recent review source cannot stop the older A-condition candidate
+AssertionError: {"pending":{"conditionVersion":"ca0195c517a6d6d672f3750b0f399c45902d80d8de03e8010188a7f109911bbd","reason":"current_review_occurrence_present"}}: expected undefined to match object { itemId: 'pending', …(2) }
+
+- Expected: 
+{
+  "frame": {
+    "checkpointId": "checkpoint-older-A",
+  },
+  "itemId": "pending",
+  "source": {
+    "id": "older-A",
+  },
+}
+
++ Received: 
+undefined
+
+ ❯ tests/explorer-current-source-exclusion.test.ts:155:75
+    153|     expect(classificationCorrespondenceConditions(recent.controls[0], …
+    154|     const before = f.retained();
+    155|     expect(await f.select(), JSON.stringify(f.task.scheduling?.deferre…
+       |                                                                           ^
+    156|     expect(f.material.mock.calls.map(([, input]) => input.sourceObserv…
+    157|     expect(f.retained()).toEqual(before); f.noEffects();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/explorer-current-source-exclusion.test.ts > shared same-name hints do not let current B suppress the absent A review source
+AssertionError: {"pending":{"conditionVersion":"ca0195c517a6d6d672f3750b0f399c45902d80d8de03e8010188a7f109911bbd","reason":"current_review_occurrence_present"}}: expected undefined to match object { itemId: 'pending', …(1) }
+
+- Expected: 
+{
+  "itemId": "pending",
+  "source": {
+    "id": "source-A",
+  },
+}
+
++ Received: 
+undefined
+
+ ❯ tests/explorer-current-source-exclusion.test.ts:171:75
+    169|       .not.toBe(classificationCorrespondenceConditions(current.control…
+    170|     const before = f.retained();
+    171|     expect(await f.select(), JSON.stringify(f.task.scheduling?.deferre…
+       |                                                                           ^
+    172|     expect(f.retained()).toEqual(before); f.noEffects();
+    173|   } finally { await f.close(); }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/explorer-current-source-exclusion.test.ts > current B policy denial cannot exclude an independently retained A operation condition
+AssertionError: {"pending":{"conditionVersion":"ca0195c517a6d6d672f3750b0f399c45902d80d8de03e8010188a7f109911bbd","reason":"current_target_policy_blocked"}}: expected undefined to match object { itemId: 'pending', …(2) }
+
+- Expected: 
+{
+  "itemId": "pending",
+  "source": {
+    "id": "source-A",
+  },
+  "targetActionIds": [
+    "action-source-A",
+  ],
+}
+
++ Received: 
+undefined
+
+ ❯ tests/explorer-current-source-exclusion.test.ts:192:67
+    190|     const before = f.retained();
+    191|     const selected = await f.select();
+    192|     expect(selected, JSON.stringify(f.task.scheduling?.deferred)).toMa…
+       |                                                                   ^
+    193|     expect(f.retained()).toEqual(before); f.noEffects();
+    194|     // The corrected source filter cannot release an unknown debt on t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/explorer-current-source-exclusion.test.ts > disabled current evidence only excludes its own source condition (current mode B)
+AssertionError: {"pending":{"conditionVersion":"ca0195c517a6d6d672f3750b0f399c45902d80d8de03e8010188a7f109911bbd","reason":"source_target_already_disabled"}}: expected undefined to match object { itemId: 'pending', …(1) }
+
+- Expected: 
+{
+  "itemId": "pending",
+  "source": {
+    "id": "source-A",
+  },
+}
+
++ Received: 
+undefined
+
+ ❯ tests/explorer-current-source-exclusion.test.ts:220:72
+    218|     const before = f.retained(), selected = await f.select();
+    219|     if (mode === 'A') { expect(selected).toBeUndefined(); expect(f.tas…
+    220|     else expect(selected, JSON.stringify(f.task.scheduling?.deferred))…
+       |                                                                        ^
+    221|     expect(f.retained()).toEqual(before); f.noEffects();
+    222|   } finally { await f.close(); }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 3 passed (8)
+   Start at  16:37:06
+   Duration  1.21s (transform 605ms, setup 0ms, collect 1.02s, tests 37ms, environment 0ms, prepare 38ms)
+

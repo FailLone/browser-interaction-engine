@@ -1,0 +1,365 @@
+{
+  "productCommit": "63c57e5b435864cf4948afe385b50e479e849a67",
+  "singleRun": true,
+  "scope": "Frozen terminal task scheduledRecovery plus actual pure selected.revalidate; no dispatch, browser recovery, arrival or new coverage.",
+  "processMs": 8748.63886833191,
+  "phaseTimingsMs": {
+    "input_validation": 117.37654199999999,
+    "browser_launcher_guards": 213.699875,
+    "module_imports": 339.32537499999995,
+    "sqlite_constructor": 3.426417000000015,
+    "engine_constructor": 122.31395800000007,
+    "plugin_constructor": 0.1324170000000322,
+    "setup_current_observation": 30.705749999999966,
+    "setup_current_actions": 13.766541999999959,
+    "setup_current_availability": 216.65387500000008,
+    "setup_fact_hashes": 18.004750000000058,
+    "route_condition_reader": 0.1363330000001497,
+    "scheduled_recovery": 7249.1654579999995,
+    "selected_revalidation": 176.85508300000038,
+    "semantic_summary": 18.863875000000917,
+    "semantic_serialization": 54.988250000000335,
+    "plugin_close": 0.08995899999899848,
+    "engine_close": 0.9601669999992737
+  },
+  "selection": {
+    "itemId": "92e78cad-25e8-495e-a317-6194ec309298",
+    "sourceId": "ba4f54b4-e386-4b61-b194-abf9a5436812",
+    "checkpointId": "733cc84c-3ed5-4df6-97c1-606901bf6e66",
+    "itemPreviouslyRejectedAsPresent": true,
+    "exactPairPreviouslyRejectedAsPresent": false
+  },
+  "targetActionIds": [],
+  "returnToSource": false,
+  "callback": {
+    "present": true,
+    "invoked": true,
+    "status": "passed"
+  },
+  "oldStopCounterexample": {
+    "oldCandidateCount": 24,
+    "oldActuallyVisitedCandidates": 1,
+    "oldFirstCandidate": {
+      "itemId": "92e78cad-25e8-495e-a317-6194ec309298",
+      "checkpointId": "b06556a8-969d-433a-a85e-69e5d1be0d94",
+      "sourceId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+      "index": 0
+    },
+    "oldExit": {
+      "itemId": "92e78cad-25e8-495e-a317-6194ec309298",
+      "checkpointId": "b06556a8-969d-433a-a85e-69e5d1be0d94",
+      "sourceId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+      "index": 0,
+      "reason": "projection_rejected",
+      "cacheHit": true,
+      "origin": 48,
+      "stop": true
+    },
+    "oldFirstSourceHasSamePortableConditions": true,
+    "newSelectedOriginalCandidatePosition": 2,
+    "newSelectedSourcePreviouslyUnvisited": true,
+    "meaning": "A same-condition current occurrence justified skipping the first source, not stopping all historical source candidates. The repaired selector reaches the original second candidate and its pure revalidation passes."
+  },
+  "planRows": 1241,
+  "oldDebtRoutes": 8,
+  "invariants": {
+    "planUnchanged": true,
+    "budgetUnchanged": true,
+    "usageUnchanged": true,
+    "roundsAndCursorUnchanged": true,
+    "routeRetriesUnchanged": true
+  },
+  "taskChangedTopLevelKeys": [
+    "scheduling"
+  ],
+  "semanticChangedTopLevelKeys": [
+    "selection",
+    "callback",
+    "task",
+    "events"
+  ],
+  "semanticDifferences": 53,
+  "viewStats": {
+    "requested": 1,
+    "acquired": 1,
+    "closed": 1
+  },
+  "sourceAndMaterialReadIds": {
+    "scheduled_recovery": {
+      "view.source.sourceObservationId": {
+        "calls": 66,
+        "distinct": 39,
+        "repeatedCalls": 27,
+        "topRepeated": [
+          {
+            "id": "ab266706-1d93-4c0c-adfd-e5e9f0dcecbe",
+            "count": 5
+          },
+          {
+            "id": "0e316e4c-e428-4222-9d11-47d2073f41a8",
+            "count": 3
+          },
+          {
+            "id": "1a5b5c04-1334-44c7-8cd5-c9009a4b77b8",
+            "count": 3
+          },
+          {
+            "id": "6b86d43c-8797-4140-8dcc-2132dbeb9073",
+            "count": 3
+          },
+          {
+            "id": "78c74558-7a19-46c7-8eb6-5d66da1a1fa6",
+            "count": 3
+          }
+        ]
+      },
+      "view.reviewMaterial.sourceObservationId": {
+        "calls": 1,
+        "distinct": 1,
+        "repeatedCalls": 0,
+        "topRepeated": [
+          {
+            "id": "ab266706-1d93-4c0c-adfd-e5e9f0dcecbe",
+            "count": 1
+          }
+        ]
+      },
+      "view.anchor.sourceObservationId": {
+        "calls": 35,
+        "distinct": 35,
+        "repeatedCalls": 0,
+        "topRepeated": [
+          {
+            "id": "02768907-5f9f-4fa2-b625-eda4525f883d",
+            "count": 1
+          },
+          {
+            "id": "0c118da8-74a7-4b61-b96b-daa3ecca1094",
+            "count": 1
+          },
+          {
+            "id": "0e316e4c-e428-4222-9d11-47d2073f41a8",
+            "count": 1
+          },
+          {
+            "id": "1a5b5c04-1334-44c7-8cd5-c9009a4b77b8",
+            "count": 1
+          },
+          {
+            "id": "1ea431eb-205f-42cd-ba28-7055e514d098",
+            "count": 1
+          }
+        ]
+      },
+      "host.checkpointRecoveryCandidates.checkpointId": {
+        "calls": 8,
+        "distinct": 8,
+        "repeatedCalls": 0,
+        "topRepeated": [
+          {
+            "id": "166bc972-73c0-44e3-afaa-b57785417abb",
+            "count": 1
+          },
+          {
+            "id": "4a355f96-beb3-4434-9ceb-1f1f9769e45c",
+            "count": 1
+          },
+          {
+            "id": "6efbd77a-9974-44df-927a-4cbd76ddba81",
+            "count": 1
+          },
+          {
+            "id": "733cc84c-3ed5-4df6-97c1-606901bf6e66",
+            "count": 1
+          },
+          {
+            "id": "759b5ff8-0372-4dba-a916-8957ba4a5eac",
+            "count": 1
+          }
+        ]
+      }
+    },
+    "selected_revalidation": {
+      "host.recoverySourceMaterial.sourceObservationId": {
+        "calls": 1,
+        "distinct": 1,
+        "repeatedCalls": 0,
+        "topRepeated": [
+          {
+            "id": "ba4f54b4-e386-4b61-b194-abf9a5436812",
+            "count": 1
+          }
+        ]
+      },
+      "host.checkpointRecoveryCandidates.checkpointId": {
+        "calls": 1,
+        "distinct": 1,
+        "repeatedCalls": 0,
+        "topRepeated": [
+          {
+            "id": "733cc84c-3ed5-4df6-97c1-606901bf6e66",
+            "count": 1
+          }
+        ]
+      }
+    }
+  },
+  "readCalls": {
+    "scheduled_recovery": {
+      "host.recoverySelectionView": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 194.67162499999995,
+        "maxMs": 194.67162499999995
+      },
+      "host.session": {
+        "entered": 846,
+        "completed": 846,
+        "errors": 0,
+        "totalMs": 20.20177600000261,
+        "maxMs": 0.3978750000001128
+      },
+      "view.assertCurrent": {
+        "entered": 612,
+        "completed": 612,
+        "errors": 0,
+        "totalMs": 70.09070899999779,
+        "maxMs": 0.27016700000058336
+      },
+      "host.list": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 0.264458999999988,
+        "maxMs": 0.264458999999988
+      },
+      "view.source": {
+        "entered": 66,
+        "completed": 66,
+        "errors": 0,
+        "totalMs": 2172.905871000001,
+        "maxMs": 53.93254200000047
+      },
+      "view.reviewMaterial": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 27.328250000000025,
+        "maxMs": 27.328250000000025
+      },
+      "view.anchor": {
+        "entered": 35,
+        "completed": 35,
+        "errors": 0,
+        "totalMs": 696.0298349999998,
+        "maxMs": 51.31108399999994
+      },
+      "host.checkpointRecoveryCandidates": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 2380.1733329999997,
+        "maxMs": 2380.1733329999997
+      },
+      "view.close": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 0.09287500000027649,
+        "maxMs": 0.09287500000027649
+      }
+    },
+    "selected_revalidation": {
+      "host.session": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 0.04770800000005693,
+        "maxMs": 0.04770800000005693
+      },
+      "host.list": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 0.23508299999957671,
+        "maxMs": 0.23508299999957671
+      },
+      "host.recoverySourceMaterial": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 33.99195899999904,
+        "maxMs": 33.99195899999904
+      },
+      "host.checkpointRecoveryCandidates": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 88.58995800000048,
+        "maxMs": 88.58995800000048
+      }
+    }
+  },
+  "actualReturnedQuantities": {
+    "scheduled_recovery": {
+      "view.current.materializations": 1,
+      "view.current.availabilityMaterializations": 1,
+      "host.list.returnedRows": 57,
+      "view.source.returnedActions": 13836,
+      "view.reviewMaterial.returnedControls": 234,
+      "host.checkpointRecoveryCandidates.requestedCheckpointIds": 8,
+      "host.checkpointRecoveryCandidates.returnedRows": 8
+    },
+    "selected_revalidation": {
+      "host.list.returnedRows": 57,
+      "host.recoverySourceMaterial.returnedActions": 206,
+      "host.checkpointRecoveryCandidates.requestedCheckpointIds": 1,
+      "host.checkpointRecoveryCandidates.returnedRows": 1
+    }
+  },
+  "availabilityMaterializations": {
+    "outerSetup": 1,
+    "viewCurrent": 1,
+    "unobservedInternalRawReads": "not counted"
+  },
+  "events": {
+    "old": 55,
+    "new": 11,
+    "meaning": "Published newly changed deferrals only; not total candidate/item processing."
+  },
+  "querySqlChanges": 0,
+  "constructorSqlChanges": {
+    "sqlite": 1,
+    "sqliteAndEngineCumulative": 2
+  },
+  "forbiddenCalls": [],
+  "databaseHandleClosed": true,
+  "processExitedConfirmed": true,
+  "ownedDirectoryRemovedConfirmed": true,
+  "protectedInputsUnchanged": true,
+  "archiveSourcesUnchanged": true,
+  "scriptsUnchanged": true,
+  "semanticArtifact": {
+    "path": "semantic-27d6950b8adaaac7a7cfbe55950aa2ea37dd90da43446db45ad00216d6edba97.json.gz",
+    "logicalSha256": "27d6950b8adaaac7a7cfbe55950aa2ea37dd90da43446db45ad00216d6edba97",
+    "logicalBytes": 7130885,
+    "gzipSha256": "ea8bcedf60913df3735ecad82df3c073a2bee02828731e3fd7d048f3fc3e3594"
+  },
+  "semanticGzipBytes": 625192,
+  "comparison": {
+    "oldSelectorMs": 8526.226792,
+    "newSelectorMs": 7249.1654579999995,
+    "oldSourceCalls": 91,
+    "newSourceCalls": 66,
+    "purePerformanceGainEstablished": false,
+    "reason": "Selection now returns an earlier valid candidate; stopping point and actual work differ."
+  },
+  "limits": [
+    "No browser recovery or dispatch was attempted",
+    "The selected checkpoint has only a strategy hint until actual verified recovery",
+    "View reviewMaterial was exercised once; this is not a count/proof that all four historical waits were invalidated",
+    "No policy-blocked actual case was added",
+    "Strict checkpoint versus missing portable target conditions remains a separate contract question"
+  ]
+}

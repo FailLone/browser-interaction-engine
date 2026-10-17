@@ -1,0 +1,64 @@
+{
+  "productCommit": "63c57e5b435864cf4948afe385b50e479e849a67",
+  "startingCommit": "d3b6b7ea2ca4587e49085976a8db1b3b70b0adc4",
+  "patches": [
+    "a77bdd6",
+    "63c57e5"
+  ],
+  "branch": "codex/exploration-layered-refactor",
+  "workspace": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "uniqueTargetedTestsEventuallyPassed": 114,
+  "realBrowserTestsExcluded": 2,
+  "rootTypesPassed": true,
+  "coreTypesPassed": true,
+  "repeatedCheckReasons": [
+    "current-source fixture initially omitted the independent unknown-debt source; corrected, with positive controls and a fixed 551a6b9 red comparison",
+    "root types repeated only after adding required evidence to fixture blocker"
+  ],
+  "fileSha256": {
+    "packages/browser/src/index.ts": "2290814668984878bf7631aba6be65842974c89fc6821f64f3bcaaac5108bec7",
+    "packages/browser/src/recovery-selection-view.ts": "d27de0f561a44708f789d2bb109d0576983f11a65ed586d3c993b514c664b60b",
+    "packages/explorer-plugin/src/current-source-exclusion.ts": "d47dc2871e9b2132f7a88946da0415c215faf0ee17447ce61e7ca995087d03b1",
+    "packages/explorer-plugin/src/review-recovery.ts": "c4caccabee5f1f13bf3f61c3ba6b62fefd0121358e71b0cb3b29003b275fe1b1",
+    "packages/explorer-plugin/src/runtime.ts": "8912d2cb2fcafc316985fc1b28394c9a400b125d72de0ead57f94394ac208c1c",
+    "packages/explorer-plugin/src/types.ts": "83c70deec7856b4a939931a0d79f042a82adf96783dfbef6453370749624b169",
+    "tests/explorer-current-source-exclusion.test.ts": "99a49e5cb26d93d05dd49ac746a4170496dfb94e15491dc1ad26474ff557d47a",
+    "tests/explorer-recovery-failure-condition.test.ts": "cd69b8b30b12ccb5354bda32267134ee1085e77b139b57e40ab3b8e9234f4ee5",
+    "tests/explorer-recovery-selection-index.test.ts": "0d3d8e169bc9e3456d842adf633bd12ce284db98089a02457aa15e5d3d279ca0",
+    "tests/explorer-review-recovery.test.ts": "3fdc3d057dcf7b352cc51b2f0ce17096c0756a0bb91e89b7e93e18a0a0a1cc99",
+    "tests/explorer-review-source-visibility.test.ts": "ff63ffe487f4b4257992dc4d4155c8f342455535fc03d183925da15b3fbd9183",
+    "tests/explorer-review-wait-invalidation.test.ts": "b6e39e55977727b69150ee03e974d4e310302e7d2d15c6ed7d25209f9ad1f612",
+    "tests/recovery-selection-view.test.ts": "f6d1d47c3bedd6142218e67abb1ea9fe71b9c5b79635f2c269e52ca848ee7668",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/core-types.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/corrected-baseline-red.log": "4a3e0424b0f420ba35d754d4fc5850d0b448868ce4af8d52263fbecb1f187870",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/corrected-baseline-run.log": "ede04348eeeb012fee7315867ce5c24527ecd355bea9a5347ce335cf6f258203",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/fixture-repair-green.log": "eb11f5dd3ed2c93513185c5bc2f0c2bd56c09630ca19bcdb78a0789bd38dbbcd",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/green.log": "1e19d09e975d681b36122b4a9319eb2e61a380254accda4f998caa8a5d34eebb",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/red.log": "0bd8bdde58e42df5cd13d972e1f147c52de6855ac0295b6b69aa7b4ac5f28974",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/review-contract.log": "6ea704b67f66421ef9eca4124b16141293ea1cfff908ce6a0db04f51e282811a",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/types-repair.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/types.log": "853a2b84dbaa4591985f65b9ff9bc74344d5e67f632c6879c7f949da405e75ff",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/counterexample-baseline.py": "043e1e0c36ca159376835a60eaf1fe5cb5af297dca036e4d0246b05bb323f673",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/corrected-baseline-red.json": "470656e0b672a7a49c5023da7dab1d8224a49bee6b22a64679a5076c05e8dcaa"
+  },
+  "limitations": [
+    "not a single all-green first run",
+    "no real browser restoration/dispatch/new coverage",
+    "missing portable target conditions vs strict checkpoint fallback remains unproved",
+    "no merge or production DB mutation"
+  ],
+  "rootIndependentFrozenVerification": {
+    "productCommit": "63c57e5b435864cf4948afe385b50e479e849a67",
+    "semanticLogicalSha256": "27d6950b8adaaac7a7cfbe55950aa2ea37dd90da43446db45ad00216d6edba97",
+    "selectedItemId": "92e78cad-25e8-495e-a317-6194ec309298",
+    "originalCandidateIndexZeroBased": 1,
+    "oldFirstCandidateStop": true,
+    "oldActualCandidatesForSelectedItem": 1,
+    "finalPureRevalidate": "passed",
+    "fullPlanBudgetUsageRoundsAndDebtUnchanged": true,
+    "originalFileHashesUnchanged": true,
+    "processAbsentAndTemporaryDirectoryRemoved": true,
+    "otherThreeWorktreesClean": true,
+    "actualBrowserRecoveryPerformed": false
+  }
+}

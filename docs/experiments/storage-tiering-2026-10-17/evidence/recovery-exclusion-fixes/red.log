@@ -1,0 +1,188 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ❯ tests/explorer-current-source-exclusion.test.ts (8 tests | 5 failed) 30ms
+   × current review presence does not erase a retained occurrence in a different captured mode 20ms
+     → expected undefined to match object { itemId: 'pending', …(1) }
+   × an equivalent recent review source cannot stop the older A-condition candidate 2ms
+     → expected undefined to match object { itemId: 'pending', …(2) }
+   × shared same-name hints do not let current B suppress the absent A review source 1ms
+     → expected undefined to match object { itemId: 'pending', …(1) }
+   ✓ verified unchanged review conditions still avoid restoring that source 1ms
+   × current B policy denial cannot exclude an independently retained A operation condition 2ms
+     → expected undefined to match object { itemId: 'pending', …(2) }
+   ✓ verified same-condition current policy denial still avoids pointless recovery 1ms
+   ✓ disabled current evidence only excludes its own source condition (current mode A) 1ms
+   × disabled current evidence only excludes its own source condition (current mode B) 1ms
+     → expected undefined to match object { itemId: 'pending', …(1) }
+ ❯ tests/explorer-review-wait-invalidation.test.ts (2 tests | 2 failed) 35ms
+   × releases an absent-target negative wait when retained actions change, preserving the legal source candidate 30ms
+     → expected { frame: { …(6) }, …(8) } to match object { itemId: 'review', …(2) }
+(6 matching properties omitted from actual)
+   × releases an absent-target negative wait when retained review record change, preserving the legal source candidate 4ms
+     → expected { frame: { …(6) }, …(8) } to match object { itemId: 'review', …(2) }
+(6 matching properties omitted from actual)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/explorer-current-source-exclusion.test.ts > current review presence does not erase a retained occurrence in a different captured mode
+AssertionError: expected undefined to match object { itemId: 'pending', …(1) }
+
+- Expected: 
+{
+  "itemId": "pending",
+  "source": {
+    "id": "source-A",
+  },
+}
+
++ Received: 
+undefined
+
+ ❯ tests/explorer-current-source-exclusion.test.ts:121:30
+    119|     expect(browserTargetConditions(action(source), source)!.key).not.t…
+    120|     const before = f.retained();
+    121|     expect(await f.select()).toMatchObject({ itemId: 'pending', source…
+       |                              ^
+    122|     expect(f.retained()).toEqual(before); f.noEffects();
+    123|   } finally { await f.close(); }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/explorer-current-source-exclusion.test.ts > an equivalent recent review source cannot stop the older A-condition candidate
+AssertionError: expected undefined to match object { itemId: 'pending', …(2) }
+
+- Expected: 
+{
+  "frame": {
+    "checkpointId": "checkpoint-older-A",
+  },
+  "itemId": "pending",
+  "source": {
+    "id": "older-A",
+  },
+}
+
++ Received: 
+undefined
+
+ ❯ tests/explorer-current-source-exclusion.test.ts:131:30
+    129|     expect(classificationCorrespondenceConditions(recent.controls[0], …
+    130|     const before = f.retained();
+    131|     expect(await f.select()).toMatchObject({ itemId: 'pending', source…
+       |                              ^
+    132|     expect(f.material.mock.calls.map(([, input]) => input.sourceObserv…
+    133|     expect(f.retained()).toEqual(before); f.noEffects();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/explorer-current-source-exclusion.test.ts > shared same-name hints do not let current B suppress the absent A review source
+AssertionError: expected undefined to match object { itemId: 'pending', …(1) }
+
+- Expected: 
+{
+  "itemId": "pending",
+  "source": {
+    "id": "source-A",
+  },
+}
+
++ Received: 
+undefined
+
+ ❯ tests/explorer-current-source-exclusion.test.ts:146:30
+    144|       .not.toBe(classificationCorrespondenceConditions(current.control…
+    145|     const before = f.retained();
+    146|     expect(await f.select()).toMatchObject({ itemId: 'pending', source…
+       |                              ^
+    147|     expect(f.retained()).toEqual(before); f.noEffects();
+    148|   } finally { await f.close(); }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/explorer-current-source-exclusion.test.ts > current B policy denial cannot exclude an independently retained A operation condition
+AssertionError: expected undefined to match object { itemId: 'pending', …(2) }
+
+- Expected: 
+{
+  "itemId": "pending",
+  "source": {
+    "id": "source-A",
+  },
+  "targetActionIds": [
+    "action-source-A",
+  ],
+}
+
++ Received: 
+undefined
+
+ ❯ tests/explorer-current-source-exclusion.test.ts:166:22
+    164|     const before = f.retained();
+    165|     const selected = await f.select();
+    166|     expect(selected).toMatchObject({ itemId: 'pending', source: { id: …
+       |                      ^
+    167|     expect(f.retained()).toEqual(before); f.noEffects();
+    168|     // The corrected source filter cannot release an unknown debt on t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  tests/explorer-current-source-exclusion.test.ts > disabled current evidence only excludes its own source condition (current mode B)
+AssertionError: expected undefined to match object { itemId: 'pending', …(1) }
+
+- Expected: 
+{
+  "itemId": "pending",
+  "source": {
+    "id": "source-A",
+  },
+}
+
++ Received: 
+undefined
+
+ ❯ tests/explorer-current-source-exclusion.test.ts:193:27
+    191|     const before = f.retained(), selected = await f.select();
+    192|     if (mode === 'A') { expect(selected).toBeUndefined(); expect(f.tas…
+    193|     else expect(selected).toMatchObject({ itemId: 'pending', source: {…
+       |                           ^
+    194|     expect(f.retained()).toEqual(before); f.noEffects();
+    195|   } finally { await f.close(); }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  tests/explorer-review-wait-invalidation.test.ts > releases an absent-target negative wait when retained actions change, preserving the legal source candidate
+ FAIL  tests/explorer-review-wait-invalidation.test.ts > releases an absent-target negative wait when retained review record change, preserving the legal source candidate
+AssertionError: expected { frame: { …(6) }, …(8) } to match object { itemId: 'review', …(2) }
+(6 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "frame": {
+      "checkpointId": "source-checkpoint",
+    },
+-   "itemId": "review",
++   "itemId": "authority",
+    "source": {
+      "id": "source",
+    },
+  }
+
+ ❯ tests/explorer-review-wait-invalidation.test.ts:124:22
+    122|     f.apply(reviewRecoveryChanges(f.task, f.away, f.host));
+    123|     const selected = await f.select();
+    124|     expect(selected).toMatchObject({ itemId: f.item.id, source: { id: …
+       |                      ^
+    125|     expect(f.assess).toHaveBeenCalled();
+    126|     expect(f.task.routeRetries).toEqual(debt);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  7 failed | 3 passed (10)
+   Start at  16:29:02
+   Duration  1.59s (transform 560ms, setup 0ms, collect 1.24s, tests 64ms, environment 0ms, prepare 75ms)
+

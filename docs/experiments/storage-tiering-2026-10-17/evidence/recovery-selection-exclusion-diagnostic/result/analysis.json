@@ -1,0 +1,255 @@
+{
+  "productCommit": "551a6b9020b919862434346d276a21fe3d1f4ac1",
+  "scope": "One offline diagnostic, not performance benchmark, dispatch, browser arrival or coverage.",
+  "inputPlanRows": 1241,
+  "pendingItems": 1169,
+  "actualCandidates": 4927,
+  "actualExitReasons": {
+    "browser_target_conditions_missing": 4770,
+    "route_retry_condition_attempted": 35,
+    "current_review_occurrence_present": 72,
+    "checkpoint_no_known_path": 1,
+    "source_review_target_not_available": 2,
+    "scope_matches_multiple": 27,
+    "route_condition_unverified": 20
+  },
+  "planTerminalReasons": {
+    "broad_current_or_unspecified_url": 2,
+    "missing_capability": 1,
+    "finished_succeeded": 5,
+    "unchanged_unresolved_review": 4,
+    "route_retry_condition_attempted": 6,
+    "condition_completion_wait": 63,
+    "source_target_unverified": 788,
+    "current_review_occurrence_present": 72,
+    "checkpoint_no_known_path": 1,
+    "source_review_target_not_available": 2,
+    "retained_checkpoint_unavailable": 280,
+    "not_required": 1,
+    "route_condition_unverified": 16
+  },
+  "projectionComputedByMode": {
+    "actual": 67,
+    "speculative": 5783
+  },
+  "projectionHits": 4860,
+  "projectionHitProvenanceMismatches": 0,
+  "provenanceChecks": [
+    "origin exists before hit",
+    "itemId/sourceId/skip/stop/productReason equality"
+  ],
+  "allHitOriginsSpeculative": true,
+  "candidateBeginExitOrderMatched": true,
+  "currentAvailability": {
+    "observationId": "dbb04d18-bd75-407a-a146-bda06280bc80",
+    "actions": 214,
+    "executable": 3,
+    "limitation": "scheduledRecovery null does not mean step has no local work"
+  },
+  "presentExclusions": {
+    "items": 72,
+    "anySamePortableIdentityAndCondition": 6,
+    "noSamePortableIdentityAndCondition": 66,
+    "bothSidesHaveProjection": 62,
+    "bothSidesProjectedButNotEqual": 56,
+    "eitherSideMissingProjection": 10,
+    "hasScopeOnlyCurrentMatch": 64,
+    "hasRetainedCurrentMatch": 8,
+    "examples": [
+      {
+        "itemId": "6278acdd-d142-40c0-89d1-15a5fea6995e",
+        "sourceId": "1ed23726-5e7b-49a8-b885-4631d40d627c",
+        "sourceScopeCount": 2,
+        "currentScopeCount": 1,
+        "sameConditions": false,
+        "scopeOnly": true
+      },
+      {
+        "itemId": "bf095644-b48f-42fd-8c21-3626ce9783a8",
+        "sourceId": "1ea431eb-205f-42cd-ba28-7055e514d098",
+        "sourceScopeCount": 2,
+        "currentScopeCount": 1,
+        "sameConditions": false,
+        "scopeOnly": true
+      },
+      {
+        "itemId": "946049d7-01aa-4709-a1ac-9e06280e1b82",
+        "sourceId": "1ea431eb-205f-42cd-ba28-7055e514d098",
+        "sourceScopeCount": 2,
+        "currentScopeCount": 1,
+        "sameConditions": false,
+        "scopeOnly": true
+      }
+    ]
+  },
+  "policyExclusionActualCount": 0,
+  "waits": [
+    {
+      "itemId": "d6890f2b-f098-4e20-8a71-d31f862ef0bb",
+      "sourceId": "ab266706-1d93-4c0c-adfd-e5e9f0dcecbe",
+      "sourceActions": 0,
+      "sourceConditionEqualsStoredWait": true,
+      "materialKeyRevalidated": false,
+      "historicalReviewMaterialUnavailable": true
+    },
+    {
+      "itemId": "f6c2567c-1d1c-41a0-9cf0-ad2c938c26ea",
+      "sourceId": "ab266706-1d93-4c0c-adfd-e5e9f0dcecbe",
+      "sourceActions": 0,
+      "sourceConditionEqualsStoredWait": true,
+      "materialKeyRevalidated": false,
+      "historicalReviewMaterialUnavailable": true
+    },
+    {
+      "itemId": "92336800-fdb3-4ea5-9f1e-6f1d910c8059",
+      "sourceId": "ab266706-1d93-4c0c-adfd-e5e9f0dcecbe",
+      "sourceActions": 0,
+      "sourceConditionEqualsStoredWait": true,
+      "materialKeyRevalidated": false,
+      "historicalReviewMaterialUnavailable": true
+    },
+    {
+      "itemId": "19a0689d-268d-4062-ac04-1c1fa00120b5",
+      "sourceId": "ab266706-1d93-4c0c-adfd-e5e9f0dcecbe",
+      "sourceActions": 0,
+      "sourceConditionEqualsStoredWait": true,
+      "materialKeyRevalidated": false,
+      "historicalReviewMaterialUnavailable": true
+    }
+  ],
+  "checkpointStatus": {
+    "tryable": 37,
+    "no_known_path": 20
+  },
+  "checkpointQueries": {
+    "calls": 8,
+    "checkpoints": 57
+  },
+  "exitReasonByCheckpointAssessment": [
+    {
+      "reason": "browser_target_conditions_missing",
+      "checkpointAssessment": "no_known_path",
+      "count": 3958
+    },
+    {
+      "reason": "browser_target_conditions_missing",
+      "checkpointAssessment": "tryable",
+      "count": 812
+    },
+    {
+      "reason": "checkpoint_no_known_path",
+      "checkpointAssessment": "no_known_path",
+      "count": 1
+    },
+    {
+      "reason": "current_review_occurrence_present",
+      "checkpointAssessment": "no_known_path",
+      "count": 64
+    },
+    {
+      "reason": "current_review_occurrence_present",
+      "checkpointAssessment": "tryable",
+      "count": 8
+    },
+    {
+      "reason": "route_condition_unverified",
+      "checkpointAssessment": "no_known_path",
+      "count": 20
+    },
+    {
+      "reason": "route_retry_condition_attempted",
+      "checkpointAssessment": "no_known_path",
+      "count": 12
+    },
+    {
+      "reason": "route_retry_condition_attempted",
+      "checkpointAssessment": "tryable",
+      "count": 23
+    },
+    {
+      "reason": "scope_matches_multiple",
+      "checkpointAssessment": "no_known_path",
+      "count": 23
+    },
+    {
+      "reason": "scope_matches_multiple",
+      "checkpointAssessment": "tryable",
+      "count": 4
+    },
+    {
+      "reason": "source_review_target_not_available",
+      "checkpointAssessment": "no_known_path",
+      "count": 2
+    }
+  ],
+  "missingTargetConditionsButCheckpointTryable": {
+    "actualCombinations": 812,
+    "items": 287,
+    "checkpoints": 37,
+    "meaning": "Strategy hint only; target legality and actual checkpoint arrival remain unproved."
+  },
+  "completeSemanticEqualWithZeroIgnoredFields": true,
+  "selected": null,
+  "callback": {
+    "present": false,
+    "invoked": false,
+    "status": "not_selected"
+  },
+  "invariants": {
+    "planUnchanged": true,
+    "budgetUnchanged": true,
+    "usageUnchanged": true,
+    "roundsAndCursorUnchanged": true,
+    "routeRetriesUnchanged": true
+  },
+  "viewStats": {
+    "requested": 1,
+    "acquired": 1,
+    "closed": 1
+  },
+  "querySqlChanges": 0,
+  "timingUse": "Diagnostic boundary and attribution only; not speedup evidence. Inclusive calls must not be summed.",
+  "processMs": 13903.36012840271,
+  "phaseTimingsMs": {
+    "input_validation": 122.44245799999999,
+    "browser_launcher_guards": 230.52966700000002,
+    "module_imports": 353.175334,
+    "sqlite_constructor": 3.7086249999999836,
+    "engine_constructor": 132.47737499999994,
+    "plugin_constructor": 0.13516699999991033,
+    "setup_current_observation": 30.47845899999993,
+    "setup_current_actions": 14.602790999999911,
+    "setup_current_availability": 224.19791700000007,
+    "setup_fact_hashes": 18.079124999999976,
+    "route_condition_reader": 0.14441699999997581,
+    "scheduled_recovery": 9679.627333999999,
+    "diagnostic_all_checkpoint_strategies": 2870.420250000001,
+    "semantic_summary": 18.964208999999755,
+    "semantic_serialization": 23.997917000000598,
+    "plugin_close": 0.06695899999976973,
+    "engine_close": 0.9567499999993743
+  },
+  "processExited": true,
+  "ownedDirectoryRemoved": true,
+  "protectedInputsUnchanged": true,
+  "trace": {
+    "path": "worker.jsonl.gz",
+    "logicalSha256": "ff8d17f4985137d6148d371b933960e6368d4e9cc58e170835cb3df239d39057",
+    "logicalBytes": 9180221,
+    "gzipSha256": "fcabdfabf4790e772b352e39cc67a884c7c5633a7d1f1d0812d924e8932d0114"
+  },
+  "semanticReference": {
+    "path": "recovery-selection-epoch-profile/result/semantic-264bde57836f0ab768bb49251eeb31ec5cba844f252a62f2ca1e2c07ee66e5d6.json.gz",
+    "logicalSha256": "264bde57836f0ab768bb49251eeb31ec5cba844f252a62f2ca1e2c07ee66e5d6",
+    "logicalBytes": 3390001,
+    "gzipSha256": "0338dff992c98dcaeafb9eede052504622a67dc59f2659e3cdfa867ec19f1730",
+    "pathBase": "docs/experiments/storage-tiering-2026-10-17/evidence",
+    "reusedExistingOracle": true
+  },
+  "limitations": [
+    "No browser arrival or step dispatch",
+    "No actual policy-blocked candidate in this sample",
+    "Classification conditions do not substitute for historical review material",
+    "Strict-checkpoint/target-portability fallback contract requires separate validation"
+  ]
+}

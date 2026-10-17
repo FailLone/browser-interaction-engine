@@ -2,7 +2,7 @@
 
 本轮优先解决同一次候选扫描反复加载相同事实的算法结构。采用存储变更版本、SDK 选择读视图和插件选择周期三层合同；保留最终完整验证。分类查询内部的局部优化不在本轮范围内。
 
-**状态：三层实现已落地并固定提交，集中定向检查、类型检查和唯一冻结输入选择集成已完成。选择器 8.526 秒、进程 9.857 秒，完整来源 91 次/58 不同来源；旧同输入样本 240 秒未完成。新样本返回无候选，没有最终 recovery 回调或真实恢复；不支持精确加速比、恢复成功率、第 3 项完成或穷尽结论。**
+**状态：三层优化保留；后续离线审查发现原有筛选谓词存在误排除，已在其上修复至 `63c57e5`。初次 `551a6b9` 样本选择器 8.526 秒、来源 91 次，但其“无候选”不能视为正确性通过。诊断确认缓存没有串错，同时 72 次在场排除中 66 次缺相同条件证明。两个修复、有限复验及证据限制见[修复检查点](experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/README.md)，修复后冻结输入见[同输入报告](experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes-profile/README.md)。不支持恢复成功率、第 3 项完成或穷尽结论。**
 
 本文对应产品 `551a6b9020b919862434346d276a21fe3d1f4ac1`，父提交为 `04e6501d839977924b75214181e46fee3f858160`，工作区 `/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine`、分支 `codex/exploration-layered-refactor`。本轮最终源码及日志哈希见 [checkpoint.json](experiments/storage-tiering-2026-10-17/evidence/recovery-selection-epoch/checkpoint.json)，检查范围见 [检查点说明](experiments/storage-tiering-2026-10-17/evidence/recovery-selection-epoch/README.md)，真实保留材料的阶段/处理量见[唯一集成报告](experiments/storage-tiering-2026-10-17/evidence/recovery-selection-epoch-profile/README.md)；后述比较夹具修复不修改产品。旧轻量锚点产品为 `fe3cb7a70585de64c6638c6b43584bce141d969a`，不能代表本轮实现。
 
@@ -78,6 +78,7 @@ SDK 已提供 `BrowserEngine.recoverySelectionView(sessionId,{observationId})`�
 - `current`：打开视图时取得一次完整的当前 observation、actions 和 availability，并绑定指定 session/current observation。
 - `source(id)`：在读取前后验证版本，提供来源事实、actions 和必要 transition；SDK view 不缓存来源大材料，插件的完整来源缓存最多 8 项。
 - `anchor(id)`：提供来源排序所需事实，不因此读取或保留整份操作材料。
+- `reviewMaterial(id)`（`a77bdd6` 新增，可选）：按显式历史 observation ID 取得当前有效的审阅及操作事实。读取前后核验同一版本；只有存在旧 negative wait 时才需要，不给出恢复或执行许可。
 - `assertCurrent()`：检查视图仍有效及默认组合资格仍成立。变化或无法证明时失败，不隐式换一套事实继续旧扫描。
 - `close()`：永久失效，之后的读取与验证不能重新启用；成功、取消、异常都在插件 `finally` 关闭。它不擦除调用者已取得的对象，也不自行清除插件缓存。
 
@@ -94,7 +95,7 @@ view 仅持有初次 `current` 及读取闭包。来源、锚点、纯筛选材�
 1. 保留原 `orderedObligations`、授权/排除、pending 和 checkpoint 来源索引的语义。
 2. 一个来源首次产生纯筛选拒绝后，`projectRelatedItems` 才惰性遍历整个 pending，用 evidence/作用域规则找相关 item，调用提取出的原谓词 `projectSourceItem`。不是预先建好逆向索引。结果按来源/item ID 保存 `skip/reason/stop`，全周期最多 65536 对；不保存完整 observation/actions/transition。预计算异常不会使无关 item 失败，版本未变时保留其正式候选路径再判断。
 3. 锚点缓存最多 128 个来源（保守旧路径仍为 8），保留原稳定排序；超过容量可重新读取。来源预计算不能改变 item 优先级、checkpoint 顺序、page-first fallback、公平性或最后选中项。
-4. 正式选择仍按原 item/candidate 顺序消费小表。命中的 skip 只复用原算法的拒绝/暂缓原因；例如未知上下文仍是本来源未验证，不是确定无路。未缓存、缺材料、预计算异常或容量截断的组合均回到原逐项读取和判断，不能当作 skip。部分来源表达到容量也不会删除后面的候选。`current_review_occurrence_present` 仍仅在当前无活动 boundary 时终止本 item 的旧源回退。
+4. 正式选择仍按原 item/candidate 顺序消费小表。命中的 skip 只复用本周期谓词的拒绝/暂缓原因；例如未知上下文仍是本来源未验证，不是确定无路。未缓存、缺材料、预计算异常或容量截断的组合均回到逐项读取和判断，不能当作 skip。部分来源表达到容量也不会删除后面的候选。`63c57e5` 修正旧谓词：当前 scope/retained 线索还需唯一对应、相同分类与非局部 UI 条件证明，才可排除该来源；等价的近期来源不再终止整个 item 的旧源回退。此修复明确改变不充分的排除语义，不能用缓存等价掩盖原谓词缺陷。
 5. 进入必要的实际候选评估时，仍执行来源/当前对应、严格 checkpoint 与目标/来源合同选择、route condition、旧债、未知结果及策略检查。大材料通过 8 项有界缓存共享。
 6. 稳定版本下 yield 检查取消、预算、任务 revision/status、任务调度/债对象及 SDK view 有效性，不再次计算全量 availability，不因 yield 自身清空来源/锚点/纯筛选缓存。checkpoint 策略评估另有 adapter/hook 依赖，不受 view 版本完整覆盖：仍最多 8 项，且每次 yield 清空。
 7. 任何依赖变化都中止整个周期，释放视图。不能清缓存后沿用旧 pending、已跳过的候选和 cursor；下次选择从新事实重建。中止不是结案、到达失败或覆盖授予。
@@ -111,6 +112,8 @@ custom hosts 或不合格存储整体使用原保守路径。不能先改变它�
 | pending / 来源关系 | 任务计划、授权/排除、alias、当前可执行性、checkpoint 清单 | ID、顺序；相关项按来源惰性遍历，小表最多 65536 对 | 结束周期并重建；旧 cursor 之前已跳过的工作也要重新纳入 |
 | source / retained | 来源 observation、可变 actions、当前 observation、transition 规则 | 默认链证明下的事实及纯索引，完整材料最多 8 项 | 结束周期；历史页面不可变不代表 replayable/basis/权限不可变 |
 | anchors | 来源及当前 navigation/context/gaps | 最多 128 个来源的排序材料；超量淘汰后可重读 | 失效后重新排序；不能拿旧排序拒绝候选 |
+| negative review wait 材料 | 历史 observation 及最新 actions/review/surroundings、任务含义 | 材料最多 8 项；通过 view 的 reader 才跨 yield 复用 | 材料无法核验或 materialKey 改变则撤回等待；不释放 route/unknown 债 |
+| 当前事实排除来源的证明 | 来源/当前完整分类、对应唯一性、非局部 UI 模式、活动 boundary | 当前标量索引与 WeakMap 来源投影；不额外强持有历史图 | legacy invalidate 重建；缺证保留候选进入后续恢复门禁 |
 | routeCondition | 当前事实索引、来源、route 的成员/路径、作用域条件 | 纯映射与索引 | 不能只按 routeKey 复用；任务内 route/retry 债独立现查 |
 | checkpoint 负面评估 | 当前及来源事实、actions、图、attempt、策略、旧债及 adapter/hook | 同步片段内最多 8 项；不属于 view 的跨 yield 复用证明 | 每次 yield 清空并按需重查；记录版本变化仍中止整个周期 |
 | reviewFallback / 最终选中项 | 所有来源条件、到达合同、当前事实、旧债及 task 状态 | 候选标识；不是待执行许可 | 返回微任务边界后完整重核，不能绕过 local fallback 门禁 |
@@ -161,11 +164,11 @@ custom hosts 或不合格存储整体使用原保守路径。不能先改变它�
 2. **集中定向验证已完成这一检查点。** 首次 55 项为 54 通过、1 个随机 taskId 比较失败；只归一化该生成元数据后复验 1 通过、19 跳过；根/core 类型通过。保留首轮失败，不写成“一次全绿”，不机械重跑旧 28 项或追加全面套件。
 3. **唯一集成已执行并停止。** 固定 `551a6b9`，使用已关闭 run12 的独占临时副本和原 task/budget/plan/cursor/债，只在内存 paused→running。选择 8.526 秒、进程 9.857 秒，view 取得/关闭各一次，原输入和完整计划/旧债不变。无候选，因此最终 revalidate 未调用，不记作通过，也不改输入制造正向候选。资源已关闭清理；没有重跑、延长或新增真实窗口。
 
-该集成是保留事实上的完整选择调用，不是浏览器恢复的端到端成功证明。已有真实输入没有完整旧基线终态结果，因此不能虚构逐字段真实 A/B 等价；语义等价依靠受控用例。本次只证明该输入走完选择并正确保留无候选结果，没有覆盖正向最终回调。唯一报告已记录选择与回调状态、任务/有序事件/旧债完整核验、工作量、阶段耗时与序列化前资源。
+该集成是保留事实上的完整选择调用，不是浏览器恢复的端到端成功证明。已有真实输入没有完整旧基线终态结果，因此不能虚构逐字段真实 A/B 等价；语义等价依靠受控用例。初次只证明该输入走完选择并保存完整无候选结果，没有覆盖正向最终回调；后续离线诊断已发现提前截断来源的误排除，不能再将该 null 作为筛选正确的证据。唯一报告记录选择与回调状态、任务/有序事件/旧债完整核验、工作量、阶段耗时与序列化前资源。
 
 ## 8. 完成与推翻条件
 
-本轮结构优化检查点包括：版本与默认资格合同复核、有限反例及适用容量内工作量边界、唯一集成的完整选择结果、原始输入及源码绑定、资源关闭。上述证据已取得；无候选样本没有正向最终回调覆盖，真实成功恢复与后续新覆盖仍是独立未通过的门。不能将读取次数和固定输入耗时改善写成第 3 项整体完结。
+本轮结构优化检查点包括：版本与默认资格合同复核、有限反例及适用容量内工作量边界、唯一集成的完整选择结果、原始输入及源码绑定、资源关闭。初次无候选样本没有正向最终回调覆盖，且后续已发现原有谓词不充分；该缺陷及其修复证据须与缓存正确性分开。修复后回调结果以同输入报告为准，真实成功恢复与后续新覆盖仍是独立未通过的门。不能将读取次数和固定输入耗时改善写成第 3 项整体完结。
 
 以下证据足以推翻本方案当前实现：存在未使版本失效的相关写入；custom 行为被静默绕过；稳定扫描仍随 yield 数重复全量 availability；预筛选改变顺序或漏掉新合法路径；unknown/旧债被释放；最终微任务边界绕过检查；或完整大材料超过有界数量。届时修正对应合同或组织方式，不以更大预算、扩大缓存、减少验证或清空任务队列掩盖问题。
 

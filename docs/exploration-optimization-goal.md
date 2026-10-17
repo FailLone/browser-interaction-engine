@@ -2,6 +2,10 @@
 
 本次完整目标：完成可行的恢复、性能、存储优化，包括 Observation 结构共享、历史分层与按引用回收、任务库压缩和全量读取优化；验证后将 refactor 与 autonomous-exploration 的代码一并合入 main；再以真实 OKX USD→BTC 页面持续探索，发现异常立即停止该轮、保留证据并修复。队列为空、模拟测试或单次恢复成功均不构成穷尽证明。
 
+最新离线检查点（产品 `63c57e5`）：确认 `551a6b9` 的无候选不能作为正确性通过。缓存投影对应没有错配，但旧筛选把一个等价近期来源的“当前已在场”用于终止整个 item 的历史扫描，真实 USD 审阅项的第二个来源因此未被访问。`a77bdd6` 修复 negative wait 未核对最新历史材料；`63c57e5` 修复当前证据跨条件误排除及 whole-item stop，均在原选择周期与有界缓存上增量修复，unknown/失败债保持。114 个不同定向用例分检查点通过，保留夹具遮挡导致的首轮失败与修正后精确旧版对照，见[验证说明](experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/README.md)。
+
+修复后[唯一同输入复验](experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes-profile/README.md)选择 7.249 秒，选出原先未访问的来源，纯最终 revalidate 176.9 ms 实际通过；完整进程 8.749 秒。1241 行计划、预算/使用量/轮次和 8 条旧债不变，原库未连接，副本与进程已清理。停止点改变导致读取/扫描量不同，不把比旧 8.526 秒更短当作纯提速；没有浏览器恢复、新覆盖或存储下降结论。严格 checkpoint 是否可在缺 portable target 条件时继续评估仍是独立待证合同，不能凭 37 个 tryable 提示放宽门禁。未合入 main、未追加真实窗口，第 3 项整体未完结。
+
 当前 main 为 `7c0273d`（含 autonomous），恢复候选产品 `c3a7d1a` 已通过定向行为及隔离发布检查。第十二窗已正常结算：5/5 实际操作取得 document 条件覆盖，但恢复调用为 0，新 `checkpoint_no_known_path` 暂缓效果未被实际事件证实；旧 Trade 项由既有失败债暂缓。窗口暴露长同步扫描的响应性问题：metrics 间隔 168.994 秒，停止请求处理延迟 41.510 秒，期间又开始 1 次动作。unknown/在途/provider 最终均清空，旧计划与路线债保留。第 3 项真实到达及后续新覆盖门仍未通过，不能宣布完结或穷尽；没有新增性能/存储收益结论。最终事实见[第十二窗报告](experiments/storage-tiering-2026-10-17/evidence/real-okx-12/README.md)。
 
 `a32a9bc` 已完成候选扫描的协作式中断及等待后事实复核，尚未合入 main。一次定向检查为 126/127，新增 13 个取消/失效用例全部通过，另两个审阅选择用例通过；旧函数引用比较及测试夹具类型修复后，只补跑失败单例、三条受影响用例和根/core types，均通过。产品在补跑前后未变，不称全套单次全绿。备用候选不会因跨批次被永久丢弃；最终异步返回到实际选中之间也重核历史来源、检查点和路线债。单个 SDK 同步查询仍不可抢占，事实复核增加读取成本，未声称提速或真实停止时延改善。证据唯一保存在[可中断检查点](experiments/storage-tiering-2026-10-17/evidence/recovery-selection-cancellation/README.md)。本补丁不追加真实窗口，下一补丁独立处理重复读取和复核成本；第 3 项门槛不变。
