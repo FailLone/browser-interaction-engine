@@ -67,3 +67,13 @@
 文件证据的跨进程发布/回收协调采用 SQLite 的写事务互斥；使用非阻塞 busy 检查并异步等待，避免阻塞同一事件循环中持锁的文件操作。进程退出由数据库/操作系统释放锁，不依据陈旧 PID 或租约时间强行抢锁。依据：[SQLite 事务](https://www.sqlite.org/lang_transaction.html)、[busy timeout](https://www.sqlite.org/c3ref/busy_timeout.html)、[文件锁](https://www.sqlite.org/lockingv3.html)。这只保护协作存储实现，不声称旧版本或绕过接口直接修改文件也受协调。
 
 第七窗已在 `069b65b` 完成结算并全量冻结，原始停止原因为 `recovery_not_verified`，不是后续未被接受的 operator stop；见[第七窗事实报告](experiments/storage-tiering-2026-10-17/evidence/real-okx-7/README.md)。选路事件窗口长 43.980 秒，需要与底层计算和读取成本区分。第 3 项的进一步修复 `cbd5b87` 仅复用一次同步筛选中的范围/目标投影和已知事件观察 ID，维持历史缓存上限、原路线排序、失败债与派发复验；相关 80 项、新增 13 项及根/core 类型检查通过。三组串行固定材料对照中，候选筛选 42.362→35.737 秒（约 −15.6%），完整输入/选择/任务/事件八组对照一致。诊断工具峰值 RSS 约 +10.9%，任务数据大小不变；观察读取仍为主要成本。原 80 次协议行为投影与 `900edf7` 全部一致，348 项完整性检查通过，463 份源码不变；见[本阶段验证](experiments/storage-tiering-2026-10-17/evidence/run7-selection-validation/README.md)。本阶段不声称真实恢复成功率提升。
+
+第七窗后第二组修复为 `855a3a4`、`875ce50` 和 `e06f057`。组合读取初版的重复复制抵消大部分收益（耗时仅 −2.15%、诊断 RSS +6.51%），因此新增明确的存储记录隔离契约，未声明、声明撤回或覆写读取的路径仍防御性复制。最终固定材料三对串行新进程完整输出字节相同，筛选中位 **35.896→25.305 秒（−29.51%）**，读取 1,945→1,313；诊断进程 RSS 中位 −1.34%，包含验收材料保留与序列化，不能当作生产内存结论。任务字节和持久化布局不变。见[完整性能对照](experiments/storage-tiering-2026-10-17/evidence/real-okx-7/source-material-isolation/README.md)。
+
+真实恢复失败的进一步[诊断](experiments/storage-tiering-2026-10-17/evidence/real-okx-7/recovery-diagnosis.md)确认：SDK 对非许可重放路径的拒绝正确；调度却把仅有隐藏控件的旧场景当成审阅目标。`e06f057` 增加来源可见性及最内层边界成员门禁，保持 identity 不唯一和 disabled 控件仍可被审阅，不能因此执行。冻结反事实中两条隐藏候选被拒，最终没有可验证替代路线；803 条计划、轮次和 6 个旧路线债完整保留，没有恢复动作或成功。真实原选择与反事实候选不同，完整字段差异及 13 条新增/变更事件依据在[行为对照](experiments/storage-tiering-2026-10-17/evidence/real-okx-7/review-source-counterfactual/README.md)。
+
+同版[原 80 次协议](experiments/storage-tiering-2026-10-17/evidence/run7-fixes-protocols/README.md)保持 16 场景/80 trial 的完整原行为投影一致，348 项完整性检查通过；嵌套恢复、A/B 及 unknown 跨重启阻断未退化。SDK 隔离/存储契约 63 项、任务存储 47 项、隐藏来源 15 项专项及根/core 类型检查分别通过，重叠组不相加计总数；最终相关运行和证据哈希见[本轮验证](experiments/storage-tiering-2026-10-17/evidence/run7-fixes-validation/README.md)。未重新运行全套、隔离构建或真实第八窗，尚未合并这些补丁到 main。
+
+附带的热写优化只省去未变化记录的重复 JSON.parse 和小于冷包阈值时的 JSON 传输。固定 run7 unchanged-round CAS −13.50%、active-item CAS −15.78%；历史夹具 changed-round CAS +12.67%，写事务体时间增加约 0.52–0.75 ms，完整读取和持久化字节没有实现变化。负面结果与原始完整输出保存在[任务库对照](experiments/storage-tiering-2026-10-17/evidence/task-store-hot-write/report.md)。任务库进一步压缩、完整读取优化仍列后续；下一处真实覆盖缺口是隐藏/nonlocal selector 的父记录与 IDREF 事实不足，需独立采集契约及反例验证。旧缺证观察、未测来源、unknown 和重放门禁均保留，完整目标与真实穷尽仍未完成。
+
+最终接口复核另发现合法子类覆写 protected 组合 helper 的别名泄漏；`1f7cb65` 将其纳入前后隔离判定，三条新增反例先失败后通过。最终来源材料 34 项和根/core 类型检查通过，内置读次数/完整结果原测试保持；原 80 协议与性能测试仍标记它们实际运行的旧提交，没有重标或声称重跑。补充证据在[最终验证边界](experiments/storage-tiering-2026-10-17/evidence/run7-fixes-validation/README.md)。

@@ -1,0 +1,64 @@
+{
+  "revision": "e06f057ecc1fd43feaa8cfa42d14c65e9750a08e",
+  "sourceFiles": 467,
+  "sourcesUnchanged": true,
+  "runtimeRelated": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/explorer-recovery-selection-index.test.ts",
+      "tests/explorer-source-return-scheduling.test.ts",
+      "tests/explorer-recovery-failure-condition.test.ts",
+      "tests/explorer-review-recovery.test.ts",
+      "tests/explorer-review-source-priority.test.ts",
+      "tests/explorer-review-source-visibility.test.ts",
+      "tests/explorer-obligation-scheduler-safety.test.ts",
+      "tests/explorer-scope-source-recovery.test.ts"
+    ],
+    "startEpoch": 1792201644.131979,
+    "endEpoch": 1792201655.920831,
+    "exitCode": 0
+  },
+  "independentManifests": {
+    "run7-fixes-protocols": {
+      "entries": 39,
+      "manifestSha256": "8aedd9f6b70e2d4a30f1efce0b79aad3118bdb57bc1340111ed8b43f7d760daf",
+      "allMatch": true
+    },
+    "real-okx-7/recovery-diagnosis": {
+      "entries": 15,
+      "manifestSha256": "c5ffd71b33616b414cf09ad5c96b99234a4583df9c120bc37360f579ded35b2b",
+      "allMatch": true
+    }
+  },
+  "protectedWorktrees": [
+    {
+      "path": "/Users/xietian/Projects/browser-interaction-engine",
+      "revision": "6e111284ac3a6642844531dbc06bce462ca4293c",
+      "branch": "codex/single-selection-state-rule",
+      "status": ""
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine",
+      "revision": "069b65b47d951cdcced4d895e2abe33738267e5a",
+      "branch": "main",
+      "status": ""
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine",
+      "revision": "4857ad571c19995480a4c149abd9b2868a94c965",
+      "branch": "codex/autonomous-exploration",
+      "status": ""
+    }
+  ],
+  "autonomousAncestorOfMain": true,
+  "initialUntrackedLaunchFiles": {
+    "okx-launch-7.json": "54f8368ad2c363c84feae89451b753e003041e1ad8831789c2b03047e173ade9",
+    "okx-launch-7.log": "c5d61030d2df2b89b8097a717a25bfda8bc6e5d0046fa3e6bc23947e33afc172"
+  },
+  "initialUntrackedLaunchFilesStaged": false,
+  "scope": "No build, main merge, active browser or original database action in this stage.",
+  "verificationNote": "The first independent diagnostic-manifest check used directory-relative resolution for its repository-relative docs/test entries and raised FileNotFoundError. The source comparison already passed. This completed check resolves the explicit entry roots and verifies every hash without modifying evidence."
+}

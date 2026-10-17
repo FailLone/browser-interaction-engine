@@ -1,0 +1,450 @@
+[
+  {
+    "attemptId": "c1f06ae0-0167-410e-ab89-df29b531f0c9",
+    "status": "succeeded",
+    "kind": "check",
+    "label": "Don’t show for 7 days",
+    "value": true,
+    "replayable": true,
+    "beforeId": "f339f385-9c0a-44b8-ab26-f6807ea5cf6f",
+    "documentId": "8fc09711-f673-4379-8cce-d8d739de575e",
+    "stable": true,
+    "criticalGaps": [],
+    "knownContext": true,
+    "branchAvailable": false,
+    "targetConditionsAvailable": false,
+    "selectorCount": 26,
+    "reasonCounts": {
+      "missing_state": 0,
+      "unstable": 0,
+      "unresolved_identity": 2,
+      "instance_only": 0,
+      "missing_record": 0,
+      "duplicate_binding": 2
+    },
+    "problemSelectors": [
+      {
+        "localId": "8fc09711-f673-4379-8cce-d8d739de575e:1469",
+        "instanceId": "8fc09711-f673-4379-8cce-d8d739de575e:1469",
+        "name": "Open sub-menu",
+        "visible": false,
+        "hypothesisId": "4551b7b0-1630-4fd7-b2b1-350229791393",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "unresolved_identity",
+          "duplicate_binding"
+        ]
+      },
+      {
+        "localId": "8fc09711-f673-4379-8cce-d8d739de575e:1475",
+        "instanceId": "8fc09711-f673-4379-8cce-d8d739de575e:1475",
+        "name": "Open sub-menu",
+        "visible": false,
+        "hypothesisId": "9bc3fc04-6d9d-4eab-afc6-21a70df2de44",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "unresolved_identity",
+          "duplicate_binding"
+        ]
+      }
+    ]
+  },
+  {
+    "attemptId": "b815f3bd-c0b5-4963-a5c9-89b32693db4c",
+    "status": "succeeded",
+    "kind": "check",
+    "label": "Don’t show for 7 days",
+    "value": false,
+    "replayable": true,
+    "beforeId": "c694a01b-113c-4c02-a9b7-6e273cd499c9",
+    "documentId": "8fc09711-f673-4379-8cce-d8d739de575e",
+    "stable": true,
+    "criticalGaps": [],
+    "knownContext": true,
+    "branchAvailable": false,
+    "targetConditionsAvailable": false,
+    "selectorCount": 28,
+    "reasonCounts": {
+      "missing_state": 0,
+      "unstable": 0,
+      "unresolved_identity": 2,
+      "instance_only": 0,
+      "missing_record": 0,
+      "duplicate_binding": 2
+    },
+    "problemSelectors": [
+      {
+        "localId": "8fc09711-f673-4379-8cce-d8d739de575e:1469",
+        "instanceId": "8fc09711-f673-4379-8cce-d8d739de575e:1469",
+        "name": "Open sub-menu",
+        "visible": false,
+        "hypothesisId": "4551b7b0-1630-4fd7-b2b1-350229791393",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "unresolved_identity",
+          "duplicate_binding"
+        ]
+      },
+      {
+        "localId": "8fc09711-f673-4379-8cce-d8d739de575e:1475",
+        "instanceId": "8fc09711-f673-4379-8cce-d8d739de575e:1475",
+        "name": "Open sub-menu",
+        "visible": false,
+        "hypothesisId": "9bc3fc04-6d9d-4eab-afc6-21a70df2de44",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "unresolved_identity",
+          "duplicate_binding"
+        ]
+      }
+    ]
+  },
+  {
+    "attemptId": "474c6736-1ad8-45c5-9c1e-44616f693b20",
+    "status": "succeeded",
+    "kind": "click",
+    "label": "announced",
+    "replayable": true,
+    "beforeId": "b1d59647-7a88-44a2-88de-0cb6addbac25",
+    "documentId": "8fc09711-f673-4379-8cce-d8d739de575e",
+    "stable": true,
+    "criticalGaps": [],
+    "knownContext": true,
+    "branchAvailable": false,
+    "targetConditionsAvailable": false,
+    "selectorCount": 29,
+    "reasonCounts": {
+      "missing_state": 0,
+      "unstable": 0,
+      "unresolved_identity": 2,
+      "instance_only": 0,
+      "missing_record": 0,
+      "duplicate_binding": 2
+    },
+    "problemSelectors": [
+      {
+        "localId": "8fc09711-f673-4379-8cce-d8d739de575e:1469",
+        "instanceId": "8fc09711-f673-4379-8cce-d8d739de575e:1469",
+        "name": "Open sub-menu",
+        "visible": false,
+        "hypothesisId": "4551b7b0-1630-4fd7-b2b1-350229791393",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "unresolved_identity",
+          "duplicate_binding"
+        ]
+      },
+      {
+        "localId": "8fc09711-f673-4379-8cce-d8d739de575e:1475",
+        "instanceId": "8fc09711-f673-4379-8cce-d8d739de575e:1475",
+        "name": "Open sub-menu",
+        "visible": false,
+        "hypothesisId": "9bc3fc04-6d9d-4eab-afc6-21a70df2de44",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "unresolved_identity",
+          "duplicate_binding"
+        ]
+      }
+    ]
+  },
+  {
+    "attemptId": "bab6bbad-e3b9-43ee-a2f5-16c311f7c70d",
+    "status": "succeeded",
+    "kind": "click",
+    "label": "Trade",
+    "replayable": true,
+    "beforeId": "22adf3b5-f26f-4c85-9744-0ab1572e9897",
+    "documentId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689",
+    "stable": true,
+    "criticalGaps": [],
+    "knownContext": true,
+    "branchAvailable": false,
+    "targetConditionsAvailable": false,
+    "selectorCount": 26,
+    "reasonCounts": {
+      "missing_state": 0,
+      "unstable": 0,
+      "unresolved_identity": 2,
+      "instance_only": 0,
+      "missing_record": 0,
+      "duplicate_binding": 2
+    },
+    "problemSelectors": [
+      {
+        "localId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1492",
+        "instanceId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1492",
+        "name": "Open sub-menu",
+        "visible": false,
+        "hypothesisId": "a76df6f2-c26f-4dc5-8c31-92b6f2e49caf",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "unresolved_identity",
+          "duplicate_binding"
+        ]
+      },
+      {
+        "localId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1498",
+        "instanceId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1498",
+        "name": "Open sub-menu",
+        "visible": false,
+        "hypothesisId": "ece703d2-68f7-4e94-bd39-412a15798b4a",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "unresolved_identity",
+          "duplicate_binding"
+        ]
+      }
+    ]
+  },
+  {
+    "attemptId": "cb163309-02f7-4d65-b68a-624d88f10fe2",
+    "status": "succeeded",
+    "kind": "click",
+    "label": "Open Spot sub-menu",
+    "replayable": false,
+    "beforeId": "63f3d18a-777a-41ee-8aa1-486471e35d0d",
+    "documentId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689",
+    "stable": true,
+    "criticalGaps": [],
+    "knownContext": true,
+    "actionTarget": {
+      "kind": "instance",
+      "instanceScope": "99b686f6-d086-4a5f-aaf9-f86fc9db7689",
+      "instanceId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1489",
+      "evidence": [
+        "Unique current node instance; no cross-instance identity or coverage claim",
+        "observation:63f3d18a-777a-41ee-8aa1-486471e35d0d"
+      ]
+    },
+    "branchAvailable": false,
+    "targetConditionsAvailable": false,
+    "selectorCount": 28,
+    "reasonCounts": {
+      "missing_state": 0,
+      "unstable": 0,
+      "unresolved_identity": 0,
+      "instance_only": 3,
+      "missing_record": 0,
+      "duplicate_binding": 0
+    },
+    "problemSelectors": [
+      {
+        "localId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1489",
+        "instanceId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1489",
+        "name": "Open Spot sub-menu",
+        "visible": true,
+        "identityScope": "instance",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "instance_only"
+        ]
+      },
+      {
+        "localId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1492",
+        "instanceId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1492",
+        "name": "Open sub-menu",
+        "visible": true,
+        "identityScope": "instance",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "instance_only"
+        ]
+      },
+      {
+        "localId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1498",
+        "instanceId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1498",
+        "name": "Open sub-menu",
+        "visible": true,
+        "identityScope": "instance",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "instance_only"
+        ]
+      }
+    ]
+  },
+  {
+    "attemptId": "d365179e-0702-4aa0-a4e5-17d0b45d5ef0",
+    "status": "succeeded",
+    "kind": "click",
+    "label": "1W",
+    "replayable": true,
+    "beforeId": "1ea431eb-205f-42cd-ba28-7055e514d098",
+    "documentId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689",
+    "stable": true,
+    "criticalGaps": [],
+    "knownContext": true,
+    "branchAvailable": false,
+    "targetConditionsAvailable": false,
+    "selectorCount": 30,
+    "reasonCounts": {
+      "missing_state": 0,
+      "unstable": 0,
+      "unresolved_identity": 0,
+      "instance_only": 5,
+      "missing_record": 0,
+      "duplicate_binding": 0
+    },
+    "problemSelectors": [
+      {
+        "localId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1489",
+        "instanceId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1489",
+        "name": "Open Spot sub-menu",
+        "visible": true,
+        "identityScope": "instance",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": true
+        },
+        "reasons": [
+          "instance_only"
+        ]
+      },
+      {
+        "localId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:2276",
+        "instanceId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:2276",
+        "name": "USDT",
+        "visible": true,
+        "identityScope": "instance",
+        "region": "navigation:navContainer",
+        "state": {
+          "selected": true
+        },
+        "reasons": [
+          "instance_only"
+        ]
+      },
+      {
+        "localId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:2277",
+        "instanceId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:2277",
+        "name": "Crypto",
+        "visible": true,
+        "identityScope": "instance",
+        "region": "navigation:navContainer",
+        "state": {
+          "selected": false
+        },
+        "reasons": [
+          "instance_only"
+        ]
+      },
+      {
+        "localId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1492",
+        "instanceId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1492",
+        "name": "Open sub-menu",
+        "visible": true,
+        "identityScope": "instance",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "instance_only"
+        ]
+      },
+      {
+        "localId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1498",
+        "instanceId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1498",
+        "name": "Open sub-menu",
+        "visible": true,
+        "identityScope": "instance",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "instance_only"
+        ]
+      }
+    ]
+  },
+  {
+    "attemptId": "81026291-a5f8-4f9a-9564-9d0bc1cba0fd",
+    "status": "succeeded",
+    "kind": "click",
+    "label": "1M",
+    "replayable": true,
+    "beforeId": "0c118da8-74a7-4b61-b96b-daa3ecca1094",
+    "documentId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689",
+    "stable": true,
+    "criticalGaps": [],
+    "knownContext": true,
+    "branchAvailable": false,
+    "targetConditionsAvailable": false,
+    "selectorCount": 28,
+    "reasonCounts": {
+      "missing_state": 0,
+      "unstable": 0,
+      "unresolved_identity": 2,
+      "instance_only": 0,
+      "missing_record": 0,
+      "duplicate_binding": 2
+    },
+    "problemSelectors": [
+      {
+        "localId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1492",
+        "instanceId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1492",
+        "name": "Open sub-menu",
+        "visible": false,
+        "hypothesisId": "a76df6f2-c26f-4dc5-8c31-92b6f2e49caf",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "unresolved_identity",
+          "duplicate_binding"
+        ]
+      },
+      {
+        "localId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1498",
+        "instanceId": "99b686f6-d086-4a5f-aaf9-f86fc9db7689:1498",
+        "name": "Open sub-menu",
+        "visible": false,
+        "hypothesisId": "ece703d2-68f7-4e94-bd39-412a15798b4a",
+        "region": "navigation:navContainer",
+        "state": {
+          "expanded": false
+        },
+        "reasons": [
+          "unresolved_identity",
+          "duplicate_binding"
+        ]
+      }
+    ]
+  }
+]

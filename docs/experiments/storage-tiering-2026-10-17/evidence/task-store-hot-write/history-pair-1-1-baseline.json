@@ -1,0 +1,496 @@
+{
+  "revision": "106a1cdfddfe3e73cab9e01b28ba4dd8439653e2",
+  "scenario": "history",
+  "pid": 41424,
+  "timingsMs": {
+    "startup": {
+      "samples": [
+        5.179124999999999
+      ],
+      "min": 5.179124999999999,
+      "median": 5.179124999999999,
+      "max": 5.179124999999999
+    },
+    "firstFullRead": {
+      "samples": [
+        34.047083999999984
+      ],
+      "min": 34.047083999999984,
+      "median": 34.047083999999984,
+      "max": 34.047083999999984
+    },
+    "warmFullRead": {
+      "samples": [
+        29.50566699999999,
+        25.52320800000001,
+        30.999124999999992,
+        23.01958300000001,
+        26.92983300000003,
+        28.026624999999967,
+        23.839709000000028,
+        25.94716699999998,
+        22.891624999999976
+      ],
+      "min": 22.891624999999976,
+      "median": 25.94716699999998,
+      "max": 30.999124999999992
+    },
+    "activeRead": {
+      "samples": [
+        0.49691599999994196,
+        0.1139580000000251,
+        0.09824999999989359,
+        0.09616600000003928,
+        0.0977500000000191,
+        0.09583299999997053,
+        0.09487500000000182,
+        0.10029100000008384,
+        0.09379199999989396
+      ],
+      "min": 0.09379199999989396,
+      "median": 0.0977500000000191,
+      "max": 0.49691599999994196
+    },
+    "headerRead": {
+      "samples": [
+        1.025541999999973,
+        0.7573750000000246,
+        0.7970000000000255,
+        0.7167500000000473,
+        0.6987910000000284,
+        0.7383330000000115,
+        0.6864170000000058,
+        0.6812499999999773,
+        0.6970410000000129
+      ],
+      "min": 0.6812499999999773,
+      "median": 0.7167500000000473,
+      "max": 1.025541999999973
+    },
+    "headerOnlyCAS": {
+      "samples": [
+        3.4070420000000468,
+        2.0676249999999072,
+        1.9470000000000027,
+        1.9542500000000018,
+        2.0034160000000156,
+        1.9306249999999636,
+        1.9139169999999694,
+        1.911875000000009,
+        1.9598330000000033
+      ],
+      "min": 1.911875000000009,
+      "median": 1.9542500000000018,
+      "max": 3.4070420000000468
+    },
+    "unchangedRoundCAS": {
+      "samples": [
+        4.439875000000029,
+        3.9569159999999783,
+        3.8924580000000333,
+        3.8720420000000786,
+        3.9192919999999276,
+        3.863749999999982,
+        3.884916999999973,
+        3.8698750000000928,
+        3.881292000000144
+      ],
+      "min": 3.863749999999982,
+      "median": 3.884916999999973,
+      "max": 4.439875000000029
+    },
+    "activeItemCAS": {
+      "samples": [
+        4.682000000000016,
+        4.111958000000186,
+        5.689957999999933,
+        4.757500000000164,
+        5.641084000000092,
+        5.045125000000098,
+        5.3191249999999854,
+        4.183875000000171,
+        4.133874999999989
+      ],
+      "min": 4.111958000000186,
+      "median": 4.757500000000164,
+      "max": 5.689957999999933
+    },
+    "changedRoundCAS": {
+      "samples": [
+        5.474249999999984,
+        5.147959000000128,
+        5.081707999999935,
+        5.100417000000107,
+        5.094459000000143,
+        5.044957999999951,
+        5.045499999999947,
+        7.8443749999999,
+        5.5204590000000735
+      ],
+      "min": 5.044957999999951,
+      "median": 5.100417000000107,
+      "max": 7.8443749999999
+    },
+    "unchangedItemsFullSave": {
+      "samples": [
+        40.87929199999985,
+        40.73254199999997,
+        42.53920799999992,
+        44.7462079999998,
+        44.94795900000008
+      ],
+      "min": 40.73254199999997,
+      "median": 42.53920799999992,
+      "max": 44.94795900000008
+    },
+    "maintenance": {
+      "samples": [
+        416.6684160000002
+      ],
+      "min": 416.6684160000002,
+      "median": 416.6684160000002,
+      "max": 416.6684160000002
+    }
+  },
+  "transactionBodyMs": {
+    "firstFullRead": {
+      "samples": [
+        33.98245800000001
+      ],
+      "min": 33.98245800000001,
+      "median": 33.98245800000001,
+      "max": 33.98245800000001
+    },
+    "warmFullRead": {
+      "samples": [
+        29.447708000000006,
+        25.471499999999992,
+        30.93587500000001,
+        22.96029199999998,
+        26.869417,
+        27.967208000000028,
+        23.76400000000001,
+        25.887624999999957,
+        22.840833999999973
+      ],
+      "min": 22.840833999999973,
+      "median": 25.887624999999957,
+      "max": 30.93587500000001
+    },
+    "activeRead": {
+      "samples": [
+        0.3786250000000564,
+        0.10304199999995944,
+        0.08937500000001819,
+        0.08779100000003837,
+        0.08870899999999438,
+        0.08779199999992215,
+        0.0867080000000442,
+        0.09237500000006094,
+        0.08566599999994651
+      ],
+      "min": 0.08566599999994651,
+      "median": 0.08870899999999438,
+      "max": 0.3786250000000564
+    },
+    "headerOnlyCAS": {
+      "samples": [
+        0.36379199999998946,
+        0.06858299999998962,
+        0.04779099999996106,
+        0.0692909999999074,
+        0.05774999999994179,
+        0.04062499999997726,
+        0.037459000000012566,
+        0.03879200000005767,
+        0.04195900000001984
+      ],
+      "min": 0.037459000000012566,
+      "median": 0.04779099999996106,
+      "max": 0.36379199999998946
+    },
+    "unchangedRoundCAS": {
+      "samples": [
+        0.39341699999999946,
+        0.08524999999997362,
+        0.06441599999993741,
+        0.06487499999991542,
+        0.059041999999976724,
+        0.06045800000003965,
+        0.06024999999999636,
+        0.05729099999996379,
+        0.060582999999951426
+      ],
+      "min": 0.05729099999996379,
+      "median": 0.060582999999951426,
+      "max": 0.39341699999999946
+    },
+    "activeItemCAS": {
+      "samples": [
+        0.3321250000001328,
+        0.09058299999992414,
+        0.14770799999996598,
+        0.2404589999998734,
+        0.17733300000008967,
+        0.10858300000018062,
+        0.1360829999998714,
+        0.11820800000009513,
+        0.10970799999995506
+      ],
+      "min": 0.09058299999992414,
+      "median": 0.1360829999998714,
+      "max": 0.3321250000001328
+    },
+    "changedRoundCAS": {
+      "samples": [
+        1.131750000000011,
+        1.0141249999999218,
+        0.9911660000000211,
+        1.0043339999999716,
+        0.9879580000001624,
+        0.993541999999934,
+        0.9867919999999231,
+        0.9883749999999054,
+        1.0818329999999605
+      ],
+      "min": 0.9867919999999231,
+      "median": 0.993541999999934,
+      "max": 1.131750000000011
+    },
+    "unchangedItemsFullSave": {
+      "samples": [
+        4.0227910000000975,
+        3.9874999999999545,
+        3.346416999999974,
+        3.855874999999969,
+        3.7469579999999496
+      ],
+      "min": 3.346416999999974,
+      "median": 3.855874999999969,
+      "max": 4.0227910000000975
+    },
+    "maintenance": {
+      "samples": [
+        377.6024160000002
+      ],
+      "min": 377.6024160000002,
+      "median": 377.6024160000002,
+      "max": 377.6024160000002
+    }
+  },
+  "mechanism": {
+    "parseCalls": 1,
+    "parseBytes": 447128,
+    "coldJsonRows": 0,
+    "coldJsonBytes": 0,
+    "coldProbes": 0
+  },
+  "counts": {
+    "plan": 5000,
+    "rounds": 2,
+    "events": 0,
+    "decisions": 0
+  },
+  "bytes": {
+    "initialTask": 10321040,
+    "initialHeader": 293841,
+    "initialCurrentRound": 446912,
+    "finalTask": 10321252,
+    "semantic": 20995152
+  },
+  "initialLayout": {
+    "chunks": 38,
+    "packed": 4991
+  },
+  "maintenance": {
+    "before": {
+      "occurrences": 5002,
+      "chunks": 38,
+      "hotItems": 11,
+      "archivedItems": 4991,
+      "compressedBytes": 1228733
+    },
+    "after": {
+      "occurrences": 5002,
+      "chunks": 38,
+      "hotItems": 11,
+      "archivedItems": 4991,
+      "compressedBytes": 1228733
+    },
+    "removed": [],
+    "reclaimed": true,
+    "pageCount": 763,
+    "freePages": 0
+  },
+  "beforeMaintenance": {
+    "db": 3641344,
+    "-wal": 4379592,
+    "-shm": 32768
+  },
+  "afterMaintenance": {
+    "db": 3125248,
+    "-wal": 0,
+    "-shm": 32768
+  },
+  "resources": {
+    "maxRSSKiB": 724640,
+    "samples": [
+      {
+        "phase": "warmFullRead",
+        "rss": 427786240,
+        "heapTotal": 251428864,
+        "heapUsed": 158682128,
+        "external": 33318187,
+        "arrayBuffers": 30618355
+      },
+      {
+        "phase": "activeRead",
+        "rss": 436273152,
+        "heapTotal": 252379136,
+        "heapUsed": 133401080,
+        "external": 42235845,
+        "arrayBuffers": 27149128
+      },
+      {
+        "phase": "headerRead",
+        "rss": 439681024,
+        "heapTotal": 252379136,
+        "heapUsed": 125437224,
+        "external": 44032699,
+        "arrayBuffers": 30295240
+      },
+      {
+        "phase": "headerOnlyCAS",
+        "rss": 442269696,
+        "heapTotal": 252379136,
+        "heapUsed": 125605536,
+        "external": 45081972,
+        "arrayBuffers": 33441352
+      },
+      {
+        "phase": "unchangedRoundCAS",
+        "rss": 446349312,
+        "heapTotal": 252379136,
+        "heapUsed": 125732000,
+        "external": 48293645,
+        "arrayBuffers": 36587464
+      },
+      {
+        "phase": "activeItemCAS",
+        "rss": 449888256,
+        "heapTotal": 252641280,
+        "heapUsed": 125810312,
+        "external": 51374221,
+        "arrayBuffers": 39733576
+      },
+      {
+        "phase": "changedRoundCAS",
+        "rss": 455032832,
+        "heapTotal": 252641280,
+        "heapUsed": 125833624,
+        "external": 54585869,
+        "arrayBuffers": 42879688
+      },
+      {
+        "phase": "unchangedItemsFullSave",
+        "rss": 559480832,
+        "heapTotal": 350076928,
+        "heapUsed": 237677520,
+        "external": 54812869,
+        "arrayBuffers": 45763624
+      },
+      {
+        "phase": "maintenance",
+        "rss": 645431296,
+        "heapTotal": 311525376,
+        "heapUsed": 195175688,
+        "external": 19977103,
+        "arrayBuffers": 17277231
+      }
+    ]
+  },
+  "semanticSha256": "ad2accdc182a44c4c4272a11cf8bb8d78ee8cc6e786182b233292af722bf198d",
+  "phaseChecks": [
+    {
+      "name": "warmFullRead",
+      "taskSha256": "ca0aecefdfe2e52098cf7b9667a8c1af440f256b5c2902cd2fc32da79bd850f9",
+      "taskBytes": 10321040,
+      "planSha256": "d23a75dcdbec53681bc2de9916aa4871718268579c788631499950f1bcab21b4",
+      "roundsSha256": "9e8bbffb827ee0d790ad09673c99fdb818fa65f635441b63ad757ea6ed3a2aea"
+    },
+    {
+      "name": "activeRead",
+      "taskSha256": "ca0aecefdfe2e52098cf7b9667a8c1af440f256b5c2902cd2fc32da79bd850f9",
+      "taskBytes": 10321040,
+      "planSha256": "d23a75dcdbec53681bc2de9916aa4871718268579c788631499950f1bcab21b4",
+      "roundsSha256": "9e8bbffb827ee0d790ad09673c99fdb818fa65f635441b63ad757ea6ed3a2aea"
+    },
+    {
+      "name": "headerRead",
+      "taskSha256": "ca0aecefdfe2e52098cf7b9667a8c1af440f256b5c2902cd2fc32da79bd850f9",
+      "taskBytes": 10321040,
+      "planSha256": "d23a75dcdbec53681bc2de9916aa4871718268579c788631499950f1bcab21b4",
+      "roundsSha256": "9e8bbffb827ee0d790ad09673c99fdb818fa65f635441b63ad757ea6ed3a2aea"
+    },
+    {
+      "name": "headerOnlyCAS",
+      "taskSha256": "98d952c1f366eeff3cc9654e86a544754ced239e7c0c36adb2869813d6bb4fb4",
+      "taskBytes": 10321040,
+      "planSha256": "d23a75dcdbec53681bc2de9916aa4871718268579c788631499950f1bcab21b4",
+      "roundsSha256": "9e8bbffb827ee0d790ad09673c99fdb818fa65f635441b63ad757ea6ed3a2aea"
+    },
+    {
+      "name": "unchangedRoundCAS",
+      "taskSha256": "2f20bd55c8e14a5e9c6df5ae0a7d16606b3693c21c4c7f224f104fe191536110",
+      "taskBytes": 10321040,
+      "planSha256": "d23a75dcdbec53681bc2de9916aa4871718268579c788631499950f1bcab21b4",
+      "roundsSha256": "9e8bbffb827ee0d790ad09673c99fdb818fa65f635441b63ad757ea6ed3a2aea"
+    },
+    {
+      "name": "activeItemCAS",
+      "taskSha256": "6247e53afc0854891aa96b1faab245ceeaaecdf892118711c51d2f0086279b6d",
+      "taskBytes": 10321036,
+      "planSha256": "d23a75dcdbec53681bc2de9916aa4871718268579c788631499950f1bcab21b4",
+      "roundsSha256": "9e8bbffb827ee0d790ad09673c99fdb818fa65f635441b63ad757ea6ed3a2aea"
+    },
+    {
+      "name": "changedRoundCAS",
+      "taskSha256": "a5b7e132874174365051040f35b8fef997b95ed8f3f47150ba3c1f36e7a5ad20",
+      "taskBytes": 10321252,
+      "planSha256": "d23a75dcdbec53681bc2de9916aa4871718268579c788631499950f1bcab21b4",
+      "roundsSha256": "9e8bbffb827ee0d790ad09673c99fdb818fa65f635441b63ad757ea6ed3a2aea"
+    },
+    {
+      "name": "unchangedItemsFullSave",
+      "taskSha256": "18c969222dc2fe42db9306ba47594fbe1707c739f3b163f075002b7910da8a2d",
+      "taskBytes": 10321252,
+      "planSha256": "d23a75dcdbec53681bc2de9916aa4871718268579c788631499950f1bcab21b4",
+      "roundsSha256": "9e8bbffb827ee0d790ad09673c99fdb818fa65f635441b63ad757ea6ed3a2aea"
+    },
+    {
+      "name": "maintenance",
+      "taskSha256": "b962584d21b113c7cb6d46dbc6a7f71c618ee03c66ef8422c44cdedbccdf1960",
+      "taskBytes": 10321252,
+      "planSha256": "d23a75dcdbec53681bc2de9916aa4871718268579c788631499950f1bcab21b4",
+      "roundsSha256": "9e8bbffb827ee0d790ad09673c99fdb818fa65f635441b63ad757ea6ed3a2aea"
+    }
+  ],
+  "versionContract": {
+    "staleRejected": true,
+    "changedEachWrite": true,
+    "occurrencesRetained": true,
+    "maintenanceVersionUnchanged": true
+  },
+  "limits": [
+    "Local disposable SQLite only; no browser/provider/engine.",
+    "First full read is first API read in a fresh process; OS page caches are not flushed.",
+    "Transaction body clock includes canonical decoding inside the write lock, excluding BEGIN/COMMIT.",
+    "Random CAS tokens are checked for transitions/stale rejection, not compared byte-for-byte.",
+    "maxRSS includes fixture, repeated full correctness comparisons, audit export and serialization."
+  ],
+  "closedFiles": {
+    "db": 3125248,
+    "-wal": 0,
+    "-shm": 0
+  }
+}

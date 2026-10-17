@@ -1,0 +1,103 @@
+{
+  "at": "2026-10-17T01:34:33.089492+00:00",
+  "trees": {
+    "frozen": {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1-frozen-7",
+      "originalFiles": 4511,
+      "allOriginalHashesEqual": true,
+      "addedReadonlySidecars": {},
+      "engineSha256": "d0a5600d02ffe7b02a5595b70142027a743362f0c66bea2f1942379ee2580c2e",
+      "pluginSha256": "92eee981059d9163784380915492d2b3292cd83c980eb5ccb36a570d29138b50"
+    },
+    "private": {
+      "path": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-recovery-diagnosis-trt55asp/frozen-copy",
+      "originalFiles": 4511,
+      "allOriginalHashesEqual": true,
+      "addedReadonlySidecars": {
+        "engine/engine.sqlite-shm": {
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        },
+        "engine/engine.sqlite-wal": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "engineSha256": "d0a5600d02ffe7b02a5595b70142027a743362f0c66bea2f1942379ee2580c2e",
+      "pluginSha256": "92eee981059d9163784380915492d2b3292cd83c980eb5ccb36a570d29138b50"
+    }
+  },
+  "rawRunFiles": {
+    "summary.json": {
+      "sha256": "2d1e42addf34d04159b2c43b64d16e4af8ef5fe20603a075cb9d3f1731d023f8",
+      "frozenPath": "runs/e38c02f1-d0b9-4c8c-bb9d-474cb0c1db1e/summary.json"
+    },
+    "task-after.json": {
+      "sha256": "58c165dcd0823c7e8355694402197b449100ed80bce3fed337d8920361bc4e08",
+      "frozenPath": "runs/e38c02f1-d0b9-4c8c-bb9d-474cb0c1db1e/task-after.json"
+    },
+    "plan-occurrences-after.json": {
+      "sha256": "119e2b9498c2c5844074d7d8afe0766e78dd7689aa654fec9d8b54875de290ca",
+      "frozenPath": "runs/e38c02f1-d0b9-4c8c-bb9d-474cb0c1db1e/plan-occurrences-after.json"
+    },
+    "task-before.json": {
+      "sha256": "b4e50873f9f85fb9a0081cf38ae27515a5f056e635ff26f5cdd2dee7780feee2",
+      "frozenPath": "runs/e38c02f1-d0b9-4c8c-bb9d-474cb0c1db1e/task-before.json"
+    },
+    "plan-occurrences-before.json": {
+      "sha256": "c7739fd05905a1445b25d1b76455794514dec82e1c08cd4b59578b4efe931919",
+      "frozenPath": "runs/e38c02f1-d0b9-4c8c-bb9d-474cb0c1db1e/plan-occurrences-before.json"
+    },
+    "cursors.json": {
+      "sha256": "b57407488eb202444da225ca3924543718ee92932b62683cd3884b7bf274d12d",
+      "frozenPath": "runs/e38c02f1-d0b9-4c8c-bb9d-474cb0c1db1e/cursors.json"
+    },
+    "process-samples.jsonl": {
+      "sha256": "cc4357264be55e9969a26606e7c8e4da7a05f4b5e07f26e04187616aaa962c19",
+      "frozenPath": "runs/e38c02f1-d0b9-4c8c-bb9d-474cb0c1db1e/process-samples.jsonl"
+    },
+    "metrics.jsonl": {
+      "sha256": "e56b7e583580075271736ea694b430771e7180b53ca072b204dcc487e8220c47",
+      "frozenPath": "runs/e38c02f1-d0b9-4c8c-bb9d-474cb0c1db1e/metrics.jsonl"
+    },
+    "coverage-review.json": {
+      "sha256": "538614e3ea1497577fa879a63efa8f9ab28eebdb6f591ccd32559c3aca75c3b1",
+      "frozenPath": "runs/e38c02f1-d0b9-4c8c-bb9d-474cb0c1db1e/coverage-review.json"
+    }
+  },
+  "rawStandaloneProcessSamplesSha256": "cc4357264be55e9969a26606e7c8e4da7a05f4b5e07f26e04187616aaa962c19",
+  "privateCopyManifestSha256": "c6a479e3f4563cd3f4390a7625d24bce43a2afed024c50a4ba3149f59fa37891",
+  "privateExtractedFrames": {
+    "unkeyed-frames.json": {
+      "path": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-recovery-diagnosis-trt55asp/unkeyed-frames.json",
+      "sha256": "abcdc165f395255277186b032c97091b8a3d5dbb1cccb107d76effdb3bb8d5c5"
+    },
+    "recovery-frames.json": {
+      "path": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-recovery-diagnosis-trt55asp/recovery-frames.json",
+      "sha256": "99bc5e5a92d71fff5a56b7493730d60b2216ca56cda795d354932b3b8deb3d14"
+    }
+  },
+  "sourceBefore": {
+    "head": "855a3a47b513305077ef160a8d4d5716fe1780f9",
+    "files": {
+      "packages/explorer-plugin/src/runtime.ts": "7eb03c3a1b2a9f348e06767e0f7f2b986f58533d4c31bac7e89d796338d00966",
+      "packages/explorer-plugin/src/policy.ts": "335a4c548ad33e279b022907b3311cb62f1f01f174bc2d440098e8099db68264",
+      "packages/core/src/engine.ts": "759e832a5d4b26e783be25c6e2bb800a1909d0feec5f91d111ae2921d82c50f8",
+      "tests/explorer-review-source-visibility.test.ts": "f44627cc914f9a8e80323149d6b2ffdce06d5b3e1fdae968b9219c50b1c71caf"
+    }
+  },
+  "sourceAfter": {
+    "head": "855a3a47b513305077ef160a8d4d5716fe1780f9",
+    "files": {
+      "packages/explorer-plugin/src/runtime.ts": "7eb03c3a1b2a9f348e06767e0f7f2b986f58533d4c31bac7e89d796338d00966",
+      "packages/explorer-plugin/src/policy.ts": "335a4c548ad33e279b022907b3311cb62f1f01f174bc2d440098e8099db68264",
+      "packages/core/src/engine.ts": "759e832a5d4b26e783be25c6e2bb800a1909d0feec5f91d111ae2921d82c50f8",
+      "tests/explorer-review-source-visibility.test.ts": "f44627cc914f9a8e80323149d6b2ffdce06d5b3e1fdae968b9219c50b1c71caf"
+    }
+  },
+  "sampledSourceHashesUnchanged": true,
+  "productWritesByThisAgent": 0,
+  "driverStarts": 0,
+  "providers": 0,
+  "privateReadonlyTotalChanges": 0
+}

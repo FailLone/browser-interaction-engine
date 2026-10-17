@@ -1,0 +1,38 @@
+{
+  "pair-1-baseline": {
+    "path": "semantic-objects/7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6.json.gz",
+    "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+    "logicalBytes": 8166582,
+    "gzipSha256": "dd60d7b888506357087de2861b77f52aba56de17ae31c722481a3d79b4f8087d"
+  },
+  "pair-1-current": {
+    "path": "semantic-objects/7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6.json.gz",
+    "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+    "logicalBytes": 8166582,
+    "gzipSha256": "dd60d7b888506357087de2861b77f52aba56de17ae31c722481a3d79b4f8087d"
+  },
+  "pair-2-current": {
+    "path": "semantic-objects/7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6.json.gz",
+    "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+    "logicalBytes": 8166582,
+    "gzipSha256": "dd60d7b888506357087de2861b77f52aba56de17ae31c722481a3d79b4f8087d"
+  },
+  "pair-2-baseline": {
+    "path": "semantic-objects/7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6.json.gz",
+    "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+    "logicalBytes": 8166582,
+    "gzipSha256": "dd60d7b888506357087de2861b77f52aba56de17ae31c722481a3d79b4f8087d"
+  },
+  "pair-3-baseline": {
+    "path": "semantic-objects/7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6.json.gz",
+    "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+    "logicalBytes": 8166582,
+    "gzipSha256": "dd60d7b888506357087de2861b77f52aba56de17ae31c722481a3d79b4f8087d"
+  },
+  "pair-3-current": {
+    "path": "semantic-objects/7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6.json.gz",
+    "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+    "logicalBytes": 8166582,
+    "gzipSha256": "dd60d7b888506357087de2861b77f52aba56de17ae31c722481a3d79b4f8087d"
+  }
+}

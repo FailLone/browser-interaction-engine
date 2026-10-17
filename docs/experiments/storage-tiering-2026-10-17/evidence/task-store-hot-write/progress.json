@@ -1,0 +1,242 @@
+[
+  {
+    "name": "run7-pair-1-1-baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/run7-pair-1-1-baseline-config.json"
+    ],
+    "startedEpoch": 1792200913.6434402,
+    "pid": 41214,
+    "exitCode": 0,
+    "finishedEpoch": 1792200914.738998,
+    "pair": 1,
+    "variant": "baseline",
+    "scenario": "run7",
+    "report": "run7-pair-1-1-baseline.json",
+    "semantic": "run7-pair-1-1-baseline-semantic.json.gz"
+  },
+  {
+    "name": "run7-pair-1-2-current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/current/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/run7-pair-1-2-current-config.json"
+    ],
+    "startedEpoch": 1792200915.043099,
+    "pid": 41221,
+    "exitCode": 0,
+    "finishedEpoch": 1792200916.124893,
+    "pair": 1,
+    "variant": "current",
+    "scenario": "run7",
+    "report": "run7-pair-1-2-current.json",
+    "semantic": "run7-pair-1-2-current-semantic.json.gz"
+  },
+  {
+    "name": "run7-pair-2-1-current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/current/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/run7-pair-2-1-current-config.json"
+    ],
+    "startedEpoch": 1792200916.629953,
+    "pid": 41250,
+    "exitCode": 0,
+    "finishedEpoch": 1792200917.716588,
+    "pair": 2,
+    "variant": "current",
+    "scenario": "run7",
+    "report": "run7-pair-2-1-current.json",
+    "semantic": "run7-pair-2-1-current-semantic.json.gz"
+  },
+  {
+    "name": "run7-pair-2-2-baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/run7-pair-2-2-baseline-config.json"
+    ],
+    "startedEpoch": 1792200918.056257,
+    "pid": 41309,
+    "exitCode": 0,
+    "finishedEpoch": 1792200919.1553469,
+    "pair": 2,
+    "variant": "baseline",
+    "scenario": "run7",
+    "report": "run7-pair-2-2-baseline.json",
+    "semantic": "run7-pair-2-2-baseline-semantic.json.gz"
+  },
+  {
+    "name": "run7-pair-3-1-baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/run7-pair-3-1-baseline-config.json"
+    ],
+    "startedEpoch": 1792200919.624894,
+    "pid": 41344,
+    "exitCode": 0,
+    "finishedEpoch": 1792200920.723607,
+    "pair": 3,
+    "variant": "baseline",
+    "scenario": "run7",
+    "report": "run7-pair-3-1-baseline.json",
+    "semantic": "run7-pair-3-1-baseline-semantic.json.gz"
+  },
+  {
+    "name": "run7-pair-3-2-current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/current/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/run7-pair-3-2-current-config.json"
+    ],
+    "startedEpoch": 1792200921.051935,
+    "pid": 41383,
+    "exitCode": 0,
+    "finishedEpoch": 1792200922.093641,
+    "pair": 3,
+    "variant": "current",
+    "scenario": "run7",
+    "report": "run7-pair-3-2-current.json",
+    "semantic": "run7-pair-3-2-current-semantic.json.gz"
+  },
+  {
+    "name": "history-pair-1-1-baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/history-pair-1-1-baseline-config.json"
+    ],
+    "startedEpoch": 1792200922.5764742,
+    "pid": 41424,
+    "exitCode": 0,
+    "finishedEpoch": 1792200925.2646568,
+    "pair": 1,
+    "variant": "baseline",
+    "scenario": "history",
+    "report": "history-pair-1-1-baseline.json",
+    "semantic": "history-pair-1-1-baseline-semantic.json.gz"
+  },
+  {
+    "name": "history-pair-1-2-current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/current/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/history-pair-1-2-current-config.json"
+    ],
+    "startedEpoch": 1792200925.573944,
+    "pid": 41468,
+    "exitCode": 0,
+    "finishedEpoch": 1792200928.219418,
+    "pair": 1,
+    "variant": "current",
+    "scenario": "history",
+    "report": "history-pair-1-2-current.json",
+    "semantic": "history-pair-1-2-current-semantic.json.gz"
+  },
+  {
+    "name": "history-pair-2-1-current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/current/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/history-pair-2-1-current-config.json"
+    ],
+    "startedEpoch": 1792200928.8976471,
+    "pid": 41524,
+    "exitCode": 0,
+    "finishedEpoch": 1792200931.497611,
+    "pair": 2,
+    "variant": "current",
+    "scenario": "history",
+    "report": "history-pair-2-1-current.json",
+    "semantic": "history-pair-2-1-current-semantic.json.gz"
+  },
+  {
+    "name": "history-pair-2-2-baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/history-pair-2-2-baseline-config.json"
+    ],
+    "startedEpoch": 1792200931.8115578,
+    "pid": 41591,
+    "exitCode": 0,
+    "finishedEpoch": 1792200934.536076,
+    "pair": 2,
+    "variant": "baseline",
+    "scenario": "history",
+    "report": "history-pair-2-2-baseline.json",
+    "semantic": "history-pair-2-2-baseline-semantic.json.gz"
+  },
+  {
+    "name": "history-pair-3-1-baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/history-pair-3-1-baseline-config.json"
+    ],
+    "startedEpoch": 1792200935.1276412,
+    "pid": 41644,
+    "exitCode": 0,
+    "finishedEpoch": 1792200937.8715909,
+    "pair": 3,
+    "variant": "baseline",
+    "scenario": "history",
+    "report": "history-pair-3-1-baseline.json",
+    "semantic": "history-pair-3-1-baseline-semantic.json.gz"
+  },
+  {
+    "name": "history-pair-3-2-current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/current/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-task-store-hot-write-t3vwwbqd/history-pair-3-2-current-config.json"
+    ],
+    "startedEpoch": 1792200938.1667771,
+    "pid": 41702,
+    "exitCode": 0,
+    "finishedEpoch": 1792200940.783773,
+    "pair": 3,
+    "variant": "current",
+    "scenario": "history",
+    "report": "history-pair-3-2-current.json",
+    "semantic": "history-pair-3-2-current-semantic.json.gz"
+  }
+]

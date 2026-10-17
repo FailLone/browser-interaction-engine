@@ -1,0 +1,101 @@
+{
+  "policy": "Full original semantic bytes retained, with exact-byte deduplication only. Trial paths resolve through this index. No IDs, order, task fields, original events or decisions removed.",
+  "artifacts": [
+    {
+      "originalPath": "history-pair-1-1-baseline-semantic.json.gz",
+      "archivePath": "semantic-objects/ad2accdc182a44c4c4272a11cf8bb8d78ee8cc6e786182b233292af722bf198d.json.gz",
+      "logicalBytes": 20995152,
+      "logicalSha256": "ad2accdc182a44c4c4272a11cf8bb8d78ee8cc6e786182b233292af722bf198d",
+      "storedBytes": 3171716,
+      "storedSha256": "e5ef122dbffe9ea9bc8f5649549a1dc7deddf8150d7c0053f28a883e9b86670b"
+    },
+    {
+      "originalPath": "history-pair-1-2-current-semantic.json.gz",
+      "archivePath": "semantic-objects/ad2accdc182a44c4c4272a11cf8bb8d78ee8cc6e786182b233292af722bf198d.json.gz",
+      "logicalBytes": 20995152,
+      "logicalSha256": "ad2accdc182a44c4c4272a11cf8bb8d78ee8cc6e786182b233292af722bf198d",
+      "storedBytes": 3171716,
+      "storedSha256": "e5ef122dbffe9ea9bc8f5649549a1dc7deddf8150d7c0053f28a883e9b86670b"
+    },
+    {
+      "originalPath": "history-pair-2-1-current-semantic.json.gz",
+      "archivePath": "semantic-objects/ad2accdc182a44c4c4272a11cf8bb8d78ee8cc6e786182b233292af722bf198d.json.gz",
+      "logicalBytes": 20995152,
+      "logicalSha256": "ad2accdc182a44c4c4272a11cf8bb8d78ee8cc6e786182b233292af722bf198d",
+      "storedBytes": 3171716,
+      "storedSha256": "e5ef122dbffe9ea9bc8f5649549a1dc7deddf8150d7c0053f28a883e9b86670b"
+    },
+    {
+      "originalPath": "history-pair-2-2-baseline-semantic.json.gz",
+      "archivePath": "semantic-objects/ad2accdc182a44c4c4272a11cf8bb8d78ee8cc6e786182b233292af722bf198d.json.gz",
+      "logicalBytes": 20995152,
+      "logicalSha256": "ad2accdc182a44c4c4272a11cf8bb8d78ee8cc6e786182b233292af722bf198d",
+      "storedBytes": 3171716,
+      "storedSha256": "e5ef122dbffe9ea9bc8f5649549a1dc7deddf8150d7c0053f28a883e9b86670b"
+    },
+    {
+      "originalPath": "history-pair-3-1-baseline-semantic.json.gz",
+      "archivePath": "semantic-objects/ad2accdc182a44c4c4272a11cf8bb8d78ee8cc6e786182b233292af722bf198d.json.gz",
+      "logicalBytes": 20995152,
+      "logicalSha256": "ad2accdc182a44c4c4272a11cf8bb8d78ee8cc6e786182b233292af722bf198d",
+      "storedBytes": 3171716,
+      "storedSha256": "e5ef122dbffe9ea9bc8f5649549a1dc7deddf8150d7c0053f28a883e9b86670b"
+    },
+    {
+      "originalPath": "history-pair-3-2-current-semantic.json.gz",
+      "archivePath": "semantic-objects/ad2accdc182a44c4c4272a11cf8bb8d78ee8cc6e786182b233292af722bf198d.json.gz",
+      "logicalBytes": 20995152,
+      "logicalSha256": "ad2accdc182a44c4c4272a11cf8bb8d78ee8cc6e786182b233292af722bf198d",
+      "storedBytes": 3171716,
+      "storedSha256": "e5ef122dbffe9ea9bc8f5649549a1dc7deddf8150d7c0053f28a883e9b86670b"
+    },
+    {
+      "originalPath": "run7-pair-1-1-baseline-semantic.json.gz",
+      "archivePath": "semantic-objects/26200b7a80b4a411d04c4e3862d235976205a71ec405acd5b1a621753b29c706.json.gz",
+      "logicalBytes": 11566110,
+      "logicalSha256": "26200b7a80b4a411d04c4e3862d235976205a71ec405acd5b1a621753b29c706",
+      "storedBytes": 1591339,
+      "storedSha256": "fe57cd2aa218b82ed04eddc78f1fd49caee7959331983f5cf1f6981dd7de9c73"
+    },
+    {
+      "originalPath": "run7-pair-1-2-current-semantic.json.gz",
+      "archivePath": "semantic-objects/26200b7a80b4a411d04c4e3862d235976205a71ec405acd5b1a621753b29c706.json.gz",
+      "logicalBytes": 11566110,
+      "logicalSha256": "26200b7a80b4a411d04c4e3862d235976205a71ec405acd5b1a621753b29c706",
+      "storedBytes": 1591339,
+      "storedSha256": "fe57cd2aa218b82ed04eddc78f1fd49caee7959331983f5cf1f6981dd7de9c73"
+    },
+    {
+      "originalPath": "run7-pair-2-1-current-semantic.json.gz",
+      "archivePath": "semantic-objects/26200b7a80b4a411d04c4e3862d235976205a71ec405acd5b1a621753b29c706.json.gz",
+      "logicalBytes": 11566110,
+      "logicalSha256": "26200b7a80b4a411d04c4e3862d235976205a71ec405acd5b1a621753b29c706",
+      "storedBytes": 1591339,
+      "storedSha256": "fe57cd2aa218b82ed04eddc78f1fd49caee7959331983f5cf1f6981dd7de9c73"
+    },
+    {
+      "originalPath": "run7-pair-2-2-baseline-semantic.json.gz",
+      "archivePath": "semantic-objects/26200b7a80b4a411d04c4e3862d235976205a71ec405acd5b1a621753b29c706.json.gz",
+      "logicalBytes": 11566110,
+      "logicalSha256": "26200b7a80b4a411d04c4e3862d235976205a71ec405acd5b1a621753b29c706",
+      "storedBytes": 1591339,
+      "storedSha256": "fe57cd2aa218b82ed04eddc78f1fd49caee7959331983f5cf1f6981dd7de9c73"
+    },
+    {
+      "originalPath": "run7-pair-3-1-baseline-semantic.json.gz",
+      "archivePath": "semantic-objects/26200b7a80b4a411d04c4e3862d235976205a71ec405acd5b1a621753b29c706.json.gz",
+      "logicalBytes": 11566110,
+      "logicalSha256": "26200b7a80b4a411d04c4e3862d235976205a71ec405acd5b1a621753b29c706",
+      "storedBytes": 1591339,
+      "storedSha256": "fe57cd2aa218b82ed04eddc78f1fd49caee7959331983f5cf1f6981dd7de9c73"
+    },
+    {
+      "originalPath": "run7-pair-3-2-current-semantic.json.gz",
+      "archivePath": "semantic-objects/26200b7a80b4a411d04c4e3862d235976205a71ec405acd5b1a621753b29c706.json.gz",
+      "logicalBytes": 11566110,
+      "logicalSha256": "26200b7a80b4a411d04c4e3862d235976205a71ec405acd5b1a621753b29c706",
+      "storedBytes": 1591339,
+      "storedSha256": "fe57cd2aa218b82ed04eddc78f1fd49caee7959331983f5cf1f6981dd7de9c73"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "cwd": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "nodeRuntime": "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+  "reporting": "Exact commands and completed exit codes supplied by executing subagent; raw stdout/stderr logs copied byte-for-byte. Tests ran on working content committed immediately afterwards as 1f7cb65.",
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/recovery-source-material.test.ts"
+      ],
+      "log": "before.log",
+      "exitCode": 1,
+      "productBase": "e06f057ecc1fd43feaa8cfa42d14c65e9750a08e",
+      "addedCounterexamples": 3,
+      "passed": 31,
+      "failed": 3
+    },
+    {
+      "argv": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/recovery-source-material.test.ts"
+      ],
+      "log": "after.log",
+      "exitCode": 0,
+      "passed": 34,
+      "failed": 0
+    },
+    {
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "log": "types.log",
+      "exitCode": 0
+    },
+    {
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "packages/core/tsconfig.json"
+      ],
+      "log": "core-types.log",
+      "exitCode": 0
+    }
+  ],
+  "committedContent": "1f7cb65b50d84343c92e85b199840e3834585a5f"
+}

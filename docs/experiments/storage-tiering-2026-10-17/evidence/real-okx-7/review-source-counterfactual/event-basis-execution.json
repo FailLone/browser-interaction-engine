@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+    "--conditions=development",
+    "--import=tsx",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-7/review-source-counterfactual/explain.ts",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-7/review-source-counterfactual"
+  ],
+  "startEpoch": 1792201584.6330612,
+  "endEpoch": 1792201585.813834,
+  "exitCode": 0,
+  "scope": "Post-run retained-material explanation only, not timing evidence"
+}

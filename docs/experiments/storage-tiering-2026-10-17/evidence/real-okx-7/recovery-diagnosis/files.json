@@ -1,0 +1,62 @@
+{
+  "extract.ts": {
+    "sha256": "5133635a53144ce74a051f0560e8a56aeafb6f89136e4727a5399a12bf3ea215",
+    "bytes": 6565
+  },
+  "unkeyed.ts": {
+    "sha256": "ddb94871e81fcc72cb857642f6036cbfb92c893825aa164d3007af684689789e",
+    "bytes": 4955
+  },
+  "baseline-visibility-tests.log": {
+    "sha256": "953fbc1a328a0e6ca76e6aeac3c6864a7ef0a4987b3554a404a5b738420fe21f",
+    "bytes": 17137
+  },
+  "unkeyed.json": {
+    "sha256": "7ac95c48b644f477e9a34ecef67a91375790fa10c649b9d80451912285a9285f",
+    "bytes": 175304
+  },
+  "hash-initial-error.log": {
+    "sha256": "d5cc383c50ce4da031512a628f4bca0fc0343bf1c2ce421e585e70eb45e27bb2",
+    "bytes": 336
+  },
+  "unkeyed.log": {
+    "sha256": "4c598e8f8e1a8f1bc5a79825b6d2f627435ed1e7e9bbb12dcd17d7f74a5a88f0",
+    "bytes": 12962
+  },
+  "visibility-tests-final.log": {
+    "sha256": "7a5ed64587d7d9421fac64743687b69043fddb9042e371f74f9f5caa6cfe1212",
+    "bytes": 356
+  },
+  "extract-initial-failure.log": {
+    "sha256": "54d57c9b2ecea794c86289cb509ecffa045d121577779fc5c8c857565751b12e",
+    "bytes": 2359
+  },
+  "commands.json": {
+    "sha256": "c8d6cf0ec2a8ef80e1b2ee95a80b81cfe67e37d6937cad9edcf2ab12e64b58c1",
+    "bytes": 3816
+  },
+  "recovery-facts.json": {
+    "sha256": "04706a27366e7d0ac2987ccb3aafb69a1fe09b4b7aed6092b582fd780fa7a82c",
+    "bytes": 502154
+  },
+  "manifest.json": {
+    "sha256": "cf52e3d73190a35c46c9d31c565963cec1eaf2017fffbdf98286b0b3e5bffb62",
+    "bytes": 5115
+  },
+  "visibility-source-before.json": {
+    "sha256": "72d336d2f4428ac3540683d93ed93c6628776be329b48fb7e4f3792b504fbb13",
+    "bytes": 529
+  },
+  "extract.log": {
+    "sha256": "0f2b02b796689aee42c0405f9bf984e12f0cab573bb52239acbb4a3cfceb51c5",
+    "bytes": 90528
+  },
+  "docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-7/recovery-diagnosis.md": {
+    "sha256": "0126604f624e5546a2e72e9cb73f2367e78888da642187cbb6902143e2a2142c",
+    "bytes": 10165
+  },
+  "tests/explorer-review-source-visibility.test.ts": {
+    "sha256": "f44627cc914f9a8e80323149d6b2ffdce06d5b3e1fdae968b9219c50b1c71caf",
+    "bytes": 10435
+  }
+}

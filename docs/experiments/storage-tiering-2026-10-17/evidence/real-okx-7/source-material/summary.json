@@ -1,0 +1,116 @@
+{
+  "baseline": {
+    "revision": "106a1cdfddfe3e73cab9e01b28ba4dd8439653e2",
+    "samplesMs": [
+      35853.198292,
+      35722.823167,
+      35826.558792
+    ],
+    "medianMs": 35826.558792,
+    "maxRSSKiB": [
+      1817712,
+      1827664,
+      1826576
+    ],
+    "reads": {
+      "require": {
+        "calls": 1945,
+        "uniqueKeys": 34,
+        "elapsedMs": 24362.755871999932,
+        "logicalReturnedJsonBytes": 7162255302
+      },
+      "list": {
+        "calls": 1,
+        "uniqueKeys": 1,
+        "elapsedMs": 0.21716700000001765,
+        "logicalReturnedJsonBytes": 13597
+      },
+      "listByObservation": {
+        "calls": 656,
+        "uniqueKeys": 32,
+        "elapsedMs": 442.3160029999699,
+        "logicalReturnedJsonBytes": 107024836
+      }
+    },
+    "events": {
+      "count": 270,
+      "types": {
+        "obligation.route_unavailable": 270
+      },
+      "sha256": "4f8361aaca4379f8f660def2cae893a13bf631f5b20ebd319f67c56ed3262ae2"
+    },
+    "byteCounts": {
+      "inputTask": 2188693,
+      "resultTask": 2234061,
+      "selected": 3625128,
+      "events": 118660,
+      "material": 128651417
+    }
+  },
+  "current": {
+    "revision": "855a3a47b513305077ef160a8d4d5716fe1780f9",
+    "samplesMs": [
+      34965.539333,
+      35055.628208,
+      35206.511083000005
+    ],
+    "medianMs": 35055.628208,
+    "maxRSSKiB": [
+      1949712,
+      1943920,
+      1945472
+    ],
+    "reads": {
+      "require": {
+        "calls": 1313,
+        "uniqueKeys": 34,
+        "elapsedMs": 16540.34148200001,
+        "logicalReturnedJsonBytes": 4800704748
+      },
+      "list": {
+        "calls": 1,
+        "uniqueKeys": 1,
+        "elapsedMs": 0.2232089999999971,
+        "logicalReturnedJsonBytes": 13597
+      },
+      "listByObservation": {
+        "calls": 656,
+        "uniqueKeys": 32,
+        "elapsedMs": 424.5221530000513,
+        "logicalReturnedJsonBytes": 107024836
+      }
+    },
+    "events": {
+      "count": 270,
+      "types": {
+        "obligation.route_unavailable": 270
+      },
+      "sha256": "4f8361aaca4379f8f660def2cae893a13bf631f5b20ebd319f67c56ed3262ae2"
+    },
+    "byteCounts": {
+      "inputTask": 2188693,
+      "resultTask": 2234061,
+      "selected": 3625128,
+      "events": 118660,
+      "material": 128651417
+    }
+  },
+  "ratio": 0.9784815899155754,
+  "comparisons": [
+    {
+      "pair": 1,
+      "equal": true,
+      "completeSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6"
+    },
+    {
+      "pair": 2,
+      "equal": true,
+      "completeSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6"
+    },
+    {
+      "pair": 3,
+      "equal": true,
+      "completeSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6"
+    }
+  ]
+}

@@ -1,0 +1,481 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ❯ tests/explorer-review-source-visibility.test.ts (15 tests | 12 failed) 48ms
+   × retains hidden classification_unresolved work without mistaking its checkpoint for an available review destination 20ms
+     → expected { frame: { …(6) }, …(7) } to be undefined
+   × retains hidden operation_basis_unconfirmed work without mistaking its checkpoint for an available review destination 2ms
+     → expected { frame: { …(6) }, …(7) } to be undefined
+   × retains hidden operation_risk_unresolved work without mistaking its checkpoint for an available review destination 2ms
+     → expected { frame: { …(6) }, …(7) } to be undefined
+   × retains hidden probe_unresolved work without mistaking its checkpoint for an available review destination 2ms
+     → expected { frame: { …(6) }, …(7) } to be undefined
+   × retains hidden identity_unresolved work without mistaking its checkpoint for an available review destination 2ms
+     → expected { frame: { …(6) }, …(7) } to be undefined
+   ✓ allows a visible ambiguous review source without inventing a unique identity or executable action 2ms
+   ✓ allows a disabled visible target to provide review material without granting execution 1ms
+   × does not use background visible controls as an active-boundary review source 2ms
+     → expected { frame: { …(6) }, …(7) } to be undefined
+   × does not use outer boundary only visible controls as an active-boundary review source 2ms
+     → expected { frame: { …(6) }, …(7) } to be undefined
+   × does not use missing overlay visible controls as an active-boundary review source 2ms
+     → expected { frame: { …(6) }, …(7) } to be undefined
+   ✓ accepts one visible member of the innermost boundary even with hidden or background same-name rivals 1ms
+   × continues to a retained visible source after rejecting a newer hidden source without rebinding the obligation 3ms
+     → expected { frame: { …(6) }, …(7) } to match object { itemId: 'review', …(2) }
+(26 matching properties omitted from actual)
+   × rechecks source visibility on a fresh call and preserves old unknown retry debt and source history 3ms
+     → expected 'route_retry_unknown_result' to be 'source_review_target_not_available' // Object.is equality
+   × does not claim that an undeployed prerequisite or a same-URL page return makes a hidden source visible 2ms
+     → expected { frame: { …(6) }, …(7) } to be undefined
+   × keeps a separately observed concrete entry operation eligible while the hidden review remains unresolved 2ms
+     → expected { frame: { …(6) }, …(7) } to match object { itemId: 'entry', …(1) }
+(28 matching properties omitted from actual)
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/explorer-review-source-visibility.test.ts > retains hidden classification_unresolved work without mistaking its checkpoint for an available review destination
+ FAIL  tests/explorer-review-source-visibility.test.ts > retains hidden operation_basis_unconfirmed work without mistaking its checkpoint for an available review destination
+ FAIL  tests/explorer-review-source-visibility.test.ts > retains hidden operation_risk_unresolved work without mistaking its checkpoint for an available review destination
+ FAIL  tests/explorer-review-source-visibility.test.ts > retains hidden probe_unresolved work without mistaking its checkpoint for an available review destination
+ FAIL  tests/explorer-review-source-visibility.test.ts > retains hidden identity_unresolved work without mistaking its checkpoint for an available review destination
+AssertionError: expected { frame: { …(6) }, …(7) } to be undefined
+
+- Expected: 
+undefined
+
++ Received: 
+{
+  "conditionVersion": "b57e3cca23aa4e68dcc8b849d76aaa87d5d2c2a9d74fd152dea8745523defdf3",
+  "frame": {
+    "checkpointId": "checkpoint-source",
+    "observationId": "source",
+    "path": [],
+    "remaining": [
+      {
+        "label": "Open sub-menu",
+        "region": "Main menu",
+        "role": "button",
+        "url": "https://review-source.fixture.invalid/page",
+      },
+    ],
+    "stateId": "state-source",
+    "used": [],
+  },
+  "itemId": "review",
+  "remaining": [
+    {
+      "label": "Open sub-menu",
+      "region": "Main menu",
+      "role": "button",
+      "url": "https://review-source.fixture.invalid/page",
+    },
+  ],
+  "returnToSource": false,
+  "routeKey": "4f334b9598e48837a50039dd967c8c18e2149d87c72cfddc6ce806f5631978c2",
+  "source": {
+    "boundaries": [],
+    "canonical": "source",
+    "components": [],
+    "context": {
+      "account": {
+        "source": "fixture",
+        "status": "known",
+        "value": "anonymous",
+      },
+    },
+    "controls": [
+      {
+        "actions": [],
+        "constraints": {
+          "required": false,
+          "valid": true,
+        },
+        "enabled": true,
+        "hypothesisId": "hypothesis-first",
+        "instanceId": "instance-first",
+        "label": "Open sub-menu",
+        "localId": "first",
+        "name": "Open sub-menu",
+        "region": "menu",
+        "role": "button",
+        "selected": [],
+        "tag": "i",
+        "visible": false,
+      },
+      {
+        "actions": [],
+        "constraints": {
+          "required": false,
+          "valid": true,
+        },
+        "enabled": true,
+        "hypothesisId": "hypothesis-second",
+        "instanceId": "instance-second",
+        "label": "Open sub-menu",
+        "localId": "second",
+        "name": "Open sub-menu",
+        "region": "menu",
+        "role": "button",
+        "selected": [],
+        "tag": "i",
+        "visible": false,
+      },
+    ],
+    "documentId": "document-source",
+    "gaps": [],
+    "id": "source",
+    "instanceScope": "document-source",
+    "overlays": [],
+    "regions": [
+      {
+        "key": "menu",
+        "label": "Main menu",
+        "role": "navigation",
+      },
+    ],
+    "ruleVersion": "observable-v7",
+    "sessionId": "session",
+    "stable": true,
+    "stateId": "state-source",
+    "url": "https://review-source.fixture.invalid/page",
+  },
+  "targetActionIds": [],
+}
+
+ ❯ tests/explorer-review-source-visibility.test.ts:50:22
+     48|   f.review.reason=reason;hidden(f.source);f.current.controls=structure…
+     49|   const plan=structuredClone(f.task.plan);
+     50|   expect(f.select()).toBeUndefined();expect(f.task.plan).toEqual(plan);
+       |                      ^
+     51|   expect(f.task.scheduling!.deferred!.review.reason).toBe('source_revi…
+     52|   expect(f.task.scheduling!.routes).toEqual({});expect(f.task.routeRet…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  tests/explorer-review-source-visibility.test.ts > does not use background visible controls as an active-boundary review source
+ FAIL  tests/explorer-review-source-visibility.test.ts > does not use outer boundary only visible controls as an active-boundary review source
+ FAIL  tests/explorer-review-source-visibility.test.ts > does not use missing overlay visible controls as an active-boundary review source
+AssertionError: expected { frame: { …(6) }, …(7) } to be undefined
+
+- Expected: 
+undefined
+
++ Received: 
+{
+  "conditionVersion": "b57e3cca23aa4e68dcc8b849d76aaa87d5d2c2a9d74fd152dea8745523defdf3",
+  "frame": {
+    "checkpointId": "checkpoint-source",
+    "observationId": "source",
+    "path": [],
+    "remaining": [
+      {
+        "label": "Open sub-menu",
+        "region": "Main menu",
+        "role": "button",
+        "url": "https://review-source.fixture.invalid/page",
+      },
+    ],
+    "stateId": "state-source",
+    "used": [],
+  },
+  "itemId": "review",
+  "remaining": [
+    {
+      "label": "Open sub-menu",
+      "region": "Main menu",
+      "role": "button",
+      "url": "https://review-source.fixture.invalid/page",
+    },
+  ],
+  "returnToSource": false,
+  "routeKey": "4f334b9598e48837a50039dd967c8c18e2149d87c72cfddc6ce806f5631978c2",
+  "source": {
+    "boundaries": [
+      {
+        "key": "active",
+      },
+    ],
+    "canonical": "source",
+    "components": [],
+    "context": {
+      "account": {
+        "source": "fixture",
+        "status": "known",
+        "value": "anonymous",
+      },
+    },
+    "controls": [
+      {
+        "actions": [],
+        "constraints": {
+          "required": false,
+          "valid": true,
+        },
+        "enabled": true,
+        "hypothesisId": "hypothesis-first",
+        "instanceId": "instance-first",
+        "label": "Open sub-menu",
+        "localId": "first",
+        "name": "Open sub-menu",
+        "region": "menu",
+        "role": "button",
+        "selected": [],
+        "tag": "i",
+        "visible": true,
+      },
+      {
+        "actions": [],
+        "constraints": {
+          "required": false,
+          "valid": true,
+        },
+        "enabled": true,
+        "hypothesisId": "hypothesis-second",
+        "instanceId": "instance-second",
+        "label": "Open sub-menu",
+        "localId": "second",
+        "name": "Open sub-menu",
+        "region": "menu",
+        "role": "button",
+        "selected": [],
+        "tag": "i",
+        "visible": true,
+      },
+    ],
+    "documentId": "document-source",
+    "gaps": [],
+    "id": "source",
+    "instanceScope": "document-source",
+    "overlays": [
+      {
+        "controlIds": [
+          "unrelated",
+        ],
+        "key": "active",
+      },
+    ],
+    "regions": [
+      {
+        "key": "menu",
+        "label": "Main menu",
+        "role": "navigation",
+      },
+    ],
+    "ruleVersion": "observable-v7",
+    "sessionId": "session",
+    "stable": true,
+    "stateId": "state-source",
+    "url": "https://review-source.fixture.invalid/page",
+  },
+  "targetActionIds": [],
+}
+
+ ❯ tests/explorer-review-source-visibility.test.ts:81:62
+     79|   if(kind==='outer boundary only')overlay(f.source,'outer',f.source.co…
+     80|   if(kind==='missing overlay')f.source.boundaries.push({key:'active'} …
+     81|   const plan=structuredClone(f.task.plan);expect(f.select()).toBeUndef…
+       |                                                              ^
+     82|   expect(f.task.scheduling!.deferred!.review.reason).toBe('source_revi…
+     83|   expect(f.task.scheduling!.routes).toEqual({});
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  tests/explorer-review-source-visibility.test.ts > continues to a retained visible source after rejecting a newer hidden source without rebinding the obligation
+AssertionError: expected { frame: { …(6) }, …(7) } to match object { itemId: 'review', …(2) }
+(26 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "frame": {
+-     "checkpointId": "checkpoint-source",
++     "checkpointId": "checkpoint-newer-hidden",
+    },
+    "itemId": "review",
+    "source": {
+-     "id": "source",
++     "id": "newer-hidden",
+    },
+  }
+
+ ❯ tests/explorer-review-source-visibility.test.ts:99:22
+     97|   const newer=observation('newer-hidden',[control('newer',{visible:fal…
+     98|   f.review.evidence.push({sessionId:'session',observationId:newer.id})…
+     99|   expect(f.select()).toMatchObject({itemId:'review',source:{id:f.sourc…
+       |                      ^
+    100|   expect(f.review).toEqual(before);
+    101|  }finally{await f.close();}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  tests/explorer-review-source-visibility.test.ts > rechecks source visibility on a fresh call and preserves old unknown retry debt and source history
+AssertionError: expected 'route_retry_unknown_result' to be 'source_review_target_not_available' // Object.is equality
+
+Expected: "source_review_target_not_available"
+Received: "route_retry_unknown_result"
+
+ ❯ tests/explorer-review-source-visibility.test.ts:110:106
+    108|    unknownSource:{sessionId:'session',attemptIds:['old-unknown']}});
+    109|   const debt=structuredClone(f.task.routeRetries),plan=structuredClone…
+    110|   hidden(f.source);expect(f.select()).toBeUndefined();expect(f.task.sc…
+       |                                                                                                          ^
+    111|   f.source.controls[0].visible=true;expect(f.select()).toBeUndefined()…
+    112|   expect(f.task.routeRetries).toEqual(debt);expect(f.task.plan).toEqua…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  tests/explorer-review-source-visibility.test.ts > does not claim that an undeployed prerequisite or a same-URL page return makes a hidden source visible
+AssertionError: expected { frame: { …(6) }, …(7) } to be undefined
+
+- Expected: 
+undefined
+
++ Received: 
+{
+  "conditionVersion": "4fa8158e49fd2ed775c650b44449b0d426645485010e2d250703571f5c9f1ac1",
+  "frame": {
+    "checkpointId": "checkpoint-source",
+    "observationId": "source",
+    "path": [
+      {
+        "kind": "click",
+        "label": "Trade",
+        "url": "https://review-source.fixture.invalid/page",
+      },
+    ],
+    "remaining": [
+      {
+        "label": "Open sub-menu",
+        "region": "Main menu",
+        "role": "button",
+        "url": "https://review-source.fixture.invalid/page",
+      },
+    ],
+    "stateId": "state-source",
+    "used": [],
+  },
+  "itemId": "review",
+  "remaining": [
+    {
+      "label": "Open sub-menu",
+      "region": "Main menu",
+      "role": "button",
+      "url": "https://review-source.fixture.invalid/page",
+    },
+  ],
+  "returnToSource": false,
+  "routeKey": "efb2e96d397936cbd592c714514140dfaebb122cf39a33e937751c665556a0af",
+  "source": {
+    "boundaries": [],
+    "canonical": "source",
+    "components": [],
+    "context": {
+      "account": {
+        "source": "fixture",
+        "status": "known",
+        "value": "anonymous",
+      },
+    },
+    "controls": [
+      {
+        "actions": [],
+        "constraints": {
+          "required": false,
+          "valid": true,
+        },
+        "enabled": true,
+        "hypothesisId": "hypothesis-first",
+        "instanceId": "instance-first",
+        "label": "Open sub-menu",
+        "localId": "first",
+        "name": "Open sub-menu",
+        "region": "menu",
+        "role": "button",
+        "selected": [],
+        "tag": "i",
+        "visible": false,
+      },
+      {
+        "actions": [],
+        "constraints": {
+          "required": false,
+          "valid": true,
+        },
+        "enabled": true,
+        "hypothesisId": "hypothesis-second",
+        "instanceId": "instance-second",
+        "label": "Open sub-menu",
+        "localId": "second",
+        "name": "Open sub-menu",
+        "region": "menu",
+        "role": "button",
+        "selected": [],
+        "tag": "i",
+        "visible": false,
+      },
+    ],
+    "documentId": "document-source",
+    "gaps": [],
+    "id": "source",
+    "instanceScope": "document-source",
+    "overlays": [],
+    "regions": [
+      {
+        "key": "menu",
+        "label": "Main menu",
+        "role": "navigation",
+      },
+    ],
+    "ruleVersion": "observable-v7",
+    "sessionId": "session",
+    "stable": true,
+    "stateId": "state-source",
+    "url": "https://review-source.fixture.invalid/page",
+  },
+  "targetActionIds": [],
+}
+
+ ❯ tests/explorer-review-source-visibility.test.ts:120:62
+    118|   hidden(f.source);f.review.prerequisites=[{url,label:'Trade',kind:'cl…
+    119|   f.host.returnToObservedSource=vi.fn(async()=>{throw Error('Selection…
+    120|   const plan=structuredClone(f.task.plan);expect(f.select()).toBeUndef…
+       |                                                              ^
+    121|   expect(f.task.scheduling!.deferred!.review.reason).toBe('source_revi…
+    122|   expect(f.host.returnToObservedSource).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  tests/explorer-review-source-visibility.test.ts > keeps a separately observed concrete entry operation eligible while the hidden review remains unresolved
+AssertionError: expected { frame: { …(6) }, …(7) } to match object { itemId: 'entry', …(1) }
+(28 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "itemId": "entry",
+-   "targetActionIds": [
+-     "trade-action",
+-   ],
++   "itemId": "review",
++   "targetActionIds": [],
+  }
+
+ ❯ tests/explorer-review-source-visibility.test.ts:134:62
+    132|    preconditions:{visible:true,enabled:true,identityResolved:true,cont…
+    133|   f.actionRows.set(f.source.id,[action]);f.task.plan.push({...planItem…
+    134|   const plan=structuredClone(f.task.plan);expect(f.select()).toMatchOb…
+       |                                                              ^
+    135|   expect(f.task.plan).toEqual(plan);expect(f.review.status).toBe('unre…
+    136|  }finally{await f.close();}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  12 failed | 3 passed (15)
+   Start at  09:27:40
+   Duration  1.00s (transform 475ms, setup 0ms, collect 818ms, tests 48ms, environment 0ms, prepare 35ms)
+

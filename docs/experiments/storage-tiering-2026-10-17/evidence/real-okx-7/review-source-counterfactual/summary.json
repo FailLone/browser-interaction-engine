@@ -1,0 +1,438 @@
+{
+  "baselineRevision": "875ce5019751c8222df23cba00a63a1ddc1c29c9",
+  "currentRevision": "e06f057ecc1fd43feaa8cfa42d14c65e9750a08e",
+  "noPerformanceComparison": true,
+  "baselineChoice": {
+    "itemId": "53cc4e09-7c99-43e6-bb57-272e46dbc6b3",
+    "routeKey": "384664f26110b4b21e407321678506726127c64e8239f83730d8beaa547b5001",
+    "checkpointId": "b1e80845-ab4f-4c31-809d-ba37be180e92",
+    "sourceObservationId": "5f80a3df-8355-444a-8499-4a625cb89577",
+    "returnToSource": false,
+    "targetActionIds": []
+  },
+  "currentChoice": null,
+  "restorationExecuted": false,
+  "recoverySucceeded": false,
+  "inputInventory": {
+    "planOccurrences": 803,
+    "distinctBusinessIds": 803,
+    "planAttemptUnknowns": 0,
+    "pendingDispatchPresent": false,
+    "unverifiedRecoveryRows": 0,
+    "retryRoutes": 6,
+    "unknownRetryRoutes": 0,
+    "retryConditionOutcomes": {
+      "unverified": 4,
+      "verified": 3,
+      "unreachable": 2
+    },
+    "oldScheduledRouteBindings": 6
+  },
+  "preservation": {
+    "inputEqual": true,
+    "full803PlanEqual": true,
+    "planArrayOrderEqual": true,
+    "roundsEqual": true,
+    "oldRetryLedgerEqual": true,
+    "unknownFieldsPresenceAndValuesEqual": true,
+    "oldScheduledRouteBindingsRetained": true,
+    "onlyDeferredChangedFromInput": true
+  },
+  "events": {
+    "baseline": 270,
+    "current": 282,
+    "newOrChanged": 13,
+    "newOrChangedReasons": {
+      "source_review_target_not_available": 2,
+      "current_review_occurrence_present": 1,
+      "source_target_unverified": 9,
+      "unchanged_unresolved_review": 1
+    },
+    "orderedDiff": [
+      {
+        "operation": "replace",
+        "baselineRange": [
+          269,
+          270
+        ],
+        "currentRange": [
+          269,
+          282
+        ],
+        "before": [
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "35a22c35-fa78-47fb-8681-2ac3250539cd",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "route_retry_condition_attempted",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          }
+        ],
+        "after": [
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "35a22c35-fa78-47fb-8681-2ac3250539cd",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "source_review_target_not_available",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          },
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "53cc4e09-7c99-43e6-bb57-272e46dbc6b3",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "source_review_target_not_available",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          },
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "cc52542c-a8e5-4979-a867-9c8517064b23",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "current_review_occurrence_present",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          },
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "a145daa0-e621-4d99-a55a-0df73eb8ca56",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "source_target_unverified",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          },
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "88a950ff-2447-42cd-90d9-8374382104da",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "source_target_unverified",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          },
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "f79abeec-57e8-4916-9074-5100268c0c7e",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "source_target_unverified",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          },
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "33fb7be9-ce3d-4839-8241-c8ef8b5a9c60",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "source_target_unverified",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          },
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "b296bd9d-2f7d-4356-9900-0e564bb623c7",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "source_target_unverified",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          },
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "0c194579-4db1-447f-ac8c-b3d48fde1dc2",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "source_target_unverified",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          },
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "cdc80291-64cd-4bd8-9b9f-e412cc30fac3",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "source_target_unverified",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          },
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "b10c4870-eef2-4957-845d-b427b1c56a2e",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "source_target_unverified",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          },
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "ca7358ce-334d-4895-b406-a90426e0d700",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "source_target_unverified",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          },
+          {
+            "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+            "type": "obligation.route_unavailable",
+            "actor": "program",
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6ad38c2-acb1-4801-9edb-6ec802ce8ae7",
+            "data": {
+              "itemId": "19a0689d-268d-4062-ac04-1c1fa00120b5",
+              "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+              "reason": "unchanged_unresolved_review",
+              "retainedInPlan": true,
+              "coverageGranted": false
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "taskDiff": [
+    {
+      "path": "/task/scheduling/deferred/0c194579-4db1-447f-ac8c-b3d48fde1dc2",
+      "beforePresent": false,
+      "afterPresent": true,
+      "after": {
+        "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+        "reason": "source_target_unverified"
+      }
+    },
+    {
+      "path": "/task/scheduling/deferred/19a0689d-268d-4062-ac04-1c1fa00120b5",
+      "beforePresent": false,
+      "afterPresent": true,
+      "after": {
+        "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+        "reason": "unchanged_unresolved_review"
+      }
+    },
+    {
+      "path": "/task/scheduling/deferred/33fb7be9-ce3d-4839-8241-c8ef8b5a9c60",
+      "beforePresent": false,
+      "afterPresent": true,
+      "after": {
+        "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+        "reason": "source_target_unverified"
+      }
+    },
+    {
+      "path": "/task/scheduling/deferred/35a22c35-fa78-47fb-8681-2ac3250539cd/reason",
+      "beforePresent": true,
+      "before": "route_retry_condition_attempted",
+      "afterPresent": true,
+      "after": "source_review_target_not_available"
+    },
+    {
+      "path": "/task/scheduling/deferred/53cc4e09-7c99-43e6-bb57-272e46dbc6b3",
+      "beforePresent": false,
+      "afterPresent": true,
+      "after": {
+        "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+        "reason": "source_review_target_not_available"
+      }
+    },
+    {
+      "path": "/task/scheduling/deferred/88a950ff-2447-42cd-90d9-8374382104da",
+      "beforePresent": false,
+      "afterPresent": true,
+      "after": {
+        "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+        "reason": "source_target_unverified"
+      }
+    },
+    {
+      "path": "/task/scheduling/deferred/a145daa0-e621-4d99-a55a-0df73eb8ca56",
+      "beforePresent": false,
+      "afterPresent": true,
+      "after": {
+        "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+        "reason": "source_target_unverified"
+      }
+    },
+    {
+      "path": "/task/scheduling/deferred/b10c4870-eef2-4957-845d-b427b1c56a2e",
+      "beforePresent": false,
+      "afterPresent": true,
+      "after": {
+        "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+        "reason": "source_target_unverified"
+      }
+    },
+    {
+      "path": "/task/scheduling/deferred/b296bd9d-2f7d-4356-9900-0e564bb623c7",
+      "beforePresent": false,
+      "afterPresent": true,
+      "after": {
+        "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+        "reason": "source_target_unverified"
+      }
+    },
+    {
+      "path": "/task/scheduling/deferred/ca7358ce-334d-4895-b406-a90426e0d700",
+      "beforePresent": false,
+      "afterPresent": true,
+      "after": {
+        "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+        "reason": "source_target_unverified"
+      }
+    },
+    {
+      "path": "/task/scheduling/deferred/cc52542c-a8e5-4979-a867-9c8517064b23",
+      "beforePresent": false,
+      "afterPresent": true,
+      "after": {
+        "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+        "reason": "current_review_occurrence_present"
+      }
+    },
+    {
+      "path": "/task/scheduling/deferred/cdc80291-64cd-4bd8-9b9f-e412cc30fac3",
+      "beforePresent": false,
+      "afterPresent": true,
+      "after": {
+        "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+        "reason": "source_target_unverified"
+      }
+    },
+    {
+      "path": "/task/scheduling/deferred/f79abeec-57e8-4916-9074-5100268c0c7e",
+      "beforePresent": false,
+      "afterPresent": true,
+      "after": {
+        "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+        "reason": "source_target_unverified"
+      }
+    },
+    {
+      "path": "/task/scheduling/routes/384664f26110b4b21e407321678506726127c64e8239f83730d8beaa547b5001",
+      "beforePresent": true,
+      "before": {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "5f80a3df-8355-444a-8499-4a625cb89577",
+        "checkpointId": "b1e80845-ab4f-4c31-809d-ba37be180e92",
+        "targets": [
+          {
+            "url": "https://www.okx.com/convert/usd-to-btc",
+            "region": "Main menu",
+            "role": "link",
+            "stableKey": "explorer:context:v1:7c7e3d7bbdf12a0c3b0b2e816f8fba9275f3405aa37e766698e2ff32a9dd64e0",
+            "targetBinding": "browser-target-binding:v1:a7cd246267680ea439073839a8560f7597c4521dc2e9cdabe8fc49aeda5c9822"
+          }
+        ],
+        "path": [],
+        "itemIds": [
+          "53cc4e09-7c99-43e6-bb57-272e46dbc6b3"
+        ],
+        "memberKeys": [
+          "384664f26110b4b21e407321678506726127c64e8239f83730d8beaa547b5001"
+        ],
+        "pathKeys": []
+      },
+      "afterPresent": false
+    }
+  ],
+  "newDefersAllIndependentlyExplained": true,
+  "semanticFiles": {
+    "baseline-semantic.json.gz": {
+      "storedBytes": 882071,
+      "storedSha256": "dd60d7b888506357087de2861b77f52aba56de17ae31c722481a3d79b4f8087d",
+      "logicalBytes": 8166582,
+      "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6"
+    },
+    "current-semantic.json.gz": {
+      "storedBytes": 725050,
+      "storedSha256": "39b828ef7f1c294d9d563b0657bdb23a59e533f09314a2acc77d6f6aa3d3caf4",
+      "logicalBytes": 4548018,
+      "logicalSha256": "5aaeb93d2bb4168a27138dc910dee24f0dd7647b7f535925830d4597106f4ac1"
+    },
+    "full-diff.json.gz": {
+      "storedBytes": 165929,
+      "storedSha256": "b06deb73e5e7dab8327e8aa262a763e37e394d4e049083648b803f308212e5d5",
+      "logicalBytes": 3706430,
+      "logicalSha256": "6d84c792917de8750b00b05a46d3db7f6320fb685107544a67ffd4dfcaf46a6d"
+    }
+  },
+  "limits": [
+    "Terminal-task counterfactual; actual live pre-selection state cannot be exactly reconstructed.",
+    "Baseline selected53cc4e09 differs from live selected35a22c35 because final failed-route debt is retained.",
+    "No alternative route was selected. This is not a successful recovery or a claim of scope exhaustion.",
+    "Real selected sources here have no active boundary; actual hidden targets are evidenced, while background-boundary behavior is covered by dedicated tests.",
+    "No active unknown dispatch exists in this fixed input; exact unknown fields and old failure ledger remain unchanged. Separate unknown-debt tests cover nonempty unknown execution debt.",
+    "Raw worker retains its inherited performance-protocol description/timing fields; this experiment adds only one e06 process and does not compare performance."
+  ]
+}

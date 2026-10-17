@@ -1,0 +1,98 @@
+[
+  {
+    "pair": 1,
+    "variant": "baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-source-material-2owamgvv/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-source-material-2owamgvv/pair-1-baseline-config.json"
+    ],
+    "startEpoch": 1792200548.88239,
+    "pid": 39941,
+    "exitCode": 0,
+    "endEpoch": 1792200586.923085
+  },
+  {
+    "pair": 1,
+    "variant": "current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-source-material-2owamgvv/current/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-source-material-2owamgvv/pair-1-current-config.json"
+    ],
+    "startEpoch": 1792200587.046216,
+    "pid": 40041,
+    "exitCode": 0,
+    "endEpoch": 1792200624.2679732
+  },
+  {
+    "pair": 2,
+    "variant": "current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-source-material-2owamgvv/current/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-source-material-2owamgvv/pair-2-current-config.json"
+    ],
+    "startEpoch": 1792200624.2986119,
+    "pid": 40195,
+    "exitCode": 0,
+    "endEpoch": 1792200661.573285
+  },
+  {
+    "pair": 2,
+    "variant": "baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-source-material-2owamgvv/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-source-material-2owamgvv/pair-2-baseline-config.json"
+    ],
+    "startEpoch": 1792200661.596371,
+    "pid": 40283,
+    "exitCode": 0,
+    "endEpoch": 1792200699.517484
+  },
+  {
+    "pair": 3,
+    "variant": "baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-source-material-2owamgvv/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-source-material-2owamgvv/pair-3-baseline-config.json"
+    ],
+    "startEpoch": 1792200699.548037,
+    "pid": 40388,
+    "exitCode": 0,
+    "endEpoch": 1792200737.605886
+  },
+  {
+    "pair": 3,
+    "variant": "current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-source-material-2owamgvv/current/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run7-source-material-2owamgvv/pair-3-current-config.json"
+    ],
+    "startEpoch": 1792200737.629069,
+    "pid": 40566,
+    "exitCode": 0,
+    "endEpoch": 1792200775.139255
+  }
+]

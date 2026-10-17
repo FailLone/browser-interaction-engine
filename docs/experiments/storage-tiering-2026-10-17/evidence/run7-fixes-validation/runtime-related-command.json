@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/explorer-recovery-selection-index.test.ts",
+    "tests/explorer-source-return-scheduling.test.ts",
+    "tests/explorer-recovery-failure-condition.test.ts",
+    "tests/explorer-review-recovery.test.ts",
+    "tests/explorer-review-source-priority.test.ts",
+    "tests/explorer-review-source-visibility.test.ts",
+    "tests/explorer-obligation-scheduler-safety.test.ts",
+    "tests/explorer-scope-source-recovery.test.ts"
+  ],
+  "startEpoch": 1792201644.131979,
+  "endEpoch": 1792201655.920831,
+  "exitCode": 0
+}

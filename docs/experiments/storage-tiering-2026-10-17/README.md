@@ -263,3 +263,7 @@ UI 依赖回归在 `d103747` 修复：将浏览器所需纯函数提取到独立
 最终产品 `900edf7` 的[原80次协议复验](evidence/run6-factory-protocols/README.md)完成：8条执行命令退出0，462份源码前后不变；与125a10c逐trial的行为投影80/80相同，原摘要器348/348完整性检查通过，假覆盖/假到达为0，unknown负例仍阻断。这里是协议行为投影一致，不声称原始浏览器记录逐字相同。[完整独立archive的构建验收](evidence/run6-factory-compiled/summary.json)五阶段全部通过，488输入哈希不变、623编译文件有摘要、28个workspace链接指向archive自身；两次实际本地fixture操作成功、显式mock JEV/LLM各1，代理和主线程实际查看截图，界面仍保留整页穷尽未证明。没有重跑2100项全套；上一轮原全套失败和版本重叠边界仍保留。两项验证并行，耗时不用作提速证据。
 
 产品900edf7连同上述记录已通过d3e1973快进[合入main](evidence/main-merge-run6-fixes.json)，包含autonomous4857ad5；原工作区6e11128、分支和未提交状态全部不变，main未执行安装或构建。完整目标仍未完成，接下来以同一独立任务/会话接续第七窗，检查新观察与真实恢复成本，不重置旧覆盖、失败债或预算使用。
+
+第七窗已终止并[全量冻结](evidence/real-okx-7/README.md)。后续 `855a3a4`/`875ce50` 的[组合读取对照](evidence/real-okx-7/source-material-isolation/README.md)在完整输出字节相同的三对进程中把候选筛选中位从35.896降至25.305秒（−29.51%）；初版复制成本的负样本也保留。`e06f057` [拒绝隐藏审阅来源](evidence/real-okx-7/recovery-diagnosis.md)，[冻结行为对照](evidence/real-okx-7/review-source-counterfactual/README.md)不再选择这类候选，但没有可验证替代路线，全部803计划与6个路线债保留。[80次原协议](evidence/run7-fixes-protocols/README.md)的行为投影和348项完整性检查保持，最终专项及证据边界见[验证记录](evidence/run7-fixes-validation/README.md)。
+
+本轮[热写对照](evidence/task-store-hot-write/report.md)省去未变化记录解码与小冷包JSON传输；run7两种常见CAS减少约13.5%/15.8%，但历史夹具changed-round CAS慢12.67%，写事务体增加约0.52–0.75毫秒。没有新布局、压缩或完整读取收益。进一步任务库压缩/全量读取仍在后续计划，当前优先解决恢复路线与真实非局部绑定缺证；没有启动真实第八窗、合并main或宣称穷尽。

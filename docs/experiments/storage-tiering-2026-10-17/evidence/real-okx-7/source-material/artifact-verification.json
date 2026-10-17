@@ -1,0 +1,16 @@
+{
+  "semanticMappings": 6,
+  "uniqueCompleteSemanticObjects": {
+    "semantic-objects/7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6.json.gz": {
+      "gzipSha256": "dd60d7b888506357087de2861b77f52aba56de17ae31c722481a3d79b4f8087d",
+      "logicalSha256": "7b468082a0b0ead8fbaa589be08e46e029ad60c466c45bc92dda3e113e7f6dc6",
+      "logicalBytes": 8166582
+    }
+  },
+  "archiveWorkerHashes": {
+    "baseline": "d1397d5451828a1f37e14f5d1ac9d0cd0dca16d1d1dc7d106f32723146c9da94",
+    "current": "d1397d5451828a1f37e14f5d1ac9d0cd0dca16d1d1dc7d106f32723146c9da94"
+  },
+  "workerSha256": "d1397d5451828a1f37e14f5d1ac9d0cd0dca16d1d1dc7d106f32723146c9da94",
+  "allMatch": true
+}
