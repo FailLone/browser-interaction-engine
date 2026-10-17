@@ -1,3 +1,4 @@
+import {classificationStructure} from './classification-structure.js';
 import { hash } from '@interaction/core';
 import { controlClassificationConditions } from './control-classification.js';
 import type { Control, Observation } from './types.js';
@@ -7,7 +8,7 @@ const idrefs=new Set(['for','aria-labelledby','aria-describedby','aria-controls'
  * observation, identity or stored review key. DOM IDREF renaming is allowed only
  * through captured relationships, including explicit missing/unique targets. */
 export function classificationCorrespondenceConditions(c:Control,o:Observation) {
-  const exact=controlClassificationConditions(c,o),structure=c.classificationBinding;
+  const exact=controlClassificationConditions(c,o),structure=classificationStructure(c,o);
   if(!exact||!structure||structure.truncated||!structure.nodes.length||!c.reviewReuseBinding||!c.visible)return;
   const nodes=structure.nodes,instances=new Map(nodes.map((n,i)=>[n.instanceId,`node:${i}`]));
   if(instances.size!==nodes.length||nodes[0].instanceId!==c.instanceId)return;

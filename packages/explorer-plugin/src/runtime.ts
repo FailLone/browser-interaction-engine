@@ -1,3 +1,4 @@
+import {coverageLedger} from './coverage-ledger.js';
 import { isSuperseded, isUnfinished, schedulableObligation, boundOperationCondition, schedulingOperationCondition, operationSchedulingAliases } from './plan-state.js';
 import { observedPosition, reconcileRecoveryPosition, routeAttempt } from './navigation-state.js';
 import { projectObligations, recoveryConditionVersion, recoveryRouteConditionVersion, recoveryRouteKey, recordRouteRetry, retainRouteFailureCondition, routeRetryEligibility, releaseRouteRetriesForVerifiedRecovery } from './obligation-lifecycle.js';
@@ -93,6 +94,7 @@ export class ExplorerPlugin {
     if(round)this.retractReviewLedger(task,this.host.observation(round.sessionId));
     this.persist(task,state.version);this.event(task,stop?'task.stopped':'task.paused',{});return task;
   }
+  coverageLedger(id:string) {return coverageLedger(this.host,this.store.task(id));}
   async takeover(sessionId:string){const owner=this.owner(sessionId);if(owner)await this.pause(owner);}
   revise(id:string,input:{goal?:string;items?:unknown[];itemIds?:string[];coverageMode?:'all'|'representative'},supplement=false) {
     if(this.owner()===id)throw new ExplorerError('PAUSE_REQUIRED');const state=this.store.taskState(id),task=state.task;const previous={revision:task.revision,goal:task.goal,coverageMode:task.coverageMode,intent:structuredClone(task.intent),plan:structuredClone(task.plan)};

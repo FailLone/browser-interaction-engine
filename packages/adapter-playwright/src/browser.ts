@@ -249,7 +249,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   };
   // A bounded supplemental scan finds scroll viewports, handlers and cursor hints.
   // Inherited pointer cursors do not turn every descendant into another target.
-  for (const el of scanElements) if (el !== body && el !== document.documentElement && !selected.has(el) && (scrollViewport(el) || typeof (el as HTMLElement).onclick === 'function' || getComputedStyle(el).cursor === 'pointer' && (!el.parentElement || getComputedStyle(el.parentElement).cursor !== 'pointer'))) selected.add(el);
+  for (const el of scanElements) if (el !== body && el !== document.documentElement && !selected.has(el) && (scrollViewport(el) || typeof (el as HTMLElement).onclick === 'function'&&actionCollector(el).interactionHints.some(h=>h.rule==='click-handler/v1') || getComputedStyle(el).cursor === 'pointer' && (!el.parentElement || getComputedStyle(el.parentElement).cursor !== 'pointer'))) selected.add(el);
   const structuralElements = scanRoot && !scanElements.includes(scanRoot) ? [...scanElements, scanRoot] : scanElements;
   const structuralScan=listCollector?.(structuralElements,selected,instance,selector,actionCollector,scanRoot&&scanPlan?{root:scanRoot,...scanPlan.budget}:undefined)||{candidates:[],limits:{templatesTruncated:0,collectionsTruncated:false,rowWindowsTruncated:0,omissions:[],omittedLocations:0}};
   // Semantic rows already have scoped record evidence, including instance-bound

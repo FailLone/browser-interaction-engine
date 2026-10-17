@@ -1,3 +1,4 @@
+import {classificationStructure} from './classification-structure.js';
 import { z } from 'zod';
 import { hash } from '@interaction/core';
 import { controlReviewConditions } from './control-review.js';
@@ -24,7 +25,7 @@ export function controlClassificationConditions(c: Control, o: Observation) {
   const target = controlReviewConditions(c, o, 'classification');
   if (!target) return;
   return { version: 'control-classification/v1' as const, target,
-    basis: c.actionBasis, hints: c.interactionHints, structure: c.classificationBinding,
+    basis: c.actionBasis, hints: c.interactionHints, structure: classificationStructure(c,o),
     editable: c.editable, options: c.options };
 }
 export const controlClassificationKey = (c: NonNullable<ReturnType<typeof controlClassificationConditions>>) => hash(c);

@@ -42,7 +42,16 @@ export function collectActionEvidence(el: Element) {
   if (getComputedStyle(el).cursor === 'pointer') interactionHints.push({ source: 'css', rule: 'pointer-cursor/v1', facts: { cursor: 'pointer', inherited: !!el.parentElement && getComputedStyle(el.parentElement).cursor === 'pointer' } });
   // A handler may only delegate, log or stop propagation. Do not infer its purpose
   // from source text or promote ancestors just because a descendant is actionable.
-  if (el.hasAttribute('onclick') || typeof (el as HTMLElement).onclick === 'function') {
+  const handler=(el as HTMLElement).onclick;
+  // Exact empty bodies have no target operation. This recognizes syntax, not
+  // framework names or handler business intent. Parameters/default expressions,
+  // native/bound functions and every nonempty body remain unknown.
+  let emptyHandler=false;
+  if(typeof handler==='function'&&!el.hasAttribute('onclick'))try {
+    emptyHandler=/^(?:function(?:\s+[\w$]+)?\s*\(\s*\)|\(\s*\)\s*=>)\s*\{\s*\}$/.test(Function.prototype.toString.call(handler).trim());
+  }catch{/* Opaque function remains an interaction hint. */}
+  if(emptyHandler)interactionHints.push({source:'javascript-syntax',rule:'empty-handler-body/v1',facts:{parameterCount:0,body:'empty',otherListeners:'not-enumerated'}});
+  if (el.hasAttribute('onclick') || typeof handler === 'function'&&!emptyHandler) {
     const hint: ActionEvidence = { source: 'dom-signal', rule: 'click-handler/v1', facts: { inlineAttribute: el.hasAttribute('onclick'), handlerProperty: typeof (el as HTMLElement).onclick === 'function', purpose: 'unknown' } };
     interactionHints.push(hint);
     if (!actionBasis.click && !Object.keys(actionBasis).length) actionBasis.click = { status: 'tentative', evidence: [hint] };

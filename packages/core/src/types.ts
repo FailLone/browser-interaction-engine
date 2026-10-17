@@ -83,6 +83,7 @@ export interface ActionAttempt {
   id: ID; sessionId: ID; requestId: string; action: ActionCandidate; startedAt: string; finishedAt?: string;
   beforeId: ID; afterId?: ID; status: 'executing' | 'succeeded' | 'failed' | 'blocked' | 'unknown';
   executionProfile?: import('./execution-readiness.js').DispatchGuard['profile'];
+  dispatchWitness?: {version:'driver-return-v1';beforeId:string;actionKey:string;instanceScope?:string;instanceId?:string;returnedAt:string};
   repetitionSource?: { sessionId: ID; attemptId: ID };
   /** UI operation observed; external/business effects are not certified. */
   effectsAssessment?: 'not-assessed';

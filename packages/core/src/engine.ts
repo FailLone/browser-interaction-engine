@@ -1,3 +1,4 @@
+import {dispatchWitnessMatches} from './dispatch-witness.js';
 import { EventBus } from './events.js';
 import { contextSchema, actionBasisSchema, componentDescriptionSchema } from './schema.js';
 import type { ComponentDescription, ComponentDescriptionInput, ExplorationTargetReference, ExplorationTargetCorrespondence, ReachExplorationTargetInput, ExplorationTargetReachResult, RepetitionAssessment, ReturnToObservedSourceInput, ObservedSourceReturnResult, CheckpointRecoveryCandidatesInput, CheckpointRecoveryCandidateAssessment, CheckpointRecoveryStrategy, CheckpointRecoveryCandidateStatus, ControlReviewTargetReference, ControlReviewTargetCorrespondence, ReachControlReviewTargetInput, ControlReviewTargetReachResult } from './types.js';
@@ -211,6 +212,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       const times=[before.capturedAt,attempt.startedAt,after.capturedAt].map(Date.parse);
       if(times.some(t=>!Number.isFinite(t))||times[0]>times[1]||times[1]>times[2])return unavailable('source_timing_unverified');
       const finiteUI=attempt.executionProfile==='observed-ui-exploration'&&this.adapter.observedUICoverage?.(action,before,session);
+      if(this.adapter.requiresDispatchWitness?.(before,session)&&!dispatchWitnessMatches(attempt,before,after))return unavailable('dispatch_witness_missing_or_mismatched');
       if(action.basis?.status!=='supported'||action.risk!=='interface'&&!finiteUI)return unavailable('source_operation_unassessed');
       if(finiteUI)result.evidence.push('Finite UI execution verified; business effects remain unassessed');
       if(Object.values(before.context).some(c=>c.status!=='known')||canonical(action.preconditions.context)!==canonical(before.context))return unavailable('source_conditions_unknown');
@@ -435,6 +437,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if(!oldIdentity||!newIdentity||signature!==getSignature(target)||[before,current].some(o=>count(o,'signature',getSignature,signature)!==1)){result.reason='target_correspondence_missing';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
         evidence=['unique-adapter-semantic-signature','independently-resolved-session-identities'];
       }else {result.reason='target_correspondence_missing';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
+      if(attempt&&this.adapter.requiresDispatchWitness?.(before,session(before.sessionId))&&!dispatchWitnessMatches(attempt,before,after)){result.reason='dispatch_witness_missing_or_mismatched';return result as OperationCorrespondence;}
       const a=sample(sourceAction,before),requiresTargetConditions=!attempt||input.requireTargetConditions;
       let b=sample(action,current),reviewProjection:ReturnType<typeof this.historicalReviewProjection>;
       const portableUnavailable=!a||!b;
@@ -1044,11 +1047,14 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     let openedScope: InteractionScope | undefined;
     const scopeBefore = this.adapter.scopeBefore?.(action, current);
     if (scopeBefore) openedScope = this.openScopeInternal(sessionId, scopeBefore.name, scopeBefore.region, true);
+    let driverReturnedAt:string|undefined;
     try {
       if (['recovery-entry', 'recovery-reset'].includes(action.source)) await this.driver!.reopen();
       else await this.driver!.execute(action, control);
+      driverReturnedAt=now();
     }
     catch (error) { attempt.status = 'failed'; attempt.reason = String(error); this.store.put('attempt', attempt); }
+    if(driverReturnedAt){attempt.dispatchWitness={version:'driver-return-v1',beforeId:current.id,actionKey:hash(action),instanceScope:current.instanceScope,instanceId:control?.instanceId,returnedAt:driverReturnedAt};this.store.put('attempt',attempt);}
     try {
       const after = await this.capture(sessionId, purpose === 'recovery' ? 'recovery' : 'action', attempt.id, ['recovery-entry', 'recovery-reset'].includes(action.source) ? '' : undefined);
       const scopes = this.adapter.scopeAfter?.(action, current, after);

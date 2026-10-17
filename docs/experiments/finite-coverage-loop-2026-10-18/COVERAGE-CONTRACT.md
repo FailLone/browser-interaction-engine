@@ -7,7 +7,7 @@ A finite operation unit includes page URL and declared context, uniquely referen
 Three separate references are retained:
 
 - Navigation grouping: observable URL, interactive inventory, enablement/visibility, editable values, selectors, constraints/options, menus and modal boundaries. Native readonly input names/values are omitted only from navigation grouping. No general numeric-text replacement or site-specific URL normalization is used.
-- Target reference: existing SDK identity/correspondence, refined by same-document instance binding for symmetric controls. A same-name replacement does not inherit the old node's work. Unproven correspondence after replacing symmetric instances is a gap.
+- Target reference: existing SDK identity/correspondence, refined by same-document instance binding for anonymous native fields without stable IDs or structural record keys (independent of sibling count). A same-name replacement does not inherit the old node's work. Unproven correspondence after replacing symmetric instances is a gap.
 - Obligation reference: immutable plan item and retained discovery/attempt evidence. Only SDK-verified receipt completion discharges it. A navigation match alone cannot do so.
 
 The condition-key encoding remains compatible with existing scheduling APIs; the embedded source observation and branch policy identify `finite-ui-v1`. Loading an old observation never implicitly opts it into the new policy. Fresh finite sessions require caller opt-in. A future live migration must retain old duties as separately reported conditional coverage and cannot relabel their success. This implementation currently offers read-only migration explanation and new finite runs, not automatic live conversion.
@@ -26,3 +26,14 @@ Local simulation authorization is a caller-supplied exact loopback URL. It is ch
 | Positive/negative normalization samples | `finite-coverage-contract.test.ts`, readonly-label regression and bounded local run | Changing actionable content or missing target remains distinct |
 
 This is an independent implementation using the existing TypeScript engine, not a port of Crawljax source. No upstream Java source is included in product files. Experimental A's numeric-text generalization and OKX URL-specific rules are deliberately absent. FRAGGEN is outside this implementation.
+
+
+## Run 3 fixes and audit boundaries
+
+Runs 1 and 2 failed after the existing three-round scheduler limit, before the separate 240-second deadline. Run 1 had unavailable condition witnesses and duplicate completed samples. Run 2 had no duplicate completion but repeated stale container classification while readonly content refreshed; this exhausted progress inside rounds even though three missing branch candidates were available. The third run retains three rounds, 240 seconds, and 80 dispatches. It restores normal early action yield unless a relevant classification or identity decision is pending, and excludes only native readonly descendant value/name refresh from container classification. No round budget is increased.
+
+A strict syntactic empty, zero-argument function body is recognized as no click behavior; nonempty, opaque, native and bound handler bodies remain unknown. This prevents framework-installed empty click handlers from manufacturing required operations. Anonymous field identities remain document-instance-specific even after siblings disappear or reorder; replacement creates a distinct target.
+
+Finite receipts additionally require a stored driver-return witness matching the actual action, before observation, unique target instance, document and the dispatch/capture time interval. A returned driver call alone does not prove success: unknown/failed outcomes, missing owner condition witness, stale or revoked reviews, incomplete observations and mismatched targets remain rejected. Witness persistence occurs outside the driver exception handler so persistence errors cannot be misreported as driver failures.
+
+The queryable `coverageLedger` projection reports finite operation receipts, exact observed condition combinations with actual before-frame execution evidence, unknown dependencies, blockers and recovery separately. The independent auditor requires zero remaining finite obligations as well as the original branch/reentry/restart criteria. Ordinary noninteractive output outside supported controls is not a navigation-state discriminator; business/output equivalence remains unproved. Raw observations and output evidence are retained.

@@ -152,6 +152,7 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   constrain(action: ActionCandidate, observation: O, session: Session<S>): ActionCandidate;
   /** Caller-scoped authorization; never inferred from page text or model output. */
   /** Opt-in finite UI execution coverage, without asserting business effects. */
+  requiresDispatchWitness?(observation: O, session: Session<S>): boolean;
   observedUICoverage?(action: ActionCandidate, observation: O, session: Session<S>): boolean;
   submissionAuthorized?(action: ActionCandidate, observation: O, session: Session<S>): boolean;
   testPredicate(predicate: Predicate, observation: O): 'pass' | 'fail' | 'unknown';

@@ -8,8 +8,8 @@ export const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(
 export const navigationTarget=(a:ActionCandidate,o:Observation)=>navigationIntent(a,o)?.targetUrl;
 export const scopeControlKey=(c:Observation['controls'][number])=>browserControlCorrespondence(c)?.key;
 function actionScope(action:ActionCandidate,o:Observation,c:Observation['controls'][number]|undefined,r:Observation['regions'][number]|undefined):Scope {
-  const key=c&&scopeControlKey(c),targetBinding=c&&browserControlBindingKey(c,o);
-  return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(key?{stableKey:key}:{}),...(targetBinding?{targetBinding}:{})}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};
+  const key=c&&scopeControlKey(c),targetBinding=c?browserControlBindingKey(c,o):o.coveragePolicy==='finite-ui-v1'&&action.kind==='scroll'&&action.value&&typeof action.value==='object'?`browser-target-binding:v1:${digest(action.value)}`:undefined;
+  return {url:o.url,...(r?{region:r.label}:{}),label:action.label,...(c?{role:c.role, ...(key?{stableKey:key}:{})}:{}),...(targetBinding?{targetBinding}:{}),kind:action.kind,...(['string','boolean','number'].includes(typeof action.value)?{value:action.value as string|boolean|number}:{})};
 }
 export function scopeFor(action:ActionCandidate,o:Observation):Scope {const c=o.controls.find(c=>c.localId===action.localId);return actionScope(action,o,c,o.regions.find(r=>r.key===c?.region));}
 /** Indexes only captured facts for one synchronous pass. Never retain this

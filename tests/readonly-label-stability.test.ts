@@ -8,3 +8,11 @@ it('still withholds success when an actionable control keeps changing its name',
  const f=await explorerFixture(`<label><input id="refresh" type="checkbox" onchange="setInterval(()=>document.querySelector('button').textContent='Action '+(++window.tick),20)">Refresh</label><button type="button">Action 0</button><script>window.tick=0</script>`);
  try{const s=await f.host.createSession({url:f.url,headless:true,exploration:'controls',regionExploration:'review',settleMs:50,observeTimeoutMs:600});const action=f.host.actions(s.id).find(a=>a.kind==='check'&&a.value===true)!;expect((await f.host.execute(s.id,action.id,'changing-action')).status).toBe('unknown');expect(f.host.observation(s.id).gaps.some(g=>g.critical)).toBe(true);}finally{await f.close();}
 });
+it('keeps container classification stable across passive child refresh but invalidates an actionable descendant change',async()=>{
+ const {pageOf}=await import('./helpers.js');
+ const f=await explorerFixture('<div id="container" tabindex="0"><input id="quote" readonly aria-label="Quote 0" value="0"><button id="active" type="button">Action</button></div>');
+ try{const s=await f.host.createSession({url:f.url,headless:true}),o=f.host.observation(s.id),c=o.controls.find(c=>c.selector==='#container')!;await f.host.command(s.id,{type:'classifyControls',classification:{observationId:o.id,source:'passive-descendant-test',classifications:[{localId:c.localId,classification:'container',reason:'Complete grouping without own activation',evidence:['Captured subtree']}]}});const records=f.host.list<any>(s.id,'control-classification'),record=records.find(r=>r.localId===c.localId)!;expect(record.status).toBe('active');
+ await pageOf(f.host).evaluate(()=>{const q=document.querySelector('#quote') as HTMLInputElement;q.value='3';q.setAttribute('value','3');q.setAttribute('aria-label','Quote 3');});await f.host.observe(s.id);expect(f.host.list<any>(s.id,'control-classification').find(r=>r.id===record.id).status).toBe('active');
+ await pageOf(f.host).locator('#active').evaluate(el=>el.setAttribute('aria-label','Different action'));await f.host.observe(s.id);expect(f.host.list<any>(s.id,'control-classification').find(r=>r.id===record.id).status).toBe('invalidated');
+ }finally{await f.close();}
+});

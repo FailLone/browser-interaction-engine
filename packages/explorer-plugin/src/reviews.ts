@@ -154,7 +154,9 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   };
   for(const focused of priorityIds.size?[true,false]:[false]) {
   const relevantIds=focused?priorityControls:allRelevantIds;
-  if(o.coveragePolicy!=='finite-ui-v1'&&(focused?(c.allowPriorityActionYield??c.allowLocalActionYield):c.allowLocalActionYield)!==false&&(focused?c.hasPendingAction(priorityFilter,true):available.some(inPlace)&&c.hasPendingAction(inPlace,true))){retainBeforeYield();return false;}
+  const finiteNeedsReview=o.coveragePolicy==='finite-ui-v1'&&(readClassification().controls.some(item=>item.needsClassification&&relevantIds.has(item.control.localId)&&!done(digest({type:'classification',instance:o.instanceScope,control:item.control,reviews:item.classifications.map(r=>[r.id,r.status])})))
+    ||o.controls.some(x=>x.hypothesisId&&relevantIds.has(x.localId)&&host.list<IdentityHypothesis>(sid,'hypothesis').some(h=>h.id===x.hypothesisId&&h.status==='pending')));
+  if(!finiteNeedsReview&&(focused?(c.allowPriorityActionYield??c.allowLocalActionYield):c.allowLocalActionYield)!==false&&(focused?c.hasPendingAction(priorityFilter,true):available.some(inPlace)&&c.hasPendingAction(inPlace,true))){retainBeforeYield();return false;}
   if(observedUI&&!c.programApply){c.gap('missing_capability:program_review',{url:o.url});return false;}
   if(focused){const scopes=pendingScopes(true),retained=retainGroups(scopes);if(retained){await retained;return true;}if(scopes.length)return reviewGroup(scopes[0]);}
   const region=readRegions();

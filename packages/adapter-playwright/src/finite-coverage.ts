@@ -34,8 +34,9 @@ export function finiteOperationConditions(action:Pick<ActionCandidate,'kind'|'lo
  * or label is promoted into historical identity; a rebuild requires new proof. */
 export function finiteInstanceBinding(c:Control,o:Observation):string|undefined {
   if(o.coveragePolicy!==finiteCoveragePolicy)return;
-  const semantic=(x:Control)=>hash({key:x.stableKey,tag:x.tag,role:x.role,name:x.label||x.name,form:formBinding(x),scope:x.identityContext?.scope,binding:x.identityContext?.binding});
-  if(o.controls.filter(x=>semantic(x)===semantic(c)).length<2)return;
+  // Anonymous native fields have no stable address even while currently unique.
+  // Choose the reference class from intrinsic captured facts, never sibling count.
+  if(!['input','textarea','select'].includes(c.tag)||c.stableKey||c.structuralItem?.recordKey)return;
   if(!o.instanceScope||!c.instanceId||o.controls.filter(x=>x.instanceId===c.instanceId).length!==1)return;
   return `browser-target-binding:v1:${hash({policy:'document-target-instance-v1',document:o.instanceScope,instance:c.instanceId})}`;
 }

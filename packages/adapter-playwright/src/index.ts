@@ -38,6 +38,7 @@ export type { Command } from './schema.js';
 export { compareObservations, observableCanonical } from './model.js';
 
 export class PlaywrightAdapter implements InteractionAdapter<Observation, SessionOptions> {
+  requiresDispatchWitness(o:Observation,session:Session):boolean {return o.coveragePolicy==='finite-ui-v1'&&session.options.coveragePolicy==='finite-ui-v1';}
   observedUICoverage(action:ActionCandidate,o:Observation,session:Session):boolean {
     return o.coveragePolicy==='finite-ui-v1'&&session.options.coveragePolicy==='finite-ui-v1'&&session.options.executionPolicy==='observed-ui'
       &&action.source==='dom-actions-v2'&&action.basis?.status==='supported'&&!action.basis.evidence.some(e=>'reviewId' in e.facts||'sourceReviewId' in e.facts)&&(action.risk==='unknown'||action.risk==='submission'&&this.submissionAuthorized(action,o,session));
