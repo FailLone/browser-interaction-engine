@@ -26,6 +26,7 @@ import { completedOperations } from './completion-evidence.js';
 import { exactSourceExecution, operationSourceCompletion } from './operation-source-completion.js';
 import { availabilityObligation } from './operation-availability.js';
 import {auditGapIndex,type AuditGapIndex} from './audit-gap-index.js';
+import {observationActionIndex} from './observation-action-index.js';
 import { initialSchedule, orderedObligations, unfinishedObligations, selectObligation, reserveObligation, bindScheduledRoute, routeDebtAllows, localSelectionLimit, type ObligationSelection } from './obligation-scheduler.js';
 import type { Checkpoint } from '@interaction/browser';
 
@@ -641,11 +642,11 @@ export class ExplorerPlugin {
       return recoveryRouteConditionVersion(o,actions,projected);
     };
   }
-  private deferObligation(task:Task,itemId:string,conditionVersion:string,reason:string) {
+  private deferObligation(task:Task,itemId:string,conditionVersion:string,reason:string,observationId:string) {
     const schedule=this.initializeScheduling(task),previous=schedule.deferred?.[itemId];
     if(previous?.conditionVersion===conditionVersion&&previous.reason===reason)return;
     (schedule.deferred??={})[itemId]={conditionVersion,reason};
-    this.event(task,'obligation.route_unavailable',{itemId,conditionVersion,reason,retainedInPlan:true,coverageGranted:false});
+    this.event(task,'obligation.route_unavailable',{itemId,conditionVersion,reason,retainedInPlan:true,coverageGranted:false},observationId);
   }
   /** Resolve durable work against retained checkpoint evidence. The DFS stack is
    * an optional path/cost hint, never the source of the unfinished-work set. */
@@ -669,8 +670,19 @@ export class ExplorerPlugin {
     if(!pending.length)return;
     const checkpoints=this.host.list<Checkpoint>(o.sessionId,'checkpoint'),byObservation=new Map<string,Checkpoint[]>();
     for(const checkpoint of checkpoints){const rows=byObservation.get(checkpoint.observationId)||[];rows.push(checkpoint);byObservation.set(checkpoint.observationId,rows);}
-    type Retained={source:Observation;actions:ActionCandidate[];transition?:ReturnType<ExplorerHost['interactionTransition']>};
+    // Fact projections live only inside this synchronous selection. Retained
+    // sources keep the existing eight-entry bound; neither eligibility nor
+    // route/retry debt is cached, since this pass can update that bookkeeping.
+    type Retained={source:Observation;actions:ActionCandidate[];transition?:ReturnType<ExplorerHost['interactionTransition']>;
+      index?:ReturnType<typeof observationActionIndex>;inScope?:ReturnType<typeof controlScopeMatcher>;
+      conditions?:Map<ActionCandidate,ReturnType<typeof browserTargetConditions>>};
     const retained=new Map<string,Retained|undefined>();
+    let currentIndex:ReturnType<typeof observationActionIndex>|undefined,currentInScope:ReturnType<typeof controlScopeMatcher>|undefined;
+    const targetConditions=(facts:Retained,action:ActionCandidate)=>{
+      const conditions=facts.conditions??=new Map();
+      if(!conditions.has(action))conditions.set(action,browserTargetConditions(action,facts.source));
+      return conditions.get(action);
+    };
     const read=(observationId:string)=>{
       if(retained.has(observationId)){const value=retained.get(observationId);retained.delete(observationId);retained.set(observationId,value);return value;}
       let value:Retained|undefined;
@@ -680,13 +692,13 @@ export class ExplorerPlugin {
     let reviewFallback:{recovery:ScheduledRecovery;route:ScheduledRoute;pageIds:Set<string>}|undefined;
     for(const item of pending){
       if(reviewFallback&&!reviewFallback.pageIds.has(item.id))continue;
-      if(validReviewRecoveryWait(task,item,o,id=>read(id)?.source)){this.deferObligation(task,item.id,recoveryConditionVersion(o),'unchanged_unresolved_review');continue;}
+      if(validReviewRecoveryWait(task,item,o,id=>read(id)?.source)){this.deferObligation(task,item.id,recoveryConditionVersion(o),'unchanged_unresolved_review',o.id);continue;}
       const returnToSource=!!this.host.returnToObservedSource&&pageSourceObligation(item);
       // A different arrival contract cannot isolate unresolved execution debt.
       // Legacy records without source IDs remain blocked until SDK-backed
       // continuation evidence explicitly releases their original ledger.
       if(returnToSource&&Object.values(task.routeRetries?.routes||{}).some(route=>route.unknown||Object.values(route.conditions).some(record=>record.outcome==='unknown'&&!record.recoveryVerificationId))){
-        this.deferObligation(task,item.id,recoveryConditionVersion(o),'source_return_unknown_route_debt');continue;
+        this.deferObligation(task,item.id,recoveryConditionVersion(o),'source_return_unknown_route_debt',o.id);continue;
       }
       const refs=[...new Set(item.evidence.filter(ref=>ref.sessionId===o.sessionId&&!ref.attemptId).map(ref=>ref.observationId))].reverse();
       let candidates=refs.length?refs.flatMap(ref=>[...(byObservation.get(ref)||[])].reverse()):broadScope(item.scope)||!item.evidence.length?[...checkpoints].reverse():[];
@@ -701,27 +713,29 @@ export class ExplorerPlugin {
         if(source.gaps.some(g=>g.critical)||Object.values(source.context).some(value=>value.status!=='known'))continue;
         if(item.scope.url&&item.scope.url!==source.url)continue;
         if(returnToSource&&!sourceReturnCondition(source,o)){reason='native_source_position_unavailable';continue;}
-        const targets=sourceActions.filter(action=>matches(item.scope,action,source)&&(!boundOperationCondition(item)||boundOperationCondition(item)===keyFor(action,source)));
-        if(item.scope.kind&&(targets.length!==1||!browserTargetConditions(targets[0],source)))continue;
+        const index=facts.index??=observationActionIndex(source,sourceActions),condition=boundOperationCondition(item);
+        const targets=index.matching(item.scope).filter(action=>!condition||condition===index.condition(action));
+        if(item.scope.kind&&(targets.length!==1||!targetConditions(facts,targets[0])))continue;
         if(!broadScope(item.scope)){
           // Retained occurrence continuity only suppresses a pointless restore.
           // It does not equate source modes, authorize the current action, or
           // discharge a historical operation/review obligation after renaming.
           const transition=facts.transition??=this.host.interactionTransition(o.sessionId,source.id,o.id);
-          const previous=new Set(item.scope.kind?targets.map(action=>action.localId):source.controls.filter(control=>controlInScope(item.scope,control,source,sourceActions)).map(control=>control.localId));
+          const previous=new Set(item.scope.kind?targets.map(action=>action.localId):source.controls.filter(control=>(facts.inScope??=controlScopeMatcher(source,sourceActions))(item.scope,control)).map(control=>control.localId));
           const currentIds=new Set(transition.retainedControls.filter(control=>previous.has(control.beforeLocalId)).map(control=>control.afterLocalId));
           if(item.scope.kind){
-            const present=actions.filter(action=>matches(item.scope,action,o)||action.kind===item.scope.kind&&!!action.localId&&currentIds.has(action.localId));
+            const scoped=new Set((currentIndex??=observationActionIndex(o,actions)).matching(item.scope));
+            const present=actions.filter(action=>scoped.has(action)||action.kind===item.scope.kind&&!!action.localId&&currentIds.has(action.localId));
             if(targets.length&&targets.every(action=>!action.preconditions.enabled)&&present.length&&present.every(action=>!action.preconditions.enabled)){reason='source_target_already_disabled';continue;}
             if(present.some(action=>availability.actions.find(fact=>fact.actionId===action.id)?.blockers.some(blocker=>blocker.code==='ACTION_BLOCKED'&&['submission_not_authorized','interface_risk_required','action_basis_unconfirmed'].includes(blocker.reason)))){reason='current_target_policy_blocked';continue;}
           }else{
             if(!previous.size)continue;
-            if(o.controls.some(control=>control.visible&&control.enabled&&(currentIds.has(control.localId)||controlInScope(item.scope,control,o,actions)))){reason='current_review_occurrence_present';continue;}
+            if(o.controls.some(control=>control.visible&&control.enabled&&(currentIds.has(control.localId)||(currentInScope??=controlScopeMatcher(o,actions))(item.scope,control)))){reason='current_review_occurrence_present';continue;}
           }
         }
         if(sameObservedState(source,o))continue;
         const hint=round.stack.find(frame=>frame.observationId===source.id&&frame.checkpointId===checkpoint.id);
-        const memberKey=recoveryRouteKey(source,sourceActions,[item.scope]),sourceCondition=item.scope.kind&&targets.length===1?browserTargetConditions(targets[0],source)?.key:undefined;
+        const memberKey=recoveryRouteKey(source,sourceActions,[item.scope]),sourceCondition=item.scope.kind&&targets.length===1?targetConditions(facts,targets[0])?.key:undefined;
         const related=Object.entries(schedule.routes).filter(([,route])=>(route.arrivalMode==='observed-source')===returnToSource&&(!route.sourceCondition||route.sourceCondition===sourceCondition)&&(route.memberKeys?.includes(memberKey)||route.targets.some(scope=>digest(scope)===digest(item.scope))));
         const old=related.find(([key,route])=>route.memberKeys?.includes(memberKey)||recoveryRouteKey(source,sourceActions,route.targets,route.path)===key);
         if(!old&&related.some(([key])=>task.routeRetries?.routes[key])){reason='mapped_route_debt_source_unverified';continue;}
@@ -774,7 +788,7 @@ export class ExplorerPlugin {
         bindScheduledRoute(schedule,key,route);return recovery;
       }
       if(reviewFallback?.recovery.itemId===item.id)continue;
-      this.deferObligation(task,item.id,recoveryConditionVersion(o),reason);
+      this.deferObligation(task,item.id,recoveryConditionVersion(o),reason,o.id);
     }
     if(reviewFallback){bindScheduledRoute(schedule,reviewFallback.recovery.routeKey,reviewFallback.route);return reviewFallback.recovery;}
   }

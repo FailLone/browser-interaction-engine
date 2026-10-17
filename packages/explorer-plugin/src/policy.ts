@@ -52,10 +52,12 @@ export function controlInScope(scope:Scope,control:Observation['controls'][numbe
 }
 /** A single synchronous scope-matching pass; rebuilt for every observation/read. */
 export function controlScopeMatcher(o:Observation,actions:ActionCandidate[]) {
-  const controls=new Map(o.controls.map(c=>[c.localId,controlScope(c,o)])),operations=new Map<string,Scope[]>();
-  for(const a of actions)if(a.localId){const scopes=operations.get(a.localId)||[];scopes.push(scopeFor(a,o));operations.set(a.localId,scopes);}
+  // Keep each occurrence's fallback facts even if malformed/ambiguous input
+  // repeats a local ID. Action lookup still uses scopeFor's first-match rules.
+  const controls=new Map(o.controls.map(c=>[c,controlScope(c,o)])),operations=new Map<ActionCandidate['localId'],Scope[]>(),readScope=actionScopeReader(o);
+  for(const a of actions){const scopes=operations.get(a.localId)||[];scopes.push(a.localId?readScope(a):scopeFor(a,o));operations.set(a.localId,scopes);}
   return (scope:Scope,control:Observation['controls'][number])=>(operations.get(control.localId)||[]).some(actual=>Object.entries(scope).every(([key,value])=>JSON.stringify(actual[key as keyof Scope])===JSON.stringify(value)))
-    ||matchesControlScope(scope,controls.get(control.localId)||controlScope(control,o));
+    ||matchesControlScope(scope,controls.get(control)||controlScope(control,o));
 }
 export const keyFor=browserOperationKey;
 export const operationConditionPolicy='browser-operation-key-v2' as const;
