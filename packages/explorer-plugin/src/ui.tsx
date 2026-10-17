@@ -1,4 +1,4 @@
-import { isSuperseded, isUnfinished, conditionSplitIssues } from './plan-state.js';
+import { isSuperseded, isUnfinished, conditionSplitIssues } from './plan-state-shared.js';
 import React,{createContext,useContext,useEffect,useRef,useState,type ReactNode} from 'react';
 import { ExplorerClient,ExplorerTaskFeed,type PluginStatus,type ExplorerTaskSummary } from './client.js';
 import type { Task,TaskView,ExplorerEvent,Decision,PlanItem } from './types.js';
