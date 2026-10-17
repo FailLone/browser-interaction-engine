@@ -3,7 +3,7 @@ import {expect,it,vi} from 'vitest';
 import type {ActionCandidate,Checkpoint,Observation} from '@interaction/browser';
 import {ExplorerPlugin,ExplorerStore,type ExplorerHost,type PlanItem,type Scope} from '@interaction/explorer-plugin';
 import {recordRouteRetry} from '../packages/explorer-plugin/src/obligation-lifecycle.js';
-import {scopeFor} from '../packages/explorer-plugin/src/policy.js';
+import {controlScopeMatcher,scopeFor} from '../packages/explorer-plugin/src/policy.js';
 import {controlReviewGapReasons} from '../packages/explorer-plugin/src/review-ledger.js';
 
 type Control=Observation['controls'][number];
@@ -98,6 +98,53 @@ it('continues to a retained visible source after rejecting a newer hidden source
   f.review.evidence.push({sessionId:'session',observationId:newer.id});const before=structuredClone(f.review);
   expect(f.select()).toMatchObject({itemId:'review',source:{id:f.source.id},frame:{checkpointId:'checkpoint-source'}});
   expect(f.review).toEqual(before);
+ }finally{await f.close();}
+});
+
+it.each([false,true])('defers an already present review item only without an active boundary (active: %s)',async activeBoundary=>{
+ const f=fixture();try{
+  f.source.controls=[control('old-review')];f.source.regions[0].label='Historical menu';
+  f.review.scope.region='Historical menu';
+  const newer=observation('newer-retained',[control('retained-header',{instanceId:'same-header-instance'})]);
+  newer.regions[0].label='Historical menu';newer.documentId=f.current.documentId;newer.instanceScope=f.current.instanceScope;
+  f.current.controls=[control('current-header',{instanceId:'same-header-instance',region:'header'})];
+  f.current.regions=[{key:'header',label:'Current header',role:'navigation'} as Observation['regions'][number]];
+  if(activeBoundary)overlay(f.current,'blocking-boundary',['unrelated-modal-control']);
+  f.frames.set(newer.id,newer);f.checkpoints.push(f.checkpoint(newer));
+  f.review.evidence.push({sessionId:'session',observationId:newer.id}); // Reversed candidates put this source first.
+  const missing=observation('missing-source',[control('missing',{name:'Another review',label:'Another review'})]);
+  f.frames.set(missing.id,missing);f.checkpoints.push(f.checkpoint(missing));
+  f.task.plan.push(planItem('genuinely-missing',{url,region:'Main menu',label:'Another review',role:'button'},missing));
+  const unknownScope:Scope={url,label:'Earlier unknown operation',kind:'click'};
+  f.task.plan.push({...planItem('old-unknown',unknownScope,f.source),status:'blocked',reason:'unknown_action_outcome'});
+  f.task.routeRetries=recordRouteRetry(undefined,{routeKey:'old-unknown-route',conditionVersion:'old-condition',outcome:'unknown',reason:'Unresolved earlier dispatch',
+   unknownSource:{sessionId:'session',attemptIds:['old-unknown-attempt']}});
+  f.task.scheduling={version:1,localSelections:0,legacyUnmappedRouteKeys:[],routes:{'old-unknown-route':{
+   sessionId:'session',observationId:f.source.id,checkpointId:'checkpoint-source',targets:[unknownScope],path:[],itemIds:['old-unknown'],memberKeys:['old-unknown-member'],pathKeys:[]}}};
+  const transition=vi.fn((_sid:string,sourceId:string)=>({retainedControls:sourceId===newer.id
+   ?[{beforeLocalId:'retained-header',afterLocalId:'current-header'}]:[]}));
+  f.host.interactionTransition=transition as unknown as ExplorerHost['interactionTransition'];
+  // Neither same label nor current scope equality causes the defer: only the
+  // newest source's retained occurrence corresponds to this current header.
+  expect(controlScopeMatcher(f.source,[])(f.review.scope,f.source.controls[0])).toBe(true);
+  expect(controlScopeMatcher(newer,[])(f.review.scope,newer.controls[0])).toBe(true);
+  expect(controlScopeMatcher(f.current,[])(f.review.scope,f.current.controls[0])).toBe(false);
+  const plan=structuredClone(f.task.plan),debt=structuredClone(f.task.routeRetries);
+  if(activeBoundary){
+   // The retained header can be behind a modal. This patch must not turn the
+   // existing present predicate into permission to review that background node.
+   expect(f.select()).toMatchObject({itemId:'review',source:{id:f.source.id}});
+   expect(transition.mock.calls.map(call=>call[1])).toEqual([newer.id,f.source.id]);
+   expect(f.task.scheduling.deferred?.review).toBeUndefined();
+  }else{
+   expect(f.select()).toMatchObject({itemId:'genuinely-missing',source:{id:missing.id}});
+   expect(transition.mock.calls.map(call=>call[1])).toEqual([newer.id,missing.id]);
+   expect(f.task.scheduling.deferred?.review.reason).toBe('current_review_occurrence_present');
+   expect(Object.values(f.task.scheduling.routes).some(route=>route.itemIds.includes('review'))).toBe(false);
+  }
+  expect(f.task.plan).toEqual(plan);expect(f.task.status).toBe('running');expect(f.review.status).toBe('unresolved');
+  expect(f.task.routeRetries).toEqual(debt);expect(f.current.controls[0].hypothesisId).toBe('hypothesis-current-header');
+  expect(f.host.reachCheckpoint).not.toHaveBeenCalled();expect(f.host.execute).not.toHaveBeenCalled();
  }finally{await f.close();}
 });
 

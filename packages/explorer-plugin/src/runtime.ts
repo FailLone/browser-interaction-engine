@@ -806,7 +806,7 @@ export class ExplorerPlugin {
             if(present.some(action=>availability.actions.find(fact=>fact.actionId===action.id)?.blockers.some(blocker=>blocker.code==='ACTION_BLOCKED'&&['submission_not_authorized','interface_risk_required','action_basis_unconfirmed'].includes(blocker.reason)))){reason='current_target_policy_blocked';continue;}
           }else{
             if(!previous.size)continue;
-            if(o.controls.some(control=>control.visible&&control.enabled&&(currentIds.has(control.localId)||(currentInScope??=controlScopeMatcher(o,actions))(item.scope,control)))){reason='current_review_occurrence_present';continue;}
+            if(o.controls.some(control=>control.visible&&control.enabled&&(currentIds.has(control.localId)||(currentInScope??=controlScopeMatcher(o,actions))(item.scope,control)))){reason='current_review_occurrence_present';if(!o.boundaries?.at(-1))break;continue;}
           }
         }
         if(sameObservedState(source,o))continue;
