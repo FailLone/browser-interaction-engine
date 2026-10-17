@@ -1,0 +1,5 @@
+{
+  "exitCode": 0,
+  "elapsedMs": 7288.536166,
+  "reason": "Correct pure fixture Region missing selector/rect/text after first type check. No behavior changes; do not repeat passing tests."
+}

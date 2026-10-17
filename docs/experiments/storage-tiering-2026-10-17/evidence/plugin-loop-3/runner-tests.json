@@ -1,0 +1,6 @@
+{
+  "exitCode": 0,
+  "elapsedMs": 1586.146917,
+  "scope": "runner-tests",
+  "reason": "New guarded-reentry acceptance checks; no product regression or performance rerun"
+}
