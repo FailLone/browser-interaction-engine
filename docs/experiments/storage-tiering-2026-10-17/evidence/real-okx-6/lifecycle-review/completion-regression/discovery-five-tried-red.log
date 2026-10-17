@@ -1,0 +1,38 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ❯ tests/explorer-source-discovery-review.test.ts (5 tests | 1 failed) 36ms
+   ✓ a new blocked source cannot be appended to a directly succeeded gap with the same scheduling key 19ms
+   ✓ actual remaining-scope audit preserves blocked B as unfinished when SDK coverage of A is unavailable 5ms
+   ✓ prefers an unfinished exact gap over an older succeeded row without changing either historical receipt 2ms
+   ✓ recordOutcome leaves a derived closed source unchanged when a new matching source succeeds 3ms
+   × a spent scheduling hint prevents another dispatch without erasing the new unproved discovery source 6ms
+     → expected false to be true // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/explorer-source-discovery-review.test.ts > a spent scheduling hint prevents another dispatch without erasing the new unproved discovery source
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/explorer-source-discovery-review.test.ts:71:100
+     69|   expect(f.old).toEqual(before);
+     70|   expect(f.task.plan.some(item=>item.id!==f.old.id&&item.dispatchScope…
+     71|    &&item.evidence.some(ref=>!ref.attemptId&&ref.sessionId==='session'…
+       |                                                                                                    ^
+     72|   expect(f.round.tried).toEqual([browserOperationSchedulingKey(f.a.a,f…
+     73|  }finally{await f.close();}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  07:35:58
+   Duration  1.11s (transform 535ms, setup 0ms, collect 925ms, tests 36ms, environment 0ms, prepare 35ms)
+

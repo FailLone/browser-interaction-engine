@@ -1,0 +1,47 @@
+{
+  "protocol": "run6-discovery-source-regression-v1",
+  "source": "working tree during integration; not f6d7b9e baseline",
+  "testSha256": "fc1fcd424b2af9f501604f852cccf567a2ee87f32c47b95de32e12cfdf6d29b7",
+  "initialFour": {
+    "passed": 4,
+    "exitCode": 0,
+    "log": "discovery-four-type-fixed.log"
+  },
+  "triedEdge": {
+    "passed": 4,
+    "failed": 1,
+    "exitCode": 1,
+    "log": "discovery-five-tried-red.log",
+    "assertion": "Spent v3 retry hint must not discard new B source before audit records its obligation."
+  },
+  "productChangesByReviewer": false,
+  "originalTenTestSha256": "fd13d3319534572c624cdc85d0bc1d5ab8ec7800443600a41eabed5e75c8deef",
+  "browserCalls": 0,
+  "providerCalls": 0,
+  "final": {
+    "testSha256": "1e0c39dd3576c5c9c568ab3c7c7b0c1940fe99e8202a4743dfa538fc88e1b33a",
+    "passed": 20,
+    "failed": 0,
+    "exitCode": 0,
+    "log": "discovery-final-20.log",
+    "command": "fnm exec --using 24.22.0 node --conditions=development node_modules/vitest/vitest.mjs run tests/explorer-source-discovery-review.test.ts",
+    "workdir": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+    "scope": "actual runtime gap/auditRemainingScopes/recordOutcome/entryTargets using in-memory SDK facts; no browser/provider"
+  },
+  "intermediateExactReceipts": {
+    "passed": 18,
+    "exitCode": 0,
+    "log": "discovery-exact-18.log"
+  },
+  "reviewSnapshotSha256": {
+    "packages/explorer-plugin/src/runtime.ts": "351efeacd330fa0b869512e2c9235ce0ccff2d88ad120da6574a25bc86ccca7e",
+    "packages/explorer-plugin/src/operation-source-completion.ts": "a452f0e640a0192d0498f09a1050e31e05a8201c0de183f1ced7127e72d8074a",
+    "packages/explorer-plugin/src/operation-availability.ts": "54e7ef332ec3e2e37ec36b6b987347a86d137ca276cff243952bdc2839f7bc31",
+    "packages/explorer-plugin/src/audit-gap-index.ts": "59ba7d1c9de19e1f4ed0e49dd044ee9fa94da3ac76a1da75217cc83ee791205c",
+    "packages/explorer-plugin/src/operation-scheduling.ts": "f2346eeae3305aaa38941f816d428296dbf506956eb3270ea193d7688b42ddaa",
+    "packages/explorer-plugin/src/plan-state.ts": "ab80b070f776f43911e27e39e7e3a6df8c2fac9f39bcaa0175533a6e322116b3",
+    "tests/explorer-source-completion-review.test.ts": "fd13d3319534572c624cdc85d0bc1d5ab8ec7800443600a41eabed5e75c8deef",
+    "tests/explorer-source-discovery-review.test.ts": "1e0c39dd3576c5c9c568ab3c7c7b0c1940fe99e8202a4743dfa538fc88e1b33a"
+  },
+  "sourceFreeze": "Only the two reviewer-owned regression tests are frozen; root owns the ongoing SDK review-bound projection and integrated validation."
+}

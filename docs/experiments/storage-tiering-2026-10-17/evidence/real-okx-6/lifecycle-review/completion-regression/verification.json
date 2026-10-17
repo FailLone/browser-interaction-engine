@@ -1,0 +1,36 @@
+{
+  "protocol": "run6-independent-completion-regression-v1",
+  "baseline": {
+    "sourceCommit": "f6d7b9e2b427b5edf1fad359ecf8cc5a3df8ffcf",
+    "isolatedArchive": true,
+    "testCount": 8,
+    "passed": 3,
+    "failed": 5,
+    "exitCode": 1,
+    "log": "baseline-8.log",
+    "manifest": "baseline-8-manifest.json"
+  },
+  "workingTreeInitial": {
+    "testCount": 8,
+    "passed": 8,
+    "exitCode": 0,
+    "log": "working-tree-gate-8.log",
+    "warning": "Original /tmp filename said baseline, but the runtime already contained the new gate. This is not a baseline result."
+  },
+  "workingTreeExpanded": {
+    "testCount": 10,
+    "passed": 10,
+    "exitCode": 0,
+    "log": "working-tree-gate-10.log",
+    "sourceSnapshot": "Concurrent working tree; final frozen integration verification is separate.",
+    "testSha256": "fd13d3319534572c624cdc85d0bc1d5ab8ec7800443600a41eabed5e75c8deef"
+  },
+  "negativeCollectionLog": "working-tree-transient-syntax-error.log",
+  "browserCalls": 0,
+  "providerCalls": 0,
+  "originalDatabaseConstructors": 0,
+  "commands": [
+    "fnm exec --using 24.22.0 node --conditions=development node_modules/vitest/vitest.mjs run tests/explorer-source-completion-review.test.ts"
+  ],
+  "testFileFrozen": true
+}

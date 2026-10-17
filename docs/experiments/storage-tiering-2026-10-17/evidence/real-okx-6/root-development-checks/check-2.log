@@ -1,0 +1,1 @@
+tests/explorer-region-reuse.test.ts(66,40): error TS2739: Type '{ key: string; }' is missing the following properties from type 'InteractionBoundary': name, region, evidence

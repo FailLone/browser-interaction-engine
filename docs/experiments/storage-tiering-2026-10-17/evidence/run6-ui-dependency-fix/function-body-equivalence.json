@@ -1,0 +1,103 @@
+{
+  "at": "2026-10-17T00:06:07.435Z",
+  "revision": "125a10ca6dbc78f8dd859a0e7a2917f83d67b55b",
+  "method": "TypeScript AST: compare function bodies and arrow initializers byte-for-byte, including shared and retained server functions.",
+  "symbols": [
+    {
+      "name": "operationSchedulingDigest",
+      "moved": false,
+      "exactBodyEqual": true,
+      "beforeSHA256": "66b38b3d80055af590beb065b31af502ed4ce89a82765daa275d55b94e20e9ce",
+      "afterSHA256": "66b38b3d80055af590beb065b31af502ed4ce89a82765daa275d55b94e20e9ce"
+    },
+    {
+      "name": "isSuperseded",
+      "moved": true,
+      "exactBodyEqual": true,
+      "beforeSHA256": "2491fc4f09e043cecb0dfcc114723a6a3762f3e641e765bed2e2dce9c6630e55",
+      "afterSHA256": "2491fc4f09e043cecb0dfcc114723a6a3762f3e641e765bed2e2dce9c6630e55"
+    },
+    {
+      "name": "isUnfinished",
+      "moved": true,
+      "exactBodyEqual": true,
+      "beforeSHA256": "318426bbe87ca2c85e783ef3718869e12146c1ffb69c9477571c395d2888d99f",
+      "afterSHA256": "318426bbe87ca2c85e783ef3718869e12146c1ffb69c9477571c395d2888d99f"
+    },
+    {
+      "name": "schedulableObligation",
+      "moved": false,
+      "exactBodyEqual": true,
+      "beforeSHA256": "e72ac85d9d806c5cbbe05e4b962a8ba8f51805e48cafe916c58f4a7d9382f35a",
+      "afterSHA256": "e72ac85d9d806c5cbbe05e4b962a8ba8f51805e48cafe916c58f4a7d9382f35a"
+    },
+    {
+      "name": "boundOperationCondition",
+      "moved": false,
+      "exactBodyEqual": true,
+      "beforeSHA256": "e2249d3597e1ea7b2766c1b80930af3879f4ef560eb0f6cee90eaab47f590bb8",
+      "afterSHA256": "e2249d3597e1ea7b2766c1b80930af3879f4ef560eb0f6cee90eaab47f590bb8"
+    },
+    {
+      "name": "operationSchedulingRefKey",
+      "moved": true,
+      "exactBodyEqual": true,
+      "beforeSHA256": "3950694a8deb75437aa9e17cc6a3f068b40bf45bc957b91cd6b2e5b58750d067",
+      "afterSHA256": "3950694a8deb75437aa9e17cc6a3f068b40bf45bc957b91cd6b2e5b58750d067"
+    },
+    {
+      "name": "operationSchedulingReferences",
+      "moved": false,
+      "exactBodyEqual": true,
+      "beforeSHA256": "174be8881d20b97c6d24aa1bff575bc35a505178e3a86baae2d81f9135ffd4dd",
+      "afterSHA256": "174be8881d20b97c6d24aa1bff575bc35a505178e3a86baae2d81f9135ffd4dd"
+    },
+    {
+      "name": "operationSchedulingProofHash",
+      "moved": false,
+      "exactBodyEqual": true,
+      "beforeSHA256": "75a2aea0430fb87c7b06b47380cd387f1a9beb2ca0abb9e8805c9a6e6a9c9bb8",
+      "afterSHA256": "75a2aea0430fb87c7b06b47380cd387f1a9beb2ca0abb9e8805c9a6e6a9c9bb8"
+    },
+    {
+      "name": "validOperationSchedulingNormalization",
+      "moved": false,
+      "exactBodyEqual": true,
+      "beforeSHA256": "16419b03ed941353ca67ceac8717563df576ca1f8c7c951c8edad59b94d815dd",
+      "afterSHA256": "16419b03ed941353ca67ceac8717563df576ca1f8c7c951c8edad59b94d815dd"
+    },
+    {
+      "name": "schedulingOperationCondition",
+      "moved": false,
+      "exactBodyEqual": true,
+      "beforeSHA256": "fd6531f8c733798f465a0ab71de191dc094e849bc3960cd3e70fefa2e741afea",
+      "afterSHA256": "fd6531f8c733798f465a0ab71de191dc094e849bc3960cd3e70fefa2e741afea"
+    },
+    {
+      "name": "operationSchedulingAliases",
+      "moved": false,
+      "exactBodyEqual": true,
+      "beforeSHA256": "f1ed772d211fd4dbcc9c6e3e2cab5b8f687d4378f15db0298685d5ca844bf76d",
+      "afterSHA256": "f1ed772d211fd4dbcc9c6e3e2cab5b8f687d4378f15db0298685d5ca844bf76d"
+    },
+    {
+      "name": "splitIntegrity",
+      "moved": true,
+      "exactBodyEqual": true,
+      "beforeSHA256": "ef037871ec0e1a704fdc6b57da7f567a872c33e03b3837ab82cc5e78222ce7a3",
+      "afterSHA256": "ef037871ec0e1a704fdc6b57da7f567a872c33e03b3837ab82cc5e78222ce7a3"
+    },
+    {
+      "name": "conditionSplitIssues",
+      "moved": true,
+      "exactBodyEqual": true,
+      "beforeSHA256": "bc290f17a8aaacf29c53a6df2148d4d2eeb3256d2e829af7815b6344b37e08fb",
+      "afterSHA256": "bc290f17a8aaacf29c53a6df2148d4d2eeb3256d2e829af7815b6344b37e08fb"
+    }
+  ],
+  "allCallableBodiesEqual": true,
+  "addedCallableNames": [],
+  "sharedRuntimeImports": [],
+  "uiOnlyImportChanged": true,
+  "nativeDigestStillUsesNodeCrypto": true
+}

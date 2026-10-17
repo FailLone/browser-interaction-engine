@@ -1,0 +1,53 @@
+{
+  "baselineRevision": "f6d7b9e2b427b5edf1fad359ecf8cc5a3df8ffcf",
+  "frozenFiles": {
+    "packages/explorer-plugin/src/reviews.ts": "3a761b8d928a6c462f5aba83eb5b76de2e1166c2f351587fa40301f40c188e3d",
+    "packages/browser/src/region-reuse.ts": "1f4283fbeef4eaee3d013eb06bfff008087b69f5bf8afd56480471b5f9f7f9d3",
+    "packages/browser/src/region-reviews.ts": "94feab854e02a21b6fc6f8f8e56ffb13660cc1b602456adad03c3e5a99f18575",
+    "packages/adapter-playwright/src/region-candidates.ts": "8f75e9d1a35ac22b50db0df934e8a62e1c728d89d9e8840bb70409e8342cb745",
+    "packages/adapter-playwright/src/types.ts": "b6b2bf9a654095204f702767c828fa5f1e23bde17abc730d6348d10597ddc35f",
+    "tests/explorer-region-reuse.test.ts": "3f3f098daa03f685d50b07be8ad72ebf62536e11851ccdf710a7e36fed284907",
+    "tests/region-structural-reuse.test.ts": "491bc0f368a72f3f18fd08c3ca6f6fb715fde2e18a280cf5c472bb5e9f4252a9"
+  },
+  "regression": {
+    "files": 6,
+    "tests": 92,
+    "exitCode": 0,
+    "log": "region-regression.log"
+  },
+  "typecheck": {
+    "exitCode": 2,
+    "log": "initial-typecheck.log",
+    "remainingFailure": "Unrelated tests/explorer-source-discovery-review.test.ts:13 ActionCandidate assertion missing stateId/source/sampleValidity; author/root notified"
+  },
+  "newTestCounts": {
+    "explorer-region-reuse": 24,
+    "region-structural-reuse": 6
+  },
+  "readCountAssertions": {
+    "steadyV2SameDocumentHistoricalObservations": 0,
+    "legacyCrossDocumentTwoRegionsSameSourceHistoricalObservations": 1,
+    "steadyAfterLegacyAcceptedHistoricalObservations": 0
+  },
+  "behavior": [
+    "No implicit executionPolicy change.",
+    "Only fresh include judgments create task/rule-scoped region reuse opt-in; preexisting absent opt-in rows remain fresh-review-only.",
+    "New region-review-reuse/v2 certifies unique captured source anchors. Legacy v1 source observations are checked only for a real mapping; read reuse exists only within the current synchronous material request.",
+    "New region-structure-reuse/v2 replaces only validated structural-item owner token with the already-retained full unique owner/row evidence and preserves record/local keys, attributes, member order, form and context. Old v1 observations/bindings are not changed.",
+    "Reuse still goes through public SDK command/preflight; it grants no depth/identity/action/coverage.",
+    "Revocation, unknown context, critical gaps, active boundaries, ambiguous bindings, incomplete evidence, scoped task changes and final 500-region capacity remain blocking."
+  ],
+  "limits": [
+    "No real browser/provider or active/frozen DB was modified. Tests use standalone local fixtures.",
+    "Potential 4 exact +10 owner-token-only run4/run6 region pair matches are diagnostic candidates, not an actual reuse grant or measured savings.",
+    "Actual model/capture savings require new fresh opt-in evidence and a later matching observation. Existing raw run6 region reviews cannot be retroactively upgraded.",
+    "Fresh JEV batches remain capped at five; this change batches only SDK-verified reusable regions.",
+    "No timing benchmark. Test duration is validation runtime, not product performance."
+  ],
+  "logs": {
+    "region-regression.log": "622e6b0b55d6a648a2319bf5f03516b8ee87e6c6ddabb74b266c274cc51dcc80",
+    "typecheck.log": "957912234999a5b5edac6d29a314476292ac03ced871244f921bed09bcf8ade5",
+    "initial-plan-state-parse-failure.log": "4899997c488c1812a499e1a36eaf397ef54269686f8d49e88b744e41c4bbd10c",
+    "initial-typecheck.log": "957912234999a5b5edac6d29a314476292ac03ced871244f921bed09bcf8ade5"
+  }
+}

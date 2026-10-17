@@ -1,0 +1,120 @@
+{
+  "kind": "synchronous scheduling normalizer factory implementation validation",
+  "baseHead": "900edf7d5c60c3ddcf9265538758033ccecc5832",
+  "sourceState": "uncommitted, product and test frozen after validation; no commit made",
+  "sourceSha256": {
+    "packages/explorer-plugin/src/operation-scheduling.ts": "f336eeb016e39b594fdd39a5d7666bd3e8b9c02cfa0a8edc64d4e9a19832ceeb",
+    "packages/explorer-plugin/src/runtime.ts": "eb3f0a1f4e1e72e392fafbee3b2f1a510be215a5d880d729aee0c9480fcb91d5",
+    "tests/explorer-operation-scheduling-factory.test.ts": "e840c228bb263e05b7c7ac76625ae75399f0dfa9f82d22fa47f37c219c1f63c5"
+  },
+  "productDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "changes": [
+    "Export an explicit synchronous normalizer factory; keep the old wrapper fresh per call.",
+    "Share the factory across local calls in one auditRemainingScopes or recordOutcome invocation.",
+    "Every call allocates fresh changes and executes the original mutable-item guards/proof validation; SourceRecord LRU and exact-action key memo are reused.",
+    "Events, per-item index refresh order, original sources/conditions/attempts/retry debts and all SDK proof gates stay unchanged."
+  ],
+  "validation": {
+    "targetedTests": {
+      "passed": 69,
+      "files": 4,
+      "factoryCases": 12,
+      "log": "tests-final-69.log"
+    },
+    "typecheck": {
+      "command": "node node_modules/typescript/bin/tsc --noEmit",
+      "exitCode": 0,
+      "log": "typecheck-final.log"
+    },
+    "diffCheck": {
+      "exitCode": 0
+    },
+    "negativeEvidence": [
+      "Initial 68 tests passed. Initial typecheck found only missing ActionCandidate fixture fields and Context.value; both fixed. Logs retained."
+    ],
+    "differentialCases": {
+      "helperAppendedSource": {
+        "completeTaskAndChangesEqual": true,
+        "sourceArrayPasses": {
+          "wrapper": 2,
+          "factory": 1
+        }
+      },
+      "runtimeOutcome": {
+        "completeTaskAndEventsEqual": true,
+        "sourceArrayPasses": {
+          "wrapper": 3,
+          "factory": 1
+        },
+        "attemptListCalls": {
+          "wrapper": 2,
+          "factory": 1
+        },
+        "frozenRawFactsUnchanged": true,
+        "retainedDebtsTriedReentriesUnchanged": true
+      },
+      "runtimeAudit": {
+        "events": [
+          "scope.availability_updated",
+          "operation.scheduling_normalized",
+          "scope.availability_updated",
+          "operation.scheduling_normalized",
+          "scope.audit"
+        ],
+        "currentActionsArrayPasses": 3,
+        "secondPassOnlyAuditEvent": true,
+        "secondPassAdditionalActionsReads": 0
+      }
+    },
+    "guards": [
+      "Fresh factories reread revised actions and unknown receipt status at the same observation ID.",
+      "Every call rechecks scope changes, source removal/addition and unknown item outcomes.",
+      "Distinct action objects with the same ID but different input values remain distinct.",
+      "Ninth source evicts the first of the eight-record LRU; missing source reads stay conservative within a pass and retry in a fresh pass.",
+      "Runtime outcome succeeds only through existing exact-source successful receipt verification; no cross-source equivalence is supplied by the test."
+    ]
+  },
+  "cacheBoundary": {
+    "lifetime": "One synchronous audit/outcome only; discard before await, SDK mutation, review/identity revision, or next runtime invocation.",
+    "sourceRecords": 8,
+    "rawObservationEntries": 8,
+    "rawActionArrayEntries": 8,
+    "conservativeRetainedUpperBoundsBetweenReads": {
+      "fullObservationObjects": 16,
+      "candidateActionSets": 16,
+      "rawActionArrays": 8,
+      "distinctSourceKeysAcrossThreeCaches": 24
+    },
+    "transients": "An in-progress read/build can hold an additional transient returned value before eviction; caller-held current/snapshot/source and other SDK caches are outside these cache-entry bounds.",
+    "attempts": "The existing per-session attempt map keeps all ledger rows for each session touched in this synchronous pass. It is not capped at eight; memory scales with touched sessions and their ledgers, then is released with the factory.",
+    "bytes": "No constant byte bound: source size and action/attempt count vary. No heap benchmark was run.",
+    "outerCacheDecision": "Retained for minimal scope: preserves current observation preseed and existing raw read behavior. Removing it is not required for correctness or this narrow optimization."
+  },
+  "existingEvidenceNotNewPerformance": {
+    "staticReview": "../normalization-factory-static-review.json",
+    "serial": "../audit-serial/summary.json",
+    "steady": "../audit-steady/summary.json",
+    "profile": "../audit-profile/hotspots.json",
+    "profileSha256": "3796a1a3ab282f0f3c0528d6970dbfd5b3defbd59c37f64645e334c05e11763d",
+    "derivedCurrentScopeProjections": {
+      "old": 23484,
+      "factoryPotential": 206
+    },
+    "qualifier": "Static 114 calls x 206 candidates, supported by sampled old-source hot stack. Not a measured speedup of the patch."
+  },
+  "limitations": [
+    "No production DB, real browser/provider or network was opened. Test hosts are memory fixtures.",
+    "No benchmark or full suite was rerun here. Root owns the fixed-real-input task/events differential and limited performance protocol.",
+    "Startup normalization already shares one wrapper-local cache, so this patch does not remove its cost.",
+    "Persisted audit bytes and the prior +200975 logical task bytes remain unchanged.",
+    "The 114 distinct candidate v2/v3 key pairs still require 228 key computations; the patch removes repeated scope-index construction, not these distinct keys.",
+    "Independent ordinary coverage/recovery semantics and unavailable selector boundaries are unchanged."
+  ],
+  "artifactSha256": {
+    "typecheck-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests-final-69.log": "7256243b7192e5c50644f53fd643bc4e030fbb9a6975aa3bc542ebed0f416a71",
+    "tests-initial-68.log": "0f3ada2f80cd8acc51b9ea32139c8e6d9c0f7870c43ba46b2d56a6c425ce5340",
+    "typecheck-initial-fixture-errors.log": "45c5f0e4c91ac6f463d725deeaa50521c29fe4292ea4e8f3a7f0be18dabb46b7",
+    "product.patch": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

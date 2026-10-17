@@ -1,0 +1,224 @@
+{
+  "allExitZero": true,
+  "error": null,
+  "commands": [
+    {
+      "pair": 1,
+      "order": 1,
+      "variant": "baseline",
+      "pid": 27042,
+      "argv": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--max-old-space-size=4096",
+        "--conditions=development",
+        "--import=tsx",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/baseline/.data/worker.ts",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/baseline/.data/config.json"
+      ],
+      "startedEpoch": 1792196732.2108228,
+      "log": "pair-1-1-baseline.log",
+      "report": "pair-1-1-baseline.json",
+      "exitCode": 0,
+      "finishedEpoch": 1792196734.434526,
+      "jsonSha256": "737ded8e640788470397c06e47c80f5da3ac41e7c8617e2ef822cffe7f6ff316",
+      "workerPid": 27042
+    },
+    {
+      "pair": 1,
+      "order": 2,
+      "variant": "current",
+      "pid": 27049,
+      "argv": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--max-old-space-size=4096",
+        "--conditions=development",
+        "--import=tsx",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/.data/worker.ts",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/.data/config.json"
+      ],
+      "startedEpoch": 1792196734.8581219,
+      "log": "pair-1-2-current.log",
+      "report": "pair-1-2-current.json",
+      "exitCode": 0,
+      "finishedEpoch": 1792196739.222243,
+      "jsonSha256": "e90cf19c771267f47ac8415a3df26409ee841a357b8e9e7bcedffa41ca62ebf3",
+      "workerPid": 27049
+    },
+    {
+      "pair": 2,
+      "order": 1,
+      "variant": "current",
+      "pid": 27058,
+      "argv": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--max-old-space-size=4096",
+        "--conditions=development",
+        "--import=tsx",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/.data/worker.ts",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/.data/config.json"
+      ],
+      "startedEpoch": 1792196739.6226718,
+      "log": "pair-2-1-current.log",
+      "report": "pair-2-1-current.json",
+      "exitCode": 0,
+      "finishedEpoch": 1792196744.133782,
+      "jsonSha256": "443f02b9bf31ff594ad6a6e262f3e0c4e4246d8918d1f7f00bd8680aa5ca407f",
+      "workerPid": 27058
+    },
+    {
+      "pair": 2,
+      "order": 2,
+      "variant": "baseline",
+      "pid": 27066,
+      "argv": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--max-old-space-size=4096",
+        "--conditions=development",
+        "--import=tsx",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/baseline/.data/worker.ts",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/baseline/.data/config.json"
+      ],
+      "startedEpoch": 1792196744.534016,
+      "log": "pair-2-2-baseline.log",
+      "report": "pair-2-2-baseline.json",
+      "exitCode": 0,
+      "finishedEpoch": 1792196746.9137652,
+      "jsonSha256": "5578d91efbd24e5f8cc822ec136fc2ee6b344dd78ca1e99dfb37434fbc13f94c",
+      "workerPid": 27066
+    },
+    {
+      "pair": 3,
+      "order": 1,
+      "variant": "baseline",
+      "pid": 27073,
+      "argv": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--max-old-space-size=4096",
+        "--conditions=development",
+        "--import=tsx",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/baseline/.data/worker.ts",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/baseline/.data/config.json"
+      ],
+      "startedEpoch": 1792196747.317652,
+      "log": "pair-3-1-baseline.log",
+      "report": "pair-3-1-baseline.json",
+      "exitCode": 0,
+      "finishedEpoch": 1792196749.743202,
+      "jsonSha256": "6e7f8a703998f4d957a77000a9be3e5b214237f356d0972e8bc8be628b6e90bb",
+      "workerPid": 27073
+    },
+    {
+      "pair": 3,
+      "order": 2,
+      "variant": "current",
+      "pid": 27083,
+      "argv": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--max-old-space-size=4096",
+        "--conditions=development",
+        "--import=tsx",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/.data/worker.ts",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/.data/config.json"
+      ],
+      "startedEpoch": 1792196750.165032,
+      "log": "pair-3-2-current.log",
+      "report": "pair-3-2-current.json",
+      "exitCode": 0,
+      "finishedEpoch": 1792196754.692201,
+      "jsonSha256": "1ddab7c85b9b13d704d3aa7d1b9e32d8a298dd47bef4579ed21d2ece0b4e132d",
+      "workerPid": 27083
+    },
+    {
+      "pair": 4,
+      "order": 1,
+      "variant": "current",
+      "pid": 27099,
+      "argv": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--max-old-space-size=4096",
+        "--conditions=development",
+        "--import=tsx",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/.data/worker.ts",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/.data/config.json"
+      ],
+      "startedEpoch": 1792196755.0943518,
+      "log": "pair-4-1-current.log",
+      "report": "pair-4-1-current.json",
+      "exitCode": 0,
+      "finishedEpoch": 1792196759.556562,
+      "jsonSha256": "1569613b2c1e63dbce7f675cab57bf5fef6889712e87a26e0198831e33a683c5",
+      "workerPid": 27099
+    },
+    {
+      "pair": 4,
+      "order": 2,
+      "variant": "baseline",
+      "pid": 27106,
+      "argv": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--max-old-space-size=4096",
+        "--conditions=development",
+        "--import=tsx",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/baseline/.data/worker.ts",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/baseline/.data/config.json"
+      ],
+      "startedEpoch": 1792196759.9600809,
+      "log": "pair-4-2-baseline.log",
+      "report": "pair-4-2-baseline.json",
+      "exitCode": 0,
+      "finishedEpoch": 1792196762.3292532,
+      "jsonSha256": "9068a9656b8ea90e1bfd23406ec7dcb816a939f2ab3ecbc398a9a9776f2d75ed",
+      "workerPid": 27106
+    },
+    {
+      "pair": 5,
+      "order": 1,
+      "variant": "baseline",
+      "pid": 27113,
+      "argv": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--max-old-space-size=4096",
+        "--conditions=development",
+        "--import=tsx",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/baseline/.data/worker.ts",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/baseline/.data/config.json"
+      ],
+      "startedEpoch": 1792196762.725834,
+      "log": "pair-5-1-baseline.log",
+      "report": "pair-5-1-baseline.json",
+      "exitCode": 0,
+      "finishedEpoch": 1792196764.9665082,
+      "jsonSha256": "70346b29ba2b6cd395849853e69b5b8add5fd959a45e7270fd2f18bf97dbe5d1",
+      "workerPid": 27113
+    },
+    {
+      "pair": 5,
+      "order": 2,
+      "variant": "current",
+      "pid": 27127,
+      "argv": [
+        "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+        "--max-old-space-size=4096",
+        "--conditions=development",
+        "--import=tsx",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/.data/worker.ts",
+        "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/.data/config.json"
+      ],
+      "startedEpoch": 1792196765.370721,
+      "log": "pair-5-2-current.log",
+      "report": "pair-5-2-current.json",
+      "exitCode": 0,
+      "finishedEpoch": 1792196769.869578,
+      "jsonSha256": "f24d13fc846c8dbf27c40dda1f52b5b8572b4a60fdcf53dc7f302c50d43d4d26",
+      "workerPid": 27127
+    }
+  ],
+  "originalCounterfactualInputsUnchanged": true,
+  "fixedMaterialUnchanged": true,
+  "archiveSourcesUnchanged": {
+    "baseline": true,
+    "current": true
+  },
+  "independentWorkerPids": 10,
+  "finishedAt": "2026-10-17T08:26:11+0800"
+}

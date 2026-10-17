@@ -1,0 +1,86 @@
+{
+  "baselineRevision": "f6d7b9e2b427b5edf1fad359ecf8cc5a3df8ffcf",
+  "frozenFiles": {
+    "packages/explorer-plugin/src/reviews.ts": "3a761b8d928a6c462f5aba83eb5b76de2e1166c2f351587fa40301f40c188e3d",
+    "packages/browser/src/region-reuse.ts": "1f4283fbeef4eaee3d013eb06bfff008087b69f5bf8afd56480471b5f9f7f9d3",
+    "packages/browser/src/region-reviews.ts": "94feab854e02a21b6fc6f8f8e56ffb13660cc1b602456adad03c3e5a99f18575",
+    "packages/adapter-playwright/src/region-candidates.ts": "406764ce77141dedea8f81bbc41946e96293d5df406bf99ccdbacbeff4c3ea76",
+    "packages/adapter-playwright/src/types.ts": "b6b2bf9a654095204f702767c828fa5f1e23bde17abc730d6348d10597ddc35f",
+    "tests/explorer-region-reuse.test.ts": "3f3f098daa03f685d50b07be8ad72ebf62536e11851ccdf710a7e36fed284907",
+    "tests/region-structural-reuse.test.ts": "897701c3c9cd40cec9ff8b27b2e1b52786804b7e3586cfaea37b4cd25b40b5cb"
+  },
+  "regression": {
+    "files": 6,
+    "tests": 96,
+    "exitCode": 0,
+    "log": "region-regression-disabled-final.log"
+  },
+  "typecheck": {
+    "exitCode": 2,
+    "log": "initial-typecheck.log",
+    "remainingFailure": "Unrelated tests/explorer-source-discovery-review.test.ts:13 ActionCandidate assertion missing stateId/source/sampleValidity; author/root notified",
+    "phase": "Earlier pre-semantic run; retained as an initial failure record, not a final-source result."
+  },
+  "newTestCounts": {
+    "explorer-region-reuse": 24,
+    "region-structural-reuse": 10
+  },
+  "readCountAssertions": {
+    "steadyV2SameDocumentHistoricalObservations": 0,
+    "legacyCrossDocumentTwoRegionsSameSourceHistoricalObservations": 1,
+    "steadyAfterLegacyAcceptedHistoricalObservations": 0
+  },
+  "behavior": [
+    "No implicit executionPolicy change.",
+    "Only fresh include judgments create task/rule-scoped region reuse opt-in; preexisting absent opt-in rows remain fresh-review-only.",
+    "New region-review-reuse/v2 certifies unique captured source anchors. Legacy v1 source observations are checked only for a real mapping; read reuse exists only within the current synchronous material request.",
+    "New region-structure-reuse/v2 replaces only validated structural-item owner token with the already-retained full unique owner/row evidence and preserves record/local keys, attributes, member order, form and context. Old v1 observations/bindings are not changed.",
+    "Reuse still goes through public SDK command/preflight; it grants no depth/identity/action/coverage.",
+    "Revocation, unknown context, critical gaps, active boundaries, ambiguous bindings, incomplete evidence, scoped task changes and final 500-region capacity remain blocking.",
+    "Native HTML disabled readiness is excluded only from new v2 region grouping ancestry. Fresh enabled preconditions still block dispatch; aria-disabled, custom disabled attributes, structural evidence and all prior negative cases remain enforced."
+  ],
+  "limits": [
+    "No real browser/provider or active/frozen DB was modified. Tests use standalone local fixtures.",
+    "Potential 4 exact +10 owner-token-only run4/run6 region pair matches are diagnostic candidates, not an actual reuse grant or measured savings.",
+    "Actual model/capture savings require new fresh opt-in evidence and a later matching observation. Existing raw run6 region reviews cannot be retroactively upgraded.",
+    "Fresh JEV batches remain capped at five; this change batches only SDK-verified reusable regions.",
+    "No timing benchmark. Test duration is validation runtime, not product performance."
+  ],
+  "logs": {
+    "semantic-full-final.log": "e8df9973abbb836eaaf2780dd8adba191c231a6d121194d7e62b1106357fd558",
+    "region-regression.log": "622e6b0b55d6a648a2319bf5f03516b8ee87e6c6ddabb74b266c274cc51dcc80",
+    "typecheck.log": "957912234999a5b5edac6d29a314476292ac03ced871244f921bed09bcf8ade5",
+    "disabled-regression.log": "7edba596b5b2cc481ac4bfc754d34cefb37a8e0a22bfba064dd9cfefffff2ec0",
+    "region-regression-disabled-final.log": "71c0fc0431a67e349960c763b765507beba6909927aa9281c61ab39d5efa5128",
+    "initial-plan-state-parse-failure.log": "4899997c488c1812a499e1a36eaf397ef54269686f8d49e88b744e41c4bbd10c",
+    "semantic-focused-initial.log": "5377a37def37e0eb393b5ec65f89e16632a99e37c6b47ac694aa11ea9dbcec3e",
+    "initial-typecheck.log": "957912234999a5b5edac6d29a314476292ac03ced871244f921bed09bcf8ade5",
+    "semantic-baseline.log": "063b3633a470639f82cab6621ce39d3a1fc12a8eeaf9c74c7b071bef851241d6"
+  },
+  "semanticRegressionDiagnosis": "semantic-regression-diagnosis.json",
+  "pendingValidation": "Final shared-source typecheck and full suite belong to root; region-owned files remain frozen and match frozenFiles.",
+  "semanticFull": {
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/explorer-plugin-semantic.test.ts"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 36.98860502243042,
+    "sourceUnchanged": true,
+    "changed": [],
+    "sourceFiles": 163,
+    "tests": 57,
+    "log": "semantic-full-final.log",
+    "before": "semantic-source-before.json",
+    "after": "semantic-source-after.json"
+  },
+  "postValidationChange": {
+    "file": "packages/browser/src/control-reviews.ts",
+    "testedSHA256": "6d038892ef6c5f89a829d04f6498ae8dd5bd81a501cb31a0f1eff949d785de1d",
+    "newSHA256": "72502ddd271974248f98166216105d481938aa75b11b5f025950c28c8a267563",
+    "description": "Root added active|invalidated review-state whitelist after semantic run finished; final root suite will cover it. No region-owned source changes."
+  }
+}

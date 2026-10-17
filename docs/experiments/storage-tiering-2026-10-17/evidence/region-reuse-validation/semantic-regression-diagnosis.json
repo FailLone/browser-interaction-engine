@@ -1,0 +1,137 @@
+{
+  "baseline": {
+    "revision": "f6d7b9e2b427b5edf1fad359ecf8cc5a3df8ffcf",
+    "archive": "/tmp/region-semantic-baseline-rr5ker85",
+    "dependencyIsolation": "Full git archive and independent copied node_modules, preserving relative workspace symlinks into archive",
+    "exactThreeTests": {
+      "passed": 3,
+      "skipped": 54,
+      "exitCode": 0,
+      "log": "semantic-baseline.log"
+    }
+  },
+  "beforeFix": {
+    "exactThreeTests": {
+      "failed": 3,
+      "exitCode": 1,
+      "log": "semantic-focused-initial.log"
+    },
+    "counterfactual": {
+      "with-optin": {
+        "localRaw": "/tmp/region-semantic-with-optin.json",
+        "sha256": "50da379ca7a46c444788df3513d5ef80b556d0f889dc2ae180876d83030f2191",
+        "status": "budget_exhausted",
+        "actions": 7,
+        "regionDecisionCount": 14,
+        "regionInvalidations": 7,
+        "regionCommandBatches": [
+          {
+            "afterActions": 0,
+            "regions": 5
+          },
+          {
+            "afterActions": 0,
+            "regions": 2
+          },
+          {
+            "afterActions": 1,
+            "regions": 1
+          },
+          {
+            "afterActions": 2,
+            "regions": 1
+          },
+          {
+            "afterActions": 3,
+            "regions": 1
+          },
+          {
+            "afterActions": 4,
+            "regions": 1
+          },
+          {
+            "afterActions": 5,
+            "regions": 1
+          },
+          {
+            "afterActions": 6,
+            "regions": 1
+          },
+          {
+            "afterActions": 7,
+            "regions": 1
+          }
+        ],
+        "unresolvedReasons": {
+          "program_exhaustive_root": 1,
+          "operation_basis_unconfirmed": 6,
+          "interface_risk_required": 6
+        }
+      },
+      "without-optin": {
+        "localRaw": "/tmp/region-semantic-without-optin.json",
+        "sha256": "9de7a7c48e4f63d9e37e3cd473f9668ef4db7353eb9957f1e6d38c3c8b76bc71",
+        "status": "budget_exhausted",
+        "actions": 7,
+        "regionDecisionCount": 7,
+        "regionInvalidations": 0,
+        "regionCommandBatches": [
+          {
+            "afterActions": 0,
+            "regions": 5
+          },
+          {
+            "afterActions": 0,
+            "regions": 2
+          }
+        ],
+        "unresolvedReasons": {
+          "program_exhaustive_root": 1,
+          "operation_basis_unconfirmed": 6,
+          "interface_risk_required": 6
+        }
+      }
+    }
+  },
+  "bindingDelta": {
+    "exactBindingChanged": false,
+    "reuseBindingOnlyChangedPath": "members[0].ancestry[0].attributes.disabled",
+    "before": "absent",
+    "after": ""
+  },
+  "fix": "Only new v2 grouping ancestry drops reflected native HTML disabled readiness; current control/action enabled and all other bindings retain their semantics. No old observations or stored review proofs are rewritten.",
+  "newRegression": {
+    "passed": 10,
+    "exitCode": 0,
+    "log": "disabled-regression.log",
+    "additionalTests": 4
+  },
+  "separateIssue": "Both counterfactuals still leave 12 unresolved review/source obligations after 7 successful actions; root owns completion fix.",
+  "performanceLimits": "Counts are measured on local deterministic browser fixtures. Durations in logs are test duration, not timing benchmarks. No real browser/provider/active or frozen DB used.",
+  "finalSemantic": {
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/explorer-plugin-semantic.test.ts"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 36.98860502243042,
+    "sourceUnchanged": true,
+    "changed": [],
+    "sourceFiles": 163,
+    "tests": 57,
+    "log": "semantic-full-final.log",
+    "before": "semantic-source-before.json",
+    "after": "semantic-source-after.json"
+  },
+  "finalRegion": {
+    "files": 6,
+    "tests": 96,
+    "exitCode": 0,
+    "log": "region-regression-disabled-final.log"
+  },
+  "completionResolution": "Root implemented a narrow historical review projection in SDK and completion evidence handling; all 57 original semantic tests now pass without assertion edits. Review-state whitelist added afterward is recorded in summary.json and will receive final root-suite validation.",
+  "archivedScriptSHA256": "e6df049b3c4a674ad92975a188154e651f21cda641ca9718dd7709b5561c16dc"
+}

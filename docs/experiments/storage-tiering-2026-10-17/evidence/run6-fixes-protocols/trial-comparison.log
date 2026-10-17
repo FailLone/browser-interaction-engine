@@ -1,0 +1,42 @@
+{
+  "70b8cb4": {
+    "baselineDirectory": "protocols",
+    "pairedTrials": 80,
+    "equalTrials": 40,
+    "changedTrials": 40,
+    "allBehaviorEqual": false,
+    "changedFieldCounts": {
+      "metrics.finalPlanRows": 20,
+      "phases[].planRows": 545,
+      "metrics.finalPendingRows": 5,
+      "phases[].pendingPlanRows": 505,
+      "metrics.initialPlanRows": 5,
+      "metrics.jev": 5,
+      "modelCalls": 5,
+      "oracle.priorPendingLabels": 15,
+      "phases[].planRowsByState": 30,
+      "phases[].modelRequests.jev": 5,
+      "phases[].usage.modelRequests": 5
+    }
+  },
+  "run5": {
+    "baselineDirectory": "run5-fixes-protocols",
+    "pairedTrials": 80,
+    "equalTrials": 40,
+    "changedTrials": 40,
+    "allBehaviorEqual": false,
+    "changedFieldCounts": {
+      "metrics.finalPlanRows": 20,
+      "phases[].planRows": 545,
+      "metrics.finalPendingRows": 5,
+      "phases[].pendingPlanRows": 505,
+      "metrics.initialPlanRows": 5,
+      "metrics.jev": 5,
+      "modelCalls": 5,
+      "oracle.priorPendingLabels": 15,
+      "phases[].planRowsByState": 30,
+      "phases[].modelRequests.jev": 5,
+      "phases[].usage.modelRequests": 5
+    }
+  }
+}

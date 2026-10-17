@@ -1,0 +1,132 @@
+[
+  {
+    "pair": 1,
+    "order": 1,
+    "variant": "baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-factory-owned-_06ison1/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-factory-owned-_06ison1/baseline/.data/factory-config.json"
+    ],
+    "startedEpoch": 1792197593.821172,
+    "report": "pair-1-1-baseline.json",
+    "semantic": "pair-1-1-baseline-semantic.json",
+    "log": "pair-1-1-baseline.log",
+    "pid": 28603,
+    "exitCode": 0,
+    "finishedEpoch": 1792197598.749412,
+    "reportSha256": "2a3b5e7008f406e7d7fd0ab2263030a960f63bcf1260b77123427bba29851744",
+    "semanticSha256": "54bbcd3164b6747b1d0b53ae569dabcf96173dc8228619309f26cecc29916f59"
+  },
+  {
+    "pair": 1,
+    "order": 2,
+    "variant": "current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-factory-owned-_06ison1/current/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-factory-owned-_06ison1/current/.data/factory-config.json"
+    ],
+    "startedEpoch": 1792197599.152652,
+    "report": "pair-1-2-current.json",
+    "semantic": "pair-1-2-current-semantic.json",
+    "log": "pair-1-2-current.log",
+    "pid": 28656,
+    "exitCode": 0,
+    "finishedEpoch": 1792197603.8214872,
+    "reportSha256": "1a658089093bd0d303122b1cc38b11fd91ad493b70792cf2c35b697b0ef85169",
+    "semanticSha256": "0c63b2b9d60f360f9b36081d09cec54fa81e542a13ab92c787e5015bcfe56dc8"
+  },
+  {
+    "pair": 2,
+    "order": 1,
+    "variant": "baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-factory-owned-_06ison1/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-factory-owned-_06ison1/baseline/.data/factory-config.json"
+    ],
+    "startedEpoch": 1792197604.795787,
+    "report": "pair-2-1-baseline.json",
+    "semantic": "pair-2-1-baseline-semantic.json",
+    "log": "pair-2-1-baseline.log",
+    "pid": 28666,
+    "exitCode": 0,
+    "finishedEpoch": 1792197609.527508,
+    "reportSha256": "50aa72306c9fc057f51aaf8e510396b3f9a82adbc244b8dce9f25aa88064879f",
+    "semanticSha256": "c369d8c9b424df05c1b0aac57c6d8d956591ae9b0741bd3009513e03c62ff177"
+  },
+  {
+    "pair": 2,
+    "order": 2,
+    "variant": "current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-factory-owned-_06ison1/current/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-factory-owned-_06ison1/current/.data/factory-config.json"
+    ],
+    "startedEpoch": 1792197610.5018308,
+    "report": "pair-2-2-current.json",
+    "semantic": "pair-2-2-current-semantic.json",
+    "log": "pair-2-2-current.log",
+    "pid": 28698,
+    "exitCode": 0,
+    "finishedEpoch": 1792197615.0917802,
+    "reportSha256": "6d47d7ed82986416b797c7303b92872e26a58c9409bc656223ef63861dbb20e8",
+    "semanticSha256": "9e3ea2c6f442134ccb5340bf31b818374d4fa9592c77cbd2ee0c0902b93151b1"
+  },
+  {
+    "pair": 3,
+    "order": 1,
+    "variant": "baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-factory-owned-_06ison1/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-factory-owned-_06ison1/baseline/.data/factory-config.json"
+    ],
+    "startedEpoch": 1792197616.670043,
+    "report": "pair-3-1-baseline.json",
+    "semantic": "pair-3-1-baseline-semantic.json",
+    "log": "pair-3-1-baseline.log",
+    "pid": 28724,
+    "exitCode": 0,
+    "finishedEpoch": 1792197621.634251,
+    "reportSha256": "9c66dd8abfa5eaeaf8707549f33588aa9950af81cf70812b346d30c37b8dc117",
+    "semanticSha256": "190c9ee7850a551508a621dc80c305ef2de01ee807d9fbf5d95ab417a8bfddac"
+  },
+  {
+    "pair": 3,
+    "order": 2,
+    "variant": "current",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=4096",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-factory-owned-_06ison1/current/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-factory-owned-_06ison1/current/.data/factory-config.json"
+    ],
+    "startedEpoch": 1792197622.6435158,
+    "report": "pair-3-2-current.json",
+    "semantic": "pair-3-2-current-semantic.json",
+    "log": "pair-3-2-current.log",
+    "pid": 28734,
+    "exitCode": 0,
+    "finishedEpoch": 1792197627.3117938
+  }
+]

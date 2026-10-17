@@ -1,0 +1,11 @@
+{
+  "format": "okx-storage-acceptance-v1",
+  "directory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1",
+  "owner": "12389d19-1dc4-46c4-8a5f-db2f8a6b7bde",
+  "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+  "runId": "f581575e-64ad-4983-8627-462c51067509",
+  "pid": 2715,
+  "startedAt": "2026-10-16T23:11:18.895Z",
+  "state": "finished",
+  "finishedAt": "2026-10-16T23:14:15.671Z"
+}

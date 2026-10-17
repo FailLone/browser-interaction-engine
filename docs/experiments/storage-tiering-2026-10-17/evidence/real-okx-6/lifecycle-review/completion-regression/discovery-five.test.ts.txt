@@ -1,0 +1,74 @@
+import {EventEmitter} from 'node:events';
+import {expect,it,vi} from 'vitest';
+import {type ActionAttempt,type ActionCandidate,type Observation,browserOperationKey,browserOperationSchedulingKey,browserTargetConditions} from '@interaction/browser';
+import {ExplorerPlugin,ExplorerStore,type ExplorerHost,type PlanItem,type Round,type Task} from '@interaction/explorer-plugin';
+import {scopeFor} from '../packages/explorer-plugin/src/policy.js';
+
+function fixture(reason='region_review_required'){
+ const url='https://fixture.invalid/discovery';
+ const frame=(id:string)=>{
+  const c={localId:`${id}:target`,instanceId:`${id}:target`,identityId:`${id}:identity`,tag:'button',role:'button',name:'Open',label:'Open',visible:true,enabled:true,region:'document',selected:[],constraints:{type:'button'},
+   structuralItem:{ownerInstanceId:`${id}:owner`,recordKey:'record-123',template:'row',slot:'open'},stableKey:`structural-item:${JSON.stringify([`${id}:owner`,'record-123','open'])}`,identityContext:{scope:'orders',binding:'record-123',evidence:['fixture']},actionBasis:{click:{status:'supported',evidence:[]}}};
+  const o={id,sessionId:'session',instanceScope:id,url,ruleVersion:'observable-v7',context:{},stable:true,gaps:[],regions:[],boundaries:[],components:[],controls:[c,{localId:`${id}:mode`,instanceId:`${id}:mode`,tag:'input',role:'checkbox',name:'Mode',label:'Mode',checked:false,selected:[],visible:false,enabled:true,region:'document',constraints:{type:'checkbox'},hypothesisId:`${id}:unverified-mode`}]} as unknown as Observation;
+  const a={id:`${id}:action`,sessionId:o.sessionId,observationId:o.id,stateId:`state-${id}`,source:'fixture',sampleValidity:'known',localId:c.localId,controlId:c.identityId,kind:'click',label:'Open',risk:'interface',replayable:true,excluded:false,basis:c.actionBasis.click,preconditions:{visible:true,enabled:true,identityResolved:true,context:o.context}} as ActionCandidate;
+  return {o,a};
+ };
+ const a=frame('A'),b=frame('B'),after={...structuredClone(b.o),id:'after',url:'https://fixture.invalid/after',controls:[]} as Observation;
+ expect(scopeFor(a.a,a.o)).toEqual(scopeFor(b.a,b.o));expect(browserOperationKey(a.a,a.o)).not.toBe(browserOperationKey(b.a,b.o));
+ expect(browserOperationSchedulingKey(a.a,a.o)).toBe(browserOperationSchedulingKey(b.a,b.o));expect(browserTargetConditions(b.a,b.o)).toBeUndefined();
+ const attempt=(id:string,before:typeof a)=>({id,sessionId:'session',beforeId:before.o.id,afterId:after.id,action:before.a,status:'succeeded',startedAt:'2026-10-17T00:00:00.000Z',finishedAt:'2026-10-17T00:00:00.001Z'}) as ActionAttempt;
+ const oldAttempt=attempt('executed-A',a),newAttempt=attempt('executed-B',b),observations=new Map([a.o,b.o,after].map(o=>[o.id,o]));
+ const actions=new Map([[a.o.id,[a.a]],[b.o.id,[b.a]],[after.id,[] as ActionCandidate[]]]);
+ const host={events:new EventEmitter(),observation:(_sid:string,id?:string)=>observations.get(id||b.o.id)!,actions:(_sid:string,id?:string)=>actions.get(id||b.o.id)!,operationCoverageCandidates:(_sid:string,id?:string)=>actions.get(id||b.o.id)!,list:(_sid:string,kind:string)=>kind==='attempt'?[oldAttempt,newAttempt]:[],session:()=>({id:'session',actionCount:2,options:{}}),
+  operationCorrespondences:vi.fn((sid:string,input:{observationId:string;requests:{actionId:string;source:{sessionId:string;attemptId:string}}[]})=>({sessionId:sid,observationId:input.observationId,results:input.requests.map(r=>({equivalent:false,reason:'operation_conditions_unavailable',source:r.source,target:{sessionId:sid,observationId:input.observationId,actionId:r.actionId},identityAuthorized:false,replayAuthorized:false,currentExecution:false,evidence:[],invalidatedBy:[]}))}))} as unknown as ExplorerHost;
+ const store=new ExplorerStore(':memory:'),plugin=new ExplorerPlugin(host,store),task=plugin.create({url,coverageMode:'all'}),scope=scopeFor(b.a,b.o),key=browserOperationSchedulingKey(b.a,b.o);
+ const round:Round={id:'round',number:1,sessionId:'session',startedAt:'2026-10-17T00:00:00.000Z',status:'paused',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0};task.rounds=[round];
+ const item=(id:string,source:string):PlanItem=>({id,title:'Open',scope,prerequisites:[],completion:'Verify each retained source',status:'unresolved',required:true,dispatchScope:false,reason,operationConditionKey:key,operationConditionPolicy:'browser-operation-key-v3',evidence:[{sessionId:'session',observationId:source}],attempts:[]});
+ const old=item('closed-A','A'),ref={sessionId:'session',observationId:after.id,attemptId:oldAttempt.id};old.status='succeeded';old.resolvedBy=ref;old.evidence.push(ref);old.attempts.push({roundId:'round',outcome:'succeeded',evidence:ref});
+ task.plan=[{id:'root',title:'Page',scope:{url},prerequisites:[],completion:'Explore page',required:true,dispatchScope:true,status:'pending',reason:'program_exhaustive_root',evidence:[],attempts:[]},old];
+ const runtime=plugin as unknown as {gap(task:Task,reason:string,operationScope:typeof scope,required:boolean,path:[],persist:boolean,source:Observation,key:string,uniqueActionId:string):PlanItem;auditRemainingScopes(task:Task,round:Round,o:Observation,snapshot:ReturnType<ExplorerHost['explorationSnapshot']>,completed:Set<ActionCandidate>):Set<string>;recordOutcome(task:Task,attempt:ActionAttempt,ids:string[]):void};
+ const snapshot={revision:'fixture',actions:[b.a],operationCandidates:[b.a],availability:{sessionId:'session',observationId:b.o.id,actions:[{actionId:b.a.id,executable:false,blockers:[{code:'ACTION_BLOCKED',reason}]}]},obligations:{criticalGaps:[],regions:[b.a.localId],pageTraversal:false,classifications:[],operations:[],identities:[],discovery:[]}} as unknown as ReturnType<ExplorerHost['explorationSnapshot']>;
+ return {a,b,old,newAttempt,host,task,round,item,store,gap:()=>runtime.gap(task,reason,scope,true,[],true,b.o,key,b.a.id),audit:()=>runtime.auditRemainingScopes(task,round,b.o,snapshot,new Set()),complete:(ids:string[])=>runtime.recordOutcome(task,newAttempt,ids),close:()=>plugin.close()};
+}
+
+it('a new blocked source cannot be appended to a directly succeeded gap with the same scheduling key',async()=>{
+ const f=fixture();try{
+  const before=structuredClone(f.old),next=f.gap();expect(next.id).not.toBe(f.old.id);expect(next.status).toBe('unresolved');
+  expect(next.evidence).toContainEqual({sessionId:'session',observationId:'B'});expect(f.old).toEqual(before);
+ }finally{await f.close();}
+});
+
+it('actual remaining-scope audit preserves blocked B as unfinished when SDK coverage of A is unavailable',async()=>{
+ const f=fixture();try{
+  const before=structuredClone(f.old);expect(f.audit().has('root')).toBe(true);
+  const current=f.task.plan.filter(i=>i.id!=='root'&&i.id!==f.old.id);expect(current).toHaveLength(1);
+  expect(current[0]).toMatchObject({required:true,dispatchScope:false,status:'unresolved',reason:'region_review_required'});
+  expect(current[0].evidence).toContainEqual({sessionId:'session',observationId:'B'});expect(f.old).toEqual(before);
+  expect(f.store.events(f.task.id).find(e=>e.type==='scope.audit')?.data).toMatchObject({pendingActions:[f.b.a.id]});
+ }finally{await f.close();}
+});
+
+it('prefers an unfinished exact gap over an older succeeded row without changing either historical receipt',async()=>{
+ const f=fixture();try{
+  const before=structuredClone(f.old),pending=f.item('pending','A');f.task.plan.push(pending);
+  expect(f.gap()).toBe(pending);expect(f.task.plan).toHaveLength(3);expect(pending.status).toBe('unresolved');
+  expect(pending.evidence).toContainEqual({sessionId:'session',observationId:'B'});expect(f.old).toEqual(before);
+ }finally{await f.close();}
+});
+
+it('recordOutcome leaves a derived closed source unchanged when a new matching source succeeds',async()=>{
+ const f=fixture('operation_not_executed');try{
+  const before=structuredClone(f.old),current=f.item('current-B','B');f.task.plan.push(current);f.complete([f.old.id,current.id]);
+  expect(f.old).toEqual(before);expect(current.status).toBe('succeeded');expect(current.resolvedBy?.attemptId).toBe(f.newAttempt.id);
+ }finally{await f.close();}
+});
+
+it('a spent scheduling hint prevents another dispatch without erasing the new unproved discovery source',async()=>{
+ const f=fixture();try{
+  const before=structuredClone(f.old);f.round.tried.push(browserOperationSchedulingKey(f.a.a,f.a.o));f.audit();
+  expect(f.old).toEqual(before);
+  expect(f.task.plan.some(item=>item.id!==f.old.id&&item.dispatchScope===false&&item.status!=='succeeded'
+   &&item.evidence.some(ref=>!ref.attemptId&&ref.sessionId==='session'&&ref.observationId==='B'))).toBe(true);
+  expect(f.round.tried).toEqual([browserOperationSchedulingKey(f.a.a,f.a.o)]);
+ }finally{await f.close();}
+});

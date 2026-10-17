@@ -1,0 +1,94 @@
+[
+  {
+    "change": "data-record",
+    "before": "7a7b73c7-9bb7-4a23-a696-b70ca545cbaa",
+    "after": "543b4496-bb56-4a9d-b993-7400e1cb1979",
+    "sameInstanceScope": true,
+    "sameDocument": true,
+    "selectorCount": [
+      2,
+      2
+    ],
+    "fullCapturedSelectorsEqual": true,
+    "selectorDifferences": [],
+    "naiveDocumentBindingEqual": true,
+    "naiveBeforeSha256": "9492095431c188e86ff92686c73f2794e10457099e43b02c3b77f8b03dd0b824",
+    "naiveAfterSha256": "9492095431c188e86ff92686c73f2794e10457099e43b02c3b77f8b03dd0b824",
+    "wholeObservationEqual": false,
+    "portableBranchBefore": null,
+    "portableBranchAfter": null,
+    "portableOperationBefore": null,
+    "portableOperationAfter": null,
+    "proof": {
+      "equivalent": false,
+      "reason": "operation_conditions_unavailable",
+      "source": {
+        "sessionId": "64c9f884-2d95-48c0-8af0-c51dfb7a08b1",
+        "attemptId": "ad794927-e028-4aaa-a505-9a268bb8aad7",
+        "beforeId": "7a7b73c7-9bb7-4a23-a696-b70ca545cbaa",
+        "afterId": "595120ff-a8bd-4d27-bd1a-36edbe0b28c9"
+      },
+      "target": {
+        "sessionId": "64c9f884-2d95-48c0-8af0-c51dfb7a08b1",
+        "observationId": "543b4496-bb56-4a9d-b993-7400e1cb1979",
+        "actionId": "d86e6b2a-f5c6-45e4-8c7a-96de259ba10d"
+      },
+      "evidence": [],
+      "invalidatedBy": [
+        "observation-or-review-change",
+        "nonunique-correspondence",
+        "changed-operation-conditions",
+        "changed-declared-context"
+      ],
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "currentExecution": false
+    }
+  },
+  {
+    "change": "direct-href",
+    "before": "543b4496-bb56-4a9d-b993-7400e1cb1979",
+    "after": "0c1f2e5e-2361-42d1-874f-8be920bee26a",
+    "sameInstanceScope": true,
+    "sameDocument": true,
+    "selectorCount": [
+      2,
+      2
+    ],
+    "fullCapturedSelectorsEqual": true,
+    "selectorDifferences": [],
+    "naiveDocumentBindingEqual": true,
+    "naiveBeforeSha256": "9492095431c188e86ff92686c73f2794e10457099e43b02c3b77f8b03dd0b824",
+    "naiveAfterSha256": "9492095431c188e86ff92686c73f2794e10457099e43b02c3b77f8b03dd0b824",
+    "wholeObservationEqual": false,
+    "portableBranchBefore": null,
+    "portableBranchAfter": null,
+    "portableOperationBefore": null,
+    "portableOperationAfter": null,
+    "proof": {
+      "equivalent": false,
+      "reason": "operation_conditions_unavailable",
+      "source": {
+        "sessionId": "64c9f884-2d95-48c0-8af0-c51dfb7a08b1",
+        "attemptId": "995d41d3-3c56-4f1f-b366-1eacf6d32226",
+        "beforeId": "543b4496-bb56-4a9d-b993-7400e1cb1979",
+        "afterId": "f019eb52-47cd-4137-9284-bab68f17d7aa"
+      },
+      "target": {
+        "sessionId": "64c9f884-2d95-48c0-8af0-c51dfb7a08b1",
+        "observationId": "0c1f2e5e-2361-42d1-874f-8be920bee26a",
+        "actionId": "68d8b8ef-15c8-405d-a087-23bd3bdda64e"
+      },
+      "evidence": [],
+      "invalidatedBy": [
+        "observation-or-review-change",
+        "nonunique-correspondence",
+        "changed-operation-conditions",
+        "changed-declared-context"
+      ],
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "currentExecution": false
+    }
+  }
+]

@@ -1,0 +1,3122 @@
+{
+  "allIntegrityChecksPassed": true,
+  "summarizerSha256": "d3218b0bdaf619aa57c119fededcfd4420fed5a0d56ed1458a65d1bfff09cf8c",
+  "baseline": {
+    "inputDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run5-fixes-protocols",
+    "revision": "edd32f9e34a67ea482eedde9b3b64a6212647600",
+    "allPassed": true,
+    "checks": [
+      {
+        "name": "sourceUnchanged",
+        "passed": true
+      },
+      {
+        "name": "totalTrials=80",
+        "passed": true
+      },
+      {
+        "name": "continuationComplete",
+        "passed": true
+      },
+      {
+        "name": "priceTicks=100",
+        "passed": true
+      },
+      {
+        "name": "allRecoveryVariantRefactor",
+        "passed": true
+      },
+      {
+        "name": "eightCommandsExitZero",
+        "passed": true
+      },
+      {
+        "name": "executionComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.scenarioSet",
+        "passed": true
+      },
+      {
+        "name": "conditions.scriptHashMatchesManifest",
+        "passed": true
+      },
+      {
+        "name": "conditions.0.revision",
+        "passed": true
+      },
+      {
+        "name": "conditions.0.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.1.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.1.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.1.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.1.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.2.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.2.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.2.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.2.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.3.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.3.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.3.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.3.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.4.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.4.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.4.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.4.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.5.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.5.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.5.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.5.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.1.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.1.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.1.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.1.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.2.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.2.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.2.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.2.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.3.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.3.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.3.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.3.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.4.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.4.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.4.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.4.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.5.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.5.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.5.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.5.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.1.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.1.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.1.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.1.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.1.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.1.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.2.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.2.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.2.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.2.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.2.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.2.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.3.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.3.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.3.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.3.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.3.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.3.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.4.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.4.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.4.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.4.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.4.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.4.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.5.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.5.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.5.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.5.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.5.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.5.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.1.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.1.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.1.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.1.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.1.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.1.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.2.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.2.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.2.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.2.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.2.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.2.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.3.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.3.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.3.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.3.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.3.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.3.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.4.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.4.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.4.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.4.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.4.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.4.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.5.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.5.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.5.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.5.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.5.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.5.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.1.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.1.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.1.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.1.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.2.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.2.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.2.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.2.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.3.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.3.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.3.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.3.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.4.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.4.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.4.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.4.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.5.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.5.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.5.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.5.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "continuation.scenarioSet",
+        "passed": true
+      },
+      {
+        "name": "continuation.scriptHashMatchesManifest",
+        "passed": true
+      },
+      {
+        "name": "continuation.0.revision",
+        "passed": true
+      },
+      {
+        "name": "continuation.0.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.1.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.1.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.1.nestedReentryWithoutDuplicateLeaf",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.2.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.2.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.2.nestedReentryWithoutDuplicateLeaf",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.3.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.3.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.3.nestedReentryWithoutDuplicateLeaf",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.4.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.4.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.4.nestedReentryWithoutDuplicateLeaf",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.5.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.5.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.5.nestedReentryWithoutDuplicateLeaf",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.1.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.1.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.2.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.2.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.3.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.3.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.4.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.4.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.5.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.5.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.1.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.1.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.1.unknownIdsPreserved",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.1.blockedNoPostRestartDispatch",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.2.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.2.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.2.unknownIdsPreserved",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.2.blockedNoPostRestartDispatch",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.3.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.3.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.3.unknownIdsPreserved",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.3.blockedNoPostRestartDispatch",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.4.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.4.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.4.unknownIdsPreserved",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.4.blockedNoPostRestartDispatch",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.5.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.5.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.5.unknownIdsPreserved",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.5.blockedNoPostRestartDispatch",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.scenarioSet",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.scriptHashMatchesManifest",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.0.revision",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.0.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.1.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.1.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.1.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.2.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.2.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.2.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.3.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.3.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.3.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.4.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.4.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.4.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.5.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.5.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.5.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.1.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.1.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.1.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.2.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.2.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.2.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.3.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.3.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.3.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.4.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.4.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.4.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.5.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.5.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.5.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "recovery.scenarioSet",
+        "passed": true
+      },
+      {
+        "name": "recovery.scriptHashMatchesManifest",
+        "passed": true
+      },
+      {
+        "name": "recovery.0.revision",
+        "passed": true
+      },
+      {
+        "name": "recovery.0.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "recovery.1.revision",
+        "passed": true
+      },
+      {
+        "name": "recovery.1.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "recovery.2.revision",
+        "passed": true
+      },
+      {
+        "name": "recovery.2.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "recovery.3.revision",
+        "passed": true
+      },
+      {
+        "name": "recovery.3.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "recovery.4.revision",
+        "passed": true
+      },
+      {
+        "name": "recovery.4.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.1.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.1.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.1.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.2.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.2.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.2.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.3.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.3.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.3.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.4.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.4.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.4.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.5.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.5.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.5.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.1.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.1.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.1.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.2.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.2.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.2.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.3.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.3.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.3.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.4.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.4.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.4.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.5.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.5.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.5.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.1.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.1.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.1.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.2.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.2.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.2.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.3.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.3.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.3.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.4.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.4.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.4.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.5.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.5.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.5.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.1.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.1.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.1.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.2.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.2.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.2.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.3.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.3.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.3.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.4.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.4.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.4.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.5.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.5.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.5.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.1.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.1.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.1.divergenceNotSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.2.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.2.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.2.divergenceNotSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.3.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.3.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.3.divergenceNotSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.4.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.4.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.4.divergenceNotSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.5.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.5.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.5.divergenceNotSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.1.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.1.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.1.unknownGuardPreserved",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.2.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.2.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.2.unknownGuardPreserved",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.3.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.3.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.3.unknownGuardPreserved",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.4.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.4.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.4.unknownGuardPreserved",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.5.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.5.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.5.unknownGuardPreserved",
+        "passed": true
+      }
+    ],
+    "fixtureHashes": {
+      "conditions": {
+        "public-form-cycle": [
+          "dbabc3054d3bd4e7f391c638806c6bff84e22b88744b875eeb125e85182b3f00"
+        ],
+        "shared-id-rebuild": [
+          "d12514d69904d2d39ef34ede1ada4a208449dee2d1dd0501d643ac9d20b263a9"
+        ],
+        "price-known": [
+          "9eeed7a96caf6621c721bab6c68df0b9485d9aec3c7b15b03f91505d3a2aea4d"
+        ],
+        "price-unknown": [
+          "606555d0775e581de0c9f86442a5c11eac67273133ae31b888d58cb5d7a27d8b"
+        ],
+        "nonlocal-dependency": [
+          "c797e8c74eddce4788dcb5d4c158142d489b66df321a2f4d2fcf1a7d0cf01531"
+        ]
+      },
+      "continuation": {
+        "cold_nested_restart": [
+          "2197fadd02056e6c755450af64827e822bdb5680cd68b95381995001c1d80bc4"
+        ],
+        "failed_recovery_restart": [
+          "4af97ced0046fc1430564701b00abf43da03c7f6e0321e747c5813fd21b7be4c"
+        ],
+        "unknown_recovery_restart": [
+          "4af97ced0046fc1430564701b00abf43da03c7f6e0321e747c5813fd21b7be4c"
+        ]
+      },
+      "inputIdentity": {
+        "distinct-names": [
+          "40ad1ecc3a58bd60bdf3e5afb11106e549d0e7d377029e515af860d8d7623d95"
+        ],
+        "same-name-named-owners": [
+          "5aa23d63edea3c93ba7cff87166872948e9f17ac3d253bfa73a358c0c24393ed"
+        ]
+      },
+      "recovery": {
+        "nested_static": [
+          "81e6c2917dbd3a101d3b7cc9483b282254a0e99591c7c0b4ee85c22267983fe8"
+        ],
+        "modal_reentry_changed_quote": [
+          "d9a425fdb9c72a6f74b28462fd3a4e8fa72505ad419fb0be911f14ad3055d583"
+        ],
+        "ready_target_ticking_quote": [
+          "ad4971ecba1cffe2638f81d4a2fbea79613492aeeec1cfd063502e0074e3a251"
+        ],
+        "nested_changed_quote": [
+          "1eb4ce24edbc938e321ead80e20c289085371b2566f6c65048d1903948944e76"
+        ],
+        "local_inverse_diverges": [
+          "3cdc0f6dcd6df272b776b1c87ff49d0f50968f697e0f22e94269d1d9299c75bd"
+        ],
+        "unknown_outcome_injected": [
+          "f715c01a2cc6cc13c8d27fbb4db6146752f3d0119a6c3be245fa31f32975ea20"
+        ]
+      }
+    },
+    "scriptHashes": {
+      "conditions": [
+        "4c977f147d123ea1adc7c3496cce927ae5be7603fff317b5700578b2732d8693"
+      ],
+      "continuation": [
+        "7b193666d24f3d7b650667e6b5b640b27e2a281e2db5c45a8ed0e066dba7ff4f"
+      ],
+      "inputIdentity": [
+        "7cfe18ff69e2fcdad84cda46b353d2c9d0c44c6ce6486ac36b75a322e52ab1e1"
+      ],
+      "recovery": [
+        "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f"
+      ]
+    },
+    "measurementContracts": {
+      "conditions": {
+        "node": "v24.22.0",
+        "protocol": {
+          "runs": 5,
+          "ticks": 100,
+          "phaseSteps": 4,
+          "budget": {
+            "rounds": 1,
+            "actions": 8,
+            "durationMs": 60000,
+            "modelRequests": 8
+          },
+          "sessionOptions": {
+            "headless": true,
+            "settleMs": 0,
+            "observeTimeoutMs": 1000,
+            "actionTimeoutMs": 2000,
+            "maxActions": 8
+          },
+          "scenarios": [
+            "public-form-cycle",
+            "shared-id-rebuild",
+            "price-known",
+            "price-unknown",
+            "nonlocal-dependency"
+          ],
+          "oracle": "Independent onclick HTTP append log, persistent across reloads; no inference from queue completion",
+          "models": "Counting providers throw on request; no real JEV or LLM is configured",
+          "limitations": [
+            "The bounded mechanism scenarios call private step to apply identical external event streams; they do not test the full run loop.",
+            "The public form cycle exercises public start/waitForIdle.",
+            "Nonlocal JavaScript dependencies are deliberately undeclared and can defeat the current local dependency abstraction.",
+            "This is a controlled direction test, not an exhaustion or real-site performance claim."
+          ]
+        }
+      },
+      "continuation": {
+        "node": "v24.22.0",
+        "repeats": 5,
+        "methodology": {
+          "oracle": "Fixed declared leaf names, credited only for actual onclick HTTP events retained across browser restarts. Attempts, completion and empty queues are separately checked claims.",
+          "providers": "Deterministic fixture decision providers; request counts are orchestration counts, not live-model quality or latency.",
+          "scope": "Independent local fixtures only; one browser at a time; no existing service, browser, or task database.",
+          "unknownFault": "After the SDK performs a real browser recovery, its owned temporary attempt record is changed to unknown to simulate a durable-result fault; original status must remain unknown.",
+          "unavailableFault": "Before restart only, recovery calls return UNVERIFIED without dispatching any browser action. After restart the fault is removed.",
+          "timeLimits": "60 second task duration and 75 second outer phase timeout; observe timeout 1000ms; settle 0ms.",
+          "retryMetric": "A failed recovery repeated under the same normalized visible-control conditions without new oracle coverage; phase and generated observation/document IDs do not reset this metric.",
+          "limits": "Small controlled fixtures with explicit safe-repeat contracts. Results cannot establish real-site exhaustion, arbitrary browser snapshot restoration, or live-model efficiency."
+        }
+      },
+      "inputIdentity": {
+        "node": "v24.22.0",
+        "method": "Public SDK guarded fill plus operationCorrespondences, explicit external DOM mutations; independent HTTP input-event oracle; not autonomous scheduler coverage"
+      },
+      "recovery": {
+        "nodes": [
+          "v24.22.0"
+        ],
+        "variants": [
+          "refactor"
+        ],
+        "budgets": [
+          {
+            "actionTimeoutMs": 1500,
+            "maxActions": 12,
+            "maxDurationMs": 60000,
+            "observeTimeoutMs": 1000,
+            "settleMs": 60
+          }
+        ]
+      }
+    },
+    "sourceFileCount": 446,
+    "rawFileHashes": {
+      "conditions.json": "2aa7e3ff5713a796c96ca296d0517dae4a9e912c9bc6f1be5dca0073c9a42ac6",
+      "continuation.json": "a212584f9622d258daf6e2f8b440c1a4cdb1e6b728dfab7839b8f1dc377b89b3",
+      "input-identity.json": "4985bcddd075aefea16eb2f438fe9d3fd50671b9fe36c9c1c930b7aa59d21bc8",
+      "recovery-refactor-r1.json": "4e2b86e570086574bcc31cd095a5143abd197935d6363311397817318d007161",
+      "recovery-refactor-r2.json": "ef742cb95dfa8a992173678e7c11b09e9ee10c9b946e28c8575b3c096fd6fe42",
+      "recovery-refactor-r3.json": "487f91b42e2140dcfcbe7b94ce0d1068683e944aeb9022cbc900f7a923b2c86d",
+      "recovery-refactor-r4.json": "118cd6edc205fb997e7fa20573d5a94aeff2170af4042639e55ba59817c24932",
+      "recovery-refactor-r5.json": "345505bb43f37b91ca6af98efaf0b098b675936e2f9afc381059bf727cfe0e49",
+      "source-before.json": "3f567f0bc41627736bec23da9878d1202853e76ceb5b98364fc0e99b0f7abd12",
+      "source-after.json": "3f567f0bc41627736bec23da9878d1202853e76ceb5b98364fc0e99b0f7abd12",
+      "commands.json": "1fd00cd2571941752362c88a945f05cc9a96618b1370b6271152402e1ca6c537",
+      "execution.json": "b375dfa2b61270a91a3f3ca36049494472a3f1acd9847e2fbe16819802f1790f"
+    }
+  },
+  "current": {
+    "inputDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run6-fixes-protocols",
+    "revision": "125a10ca6dbc78f8dd859a0e7a2917f83d67b55b",
+    "allPassed": true,
+    "checks": [
+      {
+        "name": "sourceUnchanged",
+        "passed": true
+      },
+      {
+        "name": "totalTrials=80",
+        "passed": true
+      },
+      {
+        "name": "continuationComplete",
+        "passed": true
+      },
+      {
+        "name": "priceTicks=100",
+        "passed": true
+      },
+      {
+        "name": "allRecoveryVariantRefactor",
+        "passed": true
+      },
+      {
+        "name": "eightCommandsExitZero",
+        "passed": true
+      },
+      {
+        "name": "executionComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.scenarioSet",
+        "passed": true
+      },
+      {
+        "name": "conditions.scriptHashMatchesManifest",
+        "passed": true
+      },
+      {
+        "name": "conditions.0.revision",
+        "passed": true
+      },
+      {
+        "name": "conditions.0.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.1.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.1.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.1.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.1.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.2.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.2.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.2.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.2.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.3.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.3.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.3.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.3.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.4.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.4.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.4.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.4.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.5.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.5.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.5.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.public-form-cycle.5.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.1.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.1.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.1.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.1.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.2.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.2.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.2.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.2.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.3.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.3.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.3.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.3.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.4.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.4.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.4.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.4.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.5.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.5.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.5.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.shared-id-rebuild.5.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.1.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.1.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.1.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.1.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.1.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.1.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.2.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.2.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.2.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.2.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.2.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.2.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.3.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.3.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.3.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.3.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.3.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.3.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.4.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.4.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.4.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.4.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.4.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.4.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.5.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.5.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.5.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.5.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.5.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-known.5.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.1.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.1.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.1.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.1.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.1.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.1.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.2.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.2.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.2.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.2.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.2.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.2.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.3.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.3.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.3.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.3.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.3.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.3.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.4.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.4.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.4.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.4.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.4.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.4.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.5.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.5.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.5.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.5.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.5.all100Ticks",
+        "passed": true
+      },
+      {
+        "name": "conditions.price-unknown.5.all100TicksNoGrowth",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.1.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.1.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.1.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.1.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.2.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.2.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.2.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.2.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.3.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.3.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.3.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.3.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.4.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.4.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.4.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.4.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.5.oracleConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.5.attemptCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.5.stateKeyCountsConsistent",
+        "passed": true
+      },
+      {
+        "name": "conditions.nonlocal-dependency.5.branchOracleComplete",
+        "passed": true
+      },
+      {
+        "name": "continuation.scenarioSet",
+        "passed": true
+      },
+      {
+        "name": "continuation.scriptHashMatchesManifest",
+        "passed": true
+      },
+      {
+        "name": "continuation.0.revision",
+        "passed": true
+      },
+      {
+        "name": "continuation.0.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.1.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.1.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.1.nestedReentryWithoutDuplicateLeaf",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.2.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.2.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.2.nestedReentryWithoutDuplicateLeaf",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.3.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.3.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.3.nestedReentryWithoutDuplicateLeaf",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.4.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.4.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.4.nestedReentryWithoutDuplicateLeaf",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.5.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.5.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.cold_nested_restart.5.nestedReentryWithoutDuplicateLeaf",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.1.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.1.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.2.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.2.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.3.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.3.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.4.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.4.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.5.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.failed_recovery_restart.5.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.1.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.1.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.1.unknownIdsPreserved",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.1.blockedNoPostRestartDispatch",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.2.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.2.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.2.unknownIdsPreserved",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.2.blockedNoPostRestartDispatch",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.3.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.3.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.3.unknownIdsPreserved",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.3.blockedNoPostRestartDispatch",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.4.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.4.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.4.unknownIdsPreserved",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.4.blockedNoPostRestartDispatch",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.5.validNoLostPending",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.5.modelCallsConsistent",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.5.unknownIdsPreserved",
+        "passed": true
+      },
+      {
+        "name": "continuation.unknown_recovery_restart.5.blockedNoPostRestartDispatch",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.scenarioSet",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.scriptHashMatchesManifest",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.0.revision",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.0.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.1.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.1.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.1.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.2.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.2.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.2.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.3.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.3.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.3.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.4.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.4.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.4.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.5.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.5.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.distinct-names.5.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.1.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.1.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.1.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.2.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.2.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.2.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.3.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.3.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.3.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.4.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.4.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.4.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.5.fourCorrectCorrespondences",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.5.sameInputValue",
+        "passed": true
+      },
+      {
+        "name": "inputIdentity.same-name-named-owners.5.actualABCInputs",
+        "passed": true
+      },
+      {
+        "name": "recovery.scenarioSet",
+        "passed": true
+      },
+      {
+        "name": "recovery.scriptHashMatchesManifest",
+        "passed": true
+      },
+      {
+        "name": "recovery.0.revision",
+        "passed": true
+      },
+      {
+        "name": "recovery.0.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "recovery.1.revision",
+        "passed": true
+      },
+      {
+        "name": "recovery.1.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "recovery.2.revision",
+        "passed": true
+      },
+      {
+        "name": "recovery.2.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "recovery.3.revision",
+        "passed": true
+      },
+      {
+        "name": "recovery.3.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "recovery.4.revision",
+        "passed": true
+      },
+      {
+        "name": "recovery.4.sourceHashesMatchManifest",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.1.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.1.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.1.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.2.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.2.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.2.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.3.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.3.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.3.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.4.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.4.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.4.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.5.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.5.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_static.5.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.1.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.1.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.1.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.2.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.2.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.2.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.3.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.3.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.3.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.4.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.4.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.4.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.5.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.5.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.modal_reentry_changed_quote.5.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.1.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.1.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.1.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.2.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.2.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.2.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.3.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.3.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.3.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.4.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.4.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.4.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.5.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.5.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.ready_target_ticking_quote.5.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.1.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.1.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.1.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.2.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.2.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.2.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.3.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.3.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.3.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.4.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.4.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.4.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.5.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.5.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.nested_changed_quote.5.guardedPhysicalSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.1.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.1.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.1.divergenceNotSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.2.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.2.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.2.divergenceNotSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.3.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.3.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.3.divergenceNotSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.4.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.4.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.4.divergenceNotSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.5.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.5.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.local_inverse_diverges.5.divergenceNotSuccess",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.fiveUniqueRuns",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.oneFixtureHash",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.1.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.1.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.1.unknownGuardPreserved",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.2.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.2.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.2.unknownGuardPreserved",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.3.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.3.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.3.unknownGuardPreserved",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.4.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.4.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.4.unknownGuardPreserved",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.5.noSetupFailure",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.5.falseArrivalConsistent",
+        "passed": true
+      },
+      {
+        "name": "recovery.unknown_outcome_injected.5.unknownGuardPreserved",
+        "passed": true
+      }
+    ],
+    "fixtureHashes": {
+      "conditions": {
+        "public-form-cycle": [
+          "dbabc3054d3bd4e7f391c638806c6bff84e22b88744b875eeb125e85182b3f00"
+        ],
+        "shared-id-rebuild": [
+          "d12514d69904d2d39ef34ede1ada4a208449dee2d1dd0501d643ac9d20b263a9"
+        ],
+        "price-known": [
+          "9eeed7a96caf6621c721bab6c68df0b9485d9aec3c7b15b03f91505d3a2aea4d"
+        ],
+        "price-unknown": [
+          "606555d0775e581de0c9f86442a5c11eac67273133ae31b888d58cb5d7a27d8b"
+        ],
+        "nonlocal-dependency": [
+          "c797e8c74eddce4788dcb5d4c158142d489b66df321a2f4d2fcf1a7d0cf01531"
+        ]
+      },
+      "continuation": {
+        "cold_nested_restart": [
+          "2197fadd02056e6c755450af64827e822bdb5680cd68b95381995001c1d80bc4"
+        ],
+        "failed_recovery_restart": [
+          "4af97ced0046fc1430564701b00abf43da03c7f6e0321e747c5813fd21b7be4c"
+        ],
+        "unknown_recovery_restart": [
+          "4af97ced0046fc1430564701b00abf43da03c7f6e0321e747c5813fd21b7be4c"
+        ]
+      },
+      "inputIdentity": {
+        "distinct-names": [
+          "40ad1ecc3a58bd60bdf3e5afb11106e549d0e7d377029e515af860d8d7623d95"
+        ],
+        "same-name-named-owners": [
+          "5aa23d63edea3c93ba7cff87166872948e9f17ac3d253bfa73a358c0c24393ed"
+        ]
+      },
+      "recovery": {
+        "nested_static": [
+          "81e6c2917dbd3a101d3b7cc9483b282254a0e99591c7c0b4ee85c22267983fe8"
+        ],
+        "modal_reentry_changed_quote": [
+          "d9a425fdb9c72a6f74b28462fd3a4e8fa72505ad419fb0be911f14ad3055d583"
+        ],
+        "ready_target_ticking_quote": [
+          "ad4971ecba1cffe2638f81d4a2fbea79613492aeeec1cfd063502e0074e3a251"
+        ],
+        "nested_changed_quote": [
+          "1eb4ce24edbc938e321ead80e20c289085371b2566f6c65048d1903948944e76"
+        ],
+        "local_inverse_diverges": [
+          "3cdc0f6dcd6df272b776b1c87ff49d0f50968f697e0f22e94269d1d9299c75bd"
+        ],
+        "unknown_outcome_injected": [
+          "f715c01a2cc6cc13c8d27fbb4db6146752f3d0119a6c3be245fa31f32975ea20"
+        ]
+      }
+    },
+    "scriptHashes": {
+      "conditions": [
+        "4c977f147d123ea1adc7c3496cce927ae5be7603fff317b5700578b2732d8693"
+      ],
+      "continuation": [
+        "7b193666d24f3d7b650667e6b5b640b27e2a281e2db5c45a8ed0e066dba7ff4f"
+      ],
+      "inputIdentity": [
+        "7cfe18ff69e2fcdad84cda46b353d2c9d0c44c6ce6486ac36b75a322e52ab1e1"
+      ],
+      "recovery": [
+        "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f"
+      ]
+    },
+    "measurementContracts": {
+      "conditions": {
+        "node": "v24.22.0",
+        "protocol": {
+          "runs": 5,
+          "ticks": 100,
+          "phaseSteps": 4,
+          "budget": {
+            "rounds": 1,
+            "actions": 8,
+            "durationMs": 60000,
+            "modelRequests": 8
+          },
+          "sessionOptions": {
+            "headless": true,
+            "settleMs": 0,
+            "observeTimeoutMs": 1000,
+            "actionTimeoutMs": 2000,
+            "maxActions": 8
+          },
+          "scenarios": [
+            "public-form-cycle",
+            "shared-id-rebuild",
+            "price-known",
+            "price-unknown",
+            "nonlocal-dependency"
+          ],
+          "oracle": "Independent onclick HTTP append log, persistent across reloads; no inference from queue completion",
+          "models": "Counting providers throw on request; no real JEV or LLM is configured",
+          "limitations": [
+            "The bounded mechanism scenarios call private step to apply identical external event streams; they do not test the full run loop.",
+            "The public form cycle exercises public start/waitForIdle.",
+            "Nonlocal JavaScript dependencies are deliberately undeclared and can defeat the current local dependency abstraction.",
+            "This is a controlled direction test, not an exhaustion or real-site performance claim."
+          ]
+        }
+      },
+      "continuation": {
+        "node": "v24.22.0",
+        "repeats": 5,
+        "methodology": {
+          "oracle": "Fixed declared leaf names, credited only for actual onclick HTTP events retained across browser restarts. Attempts, completion and empty queues are separately checked claims.",
+          "providers": "Deterministic fixture decision providers; request counts are orchestration counts, not live-model quality or latency.",
+          "scope": "Independent local fixtures only; one browser at a time; no existing service, browser, or task database.",
+          "unknownFault": "After the SDK performs a real browser recovery, its owned temporary attempt record is changed to unknown to simulate a durable-result fault; original status must remain unknown.",
+          "unavailableFault": "Before restart only, recovery calls return UNVERIFIED without dispatching any browser action. After restart the fault is removed.",
+          "timeLimits": "60 second task duration and 75 second outer phase timeout; observe timeout 1000ms; settle 0ms.",
+          "retryMetric": "A failed recovery repeated under the same normalized visible-control conditions without new oracle coverage; phase and generated observation/document IDs do not reset this metric.",
+          "limits": "Small controlled fixtures with explicit safe-repeat contracts. Results cannot establish real-site exhaustion, arbitrary browser snapshot restoration, or live-model efficiency."
+        }
+      },
+      "inputIdentity": {
+        "node": "v24.22.0",
+        "method": "Public SDK guarded fill plus operationCorrespondences, explicit external DOM mutations; independent HTTP input-event oracle; not autonomous scheduler coverage"
+      },
+      "recovery": {
+        "nodes": [
+          "v24.22.0"
+        ],
+        "variants": [
+          "refactor"
+        ],
+        "budgets": [
+          {
+            "actionTimeoutMs": 1500,
+            "maxActions": 12,
+            "maxDurationMs": 60000,
+            "observeTimeoutMs": 1000,
+            "settleMs": 60
+          }
+        ]
+      }
+    },
+    "sourceFileCount": 459,
+    "rawFileHashes": {
+      "conditions.json": "9fcb79988520a7a6753ebfaaab7938d164b6528c4f0cf2d18cd42bcef87ff55b",
+      "continuation.json": "e0abb8439d6bf08bfebc6c63adbe740c2a473cd3da37f45eec2df3645ff334d8",
+      "input-identity.json": "5e9635d5f38b7f26013e31c34360208ad687a87744c255e8f064f1ed805b4138",
+      "recovery-refactor-r1.json": "112d562f9196efd6921a0812cc6acc334783a9147745bd47300546954edb41af",
+      "recovery-refactor-r2.json": "15733c6a36a8ac6587ebc0b008da27373301d2a089dc9a7c0395c058055e74b4",
+      "recovery-refactor-r3.json": "f45af8b1c4ba9d5ce78b9668aaf55b10c3a2540afb5240f62eae3c1510279a91",
+      "recovery-refactor-r4.json": "99df070a642c8b29c240fe648e37a1fde527a7e4c796db251ca47d2080092cea",
+      "recovery-refactor-r5.json": "3a3d50d68b04eba9041654a45d5c67762946692a4c8567048c631ebf3802dd2a",
+      "source-before.json": "b2e98f66edcac8308943f7b3570f64b6e72074e3af2d13178bd9f662a9d6a89e",
+      "source-after.json": "b2e98f66edcac8308943f7b3570f64b6e72074e3af2d13178bd9f662a9d6a89e",
+      "commands.json": "839815e941bf1f6a94ba0d5e696a42633c71542591a0f184c4987c27cff81b8c",
+      "execution.json": "a0b1c8dab4027109d56f2eb93336b8467176ac3d87573937e30a127aaf9cb6b3"
+    }
+  }
+}

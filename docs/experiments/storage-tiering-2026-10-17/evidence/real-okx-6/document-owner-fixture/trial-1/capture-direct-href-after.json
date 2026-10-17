@@ -1,0 +1,739 @@
+{
+  "label": "direct-href-after",
+  "observation": {
+    "scrollContainers": [],
+    "documentId": "da036bb7-c4b7-4088-bd77-e90060cc478b",
+    "url": "http://127.0.0.1:50524/",
+    "title": "Document-bound owner mutation fixture",
+    "text": "RunB|/record-B",
+    "controls": [
+      {
+        "localId": "da036bb7-c4b7-4088-bd77-e90060cc478b:5",
+        "instanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:5",
+        "tag": "i",
+        "role": "button",
+        "name": "Open sub-menu",
+        "label": "Open sub-menu",
+        "reviewAttributes": {},
+        "reviewBinding": {
+          "parentInstanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:4",
+          "attributes": {
+            "role": "button",
+            "aria-label": "Open sub-menu"
+          }
+        },
+        "region": "document",
+        "regionInstanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:3",
+        "form": "document",
+        "selector": "html > body:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > i:nth-of-type(1)",
+        "rect": {
+          "x": 40,
+          "y": 16,
+          "width": 0,
+          "height": 18
+        },
+        "value": "",
+        "displayedText": "",
+        "checked": null,
+        "pressed": null,
+        "selected": [],
+        "visible": false,
+        "enabled": true,
+        "editable": false,
+        "readOnly": false,
+        "expanded": false,
+        "controls": null,
+        "constraints": {
+          "type": "i",
+          "required": false,
+          "valid": true
+        },
+        "options": [],
+        "actions": [
+          "click"
+        ],
+        "actionBasis": {
+          "click": {
+            "status": "supported",
+            "evidence": [
+              {
+                "source": "aria",
+                "rule": "declared-activation/v1",
+                "facts": {
+                  "role": "button",
+                  "implementation": "unverified"
+                }
+              }
+            ]
+          }
+        },
+        "interactionHints": [
+          {
+            "source": "dom-signal",
+            "rule": "tabindex/v1",
+            "facts": {
+              "attribute": "tabindex",
+              "value": "0"
+            }
+          },
+          {
+            "source": "dom-signal",
+            "rule": "aria-expanded/v1",
+            "facts": {
+              "attribute": "aria-expanded",
+              "value": "false"
+            }
+          }
+        ],
+        "discovery": [
+          "selector:[role=button]",
+          "selector:[aria-expanded]",
+          "selector:[tabindex]"
+        ],
+        "actionable": {
+          "visible": false,
+          "enabled": true,
+          "editable": false,
+          "hitTarget": false,
+          "unknown": [
+            "event-handler-completeness",
+            "business-preconditions"
+          ]
+        },
+        "identityId": "a37371f5-dc2b-4610-8942-56495440564d",
+        "hypothesisId": "2727998a-9fd9-41ba-a5e0-3bf32a3d8e8c"
+      },
+      {
+        "localId": "da036bb7-c4b7-4088-bd77-e90060cc478b:6",
+        "instanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:6",
+        "tag": "a",
+        "role": "link",
+        "name": "Record link",
+        "label": "",
+        "reviewAttributes": {},
+        "reviewBinding": {
+          "parentInstanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:4",
+          "attributes": {
+            "href": "/record-B"
+          }
+        },
+        "region": "document",
+        "regionInstanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:3",
+        "form": "document",
+        "selector": "html > body:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+        "rect": {
+          "x": 40,
+          "y": 16,
+          "width": 75.09375,
+          "height": 18
+        },
+        "value": "",
+        "displayedText": "Record link",
+        "checked": null,
+        "pressed": null,
+        "selected": [],
+        "visible": false,
+        "enabled": true,
+        "editable": false,
+        "readOnly": false,
+        "expanded": null,
+        "controls": null,
+        "constraints": {
+          "type": "a",
+          "required": false,
+          "valid": true
+        },
+        "options": [],
+        "actions": [
+          "click"
+        ],
+        "actionBasis": {
+          "click": {
+            "status": "supported",
+            "evidence": [
+              {
+                "source": "html",
+                "rule": "hyperlink/v1",
+                "facts": {
+                  "tag": "a",
+                  "href": "/record-B"
+                }
+              }
+            ]
+          }
+        },
+        "interactionHints": [
+          {
+            "source": "css",
+            "rule": "pointer-cursor/v1",
+            "facts": {
+              "cursor": "pointer",
+              "inherited": false
+            }
+          }
+        ],
+        "discovery": [
+          "selector:a[href]",
+          "style:cursor=pointer"
+        ],
+        "actionable": {
+          "visible": false,
+          "enabled": true,
+          "editable": false,
+          "hitTarget": false,
+          "unknown": [
+            "event-handler-completeness",
+            "business-preconditions"
+          ]
+        },
+        "identityContext": {
+          "binding": "[[\"link-destination\",\"http://127.0.0.1:50524/record-B\",\"\"]]",
+          "evidence": [
+            "link-destination/v1"
+          ]
+        },
+        "identityId": "d83e2a83-88f9-404d-9a8d-f62dddca56b5"
+      },
+      {
+        "localId": "da036bb7-c4b7-4088-bd77-e90060cc478b:8",
+        "instanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:8",
+        "tag": "i",
+        "role": "button",
+        "name": "Open sub-menu",
+        "label": "Open sub-menu",
+        "reviewAttributes": {},
+        "reviewBinding": {
+          "parentInstanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:7",
+          "attributes": {
+            "role": "button",
+            "aria-label": "Open sub-menu"
+          }
+        },
+        "region": "document",
+        "regionInstanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:3",
+        "form": "document",
+        "selector": "html > body:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > i:nth-of-type(1)",
+        "rect": {
+          "x": 40,
+          "y": 34,
+          "width": 0,
+          "height": 18
+        },
+        "value": "",
+        "displayedText": "",
+        "checked": null,
+        "pressed": null,
+        "selected": [],
+        "visible": false,
+        "enabled": true,
+        "editable": false,
+        "readOnly": false,
+        "expanded": false,
+        "controls": null,
+        "constraints": {
+          "type": "i",
+          "required": false,
+          "valid": true
+        },
+        "options": [],
+        "actions": [
+          "click"
+        ],
+        "actionBasis": {
+          "click": {
+            "status": "supported",
+            "evidence": [
+              {
+                "source": "aria",
+                "rule": "declared-activation/v1",
+                "facts": {
+                  "role": "button",
+                  "implementation": "unverified"
+                }
+              }
+            ]
+          }
+        },
+        "interactionHints": [
+          {
+            "source": "dom-signal",
+            "rule": "tabindex/v1",
+            "facts": {
+              "attribute": "tabindex",
+              "value": "0"
+            }
+          },
+          {
+            "source": "dom-signal",
+            "rule": "aria-expanded/v1",
+            "facts": {
+              "attribute": "aria-expanded",
+              "value": "false"
+            }
+          }
+        ],
+        "discovery": [
+          "selector:[role=button]",
+          "selector:[aria-expanded]",
+          "selector:[tabindex]"
+        ],
+        "actionable": {
+          "visible": false,
+          "enabled": true,
+          "editable": false,
+          "hitTarget": false,
+          "unknown": [
+            "event-handler-completeness",
+            "business-preconditions"
+          ]
+        },
+        "identityId": "8881330a-d382-4da2-9da3-573ff598cad7",
+        "hypothesisId": "52d88998-4e28-487f-be94-06c8a45f62b7"
+      },
+      {
+        "localId": "da036bb7-c4b7-4088-bd77-e90060cc478b:9",
+        "instanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:9",
+        "tag": "a",
+        "role": "link",
+        "name": "Record link",
+        "label": "",
+        "reviewAttributes": {},
+        "reviewBinding": {
+          "parentInstanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:7",
+          "attributes": {
+            "href": "/record-C"
+          }
+        },
+        "region": "document",
+        "regionInstanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:3",
+        "form": "document",
+        "selector": "html > body:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+        "rect": {
+          "x": 40,
+          "y": 34,
+          "width": 75.09375,
+          "height": 18
+        },
+        "value": "",
+        "displayedText": "Record link",
+        "checked": null,
+        "pressed": null,
+        "selected": [],
+        "visible": false,
+        "enabled": true,
+        "editable": false,
+        "readOnly": false,
+        "expanded": null,
+        "controls": null,
+        "constraints": {
+          "type": "a",
+          "required": false,
+          "valid": true
+        },
+        "options": [],
+        "actions": [
+          "click"
+        ],
+        "actionBasis": {
+          "click": {
+            "status": "supported",
+            "evidence": [
+              {
+                "source": "html",
+                "rule": "hyperlink/v1",
+                "facts": {
+                  "tag": "a",
+                  "href": "/record-C"
+                }
+              }
+            ]
+          }
+        },
+        "interactionHints": [
+          {
+            "source": "css",
+            "rule": "pointer-cursor/v1",
+            "facts": {
+              "cursor": "pointer",
+              "inherited": false
+            }
+          }
+        ],
+        "discovery": [
+          "selector:a[href]",
+          "style:cursor=pointer"
+        ],
+        "actionable": {
+          "visible": false,
+          "enabled": true,
+          "editable": false,
+          "hitTarget": false,
+          "unknown": [
+            "event-handler-completeness",
+            "business-preconditions"
+          ]
+        },
+        "identityContext": {
+          "binding": "[[\"link-destination\",\"http://127.0.0.1:50524/record-C\",\"\"]]",
+          "evidence": [
+            "link-destination/v1"
+          ]
+        },
+        "identityId": "42fe3c71-0e73-4bbc-b8ba-032690c1841a"
+      },
+      {
+        "localId": "da036bb7-c4b7-4088-bd77-e90060cc478b:10",
+        "instanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:10",
+        "tag": "button",
+        "role": "button",
+        "name": "Run",
+        "label": "",
+        "stableKey": "id:run",
+        "reviewAttributes": {},
+        "reviewBinding": {
+          "parentInstanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:2",
+          "attributes": {
+            "type": "button",
+            "onclick": "runBranch()"
+          }
+        },
+        "reviewReuseBinding": {
+          "ancestors": [
+            {
+              "tag": "section",
+              "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(1)",
+              "attributes": {
+                "aria-label": "Commands"
+              },
+              "label": "Commands"
+            },
+            {
+              "tag": "main",
+              "selector": "html > body:nth-of-type(1) > main:nth-of-type(1)",
+              "attributes": {},
+              "label": ""
+            },
+            {
+              "tag": "body",
+              "selector": "html > body:nth-of-type(1)",
+              "attributes": {},
+              "label": ""
+            },
+            {
+              "tag": "html",
+              "selector": "html > ",
+              "attributes": {},
+              "label": ""
+            }
+          ]
+        },
+        "region": "generic:Commands",
+        "regionInstanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:2",
+        "form": "document",
+        "selector": "#run",
+        "rect": {
+          "x": 8,
+          "y": 8,
+          "width": 40.46875,
+          "height": 21
+        },
+        "value": "",
+        "displayedText": "Run",
+        "checked": null,
+        "pressed": null,
+        "selected": [],
+        "visible": true,
+        "enabled": true,
+        "editable": false,
+        "readOnly": false,
+        "expanded": null,
+        "controls": null,
+        "constraints": {
+          "type": "button",
+          "required": false,
+          "valid": true
+        },
+        "options": [],
+        "actions": [
+          "click"
+        ],
+        "actionBasis": {
+          "click": {
+            "status": "supported",
+            "evidence": [
+              {
+                "source": "html",
+                "rule": "native-button/v1",
+                "facts": {
+                  "tag": "button",
+                  "type": "button",
+                  "submitsForm": false
+                }
+              }
+            ]
+          }
+        },
+        "interactionHints": [
+          {
+            "source": "dom-signal",
+            "rule": "click-handler/v1",
+            "facts": {
+              "inlineAttribute": true,
+              "handlerProperty": true,
+              "purpose": "unknown"
+            }
+          }
+        ],
+        "discovery": [
+          "selector:button",
+          "selector:[onclick]",
+          "property:onclick"
+        ],
+        "actionable": {
+          "visible": true,
+          "enabled": true,
+          "editable": false,
+          "hitTarget": true,
+          "unknown": [
+            "event-handler-completeness",
+            "business-preconditions"
+          ],
+          "outsideScrollableArea": false,
+          "clickPoint": {
+            "x": 20.234375,
+            "y": 10.5
+          }
+        },
+        "identityContext": {
+          "scope": "[\"named-ancestor\",\"section\",\"Commands\"]",
+          "evidence": [
+            "semantic-ancestor-scope/v1"
+          ]
+        },
+        "identityId": "0e3377b2-76bb-483c-8cdb-ef2b30c58603"
+      }
+    ],
+    "regions": [
+      {
+        "key": "document",
+        "instanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:3",
+        "label": "Document-bound owner mutation fixture",
+        "role": "document",
+        "selector": "body",
+        "parentKey": "",
+        "rect": {
+          "x": 8,
+          "y": 8,
+          "width": 1424,
+          "height": 21
+        },
+        "text": "RunB|/record-B"
+      },
+      {
+        "key": "main:html > body:nth-of-type(1) > main:nth-of-type(1)",
+        "instanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:1",
+        "label": "main",
+        "role": "main",
+        "selector": "html > body:nth-of-type(1) > main:nth-of-type(1)",
+        "parentKey": "document",
+        "rect": {
+          "x": 8,
+          "y": 8,
+          "width": 1424,
+          "height": 21
+        },
+        "text": "RunB|/record-B"
+      },
+      {
+        "key": "generic:Commands",
+        "instanceId": "da036bb7-c4b7-4088-bd77-e90060cc478b:2",
+        "label": "Commands",
+        "role": "generic",
+        "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(1)",
+        "parentKey": "main:html > body:nth-of-type(1) > main:nth-of-type(1)",
+        "rect": {
+          "x": 8,
+          "y": 8,
+          "width": 1424,
+          "height": 21
+        },
+        "text": "RunB|/record-B"
+      }
+    ],
+    "components": [],
+    "overlays": [],
+    "boundaries": [],
+    "boundaryExitCandidates": [],
+    "discoveryScan": {
+      "version": "dom-discovery/v1",
+      "topologyKey": "dde98cb94f01cb3c46305e54bbcac6a53357e879da915d2be898442505ef666f",
+      "nodeCount": 18,
+      "signal": {
+        "baselineLimit": 5000,
+        "scanned": 18,
+        "omitted": 0
+      },
+      "structural": {
+        "templatesTruncated": 0,
+        "collectionsTruncated": false,
+        "rowWindowsTruncated": 0,
+        "omissions": [],
+        "omittedLocations": 0
+      },
+      "controls": {
+        "discovered": 5,
+        "collected": 5,
+        "limit": 1500
+      },
+      "targets": [
+        {
+          "id": "da036bb7-c4b7-4088-bd77-e90060cc478b:11",
+          "selector": "html",
+          "tag": "html",
+          "label": "",
+          "elementCount": 18
+        }
+      ]
+    },
+    "structuralLists": [],
+    "actionDiscovery": {
+      "version": "dom-actions-v2",
+      "documentHints": []
+    },
+    "scroll": {
+      "x": 0,
+      "y": 0,
+      "maxY": 0
+    },
+    "gaps": [
+      {
+        "code": "EVENT_LISTENER_COVERAGE",
+        "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+      }
+    ],
+    "navigation": {
+      "browserSessionId": "3c14fe1c-1f94-4b66-becf-f5994d3841b3",
+      "currentIndex": 1,
+      "entries": [
+        {
+          "id": 2,
+          "url": "about:blank"
+        },
+        {
+          "id": 4,
+          "url": "http://127.0.0.1:50524/",
+          "method": "GET"
+        }
+      ]
+    },
+    "evidence": {
+      "schemaVersion": 1,
+      "status": "partial",
+      "artifacts": {
+        "screenshot": {
+          "key": "ff17e0df-fc89-467b-a1d0-13968e234eba.png",
+          "mediaType": "image/png",
+          "capturedAt": "2026-10-17T00:15:59.338Z",
+          "bytes": 8358,
+          "sha256": "95ebdd5be6bbf79b90225a6b67700b99de43739c59c3def8467e1fcc972d53b9"
+        },
+        "details": {
+          "key": "ff17e0df-fc89-467b-a1d0-13968e234eba.details.json",
+          "mediaType": "application/json",
+          "capturedAt": "2026-10-17T00:15:59.304Z",
+          "bytes": 65070,
+          "sha256": "20b943d94539038140f252841144850cde2c18e7b5358a0d94e687d94ca696eb"
+        }
+      },
+      "gaps": [
+        {
+          "code": "EVENT_LISTENER_COVERAGE",
+          "message": "Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation."
+        }
+      ]
+    },
+    "instanceScope": "da036bb7-c4b7-4088-bd77-e90060cc478b",
+    "capturedAt": "2026-10-17T00:15:59.324Z",
+    "screenshotAt": "2026-10-17T00:15:59.338Z",
+    "screenshot": "ff17e0df-fc89-467b-a1d0-13968e234eba.png",
+    "context": {
+      "fixture": {
+        "value": "document-owner-mutation",
+        "status": "known",
+        "source": "declared"
+      }
+    },
+    "stable": true,
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "id": "ff17e0df-fc89-467b-a1d0-13968e234eba",
+    "sessionId": "bf5a20c4-8c4f-4228-91e2-414be89d8488",
+    "cause": "action",
+    "stateId": "ae42f06df7985fcb61043190f0911c535cdf2b43d3936669184fdb1eec70add2",
+    "visitId": "de5f7854-bd40-4f5c-b706-50f893747b2e",
+    "fingerprint": "bf8542b13c435611be439d6b7354a8388dd8e4e15c7319982724cd5f2a1b85ea",
+    "canonical": "{\"components\":[],\"context\":{\"fixture\":{\"source\":\"declared\",\"status\":\"known\",\"value\":\"document-owner-mutation\"}},\"controls\":[{\"actionBasis\":{\"click\":{\"evidence\":[{\"facts\":{\"implementation\":\"unverified\",\"role\":\"button\"},\"rule\":\"declared-activation/v1\",\"source\":\"aria\"}],\"status\":\"supported\"}},\"checked\":null,\"constraints\":{\"required\":false,\"type\":\"i\",\"valid\":true},\"displayedText\":\"\",\"editable\":false,\"enabled\":true,\"expanded\":false,\"hitTarget\":false,\"options\":[],\"pressed\":null,\"selected\":[],\"signature\":\"{\\\"actions\\\":[\\\"click\\\"],\\\"form\\\":\\\"document\\\",\\\"label\\\":\\\"Open sub-menu\\\",\\\"region\\\":\\\"document\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"i\\\"}\",\"value\":\"\",\"visible\":false},{\"actionBasis\":{\"click\":{\"evidence\":[{\"facts\":{\"href\":\"/record-B\",\"tag\":\"a\"},\"rule\":\"hyperlink/v1\",\"source\":\"html\"}],\"status\":\"supported\"}},\"checked\":null,\"constraints\":{\"required\":false,\"type\":\"a\",\"valid\":true},\"displayedText\":\"Record link\",\"editable\":false,\"enabled\":true,\"expanded\":null,\"hitTarget\":false,\"options\":[],\"pressed\":null,\"selected\":[],\"signature\":\"{\\\"actions\\\":[\\\"click\\\"],\\\"binding\\\":\\\"[[\\\\\\\"link-destination\\\\\\\",\\\\\\\"http://127.0.0.1:50524/record-B\\\\\\\",\\\\\\\"\\\\\\\"]]\\\",\\\"form\\\":\\\"document\\\",\\\"label\\\":\\\"Record link\\\",\\\"region\\\":\\\"document\\\",\\\"role\\\":\\\"link\\\",\\\"type\\\":\\\"a\\\"}\",\"value\":\"\",\"visible\":false},{\"actionBasis\":{\"click\":{\"evidence\":[{\"facts\":{\"implementation\":\"unverified\",\"role\":\"button\"},\"rule\":\"declared-activation/v1\",\"source\":\"aria\"}],\"status\":\"supported\"}},\"checked\":null,\"constraints\":{\"required\":false,\"type\":\"i\",\"valid\":true},\"displayedText\":\"\",\"editable\":false,\"enabled\":true,\"expanded\":false,\"hitTarget\":false,\"options\":[],\"pressed\":null,\"selected\":[],\"signature\":\"{\\\"actions\\\":[\\\"click\\\"],\\\"form\\\":\\\"document\\\",\\\"label\\\":\\\"Open sub-menu\\\",\\\"region\\\":\\\"document\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"i\\\"}\",\"value\":\"\",\"visible\":false},{\"actionBasis\":{\"click\":{\"evidence\":[{\"facts\":{\"href\":\"/record-C\",\"tag\":\"a\"},\"rule\":\"hyperlink/v1\",\"source\":\"html\"}],\"status\":\"supported\"}},\"checked\":null,\"constraints\":{\"required\":false,\"type\":\"a\",\"valid\":true},\"displayedText\":\"Record link\",\"editable\":false,\"enabled\":true,\"expanded\":null,\"hitTarget\":false,\"options\":[],\"pressed\":null,\"selected\":[],\"signature\":\"{\\\"actions\\\":[\\\"click\\\"],\\\"binding\\\":\\\"[[\\\\\\\"link-destination\\\\\\\",\\\\\\\"http://127.0.0.1:50524/record-C\\\\\\\",\\\\\\\"\\\\\\\"]]\\\",\\\"form\\\":\\\"document\\\",\\\"label\\\":\\\"Record link\\\",\\\"region\\\":\\\"document\\\",\\\"role\\\":\\\"link\\\",\\\"type\\\":\\\"a\\\"}\",\"value\":\"\",\"visible\":false},{\"actionBasis\":{\"click\":{\"evidence\":[{\"facts\":{\"submitsForm\":false,\"tag\":\"button\",\"type\":\"button\"},\"rule\":\"native-button/v1\",\"source\":\"html\"}],\"status\":\"supported\"}},\"checked\":null,\"constraints\":{\"required\":false,\"type\":\"button\",\"valid\":true},\"displayedText\":\"Run\",\"editable\":false,\"enabled\":true,\"expanded\":null,\"hitTarget\":true,\"options\":[],\"outsideScrollableArea\":false,\"pressed\":null,\"selected\":[],\"signature\":\"{\\\"actions\\\":[\\\"click\\\"],\\\"form\\\":\\\"document\\\",\\\"label\\\":\\\"Run\\\",\\\"region\\\":\\\"generic:Commands\\\",\\\"role\\\":\\\"button\\\",\\\"scope\\\":\\\"[\\\\\\\"named-ancestor\\\\\\\",\\\\\\\"section\\\\\\\",\\\\\\\"Commands\\\\\\\"]\\\",\\\"type\\\":\\\"button\\\"}\",\"stableKey\":\"id:run\",\"value\":\"\",\"visible\":true}],\"incomplete\":[],\"overlays\":[],\"scroll\":{\"maxY\":0,\"x\":0,\"y\":0},\"scrollContainers\":[],\"url\":\"http://127.0.0.1:50524/\"}",
+    "ruleVersion": "observable-v7",
+    "stateGrouping": "browser-state-grouping-v1"
+  },
+  "actions": [
+    {
+      "id": "4f4a34d3-c60a-43ad-8ca1-554a1d5890b6",
+      "sessionId": "bf5a20c4-8c4f-4228-91e2-414be89d8488",
+      "observationId": "ff17e0df-fc89-467b-a1d0-13968e234eba",
+      "stateId": "ae42f06df7985fcb61043190f0911c535cdf2b43d3936669184fdb1eec70add2",
+      "controlId": "0e3377b2-76bb-483c-8cdb-ef2b30c58603",
+      "localId": "da036bb7-c4b7-4088-bd77-e90060cc478b:10",
+      "kind": "click",
+      "label": "Run",
+      "preconditions": {
+        "context": {
+          "fixture": {
+            "value": "document-owner-mutation",
+            "status": "known",
+            "source": "declared"
+          }
+        },
+        "visible": true,
+        "enabled": true,
+        "identityResolved": true,
+        "blockers": [],
+        "targetResolved": true
+      },
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "html",
+            "rule": "native-button/v1",
+            "facts": {
+              "tag": "button",
+              "type": "button",
+              "submitsForm": false
+            }
+          }
+        ]
+      },
+      "replayable": true,
+      "risk": "interface",
+      "source": "dom-actions-v2",
+      "excluded": false,
+      "sampleValidity": "known"
+    }
+  ],
+  "dom": {
+    "sameRowObject": true,
+    "sameSelectorObject": true,
+    "rowDataRecord": "B",
+    "href": "/record-B",
+    "uiBranch": "B|/record-B",
+    "oracle": [
+      "A|/record-A",
+      "B|/record-A",
+      "B|/record-B"
+    ],
+    "html": "<html><head><meta charset=\"utf-8\"><title>Document-bound owner mutation fixture</title><style>ul{position:absolute;top:0;left:0;visibility:hidden}#result{white-space:pre}</style></head><body>\n<ul><li data-record=\"B\"><i role=\"button\" tabindex=\"0\" aria-label=\"Open sub-menu\" aria-expanded=\"false\"></i><a href=\"/record-B\">Record link</a></li><li data-record=\"C\"><i role=\"button\" tabindex=\"0\" aria-label=\"Open sub-menu\" aria-expanded=\"false\"></i><a href=\"/record-C\">Record link</a></li></ul>\n<main><section aria-label=\"Commands\"><button id=\"run\" type=\"button\" onclick=\"runBranch()\">Run</button><output id=\"result\">B|/record-B</output></section></main>\n<script>\nwindow.fixtureNodes={row:document.querySelector('li'),selector:document.querySelector('li i')};\nwindow.fixtureOracle=[];\nfunction runBranch(){const row=document.querySelector('li');const branch=row.dataset.record+'|'+row.querySelector(':scope > a').getAttribute('href');window.fixtureOracle.push(branch);document.querySelector('#result').textContent=branch;const request=new XMLHttpRequest();request.open('POST','/oracle?branch='+encodeURIComponent(branch),false);request.send();}\n</script></body></html>"
+  }
+}

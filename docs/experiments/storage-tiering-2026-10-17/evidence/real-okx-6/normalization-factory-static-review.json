@@ -1,0 +1,57 @@
+{
+  "kind": "static normalization factory review before implementation",
+  "head": "d103747ee78779b3f1df8223854600cd321e36ee",
+  "sha256": {
+    "packages/explorer-plugin/src/runtime.ts": "351efeacd330fa0b869512e2c9235ce0ccff2d88ad120da6574a25bc86ccca7e",
+    "packages/explorer-plugin/src/operation-scheduling.ts": "f2346eeae3305aaa38941f816d428296dbf506956eb3270ea193d7688b42ddaa",
+    "packages/explorer-plugin/src/policy.ts": "3e530a2ee648a4703b5aed53a0b5b85830d268d102e9f44c6ed260c1cb4c23ab",
+    "packages/explorer-plugin/src/plan-state.ts": "7f97566ef1bd8e1210ca8adbae21330669dd6d23e294b987f50231fb4914162c"
+  },
+  "input": "audit-serial/pair-1-2-current.json; frozen prior benchmark, not rerun",
+  "counts": {
+    "changedAuditedItemsAppendingC11": 114,
+    "distinctScopes": 114,
+    "allAddedSourcesC11": true,
+    "currentActions": 206,
+    "currentControls": 292,
+    "currentRegions": 7,
+    "successfulSingleItemNormalizationEvents": 114,
+    "derivedCurrentScopeProjectionsAtLeast": 23484,
+    "proposedCurrentScopeProjectionsForTheseCalls": 206,
+    "distinctCandidateLegacyAndV3KeysNotAutomaticallyRemoved": 228
+  },
+  "scope": [
+    "Move the existing successful/missing SourceRecord LRU and per-action keys into one explicit synchronous factory. Every normalize call allocates fresh changes.",
+    "Old exported wrapper creates a fresh factory per call, preserving external default/ownership.",
+    "Audit and recordOutcome explicitly share one factory only across their existing synchronous local-normalization calls. No event batching or proof result cache."
+  ],
+  "risks": [
+    "Observation IDs alone do not freeze read-time action/review/identity projections; discard factory at await/review revision/outcome boundary.",
+    "Attempt ledger is mutable; snapshot cache cannot survive SDK writes or continuation.",
+    "Every mutable PlanItem proof/ref/scope/unknown guard must run every call; never cache validity by item ID.",
+    "Cache action keys by exact ActionCandidate object within SourceRecord, not action ID, preserving value variants.",
+    "Keep source uniqueness/full action scope and session/observation ownership checks unchanged.",
+    "Existing raw reader plus eight SourceRecords remains bounded but is not a claim of only eight total retained objects.",
+    "Failed source reads cached within a pass remain conservative; a fresh pass must retry after evidence becomes available."
+  ],
+  "nonClaims": [
+    "Does not remove startup normalization cost: it already shares one per-wrapper cache.",
+    "Does not reduce compact audit bytes or the measured +200975 logical task bytes.",
+    "114 different scopes require distinct candidate key computations; 228 v2/v3 computations are not reduced to two.",
+    "Steady repeated audit may already return early on valid proofs; gains must be measured and not inferred from first-call counts."
+  ],
+  "testPlan": [
+    "Legacy-wrapper vs factory per-call complete changes and task equality.",
+    "Same-pass action iterable/scopes built once; exact object key memo; distinct input variants.",
+    "Append/remove references, scope changes and unknown outcome invalidate proof on every call.",
+    "Fresh factory rereads changed actions/attempt status for same observation IDs.",
+    "Eight-record LRU eviction and read failure cannot fabricate valid alias.",
+    "Runtime events, ordering, plan sources/statuses/attempts and debt unchanged."
+  ],
+  "execution": {
+    "testsRun": false,
+    "benchmarksRun": false,
+    "sdkOrBrowserCalls": 0,
+    "databasesOpened": 0
+  }
+}

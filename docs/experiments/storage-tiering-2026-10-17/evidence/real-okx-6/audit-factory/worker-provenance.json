@@ -1,0 +1,8 @@
+{
+  "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-6/audit-steady/worker.ts",
+  "sourceSha256": "15978210f1e59ea29f714c1dda368d7ef25e733d02c11ac9c220be5084643a1e",
+  "workerSha256": "35b5591a21654ed602e6bd416644d1633014a29cb722afdeb373d402281d42bb",
+  "oracleByteIdentical": true,
+  "oracleSha256": "3eaac2dd8cd1bcc7345f48e58f966facaff8251808abf27254c5539e32e13a24",
+  "changes": "After each measured audit and all existing reporting, structuredClone actual task and accumulated event state. Serialize semantic snapshots outside all phase clocks. No task reset or metadata clearing."
+}

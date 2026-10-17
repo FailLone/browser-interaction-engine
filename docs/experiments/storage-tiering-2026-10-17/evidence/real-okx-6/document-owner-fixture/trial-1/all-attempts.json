@@ -1,0 +1,215 @@
+[
+  {
+    "id": "216be970-2039-44b1-a140-ffe6ae1b95fb",
+    "sessionId": "bf5a20c4-8c4f-4228-91e2-414be89d8488",
+    "requestId": "owned-A",
+    "action": {
+      "id": "1b6d2d72-45b1-45cf-961d-c5111a372ead",
+      "sessionId": "bf5a20c4-8c4f-4228-91e2-414be89d8488",
+      "observationId": "e2ccafc9-fe85-4fc5-9d09-715efc8b2fc2",
+      "stateId": "2f02c3c1ae154f430f2dc46fe5b8bf50eb80b71c327d90b6c8e38cecf4298240",
+      "controlId": "0e3377b2-76bb-483c-8cdb-ef2b30c58603",
+      "localId": "da036bb7-c4b7-4088-bd77-e90060cc478b:10",
+      "kind": "click",
+      "label": "Run",
+      "preconditions": {
+        "context": {
+          "fixture": {
+            "value": "document-owner-mutation",
+            "status": "known",
+            "source": "declared"
+          }
+        },
+        "visible": true,
+        "enabled": true,
+        "identityResolved": true,
+        "blockers": [],
+        "targetResolved": true
+      },
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "html",
+            "rule": "native-button/v1",
+            "facts": {
+              "tag": "button",
+              "type": "button",
+              "submitsForm": false
+            }
+          }
+        ]
+      },
+      "replayable": true,
+      "risk": "interface",
+      "source": "dom-actions-v2",
+      "excluded": false,
+      "sampleValidity": "known"
+    },
+    "startedAt": "2026-10-17T00:15:58.783Z",
+    "beforeId": "e2ccafc9-fe85-4fc5-9d09-715efc8b2fc2",
+    "status": "succeeded",
+    "purpose": "external",
+    "afterId": "f6d4add9-5668-4e72-ad7f-b13a6b1434f1",
+    "finishedAt": "2026-10-17T00:15:58.930Z",
+    "diff": {
+      "beforeId": "e2ccafc9-fe85-4fc5-9d09-715efc8b2fc2",
+      "afterId": "f6d4add9-5668-4e72-ad7f-b13a6b1434f1",
+      "changes": [],
+      "gaps": [
+        {
+          "code": "IDENTITY_UNCERTAIN",
+          "message": "a37371f5-dc2b-4610-8942-56495440564d"
+        },
+        {
+          "code": "IDENTITY_UNCERTAIN",
+          "message": "8881330a-d382-4da2-9da3-573ff598cad7"
+        }
+      ],
+      "attribution": "observed_during_interval"
+    },
+    "transitionId": "14cc40ae-fed1-40eb-a7c6-27e02457000a"
+  },
+  {
+    "id": "b8b3c536-2425-4281-9a92-6607afd40c60",
+    "sessionId": "bf5a20c4-8c4f-4228-91e2-414be89d8488",
+    "requestId": "owned-data-record",
+    "action": {
+      "id": "7aa78e0b-20a9-475a-9452-1316b306e4e3",
+      "sessionId": "bf5a20c4-8c4f-4228-91e2-414be89d8488",
+      "observationId": "35333d2d-b4ad-41dd-800f-15f1e9892464",
+      "stateId": "2f02c3c1ae154f430f2dc46fe5b8bf50eb80b71c327d90b6c8e38cecf4298240",
+      "controlId": "0e3377b2-76bb-483c-8cdb-ef2b30c58603",
+      "localId": "da036bb7-c4b7-4088-bd77-e90060cc478b:10",
+      "kind": "click",
+      "label": "Run",
+      "preconditions": {
+        "context": {
+          "fixture": {
+            "value": "document-owner-mutation",
+            "status": "known",
+            "source": "declared"
+          }
+        },
+        "visible": true,
+        "enabled": true,
+        "identityResolved": true,
+        "blockers": [],
+        "targetResolved": true
+      },
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "html",
+            "rule": "native-button/v1",
+            "facts": {
+              "tag": "button",
+              "type": "button",
+              "submitsForm": false
+            }
+          }
+        ]
+      },
+      "replayable": true,
+      "risk": "interface",
+      "source": "dom-actions-v2",
+      "excluded": false,
+      "sampleValidity": "known"
+    },
+    "startedAt": "2026-10-17T00:15:59.052Z",
+    "beforeId": "35333d2d-b4ad-41dd-800f-15f1e9892464",
+    "status": "succeeded",
+    "purpose": "external",
+    "afterId": "c3f8557f-703d-4c87-8c7c-424745bf2128",
+    "finishedAt": "2026-10-17T00:15:59.130Z",
+    "diff": {
+      "beforeId": "35333d2d-b4ad-41dd-800f-15f1e9892464",
+      "afterId": "c3f8557f-703d-4c87-8c7c-424745bf2128",
+      "changes": [],
+      "gaps": [
+        {
+          "code": "IDENTITY_UNCERTAIN",
+          "message": "a37371f5-dc2b-4610-8942-56495440564d"
+        },
+        {
+          "code": "IDENTITY_UNCERTAIN",
+          "message": "8881330a-d382-4da2-9da3-573ff598cad7"
+        }
+      ],
+      "attribution": "observed_during_interval"
+    },
+    "transitionId": "56c9d81f-34d9-4c3d-85c8-6593f44ebdec"
+  },
+  {
+    "id": "5b87ba9c-a333-41a6-8cc8-c3d63525f382",
+    "sessionId": "bf5a20c4-8c4f-4228-91e2-414be89d8488",
+    "requestId": "owned-direct-href",
+    "action": {
+      "id": "ff517541-e8e1-4176-94f1-b0b116a9f35d",
+      "sessionId": "bf5a20c4-8c4f-4228-91e2-414be89d8488",
+      "observationId": "e92caf85-af28-4bdf-a70c-85b2d3ad866b",
+      "stateId": "ae42f06df7985fcb61043190f0911c535cdf2b43d3936669184fdb1eec70add2",
+      "controlId": "0e3377b2-76bb-483c-8cdb-ef2b30c58603",
+      "localId": "da036bb7-c4b7-4088-bd77-e90060cc478b:10",
+      "kind": "click",
+      "label": "Run",
+      "preconditions": {
+        "context": {
+          "fixture": {
+            "value": "document-owner-mutation",
+            "status": "known",
+            "source": "declared"
+          }
+        },
+        "visible": true,
+        "enabled": true,
+        "identityResolved": true,
+        "blockers": [],
+        "targetResolved": true
+      },
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "html",
+            "rule": "native-button/v1",
+            "facts": {
+              "tag": "button",
+              "type": "button",
+              "submitsForm": false
+            }
+          }
+        ]
+      },
+      "replayable": true,
+      "risk": "interface",
+      "source": "dom-actions-v2",
+      "excluded": false,
+      "sampleValidity": "known"
+    },
+    "startedAt": "2026-10-17T00:15:59.251Z",
+    "beforeId": "e92caf85-af28-4bdf-a70c-85b2d3ad866b",
+    "status": "succeeded",
+    "purpose": "external",
+    "afterId": "ff17e0df-fc89-467b-a1d0-13968e234eba",
+    "finishedAt": "2026-10-17T00:15:59.345Z",
+    "diff": {
+      "beforeId": "e92caf85-af28-4bdf-a70c-85b2d3ad866b",
+      "afterId": "ff17e0df-fc89-467b-a1d0-13968e234eba",
+      "changes": [],
+      "gaps": [
+        {
+          "code": "IDENTITY_UNCERTAIN",
+          "message": "a37371f5-dc2b-4610-8942-56495440564d"
+        },
+        {
+          "code": "IDENTITY_UNCERTAIN",
+          "message": "8881330a-d382-4da2-9da3-573ff598cad7"
+        }
+      ],
+      "attribution": "observed_during_interval"
+    },
+    "transitionId": "46775e93-f210-4691-81ac-00c2b757df84"
+  }
+]

@@ -1,0 +1,59 @@
+/** Pure full-method counterfactual, not an exact replay of the live preaudit task. */
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync,readdirSync} from 'node:fs';
+import {join,resolve,relative} from 'node:path';
+import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {pathToFileURL} from 'node:url';
+import {EventEmitter} from 'node:events';
+import {performance} from 'node:perf_hooks';
+const out=import.meta.dirname,root=resolve(out,'../../../../..');
+const baseline=JSON.parse(readFileSync(process.argv[2]||'/tmp/okx-run6-audit-baseline.json','utf8'));
+const hash=(value:string|Buffer)=>createHash('sha256').update(value).digest('hex');
+const fileHash=(file:string)=>hash(readFileSync(file));
+const jsonHash=(x:unknown)=>hash(JSON.stringify(x));
+const bytes=(x:unknown)=>Buffer.byteLength(JSON.stringify(x));
+function productHashes(dir:string){const found:Record<string,string>={};const walk=(p:string)=>{for(const e of readdirSync(p,{withFileTypes:true})){if(e.name==='node_modules'||e.name==='dist')continue;const file=join(p,e.name);if(e.isDirectory())walk(file);else if(/\.(ts|tsx|json)$/.test(e.name))found[relative(dir,file)]=fileHash(file);}};walk(join(dir,'packages'));return found;}
+const currentHashes=productHashes(root),baselineHashes=productHashes(baseline.sourceRoot);
+const extraction=JSON.parse(readFileSync(join(out,'plan-growth-extraction.json'),'utf8')),materialHash=fileHash(extraction.material),m=JSON.parse(readFileSync(extraction.material,'utf8'));
+const currentId='c11abe9e-e2a4-44f2-bf53-64ebf22a1dd2',o=m.observations[currentId],actions=m.actions[currentId];
+const audit=m.events.find((e:any)=>e.type==='scope.audit'&&e.data.observationId===currentId),pending=new Set(audit.data.pendingActions),identityIds=new Set(audit.data.obligations.identities);
+const snapshot={actions,availability:{observationId:o.id,actions:audit.data.operationFacts},operationCandidates:actions.filter((a:any)=>pending.has(a.id)),revision:audit.data.revision,
+ obligations:{...audit.data.obligations,identities:o.controls.filter((c:any)=>identityIds.has(c.hypothesisId)).map((c:any)=>({id:c.hypothesisId,localId:c.localId}))}};
+assert.equal(actions.length,206);assert.equal(snapshot.operationCandidates.length,204);assert.equal(snapshot.obligations.identities.length,identityIds.size);
+const inputs={taskBefore:jsonHash(m.before),currentObservation:jsonHash(o),allActions:jsonHash(actions),scopeAuditEvent:jsonHash(audit),snapshot:jsonHash(snapshot),materialSha256:materialHash};
+const {ExplorerPlugin:Baseline}=await import(pathToFileURL(join(baseline.sourceRoot,'packages/explorer-plugin/src/runtime.ts')).href);
+const {ExplorerPlugin:Current}=await import(pathToFileURL(join(root,'packages/explorer-plugin/src/runtime.ts')).href);
+const counter=(calls:any[])=>({counts:Object.fromEntries(['observation','actions','list','interactionTransition','forbidden'].map(name=>[name,calls.filter(c=>c.name===name).length])),uniqueObservationIds:[...new Set(calls.filter(c=>c.name==='observation').map(c=>c.id))],uniqueActionObservationIds:[...new Set(calls.filter(c=>c.name==='actions').map(c=>c.id))]});
+let networkCalls=0;const oldFetch=globalThis.fetch;globalThis.fetch=async()=>{networkCalls++;throw Error('FORBIDDEN_NETWORK');};
+function countBy(rows:any[],field:string){return rows.reduce((r:any,i:any)=>(r[i[field]]=(r[i[field]]||0)+1,r),{});}
+async function run(name:string,Plugin:any,normalize:boolean){
+ const task=structuredClone(m.before),original=structuredClone(task),oldIds=new Set(task.plan.map((i:any)=>i.id)),calls:any[]=[],events:any[]=[],saves:any[]=[];
+ const allowed:any={events:new EventEmitter(),observation:(sid:string,id?:string)=>{calls.push({name:'observation',id:id||currentId,implicit:!id});const value=m.observations[id||currentId];assert(value&&value.sessionId===sid);return value;},actions:(sid:string,id?:string)=>{calls.push({name:'actions',id:id||currentId});assert.equal(m.observations[id||currentId].sessionId,sid);return m.actions[id||currentId]||[];},list:(sid:string,kind:string)=>{calls.push({name:'list',sid,kind});assert.equal(kind,'attempt');return m.attempts.filter((a:any)=>a.sessionId===sid);}};
+ const host=new Proxy(allowed,{get(target,key){if(key in target)return target[key];return (...args:any[])=>{calls.push({name:'forbidden',method:String(key),args});throw Error(`FORBIDDEN_HOST:${String(key)}`);};}});
+ // Full runtime audit implementation. Persistence is a recording in-memory
+ // sink; no SQLite, SDK instance, browser, provider or source DB is constructed.
+ const sink:any={save:(t:any)=>saves.push({rows:t.plan.length}),event:(e:any)=>{events.push(structuredClone(e));return e;},close:()=>{}};
+ const plugin=new Plugin(host,sink,{}),start=performance.now();
+ let normalizationMs=0,normalizedBefore=0,normalizationReads:any;
+ try{
+  if(normalize){const t=performance.now();plugin.normalizeScheduling(task,task.plan,plugin.normalizationReader());normalizationMs=performance.now()-t;normalizedBefore=task.plan.filter((i:any)=>i.operationSchedulingNormalization).length;}
+  normalizationReads=counter(calls);const preAuditReads=calls.length,afterNormalizationBytes={task:bytes(task),plan:bytes(task.plan),auditBytes:task.plan.reduce((n:number,i:any)=>n+(i.operationSchedulingNormalization?bytes(i.operationSchedulingNormalization):0),0)};
+  const t=performance.now(),incomplete=plugin.auditRemainingScopes(task,task.rounds.at(-1),o,snapshot,new Set()),auditMs=performance.now()-t;
+  const added=task.plan.filter((i:any)=>!oldIds.has(i.id)),changedOld:any[]=[];
+  for(const before of original.plan){const after=task.plan.find((i:any)=>i.id===before.id);assert(after,'old row removed');const fields=[...new Set([...Object.keys(before),...Object.keys(after)])].filter(k=>JSON.stringify(before[k])!==JSON.stringify(after[k]));if(fields.length)changedOld.push({itemId:before.id,reason:before.reason,label:before.scope.label,fields,sourceAdded:after.evidence.filter((e:any)=>!before.evidence.some((b:any)=>JSON.stringify(b)===JSON.stringify(e)))});
+   for(const key of ['id','status','required','dispatchScope','reason','scope','prerequisites','completion','attempts','operationConditionKey','operationConditionPolicy','conditionMigration','conditionLineage','conditionSplit','resolvedBy','reviewResolvedBy','coverageResolvedBy'])assert.deepEqual(after[key],before[key],`old ${before.id} changed ${key}`);
+   for(const ref of before.evidence)assert(after.evidence.some((e:any)=>JSON.stringify(e)===JSON.stringify(ref)),'old source lost');
+  }
+  assert.deepEqual(task.rounds,original.rounds);assert.deepEqual(task.routeRetries,original.routeRetries);assert.deepEqual(task.scheduling,original.scheduling);
+  const emittedAudit=events.filter(e=>e.type==='scope.audit');assert.equal(emittedAudit.length,1);assert.deepEqual(emittedAudit[0].data.obligations,audit.data.obligations);
+  const report={name,inputTaskRows:original.plan.length,resultTaskRows:task.plan.length,newRows:added.length,newByReason:countBy(added,'reason'),newByStatus:countBy(added,'status'),beforeByStatus:countBy(original.plan,'status'),afterByStatus:countBy(task.plan,'status'),normalizedBefore,normalizationReads,auditReads:counter(calls.slice(preAuditReads)),totalReads:counter(calls),eventCounts:countBy(events,'type'),pendingActions:{recorded:pending.size,emitted:emittedAudit[0].data.pendingActions.length,omitted: [...pending].filter(id=>!emittedAudit[0].data.pendingActions.includes(id))},incomplete:[...incomplete],bytes:{originalTask:bytes(original),originalPlan:bytes(original.plan),afterNormalization:afterNormalizationBytes,finalTask:bytes(task),finalPlan:bytes(task.plan),taskIncrement:bytes(task)-bytes(original),planIncrement:bytes(task.plan)-bytes(original.plan),addedRows:bytes(added),normalizationAuditTotal:task.plan.reduce((n:number,i:any)=>n+(i.operationSchedulingNormalization?bytes(i.operationSchedulingNormalization):0),0),emittedEvents:bytes(events)},oldIntegrity:{allOldRowsPresent:true,allStatusesAttemptsOriginalKeysPrerequisitesAndResultsUnchanged:true,allOldSourcesRetained:true,roundsTriedAndRoutesUnchanged:true},changedOld,addedRows:added.map((i:any)=>({id:i.id,reason:i.reason,status:i.status,scope:i.scope,operationConditionKey:i.operationConditionKey,operationConditionPolicy:i.operationConditionPolicy,prerequisites:i.prerequisites,evidence:i.evidence})),mixedElapsedMsNotBenchmark:{normalization:normalizationMs,audit:auditMs,total:performance.now()-start}};
+  assert.equal(report.totalReads.counts.forbidden,0);return report;
+ }finally{await plugin.close();}
+}
+try{
+ const old=await run('f6d7b9e-original-full-archive',Baseline,false),current=await run('working-tree-normalize-then-full-audit',Current,true);
+ assert.deepEqual(productHashes(root),currentHashes,'working source changed during comparison');assert.deepEqual(productHashes(baseline.sourceRoot),baselineHashes);assert.equal(fileHash(extraction.material),materialHash);assert.equal(networkCalls,0);
+ const report={protocol:'run6-full-audit-fixed-input-counterfactual-v1',baseline:{...baseline,packageHashes:baselineHashes,workspaceImports:'All @interaction links resolve inside isolated f6 git archive; installed external dependencies reused read-only'},current:{head:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),dirtyPackageHashes:currentHashes},inputs,sourceAndInputHashesUnchanged:true,reconstruction:{task:'Unmodified archived task-before (543 rows) independently cloned for both versions. No claim that its old round entryPath/stack is the exact live c11 preaudit state.',snapshot:'All 206 frozen c11 actions; exact recorded 204 pending candidates and 204 availability facts; exact recorded obligations with identity id/localId joined from immutable current controls.',completed:'Same explicit empty set. Recorded pending candidates were already filtered by the original live completed set; the two nonpending actions remain in full actions but are not operationCandidates.',normalization:'Current version additionally performs its startup normalization before full auditRemainingScopes. Original version has no normalization. Both then execute their real complete method, including scope gates, wasTried, gap and event logic.',persistence:'Recording memory sink, not SQLite. No SDK/BrowserEngine/BrowserAdapter/provider constructors.',authority:'New references and normalization metadata are scheduling evidence only, not successful coverage or execution authorization.'},safety:{sdkConstructors:0,browserCalls:0,providerCalls:0,networkCalls,originalOrFrozenDBOpened:0},results:{baseline:old,current,delta:{newRows:current.newRows-old.newRows,finalTaskBytes:current.bytes.finalTask-old.bytes.finalTask,finalPlanBytes:current.bytes.finalPlan-old.bytes.finalPlan,normalizationAuditBytes:current.bytes.normalizationAuditTotal}},limits:['This is a fixed-input counterfactual, not a complete resumed run or performance benchmark.','No network/capture/model time or SQLite storage compression is measured. JSON bytes are logical serialized bytes, not physical database bytes.','Distinct scopes/record/template/slot/context remain distinct; a matching scheduling hint never supplies cross-source operation equivalence.','No original history, route retry debt, attempted condition or successful source receipt is removed.']};
+ writeFileSync(join(out,'full-audit-counterfactual.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({baseline:{newRows:old.newRows,newByReason:old.newByReason,reads:old.totalReads,bytes:old.bytes},current:{newRows:current.newRows,newByReason:current.newByReason,reads:current.totalReads,bytes:current.bytes},delta:report.results.delta,safety:report.safety},null,2));
+}finally{globalThis.fetch=oldFetch;}

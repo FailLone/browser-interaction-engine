@@ -1,0 +1,24 @@
+{
+  "revision": "125a10ca6dbc78f8dd859a0e7a2917f83d67b55b",
+  "passed": false,
+  "sourceUnchanged": true,
+  "sourceFiles": 485,
+  "compiledFiles": 602,
+  "commands": [
+    {
+      "name": "build",
+      "exitCode": 1,
+      "timedOut": null,
+      "elapsedSeconds": 5.552093267440796
+    }
+  ],
+  "error": "RuntimeError: build failed with exit code 1; see build.log",
+  "screenshot": null,
+  "screenshotReviewed": false,
+  "limits": [
+    "Only owned local fixture/mock-provider smoke, not real OKX acceptance.",
+    "No performance claim: elapsed durations are command audit data.",
+    "The extra contract checks types and storage wrapping; source-return browser behavior remains covered by the separate product suite.",
+    "A human/root visual review of the saved screenshot is still required."
+  ]
+}

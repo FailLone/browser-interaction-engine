@@ -1,0 +1,13 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-operation-scheduling-factory.test.ts (12 tests) 30ms
+ ✓ tests/explorer-audit-gap-index.test.ts (6 tests) 26ms
+ ✓ tests/explorer-operation-scheduling-key.test.ts (30 tests) 24ms
+ ✓ tests/explorer-operation-availability.test.ts (21 tests) 19ms
+
+ Test Files  4 passed (4)
+      Tests  69 passed (69)
+   Start at  08:37:59
+   Duration  2.38s (transform 522ms, setup 0ms, collect 1.75s, tests 99ms, environment 0ms, prepare 133ms)
+

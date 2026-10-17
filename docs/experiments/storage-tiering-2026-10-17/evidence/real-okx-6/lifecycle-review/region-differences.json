@@ -1,0 +1,162 @@
+[
+  {
+    "label": "Community",
+    "sourceObservationId": "cfc205c1-bab5-4b44-8bc7-9d2b4c498948",
+    "currentObservationId": "f23494e8-671d-40fa-abe2-c39c51ef09a7",
+    "differences": [
+      {
+        "path": "/members/0/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:1368\",\"[\\\"href\\\",\\\"https://x.com/okx\\\"]\",\"record-link\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:4\",\"[\\\"href\\\",\\\"https://x.com/okx\\\"]\",\"record-link\"]"
+      },
+      {
+        "path": "/members/1/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:1368\",\"[\\\"href\\\",\\\"https://www.tiktok.com/@okx?lang=en\\\"]\",\"record-link\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:4\",\"[\\\"href\\\",\\\"https://www.tiktok.com/@okx?lang=en\\\"]\",\"record-link\"]"
+      },
+      {
+        "path": "/members/2/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:1368\",\"[\\\"href\\\",\\\"https://www.instagram.com/okx_official\\\"]\",\"record-link\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:4\",\"[\\\"href\\\",\\\"https://www.instagram.com/okx_official\\\"]\",\"record-link\"]"
+      },
+      {
+        "path": "/members/3/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:1368\",\"[\\\"href\\\",\\\"https://discord.gg/e6EyvM5QwM\\\"]\",\"record-link\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:4\",\"[\\\"href\\\",\\\"https://discord.gg/e6EyvM5QwM\\\"]\",\"record-link\"]"
+      },
+      {
+        "path": "/members/4/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:1368\",\"[\\\"href\\\",\\\"https://t.me/OKXOfficial_English\\\"]\",\"record-link\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:4\",\"[\\\"href\\\",\\\"https://t.me/OKXOfficial_English\\\"]\",\"record-link\"]"
+      },
+      {
+        "path": "/members/5/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:1368\",\"[\\\"href\\\",\\\"https://www.facebook.com/okxofficial/\\\"]\",\"record-link\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:4\",\"[\\\"href\\\",\\\"https://www.facebook.com/okxofficial/\\\"]\",\"record-link\"]"
+      },
+      {
+        "path": "/members/6/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:1368\",\"[\\\"href\\\",\\\"https://www.tradingview.com/broker/OKX/\\\"]\",\"record-link\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:4\",\"[\\\"href\\\",\\\"https://www.tradingview.com/broker/OKX/\\\"]\",\"record-link\"]"
+      },
+      {
+        "path": "/members/7/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:1368\",\"[\\\"href\\\",\\\"https://www.linkedin.com/company/okxofficial/\\\"]\",\"record-link\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:4\",\"[\\\"href\\\",\\\"https://www.linkedin.com/company/okxofficial/\\\"]\",\"record-link\"]"
+      },
+      {
+        "path": "/members/8/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:1368\",\"[\\\"href\\\",\\\"/community\\\"]\",\"record-link\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:4\",\"[\\\"href\\\",\\\"/community\\\"]\",\"record-link\"]"
+      }
+    ]
+  },
+  {
+    "label": "What is the exchange rate for USD to Bitcoin (BTC) today?",
+    "sourceObservationId": "6f0b9144-0522-4fa7-b0a3-b306ae48ccbc",
+    "currentObservationId": "7d2b74b2-0f19-41f9-aa3b-0a76be24dd30",
+    "differences": [
+      {
+        "path": "/members/0/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:47\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"What is the exchange rate for USD to Bitcoin (BTC) today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:48\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"What is the exchange rate for USD to Bitcoin (BTC) today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]"
+      }
+    ]
+  },
+  {
+    "label": "How many Bitcoin are there in total?",
+    "sourceObservationId": "6f0b9144-0522-4fa7-b0a3-b306ae48ccbc",
+    "currentObservationId": "7d2b74b2-0f19-41f9-aa3b-0a76be24dd30",
+    "differences": [
+      {
+        "path": "/members/0/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:47\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How many Bitcoin are there in total?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:48\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How many Bitcoin are there in total?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]"
+      }
+    ]
+  },
+  {
+    "label": "I just bought Bitcoin. How do I increase my profits after buying BTC?",
+    "sourceObservationId": "6f0b9144-0522-4fa7-b0a3-b306ae48ccbc",
+    "currentObservationId": "7d2b74b2-0f19-41f9-aa3b-0a76be24dd30",
+    "differences": [
+      {
+        "path": "/members/0/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:47\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"I just bought Bitcoin. How do I increase my profits after buying BTC?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:48\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"I just bought Bitcoin. How do I increase my profits after buying BTC?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]"
+      }
+    ]
+  },
+  {
+    "label": "What is the recorded all-time high price of BTC compared to today's market price?",
+    "sourceObservationId": "6f0b9144-0522-4fa7-b0a3-b306ae48ccbc",
+    "currentObservationId": "7d2b74b2-0f19-41f9-aa3b-0a76be24dd30",
+    "differences": [
+      {
+        "path": "/members/0/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:47\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"What is the recorded all-time high price of BTC compared to today's market price?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:48\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"What is the recorded all-time high price of BTC compared to today's market price?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]"
+      }
+    ]
+  },
+  {
+    "label": "I have some questions about buying BTC. Who do I contact?",
+    "sourceObservationId": "60c60574-7095-4f13-9406-4561a24bd9fe",
+    "currentObservationId": "d96d348d-524b-4638-9833-a53c71fc7cb9",
+    "differences": [
+      {
+        "path": "/members/0/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:47\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"I have some questions about buying BTC. Who do I contact?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:48\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"I have some questions about buying BTC. Who do I contact?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]"
+      }
+    ]
+  },
+  {
+    "label": "Where can I find more information about Bitcoin (BTC)?",
+    "sourceObservationId": "60c60574-7095-4f13-9406-4561a24bd9fe",
+    "currentObservationId": "d96d348d-524b-4638-9833-a53c71fc7cb9",
+    "differences": [
+      {
+        "path": "/members/0/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:47\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"Where can I find more information about Bitcoin (BTC)?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:48\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"Where can I find more information about Bitcoin (BTC)?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]"
+      }
+    ]
+  },
+  {
+    "label": "How much is $1 worth of Bitcoin today?",
+    "sourceObservationId": "60c60574-7095-4f13-9406-4561a24bd9fe",
+    "currentObservationId": "d96d348d-524b-4638-9833-a53c71fc7cb9",
+    "differences": [
+      {
+        "path": "/members/0/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:47\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How much is $1 worth of Bitcoin today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:48\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How much is $1 worth of Bitcoin today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]"
+      }
+    ]
+  },
+  {
+    "label": "How much is 1 Bitcoin worth in USD today?",
+    "sourceObservationId": "60c60574-7095-4f13-9406-4561a24bd9fe",
+    "currentObservationId": "d96d348d-524b-4638-9833-a53c71fc7cb9",
+    "differences": [
+      {
+        "path": "/members/0/stableKey",
+        "before": "structural-item:[\"dd235268-306c-4f3f-8663-07f17c996696:47\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How much is 1 Bitcoin worth in USD today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:48\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How much is 1 Bitcoin worth in USD today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]"
+      }
+    ]
+  },
+  {
+    "label": "How can I convert BTC to USD using the crypto calculator?",
+    "sourceObservationId": "9290e232-dd0c-4a0a-b83d-471a6e96ba68",
+    "currentObservationId": "06361786-da5d-4087-b844-64b9c259e88d",
+    "differences": [
+      {
+        "path": "/members/0/stableKey",
+        "before": "structural-item:[\"87b91bd6-ee8a-4d8e-9567-574f45b28a78:47\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How can I convert BTC to USD using the crypto calculator?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]",
+        "after": "structural-item:[\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:48\",\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How can I convert BTC to USD using the crypto calculator?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"okd-accordion-header\"]"
+      }
+    ]
+  }
+]

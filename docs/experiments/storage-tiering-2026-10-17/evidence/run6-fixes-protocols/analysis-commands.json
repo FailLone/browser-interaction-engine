@@ -1,0 +1,41 @@
+{
+  "execution": "Completed after raw protocol run; unchanged existing summarizer used for both baselines.",
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run6-fixes-protocols/summarize.py",
+        "--input-dir",
+        "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run6-fixes-protocols",
+        "--baseline-dir",
+        "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/protocols",
+        "--output-dir",
+        "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run6-fixes-protocols"
+      ],
+      "log": "summary-70b8.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "python3",
+        "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run6-fixes-protocols/summarize.py",
+        "--input-dir",
+        "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run6-fixes-protocols",
+        "--baseline-dir",
+        "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run5-fixes-protocols",
+        "--output-dir",
+        "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run6-fixes-protocols/versus-run5"
+      ],
+      "log": "summary-run5.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "python3",
+        "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/run6-fixes-protocols/compare-trials.py"
+      ],
+      "log": "trial-comparison.log",
+      "exitCode": 0
+    }
+  ]
+}

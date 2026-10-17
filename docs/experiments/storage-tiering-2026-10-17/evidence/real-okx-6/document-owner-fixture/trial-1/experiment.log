@@ -1,0 +1,28 @@
+{
+  "revision": "d103747ee78779b3f1df8223854600cd321e36ee",
+  "oracle": [
+    "A|/record-A",
+    "B|/record-A",
+    "B|/record-B"
+  ],
+  "comparisons": [
+    {
+      "change": "data-record",
+      "selectorsEqual": true,
+      "naiveEqual": true,
+      "portableProof": "operation_conditions_unavailable"
+    },
+    {
+      "change": "direct-href",
+      "selectorsEqual": true,
+      "naiveEqual": true,
+      "portableProof": "operation_conditions_unavailable"
+    }
+  ],
+  "cleanup": {
+    "hostClosed": true,
+    "serverClosed": true,
+    "errors": [],
+    "pageClosed": true
+  }
+}

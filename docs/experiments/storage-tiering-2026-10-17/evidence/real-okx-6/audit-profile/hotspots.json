@@ -1,0 +1,891 @@
+{
+  "profile": "CPU.20261017.083132.27592.0.001.cpuprofile",
+  "profileSha256": "3796a1a3ab282f0f3c0528d6970dbfd5b3defbd59c37f64645e334c05e11763d",
+  "samplingIntervalRequestedUs": 1000,
+  "profileDurationMs": 4920.375,
+  "sampledDurationMs": 4919.167,
+  "samples": 3362,
+  "phaseSampledMs": {
+    "outsideMeasuredMethods": 4175.794,
+    "startupNormalization": 298.333,
+    "audit": 445.04
+  },
+  "phaseSampleCounts": {
+    "outsideMeasuredMethods": 2825,
+    "startupNormalization": 229,
+    "audit": 308
+  },
+  "methods": {
+    "startupNormalization": {
+      "selfTop": [
+        {
+          "function": "canonical",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 572,
+          "sampledMs": 69.25
+        },
+        {
+          "function": "process",
+          "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+          "profilerLine0": 71,
+          "profilerColumn0": 11,
+          "sampledMs": 42.124
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 781,
+          "sampledMs": 40.625
+        },
+        {
+          "function": "browserBranchConditions",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/branch-conditions.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 2490,
+          "sampledMs": 13.167
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 746,
+          "sampledMs": 12.083
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/operation-scheduling.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 586,
+          "sampledMs": 10.126
+        },
+        {
+          "function": "encode",
+          "url": "node:internal/encoding",
+          "profilerLine0": 354,
+          "profilerColumn0": 8,
+          "sampledMs": 10.042
+        },
+        {
+          "function": "utf8ToBytes",
+          "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+          "profilerLine0": 487,
+          "profilerColumn0": 27,
+          "sampledMs": 9.165
+        },
+        {
+          "function": "update",
+          "url": "node:internal/crypto/hash",
+          "profilerLine0": 185,
+          "profilerColumn0": 39,
+          "sampledMs": 9.083
+        },
+        {
+          "function": "Hash",
+          "url": "node:internal/crypto/hash",
+          "profilerLine0": 111,
+          "profilerColumn0": 13,
+          "sampledMs": 7.626
+        },
+        {
+          "function": "bytesToHex",
+          "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+          "profilerLine0": 356,
+          "profilerColumn0": 26,
+          "sampledMs": 7.584
+        },
+        {
+          "function": "createView",
+          "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+          "profilerLine0": 245,
+          "profilerColumn0": 26,
+          "sampledMs": 7.542
+        },
+        {
+          "function": "componentAncestors",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/branch-conditions.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1371,
+          "sampledMs": 6.292
+        },
+        {
+          "function": "operationKey",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 3944,
+          "sampledMs": 4.583
+        },
+        {
+          "function": "actionScope",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 983,
+          "sampledMs": 4.542
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 928,
+          "sampledMs": 4.542
+        },
+        {
+          "function": "clean",
+          "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+          "profilerLine0": 230,
+          "profilerColumn0": 21,
+          "sampledMs": 3.832
+        },
+        {
+          "function": "browserControlCorrespondence",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 396,
+          "sampledMs": 3.791
+        },
+        {
+          "function": "normalizeOperationScheduling",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/operation-scheduling.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 483,
+          "sampledMs": 3.042
+        },
+        {
+          "function": "digest",
+          "url": "node:internal/crypto/hash",
+          "profilerLine0": 203,
+          "profilerColumn0": 39,
+          "sampledMs": 3.041
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 904,
+          "sampledMs": 3.0
+        },
+        {
+          "function": "digestInto",
+          "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/_md.js",
+          "profilerLine0": 114,
+          "profilerColumn0": 14,
+          "sampledMs": 2.958
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 3982,
+          "sampledMs": 1.542
+        },
+        {
+          "function": "actionScopeReader",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1566,
+          "sampledMs": 1.542
+        },
+        {
+          "function": "encodeUtf8String",
+          "url": "",
+          "profilerLine0": -1,
+          "profilerColumn0": -1,
+          "sampledMs": 1.542
+        }
+      ],
+      "productInclusiveTop": [
+        {
+          "function": "normalizeScheduling",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/runtime.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 12712,
+          "sampledMs": 298.333
+        },
+        {
+          "function": "normalizeOperationScheduling",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/operation-scheduling.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 483,
+          "sampledMs": 296.917
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/operation-scheduling.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 586,
+          "sampledMs": 215.415
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 928,
+          "sampledMs": 164.291
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1765,
+          "sampledMs": 150.539
+        },
+        {
+          "function": "actionScope",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 983,
+          "sampledMs": 149.039
+        },
+        {
+          "function": "canonical",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 572,
+          "sampledMs": 121.958
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 781,
+          "sampledMs": 87.875
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 904,
+          "sampledMs": 85.163
+        },
+        {
+          "function": "browserControlCorrespondence",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 396,
+          "sampledMs": 82.163
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/plan-state.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 461,
+          "sampledMs": 65.332
+        },
+        {
+          "function": "operationKey",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 3944,
+          "sampledMs": 61.377
+        },
+        {
+          "function": "browserControlBindingKey",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1762,
+          "sampledMs": 59.334
+        },
+        {
+          "function": "browserOperationKey",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 3561,
+          "sampledMs": 35.627
+        },
+        {
+          "function": "browserBranchConditions",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/branch-conditions.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 2490,
+          "sampledMs": 27.251
+        },
+        {
+          "function": "browserOperationSchedulingKey",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 3685,
+          "sampledMs": 27.25
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 746,
+          "sampledMs": 12.083
+        },
+        {
+          "function": "componentAncestors",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/branch-conditions.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1371,
+          "sampledMs": 6.292
+        },
+        {
+          "function": "binding",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/branch-conditions.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 925,
+          "sampledMs": 5.916
+        },
+        {
+          "function": "scopeFor",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1376,
+          "sampledMs": 1.917
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 3982,
+          "sampledMs": 1.542
+        },
+        {
+          "function": "actionScopeReader",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1566,
+          "sampledMs": 1.542
+        },
+        {
+          "function": "operationSchedulingReferences",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/plan-state.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1091,
+          "sampledMs": 1.542
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/plan-state-shared.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 337,
+          "sampledMs": 1.542
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/plan-state.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1235,
+          "sampledMs": 1.542
+        },
+        {
+          "function": "formBinding",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 847,
+          "sampledMs": 1.5
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/branch-conditions.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 2879,
+          "sampledMs": 1.5
+        },
+        {
+          "function": "controlTargetBinding",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1349,
+          "sampledMs": 1.416
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1411,
+          "sampledMs": 1.334
+        },
+        {
+          "function": "operationSchedulingProofHash",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/plan-state.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1383,
+          "sampledMs": 1.333
+        }
+      ]
+    },
+    "audit": {
+      "selfTop": [
+        {
+          "function": "process",
+          "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+          "profilerLine0": 71,
+          "profilerColumn0": 11,
+          "sampledMs": 106.832
+        },
+        {
+          "function": "canonical",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 572,
+          "sampledMs": 98.084
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 781,
+          "sampledMs": 24.167
+        },
+        {
+          "function": "encode",
+          "url": "node:internal/encoding",
+          "profilerLine0": 354,
+          "profilerColumn0": 8,
+          "sampledMs": 19.457
+        },
+        {
+          "function": "update",
+          "url": "node:internal/crypto/hash",
+          "profilerLine0": 185,
+          "profilerColumn0": 39,
+          "sampledMs": 15.167
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 928,
+          "sampledMs": 11.917
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 746,
+          "sampledMs": 10.541
+        },
+        {
+          "function": "utf8ToBytes",
+          "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+          "profilerLine0": 487,
+          "profilerColumn0": 27,
+          "sampledMs": 9.166
+        },
+        {
+          "function": "actionScope",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 983,
+          "sampledMs": 9.001
+        },
+        {
+          "function": "browserControlCorrespondence",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 396,
+          "sampledMs": 8.625
+        },
+        {
+          "function": "createView",
+          "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/utils.js",
+          "profilerLine0": 245,
+          "profilerColumn0": 26,
+          "sampledMs": 7.541
+        },
+        {
+          "function": "includesScope",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 11908,
+          "sampledMs": 7.541
+        },
+        {
+          "function": "encodeUtf8String",
+          "url": "",
+          "profilerLine0": -1,
+          "profilerColumn0": -1,
+          "sampledMs": 7.457
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/runtime.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 120636,
+          "sampledMs": 6.042
+        },
+        {
+          "function": "actionScopeReader",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1566,
+          "sampledMs": 6.0
+        },
+        {
+          "function": "validOperationSchedulingNormalization",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/plan-state.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1584,
+          "sampledMs": 5.916
+        },
+        {
+          "function": "browserBranchConditions",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/branch-conditions.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 2490,
+          "sampledMs": 4.584
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 694,
+          "sampledMs": 4.583
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1765,
+          "sampledMs": 4.542
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1411,
+          "sampledMs": 4.5
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/audit-gap-index.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 226,
+          "sampledMs": 4.5
+        },
+        {
+          "function": "componentAncestors",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/branch-conditions.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1371,
+          "sampledMs": 4.499
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/plan-state.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 461,
+          "sampledMs": 4.416
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 472,
+          "sampledMs": 3.167
+        },
+        {
+          "function": "scopeFor",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1376,
+          "sampledMs": 3.042
+        }
+      ],
+      "productInclusiveTop": [
+        {
+          "function": "auditRemainingScopes",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/runtime.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 118461,
+          "sampledMs": 445.04
+        },
+        {
+          "function": "gap",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/runtime.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 16362,
+          "sampledMs": 327.874
+        },
+        {
+          "function": "normalizeScheduling",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/runtime.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 12712,
+          "sampledMs": 314.291
+        },
+        {
+          "function": "normalizeOperationScheduling",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/operation-scheduling.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 483,
+          "sampledMs": 312.749
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/operation-scheduling.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 586,
+          "sampledMs": 298.79
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 928,
+          "sampledMs": 251.539
+        },
+        {
+          "function": "actionScope",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 983,
+          "sampledMs": 247.958
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1765,
+          "sampledMs": 234.084
+        },
+        {
+          "function": "canonical",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 572,
+          "sampledMs": 134.334
+        },
+        {
+          "function": "browserControlBindingKey",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1762,
+          "sampledMs": 130.497
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 904,
+          "sampledMs": 117.544
+        },
+        {
+          "function": "browserControlCorrespondence",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 396,
+          "sampledMs": 116.127
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/plan-state.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 461,
+          "sampledMs": 72.206
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 781,
+          "sampledMs": 69.917
+        },
+        {
+          "function": "operationKey",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 3944,
+          "sampledMs": 33.625
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/runtime.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 119690,
+          "sampledMs": 31.043
+        },
+        {
+          "function": "browserOperationSchedulingKey",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/exploration.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 3685,
+          "sampledMs": 26.166
+        },
+        {
+          "function": "scopeFor",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1376,
+          "sampledMs": 25.958
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/audit-gap-index.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1034,
+          "sampledMs": 22.583
+        },
+        {
+          "function": "auditGapIndex",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/audit-gap-index.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 470,
+          "sampledMs": 19.374
+        },
+        {
+          "function": "matches",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 2759,
+          "sampledMs": 19.001
+        },
+        {
+          "function": "controlScopeMatcher",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 3912,
+          "sampledMs": 18.0
+        },
+        {
+          "function": "includesScope",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 11908,
+          "sampledMs": 18.0
+        },
+        {
+          "function": "schedulingOperationCondition",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/plan-state.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 2786,
+          "sampledMs": 17.458
+        },
+        {
+          "function": "validOperationSchedulingNormalization",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/plan-state.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 1584,
+          "sampledMs": 16.875
+        },
+        {
+          "function": "browserBranchConditions",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/adapter-playwright/src/branch-conditions.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 2490,
+          "sampledMs": 16.543
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 694,
+          "sampledMs": 10.916
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/core/src/util.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 746,
+          "sampledMs": 10.541
+        },
+        {
+          "function": "controlScope",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 3104,
+          "sampledMs": 9.084
+        },
+        {
+          "function": "(anonymous)",
+          "url": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/packages/explorer-plugin/src/policy.ts",
+          "profilerLine0": 0,
+          "profilerColumn0": 3962,
+          "sampledMs": 9.084
+        }
+      ]
+    }
+  },
+  "auditProductStacksTop": [
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 actionScope \u2192 browserControlBindingKey \u2192 (anonymous)",
+      "sampledMs": 82.247
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 actionScope \u2192 (anonymous) \u2192 browserControlCorrespondence \u2192 (anonymous)",
+      "sampledMs": 57.125
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous)",
+      "sampledMs": 25.625
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 actionScope \u2192 (anonymous) \u2192 browserControlCorrespondence \u2192 (anonymous) \u2192 canonical",
+      "sampledMs": 20.877
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 canonical",
+      "sampledMs": 16.458
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 canonical \u2192 (anonymous) \u2192 canonical",
+      "sampledMs": 13.625
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 canonical \u2192 (anonymous)",
+      "sampledMs": 12.123
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 (anonymous)",
+      "sampledMs": 10.626
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 actionScope \u2192 (anonymous) \u2192 browserControlCorrespondence \u2192 (anonymous) \u2192 canonical \u2192 (anonymous) \u2192 canonical",
+      "sampledMs": 9.125
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 actionScope",
+      "sampledMs": 9.001
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 browserOperationSchedulingKey \u2192 operationKey \u2192 (anonymous)",
+      "sampledMs": 8.999
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 actionScope \u2192 browserControlBindingKey \u2192 (anonymous) \u2192 canonical \u2192 (anonymous) \u2192 canonical \u2192 (anonymous)",
+      "sampledMs": 7.584
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 (anonymous) \u2192 includesScope",
+      "sampledMs": 7.541
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 actionScope \u2192 browserControlBindingKey \u2192 (anonymous) \u2192 canonical",
+      "sampledMs": 7.541
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 actionScope \u2192 (anonymous) \u2192 browserControlCorrespondence \u2192 (anonymous) \u2192 canonical \u2192 (anonymous)",
+      "sampledMs": 7.459
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 actionScopeReader",
+      "sampledMs": 6.0
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 actionScope \u2192 (anonymous) \u2192 browserControlCorrespondence",
+      "sampledMs": 6.0
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 actionScope \u2192 browserControlBindingKey \u2192 (anonymous) \u2192 canonical \u2192 (anonymous) \u2192 canonical",
+      "sampledMs": 5.958
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 gap \u2192 normalizeScheduling \u2192 normalizeOperationScheduling \u2192 (anonymous) \u2192 (anonymous) \u2192 actionScope \u2192 browserControlBindingKey \u2192 (anonymous) \u2192 canonical \u2192 (anonymous)",
+      "sampledMs": 4.542
+    },
+    {
+      "stack": "auditRemainingScopes \u2192 controlScopeMatcher \u2192 scopeFor \u2192 actionScope \u2192 browserControlBindingKey \u2192 (anonymous)",
+      "sampledMs": 4.5
+    }
+  ],
+  "limits": [
+    "One sampled diagnostic process with startup and three carried-state audit calls; excluded from performance aggregates.",
+    "Phase classification uses auditRemainingScopes / normalizeScheduling ancestors, not production instrumentation. Audit phases are aggregated here; no claim of exact per-call counts from sampled stacks.",
+    "Inclusive times overlap and must not be summed. Native work inherits its sampled JS ancestry; GC/other samples without these ancestors stay outside.",
+    "Profiler source lines are raw V8 coordinates after TSX transformation, not asserted TypeScript line mappings.",
+    "Whole-process parse/import/report/JSON-byte serialization dominate other samples but are excluded from method categories."
+  ]
+}

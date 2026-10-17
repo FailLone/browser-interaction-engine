@@ -1,0 +1,6 @@
+{
+  "packages/explorer-plugin/src/plan-state.ts": "7f97566ef1bd8e1210ca8adbae21330669dd6d23e294b987f50231fb4914162c",
+  "packages/explorer-plugin/src/plan-state-shared.ts": "564fd562ce64effa5b801b5ca14e138956a1a8220a0ee9bd9c6c48b8257bbcfc",
+  "packages/explorer-plugin/src/ui.tsx": "708a9201849f61ecc6639c54c2b289617ede322627d2b7f3ab41e09c3d82de22",
+  "tests/explorer-ui-dependency.test.ts": "23c18e96a9202fc5f7ae681e602f9455827d190182424c344da964fb2e287339"
+}

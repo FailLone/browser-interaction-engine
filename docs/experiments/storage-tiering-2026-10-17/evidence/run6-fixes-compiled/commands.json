@@ -1,0 +1,14 @@
+[
+  {
+    "name": "build",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v22.17.1/installation/lib/node_modules/pnpm/bin/pnpm.cjs",
+      "build"
+    ],
+    "cwd": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-fyq8841c",
+    "startedAtEpoch": 1792195185.381446,
+    "log": "build.log",
+    "exitCode": 1,
+    "elapsedSeconds": 5.552093267440796
+  }
+]

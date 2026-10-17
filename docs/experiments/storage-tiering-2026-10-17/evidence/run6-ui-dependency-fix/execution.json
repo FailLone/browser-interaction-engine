@@ -1,0 +1,27 @@
+[
+  {
+    "name": "focused",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/explorer-ui-dependency.test.ts",
+      "tests/explorer-condition-migration.test.ts",
+      "tests/explorer-operation-scheduling-key.test.ts"
+    ],
+    "startedAt": "2026-10-17T08:04:32.989260+08:00",
+    "elapsedSeconds": 7.889076209,
+    "exitCode": 0
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "startedAt": "2026-10-17T08:04:40.878665+08:00",
+    "elapsedSeconds": 7.752785875000001,
+    "exitCode": 0
+  }
+]

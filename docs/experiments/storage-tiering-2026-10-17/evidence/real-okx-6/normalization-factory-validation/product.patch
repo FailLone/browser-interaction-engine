@@ -1,0 +1,129 @@
+diff --git a/packages/explorer-plugin/src/operation-scheduling.ts b/packages/explorer-plugin/src/operation-scheduling.ts
+index ede59c6..c9c427b 100644
+--- a/packages/explorer-plugin/src/operation-scheduling.ts
++++ b/packages/explorer-plugin/src/operation-scheduling.ts
+@@ -7,12 +7,11 @@ import {operationSchedulingReferences,operationSchedulingProofHash,operationSche
+ type Audit=NonNullable<PlanItem['operationSchedulingNormalization']>;
+ type Change={itemId:string;normalization?:Audit;reason:'normalized'|'source_proof_unavailable'};
+ type SourceRecord={o:Observation;scopes:Map<string,ActionCandidate[]>;keys:Map<ActionCandidate,{legacyKey:string;key:string}>};
+-/** Normalize only scheduling encodings. All source/attempt rows and original
+- * condition/split fields stay intact. Missing or ambiguous evidence cannot
+- * produce an alias, and unavailable branches remain unavailable to the SDK.
+- * Pass changedItems for a local append; caches live only within this call. */
+-export function normalizeOperationScheduling(task:Pick<Task,'plan'>,host:Pick<ExplorerHost,'observation'|'actions'|'list'>,changedItems:readonly PlanItem[]=task.plan):Change[] {
+-  const changes:Change[]=[],records=new Map<string,SourceRecord|undefined>(),attempts=new Map<string,Map<string,ActionAttempt>>();
++/** One synchronous audit/outcome owns this normalizer. Reuse only captured
++ * source projections, never mutable item validity. Discard before an await,
++ * SDK mutation, or review/identity revision, even for the same observation. */
++export function createOperationSchedulingNormalizer(host:Pick<ExplorerHost,'observation'|'actions'|'list'>) {
++  const records=new Map<string,SourceRecord|undefined>(),attempts=new Map<string,Map<string,ActionAttempt>>();
+   const read=(sid:string,id:string)=>{
+     const k=JSON.stringify([sid,id]);if(records.has(k)){const v=records.get(k);records.delete(k);records.set(k,v);return v;}
+     let record:SourceRecord|undefined;
+@@ -29,6 +28,8 @@ export function normalizeOperationScheduling(task:Pick<Task,'plan'>,host:Pick<Ex
+     if(!attempts.has(sid)){let rows:ActionAttempt[]=[];try{rows=host.list<ActionAttempt>(sid,'attempt');}catch{}attempts.set(sid,new Map(rows.filter(a=>a.sessionId===sid).map(a=>[a.id,a])));}
+     return attempts.get(sid)!.get(id);
+   };
++  return (task:Pick<Task,'plan'>,changedItems:readonly PlanItem[]=task.plan):Change[]=>{
++  const changes:Change[]=[];
+   for(const item of changedItems){
+     if(item.operationConditionPolicy!=='browser-operation-key-v2'||!item.operationConditionKey||!item.scope.kind||(item.dispatchScope!==false&&item.conditionLineage?.kind!=='condition')
+       ||item.status==='superseded'||['split','invalidated'].includes(item.conditionMigration?.status||'')||item.attempts.some(a=>['unknown','executing'].includes(a.outcome)))continue;
+@@ -64,4 +65,14 @@ export function normalizeOperationScheduling(task:Pick<Task,'plan'>,host:Pick<Ex
+     audit.proofHash=operationSchedulingProofHash(audit);item.operationSchedulingNormalization=audit;changes.push({itemId:item.id,normalization:audit,reason:'normalized'});
+   }
+   return changes;
++  };
++}
++export type OperationSchedulingNormalizer=ReturnType<typeof createOperationSchedulingNormalizer>;
++
++/** Normalize only scheduling encodings. All source/attempt rows and original
++ * condition/split fields stay intact. Missing or ambiguous evidence cannot
++ * produce an alias, and unavailable branches remain unavailable to the SDK.
++ * The compatibility wrapper always starts a fresh synchronous pass. */
++export function normalizeOperationScheduling(task:Pick<Task,'plan'>,host:Pick<ExplorerHost,'observation'|'actions'|'list'>,changedItems:readonly PlanItem[]=task.plan):Change[] {
++  return createOperationSchedulingNormalizer(host)(task,changedItems);
+ }
+diff --git a/packages/explorer-plugin/src/runtime.ts b/packages/explorer-plugin/src/runtime.ts
+index 2ded308..dca1f7f 100644
+--- a/packages/explorer-plugin/src/runtime.ts
++++ b/packages/explorer-plugin/src/runtime.ts
+@@ -12,6 +12,7 @@ import { TaskWriter } from './task-writer.js';
+ import { DecisionRouter } from './router.js';
+ import { createTaskSchema, budgetSchema, planSchema, initialTaskSchema, plannedScopeSchema, limitationAcceptanceSchema, jsonSchema } from './schema.js';
+ import { digest, includesScope, schedulingKeyFor as keyFor, keyFor as retainedKeyFor, matches, permitted, unexecutedAction, scopeFor, scopeForControl, navigationTarget, controlInScope, controlScopeMatcher, actionScopeReader, broadScope, decisionScope, decisionPlan, migrateOperationConditions, normalizeOperationScheduling, schedulingOperationConditionPolicy as operationConditionPolicy } from './policy.js';
++import {createOperationSchedulingNormalizer,type OperationSchedulingNormalizer} from './operation-scheduling.js';
+ import { reviewNext, type ChoiceConstraints, type RetainedScope } from './reviews.js';
+ import { safeError } from './providers.js';
+ import { POLICY_VERSION } from './decision-policy.js';
+@@ -129,8 +130,8 @@ export class ExplorerPlugin {
+   private appendPlan(task:Task,item:PlanItem) {const writer=this.writers.get(task);if(writer)writer.appendPlan(item);else task.plan.push(item);}
+   private appendRound(task:Task,round:Round) {const writer=this.writers.get(task);if(writer)writer.appendRound(round);else task.rounds.push(round);}
+   private rewriteTask(task:Task) {this.writers.get(task)?.prepareRewrite();}
+-  private normalizeScheduling(task:Task,items:readonly PlanItem[]=task.plan,host:Pick<ExplorerHost,'observation'|'actions'|'list'>=this.host,observationId?:string) {
+-    const changes=normalizeOperationScheduling(task,host,items);
++  private normalizeScheduling(task:Task,items:readonly PlanItem[]=task.plan,host:Pick<ExplorerHost,'observation'|'actions'|'list'>=this.host,observationId?:string,normalizer?:OperationSchedulingNormalizer) {
++    const changes=normalizer?normalizer(task,items):normalizeOperationScheduling(task,host,items);
+     if(changes.length){
+       const changed=new Set(changes.map(change=>change.itemId));for(const item of items)if(changed.has(item.id))this.changedPlan(task,item);
+       this.event(task,'operation.scheduling_normalized',{changes:changes.map(({itemId,reason,normalization:audit})=>({itemId,reason,fromKey:audit?.fromKey,toKey:audit?.toKey,sourceCount:audit?.sources.length})),
+@@ -167,7 +168,7 @@ export class ExplorerPlugin {
+     for(const item of task.plan)if(item.dispatchScope===undefined){this.changedPlan(task,item);item.dispatchScope=approved.has(item.id);}
+     this.persist(task);this.event(task,'plan.authority_restored',{approvedItemIds:[...approved],recordOnly:task.plan.filter(i=>!i.dispatchScope).map(i=>i.id)});
+   }
+-  private gap(task:Task,reason:string,scope:Scope,required=true,prerequisites:Scope[]=[],persist=true,source?:Pick<Observation,'sessionId'|'id'>,operationConditionKey?:string,uniqueActionId?:string,normalizationHost?:Pick<ExplorerHost,'observation'|'actions'|'list'>,index?:AuditGapIndex) {
++  private gap(task:Task,reason:string,scope:Scope,required=true,prerequisites:Scope[]=[],persist=true,source?:Pick<Observation,'sessionId'|'id'>,operationConditionKey?:string,uniqueActionId?:string,normalizationHost?:Pick<ExplorerHost,'observation'|'actions'|'list'>,index?:AuditGapIndex,normalizer?:OperationSchedulingNormalizer) {
+     if(required && task.plan.length && !(index?.authority||task.plan).some(i=>i.required&&i.dispatchScope===true&&Object.entries(i.scope).every(([k,v])=>scope[k as keyof Scope]===undefined||scope[k as keyof Scope]===v)))required=false;
+     const key=JSON.stringify({reason,scope,operationConditionKey}),exact=index?.exact(reason,scope,operationConditionKey)??task.plan.filter(i=>JSON.stringify({reason:i.reason,scope:i.scope,operationConditionKey:schedulingOperationCondition(i)})===key);
+     // A new audit gap cannot be appended to a directly completed operation and
+@@ -191,7 +192,7 @@ export class ExplorerPlugin {
+     // per gap can deserialize hundreds of megabytes without adding evidence.
+     // This is an explicit source reference, never a cache or execution grant.
+     const r=task.rounds.at(-1);if(r){try{const o=source||this.host.observation(r.sessionId);if(!item.evidence.some(e=>e.sessionId===o.sessionId&&e.observationId===o.id))item.evidence.push({sessionId:o.sessionId,observationId:o.id});}catch{item.reason+=':evidence_unavailable';}}
+-    if(item.operationSchedulingNormalization)this.normalizeScheduling(task,[item],normalizationHost,source?.id);
++    if(item.operationSchedulingNormalization)this.normalizeScheduling(task,[item],normalizationHost,source?.id,normalizer);
+     index?.refresh(item);
+     if(persist)this.persist(task);return item;
+   }
+@@ -449,8 +450,8 @@ export class ExplorerPlugin {
+   private recordOutcome(task:Task,attempt:ActionAttempt,itemIds:string[]) {
+     const round=task.rounds.at(-1)!;const ref={sessionId:attempt.sessionId,observationId:attempt.afterId||attempt.beforeId,attemptId:attempt.id};
+     const sourcesCompleted=operationSourceCompletion(this.host,attempt);
+-    const normalizationHost=this.normalizationReader();
+-    this.normalizeScheduling(task,task.plan.filter(item=>itemIds.includes(item.id)),normalizationHost,ref.observationId);
++    const normalizationHost=this.normalizationReader(),normalizer=createOperationSchedulingNormalizer(normalizationHost);
++    this.normalizeScheduling(task,task.plan.filter(item=>itemIds.includes(item.id)),normalizationHost,ref.observationId,normalizer);
+     let sourceObservation:Observation|undefined,sourceKey:string|undefined;const source=()=>sourceObservation??=this.host.observation(attempt.sessionId,attempt.beforeId),operationKey=()=>sourceKey??=keyFor(attempt.action,source());
+     for(const item of task.plan.filter(i=>itemIds.includes(i.id)&&schedulableObligation(i)&&!(i.dispatchScope===false&&i.status==='succeeded')&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome'&&i.reason!=='checkpoint_unverified')) {
+       const condition=boundOperationCondition(item);
+@@ -458,7 +459,7 @@ export class ExplorerPlugin {
+       this.changedPlan(task,item);
+       if(!item.attempts.some(x=>x.evidence?.attemptId===attempt.id))item.attempts.push({roundId:round.id,outcome:attempt.status,evidence:ref});
+       item.evidence.push(ref);
+-      if(item.operationSchedulingNormalization)this.normalizeScheduling(task,[item],normalizationHost,ref.observationId);
++      if(item.operationSchedulingNormalization)this.normalizeScheduling(task,[item],normalizationHost,ref.observationId,normalizer);
+       if(attempt.status==='succeeded'&&attempt.afterId){
+         item.resolvedBy=ref;
+         const before=source(),concrete=item.scope.kind&&(item.scope.label||item.scope.stableKey||item.scope.value!==undefined);
+@@ -1344,10 +1345,10 @@ export class ExplorerPlugin {
+     if(!scopes.length)return incomplete;
+     completed??=completedOperations(this.host,task,o,snapshot.operationCandidates);
+     const facts=snapshot.obligations,inScope=controlScopeMatcher(o,actions),pathFor=this.pathResolver(round,o),executedHere=exactSourceExecution(this.host,task,o);
+-    const operationScopes=new Map<string,number>(),readScope=actionScopeReader(o),normalizationHost=this.normalizationReader(o),index=auditGapIndex(task.plan);
++    const operationScopes=new Map<string,number>(),readScope=actionScopeReader(o),normalizationHost=this.normalizationReader(o),normalizer=createOperationSchedulingNormalizer(normalizationHost),index=auditGapIndex(task.plan);
+     const actionScopes=new Map(actions.map(action=>[action,action.localId?readScope(action):scopeFor(action,o)]));
+     for(const action of actions){const key=digest(actionScopes.get(action)!);operationScopes.set(key,(operationScopes.get(key)||0)+1);}
+-    const recordGap=(reason:string,scope:Scope,path:Scope[],condition?:string,actionId?:string)=>this.gap(task,reason,scope,true,path,false,o,condition,actionId,normalizationHost,index);
++    const recordGap=(reason:string,scope:Scope,path:Scope[],condition?:string,actionId?:string)=>this.gap(task,reason,scope,true,path,false,o,condition,actionId,normalizationHost,index,normalizer);
+     for(const item of scopes) {
+       const pending=snapshot.operationCandidates.filter(a=>matches(item.scope,a,o)&&includesScope(task.plan,a,o)==='target'&&(this.currentExit(a,o)||!completed.has(a)&&!executedHere(a)));
+       for(const action of pending) {
+@@ -1357,7 +1358,7 @@ export class ExplorerPlugin {
+         const review=action.basis?.status!=='supported'&&control&&(facts.classifications.includes(control.localId)?'classification_unresolved':facts.operations.includes(control.localId)?'operation_basis_unconfirmed':undefined);
+         if(review){recordGap(review,scopeForControl(control!,o),path);continue;}
+         const gap=unexecutedAction(action,availability);
+-        this.gap(task,gap.reason,scope,gap.required,path,false,o,keyFor(action,o),operationScopes.get(digest(scope))===1?action.id:undefined,normalizationHost,index);
++        this.gap(task,gap.reason,scope,gap.required,path,false,o,keyFor(action,o),operationScopes.get(digest(scope))===1?action.id:undefined,normalizationHost,index,normalizer);
+       }
+       const controls=new Set(o.controls.filter(c=>c.visible&&c.enabled&&inScope(item.scope,c)&&!task.plan.some(excluded=>excluded.reason==='user_excluded'&&inScope(excluded.scope,c))).map(c=>c.localId));
+       const obligations={

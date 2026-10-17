@@ -1,0 +1,13 @@
+{
+  "revision": "d103747ee78779b3f1df8223854600cd321e36ee",
+  "sourceUnchanged": true,
+  "sourceFiles": 461,
+  "fixtureOnly": true,
+  "error": null,
+  "cleanup": {
+    "hostClosed": true,
+    "serverClosed": true,
+    "errors": [],
+    "pageClosed": true
+  }
+}

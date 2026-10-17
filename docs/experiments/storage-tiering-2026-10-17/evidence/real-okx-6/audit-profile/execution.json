@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+    "--cpu-prof",
+    "--cpu-prof-interval=1000",
+    "--cpu-prof-dir=/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-6/audit-profile",
+    "--max-old-space-size=4096",
+    "--conditions=development",
+    "--import=tsx",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/.data/steady-worker.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/current/.data/profile-config.json"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 5.018776893615723,
+  "excludedFromPerformanceAggregates": true,
+  "archiveSourceUnchanged": true,
+  "materialUnchanged": true,
+  "workerSha256": "15978210f1e59ea29f714c1dda368d7ef25e733d02c11ac9c220be5084643a1e",
+  "profiles": [
+    {
+      "path": "CPU.20261017.083132.27592.0.001.cpuprofile",
+      "bytes": 510551,
+      "sha256": "3796a1a3ab282f0f3c0528d6970dbfd5b3defbd59c37f64645e334c05e11763d"
+    }
+  ]
+}

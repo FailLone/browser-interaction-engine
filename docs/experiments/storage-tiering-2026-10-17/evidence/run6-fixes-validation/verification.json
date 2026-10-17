@@ -1,0 +1,94 @@
+{
+  "baseCommit": "f6d7b9e2b427b5edf1fad359ecf8cc5a3df8ffcf",
+  "sourceUnchanged": false,
+  "changedPaths": [
+    "tests/explorer-source-discovery-review.test.ts"
+  ],
+  "results": [
+    {
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/explorer-classification-reuse-ui.test.ts",
+        "tests/explorer-classification-reuse.test.ts",
+        "tests/explorer-completion-evidence.test.ts",
+        "tests/explorer-condition-migration.test.ts",
+        "tests/explorer-lifecycle-recovery.test.ts",
+        "tests/explorer-migration-split-integration.test.ts",
+        "tests/explorer-navigation-position.test.ts",
+        "tests/explorer-navigation-return.test.ts",
+        "tests/explorer-obligation-lifecycle-ui.test.ts",
+        "tests/explorer-obligation-lifecycle.test.ts",
+        "tests/explorer-obligation-scheduler-integration.test.ts",
+        "tests/explorer-obligation-scheduler-safety.test.ts",
+        "tests/explorer-obligation-scheduler.test.ts",
+        "tests/explorer-obligation-source-condition.test.ts",
+        "tests/explorer-observation-action-index.test.ts",
+        "tests/explorer-observed-source-return.test.ts",
+        "tests/explorer-operation-availability.test.ts",
+        "tests/explorer-operation-scheduling-key.test.ts",
+        "tests/explorer-path-lineage.test.ts",
+        "tests/explorer-plugin-providers.test.ts",
+        "tests/explorer-plugin-semantic.test.ts",
+        "tests/explorer-plugin-sync-ui.test.ts",
+        "tests/explorer-plugin-sync.test.ts",
+        "tests/explorer-plugin-ui.test.ts",
+        "tests/explorer-plugin.test.ts",
+        "tests/explorer-program-first.test.ts",
+        "tests/explorer-recovery-failure-condition.test.ts",
+        "tests/explorer-recovery-outcomes.test.ts",
+        "tests/explorer-reentry-progress.test.ts",
+        "tests/explorer-region-batching.test.ts",
+        "tests/explorer-region-reuse.test.ts",
+        "tests/explorer-return-to-scope.test.ts",
+        "tests/explorer-review-recovery.test.ts",
+        "tests/explorer-review-source-priority.test.ts",
+        "tests/explorer-route-revisions.test.ts",
+        "tests/explorer-router-budget.test.ts",
+        "tests/explorer-routine-ui-review.test.ts",
+        "tests/explorer-runtime-delta.test.ts",
+        "tests/explorer-scheduling-key-runtime.test.ts",
+        "tests/explorer-scheduling.test.ts",
+        "tests/explorer-scope-migration-index.test.ts",
+        "tests/explorer-scope-source-recovery.test.ts",
+        "tests/explorer-shared-target-scope.test.ts",
+        "tests/explorer-source-completion-review.test.ts",
+        "tests/explorer-source-conditions.test.ts",
+        "tests/explorer-source-discovery-review.test.ts",
+        "tests/explorer-source-return-scheduling.test.ts",
+        "tests/explorer-store-delta.test.ts",
+        "tests/explorer-store-normalized.test.ts",
+        "tests/explorer-store-packed.test.ts",
+        "tests/explorer-task-writer.test.ts"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 247.85022377967834,
+      "log": "check-1.log"
+    },
+    {
+      "command": [
+        "pnpm",
+        "exec",
+        "tsc",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.278637886047363,
+      "log": "check-2.log"
+    },
+    {
+      "command": [
+        "pnpm",
+        "exec",
+        "tsc",
+        "-p",
+        "packages/core/tsconfig.json"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.8623669147491455,
+      "log": "check-3.log"
+    }
+  ]
+}

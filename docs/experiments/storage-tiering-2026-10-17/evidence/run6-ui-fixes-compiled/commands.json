@@ -1,0 +1,62 @@
+[
+  {
+    "name": "build",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v22.17.1/installation/lib/node_modules/pnpm/bin/pnpm.cjs",
+      "build"
+    ],
+    "cwd": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq",
+    "startedAtEpoch": 1792195684.10026,
+    "log": "build.log",
+    "exitCode": 0,
+    "elapsedSeconds": 6.1594109535217285
+  },
+  {
+    "name": "published-types",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "scripts/smoke-public-types.mjs"
+    ],
+    "cwd": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq",
+    "startedAtEpoch": 1792195690.260252,
+    "log": "published-types.log",
+    "exitCode": 0,
+    "elapsedSeconds": 0.7270519733428955
+  },
+  {
+    "name": "compiled-public-contract",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      ".data/compiled-public-contract.mjs"
+    ],
+    "cwd": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq",
+    "startedAtEpoch": 1792195690.988051,
+    "log": "compiled-public-contract.log",
+    "exitCode": 0,
+    "elapsedSeconds": 1.0110390186309814
+  },
+  {
+    "name": "smoke-built",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "scripts/smoke-built.mjs"
+    ],
+    "cwd": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq",
+    "startedAtEpoch": 1792195691.999727,
+    "log": "smoke-built.log",
+    "exitCode": 0,
+    "elapsedSeconds": 2.331138849258423
+  },
+  {
+    "name": "smoke-explorer",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "scripts/smoke-explorer.mjs"
+    ],
+    "cwd": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq",
+    "startedAtEpoch": 1792195694.3315258,
+    "log": "smoke-explorer.log",
+    "exitCode": 0,
+    "elapsedSeconds": 2.039605140686035
+  }
+]

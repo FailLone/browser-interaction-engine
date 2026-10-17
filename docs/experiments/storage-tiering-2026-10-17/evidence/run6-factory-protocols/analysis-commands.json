@@ -1,0 +1,35 @@
+[
+  {
+    "command": [
+      "python3",
+      "/tmp/bie-run-run6-factory-protocols.py"
+    ],
+    "cwd": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+    "stdoutAndStderr": "runner.log",
+    "exitCode": 0
+  },
+  {
+    "command": [
+      "python3",
+      "docs/experiments/storage-tiering-2026-10-17/evidence/run6-factory-protocols/summarize.py",
+      "--input-dir",
+      "docs/experiments/storage-tiering-2026-10-17/evidence/run6-factory-protocols",
+      "--baseline-dir",
+      "docs/experiments/storage-tiering-2026-10-17/evidence/run6-fixes-protocols",
+      "--output-dir",
+      "docs/experiments/storage-tiering-2026-10-17/evidence/run6-factory-protocols"
+    ],
+    "cwd": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+    "stdoutAndStderr": "summary-run6.log",
+    "exitCode": 0
+  },
+  {
+    "command": [
+      "python3",
+      "docs/experiments/storage-tiering-2026-10-17/evidence/run6-factory-protocols/compare-trials.py"
+    ],
+    "cwd": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+    "stdoutAndStderr": "trial-comparison.log",
+    "exitCode": 0
+  }
+]

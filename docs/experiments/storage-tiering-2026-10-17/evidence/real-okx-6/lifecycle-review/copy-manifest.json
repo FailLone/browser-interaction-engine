@@ -1,0 +1,20 @@
+{
+  "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1-frozen-6",
+  "copy": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/okx-run6-lifecycle-91nwvvjj/frozen",
+  "hashes": {
+    "engine/engine.sqlite": {
+      "before": "8f5ab1e177a154f23bff5006fc29953bfe8d772d9c5fdff8a4efdce74e7456a2",
+      "copy": "8f5ab1e177a154f23bff5006fc29953bfe8d772d9c5fdff8a4efdce74e7456a2",
+      "after": "8f5ab1e177a154f23bff5006fc29953bfe8d772d9c5fdff8a4efdce74e7456a2",
+      "originalUnchanged": true
+    },
+    "plugin/explorer.sqlite": {
+      "before": "ed9ea839def36bb779f419bbc0e2f11576065a79b5d02686ff751121acf7eecb",
+      "copy": "ed9ea839def36bb779f419bbc0e2f11576065a79b5d02686ff751121acf7eecb",
+      "after": "ed9ea839def36bb779f419bbc0e2f11576065a79b5d02686ff751121acf7eecb",
+      "originalUnchanged": true
+    }
+  },
+  "originalConstructors": 0,
+  "browserProviderCalls": 0
+}

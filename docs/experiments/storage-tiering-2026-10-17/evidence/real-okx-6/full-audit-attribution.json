@@ -1,0 +1,166 @@
+{
+  "sameFullScopeNewRows": [
+    {
+      "newItemId": "ca488d18-a2c8-45ea-beb2-6c5a6b96bed4",
+      "label": "Trade",
+      "reason": "operation_not_executed",
+      "oldRows": [
+        {
+          "id": "4bf646f1-7538-49e5-9c96-14e0f6d021d7",
+          "reason": "observed_in_scope",
+          "status": "succeeded",
+          "attempts": [
+            {
+              "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+              "outcome": "succeeded",
+              "evidence": {
+                "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+                "observationId": "f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4",
+                "attemptId": "797f216e-17fb-45ff-b753-f26ad1cf9b0c"
+              }
+            }
+          ],
+          "resolvedBy": {
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4",
+            "attemptId": "797f216e-17fb-45ff-b753-f26ad1cf9b0c"
+          }
+        },
+        {
+          "id": "32bf904c-a398-4a4c-90b3-9d760ed8c463",
+          "reason": "operation_not_executed",
+          "status": "succeeded",
+          "attempts": [
+            {
+              "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+              "outcome": "succeeded",
+              "evidence": {
+                "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+                "observationId": "f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4",
+                "attemptId": "797f216e-17fb-45ff-b753-f26ad1cf9b0c"
+              }
+            }
+          ],
+          "resolvedBy": {
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4",
+            "attemptId": "797f216e-17fb-45ff-b753-f26ad1cf9b0c"
+          }
+        },
+        {
+          "id": "255df7bf-e593-4643-bccd-6b35197fbb07",
+          "reason": "reentry_not_repeatable",
+          "status": "unresolved",
+          "attempts": [],
+          "resolvedBy": null
+        }
+      ]
+    },
+    {
+      "newItemId": "3d23f8f4-f551-49f2-8965-05f07a5b317e",
+      "label": "1h",
+      "reason": "region_review_required",
+      "oldRows": [
+        {
+          "id": "71c81d34-83f7-4a9a-8277-789edf3dda9d",
+          "reason": "observed_in_scope",
+          "status": "succeeded",
+          "attempts": [
+            {
+              "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+              "outcome": "succeeded",
+              "evidence": {
+                "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+                "observationId": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+                "attemptId": "0ffb08c8-835f-4e0d-b5c1-c166fe086e00"
+              }
+            }
+          ],
+          "resolvedBy": {
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+            "attemptId": "0ffb08c8-835f-4e0d-b5c1-c166fe086e00"
+          }
+        },
+        {
+          "id": "f033210e-6368-42d2-affc-b71a63bc265c",
+          "reason": "operation_not_executed",
+          "status": "succeeded",
+          "attempts": [
+            {
+              "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+              "outcome": "succeeded",
+              "evidence": {
+                "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+                "observationId": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+                "attemptId": "0ffb08c8-835f-4e0d-b5c1-c166fe086e00"
+              }
+            }
+          ],
+          "resolvedBy": {
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "d0b567f7-791f-49b5-9a0d-80a6cd81ed35",
+            "attemptId": "0ffb08c8-835f-4e0d-b5c1-c166fe086e00"
+          }
+        }
+      ]
+    },
+    {
+      "newItemId": "e2b9317f-0fc1-4a51-bd54-3738e6ab0db8",
+      "label": "24h",
+      "reason": "region_review_required",
+      "oldRows": [
+        {
+          "id": "76888155-6161-4e61-a108-b65f1f2f00a5",
+          "reason": "observed_in_scope",
+          "status": "succeeded",
+          "attempts": [
+            {
+              "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+              "outcome": "succeeded",
+              "evidence": {
+                "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+                "observationId": "9ca9a659-c1af-47c6-af1c-40b77b5803a3",
+                "attemptId": "e46636b7-7000-413d-8bec-9c6227af1fff"
+              }
+            }
+          ],
+          "resolvedBy": {
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "9ca9a659-c1af-47c6-af1c-40b77b5803a3",
+            "attemptId": "e46636b7-7000-413d-8bec-9c6227af1fff"
+          }
+        },
+        {
+          "id": "59b364e1-55ba-4aee-969f-5132abcc198a",
+          "reason": "operation_not_executed",
+          "status": "succeeded",
+          "attempts": [
+            {
+              "roundId": "caaad143-1b3f-48b6-8a99-bd8d7c490060",
+              "outcome": "succeeded",
+              "evidence": {
+                "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+                "observationId": "9ca9a659-c1af-47c6-af1c-40b77b5803a3",
+                "attemptId": "e46636b7-7000-413d-8bec-9c6227af1fff"
+              }
+            }
+          ],
+          "resolvedBy": {
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "9ca9a659-c1af-47c6-af1c-40b77b5803a3",
+            "attemptId": "e46636b7-7000-413d-8bec-9c6227af1fff"
+          }
+        }
+      ]
+    }
+  ],
+  "otherNewRows": 44,
+  "changedOldFieldCounts": {
+    "operationSchedulingNormalization": 276,
+    "evidence": 8,
+    "evidence,operationSchedulingNormalization": 17,
+    "evidence,operationSchedulingNormalization,operationAvailability": 128
+  },
+  "explanation": "44 current scopes have no identical old complete scope; 1h and 24h have only successful old operation receipts and retain new unverified current gaps; Trade additionally needs a new gap because a new unverified source cannot be appended behind the old direct-success receipt."
+}

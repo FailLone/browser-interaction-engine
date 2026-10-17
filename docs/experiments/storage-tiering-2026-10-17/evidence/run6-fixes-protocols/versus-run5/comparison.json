@@ -1,0 +1,2019 @@
+{
+  "baselineRevision": "edd32f9e34a67ea482eedde9b3b64a6212647600",
+  "currentRevision": "125a10ca6dbc78f8dd859a0e7a2917f83d67b55b",
+  "baselineSummaryReproduced": true,
+  "baselineSummaryReconstructionDifferences": [],
+  "aggregateBehaviorEqual": false,
+  "aggregateBehaviorDifferences": [
+    {
+      "path": "continuation.cold_nested_restart.metricsSum.jev",
+      "baseline": 30,
+      "current": 25
+    }
+  ],
+  "perScenarioBehaviorEqual": false,
+  "perScenario": {
+    "conditions": {
+      "public-form-cycle": {
+        "equal": false,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": [
+          {
+            "path": "[0].behavior.metrics.finalPlanRows",
+            "baseline": 5,
+            "current": 3
+          },
+          {
+            "path": "[0].behavior.metrics.initialPlanRows",
+            "baseline": 5,
+            "current": 3
+          },
+          {
+            "path": "[0].behavior.phases[0].planRows",
+            "baseline": 5,
+            "current": 3
+          }
+        ]
+      },
+      "shared-id-rebuild": {
+        "equal": false,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": [
+          {
+            "path": "[0].behavior.metrics.finalPlanRows",
+            "baseline": 7,
+            "current": 5
+          },
+          {
+            "path": "[0].behavior.phases[1].planRows",
+            "baseline": 7,
+            "current": 5
+          },
+          {
+            "path": "[0].behavior.phases[2].planRows",
+            "baseline": 7,
+            "current": 5
+          },
+          {
+            "path": "[0].behavior.phases[3].planRows",
+            "baseline": 7,
+            "current": 5
+          },
+          {
+            "path": "[0].behavior.phases[4].planRows",
+            "baseline": 7,
+            "current": 5
+          }
+        ]
+      },
+      "price-known": {
+        "equal": false,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": [
+          {
+            "path": "[0].behavior.metrics.finalPlanRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[1].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[2].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[3].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[4].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[5].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[6].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[7].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[8].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[9].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[10].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[11].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[12].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[13].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[14].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[15].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[16].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[17].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[18].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[19].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[20].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[21].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[22].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[23].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[24].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[25].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[26].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[27].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[28].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[29].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[30].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[31].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[32].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[33].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[34].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[35].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[36].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[37].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[38].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[39].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[40].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[41].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[42].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[43].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[44].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[45].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[46].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[47].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[48].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[49].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[50].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[51].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[52].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[53].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[54].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[55].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[56].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[57].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[58].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[59].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[60].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[61].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[62].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[63].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[64].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[65].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[66].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[67].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[68].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[69].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[70].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[71].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[72].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[73].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[74].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[75].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[76].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[77].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[78].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[79].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[80].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[81].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[82].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[83].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[84].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[85].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[86].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[87].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[88].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[89].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[90].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[91].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[92].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[93].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[94].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[95].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[96].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[97].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[98].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[99].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[100].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[101].planRows",
+            "baseline": 5,
+            "current": 4
+          }
+        ]
+      },
+      "price-unknown": {
+        "equal": false,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": [
+          {
+            "path": "[0].behavior.metrics.finalPendingRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[1].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[2].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[3].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[4].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[5].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[6].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[7].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[8].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[9].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[10].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[11].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[12].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[13].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[14].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[15].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[16].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[17].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[18].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[19].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[20].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[21].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[22].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[23].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[24].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[25].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[26].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[27].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[28].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[29].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[30].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[31].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[32].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[33].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[34].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[35].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[36].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[37].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[38].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[39].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[40].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[41].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[42].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[43].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[44].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[45].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[46].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[47].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[48].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[49].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[50].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[51].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[52].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[53].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[54].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[55].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[56].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[57].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[58].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[59].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[60].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[61].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[62].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[63].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[64].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[65].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[66].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[67].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[68].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[69].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[70].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[71].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[72].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[73].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[74].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[75].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[76].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[77].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[78].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[79].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[80].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[81].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[82].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[83].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[84].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[85].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[86].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[87].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[88].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[89].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[90].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[91].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[92].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[93].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[94].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[95].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[96].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[97].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[98].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[99].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[100].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[101].pendingPlanRows",
+            "baseline": 5,
+            "current": 6
+          }
+        ]
+      },
+      "nonlocal-dependency": {
+        "equal": false,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": [
+          {
+            "path": "[0].behavior.metrics.finalPlanRows",
+            "baseline": 8,
+            "current": 6
+          },
+          {
+            "path": "[0].behavior.phases[1].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[2].planRows",
+            "baseline": 5,
+            "current": 4
+          },
+          {
+            "path": "[0].behavior.phases[3].planRows",
+            "baseline": 8,
+            "current": 6
+          }
+        ]
+      }
+    },
+    "continuation": {
+      "cold_nested_restart": {
+        "equal": false,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": [
+          {
+            "path": "[0].behavior.metrics.jev",
+            "baseline": 6,
+            "current": 5
+          },
+          {
+            "path": "[0].behavior.modelCalls",
+            "baseline": [
+              {
+                "actor": "jev",
+                "kind": "choice",
+                "purpose": "control-classification"
+              },
+              {
+                "actor": "jev",
+                "kind": "choice",
+                "purpose": "region-review"
+              },
+              {
+                "actor": "jev",
+                "kind": "choice",
+                "purpose": "region-review"
+              },
+              {
+                "actor": "jev",
+                "kind": "choice",
+                "purpose": "region-review"
+              },
+              {
+                "actor": "jev",
+                "kind": "choice",
+                "purpose": "region-review"
+              },
+              {
+                "actor": "jev",
+                "kind": "choice",
+                "purpose": "region-review"
+              }
+            ],
+            "current": [
+              {
+                "actor": "jev",
+                "kind": "choice",
+                "purpose": "control-classification"
+              },
+              {
+                "actor": "jev",
+                "kind": "choice",
+                "purpose": "region-review"
+              },
+              {
+                "actor": "jev",
+                "kind": "choice",
+                "purpose": "region-review"
+              },
+              {
+                "actor": "jev",
+                "kind": "choice",
+                "purpose": "region-review"
+              },
+              {
+                "actor": "jev",
+                "kind": "choice",
+                "purpose": "region-review"
+              }
+            ]
+          },
+          {
+            "path": "[0].behavior.oracle.priorPendingLabels",
+            "baseline": [
+              "Branch B",
+              "Branch B",
+              "Outside",
+              "Outside"
+            ],
+            "current": [
+              "Branch B",
+              "Outside"
+            ]
+          },
+          {
+            "path": "[0].behavior.phases[0].planRowsByState",
+            "baseline": [
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "pending"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Open menu",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Open menu",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Open submenu",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Open submenu",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Outside",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "pending"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Outside",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "program_exhaustive_root",
+                  "required": true,
+                  "status": "pending"
+                }
+              }
+            ],
+            "current": [
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "pending"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Open menu",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Open submenu",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Outside",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "pending"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "program_exhaustive_root",
+                  "required": true,
+                  "status": "pending"
+                }
+              }
+            ]
+          },
+          {
+            "path": "[0].behavior.phases[1].modelRequests.jev",
+            "baseline": 2,
+            "current": 1
+          },
+          {
+            "path": "[0].behavior.phases[1].planRowsByState",
+            "baseline": [
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Open menu",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Open menu",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Open submenu",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Open submenu",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Outside",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Outside",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "program_exhaustive_root",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              }
+            ],
+            "current": [
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Open menu",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Open submenu",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Outside",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "program_exhaustive_root",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              }
+            ]
+          },
+          {
+            "path": "[0].behavior.phases[1].usage.modelRequests",
+            "baseline": 6,
+            "current": 5
+          }
+        ]
+      },
+      "failed_recovery_restart": {
+        "equal": false,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": [
+          {
+            "path": "[0].behavior.oracle.priorPendingLabels",
+            "baseline": [
+              "Branch B",
+              "Branch B"
+            ],
+            "current": [
+              "Branch B"
+            ]
+          },
+          {
+            "path": "[0].behavior.phases[0].planRowsByState",
+            "baseline": [
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "checkpoint_unverified",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "program_exhaustive_root",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              }
+            ],
+            "current": [
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "checkpoint_unverified",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "program_exhaustive_root",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              }
+            ]
+          },
+          {
+            "path": "[0].behavior.phases[1].planRowsByState",
+            "baseline": [
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "checkpoint_unverified",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "program_exhaustive_root",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              }
+            ],
+            "current": [
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "checkpoint_unverified",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "program_exhaustive_root",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "unknown_recovery_restart": {
+        "equal": false,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": [
+          {
+            "path": "[0].behavior.oracle.priorPendingLabels",
+            "baseline": [
+              "Branch B",
+              "Branch B"
+            ],
+            "current": [
+              "Branch B"
+            ]
+          },
+          {
+            "path": "[0].behavior.phases[0].planRowsByState",
+            "baseline": [
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "pending"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "program_exhaustive_root",
+                  "required": true,
+                  "status": "pending"
+                }
+              }
+            ],
+            "current": [
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "pending"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "program_exhaustive_root",
+                  "required": true,
+                  "status": "pending"
+                }
+              }
+            ]
+          },
+          {
+            "path": "[0].behavior.phases[1].planRowsByState",
+            "baseline": [
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "pending"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "operation_not_executed",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "program_exhaustive_root",
+                  "required": true,
+                  "status": "pending"
+                }
+              }
+            ],
+            "current": [
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch A",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "succeeded"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "label": "Branch B",
+                  "reason": "observed_in_scope",
+                  "required": true,
+                  "status": "pending"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "UNKNOWN_DISPATCH_REQUIRES_REVIEW",
+                  "required": true,
+                  "status": "unresolved"
+                }
+              },
+              {
+                "count": 1,
+                "state": {
+                  "reason": "program_exhaustive_root",
+                  "required": true,
+                  "status": "pending"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "inputIdentity": {
+      "distinct-names": {
+        "equal": true,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": []
+      },
+      "same-name-named-owners": {
+        "equal": true,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": []
+      }
+    },
+    "recovery": {
+      "nested_static": {
+        "equal": true,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": []
+      },
+      "modal_reentry_changed_quote": {
+        "equal": true,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": []
+      },
+      "ready_target_ticking_quote": {
+        "equal": true,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": []
+      },
+      "nested_changed_quote": {
+        "equal": true,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": []
+      },
+      "local_inverse_diverges": {
+        "equal": true,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": []
+      },
+      "unknown_outcome_injected": {
+        "equal": true,
+        "baselineDistinctBehaviors": 1,
+        "currentDistinctBehaviors": 1,
+        "differences": []
+      }
+    }
+  },
+  "provenance": {
+    "scriptHashesEqual": true,
+    "fixtureHashesEqual": true,
+    "measurementContractsEqual": true
+  },
+  "comparisonScope": {
+    "aggregate": "Original summary fields, excluding revision, sourceUnchanged, medianMs and maxMs.",
+    "detailed": "Explicit behavior projections, compared as per-scenario trial multisets; iteration order has no semantic role.",
+    "excluded": "Timestamps/durations, random IDs, ephemeral local URL ports, opaque identity/retry hashes, passive quote values, full proof text, raw plans and events. Raw JSON remains authoritative; retained plan state counts and unknown-ID equality checks preserve multiplicity and cross-restart identity.",
+    "retained": "Oracle events, actual A/B/C input values, correspondence expectations/results, status/reasons, action purposes, unknown preservation/guards, necessary reentries, round/action/model budgets, all 100 price tick row counts.",
+    "performance": "Timings are retained in summary for provenance only; these trials do not establish storage or real-site performance."
+  }
+}

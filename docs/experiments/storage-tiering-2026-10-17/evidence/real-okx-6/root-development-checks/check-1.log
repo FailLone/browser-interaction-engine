@@ -1,0 +1,41 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-completion-evidence.test.ts (7 tests) 3501ms
+   ✓ records every audit gap against one source without rereading the large observation for each target  586ms
+   ✓ batches duplicate historical task proofs while keeping same-name controls and current execution distinct  598ms
+   ✓ rebuilds task proof selection after scope acceptance changes and never treats review closure as executed evidence  359ms
+   ✓ retains the discovery observation for unexecuted siblings without inventing evidence for missing legacy rows  365ms
+   ✓ lets host evidence reconcile stale derived scope encodings without broadening user scopes or same-name controls  591ms
+   ✓ closes obsolete exact-scope blockers only with SDK-verified historical coverage, without inventing executions  360ms
+   ✓ lets the SDK match changed native record-link text only for derived evidence, preserving literal user scopes  640ms
+ ✓ tests/explorer-condition-migration.test.ts (11 tests) 4868ms
+   ✓ reopens a genuinely persisted v1 pending row, upgrades its exact source hint, and executes A/B without granting completion on migration  823ms
+   ✓ splits an already-invalidated coarse v1 A/B row and completes both children without treating the parent as successful  742ms
+   ✓ restarts with an unknown recovery result and blocks before key migration, observation or new session  364ms
+   ✓ does not borrow a sibling observation to narrow a keyed v1 obligation whose original source is missing  686ms
+   ✓ fails closed when transferred children are missing, rebound, unauthorized, excluded, or lose their retained source  321ms
+   ✓ prepares all children before an ID collision and retains the complete old gap without a partial split  310ms
+   ✓ settles the A child through current SDK history while B remains untested, and retains its condition after explicit supplement  598ms
+   ✓ blocks a persisted split with changed child authority before observation, session creation or dispatch  317ms
+ ✓ tests/explorer-obligation-scheduler-safety.test.ts (9 tests) 4532ms
+   ✓ does not bypass exhausted legacy composite route debt with new per-item keys (orphaned=false)  666ms
+   ✓ does not bypass exhausted legacy composite route debt with new per-item keys (orphaned=true)  537ms
+   ✓ keeps an already associated composite debt after a fresh duplicate row ID is discovered and the historical stack disappears  378ms
+   ✓ never restores another session checkpoint when only historical target evidence survives and no EntryRoute exists  583ms
+   ✓ retained gaps and a historical root frame do not authorize returning to a page after its accepted scope is removed  362ms
+   ✓ a durable unknown in the old source session blocks cold-start scheduling before observation, replacement session or dispatch  372ms
+   ✓ does not turn an exhausted composite route into a fresh singleton route when native-link quote labels change  554ms
+   ✓ retained gaps do not authorize a local boundary exit after every accepted scope is removed  475ms
+   ✓ does not renew a failed route condition when a still-obstructed native target changes only its quote label  603ms
+ ✓ tests/explorer-obligation-source-condition.test.ts (2 tests) 1767ms
+   ✓ control: the retained B condition is independently reachable by the real SDK from away  808ms
+   ✓ a failed A source does not spend the independent B source restoration budget for the same Run control  959ms
+ ✓ tests/explorer-source-completion-review.test.ts (10 tests) 38ms
+ ✓ tests/explorer-operation-availability.test.ts (21 tests) 19ms
+
+ Test Files  6 passed (6)
+      Tests  60 passed (60)
+   Start at  07:31:11
+   Duration  18.06s (transform 590ms, setup 0ms, collect 2.57s, tests 14.73s, environment 0ms, prepare 193ms)
+

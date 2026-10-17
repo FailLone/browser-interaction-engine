@@ -1,0 +1,14 @@
+{
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/explorer-plugin-semantic.test.ts"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 36.98860502243042,
+  "sourceUnchanged": true,
+  "changed": [],
+  "sourceFiles": 163
+}

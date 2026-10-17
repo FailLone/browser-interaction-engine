@@ -1,0 +1,19 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/region-structural-reuse.test.ts (10 tests) 4500ms
+   ✓ reuses a captured structural owner after reload while retaining every record and local key and granting no depth or action  681ms
+   ✓ does not treat changed record evidence as a portable structural binding  470ms
+   ✓ does not treat changed owner evidence as a portable structural binding  466ms
+   ✓ does not treat changed local evidence as a portable structural binding  468ms
+   ✓ does not treat changed duplicate-owner evidence as a portable structural binding  502ms
+   ✓ keeps native disabled readiness outside grouping proof without allowing a disabled operation  562ms
+   ✓ still invalidates reusable grouping when aria-disabled changes  340ms
+   ✓ still invalidates reusable grouping when data-owner changes  360ms
+   ✓ still invalidates reusable grouping when custom-disabled changes  360ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  07:47:04
+   Duration  5.37s (transform 370ms, setup 0ms, collect 733ms, tests 4.50s, environment 0ms, prepare 34ms)
+

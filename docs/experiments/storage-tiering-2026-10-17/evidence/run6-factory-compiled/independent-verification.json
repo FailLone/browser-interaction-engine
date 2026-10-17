@@ -1,0 +1,23 @@
+{
+  "revision": "900edf7d5c60c3ddcf9265538758033ccecc5832",
+  "sourceManifestsExactlyEqual": true,
+  "sourceFileCount": 488,
+  "commandsAllExitZero": true,
+  "commandsRunOnlyInsideOwnedArchive": true,
+  "workspaceLinksAllInsideArchive": true,
+  "workspaceLinkCount": 28,
+  "thirdPartyLinksOutsideArchiveUnderNodeModules": true,
+  "thirdPartySharedLinkCount": 32,
+  "publishedModulePathsInsideArchive": true,
+  "publishedDeclarationPathsInsideArchive": true,
+  "publishedModuleCount": 9,
+  "originalArtifactHashesValid": true,
+  "ownedArchiveRemoved": true,
+  "validatedProductAndTestInputHashes": {
+    "packages/explorer-plugin/src/operation-scheduling.ts": "f336eeb016e39b594fdd39a5d7666bd3e8b9c02cfa0a8edc64d4e9a19832ceeb",
+    "packages/explorer-plugin/src/runtime.ts": "eb3f0a1f4e1e72e392fafbee3b2f1a510be215a5d880d729aee0c9480fcb91d5",
+    "tests/explorer-operation-scheduling-factory.test.ts": "e840c228bb263e05b7c7ac76625ae75399f0dfa9f82d22fa47f37c219c1f63c5"
+  },
+  "realExternalProvidersUsed": false,
+  "performanceClaim": false
+}

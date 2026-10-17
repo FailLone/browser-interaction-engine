@@ -1,0 +1,33 @@
+{
+  "kind": "development checks while parallel implementation continues",
+  "results": [
+    {
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/explorer-operation-availability.test.ts",
+        "tests/explorer-source-completion-review.test.ts",
+        "tests/explorer-completion-evidence.test.ts",
+        "tests/explorer-obligation-source-condition.test.ts",
+        "tests/explorer-condition-migration.test.ts",
+        "tests/explorer-obligation-scheduler-safety.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 18.52998924255371,
+      "log": "check-1.log"
+    },
+    {
+      "command": [
+        "pnpm",
+        "exec",
+        "tsc",
+        "--noEmit"
+      ],
+      "exitCode": 2,
+      "elapsedSeconds": 6.477497100830078,
+      "log": "check-2.log"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/explorer-region-reuse.test.ts",
+      "tests/region-structural-reuse.test.ts",
+      "tests/region-review-reuse.test.ts",
+      "tests/region-reviews.test.ts",
+      "tests/explorer-region-batching.test.ts",
+      "tests/explorer-classification-reuse.test.ts"
+    ],
+    "exitCode": 0,
+    "log": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/region-reuse-validation/region-regression.log"
+  },
+  {
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "exitCode": 2,
+    "log": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/region-reuse-validation/typecheck.log"
+  }
+]

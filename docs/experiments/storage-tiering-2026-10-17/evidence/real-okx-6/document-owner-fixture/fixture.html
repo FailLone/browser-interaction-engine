@@ -1,0 +1,8 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Document-bound owner mutation fixture</title><style>ul{position:absolute;top:0;left:0;visibility:hidden}#result{white-space:pre}</style></head><body>
+<ul><li data-record="A"><i role="button" tabindex="0" aria-label="Open sub-menu" aria-expanded="false"></i><a href="/record-A">Record link</a></li><li data-record="C"><i role="button" tabindex="0" aria-label="Open sub-menu" aria-expanded="false"></i><a href="/record-C">Record link</a></li></ul>
+<main><section aria-label="Commands"><button id="run" type="button" onclick="runBranch()">Run</button><output id="result"></output></section></main>
+<script>
+window.fixtureNodes={row:document.querySelector('li'),selector:document.querySelector('li i')};
+window.fixtureOracle=[];
+function runBranch(){const row=document.querySelector('li');const branch=row.dataset.record+'|'+row.querySelector(':scope > a').getAttribute('href');window.fixtureOracle.push(branch);document.querySelector('#result').textContent=branch;const request=new XMLHttpRequest();request.open('POST','/oracle?branch='+encodeURIComponent(branch),false);request.send();}
+</script></body></html>

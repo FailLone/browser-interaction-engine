@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-source-discovery-review.test.ts (20 tests) 58ms
+ ✓ tests/reviewed-operation-correspondence.test.ts (41 tests) 526ms
+ ✓ tests/explorer-source-completion-review.test.ts (10 tests) 34ms
+
+ Test Files  3 passed (3)
+      Tests  71 passed (71)
+   Start at  07:53:43
+   Duration  2.38s (transform 522ms, setup 0ms, collect 1.38s, tests 618ms, environment 0ms, prepare 101ms)
+

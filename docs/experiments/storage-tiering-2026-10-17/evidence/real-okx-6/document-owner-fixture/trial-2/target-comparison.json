@@ -1,0 +1,22 @@
+[
+  {
+    "change": "data-record",
+    "fullRunControlEqual": true,
+    "runControlDifferentKeys": [],
+    "kindValueRiskBasisEqual": true,
+    "comparisonSourceFiles": [
+      "capture-A-before.json",
+      "capture-data-record-before.json"
+    ]
+  },
+  {
+    "change": "direct-href",
+    "fullRunControlEqual": true,
+    "runControlDifferentKeys": [],
+    "kindValueRiskBasisEqual": true,
+    "comparisonSourceFiles": [
+      "capture-data-record-before.json",
+      "capture-direct-href-before.json"
+    ]
+  }
+]

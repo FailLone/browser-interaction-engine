@@ -1,0 +1,1913 @@
+{
+  "protocol": "run6-selector-condition-diagnosis-v1",
+  "head": "d103747ee78779b3f1df8223854600cd321e36ee",
+  "sourceSha256": {
+    "packages/adapter-playwright/src/branch-conditions.ts": "700ac4bffd6826d50eebb92478322c63d927556234ad5ad397fa75fb009ae63e",
+    "packages/adapter-playwright/src/target-arrival.ts": "f5c65d77e9c7f32aa65c863b9432abb78c49431e5f95e3597cb81b505bf807f1",
+    "packages/adapter-playwright/src/browser.ts": "03782cdb75b13eac903864fea65b1840e1893ccbce0abff00e3fb1de78497047",
+    "packages/adapter-playwright/src/identity-context.ts": "64beaa64626d4b1d2282c390be18f4c95e8926ae72460950f24a6e152f2f1418",
+    "packages/adapter-playwright/src/structural-lists.ts": "0a48805c31c3ad7cc093738341858d1abd33ec435681d8a1115eaf0b93dbd9db",
+    "packages/adapter-playwright/src/util.ts": "a6c7479985539afe4f87337c08069193c4c3c1bd0f9acacda8eeb249143db7a4",
+    "packages/core/src/identity.ts": "da9ba03b9f5cb8ee76c8374f9f52cc27d4106e6b5d862157656a3784972a8521"
+  },
+  "archivedInputDatabaseSha256": {
+    "engine/engine.sqlite": "8f5ab1e177a154f23bff5006fc29953bfe8d772d9c5fdff8a4efdce74e7456a2",
+    "plugin/explorer.sqlite": "ed9ea839def36bb779f419bbc0e2f11576065a79b5d02686ff751121acf7eecb"
+  },
+  "method": {
+    "reads": "previous authenticated raw extraction + frozen evidence files",
+    "databaseConnections": 0,
+    "sdkConstructors": 0,
+    "browserProviderNetworkCalls": 0,
+    "productOrTestWrites": 0
+  },
+  "privateFrames": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/okx-run6-selector-diagnosis-kallcf71/frames.json",
+  "privateFramesSha256": "929b06e10029c796bc06a08a803311e12ec8bc6890c532c2533da470af2961c8",
+  "evidenceValidation": {
+    "artifact": "c11abe9e-e2a4-44f2-bf53-64ebf22a1dd2.details.json",
+    "bytes": 4402773,
+    "sha256": "4b93568a59a3c031c2ed0f5216855aad51719d2d6a383a2b3acda06344ccd968",
+    "verifiedBlocks": 148,
+    "manifestSha256": "30296dfe112ba6136111bf61536ab75358325b6eb2da0c07a427c51405e5c719",
+    "domTruncated": true,
+    "scope": "selected row and direct children are present; overall DOM completeness is not claimed"
+  },
+  "captureFindings": [
+    {
+      "controlId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1315",
+      "row": {
+        "id": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1313",
+        "parentId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1395",
+        "children": [
+          "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1314",
+          "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1315",
+          "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1316"
+        ],
+        "tag": "li",
+        "nodeType": "element",
+        "attributes": {
+          "class": "trade-drop-item-con dropdown-panel-li"
+        },
+        "gaps": [],
+        "computedStyle": {
+          "display": "flex",
+          "visibility": "hidden",
+          "position": "relative"
+        }
+      },
+      "children": [
+        {
+          "id": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1314",
+          "parentId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1313",
+          "children": [
+            "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1397"
+          ],
+          "tag": "a",
+          "nodeType": "element",
+          "attributes": {
+            "href": "/flash-earn?from-page=trade",
+            "class": "box-item panel-box-item drop-panel-box-item icon okx-header-footer-flash-earn-outline"
+          },
+          "gaps": [],
+          "computedStyle": {
+            "display": "flex",
+            "visibility": "hidden",
+            "position": "static"
+          }
+        },
+        {
+          "id": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1315",
+          "parentId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1313",
+          "children": [],
+          "tag": "i",
+          "nodeType": "element",
+          "attributes": {
+            "tabindex": "0",
+            "role": "button",
+            "aria-expanded": "false",
+            "aria-label": "Open  sub-menu",
+            "class": "panel-drop-item-icon trade-panel-drop-item-icon icon okx-header-footer-arrow-chevrons-right"
+          },
+          "gaps": [],
+          "computedStyle": {
+            "display": "flex",
+            "visibility": "hidden",
+            "position": "static"
+          }
+        },
+        {
+          "id": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1316",
+          "parentId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1313",
+          "children": [
+            "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1317",
+            "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1318"
+          ],
+          "tag": "div",
+          "nodeType": "element",
+          "attributes": {
+            "id": "third-menu-10321",
+            "class": "drop-panel-box drop-panel-box-list trade-drop-box-list explorer-drop-panel-third-list",
+            "style": "display: none; left: 0px; top: 0px; bottom: unset; right: unset; position: fixed;"
+          },
+          "gaps": [],
+          "computedStyle": {
+            "display": "none",
+            "visibility": "hidden",
+            "position": "fixed"
+          }
+        }
+      ],
+      "directRecordHref": "/flash-earn?from-page=trade",
+      "directLinkRejectedByCurrentRecordScopes": true,
+      "allRowChildrenRejectedByCurrentVisibilityPredicate": true,
+      "noDirectRowTextNodeRemains": true,
+      "originalSelector": {
+        "name": "Open sub-menu",
+        "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1315",
+        "visible": false,
+        "expanded": false,
+        "stableKey": null,
+        "identityScope": null,
+        "identityContext": null,
+        "hypothesisId": "a9fa43d1-bbc0-48e2-bf9c-2f7f7eb8d90d",
+        "reviewBinding": {
+          "parentInstanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1313",
+          "attributes": {
+            "role": "button",
+            "aria-label": "Open  sub-menu"
+          }
+        }
+      }
+    },
+    {
+      "controlId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1321",
+      "row": {
+        "id": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1319",
+        "parentId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1395",
+        "children": [
+          "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1320",
+          "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1321",
+          "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1322"
+        ],
+        "tag": "li",
+        "nodeType": "element",
+        "attributes": {
+          "class": "trade-drop-item-con dropdown-panel-li"
+        },
+        "gaps": [],
+        "computedStyle": {
+          "display": "flex",
+          "visibility": "hidden",
+          "position": "relative"
+        }
+      },
+      "children": [
+        {
+          "id": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1320",
+          "parentId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1319",
+          "children": [
+            "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1406"
+          ],
+          "tag": "a",
+          "nodeType": "element",
+          "attributes": {
+            "href": "/agent-tradekit",
+            "class": "box-item panel-box-item drop-panel-box-item icon okx-header-footer-ai-outline"
+          },
+          "gaps": [],
+          "computedStyle": {
+            "display": "flex",
+            "visibility": "hidden",
+            "position": "static"
+          }
+        },
+        {
+          "id": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1321",
+          "parentId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1319",
+          "children": [],
+          "tag": "i",
+          "nodeType": "element",
+          "attributes": {
+            "tabindex": "0",
+            "role": "button",
+            "aria-expanded": "false",
+            "aria-label": "Open  sub-menu",
+            "class": "panel-drop-item-icon trade-panel-drop-item-icon icon okx-header-footer-arrow-chevrons-right"
+          },
+          "gaps": [],
+          "computedStyle": {
+            "display": "flex",
+            "visibility": "hidden",
+            "position": "static"
+          }
+        },
+        {
+          "id": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1322",
+          "parentId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1319",
+          "children": [
+            "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1323",
+            "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1324",
+            "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1325"
+          ],
+          "tag": "div",
+          "nodeType": "element",
+          "attributes": {
+            "id": "third-menu-10320",
+            "class": "drop-panel-box drop-panel-box-list trade-drop-box-list explorer-drop-panel-third-list",
+            "style": "display: none; left: 0px; top: 0px; bottom: unset; right: unset; position: fixed;"
+          },
+          "gaps": [],
+          "computedStyle": {
+            "display": "none",
+            "visibility": "hidden",
+            "position": "fixed"
+          }
+        }
+      ],
+      "directRecordHref": "/agent-tradekit",
+      "directLinkRejectedByCurrentRecordScopes": true,
+      "allRowChildrenRejectedByCurrentVisibilityPredicate": true,
+      "noDirectRowTextNodeRemains": true,
+      "originalSelector": {
+        "name": "Open sub-menu",
+        "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1321",
+        "visible": false,
+        "expanded": false,
+        "stableKey": null,
+        "identityScope": null,
+        "identityContext": null,
+        "hypothesisId": "635bfd2b-2759-4a6a-bf21-247ef2e10a34",
+        "reviewBinding": {
+          "parentInstanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1319",
+          "attributes": {
+            "role": "button",
+            "aria-label": "Open  sub-menu"
+          }
+        }
+      }
+    }
+  ],
+  "frameHashes": {
+    "c11abe9e-e2a4-44f2-bf53-64ebf22a1dd2": "8831dd225d637872de528156c748c9706d964c5a1f0a5c742d6923304bbe333c",
+    "f23494e8-671d-40fa-abe2-c39c51ef09a7": "a56d030b2face6f3b705b2575470e48977a10d246ad630eca84164e06e5dc21d",
+    "7d2b74b2-0f19-41f9-aa3b-0a76be24dd30": "5d00b893f85d64aa46bcbfbcb9d484fc246036f6bbc3eecf8612bc49064de773",
+    "fd34f210-b228-4d61-ab92-6bcebe74ccb9": "e3552add3da0645ecc2fe3085691de2ce66ed5c488a235dac149f604da3dc5a4"
+  },
+  "authorizations": {
+    "identity": false,
+    "execution": false,
+    "coverage": false,
+    "recovery": false,
+    "retryRelease": false
+  },
+  "frames": [
+    {
+      "observationId": "c11abe9e-e2a4-44f2-bf53-64ebf22a1dd2",
+      "stable": true,
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "documentId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21",
+      "instanceScope": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21",
+      "context": {},
+      "criticalGaps": [],
+      "actions": 206,
+      "branchUnavailable": 206,
+      "targetConditionsUnavailable": 206,
+      "selectorCount": 26,
+      "limit": 32,
+      "selectors": [
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1307",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1307",
+          "name": "Trade",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:title-nav-trade\",\"name\":\"Trade\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1312",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1312",
+          "name": "Open Spot sub-menu",
+          "visible": false,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Open Spot sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1315",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1315",
+          "name": "Open sub-menu",
+          "visible": false,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "hypothesisId": "a9fa43d1-bbc0-48e2-bf9c-2f7f7eb8d90d",
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1321",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1321",
+          "name": "Open sub-menu",
+          "visible": false,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "hypothesisId": "635bfd2b-2759-4a6a-bf21-247ef2e10a34",
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1329",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1329",
+          "name": "Institutional",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:title-nav-institutions\",\"name\":\"Institutional\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1339",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1339",
+          "name": "Learn",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Learn\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1348",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1348",
+          "name": "More",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"More\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1379",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1379",
+          "name": "Change language or currency",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Change language or currency\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1380",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1380",
+          "name": "Open menu with additional options",
+          "visible": false,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:headerMenuBtn\",\"name\":\"Open menu with additional options\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1512",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1512",
+          "name": "1h",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1h\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1h\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1513",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1513",
+          "name": "24h",
+          "visible": true,
+          "state": {
+            "selected": true
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"24h\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"24h\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1514",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1514",
+          "name": "1W",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1W\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1W\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1515",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1515",
+          "name": "1M",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1M\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1M\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1516",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1516",
+          "name": "1Y",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1Y\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1Y\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1517",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1517",
+          "name": "2Y",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"2Y\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"2Y\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:19",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:19",
+          "name": "What is the exchange rate for USD to Bitcoin (BTC) today?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"What is the exchange rate for USD to Bitcoin (BTC) today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"What is the exchange rate for USD to Bitcoin (BTC) today?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:22",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:22",
+          "name": "How many Bitcoin are there in total?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How many Bitcoin are there in total?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How many Bitcoin are there in total?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:25",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:25",
+          "name": "I just bought Bitcoin. How do I increase my profits after buying BTC?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"I just bought Bitcoin. How do I increase my profits after buying BTC?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"A\\\",\\\"\\\",\\\"\\\",true,false,[]]]]]]]]\"},\"name\":\"I just bought Bitcoin. How do I increase my profits after buying BTC?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:28",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:28",
+          "name": "What is the recorded all-time high price of BTC compared to today's market price?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"What is the recorded all-time high price of BTC compared to today's market price?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"What is the recorded all-time high price of BTC compared to today's market price?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:31",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:31",
+          "name": "I have some questions about buying BTC. Who do I contact?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"I have some questions about buying BTC. Who do I contact?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"A\\\",\\\"\\\",\\\"\\\",true,false,[]]]]]]]]\"},\"name\":\"I have some questions about buying BTC. Who do I contact?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:34",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:34",
+          "name": "Where can I find more information about Bitcoin (BTC)?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"Where can I find more information about Bitcoin (BTC)?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"A\\\",\\\"\\\",\\\"\\\",true,false,[]]]]]]]]\"},\"name\":\"Where can I find more information about Bitcoin (BTC)?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:37",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:37",
+          "name": "I have some questions about buying cryptocurrency. Who can I speak to?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"testid:okd-accordion-header\",\"name\":\"I have some questions about buying cryptocurrency. Who can I speak to?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:40",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:40",
+          "name": "How much is $1 worth of Bitcoin today?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How much is $1 worth of Bitcoin today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How much is $1 worth of Bitcoin today?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:43",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:43",
+          "name": "How much is 1 Bitcoin worth in USD today?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How much is 1 Bitcoin worth in USD today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How much is 1 Bitcoin worth in USD today?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:46",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:46",
+          "name": "How can I convert BTC to USD using the crypto calculator?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How can I convert BTC to USD using the crypto calculator?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How can I convert BTC to USD using the crypto calculator?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:152",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:152",
+          "name": "Selected language and currency: English/USD",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:language\",\"name\":\"Selected language and currency: English/USD\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"footerContainer\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        }
+      ],
+      "reasonCounts": {
+        "unresolved": 2,
+        "instanceOnly": 0,
+        "missingRecord": 0,
+        "missingState": 0,
+        "unstable": 0,
+        "duplicateBindingGroups": 1,
+        "overflow": false
+      }
+    },
+    {
+      "observationId": "f23494e8-671d-40fa-abe2-c39c51ef09a7",
+      "stable": true,
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "documentId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21",
+      "instanceScope": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21",
+      "context": {},
+      "criticalGaps": [],
+      "actions": 214,
+      "branchUnavailable": 214,
+      "targetConditionsUnavailable": 214,
+      "selectorCount": 28,
+      "limit": 32,
+      "selectors": [
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1307",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1307",
+          "name": "Trade",
+          "visible": true,
+          "state": {
+            "expanded": true
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:title-nav-trade\",\"name\":\"Trade\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1312",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1312",
+          "name": "Open Spot sub-menu",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "identityScope": "instance",
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"item:[[[\\\"Trading instruments\\\",\\\"[\\\\\\\"record-instance\\\\\\\",\\\\\\\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1310\\\\\\\",\\\\\\\"[\\\\\\\\\\\\\\\"record-links\\\\\\\\\\\\\\\",[\\\\\\\\\\\\\\\"https://www.okx.com/trade-spot\\\\\\\\\\\\\\\"]]\\\\\\\"]\\\"]],\\\"[\\\\\\\"button\\\\\\\",\\\\\\\"Open Spot sub-menu\\\\\\\",\\\\\\\"i\\\\\\\"]\\\"]\",\"name\":\"Open Spot sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1315",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1315",
+          "name": "Open sub-menu",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "identityScope": "instance",
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"item:[[[\\\"Powerful tools\\\",\\\"[\\\\\\\"record-instance\\\\\\\",\\\\\\\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1313\\\\\\\",\\\\\\\"[\\\\\\\\\\\\\\\"record-links\\\\\\\\\\\\\\\",[\\\\\\\\\\\\\\\"https://www.okx.com/flash-earn?from-page=trade\\\\\\\\\\\\\\\"]]\\\\\\\"]\\\"]],\\\"[\\\\\\\"button\\\\\\\",\\\\\\\"Open sub-menu\\\\\\\",\\\\\\\"i\\\\\\\"]\\\"]\",\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1321",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1321",
+          "name": "Open sub-menu",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "identityScope": "instance",
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"item:[[[\\\"Powerful tools\\\",\\\"[\\\\\\\"record-instance\\\\\\\",\\\\\\\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1319\\\\\\\",\\\\\\\"[\\\\\\\\\\\\\\\"record-links\\\\\\\\\\\\\\\",[\\\\\\\\\\\\\\\"https://www.okx.com/agent-tradekit\\\\\\\\\\\\\\\"]]\\\\\\\"]\\\"]],\\\"[\\\\\\\"button\\\\\\\",\\\\\\\"Open sub-menu\\\\\\\",\\\\\\\"i\\\\\\\"]\\\"]\",\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1329",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1329",
+          "name": "Institutional",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:title-nav-institutions\",\"name\":\"Institutional\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1339",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1339",
+          "name": "Learn",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Learn\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1348",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1348",
+          "name": "More",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"More\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1370",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1370",
+          "name": "Notifications and announcements",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Notifications and announcements\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1373",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1373",
+          "name": "Support",
+          "visible": false,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Support\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1379",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1379",
+          "name": "Change language or currency",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Change language or currency\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1380",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1380",
+          "name": "Open menu with additional options",
+          "visible": false,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:headerMenuBtn\",\"name\":\"Open menu with additional options\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1512",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1512",
+          "name": "1h",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1h\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1h\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1513",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1513",
+          "name": "24h",
+          "visible": true,
+          "state": {
+            "selected": true
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"24h\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"24h\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1514",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1514",
+          "name": "1W",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1W\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1W\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1515",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1515",
+          "name": "1M",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1M\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1M\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1516",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1516",
+          "name": "1Y",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1Y\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1Y\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1517",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1517",
+          "name": "2Y",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"2Y\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"2Y\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:19",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:19",
+          "name": "What is the exchange rate for USD to Bitcoin (BTC) today?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"What is the exchange rate for USD to Bitcoin (BTC) today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"What is the exchange rate for USD to Bitcoin (BTC) today?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:22",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:22",
+          "name": "How many Bitcoin are there in total?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How many Bitcoin are there in total?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How many Bitcoin are there in total?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:25",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:25",
+          "name": "I just bought Bitcoin. How do I increase my profits after buying BTC?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"I just bought Bitcoin. How do I increase my profits after buying BTC?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"A\\\",\\\"\\\",\\\"\\\",true,false,[]]]]]]]]\"},\"name\":\"I just bought Bitcoin. How do I increase my profits after buying BTC?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:28",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:28",
+          "name": "What is the recorded all-time high price of BTC compared to today's market price?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"What is the recorded all-time high price of BTC compared to today's market price?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"What is the recorded all-time high price of BTC compared to today's market price?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:31",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:31",
+          "name": "I have some questions about buying BTC. Who do I contact?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"I have some questions about buying BTC. Who do I contact?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"A\\\",\\\"\\\",\\\"\\\",true,false,[]]]]]]]]\"},\"name\":\"I have some questions about buying BTC. Who do I contact?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:34",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:34",
+          "name": "Where can I find more information about Bitcoin (BTC)?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"Where can I find more information about Bitcoin (BTC)?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"A\\\",\\\"\\\",\\\"\\\",true,false,[]]]]]]]]\"},\"name\":\"Where can I find more information about Bitcoin (BTC)?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:37",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:37",
+          "name": "I have some questions about buying cryptocurrency. Who can I speak to?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"testid:okd-accordion-header\",\"name\":\"I have some questions about buying cryptocurrency. Who can I speak to?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:40",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:40",
+          "name": "How much is $1 worth of Bitcoin today?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How much is $1 worth of Bitcoin today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How much is $1 worth of Bitcoin today?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:43",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:43",
+          "name": "How much is 1 Bitcoin worth in USD today?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How much is 1 Bitcoin worth in USD today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How much is 1 Bitcoin worth in USD today?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:46",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:46",
+          "name": "How can I convert BTC to USD using the crypto calculator?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How can I convert BTC to USD using the crypto calculator?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How can I convert BTC to USD using the crypto calculator?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:152",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:152",
+          "name": "Selected language and currency: English/USD",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:language\",\"name\":\"Selected language and currency: English/USD\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"footerContainer\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        }
+      ],
+      "reasonCounts": {
+        "unresolved": 0,
+        "instanceOnly": 3,
+        "missingRecord": 0,
+        "missingState": 0,
+        "unstable": 0,
+        "duplicateBindingGroups": 0,
+        "overflow": false
+      }
+    },
+    {
+      "observationId": "7d2b74b2-0f19-41f9-aa3b-0a76be24dd30",
+      "stable": true,
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "documentId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21",
+      "instanceScope": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21",
+      "context": {},
+      "criticalGaps": [],
+      "actions": 214,
+      "branchUnavailable": 214,
+      "targetConditionsUnavailable": 214,
+      "selectorCount": 28,
+      "limit": 32,
+      "selectors": [
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1307",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1307",
+          "name": "Trade",
+          "visible": true,
+          "state": {
+            "expanded": true
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:title-nav-trade\",\"name\":\"Trade\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1312",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1312",
+          "name": "Open Spot sub-menu",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "identityScope": "instance",
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"item:[[[\\\"Trading instruments\\\",\\\"[\\\\\\\"record-instance\\\\\\\",\\\\\\\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1310\\\\\\\",\\\\\\\"[\\\\\\\\\\\\\\\"record-links\\\\\\\\\\\\\\\",[\\\\\\\\\\\\\\\"https://www.okx.com/trade-spot\\\\\\\\\\\\\\\"]]\\\\\\\"]\\\"]],\\\"[\\\\\\\"button\\\\\\\",\\\\\\\"Open Spot sub-menu\\\\\\\",\\\\\\\"i\\\\\\\"]\\\"]\",\"name\":\"Open Spot sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1315",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1315",
+          "name": "Open sub-menu",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "identityScope": "instance",
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"item:[[[\\\"Powerful tools\\\",\\\"[\\\\\\\"record-instance\\\\\\\",\\\\\\\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1313\\\\\\\",\\\\\\\"[\\\\\\\\\\\\\\\"record-links\\\\\\\\\\\\\\\",[\\\\\\\\\\\\\\\"https://www.okx.com/flash-earn?from-page=trade\\\\\\\\\\\\\\\"]]\\\\\\\"]\\\"]],\\\"[\\\\\\\"button\\\\\\\",\\\\\\\"Open sub-menu\\\\\\\",\\\\\\\"i\\\\\\\"]\\\"]\",\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1321",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1321",
+          "name": "Open sub-menu",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "identityScope": "instance",
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"item:[[[\\\"Powerful tools\\\",\\\"[\\\\\\\"record-instance\\\\\\\",\\\\\\\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1319\\\\\\\",\\\\\\\"[\\\\\\\\\\\\\\\"record-links\\\\\\\\\\\\\\\",[\\\\\\\\\\\\\\\"https://www.okx.com/agent-tradekit\\\\\\\\\\\\\\\"]]\\\\\\\"]\\\"]],\\\"[\\\\\\\"button\\\\\\\",\\\\\\\"Open sub-menu\\\\\\\",\\\\\\\"i\\\\\\\"]\\\"]\",\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1329",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1329",
+          "name": "Institutional",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:title-nav-institutions\",\"name\":\"Institutional\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1339",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1339",
+          "name": "Learn",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Learn\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1348",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1348",
+          "name": "More",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"More\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1370",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1370",
+          "name": "Notifications and announcements",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Notifications and announcements\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1373",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1373",
+          "name": "Support",
+          "visible": false,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Support\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1379",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1379",
+          "name": "Change language or currency",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Change language or currency\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1380",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1380",
+          "name": "Open menu with additional options",
+          "visible": false,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:headerMenuBtn\",\"name\":\"Open menu with additional options\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1512",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1512",
+          "name": "1h",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1h\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1h\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1513",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1513",
+          "name": "24h",
+          "visible": true,
+          "state": {
+            "selected": true
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"24h\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"24h\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1514",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1514",
+          "name": "1W",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1W\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1W\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1515",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1515",
+          "name": "1M",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1M\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1M\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1516",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1516",
+          "name": "1Y",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1Y\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1Y\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1517",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1517",
+          "name": "2Y",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"2Y\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"2Y\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:19",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:19",
+          "name": "What is the exchange rate for USD to Bitcoin (BTC) today?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"What is the exchange rate for USD to Bitcoin (BTC) today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"What is the exchange rate for USD to Bitcoin (BTC) today?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:22",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:22",
+          "name": "How many Bitcoin are there in total?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How many Bitcoin are there in total?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How many Bitcoin are there in total?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:25",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:25",
+          "name": "I just bought Bitcoin. How do I increase my profits after buying BTC?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"I just bought Bitcoin. How do I increase my profits after buying BTC?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"A\\\",\\\"\\\",\\\"\\\",true,false,[]]]]]]]]\"},\"name\":\"I just bought Bitcoin. How do I increase my profits after buying BTC?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:28",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:28",
+          "name": "What is the recorded all-time high price of BTC compared to today's market price?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"What is the recorded all-time high price of BTC compared to today's market price?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"What is the recorded all-time high price of BTC compared to today's market price?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:31",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:31",
+          "name": "I have some questions about buying BTC. Who do I contact?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"I have some questions about buying BTC. Who do I contact?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"A\\\",\\\"\\\",\\\"\\\",true,false,[]]]]]]]]\"},\"name\":\"I have some questions about buying BTC. Who do I contact?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:34",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:34",
+          "name": "Where can I find more information about Bitcoin (BTC)?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"Where can I find more information about Bitcoin (BTC)?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"A\\\",\\\"\\\",\\\"\\\",true,false,[]]]]]]]]\"},\"name\":\"Where can I find more information about Bitcoin (BTC)?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:37",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:37",
+          "name": "I have some questions about buying cryptocurrency. Who can I speak to?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"testid:okd-accordion-header\",\"name\":\"I have some questions about buying cryptocurrency. Who can I speak to?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:40",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:40",
+          "name": "How much is $1 worth of Bitcoin today?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How much is $1 worth of Bitcoin today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How much is $1 worth of Bitcoin today?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:43",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:43",
+          "name": "How much is 1 Bitcoin worth in USD today?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How much is 1 Bitcoin worth in USD today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How much is 1 Bitcoin worth in USD today?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:46",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:46",
+          "name": "How can I convert BTC to USD using the crypto calculator?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How can I convert BTC to USD using the crypto calculator?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How can I convert BTC to USD using the crypto calculator?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:152",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:152",
+          "name": "Selected language and currency: English/USD",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:language\",\"name\":\"Selected language and currency: English/USD\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"footerContainer\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        }
+      ],
+      "reasonCounts": {
+        "unresolved": 0,
+        "instanceOnly": 3,
+        "missingRecord": 0,
+        "missingState": 0,
+        "unstable": 0,
+        "duplicateBindingGroups": 0,
+        "overflow": false
+      }
+    },
+    {
+      "observationId": "fd34f210-b228-4d61-ab92-6bcebe74ccb9",
+      "stable": true,
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "documentId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21",
+      "instanceScope": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21",
+      "context": {},
+      "criticalGaps": [],
+      "actions": 214,
+      "branchUnavailable": 214,
+      "targetConditionsUnavailable": 214,
+      "selectorCount": 28,
+      "limit": 32,
+      "selectors": [
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1307",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1307",
+          "name": "Trade",
+          "visible": true,
+          "state": {
+            "expanded": true
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:title-nav-trade\",\"name\":\"Trade\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1312",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1312",
+          "name": "Open Spot sub-menu",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "identityScope": "instance",
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"item:[[[\\\"Trading instruments\\\",\\\"[\\\\\\\"record-instance\\\\\\\",\\\\\\\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1310\\\\\\\",\\\\\\\"[\\\\\\\\\\\\\\\"record-links\\\\\\\\\\\\\\\",[\\\\\\\\\\\\\\\"https://www.okx.com/trade-spot\\\\\\\\\\\\\\\"]]\\\\\\\"]\\\"]],\\\"[\\\\\\\"button\\\\\\\",\\\\\\\"Open Spot sub-menu\\\\\\\",\\\\\\\"i\\\\\\\"]\\\"]\",\"name\":\"Open Spot sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1315",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1315",
+          "name": "Open sub-menu",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "identityScope": "instance",
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"item:[[[\\\"Powerful tools\\\",\\\"[\\\\\\\"record-instance\\\\\\\",\\\\\\\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1313\\\\\\\",\\\\\\\"[\\\\\\\\\\\\\\\"record-links\\\\\\\\\\\\\\\",[\\\\\\\\\\\\\\\"https://www.okx.com/flash-earn?from-page=trade\\\\\\\\\\\\\\\"]]\\\\\\\"]\\\"]],\\\"[\\\\\\\"button\\\\\\\",\\\\\\\"Open sub-menu\\\\\\\",\\\\\\\"i\\\\\\\"]\\\"]\",\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1321",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1321",
+          "name": "Open sub-menu",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "identityScope": "instance",
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"item:[[[\\\"Powerful tools\\\",\\\"[\\\\\\\"record-instance\\\\\\\",\\\\\\\"bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1319\\\\\\\",\\\\\\\"[\\\\\\\\\\\\\\\"record-links\\\\\\\\\\\\\\\",[\\\\\\\\\\\\\\\"https://www.okx.com/agent-tradekit\\\\\\\\\\\\\\\"]]\\\\\\\"]\\\"]],\\\"[\\\\\\\"button\\\\\\\",\\\\\\\"Open sub-menu\\\\\\\",\\\\\\\"i\\\\\\\"]\\\"]\",\"name\":\"Open sub-menu\",\"role\":\"button\",\"tag\":\"i\",\"type\":\"i\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1329",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1329",
+          "name": "Institutional",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:title-nav-institutions\",\"name\":\"Institutional\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1339",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1339",
+          "name": "Learn",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Learn\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1348",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1348",
+          "name": "More",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"More\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1370",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1370",
+          "name": "Notifications and announcements",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Notifications and announcements\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1373",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1373",
+          "name": "Support",
+          "visible": false,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Support\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1379",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1379",
+          "name": "Change language or currency",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"name\":\"Change language or currency\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1380",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1380",
+          "name": "Open menu with additional options",
+          "visible": false,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:headerMenuBtn\",\"name\":\"Open menu with additional options\",\"role\":\"button\",\"scope\":\"[\\\"named-ancestor\\\",\\\"nav\\\",\\\"Main menu\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1512",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1512",
+          "name": "1h",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1h\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1h\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1513",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1513",
+          "name": "24h",
+          "visible": true,
+          "state": {
+            "selected": true
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"24h\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"24h\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1514",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1514",
+          "name": "1W",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1W\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1W\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1515",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1515",
+          "name": "1M",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1M\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1M\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1516",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1516",
+          "name": "1Y",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"1Y\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"1Y\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1517",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1517",
+          "name": "2Y",
+          "visible": true,
+          "state": {
+            "selected": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"description\\\",\\\"2Y\\\"]\",\"slot\":\"\",\"template\":\"[\\\"DIV\\\",\\\"tab\\\",\\\"\\\",false,false,[]]\"},\"name\":\"2Y\",\"role\":\"tab\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:19",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:19",
+          "name": "What is the exchange rate for USD to Bitcoin (BTC) today?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"What is the exchange rate for USD to Bitcoin (BTC) today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"What is the exchange rate for USD to Bitcoin (BTC) today?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:22",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:22",
+          "name": "How many Bitcoin are there in total?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How many Bitcoin are there in total?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How many Bitcoin are there in total?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:25",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:25",
+          "name": "I just bought Bitcoin. How do I increase my profits after buying BTC?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"I just bought Bitcoin. How do I increase my profits after buying BTC?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"A\\\",\\\"\\\",\\\"\\\",true,false,[]]]]]]]]\"},\"name\":\"I just bought Bitcoin. How do I increase my profits after buying BTC?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:28",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:28",
+          "name": "What is the recorded all-time high price of BTC compared to today's market price?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"What is the recorded all-time high price of BTC compared to today's market price?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"What is the recorded all-time high price of BTC compared to today's market price?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:31",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:31",
+          "name": "I have some questions about buying BTC. Who do I contact?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"I have some questions about buying BTC. Who do I contact?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"A\\\",\\\"\\\",\\\"\\\",true,false,[]]]]]]]]\"},\"name\":\"I have some questions about buying BTC. Who do I contact?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:34",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:34",
+          "name": "Where can I find more information about Bitcoin (BTC)?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"Where can I find more information about Bitcoin (BTC)?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"A\\\",\\\"\\\",\\\"\\\",true,false,[]]]]]]]]\"},\"name\":\"Where can I find more information about Bitcoin (BTC)?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:37",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:37",
+          "name": "I have some questions about buying cryptocurrency. Who can I speak to?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"testid:okd-accordion-header\",\"name\":\"I have some questions about buying cryptocurrency. Who can I speak to?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:40",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:40",
+          "name": "How much is $1 worth of Bitcoin today?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How much is $1 worth of Bitcoin today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How much is $1 worth of Bitcoin today?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:43",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:43",
+          "name": "How much is 1 Bitcoin worth in USD today?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How much is 1 Bitcoin worth in USD today?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How much is 1 Bitcoin worth in USD today?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:46",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:46",
+          "name": "How can I convert BTC to USD using the crypto calculator?",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":{\"record\":\"[\\\"disclosure/v1\\\",{\\\"name\\\":\\\"How can I convert BTC to USD using the crypto calculator?\\\",\\\"triggerSlot\\\":\\\"0\\\",\\\"tag\\\":\\\"DIV\\\",\\\"role\\\":\\\"button\\\",\\\"type\\\":\\\"\\\",\\\"panelSlot\\\":\\\"1\\\",\\\"panelTag\\\":\\\"DIV\\\",\\\"panelRole\\\":\\\"region\\\"}]\",\"slot\":\"0\",\"template\":\"[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"button\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[[\\\"H3\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]],[\\\"DIV\\\",\\\"region\\\",\\\"\\\",false,false,[[\\\"DIV\\\",\\\"\\\",\\\"\\\",false,false,[]]]]]]\"},\"name\":\"How can I convert BTC to USD using the crypto calculator?\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"root\\\"]\",\"tag\":\"div\",\"type\":\"div\"}"
+        },
+        {
+          "localId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:152",
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:152",
+          "name": "Selected language and currency: English/USD",
+          "visible": true,
+          "state": {
+            "expanded": false
+          },
+          "missing": false,
+          "unstable": false,
+          "structuralWithoutRecord": false,
+          "binding": "{\"anchor\":\"id:language\",\"name\":\"Selected language and currency: English/USD\",\"role\":\"button\",\"scope\":\"[\\\"ancestor-id\\\",\\\"footerContainer\\\"]\",\"tag\":\"button\",\"type\":\"button\"}"
+        }
+      ],
+      "reasonCounts": {
+        "unresolved": 0,
+        "instanceOnly": 3,
+        "missingRecord": 0,
+        "missingState": 0,
+        "unstable": 0,
+        "duplicateBindingGroups": 0,
+        "overflow": false
+      }
+    }
+  ],
+  "isolationChecks": {
+    "scope": "in-memory negative controls only; neither changed object is persisted or proof of equivalence",
+    "removeOnlyTwoHypotheses": {
+      "actions": 206,
+      "branchUnavailable": 206,
+      "targetConditionsUnavailable": 206
+    },
+    "distinguishOnlyTwoBindingsKeepHypotheses": {
+      "actions": 206,
+      "branchUnavailable": 206,
+      "targetConditionsUnavailable": 206
+    }
+  },
+  "minimalFailures": {
+    "oneUnresolvedHiddenSelector": true,
+    "twoEqualResolvedHiddenSelectorBindings": true
+  },
+  "sameDocumentPotential": [
+    {
+      "beforeId": "c11abe9e-e2a4-44f2-bf53-64ebf22a1dd2",
+      "afterId": "f23494e8-671d-40fa-abe2-c39c51ef09a7",
+      "sameSession": true,
+      "sameDocument": true,
+      "sameBrowserSession": true,
+      "sameRules": true,
+      "sameKnownContext": true,
+      "selectorCounts": [
+        26,
+        28
+      ],
+      "uniqueSelectorInstances": [
+        true,
+        true
+      ],
+      "changes": [
+        {
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1307",
+          "name": "Trade",
+          "reasons": [
+            "state_changed",
+            "captured_semantics_changed"
+          ]
+        },
+        {
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1312",
+          "name": "Open Spot sub-menu",
+          "reasons": [
+            "captured_semantics_changed"
+          ]
+        },
+        {
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1315",
+          "name": "Open sub-menu",
+          "reasons": [
+            "captured_semantics_changed"
+          ]
+        },
+        {
+          "instanceId": "bbb4c5c4-944a-4655-b60a-5d61aea4dc21:1321",
+          "name": "Open sub-menu",
+          "reasons": [
+            "captured_semantics_changed"
+          ]
+        }
+      ],
+      "interpretation": "Existing changes prevent equal complete selector conditions."
+    },
+    {
+      "beforeId": "f23494e8-671d-40fa-abe2-c39c51ef09a7",
+      "afterId": "7d2b74b2-0f19-41f9-aa3b-0a76be24dd30",
+      "sameSession": true,
+      "sameDocument": true,
+      "sameBrowserSession": true,
+      "sameRules": true,
+      "sameKnownContext": true,
+      "selectorCounts": [
+        28,
+        28
+      ],
+      "uniqueSelectorInstances": [
+        true,
+        true
+      ],
+      "changes": [],
+      "interpretation": "Potential selector-continuity input only; not an implemented SDK proof. Parent business bindings must be captured/validated independently."
+    },
+    {
+      "beforeId": "7d2b74b2-0f19-41f9-aa3b-0a76be24dd30",
+      "afterId": "fd34f210-b228-4d61-ab92-6bcebe74ccb9",
+      "sameSession": true,
+      "sameDocument": true,
+      "sameBrowserSession": true,
+      "sameRules": true,
+      "sameKnownContext": true,
+      "selectorCounts": [
+        28,
+        28
+      ],
+      "uniqueSelectorInstances": [
+        true,
+        true
+      ],
+      "changes": [],
+      "interpretation": "Potential selector-continuity input only; not an implemented SDK proof. Parent business bindings must be captured/validated independently."
+    }
+  ],
+  "sourceHashesUnchanged": true
+}

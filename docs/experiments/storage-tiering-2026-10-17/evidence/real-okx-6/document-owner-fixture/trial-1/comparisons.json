@@ -1,0 +1,94 @@
+[
+  {
+    "change": "data-record",
+    "before": "e2ccafc9-fe85-4fc5-9d09-715efc8b2fc2",
+    "after": "35333d2d-b4ad-41dd-800f-15f1e9892464",
+    "sameInstanceScope": true,
+    "sameDocument": true,
+    "selectorCount": [
+      2,
+      2
+    ],
+    "fullCapturedSelectorsEqual": true,
+    "selectorDifferences": [],
+    "naiveDocumentBindingEqual": true,
+    "naiveBeforeSha256": "4797ee4de81c3cad83faa539b8baf1cef4abb4066b138913504af08bac35fead",
+    "naiveAfterSha256": "4797ee4de81c3cad83faa539b8baf1cef4abb4066b138913504af08bac35fead",
+    "wholeObservationEqual": false,
+    "portableBranchBefore": null,
+    "portableBranchAfter": null,
+    "portableOperationBefore": null,
+    "portableOperationAfter": null,
+    "proof": {
+      "equivalent": false,
+      "reason": "operation_conditions_unavailable",
+      "source": {
+        "sessionId": "bf5a20c4-8c4f-4228-91e2-414be89d8488",
+        "attemptId": "216be970-2039-44b1-a140-ffe6ae1b95fb",
+        "beforeId": "e2ccafc9-fe85-4fc5-9d09-715efc8b2fc2",
+        "afterId": "f6d4add9-5668-4e72-ad7f-b13a6b1434f1"
+      },
+      "target": {
+        "sessionId": "bf5a20c4-8c4f-4228-91e2-414be89d8488",
+        "observationId": "35333d2d-b4ad-41dd-800f-15f1e9892464",
+        "actionId": "7aa78e0b-20a9-475a-9452-1316b306e4e3"
+      },
+      "evidence": [],
+      "invalidatedBy": [
+        "observation-or-review-change",
+        "nonunique-correspondence",
+        "changed-operation-conditions",
+        "changed-declared-context"
+      ],
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "currentExecution": false
+    }
+  },
+  {
+    "change": "direct-href",
+    "before": "35333d2d-b4ad-41dd-800f-15f1e9892464",
+    "after": "e92caf85-af28-4bdf-a70c-85b2d3ad866b",
+    "sameInstanceScope": true,
+    "sameDocument": true,
+    "selectorCount": [
+      2,
+      2
+    ],
+    "fullCapturedSelectorsEqual": true,
+    "selectorDifferences": [],
+    "naiveDocumentBindingEqual": true,
+    "naiveBeforeSha256": "4797ee4de81c3cad83faa539b8baf1cef4abb4066b138913504af08bac35fead",
+    "naiveAfterSha256": "4797ee4de81c3cad83faa539b8baf1cef4abb4066b138913504af08bac35fead",
+    "wholeObservationEqual": false,
+    "portableBranchBefore": null,
+    "portableBranchAfter": null,
+    "portableOperationBefore": null,
+    "portableOperationAfter": null,
+    "proof": {
+      "equivalent": false,
+      "reason": "operation_conditions_unavailable",
+      "source": {
+        "sessionId": "bf5a20c4-8c4f-4228-91e2-414be89d8488",
+        "attemptId": "b8b3c536-2425-4281-9a92-6607afd40c60",
+        "beforeId": "35333d2d-b4ad-41dd-800f-15f1e9892464",
+        "afterId": "c3f8557f-703d-4c87-8c7c-424745bf2128"
+      },
+      "target": {
+        "sessionId": "bf5a20c4-8c4f-4228-91e2-414be89d8488",
+        "observationId": "e92caf85-af28-4bdf-a70c-85b2d3ad866b",
+        "actionId": "ff517541-e8e1-4176-94f1-b0b116a9f35d"
+      },
+      "evidence": [],
+      "invalidatedBy": [
+        "observation-or-review-change",
+        "nonunique-correspondence",
+        "changed-operation-conditions",
+        "changed-declared-context"
+      ],
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "currentExecution": false
+    }
+  }
+]

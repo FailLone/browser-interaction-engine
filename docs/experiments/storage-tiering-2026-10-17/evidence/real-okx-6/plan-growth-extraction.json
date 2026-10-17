@@ -1,0 +1,26 @@
+{
+  "inputHashes": {
+    "engine/engine.sqlite": "8f5ab1e177a154f23bff5006fc29953bfe8d772d9c5fdff8a4efdce74e7456a2",
+    "plugin/explorer.sqlite": "ed9ea839def36bb779f419bbc0e2f11576065a79b5d02686ff751121acf7eecb"
+  },
+  "rawHashes": {
+    "task-before.json": "3fbf41c6464ec92a5ab354eac66179e67b4c89a1d279bc30a47fb8cebb1d5aaf",
+    "task-after.json": "b4e50873f9f85fb9a0081cf38ae27515a5f056e635ff26f5cdd2dee7780feee2",
+    "summary.json": "3f6b16298a2c7a392a4af9476d38f1a6d2a491464d12a0069f08bcb155feadd9",
+    "active-run.json": "ec118f80d3db01980065f0a786a7d83613e5db6712b4cf044bac7bbef26960e6"
+  },
+  "inputsUnchanged": true,
+  "immutableReadOnly": true,
+  "queryOnly": true,
+  "sdkConstructors": 0,
+  "browserProviderNetworkCalls": 0,
+  "checks": {
+    "packHashes": 510,
+    "objectHashes": 8152,
+    "layoutHashes": 58,
+    "observationHashes": 85
+  },
+  "observations": 85,
+  "missingObservationIds": [],
+  "material": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/okx-run6-plan-growth-vsx8jidd/material.json"
+}

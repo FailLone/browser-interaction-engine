@@ -1,0 +1,101 @@
+{
+  "publishedNarrowSourceResult": "passed",
+  "optionalPersistenceMethod": "passed",
+  "retainedBoundForwarding": "passed",
+  "browserEngineForwarding": "passed",
+  "legacyFullListFallback": "passed",
+  "copyIsolation": "passed",
+  "driverStarts": 0,
+  "sourceReturnDispatches": 0,
+  "modules": [
+    {
+      "name": "@interaction/core",
+      "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/index.js"
+    },
+    {
+      "name": "@interaction/browser",
+      "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/browser/dist/index.js"
+    },
+    {
+      "name": "@interaction/adapter-playwright",
+      "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/index.js"
+    },
+    {
+      "name": "@interaction/storage-memory",
+      "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/storage-memory/dist/index.js"
+    },
+    {
+      "name": "@interaction/storage-retained",
+      "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/storage-retained/dist/index.js"
+    },
+    {
+      "name": "@interaction/storage-sqlite",
+      "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/storage-sqlite/dist/index.js"
+    },
+    {
+      "name": "@interaction/explorer-plugin",
+      "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/explorer-plugin/dist/index.js"
+    },
+    {
+      "name": "@interaction/client",
+      "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/client/dist/index.js"
+    },
+    {
+      "name": "@interaction/rules",
+      "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/rules/dist/index.js"
+    }
+  ],
+  "declarations": [
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/execution-readiness.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/ports.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/coverage-reconciliation.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/types.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/events.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/exploration-audit.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/diff-details.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/engine.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/schema.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/util.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/identity.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/recovery.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/entity-changes.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/exploration-groups.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/core/dist/index.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/evidence-types.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/boundary-exit.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/discovery-scan.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/inspection-contract.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/schema.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/interventions.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/exploration-decision-reuse.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/control-classification.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/control-surroundings.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/control-review.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/types.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/scroll-containers.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/scroll-probe.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/browser.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/model.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/policy.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/exploration.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/navigation.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/target-arrival.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/list-groups.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/purpose-review.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/classification-correspondence.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/adapter-playwright/dist/index.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/browser/dist/control-classifications.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/browser/dist/page-exploration.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/browser/dist/inspection-types.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/storage-retained/dist/index.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/browser/dist/evidence.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/browser/dist/subscription.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/browser/dist/evidence-availability.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/browser/dist/diff-details.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/browser/dist/control-coverage.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/browser/dist/completion-audit.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/browser/dist/frontier.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/browser/dist/inspection.d.ts",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-djqtfjkq/packages/browser/dist/index.d.ts"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "revision": "d103747ee78779b3f1df8223854600cd321e36ee",
+  "method": "Static source/evidence review only; 0 product/test writes, 0 SDK/browser/provider/database/test/benchmark invocations. Report and this metadata are new review artifacts.",
+  "sourceSha256": {
+    "packages/core/src/engine.ts": "124a7cee62b7fd788e164c3996a7d32b327d1cc02211cd43cbbe1941eec693b6",
+    "packages/core/src/coverage-reconciliation.ts": "83f17c11c87cc5a86ebf53383425387a32661d86cf2d6ac8c38dfbd4f31a8c3d",
+    "packages/core/src/ports.ts": "98a159ec4549076a27d2c7ae8967905581c04d6f55f7b9a0adb08649c2418f94",
+    "packages/adapter-playwright/src/index.ts": "e2ade859fc3a96a4f0673ae8584b1d772bd8574b6c98cc87becf22e5c6d2bb5d",
+    "packages/adapter-playwright/src/exploration.ts": "40259c98f57735d1db045b5323785f52d40e2df6b39bf21d54105748bd2c28d7",
+    "packages/adapter-playwright/src/branch-conditions.ts": "700ac4bffd6826d50eebb92478322c63d927556234ad5ad397fa75fb009ae63e",
+    "packages/adapter-playwright/src/target-arrival.ts": "f5c65d77e9c7f32aa65c863b9432abb78c49431e5f95e3597cb81b505bf807f1",
+    "packages/adapter-playwright/src/browser.ts": "03782cdb75b13eac903864fea65b1840e1893ccbce0abff00e3fb1de78497047",
+    "packages/adapter-playwright/src/identity-context.ts": "64beaa64626d4b1d2282c390be18f4c95e8926ae72460950f24a6e152f2f1418",
+    "packages/adapter-playwright/src/types.ts": "b6b2bf9a654095204f702767c828fa5f1e23bde17abc730d6348d10597ddc35f",
+    "packages/explorer-plugin/src/operation-source-completion.ts": "a452f0e640a0192d0498f09a1050e31e05a8201c0de183f1ced7127e72d8074a"
+  },
+  "inputSha256": "fefb46f299428f28f35180f9dc578e8d30652bf863895dd06eed7764b4f3b4db",
+  "reportSha256": "7bf0a07f2dbb931a40891e19a5e6a20b1b892030c5d4c14011cb1556b672df9f"
+}

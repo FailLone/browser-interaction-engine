@@ -1,0 +1,20 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-condition-migration.test.ts (11 tests) 5372ms
+   ✓ reopens a genuinely persisted v1 pending row, upgrades its exact source hint, and executes A/B without granting completion on migration  932ms
+   ✓ splits an already-invalidated coarse v1 A/B row and completes both children without treating the parent as successful  891ms
+   ✓ restarts with an unknown recovery result and blocks before key migration, observation or new session  387ms
+   ✓ does not borrow a sibling observation to narrow a keyed v1 obligation whose original source is missing  728ms
+   ✓ fails closed when transferred children are missing, rebound, unauthorized, excluded, or lose their retained source  379ms
+   ✓ prepares all children before an ID collision and retains the complete old gap without a partial split  330ms
+   ✓ settles the A child through current SDK history while B remains untested, and retains its condition after explicit supplement  614ms
+   ✓ blocks a persisted split with changed child authority before observation, session creation or dispatch  341ms
+ ✓ tests/explorer-operation-scheduling-key.test.ts (30 tests) 26ms
+ ✓ tests/explorer-ui-dependency.test.ts (1 test) 147ms
+
+ Test Files  3 passed (3)
+      Tests  42 passed (42)
+   Start at  08:04:33
+   Duration  7.37s (transform 555ms, setup 0ms, collect 1.39s, tests 5.54s, environment 0ms, prepare 104ms)
+

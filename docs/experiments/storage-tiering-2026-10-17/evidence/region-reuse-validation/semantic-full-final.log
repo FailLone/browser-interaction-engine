@@ -1,0 +1,44 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-plugin-semantic.test.ts (57 tests) 35442ms
+   ✓ uses an independently approved probe to reveal UI behind an interactive control with unresolved click purpose  1090ms
+   ✓ does not probe on uncertain probe evidence even for a probe_required classification  475ms
+   ✓ does not probe on external probe evidence even for a probe_required classification  473ms
+   ✓ retains a no-effect probe as evidence without repeating it or granting a click  608ms
+   ✓ persists unknown probe dispatch across restart and never blindly retries it  495ms
+   ✓ persists missing-record probe dispatch across restart and never blindly retries it  346ms
+   ✓ cancels a pending probe judgment on takeover without dispatching its late approval  335ms
+   ✓ waits for an issued probe on takeover, records its result and does not dispatch revealed controls  484ms
+   ✓ rejects stale probe approval after a new observation and never executes it  657ms
+   ✓ retains newly revealed controls when a probe consumes the last action budget  518ms
+   ✓ reopens a recorded probe prerequisite under fresh judgments for a selected follow-up scope  1417ms
+   ✓ keeps a missing probe capability as a gap while continuing other available controls  734ms
+   ✓ limits probes and revealed work to the accepted target scope  801ms
+   ✓ batches non-overlapping region judgments while retaining every source decision and current binding  3938ms
+   ✓ cancels prepared region judgments without submitting a partial partition  316ms
+   ✓ rejudges a deferred region after committing earlier clear regions  4024ms
+   ✓ discards all prepared regions when their source observation becomes stale  4092ms
+   ✓ retains an unresolved purpose after a position change without granting an operation  689ms
+   ✓ retains an unresolved purpose after a content change without granting an operation  780ms
+   ✓ batches clear classifications from one observation and preserves each decision as separate evidence  939ms
+   ✓ revisits an uncertain batch member using the new observation without applying its earlier answer  749ms
+   ✓ discards a stale prepared batch and reclassifies its targets using a fresh observation  956ms
+   ✓ remaps a uniquely evidenced legacy review gap and closes it with fresh classification, not an invented action  956ms
+   ✓ keeps named controls with empty explicit labels as distinct, selectable follow-up scopes  1247ms
+   ✓ drains distinct uncertain reviews before declaring no progress, refreshing only uncertainty  1281ms
+   ✓ drains distinct denied-interface reviews before declaring no progress, refreshing only uncertainty  709ms
+   ✓ drains distinct external-write reviews before declaring no progress, refreshing only uncertainty  680ms
+   ✓ counts identity resolutions as progress so several pending identities do not end the round early  1263ms
+   ✓ uses a bounded semantic fallback with grounded evidence on a real popup control  864ms
+   ✓ uses a bounded semantic fallback with invented-reference evidence on a real popup control  731ms
+   ✓ uses a bounded semantic fallback with uncertain evidence on a real popup control  713ms
+   ✓ uses a bounded semantic fallback with veto evidence on a real popup control  559ms
+   ✓ pauses an ambiguous purpose for missing LLM configuration and resumes with fresh evidence  778ms
+   ✓ cancels a pending semantic clarification on takeover and never applies its late answer  480ms
+
+ Test Files  1 passed (1)
+      Tests  57 passed (57)
+   Start at  07:52:35
+   Duration  36.52s (transform 547ms, setup 0ms, collect 941ms, tests 35.44s, environment 0ms, prepare 35ms)
+

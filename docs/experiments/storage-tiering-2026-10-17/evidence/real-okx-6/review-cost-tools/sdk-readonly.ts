@@ -1,0 +1,25 @@
+/** Read-only SDK modules over already verified private-copy JSON; no engine/driver/store construction. */
+import {readFileSync,writeFileSync} from 'node:fs';
+import {pathToFileURL} from 'node:url';
+const [root,temp]=process.argv.slice(2);
+const {ControlClassifications}=await import(pathToFileURL(`${root}/packages/browser/src/control-classifications.ts`).href);
+const {RegionReuse}=await import(pathToFileURL(`${root}/packages/browser/src/region-reuse.ts`).href);
+const {classificationCorrespondenceConditions}=await import(pathToFileURL(`${root}/packages/adapter-playwright/src/classification-correspondence.ts`).href);
+const data=JSON.parse(readFileSync(`${temp}/material.json`,'utf8')),run=data['6'];
+const entities=new Map<string,Map<string,any>>();
+for(const [k,vs]of Object.entries(run.entities))entities.set(k,new Map((vs as any[]).map(x=>[x.id,x])));
+entities.set('observation',new Map([...Object.values(data['4'].observations),...Object.values(run.observations)].map((x:any)=>[x.id,x])));
+const denied=()=>{throw Error('Write/event forbidden in diagnosis')};
+const store={get:(k:string,id:string)=>entities.get(k)?.get(id),list:(k:string,sid:string)=>[...entities.get(k)?.values()||[]].filter(x=>x.sessionId===sid),put:denied,transaction:denied,remove:denied};
+const classifications=new ControlClassifications(store,denied),reuseEvent=run.events.find((e:any)=>e.type==='classification.reused').data;
+const oldSource=reuseEvent.details.proofs[0].source,current=run.observations[reuseEvent.sourceObservationId],target=reuseEvent.details.proofs[0].target;
+const actual=classifications.correspondences(current,run.actions[current.id], [{localId:target.localId,source:oldSource}]);
+const generic=run.decisions.find((d:any)=>d.purpose==='control-classification'),g=generic.request.state.material.control,go=run.observations[generic.observationId];
+const previousGeneric=data['4'].entities['control-classification'].findLast((r:any)=>r.classification==='interaction');
+const genericContract=classifications.correspondences(go,run.actions[go.id],[{localId:g.localId,source:{sessionId:previousGeneric.sessionId,observationId:previousGeneric.observationId,classificationId:previousGeneric.id,classification:previousGeneric.classification}}]);
+const oldControl=data['4'].observations[previousGeneric.observationId].controls.find((c:any)=>c.instanceId===previousGeneric.conditions.target.target.instanceId);
+const a=classificationCorrespondenceConditions(oldControl,data['4'].observations[previousGeneric.observationId]),b=classificationCorrespondenceConditions(g,go);
+const page=run.decisions.filter((d:any)=>d.purpose==='region-review').slice(1),first=run.observations[page[0].observationId],regions=new RegionReuse(store,denied),controls=new Set(run.actions[first.id].filter((a:any)=>a.boundary?.intent!=='exit'&&a.preconditions.visible).map((a:any)=>a.localId));
+const realCandidates=regions.candidates(first,controls,undefined);
+const out={actualContainerProof:actual.results,genericUnsupportedContract:genericContract.results,genericPortableFacts:{sourceObservationId:previousGeneric.observationId,targetObservationId:go.id,source:a,target:b,equal:!!a&&!!b&&a.identityKey===b.identityKey&&a.conditionKey===b.conditionKey},actualRegionReuseCandidateCount:realCandidates.length,sdkEngineConstructors:0,writeMethodsForbidden:true,networkBrowserProviderCalls:0};
+writeFileSync(`${temp}/sdk.json`,JSON.stringify(out,null,2)+'\n');console.log(JSON.stringify(out,null,2));

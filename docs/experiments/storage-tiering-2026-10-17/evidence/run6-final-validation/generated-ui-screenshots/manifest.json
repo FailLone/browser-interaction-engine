@@ -1,0 +1,16 @@
+[
+  {
+    "path": "docs/screenshots/dashboard.png",
+    "generatedArtifact": "dashboard.png",
+    "generatedSha256": "096f591f362cf1edd9792aba94cb77c837ac5d091c9f1bc80ff766607dd457d5",
+    "restoredCommittedSha256": "d71c8a542363fabb8732aaa9ae7fa96bac8c0ed44c2e35b9f600de5aee8e2bcc",
+    "reason": "Known screenshot output written by full UI fixture tests; initial worktree had no changes to these paths. Generated output retained here, published documentation image restored byte-for-byte."
+  },
+  {
+    "path": "docs/screenshots/evidence-inspector.png",
+    "generatedArtifact": "evidence-inspector.png",
+    "generatedSha256": "d135ad9e40fe5721a60f485c52764efbea39d65c53eefe0aec79d09479171040",
+    "restoredCommittedSha256": "817e8ab8cf0b07769ef9531713acce9c1f5575a48482de7db2ed292408f5b938",
+    "reason": "Known screenshot output written by full UI fixture tests; initial worktree had no changes to these paths. Generated output retained here, published documentation image restored byte-for-byte."
+  }
+]

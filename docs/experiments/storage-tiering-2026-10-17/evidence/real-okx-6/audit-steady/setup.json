@@ -1,0 +1,23 @@
+{
+  "firstExperiment": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-6/audit-serial",
+  "firstManifestSha256": "632ce40c78768202f55d8820b1916933b003041f87dd5c045e68ac5edfbf3a8e",
+  "fixedMaterial": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run6-audit-serial-owned-6pl3jvbl/material.json",
+  "materialSha256": "4253c3d8f95c863ce0462cdbc72ea573152fcedf448c9fd04ac5d9c480e050e2",
+  "sourceRevisions": {
+    "baseline": "f6d7b9e2b427b5edf1fad359ecf8cc5a3df8ffcf",
+    "current": "d103747ee78779b3f1df8223854600cd321e36ee"
+  },
+  "workerSha256": "15978210f1e59ea29f714c1dda368d7ef25e733d02c11ac9c220be5084643a1e",
+  "runnerSha256": "992cc055d5153afe831669e606c6daecc86eab5b3e84cbca9e18e4b2447627fa",
+  "order": [
+    "baseline",
+    "current",
+    "baseline",
+    "current",
+    "baseline",
+    "current"
+  ],
+  "processes": 6,
+  "auditsPerProcess": 3,
+  "startupNormalization": "Current only, once before first audit; never reset task/metadata/event state"
+}

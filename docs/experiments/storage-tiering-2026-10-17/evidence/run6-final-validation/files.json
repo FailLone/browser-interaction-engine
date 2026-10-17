@@ -1,0 +1,42 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 1146,
+    "sha256": "78e85de9291b93ca5b50ae84fb08016021a2347476f8cf822c69e46020c9a5eb"
+  },
+  {
+    "path": "check-1.log",
+    "bytes": 194422,
+    "sha256": "37259753bfda0633a0c0c2328674284ca874203fe8f7007e2b927421ddb5e668"
+  },
+  {
+    "path": "check-2.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "check-3.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "interpretation.json",
+    "bytes": 1558,
+    "sha256": "db9ae90a48904327d5c407c9464125593a42346888c92c64e90a9d9a733e6d3f"
+  },
+  {
+    "path": "source-after.json",
+    "bytes": 51988,
+    "sha256": "c6cd6c77d350b375287403b50b4c087ba1b2ef91277a1d550dadd2fa3de7126e"
+  },
+  {
+    "path": "source-before.json",
+    "bytes": 51751,
+    "sha256": "b2e98f66edcac8308943f7b3570f64b6e72074e3af2d13178bd9f662a9d6a89e"
+  },
+  {
+    "path": "verification.json",
+    "bytes": 952,
+    "sha256": "1d846302722c4b151053f3a6e5cfe0578f813ffe564a1fdb9dc2a1b8c5d8dc63"
+  }
+]

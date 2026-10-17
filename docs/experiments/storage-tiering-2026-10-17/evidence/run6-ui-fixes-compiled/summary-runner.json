@@ -1,0 +1,48 @@
+{
+  "revision": "d103747ee78779b3f1df8223854600cd321e36ee",
+  "passed": true,
+  "sourceUnchanged": true,
+  "sourceFiles": 487,
+  "compiledFiles": 623,
+  "commands": [
+    {
+      "name": "build",
+      "exitCode": 0,
+      "timedOut": null,
+      "elapsedSeconds": 6.1594109535217285
+    },
+    {
+      "name": "published-types",
+      "exitCode": 0,
+      "timedOut": null,
+      "elapsedSeconds": 0.7270519733428955
+    },
+    {
+      "name": "compiled-public-contract",
+      "exitCode": 0,
+      "timedOut": null,
+      "elapsedSeconds": 1.0110390186309814
+    },
+    {
+      "name": "smoke-built",
+      "exitCode": 0,
+      "timedOut": null,
+      "elapsedSeconds": 2.331138849258423
+    },
+    {
+      "name": "smoke-explorer",
+      "exitCode": 0,
+      "timedOut": null,
+      "elapsedSeconds": 2.039605140686035
+    }
+  ],
+  "error": null,
+  "screenshot": "explorer-dashboard.png",
+  "screenshotReviewed": false,
+  "limits": [
+    "Only owned local fixture/mock-provider smoke, not real OKX acceptance.",
+    "No performance claim: elapsed durations are command audit data.",
+    "The extra contract checks types and storage wrapping; source-return browser behavior remains covered by the separate product suite.",
+    "A human/root visual review of the saved screenshot is still required."
+  ]
+}
