@@ -1,4 +1,4 @@
-import { canonical, hash } from '@interaction/core';
+import { canonical, hash, type ReviewConditionAssessment } from '@interaction/core';
 import type { ActionCandidate, Control, Observation } from './types.js';
 import { formBinding } from './util.js';
 
@@ -9,6 +9,10 @@ export interface BrowserBranchConditions {
   key: string;
   conditions: { binding: string; state: Record<string, string[] | boolean | 'mixed'>; relation: string }[];
   evidence: string[];
+}
+export interface BrowserBranchConditionsAssessment {
+  conditions?: BrowserBranchConditions;
+  assessment: ReviewConditionAssessment;
 }
 
 /** These are observed UI mode selectors, not arbitrary text/value combinations. */
@@ -80,16 +84,25 @@ function regionAncestors(o: Observation) {
  */
 export function browserBranchConditions(action: Pick<ActionCandidate, 'kind' | 'localId'>, o: Observation, version: 'v1' | 'v2' = 'v2'): BrowserBranchConditions | undefined {
   const target = o.controls.find(c => c.localId === action.localId);
-  return target && observedModeConditions(target, o, ['fill', 'select', 'check'].includes(action.kind), version);
+  return target && observedModeConditions(target, o, ['fill', 'select', 'check'].includes(action.kind), version).conditions;
 }
 
 /** Interpretation has no destination input: retain the target's own mode too. */
 export function browserReviewBranchConditions(target: Control, o: Observation): BrowserBranchConditions | undefined {
+  return assessBrowserReviewBranchConditions(target, o).conditions;
+}
+
+/** The same projection and first rejection, without a second selector scan. */
+export function assessBrowserReviewBranchConditions(target: Control, o: Observation): BrowserBranchConditionsAssessment {
   return observedModeConditions(target, o, false, 'v2');
 }
 
-function observedModeConditions(target: Control, o: Observation, omitTargetMode: boolean, version: 'v1' | 'v2'): BrowserBranchConditions | undefined {
-  if (!target || o.gaps.some(g => g.critical) || Object.values(o.context).some(v => v.status !== 'known')) return;
+function observedModeConditions(target: Control, o: Observation, omitTargetMode: boolean, version: 'v1' | 'v2'): BrowserBranchConditionsAssessment {
+  const unavailable = (reason: string, localId?: string): BrowserBranchConditionsAssessment =>
+    ({ assessment: { status: 'unavailable', reason, ...(localId ? { localId } : {}) } });
+  if (!target) return unavailable('review_target_missing');
+  if (o.gaps.some(g => g.critical)) return unavailable('observation_critical_gap');
+  if (Object.values(o.context).some(v => v.status !== 'known')) return unavailable('declared_context_unknown');
   const components = componentAncestors(o), regions = regionAncestors(o);
   const targetComponents = components(target.localId), targetRegions = regions(target.region);
   const selections = new Map((o.components || []).flatMap(c => c.members.filter(m => typeof m.selected === 'boolean').map(m => [m.localId, m.selected!] as const)));
@@ -110,17 +123,23 @@ function observedModeConditions(target: Control, o: Observation, omitTargetMode:
     else if (!target.formOwner && !c.formOwner && c.region === target.region && !targetRegions.size) relation = 'same-unpartitioned-region';
     else if (version === 'v1') continue;
     else relation = 'observed-document-mode';
-    if (state === null || c.readiness?.status === 'unstable') return;
-    const key = binding(c); if (!key || bindings.has(key)) return;
+    if (state === null) return unavailable('selector_state_missing', c.localId);
+    if (c.readiness?.status === 'unstable') return unavailable('selector_unstable', c.localId);
+    const key = binding(c);
+    if (!key) return unavailable(c.identityScope === 'instance' ? 'selector_instance_bound'
+      : c.hypothesisId ? 'selector_identity_hypothesis' : c.structuralItem && !c.structuralItem.recordKey ? 'selector_record_key_missing'
+      : 'selector_binding_unavailable', c.localId);
+    if (bindings.has(key)) return unavailable('selector_binding_duplicate', c.localId);
     bindings.add(key); conditions.push({ binding: key, state, relation });
-    if (conditions.length > MAX_BRANCH_CONDITIONS) return;
+    if (conditions.length > MAX_BRANCH_CONDITIONS) return unavailable('selector_limit_exceeded', c.localId);
   }
   conditions.sort((a, b) => a.binding.localeCompare(b.binding));
   const policy = version === 'v1' ? 'browser-branch-conditions-v1' as const : 'browser-branch-conditions-v2' as const;
-  return { policy, key: hash({ policy, conditions }), conditions, evidence: [
+  return { assessment: { status: 'available', reason: 'observed_branch_conditions_available' },
+    conditions: { policy, key: hash({ policy, conditions }), conditions, evidence: [
     version === 'v1' ? 'Legacy visible selectors within the historical form/component/region projection; source-key decoding only'
       : 'All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence',
     'Passive text and free-text starting values excluded; selector values and semantic bindings retained',
     'Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered',
-  ] };
+  ] } };
 }

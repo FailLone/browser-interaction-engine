@@ -257,7 +257,8 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if(before.length!==1||after.length!==1){result.reason='review_target_missing_or_ambiguous';return result;}
         const facts=this.adapter.controlReviewTargetCorrespondence?.(before[0],source,after[0],current);
         if(facts){result.targetMatched=facts.targetMatched;result.reviewable=facts.reviewable;result.sourceEquivalent=facts.sourceEquivalent;
-          result.reason=facts.reason;result.conditionKey=facts.conditionKey;result.currentMaterialKey=facts.currentMaterialKey;result.evidence=[...facts.evidence];}
+          result.reason=facts.reason;result.conditionKey=facts.conditionKey;result.currentMaterialKey=facts.currentMaterialKey;result.evidence=[...facts.evidence];
+          result.sourceConditionAssessment=facts.sourceConditionAssessment;result.currentConditionAssessment=facts.currentConditionAssessment;}
         return result;
       }catch{return result;}
   }

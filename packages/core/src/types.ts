@@ -195,6 +195,9 @@ export interface ReachExplorationTargetInput {
 }
 /** An observed control awaiting interpretation; no operation is invented. */
 export interface ControlReviewTargetReference { sessionId: ID; observationId: ID; localId: ID }
+/** Portable review-condition evidence only, never a reachability or execution
+ * grant. An omitted assessment is not evidence of unavailability. */
+export interface ReviewConditionAssessment { status: 'available' | 'unavailable'; reason: string; localId?: ID }
 export interface ControlReviewTargetCorrespondence {
   targetMatched: boolean;
   /** Recorded material readiness only. Historical queries do not locate or
@@ -203,6 +206,9 @@ export interface ControlReviewTargetCorrespondence {
   /** Current material availability never settles missing historical dependencies. */
   sourceEquivalent: 'equivalent' | 'different' | 'unknown';
   reason: string; conditionKey?: string; currentMaterialKey?: string; evidence: string[];
+  /** Reflexive source equivalence can coexist with unavailable portable facts. */
+  sourceConditionAssessment?: ReviewConditionAssessment;
+  currentConditionAssessment?: ReviewConditionAssessment;
   source: ControlReviewTargetReference; target: ControlReviewTargetReference;
   preflightRequired: true;
   identityAuthorized: false; replayAuthorized: false; executionAuthorized: false;

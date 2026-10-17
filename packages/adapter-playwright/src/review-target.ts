@@ -1,11 +1,11 @@
-import { canonical, hash, type ControlReviewTargetCorrespondence } from '@interaction/core';
+import { canonical, hash, type ControlReviewTargetCorrespondence, type ReviewConditionAssessment } from '@interaction/core';
 import { classificationCorrespondenceConditions } from './classification-correspondence.js';
 import { browserControlBindingKey, browserControlCorrespondence } from './exploration.js';
-import { browserReviewBranchConditions } from './branch-conditions.js';
+import { assessBrowserReviewBranchConditions, type BrowserBranchConditionsAssessment } from './branch-conditions.js';
 import { activeInteractionIds } from './interaction-scope.js';
 import type { Control, Observation } from './types.js';
 
-type Facts = Pick<ControlReviewTargetCorrespondence, 'targetMatched' | 'reviewable' | 'sourceEquivalent' | 'reason' | 'conditionKey' | 'currentMaterialKey' | 'evidence'>;
+type Facts = Pick<ControlReviewTargetCorrespondence, 'targetMatched' | 'reviewable' | 'sourceEquivalent' | 'reason' | 'conditionKey' | 'currentMaterialKey' | 'evidence' | 'sourceConditionAssessment' | 'currentConditionAssessment'>;
 const locator = (c: Control) => {
   const hint = browserControlCorrespondence(c);
   return hint && canonical({ hint: hint.key, binding: browserControlBindingKey(c), tag: c.tag, role: c.role, name: c.name, label: c.label });
@@ -14,11 +14,22 @@ const boundaries = (o: Observation) => {
   const rows = [];
   for (const b of o.boundaries || []) {
     const overlay = o.overlays?.find(v => v.key === b.key), region = o.regions.find(r => r.key === b.region);
-    if (!b.name || !overlay) return;
+    if (!b.name) return { facts: undefined, reason: 'review_boundary_name_missing' };
+    if (!overlay) return { facts: undefined, reason: 'review_boundary_overlay_missing' };
     rows.push({ name: b.name, kind: overlay.kind, region: region && { role: region.role, label: region.label } });
   }
-  return rows;
+  return { facts: rows, reason: undefined };
 };
+const unavailableCondition = (reason: string, localId?: string): ReviewConditionAssessment =>
+  ({ status: 'unavailable', reason, ...(localId ? { localId } : {}) });
+const conditionAssessment = (classificationAvailable: boolean, modes: BrowserBranchConditionsAssessment,
+  boundary: ReturnType<typeof boundaries>, comparableRules = true): ReviewConditionAssessment =>
+  !classificationAvailable ? ['observation_critical_gap', 'declared_context_unknown'].includes(modes.assessment.reason)
+    ? modes.assessment : unavailableCondition('review_classification_material_incomplete')
+    : !modes.conditions ? modes.assessment
+    : !boundary.facts ? unavailableCondition(boundary.reason!)
+    : !comparableRules ? unavailableCondition('review_rule_version_incompatible')
+    : { status: 'available', reason: 'portable_review_conditions_available' };
 /** One synchronous selection over an immutable captured observation. Build
  * document facts once and cache each target projection only within this reader;
  * callers must create a fresh reader for another observation or after await.
@@ -71,6 +82,11 @@ export function browserControlReviewMaterialKey(target: Control, o: Observation)
  * equivalence is a separate output and keeps all observed nonlocal modes. */
 export function browserControlReviewTargetCorrespondence(source: Control, before: Observation, target: Control, current: Observation): Facts {
   const result: Facts = { targetMatched: false, reviewable: false, sourceEquivalent: 'unknown', reason: 'review_target_not_corresponding', evidence: [] };
+  const sameRecord = before === current && source === target;
+  const currentUnavailable = (reason: string) => {
+    result.currentConditionAssessment = unavailableCondition(reason, target.localId);
+    if (sameRecord) result.sourceConditionAssessment = result.currentConditionAssessment;
+  };
   const retained = before.sessionId === current.sessionId && before.instanceScope === current.instanceScope && source.instanceId === target.instanceId;
   const oldLocator = retained ? undefined : locator(source), targetLocator = retained ? undefined : locator(target);
   if (!retained && (!oldLocator || !targetLocator || oldLocator !== targetLocator || source.hypothesisId || target.hypothesisId
@@ -86,50 +102,61 @@ export function browserControlReviewTargetCorrespondence(source: Control, before
     if ([before, current].some(o => o.controls.filter(c => locator(c) === targetLocator).length !== 1)) { result.reason = 'review_target_ambiguous'; return result; }
   }
   result.targetMatched = true;
-  if (before.url !== current.url || current.gaps.some(g => g.critical) || Object.values(current.context).some(c => c.status !== 'known')) {
+  const contextUnavailable = before.url !== current.url ? 'review_url_changed' : current.gaps.some(g => g.critical) ? 'observation_critical_gap'
+    : Object.values(current.context).some(c => c.status !== 'known') ? 'declared_context_unknown' : undefined;
+  if (contextUnavailable) {
+    currentUnavailable(contextUnavailable);
     result.reason = 'review_context_unavailable'; return result;
   }
   // Hidden retained/rebuilt controls intentionally have no reusable review
   // material. This is a known reachability failure, not permission to review
   // them and not an unknown outcome that should prevent reopening their route.
   if (!target.visible && !target.readiness && (current.stable || current.gaps.some(g => ['INTERACTION_STABLE', 'PARTIAL_INTERACTION_READY'].includes(g.code)))) {
+    currentUnavailable('review_target_hidden');
     result.reason = 'review_target_hidden';
     result.evidence = [retained ? 'retained-current-instance' : 'unique-captured-control-and-owner', 'settled-hidden-target-requires-recovery'];
     return result;
   }
   const now = classificationCorrespondenceConditions(target, current);
-  if (!now) { result.reason = 'review_material_incomplete'; return result; }
+  if (!now) { currentUnavailable('review_classification_material_incomplete'); result.reason = 'review_material_incomplete'; return result; }
   result.currentMaterialKey = browserControlReviewMaterialKey(target, current);
   result.evidence = [...now.evidence, retained ? 'retained-current-instance' : 'unique-captured-control-and-owner'];
   const active = activeInteractionIds(current);
-  if (current.boundaries?.length && (!active || !active.has(target.localId))) { result.reason = 'outside_active_boundary'; return result; }
+  if (current.boundaries?.length && (!active || !active.has(target.localId))) {
+    currentUnavailable(boundaries(current).reason || 'review_target_outside_active_boundary');
+    result.reason = 'outside_active_boundary'; return result;
+  }
   if (!target.visible || target.readiness || !current.stable && !current.gaps.some(g => ['INTERACTION_STABLE', 'PARTIAL_INTERACTION_READY'].includes(g.code))) {
+    currentUnavailable('review_target_unsettled');
     result.reason = 'review_target_unsettled'; return result;
   }
   result.reviewable = true; result.reason = 'current_review_material_available';
-  const modes = browserReviewBranchConditions(target, current), boundary = boundaries(current);
-  const condition = (classification: string, modes: string, boundaryFacts: NonNullable<ReturnType<typeof boundaries>>) =>
+  const modeAssessment = assessBrowserReviewBranchConditions(target, current), modes = modeAssessment.conditions, boundary = boundaries(current);
+  result.currentConditionAssessment = conditionAssessment(true, modeAssessment, boundary);
+  const condition = (classification: string, modes: string, boundaryFacts: NonNullable<ReturnType<typeof boundaries>['facts']>) =>
     hash({ policy: 'control-review-source/v1', classification, modes, boundaries: boundaryFacts });
   // This key is portable source evidence only. A negative material wait key
   // or same-record reflexivity must not manufacture a known branch projection.
-  if (modes && boundary) result.conditionKey = condition(now.conditionKey, modes.key, boundary);
+  if (modes && boundary.facts) result.conditionKey = condition(now.conditionKey, modes.key, boundary.facts);
   // Reflexive evidence belongs to this one captured occurrence, even if its
   // nonlocal projection is incomplete. The core record query deliberately
   // shares objects only for an exact owned observation/localId reference.
   // Equal IDs, names or copied records do not extend this proof historically.
-  if (before === current && source === target) {
+  if (sameRecord) {
+    result.sourceConditionAssessment = result.currentConditionAssessment;
     result.sourceEquivalent = 'equivalent';
     result.reason = 'same_recorded_review_occurrence'; result.evidence.push('same-owned-observation-and-control-record'); return result;
   }
-  const old = classificationCorrespondenceConditions(source, before), priorModes = browserReviewBranchConditions(source, before);
+  const old = classificationCorrespondenceConditions(source, before), priorModeAssessment = assessBrowserReviewBranchConditions(source, before), priorModes = priorModeAssessment.conditions;
   const oldBoundary = boundaries(before);
   // v8 changed only canonical state encoding, not captured classification or
   // selector evidence. Permit this explicit pair under the same complete
   // review-source projection; never migrate/checkpoint-normalize either record.
   const comparableRules = before.ruleVersion === current.ruleVersion
     || ['observable-v7', 'observable-v8'].includes(before.ruleVersion) && ['observable-v7', 'observable-v8'].includes(current.ruleVersion);
-  if (!old || !priorModes || !modes || !oldBoundary || !boundary || !comparableRules) return result;
-  const prior = condition(old.conditionKey, priorModes.key, oldBoundary);
+  result.sourceConditionAssessment = conditionAssessment(!!old, priorModeAssessment, oldBoundary, comparableRules);
+  if (!old || !priorModes || !modes || !oldBoundary.facts || !boundary.facts || !comparableRules) return result;
+  const prior = condition(old.conditionKey, priorModes.key, oldBoundary.facts);
   result.sourceEquivalent = old.identityKey === now.identityKey && prior === result.conditionKey ? 'equivalent' : 'different';
   result.reason = result.sourceEquivalent === 'equivalent' ? 'equivalent_review_source_conditions' : 'review_source_conditions_changed';
   return result;

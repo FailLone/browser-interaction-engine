@@ -109,6 +109,60 @@ it('settles only the same recorded occurrence when missing branches prevent hist
   expect(aKey).toBeTruthy();expect(bKey).toBeTruthy();expect(aKey).not.toBe(bKey);
 });
 
+it.each<{reason:string;localId:string;change:(o:Observation)=>void}>([
+  {reason:'selector_state_missing',localId:'mode',change:o=>{o.controls[1].checked=null;}},
+  {reason:'selector_unstable',localId:'mode',change:o=>{o.controls[1].readiness={status:'unstable',reason:'changing-selector'};}},
+  {reason:'selector_identity_hypothesis',localId:'mode',change:o=>{o.controls[1].hypothesisId='unresolved-selector';}},
+  {reason:'selector_instance_bound',localId:'mode',change:o=>{o.controls[1].identityScope='instance';}},
+  {reason:'selector_record_key_missing',localId:'mode',change:o=>{o.controls[1].structuralItem={ownerInstanceId:'owner',rowInstanceId:'row',template:'mode-row',slot:'mode'};}},
+  {reason:'selector_binding_duplicate',localId:'duplicate-mode',change:o=>{o.controls.push({...structuredClone(o.controls[1]),localId:'duplicate-mode',instanceId:'document:duplicate-mode'});}},
+  {reason:'selector_limit_exceeded',localId:'mode-32',change:o=>{for(let n=1;n<=32;n++)o.controls.push({...control(`mode-${n}`,'checkbox',`Mode ${n}`),checked:false});}},
+])('reports the first portable selector rejection $reason while preserving reflexive review proof',({reason,localId,change})=>{
+  const o=observed();change(o);o.controls.push({...control('later-missing','checkbox','Later missing'),checked:null});
+  const snapshot=structuredClone(o),result=browserControlReviewTargetCorrespondence(o.controls[0],o,o.controls[0],o);
+  expect(result).toMatchObject({targetMatched:true,reviewable:true,sourceEquivalent:'equivalent',reason:'same_recorded_review_occurrence',
+    sourceConditionAssessment:{status:'unavailable',reason,localId},currentConditionAssessment:{status:'unavailable',reason,localId}});
+  expect(result.conditionKey).toBeUndefined();expect(result.currentMaterialKey).toBeTruthy();expect(o).toEqual(snapshot);
+});
+
+it('keeps source and current condition diagnostics separate without changing available keys or evidence',()=>{
+  const before=observed(),current=structuredClone(before);current.id='current';
+  const complete=browserControlReviewTargetCorrespondence(before.controls[0],before,current.controls[0],current);
+  expect(complete).toMatchObject({sourceEquivalent:'equivalent',sourceConditionAssessment:{status:'available'},currentConditionAssessment:{status:'available'}});
+  before.controls[1].hypothesisId='old-unresolved-selector';
+  const missingSource=browserControlReviewTargetCorrespondence(before.controls[0],before,current.controls[0],current);
+  expect(missingSource).toMatchObject({reviewable:true,sourceEquivalent:'unknown',sourceConditionAssessment:{status:'unavailable',reason:'selector_identity_hypothesis',localId:'mode'},currentConditionAssessment:{status:'available'}});
+  expect(missingSource.conditionKey).toBe(complete.conditionKey);expect(missingSource.evidence).toEqual(complete.evidence);
+  delete before.controls[1].hypothesisId;current.controls[1].checked=null;
+  const missingCurrent=browserControlReviewTargetCorrespondence(before.controls[0],before,current.controls[0],current);
+  expect(missingCurrent).toMatchObject({reviewable:true,sourceEquivalent:'unknown',sourceConditionAssessment:{status:'available'},currentConditionAssessment:{status:'unavailable',reason:'selector_state_missing',localId:'mode'}});
+  expect(missingCurrent.conditionKey).toBeUndefined();expect(missingCurrent.evidence).toEqual(complete.evidence);
+});
+
+it.each<{reason:string;change:(o:Observation)=>void}>([
+  {reason:'review_classification_material_incomplete',change:o=>{o.controls[0].classificationBinding!.truncated=true;}},
+  {reason:'review_boundary_name_missing',change:o=>{o.boundaries=[{key:'source-modal',name:'',region:'document',evidence:[]}];}},
+  {reason:'review_boundary_overlay_missing',change:o=>{o.boundaries=[{key:'source-modal',name:'Source modal',region:'document',evidence:[]}];}},
+  {reason:'review_rule_version_incompatible',change:o=>{o.ruleVersion='observable-v6';}},
+])('reports unavailable historical review conditions for $reason without weakening the current proof',({reason,change})=>{
+  const before=observed(),current=structuredClone(before);current.id='current';
+  const key=browserControlReviewTargetCorrespondence(current.controls[0],current,current.controls[0],current).conditionKey;
+  change(before);
+  const result=browserControlReviewTargetCorrespondence(before.controls[0],before,current.controls[0],current);
+  expect(result).toMatchObject({reviewable:true,sourceEquivalent:'unknown',sourceConditionAssessment:{status:'unavailable',reason},currentConditionAssessment:{status:'available'}});
+  expect(result.conditionKey).toBe(key);
+});
+
+it('passes portable condition diagnostics through SDK self queries without authorizing historical recovery',async()=>{
+  const f=await fixture(0,true);try{
+    const o=f.engine.observation(f.session.id),source={sessionId:f.session.id,observationId:o.id,localId:'usd'};
+    const result=f.engine.controlReviewTargetCorrespondence(f.session.id,{observationId:o.id,localId:'usd',source});
+    expect(result).toMatchObject({sourceEquivalent:'equivalent',reviewable:true,sourceConditionAssessment:{status:'unavailable',reason:'selector_state_missing',localId:'mode'},
+      currentConditionAssessment:{status:'unavailable',reason:'selector_state_missing',localId:'mode'},executionAuthorized:false,replayAuthorized:false,coverageGranted:false,checkpointVerified:false});
+    expect(result.conditionKey).toBeUndefined();expect(f.driver.execute).not.toHaveBeenCalled();expect(f.driver.reopen).not.toHaveBeenCalled();
+  }finally{await f.engine.close();}
+});
+
 it('compares complete v7 and v8 review conditions without migrating strict checkpoints or merging A/B',()=>{
   const before=observed();before.ruleVersion='observable-v7';
   const current=structuredClone(before);current.id='current-v8';current.ruleVersion='observable-v8';

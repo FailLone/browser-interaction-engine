@@ -169,7 +169,7 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   /** Recorded control interpretation facts, distinct from operation/whole-page
    * arrival. Live target preflight is still required before reporting arrival. */
   controlReviewTargetCorrespondence?(source: O['controls'][number], before: O, target: O['controls'][number], current: O):
-    Pick<import('./types.js').ControlReviewTargetCorrespondence, 'targetMatched' | 'reviewable' | 'sourceEquivalent' | 'reason' | 'conditionKey' | 'currentMaterialKey' | 'evidence'>;
+    Pick<import('./types.js').ControlReviewTargetCorrespondence, 'targetMatched' | 'reviewable' | 'sourceEquivalent' | 'reason' | 'conditionKey' | 'currentMaterialKey' | 'evidence' | 'sourceConditionAssessment' | 'currentConditionAssessment'>;
   /** Optional structural scope for representative depth budgets; raw visit depth is retained. */
   explorationScope?(observation: O): string;
   /** Partial captures must establish readiness for the dispatched operation itself. */
