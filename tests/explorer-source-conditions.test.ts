@@ -45,7 +45,9 @@ it('the actual plugin schedules a new mode branch in one round and reuses verifi
     const returned = await f.host.observe(session.id), current = runAction(f.host, session.id);
     expect(completedOperations(f.host, task, returned, [current]).has(current)).toBe(true);
     await step();
-    expect(f.host.list<ActionAttempt>(session.id, 'attempt').filter(a => a.action.label === 'Run')).toHaveLength(2);
+    const attempts=f.host.list<ActionAttempt>(session.id, 'attempt').filter(a => a.action.label === 'Run');
+    expect(attempts,JSON.stringify({attempts:attempts.map(a=>({purpose:a.purpose,beforeId:a.beforeId,afterId:a.afterId,status:a.status})),
+      recovery:f.host.store.events(session.id).filter(e=>e.type.startsWith('checkpoint.')).slice(-12)})).toHaveLength(2);
     expect(providers.calls).toEqual([]);
     // This finite fixture proves the encountered branches, not real-page exhaustion.
   } finally { await plugin.close(); await f.close(); }

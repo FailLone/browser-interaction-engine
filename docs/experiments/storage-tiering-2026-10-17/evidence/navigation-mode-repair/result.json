@@ -1,0 +1,174 @@
+{
+  "baseCommit": "4968bc063bc70814b1c684c4fdfc67b52a953088",
+  "input": {
+    "kind": "--cache",
+    "ids": [
+      "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+      "f156ab06-f2e7-4188-bd38-e456f0da1d76",
+      "ba4f54b4-e386-4b61-b194-abf9a5436812"
+    ],
+    "sha256": [
+      "092a00bbb9b8dbfeb5b35060cdc65ff2c5036031c32daa5b8b4a6e98c84a45a1",
+      "87225b438834a1e5eb76dca797321dc1a68ff5703b42ef641afe417e783eb020",
+      "2304f9306fe19b319e355e3067d065a752a5be47453f2ae5582ed8e68be491d7",
+      "6cec1a313c57d9c5f9334183022c09787e8e0ad1225229f1d7d0b3c112a6b2d6",
+      "1177303ad283136c854359337080e203d565147ed3f07c0c7560e47963791b43"
+    ],
+    "databaseRowsRead": {
+      "entities": 0,
+      "objects": 0,
+      "packs": 0
+    }
+  },
+  "before": {
+    "sourceEquivalent": "unknown",
+    "sourceConditionAssessment": {
+      "status": "unavailable",
+      "reason": "selector_instance_bound",
+      "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1466"
+    }
+  },
+  "after": {
+    "targetMatched": true,
+    "reviewable": true,
+    "sourceEquivalent": "different",
+    "reason": "review_source_conditions_changed",
+    "evidence": [
+      "unique-captured-target-semantics",
+      "complete-classification-subtree",
+      "captured-idref-topology",
+      "unchanged-classification-conditions",
+      "unique-captured-control-and-owner"
+    ],
+    "currentMaterialKey": "dc70a16852f31be831f7e3284f65f1b9f4814e4080d916cc9e69d6f1d265b4c8",
+    "currentConditionAssessment": {
+      "status": "available",
+      "reason": "portable_review_conditions_available"
+    },
+    "conditionKey": "0779ef7ac6272c5cb33158345ce125e5c95b0264fb36514e88b55b0664ca019d",
+    "sourceConditionAssessment": {
+      "status": "available",
+      "reason": "portable_review_conditions_available"
+    }
+  },
+  "projected": [
+    {
+      "id": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+      "modeCount": 28,
+      "policy": "browser-branch-conditions-v4",
+      "key": "0adb4b688ce9d76edbf04c6a61637640c90fc09b4272180c1a6dcc5ac823ba36",
+      "references": [
+        {
+          "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1466",
+          "instanceBound": true,
+          "reference": {
+            "policy": "selector-structural-reference/v2",
+            "key": "986b0ed5e777d0b9360222c21af05d8b01fa4d84a12699122d47e6e9d78ee554",
+            "ownerLocalId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1382",
+            "ownerNodes": 59,
+            "fragmentNodes": 6
+          }
+        },
+        {
+          "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1469",
+          "instanceBound": true,
+          "reference": {
+            "policy": "selector-structural-reference/v2",
+            "key": "58f674f119e0eeacc2ce4d5826940a3d32f0e7116de9b61b2947aee6294cc49e",
+            "ownerLocalId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1382",
+            "ownerNodes": 59,
+            "fragmentNodes": 15
+          }
+        },
+        {
+          "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1475",
+          "instanceBound": true,
+          "reference": {
+            "policy": "selector-structural-reference/v2",
+            "key": "e55e796c16f5c5adbb14932136bdd442e024ca0f5b380cebbf6d99aebe728752",
+            "ownerLocalId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1382",
+            "ownerNodes": 59,
+            "fragmentNodes": 19
+          }
+        }
+      ]
+    },
+    {
+      "id": "f156ab06-f2e7-4188-bd38-e456f0da1d76",
+      "modeCount": 28,
+      "policy": "browser-branch-conditions-v4",
+      "key": "62c1e7dc11c39ae90a2b42361dadaf6f8816cd7012284426246f8683b86180a3",
+      "references": [
+        {
+          "localId": "a23f6de6-1678-448c-ad88-ddcfbd811db1:1466",
+          "instanceBound": false,
+          "reference": {
+            "policy": "selector-structural-reference/v2",
+            "key": "e1e8a4ab636deb11112daf865b23f8eed1f1c21e9f95f1f90800d7521fed5263",
+            "ownerLocalId": "a23f6de6-1678-448c-ad88-ddcfbd811db1:1382",
+            "ownerNodes": 59,
+            "fragmentNodes": 6
+          }
+        },
+        {
+          "localId": "a23f6de6-1678-448c-ad88-ddcfbd811db1:1469",
+          "instanceBound": false,
+          "reference": {
+            "policy": "selector-structural-reference/v2",
+            "key": "e9e7b84499a8f84cea0ec1e3ff9fedfc6023433130b96a41806b5cafcdae811e",
+            "ownerLocalId": "a23f6de6-1678-448c-ad88-ddcfbd811db1:1382",
+            "ownerNodes": 59,
+            "fragmentNodes": 15
+          }
+        },
+        {
+          "localId": "a23f6de6-1678-448c-ad88-ddcfbd811db1:1475",
+          "instanceBound": false,
+          "reference": {
+            "policy": "selector-structural-reference/v2",
+            "key": "191c5654a5387f21163d09975814decb269b37b5b623288a375a0eed0c47a4fd",
+            "ownerLocalId": "a23f6de6-1678-448c-ad88-ddcfbd811db1:1382",
+            "ownerNodes": 59,
+            "fragmentNodes": 19
+          }
+        }
+      ]
+    }
+  ],
+  "operation": [
+    {
+      "observationId": "ba4f54b4-e386-4b61-b194-abf9a5436812",
+      "legacyUnavailable": true,
+      "branch": "4c54742bf0ab721680c374d04743c679540f1bb3816fd0eda8c2ba3f805e4c35",
+      "operation": "24ce4a1422e27cb2f46e650d75ae6d2da424772e71c8b797b5809bda65db59c1",
+      "target": "d1cb8d65957333b1d88952e2f6fe91238b9c5e65e37ebc1b66c584b79c45edcb"
+    },
+    {
+      "observationId": "f156ab06-f2e7-4188-bd38-e456f0da1d76",
+      "legacyUnavailable": true,
+      "branch": "4c54742bf0ab721680c374d04743c679540f1bb3816fd0eda8c2ba3f805e4c35",
+      "operation": "24ce4a1422e27cb2f46e650d75ae6d2da424772e71c8b797b5809bda65db59c1",
+      "target": "d1cb8d65957333b1d88952e2f6fe91238b9c5e65e37ebc1b66c584b79c45edcb"
+    }
+  ],
+  "assertions": {
+    "all28ModeConditionsRetained": true,
+    "threeDistinctNavigationReferences": true,
+    "actualOpenClosedDifferenceRetained": true,
+    "sameHistoricalTradePrerequisitesNowComparable": true,
+    "instanceMetadataDoesNotRenameNavigationModes": true,
+    "changedHiddenModeRejected": true,
+    "missingTreeRemainsUnknown": true,
+    "passiveOwnerTextDoesNotRenameModes": true,
+    "prior27ModeDialogPairStillEquivalent": true,
+    "negativeMaterialKeyUnchanged": true,
+    "inputsUnmodified": true
+  },
+  "milliseconds": {
+    "load": 159.986166,
+    "reviewProofAndReferences": 45.311125000000004,
+    "operationPrerequisites": 23.441666999999995,
+    "counterexamples": 217.105792
+  },
+  "scope": "Retained real OKX observations plus explicitly transformed counterexamples. No browser, actual Trade replay, live preflight, task database or model invocation. Single-run timings are diagnostic, not a performance claim."
+}

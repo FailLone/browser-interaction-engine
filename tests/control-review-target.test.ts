@@ -2,7 +2,7 @@ import { expect, it, vi } from 'vitest';
 import { InteractionEngine, id, now, type ActionAttempt, type InteractionAdapter, type InteractionDriver, type ObservationData } from '@interaction/core';
 import { MemoryStore } from '@interaction/storage-memory';
 import { PlaywrightAdapter, browserControlReviewMaterialKey, createBrowserControlReviewMaterialKey, browserControlReviewTargetCorrespondence, createBrowserControlReviewTargetCorrespondenceReader, type ActionCandidate, type Control, type Observation, type Session, type SessionOptions } from '@interaction/browser';
-import { modeStructureFixture, setModeExpanded } from './fixtures/mode-structure.js';
+import { modeStructureFixture, navigationModeFixture, setModeExpanded } from './fixtures/mode-structure.js';
 
 const url='https://review-target.fixture.invalid/';
 function control(localId:string,role='generic',name='USD'):Control {
@@ -24,10 +24,18 @@ function observed():Observation {
 // ledger, recovery stages, identity assignment and browser review projection
 // are exercised. No browser, server, SQLite or provider is constructed.
 class Driver implements InteractionDriver<Observation,SessionOptions> {
-  layers=0; quote=1; connectedState=false; unknownMode=false; staleReview=false;
+  layers=0; quote=1; connectedState=false; unknownMode=false; staleReview=false; modeChecked=false;
   structuredModes=false; modeDocument='document';
-  readonly reopen=vi.fn(async()=>{throw Error('Entry reopening is forbidden by this fixture');});
-  readonly execute=vi.fn(async(a:ActionCandidate)=>{if(a.kind!=='click'||!a.boundary)throw Error('Only existing boundary exits are allowed');this.layers--;this.quote++;});
+  navigationModes?: Parameters<typeof navigationModeFixture>[0];
+  navigationActions=false;
+  readonly reopen=vi.fn(async():Promise<void>=>{throw Error('Entry reopening is forbidden by this fixture');});
+  readonly execute=vi.fn(async(a:ActionCandidate)=>{
+    if(a.kind==='click'&&a.localId==='trade-toggle'&&this.navigationActions&&this.navigationModes&&!this.layers){
+      this.navigationModes.open=!this.navigationModes.open;this.quote++;return;
+    }
+    if(a.kind!=='click'||!a.boundary)throw Error('Only existing boundary exits or the fixture Trade disclosure are supported');
+    this.layers--;this.quote++;
+  });
   readonly preflight=vi.fn(async(_o:Observation,_a?:ActionCandidate,reviewIds?:string[])=>reviewIds?.length&&this.staleReview?'stale' as const:'valid' as const);
   async start(){this.connectedState=true;}
   connected(){return this.connectedState;}
@@ -35,11 +43,13 @@ class Driver implements InteractionDriver<Observation,SessionOptions> {
   async validate(){ }
   async capture():Promise<ObservationData<Observation>> {
     const o=observed();
-    if(this.structuredModes){
-      const f=modeStructureFixture({documentId:this.modeDocument});
-      o.controls[0]=f.target;o.controls.push(f.owner,...Object.values(f.modes));
+    if(this.structuredModes||this.navigationModes){
+      const f=this.navigationModes?navigationModeFixture({...this.navigationModes,documentId:this.modeDocument})
+        :modeStructureFixture({documentId:this.modeDocument});
+      o.controls[0]=f.target;o.controls.push(...f.observation.controls.filter(c=>c!==f.target));
       o.documentId=o.instanceScope=this.modeDocument;
     }
+    o.controls[1].checked=this.modeChecked;
     if(this.unknownMode)delete (o.controls[1] as Partial<Control>).checked;
     o.controls.push({...control('quote','textbox','BTC output'),tag:'input',readOnly:true,value:String(this.quote)});
     for(let layer=1;layer<=this.layers;layer++){
@@ -51,7 +61,15 @@ class Driver implements InteractionDriver<Observation,SessionOptions> {
     return {...o,capturedAt:now()};
   }
   async discover(o:Observation,s:Session):Promise<ActionCandidate[]> {
-    const active=o.overlays?.at(-1);if(!active)return [];
+    const active=o.overlays?.at(-1);
+    if(!active){
+      const c=this.navigationActions&&o.controls.find(c=>c.localId==='trade-toggle');if(!c)return [];
+      // Discovery supplies native evidence only. The real adapter and declared
+      // interface rule must independently establish risk and replay permission.
+      return [{id:id(),sessionId:s.id,observationId:o.id,stateId:o.stateId,controlId:c.identityId,localId:c.localId,kind:'click',label:c.name,
+        risk:'unknown',replayable:false,excluded:false,sampleValidity:'known',source:'fixture-native-disclosure',basis:c.actionBasis!.click,
+        preconditions:{context:o.context,visible:c.visible,enabled:c.enabled,identityResolved:!!c.identityId&&!c.hypothesisId,targetResolved:true}}];
+    }
     const c=o.controls.find(c=>c.localId===active.exitControlIds[0])!;
     return [{id:id(),sessionId:s.id,observationId:o.id,stateId:o.stateId,controlId:c.identityId,localId:c.localId,kind:'click',label:c.name,
       risk:'interface',replayable:true,excluded:false,sampleValidity:'known',source:'fixture',basis:c.actionBasis!.click,boundary:{key:active.key,intent:'exit'},
@@ -89,6 +107,200 @@ it.each([0,2])('verifies historical review conditions after %i boundary exits wi
     expect(f.engine.observation(f.session.id).controls.filter(c=>c.name==='More').every(c=>!!c.hypothesisId)).toBe(true);
     expect(f.source).toEqual(sourceBefore);
   }finally{await f.engine.close();}
+});
+
+it.each(['hypothesis','portable'] as const)('verifies an instance-bound navigation review source after two exits into rebuilt %s modes without granting replay',async currentIdentity=>{
+  const driver=new Driver();driver.navigationModes={instanceBound:true,open:true};
+  const store=new MemoryStore(),engine=new InteractionEngine({adapter:adapter(driver),persistence:store});
+  try{
+    const session=await engine.createSession({url,exploration:'controls',maxActions:10,maxDurationMs:10000});
+    const source=engine.observation(session.id),sourceSnapshot=structuredClone(source);
+    const checkpoint=await engine.createCheckpoint(session.id,'instance-bound navigation review');
+    const oldModes=source.controls.filter(c=>c.name==='Open sub-menu');
+    expect(oldModes).toHaveLength(2);expect(oldModes.every(c=>c.identityScope==='instance'&&!c.hypothesisId)).toBe(true);
+    expect(source.controls.find(c=>c.localId==='trade-toggle')?.expanded).toBe(true);
+    driver.modeDocument='rebuilt-navigation';driver.layers=2;driver.quote++;
+    driver.navigationModes={open:true,hypotheses:currentIdentity==='hypothesis',duplicateBindings:currentIdentity==='hypothesis'};
+    await engine.observe(session.id);
+    const blocked=engine.observation(session.id),reference={sessionId:session.id,observationId:source.id,localId:'usd'};
+    expect(engine.controlReviewTargetCorrespondence(session.id,{observationId:blocked.id,localId:'usd',source:reference}))
+      .toMatchObject({targetMatched:true,reviewable:false,reason:'outside_active_boundary',executionAuthorized:false,coverageGranted:false});
+    const result=await engine.reachControlReviewTarget(session.id,{checkpointId:checkpoint.id,observationId:source.id,localId:'usd',requireSourceEquivalent:true});
+    expect(result,JSON.stringify(result)).toMatchObject({status:'CURRENT_REVIEWABLE',sourceEquivalent:'equivalent',matchedLocalId:'usd',
+      requireSourceEquivalent:true,checkpointVerified:false,currentExecution:false,coverageGranted:false,executionAuthorized:false,
+      proof:{sourceConditionAssessment:{status:'available'},currentConditionAssessment:{status:'available'},identityAuthorized:false,replayAuthorized:false,executionAuthorized:false,coverageGranted:false}});
+    expect(result.checks).toContainEqual({name:'historical-review-source-conditions',result:'pass'});
+    expect(result.checks).toContainEqual({name:'live-review-target-preflight',result:'pass'});
+    expect(result.diagnostics?.strategies).toEqual(['verify_current','boundary_exit']);
+    expect(result.attemptIds).toHaveLength(2);expect(driver.execute.mock.calls.map(([a])=>a.label)).toEqual(['Close 2','Close 1']);
+    expect(driver.reopen).not.toHaveBeenCalled();
+    expect(driver.preflight.mock.calls.some(([,action,ids])=>!action&&ids?.[0]==='usd')).toBe(true);
+    const current=engine.observation(session.id),modes=current.controls.filter(c=>c.name==='Open sub-menu');
+    expect(current.instanceScope).not.toBe(source.instanceScope);expect(current.boundaries).toEqual([]);expect(modes).toHaveLength(2);
+    expect(modes.every(c=>c.identityScope!=='instance'&&!!c.hypothesisId===(currentIdentity==='hypothesis'))).toBe(true);
+    expect(engine.list<ActionAttempt>(session.id,'attempt').every(a=>a.status==='succeeded'&&a.purpose==='recovery'&&a.action.boundary?.intent==='exit')).toBe(true);
+    // This proves review arrival after genuine boundary exits only. It must not
+    // certify the closed Trade state or authorize replay of its disclosure.
+    driver.navigationModes.open=false;await engine.observe(session.id);
+    const closed=engine.observation(session.id),changed=engine.controlReviewTargetCorrespondence(session.id,{observationId:closed.id,localId:'usd',source:reference});
+    expect(closed.controls.find(c=>c.localId==='trade-toggle')?.expanded).toBe(false);
+    expect(changed).toMatchObject({targetMatched:true,reviewable:true,sourceEquivalent:'different',
+      sourceConditionAssessment:{status:'available'},currentConditionAssessment:{status:'available'},replayAuthorized:false,executionAuthorized:false,coverageGranted:false});
+    expect(changed.conditionKey).not.toBe(result.proof?.conditionKey);expect(source).toEqual(sourceSnapshot);
+  }finally{await engine.close();}
+});
+
+it.each([false,true])('replays a recorded Trade disclosure after Close across instance-bound and rebuilt navigation modes (intermediate historical arrival: %s)',async intermediateArrival=>{
+  const driver=new Driver();driver.navigationModes={instanceBound:true,open:false};driver.navigationActions=true;
+  const browser=new PlaywrightAdapter(),platform:InteractionAdapter<Observation,SessionOptions>={...adapter(driver),
+    constrain:browser.constrain,operationCorrespondenceHint:browser.operationCorrespondenceHint,correspondenceCase:browser.correspondenceCase,
+    explorationTargetConditions:browser.explorationTargetConditions,explorationTargetReady:browser.explorationTargetReady,
+    explorationCase:browser.explorationCase,explorationCaseRevision:browser.explorationCaseRevision};
+  const engine=new InteractionEngine({adapter:platform,persistence:new MemoryStore()});
+  try{
+    const session=await engine.createSession({url,exploration:'controls',maxActions:10,maxDurationMs:10000,
+      interfaceActions:[{stableKey:'id:trade-toggle'}],replayable:[{stableKey:'id:trade-toggle'}]});
+    const initial=engine.observation(session.id),trade=engine.actions(session.id).find(a=>a.localId==='trade-toggle')!;
+    expect(initial.controls.find(c=>c.localId==='trade-toggle')?.expanded).toBe(false);
+    expect(trade).toMatchObject({risk:'interface',replayable:true,basis:{status:'supported'}});
+    const opening=await engine.execute(session.id,trade.id,id());
+    expect(opening).toMatchObject({status:'succeeded',purpose:'external',action:{localId:'trade-toggle',replayable:true}});
+    let closing:ActionAttempt|undefined;
+    if(intermediateArrival){
+      const closeTrade=engine.actions(session.id).find(a=>a.localId==='trade-toggle')!;
+      closing=await engine.execute(session.id,closeTrade.id,id());
+      expect(closing).toMatchObject({status:'succeeded',purpose:'external',action:{localId:'trade-toggle',replayable:true}});
+      expect(driver.navigationModes.open).toBe(false);
+      // The checkpoint follows an external return to an earlier intermediate
+      // state. Its final historical attempt is NOT the only possible arrival.
+      driver.navigationModes.open=true;await engine.observe(session.id);
+    }
+    const source=engine.observation(session.id),sourceSnapshot=structuredClone(source),checkpoint=await engine.createCheckpoint(session.id,'recorded open Trade');
+    const path=[opening.id,...(closing?[closing.id]:[])];
+    expect(checkpoint.path).toEqual(path);expect(source.controls.find(c=>c.localId==='trade-toggle')?.expanded).toBe(true);
+    expect(source.controls.filter(c=>c.name==='Open sub-menu').every(c=>c.identityScope==='instance')).toBe(true);
+    const reference={sessionId:session.id,observationId:source.id,localId:'usd'};
+    if(closing){
+      expect(engine.controlReviewTargetCorrespondence(session.id,{observationId:opening.afterId!,localId:'usd',source:reference}))
+        .toMatchObject({reviewable:true,sourceEquivalent:'equivalent'});
+      expect(engine.controlReviewTargetCorrespondence(session.id,{observationId:closing.afterId!,localId:'usd',source:reference}))
+        .toMatchObject({reviewable:true,sourceEquivalent:'different'});
+    }
+    driver.modeDocument='rebuilt-navigation';driver.navigationModes={open:false,hypotheses:true};driver.quote+=100;
+    await engine.observe(session.id);
+    const closed=engine.observation(session.id);
+    // A reachable control in the closed state cannot settle the open source.
+    expect(engine.controlReviewTargetCorrespondence(session.id,{observationId:closed.id,localId:'usd',source:reference}))
+      .toMatchObject({reviewable:true,sourceEquivalent:'different',executionAuthorized:false,coverageGranted:false});
+    driver.layers=1;await engine.observe(session.id);driver.execute.mockClear();driver.preflight.mockClear();
+    const result=await engine.reachControlReviewTarget(session.id,{checkpointId:checkpoint.id,observationId:source.id,localId:'usd',requireSourceEquivalent:true});
+    expect(result,JSON.stringify(result)).toMatchObject({status:'CURRENT_REVIEWABLE',requireSourceEquivalent:true,sourceEquivalent:'equivalent',matchedLocalId:'usd',
+      checkpointVerified:false,currentExecution:false,executionAuthorized:false,coverageGranted:false,
+      proof:{identityAuthorized:false,replayAuthorized:false,executionAuthorized:false,coverageGranted:false,
+        sourceConditionAssessment:{status:'available'},currentConditionAssessment:{status:'available'}}});
+    expect(result.attemptIds).toHaveLength(2);expect(driver.execute.mock.calls.map(([a])=>a.label)).toEqual(['Close 1','Trade']);
+    expect(result.diagnostics?.strategies).toContain('recorded_source_path');expect(result.diagnostics?.strategies).not.toContain('entry_replay');
+    expect(engine.store.events(session.id).filter(e=>e.type==='checkpoint.source_path_assessed').at(-1)?.data)
+      .toMatchObject({path});
+    expect(result.checks).toContainEqual({name:'historical-review-source-conditions',result:'pass'});
+    expect(result.checks).toContainEqual({name:'live-review-target-preflight',result:'pass'});
+    expect(driver.preflight.mock.calls.some(([o,a,ids])=>!a&&ids?.[0]==='usd'&&o.controls.find(c=>c.localId==='trade-toggle')?.expanded===true)).toBe(true);
+    expect(driver.reopen).not.toHaveBeenCalled();expect(driver.navigationModes.open).toBe(true);
+    const reached=engine.observation(session.id),modes=reached.controls.filter(c=>c.name==='Open sub-menu');
+    expect(reached.boundaries).toEqual([]);expect(reached.canonical).not.toBe(source.canonical);
+    expect(modes).toHaveLength(2);expect(modes.every(c=>!!c.hypothesisId&&c.identityScope!=='instance')).toBe(true);
+    expect(engine.list<ActionAttempt>(session.id,'attempt').filter(a=>result.attemptIds.includes(a.id)).map(a=>({status:a.status,purpose:a.purpose,label:a.action.label})))
+      .toEqual([{status:'succeeded',purpose:'recovery',label:'Close 1'},{status:'succeeded',purpose:'recovery',label:'Trade'}]);
+    expect(engine.list<ActionAttempt>(session.id,'attempt').filter(a=>a.status==='unknown'||a.status==='executing')).toEqual([]);expect(source).toEqual(sourceSnapshot);
+  }finally{await engine.close();}
+});
+
+it('stops at the entry zero-step prefix when every recorded Trade result differs from the review goal',async()=>{
+  const driver=new Driver();driver.navigationModes={instanceBound:true,open:false};driver.navigationActions=true;
+  const browser=new PlaywrightAdapter(),platform:InteractionAdapter<Observation,SessionOptions>={...adapter(driver),
+    constrain:browser.constrain,operationCorrespondenceHint:browser.operationCorrespondenceHint,correspondenceCase:browser.correspondenceCase,
+    explorationTargetConditions:browser.explorationTargetConditions,explorationTargetReady:browser.explorationTargetReady,
+    explorationCase:browser.explorationCase,explorationCaseRevision:browser.explorationCaseRevision};
+  const engine=new InteractionEngine({adapter:platform,persistence:new MemoryStore()});
+  try{
+    const session=await engine.createSession({url,exploration:'controls',maxActions:10,maxDurationMs:10000,
+      interfaceActions:[{stableKey:'id:trade-toggle'}],replayable:[{stableKey:'id:trade-toggle'}]});
+    const initial=engine.observation(session.id),trade=engine.actions(session.id).find(a=>a.localId==='trade-toggle')!;
+    const opening=await engine.execute(session.id,trade.id,id());
+    expect(opening).toMatchObject({status:'succeeded',purpose:'external',action:{localId:'trade-toggle',replayable:true}});
+    expect(driver.navigationModes.open).toBe(true);
+    // No recorded closing action exists: the goal was observed externally,
+    // but the authenticated entry itself already has its closed conditions.
+    driver.navigationModes.open=false;await engine.observe(session.id);
+    const source=engine.observation(session.id),sourceSnapshot=structuredClone(source),checkpoint=await engine.createCheckpoint(session.id,'closed entry review goal');
+    const reference={sessionId:session.id,observationId:source.id,localId:'usd'};
+    expect(checkpoint.path).toEqual([opening.id]);
+    expect(engine.controlReviewTargetCorrespondence(session.id,{observationId:initial.id,localId:'usd',source:reference}))
+      .toMatchObject({reviewable:true,sourceEquivalent:'equivalent'});
+    expect(engine.controlReviewTargetCorrespondence(session.id,{observationId:opening.afterId!,localId:'usd',source:reference}))
+      .toMatchObject({reviewable:true,sourceEquivalent:'different'});
+    driver.modeDocument='rebuilt-navigation';driver.navigationModes={open:true,hypotheses:true};driver.quote++;
+    await engine.observe(session.id);driver.execute.mockClear();driver.preflight.mockClear();
+    expect(engine.controlReviewTargetCorrespondence(session.id,{observationId:engine.observation(session.id).id,localId:'usd',source:reference}))
+      .toMatchObject({reviewable:true,sourceEquivalent:'different'});
+    driver.reopen.mockImplementation(async()=>{driver.navigationModes!.open=false;driver.modeDocument='reopened-navigation';driver.quote++;});
+    const result=await engine.reachControlReviewTarget(session.id,{checkpointId:checkpoint.id,observationId:source.id,localId:'usd',requireSourceEquivalent:true});
+    expect(result,JSON.stringify(result)).toMatchObject({status:'CURRENT_REVIEWABLE',requireSourceEquivalent:true,sourceEquivalent:'equivalent',matchedLocalId:'usd',
+      checkpointVerified:false,currentExecution:false,executionAuthorized:false,coverageGranted:false,
+      proof:{identityAuthorized:false,replayAuthorized:false,executionAuthorized:false,coverageGranted:false}});
+    expect(result.diagnostics?.strategies).toContain('entry_replay');expect(result.diagnostics?.strategies).not.toContain('recorded_source_path');
+    expect(result.attemptIds).toHaveLength(1);expect(driver.reopen).toHaveBeenCalledTimes(1);expect(driver.execute).not.toHaveBeenCalled();
+    expect(engine.list<ActionAttempt>(session.id,'attempt').filter(a=>result.attemptIds.includes(a.id)))
+      .toMatchObject([{status:'succeeded',purpose:'recovery',action:{source:'recovery-entry',kind:'navigate'}}]);
+    expect(result.checks).toContainEqual({name:'historical-review-source-conditions',result:'pass'});
+    expect(result.checks).toContainEqual({name:'live-review-target-preflight',result:'pass'});
+    expect(driver.preflight.mock.calls.some(([o,a,ids])=>!a&&ids?.[0]==='usd'&&o.documentId==='reopened-navigation'&&o.controls.find(c=>c.localId==='trade-toggle')?.expanded===false)).toBe(true);
+    expect(driver.navigationModes.open).toBe(false);expect(engine.observation(session.id).boundaries).toEqual([]);
+    expect(engine.list<ActionAttempt>(session.id,'attempt')).toHaveLength(2);
+    expect(source).toEqual(sourceSnapshot);expect(checkpoint.path).toEqual([opening.id]);
+  }finally{await engine.close();}
+});
+
+it('does not replay a Trade path whose recorded result cannot restore an externally changed checkpoint mode',async()=>{
+  const driver=new Driver();driver.navigationModes={instanceBound:true,open:false};driver.navigationActions=true;
+  const browser=new PlaywrightAdapter(),platform:InteractionAdapter<Observation,SessionOptions>={...adapter(driver),
+    constrain:browser.constrain,operationCorrespondenceHint:browser.operationCorrespondenceHint,correspondenceCase:browser.correspondenceCase,
+    explorationTargetConditions:browser.explorationTargetConditions,explorationTargetReady:browser.explorationTargetReady,
+    explorationCase:browser.explorationCase,explorationCaseRevision:browser.explorationCaseRevision};
+  const engine=new InteractionEngine({adapter:platform,persistence:new MemoryStore()});
+  try{
+    const session=await engine.createSession({url,exploration:'controls',maxActions:10,maxDurationMs:10000,
+      interfaceActions:[{stableKey:'id:trade-toggle'}],replayable:[{stableKey:'id:trade-toggle'}]});
+    const trade=engine.actions(session.id).find(a=>a.localId==='trade-toggle')!;
+    const opening=await engine.execute(session.id,trade.id,id());expect(opening.status).toBe('succeeded');
+    const terminal=engine.observation(session.id,opening.afterId!);
+    expect(terminal.controls.find(c=>c.localId==='trade-toggle')?.expanded).toBe(true);
+    expect(terminal.controls.find(c=>c.localId==='mode')?.checked).toBe(false);
+    // This externally observed B state has no recorded operation in the path.
+    driver.modeChecked=true;await engine.observe(session.id);
+    const source=engine.observation(session.id),sourceSnapshot=structuredClone(source),checkpoint=await engine.createCheckpoint(session.id,'externally changed mode B');
+    expect(checkpoint.path).toEqual([opening.id]);expect(source.id).not.toBe(terminal.id);
+    expect(source.controls.find(c=>c.localId==='mode')?.checked).toBe(true);
+    const reference={sessionId:session.id,observationId:source.id,localId:'usd'};
+    expect(engine.controlReviewTargetCorrespondence(session.id,{observationId:terminal.id,localId:'usd',source:reference}))
+      .toMatchObject({reviewable:true,sourceEquivalent:'different',sourceConditionAssessment:{status:'available'},currentConditionAssessment:{status:'available'}});
+    driver.modeDocument='rebuilt-navigation';driver.navigationModes={open:false,hypotheses:true};driver.modeChecked=false;driver.layers=1;
+    await engine.observe(session.id);driver.execute.mockClear();driver.preflight.mockClear();
+    const result=await engine.reachControlReviewTarget(session.id,{checkpointId:checkpoint.id,observationId:source.id,localId:'usd',requireSourceEquivalent:true});
+    expect(result,JSON.stringify(result)).toMatchObject({status:'UNREACHABLE',requireSourceEquivalent:true,sourceEquivalent:'different',
+      checkpointVerified:false,currentExecution:false,executionAuthorized:false,coverageGranted:false});
+    expect(result.matchedLocalId).toBeUndefined();expect(result.attemptIds).toHaveLength(1);
+    expect(driver.execute.mock.calls.map(([a])=>a.label)).toEqual(['Close 1']);expect(driver.reopen).not.toHaveBeenCalled();
+    expect(result.diagnostics?.strategies).not.toContain('entry_replay');
+    expect(driver.navigationModes.open).toBe(false);expect(driver.modeChecked).toBe(false);
+    const current=engine.observation(session.id);
+    expect(current.boundaries).toEqual([]);
+    expect(engine.controlReviewTargetCorrespondence(session.id,{observationId:current.id,localId:'usd',source:reference}))
+      .toMatchObject({reviewable:true,sourceEquivalent:'different',replayAuthorized:false,executionAuthorized:false,coverageGranted:false});
+    expect(engine.list<ActionAttempt>(session.id,'attempt').map(a=>({label:a.action.label,status:a.status,purpose:a.purpose})))
+      .toEqual([{label:'Trade',status:'succeeded',purpose:'external'},{label:'Close 1',status:'succeeded',purpose:'recovery'}]);
+    expect(source).toEqual(sourceSnapshot);expect(checkpoint.path).toEqual([opening.id]);
+  }finally{await engine.close();}
 });
 
 it.each([1,2])('stops after %i existing boundary exits at current review material, without whole-page replay',async layers=>{

@@ -1646,6 +1646,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const strategies: string[] = []; let matches:ExplorationTargetCorrespondence[]=[];let dispatchAvailability:ActionAvailability|undefined;
     const directed=!!(target||review);let reviewProof:ControlReviewTargetCorrespondence|undefined;
     let reviewStop:Extract<ControlReviewTargetReachResult['status'],'UNVERIFIED'|'PRECONDITIONS_CHANGED'>|undefined;
+    let recordedSourcePathMiss=false;
     const verify=async()=>{
       if(review){const result=await this.verifyControlReviewTarget(sessionId,review);reviewProof=result.proof;return result;}
       if(!target)return this.verify(sessionId,checkpoint);
@@ -1821,7 +1822,67 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       // directed goal, consider a suffix of its OWN recorded path before
       // reopening the entry. The suffix is a hint, not a restored prefix:
       // every dispatched step still needs current source conditions and rights.
-      if (directed && !this.session(sessionId).dirty && !this.observation(sessionId).boundaries?.length) {
+      if(directed&&checkpoint.path.length&&checkpoint.path.length<=16){
+        // An external observation can create a checkpoint whose accumulated
+        // path never visited its mode conditions. Reject only a bounded,
+        // positively disproved route: any equivalent OR unknown intermediate
+        // result preserves the existing early-arrival behavior. No new history
+        // scan, browser read or dispatch permission is introduced here.
+        const goal=review||target!,goalObservation=this.observation(sessionId,goal.observationId);
+        const read=this.correspondenceReader();let checked=0,allDifferent=true;
+        const different=(end:O)=>{
+          if(end.id===goalObservation.id)return false;
+          if(review){
+            const source=goalObservation.controls.filter(c=>c.localId===review.localId);
+            if(source.length!==1||!this.adapter.controlReviewTargetCorrespondence)return false;
+            const match=this.adapter.createControlReviewTargetCorrespondenceReader?.(goalObservation,end)
+              ||((a:O['controls'][number],b:O['controls'][number])=>this.adapter.controlReviewTargetCorrespondence!(a,goalObservation,b,end));
+            const matches=end.controls.map(c=>match(source[0],c)).filter(p=>p.targetMatched);
+            return !!review.requireSourceEquivalent&&matches.length===1&&matches[0].reviewable&&matches[0].sourceEquivalent==='different';
+          }else{
+            const actions=this.actions(sessionId,end.id);
+            for(const sourceId of target!.actionIds){
+              const original=this.owned<ActionCandidate>('action',sourceId,sessionId);
+              const proofs=actions.filter(a=>a.kind===original.kind).map(a=>read(sessionId,{observationId:end.id,actionId:a.id,
+                source:{sessionId,observationId:goalObservation.id,actionId:sourceId}})).filter(p=>p.reason!=='target_correspondence_missing');
+              if(!proofs.length||proofs.some(p=>!['operation_conditions_changed','target_conditions_changed'].includes(p.reason)))return false;
+            }
+            return true;
+          }
+        };
+        for(const attemptId of [...checkpoint.path].reverse()){
+          const old=this.owned<ActionAttempt>('attempt',attemptId,sessionId);
+          if(old.status!=='succeeded'||!old.afterId){allDifferent=false;break;}
+          checked++;if(!different(this.observation(sessionId,old.afterId))){allDifferent=false;break;}
+        }
+        if(allDifferent){
+          recordedSourcePathMiss=true;
+          // Entry itself is a zero-step prefix. A random first.before is NOT
+          // entry evidence: follow only its bounded visit ancestry to an actual
+          // initial capture or succeeded entry/reset receipt. Missing evidence
+          // preserves entry reopening and its independent live arrival check.
+          const first=this.owned<ActionAttempt>('attempt',checkpoint.path[0],sessionId);
+          let visit=this.owned<Visit>('visit',this.observation(sessionId,first.beforeId).visitId,sessionId),entry:O|undefined,entryReads=0;
+          const seen=new Set<string>();
+          while(entryReads<16&&!seen.has(visit.id)){
+            seen.add(visit.id);entryReads++;
+            if(visit.viaAttemptId){
+              const via=this.owned<ActionAttempt>('attempt',visit.viaAttemptId,sessionId);
+              if(['recovery-entry','recovery-reset'].includes(via.action.source)){
+                if(via.status==='succeeded'&&via.afterId===visit.observationId)entry=this.observation(sessionId,visit.observationId);
+                break;
+              }
+            }
+            if(!visit.parentId){const candidate=this.observation(sessionId,visit.observationId);if(candidate.cause==='initial')entry=candidate;break;}
+            visit=this.owned<Visit>('visit',visit.parentId,sessionId);
+          }
+          const entryDifferent=!!entry&&different(entry);
+          checks.push({name:'recorded-source-path-contains-goal',result:'fail'});
+          this.emit(sessionId,'checkpoint.source_path_unavailable',{checkpointId,reason:'recorded_path_goal_changed',checked,total:checkpoint.path.length,entryDifferent,entryObservationId:entry?.id,entryReads});
+          if(entryDifferent){status='UNREACHABLE';reason='Recorded entry and path results do not contain the requested source conditions; an unrecorded state change cannot be replayed';return finish();}
+        }
+      }
+      if (directed && !recordedSourcePathMiss && !this.session(sessionId).dirty && !this.observation(sessionId).boundaries?.length) {
         if (this.unverifiedRecoveryAttempts(sessionId).length) { status = 'UNVERIFIED'; reason = 'Unknown execution outcome requires explicit recovery verification'; return finish(); }
         const current = this.observation(sessionId), actions = this.actions(sessionId), liveSession = this.session(sessionId);
         const remainingActions = Math.max(0, liveSession.options.maxActions - liveSession.actionCount);
@@ -1893,6 +1954,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if(reviewStop){status=reviewStop;reason='Review target verification requires resolution after entry restoration';return finish();}
         if(arrival===true){status=review?'CURRENT_REVIEWABLE':'TARGET_REACHED';reason='Target verified after entry restoration';return finish();}
       }
+      if(recordedSourcePathMiss){status='UNREACHABLE';reason='Entry did not reach the target; recorded path results are known to have different source conditions';return finish();}
       const { failure } = await this.replay(sessionId, checkpoint.path, resetConfirmed, performed, targetReached);
       if(reviewStop){status=reviewStop;reason='Review target verification requires resolution before further replay';return finish();}
       verification = await verify(); checks = verification.checks;
