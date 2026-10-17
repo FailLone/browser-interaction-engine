@@ -92,6 +92,17 @@ it('keeps otherwise identical mode fragments under different semantic owners dis
   expect(reference(wallet)?.key).toBeTruthy(); expect(reference(wallet)?.key).not.toBe(reference(trade)?.key);
 });
 
+it('retains captured ancestry outside the owner tree without using selectors as identity',()=>{
+  const before=modeStructureFixture(),after=modeStructureFixture();
+  before.owner.reviewReuseBinding={ancestors:[{tag:'nav',selector:'#before',attributes:{'aria-label':'Primary'},label:'Primary'}]};
+  after.owner.reviewReuseBinding=structuredClone(before.owner.reviewReuseBinding);
+  after.owner.reviewReuseBinding.ancestors[0].selector='#rebuilt-node';
+  expect(reference(after)?.key).toBe(reference(before)?.key);
+  after.owner.reviewReuseBinding.ancestors[0].attributes['aria-label']='Secondary';
+  after.owner.reviewReuseBinding.ancestors[0].label='Secondary';
+  expect(reference(after)?.key).not.toBe(reference(before)?.key);
+});
+
 it('changes the reference when the same mode moves between groups named only by sibling links', () => {
   const before = modeStructureFixture({ records: ['b'] }), after = modeStructureFixture({ records: ['b'] });
   for (const f of [before, after]) {

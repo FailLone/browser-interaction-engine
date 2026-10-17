@@ -114,7 +114,10 @@ export function modeStructureReader(o:Observation) {
       ancestry.push({node:tree.atoms.get(ancestor.instanceId),siblings:siblings.map(n=>tree.guard.get(n.instanceId)!).sort()});
       child=ancestor;ancestor=tree.nodes.get(child.parentInstanceId);
     }
-    const result:ModeStructureReference={policy:'selector-structural-reference/v1',key:hash({policy:'selector-structural-reference/v1',owner:tree.ownerKey,
+    // Capture may also establish ownership outside this subtree. Retain it as
+    // a condition, never use absent ancestry to discard a competing owner.
+    const ownerAncestry=owner.reviewReuseBinding?.ancestors.map(({tag,attributes,label})=>({tag,attributes,label}));
+    const result:ModeStructureReference={policy:'selector-structural-reference/v1',key:hash({policy:'selector-structural-reference/v1',owner:tree.ownerKey,ownerAncestry,
       ancestry,fragment:tree.guard.get(fragment.instanceId),path}),ownerLocalId:owner.localId,ownerNodes:tree.nodes.size,fragmentNodes:tree.sizes.get(fragment.instanceId)!};
     cache.set(target,result);return result;
   };
