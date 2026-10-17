@@ -1,14 +1,16 @@
 import {browserControlBindingKey,type Observation,type ActionAttempt} from '@interaction/browser';
 import type {ExplorerHost,Task} from './types.js';
 import {digest,scopeFor} from './policy.js';
+import {operationSourceCompletion} from './operation-source-completion.js';
+import {receiptConditionReader} from './receipt-condition.js';
 
 /** Read-only projection of retained discovery and dispatch records. No success
  * flag is written here; condition combinations never inherit sampled coverage. */
 export function coverageLedger(host:ExplorerHost,task:Task) {
  const attempts=task.rounds.flatMap(r=>host.list<ActionAttempt>(r.sessionId,'attempt'));
  const byBefore=new Map<string,ActionAttempt[]>();for(const a of attempts){const k=`${a.sessionId}:${a.beforeId}`;byBefore.set(k,[...(byBefore.get(k)||[]),a]);}
- const proofs=new Map<string,boolean>();
- for(const r of task.rounds){const rows=attempts.filter(a=>a.sessionId===r.sessionId&&a.status==='succeeded');const batch=host.operationReceiptConditions?.(r.sessionId,{attemptIds:rows.map(a=>a.id)});for(const [i,a] of rows.entries()){const p=batch?.results[i];proofs.set(a.id,p?.source.attemptId===a.id&&p.source.sessionId===a.sessionId&&p.conditionVerified===true);}}
+ const condition=receiptConditionReader(host),complete=operationSourceCompletion(host,undefined,condition);
+ const proofs=new Map<string,boolean>();const checked=condition.many(attempts);attempts.forEach((a,index)=>proofs.set(a.id,checked[index].conditionVerified));
  type Combination={key:string;conditions:unknown;sources:{sessionId:string;observationId:string}[];operations:Record<string,{scope:ReturnType<typeof scopeFor>;observed:string[];executed:{attemptId:string;observationId:string;verified:boolean}[];status:'observed_not_executed'|'execution_evidence_only'}>};
  const combinations=new Map<string,Combination>(),gaps:{sessionId:string;observationId:string;code:string;critical:boolean;message:string}[]=[];
  for(const round of task.rounds)for(const o of host.list<Observation>(round.sessionId,'observation')){
@@ -24,9 +26,15 @@ export function coverageLedger(host:ExplorerHost,task:Task) {
   }
   for(const g of o.gaps)gaps.push({sessionId:o.sessionId,observationId:o.id,code:g.code,critical:g.critical===true,message:g.message});combinations.set(key,row);
  }
- const obligations=task.plan.filter(i=>i.required&&!!i.scope.kind).map(i=>({itemId:i.id,scope:i.scope,conditionKey:i.operationConditionKey,status:i.status,reason:i.reason,
-   verified:i.status==='succeeded'&&i.conditionCompletion?.status==='verified'&&!!i.resolvedBy?.attemptId&&proofs.get(i.resolvedBy.attemptId)===true,
-   discovery:i.evidence.filter(e=>!e.attemptId),completion:i.resolvedBy,completionAssessment:i.conditionCompletion}));
+ const obligations=task.plan.filter(i=>i.required&&!!i.scope.kind).map(i=>{
+  const relatedIds=i.coverageResolvedBy?.relatedItemIds||[],related=relatedIds.map(id=>task.plan.find(row=>row.id===id));
+  const refs=related.flatMap(peer=>peer?[...peer.attempts,...peer.resolvedBy?[{roundId:'retained-proof',outcome:'succeeded' as const,evidence:peer.resolvedBy}]:[]]:[]);
+  const material={...i,evidence:[...i.evidence,...related.flatMap(peer=>peer?peer.evidence.filter(ref=>!!ref.attemptId):[])],attempts:[...i.attempts,...refs]};
+  const verified=i.status==='succeeded'&&i.conditionCompletion?.status==='verified'&&(!i.coverageResolvedBy||relatedIds.length>0&&related.every(Boolean))&&complete(material);
+  return {itemId:i.id,scope:i.scope,conditionKey:i.operationConditionKey,status:i.status,reason:i.reason,verified,
+   discovery:i.evidence.filter(e=>!e.attemptId),completion:i.resolvedBy,completionAssessment:i.conditionCompletion,relatedCoverage:i.coverageResolvedBy,
+   receiptReferences:[...material.evidence,...material.attempts.flatMap(a=>a.evidence?[a.evidence]:[]),...material.resolvedBy?[material.resolvedBy]:[]].filter(ref=>!!ref.attemptId)};
+ });
  return {version:1,policy:task.sessionOptions.coveragePolicy||'legacy-source-conditions',taskId:task.id,
   claim:'Finite observed UI operation samples only; neither all condition combinations nor business effects are certified',
   finite:{obligations,total:obligations.length,verified:obligations.filter(i=>i.verified).length,remaining:obligations.filter(i=>!i.verified).map(i=>i.itemId)},

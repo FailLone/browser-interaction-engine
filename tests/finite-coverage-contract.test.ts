@@ -80,8 +80,11 @@ it('reports sampled obligations separately from observed combinations and unprov
  const {coverageLedger}=await import('@interaction/explorer-plugin');const f=await explorerFixture('<button id="native" type="button">Native operation</button>');
  try{const s=await f.host.createSession({url:f.url,headless:true,coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui'});const a=f.host.actions(s.id).find(a=>a.label==='Native operation')!;
  const receipt=await f.host.execute(s.id,a.id,'ledger-native',undefined,{profile:'observed-ui-exploration',observationId:a.observationId});
- const task={id:'ledger-projection-test',sessionOptions:{coveragePolicy:'finite-ui-v1'},rounds:[{sessionId:s.id}],plan:[{id:'sample',required:true,scope:{kind:'click'},status:'succeeded',resolvedBy:{sessionId:s.id,attemptId:receipt.id},conditionCompletion:{status:'verified'},evidence:[{sessionId:s.id,observationId:receipt.beforeId}]}]} as any;
+ const task={id:'ledger-projection-test',sessionOptions:{coveragePolicy:'finite-ui-v1'},rounds:[{sessionId:s.id}],plan:[{id:'sample',required:true,scope:{kind:'click'},status:'succeeded',attempts:[],resolvedBy:{sessionId:s.id,observationId:receipt.afterId!,attemptId:receipt.id},conditionCompletion:{status:'verified'},evidence:[{sessionId:s.id,observationId:receipt.beforeId}]}]} as any;
  const ledger=coverageLedger(f.host,task);expect(ledger.finite).toMatchObject({total:1,verified:1,remaining:[]});expect(ledger.conditionCombinations.exhaustive).toBe(false);expect(ledger.unknownDependencies.status).toBe('unproved');expect(ledger.conditionCombinations.rows.flatMap(r=>Object.values(r.operations)).flatMap(o=>o.executed).some(e=>e.attemptId===receipt.id&&e.verified)).toBe(true);
- const altered=structuredClone(receipt);delete altered.dispatchWitness;f.host.store.put('attempt',altered);expect(coverageLedger(f.host,task).finite).toMatchObject({verified:0,remaining:['sample']});
+ task.plan.push({...task.plan[0],id:'related',resolvedBy:undefined,coverageResolvedBy:{observation:{sessionId:s.id,observationId:receipt.afterId!},relatedItemIds:['sample']}});
+ expect(coverageLedger(f.host,task).finite).toMatchObject({total:2,verified:2,remaining:[]});
+ task.plan[1].coverageResolvedBy.relatedItemIds=['missing'];expect(coverageLedger(f.host,task).finite).toMatchObject({verified:1,remaining:['related']});task.plan[1].coverageResolvedBy.relatedItemIds=['sample'];
+ const altered=structuredClone(receipt);delete altered.dispatchWitness;f.host.store.put('attempt',altered);expect(coverageLedger(f.host,task).finite).toMatchObject({verified:0,remaining:['sample','related']});
  }finally{await f.close();}
 });
