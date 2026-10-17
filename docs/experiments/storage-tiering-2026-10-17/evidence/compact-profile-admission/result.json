@@ -1,0 +1,476 @@
+{
+  "format": "compact-capture-profile-admission-v1",
+  "at": "2026-10-17T05:17:19.272Z",
+  "commit": "60eaab54412e6a38c2cfc74283fe09fb17eca87f",
+  "nativeCommit": "60eaab54412e6a38c2cfc74283fe09fb17eca87f",
+  "node": "v24.22.0",
+  "script": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/compact-profile-admission/checkpoint.mjs",
+    "bytes": 2593,
+    "sha256": "6f819b7e5d1f03f459c06bc11c7347eb3b002c4d58ec02ec70641304236b069b"
+  },
+  "collector": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/owner-dependencies.ts",
+    "bytes": 21292,
+    "sha256": "7ba05dcc4aad7303cbb40541c4754a0f265a993dd7fdbb9f56ec6ff07f2aeda0"
+  },
+  "codec": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/owner-dependency-codec.ts",
+    "bytes": 23505,
+    "sha256": "924df89641d5fafc8a4edaf2e4d53478e2efe8a257a1ca94dd694731bf8c239e"
+  },
+  "reusedHarness": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/native-capture-budget-checkpoint/checkpoint.mjs",
+    "sha256": "c90d406d4267a5439f1c03591cb1adcb6cfe7bb655450c8384f40a32852b6f15"
+  },
+  "reason": "The failed frame has a measured minimum of 515 required nodes, exceeding the old 512 limit. Verify the new bounded required-evidence profile and optional cap on only this frame. Complete proof requirements are unchanged; this is not a performance or restore test.",
+  "diagnosis": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-8/collection-diagnosis.json",
+    "sha256": "1f759a21bd5a7338dfaa1837d33834263b75b1c545fe8658aa1ba851aba19a26"
+  },
+  "database": {
+    "before": {
+      "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run8-receipt-audit-5a3n2u5m/engine/engine.sqlite",
+      "bytes": 114073600,
+      "sha256": "6d147043776ca6dea844a76a68307605e59b65682ae3a01feba04e57558b502d"
+    },
+    "after": {
+      "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run8-receipt-audit-5a3n2u5m/engine/engine.sqlite",
+      "bytes": 114073600,
+      "sha256": "6d147043776ca6dea844a76a68307605e59b65682ae3a01feba04e57558b502d"
+    },
+    "beforeSidecars": [
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run8-receipt-audit-5a3n2u5m/engine/engine.sqlite-wal",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run8-receipt-audit-5a3n2u5m/engine/engine.sqlite-shm",
+        "bytes": 32768,
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+      }
+    ],
+    "afterSidecars": [
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run8-receipt-audit-5a3n2u5m/engine/engine.sqlite-wal",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run8-receipt-audit-5a3n2u5m/engine/engine.sqlite-shm",
+        "bytes": 32768,
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+      }
+    ],
+    "readOnly": true,
+    "observationsDecoded": 1,
+    "originalDatabaseOpened": false,
+    "hostConstructed": false
+  },
+  "originalEvidence": {
+    "filesRead": 149,
+    "manifestSha256": "d4e792f1091c0f277dfc228271e76b2a2067cb2e15bb573da71f8948f59ccb45",
+    "unchanged": true,
+    "copied": false
+  },
+  "results": [
+    {
+      "observationId": "1ed23726-5e7b-49a8-b885-4631d40d627c",
+      "label": "1W",
+      "observationCapturedAt": "2026-10-17T03:59:10.096Z",
+      "detailsCapturedAt": "2026-10-17T03:59:08.601Z",
+      "originalManifest": {
+        "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1/engine/evidence/1ed23726-5e7b-49a8-b885-4631d40d627c.details.json.meta.json",
+        "sha256": "f6ca0890fb6b7c81fbd9e64caf63c9a63870424decd7ca4f29a8b254c7996446",
+        "detailsSha256": "c367da278b2b8bc4bb37944b3842aadffe92515a95c7711d102c4b78c9e0489f",
+        "bytes": 4417212,
+        "blocks": 148,
+        "allBlockHashesVerified": true
+      },
+      "html": {
+        "bytes": 225050,
+        "sha256": "960045803f2a2d6a559da53eaa7233845b854602a224d83aebb04f3e27529095",
+        "truncated": false
+      },
+      "controlsSha256": "959439ecf004f4720673fe22c91a9d67d374c45c4a67c2ae535767918f276699",
+      "detailTreeTruncated": true,
+      "parsedNativeValues": "HTML defaults only; retained live values are not reconstructed",
+      "fixtureIdentity": "Original IDs are labels for structural budget measurement only; generated IDs have the original document-prefix shape and a six-digit counter.",
+      "requests": {
+        "inMemoryDocuments": 1,
+        "blocked": 0
+      },
+      "status": "static_collection_executed",
+      "collectorCalled": true,
+      "mapping": {
+        "retained": 304,
+        "mapped": 304,
+        "detailPathChecks": 187,
+        "bindingChecks": 304,
+        "issues": []
+      },
+      "graph": {
+        "version": "browser-owner-dependencies-v3",
+        "semanticVersion": "browser-owner-dependencies-v2",
+        "ancestry": "node-bounded-v1",
+        "wireBytes": 130439,
+        "expandedBytes": 330080,
+        "inventoryComplete": true,
+        "complete": false,
+        "limits": {
+          "nodes": 768,
+          "references": 64,
+          "bytes": 196608,
+          "depth": 16
+        },
+        "bytes": 330080,
+        "nodes": 516,
+        "roots": 304,
+        "closures": 31,
+        "references": 25,
+        "nativeInputs": 9,
+        "nativeRoots": 2,
+        "reasons": [
+          "broad_owner_scope",
+          "byte_budget"
+        ],
+        "rootReasonCounts": {
+          "byte_budget": 240,
+          "target_not_captured": 4
+        }
+      },
+      "required": {
+        "unionNodes": 515,
+        "incompleteClosures": [],
+        "controls": 37,
+        "completeControls": 37,
+        "roots": [
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1483",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1483",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1381",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1381",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1488",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1488",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1486",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1486",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:2276",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:2276",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1486",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1486",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:2277",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:2277",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1486",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1486",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:2279",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:2279",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1486",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1486",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1491",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1491",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100007",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100007",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1497",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1497",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100008",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100008",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1505",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1505",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1504",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1504",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1515",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1515",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1514",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1514",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1524",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1524",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1523",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1523",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1760",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1760",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1759",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1759",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1762",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1762",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100014",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100014",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1546",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1546",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1545",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1545",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1549",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1549",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1547",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1547",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1555",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1555",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1554",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1554",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1556",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1556",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1373",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1373",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1382",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1382",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100018",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100018",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1383",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1383",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100018",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100018",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1384",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1384",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100018",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100018",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1385",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1385",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100018",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100018",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1386",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1386",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100018",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100018",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1387",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1387",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100018",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100018",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1782",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1782",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100020",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100020",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1558",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1558",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100027",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100027",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1796",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1796",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100029",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100029",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1562",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1562",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100036",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100036",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:18",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:18",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100043",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100043",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:21",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:21",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100044",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100044",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:24",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:24",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100045",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100045",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:27",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:27",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100047",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100047",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:30",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:30",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100048",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100048",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:33",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:33",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100050",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100050",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:36",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:36",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100052",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100052",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:39",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:39",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100054",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100054",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:42",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:42",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100055",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100055",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:45",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:45",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100056",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100056",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1396",
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1396",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100063",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100063",
+            "complete": true,
+            "reasons": []
+          }
+        ],
+        "nativeRoots": [
+          {
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100001",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1486",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1486",
+            "complete": true,
+            "reasons": []
+          },
+          {
+            "instanceId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100002",
+            "ownerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1759",
+            "closureId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1759",
+            "complete": true,
+            "reasons": []
+          }
+        ],
+        "allRetainedAndComplete": true
+      },
+      "generatedGraphPersisted": false,
+      "currentUrl": "https://www.okx.com/convert/usd-to-btc",
+      "baseURI": "https://www.okx.com/convert/usd-to-btc"
+    }
+  ],
+  "limitations": [
+    "Static HTML structure input only; no original browser was attached and no service was started.",
+    "Controls and details have distinct capture timestamps. A successful mapping is a conservative static-fixture binding, not proof of the original live same-frame identity.",
+    "No page interaction, restoration, dispatch witness, coverage proof, or old graph is reconstructed or backfilled.",
+    "Live native values, selectedness, React state, network state and event handlers are absent; HTML defaults can change exact byte cost.",
+    "This single structural checkpoint is not a performance benchmark and does not establish a real recovery success rate."
+  ]
+}

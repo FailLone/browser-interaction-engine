@@ -1,0 +1,10 @@
+{
+  "stage": "wrapper preparation",
+  "error": "ERR_INVALID_URL_SCHEME before original harness OUT initialization",
+  "cause": "Replacing all import.meta.url strings in a nested wrapper also changed its literal search needle, leaving the final data-URL module unbound to a file path.",
+  "scriptSha256": "ecb3124c409bfe388803aeab2e6e57980dddd4e3a5a95535d1f5667670d6068c",
+  "collectorExecuted": false,
+  "databaseOpened": false,
+  "browserStarted": false,
+  "repeatReason": "Fix only the wrapper URL substitution, then perform the still-unexecuted single-frame checkpoint."
+}
