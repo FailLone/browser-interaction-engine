@@ -1,0 +1,378 @@
+{
+  "status": "completed",
+  "normalizationElapsedMs": 632.287208,
+  "elapsedMs": 632.926958,
+  "counts": {
+    "observationReads": 32,
+    "directObservationReads": 16,
+    "actionsValidationObservationReads": 16,
+    "observationStoredBytes": 940814,
+    "observationLogicalBytes": 118662770,
+    "observationQueryMs": 1.3740450000000237,
+    "observationDecodeMs": 481.58008299999983,
+    "observationHostMs": 483.96062099999983,
+    "actionCalls": 16,
+    "actionRows": 3354,
+    "actionStoredBytes": 3045808,
+    "actionQueryMs": 16.190292999999883,
+    "actionDecodeMs": 7.798331999999959,
+    "listCalls": 0,
+    "listRows": 0,
+    "listMs": 0,
+    "itemsEntered": 1241,
+    "itemsCompleted": 1241,
+    "errors": 0,
+    "progressWriteMs": 1.0699999999999932
+  },
+  "distinctObservations": 16,
+  "repeatedObservationReads": 16,
+  "distinctActionSources": 16,
+  "currentItem": "4154e46f-7858-4842-9dc0-d25887dfe9ee",
+  "rssBytes": 508149760,
+  "maxRssKiB": 496240,
+  "objectCache": {
+    "fragmentEntries": 0,
+    "fragmentBytes": 0,
+    "addressEntries": 0,
+    "decodedEntries": 2328,
+    "decodedBytes": 8388178,
+    "admissionSessions": 0,
+    "backoffSessions": 0,
+    "admissionObjectHashes": 0
+  },
+  "errors": [],
+  "totalChanges": 0,
+  "readsBySource": [
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"8e894178-1943-4a1f-b75d-1ce665aa01cc\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7456362,
+      "decodeMs": 40.89408300000002
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"5a904f94-d42c-4d05-aab0-255c18388699\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7457602,
+      "decodeMs": 24.07808299999988
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"24bef614-46f9-4e69-a885-78a7545e1ee0\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7455782,
+      "decodeMs": 30.958958000000052
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"a41e6de8-0e12-406d-bfb5-cf6080b272f3\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7457022,
+      "decodeMs": 34.19262500000002
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"522227a1-a36c-414c-b050-4135ec17f8cf\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7455084,
+      "decodeMs": 29.440415999999914
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"50974d5c-74b9-4f2f-a9a5-d4110826616f\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7456324,
+      "decodeMs": 34.236376000000064
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"5017a84c-6321-4d72-a5c0-7c70a2180016\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7456018,
+      "decodeMs": 29.467916999999943
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"571adda1-6bc5-4d8f-9625-4e5a90816df7\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7457258,
+      "decodeMs": 23.447417000000087
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"5f80a3df-8355-444a-8499-4a625cb89577\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7248066,
+      "decodeMs": 42.17008299999998
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"c446073e-8db5-49cd-b6d3-0052622bb861\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7248340,
+      "decodeMs": 23.58212500000002
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7453022,
+      "decodeMs": 24.826749000000063
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"6c7cf95b-604f-4c19-b8db-aca6d48a6eab\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7455382,
+      "decodeMs": 33.74870899999996
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"61a3d07b-37a2-4a40-9f2b-704b05f2680b\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7456622,
+      "decodeMs": 24.247292000000016
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"be489ec5-7daf-431a-89f6-269144c2a662\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7456302,
+      "decodeMs": 28.722583999999983
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"7d43e3cf-d255-4275-9480-7438b34f00da\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7457542,
+      "decodeMs": 35.21562399999982
+    },
+    {
+      "source": "[\"412937f3-c4f5-4799-b86c-74adf480f329\",\"c11abe9e-e2a4-44f2-bf53-64ebf22a1dd2\"]",
+      "calls": 2,
+      "direct": 1,
+      "actionsValidation": 1,
+      "logicalBytes": 7236042,
+      "decodeMs": 22.351042000000007
+    }
+  ],
+  "changes": [],
+  "itemsWithReads": [
+    {
+      "itemId": "a1cb1d34-32d9-4894-99d8-6f05f4b1cd98",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "8e894178-1943-4a1f-b75d-1ce665aa01cc"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 66.47941700000007,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "d64c1f8a-7b98-496d-8814-18dc6aee9563",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "5a904f94-d42c-4d05-aab0-255c18388699"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 29.175333000000023,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "ebb831a1-0cd5-4e0a-ab82-44baa46726db",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "24bef614-46f9-4e69-a885-78a7545e1ee0"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 36.51029200000005,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "172740a0-735d-44c9-a1e6-1dbc0df2d4fb",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "a41e6de8-0e12-406d-bfb5-cf6080b272f3"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 40.74533299999996,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "b2ba1ace-9e81-4ab7-9585-41b76012a2d8",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "522227a1-a36c-414c-b050-4135ec17f8cf"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 35.54675000000009,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "d9148343-5814-4894-9ea9-bcffea69bcce",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "50974d5c-74b9-4f2f-a9a5-d4110826616f"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 40.32137499999999,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "e19a3b8e-bd0a-4733-861a-7fda258cd076",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "5017a84c-6321-4d72-a5c0-7c70a2180016"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 34.07166599999994,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "59e48067-b591-47e7-b97f-636d78247f28",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "571adda1-6bc5-4d8f-9625-4e5a90816df7"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 28.347374999999943,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "a145daa0-e621-4d99-a55a-0df73eb8ca56",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "5f80a3df-8355-444a-8499-4a625cb89577"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 47.46100000000001,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "c96798d7-9361-49f5-b1de-f50689f56b74",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "c446073e-8db5-49cd-b6d3-0052622bb861"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 28.23204199999998,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "b8023b2a-d26f-48db-98e7-f1f843366627",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "f6c6f3c2-9550-40d2-b4f0-8b39c38fe6a4"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 32.44229100000007,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "ec0caf37-2118-48b3-aeed-fc33c2d7d327",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "6c7cf95b-604f-4c19-b8db-aca6d48a6eab"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 52.27299999999991,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "97c6a4f6-b79b-4cd6-868a-2aa93f51ebed",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "61a3d07b-37a2-4a40-9f2b-704b05f2680b"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 29.091625000000022,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "ba2e8f62-1792-4431-ac34-615373d58739",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "be489ec5-7daf-431a-89f6-269144c2a662"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 33.08879200000001,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "134f8f20-4ee0-48d8-bb4e-8c826c9f0a3f",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "7d43e3cf-d255-4275-9480-7438b34f00da"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 40.00241700000004,
+      "hasAudit": false,
+      "changed": false
+    },
+    {
+      "itemId": "f9f7459b-3e1f-4404-bec7-5fc655ea2f47",
+      "observationReads": 2,
+      "actionCalls": 1,
+      "sourceIds": [
+        "c11abe9e-e2a4-44f2-bf53-64ebf22a1dd2"
+      ],
+      "hadAudit": false,
+      "elapsedMs": 27.418292000000065,
+      "hasAudit": false,
+      "changed": false
+    }
+  ],
+  "inMemoryTaskBeforeSha256": "6feac879b02f497ad6d1574c6e6972c1946be4069edd9325dacae6c66bd73904",
+  "inMemoryTaskAfterSha256": "6feac879b02f497ad6d1574c6e6972c1946be4069edd9325dacae6c66bd73904",
+  "databaseReadOnly": true,
+  "immutable": true,
+  "queryOnly": true,
+  "browserStarted": false,
+  "taskDatabaseOpened": false,
+  "scope": "One normalizeOperationScheduling pass, including existing public actions ownership reads. No start/run/persistence or browser."
+}

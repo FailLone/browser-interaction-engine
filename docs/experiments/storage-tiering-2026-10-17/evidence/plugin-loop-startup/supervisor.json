@@ -1,0 +1,216 @@
+{
+  "command": [
+    "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+    "--conditions=development",
+    "--import",
+    "tsx",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/plugin-loop-startup/diagnose.mts"
+  ],
+  "timeoutSeconds": 30,
+  "elapsedSeconds": 30.019235959,
+  "exitCode": -9,
+  "timedOut": true,
+  "status": "partial",
+  "sourceUnchanged": true,
+  "processGroupGone": true,
+  "before": {
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v8/engine/engine.sqlite": {
+      "bytes": 149336064,
+      "sha256": "664500f08e9fb1610a2248cafebdb46afbf49d68e0ad482169130a77647e5af8"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v8/engine/engine.sqlite-shm": {
+      "bytes": 32768,
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v8/engine/engine.sqlite-wal": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/plugin-loop-1/task-before.json": {
+      "bytes": 4043839,
+      "sha256": "1454bc29cda3c7e68b45ce64e78e23e9b9c96df9911a4b502343c069ff52bb70"
+    }
+  },
+  "after": {
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v8/engine/engine.sqlite": {
+      "bytes": 149336064,
+      "sha256": "664500f08e9fb1610a2248cafebdb46afbf49d68e0ad482169130a77647e5af8"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v8/engine/engine.sqlite-shm": {
+      "bytes": 32768,
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v8/engine/engine.sqlite-wal": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/plugin-loop-1/task-before.json": {
+      "bytes": 4043839,
+      "sha256": "1454bc29cda3c7e68b45ce64e78e23e9b9c96df9911a4b502343c069ff52bb70"
+    }
+  },
+  "progressRecords": 30,
+  "lastProgress": {
+    "elapsedMs": 29323.829625,
+    "counts": {
+      "observationReads": 1699,
+      "directObservationReads": 850,
+      "actionsValidationObservationReads": 849,
+      "observationStoredBytes": 107845079,
+      "observationLogicalBytes": 6310635054,
+      "observationQueryMs": 111.13877200004981,
+      "observationDecodeMs": 25200.855078000004,
+      "observationHostMs": 25351.986796999907,
+      "actionCalls": 849,
+      "actionRows": 178296,
+      "actionStoredBytes": 140691328,
+      "actionQueryMs": 241.8490570000303,
+      "actionDecodeMs": 372.40596099998754,
+      "listCalls": 1,
+      "listRows": 65,
+      "listMs": 2.7744580000000383,
+      "itemsEntered": 560,
+      "itemsCompleted": 559,
+      "errors": 0,
+      "progressWriteMs": 18.313623999998754
+    },
+    "distinctObservations": 63,
+    "repeatedObservationReads": 1636,
+    "distinctActionSources": 63,
+    "currentItem": "85a64af8-ede4-4048-b314-77eb0c313751",
+    "rssBytes": 644562944,
+    "maxRssKiB": 633456,
+    "objectCache": {
+      "fragmentEntries": 0,
+      "fragmentBytes": 0,
+      "addressEntries": 0,
+      "decodedEntries": 2439,
+      "decodedBytes": 8387052,
+      "admissionSessions": 0,
+      "backoffSessions": 0,
+      "admissionObjectHashes": 0
+    },
+    "errors": [],
+    "completedItems": [
+      {
+        "itemId": "21b55bfa-6f3b-46b9-9956-db7811297ff6",
+        "observationReads": 2,
+        "actionCalls": 1,
+        "sourceIds": [
+          "be489ec5-7daf-431a-89f6-269144c2a662"
+        ],
+        "hadAudit": false,
+        "elapsedMs": 29.886083999997936,
+        "hasAudit": false
+      },
+      {
+        "itemId": "97c6a4f6-b79b-4cd6-868a-2aa93f51ebed",
+        "observationReads": 4,
+        "actionCalls": 2,
+        "sourceIds": [
+          "61a3d07b-37a2-4a40-9f2b-704b05f2680b",
+          "7d43e3cf-d255-4275-9480-7438b34f00da"
+        ],
+        "hadAudit": false,
+        "elapsedMs": 68.27929099999892,
+        "hasAudit": false
+      },
+      {
+        "itemId": "f9f7459b-3e1f-4404-bec7-5fc655ea2f47",
+        "observationReads": 2,
+        "actionCalls": 1,
+        "sourceIds": [
+          "c11abe9e-e2a4-44f2-bf53-64ebf22a1dd2"
+        ],
+        "hadAudit": false,
+        "elapsedMs": 25.42333399999916,
+        "hasAudit": false
+      },
+      {
+        "itemId": "11135c84-009b-424c-970c-1db515072738",
+        "observationReads": 10,
+        "actionCalls": 5,
+        "sourceIds": [
+          "22adf3b5-f26f-4c85-9744-0ab1572e9897",
+          "b443222e-b4ec-4e54-8d20-2f51b5010477",
+          "d85c8536-8efe-4b97-9d47-9482d53f6f4d",
+          "6233f9e6-8f97-4be9-846b-60e1e9e52fc7",
+          "ba4f54b4-e386-4b61-b194-abf9a5436812"
+        ],
+        "hadAudit": false,
+        "elapsedMs": 189.71949999999924,
+        "hasAudit": false
+      },
+      {
+        "itemId": "2bbe283c-c97d-4eaa-b2c6-5bbbfdf08898",
+        "observationReads": 6,
+        "actionCalls": 3,
+        "sourceIds": [
+          "fb945d9c-9b51-4a7c-a1ed-2e966944ffc1",
+          "318a17eb-501b-49b0-a30c-2273e0cff999",
+          "b0381d61-11e9-451a-9d0c-7859f4dcc8cc"
+        ],
+        "hadAudit": false,
+        "elapsedMs": 104.9968340000014,
+        "hasAudit": false
+      },
+      {
+        "itemId": "d6fdb3e3-3bd2-4b72-9dbd-8e7ec7277907",
+        "observationReads": 8,
+        "actionCalls": 4,
+        "sourceIds": [
+          "c11abe9e-e2a4-44f2-bf53-64ebf22a1dd2",
+          "22adf3b5-f26f-4c85-9744-0ab1572e9897",
+          "b443222e-b4ec-4e54-8d20-2f51b5010477",
+          "850f805d-2950-483e-9dfe-d4c5816b0c6b"
+        ],
+        "hadAudit": false,
+        "elapsedMs": 141.48487500000192,
+        "hasAudit": false
+      },
+      {
+        "itemId": "6dd3957a-b757-4b53-8eb8-b428711a9546",
+        "observationReads": 2,
+        "actionCalls": 1,
+        "sourceIds": [
+          "02768907-5f9f-4fa2-b625-eda4525f883d"
+        ],
+        "hadAudit": false,
+        "elapsedMs": 27.43645800000013,
+        "hasAudit": false
+      },
+      {
+        "itemId": "7fbf47ad-1136-4fef-bac2-c1120e1aa4de",
+        "observationReads": 12,
+        "actionCalls": 6,
+        "sourceIds": [
+          "d85c8536-8efe-4b97-9d47-9482d53f6f4d",
+          "fb945d9c-9b51-4a7c-a1ed-2e966944ffc1",
+          "6233f9e6-8f97-4be9-846b-60e1e9e52fc7",
+          "318a17eb-501b-49b0-a30c-2273e0cff999",
+          "ba4f54b4-e386-4b61-b194-abf9a5436812",
+          "b0381d61-11e9-451a-9d0c-7859f4dcc8cc"
+        ],
+        "hadAudit": false,
+        "elapsedMs": 240.2278750000005,
+        "hasAudit": false
+      }
+    ],
+    "currentItemReads": {
+      "itemId": "85a64af8-ede4-4048-b314-77eb0c313751",
+      "observationReads": 11,
+      "actionCalls": 5,
+      "sourceIds": [
+        "c11abe9e-e2a4-44f2-bf53-64ebf22a1dd2",
+        "22adf3b5-f26f-4c85-9744-0ab1572e9897",
+        "b443222e-b4ec-4e54-8d20-2f51b5010477",
+        "d85c8536-8efe-4b97-9d47-9482d53f6f4d",
+        "fb945d9c-9b51-4a7c-a1ed-2e966944ffc1",
+        "6233f9e6-8f97-4be9-846b-60e1e9e52fc7"
+      ],
+      "hadAudit": false
+    }
+  },
+  "browserStarted": false,
+  "taskDatabaseOpened": false
+}

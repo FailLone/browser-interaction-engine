@@ -87,6 +87,35 @@ it('does not manufacture an alias after a failed read and retries in a fresh pas
  expect(createOperationSchedulingNormalizer(f.host)(f.task)).toHaveLength(2);expect(f.host.observation).toHaveBeenCalledTimes(2);
 });
 
+it.each(['unchanged','missing','unknown-attempt','ambiguous','different-key'] as const)('stops a proved no-op encoding without altering pending work or later debt: %s',tail=>{
+ const f=fixture();
+ for(const frame of f.frames.values())for(const [index,control] of frame.o.controls.entries()){
+  delete control.structuralItem;control.stableKey=`button:${index}`;
+ }
+ const first=f.frames.get('old')!,later=f.frames.get('new')!,item=row(first.o,first.actions[0],'unchanged');
+ item.evidence.push({sessionId:'session',observationId:'new',...(tail==='unknown-attempt'?{attemptId:'unknown'}:{})});
+ if(tail==='missing')f.frames.delete('new');
+ if(tail==='unknown-attempt')f.attempts.push({id:'unknown',sessionId:'session',beforeId:'new',afterId:'new',status:'unknown',action:later.actions[0]} as ActionAttempt);
+ if(tail==='ambiguous')later.actions.push({...later.actions[0],id:'duplicate'});
+ if(tail==='different-key')later.o.context={mode:{value:'other',status:'known',source:'fixture'}};
+ const task={plan:[item]},before=structuredClone(task),debt=structuredClone(f.attempts);
+ expect(browserOperationSchedulingKey(first.actions[0],first.o)).toBe(item.operationConditionKey);
+ expect(normalizeOperationScheduling(task,f.host)).toEqual([]);expect(task).toEqual(before);
+ expect(boundOperationCondition(item)).toBe(item.operationConditionKey);expect(item.operationSchedulingNormalization).toBeUndefined();
+ expect(f.attempts).toEqual(debt);expect(f.host.observation).toHaveBeenCalledTimes(1);expect(f.host.actions).toHaveBeenCalledTimes(1);
+ expect(f.host.list).not.toHaveBeenCalled();
+});
+
+it('still removes an invalid old audit when an unchanged source makes any replacement impossible',()=>{
+ const f=fixture();normalizeOperationScheduling(f.task,f.host);const oldAudit=structuredClone(f.items[0].operationSchedulingNormalization!);
+ const source=f.frames.get('old')!;delete source.o.controls[0].structuralItem;source.o.controls[0].stableKey='button:0';
+ const item=row(source.o,source.actions[0],'changed');item.operationSchedulingNormalization=oldAudit;
+ item.evidence.push({sessionId:'session',observationId:'missing'});const task={plan:[item]},before=structuredClone(item);delete before.operationSchedulingNormalization;
+ vi.mocked(f.host.observation).mockClear();
+ expect(normalizeOperationScheduling(task,f.host)).toEqual([{itemId:'changed',reason:'source_proof_unavailable'}]);
+ expect(item).toEqual(before);expect(f.host.observation).toHaveBeenCalledTimes(1);
+});
+
 it('runtime audit shares projection work while retaining per-item event ordering and later call freshness',async()=>{
  const f=fixture(),current=f.frames.get('new')!,events:{type:string;data:any}[]=[],host={...f.host,events:new EventEmitter()} as unknown as ExplorerHost;
  const sink={save:vi.fn(),event:(event:any)=>{events.push(event);return event;},close:()=>{}};

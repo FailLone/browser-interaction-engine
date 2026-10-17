@@ -57,6 +57,9 @@ export function createOperationSchedulingNormalizer(host:Pick<ExplorerHost,'obse
       // their distinct v2 encodings remain explicit provenance and retry aliases.
       if(!previous&&legacyKey!==item.operationConditionKey||toKey&&toKey!==key){valid=false;break;}
       toKey=key;sources.push(refKey(ref));legacyKeys.add(legacyKey);verified.add(refKey(ref));
+      // A matching unchanged encoding cannot produce an alias: every later
+      // source either keeps this key or rejects the normalization altogether.
+      if(toKey===item.operationConditionKey)break;
     }
     if(!valid||!toKey){if(item.operationSchedulingNormalization){delete item.operationSchedulingNormalization;changes.push({itemId:item.id,reason:'source_proof_unavailable'});}continue;}
     // Identical encodings need no alias or additional persisted source audit.
