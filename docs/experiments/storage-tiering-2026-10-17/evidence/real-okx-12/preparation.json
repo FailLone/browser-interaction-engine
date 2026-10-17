@@ -1,0 +1,17 @@
+{
+  "revision": "7c0273dc21b93e45435e72d179e3dac8daf84359",
+  "productCommit": "c3a7d1a5cf08de45900b28d3aa134fbf9c600768",
+  "at": "2026-10-17T06:29:18.843156+00:00",
+  "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v4",
+  "destination": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5",
+  "sourceInventorySha256": "f1616ef8864b7b536558e97e33cfc938e1b85bbba588836fb5e4196856954ed0",
+  "sourceUnchanged": true,
+  "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+  "mutableFilesCopied": 318,
+  "immutableBlobsHardLinked": 6279,
+  "priorRunId": "01958656-8614-4f9b-b571-a182b5cd8bbc",
+  "retainedEvidence": "Run11 remains frozen. Old exports, summaries, locks and run control metadata are not copied. Immutable blob links share content; mutable DBs and manifests are independent.",
+  "databaseOpened": false,
+  "taskBudgetOrUsageChanged": false,
+  "browserStarted": false
+}

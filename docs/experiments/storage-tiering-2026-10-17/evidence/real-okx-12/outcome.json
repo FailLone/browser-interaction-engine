@@ -1,0 +1,248 @@
+{
+  "runId": "bb1d2382-753b-43e4-849c-4ca04066b822",
+  "sourceRevision": "7c0273dc21b93e45435e72d179e3dac8daf84359",
+  "product": "c3a7d1a5cf08de45900b28d3aa134fbf9c600768",
+  "sourceFiles": {
+    "summary.json": "aaa71d48734a79f2e7ce88cc81ef500cf49d481f4cd0e1d25c3187b3b31189eb",
+    "coverage-review.json": "f934e2eed1641cbdc6022a1e6bd887286f147d03791b3b9213efd7cd17b7a67a",
+    "task-before.json": "bfc8bf0c15b7039e5f622a47ebba0551645f10b62bd158ce994760456a03eb9c",
+    "task-after.json": "f02ec00c20712401e492d5f9f9a84d24071b47eb992b77f6ccdf710acab1b4d8",
+    "metrics.jsonl": "594fb75fa2fe683161c0d3a35a54f9ea4be2e1380b17ccaa1a812a2d7732f5a4"
+  },
+  "receiptAuditSha256": "cd8b342166263c32df6548a861fdf323aeb0e1c011a9c991b276ba93e1b4882f",
+  "candidateContract": {
+    "noKnownPathItemEvents": 0,
+    "realEffectConfirmed": false,
+    "limitation": "Item-level events are not a count of SDK queries or per-source skips. No candidate query instrumentation; zero events does not prove API was unused.",
+    "otherDeferredReasons": {
+      "retained_checkpoint_unavailable": 57,
+      "source_target_unverified": 408,
+      "route_retry_condition_attempted": 3,
+      "current_review_occurrence_present": 2
+    },
+    "priorFailureItems": {
+      "a244066d-3c7a-41c2-a430-5a579f67f3ba": [],
+      "e5ecf883-54ce-49a5-ad77-804ec9ebd537": [
+        {
+          "at": "2026-10-17T06:34:04.282Z",
+          "itemId": "e5ecf883-54ce-49a5-ad77-804ec9ebd537",
+          "conditionVersion": "c738387002b61f4dc3de4ac99149ae87203fdbb6624b92cfda493fe985a9b7be",
+          "reason": "route_retry_condition_attempted",
+          "retainedInPlan": true,
+          "coverageGranted": false
+        }
+      ]
+    },
+    "allDeferKeepPlanAndDenyCoverage": true
+  },
+  "recovery": {
+    "calls": 0,
+    "results": [],
+    "followup": [],
+    "arrivalAndSubsequentCoverageGatePassed": false
+  },
+  "receipts": [
+    {
+      "attemptId": "41645f20-829c-4590-9c4b-7bc3fef4b29e",
+      "startedAt": "2026-10-17T06:30:59.588Z",
+      "finishedAt": "2026-10-17T06:31:05.383Z",
+      "action": {
+        "id": "ed84b6e8-502c-4555-9100-0e6ec1451b0a",
+        "kind": "check",
+        "label": "Don’t show for 7 days",
+        "value": true,
+        "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1554",
+        "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "interact"
+        }
+      },
+      "beforeId": "d7da102e-f331-47c6-bec5-96a33ce9cb20",
+      "afterId": "e852a4c7-8b9e-46a0-b35a-8bc36339e596",
+      "boundaryExitTransition": null,
+      "conditionStatus": "document",
+      "conditionVerified": true
+    },
+    {
+      "attemptId": "d603901b-7293-47ec-85d3-6baf62a83e82",
+      "startedAt": "2026-10-17T06:31:21.678Z",
+      "finishedAt": "2026-10-17T06:31:27.512Z",
+      "action": {
+        "id": "aa4fbe17-dc7d-480a-971e-f60aa4f5d452",
+        "kind": "check",
+        "label": "Don’t show for 7 days",
+        "value": false,
+        "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1554",
+        "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "interact"
+        }
+      },
+      "beforeId": "e852a4c7-8b9e-46a0-b35a-8bc36339e596",
+      "afterId": "08c766c7-0d26-481e-81b7-69c302dcb7aa",
+      "boundaryExitTransition": null,
+      "conditionStatus": "document",
+      "conditionVerified": true
+    },
+    {
+      "attemptId": "9146bc44-4b4c-4eb0-a449-29440fc3bad6",
+      "startedAt": "2026-10-17T06:32:37.920Z",
+      "finishedAt": "2026-10-17T06:32:43.960Z",
+      "action": {
+        "id": "02da16e4-027a-4af9-ab94-b0dcc0bc0d38",
+        "kind": "click",
+        "label": "Close",
+        "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1560",
+        "controlId": "4709b88c-622a-4e5e-bfde-7d846d8f6f35",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "beforeId": "ab266706-1d93-4c0c-adfd-e5e9f0dcecbe",
+      "afterId": "ba4f54b4-e386-4b61-b194-abf9a5436812",
+      "boundaryExitTransition": {
+        "verified": true,
+        "documentChanged": false,
+        "exited": [
+          "dialog:okd-dialog-window"
+        ],
+        "entered": [],
+        "navigated": false,
+        "beforeBoundaryKeys": [
+          "dialog:okd-dialog-window"
+        ],
+        "afterBoundaryKeys": []
+      },
+      "conditionStatus": "document",
+      "conditionVerified": true
+    },
+    {
+      "attemptId": "42002819-a04d-432a-8f27-f7e8ce94c3a1",
+      "startedAt": "2026-10-17T06:33:21.478Z",
+      "finishedAt": "2026-10-17T06:33:28.399Z",
+      "action": {
+        "id": "f4c72d1c-3004-4381-bcfe-8e3189f89b3e",
+        "kind": "click",
+        "label": "Trade",
+        "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1461",
+        "controlId": "0ff657c1-9e12-41b0-9465-b77a3f102096"
+      },
+      "beforeId": "ba4f54b4-e386-4b61-b194-abf9a5436812",
+      "afterId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+      "boundaryExitTransition": null,
+      "conditionStatus": "document",
+      "conditionVerified": true
+    },
+    {
+      "attemptId": "dade6b44-720d-4ed5-b4a1-469d2afef27e",
+      "startedAt": "2026-10-17T06:36:18.531Z",
+      "finishedAt": "2026-10-17T06:36:24.396Z",
+      "action": {
+        "id": "bd18cfdb-2603-42d4-af71-12c332a248f5",
+        "kind": "fill",
+        "label": "0",
+        "value": "example",
+        "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1744",
+        "controlId": "59b87cee-56d9-4552-8094-053a2865b80f"
+      },
+      "beforeId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+      "afterId": "dbb04d18-bd75-407a-a146-bda06280bc80",
+      "boundaryExitTransition": null,
+      "conditionStatus": "document",
+      "conditionVerified": true
+    }
+  ],
+  "receiptStatistics": {
+    "selected": 5,
+    "actualSuccess": 5,
+    "conditionVerified": 5,
+    "byStatus": {
+      "document": 5
+    }
+  },
+  "plan": {
+    "before": 1194,
+    "after": 1241,
+    "growth": 47,
+    "missingOldIds": [],
+    "duplicateAfterIds": 0,
+    "oldScopeFieldsChanged": [],
+    "addedByReason": {
+      "observed_in_scope": 1,
+      "operation_not_executed": 2,
+      "region_review_required": 43,
+      "pointer_intercepted": 1
+    }
+  },
+  "routeDebt": {
+    "before": 8,
+    "after": 8,
+    "oldMissing": [],
+    "oldChanged": [],
+    "newKeys": []
+  },
+  "stopping": {
+    "originalStop": {
+      "at": "2026-10-17T06:36:17.738Z",
+      "reason": "operator_stop_request",
+      "details": {
+        "format": "okx-storage-stop-v1",
+        "owner": "05b090e5-ed34-441a-94e7-cec4d261cb72",
+        "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+        "runId": "bb1d2382-753b-43e4-849c-4ca04066b822",
+        "requestId": "50979ffd-c5f9-4bed-a8e2-61f75ec7524b",
+        "requestedAt": "2026-10-17T06:35:36.228Z"
+      },
+      "prior": {
+        "status": "running",
+        "usage": {
+          "rounds": 1,
+          "actions": 64,
+          "durationMs": 2470245,
+          "modelRequests": 155
+        }
+      }
+    },
+    "normalSettlement": true,
+    "requestedAt": "2026-10-17T06:35:36.228Z",
+    "acceptedAt": "2026-10-17T06:36:17.738Z",
+    "settledAt": "2026-10-17T06:36:35.738Z",
+    "acceptedDelayMs": 41510,
+    "settledDelayMs": 59510,
+    "newSuccessesStartedAfterStopRequest": [
+      "dade6b44-720d-4ed5-b4a1-469d2afef27e"
+    ],
+    "longestMetricsGap": {
+      "seconds": 168.994,
+      "before": "2026-10-17T06:33:28.694Z",
+      "after": "2026-10-17T06:36:17.688Z",
+      "beforeType": "attempt.completed",
+      "afterType": "plugin.event"
+    }
+  },
+  "integrity": {
+    "fatal": null,
+    "diagnosticFailure": null,
+    "unknownAttempts": [],
+    "inFlightAttempts": [],
+    "providerSettlement": {
+      "settled": true,
+      "remainingPendingRequestIds": [],
+      "sampledAt": "2026-10-17T06:36:45.280Z",
+      "waitLimitMs": 5000
+    }
+  },
+  "providerCounts": {
+    "jev": 6,
+    "llm": 0
+  },
+  "boundaries": [
+    "No performance comparison or new storage conclusion.",
+    "One-second native sample shows JSON parsing and physical footprint reported as 1.5G (peak 1.7G) in owned process; no JavaScript attribution or controlled baseline.",
+    "Current static hypothesis is synchronous pending-by-source scanning and repeated material reads; actual call counts remain unmeasured.",
+    "No second live window or re-audit. New successful document receipts do not prove cross-session novelty or necessary reentry."
+  ]
+}

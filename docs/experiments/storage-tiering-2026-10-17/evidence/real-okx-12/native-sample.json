@@ -1,0 +1,10 @@
+{
+  "source": "One 1-second native sample of owned PID 90770 at the observed stall; no JavaScript-level attribution.",
+  "file": "owned-process-sample.txt.gz",
+  "decodedBytes": 641822,
+  "decodedSha256": "1f42cc306093ef3fbaacda6a321ee4d373d7a5ed26d6f8577d64a1d0679b5f19",
+  "storedBytes": 64445,
+  "storedSha256": "98bb5039923106e40a61099d561afc33a05b26660b4a59ca68ff2e9d834d51c0",
+  "rawDuplicateRemoved": true,
+  "performanceComparison": false
+}

@@ -1,12 +1,30 @@
-# 第十二窗：工具准备，尚未执行
+# 第十二窗：已结算，真实恢复门未通过
 
 唯一新增理由：核验 `c3a7d1a5cf08de45900b28d3aa134fbf9c600768` 的候选契约能跳过 SDK 明确报告 `no_known_path` 的历史 strict 来源，而不丢失待测与旧债。候选判断不证明恢复、覆盖或整页穷尽。run11 保留事实上的八策略无路结果仅是开启本窗的依据，不能代替本窗当前事实。
 
-本目录只准备工具。主线程批准并把产品发布到本地 main 后，才可按下面的顺序执行一次。不得因窗口停止而自动再开一窗。
+本窗已于 `2026-10-17T06:36:45.280Z` 正常结算，run `bb1d2382-753b-43e4-849c-4ca04066b822`，source/main `7c0273d`，产品 `c3a7d1a`。launcher exit 0 只表示结算成功，不能视为验收通过。原始停止原因为主线程发现采样停滞后发出的 `operator_stop_request`；没有追加窗口。
 
 已固定发布基线 `a5adfb6b2e7d1e01d5eff8f1e3f7a7c5520e6627`；允许其后仅文档工具提交，但实际 HEAD 必须等于本地 main，产品及 runner 继续通过原检查。
 
 准备检查仅含 JavaScript 语法、Python AST 与 JSON/预算参数解析；没有导入或执行任何入口，没有创建数据副本、launch 记录或审计结果。
+
+## 本窗结论与证据
+
+- **新候选契约的真实效果尚未证实。** `checkpoint_no_known_path` item 事件为 0；这不是 SDK 调用或逐来源跳过次数。此前失败的 Trade 审阅项 `e5ecf883…` 实际由既有 `route_retry_condition_attempted` 暂缓。不能将旧失败债的效果归给新 API，也不能由零事件推断 API 从未调用。
+- **恢复调用 0，到达及到达后覆盖门未通过。** 本窗发生 5 次实际成功操作：check true/false、Close、Trade、fill。唯一离线 SDK batch 核对为 **5/5 document 条件覆盖**，所有到达、重放、身份、当前执行授权均为 false。Close 的同文档边界退出已验证；它仍不是 checkpoint/target/source 到达。跨会话语义新增、必要重入和全页穷尽未获证明。
+- **观察到响应性问题。** 相邻 metrics 输出最大间隔 **168.994 秒**；`06:35:36.228Z` 发出的自有停止请求到 `06:36:17.738Z` 才被处理，延迟 **41.510 秒**，结算延迟 **59.510 秒**。其间又开始了 1 次 fill，最终成功且取得 document 覆盖；不能省略这次停止后的动作。未强杀进程。
+- **计划和旧债完整保留。** plan **1194→1241（+47）**，原 ID 与 scope/prerequisites/required/dispatchScope/condition 字段无缺失或变化，无重复 ID；新增 43 个 region review、2 个未执行操作、1 个 pointer intercepted、1 个 observed-in-scope。8 条旧路线债逐字段不变。470 个暂缓事件均保留 item、不授予覆盖，原因分别为 source_target_unverified 408、retained_checkpoint_unavailable 57、route_retry_condition_attempted 3、current_review_occurrence_present 2。增长不等于语义新增或收敛。
+- **结算完整。** JEV 6、LLM 0；unknown、在途及 provider pending 均为 0，无 fatal/diagnosticFailure。原冻结 v4 字节校验未变。唯一 receipt 审计 query SQL/public writes/driver 均为 0，构造阶段两个 SQL change 分列记录，未改变原回执；副本关闭后字节不变且已删除。
+
+完整提取仅保存在 [outcome.json](outcome.json)，回执结果仅在 [receipt-audit.json](receipt-audit.json)。原 exports/metrics 仅引用自有冻结 v5/run 目录及 [closed-evidence.json](closed-evidence.json)，不复制原始数据。采集器与 receipt 算法没有随本补丁改变，因此没有重复原 wire/graph 诊断；旧诊断明确仅支持其旧窗口。
+
+一次 1 秒的自有进程 native 采样显示大量 JSON.parse，physical footprint 原值为 1.5G、峰值 1.7G。只压缩保存 [原始采样](owned-process-sample.txt.gz) 一份，哈希和尺寸在 [native-sample.json](native-sample.json)。这是定位线索，不是 JavaScript 函数级归因或性能 A/B 结论。
+
+静态最可疑调用链为 `step → scheduledRecovery → prioritizeReviewAnchors → recoverySourceMaterial → SqliteStore → decodeStoredEntity`。排序临时数组持有全部 source，8 项缓存不能限制它；跨 item 可能重复淘汰读取，每批候选查询又读当前事实和 attempts。同步 pending×source 扫描不让出事件循环，会推迟同线程采样与停止轮询。该链与现象一致，但本窗没有函数调用计数，不能断言全部开销由新候选 API 引入。
+
+下一补丁只解决“候选扫描可中断、停止后不继续派发”这一结论；再单独处理精简投影与共享读取的成本。先用冻结输入/受控大候选集合证明边界，不再开真实窗口逐项试错。性能、存储和行为结果继续分开。第 3 项尚未完结。
+
+以下是本窗已执行工具的固定规则与操作说明，保留以便复核，**不是再次执行指令**。
 
 ## 固定输入与隔离
 

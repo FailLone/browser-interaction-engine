@@ -1,0 +1,445 @@
+{
+  "format": "settled-new-receipt-audit-v1",
+  "createdAt": "2026-10-17T06:38:34.771Z",
+  "runId": "bb1d2382-753b-43e4-849c-4ca04066b822",
+  "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+  "revision": "7c0273dc21b93e45435e72d179e3dac8daf84359",
+  "moduleResolution": {
+    "@interaction/browser": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/browser/src/index.ts",
+    "@interaction/core": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/index.ts",
+    "@interaction/storage-sqlite": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/index.ts"
+  },
+  "sourceRevision": "7c0273dc21b93e45435e72d179e3dac8daf84359",
+  "runDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/runs/bb1d2382-753b-43e4-849c-4ca04066b822",
+  "engineDirectory": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run12-receipt-audit-73tcr_1c/engine",
+  "inputHashesBefore": {
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-12/closed-evidence.json": "75f9e85c048cb755b7fff7ab08e61016524e3e1717fb6ee7b23b241062a7d20b",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-12/audit-copy.json": "462ae7e70d86a0b1d0d0f40145d31c5f56ad394ea684d4b7f7018b52f9f0d647",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run12-receipt-audit-73tcr_1c/ownership.json": "462ae7e70d86a0b1d0d0f40145d31c5f56ad394ea684d4b7f7018b52f9f0d647",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/active-run.json": "cac3366a060c6ee73897b30d4b347ab6f2323135cd031602670e3849c02e8f3e",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/runs/bb1d2382-753b-43e4-849c-4ca04066b822/summary.json": "aaa71d48734a79f2e7ce88cc81ef500cf49d481f4cd0e1d25c3187b3b31189eb",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/runs/bb1d2382-753b-43e4-849c-4ca04066b822/coverage-review.json": "f934e2eed1641cbdc6022a1e6bd887286f147d03791b3b9213efd7cd17b7a67a",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-12/receipt-audit.ts": "3468b57f9a83e533dcd90b99bc4d9216dfc25297bd5997442ad35f5fe049993b",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts": "6ea331d0bbba5eec3494237dc8545ce538efacc5426161352f5a419aa83c7ede",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/coverage-reconciliation.ts": "fc83d35c89166e391dd3728c17a5f483f30766c956665cc0f769eb0da99e44a5",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/browser/src/index.ts": "d62573faee72c195fe28bcbd4f505f494915eee90f9d1106ee0334dcf8b73f2c",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/browser/src/document-coverage.ts": "f5b8eef9d62591a8c1592b767a18d12dc08c405a2e94f8f6ae96863df616c0dc",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/owner-dependency-codec.ts": "924df89641d5fafc8a4edaf2e4d53478e2efe8a257a1ca94dd694731bf8c239e",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/index.ts": "1c17aa05a3005a0874a135e6a6a5c0518b941d88ea50796139abbebb36fcea80"
+  },
+  "databaseBeforeOpen": {
+    "bytes": 143814656,
+    "sha256": "55bff5f72d7c84bf7352481fba4fc1c8492cd8db7533c62d6cb43dff4495b7f7"
+  },
+  "selection": {
+    "source": "coverage-review.newlySucceededExplorationAttemptIds",
+    "attemptIds": [
+      "41645f20-829c-4590-9c4b-7bc3fef4b29e",
+      "d603901b-7293-47ec-85d3-6baf62a83e82",
+      "9146bc44-4b4c-4eb0-a449-29440fc3bad6",
+      "42002819-a04d-432a-8f27-f7e8ce94c3a1",
+      "dade6b44-720d-4ed5-b4a1-469d2afef27e"
+    ]
+  },
+  "retainedDiagnostics": {
+    "reference": "../real-okx-11/receipt-audit.json",
+    "sha256": "d9ee7835cccc5ace2141ec786eb70d4bfaa12e39148bb1e3423bfd1517c2aee5",
+    "scope": "Prior wire/graph collector diagnostics are cited, not rerun or asserted for this window."
+  },
+  "boundaries": [
+    "Only new exported successful exploration receipts are queried; unknown debt remains in the settled exports.",
+    "Document condition coverage is not strict/target/source arrival or cross-session semantic novelty.",
+    "Boundary transition proves only the recorded exit; it grants no checkpoint/operation arrival.",
+    "passed is audit-process validation, not exploration completion or a performance result."
+  ],
+  "receipts": [
+    {
+      "attemptId": "41645f20-829c-4590-9c4b-7bc3fef4b29e",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "originalStatus": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "startedAt": "2026-10-17T06:30:59.588Z",
+      "finishedAt": "2026-10-17T06:31:05.383Z",
+      "beforeId": "d7da102e-f331-47c6-bec5-96a33ce9cb20",
+      "afterId": "e852a4c7-8b9e-46a0-b35a-8bc36339e596",
+      "before": {
+        "id": "d7da102e-f331-47c6-bec5-96a33ce9cb20",
+        "capturedAt": "2026-10-17T06:30:49.525Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "boundaryKeys": [
+          "dialog:okd-dialog-window"
+        ]
+      },
+      "after": {
+        "id": "e852a4c7-8b9e-46a0-b35a-8bc36339e596",
+        "capturedAt": "2026-10-17T06:31:03.516Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "boundaryKeys": [
+          "dialog:okd-dialog-window"
+        ]
+      },
+      "action": {
+        "id": "ed84b6e8-502c-4555-9100-0e6ec1451b0a",
+        "kind": "check",
+        "label": "Don’t show for 7 days",
+        "value": true,
+        "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1554",
+        "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "interact"
+        }
+      },
+      "receiptCondition": {
+        "actualSuccess": true,
+        "conditionVerified": true,
+        "status": "document",
+        "reason": "retained_receipt_operation_sample",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "attemptId": "41645f20-829c-4590-9c4b-7bc3fef4b29e",
+          "beforeId": "d7da102e-f331-47c6-bec5-96a33ce9cb20",
+          "afterId": "e852a4c7-8b9e-46a0-b35a-8bc36339e596",
+          "actionId": "ed84b6e8-502c-4555-9100-0e6ec1451b0a",
+          "actionKey": "13eb2290f5ddad3292b50d0e6b50c021923bace3e8fbdbec90e4a88603a92015"
+        },
+        "evidence": [
+          "actual-succeeded-attempt:41645f20-829c-4590-9c4b-7bc3fef4b29e",
+          "actual-succeeded-attempt:41645f20-829c-4590-9c4b-7bc3fef4b29e",
+          "native-supported-operation-authority",
+          "same-document-complete-owner-dependencies",
+          "all-captured-modes-and-native-inputs",
+          "coverage-only-not-identity-arrival-or-replay",
+          "undeclared-JavaScript-business-state-requires-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "arrivalVerified": false,
+        "policy": "browser-document-coverage-v1",
+        "conditionKey": "bf032776508c2669eb754dca31d14a02a2b94b73fe624f354f5bf75198f0d6dd"
+      }
+    },
+    {
+      "attemptId": "d603901b-7293-47ec-85d3-6baf62a83e82",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "originalStatus": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "startedAt": "2026-10-17T06:31:21.678Z",
+      "finishedAt": "2026-10-17T06:31:27.512Z",
+      "beforeId": "e852a4c7-8b9e-46a0-b35a-8bc36339e596",
+      "afterId": "08c766c7-0d26-481e-81b7-69c302dcb7aa",
+      "before": {
+        "id": "e852a4c7-8b9e-46a0-b35a-8bc36339e596",
+        "capturedAt": "2026-10-17T06:31:03.516Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "boundaryKeys": [
+          "dialog:okd-dialog-window"
+        ]
+      },
+      "after": {
+        "id": "08c766c7-0d26-481e-81b7-69c302dcb7aa",
+        "capturedAt": "2026-10-17T06:31:25.652Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "boundaryKeys": [
+          "dialog:okd-dialog-window"
+        ]
+      },
+      "action": {
+        "id": "aa4fbe17-dc7d-480a-971e-f60aa4f5d452",
+        "kind": "check",
+        "label": "Don’t show for 7 days",
+        "value": false,
+        "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1554",
+        "controlId": "113b2388-297a-4701-89ad-6ac3b54deeae",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "interact"
+        }
+      },
+      "receiptCondition": {
+        "actualSuccess": true,
+        "conditionVerified": true,
+        "status": "document",
+        "reason": "retained_receipt_operation_sample",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "attemptId": "d603901b-7293-47ec-85d3-6baf62a83e82",
+          "beforeId": "e852a4c7-8b9e-46a0-b35a-8bc36339e596",
+          "afterId": "08c766c7-0d26-481e-81b7-69c302dcb7aa",
+          "actionId": "aa4fbe17-dc7d-480a-971e-f60aa4f5d452",
+          "actionKey": "cc747b8efd5a16b37ac558ca1f65d0bdec85e32710f7cee997a9dcddc93c85a9"
+        },
+        "evidence": [
+          "actual-succeeded-attempt:d603901b-7293-47ec-85d3-6baf62a83e82",
+          "actual-succeeded-attempt:d603901b-7293-47ec-85d3-6baf62a83e82",
+          "native-supported-operation-authority",
+          "same-document-complete-owner-dependencies",
+          "all-captured-modes-and-native-inputs",
+          "coverage-only-not-identity-arrival-or-replay",
+          "undeclared-JavaScript-business-state-requires-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "arrivalVerified": false,
+        "policy": "browser-document-coverage-v1",
+        "conditionKey": "cf3a30e166000d2db02753c7be3eb60857cdb8fd18e1ed8cb344164ef1c2deef"
+      }
+    },
+    {
+      "attemptId": "9146bc44-4b4c-4eb0-a449-29440fc3bad6",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "originalStatus": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "startedAt": "2026-10-17T06:32:37.920Z",
+      "finishedAt": "2026-10-17T06:32:43.960Z",
+      "beforeId": "ab266706-1d93-4c0c-adfd-e5e9f0dcecbe",
+      "afterId": "ba4f54b4-e386-4b61-b194-abf9a5436812",
+      "before": {
+        "id": "ab266706-1d93-4c0c-adfd-e5e9f0dcecbe",
+        "capturedAt": "2026-10-17T06:32:23.818Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "boundaryKeys": [
+          "dialog:okd-dialog-window"
+        ]
+      },
+      "after": {
+        "id": "ba4f54b4-e386-4b61-b194-abf9a5436812",
+        "capturedAt": "2026-10-17T06:32:41.918Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "boundaryKeys": []
+      },
+      "action": {
+        "id": "02da16e4-027a-4af9-ab94-b0dcc0bc0d38",
+        "kind": "click",
+        "label": "Close",
+        "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1560",
+        "controlId": "4709b88c-622a-4e5e-bfde-7d846d8f6f35",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "receiptCondition": {
+        "actualSuccess": true,
+        "conditionVerified": true,
+        "status": "document",
+        "reason": "retained_receipt_operation_sample",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "attemptId": "9146bc44-4b4c-4eb0-a449-29440fc3bad6",
+          "beforeId": "ab266706-1d93-4c0c-adfd-e5e9f0dcecbe",
+          "afterId": "ba4f54b4-e386-4b61-b194-abf9a5436812",
+          "actionId": "02da16e4-027a-4af9-ab94-b0dcc0bc0d38",
+          "actionKey": "7c0962495bfc28ca6d73ded5efd81cb131685cadced1cc197c5407de17f7f24a"
+        },
+        "evidence": [
+          "actual-succeeded-attempt:9146bc44-4b4c-4eb0-a449-29440fc3bad6",
+          "actual-succeeded-attempt:9146bc44-4b4c-4eb0-a449-29440fc3bad6",
+          "native-supported-operation-authority",
+          "same-document-complete-owner-dependencies",
+          "all-captured-modes-and-native-inputs",
+          "coverage-only-not-identity-arrival-or-replay",
+          "undeclared-JavaScript-business-state-requires-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "arrivalVerified": false,
+        "policy": "browser-document-coverage-v1",
+        "conditionKey": "1fae7c1776017d73b30edbd8b709ad086a20b3ccebfea6cc1b4bb77ee1058199"
+      },
+      "boundaryExitTransition": {
+        "verified": true,
+        "documentChanged": false,
+        "exited": [
+          "dialog:okd-dialog-window"
+        ],
+        "entered": [],
+        "navigated": false,
+        "beforeBoundaryKeys": [
+          "dialog:okd-dialog-window"
+        ],
+        "afterBoundaryKeys": []
+      }
+    },
+    {
+      "attemptId": "42002819-a04d-432a-8f27-f7e8ce94c3a1",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "originalStatus": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "startedAt": "2026-10-17T06:33:21.478Z",
+      "finishedAt": "2026-10-17T06:33:28.399Z",
+      "beforeId": "ba4f54b4-e386-4b61-b194-abf9a5436812",
+      "afterId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+      "before": {
+        "id": "ba4f54b4-e386-4b61-b194-abf9a5436812",
+        "capturedAt": "2026-10-17T06:32:41.918Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "boundaryKeys": []
+      },
+      "after": {
+        "id": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+        "capturedAt": "2026-10-17T06:33:26.355Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "boundaryKeys": []
+      },
+      "action": {
+        "id": "f4c72d1c-3004-4381-bcfe-8e3189f89b3e",
+        "kind": "click",
+        "label": "Trade",
+        "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1461",
+        "controlId": "0ff657c1-9e12-41b0-9465-b77a3f102096"
+      },
+      "receiptCondition": {
+        "actualSuccess": true,
+        "conditionVerified": true,
+        "status": "document",
+        "reason": "retained_receipt_operation_sample",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "attemptId": "42002819-a04d-432a-8f27-f7e8ce94c3a1",
+          "beforeId": "ba4f54b4-e386-4b61-b194-abf9a5436812",
+          "afterId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+          "actionId": "f4c72d1c-3004-4381-bcfe-8e3189f89b3e",
+          "actionKey": "ac9fb2e05287e9687cbdb9e2c8c60cb5a8a907aab6cf9d81483b832dc073d356"
+        },
+        "evidence": [
+          "actual-succeeded-attempt:42002819-a04d-432a-8f27-f7e8ce94c3a1",
+          "actual-succeeded-attempt:42002819-a04d-432a-8f27-f7e8ce94c3a1",
+          "native-supported-operation-authority",
+          "same-document-complete-owner-dependencies",
+          "all-captured-modes-and-native-inputs",
+          "coverage-only-not-identity-arrival-or-replay",
+          "undeclared-JavaScript-business-state-requires-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "arrivalVerified": false,
+        "policy": "browser-document-coverage-v1",
+        "conditionKey": "a3934f9ad4f0bb6336802d899e1cd9538824d5d0a9c2194dcfebb952c7663ea9"
+      }
+    },
+    {
+      "attemptId": "dade6b44-720d-4ed5-b4a1-469d2afef27e",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "originalStatus": "succeeded",
+      "purpose": "external",
+      "executionProfile": "interface-exploration",
+      "startedAt": "2026-10-17T06:36:18.531Z",
+      "finishedAt": "2026-10-17T06:36:24.396Z",
+      "beforeId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+      "afterId": "dbb04d18-bd75-407a-a146-bda06280bc80",
+      "before": {
+        "id": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+        "capturedAt": "2026-10-17T06:33:26.355Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "boundaryKeys": []
+      },
+      "after": {
+        "id": "dbb04d18-bd75-407a-a146-bda06280bc80",
+        "capturedAt": "2026-10-17T06:36:22.455Z",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "boundaryKeys": []
+      },
+      "action": {
+        "id": "bd18cfdb-2603-42d4-af71-12c332a248f5",
+        "kind": "fill",
+        "label": "0",
+        "value": "example",
+        "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1744",
+        "controlId": "59b87cee-56d9-4552-8094-053a2865b80f"
+      },
+      "receiptCondition": {
+        "actualSuccess": true,
+        "conditionVerified": true,
+        "status": "document",
+        "reason": "retained_receipt_operation_sample",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "attemptId": "dade6b44-720d-4ed5-b4a1-469d2afef27e",
+          "beforeId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+          "afterId": "dbb04d18-bd75-407a-a146-bda06280bc80",
+          "actionId": "bd18cfdb-2603-42d4-af71-12c332a248f5",
+          "actionKey": "e68e49f5c8328b578bf4145571a1fa7ba245f173c949ccf05ad1bdf7185c1575"
+        },
+        "evidence": [
+          "actual-succeeded-attempt:dade6b44-720d-4ed5-b4a1-469d2afef27e",
+          "actual-succeeded-attempt:dade6b44-720d-4ed5-b4a1-469d2afef27e",
+          "native-supported-operation-authority",
+          "same-document-complete-owner-dependencies",
+          "all-captured-modes-and-native-inputs",
+          "coverage-only-not-identity-arrival-or-replay",
+          "undeclared-JavaScript-business-state-requires-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "arrivalVerified": false,
+        "policy": "browser-document-coverage-v1",
+        "conditionKey": "d7e96597cdef90ab0917630b7a786e366676607b34801096facd57bbe375f12d"
+      }
+    }
+  ],
+  "batches": [
+    {
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "attemptIds": [
+        "41645f20-829c-4590-9c4b-7bc3fef4b29e",
+        "d603901b-7293-47ec-85d3-6baf62a83e82",
+        "9146bc44-4b4c-4eb0-a449-29440fc3bad6",
+        "42002819-a04d-432a-8f27-f7e8ce94c3a1",
+        "dade6b44-720d-4ed5-b4a1-469d2afef27e"
+      ]
+    }
+  ],
+  "passed": true,
+  "constructorReceiptChanges": [],
+  "statistics": {
+    "selected": 5,
+    "actualSuccess": 5,
+    "conditionVerified": 5,
+    "byStatus": {
+      "document": 5
+    }
+  },
+  "closed": true,
+  "writeCalls": {},
+  "sqlChanges": {
+    "sqliteConstructor": 1,
+    "engineConstructor": 1,
+    "query": 0
+  },
+  "driverCalls": 0,
+  "finishedAt": "2026-10-17T06:38:35.407Z",
+  "inputHashesAfter": {
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-12/closed-evidence.json": "75f9e85c048cb755b7fff7ab08e61016524e3e1717fb6ee7b23b241062a7d20b",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-12/audit-copy.json": "462ae7e70d86a0b1d0d0f40145d31c5f56ad394ea684d4b7f7018b52f9f0d647",
+    "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run12-receipt-audit-73tcr_1c/ownership.json": "462ae7e70d86a0b1d0d0f40145d31c5f56ad394ea684d4b7f7018b52f9f0d647",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/active-run.json": "cac3366a060c6ee73897b30d4b347ab6f2323135cd031602670e3849c02e8f3e",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/runs/bb1d2382-753b-43e4-849c-4ca04066b822/summary.json": "aaa71d48734a79f2e7ce88cc81ef500cf49d481f4cd0e1d25c3187b3b31189eb",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v5/runs/bb1d2382-753b-43e4-849c-4ca04066b822/coverage-review.json": "f934e2eed1641cbdc6022a1e6bd887286f147d03791b3b9213efd7cd17b7a67a",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-12/receipt-audit.ts": "3468b57f9a83e533dcd90b99bc4d9216dfc25297bd5997442ad35f5fe049993b",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts": "6ea331d0bbba5eec3494237dc8545ce538efacc5426161352f5a419aa83c7ede",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/coverage-reconciliation.ts": "fc83d35c89166e391dd3728c17a5f483f30766c956665cc0f769eb0da99e44a5",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/browser/src/index.ts": "d62573faee72c195fe28bcbd4f505f494915eee90f9d1106ee0334dcf8b73f2c",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/browser/src/document-coverage.ts": "f5b8eef9d62591a8c1592b767a18d12dc08c405a2e94f8f6ae96863df616c0dc",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/owner-dependency-codec.ts": "924df89641d5fafc8a4edaf2e4d53478e2efe8a257a1ca94dd694731bf8c239e",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/index.ts": "1c17aa05a3005a0874a135e6a6a5c0518b941d88ea50796139abbebb36fcea80"
+  },
+  "inputsUnchanged": true,
+  "sourceUnchanged": true,
+  "databaseAfterClose": {
+    "bytes": 143814656,
+    "sha256": "55bff5f72d7c84bf7352481fba4fc1c8492cd8db7533c62d6cb43dff4495b7f7",
+    "sidecars": []
+  },
+  "copyPhysicalBytesChanged": false,
+  "temporaryCopyRemoved": true
+}
