@@ -30,3 +30,34 @@ Recorded invocation (already completed; the script refuses to overwrite the reta
 ```sh
 node --import tsx --conditions=development docs/experiments/storage-tiering-2026-10-17/evidence/native-capture-budget-checkpoint/checkpoint.mjs --execute --native-commit 9e8f4553319b0e0ddee01a73a828ef8252aa6ba3
 ```
+
+## Aggregate byte cost diagnosis
+
+`cost-diagnosis.mjs` performed one separately authorized diagnosis because the bounded result deliberately erased the graph and could not explain byte allocation. It verifies the SHA of the committed checkpoint template and native collector, then strictly matches three aggregate byte refusal sites in an in-memory copy. It bypasses those refusals only for cost inspection. The original 512-node / 64-reference / 16-depth limits and individual 128 KiB attribute/text/value truncation checks remain. Product code, the bounded script, and `result.json` are unchanged. The wrapper records source and transformation hashes in `cost-result.json`; every diagnostic result is explicitly ineligible as proof.
+
+Both frames again passed the same control mappings. This diagnostic shows that reserving root metadata alone is insufficient for these static inputs in the current representation:
+
+| Exact JSON component bytes | First before | Before `1W` |
+| --- | ---: | ---: |
+| Nodes | 189,975 | 186,080 |
+| Closures | 135,749 | 140,093 |
+| Control roots | 83,085 | 84,149 |
+| Native-only roots | 215 | 415 |
+| References | 5,198 | 4,676 |
+| Selector/native inventories | 1,555 | 1,733 |
+| Header and framing | 339 | 358 |
+| Total | **416,116** | **417,504** |
+
+The component accounting reconciles exactly with serialized JSON. Required captured records alone occupy 206,733 / 231,512 bytes as separate arrays; their nodes alone occupy 151,309 / 167,053 bytes. These subsets omit unrelated inventory entries and retain original reference indexes, so they are not valid complete graphs or lower bounds for another encoding. They still show why reserving metadata without reducing the current representation cannot make these inputs fit 131,072 bytes.
+
+The closure records contain 2,328 / 2,471 repeated node-ID occurrences. Their `nodeIds` arrays alone consume 106,118 / 112,675 bytes. This supports investigating lossless local indexes and shared membership structures; it does not measure a proposed encoding's savings or authorize dropping dependencies.
+
+Removing the aggregate byte refusal does not make the required dependencies complete. The first input has 29 / 33 complete required control roots; two fail missing IDREFs and two fail ancestor depth. The `1W` input has 33 / 37; one fails a missing IDREF, two fail ancestor depth, and one retained native field still fails `node_budget` / `target_not_captured`. Native-only roots are diagnostically complete (1 / 1 and 2 / 2). Missing references include `navColumnContainer` and, in the first input, `_r_0_`; these are structural facts of the static HTML, not conclusions about live application semantics. Both diagnostic graphs reach the unchanged 512-node ceiling.
+
+The same temporary database/WAL/SHM and all 294 source evidence files remain byte-identical. No original task database or browser was opened, and no graph or HTML was retained. The private fixture browser was closed. This is one byte-allocation diagnostic, not a passing coverage result, a performance benchmark, or evidence of real recovery success.
+
+Recorded diagnostic invocation (already completed, output cannot be overwritten):
+
+```sh
+node --import tsx --conditions=development docs/experiments/storage-tiering-2026-10-17/evidence/native-capture-budget-checkpoint/cost-diagnosis.mjs --execute --native-commit 9e8f4553319b0e0ddee01a73a828ef8252aa6ba3
+```
