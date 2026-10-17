@@ -1,0 +1,101 @@
+{
+  "sourceEvidence": "docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-15/offline-source-audit/diagnosis.json",
+  "database": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v8/engine/engine.sqlite",
+  "readOnly": true,
+  "rowsRead": {
+    "entities": 2,
+    "objects": 1806,
+    "packs": 133
+  },
+  "assertions": {
+    "oldCrossObservationProofUnchanged": true,
+    "sourceSelfExplicitlyUnassessable": true,
+    "currentSelfExplicitlyUnassessable": true,
+    "firstRejectedControlMatchesPriorAudit": true
+  },
+  "observations": [
+    {
+      "id": "d7da102e-f331-47c6-bec5-96a33ce9cb20",
+      "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1376",
+      "self": {
+        "targetMatched": true,
+        "reviewable": true,
+        "sourceEquivalent": "equivalent",
+        "reason": "same_recorded_review_occurrence",
+        "evidence": [
+          "unique-captured-target-semantics",
+          "complete-classification-subtree",
+          "captured-idref-topology",
+          "unchanged-classification-conditions",
+          "retained-current-instance",
+          "same-owned-observation-and-control-record"
+        ],
+        "currentMaterialKey": "3896698b60cffabe965367698744e4494afc2086eeedabdae052330f05bcb67e",
+        "currentConditionAssessment": {
+          "status": "unavailable",
+          "reason": "selector_identity_hypothesis",
+          "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1469"
+        },
+        "sourceConditionAssessment": {
+          "status": "unavailable",
+          "reason": "selector_identity_hypothesis",
+          "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1469"
+        }
+      }
+    },
+    {
+      "id": "da11249a-1e18-41cc-b9ff-f1d2d6ca6323",
+      "localId": "8ec10d18-e97b-4630-9783-949cc30e2353:1376",
+      "self": {
+        "targetMatched": true,
+        "reviewable": true,
+        "sourceEquivalent": "equivalent",
+        "reason": "same_recorded_review_occurrence",
+        "evidence": [
+          "unique-captured-target-semantics",
+          "complete-classification-subtree",
+          "captured-idref-topology",
+          "unchanged-classification-conditions",
+          "retained-current-instance",
+          "same-owned-observation-and-control-record"
+        ],
+        "currentMaterialKey": "cec3f767c5dfe51987a6425ce4ede36c27bd1cd5c3c67a4837f2244018d85d98",
+        "currentConditionAssessment": {
+          "status": "unavailable",
+          "reason": "selector_identity_hypothesis",
+          "localId": "8ec10d18-e97b-4630-9783-949cc30e2353:1469"
+        },
+        "sourceConditionAssessment": {
+          "status": "unavailable",
+          "reason": "selector_identity_hypothesis",
+          "localId": "8ec10d18-e97b-4630-9783-949cc30e2353:1469"
+        }
+      }
+    }
+  ],
+  "proof": {
+    "targetMatched": true,
+    "reviewable": true,
+    "sourceEquivalent": "unknown",
+    "reason": "current_review_material_available",
+    "evidence": [
+      "unique-captured-target-semantics",
+      "complete-classification-subtree",
+      "captured-idref-topology",
+      "unchanged-classification-conditions",
+      "unique-captured-control-and-owner"
+    ],
+    "currentMaterialKey": "cec3f767c5dfe51987a6425ce4ede36c27bd1cd5c3c67a4837f2244018d85d98",
+    "currentConditionAssessment": {
+      "status": "unavailable",
+      "reason": "selector_identity_hypothesis",
+      "localId": "8ec10d18-e97b-4630-9783-949cc30e2353:1469"
+    },
+    "sourceConditionAssessment": {
+      "status": "unavailable",
+      "reason": "selector_identity_hypothesis",
+      "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1469"
+    }
+  },
+  "scope": "Pure adapter proof over the same saved real observations. No scheduling, browser operations, provider calls or writable task store. Does not establish successful live recovery or performance improvement."
+}

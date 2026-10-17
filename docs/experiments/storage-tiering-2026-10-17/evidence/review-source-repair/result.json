@@ -1,0 +1,172 @@
+{
+  "date": "2026-10-17",
+  "branch": "codex/exploration-layered-refactor",
+  "worktree": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "baseCommit": "0f0d29a",
+  "testedCodeCommit": "2fb5cb9f97c75031915edae55233ab5bd91910d1",
+  "scope": "Repair explicit historical review-source unavailability and failure accounting; no new live acceptance run.",
+  "patches": [
+    {
+      "commit": "ea2981d",
+      "conclusion": "SDK identifies unavailable review conditions in the existing projection, without weakening equivalence or permission."
+    },
+    {
+      "commit": "2f354f6",
+      "conclusion": "Scheduler defers only explicitly unassessable historical sources, retains obligations and considers other sources/items."
+    },
+    {
+      "commit": "2fb5cb9",
+      "conclusion": "A validated zero-attempt source-proof refusal retains unverified route debt without fabricating a whole-page checkpoint failure."
+    }
+  ],
+  "verification": {
+    "sdkAndSelection": {
+      "passed": 47,
+      "sdkCases": 28,
+      "pluginCases": 19,
+      "processSeconds": 1.942,
+      "vitestSeconds": 1.6,
+      "testSeconds": 0.141,
+      "log": "01-sdk-and-selection-tests.log"
+    },
+    "resultContract": {
+      "passed": 11,
+      "skipped": 15,
+      "newCases": 7,
+      "recheckedContractCases": 4,
+      "vitestSeconds": 1.13,
+      "testSeconds": 0.046,
+      "log": "04-result-contract-tests.log"
+    },
+    "uniqueCasesAcrossCheckpoints": 54,
+    "finalTypeChecks": {
+      "root": "passed after a test-only literal annotation",
+      "core": "passed; no core changes since this check"
+    },
+    "boundedRuns": [
+      {
+        "name": "C-regressions",
+        "exitCode": 0,
+        "seconds": 1.483,
+        "log": "04-result-contract-tests.log",
+        "emptyLog": false
+      },
+      {
+        "name": "root-types",
+        "exitCode": 2,
+        "seconds": 6.738,
+        "log": "05-test-literal-type-failure.log",
+        "emptyLog": false
+      },
+      {
+        "name": "core-types",
+        "exitCode": 0,
+        "seconds": 0.804,
+        "log": null,
+        "emptyLog": true
+      },
+      {
+        "name": "root-types",
+        "exitCode": 0,
+        "seconds": 7.049,
+        "log": null,
+        "emptyLog": true
+      },
+      {
+        "name": "same-real-proof",
+        "exitCode": 0,
+        "seconds": 0.328,
+        "log": "06-same-real-proof.log",
+        "emptyLog": false
+      }
+    ],
+    "sameRealRecords": {
+      "result": "passed",
+      "evidence": "same-real-proof.json",
+      "script": "same-real-proof.mts",
+      "baselineEvidence": "../real-okx-15/offline-source-audit/diagnosis.json",
+      "rowsRead": {
+        "entities": 2,
+        "objects": 1806,
+        "packs": 133
+      },
+      "sourceAndCurrentReason": "selector_identity_hypothesis",
+      "localIdSuffix": ":1469",
+      "oldProofWithoutNewDiagnostics": "deep equality passed"
+    },
+    "staticReview": "Independent read-only subagent identified contract-result coercion risk; explicit contractRejected exclusion, proof permission flags and unique target reference now guard the source-only branch. Re-review found no remaining defect in this diff."
+  },
+  "rerunReasons": [
+    {
+      "run": "02-result-tests-fixture-failure.log",
+      "result": "1 failed, 2 passed",
+      "cause": "Fixture included an unrelated modal, legitimately creating a missing boundary-exit capability gap."
+    },
+    {
+      "run": "03-result-tests-fixture-corrected.log",
+      "result": "3 passed",
+      "reason": "Expose the target without the unrelated modal, matching the retained OKX case; production code unchanged for this fixture repair."
+    },
+    {
+      "run": "04-result-contract-tests.log",
+      "result": "11 passed",
+      "reason": "Static review found rejected host success could be reclassified after coercion. Harden the predicate; add 4 negative cases and rerun 4 existing result-contract cases plus the 3 source-refusal cases."
+    },
+    {
+      "run": "05-test-literal-type-failure.log",
+      "result": "type check failed",
+      "cause": "New mock return widened CURRENT_REVIEWABLE to string."
+    },
+    {
+      "run": "root-types in boundedRuns",
+      "result": "passed",
+      "reason": "Add a const type annotation in the test. No runtime behavior changed; only the failed root type check was rerun."
+    }
+  ],
+  "correctnessBoundaries": [
+    "A/B review proofs and branch-specific retry debt remain independent.",
+    "Unknown route debt survives JSON persistence roundtrip and blocks source arrival; newly discovered unknown execution also blocks result handling.",
+    "Absent legacy diagnostics, malformed references and contradictory keys are not sufficient to exclude a source.",
+    "New review material is still eligible when historical portable conditions are absent.",
+    "Source exclusions are neither permanent nor completion evidence; assessment changes and final revalidation are checked.",
+    "Any recovery attempt or invalid host success retains the ordinary failure path; source-only refusal grants no checkpoint, coverage or execution success."
+  ],
+  "costEvidence": {
+    "measuredUnitCallCount": "Two sources produce exactly two existing self-correspondence queries and zero reach calls during selection.",
+    "implementation": "Reuse the existing source-fact cache and selector projection; no new history query or second selector projection pass.",
+    "resultValidation": "A bounded in-memory control scan is added only when the zero-attempt source-refusal predicate otherwise matches.",
+    "liveThroughputOrLatencyClaim": null,
+    "storageReductionClaim": null,
+    "expectedBenefit": "Avoid dispatching an arrival whose historical source is explicitly unassessable. The prior 10.607-second refusal is evidence of wasted work, not a measured post-fix saving."
+  },
+  "remainingLimits": [
+    "The real 240-second acceptance has not been rerun and is not declared passed.",
+    "This fix does not reconstruct missing historical identity evidence or prove local/global page restoration now succeeds.",
+    "Offline selection of an alternative does not prove that alternative is reachable or yields coverage on OKX.",
+    "Prior startup full-read counts and live performance/storage outcomes are unchanged and unmeasured by this checkpoint."
+  ],
+  "nextLiveCheckpoint": {
+    "boundSeconds": 240,
+    "automaticRerun": false,
+    "record": [
+      "phase wall times and actual processing counts",
+      "source exclusions and selected alternate source/item",
+      "recovery strategies, actual attempts and verified outcome",
+      "actual exploration actions and new coverage",
+      "unresolved obligation growth and failure reasons",
+      "observation/history reads and model calls"
+    ],
+    "passRequires": "Verified live recovery plus actual new exploration/coverage with retained debt; queue exhaustion or skipped sources alone is not a pass."
+  },
+  "protectedState": {
+    "originalBrowserOperated": false,
+    "originalTaskDatabaseOpened": false,
+    "servicesStartedOrStopped": false,
+    "ownedAcceptanceDatabase": "readOnly:true; only two saved observations decoded",
+    "preexistingUntrackedPreserved": [
+      "docs/experiments/storage-tiering-2026-10-17/evidence/okx-launch-7.json",
+      "docs/experiments/storage-tiering-2026-10-17/evidence/okx-launch-7.log",
+      "docs/experiments/storage-tiering-2026-10-17/evidence/task-store-full-read/performance-checkpoint-5eca079/"
+    ]
+  }
+}
