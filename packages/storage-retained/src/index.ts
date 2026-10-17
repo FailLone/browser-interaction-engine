@@ -1,4 +1,4 @@
-import { EngineError, clone, evidenceRetentionSchema, hashBytes, id, type Evidence, type EvidenceAvailability, type EvidenceStore, type EvidenceRetentionPolicy, type Persistence, type Session, type InteractionScope } from '@interaction/core';
+import { EngineError, clone, evidenceRetentionSchema, hashBytes, id, type Evidence, type EvidenceAvailability, type EvidenceStore, type EvidenceRetentionPolicy, type Persistence, type Session, type InteractionScope, type Observation } from '@interaction/core';
 
 interface Group { id: string; sessionId: string; policy: EvidenceRetentionPolicy; createdAt: number; expiresAt?: number; keys: string[]; pins: string[]; pinExpirations?: Record<string, number>; committed: boolean }
 interface Entry { id: string; sessionId: string; observationId: string; bytes: number; hash: string; status: EvidenceAvailability['status']; reason?: string }
@@ -17,6 +17,7 @@ export class RetainedPersistence implements Persistence {
   private readonly recordReads: Pick<Persistence, 'get' | 'require' | 'list' | 'listByObservation' | 'events' | 'request'>;
   private readonly boundRecordReads: RetainedPersistence['recordReads'];
   private readonly backingRevision: Persistence['recordRevision'];
+  private readonly backingObservationBatch: Persistence['readObservationBatch'];
   private readonly recordInstance = id();
   private closed = false;
   get recordReadIsolation(): Persistence['recordReadIsolation'] {
@@ -38,6 +39,21 @@ export class RetainedPersistence implements Persistence {
     const revision = this.backingRevision.call(backing);
     return revision === undefined || !unchanged() ? undefined : `${this.recordInstance}:${revision}`;
   }
+  readObservationBatch<T>(sessionId: string, read: (get: <O extends Observation>(id: string) => O | undefined) => T): { value: T } | undefined {
+    const batch = this.backingObservationBatch, reads = this.recordReads, bound = this.boundRecordReads, backing = this.backing;
+    const unchanged = () => !this.closed && batch === backing.readObservationBatch
+      && reads.get === backing.get && reads.require === backing.require && reads.list === backing.list
+      && reads.listByObservation === backing.listByObservation && reads.events === backing.events && reads.request === backing.request
+      && bound.get === this.get && bound.require === this.require && bound.list === this.list
+      && bound.listByObservation === this.listByObservation && bound.events === this.events && bound.request === this.request;
+    if (!batch || !unchanged()) return;
+    return batch.call(backing, sessionId, get => {
+      if (!unchanged()) throw new EngineError('OBSERVATION_BATCH_INVALIDATED', 'Observation batch backing reads changed');
+      const value = read(get);
+      if (!unchanged()) throw new EngineError('OBSERVATION_BATCH_INVALIDATED', 'Observation batch backing reads changed');
+      return value;
+    }) as { value: T } | undefined;
+  }
   transaction: Persistence['transaction']; put: Persistence['put']; get: Persistence['get']; require: Persistence['require']; list: Persistence['list'];
   event: Persistence['event']; events: Persistence['events']; request: Persistence['request']; recordRequest: Persistence['recordRequest'];
   entityChanges?: Persistence['entityChanges'];
@@ -46,6 +62,7 @@ export class RetainedPersistence implements Persistence {
     this.evidence = new RetainedEvidenceStore(backing, options);
     const reads = this.recordReads = { get: backing.get, require: backing.require, list: backing.list, listByObservation: backing.listByObservation, events: backing.events, request: backing.request };
     this.backingRevision = backing.recordRevision;
+    this.backingObservationBatch = backing.readObservationBatch;
     this.transaction = backing.transaction.bind(backing); this.put = backing.put.bind(backing); this.get = reads.get.bind(backing); this.require = reads.require.bind(backing); this.list = reads.list.bind(backing);
     this.event = backing.event.bind(backing); this.events = reads.events.bind(backing); this.request = reads.request.bind(backing); this.recordRequest = backing.recordRequest.bind(backing);
     this.entityChanges = backing.entityChanges?.bind(backing);

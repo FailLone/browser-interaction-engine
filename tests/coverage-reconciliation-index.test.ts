@@ -1,4 +1,4 @@
-import { expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { reconcileCoverage, type ActionAttempt, type ActionCandidate, type FrontierItem, type IdentityHypothesis,
   type Observation, type ReceiptCoverageReader, type Session } from '@interaction/core';
 
@@ -18,6 +18,7 @@ function action(o: SampleObservation, overrides: Partial<ActionCandidate> = {}):
 function item(id: string, a: ActionCandidate): FrontierItem {
   return { id, sessionId: session.id, key: id, stateId: a.stateId, contextKey: '{}', action: a, status: 'pending', attempts: [], depth: 0 };
 }
+describe.each(['array', 'bounded-reader'] as const)('%s coverage facts', mode => {
 function fixture() {
   const before = observation('before'), after = observation('after'), current = observation('current');
   const source = action(before), target = action(current);
@@ -26,8 +27,16 @@ function fixture() {
   const sample = vi.fn((_a: ActionCandidate, o: SampleObservation) => o.portable
     ? { key: o.mode, policy: 'portable-fixture/v1', evidence: [`mode:${o.mode}`] } : undefined);
   const receipt = vi.fn(() => ({ key: 'receipt', policy: 'retained-fixture/v1', evidence: ['verified-receipt'] }));
-  const evaluate = (frontier = [item('pending', target)], observations = [before, after, current], attempts = [attempt], hypotheses: IdentityHypothesis[] = [], retained?: ReceiptCoverageReader<SampleObservation>) =>
-    reconcileCoverage(session, frontier, attempts, observations, hypotheses, sample, retained);
+  const evaluate = (frontier = [item('pending', target)], observations = [before, after, current], attempts = [attempt], hypotheses: IdentityHypothesis[] = [], retained?: ReceiptCoverageReader<SampleObservation>) => {
+    const cache = new Map<string, SampleObservation | undefined>();
+    const reader = { get: (id: string) => {
+      if(cache.has(id))return cache.get(id);
+      const value=structuredClone(observations.findLast(o=>o.id===id&&o.sessionId===session.id));cache.set(id,value);
+      if(cache.size>4)cache.delete(cache.keys().next().value!);
+      return value;
+    } };
+    return reconcileCoverage(session, frontier, attempts, mode==='array'?observations:reader, hypotheses, sample, retained);
+  };
   return { before, after, current, source, target, attempt, sample, receipt, evaluate };
 }
 
@@ -143,4 +152,42 @@ it('does not make duplicate resolved identities or changed unknown context eligi
   unknown.context = { market: { status: 'unknown', value: null, source: 'fixture' } };
   expect(f.evaluate([item('duplicate', action(duplicate)), item('unknown', action(unknown))], [f.before, f.after, duplicate, unknown]).size).toBe(0);
   expect(f.sample).toHaveBeenCalledTimes(1);
+});
+});
+
+it('retains the complete proof and ordered retained alternatives across source eviction', () => {
+  const source=observation('before'),after=observation('after'),current=observation('current');source.portable=false;current.portable=false;
+  const observations=[source,after,current],attempts:ActionAttempt[]=[];
+  for(let i=0;i<12;i++){
+    const before=observation(`before-${i}`),end=observation(`after-${i}`);before.portable=false;
+    observations.push(before,end);
+    attempts.push({id:`receipt-${i}`,sessionId:session.id,requestId:`request-${i}`,status:'succeeded',beforeId:before.id,afterId:end.id,
+      action:action(before),startedAt:before.capturedAt,finishedAt:end.capturedAt,purpose:'exploration'});
+  }
+  const frontier=[item('A',action(current)),item('B',action(current,{value:'B'})),{...item('unknown',action(current)),status:'unknown' as const}];
+  const sample=()=>undefined,receipt:ReceiptCoverageReader<SampleObservation>=(_a,_o,attempt)=>attempt.id==='receipt-11'
+    ?{key:'last-valid',policy:'fixture-retained/v1',evidence:['complete-dependencies','actual-succeeded:receipt-11']}:undefined;
+  const expected=reconcileCoverage(session,frontier,attempts,observations,[],sample,receipt),reads:string[]=[],cache=new Map<string,SampleObservation|undefined>();
+  const actual=reconcileCoverage(session,frontier,attempts,{get(id){
+    if(cache.has(id))return cache.get(id);reads.push(id);
+    const value=structuredClone(observations.find(o=>o.id===id));cache.set(id,value);
+    if(cache.size>4)cache.delete(cache.keys().next().value!);return value;
+  }},[],sample,receipt);
+  expect([...actual]).toEqual([...expected]);expect([...actual.keys()]).toEqual(['A']);
+  expect(actual.get('A')).toMatchObject({attemptId:'receipt-11',beforeId:'before-11',afterId:'after-11',policy:'fixture-retained/v1'});
+  expect(reads.filter(id=>id==='before-0')).toHaveLength(2);
+  expect(reads).not.toContain('before');expect(reads).not.toContain('after');
+});
+
+it('rejects wrong ID and foreign records, propagates reader errors and never loads unrelated history', () => {
+  const before=observation('before'),after=observation('after'),current=observation('current'),a=action(before);
+  const attempts:ActionAttempt[]=[{id:'success',sessionId:session.id,requestId:'request',status:'succeeded',beforeId:before.id,afterId:after.id,action:a,startedAt:before.capturedAt,purpose:'exploration'}];
+  const frontier=[item('pending',action(current))],sample=()=>({key:'known',policy:'fixture/v1',evidence:[]});
+  for(const replacement of [undefined,{...after,id:'wrong'},{...after,sessionId:'foreign'}]){
+    const read=vi.fn((id:string)=>id==='before'?before:id==='after'?replacement:current);
+    expect(reconcileCoverage(session,frontier,attempts,{get:read},[],sample).size).toBe(0);
+    expect(read.mock.calls.map(([id])=>id)).toEqual(['before','after']);
+  }
+  const failure=new Error('source decode failed');
+  expect(()=>reconcileCoverage(session,frontier,attempts,{get(){throw failure;}},[],sample)).toThrow(failure);
 });

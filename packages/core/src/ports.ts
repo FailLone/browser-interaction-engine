@@ -61,6 +61,16 @@ export interface Persistence {
    * Consumers must separately protect their cached values from caller mutation.
    */
   recordRevision?(): string | undefined;
+  /** Optional synchronous, read-only observation snapshot. The callback's getter
+   * returns detached records belonging to this session, equivalent to get/list
+   * in that snapshot; absent or differently owned IDs return undefined. Only
+   * requested records are decoded: unrelated corrupt history is not audited.
+   * The getter expires when the callback returns or throws; thenable results
+   * are rejected. Callback/read errors propagate and batch writes are rejected.
+   * The callback must not alter the storage connection or transaction lifetime.
+   * Unsupported/custom read compositions return undefined WITHOUT invoking it.
+   * No facts, cache, authorization or transaction survive the call. */
+  readObservationBatch?<T>(sessionId: string, read: (get: <O extends Observation>(id: string) => O | undefined) => T): { value: T } | undefined;
   transaction<T>(fn: () => T): T;
   put<T extends { id: string; sessionId?: string }>(kind: string, value: T): void;
   get<T>(kind: string, id: string): T | undefined;

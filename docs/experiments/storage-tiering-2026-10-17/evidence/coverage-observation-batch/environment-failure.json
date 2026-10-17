@@ -1,0 +1,15 @@
+{
+  "command": "pnpm exec vitest run tests/coverage-observation-batch.test.ts",
+  "exitCode": 1,
+  "testsReportedFailed": 8,
+  "behaviorAssertionsExecuted": false,
+  "stage": "SqliteStore constructor / native module load",
+  "reason": "better-sqlite3 was built for NODE_MODULE_VERSION 137; the default pnpm runtime required 141.",
+  "classification": "environment ABI mismatch, not a product behavior result",
+  "reportedDurationMs": 1000,
+  "reportedStartLocal": "2026-10-18 00:10:01 Asia/Shanghai",
+  "source": "Summary of the first tool output; no test was rerun to recreate a log.",
+  "dependencyRebuild": false,
+  "originalDatabasesOpened": false,
+  "browserCreated": false
+}

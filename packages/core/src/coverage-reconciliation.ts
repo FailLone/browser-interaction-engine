@@ -73,29 +73,45 @@ export function operationSample<O extends Observation>(a: ActionCandidate, o: O,
 
 /** Successful operation samples may discharge equivalent unattempted work, never failed attempts.
  * This is coverage only: it grants no identity, scope, replay or dispatch permission. */
-export function reconcileCoverage<O extends Observation>(session: Session, frontier: FrontierItem[], attempts: ActionAttempt[], observations: O[],
+export interface CoverageObservationReader<O extends Observation> {
+  /** One synchronous, immutable fact snapshot. Callbacks must be read-only.
+   * Missing records supply no proof; read/decode errors must propagate. Full
+   * historical validation remains the responsibility of the array/audit path. */
+  get(id: string): O | undefined;
+}
+export function reconcileCoverage<O extends Observation>(session: Session, frontier: FrontierItem[], attempts: ActionAttempt[], observations: O[] | CoverageObservationReader<O>,
   hypotheses: IdentityHypothesis[], sample: (a: ActionCandidate, o: O) => ExplorationCase | undefined,
   receiptCoverage?: ReceiptCoverageReader<O>): Map<string, EquivalentCoverage> {
   const result = new Map<string, EquivalentCoverage>();
   if (session.options.exploration !== 'controls') return result;
   const resolve = identityResolver(hypotheses.filter(h => h.sessionId === session.id));
-  const byObservation = new Map(observations.filter(o => o.sessionId === session.id).map(o => [o.id, o]));
-  const controls = new Map([...byObservation].map(([id, o]) => [id, new Map(o.controls.map(c => [c.localId, c]))]));
-  const identityCounts = new Map([...byObservation].map(([id, o]) => {
+  const eager = Array.isArray(observations) ? new Map(observations.filter(o => o.sessionId === session.id).map(o => [o.id, o])) : undefined;
+  const byObservation = eager || { get: (id: string) => {
+    const o = (observations as CoverageObservationReader<O>).get(id);
+    return o?.id === id && o.sessionId === session.id ? o : undefined;
+  } };
+  const controls = new WeakMap<O, Map<string, Control>>(), identityCounts = new WeakMap<O, Map<string, number>>();
+  const index = (o: O) => {
+    if (controls.has(o)) return;
+    controls.set(o, new Map(o.controls.map(c => [c.localId, c])));
     const counts = new Map<string, number>();
     for (const c of o.controls) { const identity = resolve(c); if (identity) counts.set(identity, (counts.get(identity) || 0) + 1); }
-    return [id, counts] as const;
-  }));
+    identityCounts.set(o, counts);
+  };
+  // Keep the array API's eager index timing and last-duplicate-ID semantics.
+  // Only the explicit immutable reader uses lazy, collectable indexes.
+  if (eager) for (const o of eager.values()) index(o);
   const keys = new WeakMap<ActionCandidate, ReturnType<typeof key>>();
   function key(a: ActionCandidate, possible?: Set<string>) {
     const o = byObservation.get(a.observationId);
     if (!o || a.sessionId !== session.id || !a.controlId || a.basis?.status !== 'supported' || o.gaps.some(g => g.critical)) return;
     if (canonical(a.preconditions.context) !== canonical(o.context) || Object.values(o.context).some(c => c.status !== 'known')) return;
-    const c = a.localId && controls.get(o.id)?.get(a.localId);
+    index(o);
+    const c = a.localId && controls.get(o)?.get(a.localId);
     if (!c || c.identityId !== a.controlId) return;
     const identity = resolve(c);
     // A contradictory decision cannot make two simultaneous targets equivalent.
-    if (identity && identityCounts.get(o.id)?.get(identity) !== 1) return;
+    if (identity && identityCounts.get(o)?.get(identity) !== 1) return;
     const target = identity || [o.instanceScope, c.instanceId];
     // These are necessary fields of the final key, not an equivalence proof.
     // Skip an expensive adapter projection only when no fully sampled success
@@ -118,9 +134,10 @@ export function reconcileCoverage<O extends Observation>(session: Session, front
   const possible = new Set<string>();
   // Index actual receipts by instance and input. The composition still checks
   // their complete evidence; this index only avoids all-pairs reconciliation.
-  const retained = new Map<string, {attempt:ActionAttempt;before:O;after:O}[]>();
+  const retained = new Map<string, {attempt:ActionAttempt;before?:O;after?:O}[]>();
   const receiptKey = (action:ActionCandidate, o:O) => {
-    const c=action.localId?controls.get(o.id)?.get(action.localId):undefined;
+    index(o);
+    const c=action.localId?controls.get(o)?.get(action.localId):undefined;
     return c?.instanceId&&o.instanceScope?canonical([o.instanceScope,c.instanceId,action.kind,action.value]):undefined;
   };
   const rawSamples = new WeakMap<ActionCandidate, ReturnType<typeof operationSample>>();
@@ -129,6 +146,7 @@ export function reconcileCoverage<O extends Observation>(session: Session, front
     return rawSamples.get(action);
   };
   for (const a of attempts) {
+    if (!eager && (a.sessionId !== session.id || a.status !== 'succeeded')) continue;
     const before = byObservation.get(a.beforeId), after = a.afterId && byObservation.get(a.afterId);
     if (a.sessionId !== session.id || a.status !== 'succeeded' || !before || !after || a.action.observationId !== before.id
       || before.gaps.some(g => g.critical) || after.gaps.some(g => g.critical)) continue;
@@ -139,16 +157,21 @@ export function reconcileCoverage<O extends Observation>(session: Session, front
         policy: k.sample.policy, evidence: k.sample.evidence });
     }
     const index=receiptCoverage&&receiptCoverage.acceptsObservation?.(before)!==false&&receiptKey(a.action,before);
-    if(index){const entries=retained.get(index)||[];entries.push({attempt:a,before,after});retained.set(index,entries);}
+    if(index){const entries=retained.get(index)||[];entries.push(eager?{attempt:a,before,after}:{attempt:a});retained.set(index,entries);}
   }
   for (const f of frontier) {
     if (f.sessionId !== session.id || f.samplingMigration || f.attempts.length || ['executing', 'unknown'].includes(f.status)) continue;
     const k = possible.size ? cached(f.action, possible) : undefined, proof = k && succeeded.get(k.key);
     if (proof) { result.set(f.id, proof); continue; }
+    // No retained source can discharge this work. Do not load an observation
+    // merely to reject it; preserve the old callback order for array callers.
+    if (!eager && !retained.size) continue;
     const o=byObservation.get(f.action.observationId);
     if(!receiptCoverage||!o||receiptCoverage.acceptsObservation?.(o)===false)continue;
     const index=receiptKey(f.action,o);if(!index)continue;
-    for(const {attempt,before,after} of retained.get(index)||[]){
+    for(const entry of retained.get(index)||[]){
+      const {attempt}=entry,before=entry.before||byObservation.get(attempt.beforeId),after=entry.after||(attempt.afterId?byObservation.get(attempt.afterId):undefined);
+      if(!before||!after||!eager&&(attempt.action.observationId!==before.id||before.gaps.some(g=>g.critical)||after.gaps.some(g=>g.critical)))continue;
       // An unavailable portable proof may have a narrower retained alternative.
       // Two known portable cases that differ must never be washed into equality.
       if(rawSample(f.action,o)&&rawSample(attempt.action,before))continue;

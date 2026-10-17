@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/observation-batch.test.ts (12 tests) 84ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  00:10:06
+   Duration  628ms (transform 252ms, setup 0ms, collect 374ms, tests 84ms, environment 0ms, prepare 48ms)
+

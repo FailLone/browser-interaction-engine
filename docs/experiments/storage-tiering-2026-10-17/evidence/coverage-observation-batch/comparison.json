@@ -1,0 +1,28 @@
+{
+  "runs": [
+    {
+      "variant": "eager",
+      "exitCode": 0,
+      "timedOut": false,
+      "processElapsedSeconds": 6.338788791000001,
+      "ownedDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-coverage-query-20261018-eager/engine"
+    },
+    {
+      "variant": "bounded",
+      "exitCode": 0,
+      "timedOut": false,
+      "processElapsedSeconds": 3.0680848329999995,
+      "ownedDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-coverage-query-20261018-bounded/engine"
+    }
+  ],
+  "sourceUnchanged": true,
+  "sourceSha256": "664500f08e9fb1610a2248cafebdb46afbf49d68e0ad482169130a77647e5af8",
+  "sameCompleteFrontier": true,
+  "sameEquivalentCount": true,
+  "eagerMs": 5430.466667,
+  "boundedMs": 2402.0199589999997,
+  "eagerMaxRssKiB": 1579136,
+  "boundedMaxRssKiB": 589408,
+  "requestedReads": 131,
+  "distinctRequestedObservations": 108
+}

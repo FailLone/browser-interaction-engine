@@ -82,6 +82,11 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   }
   publishInterventions(sid: string, type: string, data: unknown) { this.publish(sid, type, data); }
   interventionMaterial(sid: string, since?: string) { return this.interventions.material(sid, since); }
+  protected override supportsCoverageObservationBatch() {
+    // The same built-in composition certificate protects adapter and revocable
+    // authority readers. No read result or authority survives this query.
+    return recoverySelectionCompositions.get(this)?.()===true;
+  }
   blockingBoundaryExit(sid: string) { return this.boundaryExits.blockingResult(sid); }
   private unknownOutcomes(sid: string) {
     const recovered = new Set(this.list<ContinuationRecord>(sid, 'continuation').flatMap(r => r.verifiedRecovery?.attemptIds || []));

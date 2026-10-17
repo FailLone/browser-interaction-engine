@@ -1,0 +1,20 @@
+{
+  "conclusion": "On-demand bounded coverage reads preserve complete frontier output while reducing whole-history materialization cost.",
+  "source": ".data/okx-storage-acceptance-20261017-v8/engine/engine.sqlite",
+  "sourceSha256": "664500f08e9fb1610a2248cafebdb46afbf49d68e0ad482169130a77647e5af8",
+  "variants": [
+    "eager",
+    "bounded"
+  ],
+  "runsPerVariant": 1,
+  "externalLimitSecondsPerVariant": 30,
+  "rebaselineReason": "The earlier CPU profile wrapped engine/read methods, which deliberately withdraw the new closed-composition qualification. This pair uses the same unwrapped query in separate fresh processes, disabling only the new capability for eager.",
+  "checks": [
+    "complete frontier SHA and bytes match",
+    "actual equivalent proof count matches",
+    "no query writes",
+    "frozen source unchanged",
+    "no browser or task database opened"
+  ],
+  "scope": "One synchronous getFrontier query, not whole recovery performance."
+}

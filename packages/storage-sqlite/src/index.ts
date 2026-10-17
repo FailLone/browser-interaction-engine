@@ -7,7 +7,7 @@ import { decodeStoredEntity, encodeObservationJson, encodeStateJson, type Stored
 export { decodeStoredEntity, type StoredEntityRow, type ObservationManifest, type SharedObservationManifest, type StateManifest, type ObservationObjectResolver } from './entity-codec.js';
 import { ObservationObjectStore, observationSchema, type ObservationStorageStats, type ObservationGarbageCollectionResult } from './observation-store.js';
 export type { ObservationStorageStats, ObservationGarbageCollectionResult } from './observation-store.js';
-import { EngineError, type EngineEvent, type Session, type ActionAttempt, type FrontierItem, type InteractionScope } from '@interaction/core';
+import { EngineError, type EngineEvent, type Session, type ActionAttempt, type FrontierItem, type InteractionScope, type Observation } from '@interaction/core';
 
 export interface ObservationCompressionResult {
   cursor:number;done:boolean;scanned:number;compressed:number;
@@ -46,6 +46,7 @@ export class SqliteStore implements Persistence {
   private dataVersion = 0;
   private schemaVersion = 0;
   private queriedInTransaction = false;
+  private observationBatchDepth = 0;
   constructor(public directory: string) {
     mkdirSync(directory, { recursive: true });
     this.evidence = new FileEvidenceStore(join(directory, 'evidence'));
@@ -98,6 +99,62 @@ export class SqliteStore implements Persistence {
     const temp = this.tempSchemaStamp.get() as { schema_version: bigint };
     return `${this.recordInstance}:${this.recordEpoch}:${stamp.total}:${stamp.dataVersion}:${stamp.schemaVersion}:${temp.schema_version}`;
   }
+  readObservationBatch<T>(sessionId: string, read: (get: <O extends Observation>(id: string) => O | undefined) => T): { value: T } | undefined {
+    const reads = SqliteStore.revisionReads;
+    const supported = () => this.db.open && this.get === reads.get && this.require === reads.require && this.list === reads.list
+      && this.listByObservation === reads.listByObservation && this.events === reads.events && this.request === reads.request;
+    if (!supported()) return;
+    const outerBatch = this.observationBatchDepth === 0, cacheable = !this.db.inTransaction;
+    const queryOnly = this.db.pragma('query_only', { simple: true }) as number;
+    let begun = false;
+    try {
+      return this.db.transaction(() => {
+        // Pin the main database snapshot before calling user code, even if its
+        // first getter comes after another connection commits. No payload scan.
+        this.db.prepare('SELECT 1 FROM entities LIMIT 1').get();
+        const before = this.recordStamp.get() as { total: bigint; schemaVersion: bigint };
+        const tempBefore = this.tempSchemaStamp.get() as { schema_version: bigint };
+        const savepoint = `observation_batch_${id().replaceAll('-', '')}`;
+        this.db.exec(`SAVEPOINT ${savepoint}`);
+        this.db.pragma('query_only = ON');
+        if (outerBatch) { this.observations.begin(cacheable); begun = true; }
+        this.observationBatchDepth++;
+        let active = true;
+        try {
+          const get = <O extends Observation>(observationId: string): O | undefined => {
+            if (!active) throw new EngineError('OBSERVATION_BATCH_EXPIRED', 'Observation batch getter has expired');
+            if (!supported() || !this.db.inTransaction) throw new EngineError('OBSERVATION_BATCH_INVALIDATED', 'Observation batch read composition or transaction changed');
+            const row = this.db.prepare("SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind='observation' AND session_id=? AND id=?")
+              .get(sessionId, observationId) as StoredEntityRow | undefined;
+            if (!row) return;
+            const observation = decodeStoredEntity<O>(row, this.observations.resolve);
+            if (observation.id !== observationId || observation.sessionId !== sessionId)
+              throw new EngineError('CORRUPT_ENTITY', 'Observation content does not match its stored ownership');
+            return observation;
+          };
+          const value = read(get);
+          if (value !== null && (typeof value === 'object' || typeof value === 'function') && typeof (value as { then?: unknown }).then === 'function')
+            throw new EngineError('ASYNC_OBSERVATION_BATCH', 'Observation batch callback must be synchronous');
+          if (!supported() || !this.db.inTransaction) throw new EngineError('OBSERVATION_BATCH_INVALIDATED', 'Observation batch read composition or transaction changed');
+          const after = this.recordStamp.get() as { total: bigint; schemaVersion: bigint };
+          const tempAfter = this.tempSchemaStamp.get() as { schema_version: bigint };
+          if (before.total !== after.total || before.schemaVersion !== after.schemaVersion || tempBefore.schema_version !== tempAfter.schema_version
+            || this.db.pragma('query_only', { simple: true }) !== 1)
+            throw new EngineError('OBSERVATION_BATCH_WRITE', 'Observation batch callback must not write or change the connection');
+          // COMMIT/ROLLBACK followed by BEGIN can leave inTransaction true, but
+          // cannot preserve this batch's private savepoint and snapshot.
+          this.db.exec(`RELEASE ${savepoint}`);
+          return { value };
+        } finally { active = false; this.observationBatchDepth--; }
+      })();
+    } catch (error) {
+      this.changes.invalidate(); this.observations.invalidate(); this.recordEpoch++;
+      throw error;
+    } finally {
+      if (begun) this.observations.end(cacheable);
+      if (this.db.open) this.db.pragma(`query_only = ${queryOnly ? 'ON' : 'OFF'}`);
+    }
+  }
   transaction<T>(fn: () => T): T {
     try { return this.db.transaction(fn)(); }
     catch (error) { this.changes.invalidate(); this.observations.invalidate(); this.recordEpoch++; throw error; }
@@ -138,6 +195,7 @@ export class SqliteStore implements Persistence {
   /** Raw SQL consumers can use this bound decoder for both old and shared rows.
    * Read the row and call this within store.transaction for one stable snapshot. */
   decodeStoredEntity<T=unknown>(row:StoredEntityRow):T {
+    if (this.observationBatchDepth) return decodeStoredEntity<T>(row, this.observations.resolve);
     const cacheable=!this.db.inTransaction;
     try{return this.db.transaction(()=>{this.observations.begin(cacheable);return decodeStoredEntity<T>(row,this.observations.resolve);})();}
     finally{this.observations.end(cacheable);}
@@ -147,6 +205,10 @@ export class SqliteStore implements Persistence {
       const columns=kind==='state'?'kind,id,session_id,json,compressed_json':'kind,json,compressed_json';
       const row=this.db.prepare(`SELECT ${columns} FROM entities WHERE kind=? AND id=?`).get(kind,id) as StoredEntityRow|undefined;
       return row?decodeStoredEntity<T>(row):undefined;
+    }
+    if (this.observationBatchDepth) {
+      const row = this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? AND id=?').get(kind, id) as StoredEntityRow | undefined;
+      return row ? decodeStoredEntity<T>(row, this.observations.resolve) : undefined;
     }
     const cacheable=!this.db.inTransaction;
     try{return this.db.transaction(()=>{
@@ -161,6 +223,11 @@ export class SqliteStore implements Persistence {
       const columns=kind==='state'?'kind,id,session_id,json,compressed_json':'kind,json,compressed_json';
       const rows=(sessionId?this.db.prepare(`SELECT ${columns} FROM entities WHERE kind=? AND session_id=? ORDER BY rowid`).all(kind,sessionId):this.db.prepare(`SELECT ${columns} FROM entities WHERE kind=? ORDER BY rowid`).all(kind)) as StoredEntityRow[];
       return rows.map(row=>decodeStoredEntity<T>(row));
+    }
+    if (this.observationBatchDepth) {
+      const rows = (sessionId ? this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? AND session_id=? ORDER BY rowid').all(kind, sessionId)
+        : this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? ORDER BY rowid').all(kind)) as StoredEntityRow[];
+      return rows.map(row => decodeStoredEntity<T>(row, this.observations.resolve));
     }
     const cacheable=!this.db.inTransaction;
     try{return this.db.transaction(()=>{

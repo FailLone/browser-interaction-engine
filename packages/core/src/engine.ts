@@ -528,7 +528,29 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   }
   /** A per-call evidence bundle; no cache survives an observation/review mutation. */
   protected coverageMaterial(sessionId:string) {return this.reconcileMaterial(this.coverageInputs(sessionId));}
-  getFrontier(sessionId:string){return this.session(sessionId).options.exploration==='controls'?this.coverageMaterial(sessionId).frontier:describeFrontier(this.frontier(sessionId),this.store.list<ActionAttempt>('attempt',sessionId));}
+  /** Opt-in by a composition whose coverage callbacks only read captured facts
+   * and the current record snapshot. Unknown/custom compositions stay eager. */
+  protected supportsCoverageObservationBatch():boolean {return false;}
+  private frontierMaterial(sessionId:string) {
+    if(this.coverageMaterial===InteractionEngine.defaultCoverageMaterial&&this.supportsCoverageObservationBatch()){
+      const batch=this.store.readObservationBatch?.(sessionId,read=>{
+        const m=this.coverageInputs(sessionId),cache=new Map<string,O|undefined>();
+        const observations={get:(id:string)=>{
+          if(cache.has(id)){const value=cache.get(id);cache.delete(id);cache.set(id,value);return value;}
+          const value=read<O>(id);cache.set(id,value);
+          if(cache.size>4)cache.delete(cache.keys().next().value!);
+          return value;
+        }};
+        const equivalents=reconcileCoverage(m.session,m.raw,m.attempts,observations,m.hypotheses,(a,o)=>this.adapter.correspondenceCase
+          ?this.adapter.correspondenceCase(a,o,m.session):this.adapter.explorationCase?.(a,o,m.session),this.retainedReceiptCoverageReader());
+        return {...m,equivalents,frontier:describeFrontier(m.raw,m.attempts,equivalents)};
+      });
+      if(batch)return batch.value;
+    }
+    return this.coverageMaterial(sessionId);
+  }
+  private static readonly defaultCoverageMaterial=InteractionEngine.prototype.coverageMaterial;
+  getFrontier(sessionId:string){return this.session(sessionId).options.exploration==='controls'?this.frontierMaterial(sessionId).frontier:describeFrontier(this.frontier(sessionId),this.store.list<ActionAttempt>('attempt',sessionId));}
   auditSnapshot(sessionId:string,observationId?:string) {return this.captureAudit(sessionId,observationId).snapshot;}
   /** Current observation facts use the same dispatch validator; they make no historical coverage claim. */
   protected captureCurrentFacts(sessionId:string,observationId?:string) {
@@ -545,7 +567,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     return {snapshot,material:{...m,allActions:this.store.list<ActionCandidate>('action',sessionId)}};
   }
   /** Outstanding scheduling work; equivalence never rewrites stored actions or attempts. */
-  protected outstandingFrontier(sessionId: string) { if(this.session(sessionId).options.exploration!=='controls')return this.frontier(sessionId);const m=this.coverageMaterial(sessionId);return m.raw.filter(f=>!m.equivalents.has(f.id)); }
+  protected outstandingFrontier(sessionId: string) { if(this.session(sessionId).options.exploration!=='controls')return this.frontier(sessionId);const m=this.frontierMaterial(sessionId);return m.raw.filter(f=>!m.equivalents.has(f.id)); }
   frontierCoverage(sessionId: string) { return groupFrontier(this.getFrontier(sessionId)); }
   protected commitExplorationDecisions(sessionId: string, resolutions: ExplorationGroupResolution[]) {
     const result = this.groups.decideMany(sessionId, resolutions); this.afterExplorationDecisions(sessionId); return result;
