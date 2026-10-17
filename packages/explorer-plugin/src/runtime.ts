@@ -708,21 +708,61 @@ export class ExplorerPlugin {
       return recoveryRouteConditionVersion(o,actions,projected);
     };
   }
-  private deferObligation(task:Task,itemId:string,conditionVersion:string,reason:string,observationId:string) {
+  private deferObligation(task:Task,itemId:string,conditionVersion:string,reason:string,observationId:string,emit:(type:string,data:unknown,id?:string)=>unknown=(type,data,id)=>this.event(task,type,data,id)) {
     const schedule=this.initializeScheduling(task),previous=schedule.deferred?.[itemId];
     if(previous?.conditionVersion===conditionVersion&&previous.reason===reason)return;
     (schedule.deferred??={})[itemId]={conditionVersion,reason};
-    this.event(task,'obligation.route_unavailable',{itemId,conditionVersion,reason,retainedInPlan:true,coverageGranted:false},observationId);
+    emit('obligation.route_unavailable',{itemId,conditionVersion,reason,retainedInPlan:true,coverageGranted:false},observationId);
   }
   /** Resolve durable work against retained checkpoint evidence. The DFS stack is
    * an optional path/cost hint, never the source of the unfinished-work set. */
   private async scheduledRecovery(task:Task,round:Round,o:Observation,actions:ActionCandidate[],availability:ReturnType<ExplorerHost['actionAvailability']>,routeCondition:RouteConditionReader,signal:AbortSignal=new AbortController().signal):Promise<ScheduledRecovery|undefined> {
     const revision=task.revision,observationKey=digest(o),actionsKey=digest(actions),availabilityRevision=availability.revision;
-    const checkCancellation=()=>{if(signal.aborted||task.status!=='running'||task.revision!==revision)throw new ExplorerError('CANCELLED');};
-    const guard=()=>this.assert(task,signal,undefined,revision);
-    let scanned=0,epoch=0,invalidate=()=>{};
+    const liveTask=task;
+    let selectionView=this.host.recoverySelectionView?.(o.sessionId,{observationId:o.id});
+    try {
+    if(selectionView){
+      const current=selectionView.current;
+      if(digest(current.observation)!==observationKey||digest(current.actions)!==actionsKey
+        ||current.availability.observationId!==o.id||current.availability.revision!==availabilityRevision)throw new ExplorerError('STALE_DECISION');
+    }
+    // An invalidated epoch must not publish its negative decisions. Only the
+    // two scheduling ledgers are staged; the plan and browser position are not
+    // copied or rewritten. Legacy hosts preserve their existing mutation order.
+    const initialSchedule=liveTask.scheduling,initialDebt=liveTask.routeRetries;
+    const schedulingKey=selectionView?digest({schedule:initialSchedule,debt:initialDebt}):undefined;
+    if(selectionView)task={...task,scheduling:structuredClone(task.scheduling),routeRetries:structuredClone(task.routeRetries)};
+    const pendingEvents:{type:string;data:unknown;observationId?:string}[]=[];
+    const emitSelection=(type:string,data:unknown,observationId?:string)=>{
+      if(selectionView)pendingEvents.push({type,data,observationId});else this.event(task,type,data,observationId);
+    };
+    const deferSelection=(itemId:string,conditionVersion:string,reason:string,observationId:string)=>this.deferObligation(task,itemId,conditionVersion,reason,observationId,emitSelection);
+    const checkCancellation=()=>{if(signal.aborted||liveTask.status!=='running'||liveTask.revision!==revision)throw new ExplorerError('CANCELLED');};
+    const guard=()=>this.assert(liveTask,signal,undefined,revision);
+    const complete=()=>{
+      guard();selectionView?.assertCurrent();
+      if(selectionView){
+        if(digest({schedule:liveTask.scheduling,debt:liveTask.routeRetries})!==schedulingKey)throw new ExplorerError('STALE_DECISION');
+        // step already holds this object across await scheduledRecovery(). Keep
+        // that reference alive so its later reservation is actually persisted.
+        if(initialSchedule&&task.scheduling){
+          for(const key of Object.keys(initialSchedule))Reflect.deleteProperty(initialSchedule,key);
+          Object.assign(initialSchedule,task.scheduling);task.scheduling=initialSchedule;
+        }
+        liveTask.scheduling=task.scheduling;liveTask.routeRetries=task.routeRetries;task=liveTask;
+        for(const event of pendingEvents)this.event(liveTask,event.type,event.data,event.observationId);
+      }
+    };
+    let scanned=0,epoch=0,invalidate=()=>{},yielded=()=>{};
     const resume=()=>{
       guard();
+      // A selection epoch is tied to all recorded dependencies, not to how many
+      // candidates happened to fit in the last CPU slice. Any change aborts the
+      // whole epoch: continuing an old cursor could miss a newly eligible item.
+      if(selectionView){
+        if(liveTask.scheduling!==initialSchedule||liveTask.routeRetries!==initialDebt)throw new ExplorerError('STALE_DECISION');
+        selectionView.assertCurrent();epoch++;yielded();return;
+      }
       if(this.host.session(o.sessionId).currentObservationId!==o.id)throw new ExplorerError('STALE_DECISION');
       // Hosts can override public reads. An unchanged ID alone does not certify
       // the navigation/context/control facts used before yielding.
@@ -761,12 +801,12 @@ export class ExplorerPlugin {
       if(broadScope(item.scope)){if(item.scope.url&&item.scope.url!==o.url)pending.push(item);}
       else if(item.evidence.length||item.dispatchScope===true)pending.push(item);
     }
-    if(!pending.length)return;
+    if(!pending.length){complete();return;}
     const checkpoints=this.host.list<Checkpoint>(o.sessionId,'checkpoint'),byObservation=new Map<string,Checkpoint[]>();
     for(const retainedCheckpoint of checkpoints){const wait=checkpoint();if(wait){await wait;resume();}const rows=byObservation.get(retainedCheckpoint.observationId)||[];rows.push(retainedCheckpoint);byObservation.set(retainedCheckpoint.observationId,rows);}
-    // Projections live only within each synchronous scan batch. Every real
-    // event-loop yield clears historical action/permission and negative facts;
-    // immutable source observations do not imply stable permission or debt.
+    // A supported view binds pure projections to one recorded-fact epoch.
+    // Legacy hosts retain the original per-slice invalidation. Neither path
+    // treats observation immutability as stable permission or retry debt.
     type Retained={source:Observation;actions:ActionCandidate[];transition?:ReturnType<ExplorerHost['interactionTransition']>;
       index?:ReturnType<typeof observationActionIndex>;inScope?:ReturnType<typeof controlScopeMatcher>;
       conditions?:Map<ActionCandidate,ReturnType<typeof browserTargetConditions>>};
@@ -781,9 +821,11 @@ export class ExplorerPlugin {
     const read=(observationId:string)=>{
       if(retained.has(observationId)){const value=retained.get(observationId);retained.delete(observationId);retained.set(observationId,value);return value;}
       let value:Retained|undefined;
-      try{value=this.host.recoverySourceMaterial
+      selectionView?.assertCurrent();
+      try{value=selectionView?selectionView.source(observationId):this.host.recoverySourceMaterial
         ?this.host.recoverySourceMaterial(o.sessionId,{sourceObservationId:observationId,currentObservationId:o.id})
         :{source:this.host.observation(o.sessionId,observationId),actions:this.host.actions(o.sessionId,observationId)};}catch{}
+      selectionView?.assertCurrent();
       retained.set(observationId,value);while(retained.size>8)retained.delete(retained.keys().next().value!);return value;
     };
     const readRouteSource=(sessionId:string,observationId:string)=>sessionId===o.sessionId?read(observationId)?.source:this.host.observation(sessionId,observationId);
@@ -792,19 +834,76 @@ export class ExplorerPlugin {
       if(anchors.has(observationId))return anchors.get(observationId);
       let source:ReviewAnchorObservation|undefined;
       try{
-        const material=this.host.recoveryAnchorMaterial(o.sessionId,{sourceObservationId:observationId,currentObservationId:o.id});
+        const material=selectionView?.anchor?selectionView.anchor(observationId):this.host.recoveryAnchorMaterial(o.sessionId,{sourceObservationId:observationId,currentObservationId:o.id});
         if(material.source.id===observationId&&material.source.sessionId===o.sessionId)source=material.source;
       }catch{/* Missing anchor facts affect ordering only; every candidate still receives full validation. */}
-      anchors.set(observationId,source);while(anchors.size>8)anchors.delete(anchors.keys().next().value!);
+      selectionView?.assertCurrent();
+      anchors.set(observationId,source);while(anchors.size>(selectionView?128:8))anchors.delete(anchors.keys().next().value!);
       return source;
+    };
+    type SourceProjection={skip:boolean;reason?:string;stop?:boolean};
+    const eligible:SourceProjection={skip:false},unverified:SourceProjection={skip:true};
+    // Only small scope outcomes survive eviction of a full source graph. The
+    // existing literal matching/condition functions remain the sole oracle.
+    const projections=new Map<string,Map<string,SourceProjection>>();
+    let projectionCount=0;
+    const projectSourceItem=(item:PlanItem,facts:Retained):SourceProjection=>{
+      const {source,actions:sourceActions}=facts,returnToSource=!!this.host.returnToObservedSource&&pageSourceObligation(item);
+      if(source.gaps.some(g=>g.critical)||Object.values(source.context).some(value=>value.status!=='known'))return unverified;
+      if(item.scope.url&&item.scope.url!==source.url)return unverified;
+      if(returnToSource&&!sourceReturnCondition(source,o))return {skip:true,reason:'native_source_position_unavailable'};
+      if(!item.scope.kind&&controlReviewGapReasons.has(item.reason)){
+        const active=source.boundaries?.at(-1),members=active&&new Set(source.overlays?.find(overlay=>overlay.key===active.key)?.controlIds||[]);
+        const inScope=facts.inScope??=controlScopeMatcher(source,sourceActions);
+        if(!source.controls.some(control=>control.visible&&(!active||members!.has(control.localId))&&inScope(item.scope,control)))return {skip:true,reason:'source_review_target_not_available'};
+      }
+      const index=facts.index??=observationActionIndex(source,sourceActions),condition=boundOperationCondition(item);
+      const targets=index.matching(item.scope).filter(action=>!condition||condition===index.condition(action));
+      if(item.scope.kind&&(targets.length!==1||!targetConditions(facts,targets[0])))return unverified;
+      if(!broadScope(item.scope)){
+        const transition=facts.transition??=this.host.interactionTransition(o.sessionId,source.id,o.id);
+        const previous=new Set(item.scope.kind?targets.map(action=>action.localId):source.controls.filter(control=>(facts.inScope??=controlScopeMatcher(source,sourceActions))(item.scope,control)).map(control=>control.localId));
+        const currentIds=new Set(transition.retainedControls.filter(control=>previous.has(control.beforeLocalId)).map(control=>control.afterLocalId));
+        if(item.scope.kind){
+          const scoped=new Set((currentIndex??=observationActionIndex(o,actions)).matching(item.scope));
+          const present=actions.filter(action=>scoped.has(action)||action.kind===item.scope.kind&&!!action.localId&&currentIds.has(action.localId));
+          if(targets.length&&targets.every(action=>!action.preconditions.enabled)&&present.length&&present.every(action=>!action.preconditions.enabled))return {skip:true,reason:'source_target_already_disabled'};
+          if(present.some(action=>availability.actions.find(fact=>fact.actionId===action.id)?.blockers.some(blocker=>blocker.code==='ACTION_BLOCKED'&&['submission_not_authorized','interface_risk_required','action_basis_unconfirmed'].includes(blocker.reason))))return {skip:true,reason:'current_target_policy_blocked'};
+        }else{
+          if(!previous.size)return unverified;
+          if(o.controls.some(control=>control.visible&&control.enabled&&(currentIds.has(control.localId)||(currentInScope??=controlScopeMatcher(o,actions))(item.scope,control))))return {skip:true,reason:'current_review_occurrence_present',stop:!o.boundaries?.at(-1)};
+        }
+      }
+      return sameObservedState(source,o)?unverified:eligible;
+    };
+    const projectRelatedItems=(facts:Retained):void|Promise<void>=>{
+      if(!selectionView||projections.has(facts.source.id)||projectionCount>=65536)return;
+      const values=new Map<string,SourceProjection>();projections.set(facts.source.id,values);
+      let position=0;
+      const scan=():void|Promise<void>=>{
+        while(position<pending.length&&projectionCount<65536){
+          const item=pending[position++];
+          const refs=item.evidence.filter(ref=>ref.sessionId===o.sessionId&&!ref.attemptId);
+          if(refs.some(ref=>ref.observationId===facts.source.id)||!refs.length&&(broadScope(item.scope)||!item.evidence.length)){
+            try{values.set(item.id,projectSourceItem(item,facts));projectionCount++;}
+            catch{selectionView?.assertCurrent();/* Speculation cannot fail an unrelated item; retry its actual candidate normally. */}
+          }
+          const wait=checkpoint();if(wait)return wait.then(()=>{resume();return scan();});
+        }
+      };
+      return scan();
     };
     // Strict-checkpoint strategy facts are lazy and bounded to this selection.
     // An absent/unknown assessment preserves the existing recovery contract;
     // neither this negative hint nor a positive strategy grants arrival/dispatch.
     type CheckpointCandidate=ReturnType<NonNullable<ExplorerHost['checkpointRecoveryCandidates']>>[number];
     const checkpointCandidates=new Map<string,CheckpointCandidate|undefined>();
+    // Checkpoint strategy evaluation has additional adapter/hook dependencies;
+    // it is deliberately outside the recorded-fact view.
+    yielded=()=>checkpointCandidates.clear();
     invalidate=()=>{
       retained.clear();anchors.clear();currentIndex=undefined;currentInScope=undefined;checkpointCandidates.clear();
+      projections.clear();projectionCount=0;
       routeCondition=this.routeConditionReader(o,actions);
     };
     const noKnownCheckpointPath=(checkpoint:Checkpoint,source:Observation,lookahead:Checkpoint[])=>{
@@ -847,13 +946,13 @@ export class ExplorerPlugin {
     for(const item of pending){
       const wait=checkpoint();if(wait){await wait;resume();}
       if(reviewFallback&&!reviewFallback.pageIds.has(item.id))continue;
-      if(validReviewRecoveryWait(task,item,o,id=>read(id)?.source)){this.deferObligation(task,item.id,recoveryConditionVersion(o),'unchanged_unresolved_review',o.id);continue;}
+      if(validReviewRecoveryWait(task,item,o,id=>read(id)?.source)){deferSelection(item.id,recoveryConditionVersion(o),'unchanged_unresolved_review',o.id);continue;}
       const returnToSource=!!this.host.returnToObservedSource&&pageSourceObligation(item);
       // A different arrival contract cannot isolate unresolved execution debt.
       // Legacy records without source IDs remain blocked until SDK-backed
       // continuation evidence explicitly releases their original ledger.
       if(returnToSource&&Object.values(task.routeRetries?.routes||{}).some(route=>route.unknown||Object.values(route.conditions).some(record=>record.outcome==='unknown'&&!record.recoveryVerificationId))){
-        this.deferObligation(task,item.id,recoveryConditionVersion(o),'source_return_unknown_route_debt',o.id);continue;
+        deferSelection(item.id,recoveryConditionVersion(o),'source_return_unknown_route_debt',o.id);continue;
       }
       const refs=[...new Set(item.evidence.filter(ref=>ref.sessionId===o.sessionId&&!ref.attemptId).map(ref=>ref.observationId))].reverse();
       let candidates=refs.length?refs.flatMap(ref=>[...(byObservation.get(ref)||[])].reverse()):broadScope(item.scope)||!item.evidence.length?[...checkpoints].reverse():[];
@@ -870,46 +969,26 @@ export class ExplorerPlugin {
       }
       let reason=candidates.length?'source_target_unverified':item.evidence.some(ref=>ref.sessionId!==o.sessionId)?'cross_session_observed_route_required':'retained_checkpoint_unavailable';
       for(let candidateIndex=0;candidateIndex<candidates.length;candidateIndex++){
-        // Keep each SDK assessment batch synchronous, then discard its facts
-        // before the next batch. The first short batch does not force a yield.
+        // Keep each SDK assessment batch synchronous. A supported stable view
+        // retains facts across slices; legacy hosts still reload after yielding.
         if(candidateIndex>0&&candidateIndex%8===0){await yieldScan();resume();}
         else checkCancellation();
         scanned+=16;
         const checkpoint=candidates[candidateIndex];
+        let projected=selectionView&&projections.get(checkpoint.observationId)?.get(item.id);
+        if(projected?.skip){if(projected.reason)reason=projected.reason;if(projected.stop)break;continue;}
         const facts=read(checkpoint.observationId);if(!facts)continue;
-        const {source,actions:sourceActions}=facts;
-        if(source.gaps.some(g=>g.critical)||Object.values(source.context).some(value=>value.status!=='known'))continue;
-        if(item.scope.url&&item.scope.url!==source.url)continue;
-        if(returnToSource&&!sourceReturnCondition(source,o)){reason='native_source_position_unavailable';continue;}
-        if(!item.scope.kind&&controlReviewGapReasons.has(item.reason)){
-          // A checkpoint can restore only its captured scene. Hidden/background
-          // nodes are retained work, not evidence of a place where that work can
-          // be reviewed. Revealing them requires a separately observed entry.
-          const active=source.boundaries?.at(-1),members=active&&new Set(source.overlays?.find(overlay=>overlay.key===active.key)?.controlIds||[]);
-          const inScope=facts.inScope??=controlScopeMatcher(source,sourceActions);
-          if(!source.controls.some(control=>control.visible&&(!active||members!.has(control.localId))&&inScope(item.scope,control))){reason='source_review_target_not_available';continue;}
+        projected||=projectSourceItem(item,facts);
+        if(projected.skip){
+          // After the first rejected target, evaluate other related scopes while
+          // this source is already materialized. Preserve candidate order; only
+          // the small pure rejection table survives the eight-graph cache.
+          const wait=projectRelatedItems(facts);if(wait){await wait;resume();}
+          if(projected.reason)reason=projected.reason;if(projected.stop)break;continue;
         }
+        const {source,actions:sourceActions}=facts;
         const index=facts.index??=observationActionIndex(source,sourceActions),condition=boundOperationCondition(item);
         const targets=index.matching(item.scope).filter(action=>!condition||condition===index.condition(action));
-        if(item.scope.kind&&(targets.length!==1||!targetConditions(facts,targets[0])))continue;
-        if(!broadScope(item.scope)){
-          // Retained occurrence continuity only suppresses a pointless restore.
-          // It does not equate source modes, authorize the current action, or
-          // discharge a historical operation/review obligation after renaming.
-          const transition=facts.transition??=this.host.interactionTransition(o.sessionId,source.id,o.id);
-          const previous=new Set(item.scope.kind?targets.map(action=>action.localId):source.controls.filter(control=>(facts.inScope??=controlScopeMatcher(source,sourceActions))(item.scope,control)).map(control=>control.localId));
-          const currentIds=new Set(transition.retainedControls.filter(control=>previous.has(control.beforeLocalId)).map(control=>control.afterLocalId));
-          if(item.scope.kind){
-            const scoped=new Set((currentIndex??=observationActionIndex(o,actions)).matching(item.scope));
-            const present=actions.filter(action=>scoped.has(action)||action.kind===item.scope.kind&&!!action.localId&&currentIds.has(action.localId));
-            if(targets.length&&targets.every(action=>!action.preconditions.enabled)&&present.length&&present.every(action=>!action.preconditions.enabled)){reason='source_target_already_disabled';continue;}
-            if(present.some(action=>availability.actions.find(fact=>fact.actionId===action.id)?.blockers.some(blocker=>blocker.code==='ACTION_BLOCKED'&&['submission_not_authorized','interface_risk_required','action_basis_unconfirmed'].includes(blocker.reason)))){reason='current_target_policy_blocked';continue;}
-          }else{
-            if(!previous.size)continue;
-            if(o.controls.some(control=>control.visible&&control.enabled&&(currentIds.has(control.localId)||(currentInScope??=controlScopeMatcher(o,actions))(item.scope,control)))){reason='current_review_occurrence_present';if(!o.boundaries?.at(-1))break;continue;}
-          }
-        }
-        if(sameObservedState(source,o))continue;
         const hint=round.stack.find(frame=>frame.observationId===source.id&&frame.checkpointId===checkpoint.id);
         const memberKey=recoveryRouteKey(source,sourceActions,[item.scope]),sourceCondition=item.scope.kind&&targets.length===1?targetConditions(facts,targets[0])?.key:undefined;
         const related=Object.entries(schedule.routes).filter(([,route])=>(route.arrivalMode==='observed-source')===returnToSource&&(!route.sourceCondition||route.sourceCondition===sourceCondition)&&(route.memberKeys?.includes(memberKey)||route.targets.some(scope=>digest(scope)===digest(item.scope))));
@@ -945,7 +1024,7 @@ export class ExplorerPlugin {
             const resultCondition=recoveryFailureCondition(ended.source,conditionVersion,record.reason);
             if(!resultCondition||this.routeConditionReader(ended.source,ended.actions)(route,readRouteSource)!==conditionVersion)continue;
             task.routeRetries=retainRouteFailureCondition(task.routeRetries,key,priorCondition,resultCondition);
-            this.event(task,'recovery.failure_condition_retained',{routeKey:key,attemptKey:record.attemptKey,conditionVersion,resultCondition,currentExecution:false,coverageGranted:false});
+            emitSelection('recovery.failure_condition_retained',{routeKey:key,attemptKey:record.attemptKey,conditionVersion,resultCondition,currentExecution:false,coverageGranted:false});
           }
         }
         const retry=routeRetryEligibility(task.routeRetries,key,conditionVersion);
@@ -968,10 +1047,10 @@ export class ExplorerPlugin {
           const pageIds=new Set(pending.filter(page=>pageSourceObligation(page)&&page.scope.url===source.url).map(page=>page.id));
           if(pageIds.size){reviewFallback={recovery,route,pageIds,epoch};break;}
         }
-        guard();bindScheduledRoute(schedule,key,route);return recovery;
+        guard();bindScheduledRoute(schedule,key,route);complete();return recovery;
       }
       if(reviewFallback?.recovery.itemId===item.id)continue;
-      this.deferObligation(task,item.id,recoveryConditionVersion(o),reason,o.id);
+      deferSelection(item.id,recoveryConditionVersion(o),reason,o.id);
     }
     guard();
     if(reviewFallback){
@@ -981,7 +1060,12 @@ export class ExplorerPlugin {
         // fallback. Preserve its priority, but never reuse revoked source facts.
         recovery.revalidate();
       }
-      guard();bindScheduledRoute(schedule,recovery.routeKey,route);return recovery;
+      guard();bindScheduledRoute(schedule,recovery.routeKey,route);complete();return recovery;
+    }
+    complete();
+    }finally{
+      // The returned candidate's revalidate closure always uses fresh SDK reads.
+      selectionView?.close();selectionView=undefined;
     }
   }
   private async step(task:Task,round:Round,signal:AbortSignal):Promise<boolean> {

@@ -9,6 +9,9 @@ import { continueScrollTraversal } from './scroll-traversal.js';
 import { DiscoveryScans } from './discovery-scans.js';
 import { RegionReviews } from './region-reviews.js';
 import { ControlReviews } from './control-reviews.js';
+import { RegionReuse } from './region-reuse.js';
+import { createRecoverySelectionView, recoverySelectionObjectGuard, recoverySelectionPrototypeGuard } from './recovery-selection-view.js';
+export type { RecoverySelectionView } from './recovery-selection-view.js';
 import { documentCoverageReader } from './document-coverage.js';
 import { ControlClassifications, type ClassificationEvidenceRef, type ClassificationCorrespondenceRequest } from './control-classifications.js';
 export type { ClassificationEvidenceRef, RetainedClassificationEvidence, ClassificationCorrespondenceRequest, ClassificationCorrespondence } from './control-classifications.js';
@@ -159,6 +162,24 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     };
     const {id,sessionId,url,navigation,context,gaps}=read();
     return {source:clone({id,sessionId,url,navigation,context,gaps})};
+  }
+  /** Recorded selection facts only. Unsupported/custom compositions keep the
+   * separate fresh-reader contract. Any view must be discarded on invalidation;
+   * queued recovery and dispatch continue to validate all their own conditions. */
+  recoverySelectionView(sid:string,input:{observationId:string}) {
+    if(!input||typeof input.observationId!=='string'||!input.observationId)throw new EngineError('INVALID_QUERY','Recovery selection requires a current observation ID');
+    const store=this.store,revision=store.recordRevision,currentObservationId=input.observationId;
+    return createRecoverySelectionView({
+      supported:()=>this.store===store&&store.recordRevision===revision&&!!revision&&recoverySelectionCompositions.get(this)?.()===true,
+      recordRevision:()=>revision?.call(store),
+      current:()=>{
+        const observation=this.observation(sid);
+        if(observation.id!==currentObservationId)throw new EngineError('STALE_DECISION','Recovery selection requires the current observation');
+        return {observation,actions:this.actions(sid,observation.id),availability:this.actionAvailability(sid,observation.id)};
+      },
+      source:(sourceObservationId:string)=>this.recoverySourceMaterial(sid,{sourceObservationId,currentObservationId}),
+      anchor:(sourceObservationId:string)=>this.recoveryAnchorMaterial(sid,{sourceObservationId,currentObservationId}),
+    });
   }
   private transitionForObservations(before:Observation,after:Observation,beforeId:string,afterId:string) {
     const verified=!after.gaps.some(g=>g.critical),documentChanged=before.instanceScope!==after.instanceScope;
@@ -849,6 +870,17 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     this.regionHook = options.hooks?.regionReview;
     this.inspections = new InspectionCoordinator(this, (sid, type, data) => this.publish(sid, type, data));
     this.purposeReviews = new PurposeReviews(this.store, (sid, type, data) => this.publish(sid, type, data));
+    // These are constructor-owned built-ins, never caller-supplied functions.
+    // Keep the certificate outside the mutable engine instance. The prototype
+    // snapshots were captured when this module initialized, before any caller
+    // could replace a method or construct an engine with customized services.
+    const store=this.store,adapter=this.adapter,services=[this.boundaryExits,this.classifications,this.controls,this.purposeReviews,this.regions,this.depthReuse];
+    const objects=recoverySelectionObjectGuard([adapter,...services]);
+    recoverySelectionCompositions.set(this,()=>Object.getPrototypeOf(this)===BrowserEngine.prototype
+      &&recoverySelectionEnginePrototype.unchanged()&&recoverySelectionEnginePrototype.unshadowed(this)
+      &&recoverySelectionServicePrototype.unchanged()&&objects()
+      &&this.store===store&&this.adapter===adapter
+      &&services.every((service,index)=>service===[this.boundaryExits,this.classifications,this.controls,this.purposeReviews,this.regions,this.depthReuse][index]));
     this.externalRecoveryVerifier = options.hooks?.verifyExternalRecovery;
     this.interventions = new Interventions(this); this.interventions.recover();
     this.events.on('event', event => {
@@ -908,3 +940,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   }
 }
 export { BrowserEngine as InteractionEngine };
+const recoverySelectionCompositions=new WeakMap<BrowserEngine,()=>boolean>();
+const recoverySelectionEnginePrototype=recoverySelectionPrototypeGuard([BrowserEngine.prototype,CoreEngine.prototype]);
+const recoverySelectionServicePrototype=recoverySelectionPrototypeGuard([PlaywrightAdapter.prototype,BoundaryExits.prototype,ControlClassifications.prototype,
+  ControlReviews.prototype,PurposeReviews.prototype,RegionReviews.prototype,ExplorationDecisionReuse.prototype,RegionReuse.prototype]);

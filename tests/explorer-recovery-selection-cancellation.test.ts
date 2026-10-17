@@ -4,6 +4,7 @@ import type { ActionCandidate, Checkpoint, Observation } from '@interaction/brow
 import { ExplorerPlugin, type ExplorerHost, type ExplorerStore, type PlanItem, type Scope } from '@interaction/explorer-plugin';
 import { recordRouteRetry } from '../packages/explorer-plugin/src/obligation-lifecycle.js';
 import { keyFor, scopeFor } from '../packages/explorer-plugin/src/policy.js';
+import { createRecoverySelectionView } from '../packages/browser/src/recovery-selection-view.js';
 
 // Only the step integration case enters review. Its independent review and
 // ledger projections are outside this scan/dispatch cancellation contract.
@@ -94,6 +95,102 @@ function fixture(count = 64) {
     changeCurrent: () => { active = observation('changed-current', false); }, changeReadiness: () => { readinessRevision = 'ready-v2'; },
     changeSameIdFacts: () => { current.context = { mode: { status: 'known', value: 'changed', source: 'fixture' } }; }, close: () => plugin.close() };
 }
+
+function enableSelectionView(f:ReturnType<typeof fixture>) {
+  let version=0;
+  const availability=vi.fn(f.host.actionAvailability.bind(f.host));f.host.actionAvailability=availability;
+  f.host.recoverySelectionView=()=>createRecoverySelectionView({
+    supported:()=>true,recordRevision:()=>String(version),
+    current:()=>({observation:f.host.observation('session'),actions:f.host.actions('session'),availability:availability('session',f.current.id)}),
+    source:id=>f.material('session',{sourceObservationId:id,currentObservationId:f.current.id}),
+  });
+  return {availability,change:()=>{version++;}};
+}
+
+function missingOperations(f:ReturnType<typeof fixture>,count:number) {
+  f.task.plan.splice(1,1,...Array.from({length:count},(_,index)=>({
+    ...structuredClone(f.review),id:`missing-${index}`,scope:{url,kind:'click',label:`Missing ${index}`},
+  })));
+}
+
+it('a stable selection evaluates shared missing sources once while preserving all legacy outcomes',async()=>{
+  const legacy=fixture(12),modern=fixture(12),larger=fixture(12);
+  missingOperations(legacy,32);missingOperations(modern,32);missingOperations(larger,96);
+  const view=enableSelectionView(modern),largeView=enableSelectionView(larger);
+  try{
+    expect(await legacy.select()).toBeUndefined();expect(await modern.select()).toBeUndefined();expect(await larger.select()).toBeUndefined();
+    expect(modern.task.scheduling).toEqual(legacy.task.scheduling);
+    expect(modern.retained()).toEqual(legacy.retained());
+    // The two independently created tasks differ only in their generated UUID.
+    const deferred=(f:ReturnType<typeof fixture>)=>f.events.filter(event=>event.type==='obligation.route_unavailable').map(event=>({...event,taskId:'comparison-task'}));
+    expect(deferred(modern)).toEqual(deferred(legacy));
+    expect(legacy.material).toHaveBeenCalledTimes(384);
+    expect(modern.material).toHaveBeenCalledTimes(12);expect(larger.material).toHaveBeenCalledTimes(12);
+    // One input availability plus one view capture; neither grows with yields.
+    expect(view.availability).toHaveBeenCalledTimes(2);expect(largeView.availability).toHaveBeenCalledTimes(2);
+    modern.noDispatch();larger.noDispatch();
+  }finally{await legacy.close();await modern.close();await larger.close();}
+});
+
+it.each(['records','cancel','debt'] as const)('an invalidated selection publishes no staged negative work: %s',async(change)=>{
+  const f=fixture(12);missingOperations(f,96);const view=enableSelectionView(f),controller=new AbortController();
+  const original=structuredClone(f.task.scheduling),debt=structuredClone(f.task.routeRetries);
+  let scheduled:ReturnType<typeof setImmediate>|undefined;
+  f.onRead(()=>{scheduled??=setImmediate(()=>{
+    if(change==='records')view.change();
+    if(change==='cancel')controller.abort();
+    if(change==='debt')f.task.routeRetries=recordRouteRetry(f.task.routeRetries,{routeKey:'new-unknown',conditionVersion:'new',outcome:'unknown',reason:'External unknown'});
+  });});
+  try{
+    await expect(f.select(controller.signal)).rejects.toMatchObject({code:change==='cancel'?'CANCELLED':'STALE_DECISION'});
+    expect(f.task.scheduling).toEqual(original);
+    if(change!=='debt')expect(f.task.routeRetries).toEqual(debt);
+    else expect(f.task.routeRetries!.routes['new-unknown']).toBeDefined();
+    expect(f.events.filter(event=>event.type==='obligation.route_unavailable')).toEqual([]);f.noDispatch();
+  }finally{if(scheduled)clearImmediate(scheduled);await f.close();}
+});
+
+it('a changed epoch restarts from the first source instead of continuing past a newly reachable candidate',async()=>{
+  const f=fixture(16),view=enableSelectionView(f);let scheduled:ReturnType<typeof setImmediate>|undefined;
+  f.onRead(()=>{scheduled??=setImmediate(()=>{f.statuses.set(f.checkpoints[0].id,'tryable');view.change();});});
+  try{
+    await expect(f.select()).rejects.toMatchObject({code:'STALE_DECISION'});
+    f.onRead(()=>{});
+    const selected=await f.select();expect(selected).toMatchObject({itemId:'review',source:{id:f.sources[0].id}});
+    // The selection's lifetime has ended, but its final validator uses fresh
+    // host reads rather than trying to reuse the disposed view.
+    expect(()=>selected.revalidate()).not.toThrow();f.noDispatch();
+  }finally{if(scheduled)clearImmediate(scheduled);await f.close();}
+});
+
+it('a successful view keeps the schedule object used by step through reservation and persistence',async()=>{
+  const f=fixture(1);enableSelectionView(f);f.statuses.set(f.checkpoints[0].id,'tryable');
+  f.task.scheduling!.deferred={review:{conditionVersion:'old',reason:'old failure'}};
+  const schedule=f.task.scheduling;let saved:typeof schedule;
+  f.host.boundaryState=()=>({observationId:f.current.id,verified:false,active:undefined});
+  f.host.explorationSnapshot=(():StepSnapshot=>({actions:[],operationCandidates:[],availability:f.host.actionAvailability('session',f.current.id)})) as unknown as ExplorerHost['explorationSnapshot'];
+  f.runtime.retainHostLimitations=f.runtime.reconcileReviewLedger=f.runtime.applyReviewRecoveryChanges=async()=>{};
+  f.runtime.auditRemainingScopes=f.runtime.updateObligations=()=>{};
+  f.runtime.persist=()=>{saved=structuredClone(f.task.scheduling);throw Error('Reservation inspected');};
+  try{
+    await expect(f.runtime.step(f.task,f.task.rounds[0],new AbortController().signal)).rejects.toThrow('Reservation inspected');
+    expect(f.task.scheduling).toBe(schedule);
+    expect(saved).toMatchObject({cursor:'review',localSelections:0,selection:{itemId:'review',kind:'recovery'}});
+    expect(saved!.deferred?.review).toBeUndefined();f.noDispatch();
+  }finally{await f.close();}
+});
+
+it('projection capacity does not remove an uncached candidate after many rejected pairs',async()=>{
+  const f=fixture(66);missingOperations(f,1000);enableSelectionView(f);
+  f.task.plan.push(item('late-target',f.review.scope,[f.sources.at(-1)!]));
+  f.statuses.set(f.checkpoints.at(-1)!.id,'tryable');
+  try{
+    const selected=await f.select();
+    expect(selected).toMatchObject({itemId:'late-target',source:{id:f.sources.at(-1)!.id}});
+    expect(f.events.filter(event=>event.type==='obligation.route_unavailable')).toHaveLength(1000);
+    f.noDispatch();
+  }finally{await f.close();}
+});
 
 it('allows a timer to cancel a large pending scan without losing old plan or failure/unknown debt', async () => {
   const f = fixture(1), controller = new AbortController(); let fired = false;

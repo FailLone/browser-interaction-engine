@@ -45,6 +45,18 @@ export interface Persistence {
    * This is neither a freshness/snapshot guarantee nor execution authority.
    * Decorators or overrides must withdraw it if their reads return aliases. */
   readonly recordReadIsolation?: 'detached';
+  /** Optional constant-cost freshness marker for every synchronous record read:
+   * get/require/list/listByObservation/events/request, including missing records,
+   * all kinds/sessions and ordering. Compare only tokens from this same instance;
+   * never persist them. Equal defined tokens before/after materialization allow
+   * reusing its record facts. A changed/undefined token requires fresh reads.
+   * Implementations may invalidate conservatively, but must detect every change
+   * to these reads and withdraw support when overridden reads are not covered.
+   * No token is issued inside a transaction. This is not a snapshot, execution
+   * authority or a version of binary evidence, time, browser state or SDK policy.
+   * Consumers must separately protect their cached values from caller mutation.
+   */
+  recordRevision?(): string | undefined;
   transaction<T>(fn: () => T): T;
   put<T extends { id: string; sessionId?: string }>(kind: string, value: T): void;
   get<T>(kind: string, id: string): T | undefined;

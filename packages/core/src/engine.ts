@@ -26,7 +26,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   };
   readonly store: Persistence;
   readonly events = new EventBus();
-  private readonly adapter: InteractionAdapter<O, S>;
+  protected readonly adapter: InteractionAdapter<O, S>;
   private readonly hooks: EngineHooks<O, S>;
   protected driver?: InteractionDriver<O, S>;
   protected activeId?: string;

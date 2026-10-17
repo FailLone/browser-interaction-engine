@@ -1,4 +1,4 @@
-import { BoundedEntityChanges, EngineError, canonical, clone, now, type Persistence, type Evidence, type EvidenceStore, type EngineEvent } from '@interaction/core';
+import { BoundedEntityChanges, EngineError, canonical, clone, id, now, type Persistence, type Evidence, type EvidenceStore, type EngineEvent } from '@interaction/core';
 
 export class MemoryEvidenceStore implements EvidenceStore {
   readonly durability = 'process' as const;
@@ -18,10 +18,29 @@ export class MemoryStore implements Persistence {
   private requests = new Map<string, { attemptId: string; payload: string }>();
   private sequence = 0;
   private readonly changes = new BoundedEntityChanges();
+  private readonly recordInstance = id();
+  private recordEpoch = 0n;
+  private transactionDepth = 0;
+  private closed = false;
+  private static readonly revisionReads = {
+    get: MemoryStore.prototype.get, require: MemoryStore.prototype.require,
+    list: MemoryStore.prototype.list, listByObservation: MemoryStore.prototype.listByObservation,
+    events: MemoryStore.prototype.events, request: MemoryStore.prototype.request,
+  };
+  recordRevision(): string | undefined {
+    if (this.closed) return;
+    if (this.transactionDepth) { this.recordEpoch++; return; }
+    const reads = MemoryStore.revisionReads;
+    if (this.get !== reads.get || this.require !== reads.require || this.list !== reads.list
+      || this.listByObservation !== reads.listByObservation || this.events !== reads.events || this.request !== reads.request) return;
+    return `${this.recordInstance}:${this.recordEpoch}`;
+  }
   transaction<T>(fn: () => T): T {
     const saved = clone({ entities: this.entities, log: this.log, requests: this.requests, sequence: this.sequence });
+    this.transactionDepth++;
     try { return fn(); }
-    catch (error) { this.entities = saved.entities; this.log = saved.log; this.requests = saved.requests; this.sequence = saved.sequence; this.changes.invalidate(); throw error; }
+    catch (error) { this.entities = saved.entities; this.log = saved.log; this.requests = saved.requests; this.sequence = saved.sequence; this.changes.invalidate(); this.recordEpoch++; throw error; }
+    finally { this.transactionDepth--; }
   }
   put<T extends { id: string; sessionId?: string }>(kind: string, value: T) {
     const prior = this.entities.get(value.id);
@@ -33,6 +52,7 @@ export class MemoryStore implements Persistence {
     }
     // Match the JSON persistence contract, including omission of undefined fields.
     this.entities.set(value.id, { kind, sessionId, value: JSON.parse(JSON.stringify(value)) });
+    this.recordEpoch++;
     this.changes.record(kind, sessionId, value.id);
   }
   entityChanges(kind: string, sessionId: string, sinceToken?: string) { return this.changes.changes(kind, sessionId, sinceToken); }
@@ -44,7 +64,7 @@ export class MemoryStore implements Persistence {
   }
   event(sessionId: string, type: string, data: unknown): EngineEvent {
     const event = { sequence: ++this.sequence, sessionId, type, at: now(), data: JSON.parse(JSON.stringify(data)) };
-    this.log.push(event); return clone(event);
+    this.log.push(event); this.recordEpoch++; return clone(event);
   }
   events(sessionId: string, after = 0, limit = 1000) { return clone(this.log.filter(e => e.sessionId === sessionId && e.sequence > after).slice(0, limit)); }
   private requestKey(sessionId: string, requestId: string) { return JSON.stringify([sessionId, requestId]); }
@@ -53,6 +73,7 @@ export class MemoryStore implements Persistence {
     const key = this.requestKey(sessionId, requestId);
     if (this.requests.has(key)) throw new EngineError('REQUEST_CONFLICT', 'Request ID already exists');
     this.requests.set(key, { attemptId, payload });
+    this.recordEpoch++;
   }
-  close() { /* Existing records remain available to their owner while this object exists. */ }
+  close() { this.closed = true; /* Existing records remain readable, without a freshness promise. */ }
 }

@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import { mkdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { BoundedEntityChanges, canonical, now, type Persistence, type EvidenceStore } from '@interaction/core';
+import { BoundedEntityChanges, canonical, id, now, type Persistence, type EvidenceStore } from '@interaction/core';
 import { FileEvidenceStore } from './evidence.js';
 import { decodeStoredEntity, encodeObservationJson, encodeStateJson, type StoredEntityRow } from './entity-codec.js';
 export { decodeStoredEntity, type StoredEntityRow, type ObservationManifest, type SharedObservationManifest, type StateManifest, type ObservationObjectResolver } from './entity-codec.js';
@@ -33,6 +33,15 @@ export class SqliteStore implements Persistence {
   private readonly observations: ObservationObjectStore;
   private readonly changes = new BoundedEntityChanges();
   private readonly changeStamp: Database.Statement;
+  private readonly recordStamp: Database.Statement;
+  private readonly tempSchemaStamp: Database.Statement;
+  private readonly recordInstance = id();
+  private recordEpoch = 0n;
+  private static readonly revisionReads = {
+    get: SqliteStore.prototype.get, require: SqliteStore.prototype.require,
+    list: SqliteStore.prototype.list, listByObservation: SqliteStore.prototype.listByObservation,
+    events: SqliteStore.prototype.events, request: SqliteStore.prototype.request,
+  };
   private expectedChanges = 0;
   private dataVersion = 0;
   private schemaVersion = 0;
@@ -66,13 +75,32 @@ export class SqliteStore implements Persistence {
     })(); }catch(error){this.db.close();throw error;}
     this.observations = new ObservationObjectStore(this.db, count => { this.expectedChanges += count; });
     this.changeStamp = this.db.prepare('SELECT total_changes() AS total, (SELECT data_version FROM pragma_data_version) AS dataVersion, (SELECT schema_version FROM pragma_schema_version) AS schemaVersion');
+    // Actual counts include every kind, raw SQL and maintenance; the navigation
+    // feed's expectedChanges deliberately absorbs normal writes and cannot be
+    // used here. Keep 64-bit integers exact. TEMP DDL can shadow unqualified
+    // record tables, so its schema version participates as well.
+    this.recordStamp = this.db.prepare('SELECT total_changes() AS total, (SELECT data_version FROM pragma_data_version) AS dataVersion, (SELECT schema_version FROM pragma_schema_version) AS schemaVersion').safeIntegers();
+    this.tempSchemaStamp = this.db.prepare('PRAGMA temp.schema_version').safeIntegers();
     const stamp = this.databaseChangeStamp();
     this.expectedChanges = stamp.total; this.dataVersion = stamp.dataVersion; this.schemaVersion = stamp.schemaVersion;
   }
   private databaseChangeStamp() { return this.changeStamp.get() as { total: number; dataVersion: number; schemaVersion: number }; }
+  /** Normal SQLite DML/DDL only. Replacing SQL functions/extensions, manually
+   * spoofing schema_version, or modifying open database files bypasses this
+   * storage contract; callers doing so must withdraw recordRevision support. */
+  recordRevision(): string | undefined {
+    if (!this.db.open) return;
+    if (this.db.inTransaction) { this.recordEpoch++; return; }
+    const reads = SqliteStore.revisionReads;
+    if (this.get !== reads.get || this.require !== reads.require || this.list !== reads.list
+      || this.listByObservation !== reads.listByObservation || this.events !== reads.events || this.request !== reads.request) return;
+    const stamp = this.recordStamp.get() as { total: bigint; dataVersion: bigint; schemaVersion: bigint };
+    const temp = this.tempSchemaStamp.get() as { schema_version: bigint };
+    return `${this.recordInstance}:${this.recordEpoch}:${stamp.total}:${stamp.dataVersion}:${stamp.schemaVersion}:${temp.schema_version}`;
+  }
   transaction<T>(fn: () => T): T {
     try { return this.db.transaction(fn)(); }
-    catch (error) { this.changes.invalidate(); this.observations.invalidate(); throw error; }
+    catch (error) { this.changes.invalidate(); this.observations.invalidate(); this.recordEpoch++; throw error; }
   }
   entityChanges(kind: string, sessionId: string, sinceToken?: string) {
     const stamp = this.databaseChangeStamp();
