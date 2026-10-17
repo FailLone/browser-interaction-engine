@@ -6,7 +6,7 @@ import { createOwnerDependencyCodec } from '../packages/adapter-playwright/src/o
 
 const browsers: Browser[] = [];
 afterEach(async () => { for (const browser of browsers.splice(0)) await browser.close(); });
-async function capture(html: string, reference = true, setup?: string) {
+async function capture(html: string, reference = true, setup?: string, useDefaultProfile = false) {
   const browser = await chromium.launch({ headless: true }); browsers.push(browser);
   const page = await browser.newPage(); await page.setContent(`<!doctype html>${html}`);
   if (setup) await page.evaluate(setup);
@@ -20,7 +20,7 @@ async function capture(html: string, reference = true, setup?: string) {
       checked: el instanceof HTMLInputElement && el.type === 'checkbox' ? el.checked : null,
       pressed: null, expanded: el.hasAttribute('aria-expanded') ? el.getAttribute('aria-expanded') === 'true' : null,
       editable: el instanceof HTMLInputElement && el.type !== 'hidden' || el.isContentEditable }));
-    const progress = { mutations: 0, maxWire: 0, maxExpanded: 0, failures: [] };
+    const progress = { mutations: 0, maxWire: 0, maxExpanded: 0, failures: [], payloadCaps: [] };
     const tracked = () => { const codec = factory(); return { ...codec, createBuilder(initial) {
       const builder = codec.createBuilder(initial); if (!builder) return;
       const observe = () => { const s = builder.stats(); progress.maxWire = Math.max(progress.maxWire, s.wireBytes + s.reservedBytes);
@@ -28,16 +28,19 @@ async function capture(html: string, reference = true, setup?: string) {
         if (s.failure && !progress.failures.includes(s.failure)) progress.failures.push(s.failure); };
       observe(); return new Proxy(builder, { get(target, key) { const value = target[key];
         if (typeof value !== 'function' || key === 'stats') return value;
-        return (...args) => { const result = value(...args); progress.mutations++; observe(); return result; };
+        return (...args) => { const result = value(...args); if (key === 'capPayloadBytes') progress.payloadCaps.push({ maximum: args[0], accepted: result });
+          progress.mutations++; observe(); return result; };
       }});
     }}; };
     const limits = { nodes: 512, references: 64, bytes: 131072, depth: 16 };
     const raw = ${reference} ? collect(controls, elements, instance, documentId, { ...limits, bytes: 1048576 }) : undefined;
-    const snapshot = collect(controls, elements, instance, documentId, limits, tracked);
+    const snapshot = collect(controls, elements, instance, documentId, ${useDefaultProfile} ? undefined : limits, tracked);
     const decoded = factory().decode(snapshot);
-    return { raw, snapshot, decoded, progress, controls: controls.map((c, i) => ({ localId: c.localId, id: elements[i].id })) };
+    const defaultRaw = ${useDefaultProfile} ? collect(controls, elements, instance, documentId) : undefined;
+    return { raw, defaultRaw, snapshot, decoded, progress, controls: controls.map((c, i) => ({ localId: c.localId, id: elements[i].id })) };
   })()`) as { raw?: OwnerDependencies; snapshot: OwnerDependencySnapshot; decoded?: OwnerDependencies;
-    progress: { mutations: number; maxWire: number; maxExpanded: number; failures: string[] }; controls: { localId: string; id: string }[] };
+    defaultRaw?: OwnerDependencies;
+    progress: { mutations: number; maxWire: number; maxExpanded: number; failures: string[]; payloadCaps: { maximum: number; accepted: boolean }[] }; controls: { localId: string; id: string }[] };
 }
 function bounds(result: Awaited<ReturnType<typeof capture>>) {
   expect(result.snapshot.version).toBe('browser-owner-dependencies-v3'); expect(result.decoded).toBeDefined();
@@ -111,6 +114,27 @@ it('retains complete node-bounded ancestry while preserving subtree depth and to
     `(() => { let node = document.querySelector('#chain'); for (let i = 0; i < 513; i++) { const child = document.createElement('div'); node.append(child); node = child; } node.append(document.querySelector('#over')); })()`);
   bounds(over); expect(over.decoded!.inventoryComplete).toBe(true);
   expect(root(over, 'over')).toMatchObject({ complete: false, reasons: expect.arrayContaining(['node_budget']) });
+});
+
+it('uses the larger default compact budget for required evidence while capping optional payload', async () => {
+  const necessary = Array.from({ length: 516 }, (_, i) => `<span data-record="${i}">Fact ${i}</span>`).join('');
+  const optional = Array.from({ length: 140 }, (_, i) => `<div data-padding="${'x'.repeat(2048)}">${i}</div>`).join('');
+  const html = `<main><section><button data-control id="required" aria-expanded="false">Required</button>${necessary}</section><section><input type="hidden" value="A"></section><section><button data-control id="optional">Optional</button>${optional}</section></main>`;
+  const current = await capture(html, false, undefined, true), legacy = await capture(html, false);
+  expect(current.decoded!.limits).toEqual({ nodes: 768, references: 64, bytes: 196608, depth: 16 });
+  expect(current.defaultRaw!.limits).toEqual({ nodes: 512, references: 64, bytes: 131072, depth: 16 });
+  expect(legacy.decoded!.limits).toEqual(current.defaultRaw!.limits);
+  expect(current.decoded!.inventoryComplete).toBe(true);
+  const required = root(current, 'required'); expect(required.complete).toBe(true);
+  expect(current.decoded!.closures.find(closure => closure.id === required.closureId)!.nodeIds.length).toBeGreaterThanOrEqual(515);
+  expect(current.decoded!.nativeRoots!.every(item => item.complete)).toBe(true);
+  expect(root(legacy, 'required')).toMatchObject({ complete: false, reasons: expect.arrayContaining(['node_budget']) });
+  expect(current.progress.payloadCaps).toEqual([{ maximum: 131072, accepted: true }]);
+  expect(root(current, 'optional')).toMatchObject({ complete: false, reasons: expect.arrayContaining(['byte_budget']) });
+  expect(current.progress.maxWire).toBeLessThanOrEqual(131072);
+  expect(Buffer.byteLength(JSON.stringify(current.snapshot))).toBeLessThanOrEqual(131072);
+  expect(current.progress.maxExpanded).toBeLessThanOrEqual(1048576);
+  expect(current.decoded!.nodes.length).toBeLessThanOrEqual(768);
 });
 
 it.each([

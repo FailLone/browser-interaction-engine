@@ -9,7 +9,9 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
 /** Runs within one collectDOM evaluation. Bounded observable evidence only;
  * neither a business dependency discovery algorithm nor an identity grant. */
 export function collectOwnerDependencies(controls: Control[], elements: Element[], instance: (el: Element) => string, documentId: string,
-  limits: OwnerDependencyLimits = { nodes: 512, references: 64, bytes: 131072, depth: 16 }, codecFactory?: typeof createOwnerDependencyCodec): OwnerDependencySnapshot {
+  requestedLimits?: OwnerDependencyLimits, codecFactory?: typeof createOwnerDependencyCodec): OwnerDependencySnapshot {
+  const limits = requestedLimits ?? (codecFactory ? { nodes: 768, references: 64, bytes: 196608, depth: 16 }
+    : { nodes: 512, references: 64, bytes: 131072, depth: 16 });
   const result: OwnerDependencies = { version: 'browser-owner-dependencies-v2', documentId, baseURI: document.baseURI,
     selectorIds: controls.filter(c => c.checked != null || c.pressed != null || c.expanded != null || c.tag === 'select'
       || ['checkbox', 'radio', 'switch', 'tab', 'option', 'treeitem'].includes(c.role)).map(c => c.localId),
@@ -227,7 +229,7 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
   };
   const selectorIds = new Set(result.selectorIds);
   const required = (control: Control) => selectorIds.has(control.localId) || ['input', 'select', 'textarea'].includes(control.tag) || control.editable;
-  const order = entries.sort((a, b) => Number(required(b.control)) - Number(required(a.control)));
+  const requiredEntries = entries.filter(entry => required(entry.control)), optionalEntries = entries.filter(entry => !required(entry.control));
   const finishRoot = (root: OwnerDependencies['roots'][number] | NonNullable<OwnerDependencies['nativeRoots']>[number], closure: OwnerDependencyClosure, index: number, native: boolean) => {
     const captured = closure.nodeIds.includes(root.instanceId);
     const next = { ...root, complete: closure.complete && captured,
@@ -240,7 +242,17 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
   // Required nonlocal fields are collected before unrelated control owners can
   // consume the shared budget. Every closure still uses the same hard limits.
   for (const { owner, root, index } of nativeEntries) finishRoot(root, buildClosure(owner), index, true);
-  for (const { owner, root, index } of order) finishRoot(root, buildClosure(owner), index, false);
+  for (const { owner, root, index } of requiredEntries) finishRoot(root, buildClosure(owner), index, false);
+  // The larger compact profile is reserved for required evidence. Optional
+  // owners may use the ordinary 128 KiB allowance or the already-paid required
+  // payload, never the extra headroom merely because it is available.
+  let captureOptional = true;
+  if (builder && optionalEntries.length) {
+    const stats = builder.stats();
+    captureOptional = builder.capPayloadBytes(Math.min(limits.bytes, Math.max(131072, stats.wireBytes + stats.reservedBytes)));
+    if (!captureOptional) reasons.add(builder.stats().failure || 'byte_budget');
+  }
+  if (captureOptional) for (const { owner, root, index } of optionalEntries) finishRoot(root, buildClosure(owner), index, false);
   result.complete = [...result.roots, ...result.nativeRoots!].every(root => root.complete); result.reasons = [...reasons].sort();
   // Defensive invariant check, not the ordinary payload-exhaustion path. Shared
   // complete subtrees are cached; later ancestor-only expansion cannot alter
