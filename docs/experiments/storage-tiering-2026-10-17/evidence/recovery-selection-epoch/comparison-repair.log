@@ -1,0 +1,29 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-recovery-selection-cancellation.test.ts > a stable selection evaluates shared missing sources once while preserving all legacy outcomes 32ms
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > an invalidated selection publishes no staged negative work: records
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > an invalidated selection publishes no staged negative work: cancel
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > an invalidated selection publishes no staged negative work: debt
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > a changed epoch restarts from the first source instead of continuing past a newly reachable candidate
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > a successful view keeps the schedule object used by step through reservation and persistence
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > projection capacity does not remove an uncached candidate after many rejected pairs
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > allows a timer to cancel a large pending scan without losing old plan or failure/unknown debt
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > the real step awaits selection cancellation and does not fall through to an admissible local action or recovery
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > the real step rejects a source revoked in the short selector return microtask before recording or dispatching recovery
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > allows setImmediate cancellation during the anchor scan and reads no next candidate after cancellation
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > allows setImmediate cancellation during the source scan and reads no next candidate after cancellation
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > rejects changed revision facts after a real yield instead of calling the source unreachable
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > rejects changed current observation facts after a real yield instead of calling the source unreachable
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > rejects changed same-ID context facts after a real yield instead of calling the source unreachable
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > rejects changed readiness facts after a real yield instead of calling the source unreachable
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > retains ordered selection across more than eight candidates and reaches the last legal candidate without dispatch
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > revalidates the review fallback across the later page scan yield: unchanged
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > revalidates the review fallback across the later page scan yield: source missing
+ ↓ tests/explorer-recovery-selection-cancellation.test.ts > revalidates the review fallback across the later page scan yield: actions changed
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 19 skipped (20)
+   Start at  15:59:56
+   Duration  1.05s (transform 529ms, setup 0ms, collect 882ms, tests 33ms, environment 0ms, prepare 36ms)
+

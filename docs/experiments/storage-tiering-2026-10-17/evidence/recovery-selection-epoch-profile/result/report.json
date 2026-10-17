@@ -1,0 +1,362 @@
+{
+  "scope": "One frozen terminal-task scheduledRecovery call and, only if selected, its revalidate callback. Not the real step dispatch boundary, browser recovery, arrival or new coverage.",
+  "background": "InspectionCoordinator immediate sweep and one-second timer remain enabled as in prior samples. They may attempt writes and incur unattributed background costs; query_only and post-construction total_changes check writes, not purity of every query. Constructor changes are reported separately.",
+  "callback": {
+    "present": false,
+    "invoked": false,
+    "status": "not_selected"
+  },
+  "inputTaskSha256": "1ccfc8ef0a9b7cf92de290561d7e204348dc0ba8f4ebcaf3eb60b9ca83823fd3",
+  "revision": "551a6b9020b919862434346d276a21fe3d1f4ac1",
+  "sqliteConstructorSqlChanges": 1,
+  "allConstructorSqlChanges": 2,
+  "inputFacts": {
+    "observationId": "dbb04d18-bd75-407a-a146-bda06280bc80",
+    "observation": "b939bcda09f29be93f7448a07dc56e766131e16285e6bbfb781836f7f3be3476",
+    "actions": "7f0f4616d0d3bcedf12d84d4a03f69250d58d96110ccf0a6591a633fbda2291b",
+    "availability": "8d89fd36facf5900c371f1eef742c10f2eee634bd53a824f675c881530935006"
+  },
+  "resourcesBeforeSelection": {
+    "memory": {
+      "rss": 641024000,
+      "heapTotal": 289898496,
+      "heapUsed": 213576216,
+      "external": 26733962,
+      "arrayBuffers": 22534299
+    },
+    "usage": {
+      "userCPUTime": 1291442,
+      "systemCPUTime": 217227,
+      "maxRSS": 626000,
+      "sharedMemorySize": 0,
+      "unsharedDataSize": 0,
+      "unsharedStackSize": 0,
+      "minorPageFault": 41148,
+      "majorPageFault": 90,
+      "swappedOut": 0,
+      "fsRead": 0,
+      "fsWrite": 0,
+      "ipcSent": 140,
+      "ipcReceived": 140,
+      "signalsCount": 0,
+      "voluntaryContextSwitches": 23,
+      "involuntaryContextSwitches": 2379
+    }
+  },
+  "resourcesAtSelectionEnd": {
+    "memory": {
+      "rss": 1243463680,
+      "heapTotal": 323993600,
+      "heapUsed": 211597240,
+      "external": 84770805,
+      "arrayBuffers": 49282324
+    },
+    "usage": {
+      "userCPUTime": 17051161,
+      "systemCPUTime": 653355,
+      "maxRSS": 1271168,
+      "sharedMemorySize": 0,
+      "unsharedDataSize": 0,
+      "unsharedStackSize": 0,
+      "minorPageFault": 113462,
+      "majorPageFault": 90,
+      "swappedOut": 0,
+      "fsRead": 0,
+      "fsWrite": 0,
+      "ipcSent": 148,
+      "ipcReceived": 148,
+      "signalsCount": 0,
+      "voluntaryContextSwitches": 23,
+      "involuntaryContextSwitches": 23914
+    }
+  },
+  "invariants": {
+    "planUnchanged": true,
+    "budgetUnchanged": true,
+    "usageUnchanged": true,
+    "roundsAndCursorUnchanged": true,
+    "routeRetriesUnchanged": true
+  },
+  "querySqlChanges": 0,
+  "completeSemanticSha256": "264bde57836f0ab768bb49251eeb31ec5cba844f252a62f2ca1e2c07ee66e5d6",
+  "completeSemanticBytes": 3390001,
+  "selectedSummary": null,
+  "resourcesBeforeCleanup": {
+    "memory": {
+      "rss": 1262632960,
+      "heapTotal": 343015424,
+      "heapUsed": 230635328,
+      "external": 88160806,
+      "arrayBuffers": 52672325
+    },
+    "usage": {
+      "userCPUTime": 17091544,
+      "systemCPUTime": 656111,
+      "maxRSS": 1271168,
+      "sharedMemorySize": 0,
+      "unsharedDataSize": 0,
+      "unsharedStackSize": 0,
+      "minorPageFault": 114632,
+      "majorPageFault": 90,
+      "swappedOut": 0,
+      "fsRead": 0,
+      "fsWrite": 0,
+      "ipcSent": 148,
+      "ipcReceived": 148,
+      "signalsCount": 0,
+      "voluntaryContextSwitches": 25,
+      "involuntaryContextSwitches": 23926
+    }
+  },
+  "success": true,
+  "databaseHandleClosed": true,
+  "phaseTimings": {
+    "input_validation": 118.6025,
+    "browser_launcher_guards": 219.413792,
+    "module_imports": 353.233125,
+    "sqlite_constructor": 3.619542000000024,
+    "engine_constructor": 139.11091699999997,
+    "plugin_constructor": 0.15345800000000054,
+    "setup_current_observation": 33.812165999999934,
+    "setup_current_actions": 14.334334000000013,
+    "setup_current_availability": 230.84958299999994,
+    "setup_fact_hashes": 18.06829199999993,
+    "route_condition_reader": 0.136792000000014,
+    "scheduled_recovery": 8526.226792,
+    "semantic_summary": 18.74474999999984,
+    "semantic_serialization": 24.791708000000654,
+    "plugin_close": 0.07099999999991269,
+    "engine_close": 0.8658329999998386
+  },
+  "aggregates": {
+    "setup_current_observation": {
+      "host.session": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 0.1455829999999878,
+        "maxMs": 0.1455829999999878
+      },
+      "host.observation": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 33.28079200000002,
+        "maxMs": 33.28079200000002
+      }
+    },
+    "setup_current_actions": {
+      "host.actions": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 14.164083000000005,
+        "maxMs": 14.164083000000005
+      }
+    },
+    "setup_current_availability": {
+      "host.actionAvailability": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 230.63749999999993,
+        "maxMs": 230.63749999999993
+      }
+    },
+    "scheduled_recovery": {
+      "host.recoverySelectionView": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 214.57904099999996,
+        "maxMs": 214.57904099999996
+      },
+      "host.session": {
+        "entered": 2467,
+        "completed": 2467,
+        "errors": 0,
+        "totalMs": 57.10755900000822,
+        "maxMs": 0.3219169999993028
+      },
+      "view.assertCurrent": {
+        "entered": 1506,
+        "completed": 1506,
+        "errors": 0,
+        "totalMs": 161.20963899999424,
+        "maxMs": 0.4072919999998703
+      },
+      "host.list": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 0.2624160000000302,
+        "maxMs": 0.2624160000000302
+      },
+      "view.source": {
+        "entered": 91,
+        "completed": 91,
+        "errors": 0,
+        "totalMs": 2934.2739149999957,
+        "maxMs": 54.80025000000023
+      },
+      "view.anchor": {
+        "entered": 35,
+        "completed": 35,
+        "errors": 0,
+        "totalMs": 612.4087109999991,
+        "maxMs": 30.744084000000385
+      },
+      "host.checkpointRecoveryCandidates": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 2086.5774580000007,
+        "maxMs": 2086.5774580000007
+      },
+      "view.close": {
+        "entered": 1,
+        "completed": 1,
+        "errors": 0,
+        "totalMs": 0.08237499999995634,
+        "maxMs": 0.08237499999995634
+      }
+    }
+  },
+  "returnedCounts": {
+    "setup_current_actions": {
+      "host.actions.returnedRows": 214
+    },
+    "setup_current_availability": {
+      "host.actionAvailability.returnedActions": 214
+    },
+    "scheduled_recovery": {
+      "view.current.materializations": 1,
+      "view.current.availabilityMaterializations": 1,
+      "host.list.returnedRows": 57,
+      "view.source.returnedActions": 19118,
+      "host.checkpointRecoveryCandidates.requestedCheckpointIds": 1,
+      "host.checkpointRecoveryCandidates.returnedRows": 1
+    }
+  },
+  "eventTypes": {
+    "obligation.route_unavailable": 55
+  },
+  "forbidden": [],
+  "metadataLines": 8,
+  "viewStats": {
+    "requested": 1,
+    "acquired": 1,
+    "closed": 1
+  },
+  "noReadResultCollection": true,
+  "noPerformanceComparison": true,
+  "observationReadIds": {
+    "setup_current_observation": {
+      "host.observation.observationId": {
+        "calls": 1,
+        "distinct": 1,
+        "repeatedCalls": 0,
+        "topRepeated": [
+          {
+            "id": "dbb04d18-bd75-407a-a146-bda06280bc80",
+            "count": 1
+          }
+        ]
+      }
+    },
+    "setup_current_actions": {
+      "host.actions.observationId": {
+        "calls": 1,
+        "distinct": 1,
+        "repeatedCalls": 0,
+        "topRepeated": [
+          {
+            "id": "dbb04d18-bd75-407a-a146-bda06280bc80",
+            "count": 1
+          }
+        ]
+      }
+    },
+    "setup_current_availability": {
+      "host.actionAvailability.observationId": {
+        "calls": 1,
+        "distinct": 1,
+        "repeatedCalls": 0,
+        "topRepeated": [
+          {
+            "id": "dbb04d18-bd75-407a-a146-bda06280bc80",
+            "count": 1
+          }
+        ]
+      }
+    },
+    "scheduled_recovery": {
+      "view.source.sourceObservationId": {
+        "calls": 91,
+        "distinct": 58,
+        "repeatedCalls": 33,
+        "topRepeated": [
+          {
+            "id": "ab266706-1d93-4c0c-adfd-e5e9f0dcecbe",
+            "count": 6
+          },
+          {
+            "id": "0e316e4c-e428-4222-9d11-47d2073f41a8",
+            "count": 3
+          },
+          {
+            "id": "1a5b5c04-1334-44c7-8cd5-c9009a4b77b8",
+            "count": 3
+          },
+          {
+            "id": "6b86d43c-8797-4140-8dcc-2132dbeb9073",
+            "count": 3
+          },
+          {
+            "id": "78c74558-7a19-46c7-8eb6-5d66da1a1fa6",
+            "count": 3
+          }
+        ]
+      },
+      "view.anchor.sourceObservationId": {
+        "calls": 35,
+        "distinct": 35,
+        "repeatedCalls": 0,
+        "topRepeated": [
+          {
+            "id": "02768907-5f9f-4fa2-b625-eda4525f883d",
+            "count": 1
+          },
+          {
+            "id": "0c118da8-74a7-4b61-b96b-daa3ecca1094",
+            "count": 1
+          },
+          {
+            "id": "0e316e4c-e428-4222-9d11-47d2073f41a8",
+            "count": 1
+          },
+          {
+            "id": "1a5b5c04-1334-44c7-8cd5-c9009a4b77b8",
+            "count": 1
+          },
+          {
+            "id": "1ea431eb-205f-42cd-ba28-7055e514d098",
+            "count": 1
+          }
+        ]
+      },
+      "host.checkpointRecoveryCandidates.checkpointId": {
+        "calls": 1,
+        "distinct": 1,
+        "repeatedCalls": 0,
+        "topRepeated": [
+          {
+            "id": "b1e80845-ab4f-4c31-809d-ba37be180e92",
+            "count": 1
+          }
+        ]
+      }
+    }
+  },
+  "attribution": "Only external host/view facade calls are counted; internally composed SDK reads and SQL counts are not measured. View creation includes its current observation/actions/availability work. Deferrals are staged by the product, so events count only published output, not every examined item. Inclusive timings must not be summed across nesting."
+}

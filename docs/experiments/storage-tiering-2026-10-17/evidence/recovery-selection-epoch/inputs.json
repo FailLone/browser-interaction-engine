@@ -1,0 +1,17 @@
+{
+  "head": "04e6501d839977924b75214181e46fee3f858160",
+  "files": {
+    "packages/browser/src/index.ts": "3dd5ffe795b5c9e4681ffc0fb61c106fac9ece171d9e22fa757225de4478639f",
+    "packages/browser/src/recovery-selection-view.ts": "559fa58561d9a75ce44f387c23fb97b0a639a9e9720f447c873a9c6103fa3cd5",
+    "packages/core/src/engine.ts": "3b678a7f1d61f1612e7849553304612dd5d313946f4e391d06f38b0c75433992",
+    "packages/core/src/ports.ts": "33d79b0b80c965dd68641bd7a81403327b39613ae991ba9dd1cf498c151887bf",
+    "packages/explorer-plugin/src/runtime.ts": "1dcd44bdbd90dff0928f0f4913cc4e4de018324e603ba459f3f61cc321a8e4ee",
+    "packages/explorer-plugin/src/types.ts": "fa0c220fc22cbaa69f65eafb651f9e35274a7ba12ed8a6b41250cd94371e8f51",
+    "packages/storage-memory/src/index.ts": "a555cd28b9c59006b81dd2bc81de8842bacbac9ce7e6372fbe8872c7b153fa03",
+    "packages/storage-retained/src/index.ts": "81b6be823cbc82db67cb593841f6c0b3d9c75784a75848d14f2e6e7f9cbf8039",
+    "packages/storage-sqlite/src/index.ts": "c7904b62c9a9d07064b7ef1c4cd0ab391ab055339c1b95272ef85fd2d786fd76",
+    "tests/explorer-recovery-selection-cancellation.test.ts": "02e6f3265ab9a5dcbcb43d2897daa51fdda1154b09dcc1a2559f0f0f29a58fee",
+    "tests/recovery-selection-view.test.ts": "cc32bc252201427d108a3a77d876531237eb92f0c90bb70e1c6c859ab161f392",
+    "tests/storage-record-revision.test.ts": "6348e03e791983b9bd205fc1a16d719094417e17dfd237cffd55e2217132176e"
+  }
+}
