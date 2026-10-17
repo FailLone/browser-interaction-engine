@@ -466,7 +466,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   private discoveryPlan?: DiscoveryScanPlan & { status: 'active' | 'invalidated'; reason?: string };
   setDiscoveryScan(plan: DiscoveryScanPlan) { this.discoveryPlan = { ...structuredClone(plan), status: 'active' }; }
   async validateDiscoveryScan(current: Observation) {
-    const live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Discovery validation deadline exceeded');
+    const live = await timeout(this.readDOM(false, false), this.options.observeTimeoutMs, 'Discovery validation deadline exceeded');
     return !live.gaps.some(g => g.critical) && live.documentId === current.documentId && live.url === current.url
       && !!current.discoveryScan && live.discoveryScan?.topologyKey === current.discoveryScan.topologyKey;
   }
@@ -513,12 +513,14 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     return { browserSessionId: this.navigationSessionId, currentIndex: history.currentIndex,
       entries: history.entries.map(e => ({ id: e.id, url: e.url, method: this.entryMethods.get(e.id) })) };
   }
-  async readDOM(detailed = false): Promise<DOMSnapshot> {
+  /** Validation reads retain fresh DOM guards without building persistence-only
+   * dependency evidence. Capture always requests the graph in the same sample. */
+  async readDOM(detailed = false, ownerDependencies = true): Promise<DOMSnapshot> {
     if (!this.page || this.page.isClosed()) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
     const args = `, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? discoverStructuralLists.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? describeStructuralLists.toString() : 'undefined'}, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}, ${this.discoveryPlan?.status === 'active' ? JSON.stringify(this.discoveryPlan) : 'undefined'}`;
-    const source = `(() => { const __name = (fn) => fn; const dom = (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}, ${collectScrollContainers.toString()}, ${collectBoundaryExits.toString()}, ${this.options.exploration === 'controls' ? collectOwnerDependencies.toString() : 'undefined'}${args}); if (dom.ownerDependencies) dom.ownerDependencies = JSON.stringify(dom.ownerDependencies); return dom; })()`;
+    const source = `(() => { const __name = (fn) => fn; const dom = (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}, ${collectScrollContainers.toString()}, ${collectBoundaryExits.toString()}, ${ownerDependencies && this.options.exploration === 'controls' ? collectOwnerDependencies.toString() : 'undefined'}${args}); if (dom.ownerDependencies) dom.ownerDependencies = JSON.stringify(dom.ownerDependencies); return dom; })()`;
     // Preserve arbitrary legal HTML attribute keys across the automation protocol.
     const transferred = await this.page.evaluate(source) as Omit<DOMSnapshot, 'ownerDependencies'> & { ownerDependencies?: string; discoveryTopology: string[][]; discoveryScan: DiscoverySnapshot };
     const raw = { ...transferred, ...(transferred.ownerDependencies ? { ownerDependencies: JSON.parse(transferred.ownerDependencies) as NonNullable<DOMSnapshot['ownerDependencies']> } : { ownerDependencies: undefined }) };
@@ -527,7 +529,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const plan = this.discoveryPlan;
     if (plan?.status === 'active' && (dom.documentId !== plan.documentId || dom.url !== plan.url || dom.discoveryScan.topologyKey !== plan.topologyKey || dom.discoveryScan.supplement?.status !== 'active')) {
       this.invalidateDiscoveryScan('document_url_or_topology_changed');
-      return this.readDOM(detailed);
+      return this.readDOM(detailed, ownerDependencies);
     }
     if (plan?.status === 'invalidated') dom.discoveryScan.supplement = { requestId: plan.requestId, targetId: plan.targetId, budget: plan.budget, status: 'invalidated', reason: plan.reason };
     return dom;
@@ -579,7 +581,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       stable = false; interactionStable = false;
       do {
         try {
-          dom = await timeout(this.readDOM(), Math.max(1, deadline - Date.now()), 'DOM capture deadline exceeded');
+          dom = await timeout(this.readDOM(false, true), Math.max(1, deadline - Date.now()), 'DOM capture deadline exceeded');
           sampledAt = Date.now();
           lastError = undefined;
           sampleDependencies(dom);
@@ -601,7 +603,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       } while (Date.now() < deadline);
       if (this.options.evidence.enabled && dom && !lastError) {
         try {
-          const detailed = await timeout(this.readDOM(true), this.options.observeTimeoutMs, 'Detailed DOM capture deadline exceeded');
+          const detailed = await timeout(this.readDOM(true, true), this.options.observeTimeoutMs, 'Detailed DOM capture deadline exceeded');
           if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId || canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(detailed.regionCandidates?.map(c => [c.id, c.binding])) || canonical(dom.structuralLists) !== canonical(detailed.structuralLists)) {
             interactionStable &&= interactionProjection(interactionScope(dom)) === interactionProjection(interactionScope(detailed)) && boundaryBinding(dom) === boundaryBinding(detailed) && canonical(interactionScope(dom).regionCandidates?.map(c => [c.id, c.binding])) === canonical(interactionScope(detailed).regionCandidates?.map(c => [c.id, c.binding])) && canonical(interactionScope(dom).structuralLists) === canonical(interactionScope(detailed).structuralLists);
             stable = false;
@@ -839,7 +841,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   }
   async preflight(current: Observation, action?: ActionCandidate, reviewTargetLocalIds: string[] = [], reuseTargetLocalIds: string[] = [], regionReuseCandidateIds: string[] = [], surroundingTargetLocalIds: string[] = []): Promise<PreflightResult> {
     let live: Awaited<ReturnType<BrowserAdapter['readDOM']>>;
-    try { live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
+    try { live = await timeout(this.readDOM(false, false), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
     if (live.gaps.some(g => g.critical)) return 'stale';
     if (current.discoveryScan?.supplement?.status === 'active' && (live.discoveryScan?.supplement?.status !== 'active' || live.discoveryScan?.supplement.requestId !== current.discoveryScan.supplement.requestId)) return 'stale';
@@ -942,7 +944,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   }
   async validateDismissal(action: ActionCandidate, acceptClosedAfterMove = false) {
     const ref = dismissalReference(action);
-    const live = await timeout(this.readDOM(), this.options.observeTimeoutMs, 'Dismissal validation deadline exceeded');
+    const live = await timeout(this.readDOM(false, false), this.options.observeTimeoutMs, 'Dismissal validation deadline exceeded');
     const preserved = ref?.facts.preserved as { localId: string; facts: string }[] | undefined;
     if (!ref || live.documentId !== ref.facts.documentId || live.url !== ref.facts.url || live.gaps.some(g => g.critical)
       || !Array.isArray(preserved) || !preserved.every(p => preservedControlFacts(live.controls.find(c => c.localId === p.localId)) === p.facts)) throw new EngineError('STALE_DISMISSAL_TARGET', 'Outside point or boundary changed');
@@ -977,7 +979,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   }
   private async traversalScroll(action: ActionCandidate, perform: boolean) {
     const options = traversalScrollSchema.parse(action.value);
-    const live = await this.readDOM(); const active = live.overlays.at(-1);
+    const live = await this.readDOM(false, false); const active = live.overlays.at(-1);
     const container = live.scrollContainers?.find(c => c.nodeId === options.containerNodeId);
     if (!container || live.documentId !== options.documentId) throw new EngineError('STALE_TARGET', 'Scroll container is no longer available');
     if (container.boundaryKey !== active?.key || action.boundary?.key !== active?.key) throw new EngineError('ACTION_BLOCKED', 'Scroll container is outside the active boundary');
@@ -991,7 +993,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const target = this.page!.locator(control.selector);
     if (await target.count() !== 1) throw new EngineError('TARGET_AMBIGUOUS', 'Scroll probe target is not unique');
     // Resolve the active scope from a fresh read; no caller-supplied selector can relax it.
-    const live = await this.readDOM();
+    const live = await this.readDOM(false, false);
     const active = live.overlays.at(-1);
     if (active?.key !== action.boundary?.key) throw new EngineError('ACTION_BLOCKED', 'Scroll probe scope changed before execution');
     if (active && !active.controlIds.includes(control.localId)) throw new EngineError('ACTION_BLOCKED', 'outside_active_boundary');

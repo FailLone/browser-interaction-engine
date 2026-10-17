@@ -1,0 +1,161 @@
+{
+  "purpose": "One local diagnostic, not a timing benchmark or evidence of real-site speedup",
+  "node": "v24.22.0",
+  "sourceBefore": "8a7c6ab601b261855f4096132773398412121d8a06b1864d4035575292716216",
+  "sourceAfter": "8a7c6ab601b261855f4096132773398412121d8a06b1864d4035575292716216",
+  "cases": [
+    {
+      "fixture": "complete",
+      "fixtureSha256": "1cd2c2c3083b3244eaa0c50062a014d0083c21ef29918163b6e2685d442e7c6c",
+      "controls": 3,
+      "graph": {
+        "bytes": 3480,
+        "complete": true,
+        "inventoryComplete": true,
+        "reasons": [],
+        "roots": 3,
+        "closures": 1,
+        "nodes": 7
+      },
+      "readDOM": {
+        "withGraphBytes": 10182,
+        "withoutGraphBytes": 6681,
+        "withGraphMs": 15.233332999999902,
+        "withoutGraphMs": 10.15037499999994,
+        "sameOtherFacts": true,
+        "sameInstanceCounter": true
+      },
+      "preflight": {
+        "result": "valid",
+        "withoutGraphCollectorCalls": 0,
+        "forcedGraphCollectorCalls": 1,
+        "avoidedGraphBytes": 3480,
+        "forcedGraphCollectorMs": 0.20000000298023224
+      },
+      "capture": {
+        "collectorCalls": 1,
+        "graphBytes": 3480,
+        "observationBytes": 13938
+      },
+      "consumerBoundary": "No consumer change or timing. Per-localId closure serialization and authority reads remain separate follow-up costs."
+    },
+    {
+      "fixture": "200-controls",
+      "fixtureSha256": "78ad07c584eff4d05d0d64730a2976df86bcc0e9f0d5f01c0639f6a917b5c90b",
+      "controls": 200,
+      "graph": {
+        "bytes": 334,
+        "complete": false,
+        "inventoryComplete": false,
+        "reasons": [
+          "byte_budget"
+        ],
+        "roots": 0,
+        "closures": 0,
+        "nodes": 0
+      },
+      "readDOM": {
+        "withGraphBytes": 354465,
+        "withoutGraphBytes": 354110,
+        "withGraphMs": 109.86908399999993,
+        "withoutGraphMs": 104.37725,
+        "sameOtherFacts": true,
+        "sameInstanceCounter": true
+      },
+      "preflight": {
+        "result": "valid",
+        "withoutGraphCollectorCalls": 0,
+        "forcedGraphCollectorCalls": 1,
+        "avoidedGraphBytes": 334,
+        "forcedGraphCollectorMs": 2.7999999970197678
+      },
+      "capture": {
+        "collectorCalls": 1,
+        "graphBytes": 334,
+        "observationBytes": 523404
+      },
+      "consumerBoundary": "No consumer change or timing. Per-localId closure serialization and authority reads remain separate follow-up costs."
+    },
+    {
+      "fixture": "unretained-native",
+      "fixtureSha256": "33caad941474333e5b3d5c090feaf8aa3608dd47ee93af30783d060658ff73b3",
+      "controls": 3,
+      "graph": {
+        "bytes": 386,
+        "complete": false,
+        "inventoryComplete": false,
+        "reasons": [
+          "unretained_native_input"
+        ],
+        "roots": 0,
+        "closures": 0,
+        "nodes": 0
+      },
+      "readDOM": {
+        "withGraphBytes": 7091,
+        "withoutGraphBytes": 6684,
+        "withGraphMs": 11.30658399999993,
+        "withoutGraphMs": 9.523416999999881,
+        "sameOtherFacts": true,
+        "sameInstanceCounter": true
+      },
+      "preflight": {
+        "result": "valid",
+        "withoutGraphCollectorCalls": 0,
+        "forcedGraphCollectorCalls": 1,
+        "avoidedGraphBytes": 386,
+        "forcedGraphCollectorMs": 0
+      },
+      "capture": {
+        "collectorCalls": 1,
+        "graphBytes": 386,
+        "observationBytes": 10847
+      },
+      "consumerBoundary": "No consumer change or timing. Per-localId closure serialization and authority reads remain separate follow-up costs."
+    },
+    {
+      "validation": "discovery",
+      "result": true,
+      "avoidedCollectorCalls": 1,
+      "avoidedGraphBytes": 5334
+    },
+    {
+      "validation": "preflight",
+      "result": "valid",
+      "avoidedCollectorCalls": 1,
+      "avoidedGraphBytes": 5334
+    },
+    {
+      "validation": "traversal-scroll",
+      "result": "resolved",
+      "avoidedCollectorCalls": 1,
+      "avoidedGraphBytes": 5334
+    },
+    {
+      "validation": "controlled-scroll",
+      "result": "resolved",
+      "avoidedCollectorCalls": 1,
+      "avoidedGraphBytes": 5334
+    },
+    {
+      "validation": "dismissal",
+      "result": {
+        "point": {
+          "x": 234,
+          "y": 175
+        },
+        "closedAfterMove": false
+      },
+      "avoidedCollectorCalls": 1,
+      "avoidedGraphBytes": 5322
+    },
+    {
+      "validation": "stale-dismissal",
+      "result": {
+        "code": "STALE_DISMISSAL_TARGET"
+      },
+      "avoidedCollectorCalls": 1,
+      "avoidedGraphBytes": 5322
+    }
+  ]
+}

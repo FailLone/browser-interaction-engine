@@ -1,0 +1,23 @@
+{
+  "baseRevision": "8d7ef5c0431f82db4a95bb00a84052ae484dc968",
+  "workingTreePatch": true,
+  "sourceSha256": {
+    "packages/adapter-playwright/src/browser.ts": "8a7c6ab601b261855f4096132773398412121d8a06b1864d4035575292716216",
+    "tests/owner-dependency-validation.test.ts": "3a59eef9c06a3954be429af0fdd42af5276a4eef644146f068e3abe6d331f79a"
+  },
+  "command": "OWNER_VALIDATION_DIAGNOSTIC=/tmp/owner-dependency-validation-diagnostic.json PATH=/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin:$PATH node node_modules/vitest/vitest.mjs run tests/owner-dependency-validation.test.ts",
+  "exitCode": 0,
+  "testsPassed": 6,
+  "runs": 1,
+  "artifacts": {
+    "tests.log": "e3337842cee00dd43623cdcf94748785e105a05c077353d28ef935de1cdaaf87",
+    "diagnostic.json": "0914c3ba45ac92838e8c0d8b84f6e34c445e4f0e7a0822599d23b7f107c7aa3f"
+  },
+  "validationBoundary": "Only new focused tests were run by this agent. Parent owns separate existing 38-case and root/core type checks. No original task store, browser, provider, or real OKX access.",
+  "measurementBoundary": "One owned local diagnostic, with test-only instrumentation around the actual serialized collector; forced graph-on validates the old path mechanism on the current source, not an independently archived baseline. No formal timing or statistical performance comparison.",
+  "futureWork": [
+    "Repeated closure serialization/authority source reads are unchanged.",
+    "Persistent capture still collects on every normal/detailed DOM sample; no deferred graph capture or cross-sample cache.",
+    "Separately identified before/preflight owner timing gap is not changed or claimed fixed."
+  ]
+}
