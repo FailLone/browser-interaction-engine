@@ -1,6 +1,6 @@
 import { EventBus } from './events.js';
 import { contextSchema, actionBasisSchema, componentDescriptionSchema } from './schema.js';
-import type { ComponentDescription, ComponentDescriptionInput, ExplorationTargetReference, ExplorationTargetCorrespondence, ReachExplorationTargetInput, ExplorationTargetReachResult, RepetitionAssessment, ReturnToObservedSourceInput, ObservedSourceReturnResult, CheckpointRecoveryCandidatesInput, CheckpointRecoveryCandidateAssessment, CheckpointRecoveryStrategy, CheckpointRecoveryCandidateStatus } from './types.js';
+import type { ComponentDescription, ComponentDescriptionInput, ExplorationTargetReference, ExplorationTargetCorrespondence, ReachExplorationTargetInput, ExplorationTargetReachResult, RepetitionAssessment, ReturnToObservedSourceInput, ObservedSourceReturnResult, CheckpointRecoveryCandidatesInput, CheckpointRecoveryCandidateAssessment, CheckpointRecoveryStrategy, CheckpointRecoveryCandidateStatus, ControlReviewTargetReference, ControlReviewTargetCorrespondence, ReachControlReviewTargetInput, ControlReviewTargetReachResult } from './types.js';
 import { assignState, matchIdentities, sameObservedState } from './identity.js';
 import { recoverStore } from './recovery.js';
 import { migrateSamplingSources, sampledFrontierKey } from './sampling-migration.js';
@@ -246,6 +246,43 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     if(current.id!==input.observationId)throw new EngineError('STALE_OBSERVATION','Target correspondence requires the current observation');
     const read=this.correspondenceReader();
     return {sessionId,observationId:input.observationId,results:input.requests.map(request=>read(sessionId,{...request,observationId:input.observationId}) as ExplorationTargetCorrespondence)};
+  }
+  private recordedControlReviewCorrespondence(sessionId:string,input:{observationId:string;localId:string;source:ControlReviewTargetReference},current:O|undefined,source:O|undefined):ControlReviewTargetCorrespondence {
+      const result:ControlReviewTargetCorrespondence={targetMatched:false,reviewable:false,sourceEquivalent:'unknown',reason:'review_target_evidence_unavailable',evidence:[],
+        source:{...input.source},target:{sessionId,observationId:input.observationId,localId:input.localId},preflightRequired:true,
+        identityAuthorized:false,replayAuthorized:false,executionAuthorized:false,currentExecution:false,coverageGranted:false,checkpointVerified:false};
+      try {
+        if(!current||!source)return result;
+        const before=source.controls.filter(c=>c.localId===input.source.localId),after=current.controls.filter(c=>c.localId===input.localId);
+        if(before.length!==1||after.length!==1){result.reason='review_target_missing_or_ambiguous';return result;}
+        const facts=this.adapter.controlReviewTargetCorrespondence?.(before[0],source,after[0],current);
+        if(facts){result.targetMatched=facts.targetMatched;result.reviewable=facts.reviewable;result.sourceEquivalent=facts.sourceEquivalent;
+          result.reason=facts.reason;result.conditionKey=facts.conditionKey;result.currentMaterialKey=facts.currentMaterialKey;result.evidence=[...facts.evidence];}
+        return result;
+      }catch{return result;}
+  }
+  /** Explicit recorded interpretation facts, including historical targets.
+   * reviewable refers to this record, never the browser's current position.
+   * The queued arrival API and review commands perform live target preflight.
+   * No actions or history are listed. */
+  controlReviewTargetCorrespondence(sessionId:string,input:{observationId:string;localId:string;source:ControlReviewTargetReference}):ControlReviewTargetCorrespondence {
+    return this.controlReviewTargetCorrespondences(sessionId,{observationId:input.observationId,requests:[input]}).results[0];
+  }
+  /** Batch record query: keep only target + one source graph in memory, read
+   * each source once, and retain result order. No cache outlives this call. */
+  controlReviewTargetCorrespondences(sessionId:string,input:{observationId:string;requests:{localId:string;source:ControlReviewTargetReference}[]}) {
+    const read=(sid:string,oid:string)=>{try{return this.observation(sid,oid);}catch{return undefined;}};
+    const current=read(sessionId,input.observationId),groups=new Map<string,number[]>(),results:ControlReviewTargetCorrespondence[]=[];
+    input.requests.forEach((request,index)=>{
+      const key=canonical([request.source.sessionId,request.source.observationId]),group=groups.get(key);
+      if(group)group.push(index);else groups.set(key,[index]);
+    });
+    for(const indices of groups.values()){
+      const ref=input.requests[indices[0]].source;
+      const source=ref.sessionId===sessionId&&ref.observationId===input.observationId?current:read(ref.sessionId,ref.observationId);
+      for(const index of indices)results[index]=this.recordedControlReviewCorrespondence(sessionId,{...input.requests[index],observationId:input.observationId},current,source);
+    }
+    return {sessionId,observationId:input.observationId,results};
   }
   /** Re-entry is repetition, not a fresh excuse to execute an unassessed historical action. */
   repetitionAssessment(sessionId:string,input:{observationId:string;actionId:string;source:{sessionId:string;attemptId:string}}):RepetitionAssessment {
@@ -1446,7 +1483,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       target: control?.instanceId || action.localId || action.controlId, kind: action.kind, value,
       conditions: conditions && { policy: conditions.policy, key: conditions.key } });
   }
-  private async replay(sessionId: string, attemptIds: string[], allowWrites: boolean, performed: string[], targetReached?: () => Promise<boolean>, dispatched?: Set<string>): Promise<{ failure?: string; failedAttemptId?: string; canReplan?: boolean }> {
+  private async replay(sessionId: string, attemptIds: string[], allowWrites: boolean, performed: string[], targetReached?: () => Promise<boolean | 'stop'>, dispatched?: Set<string>): Promise<{ failure?: string; failedAttemptId?: string; canReplan?: boolean }> {
     let lastAttemptId: string | undefined;
     for (const attemptId of attemptIds) {
       lastAttemptId = attemptId;
@@ -1488,7 +1525,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       this.emit(sessionId, 'checkpoint.route_segment', { attemptId: result.id, ...result.recoverySegment });
       if (result.status !== 'succeeded' || !result.afterId || !old.afterId) return fail('replay_action_not_verified');
       if (targetReached) {
-        if (await targetReached()) return {};
+        const arrival = await targetReached();
+        if (arrival === true) return {};
+        if (arrival === 'stop') return fail('review_arrival_unverified');
         // The next iteration must prove its own source conditions, readiness
         // and replay permission against the actual observation, including at
         // dispatch. Passive changes elsewhere do not certify or invalidate that
@@ -1545,18 +1584,69 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     }
     return {status:matches.length?'TARGET_REACHED':checks.some(c=>c.result==='unknown')?'UNVERIFIED':undefined,checks,matches,dispatchAvailability:availability};
   }
+  private async verifyControlReviewTarget(sessionId:string,input:ReachControlReviewTargetInput):Promise<{status?:ControlReviewTargetReachResult['status'];checks:ReachResult['checks'];proof?:ControlReviewTargetCorrespondence}> {
+    const current=this.observation(sessionId),source=this.observation(sessionId,input.observationId),checks:ReachResult['checks']=[];
+    const unknown=this.unverifiedRecoveryAttempts(sessionId).length>0;
+    checks.push({name:'unresolved-execution-outcomes',result:unknown?'unknown':'pass'});
+    if(unknown)return {status:'UNVERIFIED',checks};
+    checks.push({name:'clean-session',result:this.session(sessionId).dirty?'unknown':'pass'});
+    const blockers=this.executionSessionBlockers(current,'recovery');
+    checks.push(...blockers.map(b=>({name:`recovery-precondition:${b.code}:${b.reason}`,result:'unknown' as const})));
+    if(checks.some(c=>c.result==='unknown'))return {status:'UNVERIFIED',checks};
+    const known=[source,current].every(o=>Object.values(o.context).every(c=>c.status==='known'));
+    checks.push({name:'known-declared-context',result:!known?'unknown':contextKey(source.context)===contextKey(current.context)?'pass':'fail'});
+    if(!known)return {status:'UNVERIFIED',checks};
+    if(checks.at(-1)!.result==='fail')return {status:'PRECONDITIONS_CHANGED',checks};
+    if(current.gaps.some(g=>g.critical)||current.ruleVersion!==this.adapter.ruleVersion){checks.push({name:'review-observation-completeness',result:'unknown'});return {status:'UNVERIFIED',checks};}
+    const originals=source.controls.filter(c=>c.localId===input.localId);
+    if(originals.length!==1||!this.adapter.controlReviewTargetCorrespondence){checks.push({name:'review-source-material',result:'unknown'});return {status:'UNVERIFIED',checks};}
+    const candidates=current.controls.map(c=>({control:c,facts:this.adapter.controlReviewTargetCorrespondence!(originals[0],source,c,current)}));
+    const matches=candidates.filter(c=>c.facts.targetMatched);
+    if(matches.length!==1){
+      const ambiguous=matches.length>1||candidates.some(c=>c.facts.reason==='review_target_ambiguous');
+      checks.push({name:'unique-review-target',result:ambiguous?'unknown':'fail'});
+      return {status:ambiguous?'UNVERIFIED':undefined,checks};
+    }
+    const matched=matches[0],proof=this.controlReviewTargetCorrespondence(sessionId,{observationId:current.id,localId:matched.control.localId,
+      source:{sessionId,observationId:source.id,localId:input.localId}});
+    checks.push({name:'current-review-material',result:proof.reviewable?'pass':proof.reason==='outside_active_boundary'?'fail':'unknown'});
+    if(!proof.reviewable)return {status:proof.reason==='outside_active_boundary'?undefined:'UNVERIFIED',checks,proof};
+    if(input.requireSourceEquivalent){
+      checks.push({name:'historical-review-source-conditions',result:proof.sourceEquivalent==='equivalent'?'pass':proof.sourceEquivalent==='different'?'fail':'unknown'});
+      if(proof.sourceEquivalent!=='equivalent')return {status:proof.sourceEquivalent==='unknown'?'UNVERIFIED':undefined,checks,proof};
+    }
+    // Generic/read-only controls are not certified by a ready interactive sibling.
+    // The same explicit-target preflight used by review commands verifies their
+    // complete current facts, without executing or inventing an operation.
+    const connected=()=>this.activeId===sessionId&&!!this.driver?.connected();
+    const live=connected()&&await this.driver!.preflight(current,undefined,[matched.control.localId])==='valid';
+    const fresh=this.observation(sessionId),stillCurrent=fresh.id===current.id&&connected()&&!this.session(sessionId).dirty&&!this.unverifiedRecoveryAttempts(sessionId).length;
+    checks.push({name:'live-review-target-preflight',result:live&&stillCurrent?'pass':'unknown'});
+    if(!live||!stillCurrent)return {status:'UNVERIFIED',checks,proof};
+    const final=this.controlReviewTargetCorrespondence(sessionId,{observationId:fresh.id,localId:matched.control.localId,source:proof.source});
+    if(!final.reviewable||canonical(final)!==canonical(proof)){checks.push({name:'review-material-changed',result:'unknown'});return {status:'UNVERIFIED',checks,proof:final};}
+    return {status:'CURRENT_REVIEWABLE',checks,proof:final};
+  }
   private reachInternal(sessionId:string,checkpointId:string):Promise<ReachResult>;
   private reachInternal(sessionId:string,checkpointId:string,target:ReachExplorationTargetInput):Promise<ExplorationTargetReachResult>;
-  private async reachInternal(sessionId: string, checkpointId: string, target?:ReachExplorationTargetInput): Promise<ReachResult|ExplorationTargetReachResult> {
+  private reachInternal(sessionId:string,checkpointId:string,target:undefined,review:ReachControlReviewTargetInput):Promise<ControlReviewTargetReachResult>;
+  private async reachInternal(sessionId: string, checkpointId: string, target?:ReachExplorationTargetInput,review?:ReachControlReviewTargetInput): Promise<ReachResult|ExplorationTargetReachResult|ControlReviewTargetReachResult> {
     const checkpoint = this.owned<Checkpoint>('checkpoint', checkpointId, sessionId); const performed: string[] = [];
-    let checks: ReachResult['checks'] = []; let status: ReachResult['status']|ExplorationTargetReachResult['status'] = 'UNREACHABLE'; let reason = 'No verified path within the current recovery constraints';
+    let checks: ReachResult['checks'] = []; let status: ReachResult['status']|ExplorationTargetReachResult['status']|ControlReviewTargetReachResult['status'] = 'UNREACHABLE'; let reason = 'No verified path within the current recovery constraints';
     const strategies: string[] = []; let matches:ExplorationTargetCorrespondence[]=[];let dispatchAvailability:ActionAvailability|undefined;
+    const directed=!!(target||review);let reviewProof:ControlReviewTargetCorrespondence|undefined;
+    let reviewStop:Extract<ControlReviewTargetReachResult['status'],'UNVERIFIED'|'PRECONDITIONS_CHANGED'>|undefined;
     const verify=async()=>{
+      if(review){const result=await this.verifyControlReviewTarget(sessionId,review);reviewProof=result.proof;return result;}
       if(!target)return this.verify(sessionId,checkpoint);
       const result=this.verifyExplorationTarget(sessionId,target);matches=result.matches;dispatchAvailability=result.dispatchAvailability;return result;
     };
-    const targetReached=target?async()=>{const result=await verify();checks=result.checks;return result.status==='TARGET_REACHED';}:undefined;
-    const finish = ():ReachResult|ExplorationTargetReachResult => {
+    const targetReached=directed?async()=>{
+      const result=await verify();checks=result.checks;
+      if(review&&(result.status==='UNVERIFIED'||result.status==='PRECONDITIONS_CHANGED')){reviewStop=result.status;return 'stop' as const;}
+      return result.status===(review?'CURRENT_REVIEWABLE':'TARGET_REACHED');
+    }:undefined;
+    const finish = ():ReachResult|ExplorationTargetReachResult|ControlReviewTargetReachResult => {
       const session = this.session(sessionId);
       const dirtyActions = (session.dirtyAttemptIds || []).flatMap(attemptId => {
         const a = this.store.get<ActionAttempt>('attempt', attemptId); return a ? [{ attemptId, label: a.action.label, risk: a.action.risk }] : [];
@@ -1564,6 +1654,12 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       const verification=session.options.executionPolicy==='observed-ui'?{verificationScope:'observed-ui' as const}:{};
       const diagnostics = { ...verification,unassessedEffectAttemptIds:session.unassessedEffectAttemptIds||[],strategies, dirtyActions, resetAvailable: !!this.hooks.reset || !!this.adapter.resetAction?.(this.observation(sessionId), session) };
       const base={...verification,id:id(),sessionId,checkpointId,reason,checks,attemptIds:performed,observationId:session.currentObservationId,remainingFrontier:this.frontier(sessionId).filter(f=>f.status!=='executed').length,diagnostics};
+      if(review){
+        const result:ControlReviewTargetReachResult={...base,status:status as ControlReviewTargetReachResult['status'],requireSourceEquivalent:!!review.requireSourceEquivalent,targetObservationId:review.observationId,targetLocalId:review.localId,
+          sourceEquivalent:reviewProof?.sourceEquivalent||'unknown',...(reviewProof?{proof:reviewProof}:{}),
+          ...(status==='CURRENT_REVIEWABLE'&&reviewProof?{matchedLocalId:reviewProof.target.localId}:{}),checkpointVerified:false,currentExecution:false,executionAuthorized:false,coverageGranted:false};
+        this.store.put('review-target-reach',result);this.emit(sessionId,'exploration.review_target_result',result);return result;
+      }
       if(target){
         const result:ExplorationTargetReachResult={...base,status:status as ExplorationTargetReachResult['status'],targetObservationId:target.observationId,targetActionIds:[...target.actionIds],matchedActionIds:matches.map(m=>m.target.actionId),matches,checkpointVerified:false,currentExecution:false,executionAuthorized:false,dispatchAvailability};
         this.store.put('target-reach',result);this.emit(sessionId,'exploration.target_result',result);return result;
@@ -1572,11 +1668,11 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       this.store.put('reach', result); this.emit(sessionId, 'checkpoint.result', result); return result;
     };
     try {
-      if(target&&this.unverifiedRecoveryAttempts(sessionId).length){status='UNVERIFIED';reason='Unknown execution outcome requires explicit recovery verification';checks=[{name:'unresolved-execution-outcomes',result:'unknown'}];return finish();}
+      if(directed&&this.unverifiedRecoveryAttempts(sessionId).length){status='UNVERIFIED';reason='Unknown execution outcome requires explicit recovery verification';checks=[{name:'unresolved-execution-outcomes',result:'unknown'}];return finish();}
       await this.attach(sessionId); await this.capture(sessionId, 'recovery');
       strategies.push('verify_current');
       let verification = await verify(); checks = verification.checks;
-      if (verification.status) { status = verification.status; reason = `${target?'Target arrival':'Checkpoint'} verification: ${status}`; return finish(); }
+      if (verification.status) { status = verification.status; reason = `${directed?'Target arrival':'Checkpoint'} verification: ${status}`; return finish(); }
       const triedExits = new Set<string>();
       let returnedToSource = false;
       strategies.push('boundary_exit');
@@ -1623,7 +1719,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           if (first.reason) return rejected(first.reason);
           const action = first.action!;
           if (dispatched.has(this.replayDispatchKey(current, action, old.action.value))) return rejected('replay_operation_already_tried');
-          if (target) {
+          if (directed) {
             const assessment = this.repetitionAssessment(sessionId, { observationId: current.id, actionId: action.id, source: { sessionId, attemptId: old.id } });
             if (!assessment.repeatable) return rejected(assessment.reason);
           }
@@ -1632,7 +1728,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         };
         const from = this.navigationKey(current), to = this.navigationKey(endpoints.target);
         let path = graph.path(from, to, firstEdgeAllowed,
-          edge => index!.cost(edge.attemptId, target ? 'target' : 'checkpoint', currentConditions.get(edge.attemptId)));
+          edge => index!.cost(edge.attemptId, directed ? 'target' : 'checkpoint', currentConditions.get(edge.attemptId)));
         const sessionForPath = this.session(sessionId);
         const remainingActions = Math.max(0, sessionForPath.options.maxActions - sessionForPath.actionCount);
         let selection = 'segment_cost';
@@ -1657,10 +1753,11 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         }
         if (plan) strategies.push('recorded_path_alternative');
         this.emit(sessionId, 'checkpoint.path_selected', { checkpointId, observationId: current.id, path, plan: plan + 1,
-          scoring: 'conditioned-segment-cost-v1', selection, remainingActions, estimatedCostMs: path.reduce((total, aid) => total + index!.cost(aid, target ? 'target' : 'checkpoint', currentConditions.get(aid)), 0),
+          scoring: 'conditioned-segment-cost-v1', selection, remainingActions, estimatedCostMs: path.reduce((total, aid) => total + index!.cost(aid, directed ? 'target' : 'checkpoint', currentConditions.get(aid)), 0),
           index: { ...index!.metrics, edges: graph.size } });
         const beforeAttemptCount = performed.length;
         const replay = await this.replay(sessionId, path, false, performed, targetReached, dispatched);
+        if(reviewStop){status=reviewStop;reason='Review target verification requires resolution before further replay';return finish();}
         // An unknown result is not made safe by finding another route or by
         // observing the requested destination after that uncertain execution.
         if (this.unverifiedRecoveryAttempts(sessionId).length) {
@@ -1734,8 +1831,13 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         const entryAttempt = await this.runAction(sessionId, entry.id, id(), undefined, 'recovery'); performed.push(entryAttempt.id);
         if (entryAttempt.status !== 'succeeded') { status = 'UNVERIFIED'; reason = 'Entry reopening could not be verified'; return finish(); }
       }
-      if(targetReached&&await targetReached()){status='TARGET_REACHED';reason='Target verified after entry restoration';return finish();}
+      if(targetReached){
+        const arrival=await targetReached();
+        if(reviewStop){status=reviewStop;reason='Review target verification requires resolution after entry restoration';return finish();}
+        if(arrival===true){status=review?'CURRENT_REVIEWABLE':'TARGET_REACHED';reason='Target verified after entry restoration';return finish();}
+      }
       const { failure } = await this.replay(sessionId, checkpoint.path, resetConfirmed, performed, targetReached);
+      if(reviewStop){status=reviewStop;reason='Review target verification requires resolution before further replay';return finish();}
       verification = await verify(); checks = verification.checks;
       status = verification.status || (failure === 'preconditions_changed' ? 'PRECONDITIONS_CHANGED' : 'UNREACHABLE'); reason = failure || `Entry replay verification: ${status}`;
     } catch (error) { reason = String(error); status = error instanceof EngineError && error.code === 'BUDGET_EXHAUSTED' ? 'UNREACHABLE' : 'UNVERIFIED'; }
@@ -1753,6 +1855,18 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     return this.enqueueMeasured(sessionId,()=>{
       if(target.currentObservationId&&this.observation(sessionId).id!==target.currentObservationId)throw new EngineError('STALE_OBSERVATION','Browser cursor changed before target recovery');
       return this.reachInternal(sessionId,target.checkpointId,target);
+    });
+  }
+  /** Stop navigation at current interpretation material, without settling the
+   * historical source or requiring an invented executable operation. */
+  reachControlReviewTarget(sessionId:string,input:ReachControlReviewTargetInput):Promise<ControlReviewTargetReachResult> {
+    const request=structuredClone(input),checkpoint=this.owned<Checkpoint>('checkpoint',request.checkpointId,sessionId),source=this.observation(sessionId,request.observationId);
+    if(checkpoint.observationId!==source.id||source.controls.filter(c=>c.localId===request.localId).length!==1)
+      throw new EngineError('INVALID_TARGET','Review target must uniquely belong to the checkpoint source observation');
+    this.pauseRequested=true;
+    return this.enqueueMeasured(sessionId,()=>{
+      if(request.currentObservationId&&this.observation(sessionId).id!==request.currentObservationId)throw new EngineError('STALE_OBSERVATION','Browser cursor changed before review recovery');
+      return this.reachInternal(sessionId,request.checkpointId,undefined,request);
     });
   }
   reachCheckpoint(sessionId: string, checkpointId: string) { this.pauseRequested = true; return this.enqueueMeasured(sessionId, () => this.reachInternal(sessionId, checkpointId)); }

@@ -10,7 +10,9 @@ export interface ScheduledRoute {
   /** Verified retained goal conditions separate new A/B routes; absent on legacy debt. */
   sourceCondition?:string;
   /** Position arrival is separate from checkpoint/operation restoration. */
-  arrivalMode?:'observed-source';
+  arrivalMode?:'observed-source'|'control-review';
+  /** Already interpreted current material cannot satisfy a missing source condition. */
+  requireSourceEquivalent?:boolean;
   pathKeys?:string[];
   membershipUnavailable?:boolean;
   failure?:{status:'unreachable'|'invalidated';reason:string;conditionVersion:string;targets:Scope[]};

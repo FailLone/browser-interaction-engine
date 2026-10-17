@@ -230,10 +230,10 @@ export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:
   return {projection,events};
 }
 
-export type RouteRetryOutcome = 'verified'|'unreachable'|'unverified'|'unknown'|'no_progress';
+export type RouteRetryOutcome = 'verified'|'unreachable'|'unverified'|'unknown'|'no_progress'|'review_material_available';
 export interface RouteUnknownSource {sessionId:string;attemptIds:string[]}
 export interface RouteFailureCondition {
-  conditionVersion:string;evidence:EvidenceRef;basis:'complete-observation'|'replay-target-unavailable';
+  conditionVersion:string;evidence:EvidenceRef;basis:'complete-observation'|'replay-target-unavailable'|'review-material-observed';
 }
 export interface RouteRetryRecord {
   attempts:number;outcome:RouteRetryOutcome;reason:string;evidence?:EvidenceRef;attemptKey?:string;
@@ -255,13 +255,15 @@ export interface RouteRetryLedger {
     failedResultConditions?:Record<string,RouteFailureCondition&{sourceConditionVersion:string;attemptKey?:string}>;
     recoveryVerifications?:RouteRecoveryVerification[];recoveryAllowance?:string}>;
 }
-export interface RouteRetryDecision {allowed:boolean;reason:'new_condition'|'verified_recovery'|'condition_attempted'|'failed_result_condition'|'unknown_result'|'condition_limit';attempts:number}
+export interface RouteRetryDecision {allowed:boolean;reason:'new_condition'|'verified_recovery'|'condition_attempted'|'failed_result_condition'|'unknown_result'|'condition_limit'|'review_material_available';attempts:number}
 const maxConditionsPerRoute=16;
 export function routeRetryEligibility(ledger:RouteRetryLedger|undefined,routeKey:string,conditionVersion:string):RouteRetryDecision {
   const route=ledger?.version===1?ledger.routes[routeKey]:undefined,record=route?.conditions[conditionVersion];
   if(route?.unknown)return {allowed:false,reason:'unknown_result',attempts:record?.attempts||0};
   if(route?.recoveryAllowance&&route.recoveryVerifications?.some(v=>v.id===route.recoveryAllowance&&!v.consumedBy))return {allowed:true,reason:'verified_recovery',attempts:record?.attempts||0};
   if(record)return {allowed:false,reason:'condition_attempted',attempts:record.attempts};
+  if(Object.values(route?.conditions||{}).some(prior=>prior.outcome==='review_material_available'&&prior.resultCondition?.conditionVersion===conditionVersion))
+    return {allowed:false,reason:'review_material_available',attempts:0};
   if(route?.failedResultConditions?.[conditionVersion]||Object.values(route?.conditions||{}).some(prior=>(prior.outcome==='unverified'||prior.outcome==='unreachable')&&prior.resultCondition?.conditionVersion===conditionVersion))
     return {allowed:false,reason:'failed_result_condition',attempts:0};
   if(route?.saturated||Object.keys(route?.conditions||{}).length>=maxConditionsPerRoute)return {allowed:false,reason:'condition_limit',attempts:0};
@@ -292,7 +294,12 @@ export function recordRouteRetry(ledger:RouteRetryLedger|undefined,input:{routeK
     unknownSource=unknownSource&&existing.unknownSource?.sessionId===unknownSource.sessionId?{sessionId:unknownSource.sessionId,attemptIds:[...new Set([...existing.unknownSource.attemptIds,...unknownSource.attemptIds])].sort()}:undefined;
   }
   route.conditions[input.conditionVersion]={attempts:(existing?.attempts||0)+(input.attemptKey&&existing?.attemptKey===input.attemptKey?0:1),outcome:input.outcome,reason:input.reason,...input.evidence?{evidence:input.evidence}:{},...input.attemptKey?{attemptKey:input.attemptKey}:{},...unknownSource?{unknownSource}:{}};
-  retainFailureCondition(route,input.conditionVersion,input.resultCondition);
+  // Exposed current material consumes navigation only. It never verifies an old
+  // source or enters the failed-result ledger; a changed material key can retry.
+  if(input.outcome==='review_material_available'&&input.resultCondition?.basis==='review-material-observed'
+    &&input.resultCondition.evidence.sessionId===input.evidence?.sessionId&&input.resultCondition.evidence.observationId===input.evidence?.observationId)
+    route.conditions[input.conditionVersion].resultCondition=structuredClone(input.resultCondition);
+  else retainFailureCondition(route,input.conditionVersion,input.resultCondition);
   if(input.outcome==='unknown'){route.unknown=true;delete route.recoveryAllowance;}
   return result;
 }

@@ -4,7 +4,7 @@ import type { ObligationProjection, RouteRetryLedger } from './obligation-lifecy
 import type { ObligationSchedule } from './obligation-scheduler.js';
 
 /** Only documented public operations. Never a browser handle or engine persistence. */
-export type ExplorerHost = Pick<BrowserEngine, 'operationCoverageCandidates' | 'actionAvailability' | 'operationCorrespondences' | 'explorationSnapshot' | 'controlInterpretationSnapshot' | 'boundaryState' | 'interactionTransition' | 'navigationIsolation' | 'recoveryAssessment' | 'sessions' | 'session' | 'createSession' | 'observation' | 'observe' | 'actions' | 'execute' | 'command' | 'getFrontier' | 'report' | 'list' | 'regionReviewMaterial' | 'explorationReviewMaterial' | 'controlClassificationMaterial' | 'controlReviewMaterial' | 'purposeReviewMaterial' | 'discoveryScanMaterial' | 'createCheckpoint' | 'reachCheckpoint' | 'pause' | 'stop' | 'events' | 'pinEvidence' | 'unpinEvidence'> & Partial<Pick<BrowserEngine,'boundaryExitMaterial'|'probeAvailability'|'classificationCorrespondences'|'explorationTargetCorrespondences'|'reachExplorationTarget'|'returnToObservedSource'|'repetitionAssessment'|'recoverySourceMaterial'|'recoveryAnchorMaterial'|'recoveryReviewMaterial'|'recoverySelectionView'|'operationReceiptCondition'|'operationReceiptConditions'|'checkpointRecoveryCandidates'>>;
+export type ExplorerHost = Pick<BrowserEngine, 'operationCoverageCandidates' | 'actionAvailability' | 'operationCorrespondences' | 'explorationSnapshot' | 'controlInterpretationSnapshot' | 'boundaryState' | 'interactionTransition' | 'navigationIsolation' | 'recoveryAssessment' | 'sessions' | 'session' | 'createSession' | 'observation' | 'observe' | 'actions' | 'execute' | 'command' | 'getFrontier' | 'report' | 'list' | 'regionReviewMaterial' | 'explorationReviewMaterial' | 'controlClassificationMaterial' | 'controlReviewMaterial' | 'purposeReviewMaterial' | 'discoveryScanMaterial' | 'createCheckpoint' | 'reachCheckpoint' | 'pause' | 'stop' | 'events' | 'pinEvidence' | 'unpinEvidence'> & Partial<Pick<BrowserEngine,'boundaryExitMaterial'|'probeAvailability'|'classificationCorrespondences'|'explorationTargetCorrespondences'|'reachExplorationTarget'|'reachControlReviewTarget'|'controlReviewTargetCorrespondence'|'controlReviewTargetCorrespondences'|'returnToObservedSource'|'repetitionAssessment'|'recoverySourceMaterial'|'recoveryAnchorMaterial'|'recoveryReviewMaterial'|'recoverySelectionView'|'operationReceiptCondition'|'operationReceiptConditions'|'checkpointRecoveryCandidates'>>;
 export type TaskStatus = 'idle' | 'running' | 'paused' | 'stopped' | 'completed' | 'blocked' | 'budget_exhausted' | 'configuration_required';
 export interface Budget { rounds: number; actions: number; durationMs: number; modelRequests: number }
 export interface EvidenceRef { sessionId: string; observationId: string; attemptId?: string }
@@ -16,6 +16,10 @@ export type TaskIntent =
   | { version:1; mode:'exhaustive'; source:'default'|'jev'|'llm'; boundary:'current-page'; url:string; exclusions:ScopeExclusion[] }
   | { version:1; mode:'targeted'; source:'llm'|'user' }
   | { version:1; mode:'unsupported'; source:'jev'|'llm'; reason:string };
+export interface ReviewSourceProofs {
+  policy:'review-source-completion-v1';scopeKey:string;
+  bindings:{source:EvidenceRef&{localId:string};proof:EvidenceRef&{localId:string;classificationId:string;classification:'display'|'container'}}[];
+}
 export interface PlanItem {
   id: string; title: string; scope: Scope; prerequisites: Scope[]; completion: string;
   /** Scheduling revision only; SDK evidence still decides coverage equivalence. */
@@ -50,6 +54,8 @@ export interface PlanItem {
     waiting?:boolean};
   /** Classification evidence closes a review obligation, never an executed action. */
   reviewResolvedBy?: EvidenceRef & {classificationId:string;classification:'display'|'container'};
+  /** Independently verified source occurrences; refs only, never operation coverage. */
+  reviewSourceProofs?: ReviewSourceProofs;
   /** Same captured material was reviewed without a usable operation/probe.
    * Suppresses only recovery for this review; never coverage or permission. */
   reviewRecoveryWait?: {policy:'review-recovery-wait-v1';revision:number;meaningKey:string;source:EvidenceRef;localId:string;identityKey:string;conditionKey:string;materialKey:string;

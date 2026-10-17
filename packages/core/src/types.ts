@@ -193,6 +193,36 @@ export interface ReachExplorationTargetInput {
   /** Optional optimistic guard for the browser cursor before recovery begins. */
   currentObservationId?: ID;
 }
+/** An observed control awaiting interpretation; no operation is invented. */
+export interface ControlReviewTargetReference { sessionId: ID; observationId: ID; localId: ID }
+export interface ControlReviewTargetCorrespondence {
+  targetMatched: boolean;
+  /** Recorded material readiness only. Historical queries do not locate or
+   * preflight the live browser; only the async arrival API can certify that. */
+  reviewable: boolean;
+  /** Current material availability never settles missing historical dependencies. */
+  sourceEquivalent: 'equivalent' | 'different' | 'unknown';
+  reason: string; conditionKey?: string; currentMaterialKey?: string; evidence: string[];
+  source: ControlReviewTargetReference; target: ControlReviewTargetReference;
+  preflightRequired: true;
+  identityAuthorized: false; replayAuthorized: false; executionAuthorized: false;
+  currentExecution: false; coverageGranted: false; checkpointVerified: false;
+}
+export interface ReachControlReviewTargetInput {
+  checkpointId: ID; observationId: ID; localId: ID; currentObservationId?: ID;
+  /** Restore this historical source's observable review conditions instead of
+   * stopping at newly available material under different conditions. */
+  requireSourceEquivalent?: boolean;
+}
+/** Navigation stopped at current review material, independently of old coverage. */
+export interface ControlReviewTargetReachResult extends Omit<ReachResult, 'status'> {
+  status: 'CURRENT_REVIEWABLE' | 'PRECONDITIONS_CHANGED' | 'UNREACHABLE' | 'UNVERIFIED';
+  requireSourceEquivalent: boolean;
+  sourceEquivalent: ControlReviewTargetCorrespondence['sourceEquivalent'];
+  targetObservationId: ID; targetLocalId: ID; matchedLocalId?: ID;
+  proof?: ControlReviewTargetCorrespondence;
+  checkpointVerified: false; currentExecution: false; executionAuthorized: false; coverageGranted: false;
+}
 /** Return only to a retained source position, never restore its UI state or replay its path. */
 export interface ReturnToObservedSourceInput {
   observationId: ID;

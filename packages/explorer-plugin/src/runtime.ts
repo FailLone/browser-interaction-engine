@@ -4,7 +4,7 @@ import { projectObligations, recoveryConditionVersion, recoveryRouteConditionVer
 import {capturedRoute,routeFinder,routeMatches,routeKey} from './reentry-evidence.js';
 import { randomUUID } from 'node:crypto';
 import { setImmediate as yieldImmediate } from 'node:timers/promises';
-import { browserOperationCorrespondenceHint, browserTargetConditions, hasReviewedDismissal, sameObservedState } from '@interaction/browser';
+import { browserOperationCorrespondenceHint, browserTargetConditions, createBrowserControlReviewMaterialKey, hasReviewedDismissal, sameObservedState } from '@interaction/browser';
 import { z } from 'zod';
 import type { ActionCandidate, ActionAttempt, Observation, EngineEvent, BoundaryExitResult, ContinuationRecord, IdentityHypothesis } from '@interaction/browser';
 import { ExplorerError, type Task, type Round, type Frame, type PlanItem, type Scope, type ExplorerHost, type Providers, type Decision, type ModelRequest } from './types.js';
@@ -19,7 +19,7 @@ import { safeError } from './providers.js';
 import { POLICY_VERSION } from './decision-policy.js';
 import { semanticAnswerSchema, semanticRejection, type SemanticReview } from './semantic-review.js';
 import { remapStoredScopes, remapStoredReviewScopes, recoverStoredScopeSources } from './scope-migration.js';
-import { reviewGapChanges, controlReviewGapReasons } from './review-ledger.js';
+import { reviewGapChanges, reviewGapRetractions, controlReviewGapReasons } from './review-ledger.js';
 import { reviewRecoveryChanges, prioritizeReviewAnchors, currentHistoryAnchor, validReviewRecoveryWait, type ReviewRecoveryChange, type UnresolvedReview, type ReviewAnchorObservation } from './review-recovery.js';
 import { pageSourceObligation, sourceReturnCondition } from './source-return.js';
 import { recoveryFailureCondition } from './recovery-failure.js';
@@ -37,7 +37,7 @@ const requiredCapabilities: (keyof ExplorerHost)[]=['operationCoverageCandidates
 const now=()=>new Date().toISOString();
 type ScheduledRoute=NonNullable<Task['scheduling']>['routes'][string];
 type RouteConditionReader=(route:ScheduledRoute,readSource?:(sessionId:string,observationId:string)=>Observation|undefined)=>string|undefined;
-type ScheduledRecovery={frame:Frame;source:Observation;remaining:Scope[];itemId:string;routeKey:string;targetActionIds:string[];conditionVersion:string;returnToSource?:boolean;revalidate:()=>void};
+type ScheduledRecovery={frame:Frame;source:Observation;remaining:Scope[];itemId:string;routeKey:string;targetActionIds:string[];conditionVersion:string;returnToSource?:boolean;reviewLocalId?:string;requireSourceEquivalent?:boolean;revalidate:()=>void};
 export class ExplorerPlugin {
   readonly router:DecisionRouter;
   private active?: {task:Task;controller:AbortController;promise:Promise<void>};
@@ -89,6 +89,7 @@ export class ExplorerPlugin {
     if(active){active.task.status=stop?'stopped':'paused';active.task.reason=stop?'user_stopped':'user_paused';active.task.pauseRequestedAt=Date.now();active.task.revision++;try{this.persist(active.task);}finally{active.controller.abort();}await active.promise;}
     const state=this.store.taskState(id),task=state.task;task.status=stop?'stopped':'paused';task.reason=stop?'user_stopped':'user_paused';
     const round=task.rounds.at(-1);if(round){if(stop)await this.host.stop(round.sessionId);else await this.host.pause(round.sessionId);round.status=stop?'finished':'paused';if(stop)round.endedAt=now();}
+    if(round)this.retractReviewLedger(task,this.host.observation(round.sessionId));
     this.persist(task,state.version);this.event(task,stop?'task.stopped':'task.paused',{});return task;
   }
   async takeover(sessionId:string){const owner=this.owner(sessionId);if(owner)await this.pause(owner);}
@@ -100,7 +101,7 @@ export class ExplorerPlugin {
     if(input.goal!==undefined)task.goal=z.string().trim().max(20000).parse(input.goal);
     if(!task.goal&&!input.items&&!supplement&&task.coverageMode!=='all')throw new ExplorerError('EXHAUSTIVE_REQUIRES_ALL');
     if(input.items){const items=z.array(plannedScopeSchema).min(1).max(100).parse(input.items);task.plan=items.map(x=>this.newItem(x));task.intent={version:1,mode:'targeted',source:'user'};}
-    else if(supplement){task.intent={version:1,mode:'targeted',source:'user'};if(!input.itemIds?.length||input.itemIds.some(id=>!task.plan.some(i=>i.id===id)))throw new ExplorerError('INVALID_SCOPE');const ids=new Set(input.itemIds);task.acceptedLimitations=task.acceptedLimitations?.filter(x=>!task.plan.some(i=>ids.has(i.id)&&i.reason===`missing_capability:${x.code}`));for(const item of task.plan){if(isSuperseded(item)||item.conditionMigration?.status==='split')continue;item.required=ids.has(item.id);item.dispatchScope=item.required;if(item.required){item.status='pending';if(item.conditionCompletion?.status==='unverified')item.conditionCompletion={...item.conditionCompletion,waiting:false};delete item.resolvedBy;delete item.reviewResolvedBy;delete item.coverageResolvedBy;delete item.reviewRecoveryWait;}}}
+    else if(supplement){task.intent={version:1,mode:'targeted',source:'user'};if(!input.itemIds?.length||input.itemIds.some(id=>!task.plan.some(i=>i.id===id)))throw new ExplorerError('INVALID_SCOPE');const ids=new Set(input.itemIds);task.acceptedLimitations=task.acceptedLimitations?.filter(x=>!task.plan.some(i=>ids.has(i.id)&&i.reason===`missing_capability:${x.code}`));for(const item of task.plan){if(isSuperseded(item)||item.conditionMigration?.status==='split')continue;item.required=ids.has(item.id);item.dispatchScope=item.required;if(item.required){item.status='pending';if(item.conditionCompletion?.status==='unverified')item.conditionCompletion={...item.conditionCompletion,waiting:false};delete item.resolvedBy;delete item.reviewResolvedBy;delete item.coverageResolvedBy;delete item.reviewRecoveryWait;delete item.reviewSourceProofs;}}}
     else {task.plan=[];delete task.intent;}
     if(task.pendingDispatch)throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
     // An explicit supplement revises child authority, never the retired parent's
@@ -223,15 +224,46 @@ export class ExplorerPlugin {
   }
   private async reconcileReviewLedger(task:Task,o:Observation,signal:AbortSignal) {
     const changes=reviewGapChanges(task,o,this.host),revision=task.revision;if(!changes.length)return;
-    if(changes.some(c=>c.proof))await this.host.pinEvidence(o.sessionId,o.id,`explorer:${task.id}`);
+    const pins=new Map<string,{sessionId:string;observationId:string}>();
+    for(const change of changes){
+      const prior=new Set(task.plan.find(item=>item.id===change.itemId)?.reviewSourceProofs?.bindings.map(binding=>digest(binding))||[]);
+      for(const binding of change.sourceProofs?.bindings||[]){
+        if(prior.has(digest(binding)))continue;
+        const ref=binding.proof;pins.set(JSON.stringify([ref.sessionId,ref.observationId]),ref);
+      }
+      if(change.proof)pins.set(JSON.stringify([change.proof.sessionId,change.proof.observationId]),change.proof);
+    }
+    for(const ref of pins.values())await this.host.pinEvidence(ref.sessionId,ref.observationId,`explorer:${task.id}`);
     if(signal.aborted||task.status!=='running'||task.revision!==revision)throw new ExplorerError('CANCELLED');
     if(this.host.observation(o.sessionId).id!==o.id)throw new ExplorerError('STALE_DECISION');
-    for(const change of changes) {
-      const item=task.plan.find(i=>i.id===change.itemId)!;this.changedPlan(task,item);
-      if(change.proof){item.reviewResolvedBy=change.proof;item.status='succeeded';item.evidence.push({sessionId:o.sessionId,observationId:o.id});this.event(task,'review.resolved',{itemId:item.id,proof:change.proof,executed:false});}
-      else{const previous=item.reviewResolvedBy;delete item.reviewResolvedBy;delete item.resolvedBy;item.status='unresolved';this.event(task,'review.reopened',{itemId:item.id,previous,reason:change.reason||'current_classification_not_verified'});}
+    // Pinning may await storage. Recheck mutable classification retention before
+    // accepting any source proof; changed material is handled by the next pass.
+    if(pins.size&&digest(reviewGapChanges(task,o,this.host))!==digest(changes))throw new ExplorerError('STALE_DECISION');
+    this.applyReviewLedgerChanges(task,changes,false);this.persist(task);
+  }
+  private applyReviewLedgerChanges(task:Task,changes:ReturnType<typeof reviewGapChanges>,retractionsOnly:boolean) {
+    for(const change of changes){
+      const item=task.plan.find(i=>i.id===change.itemId);if(!item)continue;
+      this.changedPlan(task,item);
+      if(change.sourceProofs){
+        item.reviewSourceProofs=change.sourceProofs;
+        this.event(task,'review.sources_reconciled',{itemId:item.id,policy:change.sourceProofs.policy,scopeKey:change.sourceProofs.scopeKey,verifiedSources:change.sourceProofs.bindings.length,complete:change.complete===true,executed:false});
+      }
+      if(change.proof&&!retractionsOnly){
+        item.reviewResolvedBy=change.proof;item.status='succeeded';
+        // A classification is a proof reference, not an additional discovery
+        // source. Keeping it out of evidence avoids manufacturing new obligations.
+        this.event(task,'review.resolved',{itemId:item.id,proof:change.proof,executed:false});
+      }else if(change.complete!==true){
+        const previous=item.reviewResolvedBy;delete item.reviewResolvedBy;delete item.resolvedBy;item.status='unresolved';
+        this.event(task,'review.reopened',{itemId:item.id,previous,reason:change.reason||'review_source_conditions_unverified'});
+      }
     }
-    this.persist(task);
+  }
+  /** Terminal settlement can shrink old proofs into valid source subsets, but
+   * cannot use a new classification or mark an unfinished whole item complete. */
+  private retractReviewLedger(task:Task,o:Observation) {
+    this.applyReviewLedgerChanges(task,reviewGapRetractions(task,o,this.host),true);
   }
   private async applyReviewRecoveryChanges(task:Task,o:Observation,signal:AbortSignal,changes:ReviewRecoveryChange[]) {
     if(!changes.length)return;
@@ -641,7 +673,7 @@ export class ExplorerPlugin {
     } finally {
       if(!this.writers.get(task)?.conflicted){
         this.syncUsage(task);if(typeof task.activeSince==='number')task.usage.durationMs+=Math.max(0,Date.now()-task.activeSince);delete task.activeSince;delete task.pauseRequestedAt;
-        const round=task.rounds.at(-1);if(round){try{round.position=observedPosition(this.host.observation(round.sessionId));}catch{/* Missing observation remains unknown. */}if(round.status==='running')round.status='paused';}
+        const round=task.rounds.at(-1);if(round){try{const observed=this.host.observation(round.sessionId);round.position=observedPosition(observed);this.retractReviewLedger(task,observed);}catch{/* Missing observation remains unknown. */}if(round.status==='running')round.status='paused';}
         if(task.status==='running')task.status='paused';this.persist(task);
       }
     }
@@ -677,8 +709,19 @@ export class ExplorerPlugin {
     // action reader explicitly, and must rebuild it after any awaited recovery.
     type Current={action:ActionCandidate;scope:Scope;verified:boolean;native:boolean;link:boolean;ambiguous:boolean};
     let current:Map<string,Current[]>|undefined,rows:Current[]=[];
+    let reviewKey:ReturnType<typeof createBrowserControlReviewMaterialKey>|undefined,reviewScope:ReturnType<typeof controlScopeMatcher>|undefined;
     return (route,readSource)=>{
       if(route.arrivalMode==='observed-source'){try{const source=readSource?readSource(route.sessionId,route.observationId):this.host.observation(route.sessionId,route.observationId);return source&&sourceReturnCondition(source,o);}catch{return;}}
+      if(route.arrivalMode==='control-review'){
+        reviewScope??=controlScopeMatcher(o,actions);reviewKey??=createBrowserControlReviewMaterialKey(o);
+        const keys=route.targets.map(scope=>{
+          const matches=o.controls.filter(control=>reviewScope!(scope,control));
+          if(matches.length!==1)return digest({match:matches.length?'ambiguous':'absent'});
+          const control=matches[0];
+          return reviewKey!(control)||'material-unverified';
+        });
+        return recoveryConditionVersion(o,keys);
+      }
       if(route.membershipUnavailable||!route.memberKeys||!route.pathKeys)return;
       if(!current){
         current=new Map();const controls=new Map(o.controls.map(control=>[control.localId,control])),scoped=new Map<string,Current[]>();
@@ -815,6 +858,34 @@ export class ExplorerPlugin {
     const anchors=new Map<string,ReviewAnchorObservation|undefined>();
     const reviewMaterials=new Map<string,ReturnType<ExplorerHost['controlReviewMaterial']>|undefined>();
     let currentIndex:ReturnType<typeof observationActionIndex>|undefined,currentInScope:ReturnType<typeof controlScopeMatcher>|undefined;
+    let reviewInterpretations:ReturnType<ExplorerHost['controlInterpretationSnapshot']>|undefined,interpretationsRead=false;
+    const reviewedScopes=new Map<string,boolean>(),reviewSourceConditions=new Map<string,string|undefined>();
+    const clearReviewConditions=()=>{reviewInterpretations=undefined;interpretationsRead=false;reviewedScopes.clear();reviewSourceConditions.clear();};
+    const currentReviewComplete=(scope:Scope)=>{
+      const key=digest(scope);if(reviewedScopes.has(key))return reviewedScopes.get(key)!;
+      if(!interpretationsRead){
+        interpretationsRead=true;
+        try{const snapshot=this.host.controlInterpretationSnapshot(o.sessionId,o.id);
+          if(snapshot.sessionId===o.sessionId&&snapshot.observationId===o.id&&snapshot.executionAuthorized===false)reviewInterpretations=snapshot;
+        }catch{/* Unavailable interpretation cannot strengthen arrival requirements. */}
+      }
+      const controls=o.controls.filter(control=>control.visible&&(currentInScope??=controlScopeMatcher(o,actions))(scope,control));
+      const complete=controls.length===1&&!!reviewInterpretations?.nonInteractive.some(row=>row.sessionId===o.sessionId&&row.observationId===o.id
+        &&row.localId===controls[0].localId&&['display','container'].includes(row.classification));
+      reviewedScopes.set(key,complete);return complete;
+    };
+    const reviewSourceCondition=(source:Observation,localId:string)=>{
+      const key=JSON.stringify([source.sessionId,source.id,localId]);if(reviewSourceConditions.has(key))return reviewSourceConditions.get(key);
+      let condition:string|undefined;
+      try{const proof=this.host.controlReviewTargetCorrespondence?.(source.sessionId,{observationId:source.id,localId,source:{sessionId:source.sessionId,observationId:source.id,localId}});
+        if(proof?.targetMatched&&proof.reviewable&&proof.sourceEquivalent==='equivalent'&&proof.conditionKey
+          &&proof.source.sessionId===source.sessionId&&proof.source.observationId===source.id&&proof.source.localId===localId
+          &&proof.target.sessionId===source.sessionId&&proof.target.observationId===source.id&&proof.target.localId===localId
+          &&proof.preflightRequired===true&&proof.identityAuthorized===false&&proof.replayAuthorized===false
+          &&proof.executionAuthorized===false&&proof.currentExecution===false&&proof.coverageGranted===false&&proof.checkpointVerified===false)condition=proof.conditionKey;
+      }catch{/* Missing source conditions keep conservative route debt. */}
+      reviewSourceConditions.set(key,condition);return condition;
+    };
     let currentSourceExclusion=createCurrentSourceExclusion(o);
     const targetConditions=(facts:Retained,action:ActionCandidate)=>{
       const conditions=facts.conditions??=new Map();
@@ -919,9 +990,10 @@ export class ExplorerPlugin {
     const checkpointCandidates=new Map<string,CheckpointCandidate|undefined>();
     // Checkpoint strategy evaluation has additional adapter/hook dependencies;
     // it is deliberately outside the recorded-fact view.
-    yielded=()=>{checkpointCandidates.clear();if(!selectionView?.reviewMaterial)reviewMaterials.clear();};
+    yielded=()=>{checkpointCandidates.clear();clearReviewConditions();if(!selectionView?.reviewMaterial)reviewMaterials.clear();};
     invalidate=()=>{
       currentSourceExclusion=createCurrentSourceExclusion(o);
+      clearReviewConditions();
       retained.clear();anchors.clear();reviewMaterials.clear();currentIndex=undefined;currentInScope=undefined;checkpointCandidates.clear();
       projections.clear();projectionCount=0;
       routeCondition=this.routeConditionReader(o,actions);
@@ -960,12 +1032,14 @@ export class ExplorerPlugin {
       return Object.entries(task.scheduling?.routes||{}).filter(([,route])=>route.memberKeys?.includes(memberKey)
         ||route.itemIds.includes(item.id)||route.targets.some(scope=>digest(scope)===scopeKey));
     };
-    const unassociatedRouteDebt=(related:[string,ScheduledRoute][],key:string,sourceCondition:string|undefined,returnToSource:boolean)=>related.some(([otherKey,route])=>{
+    const sameArrival=(route:ScheduledRoute,arrivalMode:ScheduledRoute['arrivalMode'],requireSourceEquivalent=false)=>route.arrivalMode===arrivalMode
+      &&(arrivalMode!=='control-review'||!!route.requireSourceEquivalent===requireSourceEquivalent);
+    const unassociatedRouteDebt=(related:[string,ScheduledRoute][],key:string,sourceCondition:string|undefined,arrivalMode:ScheduledRoute['arrivalMode'],requireSourceEquivalent=false)=>related.some(([otherKey,route])=>{
       const debt=task.routeRetries?.routes[otherKey];
       // Strict checkpoint failure cannot spend a legal native page return.
       // Unknown execution, however, is not isolated by that contract boundary.
       return otherKey!==key&&!!debt&&(debt.unknown||Object.values(debt.conditions).some(record=>record.outcome==='unknown'&&!record.recoveryVerificationId)
-        ||(route.arrivalMode==='observed-source')===returnToSource&&(!sourceCondition||!route.sourceCondition||route.sourceCondition===sourceCondition));
+        ||sameArrival(route,arrivalMode,requireSourceEquivalent)&&(!sourceCondition||!route.sourceCondition||route.sourceCondition===sourceCondition));
     });
     // Private, synchronous validation only: this closure is never persisted or
     // treated as dispatch authority. It protects the final async return as well
@@ -977,9 +1051,11 @@ export class ExplorerPlugin {
       if(checkpoints.length!==1||digest(checkpoints[0])!==checkpointKey||!fresh)throw new ExplorerError('STALE_DECISION');
       if(transitionCaptured&&!fresh.transition)fresh.transition=this.host.interactionTransition(o.sessionId,fresh.source.id,o.id);
       if(digest({source:fresh.source,sourceActions:fresh.actions,transition:fresh.transition})!==factsKey)throw new ExplorerError('STALE_DECISION');
+      if(recovery.reviewLocalId&&(currentReviewComplete(item.scope)!==!!recovery.requireSourceEquivalent
+        ||reviewSourceCondition(fresh.source,recovery.reviewLocalId)!==sourceCondition))throw new ExplorerError('STALE_DECISION');
       if(routeCondition(route,readRouteSource)!==recovery.conditionVersion||!routeDebtAllows(schedule,recovery.routeKey)
         ||!routeRetryEligibility(task.routeRetries,recovery.routeKey,recovery.conditionVersion).allowed
-        ||unassociatedRouteDebt(relatedRoutes(item,memberKey),recovery.routeKey,sourceCondition,!!recovery.returnToSource)
+        ||unassociatedRouteDebt(relatedRoutes(item,memberKey),recovery.routeKey,sourceCondition,route.arrivalMode,!!recovery.requireSourceEquivalent)
         ||(strictSourceFallback?!tryableCheckpoint(checkpoint,fresh.source):strictCheckpoint&&noKnownCheckpointPath(checkpoint,fresh.source,[checkpoint])))throw new ExplorerError('STALE_DECISION');
       recovery.source=fresh.source;
     };
@@ -989,10 +1065,12 @@ export class ExplorerPlugin {
       if(reviewFallback&&!reviewFallback.pageIds.has(item.id))continue;
       if(validReviewRecoveryWait(task,item,o,id=>read(id)?.source,readReviewMaterial)){deferSelection(item.id,recoveryConditionVersion(o),'unchanged_unresolved_review',o.id);continue;}
       const returnToSource=!!this.host.returnToObservedSource&&pageSourceObligation(item);
+      const reviewTarget=!returnToSource&&!item.scope.kind&&controlReviewGapReasons.has(item.reason)&&!!this.host.reachControlReviewTarget;
+      const arrivalMode=returnToSource?'observed-source' as const:reviewTarget?'control-review' as const:undefined;
       // A different arrival contract cannot isolate unresolved execution debt.
       // Legacy records without source IDs remain blocked until SDK-backed
       // continuation evidence explicitly releases their original ledger.
-      if(returnToSource&&Object.values(task.routeRetries?.routes||{}).some(route=>route.unknown||Object.values(route.conditions).some(record=>record.outcome==='unknown'&&!record.recoveryVerificationId))){
+      if((returnToSource||reviewTarget)&&Object.values(task.routeRetries?.routes||{}).some(route=>route.unknown||Object.values(route.conditions).some(record=>record.outcome==='unknown'&&!record.recoveryVerificationId))){
         deferSelection(item.id,recoveryConditionVersion(o),'source_return_unknown_route_debt',o.id);continue;
       }
       const refs=[...new Set(item.evidence.filter(ref=>ref.sessionId===o.sessionId&&!ref.attemptId).map(ref=>ref.observationId))].reverse();
@@ -1007,6 +1085,13 @@ export class ExplorerPlugin {
         const prioritized=prioritizeReviewAnchors(candidates,o,multipleSources?readAnchor:id=>read(id)?.source,{checkpoint:()=>checkpoint(16),resume});
         if(Array.isArray(prioritized))candidates=prioritized;
         else {candidates=await prioritized;resume();}
+        // Saved proofs affect order only: revocation must not permanently hide
+        // a legal source. Fresh correspondence still decides every candidate.
+        const saved=item.reviewSourceProofs;
+        if(reviewTarget&&saved?.policy==='review-source-completion-v1'&&saved.scopeKey===digest(item.scope)){
+          const reviewed=new Set(saved.bindings.filter(binding=>binding.source.sessionId===o.sessionId).map(binding=>binding.source.observationId));
+          candidates=[...candidates.filter(candidate=>!reviewed.has(candidate.observationId)),...candidates.filter(candidate=>reviewed.has(candidate.observationId))];
+        }
       }
       let reason=candidates.length?'source_target_unverified':item.evidence.some(ref=>ref.sessionId!==o.sessionId)?'cross_session_observed_route_required':'retained_checkpoint_unavailable';
       for(let candidateIndex=0;candidateIndex<candidates.length;candidateIndex++){
@@ -1030,31 +1115,35 @@ export class ExplorerPlugin {
         const {source,actions:sourceActions}=facts;
         const index=facts.index??=observationActionIndex(source,sourceActions),condition=boundOperationCondition(item);
         const targets=index.matching(item.scope).filter(action=>!condition||condition===index.condition(action));
+        const reviewControls=reviewTarget?source.controls.filter(control=>control.visible&&(facts.inScope??=controlScopeMatcher(source,sourceActions))(item.scope,control)):[];
+        if(reviewTarget&&reviewControls.length!==1){reason='source_review_target_not_unique';continue;}
+        const reviewLocalId=reviewControls[0]?.localId;
+        const requireSourceEquivalent=reviewTarget&&currentReviewComplete(item.scope);
         const hint=round.stack.find(frame=>frame.observationId===source.id&&frame.checkpointId===checkpoint.id);
-        const memberKey=recoveryRouteKey(source,sourceActions,[item.scope]),sourceCondition=item.scope.kind&&targets.length===1?targetConditions(facts,targets[0])?.key:undefined;
+        const memberKey=recoveryRouteKey(source,sourceActions,[item.scope]),sourceCondition=reviewLocalId?reviewSourceCondition(source,reviewLocalId):item.scope.kind&&targets.length===1?targetConditions(facts,targets[0])?.key:undefined;
         const strictSourceFallback=!!item.scope.kind&&!sourceCondition,family=relatedRoutes(item,memberKey);
-        const related=family.filter(([,route])=>(route.arrivalMode==='observed-source')===returnToSource&&(!route.sourceCondition||route.sourceCondition===sourceCondition));
+        const related=family.filter(([,route])=>sameArrival(route,arrivalMode,requireSourceEquivalent)&&(!route.sourceCondition||route.sourceCondition===sourceCondition));
         const old=related.find(([key,route])=>route.memberKeys?.includes(memberKey)||recoveryRouteKey(source,sourceActions,route.targets,route.path)===key);
         if(!old&&related.some(([key])=>task.routeRetries?.routes[key])){reason='mapped_route_debt_source_unverified';continue;}
-        const hintKey=hint&&recoveryRouteKey(source,sourceActions,hint.remaining,hint.path),legacyHint=!returnToSource&&hintKey&&task.routeRetries?.routes[hintKey]?hint:undefined;
+        const hintKey=hint&&recoveryRouteKey(source,sourceActions,hint.remaining,hint.path),legacyHint=!returnToSource&&!reviewTarget&&hintKey&&task.routeRetries?.routes[hintKey]?hint:undefined;
         // New routes budget individual goals. A DFS frame may contain unrelated
         // siblings; A failing must not consume B's first reach attempt.
         const budgetTargets=old?.[1].targets||legacyHint?.remaining||[item.scope],path=returnToSource?[]:old?.[1].path||legacyHint?.path||hint?.path||item.prerequisites;
         const baseRouteKey=recoveryRouteKey(source,sourceActions,budgetTargets,path);
         // Preserve old strict-checkpoint debt under its original contract. A
         // source-position route has a distinct result and cannot settle it.
-        const baseKey=returnToSource?digest({policy:'observed-source-return-route-v1',route:baseRouteKey}):baseRouteKey;
+        const baseKey=returnToSource?digest({policy:'observed-source-return-route-v1',route:baseRouteKey}):reviewTarget?digest({policy:'control-review-route-v1',route:baseRouteKey,...requireSourceEquivalent?{requireSourceEquivalent:true}:{}}):baseRouteKey;
         // A new route serves a verified source condition, so failure to reach A
         // cannot spend B's first attempt while both are currently absent. Older
         // opaque/composite debt has no such proof and keeps its original key.
         const legacy=!!old&&!old[1].sourceCondition||!!legacyHint||!!task.routeRetries?.routes[baseKey];
         const key=old?.[0]||(!legacy&&sourceCondition?digest({policy:'explorer-source-target-route-v1',route:baseKey,sourceCondition}):baseKey);
-        if(unassociatedRouteDebt(family,key,sourceCondition,returnToSource)){reason='mapped_route_debt_source_unverified';continue;}
+        if(unassociatedRouteDebt(family,key,sourceCondition,arrivalMode,requireSourceEquivalent)){reason='mapped_route_debt_source_unverified';continue;}
         // An exact legacy key is a valid association; otherwise no new budget
         // can be minted while an older route's scope remains unknown.
         if(task.routeRetries?.routes[key]&&!schedule.routes[key])bindScheduledRoute(schedule,key,{sessionId:o.sessionId,observationId:source.id,checkpointId:checkpoint.id,targets:budgetTargets,path,itemIds:[item.id],memberKeys:budgetTargets.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),pathKeys:path.map(scope=>recoveryRouteKey(source,sourceActions,[scope]))});
         if(!routeDebtAllows(schedule,key)){reason='legacy_route_debt_unmapped';continue;}
-        const route={sessionId:o.sessionId,observationId:source.id,checkpointId:checkpoint.id,targets:budgetTargets,path,...(returnToSource?{arrivalMode:'observed-source' as const}:{}),...(!legacy&&sourceCondition?{sourceCondition}:{}),itemIds:[...new Set([...(old?.[1].itemIds||[]),item.id])],memberKeys:old?.[1].memberKeys||budgetTargets.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),pathKeys:old?.[1].pathKeys||path.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),...old?.[1].failure?{failure:old[1].failure}:{}};
+        const route={sessionId:o.sessionId,observationId:source.id,checkpointId:checkpoint.id,targets:budgetTargets,path,...(arrivalMode?{arrivalMode}:{}),...(requireSourceEquivalent?{requireSourceEquivalent:true}:{}),...(!legacy&&sourceCondition?{sourceCondition}:{}),itemIds:[...new Set([...(old?.[1].itemIds||[]),item.id])],memberKeys:old?.[1].memberKeys||budgetTargets.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),pathKeys:old?.[1].pathKeys||path.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),...old?.[1].failure?{failure:old[1].failure}:{}};
         const conditionVersion=routeCondition(route,readRouteSource);if(!conditionVersion){reason='route_condition_unverified';continue;}
         // Older ledgers consumed only the starting condition. Revalidate their
         // recorded failure endpoint before treating it as negative retry evidence.
@@ -1074,7 +1163,7 @@ export class ExplorerPlugin {
         if(!retry.allowed){reason=`route_retry_${retry.reason}`;continue;}
         const concrete=!!item.scope.kind&&!!(item.scope.label||item.scope.stableKey||item.scope.value!==undefined);
         const targetActionIds=concrete&&!strictSourceFallback?targets.filter(action=>action.basis?.status==='supported').map(action=>action.id):[];
-        const strictCheckpoint=!returnToSource&&!(targetActionIds.length&&this.host.reachExplorationTarget);
+        const strictCheckpoint=!returnToSource&&!reviewTarget&&!(targetActionIds.length&&this.host.reachExplorationTarget);
         if(strictSourceFallback&&!tryableCheckpoint(checkpoint,source)){
           reason='strict_checkpoint_candidate_unverified';continue;
         }
@@ -1083,9 +1172,9 @@ export class ExplorerPlugin {
         }
         const frame:Frame={checkpointId:checkpoint.id,observationId:source.id,stateId:source.stateId,used:[],path,remaining:budgetTargets};
         const factsKey=digest({source,sourceActions,transition:facts.transition}),checkpointKey=digest(checkpoint),transitionCaptured=!!facts.transition;
-        const recovery:ScheduledRecovery={frame,source,remaining:[item.scope],itemId:item.id,routeKey:key,conditionVersion,returnToSource,targetActionIds,
+        const recovery:ScheduledRecovery={frame,source,remaining:[item.scope],itemId:item.id,routeKey:key,conditionVersion,returnToSource,targetActionIds,...(reviewLocalId?{reviewLocalId,requireSourceEquivalent}:{}),
           revalidate:()=>revalidate(recovery,route,checkpoint,factsKey,checkpointKey,transitionCaptured,strictCheckpoint,strictSourceFallback,item,memberKey,sourceCondition)};
-        if(!reviewFallback&&this.host.returnToObservedSource&&!item.scope.kind&&controlReviewGapReasons.has(item.reason)&&!currentHistoryAnchor(source,o)){
+        if(!reviewTarget&&!reviewFallback&&this.host.returnToObservedSource&&!item.scope.kind&&controlReviewGapReasons.has(item.reason)&&!currentHistoryAnchor(source,o)){
           // A stale review source can require a strict replay even when the
           // accepted page has a current native return. Try that independent
           // discovery obligation first, without changing the review's source.
@@ -1300,31 +1389,51 @@ export class ExplorerPlugin {
       const recoveryAttemptKey=randomUUID();
       task.routeRetries=recordRouteRetry(task.routeRetries,{routeKey,conditionVersion:frame.recoveryConditionVersion,attemptKey:recoveryAttemptKey,outcome:'no_progress',reason:'recovery_selected'});this.persist(task);
       this.assert(task,signal,o.id);
-      this.event(task,'recovery.selected',{reason:'unfinished_observed_targets',itemId,routeKey,checkpointId:frame.checkpointId,sourceObservationId:source.id,currentObservationId:o.id,unfinishedTargets:remaining.length,hostVerificationRequired:true,...(recovery.returnToSource?{arrivalMode:'observed-source'}:{})});
-      let result=recovery.returnToSource&&this.host.returnToObservedSource
+      this.event(task,'recovery.selected',{reason:'unfinished_observed_targets',itemId,routeKey,checkpointId:frame.checkpointId,sourceObservationId:source.id,currentObservationId:o.id,unfinishedTargets:remaining.length,hostVerificationRequired:true,...(recovery.returnToSource?{arrivalMode:'observed-source'}:recovery.reviewLocalId?{arrivalMode:'control-review'}:{})});
+      if(recovery.reviewLocalId&&!this.host.reachControlReviewTarget)throw new ExplorerError('STALE_DECISION');
+      let result=recovery.reviewLocalId
+        ?await this.host.reachControlReviewTarget!(sid,{checkpointId:frame.checkpointId,observationId:source.id,localId:recovery.reviewLocalId,currentObservationId:o.id,requireSourceEquivalent:!!recovery.requireSourceEquivalent})
+        :recovery.returnToSource&&this.host.returnToObservedSource
         ?await this.host.returnToObservedSource(sid,{observationId:source.id,currentObservationId:o.id})
         :recovery.targetActionIds.length&&this.host.reachExplorationTarget
         ?await this.host.reachExplorationTarget(sid,{checkpointId:frame.checkpointId,observationId:source.id,actionIds:recovery.targetActionIds,currentObservationId:o.id})
         :await this.host.reachCheckpoint(sid,frame.checkpointId);
-      const acceptedStatuses=recovery.returnToSource?['SOURCE_REACHED']:recovery.targetActionIds.length&&this.host.reachExplorationTarget?['TARGET_REACHED']:['REACHED_VERIFIED','REACHED_ACCEPTABLE'];
-      if(![...acceptedStatuses,'UNVERIFIED','UNREACHABLE','PRECONDITIONS_CHANGED'].includes(result.status)){
+      const acceptedStatuses=recovery.reviewLocalId?['CURRENT_REVIEWABLE']:recovery.returnToSource?['SOURCE_REACHED']:recovery.targetActionIds.length&&this.host.reachExplorationTarget?['TARGET_REACHED']:['REACHED_VERIFIED','REACHED_ACCEPTABLE'];
+      const invalidReviewResult=result.status==='CURRENT_REVIEWABLE'&&(result.checkpointVerified!==false||result.coverageGranted!==false||result.executionAuthorized!==false||result.currentExecution!==false
+        ||result.requireSourceEquivalent!==!!recovery.requireSourceEquivalent||recovery.requireSourceEquivalent&&result.sourceEquivalent!=='equivalent'
+        ||result.sessionId!==sid||result.checkpointId!==frame.checkpointId||result.targetObservationId!==source.id||result.targetLocalId!==recovery.reviewLocalId
+        ||!result.matchedLocalId||result.observationId!==this.host.observation(sid).id
+        ||!result.proof?.targetMatched||!result.proof.reviewable||result.proof.sourceEquivalent!==result.sourceEquivalent
+        ||result.proof.source.sessionId!==sid||result.proof.source.observationId!==source.id||result.proof.source.localId!==recovery.reviewLocalId
+        ||result.proof.target.sessionId!==sid||result.proof.target.observationId!==result.observationId||result.proof.target.localId!==result.matchedLocalId
+        ||result.proof.preflightRequired!==true||result.proof.identityAuthorized!==false||result.proof.replayAuthorized!==false
+        ||result.proof.currentExecution!==false||result.proof.executionAuthorized!==false||result.proof.coverageGranted!==false||result.proof.checkpointVerified!==false);
+      if(invalidReviewResult||![...acceptedStatuses,'UNVERIFIED','UNREACHABLE','PRECONDITIONS_CHANGED'].includes(result.status)){
         this.event(task,'recovery.contract_rejected',{resultId:result.id,hostResultStatus:result.status,acceptedStatuses,checkpointVerified:false,executionAuthorized:false});
         result={...result,status:'UNVERIFIED',reason:'host_recovery_contract_mismatch',checkpointVerified:false};
       }
       const actual=this.host.observation(sid),unresolved=this.recoveryOutcomes(task),unknown=unresolved.length>0,status=unknown?'UNVERIFIED':result.status;
       const unknownAttemptIds=unresolved.filter(r=>r.sessionId===sid).flatMap(r=>r.attemptIds).filter(id=>result.attemptIds.includes(id));
       const failed=['UNREACHABLE','UNVERIFIED','PRECONDITIONS_CHANGED'].includes(status);
-      const actualCondition=failed?this.routeConditionReader(actual,this.host.actions(sid,actual.id))(schedule.routes[routeKey]):undefined;
+      const materialAvailable=!unknown&&result.status==='CURRENT_REVIEWABLE';
+      const actualCondition=failed||materialAvailable?this.routeConditionReader(actual,this.host.actions(sid,actual.id))(schedule.routes[routeKey]):undefined;
       if(failed)frame.recoveryFailure={status:status==='UNREACHABLE'?'unreachable':'invalidated',reason:unknown?'unknown_action_outcome':result.reason,conditionVersion:actualCondition||recovery.conditionVersion,targets:remaining};
       else delete frame.recoveryFailure;
       const savedRoute=schedule.routes[routeKey];if(savedRoute)savedRoute.failure=frame.recoveryFailure;
-      const resultCondition=failed&&!unknown&&actualCondition?recoveryFailureCondition(actual,actualCondition,result.reason):undefined;
-      task.routeRetries=recordRouteRetry(task.routeRetries,{routeKey,conditionVersion:frame.recoveryConditionVersion,attemptKey:recoveryAttemptKey,outcome:unknown?'unknown':result.status==='SOURCE_REACHED'||result.status==='TARGET_REACHED'||result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'?'verified':result.status==='UNREACHABLE'?'unreachable':'unverified',reason:result.reason,evidence:{sessionId:sid,observationId:actual.id},...(resultCondition?{resultCondition}:{}),...(unknownAttemptIds.length?{unknownSource:{sessionId:sid,attemptIds:unknownAttemptIds}}:{})});
+      const resultCondition=materialAvailable&&actualCondition?{conditionVersion:actualCondition,evidence:{sessionId:sid,observationId:actual.id},basis:'review-material-observed' as const}
+        :failed&&!unknown&&actualCondition?recoveryFailureCondition(actual,actualCondition,result.reason):undefined;
+      task.routeRetries=recordRouteRetry(task.routeRetries,{routeKey,conditionVersion:frame.recoveryConditionVersion,attemptKey:recoveryAttemptKey,outcome:unknown?'unknown':materialAvailable?'review_material_available':result.status==='SOURCE_REACHED'||result.status==='TARGET_REACHED'||result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'?'verified':result.status==='UNREACHABLE'?'unreachable':'unverified',reason:result.reason,evidence:{sessionId:sid,observationId:actual.id},...(resultCondition?{resultCondition}:{}),...(unknownAttemptIds.length?{unknownSource:{sessionId:sid,attemptIds:unknownAttemptIds}}:{})});
       const position=reconcileRecoveryPosition(round,o,actual,{...result,status},status==='REACHED_VERIFIED'||status==='REACHED_ACCEPTABLE'?frame.path:undefined);
       if(unknown){round.entryPath=[];position.path=[];position.reason='unknown_execution_outcome';}
+      this.retractReviewLedger(task,actual);
       this.event(task,'recovery.position_reconciled',position);this.persist(task);
       this.syncUsage(task);this.event(task,'recovery.result',unknown?{...result,status:'UNVERIFIED',hostResultStatus:result.status,reason:'Unknown recovery outcome requires explicit source verification',checkpointVerified:false}:result);
       if(unknown){this.event(task,'recovery.blocked',{resultId:result.id,reason:'unknown_action_outcome',observationId:actual.id,checkpointVerified:false,executionAuthorized:false});throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');}
+      if(result.status==='CURRENT_REVIEWABLE'){
+        this.event(task,'recovery.review_material_available',{resultId:result.id,sourceObservationId:source.id,observationId:actual.id,localId:result.matchedLocalId,sourceEquivalent:result.sourceEquivalent,
+          checkpointVerified:false,coverageGranted:false,currentExecution:false,executionAuthorized:false,continueFromCurrentObservation:true});
+        return true;
+      }
       if(result.status==='SOURCE_REACHED'){round.entryPath=[];this.event(task,'recovery.source_reached',{resultId:result.id,sourceObservationId:source.id,observationId:actual.id,checkpointVerified:false,sourceStateRestored:false,currentExecution:false,executionAuthorized:false,continueFromCurrentObservation:true});return true;}
       if(result.status==='TARGET_REACHED'){this.event(task,'recovery.target_reached',{resultId:result.id,observationId:actual.id,matchedActionIds:result.matchedActionIds,checkpointVerified:false,currentExecution:false});return true;}
       if(result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'){const index=round.stack.indexOf(frame);if(index>=0)round.stack=round.stack.slice(0,index);round.entryPath=[...frame.path];return true;}

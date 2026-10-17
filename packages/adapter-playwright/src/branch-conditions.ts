@@ -80,6 +80,15 @@ function regionAncestors(o: Observation) {
  */
 export function browserBranchConditions(action: Pick<ActionCandidate, 'kind' | 'localId'>, o: Observation, version: 'v1' | 'v2' = 'v2'): BrowserBranchConditions | undefined {
   const target = o.controls.find(c => c.localId === action.localId);
+  return target && observedModeConditions(target, o, ['fill', 'select', 'check'].includes(action.kind), version);
+}
+
+/** Interpretation has no destination input: retain the target's own mode too. */
+export function browserReviewBranchConditions(target: Control, o: Observation): BrowserBranchConditions | undefined {
+  return observedModeConditions(target, o, false, 'v2');
+}
+
+function observedModeConditions(target: Control, o: Observation, omitTargetMode: boolean, version: 'v1' | 'v2'): BrowserBranchConditions | undefined {
   if (!target || o.gaps.some(g => g.critical) || Object.values(o.context).some(v => v.status !== 'known')) return;
   const components = componentAncestors(o), regions = regionAncestors(o);
   const targetComponents = components(target.localId), targetRegions = regions(target.region);
@@ -92,7 +101,7 @@ export function browserBranchConditions(action: Pick<ActionCandidate, 'kind' | '
     const state = selectorState(c, selections); if (state === undefined) continue;
     // The sample's destination value is already part of the operation key. Its
     // own starting value must not manufacture repeated fill/select/check work.
-    if (c === target && ['fill', 'select', 'check'].includes(action.kind)) continue;
+    if (c === target && omitTargetMode) continue;
     let relation: string;
     if (c === target) relation = 'target-mode';
     else if (target.formOwner && c.formOwner?.instanceId === target.formOwner.instanceId) relation = 'same-native-form';

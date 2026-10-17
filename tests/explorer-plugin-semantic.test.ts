@@ -280,12 +280,14 @@ it.each(['current','revoked','interaction','ambiguous','missing-material','hidde
  const control={visible:!mode.startsWith('hidden'),localId:'one',name:'Details',label:'',role:'generic',actionBasis:{}};
  const o={id:'now',sessionId:'s',url:'http://fixture/',regions:[],gaps:[],controls:mode==='ambiguous'?[control,{...control,localId:'two'}]:[control]} as any;
  const record={id:'r',classification:mode==='interaction'?'interaction':'container',status:mode.includes('revoked')?'revoked':mode==='hidden-invalidated'?'invalidated':'active'};
- const item={id:'gap',required:true,status:'succeeded',reason:'classification_unresolved',scope:{url:o.url,label:'Details'},reviewResolvedBy:{sessionId:'s',observationId:'before',classificationId:'old',classification:'container'}};
+ const item={id:'gap',required:true,status:'succeeded',reason:'classification_unresolved',scope:{url:o.url,label:'Details'},evidence:[{sessionId:'s',observationId:'before'}],reviewResolvedBy:{sessionId:'s',observationId:'before',classificationId:'old',classification:'container'}};
  const host={actions:()=>[],list:()=>[{...record,id:'old'}],controlClassificationMaterial:()=>({observationId:o.id,controls:mode==='missing-material'?[]:[{control,needsClassification:mode!=='current',classifications:[record]}]}),controlReviewMaterial:()=>({observationId:o.id,controls:[{control,needsReview:false}]})} as any;
- host.controlInterpretationSnapshot=()=>({observationId:o.id,actions:[],nonInteractive:mode==='current'?[{localId:'one',sessionId:'s',observationId:o.id,classificationId:record.id,classification:'container'}]:[],retainedClassifications:[{source:item.reviewResolvedBy,retained:mode==='hidden-invalidated',reason:mode==='hidden-invalidated'?'historical_classification_retained':'classification_revoked_or_replaced',currentApplicability:false,executionAuthorized:false}]});
+ host.observation=()=>({...o,id:'before',controls:[{...control,visible:true}]});
+ host.controlReviewTargetCorrespondence=(sessionId:string,input:any)=>({targetMatched:true,reviewable:true,sourceEquivalent:'equivalent',source:input.source,target:{sessionId,observationId:input.observationId,localId:input.localId},preflightRequired:true,identityAuthorized:false,replayAuthorized:false,executionAuthorized:false,currentExecution:false,coverageGranted:false,checkpointVerified:false});
+ host.controlInterpretationSnapshot=()=>({sessionId:'s',observationId:o.id,executionAuthorized:false,actions:[],nonInteractive:mode==='current'?[{localId:'one',sessionId:'s',observationId:o.id,classificationId:record.id,classification:'container'}]:[],retainedClassifications:[{source:item.reviewResolvedBy,retained:mode==='hidden-invalidated',localId:mode==='hidden-invalidated'?'one':undefined,reason:mode==='hidden-invalidated'?'historical_classification_retained':'classification_revoked_or_replaced',currentApplicability:false,executionAuthorized:false}]});
  const changes=reviewGapChanges({plan:[item]} as any,o,host);
- if(mode==='current')expect(changes).toEqual([{itemId:'gap',proof:{sessionId:'s',observationId:'now',classificationId:'r',classification:'container'}}]);
- else if(mode==='hidden-invalidated')expect(changes).toEqual([]);
+ if(mode==='current')expect(changes).toMatchObject([{itemId:'gap',complete:true,proof:{sessionId:'s',observationId:'now',classificationId:'r',classification:'container'}}]);
+ else if(mode==='hidden-invalidated'){expect(changes).toMatchObject([{itemId:'gap',complete:true,proof:item.reviewResolvedBy}]);expect(changes[0].sourceProofs?.bindings).toHaveLength(1);}
  else{expect(changes).toHaveLength(1);expect(changes[0].itemId).toBe('gap');expect(changes[0].proof).toBeUndefined();}
  expect(item.reviewResolvedBy.classificationId).toBe('old');
 });

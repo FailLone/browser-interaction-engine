@@ -15,6 +15,8 @@ export { browserControlCorrespondence, browserControlBindingKey, browserOperatio
 export { navigationIntent, type NavigationIntent } from './navigation.js';
 import { historyReturn, observedSourcePosition } from './navigation.js';
 import { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';
+import { browserControlReviewTargetCorrespondence } from './review-target.js';
+export { browserControlReviewTargetCorrespondence, browserControlReviewMaterialKey, createBrowserControlReviewMaterialKey } from './review-target.js';
 export { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';
 import { listGroups, structuralListGroups } from './list-groups.js';
 import { decisionScopes } from './decision-scopes.js';
@@ -39,6 +41,7 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   explorationTargetConditions = browserTargetConditions;
   explorationTargetReady = browserTargetReady;
   explorationTargetRecoverable = browserTargetRecoverable;
+  controlReviewTargetCorrespondence = browserControlReviewTargetCorrespondence;
   controlCorrespondence = browserControlCorrespondence;
   operationCorrespondenceHint = browserOperationCorrespondenceHint;
   correspondenceCase(a: ActionCandidate,o: Observation) { return controlCase(a,o,true); }

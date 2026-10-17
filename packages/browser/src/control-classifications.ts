@@ -8,6 +8,8 @@ export interface ClassificationEvidenceRef {
 export interface RetainedClassificationEvidence {
   source: ClassificationEvidenceRef;
   retained: boolean;
+  /** Unique target in the exact retained observation; absent when unverified. */
+  localId?: string;
   reason: 'historical_classification_retained' | 'classification_revoked_or_replaced' | 'classification_evidence_unavailable';
   /** Retention is historical evidence only. Current applicability requires a fresh interpretation. */
   currentApplicability: false; executionAuthorized: false;
@@ -43,23 +45,43 @@ export class ControlClassifications {
     return records.find(r => isNonInteractiveClassification(r.classification) && classificationMatches(r, c, o));
   }
   retainedEvidence(sources: ClassificationEvidenceRef[], current: Observation): RetainedClassificationEvidence[] {
-    const observations=new Map<string,Observation|undefined>([[current.id,current]]),records=new Map<string,ControlClassificationRecord|undefined>();
-    return sources.map(source=>{
-      if(!records.has(source.classificationId))records.set(source.classificationId,this.store.get<ControlClassificationRecord>('control-classification',source.classificationId));
-      const record=records.get(source.classificationId);
-      let reason:RetainedClassificationEvidence['reason']='classification_evidence_unavailable';
-      if(record?.sessionId===source.sessionId&&record.classification===source.classification){
-        if(['revoked','superseded'].includes(record.status)||!this.sourceRetained(record))reason='classification_revoked_or_replaced';
-        else {
-          if(!observations.has(source.observationId))observations.set(source.observationId,this.store.get<Observation>('observation',source.observationId));
-          const o=observations.get(source.observationId);
+    const groups=new Map<string,number[]>(),results:RetainedClassificationEvidence[]=[];
+    sources.forEach((source,index)=>{const key=JSON.stringify([source.sessionId,source.observationId]),group=groups.get(key);if(group)group.push(index);else groups.set(key,[index]);});
+    for(const indices of groups.values()){
+      const records=new Map<string,ControlClassificationRecord|undefined>(),retained=new Map<string,boolean>();
+      // Resolve reused classification ancestry before loading this group's
+      // observation. Its temporary source graph must not add a third held
+      // graph beside current + this group. Cache only record facts/booleans.
+      for(const index of indices){
+        const source=sources[index];
+        if(!records.has(source.classificationId))records.set(source.classificationId,this.store.get<ControlClassificationRecord>('control-classification',source.classificationId));
+        const record=records.get(source.classificationId);
+        if(record?.sessionId===source.sessionId&&record.classification===source.classification&&!retained.has(record.id))
+          retained.set(record.id,!['revoked','superseded'].includes(record.status)&&this.sourceRetained(record));
+      }
+      const ref=sources[indices[0]],o=[...retained.values()].some(Boolean)
+        ? ref.observationId===current.id?current:this.store.get<Observation>('observation',ref.observationId):undefined;
+      const targetsByRecord=new Map<string,string|undefined>();
+      for(const index of indices){
+        const source=sources[index],record=records.get(source.classificationId);
+        let reason:RetainedClassificationEvidence['reason']='classification_evidence_unavailable',localId:string|undefined;
+        if(record?.sessionId===source.sessionId&&record.classification===source.classification){
+          if(!retained.get(record.id))reason='classification_revoked_or_replaced';
           // Invalidated by a later scene is still evidence about this retained scene.
           // Reuse the original condition matcher; it cannot authorize the current scene.
-          if(o?.sessionId===source.sessionId&&!o.gaps.some(g=>g.critical)&&o.controls.filter(c=>classificationMatches({...record,status:'active'},c,o)).length===1)reason='historical_classification_retained';
+          else if(o?.sessionId===source.sessionId&&!o.gaps.some(g=>g.critical)){
+            if(!targetsByRecord.has(record.id)){
+              const targets=o.controls.filter(c=>classificationMatches({...record,status:'active'},c,o));
+              targetsByRecord.set(record.id,targets.length===1?targets[0].localId:undefined);
+            }
+            localId=targetsByRecord.get(record.id);
+            if(localId!==undefined)reason='historical_classification_retained';
+          }
         }
+        results[index]={source:{...source},retained:reason==='historical_classification_retained',...(localId?{localId}:{}),reason,currentApplicability:false,executionAuthorized:false};
       }
-      return {source:{...source},retained:reason==='historical_classification_retained',reason,currentApplicability:false,executionAuthorized:false};
-    });
+    }
+    return results;
   }
   correspondences(o:Observation,actions:ActionCandidate[],requests:ClassificationCorrespondenceRequest[]) {
     const observations=new Map<string,Observation|undefined>([[o.id,o]]),projections=new Map<Observation,Map<string,ReturnType<typeof classificationCorrespondenceConditions>>>();

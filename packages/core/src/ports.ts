@@ -159,6 +159,10 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   /** A known mechanical obstruction may be addressed by the existing recovery strategies.
    * This grants no execution permission and never treats unsettled evidence as failure. */
   explorationTargetRecoverable?(action: ActionCandidate, observation: O, blockers: import('./execution-readiness.js').ExecutionBlocker[]): boolean;
+  /** Recorded control interpretation facts, distinct from operation/whole-page
+   * arrival. Live target preflight is still required before reporting arrival. */
+  controlReviewTargetCorrespondence?(source: O['controls'][number], before: O, target: O['controls'][number], current: O):
+    Pick<import('./types.js').ControlReviewTargetCorrespondence, 'targetMatched' | 'reviewable' | 'sourceEquivalent' | 'reason' | 'conditionKey' | 'currentMaterialKey' | 'evidence'>;
   /** Optional structural scope for representative depth budgets; raw visit depth is retained. */
   explorationScope?(observation: O): string;
   /** Partial captures must establish readiness for the dispatched operation itself. */
