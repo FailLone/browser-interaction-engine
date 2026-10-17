@@ -1,0 +1,31 @@
+{
+  "elapsedMs": 11863.489707999994,
+  "destination": "https://www.okx.com/",
+  "actualUrl": "https://www.okx.com/",
+  "source": {
+    "id": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+    "url": "https://www.okx.com/convert/usd-to-btc",
+    "instanceScope": "931d199d-1a84-48ac-b463-2b393eaf01ce",
+    "browserSessionId": "d9a24c0f-6bfc-4251-a734-ebd9f9b21795",
+    "boundaries": [],
+    "criticalGaps": []
+  },
+  "current": {
+    "id": "55a61227-134e-4585-b8de-b2be2df0d217",
+    "url": "https://www.okx.com/",
+    "instanceScope": "4f87048d-4526-462f-90dd-341194d39a5c",
+    "browserSessionId": "540a5871-19c8-4771-8377-026ac35ea5c7",
+    "boundaries": [
+      {
+        "key": "dialog:okd-dialog-window",
+        "name": "dialog",
+        "region": "document",
+        "evidence": [
+          "aria-modal"
+        ]
+      }
+    ],
+    "criticalGaps": []
+  },
+  "nativeHistorySessionDiffers": true
+}

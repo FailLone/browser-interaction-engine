@@ -1,0 +1,299 @@
+{
+  "name": "global",
+  "input": "3",
+  "source": {
+    "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+    "observationId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+    "actionId": "bd18cfdb-2603-42d4-af71-12c332a248f5"
+  },
+  "recoveryId": "860fb510-6ecc-4ea0-996e-fd6f64c089f8",
+  "observationId": "120863dd-932f-471c-9c6c-65882ecf0d88",
+  "accepted": true,
+  "priorSameInputAttempts": [],
+  "targetCorrespondences": {
+    "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+    "observationId": "120863dd-932f-471c-9c6c-65882ecf0d88",
+    "results": [
+      {
+        "equivalent": false,
+        "reason": "target_correspondence_missing",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+          "actionId": "bd18cfdb-2603-42d4-af71-12c332a248f5"
+        },
+        "target": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "120863dd-932f-471c-9c6c-65882ecf0d88",
+          "actionId": "147f2aa0-8c11-4fec-a029-183a2e96e1a0"
+        },
+        "evidence": [],
+        "invalidatedBy": [
+          "observation-or-review-change",
+          "nonunique-correspondence",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false
+      },
+      {
+        "equivalent": false,
+        "reason": "target_correspondence_missing",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+          "actionId": "bd18cfdb-2603-42d4-af71-12c332a248f5"
+        },
+        "target": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "120863dd-932f-471c-9c6c-65882ecf0d88",
+          "actionId": "c5e02795-6fbc-4103-9a27-cfcfd79c1286"
+        },
+        "evidence": [],
+        "invalidatedBy": [
+          "observation-or-review-change",
+          "nonunique-correspondence",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false
+      },
+      {
+        "equivalent": true,
+        "reason": "equivalent_observed_target",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+          "actionId": "bd18cfdb-2603-42d4-af71-12c332a248f5"
+        },
+        "target": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "120863dd-932f-471c-9c6c-65882ecf0d88",
+          "actionId": "707264cb-3b46-402e-a5a5-64a64d1510fb"
+        },
+        "evidence": [
+          "captured-semantic-context",
+          "semantic-ancestor-scope/v1",
+          "local-field-description/v1",
+          "One operation sample per encountered control, target constraints, option and declared context",
+          "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+          "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+          "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+          "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+          "Unique anchored fragments in complete captured trees resolve mode references; identity and execution authority remain unchanged",
+          "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+          "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+          "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+          "Unique anchored fragments in complete captured trees resolve mode references; identity and execution authority remain unchanged",
+          "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+          "observation:b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+          "observation:120863dd-932f-471c-9c6c-65882ecf0d88"
+        ],
+        "invalidatedBy": [
+          "observation-or-review-change",
+          "nonunique-correspondence",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "conditionKey": "900bc5d3930919f6ceb7007217a02f951bf6feb78996883eb7479dbce6aeb25f",
+        "policy": "browser-controls-correspondence-v2"
+      },
+      {
+        "equivalent": false,
+        "reason": "target_correspondence_missing",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+          "actionId": "bd18cfdb-2603-42d4-af71-12c332a248f5"
+        },
+        "target": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "observationId": "120863dd-932f-471c-9c6c-65882ecf0d88",
+          "actionId": "82327656-2d87-46ea-9cf1-f27653eb0986"
+        },
+        "evidence": [],
+        "invalidatedBy": [
+          "observation-or-review-change",
+          "nonunique-correspondence",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false
+      }
+    ]
+  },
+  "availability": [
+    {
+      "actionId": "707264cb-3b46-402e-a5a5-64a64d1510fb",
+      "executable": true,
+      "blockers": []
+    }
+  ],
+  "action": {
+    "id": "707264cb-3b46-402e-a5a5-64a64d1510fb",
+    "kind": "fill",
+    "localId": "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1744",
+    "label": "0",
+    "basis": {
+      "status": "supported",
+      "evidence": [
+        {
+          "source": "html",
+          "rule": "native-text-entry/v1",
+          "facts": {
+            "tag": "input",
+            "type": "text"
+          }
+        }
+      ]
+    },
+    "profile": "interface-exploration"
+  },
+  "liveBefore": "1",
+  "executionMs": 12913.092416,
+  "receipt": {
+    "executionProfile": "interface-exploration",
+    "id": "3c9746b3-f835-471a-b2af-f328c25e7ac1",
+    "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+    "requestId": "3622f2ba-9347-4be7-a9b3-73d12429bbe9",
+    "action": {
+      "id": "707264cb-3b46-402e-a5a5-64a64d1510fb",
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "observationId": "120863dd-932f-471c-9c6c-65882ecf0d88",
+      "stateId": "0416b29f64e69340267c364c86b0bf7c18d47c71c35a67442e650a93247c4c87",
+      "controlId": "59b87cee-56d9-4552-8094-053a2865b80f",
+      "localId": "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1744",
+      "kind": "fill",
+      "value": "3",
+      "label": "0",
+      "preconditions": {
+        "context": {},
+        "visible": true,
+        "enabled": true,
+        "identityResolved": true,
+        "blockers": [],
+        "targetResolved": true
+      },
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "html",
+            "rule": "native-text-entry/v1",
+            "facts": {
+              "tag": "input",
+              "type": "text"
+            }
+          }
+        ]
+      },
+      "replayable": true,
+      "risk": "interface",
+      "source": "dom-actions-v2",
+      "excluded": false,
+      "sampleValidity": "shape_only"
+    },
+    "startedAt": "2026-10-17T14:37:35.378Z",
+    "beforeId": "120863dd-932f-471c-9c6c-65882ecf0d88",
+    "status": "succeeded",
+    "purpose": "external",
+    "afterId": "4f308d2e-0143-4463-b9f8-15b5e5e6e0f1",
+    "finishedAt": "2026-10-17T14:37:41.444Z",
+    "diff": {
+      "beforeId": "120863dd-932f-471c-9c6c-65882ecf0d88",
+      "afterId": "4f308d2e-0143-4463-b9f8-15b5e5e6e0f1",
+      "changes": [
+        {
+          "controlId": "59b87cee-56d9-4552-8094-053a2865b80f",
+          "kind": "changed",
+          "field": "value",
+          "before": "1",
+          "after": "3"
+        },
+        {
+          "controlId": "5c9710bf-afcb-49a5-9718-f0ca21fdf8b6",
+          "kind": "changed",
+          "field": "value",
+          "before": "0.00001226",
+          "after": "0.00003678"
+        }
+      ],
+      "gaps": [
+        {
+          "code": "IDENTITY_UNCERTAIN",
+          "message": "00570ee2-c9f8-446a-a675-e27675da1c6b"
+        },
+        {
+          "code": "IDENTITY_UNCERTAIN",
+          "message": "2d6e034a-e38c-4b20-a503-f82db40aadef"
+        },
+        {
+          "code": "IDENTITY_UNCERTAIN",
+          "message": "20a223dc-ad3b-4d9b-830b-051653438e47"
+        },
+        {
+          "code": "IDENTITY_UNCERTAIN",
+          "message": "31ef5369-1121-4f12-a65f-78ac44432839"
+        },
+        {
+          "code": "IDENTITY_UNCERTAIN",
+          "message": "020674b1-b276-4eaf-b995-495046ba4085"
+        }
+      ],
+      "attribution": "observed_during_interval"
+    },
+    "transitionId": "ccbe4802-f931-405b-b978-56cdfde702aa"
+  },
+  "after": {
+    "id": "4f308d2e-0143-4463-b9f8-15b5e5e6e0f1",
+    "url": "https://www.okx.com/convert/usd-to-btc",
+    "instanceScope": "14ba57cc-5a79-4e0f-9ee7-f8921747452e",
+    "browserSessionId": "9009a93f-f30f-4f59-8eb7-d378256ed5e3",
+    "boundaries": [],
+    "criticalGaps": []
+  },
+  "liveAfter": "3",
+  "observedAfterValues": [
+    "3"
+  ],
+  "postRecoveryAssessment": {
+    "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+    "observationId": "4f308d2e-0143-4463-b9f8-15b5e5e6e0f1",
+    "unknownAttempts": [],
+    "dirty": false,
+    "unassessedEffectAttemptIds": []
+  },
+  "durableReceiptVerified": true,
+  "receiptCondition": {
+    "actualSuccess": true,
+    "conditionVerified": false,
+    "status": "unavailable",
+    "reason": "identity_pending",
+    "source": {
+      "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+      "attemptId": "3c9746b3-f835-471a-b2af-f328c25e7ac1",
+      "beforeId": "120863dd-932f-471c-9c6c-65882ecf0d88",
+      "afterId": "4f308d2e-0143-4463-b9f8-15b5e5e6e0f1",
+      "actionId": "707264cb-3b46-402e-a5a5-64a64d1510fb",
+      "actionKey": "e2cb526c0b1be7e7620bec16541223ac9e007d19e69b9a1cb8994c9acb8c5663"
+    },
+    "evidence": [
+      "actual-succeeded-attempt:3c9746b3-f835-471a-b2af-f328c25e7ac1"
+    ],
+    "identityAuthorized": false,
+    "replayAuthorized": false,
+    "currentExecution": false,
+    "arrivalVerified": false
+  },
+  "conditionCoverageVerified": false,
+  "elapsedMs": 13307.105333999993
+}

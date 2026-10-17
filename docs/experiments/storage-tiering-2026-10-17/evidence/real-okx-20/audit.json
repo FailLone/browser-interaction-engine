@@ -1,0 +1,95 @@
+{
+  "productCommit": "0bcfdcef891736f270ccdfa0f5785e0a9115c4d5",
+  "verdict": "local_and_global_replay_and_continuation_passed",
+  "processElapsedMs": 201021.790625,
+  "runnerElapsedMs": 200534.834,
+  "sourceUnchanged": true,
+  "sourceFullEngineInventorySha256": "b28d2d405b05a6c4377b892f42870dbb0bc3a41771da1b6fbf0955890cf260d8",
+  "ownedProcessGroupRemaining": [],
+  "taskDatabaseOpened": false,
+  "modelCalls": 0,
+  "phases": [
+    {
+      "phase": "initialization",
+      "driverCalls": 3,
+      "driverMs": 8276.347042,
+      "captures": 2,
+      "completedActions": 0
+    },
+    {
+      "phase": "local",
+      "driverCalls": 9,
+      "driverMs": 15101.003373999985,
+      "captures": 3,
+      "completedActions": 2,
+      "recoveryApiMs": 42413.59449999999,
+      "recoveryOutsideDriverMs": 27312.591126000007
+    },
+    {
+      "phase": "local-continue",
+      "driverCalls": 3,
+      "driverMs": 4719.205333000005,
+      "captures": 1,
+      "completedActions": 1
+    },
+    {
+      "phase": "global-setup",
+      "driverCalls": 1,
+      "driverMs": 4180.644708000007,
+      "captures": 1,
+      "completedActions": 0
+    },
+    {
+      "phase": "global",
+      "driverCalls": 21,
+      "driverMs": 31540.204752999925,
+      "captures": 7,
+      "completedActions": 6,
+      "recoveryApiMs": 91768.243041,
+      "recoveryOutsideDriverMs": 60228.03828800007
+    },
+    {
+      "phase": "global-continue",
+      "driverCalls": 3,
+      "driverMs": 4704.295458000037,
+      "captures": 1,
+      "completedActions": 1
+    },
+    {
+      "phase": "closure",
+      "driverCalls": 1,
+      "driverMs": 32.213415999984136,
+      "captures": 0,
+      "completedActions": 0
+    }
+  ],
+  "continuations": [
+    {
+      "name": "local",
+      "actualSuccess": true,
+      "attemptId": "fe43353b-6856-40aa-91dc-9113498ca0d0",
+      "input": "2",
+      "elapsedMs": 12790.680250000005,
+      "executionApiMs": 12314.872499999998,
+      "conditionCoverageVerified": false,
+      "conditionCoverageReason": "identity_pending"
+    },
+    {
+      "name": "global",
+      "actualSuccess": true,
+      "attemptId": "3c9746b3-f835-471a-b2af-f328c25e7ac1",
+      "input": "3",
+      "elapsedMs": 13307.105333999993,
+      "executionApiMs": 12913.092416,
+      "conditionCoverageVerified": false,
+      "conditionCoverageReason": "identity_pending"
+    }
+  ],
+  "limits": [
+    "One successful bounded fixed-path live run is not a reliability estimate for arbitrary pages.",
+    "Input 2 and 3 are unattempted input samples in this retained session, not proof of new business branches.",
+    "Reusable condition coverage remains unavailable: identity_pending. No coverage/replay authority is fabricated.",
+    "API, driver, attempt and arrival-check timings are nested; do not add overlapping subtotals.",
+    "Strict checkpoint fingerprint equality and plugin autonomous scheduling are not asserted."
+  ]
+}

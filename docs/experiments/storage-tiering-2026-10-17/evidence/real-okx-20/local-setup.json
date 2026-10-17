@@ -1,0 +1,66 @@
+{
+  "elapsedMs": 28067.875750000003,
+  "source": {
+    "id": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+    "url": "https://www.okx.com/convert/usd-to-btc",
+    "instanceScope": "931d199d-1a84-48ac-b463-2b393eaf01ce",
+    "browserSessionId": "d9a24c0f-6bfc-4251-a734-ebd9f9b21795",
+    "boundaries": [],
+    "criticalGaps": []
+  },
+  "current": {
+    "id": "b6d6537a-aaf0-4087-b4b4-60dde7856e39",
+    "url": "https://www.okx.com/convert/usd-to-btc",
+    "instanceScope": "bcba3071-5d4d-40da-8fff-a1e72205e78d",
+    "browserSessionId": "540a5871-19c8-4771-8377-026ac35ea5c7",
+    "boundaries": [
+      {
+        "key": "dialog:okd-dialog-window",
+        "name": "dialog",
+        "region": "document",
+        "evidence": [
+          "aria-modal"
+        ]
+      }
+    ],
+    "criticalGaps": []
+  },
+  "proofs": [
+    {
+      "targetMatched": true,
+      "reviewable": false,
+      "sourceEquivalent": "unknown",
+      "reason": "outside_active_boundary",
+      "evidence": [
+        "unique-captured-target-semantics",
+        "complete-classification-subtree",
+        "captured-idref-topology",
+        "unchanged-classification-conditions",
+        "unique-captured-control-and-owner"
+      ],
+      "source": {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+        "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1810"
+      },
+      "target": {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "b6d6537a-aaf0-4087-b4b4-60dde7856e39",
+        "localId": "bcba3071-5d4d-40da-8fff-a1e72205e78d:1810"
+      },
+      "preflightRequired": true,
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "executionAuthorized": false,
+      "currentExecution": false,
+      "coverageGranted": false,
+      "checkpointVerified": false,
+      "currentMaterialKey": "ac98dca510d8479d0d4bf847346d2f55759c6a51d19d7bab5bb99376de0623c4",
+      "currentConditionAssessment": {
+        "status": "unavailable",
+        "reason": "review_target_outside_active_boundary",
+        "localId": "bcba3071-5d4d-40da-8fff-a1e72205e78d:1810"
+      }
+    }
+  ]
+}

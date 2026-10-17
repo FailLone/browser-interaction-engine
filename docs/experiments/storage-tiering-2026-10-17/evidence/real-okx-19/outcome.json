@@ -1,0 +1,302 @@
+{
+  "productCommit": "0bcfdcef891736f270ccdfa0f5785e0a9115c4d5",
+  "limitMs": 240000,
+  "elapsedMs": 83837.68675000001,
+  "deadline": false,
+  "closure": {
+    "status": "closed",
+    "elapsedMs": 38.03437500000291
+  },
+  "stopReason": "local_continuation_failed",
+  "verdict": "not_accepted",
+  "cases": [
+    {
+      "name": "local",
+      "accepted": false,
+      "elapsedMs": 42084.68595800001,
+      "sameDocument": true,
+      "crossPageCalls": [],
+      "finalObservation": {
+        "id": "b0914d5f-96f7-4828-91fa-37463629a93e",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "instanceScope": "d6320aa7-d2b8-4119-833f-b230fb74368a",
+        "browserSessionId": "e9f75232-f799-4f82-bbcb-e6ccba95e94a",
+        "boundaries": [],
+        "criticalGaps": []
+      },
+      "localExit": {
+        "attempts": 1,
+        "verified": true,
+        "elapsedMs": 6179
+      },
+      "localRecordedReplay": {
+        "attempts": 1,
+        "elapsedMs": 6814
+      },
+      "wholePageReplay": {
+        "entryAttempts": 0,
+        "entryElapsedMs": 0,
+        "replayedAttempts": 0,
+        "replayElapsedMs": 0
+      },
+      "arrivalPreflight": [
+        {
+          "id": 11,
+          "method": "preflight",
+          "startedMs": 69037.369042,
+          "reviewTargetIds": [
+            "d6320aa7-d2b8-4119-833f-b230fb74368a:1810"
+          ],
+          "elapsedMs": 695.9466249999969,
+          "outcome": "returned",
+          "result": "valid"
+        },
+        {
+          "id": 12,
+          "method": "preflight",
+          "startedMs": 69910.823542,
+          "reviewTargetIds": [
+            "d6320aa7-d2b8-4119-833f-b230fb74368a:1810"
+          ],
+          "elapsedMs": 657.4207500000048,
+          "outcome": "returned",
+          "result": "valid"
+        }
+      ],
+      "classification": "passed",
+      "recoveryAccepted": true,
+      "continuation": {
+        "accepted": false,
+        "elapsedMs": 13083.680542000002,
+        "attemptId": "5ec61d30-e4be-421e-8ba2-449e06b5df2f",
+        "error": {
+          "code": "ERR_ASSERTION",
+          "message": "New operation needs retained condition evidence"
+        }
+      },
+      "status": "CURRENT_REVIEWABLE",
+      "reason": "Recorded source path verification: CURRENT_REVIEWABLE",
+      "strategies": [
+        "verify_current",
+        "boundary_exit",
+        "recorded_path",
+        "declared_local_restore",
+        "recorded_source_path"
+      ],
+      "sourceEquivalent": "equivalent",
+      "checks": [
+        {
+          "name": "unresolved-execution-outcomes",
+          "result": "pass"
+        },
+        {
+          "name": "clean-session",
+          "result": "pass"
+        },
+        {
+          "name": "known-declared-context",
+          "result": "pass"
+        },
+        {
+          "name": "current-review-material",
+          "result": "pass"
+        },
+        {
+          "name": "historical-review-source-conditions",
+          "result": "pass"
+        },
+        {
+          "name": "live-review-target-preflight",
+          "result": "pass"
+        }
+      ],
+      "attemptIds": [
+        "653d4f5d-0b34-41da-9b8d-ce0bd1d2a88b",
+        "59f01741-1fd1-41bf-ba3d-b7dd681ea827"
+      ]
+    }
+  ],
+  "globalNotRun": true,
+  "modelCalls": 0,
+  "pluginTaskDatabaseOpened": false,
+  "newCoverageGranted": false,
+  "newOperationReceiptIds": [],
+  "calls": [
+    {
+      "id": 1,
+      "method": "start",
+      "startedMs": 203.375042,
+      "elapsedMs": 982.2283749999998,
+      "outcome": "returned"
+    },
+    {
+      "id": 2,
+      "method": "capture",
+      "startedMs": 1187.189667,
+      "elapsedMs": 3985.8574169999997,
+      "outcome": "returned"
+    },
+    {
+      "id": 3,
+      "method": "capture",
+      "startedMs": 17739.973542,
+      "elapsedMs": 3325.861208000002,
+      "outcome": "returned"
+    },
+    {
+      "id": 4,
+      "method": "capture",
+      "startedMs": 28620.953959,
+      "elapsedMs": 3283.0252500000024,
+      "outcome": "returned"
+    },
+    {
+      "id": 5,
+      "method": "preflight",
+      "startedMs": 39255.950958999994,
+      "action": {
+        "id": "38ad7242-7b74-4412-a379-c9eb696e21b5",
+        "kind": "click",
+        "label": "Close",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "elapsedMs": 728.9062080000003,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 6,
+      "method": "execute",
+      "startedMs": 40065.19154199999,
+      "action": {
+        "id": "38ad7242-7b74-4412-a379-c9eb696e21b5",
+        "kind": "click",
+        "label": "Close",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "elapsedMs": 747.5883750000066,
+      "outcome": "returned"
+    },
+    {
+      "id": 7,
+      "method": "capture",
+      "startedMs": 40837.611833999996,
+      "elapsedMs": 3493.0935830000017,
+      "outcome": "returned"
+    },
+    {
+      "id": 8,
+      "method": "preflight",
+      "startedMs": 55429.025334,
+      "action": {
+        "id": "90d2892a-9251-4c88-a0bb-9d5fb4a97950",
+        "kind": "click",
+        "label": "Trade",
+        "source": "dom-actions-v2"
+      },
+      "reviewTargetIds": [],
+      "elapsedMs": 722.3250409999964,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 9,
+      "method": "execute",
+      "startedMs": 56533.05925,
+      "action": {
+        "id": "90d2892a-9251-4c88-a0bb-9d5fb4a97950",
+        "kind": "click",
+        "label": "Trade",
+        "source": "dom-actions-v2"
+      },
+      "elapsedMs": 741.7316250000003,
+      "outcome": "returned"
+    },
+    {
+      "id": 10,
+      "method": "capture",
+      "startedMs": 57296.369458999994,
+      "elapsedMs": 4113.633125,
+      "outcome": "returned"
+    },
+    {
+      "id": 11,
+      "method": "preflight",
+      "startedMs": 69037.369042,
+      "reviewTargetIds": [
+        "d6320aa7-d2b8-4119-833f-b230fb74368a:1810"
+      ],
+      "elapsedMs": 695.9466249999969,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 12,
+      "method": "preflight",
+      "startedMs": 69910.823542,
+      "reviewTargetIds": [
+        "d6320aa7-d2b8-4119-833f-b230fb74368a:1810"
+      ],
+      "elapsedMs": 657.4207500000048,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 13,
+      "method": "preflight",
+      "startedMs": 71167.98679200001,
+      "action": {
+        "id": "7d6b1d8d-eed1-4742-8ca6-00f6881ab09a",
+        "kind": "fill",
+        "label": "0",
+        "source": "dom-actions-v2"
+      },
+      "reviewTargetIds": [],
+      "elapsedMs": 664.185541999992,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 14,
+      "method": "execute",
+      "startedMs": 71970.875375,
+      "action": {
+        "id": "7d6b1d8d-eed1-4742-8ca6-00f6881ab09a",
+        "kind": "fill",
+        "label": "0",
+        "source": "dom-actions-v2"
+      },
+      "elapsedMs": 720.1247920000023,
+      "outcome": "returned"
+    },
+    {
+      "id": 15,
+      "method": "capture",
+      "startedMs": 72714.117667,
+      "elapsedMs": 3335.4608750000043,
+      "outcome": "returned"
+    },
+    {
+      "id": 16,
+      "method": "close",
+      "startedMs": 83799.70433400001,
+      "elapsedMs": 33.797915999995894,
+      "outcome": "returned"
+    }
+  ],
+  "limitations": [
+    "This is target-directed SDK recovery plus guarded native input continuation; not strict checkpoint equality or automatic plugin scheduling.",
+    "Two cases share the clock and browser; global setup is a real external navigation recorded separately, not a recovery success.",
+    "Missing required strategy is unexercised, never counted as success.",
+    "Driver/API/attempt timings overlap.",
+    "Historical source, unknown outcomes, replay permissions and graph edges remain unchanged."
+  ]
+}

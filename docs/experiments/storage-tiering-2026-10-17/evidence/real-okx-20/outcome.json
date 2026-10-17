@@ -1,0 +1,734 @@
+{
+  "productCommit": "0bcfdcef891736f270ccdfa0f5785e0a9115c4d5",
+  "limitMs": 240000,
+  "elapsedMs": 200534.834,
+  "deadline": false,
+  "closure": {
+    "status": "closed",
+    "elapsedMs": 36.100500000000466
+  },
+  "verdict": "local_and_global_replay_and_continuation_passed",
+  "cases": [
+    {
+      "name": "local",
+      "accepted": true,
+      "elapsedMs": 42413.59449999999,
+      "sameDocument": true,
+      "crossPageCalls": [],
+      "finalObservation": {
+        "id": "6b2348dc-e497-4cfc-bc16-020fa866c90f",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "instanceScope": "bcba3071-5d4d-40da-8fff-a1e72205e78d",
+        "browserSessionId": "540a5871-19c8-4771-8377-026ac35ea5c7",
+        "boundaries": [],
+        "criticalGaps": []
+      },
+      "localExit": {
+        "attempts": 1,
+        "verified": true,
+        "elapsedMs": 6156
+      },
+      "localRecordedReplay": {
+        "attempts": 1,
+        "elapsedMs": 6844
+      },
+      "wholePageReplay": {
+        "entryAttempts": 0,
+        "entryElapsedMs": 0,
+        "replayedAttempts": 0,
+        "replayElapsedMs": 0
+      },
+      "arrivalPreflight": [
+        {
+          "id": 11,
+          "method": "preflight",
+          "startedMs": 69060.288959,
+          "reviewTargetIds": [
+            "bcba3071-5d4d-40da-8fff-a1e72205e78d:1810"
+          ],
+          "elapsedMs": 679.0552499999903,
+          "outcome": "returned",
+          "result": "valid"
+        },
+        {
+          "id": 12,
+          "method": "preflight",
+          "startedMs": 69908.20604199999,
+          "reviewTargetIds": [
+            "bcba3071-5d4d-40da-8fff-a1e72205e78d:1810"
+          ],
+          "elapsedMs": 658.017583000008,
+          "outcome": "returned",
+          "result": "valid"
+        }
+      ],
+      "classification": "passed",
+      "recoveryAccepted": true,
+      "continuation": {
+        "accepted": true,
+        "elapsedMs": 12790.680250000005,
+        "attemptId": "fe43353b-6856-40aa-91dc-9113498ca0d0"
+      },
+      "status": "CURRENT_REVIEWABLE",
+      "reason": "Recorded source path verification: CURRENT_REVIEWABLE",
+      "strategies": [
+        "verify_current",
+        "boundary_exit",
+        "recorded_path",
+        "declared_local_restore",
+        "recorded_source_path"
+      ],
+      "sourceEquivalent": "equivalent",
+      "checks": [
+        {
+          "name": "unresolved-execution-outcomes",
+          "result": "pass"
+        },
+        {
+          "name": "clean-session",
+          "result": "pass"
+        },
+        {
+          "name": "known-declared-context",
+          "result": "pass"
+        },
+        {
+          "name": "current-review-material",
+          "result": "pass"
+        },
+        {
+          "name": "historical-review-source-conditions",
+          "result": "pass"
+        },
+        {
+          "name": "live-review-target-preflight",
+          "result": "pass"
+        }
+      ],
+      "attemptIds": [
+        "2ede04cf-f6fb-4e4c-a626-cb52bf71c743",
+        "b65b27b6-aa66-4d84-a051-57b2f026ab87"
+      ]
+    },
+    {
+      "name": "global",
+      "accepted": true,
+      "elapsedMs": 91768.243041,
+      "sameDocument": false,
+      "crossPageCalls": [
+        {
+          "id": 21,
+          "method": "preflight",
+          "startedMs": 115650.46766699999,
+          "action": {
+            "id": "c0c66b4c-a255-4955-be57-ab6301fb1188",
+            "kind": "navigate",
+            "label": "Reopen session entry",
+            "source": "recovery-entry"
+          },
+          "reviewTargetIds": [],
+          "elapsedMs": 385.3220830000064,
+          "outcome": "returned",
+          "result": "valid"
+        },
+        {
+          "id": 22,
+          "method": "reopen",
+          "startedMs": 116115.664167,
+          "elapsedMs": 1031.1584579999908,
+          "outcome": "returned"
+        }
+      ],
+      "finalObservation": {
+        "id": "120863dd-932f-471c-9c6c-65882ecf0d88",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "instanceScope": "14ba57cc-5a79-4e0f-9ee7-f8921747452e",
+        "browserSessionId": "9009a93f-f30f-4f59-8eb7-d378256ed5e3",
+        "boundaries": [],
+        "criticalGaps": []
+      },
+      "localExit": {
+        "attempts": 2,
+        "verified": true,
+        "elapsedMs": 10541
+      },
+      "localRecordedReplay": {
+        "attempts": 0,
+        "elapsedMs": 0
+      },
+      "wholePageReplay": {
+        "entryAttempts": 1,
+        "entryElapsedMs": 6886,
+        "replayedAttempts": 4,
+        "replayElapsedMs": 25378
+      },
+      "arrivalPreflight": [
+        {
+          "id": 36,
+          "method": "preflight",
+          "startedMs": 185503.30775,
+          "reviewTargetIds": [
+            "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1808"
+          ],
+          "elapsedMs": 697.1824169999745,
+          "outcome": "returned",
+          "result": "valid"
+        },
+        {
+          "id": 37,
+          "method": "preflight",
+          "startedMs": 186364.50662499998,
+          "reviewTargetIds": [
+            "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1808"
+          ],
+          "elapsedMs": 662.9075840000005,
+          "outcome": "returned",
+          "result": "valid"
+        }
+      ],
+      "classification": "passed",
+      "newBrowserSession": true,
+      "recoveryAccepted": true,
+      "continuation": {
+        "accepted": true,
+        "elapsedMs": 13307.105333999993,
+        "attemptId": "3c9746b3-f835-471a-b2af-f328c25e7ac1"
+      },
+      "status": "CURRENT_REVIEWABLE",
+      "reason": "Entry replay verification: CURRENT_REVIEWABLE",
+      "strategies": [
+        "verify_current",
+        "boundary_exit",
+        "recorded_path",
+        "declared_local_restore",
+        "entry_replay"
+      ],
+      "sourceEquivalent": "equivalent",
+      "checks": [
+        {
+          "name": "unresolved-execution-outcomes",
+          "result": "pass"
+        },
+        {
+          "name": "clean-session",
+          "result": "pass"
+        },
+        {
+          "name": "known-declared-context",
+          "result": "pass"
+        },
+        {
+          "name": "current-review-material",
+          "result": "pass"
+        },
+        {
+          "name": "historical-review-source-conditions",
+          "result": "pass"
+        },
+        {
+          "name": "live-review-target-preflight",
+          "result": "pass"
+        }
+      ],
+      "attemptIds": [
+        "c158157a-94e0-4f19-a130-f6026f979125",
+        "6526de2e-ea2d-473a-a082-e2c691961151",
+        "693d063e-8428-4e71-a692-c8aa2f73bfa8",
+        "b9d6ff3f-a257-43ba-9a0b-005ee15d9ebd",
+        "cbcf00f4-545a-4d2c-b859-c618e6f8c9c8",
+        "e59aa6b5-136b-4bdb-a38c-648df44cda70"
+      ]
+    }
+  ],
+  "globalNotRun": false,
+  "modelCalls": 0,
+  "pluginTaskDatabaseOpened": false,
+  "newCoverageGranted": false,
+  "newOperationReceiptIds": [
+    "fe43353b-6856-40aa-91dc-9113498ca0d0",
+    "3c9746b3-f835-471a-b2af-f328c25e7ac1"
+  ],
+  "calls": [
+    {
+      "id": 1,
+      "method": "start",
+      "startedMs": 208.29612499999996,
+      "elapsedMs": 988.8556670000002,
+      "outcome": "returned"
+    },
+    {
+      "id": 2,
+      "method": "capture",
+      "startedMs": 1199.0161669999998,
+      "elapsedMs": 3992.5673750000005,
+      "outcome": "returned"
+    },
+    {
+      "id": 3,
+      "method": "capture",
+      "startedMs": 17841.517042,
+      "elapsedMs": 3294.923999999999,
+      "outcome": "returned"
+    },
+    {
+      "id": 4,
+      "method": "capture",
+      "startedMs": 28287.132375,
+      "elapsedMs": 3329.678791999999,
+      "outcome": "returned"
+    },
+    {
+      "id": 5,
+      "method": "preflight",
+      "startedMs": 39272.200834,
+      "action": {
+        "id": "1b0cd908-559c-4a7a-b8fe-dfcca3a2aef9",
+        "kind": "click",
+        "label": "Close",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "elapsedMs": 705.4772079999966,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 6,
+      "method": "execute",
+      "startedMs": 40057.973917,
+      "action": {
+        "id": "1b0cd908-559c-4a7a-b8fe-dfcca3a2aef9",
+        "kind": "click",
+        "label": "Close",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "elapsedMs": 756.054541999998,
+      "outcome": "returned"
+    },
+    {
+      "id": 7,
+      "method": "capture",
+      "startedMs": 40838.402125,
+      "elapsedMs": 3396.4422919999997,
+      "outcome": "returned"
+    },
+    {
+      "id": 8,
+      "method": "preflight",
+      "startedMs": 55381.849084,
+      "action": {
+        "id": "93b8fa29-2c31-4913-8a31-8dbe0654c416",
+        "kind": "click",
+        "label": "Trade",
+        "source": "dom-actions-v2"
+      },
+      "reviewTargetIds": [],
+      "elapsedMs": 709.2957079999978,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 9,
+      "method": "execute",
+      "startedMs": 56471.786459,
+      "action": {
+        "id": "93b8fa29-2c31-4913-8a31-8dbe0654c416",
+        "kind": "click",
+        "label": "Trade",
+        "source": "dom-actions-v2"
+      },
+      "elapsedMs": 738.2334159999955,
+      "outcome": "returned"
+    },
+    {
+      "id": 10,
+      "method": "capture",
+      "startedMs": 57231.443209,
+      "elapsedMs": 4128.7485830000005,
+      "outcome": "returned"
+    },
+    {
+      "id": 11,
+      "method": "preflight",
+      "startedMs": 69060.288959,
+      "reviewTargetIds": [
+        "bcba3071-5d4d-40da-8fff-a1e72205e78d:1810"
+      ],
+      "elapsedMs": 679.0552499999903,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 12,
+      "method": "preflight",
+      "startedMs": 69908.20604199999,
+      "reviewTargetIds": [
+        "bcba3071-5d4d-40da-8fff-a1e72205e78d:1810"
+      ],
+      "elapsedMs": 658.017583000008,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 13,
+      "method": "preflight",
+      "startedMs": 71162.212584,
+      "action": {
+        "id": "ad2d2263-a527-4a99-a535-897000406a33",
+        "kind": "fill",
+        "label": "0",
+        "source": "dom-actions-v2"
+      },
+      "reviewTargetIds": [],
+      "elapsedMs": 664.8918750000012,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 14,
+      "method": "execute",
+      "startedMs": 71964.08358399999,
+      "action": {
+        "id": "ad2d2263-a527-4a99-a535-897000406a33",
+        "kind": "fill",
+        "label": "0",
+        "source": "dom-actions-v2"
+      },
+      "elapsedMs": 705.4592080000002,
+      "outcome": "returned"
+    },
+    {
+      "id": 15,
+      "method": "capture",
+      "startedMs": 72693.18279199999,
+      "elapsedMs": 3348.854250000004,
+      "outcome": "returned"
+    },
+    {
+      "id": 16,
+      "method": "capture",
+      "startedMs": 83822.99404199999,
+      "elapsedMs": 4180.644708000007,
+      "outcome": "returned"
+    },
+    {
+      "id": 17,
+      "method": "capture",
+      "startedMs": 95404.788584,
+      "elapsedMs": 1985.9367499999935,
+      "outcome": "returned"
+    },
+    {
+      "id": 18,
+      "method": "preflight",
+      "startedMs": 104862.04766699999,
+      "action": {
+        "id": "05f16017-7155-4b9e-9af7-c0b7c5a77e57",
+        "kind": "click",
+        "label": "Close",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "elapsedMs": 389.42866700000013,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 19,
+      "method": "execute",
+      "startedMs": 105319.82220899999,
+      "action": {
+        "id": "05f16017-7155-4b9e-9af7-c0b7c5a77e57",
+        "kind": "click",
+        "label": "Close",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "elapsedMs": 442.42949999999837,
+      "outcome": "returned"
+    },
+    {
+      "id": 20,
+      "method": "capture",
+      "startedMs": 105777.42774999999,
+      "elapsedMs": 1938.4920839999977,
+      "outcome": "returned"
+    },
+    {
+      "id": 21,
+      "method": "preflight",
+      "startedMs": 115650.46766699999,
+      "action": {
+        "id": "c0c66b4c-a255-4955-be57-ab6301fb1188",
+        "kind": "navigate",
+        "label": "Reopen session entry",
+        "source": "recovery-entry"
+      },
+      "reviewTargetIds": [],
+      "elapsedMs": 385.3220830000064,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 22,
+      "method": "reopen",
+      "startedMs": 116115.664167,
+      "elapsedMs": 1031.1584579999908,
+      "outcome": "returned"
+    },
+    {
+      "id": 23,
+      "method": "capture",
+      "startedMs": 117155.00041699999,
+      "elapsedMs": 3911.8544580000016,
+      "outcome": "returned"
+    },
+    {
+      "id": 24,
+      "method": "preflight",
+      "startedMs": 129541.60625,
+      "action": {
+        "id": "cb8c5eaf-ed1d-4e4f-b886-4963ff930799",
+        "kind": "check",
+        "label": "Don’t show for 7 days",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "interact"
+        }
+      },
+      "reviewTargetIds": [],
+      "elapsedMs": 684.3704589999979,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 25,
+      "method": "execute",
+      "startedMs": 130620.475584,
+      "action": {
+        "id": "cb8c5eaf-ed1d-4e4f-b886-4963ff930799",
+        "kind": "check",
+        "label": "Don’t show for 7 days",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "interact"
+        }
+      },
+      "elapsedMs": 762.25091599999,
+      "outcome": "returned"
+    },
+    {
+      "id": 26,
+      "method": "capture",
+      "startedMs": 131395.745792,
+      "elapsedMs": 3350.336249999993,
+      "outcome": "returned"
+    },
+    {
+      "id": 27,
+      "method": "preflight",
+      "startedMs": 143283.702334,
+      "action": {
+        "id": "6c72865a-53e6-43c6-a5b5-bbb75c2921ad",
+        "kind": "check",
+        "label": "Don’t show for 7 days",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "interact"
+        }
+      },
+      "reviewTargetIds": [],
+      "elapsedMs": 681.8725409999897,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 28,
+      "method": "execute",
+      "startedMs": 144379.532917,
+      "action": {
+        "id": "6c72865a-53e6-43c6-a5b5-bbb75c2921ad",
+        "kind": "check",
+        "label": "Don’t show for 7 days",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "interact"
+        }
+      },
+      "elapsedMs": 730.380999999994,
+      "outcome": "returned"
+    },
+    {
+      "id": 29,
+      "method": "capture",
+      "startedMs": 145123.166,
+      "elapsedMs": 3342.0617090000014,
+      "outcome": "returned"
+    },
+    {
+      "id": 30,
+      "method": "preflight",
+      "startedMs": 157116.10074999998,
+      "action": {
+        "id": "48916873-ecab-43a0-ace6-3350abb32505",
+        "kind": "click",
+        "label": "Close",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "elapsedMs": 706.8450840000005,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 31,
+      "method": "execute",
+      "startedMs": 158244.34075,
+      "action": {
+        "id": "48916873-ecab-43a0-ace6-3350abb32505",
+        "kind": "click",
+        "label": "Close",
+        "source": "dom-actions-v2",
+        "boundary": {
+          "key": "dialog:okd-dialog-window",
+          "intent": "exit"
+        }
+      },
+      "elapsedMs": 800.9764589999977,
+      "outcome": "returned"
+    },
+    {
+      "id": 32,
+      "method": "capture",
+      "startedMs": 159058.63966699998,
+      "elapsedMs": 3406.0593750000116,
+      "outcome": "returned"
+    },
+    {
+      "id": 33,
+      "method": "preflight",
+      "startedMs": 171332.651209,
+      "action": {
+        "id": "1aeff1f7-3c05-4803-a273-d761e8bd01e0",
+        "kind": "click",
+        "label": "Trade",
+        "source": "dom-actions-v2"
+      },
+      "reviewTargetIds": [],
+      "elapsedMs": 709.5893329999817,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 34,
+      "method": "execute",
+      "startedMs": 172429.566042,
+      "action": {
+        "id": "1aeff1f7-3c05-4803-a273-d761e8bd01e0",
+        "kind": "click",
+        "label": "Trade",
+        "source": "dom-actions-v2"
+      },
+      "elapsedMs": 729.5927920000104,
+      "outcome": "returned"
+    },
+    {
+      "id": 35,
+      "method": "capture",
+      "startedMs": 173171.7315,
+      "elapsedMs": 4191.156833999994,
+      "outcome": "returned"
+    },
+    {
+      "id": 36,
+      "method": "preflight",
+      "startedMs": 185503.30775,
+      "reviewTargetIds": [
+        "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1808"
+      ],
+      "elapsedMs": 697.1824169999745,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 37,
+      "method": "preflight",
+      "startedMs": 186364.50662499998,
+      "reviewTargetIds": [
+        "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1808"
+      ],
+      "elapsedMs": 662.9075840000005,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 38,
+      "method": "preflight",
+      "startedMs": 187560.913625,
+      "action": {
+        "id": "707264cb-3b46-402e-a5a5-64a64d1510fb",
+        "kind": "fill",
+        "label": "0",
+        "source": "dom-actions-v2"
+      },
+      "reviewTargetIds": [],
+      "elapsedMs": 670.7816250000033,
+      "outcome": "returned",
+      "result": "valid"
+    },
+    {
+      "id": 39,
+      "method": "execute",
+      "startedMs": 188347.84866699998,
+      "action": {
+        "id": "707264cb-3b46-402e-a5a5-64a64d1510fb",
+        "kind": "fill",
+        "label": "0",
+        "source": "dom-actions-v2"
+      },
+      "elapsedMs": 709.8997920000111,
+      "outcome": "returned"
+    },
+    {
+      "id": 40,
+      "method": "capture",
+      "startedMs": 189070.53795899998,
+      "elapsedMs": 3323.6140410000226,
+      "outcome": "returned"
+    },
+    {
+      "id": 41,
+      "method": "close",
+      "startedMs": 200498.791459,
+      "elapsedMs": 32.213415999984136,
+      "outcome": "returned"
+    }
+  ],
+  "limitations": [
+    "This is target-directed SDK recovery plus guarded native input continuation; not strict checkpoint equality or automatic plugin scheduling.",
+    "Two cases share the clock and browser; global setup is a real external navigation recorded separately, not a recovery success.",
+    "Missing required strategy is unexercised, never counted as success.",
+    "Driver/API/attempt timings overlap.",
+    "Historical source, unknown outcomes, replay permissions and graph edges remain unchanged."
+  ]
+}

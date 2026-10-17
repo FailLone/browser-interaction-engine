@@ -1,0 +1,22 @@
+{
+  "startedAt": "2026-10-17T14:30:36.175362+00:00",
+  "productCommit": "0bcfdcef891736f270ccdfa0f5785e0a9115c4d5",
+  "limitMs": 240000,
+  "internalStopMs": 235000,
+  "args": [
+    "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+    "--conditions=development",
+    "--import",
+    "tsx",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-19/run.mts",
+    "--run",
+    "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-recovery-acceptance-20261017-v19"
+  ],
+  "runnerSha256": "d005c2ca9d6b02775a6c2109008e8c10118561ae5e2130df381e1bacbd198b3f",
+  "providerVariablesLoaded": false,
+  "stopPolicy": "At 235 seconds refuse new stages and close owned driver. At 240 seconds terminate only the new owned process group, then kill it after two seconds if necessary. Cleanup grace never counts as accepted work.",
+  "pid": 82698,
+  "exitCode": 0,
+  "finishedAt": "2026-10-17T14:32:00.547389+00:00",
+  "processElapsedMs": 84371.834542
+}
