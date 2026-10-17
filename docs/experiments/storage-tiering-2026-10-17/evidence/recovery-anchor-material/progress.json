@@ -1,0 +1,19 @@
+[
+  {
+    "variant": "baseline",
+    "argv": [
+      "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+      "--max-old-space-size=6144",
+      "--conditions=development",
+      "--import=tsx",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-recovery-anchor-material-4iarpcdm/baseline/.data/worker.ts",
+      "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-recovery-anchor-material-4iarpcdm/baseline-config.json"
+    ],
+    "startedEpoch": 1792221448.390228,
+    "pid": 99227,
+    "timedOut": true,
+    "terminationRequested": true,
+    "exitCode": -15,
+    "finishedEpoch": 1792221688.438166
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "classification": "tool_archive_preparation_failure_not_a_performance_sample",
+  "completedABPairs": 0,
+  "workersStarted": 0,
+  "privateDatabaseCopiesCreated": 0,
+  "failedStage": "archive_preparation:baseline",
+  "baseline": "8c5c0a15465cd9d85de1f51b431b37c821aa8172",
+  "candidate": "fe3cb7a70585de64c6638c6b43584bce141d969a",
+  "originalExecution": {
+    "path": "preparation-failure.json",
+    "previousPath": "execution.json",
+    "preservation": "Renamed once, bytes unchanged",
+    "sha256": "0f0efc6e46d2ee00bcdc7fd6542ed257ee7ff412579573764a22cc8664d4387a"
+  },
+  "initialScripts": {
+    "runner-preparation-failed.py": "934a5a5230d2806d9fcdd63580128b85709942f400aab81839fac8f122bc1b67",
+    "worker.ts": "2321c84ff348dd52137d556517e74932c3ad169f9c400c93900092f815f053df",
+    "../real-okx-6/audit-serial/runner.py": "94e597ed0b633c273e3d0402a70146c8b4a33e1b466a55ad70410076f2051c37"
+  },
+  "cause": {
+    "source": "Parent verified git ls-tree/show; static old helper inspection",
+    "rejectedPath": "docs/experiments/storage-tiering-2026-10-17/evidence/review-present-source-release/compiled-smoke.mjs",
+    "linkTarget": "../step3-release-run9-fixes/compiled-smoke.mjs",
+    "explanation": "The reused full-repository archive helper rejects all symlinks. Baseline already contains this legitimate documentation alias, so archive preparation asserted before any worker or database copy was created."
+  },
+  "traceback": "Not captured by the original runner; not reconstructed. Failure stage and cause are recorded separately from the original bytes.",
+  "repair": "New runner archives only explicit runtime source/config roots with a complete manifest of those inputs. Documentation/evidence, tests and examples are excluded; symlink rejection remains for the selected runtime inputs. Old helper and product code are unchanged.",
+  "repairExecuted": false
+}

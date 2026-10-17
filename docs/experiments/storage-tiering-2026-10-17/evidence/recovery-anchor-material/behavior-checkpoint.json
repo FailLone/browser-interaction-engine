@@ -1,0 +1,57 @@
+{
+  "at": "2026-10-17T07:12:18.921374+00:00",
+  "base": "8c5c0a15465cd9d85de1f51b431b37c821aa8172",
+  "conclusion": "Light anchor ordering facts preserve recovery selection and full dispatch checks while avoiding unneeded source material reads. Performance is a separate checkpoint.",
+  "reason": "New optional SDK composition and plugin ordering path change require their own contract tests; anchor yield invalidation touches the previous cancellation path.",
+  "inputs": {
+    "packages/browser/src/index.ts": "24c05b8e3cf5f0c653fdbdf6c7ef8df9f00183d0db157ab1cf599d233e372dde",
+    "packages/explorer-plugin/src/runtime.ts": "1b8050ce50cd0639a038b645241ed15d3632a7e521b9227bd17b62f94a20e4ec",
+    "packages/explorer-plugin/src/review-recovery.ts": "57668bd78c25bdfe03c0a51d4e23d42f040bc32e36f8329cd2af18f18bd5d87f",
+    "packages/explorer-plugin/src/types.ts": "54da2501cb2ef5ea91c2938aaa6fd658ae96dae600809fb76735b147f20e225e",
+    "tests/recovery-anchor-material.test.ts": "69ee9ad42810cc2ecbe3aa6eef50e5c5370042fe699cb8dbdc9fdee34ada1bbb",
+    "tests/explorer-recovery-anchor-material.test.ts": "709bbe58835ef137fd06c953214aad26e1e2fd21ea3c2068b4da503848d41a07",
+    "tests/explorer-recovery-selection-cancellation.test.ts": "48e663b520e56f9fcfeace363446f6e1cbeaa26efd3d40ded9055afc7914a198",
+    "package.json": "c3fca09d482c5b8d8d5e133a2610614f6abf5436d30437efd7e0fe2960d41a3f",
+    "pnpm-lock.yaml": "21f5dffd918855f1d871ffd51544f7d8e5424b612af2ac07dbffbb90b05390fa",
+    "tsconfig.json": "eaa95b4e22a0b55b6a39f75267574a698cefac756bed09168937126d56429b6a",
+    "packages/core/tsconfig.json": "9837c4b8c9eedb792a5461d7db123c4b38df2e7d1c8824206eb18c5bbd8ee220",
+    "vitest.config.ts": "651c618fb0e3a0775117d74332116ef86cbcd909dc9c99fc9e5b7a1b4e24ff98"
+  },
+  "steps": [
+    {
+      "name": "behavior",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/recovery-anchor-material.test.ts",
+        "tests/explorer-recovery-anchor-material.test.ts",
+        "tests/explorer-recovery-selection-cancellation.test.ts"
+      ],
+      "exitCode": 0,
+      "log": "behavior.log",
+      "sha256": "a02320b2c40c794b6d080036317f597515005e384c28337a787a18fda37718f9"
+    },
+    {
+      "name": "types",
+      "command": [
+        "pnpm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "log": "types.log",
+      "sha256": "c4826c0bcec3b7398a6dba4e3b1bb68d1dc30320104f803cc5ae8a8081a66a7a"
+    }
+  ],
+  "scope": {
+    "browser": false,
+    "services": false,
+    "taskDatabase": false,
+    "fixtures": "MemoryStore and pure scheduler mocks only",
+    "benchmark": false
+  },
+  "inputsUnchanged": true,
+  "finishedAt": "2026-10-17T07:12:29.701915+00:00"
+}

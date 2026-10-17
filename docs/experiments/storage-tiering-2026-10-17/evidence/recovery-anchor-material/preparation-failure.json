@@ -1,0 +1,13 @@
+{
+  "scope": "Single A→B first pair only; no automatic extra samples, input adjustment or claimed live run12 speedup",
+  "negativeCheckpoint": [],
+  "error": "AssertionError: ",
+  "commands": [],
+  "semanticArtifacts": {},
+  "inputsUnchanged": true,
+  "scriptsUnchanged": true,
+  "archiveSourcesUnchanged": {},
+  "archiveWorkersUnchanged": {},
+  "activeWorkerPids": [],
+  "temporaryDirectoryRemoved": true
+}

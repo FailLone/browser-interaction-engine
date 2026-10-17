@@ -1,0 +1,19 @@
+{
+  "productCommit": "fe3cb7a70585de64c6638c6b43584bce141d969a",
+  "checkpoint": "behavior-checkpoint.json",
+  "inputsMatchCommit": {
+    "packages/browser/src/index.ts": true,
+    "packages/explorer-plugin/src/runtime.ts": true,
+    "packages/explorer-plugin/src/review-recovery.ts": true,
+    "packages/explorer-plugin/src/types.ts": true,
+    "tests/recovery-anchor-material.test.ts": true,
+    "tests/explorer-recovery-anchor-material.test.ts": true,
+    "tests/explorer-recovery-selection-cancellation.test.ts": true,
+    "package.json": true,
+    "pnpm-lock.yaml": true,
+    "tsconfig.json": true,
+    "packages/core/tsconfig.json": true,
+    "vitest.config.ts": true
+  },
+  "testsRerun": false
+}
