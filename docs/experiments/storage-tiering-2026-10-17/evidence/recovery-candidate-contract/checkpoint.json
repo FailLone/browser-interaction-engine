@@ -1,0 +1,44 @@
+{
+  "startedAt": "2026-10-17T06:21:46.402203+00:00",
+  "baseRevision": "c63fd1c04f33e732416b759f90eaca6446216a09",
+  "inputs": {
+    "packages/core/src/engine.ts": "2699af5fabfcc561797cc7e9df9b7ef0d7521a84b6778eff45a2a4ba7bfda19d",
+    "packages/core/src/types.ts": "61f903520f5e927eefb942124f196af9f56094b6c7e894caf1ebd6904273c987",
+    "packages/explorer-plugin/src/runtime.ts": "2bb01bc36d8aa91e1c77b659853b438037fa9d4e22bcc1e8200a94d4904e545a",
+    "packages/explorer-plugin/src/types.ts": "7a149fb62ea89127c63cca029cbc656a29ed12922d6161fb42a1f1a3b178e80e",
+    "tests/checkpoint-recovery-candidates.test.ts": "c81c2755fee390a9d07bd1637f70b7abb157a735bb1126af1a4b69f8753e6245",
+    "tests/explorer-recovery-candidates.test.ts": "840525b823aa767a7ba1f80d2273be18a1faacb27dbd3185a0eceb0bd32a61a2"
+  },
+  "conclusion": "Skip only explicitly unsupported strict recovery candidates; retain pending scope/debt and actual verification.",
+  "rerunPolicy": "One integrated behavior checkpoint. Repeat only failed or newly affected checks; no performance inference.",
+  "steps": [
+    {
+      "name": "behavior",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/checkpoint-recovery-candidates.test.ts",
+        "tests/explorer-recovery-candidates.test.ts",
+        "tests/recovery-route-alternatives.test.ts",
+        "tests/recovery-route-cost.test.ts",
+        "tests/explorer-review-source-visibility.test.ts"
+      ],
+      "exitCode": 1,
+      "log": "behavior.log"
+    },
+    {
+      "name": "types",
+      "command": [
+        "pnpm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "log": "types.log"
+    }
+  ],
+  "inputsUnchanged": true,
+  "completedAt": "2026-10-17T06:22:48.602245+00:00"
+}

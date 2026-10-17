@@ -1,0 +1,8 @@
+{
+  "revision": "c3a7d1a5cf08de45900b28d3aa134fbf9c600768",
+  "checkedRecords": {
+    "repair-checkpoint.json": true,
+    "frozen-query.json": true
+  },
+  "evidence": "Input file hashes match committed files; no tests repeated."
+}

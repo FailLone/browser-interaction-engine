@@ -6,7 +6,7 @@
 
 `f3c4316` 只在当前无活动边界时将已在场审阅项整体暂缓；有活动边界时沿用原行为，未改变分类、身份、覆盖或 unknown 契约。新增反例在旧版失败，修复后相关文件一次 17/17 通过；[定向检查点](experiments/storage-tiering-2026-10-17/evidence/review-present-source-fallback/README.md)、[发布检查](experiments/storage-tiering-2026-10-17/evidence/review-present-source-release/validation.json)与真实复验分别支持各自结论。第十窗的 4/4 条件覆盖和严格恢复失败完整保留于[原报告](experiments/storage-tiering-2026-10-17/evidence/real-okx-10/README.md)，不回填旧结果。
 
-下一检查点先明确历史审阅来源的恢复候选契约，再决定产品补丁；本次不再开第十二窗逐项试错。必须区分当前可审阅、存在候选路径、已验证到达、暂不可达与未知，保留旧待测与失败债，并定义事实变化后的重新评估条件。不得仅因 entry path 不可重放就跳过整个 checkpoint，也不得把新的 Trade 点击等同于旧 generic 审阅目标。先以既有冻结材料验证一个具体结论；有产品变化且定向检查通过，才有新的真实复验理由。
+恢复候选契约已在 `c3a7d1a` 实现：SDK 分别评估八种既有策略，插件只暂缓明确 `no_known_path` 的严格检查点来源，保留旧待测、失败债、unknown 及实际到达验证；八项分批耗尽后继续，不设永久黑名单。首次定向检查 66/74 通过，8 个新 core 用例暴露不支持的变化索引被误判；修复后只补跑新 core 文件 18/18 及 types，未重跑已过旧组。唯一冻结查询证明第十一窗最终事实下的旧 Trade 来源确实无已知候选路径，未给其补记到达或覆盖；见[候选契约检查点](experiments/storage-tiering-2026-10-17/evidence/recovery-candidate-contract/README.md)。固定产品的构建、公开声明、编译后候选 API 三项发布检查已通过；未重复根/core types，临时归档已清理，见[发布检查](experiments/storage-tiering-2026-10-17/evidence/recovery-candidate-release/README.md)。第十二窗工具准备中；合入 main 后才开一次有明确假设的真实接续，不再逐历史审阅项盲试。没有新的性能或存储收益结论。
 
 当前交付顺序：先完成第 3 项恢复路线选择及真实接续阻塞的收尾。第七窗候选读取优化、无效审阅来源修复、隐藏父记录/非局部依赖采集、派发证据及逐来源条件结案已有受控证据。`5eca079` 已把同一 before 候选的直接结案接入 SDK 条件查询，缺证旧项、合法补证及用户范围均保留。新增的批量 receipt 查询将不同回执的重复会话扫描限制在一次同步核对内；只共享本次读取，不跨轮保存权限或条件结论，见[批量查询检查点](experiments/storage-tiering-2026-10-17/evidence/receipt-condition-batch/README.md)。`49702b4` 另使事件读取只核对任务头，省去无关的完整任务组装；两个补丁分别记录，不混报性能收益。
 

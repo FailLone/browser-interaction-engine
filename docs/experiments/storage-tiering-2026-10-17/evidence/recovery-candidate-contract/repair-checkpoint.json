@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-17T06:23:47.877300+00:00",
+  "reason": "Initial eight new core cases failed because untracked entity kinds always reset their change feed. Use the three supported navigation fact feeds; no storage contract change.",
+  "prior": "checkpoint.json",
+  "inputs": {
+    "packages/core/src/engine.ts": "6ea331d0bbba5eec3494237dc8545ce538efacc5426161352f5a419aa83c7ede",
+    "packages/core/src/types.ts": "61f903520f5e927eefb942124f196af9f56094b6c7e894caf1ebd6904273c987",
+    "packages/explorer-plugin/src/runtime.ts": "2bb01bc36d8aa91e1c77b659853b438037fa9d4e22bcc1e8200a94d4904e545a",
+    "packages/explorer-plugin/src/types.ts": "7a149fb62ea89127c63cca029cbc656a29ed12922d6161fb42a1f1a3b178e80e",
+    "tests/checkpoint-recovery-candidates.test.ts": "c81c2755fee390a9d07bd1637f70b7abb157a735bb1126af1a4b69f8753e6245",
+    "tests/explorer-recovery-candidates.test.ts": "840525b823aa767a7ba1f80d2273be18a1faacb27dbd3185a0eceb0bd32a61a2"
+  },
+  "steps": [
+    {
+      "name": "core-repair",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/checkpoint-recovery-candidates.test.ts"
+      ],
+      "exitCode": 0,
+      "log": "core-repair.log"
+    },
+    {
+      "name": "types-repair",
+      "command": [
+        "pnpm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "log": "types-repair.log"
+    }
+  ],
+  "inputsUnchanged": true
+}
