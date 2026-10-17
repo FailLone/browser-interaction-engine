@@ -155,6 +155,30 @@ export interface RecoveryDiagnostics {
   unassessedEffectAttemptIds?: ID[];
 }
 export interface ReachResult { verificationScope?: 'observed-ui'; id: ID; sessionId: ID; checkpointId: ID; status: ReachStatus; observationId?: ID; reason: string; attemptIds: ID[]; checks: { name: string; result: 'pass' | 'fail' | 'unknown' }[]; remainingFrontier: number; diagnostics?: RecoveryDiagnostics }
+export type CheckpointRecoveryCandidateStatus = 'tryable' | 'no_known_path' | 'unknown';
+export type CheckpointRecoveryStrategy = 'verify_current' | 'boundary_exit' | 'observed_source_return' | 'recorded_path'
+  | 'declared_local_restore' | 'reset_hook' | 'configured_environment_reset' | 'entry_replay';
+export interface CheckpointRecoveryCandidatesInput {
+  /** The session's current retained observation, not a live browser assertion. */
+  observationId: ID;
+  /** At most eight checkpoints, returned in the same order. */
+  checkpointIds: ID[];
+}
+/** A disposable read of strict-checkpoint recovery possibilities. It is neither
+ * an arrival proof nor a claim that later steps of a route remain executable. */
+export interface CheckpointRecoveryCandidateAssessment {
+  checkpointId: ID;
+  /** Empty only when the source reference could not be read. */
+  sourceObservationId: ID;
+  currentObservationId: ID;
+  status: CheckpointRecoveryCandidateStatus;
+  strategies: { strategy: CheckpointRecoveryStrategy; status: CheckpointRecoveryCandidateStatus; reason: string; attemptIds?: ID[] }[];
+  blockers: string[];
+  /** Requery after these facts change; no result is cached across calls. */
+  invalidatedBy: string[];
+  checkpointVerified: false; executionAuthorized: false; currentExecution: false; coverageGranted: false;
+  dispatchRevalidationRequired: true;
+}
 /** Historical observed work, whether or not it was executed. Never a coverage proof. */
 export interface ExplorationTargetReference { sessionId: ID; observationId: ID; actionId: ID }
 export interface ExplorationTargetCorrespondence {

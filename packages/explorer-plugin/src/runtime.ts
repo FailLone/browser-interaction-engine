@@ -757,6 +757,32 @@ export class ExplorerPlugin {
       retained.set(observationId,value);while(retained.size>8)retained.delete(retained.keys().next().value!);return value;
     };
     const readRouteSource=(sessionId:string,observationId:string)=>sessionId===o.sessionId?read(observationId)?.source:this.host.observation(sessionId,observationId);
+    // Strict-checkpoint strategy facts are lazy and bounded to this selection.
+    // An absent/unknown assessment preserves the existing recovery contract;
+    // neither this negative hint nor a positive strategy grants arrival/dispatch.
+    type CheckpointCandidate=ReturnType<NonNullable<ExplorerHost['checkpointRecoveryCandidates']>>[number];
+    const checkpointCandidates=new Map<string,CheckpointCandidate|undefined>();
+    const noKnownCheckpointPath=(checkpoint:Checkpoint,source:Observation,lookahead:Checkpoint[])=>{
+      if(!this.host.checkpointRecoveryCandidates)return false;
+      if(!checkpointCandidates.has(checkpoint.id)){
+        const checkpointIds=[...new Set([checkpoint.id,...lookahead.map(candidate=>candidate.id)])].filter(id=>!checkpointCandidates.has(id)).slice(0,8);
+        let rows:CheckpointCandidate[]=[];
+        try{
+          const result=this.host.checkpointRecoveryCandidates(o.sessionId,{observationId:o.id,checkpointIds});
+          if(Array.isArray(result)&&result.length<=checkpointIds.length)rows=result;
+        }catch{/* Unavailable assessment is not evidence that a route is absent. */}
+        for(const id of checkpointIds){
+          const matches=rows.filter(candidate=>candidate?.checkpointId===id);
+          checkpointCandidates.set(id,matches.length===1?matches[0]:undefined);
+        }
+        while(checkpointCandidates.size>8)checkpointCandidates.delete(checkpointCandidates.keys().next().value!);
+      }
+      const candidate=checkpointCandidates.get(checkpoint.id);
+      return candidate?.checkpointId===checkpoint.id&&candidate.sourceObservationId===source.id&&candidate.currentObservationId===o.id
+        &&candidate.status==='no_known_path'&&Array.isArray(candidate.blockers)&&!candidate.blockers.length
+        &&candidate.checkpointVerified===false&&candidate.executionAuthorized===false&&candidate.currentExecution===false
+        &&candidate.coverageGranted===false&&candidate.dispatchRevalidationRequired===true;
+    };
     let reviewFallback:{recovery:ScheduledRecovery;route:ScheduledRoute;pageIds:Set<string>}|undefined;
     for(const item of pending){
       if(reviewFallback&&!reviewFallback.pageIds.has(item.id))continue;
@@ -775,7 +801,8 @@ export class ExplorerPlugin {
       // Check lazily instead of reading all historical checkpoints up front.
       if(!returnToSource&&!item.scope.kind&&controlReviewGapReasons.has(item.reason))candidates=prioritizeReviewAnchors(candidates,o,id=>read(id)?.source);
       let reason=candidates.length?'source_target_unverified':item.evidence.some(ref=>ref.sessionId!==o.sessionId)?'cross_session_observed_route_required':'retained_checkpoint_unavailable';
-      for(const checkpoint of candidates){
+      for(let candidateIndex=0;candidateIndex<candidates.length;candidateIndex++){
+        const checkpoint=candidates[candidateIndex];
         const facts=read(checkpoint.observationId);if(!facts)continue;
         const {source,actions:sourceActions}=facts;
         if(source.gaps.some(g=>g.critical)||Object.values(source.context).some(value=>value.status!=='known'))continue;
@@ -850,9 +877,14 @@ export class ExplorerPlugin {
         }
         const retry=routeRetryEligibility(task.routeRetries,key,conditionVersion);
         if(!retry.allowed){reason=`route_retry_${retry.reason}`;continue;}
-        const frame:Frame={checkpointId:checkpoint.id,observationId:source.id,stateId:source.stateId,used:[],path,remaining:budgetTargets};
         const concrete=!!item.scope.kind&&!!(item.scope.label||item.scope.stableKey||item.scope.value!==undefined);
-        const recovery:ScheduledRecovery={frame,source,remaining:[item.scope],itemId:item.id,routeKey:key,conditionVersion,returnToSource,targetActionIds:concrete?targets.filter(action=>action.basis?.status==='supported').map(action=>action.id):[]};
+        const targetActionIds=concrete?targets.filter(action=>action.basis?.status==='supported').map(action=>action.id):[];
+        if(!returnToSource&&!(targetActionIds.length&&this.host.reachExplorationTarget)
+          &&noKnownCheckpointPath(checkpoint,source,!item.scope.kind?candidates.slice(candidateIndex,candidateIndex+8):[checkpoint])){
+          reason='checkpoint_no_known_path';continue;
+        }
+        const frame:Frame={checkpointId:checkpoint.id,observationId:source.id,stateId:source.stateId,used:[],path,remaining:budgetTargets};
+        const recovery:ScheduledRecovery={frame,source,remaining:[item.scope],itemId:item.id,routeKey:key,conditionVersion,returnToSource,targetActionIds};
         if(!reviewFallback&&this.host.returnToObservedSource&&!item.scope.kind&&controlReviewGapReasons.has(item.reason)&&!currentHistoryAnchor(source,o)){
           // A stale review source can require a strict replay even when the
           // accepted page has a current native return. Try that independent

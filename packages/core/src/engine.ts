@@ -1,6 +1,6 @@
 import { EventBus } from './events.js';
 import { contextSchema, actionBasisSchema, componentDescriptionSchema } from './schema.js';
-import type { ComponentDescription, ComponentDescriptionInput, ExplorationTargetReference, ExplorationTargetCorrespondence, ReachExplorationTargetInput, ExplorationTargetReachResult, RepetitionAssessment, ReturnToObservedSourceInput, ObservedSourceReturnResult } from './types.js';
+import type { ComponentDescription, ComponentDescriptionInput, ExplorationTargetReference, ExplorationTargetCorrespondence, ReachExplorationTargetInput, ExplorationTargetReachResult, RepetitionAssessment, ReturnToObservedSourceInput, ObservedSourceReturnResult, CheckpointRecoveryCandidatesInput, CheckpointRecoveryCandidateAssessment, CheckpointRecoveryStrategy, CheckpointRecoveryCandidateStatus } from './types.js';
 import { assignState, matchIdentities, sameObservedState } from './identity.js';
 import { recoverStore } from './recovery.js';
 import { migrateSamplingSources, sampledFrontierKey } from './sampling-migration.js';
@@ -1242,6 +1242,201 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const resolved = this.navigationEndpoints(sessionId, from, to, endpoints);
     return resolved ? this.navigationGraph(sessionId).graph.path(this.navigationKey(resolved.source), this.navigationKey(resolved.target)) : null;
   }
+  /** Shared with real route selection. This checks the first recorded operation,
+   * not dispatch permission or the availability of any subsequent operation. */
+  private recordedFirstStep(old: ActionAttempt, current: O, actions: ActionCandidate[]): { action?: ActionCandidate; reason?: string } {
+    const matches = actions.filter(action => this.adapter.replayMatches(action, old.action));
+    if (old.status !== 'succeeded' || !old.action.replayable) return { reason: 'recorded_action_not_replayable' };
+    if (contextKey(current.context) !== contextKey(old.action.preconditions.context)) return { reason: 'preconditions_changed' };
+    if (matches.length !== 1) return { reason: 'replay_target_not_unique_or_missing' };
+    if (!matches[0].replayable) return { reason: 'current_action_not_replayable' };
+    return { action: matches[0] };
+  }
+  private entryReplayBlocked(checkpoint: Checkpoint, resetConfirmed: boolean, read: (attemptId: string) => ActionAttempt) {
+    return !resetConfirmed && checkpoint.path.some(attemptId => !read(attemptId).action.replayable);
+  }
+  /** Read only the requested captured facts. No driver, hook, recovery result or
+   * durable retry record is touched. The optional change feed detects changes,
+   * but neither it nor this synchronous API promises a cross-connection snapshot. */
+  checkpointRecoveryCandidates(sessionId: string, input: CheckpointRecoveryCandidatesInput): CheckpointRecoveryCandidateAssessment[] {
+    if (!input || typeof input.observationId !== 'string' || !input.observationId
+      || !Array.isArray(input.checkpointIds) || input.checkpointIds.length > 8
+      || input.checkpointIds.some(checkpointId => typeof checkpointId !== 'string' || !checkpointId))
+      throw new EngineError('INVALID_QUERY', 'Supply a current observation and at most eight checkpoint IDs');
+    if (!input.checkpointIds.length) return [];
+    const strategies: CheckpointRecoveryStrategy[] = ['verify_current', 'boundary_exit', 'observed_source_return', 'recorded_path',
+      'declared_local_restore', 'reset_hook', 'configured_environment_reset', 'entry_replay'];
+    const results = input.checkpointIds.map((checkpointId): CheckpointRecoveryCandidateAssessment => ({
+      checkpointId, sourceObservationId: '', currentObservationId: input.observationId, status: 'unknown', blockers: [],
+      strategies: strategies.map(strategy => ({ strategy, status: 'unknown', reason: 'not_assessed' })),
+      invalidatedBy: ['current_observation_or_captured_facts_changed', 'checkpoint_or_retained_evidence_changed',
+        'recorded_attempts_or_transitions_changed', 'action_identity_or_replay_constraints_changed',
+        'recovery_debt_or_continuation_changed', 'session_context_options_or_budget_changed', 'adapter_or_verification_policy_changed'],
+      checkpointVerified: false, executionAuthorized: false, currentExecution: false, coverageGranted: false, dispatchRevalidationRequired: true,
+    }));
+    const unknown = (result: CheckpointRecoveryCandidateAssessment, reason: string) => {
+      result.status = 'unknown'; result.blockers = [...new Set([...result.blockers, reason])];
+      result.strategies = strategies.map(strategy => ({ strategy, status: 'unknown', reason }));
+    };
+    // The navigation feed tracks only these record kinds. Unsupported kinds
+    // deliberately return reset and cannot serve as a query-stability signal.
+    // Other facts are reread on each call, without claiming an atomic snapshot;
+    // stores may also invalidate these generations on external writes.
+    const changedKinds = ['attempt', 'transition', 'observation'];
+    const tokens = new Map<string, string>();
+    let session: Session<S>, current: O, actions: ActionCandidate[], blockers: string[];
+    try {
+      if (this.store.entityChanges) for (const kind of changedKinds) tokens.set(kind, this.store.entityChanges(kind, sessionId).token);
+      session = structuredClone(this.session(sessionId));
+      current = structuredClone(this.observation(sessionId, input.observationId));
+      if (session.currentObservationId !== current.id || current.id !== input.observationId) throw new EngineError('STALE_OBSERVATION', 'Current observation changed');
+      if (typeof current.canonical !== 'string') throw new Error('Current state evidence unavailable');
+      actions = structuredClone(this.actions(sessionId, current.id));
+      blockers = this.unverifiedRecoveryAttempts(sessionId).length ? ['unknown_execution_outcome'] : [];
+      blockers.push(...this.executionSessionBlockers(current, 'recovery').map(blocker => blocker.code));
+      if (!current.stable || current.gaps.some(gap => gap.critical)) blockers.push('observation_incomplete');
+      if (current.ruleVersion !== this.adapter.ruleVersion) blockers.push('observation_rules_changed');
+      if (session.actionCount >= session.options.maxActions || session.elapsedMs >= session.options.maxDurationMs) blockers.push('recovery_budget_exhausted');
+    } catch (error) {
+      for (const result of results) unknown(result, error instanceof EngineError && error.code === 'STALE_OBSERVATION' ? 'stale_observation' : 'current_facts_unavailable');
+      return results;
+    }
+    // Values and graph refresh are shared only within this call. The existing
+    // navigation index retains fact keys, never candidate or dispatch permission.
+    const observations = new Map<string, O>([[current.id, current]]), attempts = new Map<string, ActionAttempt>(), states = new Map<string, UIState>();
+    const source = (oid: string) => { if (!observations.has(oid)) observations.set(oid, structuredClone(this.observation(sessionId, oid))); return observations.get(oid)!; };
+    const attempt = (aid: string) => { if (!attempts.has(aid)) attempts.set(aid, structuredClone(this.owned<ActionAttempt>('attempt', aid, sessionId))); return attempts.get(aid)!; };
+    const state = (stateId: string) => { if (!states.has(stateId)) states.set(stateId, this.owned<UIState>('state', stateId, sessionId)); return states.get(stateId)!; };
+    let graph: NavigationIndex<O> | undefined, graphError: unknown, graphRead = false;
+    const navigation = () => {
+      if (!graphRead) { graphRead = true; try { graph = this.navigationGraph(sessionId); } catch (error) { graphError = error; } }
+      if (graphError) throw graphError;
+      return graph!.graph;
+    };
+    for (const result of results) {
+      let checkpoint: Checkpoint, target: O;
+      try {
+        checkpoint = structuredClone(this.owned<Checkpoint>('checkpoint', result.checkpointId, sessionId));
+        result.sourceObservationId = typeof checkpoint.observationId === 'string' ? checkpoint.observationId : '';
+        if (!result.sourceObservationId || !Array.isArray(checkpoint.path) || !Array.isArray(checkpoint.predicates)
+          || !Array.isArray(checkpoint.acceptable) || !checkpoint.context || typeof checkpoint.context !== 'object'
+          || Object.values(checkpoint.context).some(value => !value || !['known', 'unknown'].includes(value.status))) throw new Error('Checkpoint evidence incomplete');
+        target = source(checkpoint.observationId);
+        if (target.id !== checkpoint.observationId || typeof target.canonical !== 'string'
+          || target.stateId !== checkpoint.stateId || state(target.stateId).id !== target.stateId || state(current.stateId).id !== current.stateId
+          || target.gaps.some(gap => gap.critical) || target.ruleVersion !== current.ruleVersion) throw new Error('Source evidence incomplete');
+      } catch { unknown(result, 'source_unavailable'); continue; }
+      result.blockers = [...blockers];
+      if (checkpoint.evidenceKeys?.length) result.blockers.push('retained_evidence_requires_verification');
+      try {
+        for (const [key, expected] of Object.entries(checkpoint.context)) {
+          const actual = current.context[key];
+          if (!actual || actual.status !== 'known' || expected.status !== 'known') result.blockers.push('declared_context_unknown');
+          else if (canonical(actual.value) !== canonical(expected.value)) result.blockers.push('declared_context_changed');
+        }
+      } catch { unknown(result, 'checkpoint_context_unavailable'); continue; }
+      if (result.blockers.length) { unknown(result, result.blockers[0]); continue; }
+      const set = (strategy: CheckpointRecoveryStrategy, status: CheckpointRecoveryCandidateStatus, reason: string, attemptIds?: string[]) => {
+        const row = { strategy, status, reason, ...(attemptIds ? { attemptIds } : {}) };
+        result.strategies[strategies.indexOf(strategy)] = row; return row;
+      };
+      const probe = (strategy: CheckpointRecoveryStrategy, read: () => void) => {
+        try { read(); } catch { set(strategy, 'unknown', 'strategy_evidence_unavailable'); }
+      };
+      probe('verify_current', () => {
+        if (this.hooks.verify || this.hooks.accept) { set('verify_current', 'unknown', 'verification_hook_requires_execution'); return; }
+        const predicates = checkpoint.predicates.map(predicate => this.testPredicate(predicate, current));
+        const acceptable = checkpoint.acceptable.map(predicate => this.testPredicate(predicate, current));
+        if (predicates.every(value => value === 'pass') && current.canonical === target.canonical
+          || acceptable.length && acceptable.every(value => value === 'pass')) set('verify_current', 'tryable', 'captured_checkpoint_verification_candidate');
+        else {
+          const uncertain = [...predicates, ...acceptable].some(value => value !== 'pass' && value !== 'fail');
+          set('verify_current', uncertain ? 'unknown' : 'no_known_path', uncertain ? 'checkpoint_predicate_unknown' : 'captured_checkpoint_not_matched');
+        }
+      });
+      probe('boundary_exit', () => {
+        if (!this.adapter.returnAction) { set('boundary_exit', 'unknown', 'boundary_exit_assessment_unsupported'); return; }
+        const exit = this.adapter.returnAction(actions, current);
+        set('boundary_exit', exit ? 'tryable' : 'no_known_path', exit ? 'current_boundary_exit_candidate' : 'boundary_exit_unavailable');
+      });
+      // A present boundary prevents later strategies until an exit has actually
+      // succeeded. A projected exit is not a hypothetical restored observation.
+      const boundaryBarrier = !!current.boundaries?.length;
+      const blockedByBoundary = (strategy: CheckpointRecoveryStrategy) => set(strategy, 'no_known_path', 'active_boundary_requires_exit');
+      probe('observed_source_return', () => {
+        if (boundaryBarrier) { blockedByBoundary('observed_source_return'); return; }
+        if (session.dirty) { set('observed_source_return', 'no_known_path', 'native_return_requires_clean_session'); return; }
+        if (!this.adapter.returnToObservation) { set('observed_source_return', 'unknown', 'native_return_assessment_unsupported'); return; }
+        const proposed = this.adapter.returnToObservation(target, current, session);
+        const action = proposed && this.constrain(structuredClone(proposed), current, session);
+        const available = action && !action.excluded && action.risk === 'interface' && action.basis?.status === 'supported' && !action.preconditions.blockers?.length;
+        set('observed_source_return', available ? 'tryable' : 'no_known_path', available ? 'native_return_candidate' : 'native_return_unavailable');
+      });
+      let recordedFailure: string | undefined;
+      probe('recorded_path', () => {
+        if (boundaryBarrier) { blockedByBoundary('recorded_path'); return; }
+        const index = navigation(), from = this.navigationKey(current), to = this.navigationKey(target);
+        let firstRejected: string | undefined;
+        const path = index.path(from, to, edge => {
+          const first = this.recordedFirstStep(attempt(edge.attemptId), current, actions);
+          if (first.reason) firstRejected ??= first.reason;
+          return !first.reason;
+        });
+        if (path?.length) { set('recorded_path', 'tryable', 'recorded_path_with_current_first_step', path); return; }
+        if (firstRejected && index.path(from, to)?.length) recordedFailure = firstRejected;
+        set('recorded_path', 'no_known_path', recordedFailure || 'recorded_path_unavailable');
+      });
+      const laterBarrier = (strategy: CheckpointRecoveryStrategy) => {
+        if (boundaryBarrier) { blockedByBoundary(strategy); return true; }
+        if (recordedFailure) { set(strategy, 'no_known_path', 'recorded_path_failure_blocks_fallback'); return true; }
+        if (result.strategies[strategies.indexOf('recorded_path')].status === 'unknown') {
+          set(strategy, 'unknown', 'recorded_path_assessment_unknown'); return true;
+        }
+        return false;
+      };
+      probe('declared_local_restore', () => {
+        if (laterBarrier('declared_local_restore')) return;
+        if (session.dirty) { set('declared_local_restore', 'no_known_path', 'local_restore_requires_clean_session'); return; }
+        if (!this.adapter.restorationStep) { set('declared_local_restore', 'unknown', 'local_restore_assessment_unsupported'); return; }
+        const step = this.adapter.restorationStep(target, current, session);
+        const action = step && this.constrain(structuredClone(step.action), current, session);
+        const available = action && action.risk === 'interface' && action.replayable && !action.excluded && !action.preconditions.blockers?.length
+          && action.preconditions.identityResolved && action.basis?.status !== 'tentative';
+        set('declared_local_restore', available ? 'tryable' : 'no_known_path', available ? 'declared_local_restore_candidate' : 'declared_local_restore_unavailable');
+      });
+      probe('reset_hook', () => {
+        if (laterBarrier('reset_hook')) return;
+        set('reset_hook', session.dirty && this.hooks.reset ? 'unknown' : 'no_known_path', session.dirty && this.hooks.reset ? 'reset_hook_requires_execution' : 'reset_hook_not_applicable');
+      });
+      probe('configured_environment_reset', () => {
+        if (laterBarrier('configured_environment_reset')) return;
+        if (!session.dirty) { set('configured_environment_reset', 'no_known_path', 'clean_session'); return; }
+        if (!this.adapter.resetAction) { set('configured_environment_reset', 'unknown', 'reset_assessment_unsupported'); return; }
+        const action = this.adapter.resetAction(current, session);
+        set('configured_environment_reset', action ? 'tryable' : 'no_known_path', action ? 'configured_reset_candidate' : 'configured_reset_unavailable');
+      });
+      probe('entry_replay', () => {
+        if (laterBarrier('entry_replay')) return;
+        if (session.dirty) {
+          const resetUnknown = result.strategies.some(row => ['reset_hook', 'configured_environment_reset'].includes(row.strategy) && row.status !== 'no_known_path');
+          set('entry_replay', resetUnknown ? 'unknown' : 'no_known_path', 'verified_reset_required'); return;
+        }
+        if (this.entryReplayBlocked(checkpoint, false, attempt)) { set('entry_replay', 'no_known_path', 'path_contains_nonreplayable_action'); return; }
+        if (!this.adapter.entryAction) { set('entry_replay', 'unknown', 'entry_assessment_unsupported'); return; }
+        const entry = this.adapter.entryAction(current, session);
+        set('entry_replay', entry ? 'tryable' : 'no_known_path', entry ? 'entry_replay_candidate' : 'entry_action_unavailable', checkpoint.path);
+      });
+      result.status = result.strategies.some(row => row.status === 'tryable') ? 'tryable'
+        : result.strategies.some(row => row.status === 'unknown') ? 'unknown' : 'no_known_path';
+    }
+    if (this.store.entityChanges) {
+      try {
+        if (changedKinds.some(kind => { const after = this.store.entityChanges!(kind, sessionId, tokens.get(kind)); return after.reset || after.token !== tokens.get(kind); }))
+          for (const result of results) unknown(result, 'recovery_facts_changed_during_query');
+      } catch { for (const result of results) unknown(result, 'recovery_facts_change_check_unavailable'); }
+    }
+    return results;
+  }
   private replayDispatchKey(current: O, action: ActionCandidate, value: ActionCandidate['value']) {
     const control = current.controls.find(c => c.localId === action.localId);
     const conditions = this.adapter.explorationTargetConditions?.(action, current);
@@ -1423,18 +1618,16 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         let firstRejected: { attemptId: string; reason: string } | undefined;
         const firstEdgeAllowed = (edge: RecordedNavigationEdge) => {
           const old = this.owned<ActionAttempt>('attempt', edge.attemptId, sessionId);
-          const matches = actions.filter(action => this.adapter.replayMatches(action, old.action));
+          const first = this.recordedFirstStep(old, current, actions);
           const rejected = (reason: string) => { firstRejected ??= { attemptId: old.id, reason }; return false; };
-          if (old.status !== 'succeeded' || !old.action.replayable) return rejected('recorded_action_not_replayable');
-          if (contextKey(current.context) !== contextKey(old.action.preconditions.context)) return rejected('preconditions_changed');
-          if (matches.length !== 1) return rejected('replay_target_not_unique_or_missing');
-          if (!matches[0].replayable) return rejected('current_action_not_replayable');
-          if (dispatched.has(this.replayDispatchKey(current, matches[0], old.action.value))) return rejected('replay_operation_already_tried');
+          if (first.reason) return rejected(first.reason);
+          const action = first.action!;
+          if (dispatched.has(this.replayDispatchKey(current, action, old.action.value))) return rejected('replay_operation_already_tried');
           if (target) {
-            const assessment = this.repetitionAssessment(sessionId, { observationId: current.id, actionId: matches[0].id, source: { sessionId, attemptId: old.id } });
+            const assessment = this.repetitionAssessment(sessionId, { observationId: current.id, actionId: action.id, source: { sessionId, attemptId: old.id } });
             if (!assessment.repeatable) return rejected(assessment.reason);
           }
-          currentConditions.set(old.id, this.navigationCondition(matches[0], current, old.action.value));
+          currentConditions.set(old.id, this.navigationCondition(action, current, old.action.value));
           return true;
         };
         const from = this.navigationKey(current), to = this.navigationKey(endpoints.target);
@@ -1529,7 +1722,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         session = this.session(sessionId); session.dirty = false; session.dirtyAttemptIds = []; this.store.put('session', session);
       }
       if (session.dirty && !resetConfirmed) { reason = 'Cannot restore checkpoint: no verified return path and business state requires an environment reset'; return finish(); }
-      if (!resetConfirmed && checkpoint.path.some(a => !this.owned<ActionAttempt>('attempt', a, sessionId).action.replayable)) { reason = 'Checkpoint path contains actions without replay permission'; return finish(); }
+      if (this.entryReplayBlocked(checkpoint, resetConfirmed, a => this.owned<ActionAttempt>('attempt', a, sessionId))) { reason = 'Checkpoint path contains actions without replay permission'; return finish(); }
       // Reopening the interaction driver follows the same durable intent/result ledger as every other action.
       if (!entryReopened) {
         this.budget(session);
