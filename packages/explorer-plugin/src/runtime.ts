@@ -1128,6 +1128,9 @@ export class ExplorerPlugin {
     if(task.plan.length&&!task.plan.some(i=>i.required&&isUnfinished(i)))return false;
     const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id),unresolvedBefore=new Set(Object.keys(round.unresolvedPurposeReviews||{})),unresolvedReviews:UnresolvedReview[]=[];
     try { const reviewed=await reviewNext({host:this.host,task,observation:o,
+      // At the local quota, review current material before fairness can send us
+      // elsewhere. Reviewing does not reserve an action or reset the quota.
+      allowLocalActionYield:(task.scheduling?.localSelections??0)<localSelectionLimit,
       hasPendingAction:(filter?: (action:ActionCandidate)=>boolean,freshOnly=false)=>{
         const availability=this.host.actionAvailability(sid,o.id),actions=this.host.actions(sid).filter(a=>(!filter||filter(a))&&!this.navigationIsUnverified(task,a,o)&&permitted(a,o,availability)&&includesScope(task.plan,a,o));
         const completed=completedOperations(this.host,task,o,actions);

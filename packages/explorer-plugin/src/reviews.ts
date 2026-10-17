@@ -9,6 +9,8 @@ import type { SemanticReview } from './semantic-review.js';
 
 export interface ReviewContext {
   host:ExplorerHost;task:Task;observation:Observation;
+  /** Yield to local actions only while the scheduler can still prefer them to recovery. */
+  allowLocalActionYield?:boolean;
   choose(purpose:string,instructions:string,state:unknown,options:Record<string,unknown>,constraints?:ChoiceConstraints):Promise<{value:string;decision:Decision}>;
   assess(purpose:string,state:unknown,checks:NonNullable<ModelRequest['checks']>):Promise<{values:Record<string,boolean|null>;decision:Decision}>;
   refresh(decision:Decision,key:string):Promise<boolean>;
@@ -77,7 +79,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   // for review of new work; a ready exit/history/link
   // must not make unresolved modal contents disappear before their review.
   const inPlace=(a:ActionCandidate)=>inCurrentBoundary(a)&&!['dismiss','history'].includes(a.kind)&&a.boundary?.intent!=='exit'&&!navigationTarget(a,o);
-  if(available.some(inPlace)&&c.hasPendingAction(inPlace,true)) {
+  if(c.allowLocalActionYield!==false&&available.some(inPlace)&&c.hasPendingAction(inPlace,true)) {
     // Local actions and scrolling may hide current controls too. Retain obligations
     // before yielding; these are evidence gaps, never new dispatch authority. A later
     // pass reviews them normally because no reviewed key or decision is fabricated.
