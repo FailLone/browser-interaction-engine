@@ -1,0 +1,14 @@
+{
+  "node": "v24.22.0",
+  "resolved": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-step3-release-compact-v3-9fgoit34/archive/packages/adapter-playwright/dist/index.js",
+  "publicCodecFactory": "passed",
+  "publicPayloadCap": "passed",
+  "compactVersion": "browser-owner-dependencies-v3",
+  "exactRoundtrip": true,
+  "incrementalRoundtrip": true,
+  "wireBytes": 885,
+  "wireSha256": "e09bed8b448cd27972be233fa0a6e712dc76f70668aa9a6df8e62479a40e11d8",
+  "browserDriverCalls": 0,
+  "openedPersistentTaskDatabases": 0,
+  "scope": "Compiled codec API and exact data roundtrip only; no receipt permission, live recovery, or performance conclusion."
+}
