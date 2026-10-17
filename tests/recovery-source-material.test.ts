@@ -159,6 +159,47 @@ it('preserves subclass action and transition projections instead of bypassing th
   expect(transition).toHaveBeenCalledExactlyOnceWith('session','source','current');
 });
 
+it('isolates cached facts from a protected composition override with unchanged public reads',()=>{
+  class CachedCompositionEngine extends BrowserEngine {
+    cached?:{observation:Observation;actions:ActionCandidate[]};
+    protected override observationActions(sid:string,oid?:string) {return this.cached??=super.observationActions(sid,oid);}
+  }
+  const f=fixture(new MemoryStore(),CachedCompositionEngine),engine=f.engine as CachedCompositionEngine;
+  const expected=f.read(),result=f.read();
+  expect(engine.store.recordReadIsolation).toBe('detached');
+  result.source.controls[0].name='caller mutation';result.actions[0].preconditions.context.account.value='caller context';
+  expect(engine.cached!.observation.controls[0].name).toBe('Mode');
+  expect(engine.cached!.actions[0].preconditions.context.account.value).toBe('A');
+  expect(f.read()).toEqual(expected);expect(result.source).not.toBe(expected.source);expect(result.actions).not.toBe(expected.actions);
+});
+
+it('keeps defensive copying when a protected override restores the base helper during its read',()=>{
+  class RestoringCompositionEngine extends BrowserEngine {
+    borrowed?:{observation:Observation;actions:ActionCandidate[]};
+    protected override observationActions(sid:string,oid?:string) {
+      this.borrowed=super.observationActions(sid,oid);this.observationActions=super.observationActions;return this.borrowed;
+    }
+  }
+  const f=fixture(new MemoryStore(),RestoringCompositionEngine),engine=f.engine as RestoringCompositionEngine,result=f.read();
+  expect(result.source).not.toBe(engine.borrowed!.observation);expect(result.actions).not.toBe(engine.borrowed!.actions);
+  result.source.controls[0].name='caller mutation';expect(engine.borrowed!.observation.controls[0].name).toBe('Mode');
+});
+
+it('copies defensively when a read replaces the initially base protected helper',()=>{
+  class ReplacedCompositionEngine extends BrowserEngine {
+    replaceComposition(value:{observation:Observation;actions:ActionCandidate[]}) {this.observationActions=()=>value;}
+  }
+  const f=fixture(new MemoryStore(),ReplacedCompositionEngine),engine=f.engine as ReplacedCompositionEngine,read=engine.store.require;
+  let source:Observation|undefined;
+  engine.store.require=<T>(kind:string,id:string):T=>{
+    const value=read<T>(kind,id);
+    if(kind==='observation'&&id==='source'){source=value as Observation;engine.replaceComposition({observation:source,actions:[f.sourceAction]});}
+    return value;
+  };
+  const result=f.read();expect(result.source).not.toBe(source);
+  result.source.controls[0].name='caller mutation';expect(source!.controls[0].name).toBe('Mode');
+});
+
 it('keeps instance-decorated results isolated, including an override that does not read the comparison frame',()=>{
   const f=fixture(),rows=[{...f.sourceAction,label:'Decorated action'}];
   const transition={beforeId:'decorated-before',afterId:'decorated-after',verified:false,documentChanged:false,navigated:false,

@@ -26,7 +26,8 @@ The transition projection is eager, including for sources that a caller later
 rejects. `Persistence.recordReadIsolation: 'detached'` explicitly guarantees that
 entity reads return independent mutable copies. Memory/SQLite stores provide this
 guarantee and retention forwards its backing store's current declaration. When
-this guarantee is present and all three public SDK read methods are unmodified,
+this guarantee is present and all three public SDK read methods plus the protected
+`observationActions` composition helper are unmodified,
 the method returns those already-isolated values without copying them again.
 Unknown/borrowed stores and custom SDK projections retain the defensive copy.
 The capability says nothing about freshness, identity or permission; a store
@@ -37,3 +38,6 @@ determine the net benefit.
 Subclasses and instance decorators that override `observation`, `actions` or
 `interactionTransition` keep their public projections. Those calls use the
 corresponding original methods, even when doing so requires additional reads.
+An overridden `observationActions` helper also retains its projection, with a
+defensive copy of its results. The isolation checks run before and after reading,
+so replacing or restoring a helper during the read does not bypass that copy.
