@@ -3,7 +3,7 @@ import type { ActionCandidate, Control, Observation, Session } from './types.js'
 import { readonlyReadout, observableCanonical } from './model.js';
 import { constrain } from './policy.js';
 import { ruleMatches, signature, formBinding } from './util.js';
-import { browserBranchConditions } from './branch-conditions.js';
+import { browserBranchConditions, browserPortableBranchConditions } from './branch-conditions.js';
 
 /** Opaque compatibility keys remain readable by existing consumers. They are hints, not identities. */
 export function browserControlCorrespondence(c: Control): CorrespondenceHint | undefined {
@@ -141,7 +141,7 @@ function controlCaseProjection(action:ActionCandidate,o:Observation,portable:boo
   };
   const c = o.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
   if (!c || o.gaps.some(g => g.critical)) return;
-  const branch = sourceConditions?browserBranchConditions(action,o):undefined;if(sourceConditions&&!branch)return;
+  const branch = sourceConditions?(portable?browserPortableBranchConditions(action,o):browserBranchConditions(action,o)):undefined;if(sourceConditions&&!branch)return;
   const native=portable&&browserOperationCorrespondenceHint(c,action.kind,o);
   if(native&&action.basis?.status==='supported'&&action.basis.evidence.some(e=>e.source==='html'&&e.rule==='hyperlink/v1'&&e.facts.href===c.reviewBinding?.attributes.href)) {
     const {valid:_valid,...constraints}=c.constraints,{instanceId:_instance,...form}=c.reviewBinding?.form||{};

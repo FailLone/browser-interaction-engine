@@ -70,3 +70,32 @@ export function setModeExpanded(fixture: ModeStructureFixture, record: string, e
   fixture.modes[record].reviewBinding!.attributes['aria-expanded'] = String(expanded);
   fixture.nodes[`mode-${record}`].attributes['aria-expanded'] = String(expanded);
 }
+
+/** A navigation disclosure is scoped by captured native link destinations,
+ * independently of the visible-list instance identity chosen by capture. */
+export function navigationModeFixture(options: ModeStructureFixtureOptions & { instanceBound?: boolean; open?: boolean } = {}) {
+  const f = modeStructureFixture(options), documentId = f.observation.documentId;
+  f.owner.label = ''; f.owner.name = options.open ? 'Trade Spot Futures' : 'Trade';
+  f.owner.reviewReuseBinding = { ancestors: [{ tag: 'nav', selector: 'nav', attributes: { 'aria-label': 'Main menu' }, label: 'Main menu' }] };
+  const trigger: Control = { ...structuredClone(f.target), localId: 'trade-toggle', instanceId: `${documentId}:trade-toggle`,
+    identityId: 'identity:trade-toggle', tag: 'button', role: 'button', name: 'Trade', label: '', stableKey: 'id:trade-toggle',
+    expanded: !!options.open, constraints: { type: 'button', required: false, valid: true },
+    identityContext: { scope: 'header', binding: 'trade-toggle', evidence: ['captured-owner'] },
+    reviewBinding: { parentInstanceId: f.owner.instanceId, attributes: { type: 'button' } }, actions: ['click'],
+    actionBasis: { click: { status: 'supported', evidence: [{ source: 'html', rule: 'native-button/v1', facts: { type: 'button', submitsForm: false } }] } } };
+  delete trigger.classificationBinding; delete trigger.reviewReuseBinding;
+  f.nodes.trigger = { instanceId: trigger.instanceId, parentInstanceId: f.owner.instanceId, tag: 'button',
+    attributes: { id: 'trade-toggle', type: 'button', 'aria-expanded': String(trigger.expanded) } };
+  f.owner.classificationBinding!.nodes.push(f.nodes.trigger); f.observation.controls.push(trigger);
+  for (const [record, mode] of Object.entries(f.modes)) {
+    mode.label = mode.name = 'Open sub-menu';
+    mode.reviewBinding!.attributes['aria-label'] = mode.label; f.nodes[`mode-${record}`].attributes['aria-label'] = mode.label;
+    if (options.instanceBound) { mode.identityScope = 'instance'; mode.stableKey = `record-instance:${documentId}:${record}`; delete mode.hypothesisId; }
+    const node = f.nodes[`link-${record}`], link: Control = { ...structuredClone(f.target), tag: 'a', role: 'link', name: '', label: '',
+      localId: `link-${record}`, instanceId: node.instanceId, stableKey: undefined,
+      identityContext: { binding: JSON.stringify([['link-destination', `https://navigation.fixture.invalid/trade/${record}`, '']]), evidence: ['link-destination/v1'] },
+      reviewBinding: { parentInstanceId: node.parentInstanceId, attributes: { ...node.attributes } } };
+    delete link.classificationBinding; delete link.reviewReuseBinding; f.observation.controls.push(link);
+  }
+  return { ...f, trigger };
+}

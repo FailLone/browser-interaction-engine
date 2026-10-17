@@ -6,7 +6,7 @@ import { modeStructureReader } from './mode-structure.js';
 /** A bound on evidence, not permission to ignore additional dependencies. */
 export const MAX_BRANCH_CONDITIONS = 32;
 export interface BrowserBranchConditions {
-  policy: 'browser-branch-conditions-v1' | 'browser-branch-conditions-v2' | 'browser-branch-conditions-v3';
+  policy: 'browser-branch-conditions-v1' | 'browser-branch-conditions-v2' | 'browser-branch-conditions-v4';
   key: string;
   conditions: { binding: string; state: Record<string, string[] | boolean | 'mixed'>; relation: string }[];
   evidence: string[];
@@ -88,6 +88,18 @@ export function browserBranchConditions(action: Pick<ActionCandidate, 'kind' | '
   return target && observedModeConditions(target, o, ['fill', 'select', 'check'].includes(action.kind), version).conditions;
 }
 
+/** Portable operation/arrival conditions use the same observed mode references
+ * as review. Scheduling and retained v1/v2 keys remain unchanged. This only
+ * supplies prerequisites; a target's identity and replay rights are separate. */
+export function browserPortableBranchConditions(action: Pick<ActionCandidate, 'kind' | 'localId'>, o: Observation): BrowserBranchConditions | undefined {
+  const target=o.controls.find(c=>c.localId===action.localId);
+  if(!target)return;
+  const conditions=observedModeConditions(target,o,['fill','select','check'].includes(action.kind),'v3').conditions;
+  // The new structural dependency proof must not authorize its own unresolved
+  // operation target. Older nonstructural sampling retains its prior contract.
+  return conditions?.policy==='browser-branch-conditions-v4'&&(target.identityScope==='instance'||target.hypothesisId)?undefined:conditions;
+}
+
 /** Interpretation has no destination input: retain the target's own mode too. */
 export function browserReviewBranchConditions(target: Control, o: Observation): BrowserBranchConditions | undefined {
   return assessBrowserReviewBranchConditions(target, o).conditions;
@@ -133,13 +145,14 @@ function observedModeConditions(target: Control, o: Observation, omitTargetMode:
     if (state === null) return unavailable('selector_state_missing', c.localId);
     if (c.readiness?.status === 'unstable') return unavailable('selector_unstable', c.localId);
     let key = binding(c);
-    // Resolve the whole collision family consistently, never just the second
-    // member. Only review v3 opts in; operation v1/v2 and saved retry keys stay
-    // on their exact prior projection. A reference is not an identity grant.
-    const unanchored=!c.stableKey&&!c.identityContext?.scope&&!c.identityContext?.binding&&!c.formOwner&&!c.structuralItem;
-    if(version==='v3'&&(!key||unanchored||base&&(counts.get(base)||0)>1)){
+    // Use one reference scheme whenever complete structure supports it. Capture
+    // may bind visible list descendants to instances but leave hidden ones
+    // unbound; neither that metadata nor a hypothesis may rename the mode.
+    // Operation v1/v2 and saved retry keys retain their prior projection.
+    if(version==='v3'){
       const reference=(structure??=modeStructureReader(o))(c);
-      if(reference){key=canonical({policy:reference.policy,base,structure:reference.key});usedStructure=true;}
+      if(reference){key=canonical({policy:reference.policy,structure:reference.key,
+        selector:{tag:c.tag,role:c.role,name:c.label||c.name,type:c.constraints.type,form:formBinding(c)}});usedStructure=true;}
       else if(base&&(counts.get(base)||0)>1)return unavailable('selector_binding_duplicate',c.localId);
     }
     if (!key) return unavailable(c.identityScope === 'instance' ? 'selector_instance_bound'
@@ -150,7 +163,7 @@ function observedModeConditions(target: Control, o: Observation, omitTargetMode:
     if (conditions.length > MAX_BRANCH_CONDITIONS) return unavailable('selector_limit_exceeded', c.localId);
   }
   conditions.sort((a, b) => a.binding.localeCompare(b.binding));
-  const policy = version === 'v1' ? 'browser-branch-conditions-v1' as const : usedStructure?'browser-branch-conditions-v3' as const:'browser-branch-conditions-v2' as const;
+  const policy = version === 'v1' ? 'browser-branch-conditions-v1' as const : usedStructure?'browser-branch-conditions-v4' as const:'browser-branch-conditions-v2' as const;
   return { assessment: { status: 'available', reason: 'observed_branch_conditions_available' },
     conditions: { policy, key: hash({ policy, conditions }), conditions, evidence: [
     version === 'v1' ? 'Legacy visible selectors within the historical form/component/region projection; source-key decoding only'
