@@ -872,7 +872,10 @@ export class ExplorerPlugin {
       }
       const index=facts.index??=observationActionIndex(source,sourceActions),condition=boundOperationCondition(item);
       const targets=index.matching(item.scope).filter(action=>!condition||condition===index.condition(action));
-      if(item.scope.kind&&(targets.length!==1||!targetConditions(facts,targets[0])))return unverified;
+      // Portable target equivalence is not required for exact checkpoint
+      // arrival. Missing projection can only enter the separately assessed
+      // strict path below; uniqueness and the bound operation still apply.
+      if(item.scope.kind&&(targets.length!==1||!targetConditions(facts,targets[0])&&!this.host.checkpointRecoveryCandidates))return unverified;
       if(!broadScope(item.scope)){
         const transition=facts.transition??=this.host.interactionTransition(o.sessionId,source.id,o.id);
         const previous=new Set(item.scope.kind?targets.map(action=>action.localId):source.controls.filter(control=>(facts.inScope??=controlScopeMatcher(source,sourceActions))(item.scope,control)).map(control=>control.localId));
@@ -909,8 +912,9 @@ export class ExplorerPlugin {
       return scan();
     };
     // Strict-checkpoint strategy facts are lazy and bounded to this selection.
-    // An absent/unknown assessment preserves the existing recovery contract;
-    // neither this negative hint nor a positive strategy grants arrival/dispatch.
+    // An absent/unknown assessment preserves previously supported recovery
+    // contracts. The new missing-projection fallback requires a positive hint;
+    // neither hint grants arrival/dispatch.
     type CheckpointCandidate=ReturnType<NonNullable<ExplorerHost['checkpointRecoveryCandidates']>>[number];
     const checkpointCandidates=new Map<string,CheckpointCandidate|undefined>();
     // Checkpoint strategy evaluation has additional adapter/hook dependencies;
@@ -922,8 +926,8 @@ export class ExplorerPlugin {
       projections.clear();projectionCount=0;
       routeCondition=this.routeConditionReader(o,actions);
     };
-    const noKnownCheckpointPath=(checkpoint:Checkpoint,source:Observation,lookahead:Checkpoint[])=>{
-      if(!this.host.checkpointRecoveryCandidates)return false;
+    const checkpointAssessment=(checkpoint:Checkpoint,source:Observation,lookahead:Checkpoint[])=>{
+      if(!this.host.checkpointRecoveryCandidates)return;
       if(!checkpointCandidates.has(checkpoint.id)){
         const checkpointIds=[...new Set([checkpoint.id,...lookahead.map(candidate=>candidate.id)])].filter(id=>!checkpointCandidates.has(id)).slice(0,8);
         let rows:CheckpointCandidate[]=[];
@@ -938,15 +942,35 @@ export class ExplorerPlugin {
         while(checkpointCandidates.size>8)checkpointCandidates.delete(checkpointCandidates.keys().next().value!);
       }
       const candidate=checkpointCandidates.get(checkpoint.id);
-      return candidate?.checkpointId===checkpoint.id&&candidate.sourceObservationId===source.id&&candidate.currentObservationId===o.id
-        &&candidate.status==='no_known_path'&&Array.isArray(candidate.blockers)&&!candidate.blockers.length
+      if(candidate?.checkpointId===checkpoint.id&&candidate.sourceObservationId===source.id&&candidate.currentObservationId===o.id
+        &&Array.isArray(candidate.blockers)&&!candidate.blockers.length
         &&candidate.checkpointVerified===false&&candidate.executionAuthorized===false&&candidate.currentExecution===false
-        &&candidate.coverageGranted===false&&candidate.dispatchRevalidationRequired===true;
+        &&candidate.coverageGranted===false&&candidate.dispatchRevalidationRequired===true)return candidate;
     };
+    const noKnownCheckpointPath=(checkpoint:Checkpoint,source:Observation,lookahead:Checkpoint[])=>checkpointAssessment(checkpoint,source,lookahead)?.status==='no_known_path';
+    const tryableCheckpoint=(checkpoint:Checkpoint,source:Observation)=>{
+      const candidate=checkpointAssessment(checkpoint,source,[checkpoint]);
+      return candidate?.status==='tryable'&&Array.isArray(candidate.strategies)&&candidate.strategies.some(strategy=>strategy?.status==='tryable');
+    };
+    // Missing source equivalence must not hide conditioned or composite debt.
+    // Nor may restored equivalence bypass a budget spent by this strict path.
+    // These are retry associations only, never correspondence/coverage proof.
+    const relatedRoutes=(item:PlanItem,memberKey:string)=>{
+      const scopeKey=digest(item.scope);
+      return Object.entries(task.scheduling?.routes||{}).filter(([,route])=>route.memberKeys?.includes(memberKey)
+        ||route.itemIds.includes(item.id)||route.targets.some(scope=>digest(scope)===scopeKey));
+    };
+    const unassociatedRouteDebt=(related:[string,ScheduledRoute][],key:string,sourceCondition:string|undefined,returnToSource:boolean)=>related.some(([otherKey,route])=>{
+      const debt=task.routeRetries?.routes[otherKey];
+      // Strict checkpoint failure cannot spend a legal native page return.
+      // Unknown execution, however, is not isolated by that contract boundary.
+      return otherKey!==key&&!!debt&&(debt.unknown||Object.values(debt.conditions).some(record=>record.outcome==='unknown'&&!record.recoveryVerificationId)
+        ||(route.arrivalMode==='observed-source')===returnToSource&&(!sourceCondition||!route.sourceCondition||route.sourceCondition===sourceCondition));
+    });
     // Private, synchronous validation only: this closure is never persisted or
     // treated as dispatch authority. It protects the final async return as well
     // as a fallback retained while scanning independent page-return candidates.
-    const revalidate=(recovery:ScheduledRecovery,route:ScheduledRoute,checkpoint:Checkpoint,factsKey:string,checkpointKey:string,transitionCaptured:boolean,strictCheckpoint:boolean)=>{
+    const revalidate=(recovery:ScheduledRecovery,route:ScheduledRoute,checkpoint:Checkpoint,factsKey:string,checkpointKey:string,transitionCaptured:boolean,strictCheckpoint:boolean,strictSourceFallback:boolean,item:PlanItem,memberKey:string,sourceCondition:string|undefined)=>{
       guard();invalidate();
       const checkpoints=this.host.list<Checkpoint>(o.sessionId,'checkpoint').filter(row=>row.id===checkpoint.id);
       const fresh=read(checkpoint.observationId);
@@ -955,7 +979,8 @@ export class ExplorerPlugin {
       if(digest({source:fresh.source,sourceActions:fresh.actions,transition:fresh.transition})!==factsKey)throw new ExplorerError('STALE_DECISION');
       if(routeCondition(route,readRouteSource)!==recovery.conditionVersion||!routeDebtAllows(schedule,recovery.routeKey)
         ||!routeRetryEligibility(task.routeRetries,recovery.routeKey,recovery.conditionVersion).allowed
-        ||strictCheckpoint&&noKnownCheckpointPath(checkpoint,fresh.source,[checkpoint]))throw new ExplorerError('STALE_DECISION');
+        ||unassociatedRouteDebt(relatedRoutes(item,memberKey),recovery.routeKey,sourceCondition,!!recovery.returnToSource)
+        ||(strictSourceFallback?!tryableCheckpoint(checkpoint,fresh.source):strictCheckpoint&&noKnownCheckpointPath(checkpoint,fresh.source,[checkpoint])))throw new ExplorerError('STALE_DECISION');
       recovery.source=fresh.source;
     };
     let reviewFallback:{recovery:ScheduledRecovery;route:ScheduledRoute;pageIds:Set<string>;epoch:number}|undefined;
@@ -1007,7 +1032,8 @@ export class ExplorerPlugin {
         const targets=index.matching(item.scope).filter(action=>!condition||condition===index.condition(action));
         const hint=round.stack.find(frame=>frame.observationId===source.id&&frame.checkpointId===checkpoint.id);
         const memberKey=recoveryRouteKey(source,sourceActions,[item.scope]),sourceCondition=item.scope.kind&&targets.length===1?targetConditions(facts,targets[0])?.key:undefined;
-        const related=Object.entries(schedule.routes).filter(([,route])=>(route.arrivalMode==='observed-source')===returnToSource&&(!route.sourceCondition||route.sourceCondition===sourceCondition)&&(route.memberKeys?.includes(memberKey)||route.targets.some(scope=>digest(scope)===digest(item.scope))));
+        const strictSourceFallback=!!item.scope.kind&&!sourceCondition,family=relatedRoutes(item,memberKey);
+        const related=family.filter(([,route])=>(route.arrivalMode==='observed-source')===returnToSource&&(!route.sourceCondition||route.sourceCondition===sourceCondition));
         const old=related.find(([key,route])=>route.memberKeys?.includes(memberKey)||recoveryRouteKey(source,sourceActions,route.targets,route.path)===key);
         if(!old&&related.some(([key])=>task.routeRetries?.routes[key])){reason='mapped_route_debt_source_unverified';continue;}
         const hintKey=hint&&recoveryRouteKey(source,sourceActions,hint.remaining,hint.path),legacyHint=!returnToSource&&hintKey&&task.routeRetries?.routes[hintKey]?hint:undefined;
@@ -1023,6 +1049,7 @@ export class ExplorerPlugin {
         // opaque/composite debt has no such proof and keeps its original key.
         const legacy=!!old&&!old[1].sourceCondition||!!legacyHint||!!task.routeRetries?.routes[baseKey];
         const key=old?.[0]||(!legacy&&sourceCondition?digest({policy:'explorer-source-target-route-v1',route:baseKey,sourceCondition}):baseKey);
+        if(unassociatedRouteDebt(family,key,sourceCondition,returnToSource)){reason='mapped_route_debt_source_unverified';continue;}
         // An exact legacy key is a valid association; otherwise no new budget
         // can be minted while an older route's scope remains unknown.
         if(task.routeRetries?.routes[key]&&!schedule.routes[key])bindScheduledRoute(schedule,key,{sessionId:o.sessionId,observationId:source.id,checkpointId:checkpoint.id,targets:budgetTargets,path,itemIds:[item.id],memberKeys:budgetTargets.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),pathKeys:path.map(scope=>recoveryRouteKey(source,sourceActions,[scope]))});
@@ -1046,15 +1073,18 @@ export class ExplorerPlugin {
         const retry=routeRetryEligibility(task.routeRetries,key,conditionVersion);
         if(!retry.allowed){reason=`route_retry_${retry.reason}`;continue;}
         const concrete=!!item.scope.kind&&!!(item.scope.label||item.scope.stableKey||item.scope.value!==undefined);
-        const targetActionIds=concrete?targets.filter(action=>action.basis?.status==='supported').map(action=>action.id):[];
+        const targetActionIds=concrete&&!strictSourceFallback?targets.filter(action=>action.basis?.status==='supported').map(action=>action.id):[];
         const strictCheckpoint=!returnToSource&&!(targetActionIds.length&&this.host.reachExplorationTarget);
-        if(strictCheckpoint&&noKnownCheckpointPath(checkpoint,source,!item.scope.kind?candidates.slice(candidateIndex,candidateIndex+8):[checkpoint])){
+        if(strictSourceFallback&&!tryableCheckpoint(checkpoint,source)){
+          reason='strict_checkpoint_candidate_unverified';continue;
+        }
+        if(!strictSourceFallback&&strictCheckpoint&&noKnownCheckpointPath(checkpoint,source,!item.scope.kind?candidates.slice(candidateIndex,candidateIndex+8):[checkpoint])){
           reason='checkpoint_no_known_path';continue;
         }
         const frame:Frame={checkpointId:checkpoint.id,observationId:source.id,stateId:source.stateId,used:[],path,remaining:budgetTargets};
         const factsKey=digest({source,sourceActions,transition:facts.transition}),checkpointKey=digest(checkpoint),transitionCaptured=!!facts.transition;
         const recovery:ScheduledRecovery={frame,source,remaining:[item.scope],itemId:item.id,routeKey:key,conditionVersion,returnToSource,targetActionIds,
-          revalidate:()=>revalidate(recovery,route,checkpoint,factsKey,checkpointKey,transitionCaptured,strictCheckpoint)};
+          revalidate:()=>revalidate(recovery,route,checkpoint,factsKey,checkpointKey,transitionCaptured,strictCheckpoint,strictSourceFallback,item,memberKey,sourceCondition)};
         if(!reviewFallback&&this.host.returnToObservedSource&&!item.scope.kind&&controlReviewGapReasons.has(item.reason)&&!currentHistoryAnchor(source,o)){
           // A stale review source can require a strict replay even when the
           // accepted page has a current native return. Try that independent

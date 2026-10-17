@@ -1,0 +1,13 @@
+{
+  "base": "9546daf395b7a69a9947eca8092b560516f66442",
+  "files": {
+    "packages/explorer-plugin/src/runtime.ts": "755b6cb5cd4ec7a89525c31fa6d954d0eca5949e667dbfdf12b1227aad5f5c04",
+    "tests/explorer-strict-checkpoint-fallback.test.ts": "487baebabfe876f55662c11cc22f09c3285043635538670a6c320cf2577a72a1",
+    "tests/explorer-recovery-selection-index.test.ts": "0d3d8e169bc9e3456d842adf633bd12ce284db98089a02457aa15e5d3d279ca0",
+    "tests/explorer-recovery-candidates.test.ts": "010ac94b62ad7b200c4877dfdb7ed958082e7da88beeefb9647925e3284044c6",
+    "tests/explorer-recovery-selection-cancellation.test.ts": "3da480719d21dc8493b3052f0577e83f5a599b6a16e18d30af22ab8d9f88e860",
+    "tests/checkpoint-recovery-candidates.test.ts": "c81c2755fee390a9d07bd1637f70b7abb157a735bb1126af1a4b69f8753e6245",
+    "tests/explorer-current-source-exclusion.test.ts": "99a49e5cb26d93d05dd49ac746a4170496dfb94e15491dc1ad26474ff557d47a",
+    "tests/explorer-source-return-scheduling.test.ts": "086eac1616d934a0c521bedf27bbe108f565e67f067a656c8c41bf1cd3ea9127"
+  }
+}

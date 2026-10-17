@@ -115,7 +115,7 @@ custom hosts 或不合格存储整体使用原保守路径。不能先改变它�
 | negative review wait 材料 | 历史 observation 及最新 actions/review/surroundings、任务含义 | 材料最多 8 项；通过 view 的 reader 才跨 yield 复用 | 材料无法核验或 materialKey 改变则撤回等待；不释放 route/unknown 债 |
 | 当前事实排除来源的证明 | 来源/当前完整分类、对应唯一性、非局部 UI 模式、活动 boundary | 当前标量索引与 WeakMap 来源投影；不额外强持有历史图 | legacy invalidate 重建；缺证保留候选进入后续恢复门禁 |
 | routeCondition | 当前事实索引、来源、route 的成员/路径、作用域条件 | 纯映射与索引 | 不能只按 routeKey 复用；任务内 route/retry 债独立现查 |
-| checkpoint 负面评估 | 当前及来源事实、actions、图、attempt、策略、旧债及 adapter/hook | 同步片段内最多 8 项；不属于 view 的跨 yield 复用证明 | 每次 yield 清空并按需重查；记录版本变化仍中止整个周期 |
+| checkpoint 策略评估 | 当前及来源事实、actions、图、attempt、策略、旧债及 adapter/hook | 同步片段内最多 8 项；不属于 view 的跨 yield 复用证明 | 每次 yield 清空并按需重查；记录版本变化仍中止整个周期；缺目标条件的新增严格候选须在最终派发前重新取得正面评估 |
 | reviewFallback / 最终选中项 | 所有来源条件、到达合同、当前事实、旧债及 task 状态 | 候选标识；不是待执行许可 | 返回微任务边界后完整重核，不能绕过 local fallback 门禁 |
 
 任务自身的调度变更不一定写入 engine 存储，因此 `recordRevision` 不能替代 task revision、取消、预算和 route debt 检查。反过来，task revision 不变也不能证明 SDK 记录没变。
@@ -173,3 +173,11 @@ custom hosts 或不合格存储整体使用原保守路径。不能先改变它�
 以下证据足以推翻本方案当前实现：存在未使版本失效的相关写入；custom 行为被静默绕过；稳定扫描仍随 yield 数重复全量 availability；预筛选改变顺序或漏掉新合法路径；unknown/旧债被释放；最终微任务边界绕过检查；或完整大材料超过有界数量。届时修正对应合同或组织方式，不以更大预算、扩大缓存、减少验证或清空任务队列掩盖问题。
 
 本轮不承担分类内部优化、存储压缩格式迁移、新增恢复策略、登录态恢复、网页任意快照还原或穷尽证明。恢复成功率、新 UI 到达、新覆盖与实际重放成本仍需独立证据；本设计只处理持续探索中候选选择的重复工作及其安全边界。
+
+## 9. 缺少 portable 条件的严格恢复合同
+
+来源操作唯一且 operation binding 等原门禁通过时，缺少 `browserTargetConditions` 不再自动排除严格 checkpoint 恢复。新增通道必须取得身份匹配、无 blocker、明确 `tryable` 且不授予权限的 SDK 策略评估；缺接口或 unknown 仍拒绝。它选择 `reachCheckpoint`，不使用目标对应恢复，也不结案操作或计入覆盖。派发前重新核验来源事实、相关旧债和正面策略。
+
+来源条件缺失不新发预算，条件恢复后也不能绕过已经消费的无条件预算。明确不同的 A/B 条件保留独立普通失败预算；严格到达与原生页面返回的普通失败按各自合同处理，unknown 跨合同阻断。实现沿用现有有界缓存和失效规则，没有扩大到达等价或弱化非局部条件采样。
+
+该修复增加了原先被误拦候选的必要检查，不能引用旧样本耗时宣称新版提速；路线关联本身仍非恒定成本。受控证据、一次审阅发现的回归及最终 137 项定向结果统一保存在[严格检查点候选报告](experiments/storage-tiering-2026-10-17/evidence/strict-checkpoint-fallback/README.md)。第 1 项离线合同已完成；真实成功到达和后续新覆盖仍未据此验收。
