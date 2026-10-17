@@ -121,7 +121,27 @@ export function currentHistoryAnchor(source:Observation,current:Observation) {
     &&live.entries.some(e=>e.id===entry.id&&e.url===entry.url&&e.method==='GET');
 }
 
-export function prioritizeReviewAnchors(checkpoints:Checkpoint[],current:Observation,read:(id:string)=>Observation|undefined):Checkpoint[] {
-  return checkpoints.map((checkpoint,index)=>({checkpoint,index,source:read(checkpoint.observationId)}))
-    .sort((a,b)=>Number(!!b.source&&currentHistoryAnchor(b.source,current))-Number(!!a.source&&currentHistoryAnchor(a.source,current))||a.index-b.index).map(x=>x.checkpoint);
+/** Stable native-first partition for a cooperative scan. Keep checkpoint refs,
+ * not the full historical observations, after projecting each anchor boolean.
+ * Short scans stay synchronous. After an actual yield the caller revalidates
+ * captured inputs before the next source read, and again on awaiting the result.
+ */
+export function prioritizeReviewAnchors(checkpoints:Checkpoint[],current:Observation,read:(id:string)=>Observation|undefined):Checkpoint[];
+export function prioritizeReviewAnchors(checkpoints:Checkpoint[],current:Observation,read:(id:string)=>Observation|undefined,scan:{checkpoint:()=>void|Promise<void>;resume:()=>void}):Checkpoint[]|Promise<Checkpoint[]>;
+export function prioritizeReviewAnchors(checkpoints:Checkpoint[],current:Observation,read:(id:string)=>Observation|undefined,scan?:{checkpoint:()=>void|Promise<void>;resume:()=>void}):Checkpoint[]|Promise<Checkpoint[]> {
+  const anchored:Checkpoint[]=[],other:Checkpoint[]=[];
+  let index=0;
+  const project=()=>{
+    const candidate=checkpoints[index++],source=read(candidate.observationId);
+    (source&&currentHistoryAnchor(source,current)?anchored:other).push(candidate);
+  };
+  const next=():Checkpoint[]|Promise<Checkpoint[]>=>{
+    while(index<checkpoints.length){
+      const wait=scan?.checkpoint();
+      if(wait)return wait.then(()=>{scan!.resume();project();return next();});
+      project();
+    }
+    return [...anchored,...other];
+  };
+  return next();
 }

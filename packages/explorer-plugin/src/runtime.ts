@@ -3,6 +3,7 @@ import { observedPosition, reconcileRecoveryPosition, routeAttempt } from './nav
 import { projectObligations, recoveryConditionVersion, recoveryRouteConditionVersion, recoveryRouteKey, recordRouteRetry, retainRouteFailureCondition, routeRetryEligibility, releaseRouteRetriesForVerifiedRecovery } from './obligation-lifecycle.js';
 import {capturedRoute,routeFinder,routeMatches,routeKey} from './reentry-evidence.js';
 import { randomUUID } from 'node:crypto';
+import { setImmediate as yieldImmediate } from 'node:timers/promises';
 import { browserOperationCorrespondenceHint, browserTargetConditions, hasReviewedDismissal, sameObservedState } from '@interaction/browser';
 import { z } from 'zod';
 import type { ActionCandidate, ActionAttempt, Observation, EngineEvent, BoundaryExitResult, ContinuationRecord, IdentityHypothesis } from '@interaction/browser';
@@ -35,7 +36,7 @@ const requiredCapabilities: (keyof ExplorerHost)[]=['operationCoverageCandidates
 const now=()=>new Date().toISOString();
 type ScheduledRoute=NonNullable<Task['scheduling']>['routes'][string];
 type RouteConditionReader=(route:ScheduledRoute,readSource?:(sessionId:string,observationId:string)=>Observation|undefined)=>string|undefined;
-type ScheduledRecovery={frame:Frame;source:Observation;remaining:Scope[];itemId:string;routeKey:string;targetActionIds:string[];conditionVersion:string;returnToSource?:boolean};
+type ScheduledRecovery={frame:Frame;source:Observation;remaining:Scope[];itemId:string;routeKey:string;targetActionIds:string[];conditionVersion:string;returnToSource?:boolean;revalidate:()=>void};
 export class ExplorerPlugin {
   readonly router:DecisionRouter;
   private active?: {task:Task;controller:AbortController;promise:Promise<void>};
@@ -715,29 +716,57 @@ export class ExplorerPlugin {
   }
   /** Resolve durable work against retained checkpoint evidence. The DFS stack is
    * an optional path/cost hint, never the source of the unfinished-work set. */
-  private scheduledRecovery(task:Task,round:Round,o:Observation,actions:ActionCandidate[],availability:ReturnType<ExplorerHost['actionAvailability']>,routeCondition:RouteConditionReader):ScheduledRecovery|undefined {
+  private async scheduledRecovery(task:Task,round:Round,o:Observation,actions:ActionCandidate[],availability:ReturnType<ExplorerHost['actionAvailability']>,routeCondition:RouteConditionReader,signal:AbortSignal=new AbortController().signal):Promise<ScheduledRecovery|undefined> {
+    const revision=task.revision,observationKey=digest(o),actionsKey=digest(actions),availabilityRevision=availability.revision;
+    const checkCancellation=()=>{if(signal.aborted||task.status!=='running'||task.revision!==revision)throw new ExplorerError('CANCELLED');};
+    const guard=()=>this.assert(task,signal,undefined,revision);
+    let scanned=0,epoch=0,invalidate=()=>{};
+    const resume=()=>{
+      guard();
+      if(this.host.session(o.sessionId).currentObservationId!==o.id)throw new ExplorerError('STALE_DECISION');
+      // Hosts can override public reads. An unchanged ID alone does not certify
+      // the navigation/context/control facts used before yielding.
+      const refreshed=this.host.observation(o.sessionId),refreshedAvailability=this.host.actionAvailability(o.sessionId,o.id),refreshedActions=this.host.actions(o.sessionId,o.id);
+      if(digest(refreshed)!==observationKey||refreshedAvailability.observationId!==o.id||refreshedAvailability.revision!==availabilityRevision||digest(refreshedActions)!==actionsKey)throw new ExplorerError('STALE_DECISION');
+      actions=refreshedActions;availability=refreshedAvailability;
+      epoch++;invalidate();routeCondition=this.routeConditionReader(o,actions);
+    };
+    const yieldScan=()=>{guard();scanned=0;return yieldImmediate();};
+    // Cheap plan/index rows share 128 work units; a historical source costs 16.
+    // Only real yields return a promise: resolved microtasks would silently let
+    // external changes bypass the invalidation boundary. One host call remains
+    // synchronous and cannot be preempted by this cooperative scheduler.
+    const checkpoint=(weight=1):void|Promise<void>=>{checkCancellation();scanned+=weight;if(scanned>=128)return yieldScan();};
+    guard();
     const schedule=this.initializeScheduling(task),entries=new Map(task.obligations?.entries.map(entry=>[entry.itemId,entry])||[]);
-    const authorities=task.plan.filter(item=>item.required&&item.dispatchScope===true&&schedulableObligation(item)&&item.status!=='excluded');
+    const authorities:PlanItem[]=[],exclusions:PlanItem[]=[];
+    for(const item of task.plan){
+      const wait=checkpoint();if(wait){await wait;resume();}
+      if(item.required&&item.dispatchScope===true&&schedulableObligation(item)&&item.status!=='excluded')authorities.push(item);
+      if(!item.required&&item.reason==='user_excluded')exclusions.push(item);
+    }
     const contains=(scope:Scope,item:PlanItem)=>Object.entries(scope).every(([key,value])=>item.scope[key as keyof Scope]===value);
-    const pending=orderedObligations(task.plan,schedule).filter(item=>{
-      if(!authorities.some(authority=>contains(authority.scope,item)||authority.prerequisites.some(scope=>contains(scope,item)))||task.plan.some(excluded=>!excluded.required&&excluded.reason==='user_excluded'&&contains(excluded.scope,item)))return false;
-      if(item.reason.startsWith('missing_capability:')||item.reason==='unknown_action_outcome')return false;
+    const pending:PlanItem[]=[];
+    for(const item of orderedObligations(task.plan,schedule)){
+      const wait=checkpoint();if(wait){await wait;resume();}
+      if(!authorities.some(authority=>contains(authority.scope,item)||authority.prerequisites.some(scope=>contains(scope,item)))||exclusions.some(excluded=>contains(excluded.scope,item)))continue;
+      if(item.reason.startsWith('missing_capability:')||item.reason==='unknown_action_outcome')continue;
       const entry=entries.get(item.id);
       const current=entry?.currentActionId&&actions.find(action=>action.id===entry.currentActionId);
-      if(entry?.state==='alias')return false;
+      if(entry?.state==='alias')continue;
       if(current&&current.preconditions.visible&&(!current.localId||o.controls.some(control=>control.localId===current.localId&&control.visible))){
         const fact=availability.actions.find(fact=>fact.actionId===current.id);
-        if(fact?.executable||!current.preconditions.enabled||fact?.blockers.some(blocker=>blocker.code==='ACTION_BLOCKED'&&['submission_not_authorized','interface_risk_required','action_basis_unconfirmed'].includes(blocker.reason)))return false;
+        if(fact?.executable||!current.preconditions.enabled||fact?.blockers.some(blocker=>blocker.code==='ACTION_BLOCKED'&&['submission_not_authorized','interface_risk_required','action_basis_unconfirmed'].includes(blocker.reason)))continue;
       }
-      if(broadScope(item.scope))return !!item.scope.url&&item.scope.url!==o.url;
-      return !!item.evidence.length||item.dispatchScope===true;
-    });
+      if(broadScope(item.scope)){if(item.scope.url&&item.scope.url!==o.url)pending.push(item);}
+      else if(item.evidence.length||item.dispatchScope===true)pending.push(item);
+    }
     if(!pending.length)return;
     const checkpoints=this.host.list<Checkpoint>(o.sessionId,'checkpoint'),byObservation=new Map<string,Checkpoint[]>();
-    for(const checkpoint of checkpoints){const rows=byObservation.get(checkpoint.observationId)||[];rows.push(checkpoint);byObservation.set(checkpoint.observationId,rows);}
-    // Fact projections live only inside this synchronous selection. Retained
-    // sources keep the existing eight-entry bound; neither eligibility nor
-    // route/retry debt is cached, since this pass can update that bookkeeping.
+    for(const retainedCheckpoint of checkpoints){const wait=checkpoint();if(wait){await wait;resume();}const rows=byObservation.get(retainedCheckpoint.observationId)||[];rows.push(retainedCheckpoint);byObservation.set(retainedCheckpoint.observationId,rows);}
+    // Projections live only within each synchronous scan batch. Every real
+    // event-loop yield clears historical action/permission and negative facts;
+    // immutable source observations do not imply stable permission or debt.
     type Retained={source:Observation;actions:ActionCandidate[];transition?:ReturnType<ExplorerHost['interactionTransition']>;
       index?:ReturnType<typeof observationActionIndex>;inScope?:ReturnType<typeof controlScopeMatcher>;
       conditions?:Map<ActionCandidate,ReturnType<typeof browserTargetConditions>>};
@@ -762,6 +791,10 @@ export class ExplorerPlugin {
     // neither this negative hint nor a positive strategy grants arrival/dispatch.
     type CheckpointCandidate=ReturnType<NonNullable<ExplorerHost['checkpointRecoveryCandidates']>>[number];
     const checkpointCandidates=new Map<string,CheckpointCandidate|undefined>();
+    invalidate=()=>{
+      retained.clear();currentIndex=undefined;currentInScope=undefined;checkpointCandidates.clear();
+      routeCondition=this.routeConditionReader(o,actions);
+    };
     const noKnownCheckpointPath=(checkpoint:Checkpoint,source:Observation,lookahead:Checkpoint[])=>{
       if(!this.host.checkpointRecoveryCandidates)return false;
       if(!checkpointCandidates.has(checkpoint.id)){
@@ -783,8 +816,24 @@ export class ExplorerPlugin {
         &&candidate.checkpointVerified===false&&candidate.executionAuthorized===false&&candidate.currentExecution===false
         &&candidate.coverageGranted===false&&candidate.dispatchRevalidationRequired===true;
     };
-    let reviewFallback:{recovery:ScheduledRecovery;route:ScheduledRoute;pageIds:Set<string>}|undefined;
+    // Private, synchronous validation only: this closure is never persisted or
+    // treated as dispatch authority. It protects the final async return as well
+    // as a fallback retained while scanning independent page-return candidates.
+    const revalidate=(recovery:ScheduledRecovery,route:ScheduledRoute,checkpoint:Checkpoint,factsKey:string,checkpointKey:string,transitionCaptured:boolean,strictCheckpoint:boolean)=>{
+      guard();invalidate();
+      const checkpoints=this.host.list<Checkpoint>(o.sessionId,'checkpoint').filter(row=>row.id===checkpoint.id);
+      const fresh=read(checkpoint.observationId);
+      if(checkpoints.length!==1||digest(checkpoints[0])!==checkpointKey||!fresh)throw new ExplorerError('STALE_DECISION');
+      if(transitionCaptured&&!fresh.transition)fresh.transition=this.host.interactionTransition(o.sessionId,fresh.source.id,o.id);
+      if(digest({source:fresh.source,sourceActions:fresh.actions,transition:fresh.transition})!==factsKey)throw new ExplorerError('STALE_DECISION');
+      if(routeCondition(route,readRouteSource)!==recovery.conditionVersion||!routeDebtAllows(schedule,recovery.routeKey)
+        ||!routeRetryEligibility(task.routeRetries,recovery.routeKey,recovery.conditionVersion).allowed
+        ||strictCheckpoint&&noKnownCheckpointPath(checkpoint,fresh.source,[checkpoint]))throw new ExplorerError('STALE_DECISION');
+      recovery.source=fresh.source;
+    };
+    let reviewFallback:{recovery:ScheduledRecovery;route:ScheduledRoute;pageIds:Set<string>;epoch:number}|undefined;
     for(const item of pending){
+      const wait=checkpoint();if(wait){await wait;resume();}
       if(reviewFallback&&!reviewFallback.pageIds.has(item.id))continue;
       if(validReviewRecoveryWait(task,item,o,id=>read(id)?.source)){this.deferObligation(task,item.id,recoveryConditionVersion(o),'unchanged_unresolved_review',o.id);continue;}
       const returnToSource=!!this.host.returnToObservedSource&&pageSourceObligation(item);
@@ -799,9 +848,18 @@ export class ExplorerPlugin {
       // Source-position arrival already rejects every non-native candidate, so
       // its first eligible row is unchanged by the stable native-first sort.
       // Check lazily instead of reading all historical checkpoints up front.
-      if(!returnToSource&&!item.scope.kind&&controlReviewGapReasons.has(item.reason))candidates=prioritizeReviewAnchors(candidates,o,id=>read(id)?.source);
+      if(!returnToSource&&!item.scope.kind&&controlReviewGapReasons.has(item.reason)){
+        const prioritized=prioritizeReviewAnchors(candidates,o,id=>read(id)?.source,{checkpoint:()=>checkpoint(16),resume});
+        if(Array.isArray(prioritized))candidates=prioritized;
+        else {candidates=await prioritized;resume();}
+      }
       let reason=candidates.length?'source_target_unverified':item.evidence.some(ref=>ref.sessionId!==o.sessionId)?'cross_session_observed_route_required':'retained_checkpoint_unavailable';
       for(let candidateIndex=0;candidateIndex<candidates.length;candidateIndex++){
+        // Keep each SDK assessment batch synchronous, then discard its facts
+        // before the next batch. The first short batch does not force a yield.
+        if(candidateIndex>0&&candidateIndex%8===0){await yieldScan();resume();}
+        else checkCancellation();
+        scanned+=16;
         const checkpoint=candidates[candidateIndex];
         const facts=read(checkpoint.observationId);if(!facts)continue;
         const {source,actions:sourceActions}=facts;
@@ -879,26 +937,37 @@ export class ExplorerPlugin {
         if(!retry.allowed){reason=`route_retry_${retry.reason}`;continue;}
         const concrete=!!item.scope.kind&&!!(item.scope.label||item.scope.stableKey||item.scope.value!==undefined);
         const targetActionIds=concrete?targets.filter(action=>action.basis?.status==='supported').map(action=>action.id):[];
-        if(!returnToSource&&!(targetActionIds.length&&this.host.reachExplorationTarget)
-          &&noKnownCheckpointPath(checkpoint,source,!item.scope.kind?candidates.slice(candidateIndex,candidateIndex+8):[checkpoint])){
+        const strictCheckpoint=!returnToSource&&!(targetActionIds.length&&this.host.reachExplorationTarget);
+        if(strictCheckpoint&&noKnownCheckpointPath(checkpoint,source,!item.scope.kind?candidates.slice(candidateIndex,candidateIndex+8):[checkpoint])){
           reason='checkpoint_no_known_path';continue;
         }
         const frame:Frame={checkpointId:checkpoint.id,observationId:source.id,stateId:source.stateId,used:[],path,remaining:budgetTargets};
-        const recovery:ScheduledRecovery={frame,source,remaining:[item.scope],itemId:item.id,routeKey:key,conditionVersion,returnToSource,targetActionIds};
+        const factsKey=digest({source,sourceActions,transition:facts.transition}),checkpointKey=digest(checkpoint),transitionCaptured=!!facts.transition;
+        const recovery:ScheduledRecovery={frame,source,remaining:[item.scope],itemId:item.id,routeKey:key,conditionVersion,returnToSource,targetActionIds,
+          revalidate:()=>revalidate(recovery,route,checkpoint,factsKey,checkpointKey,transitionCaptured,strictCheckpoint)};
         if(!reviewFallback&&this.host.returnToObservedSource&&!item.scope.kind&&controlReviewGapReasons.has(item.reason)&&!currentHistoryAnchor(source,o)){
           // A stale review source can require a strict replay even when the
           // accepted page has a current native return. Try that independent
           // discovery obligation first, without changing the review's source.
           // Its normal context, unknown, authority and retry gates still apply.
           const pageIds=new Set(pending.filter(page=>pageSourceObligation(page)&&page.scope.url===source.url).map(page=>page.id));
-          if(pageIds.size){reviewFallback={recovery,route,pageIds};break;}
+          if(pageIds.size){reviewFallback={recovery,route,pageIds,epoch};break;}
         }
-        bindScheduledRoute(schedule,key,route);return recovery;
+        guard();bindScheduledRoute(schedule,key,route);return recovery;
       }
       if(reviewFallback?.recovery.itemId===item.id)continue;
       this.deferObligation(task,item.id,recoveryConditionVersion(o),reason,o.id);
     }
-    if(reviewFallback){bindScheduledRoute(schedule,reviewFallback.recovery.routeKey,reviewFallback.route);return reviewFallback.recovery;}
+    guard();
+    if(reviewFallback){
+      const fallback=reviewFallback,{recovery,route}=fallback;
+      if(fallback.epoch!==epoch){
+        // Page-first scanning may have yielded after finding this strict review
+        // fallback. Preserve its priority, but never reuse revoked source facts.
+        recovery.revalidate();
+      }
+      guard();bindScheduledRoute(schedule,recovery.routeKey,route);return recovery;
+    }
   }
   private async step(task:Task,round:Round,signal:AbortSignal):Promise<boolean> {
     const sid=round.sessionId,o=this.host.observation(sid);this.assert(task,signal);
@@ -1004,10 +1073,19 @@ export class ExplorerPlugin {
     }):undefined;
     reentries.sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     let recovery:ScheduledRecovery|undefined;
-    if(!boundaryExit&&(!local.length||schedule.localSelections>=localSelectionLimit))recovery=this.scheduledRecovery(task,round,o,actions,availability,routeCondition);
+    if(!boundaryExit&&(!local.length||schedule.localSelections>=localSelectionLimit)){
+      const recoveryRevision=task.revision,observationKey=digest(o),actionsKey=digest(actions),availabilityRevision=availability.revision;
+      recovery=await this.scheduledRecovery(task,round,o,actions,availability,routeCondition,signal);
+      // Even a short async selection has a final microtask boundary. Check it
+      // before reserving work, recording debt, persisting, or local fallback.
+      this.assert(task,signal,undefined,recoveryRevision);
+      const current=this.host.observation(sid),currentAvailability=this.host.actionAvailability(sid,o.id);
+      if(digest(current)!==observationKey||currentAvailability.observationId!==o.id||currentAvailability.revision!==availabilityRevision||digest(this.host.actions(sid,o.id))!==actionsKey)throw new ExplorerError('STALE_DECISION');
+    }
     const remote:ObligationSelection[]=[...reentries,...recovery?[{itemId:recovery.itemId,kind:broadScope(byId.get(recovery.itemId)!.scope)?'inspect' as const:'recovery' as const,source:{sessionId:sid,observationId:recovery.source.id},routeKey:recovery.routeKey}]:[]]
       .sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     const selection=boundaryExit||selectObligation(schedule,local,remote),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
+    if(recovery&&(selection?.kind==='recovery'||selection?.kind==='inspect'))recovery.revalidate();
     const schedulingBefore={cursor:schedule.cursor,localSelections:schedule.localSelections,selection:schedule.selection};
     if(selection){if(selectedAction)schedule.selection={...selection};else reserveObligation(schedule,selection);if(schedule.deferred)delete schedule.deferred[selection.itemId];this.event(task,'obligation.selected',{...selection,sourceObservationId:o.id,coverageGranted:false,executionAuthorized:false});}
     if(selection?.kind!=='recovery'&&selection?.kind!=='inspect')recovery=undefined;

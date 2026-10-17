@@ -33,7 +33,8 @@ function fixture() {
  const checkpoints:Checkpoint[]=[{id:'checkpoint',sessionId:source.sessionId,name:'Retained source',observationId:source.id,stateId:source.stateId,
   context:source.context,predicates:[],acceptable:[],path:[],createdAt:'2026-10-17T00:00:00.000Z'}];
  const readObservation=vi.fn((_sid:string,id?:string)=>{const o=id?frames.get(id):current;if(!o)throw Error('Missing owned fixture observation');return o;});
- const host={events:new EventEmitter(),session:()=>({id:'session',options:{},actionCount:0}),observation:readObservation,
+ const host={events:new EventEmitter(),session:()=>({id:'session',options:{},actionCount:0,currentObservationId:current.id}),
+  actionAvailability:()=>({observationId:current.id,revision:'fixture-revision',actions:[]}),observation:readObservation,
   actions:vi.fn((_sid:string,id?:string)=>actionRows.get(id||current.id)||[]),list:(_sid:string,kind:string)=>kind==='checkpoint'?checkpoints:[],
   interactionTransition:()=>({retainedControls:[]}),recoveryAssessment:()=>({unknownAttempts:[]}),
   reachCheckpoint:vi.fn(async()=>{throw Error('Selection must not dispatch');}),execute:vi.fn(async()=>{throw Error('Selection must not execute');})} as unknown as ExplorerHost;
@@ -42,7 +43,7 @@ function fixture() {
  task.plan=[{...item('authority',{url},source),dispatchScope:true,reason:'accepted scope'},targetItem];task.status='running';
  task.rounds=[{id:'round',number:1,sessionId:'session',startedAt:'2026-10-17T00:00:00.000Z',status:'running',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0}];
  const runtime=plugin as any;
- const select=()=>{const actions=actionRows.get(current.id)||[];return runtime.scheduledRecovery(task,task.rounds[0],current,actions,{actions:[]},runtime.routeConditionReader(current,actions));};
+ const select=()=>{const actions=actionRows.get(current.id)||[];return runtime.scheduledRecovery(task,task.rounds[0],current,actions,host.actionAvailability('session',current.id),runtime.routeConditionReader(current,actions));};
  return {target,source,current,sourceAction,targetItem,frames,actionRows,checkpoints,host,readObservation,store,plugin,task,runtime,select,close:()=>plugin.close()};
 }
 
@@ -85,16 +86,23 @@ it('associates all defer events with the supplied frame without rereading curren
   f.checkpoints.length=0;
   const rows=Array.from({length:24},(_,i)=>({...item(`review-${i}`,{url,label:`Missing ${i}`},f.source),reason:'classification_unresolved'}));
   f.task.plan.splice(1,1,...rows);const plan=structuredClone(f.task.plan);f.readObservation.mockClear();
-  expect(f.select()).toBeUndefined();
+  expect((await f.select())).toBeUndefined();
   const events=()=>f.store.events(f.task.id).filter(e=>e.type==='obligation.route_unavailable');
   expect(events()).toHaveLength(rows.length);expect(events().map(e=>e.observationId)).toEqual(rows.map(()=>f.current.id));
   expect(events().map(e=>(e.data as {itemId:string}).itemId)).toEqual(rows.map(r=>r.id));
-  expect(f.readObservation).not.toHaveBeenCalled();expect(f.task.plan).toEqual(plan);
-  expect(f.select()).toBeUndefined();expect(events()).toHaveLength(rows.length);expect(f.readObservation).not.toHaveBeenCalled();
-  f.current.id='new-current';f.current.context.account.value='changed-context';
-  expect(f.select()).toBeUndefined();expect(events()).toHaveLength(rows.length*2);
+  const firstReads=f.readObservation.mock.calls.length;
+  // Each real scan yield revalidates the current frame; defer bookkeeping does
+  // not reread it per item. Retained source facts remain unnecessary here.
+  expect(firstReads).toBeLessThan(rows.length);
+  expect(f.readObservation.mock.calls.every(([,id])=>!id||id===f.current.id)).toBe(true);expect(f.task.plan).toEqual(plan);
+  expect((await f.select())).toBeUndefined();expect(events()).toHaveLength(rows.length);
+  const secondReads=f.readObservation.mock.calls.length;expect(secondReads-firstReads).toBeLessThan(rows.length);
+  f.current.id='new-current';f.frames.set(f.current.id,f.current);f.current.context.account.value='changed-context';
+  expect((await f.select())).toBeUndefined();expect(events()).toHaveLength(rows.length*2);
   expect(events().slice(rows.length).every(e=>e.observationId==='new-current')).toBe(true);
-  expect(f.readObservation).not.toHaveBeenCalled();expect(f.host.reachCheckpoint).not.toHaveBeenCalled();
+  expect(f.readObservation.mock.calls.length-secondReads).toBeLessThan(rows.length);
+  expect(f.readObservation.mock.calls.slice(secondReads).every(([,id])=>!id||id===f.current.id)).toBe(true);
+  expect(f.host.reachCheckpoint).not.toHaveBeenCalled();
  }finally{await f.close();}
 });
 
@@ -102,9 +110,9 @@ it.each(['unsupported duplicate','foreign-owner duplicate'] as const)('does not 
  const f=fixture();try{
   const duplicate={...f.sourceAction,id:'duplicate',...(variant==='unsupported duplicate'?{basis:{status:'tentative',evidence:[]}}:{sessionId:'another-session',observationId:'another-observation'})} as ActionCandidate;
   f.actionRows.set(f.source.id,[f.sourceAction,duplicate]);const plan=structuredClone(f.task.plan);
-  expect(f.select()).toBeUndefined();expect(f.task.scheduling!.routes).toEqual({});expect(f.task.plan).toEqual(plan);
-  f.actionRows.set(f.source.id,[f.sourceAction]);expect(f.select()).toMatchObject({itemId:'target',targetActionIds:[f.sourceAction.id],source:{id:f.source.id}});
-  f.actionRows.set(f.source.id,[duplicate,f.sourceAction]);expect(f.select()).toBeUndefined();
+  expect((await f.select())).toBeUndefined();expect(f.task.scheduling!.routes).toEqual({});expect(f.task.plan).toEqual(plan);
+  f.actionRows.set(f.source.id,[f.sourceAction]);expect((await f.select())).toMatchObject({itemId:'target',targetActionIds:[f.sourceAction.id],source:{id:f.source.id}});
+  f.actionRows.set(f.source.id,[duplicate,f.sourceAction]);expect((await f.select())).toBeUndefined();
   expect(f.task.plan).toEqual(plan);expect(f.host.reachCheckpoint).not.toHaveBeenCalled();
  }finally{await f.close();}
 });
@@ -112,14 +120,14 @@ it.each(['unsupported duplicate','foreign-owner duplicate'] as const)('does not 
 it('recomputes a formerly unavailable target condition on every selection and keeps hidden nonlocal modes',async()=>{
  const f=fixture();try{
   const mode=control('remote-mode',{tag:'input',role:'checkbox',name:'Hidden mode',label:'Hidden mode',visible:false,checked:false,identityScope:'instance',stableKey:'id:mode',region:'remote-region'});
-  f.source.controls.push(mode);expect(browserTargetConditions(f.sourceAction,f.source)).toBeUndefined();expect(f.select()).toBeUndefined();
+  f.source.controls.push(mode);expect(browserTargetConditions(f.sourceAction,f.source)).toBeUndefined();expect((await f.select())).toBeUndefined();
   mode.identityScope=f.target.identityScope;expect(browserTargetConditions(f.sourceAction,f.source)).toBeDefined();
-  const first=f.select();expect(first).toMatchObject({itemId:'target',targetActionIds:[f.sourceAction.id]});
+  const first=(await f.select());expect(first).toMatchObject({itemId:'target',targetActionIds:[f.sourceAction.id]});
   f.task.routeRetries=recordRouteRetry(undefined,{routeKey:first.routeKey,conditionVersion:first.conditionVersion,outcome:'unverified',reason:'Retained failure',attemptKey:'original-attempt'});
-  const debt=structuredClone(f.task.routeRetries);expect(f.select()).toBeUndefined();
-  mode.checked=true;const other=f.select();expect(other).toBeDefined();expect(other.routeKey).not.toBe(first.routeKey);
-  mode.checked=false;expect(f.select()).toBeUndefined();expect(f.task.routeRetries).toEqual(debt);
-  mode.identityScope='instance';expect(f.select()).toBeUndefined();expect(f.task.routeRetries).toEqual(debt);
+  const debt=structuredClone(f.task.routeRetries);expect((await f.select())).toBeUndefined();
+  mode.checked=true;const other=(await f.select());expect(other).toBeDefined();expect(other.routeKey).not.toBe(first.routeKey);
+  mode.checked=false;expect((await f.select())).toBeUndefined();expect(f.task.routeRetries).toEqual(debt);
+  mode.identityScope='instance';expect((await f.select())).toBeUndefined();expect(f.task.routeRetries).toEqual(debt);
   expect(f.host.reachCheckpoint).not.toHaveBeenCalled();
  }finally{await f.close();}
 });
@@ -127,12 +135,12 @@ it('recomputes a formerly unavailable target condition on every selection and ke
 it('recomputes bound scheduling conditions for a changed context without renewing the original debt',async()=>{
  const f=fixture();try{
   f.targetItem.operationConditionPolicy='browser-operation-key-v3';f.targetItem.operationConditionKey=schedulingKeyFor(f.sourceAction,f.source);
-  const selected=f.select();expect(selected).toBeDefined();
+  const selected=(await f.select());expect(selected).toBeDefined();
   f.task.routeRetries=recordRouteRetry(undefined,{routeKey:selected.routeKey,conditionVersion:selected.conditionVersion,outcome:'unverified',reason:'Spent original source'});
   const debt=structuredClone(f.task.routeRetries),plan=structuredClone(f.task.plan);
   f.source.context.account.value='another-tenant';expect(schedulingKeyFor(f.sourceAction,f.source)).not.toBe(f.targetItem.operationConditionKey);
-  expect(f.select()).toBeUndefined();expect(f.task.scheduling!.deferred!.target.reason).toBe('source_target_unverified');
-  f.source.context.account.value='anonymous';expect(f.select()).toBeUndefined();
+  expect((await f.select())).toBeUndefined();expect(f.task.scheduling!.deferred!.target.reason).toBe('source_target_unverified');
+  f.source.context.account.value='anonymous';expect((await f.select())).toBeUndefined();
   expect(f.task.scheduling!.deferred!.target.reason).toBe('route_retry_condition_attempted');
   expect(f.task.routeRetries).toEqual(debt);expect(f.task.plan).toEqual(plan);
  }finally{await f.close();}
@@ -141,20 +149,20 @@ it('recomputes bound scheduling conditions for a changed context without renewin
 it('does not retain current-review matching when the current capture and actions are rebuilt under the same IDs',async()=>{
  const f=fixture();try{
   f.targetItem.scope={url,label:'Remaining',role:'button'};f.targetItem.reason='classification_unresolved';
-  expect(f.select()).toMatchObject({itemId:'target',targetActionIds:[]});
+  expect((await f.select())).toMatchObject({itemId:'target',targetActionIds:[]});
   const present=structuredClone(f.target);f.current.controls=[present];
-  expect(f.select()).toBeUndefined();expect(f.task.scheduling!.deferred!.target.reason).toBe('current_review_occurrence_present');
+  expect((await f.select())).toBeUndefined();expect(f.task.scheduling!.deferred!.target.reason).toBe('current_review_occurrence_present');
   present.name='Another';present.label='Another';
-  expect(f.select()).toMatchObject({itemId:'target',targetActionIds:[]});
+  expect((await f.select())).toMatchObject({itemId:'target',targetActionIds:[]});
   f.actionRows.set(f.current.id,[action(f.current,present,{id:f.sourceAction.id,label:'Remaining'})]);
-  expect(f.select()).toBeUndefined();expect(f.task.scheduling!.deferred!.target.reason).toBe('current_review_occurrence_present');
-  f.actionRows.set(f.current.id,[]);expect(f.select()).toMatchObject({itemId:'target',targetActionIds:[]});
+  expect((await f.select())).toBeUndefined();expect(f.task.scheduling!.deferred!.target.reason).toBe('current_review_occurrence_present');
+  f.actionRows.set(f.current.id,[]);expect((await f.select())).toMatchObject({itemId:'target',targetActionIds:[]});
  }finally{await f.close();}
 });
 
 it.each(['unknown','saturated','failed landing','opaque legacy'] as const)('retains %s debt across fresh selectors and never dispatches',async kind=>{
  const f=fixture();try{
-  const selected=f.select();expect(selected).toBeDefined();
+  const selected=(await f.select());expect(selected).toBeDefined();
   if(kind==='opaque legacy'){
    delete f.task.scheduling;f.task.routeRetries=recordRouteRetry(undefined,{routeKey:'opaque-before-index',conditionVersion:'unknown-old-condition',outcome:'unverified',reason:'Unmapped retained debt'});
   }else if(kind==='saturated'){
@@ -164,7 +172,7 @@ it.each(['unknown','saturated','failed landing','opaque legacy'] as const)('reta
     evidence:{sessionId:'session',observationId:f.current.id},...(kind==='unknown'?{unknownSource:{sessionId:'session',attemptIds:['unknown-attempt']}}:{resultCondition:{conditionVersion:selected.conditionVersion,evidence:{sessionId:'session',observationId:f.current.id},basis:'complete-observation'}})});
   }
   const debt=structuredClone(f.task.routeRetries),plan=structuredClone(f.task.plan);
-  for(let i=0;i<2;i++){f.actionRows.set(f.source.id,[structuredClone(f.sourceAction)]);expect(f.select()).toBeUndefined();}
+  for(let i=0;i<2;i++){f.actionRows.set(f.source.id,[structuredClone(f.sourceAction)]);expect((await f.select())).toBeUndefined();}
   expect(f.task.routeRetries).toEqual(debt);expect(f.task.plan).toEqual(plan);
   const reason=kind==='unknown'?'route_retry_unknown_result':kind==='saturated'?'route_retry_condition_limit':kind==='failed landing'?'route_retry_failed_result_condition':'legacy_route_debt_unmapped';
   expect(f.task.scheduling!.deferred!.target.reason).toBe(reason);
@@ -179,16 +187,16 @@ it('retains the original composite route instead of minting an independent singl
   const targets=[f.targetItem.scope,scopeFor(otherAction,f.source)],key=recoveryRouteKey(f.source,[f.sourceAction,otherAction],targets);
   f.task.scheduling={version:1,localSelections:0,legacyUnmappedRouteKeys:[],routes:{[key]:{sessionId:'session',observationId:f.source.id,checkpointId:'checkpoint',targets,path:[],itemIds:['target'],
    memberKeys:targets.map(scope=>recoveryRouteKey(f.source,[f.sourceAction,otherAction],[scope])),pathKeys:[]}}};
-  const selected=f.select();expect(selected.routeKey).toBe(key);expect(selected.frame.remaining).toEqual(targets);
+  const selected=(await f.select());expect(selected.routeKey).toBe(key);expect(selected.frame.remaining).toEqual(targets);
   f.task.routeRetries=recordRouteRetry(undefined,{routeKey:key,conditionVersion:selected.conditionVersion,outcome:'unverified',reason:'Composite spent'});
-  const debt=structuredClone(f.task.routeRetries);expect(f.select()).toBeUndefined();expect(f.task.routeRetries).toEqual(debt);
+  const debt=structuredClone(f.task.routeRetries);expect((await f.select())).toBeUndefined();expect(f.task.routeRetries).toEqual(debt);
   expect(Object.keys(f.task.scheduling.routes)).toEqual([key]);
  }finally{await f.close();}
 });
 
 it('uses combined SDK source facts without changing the selected task or rereading the same source',async()=>{
  const f=fixture();try{
-  const before=structuredClone(f.task),legacy=f.select(),after=structuredClone(f.task);
+  const before=structuredClone(f.task),legacy=(await f.select()),after=structuredClone(f.task);
   Object.assign(f.task,structuredClone(before));delete f.task.scheduling;
   const material=vi.fn((_sid:string,input:{sourceObservationId:string;currentObservationId:string})=>{
    expect(input.currentObservationId).toBe(f.current.id);
@@ -196,9 +204,12 @@ it('uses combined SDK source facts without changing the selected task or rereadi
     transition:{beforeId:input.sourceObservationId,afterId:input.currentObservationId,verified:true,documentChanged:true,navigated:false,retainedControls:[],entered:[],exited:[],revealedControlIds:[]}};
   });
   f.host.recoverySourceMaterial=material;f.readObservation.mockClear();vi.mocked(f.host.actions).mockClear();
-  expect(f.select()).toEqual(legacy);expect(f.task).toEqual(after);
+  const {revalidate:legacyRevalidate,...legacyFields}=legacy;
+  const {revalidate:combinedRevalidate,...combinedFields}=await f.select();
+  expect(legacyRevalidate).toBeTypeOf('function');expect(combinedRevalidate).toBeTypeOf('function');
+  expect(combinedFields).toEqual(legacyFields);expect(f.task).toEqual(after);
   expect(material).toHaveBeenCalledOnce();expect(f.readObservation).not.toHaveBeenCalled();expect(f.host.actions).not.toHaveBeenCalled();
-  f.source.context.account.value='changed';f.select();
+  f.source.context.account.value='changed';(await f.select());
   expect(material).toHaveBeenCalledTimes(2);expect(f.host.reachCheckpoint).not.toHaveBeenCalled();
  }finally{await f.close();}
 });
@@ -206,7 +217,7 @@ it('uses combined SDK source facts without changing the selected task or rereadi
 it('does not bypass a rejected combined source read with legacy APIs',async()=>{
  const f=fixture();try{
   f.host.recoverySourceMaterial=vi.fn(()=>{throw Error('source facts unavailable');});f.readObservation.mockClear();
-  const plan=structuredClone(f.task.plan);expect(f.select()).toBeUndefined();expect(f.task.plan).toEqual(plan);
+  const plan=structuredClone(f.task.plan);expect((await f.select())).toBeUndefined();expect(f.task.plan).toEqual(plan);
   expect(f.readObservation).not.toHaveBeenCalled();expect(f.host.actions).not.toHaveBeenCalled();
   expect(f.task.scheduling!.deferred!.target.reason).toBe('source_target_unverified');
   expect(f.host.reachCheckpoint).not.toHaveBeenCalled();

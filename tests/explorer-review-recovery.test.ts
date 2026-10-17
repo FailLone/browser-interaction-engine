@@ -22,9 +22,9 @@ function fixture() {
  const store=new ExplorerStore(':memory:'),events=new EventEmitter(),actions:ActionCandidate[]=[];
  let active=current,unknown=false,executable=false;
  const material=()=>({sessionId:'session',observationId:active.id,controls:active.controls.map(control=>({control,actions:actions.filter(a=>a.localId===control.localId),reviews:[],needsReview:true,surroundings:{version:'control-surroundings/v1',key:'missing-owner',ownerInstanceId:'owner',complete:false,truncated:false,reasons:['owner_too_distant'],nodes:[],controls:[]}}))});
- const host={events,session:()=>({id:'session',options:{},actionCount:0}),observation:(_sid:string,id?:string)=>{const o=id?observations.get(id):active;if(!o)throw Error('missing source');return o;},
+ const host={events,session:()=>({id:'session',options:{},actionCount:0,currentObservationId:active.id}),observation:(_sid:string,id?:string)=>{const o=id?observations.get(id):active;if(!o)throw Error('missing source');return o;},
   actions:()=>actions,recoveryAssessment:()=>({unknownAttempts:unknown?[{id:'unknown'}]:[],blockingBoundaryExit:undefined}),controlReviewMaterial:material,
-  actionAvailability:()=>({observationId:active.id,actions:actions.map(a=>({actionId:a.id,executable,blockers:[]}))}),pinEvidence:vi.fn(async()=>[]),
+  actionAvailability:()=>({observationId:active.id,revision:'fixture-revision',actions:actions.map(a=>({actionId:a.id,executable,blockers:[]}))}),pinEvidence:vi.fn(async()=>[]),
   list:()=>[],interactionTransition:()=>({retainedControls:[]})} as unknown as ExplorerHost;
  const plugin=new ExplorerPlugin(host,store),task=plugin.create({url,coverageMode:'all'});
  const item:PlanItem={id:'review',title:'Review Preference',scope:scopeForControl(original.controls[0],original),prerequisites:[],completion:'Review observed target',status:'unresolved',required:true,dispatchScope:false,reason:'classification_unresolved',evidence:[{sessionId:'session',observationId:original.id}],attempts:[]};
@@ -105,8 +105,8 @@ it('prefers a currently recorded GET history anchor while retaining every old ca
  const f=fixture();try{
   const away=observation('away','away','browser');away.url='https://fixture.invalid/away';away.navigation!.entries.push({id:2,url:away.url,method:'GET'});away.navigation!.currentIndex=1;
   const cp=(o:Observation)=>({id:`cp-${o.id}`,observationId:o.id}) as Checkpoint;
-  expect(prioritizeReviewAnchors([cp(f.original),cp(f.current)],away,id=>f.observations.get(id)).map(c=>c.id)).toEqual(['cp-current','cp-original']);
-  away.navigation!.entries[0].method='POST';expect(prioritizeReviewAnchors([cp(f.original),cp(f.current)],away,id=>f.observations.get(id)).map(c=>c.id)).toEqual(['cp-original','cp-current']);
+  expect((await prioritizeReviewAnchors([cp(f.original),cp(f.current)],away,id=>f.observations.get(id))).map(c=>c.id)).toEqual(['cp-current','cp-original']);
+  away.navigation!.entries[0].method='POST';expect((await prioritizeReviewAnchors([cp(f.original),cp(f.current)],away,id=>f.observations.get(id))).map(c=>c.id)).toEqual(['cp-original','cp-current']);
  }finally{await f.close();}
 });
 
@@ -124,11 +124,11 @@ it('the scheduler selects the refreshed native-history checkpoint and consumes a
   f.apply();const away=observation('away','away','browser');away.url='https://fixture.invalid/away';away.controls=[];away.navigation!.entries.push({id:2,url:away.url,method:'GET'});away.navigation!.currentIndex=1;f.setActive(away);
   const checkpoints=[f.current,f.original].map(o=>({id:`cp-${o.id}`,sessionId:'session',observationId:o.id,stateId:o.stateId}));
   vi.spyOn(f.host,'list').mockImplementation(((_sid:string,kind:string)=>kind==='checkpoint'?checkpoints:[]) as any);
-  const select=()=> (f.plugin as any).scheduledRecovery(f.task,f.task.rounds[0],away,[],{actions:[]},()=> 'same-condition');
-  const selected=select();expect(selected.frame.checkpointId).toBe('cp-current');
+  const select=()=> (f.plugin as any).scheduledRecovery(f.task,f.task.rounds[0],away,[],f.host.actionAvailability('session',away.id),()=> 'same-condition');
+  const selected=await select();expect(selected.frame.checkpointId).toBe('cp-current');
   const route=JSON.stringify(f.task.scheduling?.routes[selected.routeKey]);f.setActive(f.current);
   f.apply(reviewRecoveryChanges(f.task,f.current,f.host,{rejected:[{localId:f.current.controls[0].localId,decisionId:'negative',kind:'probe'}]}));f.setActive(away);
-  expect(select()?.itemId).not.toBe('review');expect(f.task.scheduling?.deferred?.review.reason).toBe('unchanged_unresolved_review');expect(JSON.stringify(f.task.scheduling?.routes[selected.routeKey])).toBe(route);expect(f.task.routeRetries).toBeUndefined();
+  expect((await select())?.itemId).not.toBe('review');expect(f.task.scheduling?.deferred?.review.reason).toBe('unchanged_unresolved_review');expect(JSON.stringify(f.task.scheduling?.routes[selected.routeKey])).toBe(route);expect(f.task.routeRetries).toBeUndefined();
  }finally{await f.close();}
 });
 

@@ -29,7 +29,8 @@ function fixture(count=1) {
   currentObservationId:current.id,status:statuses.get(checkpointId)!,strategies:[],blockers:[],invalidatedBy:[],
   checkpointVerified:false,executionAuthorized:false,currentExecution:false,coverageGranted:false,dispatchRevalidationRequired:true});
  const assess=vi.fn((_sid:string,input:{observationId:string;checkpointIds:string[]})=>input.checkpointIds.map(assessment));
- const host={events:new EventEmitter(),session:()=>({id:'session',options:{},actionCount:0}),
+ const host={events:new EventEmitter(),session:()=>({id:'session',options:{},actionCount:0,currentObservationId:current.id}),
+  actionAvailability:()=>({observationId:current.id,revision:'fixture-revision',actions:[]}),
   observation:(_sid:string,id?:string)=>{const source=id?frames.get(id):current;if(!source)throw Error('Missing fixture observation');return source;},
   actions:(_sid:string,id?:string)=>actionRows.get(id||current.id)||[],list:(_sid:string,kind:string)=>kind==='checkpoint'?checkpoints:[],
   interactionTransition:()=>({retainedControls:[]}),recoveryAssessment:()=>({unknownAttempts:[]}),checkpointRecoveryCandidates:assess,
@@ -39,14 +40,14 @@ function fixture(count=1) {
  task.plan=[{...item('authority',{url},sources),dispatchScope:true,status:'pending',reason:'accepted scope'},review];task.status='running';
  task.rounds=[{id:'round',number:1,sessionId:'session',startedAt:'2026-10-17T00:00:00.000Z',status:'running',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0}];
  const runtime=plugin as any;
- const select=()=>runtime.scheduledRecovery(task,task.rounds[0],current,[],{actions:[]},runtime.routeConditionReader(current,[]));
+ const select=()=>runtime.scheduledRecovery(task,task.rounds[0],current,[],host.actionAvailability('session',current.id),runtime.routeConditionReader(current,[]));
  return {sources,current,checkpoints,statuses,assessment,assess,host,task,review,actionRows,store,select,close:()=>plugin.close()};
 }
 
 it('skips two no-path sources and retains the third tryable checkpoint without inventing recovery attempts',async()=>{
  const f=fixture(3);try{
   f.statuses.set(f.checkpoints[2].id,'tryable');const plan=structuredClone(f.task.plan);
-  expect(f.select()).toMatchObject({itemId:'review',source:{id:f.sources[2].id},frame:{checkpointId:f.checkpoints[2].id},targetActionIds:[],returnToSource:false});
+  expect((await f.select())).toMatchObject({itemId:'review',source:{id:f.sources[2].id},frame:{checkpointId:f.checkpoints[2].id},targetActionIds:[],returnToSource:false});
   expect(f.assess.mock.calls).toEqual([['session',{observationId:f.current.id,checkpointIds:f.checkpoints.map(checkpoint=>checkpoint.id)}]]);
   expect(Object.values(f.task.scheduling!.routes).map(route=>route.checkpointId)).toEqual([f.checkpoints[2].id]);
   expect(f.task.plan).toEqual(plan);expect(f.task.routeRetries).toBeUndefined();
@@ -57,7 +58,7 @@ it('skips two no-path sources and retains the third tryable checkpoint without i
 it('continues bounded batches past eight no-path sources instead of allowing the ninth through',async()=>{
  const f=fixture(11);try{
   f.statuses.set(f.checkpoints[10].id,'tryable');
-  expect(f.select()).toMatchObject({frame:{checkpointId:f.checkpoints[10].id}});
+  expect((await f.select())).toMatchObject({frame:{checkpointId:f.checkpoints[10].id}});
   expect(f.assess.mock.calls.map(call=>call[1].checkpointIds)).toEqual([
    f.checkpoints.slice(0,8).map(checkpoint=>checkpoint.id),f.checkpoints.slice(8).map(checkpoint=>checkpoint.id),
   ]);
@@ -76,7 +77,7 @@ it('reuses the current batch for another review while retaining all plan rows an
    sessionId:'session',observationId:f.sources[0].id,checkpointId:f.checkpoints[0].id,targets:[{url,label:key}],path:[],itemIds:[key],memberKeys:[key],pathKeys:[],
   }]))};
   const plan=structuredClone(f.task.plan),debt=structuredClone(f.task.routeRetries),routes=structuredClone(f.task.scheduling.routes);
-  expect(f.select()).toBeUndefined();expect(f.assess).toHaveBeenCalledTimes(1);
+  expect((await f.select())).toBeUndefined();expect(f.assess).toHaveBeenCalledTimes(1);
   expect(f.task.scheduling.deferred).toMatchObject({review:{reason:'checkpoint_no_known_path'},'another-review':{reason:'checkpoint_no_known_path'}});
   expect(f.task.plan).toEqual(plan);expect(f.task.routeRetries).toEqual(debt);expect(f.task.scheduling.routes).toEqual(routes);
   expect(f.task.scheduling.localSelections).toBe(4);expect(f.task.status).toBe('running');
@@ -87,9 +88,9 @@ it('reuses the current batch for another review while retaining all plan rows an
 
 it('reassesses the same observation and checkpoint IDs on the next selection',async()=>{
  const f=fixture();try{
-  const plan=structuredClone(f.task.plan);expect(f.select()).toBeUndefined();
+  const plan=structuredClone(f.task.plan);expect((await f.select())).toBeUndefined();
   f.statuses.set(f.checkpoints[0].id,'tryable');
-  expect(f.select()).toMatchObject({frame:{checkpointId:f.checkpoints[0].id}});
+  expect((await f.select())).toMatchObject({frame:{checkpointId:f.checkpoints[0].id}});
   expect(f.assess).toHaveBeenCalledTimes(2);expect(f.assess.mock.calls[1]).toEqual(f.assess.mock.calls[0]);
   expect(f.task.plan).toEqual(plan);expect(f.task.routeRetries).toBeUndefined();
  }finally{await f.close();}
@@ -101,7 +102,7 @@ it.each(['unknown','missing API','exception'] as const)('preserves the strict re
   if(kind==='missing API')delete f.host.checkpointRecoveryCandidates;
   if(kind==='exception')f.assess.mockImplementation(()=>{throw Error('Assessment unavailable');});
   const plan=structuredClone(f.task.plan);
-  expect(f.select()).toMatchObject({frame:{checkpointId:f.checkpoints[0].id},returnToSource:false,targetActionIds:[]});
+  expect((await f.select())).toMatchObject({frame:{checkpointId:f.checkpoints[0].id},returnToSource:false,targetActionIds:[]});
   expect(f.task.plan).toEqual(plan);expect(f.task.routeRetries).toBeUndefined();expect(f.host.reachCheckpoint).not.toHaveBeenCalled();
  }finally{await f.close();}
 });
@@ -117,18 +118,18 @@ it.each(['checkpoint','source','current','blockers','authority','duplicate resul
    if(kind==='authority')(result as any).executionAuthorized=true;
    return kind==='duplicate result'?[result,result]:[result];
   });
-  expect(f.select()).toMatchObject({frame:{checkpointId:f.checkpoints[0].id}});
+  expect((await f.select())).toMatchObject({frame:{checkpointId:f.checkpoints[0].id}});
   expect(f.task.routeRetries).toBeUndefined();expect(f.task.scheduling?.deferred?.review).toBeUndefined();
  }finally{await f.close();}
 });
 
 it('keeps existing unknown route debt ahead of candidate assessment',async()=>{
  const f=fixture();try{
-  f.statuses.set(f.checkpoints[0].id,'tryable');const first=f.select();expect(first).toBeDefined();
+  f.statuses.set(f.checkpoints[0].id,'tryable');const first=(await f.select());expect(first).toBeDefined();
   f.task.routeRetries=recordRouteRetry(undefined,{routeKey:first.routeKey,conditionVersion:first.conditionVersion,outcome:'unknown',reason:'Unresolved execution',
    unknownSource:{sessionId:'session',attemptIds:['uncertain-attempt']}});
   const plan=structuredClone(f.task.plan),debt=structuredClone(f.task.routeRetries);f.assess.mockClear();
-  expect(f.select()).toBeUndefined();expect(f.assess).not.toHaveBeenCalled();
+  expect((await f.select())).toBeUndefined();expect(f.assess).not.toHaveBeenCalled();
   expect(f.task.scheduling?.deferred?.review.reason).toBe('route_retry_unknown_result');
   expect(f.task.plan).toEqual(plan);expect(f.task.routeRetries).toEqual(debt);
  }finally{await f.close();}
@@ -144,8 +145,8 @@ it.each([true,false])('assesses a concrete operation only when target recovery i
   f.actionRows.set(source.id,[action]);f.review.scope=scopeFor(action,source);f.review.reason='operation_not_executed';
   if(targetApi)f.host.reachExplorationTarget=vi.fn(async()=>{throw Error('Selection must not reach a target');});
   const plan=structuredClone(f.task.plan);
-  if(targetApi){expect(f.select()).toMatchObject({targetActionIds:[action.id],returnToSource:false});expect(f.assess).not.toHaveBeenCalled();}
-  else{expect(f.select()).toBeUndefined();expect(f.assess).toHaveBeenCalledTimes(1);}
+  if(targetApi){expect((await f.select())).toMatchObject({targetActionIds:[action.id],returnToSource:false});expect(f.assess).not.toHaveBeenCalled();}
+  else{expect((await f.select())).toBeUndefined();expect(f.assess).toHaveBeenCalledTimes(1);}
   expect(f.task.plan).toEqual(plan);expect(f.task.routeRetries).toBeUndefined();expect(f.host.reachCheckpoint).not.toHaveBeenCalled();
   if(targetApi)expect(f.host.reachExplorationTarget).not.toHaveBeenCalled();
  }finally{await f.close();}
@@ -158,7 +159,7 @@ it('keeps accepted page source-position return separate from strict checkpoint a
    entries:[{id:1,url,method:'GET'},{id:2,url:f.current.url,method:'GET'}]};
   f.task.plan=[f.task.plan[0]];f.host.returnToObservedSource=vi.fn(async()=>{throw Error('Selection must not return to source');});
   const plan=structuredClone(f.task.plan);
-  expect(f.select()).toMatchObject({itemId:'authority',returnToSource:true,targetActionIds:[]});expect(f.assess).not.toHaveBeenCalled();
+  expect((await f.select())).toMatchObject({itemId:'authority',returnToSource:true,targetActionIds:[]});expect(f.assess).not.toHaveBeenCalled();
   expect(f.task.plan).toEqual(plan);expect(f.task.routeRetries).toBeUndefined();expect(f.host.returnToObservedSource).not.toHaveBeenCalled();
  }finally{await f.close();}
 });

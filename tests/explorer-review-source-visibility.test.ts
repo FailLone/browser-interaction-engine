@@ -27,7 +27,8 @@ function fixture() {
  const checkpoint=(o:Observation):Checkpoint=>({id:`checkpoint-${o.id}`,sessionId:o.sessionId,name:'Retained review source',observationId:o.id,stateId:o.stateId,
   context:o.context,predicates:[],acceptable:[],path:[],createdAt:'2026-10-17T00:00:00.000Z'});
  const checkpoints=[checkpoint(source)],store=new ExplorerStore(':memory:');
- const host={events:new EventEmitter(),session:()=>({id:'session',options:{},actionCount:0}),
+ const host={events:new EventEmitter(),session:()=>({id:'session',options:{},actionCount:0,currentObservationId:current.id}),
+  actionAvailability:()=>({observationId:current.id,revision:'fixture-revision',actions:[]}),
   observation:vi.fn((_sid:string,id?:string)=>{const o=id?frames.get(id):current;if(!o)throw Error('Missing owned fixture frame');return o;}),
   actions:(_sid:string,id?:string)=>actionRows.get(id||current.id)||[],list:(_sid:string,kind:string)=>kind==='checkpoint'?checkpoints:[],
   interactionTransition:()=>({retainedControls:[]}),recoveryAssessment:()=>({unknownAttempts:[]}),
@@ -37,7 +38,7 @@ function fixture() {
  task.plan=[{...planItem('authority',{url},source),dispatchScope:true,status:'pending',reason:'accepted scope'},review];task.status='running';
  task.rounds=[{id:'round',number:1,sessionId:'session',startedAt:'2026-10-17T00:00:00.000Z',status:'running',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0}];
  const runtime=plugin as any;
- const select=()=>runtime.scheduledRecovery(task,task.rounds[0],current,[],{actions:[]},runtime.routeConditionReader(current,[]));
+ const select=()=>runtime.scheduledRecovery(task,task.rounds[0],current,[],host.actionAvailability('session',current.id),runtime.routeConditionReader(current,[]));
  return {source,current,review,task,host,store,frames,actionRows,checkpoints,checkpoint,select,close:()=>plugin.close()};
 }
 function hidden(o:Observation){for(const c of o.controls)c.visible=false;}
@@ -47,7 +48,7 @@ it.each([...controlReviewGapReasons])('retains hidden %s work without mistaking 
  const f=fixture();try{
   f.review.reason=reason;hidden(f.source);f.current.controls=structuredClone(f.source.controls);
   const plan=structuredClone(f.task.plan);
-  expect(f.select()).toBeUndefined();expect(f.task.plan).toEqual(plan);
+  expect((await f.select())).toBeUndefined();expect(f.task.plan).toEqual(plan);
   expect(f.task.scheduling!.deferred!.review.reason).toBe('source_review_target_not_available');
   expect(f.task.scheduling!.routes).toEqual({});expect(f.task.routeRetries).toBeUndefined();
   expect(f.store.events(f.task.id).filter(e=>e.type==='obligation.route_unavailable')).toMatchObject([
@@ -60,7 +61,7 @@ it.each([...controlReviewGapReasons])('retains hidden %s work without mistaking 
 it('allows a visible ambiguous review source without inventing a unique identity or executable action',async()=>{
  const f=fixture();try{
   const plan=structuredClone(f.task.plan);
-  expect(f.select()).toMatchObject({itemId:'review',source:{id:'source'},returnToSource:false,targetActionIds:[]});
+  expect((await f.select())).toMatchObject({itemId:'review',source:{id:'source'},returnToSource:false,targetActionIds:[]});
   expect(f.task.plan).toEqual(plan);expect(f.review.status).toBe('unresolved');
   expect(f.source.controls.every(c=>!!c.hypothesisId)).toBe(true);expect(f.host.execute).not.toHaveBeenCalled();
  }finally{await f.close();}
@@ -69,7 +70,7 @@ it('allows a visible ambiguous review source without inventing a unique identity
 it('allows a disabled visible target to provide review material without granting execution',async()=>{
  const f=fixture();try{
   for(const c of f.source.controls)c.enabled=false;
-  expect(f.select()).toMatchObject({itemId:'review',targetActionIds:[]});
+  expect((await f.select())).toMatchObject({itemId:'review',targetActionIds:[]});
   expect(f.review.status).toBe('unresolved');expect(f.host.execute).not.toHaveBeenCalled();
  }finally{await f.close();}
 });
@@ -78,7 +79,7 @@ it.each(['background','outer boundary only','missing overlay'] as const)('does n
  const f=fixture();try{
   if(kind==='outer boundary only')overlay(f.source,'outer',f.source.controls.map(c=>c.localId));
   if(kind==='missing overlay')f.source.boundaries!.push({key:'active'} as any);else overlay(f.source,'active',['unrelated']);
-  const plan=structuredClone(f.task.plan);expect(f.select()).toBeUndefined();expect(f.task.plan).toEqual(plan);
+  const plan=structuredClone(f.task.plan);expect((await f.select())).toBeUndefined();expect(f.task.plan).toEqual(plan);
   expect(f.task.scheduling!.deferred!.review.reason).toBe('source_review_target_not_available');
   expect(f.task.scheduling!.routes).toEqual({});
  }finally{await f.close();}
@@ -88,7 +89,7 @@ it('accepts one visible member of the innermost boundary even with hidden or bac
  const f=fixture();try{
   f.source.controls.push(control('hidden',{visible:false}));
   overlay(f.source,'outer',['second']);overlay(f.source,'active',['first','hidden']);
-  expect(f.select()).toMatchObject({itemId:'review',source:{id:'source'},targetActionIds:[]});
+  expect((await f.select())).toMatchObject({itemId:'review',source:{id:'source'},targetActionIds:[]});
  }finally{await f.close();}
 });
 
@@ -96,7 +97,7 @@ it('continues to a retained visible source after rejecting a newer hidden source
  const f=fixture();try{
   const newer=observation('newer-hidden',[control('newer',{visible:false})]);f.frames.set(newer.id,newer);f.checkpoints.push(f.checkpoint(newer));
   f.review.evidence.push({sessionId:'session',observationId:newer.id});const before=structuredClone(f.review);
-  expect(f.select()).toMatchObject({itemId:'review',source:{id:f.source.id},frame:{checkpointId:'checkpoint-source'}});
+  expect((await f.select())).toMatchObject({itemId:'review',source:{id:f.source.id},frame:{checkpointId:'checkpoint-source'}});
   expect(f.review).toEqual(before);
  }finally{await f.close();}
 });
@@ -133,11 +134,11 @@ it.each([false,true])('defers an already present review item only without an act
   if(activeBoundary){
    // The retained header can be behind a modal. This patch must not turn the
    // existing present predicate into permission to review that background node.
-   expect(f.select()).toMatchObject({itemId:'review',source:{id:f.source.id}});
+   expect((await f.select())).toMatchObject({itemId:'review',source:{id:f.source.id}});
    expect(transition.mock.calls.map(call=>call[1])).toEqual([newer.id,f.source.id]);
    expect(f.task.scheduling.deferred?.review).toBeUndefined();
   }else{
-   expect(f.select()).toMatchObject({itemId:'genuinely-missing',source:{id:missing.id}});
+   expect((await f.select())).toMatchObject({itemId:'genuinely-missing',source:{id:missing.id}});
    expect(transition.mock.calls.map(call=>call[1])).toEqual([newer.id,missing.id]);
    expect(f.task.scheduling.deferred?.review.reason).toBe('current_review_occurrence_present');
    expect(Object.values(f.task.scheduling.routes).some(route=>route.itemIds.includes('review'))).toBe(false);
@@ -150,12 +151,12 @@ it.each([false,true])('defers an already present review item only without an act
 
 it('rechecks source visibility on a fresh call and preserves old unknown retry debt and source history',async()=>{
  const f=fixture();try{
-  const first=f.select();expect(first).toBeDefined();
+  const first=(await f.select());expect(first).toBeDefined();
   f.task.routeRetries=recordRouteRetry(undefined,{routeKey:first.routeKey,conditionVersion:first.conditionVersion,outcome:'unknown',reason:'Unresolved old dispatch',
    unknownSource:{sessionId:'session',attemptIds:['old-unknown']}});
   const debt=structuredClone(f.task.routeRetries),plan=structuredClone(f.task.plan);
-  hidden(f.source);expect(f.select()).toBeUndefined();expect(f.task.scheduling!.deferred!.review.reason).toBe('source_review_target_not_available');
-  f.source.controls[0].visible=true;expect(f.select()).toBeUndefined();expect(f.task.scheduling!.deferred!.review.reason).toBe('route_retry_unknown_result');
+  hidden(f.source);expect((await f.select())).toBeUndefined();expect(f.task.scheduling!.deferred!.review.reason).toBe('source_review_target_not_available');
+  f.source.controls[0].visible=true;expect((await f.select())).toBeUndefined();expect(f.task.scheduling!.deferred!.review.reason).toBe('route_retry_unknown_result');
   expect(f.task.routeRetries).toEqual(debt);expect(f.task.plan).toEqual(plan);expect(f.host.reachCheckpoint).not.toHaveBeenCalled();
  }finally{await f.close();}
 });
@@ -164,7 +165,7 @@ it('does not claim that an undeployed prerequisite or a same-URL page return mak
  const f=fixture();try{
   hidden(f.source);f.review.prerequisites=[{url,label:'Trade',kind:'click'}];
   f.host.returnToObservedSource=vi.fn(async()=>{throw Error('Selection must not return the page');});
-  const plan=structuredClone(f.task.plan);expect(f.select()).toBeUndefined();expect(f.task.plan).toEqual(plan);
+  const plan=structuredClone(f.task.plan);expect((await f.select())).toBeUndefined();expect(f.task.plan).toEqual(plan);
   expect(f.task.scheduling!.deferred!.review.reason).toBe('source_review_target_not_available');
   expect(f.host.returnToObservedSource).not.toHaveBeenCalled();
  }finally{await f.close();}
@@ -178,7 +179,7 @@ it('keeps a separately observed concrete entry operation eligible while the hidd
    risk:'interface',replayable:true,source:'control',sampleValidity:'valid',basis:{status:'supported',evidence:[{source:'html',rule:'native-button/v1',facts:{type:'button'}}]},
    preconditions:{visible:true,enabled:true,identityResolved:true,context:f.source.context}} as unknown as ActionCandidate;
   f.actionRows.set(f.source.id,[action]);f.task.plan.push({...planItem('entry',scopeFor(action,f.source),f.source),status:'pending',reason:'operation_not_executed'});
-  const plan=structuredClone(f.task.plan);expect(f.select()).toMatchObject({itemId:'entry',targetActionIds:[action.id]});
+  const plan=structuredClone(f.task.plan);expect((await f.select())).toMatchObject({itemId:'entry',targetActionIds:[action.id]});
   expect(f.task.plan).toEqual(plan);expect(f.review.status).toBe('unresolved');expect(f.host.execute).not.toHaveBeenCalled();
  }finally{await f.close();}
 });

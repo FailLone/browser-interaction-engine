@@ -117,17 +117,17 @@ it.each(['stable-replay-failure','only-unstable','current-target-visible'] as co
  const scope={url:source.url,label:'Wallet',role:'button'},item:PlanItem={id:'wallet-review',title:'Review Wallet',scope,prerequisites:[],completion:'Review the target',required:true,dispatchScope:false,status:'unresolved',reason:'operation_basis_unconfirmed',evidence:[{sessionId:'session',observationId:source.id}],attempts:[]};
  const checkpoint={id:'checkpoint',sessionId:'session',observationId:source.id,stateId:'state'};
  const rows=new Map([source,landing,current].map(o=>[o.id,o]));
- const host={events:new EventEmitter(),session:()=>({id:'session',options:{},actionCount:0}),observation:(_sid:string,id?:string)=>{const o=rows.get(id||current.id);if(!o)throw Error('missing');return o;},actions:()=>[],list:(_sid:string,kind:string)=>kind==='checkpoint'?[checkpoint]:[],interactionTransition:()=>({retainedControls:[]}),recoveryAssessment:()=>({unknownAttempts:[]})} as unknown as ExplorerHost;
+ const host={events:new EventEmitter(),session:()=>({id:'session',options:{},actionCount:0,currentObservationId:current.id}),actionAvailability:()=>({observationId:current.id,revision:'fixture-revision',actions:[]}),observation:(_sid:string,id?:string)=>{const o=rows.get(id||current.id);if(!o)throw Error('missing');return o;},actions:()=>[],list:(_sid:string,kind:string)=>kind==='checkpoint'?[checkpoint]:[],interactionTransition:()=>({retainedControls:[]}),recoveryAssessment:()=>({unknownAttempts:[]})} as unknown as ExplorerHost;
  const plugin=new ExplorerPlugin(host,new ExplorerStore(':memory:'));
  try{
-  const task=plugin.create({url:source.url,coverageMode:'all'});
+  const task=plugin.create({url:source.url,coverageMode:'all'});task.status='running';
   task.plan=[{...item,id:'root',scope:{url:source.url},dispatchScope:true,status:'pending',evidence:[]},item];
   task.rounds=[{id:'round',number:1,sessionId:'session',startedAt:new Date().toISOString(),status:'running',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0}];
   const key=recoveryRouteKey(source,[],[scope]),conditionVersion=recoveryRouteConditionVersion(current,[],[scope]),failedReason=variant==='only-unstable'?'Entry replay verification: UNVERIFIED':reason;
   task.scheduling={version:1,localSelections:0,legacyUnmappedRouteKeys:[],routes:{[key]:{sessionId:'session',observationId:source.id,checkpointId:checkpoint.id,targets:[scope],path:[],itemIds:[item.id],memberKeys:[key],pathKeys:[],failure:{status:'invalidated',reason:failedReason,conditionVersion,targets:[scope]}}}};
   task.routeRetries=recordRouteRetry(undefined,{routeKey:key,conditionVersion:'old-entry',attemptKey:'old-attempt',outcome:'unverified',reason:failedReason,evidence});
   const before=structuredClone(task.plan),runtime=plugin as any;
-  const selected=runtime.scheduledRecovery(task,task.rounds[0],current,[],{actions:[]},runtime.routeConditionReader(current,[]));
+  const selected=await runtime.scheduledRecovery(task,task.rounds[0],current,[],host.actionAvailability('session',current.id),runtime.routeConditionReader(current,[]));
   if(variant==='only-unstable'){
    expect(selected?.routeKey).toBe(key);expect(task.routeRetries.routes[key].failedResultConditions).toBeUndefined();
   }else{
