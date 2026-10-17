@@ -173,20 +173,22 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   protected override retainedReceiptCoverageReader() {
     // These ledger decisions live only for one synchronous query. A subsequent
     // unknown result, boundary failure or review revocation is always re-read.
+    // Logical identity is not used by this reader: unique instances, complete
+    // document dependencies and the actual dispatch supply its coverage proof.
     const available=new Map<string,boolean>();
     const reader=documentCoverageReader((action,o,attempt,before)=>{
       if(!available.has(o.sessionId)){
         const session=this.session(o.sessionId);
         available.set(o.sessionId,!session.dirty&&!this.unverifiedRecoveryAttempts(o.sessionId).length
-          &&!this.blockingBoundaryExit(o.sessionId)
-          &&!this.store.list<import('@interaction/core').IdentityHypothesis>('hypothesis',o.sessionId).some(h=>h.status==='pending'));
+          &&!this.blockingBoundaryExit(o.sessionId));
       }
       if(!available.get(o.sessionId))return;
       return this.controls.coverageAuthority(action,o,attempt,before);
     });
     // Legacy observations cannot use this proof. Skip building receipt indexes
     // and duplicate portable projections for those histories altogether.
-    return Object.assign(reader,{acceptsObservation:(o:Observation)=>o.ownerDependencies?.inventoryComplete===true});
+    return Object.assign(reader,{identityBasis:'same-document-instance-v1' as const,
+      acceptsObservation:(o:Observation)=>o.ownerDependencies?.inventoryComplete===true});
   }
   /** Current interpretations only; no historical coverage scan or execution permission. */
   controlInterpretationSnapshot(sid:string,observationId?:string,options:{retainedClassifications?:ClassificationEvidenceRef[]}={}) {

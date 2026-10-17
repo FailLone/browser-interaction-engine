@@ -1,0 +1,15 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/document-operation-coverage.test.ts (24 tests | 18 skipped) 555ms
+ ✓ tests/operation-receipt-condition.test.ts (16 tests | 9 skipped) 784ms
+   ✓ re-reads unknown debt or authority on the next query while retaining actual success  422ms
+   ✓ keeps portable receipts unavailable when their target identity decision is missing or unresolved  340ms
+ ✓ tests/document-coverage-graph.test.ts (86 tests | 42 skipped) 50ms
+ ✓ tests/operation-receipt-batch.test.ts (17 tests | 12 skipped) 661ms
+ ✓ tests/receipt-identity-basis.test.ts (8 tests) 14ms
+
+ Test Files  5 passed (5)
+      Tests  70 passed | 81 skipped (151)
+   Start at  12:22:15
+   Duration  4.43s (transform 582ms, setup 0ms, collect 1.71s, tests 2.06s, environment 0ms, prepare 164ms)

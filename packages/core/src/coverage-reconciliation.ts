@@ -29,6 +29,12 @@ export interface EquivalentCoverage {
  * than an adapter sample: it is never consulted for arrival or replay. */
 export type ReceiptCoverageReader<O extends Observation> = {
   (action: ActionCandidate, observation: O, attempt: ActionAttempt, before: O, after: O): ExplorationCase | undefined;
+  /** Explicit alternative to logical identity resolution. The reader must bind
+   * unique captured instances in one document/browser lifetime, complete raw
+   * dependency conditions and actual dispatch evidence, and recheck authority.
+   * This is coverage only; it cannot authorize identity, arrival or replay.
+   * Omission preserves the caller's logical-identity requirements. */
+  identityBasis?: 'same-document-instance-v1';
   /** Optional cheap exclusion only. A true result grants no equivalence. */
   acceptsObservation?: (observation: O) => boolean;
 };

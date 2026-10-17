@@ -172,7 +172,9 @@ function nativeProjection(i: GraphIndex): string | undefined {
 }
 function target(a: ActionCandidate, o: Observation, i: GraphIndex) {
   const c = a.localId && i.controls.get(a.localId);
-  if (!c || c.hypothesisId || c.readiness || a.controlId !== undefined && a.controlId !== c.identityId
+  // Logical identity may be unresolved. This policy binds unique captured
+  // instances and raw conditions only; readiness is still a prerequisite.
+  if (!c || c.readiness || a.controlId !== undefined && a.controlId !== c.identityId
     || a.target && (a.target.kind !== 'instance' || a.target.instanceId !== c.instanceId || a.target.instanceScope !== o.instanceScope)) return;
   return c;
 }
@@ -183,7 +185,7 @@ function conditions(o: Observation, i: GraphIndex, c: Control): string | undefin
   const result: unknown[] = [];
   for (const localId of sorted([...required])) {
     const control = i.controls.get(localId)!;
-    if (control.hypothesisId || control.readiness) return;
+    if (control.readiness) return;
     if (i.selectors.includes(localId)) {
       if (['checkbox', 'radio', 'switch'].includes(control.role) && typeof control.checked !== 'boolean') return;
       if (['tab', 'option'].includes(control.role) && !control.selected.length) {
@@ -263,7 +265,7 @@ export function documentCoverageReader(authority: RetainedCoverageAuthority) {
         if (review.sessionId !== before.sessionId || review.documentId !== before.documentId || review.instanceScope !== before.instanceScope
           || review.navigation?.browserSessionId !== before.navigation?.browserSessionId || review.ruleVersion !== before.ruleVersion
           || review.url !== before.url || !knownContext(review) || canonical(review.context) !== canonical(before.context)
-          || review.gaps.some(g => g.critical) || reviewed.instanceId !== old.instanceId || reviewed.hypothesisId || reviewed.readiness) return;
+          || review.gaps.some(g => g.critical) || reviewed.instanceId !== old.instanceId || reviewed.readiness) return;
         const origin = read(review), retained = origin?.controls.get(reviewed.localId);
         if (!origin || !retained || canonical(retained) !== canonical(reviewed) || nativeProjection(origin) !== nativeProjection(source)
           || closureProjection(origin, reviewed.localId) !== closureProjection(source, old.localId)) return;

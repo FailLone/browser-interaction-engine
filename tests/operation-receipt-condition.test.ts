@@ -82,7 +82,7 @@ it('retains the existing portable policy and rechecks its review authority witho
   } finally { await f.host.close(); }
 });
 
-it.each(['unknown', 'executing', 'dirty', 'boundary', 'revoked', 'pending'] as const)('re-reads %s debt or authority on the next query while retaining actual success', async change => {
+it.each(['unknown', 'executing', 'dirty', 'boundary', 'revoked'] as const)('re-reads %s debt or authority on the next query while retaining actual success', async change => {
   const s = await stableSeed(), f = clone(s);
   try {
     expect(f.query().conditionVerified).toBe(true);
@@ -92,7 +92,6 @@ it.each(['unknown', 'executing', 'dirty', 'boundary', 'revoked', 'pending'] as c
       beforeId: s.before.id, afterId: s.after.id, inputPhase: 'click', closedAfterMove: false, dispatched: 'succeeded', closed: false, parentReady: false,
       preserved: false, status: 'unverified', evidence: ['Unverified exit'] } satisfies BoundaryExitResult);
     if (change === 'revoked') { const review = f.store.require<ControlReviewRecord>('control-review', s.reviewId); review.status = 'revoked'; f.store.put('control-review', review); }
-    if (change === 'pending') f.store.put('hypothesis', { id: 'pending', sessionId: s.sid, status: 'pending' });
     expect(f.query()).toMatchObject({ actualSuccess: true, conditionVerified: false, status: 'unavailable' });
   } finally { await f.host.close(); }
 });
@@ -112,8 +111,8 @@ it.each(['legacy-graph', 'legacy-witness', 'wrong-value', 'wrong-owner', 'incomp
   finally { await f.host.close(); }
 });
 
-it('rejects a target hypothesis whose retained identity decision is missing or unresolved', async () => {
-  const s = await stableSeed();
+it('keeps portable receipts unavailable when their target identity decision is missing or unresolved', async () => {
+  const s = await seed('portable');
   for (const state of ['missing', 'pending'] as const) {
     const f = clone(s, rows => {
       const before = rows.observation.find(r => r.id === s.before.id)! as Observation;
@@ -124,4 +123,22 @@ it('rejects a target hypothesis whose retained identity decision is missing or u
       reason: state === 'missing' ? 'source_identity_unverified' : 'identity_pending' }); }
     finally { await f.host.close(); }
   }
+});
+
+it('uses the document instance contract for retained logical ambiguity and still rereads revoked review authority', async () => {
+  const s = await stableSeed(), f = clone(s, rows => {
+    // These fields affect logical identity. The captured instances, raw graph,
+    // actual dispatch and review conditions remain the original retained facts.
+    for (const row of rows.observation) for (const c of (row as Observation).controls) c.hypothesisId = 'pending-logical-identity';
+    rows.hypothesis.push({ id: 'pending-logical-identity', sessionId: s.sid, status: 'pending' } as Row);
+  });
+  const attach = vi.spyOn(PlaywrightAdapter.prototype, 'createDriver').mockImplementation(() => { throw Error('Read-only query must not attach'); });
+  try {
+    const put = vi.spyOn(f.store, 'put'), event = vi.spyOn(f.store, 'event');
+    expect(f.query()).toMatchObject({ actualSuccess: true, conditionVerified: true, status: 'document',
+      identityAuthorized: false, arrivalVerified: false, replayAuthorized: false, currentExecution: false });
+    expect(put).not.toHaveBeenCalled(); expect(event).not.toHaveBeenCalled(); expect(attach).not.toHaveBeenCalled();
+    const review = f.store.require<ControlReviewRecord>('control-review', s.reviewId); review.status = 'revoked'; f.store.put('control-review', review);
+    expect(f.query()).toMatchObject({ actualSuccess: true, conditionVerified: false, reason: 'source_authority_unavailable' });
+  } finally { attach.mockRestore(); await f.host.close(); }
 });

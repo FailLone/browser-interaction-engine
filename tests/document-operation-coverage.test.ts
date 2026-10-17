@@ -95,7 +95,7 @@ it('consumes the public proof in the actual plugin outcome gate and removes one 
  }finally{await plugin.close();await f.close();}
 });
 
-it.each(['parent-record','sibling-href','nonlocal-input','hidden-mode','replacement-target','new-document','new-browser','missing-graph','pending-hypothesis'] as const)('declines changed or absent retained conditions: %s',async change=>{
+it.each(['parent-record','sibling-href','nonlocal-input','hidden-mode','replacement-target','new-document','new-browser','missing-graph'] as const)('declines changed or absent retained conditions: %s',async change=>{
  const f=fixture(d=>{
   const graph=d.target.ownerDependencies!,mode=d.target.controls.find(c=>c.selector==='#mode')!;
   if(change==='parent-record')ownerNode(d.target,'#mode').attributes['data-record']='other-record';
@@ -105,8 +105,17 @@ it.each(['parent-record','sibling-href','nonlocal-input','hidden-mode','replacem
   if(change==='replacement-target'){const c=d.target.controls.find(c=>c.localId===d.action.localId)!;c.instanceId='replacement-instance';}
   if(change==='new-document'){d.target.documentId='new-document';d.target.instanceScope='new-browser:new-document';graph.documentId='new-document';}
   if(change==='new-browser')d.target.navigation!.browserSessionId='new-browser';if(change==='missing-graph')delete d.target.ownerDependencies;
-  if(change==='pending-hypothesis')d.rows.hypothesis.push({id:'pending',sessionId:seed.sid,observationId:d.target.id,localId:mode.localId,provisionalIdentityId:mode.identityId!,candidateIds:[],evidence:[],conflicts:['unresolved'],status:'pending',revisions:[]} as Row);
  });try{expect(f.query().equivalent).toBe(false);}finally{await f.close();}
+});
+
+it('does not treat unrelated logical identity debt as document-instance coverage authority or an arrival grant',async()=>{
+ const f=fixture(d=>{d.rows.hypothesis.push({id:'pending',sessionId:seed.sid,observationId:d.target.id,localId:'unrelated',provisionalIdentityId:'provisional',candidateIds:[],evidence:[],conflicts:['unresolved'],status:'pending',revisions:[]} as Row);});
+ try{
+  expect(f.query()).toMatchObject({equivalent:true,policy:'browser-document-coverage-v1',identityAuthorized:false,replayAuthorized:false,currentExecution:false});
+  const session=f.host.session(seed.sid);session.currentObservationId=f.target.id;f.store.put('session',session);
+  expect(f.host.explorationTargetCorrespondences(seed.sid,{observationId:f.target.id,requests:[{actionId:f.action.id,source:{sessionId:seed.sid,observationId:f.before.id,actionId:f.attempt.action.id}}]}).results[0].equivalent).toBe(false);
+  expect(f.host.repetitionAssessment(seed.sid,f.request).repeatable).toBe(false);
+ }finally{await f.close();}
 });
 
 it('does not reuse a review for owner B merely because its unchanged target conditions were approved under owner A',async()=>{

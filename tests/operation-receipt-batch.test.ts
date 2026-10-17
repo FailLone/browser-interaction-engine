@@ -132,7 +132,8 @@ it('keeps input order, duplicates, missing and foreign failures isolated, and em
 it.each(['unknown', 'executing', 'dirty', 'boundary', 'pending'] as const)('re-reads %s on the next batch without changing actual successes', async change => {
   const f = fixture(BrowserEngine);
   try {
-    expect(batch(f.host).every(r => r.conditionVerified)).toBe(true);
+    const initial = batch(f.host);
+    expect(initial.every(r => r.conditionVerified)).toBe(true);
     const source = f.store.require<ActionAttempt>('attempt', seed.attemptIds.at(-1)!);
     if (change === 'unknown' || change === 'executing') f.store.put('attempt', { ...source, id: 'new-unsettled', status: change, afterId: undefined });
     if (change === 'dirty') { const session = f.host.session(seed.sessionId); session.dirty = true; f.store.put('session', session); }
@@ -142,7 +143,9 @@ it.each(['unknown', 'executing', 'dirty', 'boundary', 'pending'] as const)('re-r
     if (change === 'pending') f.store.put('hypothesis', { id: 'pending', sessionId: seed.sessionId, status: 'pending' });
     const results = batch(f.host);
     expect(results).toEqual(singles(f.host));
-    const reason = { unknown: 'unknown_execution_outcome', executing: 'unknown_execution_outcome', dirty: 'dirty_session', boundary: 'boundary_exit_unverified', pending: 'identity_pending' }[change];
+    // Instance-bound coverage does not depend on this logical identity ledger.
+    if (change === 'pending') { expect(results).toEqual(initial); return; }
+    const reason = { unknown: 'unknown_execution_outcome', executing: 'unknown_execution_outcome', dirty: 'dirty_session', boundary: 'boundary_exit_unverified' }[change];
     for (const result of results) expect(result).toMatchObject({ actualSuccess: true, conditionVerified: false, status: 'unavailable', reason });
   } finally { await f.host.close(); }
 });

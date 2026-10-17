@@ -55,6 +55,14 @@ const run = (f: F, auth = authority) => documentCoverageReader(auth)(f.action, f
 const graph = (o: Observation) => o.ownerDependencies!;
 const n = (o: Observation, id: string) => graph(o).nodes.find(n => n.id === id)!;
 function both(f: F, change: (o: Observation) => void) { change(f.before); change(f.current); witness(f); }
+function ambiguousIdentityFixture() {
+  const f = fixture();
+  both(f, o => {
+    for (const c of o.controls) { c.hypothesisId = 'unresolved-logical-identity'; c.identityId = 'shared-identity'; c.name = 'Same name'; c.label = 'Same name'; }
+  });
+  f.action.controlId = f.attempt.action.controlId = 'shared-identity'; witness(f);
+  return f;
+}
 function reference(o: Observation) {
   n(o, 'run').attributes['aria-describedby'] = 'description';
   graph(o).nodes.push(node('description', 'span', 'body', { id: 'description' }, [{ text: 'Full dependency' }]));
@@ -68,6 +76,36 @@ it('returns coverage-only conditions for a real success even when the result rem
   expect(result.policy).toBe('browser-document-coverage-v1'); expect(result.evidence).toContain('actual-succeeded-attempt:receipt'); expect(f).toEqual(saved);
   f.attempt.id = 'another-real-receipt'; expect(run(f)?.key).toBe(result.key);
 });
+it.each(['v1', 'v2'] as const)('compares unique captured instances despite shared logical labels and unresolved identities, including the review origin: %s', version => {
+  const f = ambiguousIdentityFixture();
+  if (version === 'v2') both(f, o => { Object.assign(graph(o), { version: 'browser-owner-dependencies-v2', nativeInputIds: ['field'], nativeRoots: [] }); });
+  const review = structuredClone(f.before);
+  review.id = 'review-source';
+  const auth: RetainedCoverageAuthority = (a, _o, attempt) => ({ source: attempt.action, target: a, evidence: ['review-authority'],
+    reviewSource: { observation: review, control: review.controls[0] } });
+  const proof = run(f, auth);
+  expect(proof?.policy).toBe('browser-document-coverage-v1');
+  expect(proof?.evidence).toContain('coverage-only-not-identity-arrival-or-replay');
+  expect(new Set(f.before.controls.map(c => c.instanceId)).size).toBe(3);
+  expect(new Set(f.before.controls.map(c => c.identityId)).size).toBe(1);
+});
+it.each(['readiness', 'duplicate-local', 'duplicate-instance', 'replacement', 'document', 'browser', 'nonlocal-mode', 'input-A-to-B', 'owner', 'missing-witness', 'unknown-receipt', 'revoked-authority'] as const)(
+  'keeps instance/raw-evidence rejection with pending logical identity: %s', reason => {
+    const f = ambiguousIdentityFixture();
+    expect(run(f)).toBeDefined();
+    if (reason === 'readiness') both(f, o => { o.controls[1].readiness = { status: 'unstable', reason: 'Not ready' }; });
+    if (reason === 'duplicate-local') both(f, o => { o.controls[1].localId = o.controls[0].localId; });
+    if (reason === 'duplicate-instance') both(f, o => { o.controls[1].instanceId = o.controls[0].instanceId; });
+    if (reason === 'replacement') f.current.controls[0].instanceId = 'rebuilt-instance';
+    if (reason === 'document') f.current.documentId = 'another-document';
+    if (reason === 'browser') f.current.navigation!.browserSessionId = 'another-browser';
+    if (reason === 'nonlocal-mode') f.current.controls[1].expanded = true;
+    if (reason === 'input-A-to-B') n(f.current, 'field').live!.value = 'B';
+    if (reason === 'owner') n(f.current, 'owner').attributes['data-record'] = 'B';
+    if (reason === 'missing-witness') delete f.after.ownerDependencyDispatch;
+    if (reason === 'unknown-receipt') f.attempt.status = 'unknown';
+    expect(run(f, reason === 'revoked-authority' ? () => undefined : authority)).toBeUndefined();
+  });
 it('canonicalizes graph index order and reference indexes while preserving DOM child order', () => {
   const f = fixture(); both(f, o => { reference(o); n(o, 'description').attributes['aria-controls'] = 'run'; graph(o).references.push({ sourceId: 'description', attribute: 'aria-controls', token: 'run', status: 'unique', targetIds: ['run'] }); graph(o).closures[0].referenceIds.push(1); graph(o).closures[0].subtreeIds.push('run'); }); const expected = run(f)!;
   expect(expected).toBeDefined();

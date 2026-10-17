@@ -219,15 +219,22 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if(query.unknown(sessionId).length)return unavailable('unknown_execution_outcome');
       if(session.dirty)return unavailable('dirty_session');
       const hypotheses=memo(canonical(['hypotheses',sessionId]),()=>this.store.list<IdentityHypothesis>('hypothesis',sessionId));
-      if(hypotheses.some(h=>h.status==='pending'))return unavailable('identity_pending');
-      if(target.hypothesisId&&!hypotheses.some(h=>h.id===target.hypothesisId&&h.sessionId===sessionId&&h.status==='resolved'))return unavailable('source_identity_unverified');
+      const identityIssue=hypotheses.some(h=>h.status==='pending')?'identity_pending'
+        :target.hypothesisId&&!hypotheses.some(h=>h.id===target.hypothesisId&&h.sessionId===sessionId&&h.status==='resolved')?'source_identity_unverified':undefined;
+      // Only an explicitly instance-bound reader may establish a different
+      // kind of proof. Default/custom readers retain the old identity gate.
+      const instanceReader=identityIssue?query.retained():undefined;
+      if(identityIssue&&instanceReader?.identityBasis!=='same-document-instance-v1')return unavailable(identityIssue);
       const blocked=this.receiptConditionBlocker(attempt,before,after);if(blocked)return unavailable(blocked);
       const portable=operationSample(action,before,(candidate,o)=>this.adapter.correspondenceCase?.(candidate,o,session));
       if(portable){
+        // Identity rejection is not portable-sample unavailability. Never use
+        // it as an excuse to fall through to the document policy.
+        if(identityIssue)return unavailable(identityIssue);
         return {...result,conditionVerified:true,status:'portable',reason:'portable_operation_sample',policy:portable.policy,conditionKey:portable.key,
           evidence:[...result.evidence,...portable.evidence]};
       }
-      const retained=query.retained()?.(action,before,attempt,before,after);
+      const retained=(instanceReader??query.retained())?.(action,before,attempt,before,after);
       return retained?{...result,conditionVerified:true,status:'document',reason:'retained_receipt_operation_sample',policy:retained.policy,conditionKey:retained.key,
         evidence:[...result.evidence,...retained.evidence]}:unavailable(this.retainedReceiptConditionUnavailableReason(attempt,before,after));
     }catch{return result;}
