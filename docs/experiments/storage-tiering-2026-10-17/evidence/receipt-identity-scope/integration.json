@@ -1,0 +1,17 @@
+{
+  "exitCode": 1,
+  "elapsedMs": 11851.521292000001,
+  "args": [
+    "/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/receipt-identity-basis.test.ts",
+    "tests/operation-receipt-condition.test.ts",
+    "tests/operation-receipt-batch.test.ts",
+    "tests/explorer-receipt-condition.test.ts",
+    "tests/explorer-receipt-condition-batch.test.ts",
+    "tests/branch-conditions.test.ts",
+    "tests/mode-structure.test.ts",
+    "--maxWorkers=2"
+  ]
+}

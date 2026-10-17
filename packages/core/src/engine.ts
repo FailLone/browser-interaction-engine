@@ -3,6 +3,7 @@ import { contextSchema, actionBasisSchema, componentDescriptionSchema } from './
 import type { ComponentDescription, ComponentDescriptionInput, ExplorationTargetReference, ExplorationTargetCorrespondence, ReachExplorationTargetInput, ExplorationTargetReachResult, RepetitionAssessment, ReturnToObservedSourceInput, ObservedSourceReturnResult, CheckpointRecoveryCandidatesInput, CheckpointRecoveryCandidateAssessment, CheckpointRecoveryStrategy, CheckpointRecoveryCandidateStatus, ControlReviewTargetReference, ControlReviewTargetCorrespondence, ReachControlReviewTargetInput, ControlReviewTargetReachResult } from './types.js';
 import { assignState, matchIdentities, sameObservedState } from './identity.js';
 import { recoverStore } from './recovery.js';
+import { receiptIdentityConflict } from './receipt-identity.js';
 import { migrateSamplingSources, sampledFrontierKey } from './sampling-migration.js';
 import { DiffQueries } from './diff-details.js';
 import { NavigationIndex } from './navigation-index.js';
@@ -221,19 +222,25 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       const hypotheses=memo(canonical(['hypotheses',sessionId]),()=>this.store.list<IdentityHypothesis>('hypothesis',sessionId));
       const identityIssue=hypotheses.some(h=>h.status==='pending')?'identity_pending'
         :target.hypothesisId&&!hypotheses.some(h=>h.id===target.hypothesisId&&h.sessionId===sessionId&&h.status==='resolved')?'source_identity_unverified':undefined;
-      // Only an explicitly instance-bound reader may establish a different
-      // kind of proof. Default/custom readers retain the old identity gate.
+      // Only explicit evidence contracts can narrow the identity gate:
+      // captured portable conflict scope or retained document instances.
       const instanceReader=identityIssue?query.retained():undefined;
-      if(identityIssue&&instanceReader?.identityBasis!=='same-document-instance-v1')return unavailable(identityIssue);
+      const scopedIdentity=this.adapter.receiptIdentityScope==='captured-operation-controls-v1';
+      if(identityIssue&&!scopedIdentity&&instanceReader?.identityBasis!=='same-document-instance-v1')return unavailable(identityIssue);
       const blocked=this.receiptConditionBlocker(attempt,before,after);if(blocked)return unavailable(blocked);
       const portable=operationSample(action,before,(candidate,o)=>this.adapter.correspondenceCase?.(candidate,o,session));
       if(portable){
         // Identity rejection is not portable-sample unavailability. Never use
         // it as an excuse to fall through to the document policy.
-        if(identityIssue)return unavailable(identityIssue);
+        // The new contract can narrow an existing global rejection. It must
+        // not replace the established identity policy of unblocked samples.
+        const scope=identityIssue&&scopedIdentity?portable.identityConflictScope:undefined;
+        const conflict=scope?receiptIdentityConflict(scope,action,before,hypotheses):identityIssue;
+        if(conflict)return unavailable(conflict);
         return {...result,conditionVerified:true,status:'portable',reason:'portable_operation_sample',policy:portable.policy,conditionKey:portable.key,
-          evidence:[...result.evidence,...portable.evidence]};
+          evidence:[...result.evidence,...portable.evidence,...scope?[`identity-conflict-scope:${hash({observationId:before.id,...scope})}`]:[]]};
       }
+      if(identityIssue&&instanceReader?.identityBasis!=='same-document-instance-v1')return unavailable(identityIssue);
       const retained=(instanceReader??query.retained())?.(action,before,attempt,before,after);
       return retained?{...result,conditionVerified:true,status:'document',reason:'retained_receipt_operation_sample',policy:retained.policy,conditionKey:retained.key,
         evidence:[...result.evidence,...retained.evidence]}:unavailable(this.retainedReceiptConditionUnavailableReason(attempt,before,after));

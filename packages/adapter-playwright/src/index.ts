@@ -52,6 +52,10 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   controlCorrespondence = browserControlCorrespondence;
   operationCorrespondenceHint = browserOperationCorrespondenceHint;
   correspondenceCase(a: ActionCandidate,o: Observation) { return controlCase(a,o,true); }
+  private static readonly defaultCorrespondenceCase=PlaywrightAdapter.prototype.correspondenceCase;
+  get receiptIdentityScope() {
+    return this.correspondenceCase===PlaywrightAdapter.defaultCorrespondenceCase?'captured-operation-controls-v1' as const:undefined;
+  }
   readonly ruleVersion = 'observable-v8';
   validationScope(action: ActionCandidate, observation: Observation) {
     const target = observation.controls.find(c => c.localId === action.localId);

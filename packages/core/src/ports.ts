@@ -104,7 +104,13 @@ export interface InteractionDriver<O extends Observation, S extends SessionOptio
   close(): Promise<void>;
 }
 export interface ScopeStart { name: string; region: string }
-export interface ExplorationCase { key: string; policy: string; evidence: string[] }
+export interface ExplorationCase {
+  key: string; policy: string; evidence: string[];
+  /** Complete captured control references used by this operation's condition
+   * proof, including its target. This scopes identity conflicts, not identity
+   * authority. Observation-local IDs must never enter the portable sample key. */
+  identityConflictScope?: { policy: 'captured-operation-controls-v1'; localIds: string[] };
+}
 export interface RestorationStep {
   action: ActionCandidate;
   expectedCanonical: string;
@@ -163,6 +169,10 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
    * May be stricter than explorationCase queue sampling; undefined never falls
    * back to that broader sample when this contract is implemented. */
   correspondenceCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
+  /** Explicit opt-in to receipt-local identity conflict checks. An available
+   * correspondence case must also declare its complete identityConflictScope.
+   * Omission preserves the session-wide identity gate and callback ordering. */
+  readonly receiptIdentityScope?: 'captured-operation-controls-v1';
   /** Relevant, portable UI preconditions for target arrival, separate from whole-page equality. */
   explorationTargetConditions?(action: ActionCandidate, observation: O): ExplorationCase | undefined;
   /** Current target readiness; a ready sibling never proves this operation ready. */

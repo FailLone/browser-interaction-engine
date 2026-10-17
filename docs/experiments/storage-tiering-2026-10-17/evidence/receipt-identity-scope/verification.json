@@ -1,0 +1,186 @@
+{
+  "results": [
+    {
+      "name": "local",
+      "priorProof": {
+        "actualSuccess": true,
+        "conditionVerified": false,
+        "status": "unavailable",
+        "reason": "identity_pending",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "attemptId": "fe43353b-6856-40aa-91dc-9113498ca0d0",
+          "beforeId": "6b2348dc-e497-4cfc-bc16-020fa866c90f",
+          "afterId": "b993656d-9b51-4bd6-9c86-976f18399d6c",
+          "actionId": "ad2d2263-a527-4a99-a535-897000406a33",
+          "actionKey": "0d3252131163de891dd2c08b1c95a3f8377e32ce428096ef883a1773fbebd63f"
+        },
+        "evidence": [
+          "actual-succeeded-attempt:fe43353b-6856-40aa-91dc-9113498ca0d0"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "arrivalVerified": false
+      },
+      "proof": {
+        "actualSuccess": true,
+        "conditionVerified": true,
+        "status": "portable",
+        "reason": "portable_operation_sample",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "attemptId": "fe43353b-6856-40aa-91dc-9113498ca0d0",
+          "beforeId": "6b2348dc-e497-4cfc-bc16-020fa866c90f",
+          "afterId": "b993656d-9b51-4bd6-9c86-976f18399d6c",
+          "actionId": "ad2d2263-a527-4a99-a535-897000406a33",
+          "actionKey": "0d3252131163de891dd2c08b1c95a3f8377e32ce428096ef883a1773fbebd63f"
+        },
+        "evidence": [
+          "actual-succeeded-attempt:fe43353b-6856-40aa-91dc-9113498ca0d0",
+          "One operation sample per encountered control, target constraints, option and declared context",
+          "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+          "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+          "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+          "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+          "Unique anchored fragments in complete captured trees resolve mode references; identity and execution authority remain unchanged",
+          "identity-conflict-scope:b10f73b8aa67f43db6aa682c605516c660487c8da26b729c45b76fd00c853ec0"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "arrivalVerified": false,
+        "policy": "browser-controls-correspondence-v2",
+        "conditionKey": "0c68e7b05715ddca8265773b8298c98ff127f0e1baeb485b8f1d36bc480f10ef"
+      },
+      "portableKeyUnchanged": true,
+      "scope": {
+        "policy": "captured-operation-controls-v1",
+        "localIds": [
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1744",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1461",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1466",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1469",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1475",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1483",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1493",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1502",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1524",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1527",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1533",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1534",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1718",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1719",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1720",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1721",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1722",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1723",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:18",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:21",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:24",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:27",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:30",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:33",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:36",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:39",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:42",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:45",
+          "bcba3071-5d4d-40da-8fff-a1e72205e78d:1384"
+        ]
+      }
+    },
+    {
+      "name": "global",
+      "priorProof": {
+        "actualSuccess": true,
+        "conditionVerified": false,
+        "status": "unavailable",
+        "reason": "identity_pending",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "attemptId": "3c9746b3-f835-471a-b2af-f328c25e7ac1",
+          "beforeId": "120863dd-932f-471c-9c6c-65882ecf0d88",
+          "afterId": "4f308d2e-0143-4463-b9f8-15b5e5e6e0f1",
+          "actionId": "707264cb-3b46-402e-a5a5-64a64d1510fb",
+          "actionKey": "e2cb526c0b1be7e7620bec16541223ac9e007d19e69b9a1cb8994c9acb8c5663"
+        },
+        "evidence": [
+          "actual-succeeded-attempt:3c9746b3-f835-471a-b2af-f328c25e7ac1"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "arrivalVerified": false
+      },
+      "proof": {
+        "actualSuccess": true,
+        "conditionVerified": true,
+        "status": "portable",
+        "reason": "portable_operation_sample",
+        "source": {
+          "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+          "attemptId": "3c9746b3-f835-471a-b2af-f328c25e7ac1",
+          "beforeId": "120863dd-932f-471c-9c6c-65882ecf0d88",
+          "afterId": "4f308d2e-0143-4463-b9f8-15b5e5e6e0f1",
+          "actionId": "707264cb-3b46-402e-a5a5-64a64d1510fb",
+          "actionKey": "e2cb526c0b1be7e7620bec16541223ac9e007d19e69b9a1cb8994c9acb8c5663"
+        },
+        "evidence": [
+          "actual-succeeded-attempt:3c9746b3-f835-471a-b2af-f328c25e7ac1",
+          "One operation sample per encountered control, target constraints, option and declared context",
+          "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+          "All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence",
+          "Passive text and free-text starting values excluded; selector values and semantic bindings retained",
+          "Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered",
+          "Unique anchored fragments in complete captured trees resolve mode references; identity and execution authority remain unchanged",
+          "identity-conflict-scope:63131034303999ee11e73e40ce6038de51c15563add7b1fee4e5f5843ca21d79"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "arrivalVerified": false,
+        "policy": "browser-controls-correspondence-v2",
+        "conditionKey": "481c7697111baaf6f6c763a05b0281570f636744dde631d4626022aa72272112"
+      },
+      "portableKeyUnchanged": true,
+      "scope": {
+        "policy": "captured-operation-controls-v1",
+        "localIds": [
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1744",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1461",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1466",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1469",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1475",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1483",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1493",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1502",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1524",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1527",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1533",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1534",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1718",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1719",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1720",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1721",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1722",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1723",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:18",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:21",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:24",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:27",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:30",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:33",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:36",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:39",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:42",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:45",
+          "14ba57cc-5a79-4e0f-9ee7-f8921747452e:1384"
+        ]
+      }
+    }
+  ],
+  "sourceUnchanged": true,
+  "recordWrites": 0,
+  "browserStarted": false,
+  "taskDatabaseOpened": false
+}

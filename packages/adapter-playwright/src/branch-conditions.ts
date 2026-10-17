@@ -10,6 +10,9 @@ export interface BrowserBranchConditions {
   key: string;
   conditions: { binding: string; state: Record<string, string[] | boolean | 'mixed'>; relation: string }[];
   evidence: string[];
+  /** Target plus every captured mode used in the completed proof. Kept outside
+   * the portable key; these are conflict references, not logical identities. */
+  identityLocalIds: string[];
 }
 export interface BrowserBranchConditionsAssessment {
   conditions?: BrowserBranchConditions;
@@ -165,7 +168,8 @@ function observedModeConditions(target: Control, o: Observation, omitTargetMode:
   conditions.sort((a, b) => a.binding.localeCompare(b.binding));
   const policy = version === 'v1' ? 'browser-branch-conditions-v1' as const : usedStructure?'browser-branch-conditions-v4' as const:'browser-branch-conditions-v2' as const;
   return { assessment: { status: 'available', reason: 'observed_branch_conditions_available' },
-    conditions: { policy, key: hash({ policy, conditions }), conditions, evidence: [
+    conditions: { policy, key: hash({ policy, conditions }), conditions,
+    identityLocalIds: [...new Set([target.localId,...rows.map(row=>row.c.localId)])], evidence: [
     version === 'v1' ? 'Legacy visible selectors within the historical form/component/region projection; source-key decoding only'
       : 'All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence',
     'Passive text and free-text starting values excluded; selector values and semantic bindings retained',

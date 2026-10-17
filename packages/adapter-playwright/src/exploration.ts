@@ -142,12 +142,13 @@ function controlCaseProjection(action:ActionCandidate,o:Observation,portable:boo
   const c = o.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
   if (!c || o.gaps.some(g => g.critical)) return;
   const branch = sourceConditions?(portable?browserPortableBranchConditions(action,o):browserBranchConditions(action,o)):undefined;if(sourceConditions&&!branch)return;
+  const identityConflictScope=portable&&branch?{policy:'captured-operation-controls-v1' as const,localIds:branch.identityLocalIds}:undefined;
   const native=portable&&browserOperationCorrespondenceHint(c,action.kind,o);
   if(native&&action.basis?.status==='supported'&&action.basis.evidence.some(e=>e.source==='html'&&e.rule==='hyperlink/v1'&&e.facts.href===c.reviewBinding?.attributes.href)) {
     const {valid:_valid,...constraints}=c.constraints,{instanceId:_instance,...form}=c.reviewBinding?.form||{};
     return {key:hash({url:o.url,reference:native.key,branch:branch?.key,boundary:o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})),
       readOnly:c.readOnly,constraints,options:c.options,attributes:c.reviewBinding?.attributes,form,formOwner:formBinding(c),basis:action.basis,risk:action.risk}),
-      policy:'browser-native-record-link-operation-v2',evidence:[...native.evidence,...branch?.evidence||[],'Same native navigation operation; displayed text remains retained observation evidence']};
+      policy:'browser-native-record-link-operation-v2',identityConflictScope,evidence:[...native.evidence,...branch?.evidence||[],'Same native navigation operation; displayed text remains retained observation evidence']};
   }
   // Review record IDs identify evidence, not a new operation. Preserve the
   // reviewed DOM conditions and risk; dispatch still validates the exact review.
@@ -160,7 +161,7 @@ function controlCaseProjection(action:ActionCandidate,o:Observation,portable:boo
   return { key: hash({ url: o.url, ...(sourceConditions?{branch:branch?.key}:{}), boundary: portable?o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})):o.boundaries?.map(b => b.key) || [], shape: shape(c,portable),
     instance: !portable&&(c.hypothesisId || c.identityScope === 'instance') ? c.instanceId : undefined,
     basis, reviewBinding, risk: action.risk, scroll: action.kind === 'scroll' ? c.scroll : undefined }), policy: portable?'browser-controls-correspondence-v2':sourceConditions?'browser-controls-live-v4':'browser-controls-live-v3',
-    evidence: ['One operation sample per encountered control, target constraints, option and declared context',
+    identityConflictScope, evidence: ['One operation sample per encountered control, target constraints, option and declared context',
       portable?'Target-region operation reference only; active boundaries and dispatch permission are checked separately':'Current-instance targets do not assert historical identity; all combinations are outside this coverage unit',
       ...branch?.evidence||[],...sourceConditions?[]:['Legacy controls traversal sample only; source modes require independent correspondence evidence']] };
 }
