@@ -7,12 +7,11 @@ import {operationSchedulingReferences,operationSchedulingProofHash,operationSche
 type Audit=NonNullable<PlanItem['operationSchedulingNormalization']>;
 type Change={itemId:string;normalization?:Audit;reason:'normalized'|'source_proof_unavailable'};
 type SourceRecord={o:Observation;scopes:Map<string,ActionCandidate[]>;keys:Map<ActionCandidate,{legacyKey:string;key:string}>};
-/** Normalize only scheduling encodings. All source/attempt rows and original
- * condition/split fields stay intact. Missing or ambiguous evidence cannot
- * produce an alias, and unavailable branches remain unavailable to the SDK.
- * Pass changedItems for a local append; caches live only within this call. */
-export function normalizeOperationScheduling(task:Pick<Task,'plan'>,host:Pick<ExplorerHost,'observation'|'actions'|'list'>,changedItems:readonly PlanItem[]=task.plan):Change[] {
-  const changes:Change[]=[],records=new Map<string,SourceRecord|undefined>(),attempts=new Map<string,Map<string,ActionAttempt>>();
+/** One synchronous audit/outcome owns this normalizer. Reuse only captured
+ * source projections, never mutable item validity. Discard before an await,
+ * SDK mutation, or review/identity revision, even for the same observation. */
+export function createOperationSchedulingNormalizer(host:Pick<ExplorerHost,'observation'|'actions'|'list'>) {
+  const records=new Map<string,SourceRecord|undefined>(),attempts=new Map<string,Map<string,ActionAttempt>>();
   const read=(sid:string,id:string)=>{
     const k=JSON.stringify([sid,id]);if(records.has(k)){const v=records.get(k);records.delete(k);records.set(k,v);return v;}
     let record:SourceRecord|undefined;
@@ -29,6 +28,8 @@ export function normalizeOperationScheduling(task:Pick<Task,'plan'>,host:Pick<Ex
     if(!attempts.has(sid)){let rows:ActionAttempt[]=[];try{rows=host.list<ActionAttempt>(sid,'attempt');}catch{}attempts.set(sid,new Map(rows.filter(a=>a.sessionId===sid).map(a=>[a.id,a])));}
     return attempts.get(sid)!.get(id);
   };
+  return (task:Pick<Task,'plan'>,changedItems:readonly PlanItem[]=task.plan):Change[]=>{
+  const changes:Change[]=[];
   for(const item of changedItems){
     if(item.operationConditionPolicy!=='browser-operation-key-v2'||!item.operationConditionKey||!item.scope.kind||(item.dispatchScope!==false&&item.conditionLineage?.kind!=='condition')
       ||item.status==='superseded'||['split','invalidated'].includes(item.conditionMigration?.status||'')||item.attempts.some(a=>['unknown','executing'].includes(a.outcome)))continue;
@@ -64,4 +65,14 @@ export function normalizeOperationScheduling(task:Pick<Task,'plan'>,host:Pick<Ex
     audit.proofHash=operationSchedulingProofHash(audit);item.operationSchedulingNormalization=audit;changes.push({itemId:item.id,normalization:audit,reason:'normalized'});
   }
   return changes;
+  };
+}
+export type OperationSchedulingNormalizer=ReturnType<typeof createOperationSchedulingNormalizer>;
+
+/** Normalize only scheduling encodings. All source/attempt rows and original
+ * condition/split fields stay intact. Missing or ambiguous evidence cannot
+ * produce an alias, and unavailable branches remain unavailable to the SDK.
+ * The compatibility wrapper always starts a fresh synchronous pass. */
+export function normalizeOperationScheduling(task:Pick<Task,'plan'>,host:Pick<ExplorerHost,'observation'|'actions'|'list'>,changedItems:readonly PlanItem[]=task.plan):Change[] {
+  return createOperationSchedulingNormalizer(host)(task,changedItems);
 }
