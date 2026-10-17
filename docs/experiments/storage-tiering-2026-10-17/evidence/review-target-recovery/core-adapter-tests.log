@@ -1,0 +1,158 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ❯ tests/control-review-target.test.ts (9 tests | 4 failed) 43ms
+   × stops after 1 existing boundary exits at current review material, without whole-page replay 24ms
+     → Cannot anchor scope to an unknown region
+   × stops after 2 existing boundary exits at current review material, without whole-page replay 3ms
+     → Cannot anchor scope to an unknown region
+   ✓ keeps current reviewability separate from changed nonlocal A/B conditions 3ms
+   ✓ binds negative waiting to raw mode facts even when another missing mode prevents equivalence 1ms
+   ✓ rejects incomplete competitors and changed owners without trusting names or shared keys 0ms
+   ✓ rejects a stale live review target and never labels it arrived 5ms
+   × blocks a retained unknown after restart before driver attachment or new material can change its result 2ms
+     → Cannot anchor scope to an unknown region
+   ✓ queries historical record batches once per observation without mutation or full action/history reads 4ms
+   × stops remaining recorded replay steps when review arrival verification requests resolution 2ms
+     → Cannot anchor scope to an unknown region
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/control-review-target.test.ts > stops after 1 existing boundary exits at current review material, without whole-page replay
+ FAIL  tests/control-review-target.test.ts > stops after 2 existing boundary exits at current review material, without whole-page replay
+ FAIL  tests/control-review-target.test.ts > blocks a retained unknown after restart before driver attachment or new material can change its result
+ FAIL  tests/control-review-target.test.ts > stops remaining recorded replay steps when review arrival verification requests resolution
+EngineError: Cannot anchor scope to an unknown region
+ ❯ InteractionEngine.openScopeInternal packages/core/src/engine.ts:1148:60
+
+ ❯ InteractionEngine.syncBoundaries packages/core/src/engine.ts:1170:12
+ ❯ packages/core/src/engine.ts:783:12
+ ❯ MemoryStore.transaction packages/storage-memory/src/index.ts:41:18
+ ❯ InteractionEngine.capture packages/core/src/engine.ts:693:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 5 passed (9)
+   Start at  18:36:33
+   Duration  868ms (transform 393ms, setup 0ms, collect 693ms, tests 43ms, environment 0ms, prepare 34ms)
+
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ❯ tests/control-review-target.test.ts (10 tests | 1 failed | 9 skipped) 16ms
+   ↓ stops after 1 existing boundary exits at current review material, without whole-page replay
+   ↓ stops after 2 existing boundary exits at current review material, without whole-page replay
+   ↓ keeps current reviewability separate from changed nonlocal A/B conditions
+   ↓ binds negative waiting to raw mode facts even when another missing mode prevents equivalence
+   × settles only the same recorded occurrence when missing branches prevent historical equivalence 15ms
+     → expected { targetMatched: true, …(5) } to match object { reviewable: true, …(1) }
+(4 matching properties omitted from actual)
+   ↓ rejects incomplete competitors and changed owners without trusting names or shared keys
+   ↓ rejects a stale live review target and never labels it arrived
+   ↓ blocks a retained unknown after restart before driver attachment or new material can change its result
+   ↓ queries historical record batches once per observation without mutation or full action/history reads
+   ↓ stops remaining recorded replay steps when review arrival verification requests resolution
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/control-review-target.test.ts > settles only the same recorded occurrence when missing branches prevent historical equivalence
+AssertionError: expected { targetMatched: true, …(5) } to match object { reviewable: true, …(1) }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "reviewable": true,
+-   "sourceEquivalent": "equivalent",
++   "sourceEquivalent": "unknown",
+  }
+
+ ❯ tests/control-review-target.test.ts:102:105
+    100| it('settles only the same recorded occurrence when missing branches pr…
+    101|   const before=observed();before.controls[1].checked=null;
+    102|   expect(browserControlReviewTargetCorrespondence(before.controls[0],b…
+       |                                                                                                         ^
+    103|   const copied=structuredClone(before);
+    104|   expect(browserControlReviewTargetCorrespondence(before.controls[0],b…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 skipped (10)
+   Start at  18:37:10
+   Duration  884ms (transform 416ms, setup 0ms, collect 734ms, tests 16ms, environment 0ms, prepare 35ms)
+
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/control-review-target.test.ts (10 tests) 66ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  18:37:24
+   Duration  926ms (transform 413ms, setup 0ms, collect 725ms, tests 66ms, environment 0ms, prepare 35ms)
+
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/control-review-target.test.ts (11 tests) 69ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  18:38:31
+   Duration  915ms (transform 402ms, setup 0ms, collect 713ms, tests 69ms, environment 0ms, prepare 34ms)
+
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/control-review-target.test.ts (12 tests) 73ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  18:41:34
+   Duration  929ms (transform 401ms, setup 0ms, collect 720ms, tests 73ms, environment 0ms, prepare 35ms)
+
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/control-classification-retention.test.ts (2 tests) 15ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:45:42
+   Duration  857ms (transform 397ms, setup 0ms, collect 709ms, tests 15ms, environment 0ms, prepare 35ms)
+
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/control-classification-retention.test.ts (2 tests) 14ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:46:22
+   Duration  850ms (transform 392ms, setup 0ms, collect 704ms, tests 14ms, environment 0ms, prepare 35ms)
+
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/control-review-target.test.ts (14 tests | 11 skipped) 39ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed | 11 skipped (14)
+   Start at  18:52:18
+   Duration  914ms (transform 414ms, setup 0ms, collect 735ms, tests 39ms, environment 0ms, prepare 36ms)
+
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/control-review-target.test.ts (15 tests | 14 skipped) 14ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 14 skipped (15)
+   Start at  18:53:38
+   Duration  942ms (transform 436ms, setup 0ms, collect 782ms, tests 14ms, environment 0ms, prepare 35ms)
+

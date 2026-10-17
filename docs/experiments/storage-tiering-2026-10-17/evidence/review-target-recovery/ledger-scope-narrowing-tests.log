@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-review-ledger-sources.test.ts (21 tests | 20 skipped) 12ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 20 skipped (21)
+   Start at  18:49:54
+   Duration  926ms (transform 438ms, setup 0ms, collect 774ms, tests 12ms, environment 0ms, prepare 36ms)
+

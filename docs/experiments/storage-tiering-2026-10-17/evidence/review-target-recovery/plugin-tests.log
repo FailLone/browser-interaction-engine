@@ -1,0 +1,15 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-recovery-selection-cancellation.test.ts (20 tests) 432ms
+   ✓ projection capacity does not remove an uncached candidate after many rejected pairs  323ms
+ ✓ tests/explorer-recovery-selection-index.test.ts (15 tests) 150ms
+ ✓ tests/explorer-review-source-priority.test.ts (18 tests) 48ms
+ ✓ tests/explorer-review-handoff.test.ts (6 tests) 24ms
+ ✓ tests/explorer-review-arrival.test.ts (5 tests) 26ms
+
+ Test Files  5 passed (5)
+      Tests  64 passed (64)
+   Start at  18:35:23
+   Duration  3.40s (transform 585ms, setup 0ms, collect 2.08s, tests 680ms, environment 0ms, prepare 162ms)
+

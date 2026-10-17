@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-review-arrival.test.ts (10 tests | 8 skipped) 17ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 8 skipped (10)
+   Start at  18:47:54
+   Duration  1.26s (transform 625ms, setup 0ms, collect 1.08s, tests 17ms, environment 0ms, prepare 41ms)
+

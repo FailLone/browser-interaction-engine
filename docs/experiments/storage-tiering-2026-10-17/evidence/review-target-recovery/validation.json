@@ -1,0 +1,94 @@
+{
+  "baselineCommit": "09542599ace8f1d891c7f5dcf407fbc4b4c52b04",
+  "stateCommit": "0208556caa243de784dd628f2921948946e2cc3f",
+  "reviewArrivalCommit": "4ed25d6fed0c795cdfb9c16f9e9292acfa2c252d",
+  "branch": "codex/exploration-layered-refactor",
+  "worktree": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "sourceSha256": {
+    "packages/adapter-playwright/src/branch-conditions.ts": "3151d039196c0eac0303a97e3c3b4872294ef389e77ee536da06930426aeb4c1",
+    "packages/adapter-playwright/src/index.ts": "483b02d493653a4a2bde3746348ad5417ec6d819b7a56dfd694a34c8a6131aa8",
+    "packages/adapter-playwright/src/model.ts": "8d7439b827fb9097af3cc62bc903ebf0dc9134c2a9f3ba9781bf698c8b2ffe29",
+    "packages/adapter-playwright/src/review-target.ts": "b23b90237555feeb916987ecd927d6e74c6d241810bd33b45365566a169e2bfc",
+    "packages/adapter-playwright/src/structural-state-key.ts": "66aaeae2667a174764ceba6b0e7b12a0e11bd8360db6ead16796f6b659c7d9f9",
+    "packages/adapter-playwright/src/types.ts": "53dc3c2be5ad2f0afd36e1bb95e1bc3709f7f5ccad2a07d46b4ef48ba7cb9d45",
+    "packages/browser/src/control-classifications.ts": "d4e62611fb18199a8e134a82ee7665a14d0c830288acc1de03207035ab5c5132",
+    "packages/core/src/engine.ts": "78b7780e77c3668d4031176d1efba0887d30f8004d59c60899caf06023482424",
+    "packages/core/src/ports.ts": "c73cb60b166ce2586432d9500c56e8dd2990491d6374b4f13a1cb8d2dec63fac",
+    "packages/core/src/types.ts": "642487dee63caa366865af0373ac93a814366dbaf3d74f038ffe58a8a0fbb7fc",
+    "packages/explorer-plugin/src/obligation-lifecycle.ts": "08f5b55dbc017b209d6ff7f7f99a209f099dc6aa0544a70e81fa6bb31a1be6cd",
+    "packages/explorer-plugin/src/obligation-scheduler.ts": "febfe5e485898b40eb566b2af3caae6191466d1c6f801de077aaf3ee2d05aeae",
+    "packages/explorer-plugin/src/review-ledger.ts": "c0726ad6b647476c8e383ec0ca3e2a55ae0c1ade57c6f738edccd1a36665a469",
+    "packages/explorer-plugin/src/runtime.ts": "cd346f6bf4ba69ff9b9ed467cc2f3e2ab7a0080c429743928edf0ae70c9574d3",
+    "packages/explorer-plugin/src/types.ts": "462a22887e8e79c76c2ab4a2453fccae6ca1109986245a79df8704d4f99dec41",
+    "tests/control-classification-retention.test.ts": "5ba4bb33e26f1293f3b95e2a96f96725038144cf9a71613a4cc885d8122dc4ea",
+    "tests/control-review-target.test.ts": "55277203bb7790fdf552ed7555aa818fc7abcd9b715f0e39fce354f9474d1556",
+    "tests/explorer-plugin-semantic.test.ts": "5189717a5bf3d5b80aec36c1c318c877dd28877b30f7f3cf613bbf6c1ae62555",
+    "tests/explorer-review-arrival.test.ts": "73a4a6f66893ac1f77c7d7c3f3631f5709c5a5e59a946662e3bf4876fb8c979a",
+    "tests/explorer-review-ledger-sources.test.ts": "e31bdd45ccb9eb9fda9394c876cf2bebddb2f74a181ad2393f1145d30a543184",
+    "tests/structural-state-key.test.ts": "c11dc4ebbb0dd7b5601e1cd4e11052e4582cf2bdd622b9ca33b25c921d3762e1"
+  },
+  "evidenceSha256": {
+    "README.md": "7c65510581bf4d516e55f9abb29236acd8e6b14a03646062ad7d3b4abdcfa5c5",
+    "core-adapter-tests.log": "951a20f107949917177e19641d78e6e9c209fb96ebd98a4442ce5c5b93d44562",
+    "frozen-review-arrival.json": "54bc0282d105a87ad566ed2aece62da4808587de9416943f9f81684ab5adb7bf",
+    "frozen-review-probe.log": "a2eea0987de79452aba018e375f6220b557526fb0520b1e11f36f34c3991e94a",
+    "frozen-state-projection.json": "5eff244ea7b70338717d498658703c4506ecd8c2ed6974f8e2efd4e06269e898",
+    "ledger-key-fix-tests.log": "9f1bbed87a2d57337ebb0036af7e776e6144f97a8fe92c86bac9314e17b4fcad",
+    "ledger-scope-narrowing-tests.log": "7db1e194b3b5021a41e20a5864725ed6a9e4096c0c760d16d60b6ec9dee3aabb",
+    "ledger-source-accumulation-tests.log": "bbde7107cdd54dcc23108d9302a692db6ee769c8c9bf6fdf5ca6b0521ebdadd7",
+    "ledger-tests.log": "ae1ff270fef69583f2e901692f35384544b95de0a44ce7f63f9f37762c313e24",
+    "plugin-contract-tests.log": "5b255c9dbca8bf7ebaf7f60b5e0a5a1f5db01c3106b21ec4ec767427bdea385d",
+    "plugin-tests.log": "c82daa61e6356491e8fbf4c3487315f7d31efffad840d2e1b03f66d0097702a4",
+    "probe-review-arrival.ts": "d8e8982d2386adde077217262d7a5ac964b97151673bcfb4b756639c8507c150",
+    "probe-state-projection.ts": "bd226f78f7703e543f837a73872f440500c7d00d4b8ad56a6a984db9334df38c",
+    "runtime-source-commit-tests.log": "6bbd5d516d7dbe6cb8c5266ed327c6966a7c77b3df25fbf2c89835af5bc074de",
+    "source-scheduling-tests.log": "9773081966adc880106f659772f9ea421eccf3991a7f70721fd489ecfc2ad2eb",
+    "state-tests.log": "fc0e78c860cf7a5ef57cfc51ae873a0131521bd77e2ff3128c7bb68ed45d49ee",
+    "typecheck-core-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck-core.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck-root-discovery-fixture-fix.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck-root-final.log": "3be26781647df7014f1b9c17a91866ace4e399e7cb2fe5855d1f7db5b02a2731",
+    "typecheck-root-fixture-fix.log": "3766d5d970b78d5c428da25d638a852cced22f633033c45b785f7e5721743775",
+    "typecheck-root.log": "2cbbbc1ef2abebb4661f20bf63d27dba39d86e60a4ff07595db70b473ad8d91b"
+  },
+  "validation": {
+    "rootTypecheck": {
+      "exitCode": 0,
+      "log": "typecheck-root-discovery-fixture-fix.log"
+    },
+    "coreTypecheck": {
+      "exitCode": 0,
+      "log": "typecheck-core-final.log"
+    },
+    "diffCheck": {
+      "exitCode": 0
+    },
+    "behavior": "Incremental targeted checks per README; no claim of one full frozen-version suite run. Prior failures and rerun reasons retained.",
+    "frozenProbes": "Earlier implementation-stage record queries, not live browser arrival; no source data reread after compact key or branch-goal refinements.",
+    "staticReview": "Independent final SDK-to-plugin contract review found no blocker; not execution evidence."
+  },
+  "claims": {
+    "newMaterialArrival": "Nested deterministic exits can stop at live-preflighted review material without strict whole-page restoration.",
+    "sourceArrival": "An already interpreted B does not satisfy a required A; complete recorded source conditions and live preflight required.",
+    "sourceLedger": "Per-source A/B proof references accumulate and retract independently; unknown is not success.",
+    "stateProjection": "Only uniquely proved portable structural paths replace document-local owner tokens; original facts and old encodings retained."
+  },
+  "notClaimed": [
+    "real OKX acceptance passed",
+    "whole-page replay success for arbitrary dynamic state",
+    "measured whole-run speedup",
+    "measured net storage reduction",
+    "exhaustive exploration",
+    "all unique control-pair projections shared"
+  ],
+  "protectedWorkspaces": {
+    "/Users/xietian/Projects/browser-interaction-engine": "6e111284ac3a6642844531dbc06bce462ca4293c",
+    "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine": "4857ad571c19995480a4c149abd9b2868a94c965"
+  },
+  "externalEffects": {
+    "browserInteraction": false,
+    "serviceStartStop": false,
+    "originalTaskDatabaseWrites": false,
+    "remotePush": false
+  }
+}

@@ -1,0 +1,100 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ↓ tests/explorer-review-arrival.test.ts > selects a review target without inventing an operation or requiring a strict checkpoint candidate
+ ↓ tests/explorer-review-arrival.test.ts > continues at exposed current material, retains historical debt and does not navigate again for the same material
+ ↓ tests/explorer-review-arrival.test.ts > keeps missing API compatibility strict and refuses ambiguous review targets with the new API
+ ↓ tests/explorer-review-arrival.test.ts > rejects strict success returned through the review-only contract
+ ↓ tests/explorer-review-arrival.test.ts > does not use the new arrival contract to escape unknown source execution debt
+ ↓ tests/explorer-review-arrival.test.ts > rejects a review arrival with mismatched currentExecution facts
+ ↓ tests/explorer-review-arrival.test.ts > rejects a review arrival with mismatched target facts
+ ↓ tests/explorer-review-arrival.test.ts > rejects a review arrival with mismatched proof facts
+ ↓ tests/explorer-review-arrival.test.ts > commits independent A/B review proofs, keeps them when a new gap arrives, and retracts only revoked sources
+ ↓ tests/explorer-review-arrival.test.ts > refuses a review proof revoked while pinning instead of committing a stale success
+ × tests/explorer-review-arrival.test.ts > pursues unreviewed A after classifying B without spending B new-material wait again 33ms
+   → host.discoveryScanMaterial is not a function
+ × tests/explorer-review-arrival.test.ts > keeps A and B source arrival budgets separate while unknown debt crosses both review contracts 5ms
+   → expected undefined to match object { source: { id: 'source' }, …(1) }
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/explorer-review-arrival.test.ts > pursues unreviewed A after classifying B without spending B new-material wait again
+TypeError: host.discoveryScanMaterial is not a function
+ ❯ reviewNext packages/explorer-plugin/src/reviews.ts:441:19
+    439|     c.gap('boundary_exit_unresolved',{url:o.url,region:exits.boundary?…
+    440|   }
+    441|   const scan=host.discoveryScanMaterial(sid);
+       |                   ^
+    442|   if(scan.discovery && (scan.discovery.signal.omitted>0 || scan.discov…
+    443|     const key=`scan:${scan.discovery.topologyKey}:${scan.discovery.sup…
+ ❯ ExplorerPlugin.step packages/explorer-plugin/src/runtime.ts:1219:32
+ ❯ tests/explorer-review-arrival.test.ts:231:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/explorer-review-arrival.test.ts > keeps A and B source arrival budgets separate while unknown debt crosses both review contracts
+AssertionError: expected undefined to match object { source: { id: 'source' }, …(1) }
+
+- Expected: 
+{
+  "requireSourceEquivalent": true,
+  "source": {
+    "id": "source",
+  },
+}
+
++ Received: 
+undefined
+
+ ❯ tests/explorer-review-arrival.test.ts:251:20
+    249|     await f.reconcile(f.task,b,new AbortController().signal);
+    250|     const aRoute=await f.select();
+    251|     expect(aRoute).toMatchObject({source:{id:f.source.id},requireSourc…
+       |                    ^
+    252|     expect(f.task.scheduling!.routes[aRoute.routeKey].sourceCondition)…
+    253|     expect(f.task.scheduling!.routes[bRoute.routeKey].sourceCondition)…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 skipped (12)
+   Start at  18:55:16
+   Duration  1.20s (transform 590ms, setup 0ms, collect 1.01s, tests 39ms, environment 0ms, prepare 39ms)
+
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ↓ tests/explorer-review-arrival.test.ts > selects a review target without inventing an operation or requiring a strict checkpoint candidate
+ ↓ tests/explorer-review-arrival.test.ts > continues at exposed current material, retains historical debt and does not navigate again for the same material
+ ↓ tests/explorer-review-arrival.test.ts > keeps missing API compatibility strict and refuses ambiguous review targets with the new API
+ ↓ tests/explorer-review-arrival.test.ts > rejects strict success returned through the review-only contract
+ ↓ tests/explorer-review-arrival.test.ts > does not use the new arrival contract to escape unknown source execution debt
+ ↓ tests/explorer-review-arrival.test.ts > rejects a review arrival with mismatched currentExecution facts
+ ↓ tests/explorer-review-arrival.test.ts > rejects a review arrival with mismatched target facts
+ ↓ tests/explorer-review-arrival.test.ts > rejects a review arrival with mismatched proof facts
+ ↓ tests/explorer-review-arrival.test.ts > commits independent A/B review proofs, keeps them when a new gap arrives, and retracts only revoked sources
+ ↓ tests/explorer-review-arrival.test.ts > refuses a review proof revoked while pinning instead of committing a stale success
+ ✓ tests/explorer-review-arrival.test.ts > pursues unreviewed A after classifying B without spending B new-material wait again 27ms
+ ✓ tests/explorer-review-arrival.test.ts > keeps A and B source arrival budgets separate while unknown debt crosses both review contracts 2ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 10 skipped (12)
+   Start at  18:55:43
+   Duration  1.15s (transform 579ms, setup 0ms, collect 974ms, tests 30ms, environment 0ms, prepare 38ms)
+
+Targeted rerun rationale (recorded once after the two runs):
+- First failure: the now-uncovered real reviewNext path reached discoveryScanMaterial;
+  the offline classification fixture lacked its read-only empty-material stub.
+- Second failure: source-b changed the observed checkbox but inherited source's
+  canonical and stateId. runtime projectSourceItem ends with sameObservedState;
+  equal ruleVersion/canonical therefore excluded source A as already current.
+  Corrected only source-b canonical/stateId to represent the intended different
+  branch. No product gate or candidate policy changed between these two runs.
+- Original failure output did not print deferred.reason; the diagnosis above is
+  from the exact fixture values and the static sameObservedState call chain,
+  not a claimed extra diagnostic run. No rerun was made to recover that output.
+- Both runs used the same command (only the second appended with >>):
+  PATH=/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin:$PATH node node_modules/vitest/vitest.mjs run tests/explorer-review-arrival.test.ts -t 'pursues unreviewed A|keeps A and B source arrival budgets' --reporter=verbose
+- The existing ten tests were skipped in both runs; no root typecheck was run.
+
