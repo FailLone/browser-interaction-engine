@@ -46,6 +46,17 @@ export interface OperationCorrespondence {
   invalidatedBy: string[]; identityAuthorized: false; replayAuthorized: false; currentExecution: false;
 }
 
+/** Actual execution and reusable condition evidence are separate facts. A
+ * portable sample retains its adapter's sampling policy; a document sample is
+ * bounded to that retained document. Neither is arrival or replay authority. */
+export interface OperationReceiptCondition {
+  actualSuccess: boolean; conditionVerified: boolean;
+  status: 'portable' | 'document' | 'unavailable'; reason: string;
+  policy?: string; conditionKey?: string; evidence: string[];
+  source: { sessionId: string; attemptId: string; beforeId?: string; afterId?: string; actionId?: string; actionKey?: string };
+  identityAuthorized: false; replayAuthorized: false; currentExecution: false; arrivalVerified: false;
+}
+
 /** Shared sample eligibility for coverage reconciliation and cross-session references. */
 export function operationSample<O extends Observation>(a: ActionCandidate, o: O, sample: (a: ActionCandidate, o: O) => ExplorationCase | undefined) {
   if (a.sessionId !== o.sessionId || a.observationId !== o.id || a.basis?.status !== 'supported' || o.gaps.some(g => g.critical)

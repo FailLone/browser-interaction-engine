@@ -32,6 +32,12 @@
 
 这是只读的操作样本对应结果。调用方仍决定任务范围是否匹配、历史证据是否足以跳过本轮调度。它不修改身份、旧观察、执行账本或新会话的覆盖计数，也不自动迁移旧任务范围。输入组合和业务效果仍超出该样本对应证明。
 
+`engine.operationReceiptCondition(sessionId, {attemptId})` 单独检查一次实际执行记录的条件证明。`actualSuccess` 描述原尝试是否成功；`conditionVerified` 描述该尝试是否满足返回的条件策略。查询使用 `attempt.action` 的实际输入值，不以同 ID 的原候选替代；它同步读取保留证据，不连接浏览器、不补写旧证据。每次查询重新核对未知执行结果、脏会话、身份歧义、未验证退出和审阅来源撤回。
+
+结果为 `portable / document / unavailable`。`portable` 沿用适配器已有的操作条件抽样策略，不能解读成对任意 JavaScript 业务状态的证明；`document` 要求完整的同文档依赖及与实际派发、输入、before/after 绑定的采样证明。缺图、缺派发证明的旧记录不会自动补齐。返回的 `identityAuthorized / replayAuthorized / currentExecution / arrivalVerified` 均为 `false`；此接口不判断页面已经恢复，也不授予重放许可。
+
+插件直接结案、同来源成员核对和审计免缺口都使用这一查询。成功但缺少条件证明时，实际尝试、输入、执行预算和来源引用保留，待测项记录 `conditionCompletion: unverified`，继续计入未完成范围。同步核对内可以复用同一 receipt 的结果，跨调用重新读取。SDK 的 `controlCoverage` 成功次数仍是历史执行汇总，不能替代这里的条件完成证明。
+
 ## 可执行性与派发
 
 ```ts

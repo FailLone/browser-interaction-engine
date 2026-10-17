@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-receipt-condition.test.ts (1 test) 523ms
+   ✓ keeps the own-before A condition unresolved when the real successful command read owner B  522ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  11:07:26
+   Duration  1.69s (transform 578ms, setup 0ms, collect 1.03s, tests 523ms, environment 0ms, prepare 35ms)
+

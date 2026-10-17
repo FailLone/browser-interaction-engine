@@ -1,5 +1,6 @@
 import {EventEmitter} from 'node:events';
 import {expect,it,vi} from 'vitest';
+import {hash} from '@interaction/core';
 import {type ActionAttempt,type ActionCandidate,type Observation,browserOperationKey,browserOperationSchedulingKey,browserTargetConditions} from '@interaction/browser';
 import {ExplorerPlugin,ExplorerStore,type ExplorerHost,type PlanItem,type Round,type Task} from '@interaction/explorer-plugin';
 import {scopeFor} from '../packages/explorer-plugin/src/policy.js';
@@ -20,6 +21,7 @@ function fixture(reason='region_review_required'){
  const oldAttempt=attempt('executed-A',a),newAttempt=attempt('executed-B',b),observations=new Map([a.o,b.o,after].map(o=>[o.id,o]));
  const actions=new Map([[a.o.id,[a.a]],[b.o.id,[b.a]],[after.id,[] as ActionCandidate[]]]),attempts=[oldAttempt,newAttempt];
  const host={events:new EventEmitter(),observation:(_sid:string,id?:string)=>observations.get(id||b.o.id)!,actions:(_sid:string,id?:string)=>actions.get(id||b.o.id)!,operationCoverageCandidates:(_sid:string,id?:string)=>actions.get(id||b.o.id)!,list:(_sid:string,kind:string)=>kind==='attempt'?attempts:[],session:()=>({id:'session',actionCount:2,options:{}}),
+  operationReceiptCondition:(_sid:string,input:{attemptId:string})=>{const a=attempts.find(a=>a.id===input.attemptId)!;return {actualSuccess:a.status==='succeeded',conditionVerified:a.status==='succeeded',status:'portable',policy:'fixture-policy',conditionKey:'fixture-key',reason:'fixture-retained-condition',source:{sessionId:a.sessionId,attemptId:a.id,beforeId:a.beforeId,afterId:a.afterId,actionId:a.action.id,actionKey:hash(a.action)},evidence:[],identityAuthorized:false,replayAuthorized:false,currentExecution:false,arrivalVerified:false};},
   operationCorrespondences:vi.fn((sid:string,input:{observationId:string;requests:{actionId:string;source:{sessionId:string;attemptId:string}}[]})=>({sessionId:sid,observationId:input.observationId,results:input.requests.map(r=>({equivalent:false,reason:'operation_conditions_unavailable',source:r.source,target:{sessionId:sid,observationId:input.observationId,actionId:r.actionId},identityAuthorized:false,replayAuthorized:false,currentExecution:false,evidence:[],invalidatedBy:[]}))}))} as unknown as ExplorerHost;
  const store=new ExplorerStore(':memory:'),plugin=new ExplorerPlugin(host,store),task=plugin.create({url,coverageMode:'all'}),scope=scopeFor(b.a,b.o),key=browserOperationSchedulingKey(b.a,b.o);
  const round:Round={id:'round',number:1,sessionId:'session',startedAt:'2026-10-17T00:00:00.000Z',status:'paused',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0};task.rounds=[round];

@@ -88,6 +88,7 @@ function aliasCandidate(item:PlanItem):boolean {
   // Unknown, attempted, recovery and capability obligations must never disappear
   // behind another row, even when the target itself has a positive match.
   return item.required&&item.dispatchScope===false&&!!item.scope.kind&&!!(item.scope.label||item.scope.stableKey)
+    &&!(item.conditionCompletion?.status==='unverified'&&item.conditionCompletion.waiting!==false)
     &&['pending','unresolved','blocked'].includes(item.status)&&passiveOperationReasons.has(item.reason)
     &&item.attempts.length===0&&!item.resolvedBy&&!item.reviewResolvedBy&&!item.coverageResolvedBy
     &&item.evidence.every(e=>!e.attemptId);
@@ -120,6 +121,8 @@ export function projectObligations(host:ProjectionHost,task:Pick<Task,'plan'>,o:
     // user exclusion or successful coverage. Preserve it in the unresolved view.
     if(item.reason.startsWith('missing_capability:'))return {...entry,state:'active',reason:'capability_obligation_preserved'};
     if(!item.required||item.status==='excluded')return {...entry,state:'excluded',reason:'original_ledger_excluded'};
+    if(item.scope.kind&&item.conditionCompletion?.status==='unverified'&&item.conditionCompletion.waiting!==false
+      &&!item.attempts.some(a=>['unknown','executing'].includes(a.outcome)))return {...entry,state:'waiting',reason:'operation_conditions_unverified'};
     if(item.dispatchScope===false&&item.conditionMigration?.status==='invalidated')return {...entry,state:'unreachable',reason:item.reason};
     if(item.dispatchScope===true&&broadScope(item.scope))return {...entry,state:'authority',reason:'task_scope_authority'};
     const scoped=currentIndex.matching(item.scope);

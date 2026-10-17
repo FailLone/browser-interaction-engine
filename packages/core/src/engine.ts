@@ -12,7 +12,7 @@ import { ExplorationGroups, currentExplorationDecision, explorationGates, valida
 import { explorationReviewMaterial } from './exploration-review.js';
 import { auditExploration } from './exploration-audit.js';
 import { isObservedUIOperation, isObservedUIProbe, type ProbeGuard, type ProbeAvailability, type DispatchGuard, type ActionAvailability, type ExecutionBlocker, type ExecutionGuard } from './execution-readiness.js';
-import { identityResolver, operationSample, type OperationCorrespondence, type ReceiptCoverageReader, reconcileCoverage } from './coverage-reconciliation.js';
+import { identityResolver, operationSample, type OperationCorrespondence, type OperationReceiptCondition, type ReceiptCoverageReader, reconcileCoverage } from './coverage-reconciliation.js';
 import type { ExplorationGroup, ExplorationGroupDecision, ExplorationGroupResolution } from './types.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
 import type { EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
@@ -53,6 +53,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   /** Fresh synchronous reader per query. Coverage-only fallback for unavailable
    * portable samples; never target arrival, replay or current execution. */
   protected retainedReceiptCoverageReader():ReceiptCoverageReader<O>|undefined { return; }
+  /** Receipt conditions also re-read composition-owned revocable authority. */
+  protected receiptConditionBlocker(_attempt:ActionAttempt,_before:O,_after:O):string|undefined { return; }
+  protected retainedReceiptConditionUnavailableReason(_attempt:ActionAttempt,_before:O,_after:O):string { return 'operation_conditions_unavailable'; }
   /** Reviewed capabilities precede caller action policy, which may still veto them. */
   protected async reviewActions(actions: ActionCandidate[], _observation: O): Promise<ActionCandidate[]> { return actions; }
   protected executionSessionBlockers(_observation:O,_purpose:ActionAttempt['purpose']):ExecutionBlocker[]{return [];}
@@ -131,6 +134,49 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   operationCorrespondences(sessionId:string,input:{observationId:string;requests:{actionId:string;source:{sessionId:string;attemptId:string}}[]}) {
     const read=this.correspondenceReader();
     return {sessionId,observationId:input.observationId,results:input.requests.map(request=>read(sessionId,{...request,observationId:input.observationId}) as OperationCorrespondence)};
+  }
+  /** Inspect one actual receipt without attaching a driver, writing evidence or
+   * turning execution accounting into condition coverage. The actual action is
+   * authoritative, including supplied input variants sharing a candidate ID. */
+  operationReceiptCondition(sessionId:string,input:{attemptId:string}):OperationReceiptCondition {
+    const result:OperationReceiptCondition={actualSuccess:false,conditionVerified:false,status:'unavailable',reason:'evidence_unavailable',
+      source:{sessionId,attemptId:input.attemptId},evidence:[],identityAuthorized:false,replayAuthorized:false,currentExecution:false,arrivalVerified:false};
+    const unavailable=(reason:string)=>{result.reason=reason;return result;};
+    try {
+      const session=this.session(sessionId),attempt=this.owned<ActionAttempt>('attempt',input.attemptId,sessionId);
+      if(attempt.id!==input.attemptId)return unavailable('source_ownership_mismatch');
+      const action=attempt.action;
+      result.actualSuccess=attempt.status==='succeeded';
+      result.source={...result.source,beforeId:attempt.beforeId,afterId:attempt.afterId,actionId:action.id,actionKey:hash(action)};
+      if(!result.actualSuccess)return unavailable('source_not_succeeded');
+      result.evidence.push(`actual-succeeded-attempt:${attempt.id}`);
+      if(!attempt.afterId)return unavailable('source_result_missing');
+      const before=this.owned<O>('observation',attempt.beforeId,sessionId),after=this.owned<O>('observation',attempt.afterId,sessionId);
+      if(before.id!==attempt.beforeId||after.id!==attempt.afterId||action.sessionId!==sessionId||action.observationId!==before.id||action.stateId!==before.stateId)return unavailable('source_ownership_mismatch');
+      if([before,after].some(o=>o.gaps.some(g=>g.critical)))return unavailable('source_result_incomplete');
+      const times=[before.capturedAt,attempt.startedAt,after.capturedAt].map(Date.parse);
+      if(times.some(t=>!Number.isFinite(t))||times[0]>times[1]||times[1]>times[2])return unavailable('source_timing_unverified');
+      if(action.risk!=='interface'||action.basis?.status!=='supported')return unavailable('source_operation_unassessed');
+      if(Object.values(before.context).some(c=>c.status!=='known')||canonical(action.preconditions.context)!==canonical(before.context))return unavailable('source_conditions_unknown');
+      const targets=before.controls.filter(c=>c.localId===action.localId),target=targets[0];
+      if(targets.length!==1||!target.instanceId||before.controls.filter(c=>c.instanceId===target.instanceId).length!==1
+        ||action.controlId&&action.controlId!==target.identityId
+        ||action.target&&(action.target.instanceId!==target.instanceId||action.target.instanceScope!==before.instanceScope))return unavailable('source_target_not_unique');
+      if(this.unverifiedRecoveryAttempts(sessionId).length)return unavailable('unknown_execution_outcome');
+      if(session.dirty)return unavailable('dirty_session');
+      const hypotheses=this.store.list<IdentityHypothesis>('hypothesis',sessionId);
+      if(hypotheses.some(h=>h.status==='pending'))return unavailable('identity_pending');
+      if(target.hypothesisId&&!hypotheses.some(h=>h.id===target.hypothesisId&&h.sessionId===sessionId&&h.status==='resolved'))return unavailable('source_identity_unverified');
+      const blocked=this.receiptConditionBlocker(attempt,before,after);if(blocked)return unavailable(blocked);
+      const portable=operationSample(action,before,(candidate,o)=>this.adapter.correspondenceCase?.(candidate,o,session));
+      if(portable){
+        return {...result,conditionVerified:true,status:'portable',reason:'portable_operation_sample',policy:portable.policy,conditionKey:portable.key,
+          evidence:[...result.evidence,...portable.evidence]};
+      }
+      const retained=this.retainedReceiptCoverageReader()?.(action,before,attempt,before,after);
+      return retained?{...result,conditionVerified:true,status:'document',reason:'retained_receipt_operation_sample',policy:retained.policy,conditionKey:retained.key,
+        evidence:[...result.evidence,...retained.evidence]}:unavailable(this.retainedReceiptConditionUnavailableReason(attempt,before,after));
+    }catch{return result;}
   }
   /** Match observed operation targets without inventing historical execution or coverage. */
   explorationTargetCorrespondences(sessionId:string,input:{observationId:string;requests:{actionId:string;source:ExplorationTargetReference}[]}) {

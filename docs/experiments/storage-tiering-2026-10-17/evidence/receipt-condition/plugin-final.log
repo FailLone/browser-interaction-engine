@@ -1,0 +1,15 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-receipt-condition.test.ts (15 tests) 1037ms
+   ✓ records real owner execution independently of own-before condition completion (changed=true)  537ms
+   ✓ records real owner execution independently of own-before condition completion (changed=false)  457ms
+ ✓ tests/explorer-source-discovery-review.test.ts (20 tests) 66ms
+ ✓ tests/explorer-source-completion-review.test.ts (10 tests) 37ms
+ ✓ tests/explorer-operation-scheduling-factory.test.ts (12 tests) 29ms
+
+ Test Files  4 passed (4)
+      Tests  57 passed (57)
+   Start at  11:14:10
+   Duration  3.66s (transform 599ms, setup 0ms, collect 1.94s, tests 1.17s, environment 0ms, prepare 136ms)
+

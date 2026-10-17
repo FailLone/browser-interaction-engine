@@ -4,7 +4,7 @@ import type { ObligationProjection, RouteRetryLedger } from './obligation-lifecy
 import type { ObligationSchedule } from './obligation-scheduler.js';
 
 /** Only documented public operations. Never a browser handle or engine persistence. */
-export type ExplorerHost = Pick<BrowserEngine, 'operationCoverageCandidates' | 'actionAvailability' | 'operationCorrespondences' | 'explorationSnapshot' | 'controlInterpretationSnapshot' | 'boundaryState' | 'interactionTransition' | 'navigationIsolation' | 'recoveryAssessment' | 'sessions' | 'session' | 'createSession' | 'observation' | 'observe' | 'actions' | 'execute' | 'command' | 'getFrontier' | 'report' | 'list' | 'regionReviewMaterial' | 'explorationReviewMaterial' | 'controlClassificationMaterial' | 'controlReviewMaterial' | 'purposeReviewMaterial' | 'discoveryScanMaterial' | 'createCheckpoint' | 'reachCheckpoint' | 'pause' | 'stop' | 'events' | 'pinEvidence' | 'unpinEvidence'> & Partial<Pick<BrowserEngine,'boundaryExitMaterial'|'probeAvailability'|'classificationCorrespondences'|'explorationTargetCorrespondences'|'reachExplorationTarget'|'returnToObservedSource'|'repetitionAssessment'|'recoverySourceMaterial'>>;
+export type ExplorerHost = Pick<BrowserEngine, 'operationCoverageCandidates' | 'actionAvailability' | 'operationCorrespondences' | 'explorationSnapshot' | 'controlInterpretationSnapshot' | 'boundaryState' | 'interactionTransition' | 'navigationIsolation' | 'recoveryAssessment' | 'sessions' | 'session' | 'createSession' | 'observation' | 'observe' | 'actions' | 'execute' | 'command' | 'getFrontier' | 'report' | 'list' | 'regionReviewMaterial' | 'explorationReviewMaterial' | 'controlClassificationMaterial' | 'controlReviewMaterial' | 'purposeReviewMaterial' | 'discoveryScanMaterial' | 'createCheckpoint' | 'reachCheckpoint' | 'pause' | 'stop' | 'events' | 'pinEvidence' | 'unpinEvidence'> & Partial<Pick<BrowserEngine,'boundaryExitMaterial'|'probeAvailability'|'classificationCorrespondences'|'explorationTargetCorrespondences'|'reachExplorationTarget'|'returnToObservedSource'|'repetitionAssessment'|'recoverySourceMaterial'|'operationReceiptCondition'>>;
 export type TaskStatus = 'idle' | 'running' | 'paused' | 'stopped' | 'completed' | 'blocked' | 'budget_exhausted' | 'configuration_required';
 export interface Budget { rounds: number; actions: number; durationMs: number; modelRequests: number }
 export interface EvidenceRef { sessionId: string; observationId: string; attemptId?: string }
@@ -42,6 +42,12 @@ export interface PlanItem {
   conditionLineage?: { parentItemId: string; policy: 'operation-condition-split-v1'; kind: 'condition' | 'unverified-source'; fromKey: string };
   status: 'pending' | 'succeeded' | 'blocked' | 'unresolved' | 'untested' | 'excluded' | 'superseded';
   required: boolean; reason: string; evidence: EvidenceRef[]; resolvedBy?: EvidenceRef;
+  /** Execution history remains intact when its retained conditions cannot be
+   * proved. This audit is not authority or a fresh retry allowance. */
+  conditionCompletion?: {policy:'operation-receipt-completion-v1';status:'verified'|'unverified';reason:string;source?:EvidenceRef;
+    retainedSourcesRequired?:boolean;
+    /** Only an explicit supplement can release dispatch waiting without proof. */
+    waiting?:boolean};
   /** Classification evidence closes a review obligation, never an executed action. */
   reviewResolvedBy?: EvidenceRef & {classificationId:string;classification:'display'|'container'};
   /** Same captured material was reviewed without a usable operation/probe.

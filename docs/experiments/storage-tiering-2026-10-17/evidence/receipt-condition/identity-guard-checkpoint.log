@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/operation-receipt-condition.test.ts (16 tests | 13 skipped) 800ms
+   ✓ returns a document-bound actual supplied-value sample without attaching, writing or using the original candidate value  445ms
+   ✓ retains the existing portable policy and rechecks its review authority without requiring a document witness  348ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed | 13 skipped (16)
+   Start at  11:07:09
+   Duration  1.79s (transform 426ms, setup 0ms, collect 841ms, tests 800ms, environment 0ms, prepare 36ms)
+

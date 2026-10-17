@@ -1,0 +1,107 @@
+{
+  "actualBranch": "B",
+  "actualAttempt": {
+    "id": "e470ef60-2273-4abe-ba01-37b9f56ba456",
+    "sessionId": "bb399df5-6f57-4661-bf42-147f81d655e5",
+    "requestId": "receipt-changed",
+    "action": {
+      "id": "945b9199-f34e-4cc9-a177-9e572ea1d9b5",
+      "sessionId": "bb399df5-6f57-4661-bf42-147f81d655e5",
+      "observationId": "73e6bfa3-a030-4530-8489-dfad5a642708",
+      "stateId": "e2200ec9672a35bc2634ea703780944f5efd7e8f86154dfb1de54dfdd8a07c40",
+      "controlId": "29d9cdd0-d4ed-4b62-ab39-11e4a66b207a",
+      "localId": "62fc3d4f-62f0-4039-bdc5-b67668a91377:4",
+      "kind": "fill",
+      "label": "Field",
+      "value": "B",
+      "risk": "interface",
+      "replayable": false,
+      "source": "control-review",
+      "excluded": false,
+      "sampleValidity": "shape_only",
+      "preconditions": {
+        "context": {},
+        "visible": true,
+        "enabled": true,
+        "identityResolved": true,
+        "blockers": [],
+        "targetResolved": true
+      },
+      "basis": {
+        "status": "supported",
+        "evidence": [
+          {
+            "source": "owned-receipt-condition-fixture",
+            "rule": "reviewed-control/v1",
+            "facts": {
+              "reviewId": "c89ce55f-ad78-4965-a030-8fcc029174d2",
+              "conditionKey": "8d20ae257b1426a7732c9379be6c2e8a8ede636490ea144c14735cfb4daabc6c",
+              "sourceObservationId": "d78454ef-981e-4b2c-948b-54fefe0a16cc",
+              "reason": "Exercise local input",
+              "evidence": [
+                "Owned local input handler"
+              ]
+            }
+          }
+        ]
+      },
+      "target": {
+        "kind": "instance",
+        "instanceScope": "62fc3d4f-62f0-4039-bdc5-b67668a91377",
+        "instanceId": "62fc3d4f-62f0-4039-bdc5-b67668a91377:4",
+        "evidence": [
+          "Unique current node instance; no cross-instance identity or coverage claim",
+          "observation:73e6bfa3-a030-4530-8489-dfad5a642708"
+        ]
+      }
+    },
+    "startedAt": "2026-10-17T03:02:02.585Z",
+    "beforeId": "73e6bfa3-a030-4530-8489-dfad5a642708",
+    "status": "succeeded",
+    "purpose": "external",
+    "afterId": "af8cafe3-d6fb-4043-ae5d-0d55ddcb967a",
+    "finishedAt": "2026-10-17T03:02:02.653Z",
+    "diff": {
+      "beforeId": "73e6bfa3-a030-4530-8489-dfad5a642708",
+      "afterId": "af8cafe3-d6fb-4043-ae5d-0d55ddcb967a",
+      "changes": [
+        {
+          "controlId": "29d9cdd0-d4ed-4b62-ab39-11e4a66b207a",
+          "kind": "changed",
+          "field": "value",
+          "before": "",
+          "after": "B"
+        }
+      ],
+      "gaps": [],
+      "attribution": "observed_during_interval"
+    },
+    "transitionId": "d08b54ae-118b-4196-9695-f2d670ceaf6a"
+  },
+  "beforeId": "73e6bfa3-a030-4530-8489-dfad5a642708",
+  "beforeGraphKey": "84b975d48879c73683eb0d67cfc7547c7e706c54613c5cfc7077defed886c15e",
+  "afterWitness": null,
+  "legacyExactReceiptShortcut": true,
+  "publicReceiptCondition": {
+    "actualSuccess": true,
+    "conditionVerified": false,
+    "status": "unavailable",
+    "reason": "dispatch_witness_missing",
+    "source": {
+      "sessionId": "bb399df5-6f57-4661-bf42-147f81d655e5",
+      "attemptId": "e470ef60-2273-4abe-ba01-37b9f56ba456",
+      "beforeId": "73e6bfa3-a030-4530-8489-dfad5a642708",
+      "afterId": "af8cafe3-d6fb-4043-ae5d-0d55ddcb967a",
+      "actionId": "945b9199-f34e-4cc9-a177-9e572ea1d9b5",
+      "actionKey": "ce9e97dd8c3a7c7696be259d283f9135ae8bb776a66356b9c64a56cff627818c"
+    },
+    "evidence": [
+      "actual-succeeded-attempt:e470ef60-2273-4abe-ba01-37b9f56ba456"
+    ],
+    "identityAuthorized": false,
+    "replayAuthorized": false,
+    "currentExecution": false,
+    "arrivalVerified": false
+  },
+  "expected": "actualSuccess remains true; retained condition proof is unavailable"
+}

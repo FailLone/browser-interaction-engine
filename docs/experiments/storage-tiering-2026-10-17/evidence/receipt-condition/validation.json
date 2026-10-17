@@ -1,0 +1,122 @@
+{
+  "scope": "Actual successful receipt is not by itself proof of the retained condition; one correctness patch, no performance claim",
+  "baseCommit": "3cd2ac5c1f59b840950270af8434f38632813c47",
+  "branch": "codex/exploration-layered-refactor",
+  "workspace": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine",
+  "recordedAt": "2026-10-17T03:21:33.936066+00:00",
+  "sourceSha256": {
+    "packages/browser/src/index.ts": "d1e5a67c227b3f5e73f1fbcaa29510a0a34aa0db654b8b62e83d850c4a5b3119",
+    "packages/core/src/coverage-reconciliation.ts": "e59ddb09c34a7fd967fa5161d3ed312ec2d97e6036d5c85f7dbdc976641e7da2",
+    "packages/core/src/engine.ts": "7a035929324a002cbda65a9b4b0b38bd7b9ee35095869a79f57c90b9f54182bf",
+    "packages/explorer-plugin/src/obligation-lifecycle.ts": "128ce551ffa6657c4d769ae4276f6fff2be8abb28c8c4c2ed5abcfdf9e66c74a",
+    "packages/explorer-plugin/src/operation-source-completion.ts": "144502069e1910513150e9e68a401801fc6239b808bedb9d952e9532fe916031",
+    "packages/explorer-plugin/src/plan-state.ts": "228b0cabfa84b051b319a30138d5a2782d03bfab58703013940048e9f9e4dfea",
+    "packages/explorer-plugin/src/receipt-condition.ts": "c726fd756a5c76e0cee2b9910e73cf51521773e48c079d3fadb864d5a6f72627",
+    "packages/explorer-plugin/src/runtime.ts": "31aaba0914e4b9eefa5f52b892cbf34b7f5d5d2fc0ae5e01f78e24936f9954e3",
+    "packages/explorer-plugin/src/types.ts": "9731b7565406d194ef35c6f7bd901b5c2ee9fd6a4ede644fb61653e680645667",
+    "tests/explorer-operation-scheduling-factory.test.ts": "4e301bee0c73d75a0463fa62dbaa79a4411e90a1ea34e15c8514dea49fbf8c83",
+    "tests/explorer-receipt-condition.test.ts": "268792eb76d5ff7c9d75e3ba3f0428ddbdad73b22896b7aedfb160f26d4930b7",
+    "tests/explorer-source-completion-review.test.ts": "f726facee7a177c1b136858d5167c29fbf935cf682407336144ebf57459335cd",
+    "tests/explorer-source-discovery-review.test.ts": "29403638b18d46f874973b7930f64a2417bf9e7a88861baa1ee3990664fe1667",
+    "tests/operation-receipt-condition.test.ts": "1253c1d45589e920e80f58efb86746d4235d364f9b19d99f144e75c99c1667ea"
+  },
+  "rootChecks": [
+    {
+      "command": "pnpm typecheck",
+      "exitCode": 2,
+      "log": "typecheck.log",
+      "reason": "new test ActionCandidate omitted source/sampleValidity"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exitCode": 2,
+      "log": "final-typecheck.log",
+      "reason": "new nonrequired fixture assigned true to the exhaustive:false type"
+    },
+    {
+      "command": "pnpm exec vitest run tests/explorer-receipt-condition.test.ts -t 'does not reopen required parent scope'",
+      "exitCode": 0,
+      "passed": 1,
+      "skipped": 15,
+      "log": "nonrequired-type-fixture.log",
+      "reason": "fixture now uses valid exhaustive:false without product changes"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exitCode": 0,
+      "log": "typecheck-verified.log",
+      "includes": [
+        "root",
+        "core"
+      ]
+    }
+  ],
+  "independentReview": {
+    "scope": "readonly SDK/receipt consumer and plugin completion/start/final audit/waiting",
+    "blockingFindingsResolved": [
+      "coverageResolvedBy peers ignored when resolvedBy also exists",
+      "nonrequired child reopened required parent"
+    ],
+    "remainingCertainBlockers": 0,
+    "testsRunByReviewer": 0
+  },
+  "storeSha256Unchanged": "cc60e84799f47ecd6ff33c0f8780c5e5bab0c7d16186c506a38e2cdafcaa5b33",
+  "storageCandidateApplied": false,
+  "storageBenchmarkRun": false,
+  "protectedWorktrees": {
+    "/Users/xietian/Projects/browser-interaction-engine": {
+      "branch": "codex/single-selection-state-rule",
+      "head": "6e111284ac3a6642844531dbc06bce462ca4293c",
+      "status": ""
+    },
+    "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine": {
+      "branch": "codex/autonomous-exploration",
+      "head": "4857ad571c19995480a4c149abd9b2868a94c965",
+      "status": ""
+    },
+    "/Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine": {
+      "branch": "main",
+      "head": "069b65b47d951cdcced4d895e2abe33738267e5a",
+      "status": ""
+    }
+  },
+  "preservedUntracked": [
+    "docs/experiments/storage-tiering-2026-10-17/evidence/okx-launch-7.json",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/okx-launch-7.log"
+  ],
+  "resourceBoundary": {
+    "originalBrowserOperations": 0,
+    "originalServiceStartStop": 0,
+    "originalTaskDatabaseOperations": 0,
+    "realOkxRun": false,
+    "mainMerged": false
+  },
+  "limits": [
+    "Targeted checkpoints, not one frozen full-suite run",
+    "Portable condition evidence retains its existing policy; document evidence cannot be backfilled",
+    "Per-receipt ledger reads remain a possible O(M*N) cost; no timing or storage claim",
+    "Real OKX exhaustion and recovery success rate remain unproved"
+  ],
+  "artifactsSha256": {
+    "README.md": "e0c4b5c40fb24ecea186b6e68ce05419998c101a8ded778294f122cae3c6c9d7",
+    "final-typecheck.log": "02cf5097fa34fcdc8ec3148db64236213799d80aabf14026e1b1a43473cdc1a2",
+    "identity-guard-checkpoint.log": "c80c91afbdcc9bf6c7eb9a36a9b680ebdee946f8a771eff298484bac8464a300",
+    "nonrequired-type-fixture.log": "3ed31ec71c0ebcaad05ca90713656c43fb8f8d958ca0ca9af544beaf13047831",
+    "own-source-checkpoint.json": "8ba8c09ab9614d1aabf689e124e0a92a703d572940b5b0f9b3d3ee87b5db1009",
+    "own-source-checkpoint.log": "5deab991220aff7ee034fc7975d06fd6b35d97f5ca55ac74629eb9aeaaf355d1",
+    "plugin-final.log": "95af763d386e150b4c67e6a742255dc68af84788dc7f04cd6f0a92b96b74eeb9",
+    "plugin-fixed-checkpoint.log": "bb1b58faaf7ea5a8011376ef0c0140f71d2aad757ebf0dba398836ca4b350e6d",
+    "plugin-integration-checkpoint.log": "a5961576a674c206021460d4b63418053dcd1c05c4cdab6fdd52a6b9a619a536",
+    "plugin-peer-checkpoint.log": "d5aa02667490607742c9177a1fb9bcbdb3ca717ddf8984adac5ddfb3035170cf",
+    "plugin-peer-final.log": "bc59207cc4a7c2a7600ae96142fbe7cdd059ff6eb70b7dd961b83f6fb12d5db4",
+    "plugin-red.log": "ef0476dac598c14c25f84a35c23dc4a7aacad625752e9bac87208ef3dd44af94",
+    "plugin-related-initial.log": "3d5282114d7b08a2100abe29d13ce1d2c963b37276ea3e60c5706814ae204c00",
+    "plugin-validation.json": "130bdc84b14526d5cf42119e5e444910fe31ad78df19d93f1241860a38c8f486",
+    "plugin-validation.md": "75cf40df2de855c035b57ceb3a80550a437e1d7f8841b414c71b59c23391f98d",
+    "related-tests.log": "77e746bd527898c55ddf08705e1c3b9e2033c39b4b11f9465ae8ea8b51642219",
+    "sdk-validation.json": "c732be8f752b5e13e25e05946f57b41fe25f2061192b34ad3d138a4ab86e3e36",
+    "sdk-validation.md": "43410a5901b521477a4cca728925a59e859d9da208b6c8072a011760ce5d7611",
+    "typecheck-verified.log": "c4826c0bcec3b7398a6dba4e3b1bb68d1dc30320104f803cc5ae8a8081a66a7a",
+    "typecheck.log": "6e78d4ef412e694940e7a41cd9957e3bc86c97fec86ca909688d052d3a730dcf"
+  }
+}

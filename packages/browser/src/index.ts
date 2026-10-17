@@ -138,6 +138,15 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   protected override historicalReviewProjection(action:ActionCandidate,o:Observation,attempt:import('@interaction/core').ActionAttempt,before:Observation) {
     return this.controls.coverageProjection(action,o,attempt,before);
   }
+  protected override receiptConditionBlocker(attempt:import('@interaction/core').ActionAttempt,before:Observation,_after:Observation) {
+    if(this.blockingBoundaryExit(attempt.sessionId))return 'boundary_exit_unverified';
+    if(!this.controls.coverageAuthority(attempt.action,before,attempt,before))return 'source_authority_unavailable';
+  }
+  protected override retainedReceiptConditionUnavailableReason(_attempt:import('@interaction/core').ActionAttempt,before:Observation,after:Observation) {
+    if(!before.ownerDependencies?.inventoryComplete)return 'retained_source_evidence_missing';
+    if(!after.ownerDependencyDispatch)return 'dispatch_witness_missing';
+    return 'retained_receipt_condition_unverified';
+  }
   protected override retainedReceiptCoverageReader() {
     // These ledger decisions live only for one synchronous query. A subsequent
     // unknown result, boundary failure or review revocation is always re-read.

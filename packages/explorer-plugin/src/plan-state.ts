@@ -9,6 +9,7 @@ export const operationSchedulingDigest=(value:unknown)=>createHash('sha256').upd
 
 /** A split parent and an unverified residual are records, never dispatch targets. */
 export const schedulableObligation = (item: PlanItem) => !isSuperseded(item)
+  && !(item.scope.kind&&item.conditionCompletion?.status==='unverified'&&item.conditionCompletion.waiting!==false)
   && item.conditionMigration?.status !== 'split'
   && !(item.dispatchScope === false && item.conditionMigration?.status === 'invalidated');
 

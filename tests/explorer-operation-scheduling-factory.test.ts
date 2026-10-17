@@ -1,5 +1,6 @@
 import {EventEmitter} from 'node:events';
 import {expect,it,vi} from 'vitest';
+import {hash} from '@interaction/core';
 import type {ActionAttempt,ActionCandidate,Observation} from '@interaction/browser';
 import {ExplorerPlugin} from '../packages/explorer-plugin/src/runtime.js';
 import {browserOperationKey,browserOperationSchedulingKey} from '../packages/adapter-playwright/src/exploration.js';
@@ -113,6 +114,7 @@ it('runtime outcome preserves wrapper results and debt while sharing receipt and
   const freeze=(value:unknown):void=>{if(value&&typeof value==='object'&&!Object.isFrozen(value)){Object.values(value).forEach(freeze);Object.freeze(value);}};
   const rawBefore=JSON.stringify([...f.frames.values()]);for(const value of f.frames.values())freeze(value);freeze(attempt);
   const host={...f.host,events:new EventEmitter(),observation:(sid:string,id?:string)=>f.host.observation(sid,id||'new'),
+   operationReceiptCondition:()=>({actualSuccess:true,conditionVerified:true,status:'portable',policy:'fixture-policy',conditionKey:'fixture-key',reason:'fixture-retained-condition',source:{sessionId:attempt.sessionId,attemptId:attempt.id,beforeId:attempt.beforeId,afterId:attempt.afterId,actionId:attempt.action.id,actionKey:hash(attempt.action)},evidence:[],identityAuthorized:false,replayAuthorized:false,currentExecution:false,arrivalVerified:false}),
    operationCoverageCandidates:vi.fn((_sid:string,id:string)=>f.frames.get(id)!.actions),operationCorrespondences:vi.fn(()=>{throw Error('No cross-source proof');}),session:()=>({actionCount:1})} as unknown as ExplorerHost;
   const plugin=new ExplorerPlugin(host,{save:()=>{},event:(event:any)=>{events.push(event);return event;},close:()=>{}} as never),runtime=plugin as any;
   // Exercise the old per-call wrapper through the same runtime entry point.

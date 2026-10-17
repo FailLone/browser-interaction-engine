@@ -1,11 +1,13 @@
 import type { ActionAttempt, ActionCandidate, Observation } from '@interaction/browser';
 import type { ExplorerHost, PlanItem, Task } from './types.js';
 import { controlInScope, matches } from './policy.js';
+import {receiptConditionReader} from './receipt-condition.js';
 
 /** A retry budget is not coverage. Only a retained receipt checked against the
  * host ledger can exempt the exact observed candidate from another audit gap.
  * This does not extend coverage to a rebuilt document or another observation. */
 export function exactSourceExecution(host:ExplorerHost,task:Task,o:Observation) {
+  const condition=receiptConditionReader(host);
   const refs=task.plan.flatMap(item=>[...(item.resolvedBy?[item.resolvedBy]:[]),...item.attempts.flatMap(attempt=>attempt.outcome==='succeeded'&&attempt.evidence?[attempt.evidence]:[])])
     .filter(ref=>ref.sessionId===o.sessionId&&ref.attemptId);
   let receipts:ActionAttempt[]|undefined;
@@ -23,7 +25,7 @@ export function exactSourceExecution(host:ExplorerHost,task:Task,o:Observation) 
     }
     return receipts.some(attempt=>attempt.action.sessionId===o.sessionId&&attempt.action.observationId===o.id
       &&attempt.action.id===action.id&&attempt.action.localId===action.localId&&attempt.action.kind===action.kind
-      &&JSON.stringify(attempt.action.value)===JSON.stringify(action.value));
+      &&JSON.stringify(attempt.action.value)===JSON.stringify(action.value)&&condition(attempt).conditionVerified);
   };
 }
 
@@ -31,9 +33,9 @@ export function exactSourceExecution(host:ExplorerHost,task:Task,o:Observation) 
  * sources. Exact execution receipts cover their own observed candidates only.
  * Every other source requires the SDK's operation-correspondence proof.
  * The bounded cache belongs to this synchronous outcome, not a browser state. */
-export function operationSourceCompletion(host:ExplorerHost,current:ActionAttempt) {
+export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttempt,condition=receiptConditionReader(host)) {
   const observations=new Map<string,{observation:Observation;actions:ActionCandidate[]}>();
-  const attempts=new Map<string,ActionAttempt>([[`${current.sessionId}:${current.id}`,current]]);
+  const attempts=new Map<string,ActionAttempt>(current?[[`${current.sessionId}:${current.id}`,current]]:[]);
   const loadedSessions=new Set<string>();
   const readAttempt=(sessionId:string,id:string)=>{
     const key=`${sessionId}:${id}`;if(attempts.has(key))return attempts.get(key);
@@ -50,13 +52,13 @@ export function operationSourceCompletion(host:ExplorerHost,current:ActionAttemp
       const addSource=(sessionId:string,observationId:string)=>sources.set(`${sessionId}:${observationId}`,{sessionId,observationId});
       // The current successful attempt is evidence even if an old source keeps
       // the aggregate item unresolved. A prior unknown outcome stays a blocker.
-      const refs=[...item.evidence,...item.attempts.flatMap(a=>a.evidence?[a.evidence]:[])];
+      const refs=[...item.evidence,...item.attempts.flatMap(a=>a.evidence?[a.evidence]:[]),...(item.resolvedBy?[item.resolvedBy]:[])];
       for(const ref of refs){
         if(!ref.attemptId){addSource(ref.sessionId,ref.observationId);continue;}
         const attempt=readAttempt(ref.sessionId,ref.attemptId);
         if(!attempt||attempt.sessionId!==ref.sessionId||![attempt.beforeId,attempt.afterId].includes(ref.observationId)||['unknown','executing'].includes(attempt.status))return false;
         addSource(attempt.sessionId,attempt.beforeId);
-        if(attempt.status==='succeeded'&&attempt.afterId)receipts.set(`${attempt.sessionId}:${attempt.id}`,attempt);
+        if(attempt.status==='succeeded'&&attempt.afterId&&condition(attempt).conditionVerified)receipts.set(`${attempt.sessionId}:${attempt.id}`,attempt);
       }
       if(!sources.size||!receipts.size)return false;
       for(const [sourceKey,ref] of sources){

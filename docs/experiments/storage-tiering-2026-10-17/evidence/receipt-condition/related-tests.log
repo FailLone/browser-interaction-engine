@@ -1,0 +1,51 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ❯ tests/document-operation-coverage.test.ts (24 tests | 1 failed) 658ms
+   ✓ seed checkpoint: proves a real success against the earlier same-document instance-only source without replay or writes 17ms
+   ✓ shares receipt coverage with frontier while retaining attempts, unknown work, and same-ID input variants 10ms
+   × consumes the public proof in the actual plugin outcome gate and removes one repeated untested obligation 14ms
+     → condition2 is not a function
+   ✓ declines changed or absent retained conditions: parent-record 5ms
+   ✓ declines changed or absent retained conditions: sibling-href 4ms
+   ✓ declines changed or absent retained conditions: nonlocal-input 5ms
+   ✓ declines changed or absent retained conditions: hidden-mode 5ms
+   ✓ declines changed or absent retained conditions: replacement-target 6ms
+   ✓ declines changed or absent retained conditions: new-document 3ms
+   ✓ declines changed or absent retained conditions: new-browser 3ms
+   ✓ declines changed or absent retained conditions: missing-graph 3ms
+   ✓ declines changed or absent retained conditions: pending-hypothesis 4ms
+   ✓ does not reuse a review for owner B merely because its unchanged target conditions were approved under owner A 4ms
+   ✓ rechecks new unknown on the next public query instead of retaining authority 6ms
+   ✓ rechecks new executing on the next public query instead of retaining authority 6ms
+   ✓ rechecks new dirty on the next public query instead of retaining authority 6ms
+   ✓ rechecks new boundary-debt on the next public query instead of retaining authority 6ms
+   ✓ rechecks new review-revoked on the next public query instead of retaining authority 6ms
+   ✓ re-reads a changed same-ID target value on the next query 6ms
+   ✓ does not require the successful after observation to retain the target or its dependency graph 4ms
+   ✓ rejects a missing after receipt boundary 3ms
+   ✓ rejects a incomplete after receipt boundary 3ms
+   ✓ rejects a new-document after receipt boundary 3ms
+   ✓ retains an unknown receipt over a persistence reopen with no browser attachment 4ms
+ ✓ tests/operation-receipt-condition.test.ts (15 tests) 1184ms
+   ✓ own-source checkpoint: reports the real B success without crediting retained owner A conditions  427ms
+   ✓ returns a document-bound actual supplied-value sample without attaching, writing or using the original candidate value  370ms
+   ✓ retains the existing portable policy and rechecks its review authority without requiring a document witness  345ms
+ ✓ tests/retained-coverage-mismatch.test.ts (2 tests) 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/document-operation-coverage.test.ts > consumes the public proof in the actual plugin outcome gate and removes one repeated untested obligation
+TypeError: condition2 is not a function
+ ❯ ExplorerPlugin.recordOutcome packages/explorer-plugin/src/runtime.ts:479:23
+
+ ❯ tests/document-operation-coverage.test.ts:90:93
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 40 passed (41)
+   Start at  11:03:51
+   Duration  3.66s (transform 561ms, setup 0ms, collect 1.40s, tests 1.86s, environment 0ms, prepare 102ms)
+

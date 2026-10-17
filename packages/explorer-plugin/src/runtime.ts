@@ -24,6 +24,7 @@ import { pageSourceObligation, sourceReturnCondition } from './source-return.js'
 import { recoveryFailureCondition } from './recovery-failure.js';
 import { completedOperations } from './completion-evidence.js';
 import { exactSourceExecution, operationSourceCompletion } from './operation-source-completion.js';
+import {receiptConditionReader} from './receipt-condition.js';
 import { availabilityObligation } from './operation-availability.js';
 import {auditGapIndex,type AuditGapIndex} from './audit-gap-index.js';
 import {observationActionIndex} from './observation-action-index.js';
@@ -64,8 +65,13 @@ export class ExplorerPlugin {
   owner(sessionId?:string){const a=this.active;return a&&(!sessionId||a.task.rounds.some(r=>r.sessionId===sessionId))?a.task.id:undefined;}
   start(id:string) {
     if(this.closed)throw new ExplorerError('PLUGIN_CLOSED');if(this.active)throw new ExplorerError('ENGINE_OWNED');
-    if(this.store.taskHeader(id).header.status==='completed')throw new ExplorerError('PLAN_ALREADY_COMPLETE');
-    const state=this.store.taskState(id),task=state.task;if(task.status==='completed')throw new ExplorerError('PLAN_ALREADY_COMPLETE');this.writers.set(task,new TaskWriter(this.store,state));
+    const state=this.store.taskState(id),task=state.task,wasCompleted=task.status==='completed';this.writers.set(task,new TaskWriter(this.store,state));
+    const completionChanges=this.reconcileConditionCompletions(task);
+    if(completionChanges)this.persist(task);
+    if(wasCompleted){
+      if(task.plan.some(item=>item.required&&isUnfinished(item))){task.status='blocked';task.reason='operation_conditions_unverified';task.exhaustive=false;delete task.obligations;this.persist(task);this.writers.delete(task);return structuredClone(task);}
+      this.writers.delete(task);throw new ExplorerError('PLAN_ALREADY_COMPLETE');
+    }
     this.restoreDispatchScopes(task);
     const missing=this.capabilities().missing;if(missing.length){task.status='blocked';task.reason=`missing_capability:${missing.join(',')}`;this.persist(task);return task;}
     if(this.host.sessions().some(s=>s.status==='running'))throw new ExplorerError('ENGINE_BUSY');
@@ -92,7 +98,7 @@ export class ExplorerPlugin {
     if(input.goal!==undefined)task.goal=z.string().trim().max(20000).parse(input.goal);
     if(!task.goal&&!input.items&&!supplement&&task.coverageMode!=='all')throw new ExplorerError('EXHAUSTIVE_REQUIRES_ALL');
     if(input.items){const items=z.array(plannedScopeSchema).min(1).max(100).parse(input.items);task.plan=items.map(x=>this.newItem(x));task.intent={version:1,mode:'targeted',source:'user'};}
-    else if(supplement){task.intent={version:1,mode:'targeted',source:'user'};if(!input.itemIds?.length||input.itemIds.some(id=>!task.plan.some(i=>i.id===id)))throw new ExplorerError('INVALID_SCOPE');const ids=new Set(input.itemIds);task.acceptedLimitations=task.acceptedLimitations?.filter(x=>!task.plan.some(i=>ids.has(i.id)&&i.reason===`missing_capability:${x.code}`));for(const item of task.plan){if(isSuperseded(item)||item.conditionMigration?.status==='split')continue;item.required=ids.has(item.id);item.dispatchScope=item.required;if(item.required){item.status='pending';delete item.resolvedBy;delete item.reviewResolvedBy;delete item.coverageResolvedBy;delete item.reviewRecoveryWait;}}}
+    else if(supplement){task.intent={version:1,mode:'targeted',source:'user'};if(!input.itemIds?.length||input.itemIds.some(id=>!task.plan.some(i=>i.id===id)))throw new ExplorerError('INVALID_SCOPE');const ids=new Set(input.itemIds);task.acceptedLimitations=task.acceptedLimitations?.filter(x=>!task.plan.some(i=>ids.has(i.id)&&i.reason===`missing_capability:${x.code}`));for(const item of task.plan){if(isSuperseded(item)||item.conditionMigration?.status==='split')continue;item.required=ids.has(item.id);item.dispatchScope=item.required;if(item.required){item.status='pending';if(item.conditionCompletion?.status==='unverified')item.conditionCompletion={...item.conditionCompletion,waiting:false};delete item.resolvedBy;delete item.reviewResolvedBy;delete item.coverageResolvedBy;delete item.reviewRecoveryWait;}}}
     else {task.plan=[];delete task.intent;}
     if(task.pendingDispatch)throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
     // An explicit supplement revises child authority, never the retired parent's
@@ -171,7 +177,7 @@ export class ExplorerPlugin {
   }
   private gap(task:Task,reason:string,scope:Scope,required=true,prerequisites:Scope[]=[],persist=true,source?:Pick<Observation,'sessionId'|'id'>,operationConditionKey?:string,uniqueActionId?:string,normalizationHost?:Pick<ExplorerHost,'observation'|'actions'|'list'>,index?:AuditGapIndex,normalizer?:OperationSchedulingNormalizer) {
     if(required && task.plan.length && !(index?.authority||task.plan).some(i=>i.required&&i.dispatchScope===true&&Object.entries(i.scope).every(([k,v])=>scope[k as keyof Scope]===undefined||scope[k as keyof Scope]===v)))required=false;
-    const key=JSON.stringify({reason,scope,operationConditionKey}),exact=index?.exact(reason,scope,operationConditionKey)??task.plan.filter(i=>JSON.stringify({reason:i.reason,scope:i.scope,operationConditionKey:schedulingOperationCondition(i)})===key);
+    const key=JSON.stringify({reason,scope,operationConditionKey}),exact=(index?.exact(reason,scope,operationConditionKey)??task.plan.filter(i=>JSON.stringify({reason:i.reason,scope:i.scope,operationConditionKey:schedulingOperationCondition(i)})===key)).filter(i=>i.conditionCompletion?.status!=='unverified');
     // A new audit gap cannot be appended to a directly completed operation and
     // disappear behind its old success. Preserve that receipt as history.
     let item=exact.find(isUnfinished)||exact.find(i=>!(scope.kind&&i.status==='succeeded'&&i.resolvedBy&&!i.coverageResolvedBy&&!i.reviewResolvedBy));
@@ -448,9 +454,51 @@ export class ExplorerPlugin {
   private assertRecoveryOutcomes(task:Task) {
     if(this.recoveryOutcomes(task).length)throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');
   }
+  /** Revalidate old completion claims before resume. No session is created and
+   * no receipt, source, route debt or attempt allowance is rewritten. */
+  private reconcileConditionCompletions(task:Task) {
+    const condition=receiptConditionReader(this.host),complete=operationSourceCompletion(this.host,undefined,condition);
+    const sessions=new Map<string,Map<string,ActionAttempt>>(),changes:{itemId:string;previous:PlanItem['status'];status:PlanItem['status'];reason:string}[]=[];
+    const read=(ref:NonNullable<PlanItem['resolvedBy']>)=>{
+      if(!ref.attemptId)return;
+      if(!sessions.has(ref.sessionId))sessions.set(ref.sessionId,new Map(this.host.list<ActionAttempt>(ref.sessionId,'attempt').filter(a=>a.sessionId===ref.sessionId).map(a=>[a.id,a])));
+      const attempt=sessions.get(ref.sessionId)!.get(ref.attemptId);
+      return attempt&&[attempt.beforeId,attempt.afterId].includes(ref.observationId)?attempt:undefined;
+    };
+    for(const item of task.plan.filter(i=>i.scope.kind&&!i.reviewResolvedBy&&!isSuperseded(i)&&!['split','invalidated'].includes(i.conditionMigration?.status||'')
+      &&(i.status==='succeeded'||i.conditionCompletion?.status==='unverified'&&['pending','unresolved','blocked'].includes(i.status)))){
+      let verified=false,reason='retained_source_conditions_unverified';
+      try {
+        if(item.coverageResolvedBy){
+          const ids=new Set(item.coverageResolvedBy.relatedItemIds),peers=task.plan.filter(peer=>ids.has(peer.id));
+          if(!ids.size||peers.length!==ids.size)reason='related_coverage_receipt_missing';
+          else {
+            const refs=peers.flatMap(peer=>[...peer.attempts,...peer.resolvedBy?[{roundId:'retained-proof',outcome:'succeeded',evidence:peer.resolvedBy}]:[]]);
+            verified=complete({...item,evidence:[...item.evidence,...peers.flatMap(peer=>peer.evidence.filter(ref=>!!ref.attemptId))],attempts:[...item.attempts,...refs]});
+          }
+        }else if(item.dispatchScope===true&&item.resolvedBy&&!boundOperationCondition(item)&&!item.conditionLineage&&item.conditionCompletion?.retainedSourcesRequired!==true){
+          const attempt=read(item.resolvedBy);
+          if(attempt){const proof=condition(attempt);reason=proof.reason;
+            verified=proof.conditionVerified&&matches(item.scope,attempt.action,this.host.observation(attempt.sessionId,attempt.beforeId));}
+        }else verified=complete(item);
+      }catch{reason='receipt_condition_evidence_unavailable';}
+      const status=verified?'succeeded':'unresolved';
+      const audit:NonNullable<PlanItem['conditionCompletion']>={policy:'operation-receipt-completion-v1',status:verified?'verified':'unverified',reason:verified?'all_retained_source_conditions_verified':reason,...item.resolvedBy?{source:item.resolvedBy}:{},retainedSourcesRequired:!verified||item.dispatchScope!==true||!!boundOperationCondition(item)||!!item.conditionLineage||item.conditionCompletion?.retainedSourcesRequired===true,...verified?{}:{waiting:item.conditionCompletion?.waiting??true}};
+      if(item.status===status&&digest(item.conditionCompletion??null)===digest(audit))continue;
+      changes.push({itemId:item.id,previous:item.status,status,reason:audit.reason});this.changedPlan(task,item);item.status=status;item.conditionCompletion=audit;
+    }
+    const reopened=task.plan.filter(item=>item.required&&changes.some(change=>change.itemId===item.id&&change.previous==='succeeded'&&change.status==='unresolved'));
+    if(reopened.length)for(const item of task.plan.filter(item=>item.status==='succeeded'&&!item.scope.kind&&!item.reviewResolvedBy
+      &&reopened.some(child=>Object.entries(item.scope).every(([key,value])=>child.scope[key as keyof Scope]===value)))){
+      changes.push({itemId:item.id,previous:item.status,status:'unresolved',reason:'retained_child_conditions_unverified'});this.changedPlan(task,item);item.status='unresolved';
+      item.conditionCompletion={policy:'operation-receipt-completion-v1',status:'unverified',reason:'retained_child_conditions_unverified',waiting:true};
+    }
+    if(changes.length){delete task.obligations;if(reopened.length)task.exhaustive=false;this.event(task,'operation.completion_reconciled',{changes,actualAttemptsUnchanged:true,retryGranted:false,executionAuthorized:false},task.plan.find(item=>item.resolvedBy)?.resolvedBy?.observationId);}
+    return changes.length;
+  }
   private recordOutcome(task:Task,attempt:ActionAttempt,itemIds:string[]) {
     const round=task.rounds.at(-1)!;const ref={sessionId:attempt.sessionId,observationId:attempt.afterId||attempt.beforeId,attemptId:attempt.id};
-    const sourcesCompleted=operationSourceCompletion(this.host,attempt);
+    const readCondition=receiptConditionReader(this.host),sourcesCompleted=operationSourceCompletion(this.host,attempt,readCondition);
     const normalizationHost=this.normalizationReader(),normalizer=createOperationSchedulingNormalizer(normalizationHost);
     this.normalizeScheduling(task,task.plan.filter(item=>itemIds.includes(item.id)),normalizationHost,ref.observationId,normalizer);
     let sourceObservation:Observation|undefined,sourceKey:string|undefined;const source=()=>sourceObservation??=this.host.observation(attempt.sessionId,attempt.beforeId),operationKey=()=>sourceKey??=keyFor(attempt.action,source());
@@ -469,8 +517,13 @@ export class ExplorerPlugin {
         // coverage reconciliation validate every retained source before settling.
         const direct=!!condition||item.dispatchScope!==false;
         const exact=item.dispatchScope===true?matches(item.scope,attempt.action,before):digest(item.scope)===digest(scopeFor(attempt.action,before));
-        if(direct&&concrete&&exact&&this.host.actions(attempt.sessionId,before.id).filter(a=>matches(item.scope,a,before)).length===1
-          &&(item.dispatchScope!==false||sourcesCompleted(item)))item.status='succeeded';
+        if(direct&&concrete&&exact&&this.host.actions(attempt.sessionId,before.id).filter(a=>matches(item.scope,a,before)).length===1){
+          const proof=readCondition(attempt),requiresSources=item.dispatchScope!==true||!!condition||!!item.conditionLineage||item.conditionCompletion?.retainedSourcesRequired===true,
+            verified=proof.conditionVerified&&(!requiresSources||sourcesCompleted(item));
+          item.conditionCompletion={policy:'operation-receipt-completion-v1',status:verified?'verified':'unverified',reason:verified?proof.reason:proof.conditionVerified?'retained_source_conditions_unverified':proof.reason,source:ref,retainedSourcesRequired:requiresSources||!verified,...verified?{}:{waiting:true}};
+          item.status=verified?'succeeded':'unresolved';
+          if(!verified)this.event(task,'operation.condition_unverified',{itemId:item.id,attemptId:attempt.id,actualSuccess:true,reason:item.conditionCompletion.reason,conditionCompletion:false,retryGranted:false},ref.observationId);
+        }
       }
       else {item.status=attempt.status==='unknown'?'unresolved':'blocked';item.reason=attempt.status==='unknown'?'unknown_action_outcome':attempt.reason||attempt.status;}
     }
@@ -1292,7 +1345,7 @@ export class ExplorerPlugin {
       const scopeKey=digest(item.scope),key=digest({scope:item.scope,condition:schedulingOperationCondition(item)});if(successful.has(scopeKey)){groups.set(key,[...(groups.get(key)||[]),item]);groupScopes.set(key,scopeKey);}
     }
     for(const [key,items] of groups)if(this.operationMembersVerified(task,items,o,true,coverageFacts)){
-      for(const item of items){this.changedPlan(task,item);item.status='succeeded';item.coverageResolvedBy={observation:{sessionId:o.sessionId,observationId:o.id},relatedItemIds:successful.get(groupScopes.get(key)!)!.map(i=>i.id)};}
+      for(const item of items){this.changedPlan(task,item);item.status='succeeded';if(item.conditionCompletion)item.conditionCompletion={policy:'operation-receipt-completion-v1',status:'verified',reason:'all_retained_source_conditions_verified',retainedSourcesRequired:true};item.coverageResolvedBy={observation:{sessionId:o.sessionId,observationId:o.id},relatedItemIds:successful.get(groupScopes.get(key)!)!.map(i=>i.id)};}
       this.event(task,'scope.coverage_reconciled',{itemIds:items.map(i=>i.id),relatedItemIds:successful.get(groupScopes.get(key)!)!.map(i=>i.id),observationId:o.id,currentExecution:false,executionAuthorized:false});
     }
     let advanced:boolean;
@@ -1307,7 +1360,7 @@ export class ExplorerPlugin {
         // Equal historical rows are evidence for the same obligation, not mutual
         // unfinished children. Settle them together only after every known member.
         if(concrete(item)&&!this.operationMembersVerified(task,peers,o,false,coverageFacts))continue;
-        for(const peer of peers){this.changedPlan(task,peer);peer.status='succeeded';}advanced=true;
+        for(const peer of peers){this.changedPlan(task,peer);peer.status='succeeded';if(peer.conditionCompletion)peer.conditionCompletion={policy:'operation-receipt-completion-v1',status:'verified',reason:'all_retained_source_conditions_verified',retainedSourcesRequired:true};}advanced=true;
       }
     }while(advanced);
     if(!operationsOnly)for(const item of pending.filter(i=>i.status!=='succeeded')){if(item.status!=='unresolved'||!item.reason){this.changedPlan(task,item);item.status='unresolved';item.reason=item.reason||'scope_not_verified';}}
@@ -1324,6 +1377,7 @@ export class ExplorerPlugin {
     // discovers/reviews its results. Success of that action is not scope completion.
     await this.retainHostLimitations(task,o,signal);
     await this.reconcileReviewLedger(task,o,signal);
+    this.reconcileConditionCompletions(task);
     const audit=this.host.explorationSnapshot(round.sessionId,o.id,{includeCompletionAudit:true}),incomplete=this.auditRemainingScopes(task,round,o,audit);
     for(const navigation of task.unverifiedNavigations||[]) {
       const attempt=this.host.list<ActionAttempt>(navigation.evidence.sessionId,'attempt').find(a=>a.id===navigation.evidence.attemptId);

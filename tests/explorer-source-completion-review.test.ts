@@ -1,5 +1,6 @@
 import {EventEmitter} from 'node:events';
 import {expect,it,vi} from 'vitest';
+import {hash} from '@interaction/core';
 import {type ActionAttempt,type ActionCandidate,type Observation,browserTargetConditions} from '@interaction/browser';
 import {ExplorerPlugin,ExplorerStore,type ExplorerHost,type PlanItem,type Task} from '@interaction/explorer-plugin';
 import {keyFor,scopeFor} from '../packages/explorer-plugin/src/policy.js';
@@ -20,6 +21,7 @@ function fixture(){
  const host={events:new EventEmitter(),session:()=>({id:'session',options:{},actionCount:1}),observation:(_sid:string,id?:string)=>{const o=observations.get(id||after.id);if(!o)throw Error('Missing evidence');return o;},
   actions:(_sid:string,id?:string)=>actions.get(id||after.id)||[],operationCoverageCandidates:(_sid:string,id?:string)=>actions.get(id||after.id)||[],
   list:(_sid:string,kind:string)=>kind==='attempt'?attempts:[],
+  operationReceiptCondition:(_sid:string,input:{attemptId:string})=>{const a=attempts.find(a=>a.id===input.attemptId)!;return {actualSuccess:a.status==='succeeded',conditionVerified:a.status==='succeeded',status:'portable',policy:'fixture-policy',conditionKey:'fixture-key',reason:'fixture-retained-condition',source:{sessionId:a.sessionId,attemptId:a.id,beforeId:a.beforeId,afterId:a.afterId,actionId:a.action.id,actionKey:hash(a.action)},evidence:[],identityAuthorized:false,replayAuthorized:false,currentExecution:false,arrivalVerified:false};},
   operationCorrespondences:vi.fn((sid:string,input:{observationId:string;requests:{actionId:string;source:{sessionId:string;attemptId:string}}[]})=>({sessionId:sid,observationId:input.observationId,results:input.requests.map(request=>({equivalent:equivalence,reason:equivalence?'equivalent_operation_conditions':'operation_conditions_unavailable',source:request.source,target:{sessionId:sid,observationId:input.observationId,actionId:request.actionId},identityAuthorized:false,replayAuthorized:false,currentExecution:false,evidence:[],invalidatedBy:[]}))}))} as unknown as ExplorerHost;
  const plugin=new ExplorerPlugin(host,new ExplorerStore(':memory:')),task=plugin.create({url,coverageMode:'all'});
  task.rounds=[{id:'round',number:1,sessionId:'session',startedAt:'2026-10-17T00:00:00.000Z',status:'paused',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0}];
