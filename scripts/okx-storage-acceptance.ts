@@ -55,11 +55,31 @@ function args(argv: string[]) {
 interface Marker { format: typeof FORMAT; directory: string; owner: string; createdAt: string; url: string; taskId?: string }
 interface Cursors { plugin: number; engine: Record<string, number> }
 interface Guard { at: string; reason: string; details?: unknown; prior?: { status: string; reason?: string; usage: Budget } }
+export type AcceptanceRecoveryApi = 'reachCheckpoint' | 'reachExplorationTarget' | 'returnToObservedSource';
+export interface AcceptanceRecoveryFailure { outcome: 'threw'; api: AcceptanceRecoveryApi; sessionId: string; elapsedMs: number; code: string }
+type AcceptanceRecoveryReport<T> = AcceptanceRecoveryFailure | { outcome: 'returned'; api: AcceptanceRecoveryApi; sessionId: string; elapsedMs: number; result: T };
 /** Retain the SDK outcome unchanged and stop before the caller schedules more work. */
-export function retainRecoveryResult<T extends { status: string }>(api: 'reachCheckpoint' | 'reachExplorationTarget' | 'returnToObservedSource', sessionId: string, result: T, stop: (reason: string, details: unknown) => void): T {
+export function retainRecoveryResult<T extends { status: string }>(api: AcceptanceRecoveryApi, sessionId: string, result: T, stop: (reason: string, details: unknown) => void): T {
   const successful = api === 'reachCheckpoint' ? ['REACHED_VERIFIED', 'REACHED_ACCEPTABLE'].includes(result.status) : api === 'returnToObservedSource' ? result.status === 'SOURCE_REACHED' : result.status === 'TARGET_REACHED';
   if (!successful) stop('recovery_not_verified', { api, sessionId, result });
   return result;
+}
+/** Recovery exceptions can be retryable to the plugin, but this measurement
+ * window stops at the first failed call. A thrown error is never an SDK result. */
+export async function observeRecoveryCall<T extends { status: string }>(api: AcceptanceRecoveryApi, sessionId: string, invoke: () => Promise<T>,
+  report: (record: AcceptanceRecoveryReport<T>) => void, stop: (reason: string, details: unknown) => void, clock = () => performance.now()): Promise<T> {
+  const began = clock();
+  let result: T;
+  try { result = await invoke(); }
+  catch (error) {
+    const failure: AcceptanceRecoveryFailure = { outcome: 'threw', api, sessionId, elapsedMs: clock() - began, code: code(error) };
+    // Even diagnostic failure must not hide the original SDK exception or skip
+    // arranging settlement before a caller treats it as a retryable stale step.
+    try { report(failure); }
+    finally { try { stop('recovery_failed', failure); } finally { throw error; } }
+  }
+  report({ outcome: 'returned', api, sessionId, elapsedMs: clock() - began, result });
+  return retainRecoveryResult(api, sessionId, result, stop);
 }
 /** These listeners are best effort; never remove another library's listeners. */
 export function installAcceptanceStopSignals(stop: (reason: string) => void) {
@@ -409,6 +429,7 @@ async function main() {
   };
   const repeatedRoutes = new Map<string, { progress: string[]; count: number }>();
   const recoveries: { api: string; sessionId: string; status: string; elapsedMs: number; observationId?: string; attemptIds: string[]; matchedActionIds?: string[]; checkpointVerified?: boolean }[] = [];
+  const recoveryFailures: AcceptanceRecoveryFailure[] = [];
   let initial: Task | undefined, final: Task | undefined, initialState: ReturnType<ExplorerStore['taskState']> | undefined, fatal: string | undefined, started = false;
   const header = () => pluginStore && taskId ? pluginStore.taskHeader(taskId) : undefined;
   const requestStop = (reason: string, details?: unknown) => {
@@ -565,26 +586,28 @@ async function main() {
     host.createSession = async (...input) => { enterWindow('round'); return createSession(...input); };
     // A recovery API may dispatch several internal attempts. Its entry is checked,
     // but an already running recovery is not interrupted or recast as unknown.
+    const reportRecovery = (completion: AcceptanceRecoveryReport<{ status: string; observationId?: string; attemptIds: string[]; matchedActionIds?: string[]; checkpointVerified?: boolean }>) => {
+      if (completion.outcome === 'threw') { recoveryFailures.push(completion); log('recovery.failed', completion); return; }
+      const { api, sessionId, elapsedMs, result } = completion;
+      const record = { api, sessionId, elapsedMs, status: result.status, observationId: result.observationId, attemptIds: result.attemptIds,
+        ...(api === 'reachExplorationTarget' ? { matchedActionIds: result.matchedActionIds } : {}),
+        checkpointVerified: api === 'reachCheckpoint' ? result.status === 'REACHED_VERIFIED' : result.checkpointVerified };
+      recoveries.push(record); log('recovery.returned', { ...record, result });
+    };
     const checkpoint = host.reachCheckpoint.bind(host);
     host.reachCheckpoint = async (...input) => {
       if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
-      const began = performance.now();
-      try { const result = await checkpoint(...input); const record = { api: 'reachCheckpoint', sessionId: input[0], status: result.status, elapsedMs: performance.now() - began, observationId: result.observationId, attemptIds: result.attemptIds, checkpointVerified: result.status === 'REACHED_VERIFIED' }; recoveries.push(record); log('recovery.returned', { ...record, result }); return retainRecoveryResult('reachCheckpoint', input[0], result, requestStop); }
-      catch (error) { log('recovery.failed', { api: 'reachCheckpoint', sessionId: input[0], elapsedMs: performance.now() - began, code: code(error) }); throw error; }
+      return observeRecoveryCall('reachCheckpoint', input[0], () => checkpoint(...input), reportRecovery, requestStop);
     };
     const target = host.reachExplorationTarget.bind(host);
     host.reachExplorationTarget = async (...input) => {
       if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
-      const began = performance.now();
-      try { const result = await target(...input); const record = { api: 'reachExplorationTarget', sessionId: input[0], status: result.status, elapsedMs: performance.now() - began, observationId: result.observationId, attemptIds: result.attemptIds, matchedActionIds: result.matchedActionIds, checkpointVerified: result.checkpointVerified }; recoveries.push(record); log('recovery.returned', { ...record, result }); return retainRecoveryResult('reachExplorationTarget', input[0], result, requestStop); }
-      catch (error) { log('recovery.failed', { api: 'reachExplorationTarget', sessionId: input[0], elapsedMs: performance.now() - began, code: code(error) }); throw error; }
+      return observeRecoveryCall('reachExplorationTarget', input[0], () => target(...input), reportRecovery, requestStop);
     };
     const sourceReturn = host.returnToObservedSource.bind(host);
     host.returnToObservedSource = async (...input) => {
       if (stopping) throw Object.assign(new Error('CANCELLED'), { code: 'CANCELLED' });
-      const began = performance.now();
-      try { const result = await sourceReturn(...input); const record = { api: 'returnToObservedSource', sessionId: input[0], status: result.status, elapsedMs: performance.now() - began, observationId: result.observationId, attemptIds: result.attemptIds, checkpointVerified: result.checkpointVerified }; recoveries.push(record); log('recovery.returned', { ...record, result }); return retainRecoveryResult('returnToObservedSource', input[0], result, requestStop); }
-      catch (error) { log('recovery.failed', { api: 'returnToObservedSource', sessionId: input[0], elapsedMs: performance.now() - began, code: code(error) }); throw error; }
+      return observeRecoveryCall('returnToObservedSource', input[0], () => sourceReturn(...input), reportRecovery, requestStop);
     };
     const event = pluginStore.event.bind(pluginStore);
     pluginStore.event = input => {
@@ -645,7 +668,7 @@ async function main() {
     const settled = progressSnapshot(), successes = new Set(settled.successfulAttemptIds), finalUnknown = [...settled.unknownAttempts, ...settled.inFlightAttempts];
     if (finalUnknown.length) requestStop('settled_unknown_or_executing', finalUnknown);
     const { newlyResolved, evidenceRefreshes } = planResolutionChanges(initialState, finalState);
-    atomicJson(join(runDirectory, 'coverage-review.json'), { exhaustive: false, newlySucceededExplorationAttemptIds: [...successes], newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, unkeyedSuccessfulAttempts: settled.unkeyedSuccessfulAttempts, historicalUnkeyedSuccessfulAttempts: settled.historicalUnkeyedSuccessfulAttempts, progressEvidenceWindow: settled.progressEvidenceWindow, newlyResolvedPlanOccurrences: newlyResolved, refreshedPlanEvidence: evidenceRefreshes, planProgressIsSemanticCoverageProof: false, newlyResolvedPlanItems: newlyResolved.map(row => row.item), historicalCoverageOnly: final.plan.filter(item => item.coverageResolvedBy), unresolved: final.plan.filter(item => item.required && !['succeeded', 'excluded', 'superseded'].includes(item.status)), unknownAttempts: finalUnknown, pendingDispatch: final.pendingDispatch, unverifiedRecoveries: final.unverifiedRecoveries, unverifiedNavigations: final.unverifiedNavigations, recoveries,
+    atomicJson(join(runDirectory, 'coverage-review.json'), { exhaustive: false, newlySucceededExplorationAttemptIds: [...successes], newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, unkeyedSuccessfulAttempts: settled.unkeyedSuccessfulAttempts, historicalUnkeyedSuccessfulAttempts: settled.historicalUnkeyedSuccessfulAttempts, progressEvidenceWindow: settled.progressEvidenceWindow, newlyResolvedPlanOccurrences: newlyResolved, refreshedPlanEvidence: evidenceRefreshes, planProgressIsSemanticCoverageProof: false, newlyResolvedPlanItems: newlyResolved.map(row => row.item), historicalCoverageOnly: final.plan.filter(item => item.coverageResolvedBy), unresolved: final.plan.filter(item => item.required && !['succeeded', 'excluded', 'superseded'].includes(item.status)), unknownAttempts: finalUnknown, pendingDispatch: final.pendingDispatch, unverifiedRecoveries: final.unverifiedRecoveries, unverifiedNavigations: final.unverifiedNavigations, recoveries, recoveryFailures,
       recoveryFollowup: recoveries.map(recovery => ({ ...recovery, subsequentSuccessfulAttempts: finalAttempts.filter(attempt => successes.has(attempt.id) && attempt.sessionId === recovery.sessionId && attempt.beforeId === recovery.observationId).map(attempt => ({ sessionId: attempt.sessionId, attemptId: attempt.id, beforeId: attempt.beforeId })), targetReadinessOnly: recovery.status === 'TARGET_REACHED', wholeCheckpointVerified: recovery.checkpointVerified === true })) });
   } catch (error) { fatal = code(error); requestStop('runner_failure', { code: fatal }); await stopJob; }
   finally {
@@ -662,7 +685,7 @@ async function main() {
     if (!providerSettlement.settled) { fatal ||= 'PROVIDER_SETTLEMENT_INCOMPLETE'; log('provider.settlement_incomplete', providerSettlement); }
     const settled = progressSnapshot();
     // Close releases SQLite WAL handles before the final physical-byte snapshot.
-    try { atomicJson(join(runDirectory, 'summary.json'), { format: FORMAT, runId, taskId, finishedAt: now(), started, fatal, guards, originalStop: guards[0], finalStatus: final?.status, finalReason: final?.reason, usageBefore: initial?.usage, usageAfter: final?.usage, durationAccounting: { before: initial?.durationUncertainty, after: final?.durationUncertainty, aggregateExact: !!final && final.activeSince === undefined && !(initial?.durationUncertainty || final.durationUncertainty) }, providerCounts, providerSettlement, diagnosticFailure: diagnostics.failure, unknownAttempts: settled.unknownAttempts, inFlightAttempts: settled.inFlightAttempts, attemptCounts: settled.counts, newSuccessfulExplorationAttempts: settled.successfulAttemptIds.length, newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, unkeyedSuccessfulAttempts: settled.unkeyedSuccessfulAttempts, historicalUnkeyedSuccessfulAttempts: settled.historicalUnkeyedSuccessfulAttempts, progressEvidenceWindow: settled.progressEvidenceWindow, budgetEnforcement, windowBudget: windowBudget.snapshot(), overshoot: windowBudget.snapshot().overshoot, recoveryCalls: recoveries.length, recoveryElapsedMs: recoveries.reduce((sum, recovery) => sum + recovery.elapsedMs, 0), cursors, diskAfterClose: await disk(directory), exhaustive: false, reviewRequired: true }); }
+    try { atomicJson(join(runDirectory, 'summary.json'), { format: FORMAT, runId, taskId, finishedAt: now(), started, fatal, guards, originalStop: guards[0], finalStatus: final?.status, finalReason: final?.reason, usageBefore: initial?.usage, usageAfter: final?.usage, durationAccounting: { before: initial?.durationUncertainty, after: final?.durationUncertainty, aggregateExact: !!final && final.activeSince === undefined && !(initial?.durationUncertainty || final.durationUncertainty) }, providerCounts, providerSettlement, diagnosticFailure: diagnostics.failure, unknownAttempts: settled.unknownAttempts, inFlightAttempts: settled.inFlightAttempts, attemptCounts: settled.counts, newSuccessfulExplorationAttempts: settled.successfulAttemptIds.length, newOperationConditionCandidates: settled.newOperationConditionCandidates, unkeyedSuccessfulAttemptIds: settled.unkeyedSuccessfulAttemptIds, progressGuardsDeferred: settled.progressGuardsDeferred, unkeyedSuccessfulAttempts: settled.unkeyedSuccessfulAttempts, historicalUnkeyedSuccessfulAttempts: settled.historicalUnkeyedSuccessfulAttempts, progressEvidenceWindow: settled.progressEvidenceWindow, budgetEnforcement, windowBudget: windowBudget.snapshot(), overshoot: windowBudget.snapshot().overshoot, recoveryCalls: recoveries.length + recoveryFailures.length, recoveryReturnedCalls: recoveries.length, recoveryThrownCalls: recoveryFailures.length, recoveryFailures, recoveryElapsedMs: [...recoveries, ...recoveryFailures].reduce((sum, recovery) => sum + recovery.elapsedMs, 0), cursors, diskAfterClose: await disk(directory), exhaustive: false, reviewRequired: true }); }
     catch (error) { fatal ||= code(error); log('summary.failed', { code: code(error) }); }
     finally { await closeAcceptanceResources([
       { name: 'stopControl', close: () => { if (runControl) atomicJson(join(directory, 'active-run.json'), { ...runControl, state: 'finished', finishedAt: now() }); } },
