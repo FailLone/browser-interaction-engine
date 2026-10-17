@@ -1609,8 +1609,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     }
     const matched=matches[0],proof=this.controlReviewTargetCorrespondence(sessionId,{observationId:current.id,localId:matched.control.localId,
       source:{sessionId,observationId:source.id,localId:input.localId}});
-    checks.push({name:'current-review-material',result:proof.reviewable?'pass':proof.reason==='outside_active_boundary'?'fail':'unknown'});
-    if(!proof.reviewable)return {status:proof.reason==='outside_active_boundary'?undefined:'UNVERIFIED',checks,proof};
+    const recoverable=['outside_active_boundary','review_target_hidden'].includes(proof.reason);
+    checks.push({name:'current-review-material',result:proof.reviewable?'pass':recoverable?'fail':'unknown'});
+    if(!proof.reviewable)return {status:recoverable?undefined:'UNVERIFIED',checks,proof};
     if(input.requireSourceEquivalent){
       checks.push({name:'historical-review-source-conditions',result:proof.sourceEquivalent==='equivalent'?'pass':proof.sourceEquivalent==='different'?'fail':'unknown'});
       if(proof.sourceEquivalent!=='equivalent')return {status:proof.sourceEquivalent==='unknown'?'UNVERIFIED':undefined,checks,proof};

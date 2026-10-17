@@ -89,6 +89,14 @@ export function browserControlReviewTargetCorrespondence(source: Control, before
   if (before.url !== current.url || current.gaps.some(g => g.critical) || Object.values(current.context).some(c => c.status !== 'known')) {
     result.reason = 'review_context_unavailable'; return result;
   }
+  // Hidden retained/rebuilt controls intentionally have no reusable review
+  // material. This is a known reachability failure, not permission to review
+  // them and not an unknown outcome that should prevent reopening their route.
+  if (!target.visible && !target.readiness && (current.stable || current.gaps.some(g => ['INTERACTION_STABLE', 'PARTIAL_INTERACTION_READY'].includes(g.code)))) {
+    result.reason = 'review_target_hidden';
+    result.evidence = [retained ? 'retained-current-instance' : 'unique-captured-control-and-owner', 'settled-hidden-target-requires-recovery'];
+    return result;
+  }
   const now = classificationCorrespondenceConditions(target, current);
   if (!now) { result.reason = 'review_material_incomplete'; return result; }
   result.currentMaterialKey = browserControlReviewMaterialKey(target, current);
