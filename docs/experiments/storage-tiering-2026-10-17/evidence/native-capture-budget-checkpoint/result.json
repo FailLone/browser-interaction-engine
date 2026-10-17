@@ -1,0 +1,711 @@
+{
+  "format": "native-capture-static-budget-checkpoint-v1",
+  "at": "2026-10-17T04:24:41.997Z",
+  "commit": "211841e008634d0571cbad7513698484d19380f7",
+  "nativeCommit": "9e8f4553319b0e0ddee01a73a828ef8252aa6ba3",
+  "node": "v24.22.0",
+  "script": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/native-capture-budget-checkpoint/checkpoint.mjs",
+    "bytes": 16076,
+    "sha256": "c90d406d4267a5439f1c03591cb1adcb6cfe7bb655450c8384f40a32852b6f15"
+  },
+  "collector": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/owner-dependencies.ts",
+    "bytes": 15612,
+    "sha256": "11cc1cb66b860c35c3df4c774d0be27a5de0458dccda1e780521c0616a9ad724"
+  },
+  "diagnosis": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-8/collection-diagnosis.json",
+    "sha256": "1f759a21bd5a7338dfaa1837d33834263b75b1c545fe8658aa1ba851aba19a26"
+  },
+  "preparationRetry": {
+    "reason": "The first launch stopped before database/browser access because its initial guard rejected any sidecar. The existing copy has an empty WAL and a retained SHM; the corrected guard verifies an empty WAL and exact settled database content instead. No collector execution was repeated.",
+    "firstLaunchDatabaseOpened": false,
+    "firstLaunchBrowserStarted": false,
+    "firstLaunchCollectorCalls": 0
+  },
+  "database": {
+    "before": {
+      "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run8-receipt-audit-5a3n2u5m/engine/engine.sqlite",
+      "bytes": 114073600,
+      "sha256": "6d147043776ca6dea844a76a68307605e59b65682ae3a01feba04e57558b502d"
+    },
+    "after": {
+      "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run8-receipt-audit-5a3n2u5m/engine/engine.sqlite",
+      "bytes": 114073600,
+      "sha256": "6d147043776ca6dea844a76a68307605e59b65682ae3a01feba04e57558b502d"
+    },
+    "beforeSidecars": [
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run8-receipt-audit-5a3n2u5m/engine/engine.sqlite-wal",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run8-receipt-audit-5a3n2u5m/engine/engine.sqlite-shm",
+        "bytes": 32768,
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+      }
+    ],
+    "afterSidecars": [
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run8-receipt-audit-5a3n2u5m/engine/engine.sqlite-wal",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run8-receipt-audit-5a3n2u5m/engine/engine.sqlite-shm",
+        "bytes": 32768,
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+      }
+    ],
+    "readOnly": true,
+    "observationsDecoded": 2,
+    "originalDatabaseOpened": false,
+    "hostConstructed": false
+  },
+  "originalEvidence": {
+    "filesRead": 294,
+    "manifestSha256": "3760cdd1e4cf2767ca2952886b69789c147311a83e152d9d1bf588747a176c3d",
+    "unchanged": true,
+    "copied": false
+  },
+  "results": [
+    {
+      "observationId": "c6020bb6-9dac-4e89-b864-7c1f25591cd7",
+      "label": "Don’t show for 7 days",
+      "observationCapturedAt": "2026-10-17T03:55:41.719Z",
+      "detailsCapturedAt": "2026-10-17T03:55:40.210Z",
+      "originalManifest": {
+        "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1/engine/evidence/c6020bb6-9dac-4e89-b864-7c1f25591cd7.details.json.meta.json",
+        "sha256": "9b9c07938f58146480d023956c6120b6c533aa5002dabe436ac70ed1b4112300",
+        "detailsSha256": "5acbc994e95b354ef6c63a9738c1dd20b4cb5cec6abdd21c8337884aa39a9a17",
+        "bytes": 4380789,
+        "blocks": 145,
+        "allBlockHashesVerified": true
+      },
+      "html": {
+        "bytes": 219671,
+        "sha256": "590dcbd792c000981186826481c09597d6a56263467e0073006602135fdd070c",
+        "truncated": false
+      },
+      "controlsSha256": "0e9ee62eb1a2bd7482abdce96635b1120ff84f17bf9fc62c75c98aa6f231498a",
+      "detailTreeTruncated": true,
+      "parsedNativeValues": "HTML defaults only; retained live values are not reconstructed",
+      "fixtureIdentity": "Original IDs are labels for structural budget measurement only; generated IDs have the original document-prefix shape and a six-digit counter.",
+      "requests": {
+        "inMemoryDocuments": 1,
+        "blocked": 0
+      },
+      "status": "static_collection_executed",
+      "collectorCalled": true,
+      "mapping": {
+        "retained": 301,
+        "mapped": 301,
+        "detailPathChecks": 194,
+        "bindingChecks": 301,
+        "issues": []
+      },
+      "graph": {
+        "version": "browser-owner-dependencies-v2",
+        "inventoryComplete": false,
+        "complete": false,
+        "limits": {
+          "nodes": 512,
+          "references": 64,
+          "bytes": 131072,
+          "depth": 16
+        },
+        "bytes": 1922,
+        "nodes": 0,
+        "roots": 0,
+        "closures": 0,
+        "references": 0,
+        "nativeInputs": 8,
+        "nativeRoots": 0,
+        "reasons": [
+          "missing_idref",
+          "byte_budget"
+        ],
+        "rootReasonCounts": {}
+      },
+      "required": {
+        "controls": 33,
+        "completeControls": 0,
+        "roots": [
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1461",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1466",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1469",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1475",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1483",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1493",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1502",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1740",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1742",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1533",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1534",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1718",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1719",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1720",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1721",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1722",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1723",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:2213",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1744",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:2227",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1748",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:18",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:21",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:24",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:27",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:30",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:33",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:36",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:39",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:42",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:45",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1384",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "4cc6172e-799d-4e6f-8373-713465408b3a:1554",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          }
+        ],
+        "nativeRoots": [],
+        "allRetainedAndComplete": false
+      },
+      "generatedGraphPersisted": false,
+      "currentUrl": "https://www.okx.com/convert/usd-to-btc",
+      "baseURI": "https://www.okx.com/convert/usd-to-btc"
+    },
+    {
+      "observationId": "1ed23726-5e7b-49a8-b885-4631d40d627c",
+      "label": "1W",
+      "observationCapturedAt": "2026-10-17T03:59:10.096Z",
+      "detailsCapturedAt": "2026-10-17T03:59:08.601Z",
+      "originalManifest": {
+        "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1/engine/evidence/1ed23726-5e7b-49a8-b885-4631d40d627c.details.json.meta.json",
+        "sha256": "f6ca0890fb6b7c81fbd9e64caf63c9a63870424decd7ca4f29a8b254c7996446",
+        "detailsSha256": "c367da278b2b8bc4bb37944b3842aadffe92515a95c7711d102c4b78c9e0489f",
+        "bytes": 4417212,
+        "blocks": 148,
+        "allBlockHashesVerified": true
+      },
+      "html": {
+        "bytes": 225050,
+        "sha256": "960045803f2a2d6a559da53eaa7233845b854602a224d83aebb04f3e27529095",
+        "truncated": false
+      },
+      "controlsSha256": "959439ecf004f4720673fe22c91a9d67d374c45c4a67c2ae535767918f276699",
+      "detailTreeTruncated": true,
+      "parsedNativeValues": "HTML defaults only; retained live values are not reconstructed",
+      "fixtureIdentity": "Original IDs are labels for structural budget measurement only; generated IDs have the original document-prefix shape and a six-digit counter.",
+      "requests": {
+        "inMemoryDocuments": 1,
+        "blocked": 0
+      },
+      "status": "static_collection_executed",
+      "collectorCalled": true,
+      "mapping": {
+        "retained": 304,
+        "mapped": 304,
+        "detailPathChecks": 187,
+        "bindingChecks": 304,
+        "issues": []
+      },
+      "graph": {
+        "version": "browser-owner-dependencies-v2",
+        "inventoryComplete": false,
+        "complete": false,
+        "limits": {
+          "nodes": 512,
+          "references": 64,
+          "bytes": 131072,
+          "depth": 16
+        },
+        "bytes": 2084,
+        "nodes": 0,
+        "roots": 0,
+        "closures": 0,
+        "references": 0,
+        "nativeInputs": 9,
+        "nativeRoots": 0,
+        "reasons": [
+          "byte_budget"
+        ],
+        "rootReasonCounts": {}
+      },
+      "required": {
+        "controls": 37,
+        "completeControls": 0,
+        "roots": [
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1483",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1488",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:2276",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:2277",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:2279",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1491",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1497",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1505",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1515",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1524",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1760",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1762",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1546",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1549",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1555",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1556",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1382",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1383",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1384",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1385",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1386",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1387",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1782",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1558",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1796",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1562",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:18",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:21",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:24",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:27",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:30",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:33",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:36",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:39",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:42",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:45",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          },
+          {
+            "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1396",
+            "complete": false,
+            "reasons": [
+              "root_not_retained"
+            ]
+          }
+        ],
+        "nativeRoots": [],
+        "allRetainedAndComplete": false
+      },
+      "generatedGraphPersisted": false,
+      "currentUrl": "https://www.okx.com/convert/usd-to-btc",
+      "baseURI": "https://www.okx.com/convert/usd-to-btc"
+    }
+  ],
+  "limitations": [
+    "Static HTML structure input only; no original browser was attached and no service was started.",
+    "Controls and details have distinct capture timestamps. A successful mapping is a conservative static-fixture binding, not proof of the original live same-frame identity.",
+    "No page interaction, restoration, dispatch witness, coverage proof, or old graph is reconstructed or backfilled.",
+    "Live native values, selectedness, React state, network state and event handlers are absent; HTML defaults can change exact byte cost.",
+    "This single structural checkpoint is not a performance benchmark and does not establish a real recovery success rate."
+  ]
+}
