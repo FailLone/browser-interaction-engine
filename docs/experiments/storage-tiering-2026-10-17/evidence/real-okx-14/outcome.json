@@ -1,0 +1,404 @@
+{
+  "format": "real-okx-window-outcome-v1",
+  "windowNumber": 14,
+  "runId": "dc128090-cdf5-4f61-a3a4-09befc81ce77",
+  "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+  "productCommit": "e6e4f6e38ec3a39d1bb0a6b58cb54d8e2e5ba349",
+  "sourceRevision": "cbf6a5d8321a846dc8f3619cca8b3c52650bc808",
+  "verdict": "not_accepted",
+  "reason": "Current reviews ran before remote scheduling, but the different historical USD review checkpoint returned UNREACHABLE/replay_state_diverged. No new exploration coverage. Dialog classification was later invalidated during recovery and task completion was not reconciled before stopping.",
+  "window": {
+    "limitMs": 240000,
+    "usageMs": 216329,
+    "overshoot": {
+      "actions": 0,
+      "modelRequests": 0,
+      "rounds": 0,
+      "durationMs": 0
+    },
+    "stopReason": "recovery_not_verified",
+    "stopRequestAfterStartMs": 211381,
+    "settlementMs": 4949,
+    "processStartToFinishedMs": 236042,
+    "furtherWindowStarted": false
+  },
+  "comparison": {
+    "priorWindow": 13,
+    "sameFrozenInputDirectory": ".data/okx-storage-acceptance-20261017-v5",
+    "initialTaskExactlyEqualIncludingScheduleDebtBudgetUsage": true,
+    "priorSelectedItemId": "8a77d2f6-5659-45d9-b7cf-32d9113610f8",
+    "newSelectedItemId": "92e78cad-25e8-495e-a317-6194ec309298",
+    "priorRecoveryStatus": "UNVERIFIED",
+    "newRecoveryStatus": "UNREACHABLE",
+    "speedupEstablished": false,
+    "note": "Same starting records and limits; live page conditions, selected target and work performed differ. No performance ratio or population recovery-rate claim."
+  },
+  "behavior": {
+    "guardedModelReviewEffects": 3,
+    "modelReviewInputOnly": 3,
+    "sdkCommandCalls": {
+      "calls": 5,
+      "returned": 5,
+      "threw": 0,
+      "elapsedMs": 48030.84583399999,
+      "maxMs": 11046.998708,
+      "arrayItems": 3,
+      "viewsAvailable": 0,
+      "viewsUnavailable": 0
+    },
+    "classificationReuseEvents": 1,
+    "sdkClassificationEvents": 2,
+    "reviewResolvedEvents": [
+      {
+        "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+        "type": "review.resolved",
+        "actor": "program",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "46d49d1b-c31d-44cc-8b72-34c76801806e",
+        "data": {
+          "itemId": "8a77d2f6-5659-45d9-b7cf-32d9113610f8",
+          "proof": {
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "46d49d1b-c31d-44cc-8b72-34c76801806e",
+            "classificationId": "33f96a3e-5075-44a2-808e-e3e148f6b328",
+            "classification": "container"
+          },
+          "executed": false
+        },
+        "at": "2026-10-17T10:05:33.116Z",
+        "sequence": 12121
+      },
+      {
+        "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+        "type": "review.resolved",
+        "actor": "program",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "46d49d1b-c31d-44cc-8b72-34c76801806e",
+        "data": {
+          "itemId": "dae8f2d9-5411-4e9a-a4c1-b304396c54ae",
+          "proof": {
+            "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+            "observationId": "46d49d1b-c31d-44cc-8b72-34c76801806e",
+            "classificationId": "33f96a3e-5075-44a2-808e-e3e148f6b328",
+            "classification": "container"
+          },
+          "executed": false
+        },
+        "at": "2026-10-17T10:05:33.131Z",
+        "sequence": 12122
+      }
+    ],
+    "resolvedProofInvalidation": [
+      {
+        "sequence": 4355,
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "type": "control.classification_invalidated",
+        "at": "2026-10-17T10:06:23.355Z",
+        "entityId": "33f96a3e-5075-44a2-808e-e3e148f6b328",
+        "observationId": "84a04bd9-b258-465a-8c9b-3126026e1a44",
+        "status": "invalidated",
+        "reason": "SDK verified retained classification against current control and evidence"
+      }
+    ],
+    "finalDialogRowsStillReferenceInvalidatedProof": true,
+    "reviewCompletionLimitation": "Both review.resolved events were executed=false. The SDK later invalidated the proof on Close; the halted task has no later review.reopened. Valid completion at final position is not established.",
+    "selectedTarget": {
+      "id": "92e78cad-25e8-495e-a317-6194ec309298",
+      "scope": {
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "region": "USD to BTC | Convert US Dollar to Bitcoin | OKX",
+        "label": "USD",
+        "role": "generic",
+        "stableKey": "explorer:context:v1:7a5f4856c599cefd78d49e7d24a672236d37a85df9554bdae2fa300e7fdcda43",
+        "targetBinding": "browser-target-binding:v1:f45c971b8e9fa89c55ca3cd8c646149385020f0206bc57f8ee9402d43cb4ccaf"
+      },
+      "reason": "classification_unresolved",
+      "status": "unresolved",
+      "dispatchScope": false
+    },
+    "selection": {
+      "reason": "unfinished_observed_targets",
+      "itemId": "92e78cad-25e8-495e-a317-6194ec309298",
+      "routeKey": "59eb78902a0697f2d7feebb46e92b01ade34676203d56c147b95e150440f0308",
+      "checkpointId": "b06556a8-969d-433a-a85e-69e5d1be0d94",
+      "sourceObservationId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+      "currentObservationId": "9bfa2b3d-54b6-41a8-bdad-6027f0677fdb",
+      "unfinishedTargets": 1,
+      "hostVerificationRequired": true
+    },
+    "recoveryStatus": "UNREACHABLE",
+    "recoveryReason": "replay_state_diverged",
+    "recoveryChecks": [
+      {
+        "name": "observable-state",
+        "result": "fail"
+      }
+    ],
+    "recoveryCalls": 1,
+    "recoveryVerified": 0,
+    "recoveryElapsedMs": 54718.795458999986,
+    "attempts": [
+      {
+        "engineEventType": "action.completed",
+        "id": "296989a0-3a37-4ea3-9ffe-a057b6f31081",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "status": "succeeded",
+        "purpose": "recovery",
+        "beforeId": "a498b989-512a-4bb9-92f0-e0ffc73fc8ae",
+        "afterId": "491f22b2-c4fe-4e7a-b5ea-bcd300e50044",
+        "requestId": "6d530556-e032-455a-bcfb-273718c4b3a0",
+        "kind": "click",
+        "label": "Close",
+        "elapsedMs": 6033
+      },
+      {
+        "engineEventType": "action.completed",
+        "id": "2ce5afcf-24a5-460e-8e30-f0974cdc77b8",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "status": "succeeded",
+        "purpose": "recovery",
+        "beforeId": "491f22b2-c4fe-4e7a-b5ea-bcd300e50044",
+        "afterId": "4506fb17-159d-41c8-9483-437f8a933c4b",
+        "requestId": "56a23462-952e-43f5-8828-4742e41f71c4",
+        "kind": "navigate",
+        "label": "Reopen session entry",
+        "elapsedMs": 6964
+      },
+      {
+        "engineEventType": "action.completed",
+        "id": "3a4f30c3-c6b5-4e0c-b06a-a2b8b1c8f76e",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "status": "succeeded",
+        "purpose": "recovery",
+        "beforeId": "4506fb17-159d-41c8-9483-437f8a933c4b",
+        "afterId": "0e6d2291-c714-4add-8aec-04166a887df5",
+        "requestId": "2f5c7ca2-d650-4670-84bf-266bc2bd5953",
+        "kind": "check",
+        "label": "Don’t show for 7 days",
+        "elapsedMs": 5930
+      }
+    ],
+    "newExplorationSuccesses": 0,
+    "newOperationConditionCandidates": 0,
+    "newVerifiedCoverage": 0,
+    "followupSuccesses": 0,
+    "newObservations": 10,
+    "selectionViews": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "elapsedMs": 242.17766600000323,
+      "maxMs": 242.17766600000323,
+      "arrayItems": 0,
+      "viewsAvailable": 1,
+      "viewsUnavailable": 0
+    },
+    "planCountBefore": 1241,
+    "planCountAfter": 1241,
+    "oldPlanIdsPreserved": true,
+    "addedPlanIds": [],
+    "deletedPlanIds": [],
+    "recordedRequiredUnfinishedBefore": 1235,
+    "recordedRequiredUnfinishedAfter": 1235,
+    "planStatusChanges": [],
+    "planCountsDoNotValidateStaleReviewProofs": true,
+    "routeCountBefore": 8,
+    "routeCountAfter": 8,
+    "oldRouteRecordsExactlyUnchanged": 7,
+    "oldRouteFactsPreservedRecursively": true,
+    "changedRoutes": [
+      "59eb78902a0697f2d7feebb46e92b01ade34676203d56c147b95e150440f0308"
+    ],
+    "newConditionRecords": [
+      {
+        "routeKey": "59eb78902a0697f2d7feebb46e92b01ade34676203d56c147b95e150440f0308",
+        "conditionKey": "94d5f86e8da0b2389b50b1ce0a2a4df90453da36a8818cb5bbfa9195add4d344",
+        "outcome": "unreachable",
+        "reason": "replay_state_diverged"
+      }
+    ],
+    "unknownAttempts": [],
+    "inFlightAttempts": [],
+    "pendingDispatch": null,
+    "unverifiedRecoveries": null,
+    "unverifiedNavigations": null,
+    "providers": {
+      "jev": {
+        "started": 6,
+        "returned": 6,
+        "failed": 0,
+        "cancelled": 0,
+        "elapsedMs": 5830.368750999958,
+        "usage": {
+          "input_tokens": 40237,
+          "output_tokens": 794,
+          "cost": 0.0016899539999999998
+        }
+      },
+      "llm": {
+        "started": 0,
+        "returned": 0,
+        "failed": 0,
+        "cancelled": 0,
+        "elapsedMs": 0,
+        "usage": {}
+      }
+    },
+    "providerSettlement": {
+      "settled": true,
+      "remainingPendingRequestIds": [],
+      "sampledAt": "2026-10-17T10:07:17.137Z",
+      "waitLimitMs": 5000
+    },
+    "positionReconciled": {
+      "previous": [],
+      "path": [],
+      "position": {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "0e6d2291-c714-4add-8aec-04166a887df5",
+        "instanceScope": "67dfde6e-4c26-4d91-a57a-b58c9a30569c",
+        "url": "https://www.okx.com/convert/usd-to-btc",
+        "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "boundaryKeys": [
+          "dialog:okd-dialog-window"
+        ]
+      },
+      "pathVerified": false,
+      "reason": "recovery_moved_browser",
+      "checkpointVerified": false
+    },
+    "necessaryReentryConfirmed": 0,
+    "unreasonableRetryConfirmed": 0,
+    "retryNecessityNotEstablished": "This run selected an unresolved historical USD source, not the dialog review source used in run13. No inference that recovery was necessary or gratuitous from its labels alone."
+  },
+  "stageMeasurements": {
+    "startupUntilFirstSampleMs": 66147,
+    "startupHostReads": {
+      "observation": {
+        "calls": 1959,
+        "returned": 1959,
+        "threw": 0,
+        "elapsedMs": 30444.971884999926,
+        "maxMs": 44.469791999988956,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "actions": {
+        "calls": 1830,
+        "returned": 1830,
+        "threw": 0,
+        "elapsedMs": 26247.41785800016,
+        "maxMs": 45.47516600000381,
+        "arrayItems": 384144,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      },
+      "operationReceiptConditions": {
+        "calls": 1,
+        "returned": 1,
+        "threw": 0,
+        "elapsedMs": 2110.2207500000004,
+        "maxMs": 2110.2207500000004,
+        "arrayItems": 0,
+        "viewsAvailable": 0,
+        "viewsUnavailable": 0
+      }
+    },
+    "observe": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "elapsedMs": 26350.067292000007,
+      "maxMs": 26350.067292000007,
+      "arrayItems": 0,
+      "viewsAvailable": 0,
+      "viewsUnavailable": 0
+    },
+    "reattachmentToFirstGuardedReviewEffectMs": 12728,
+    "reattachmentToRemoteSelectionMs": 64343,
+    "sdkReviewCommands": {
+      "calls": 5,
+      "returned": 5,
+      "threw": 0,
+      "elapsedMs": 48030.84583399999,
+      "maxMs": 11046.998708,
+      "arrayItems": 3,
+      "viewsAvailable": 0,
+      "viewsUnavailable": 0
+    },
+    "deferredEvents": 0,
+    "deferredReasons": {},
+    "recoveryMs": 54718.795458999986,
+    "pause": {
+      "calls": 1,
+      "returned": 1,
+      "threw": 0,
+      "elapsedMs": 4731.605083000002,
+      "maxMs": 4731.605083000002,
+      "arrayItems": 0,
+      "viewsAvailable": 0,
+      "viewsUnavailable": 0
+    },
+    "hostMetricCaveat": "Public entry inclusive timings, not exclusive CPU phases. Reattachment-to-selection includes several current reviews. Do not sum overlapping timings; returned rows are not unique controls."
+  },
+  "storage": {
+    "bytesByCategory": {
+      "engineDatabase": {
+        "before": 143814656,
+        "after": 153182208,
+        "delta": 9367552
+      },
+      "pluginDatabase": {
+        "before": 22384640,
+        "after": 23007232,
+        "delta": 622592
+      },
+      "evidenceManifests": {
+        "before": 4806156,
+        "after": 5107851,
+        "delta": 301695
+      },
+      "evidenceBlobs": {
+        "before": 24280226,
+        "after": 26098025,
+        "delta": 1817799
+      }
+    },
+    "runtimeDataGrowthBytes": 12109638,
+    "shrinkageEstablished": false,
+    "note": "Ten new observations, review records and three recovery attempts. Logical category bytes; historical immutable blobs are hard-linked. No per-unit storage or compression comparison."
+  },
+  "diagnosis": {
+    "known": "Strict entry replay compares each replayed after-observation canonical with the recorded after-observation; this call returned replay_state_diverged with observable-state fail. It is a different failing target and verification stage from run13.",
+    "code": "packages/core/src/engine.ts:1496",
+    "unproven": [
+      "Which captured differences caused the canonical mismatch; not established as price-only.",
+      "Whether current/local target-specific review arrival could safely satisfy the USD obligation.",
+      "Whether resumed ledger reconciliation correctly reopens the invalidated dialog reviews."
+    ]
+  },
+  "sourceEvidence": {
+    ".data/okx-storage-acceptance-20261017-v7/runs/dc128090-cdf5-4f61-a3a4-09befc81ce77/summary.json": "93837b4b3d502f6563816fab36371650a3dccc5f03791464ead3186345049244",
+    ".data/okx-storage-acceptance-20261017-v7/runs/dc128090-cdf5-4f61-a3a4-09befc81ce77/coverage-review.json": "09446225004eedc9e9cfcf0fe96212f44c79e57f3c3f0c1455120f4c83ee1f23",
+    ".data/okx-storage-acceptance-20261017-v7/runs/dc128090-cdf5-4f61-a3a4-09befc81ce77/metrics.jsonl": "333ea95fdca9902bf0a1e32f1479c538144a5dc8174790945c8db63dd18ff8d6",
+    ".data/okx-storage-acceptance-20261017-v7/runs/dc128090-cdf5-4f61-a3a4-09befc81ce77/task-before.json": "f02ec00c20712401e492d5f9f9a84d24071b47eb992b77f6ccdf710acab1b4d8",
+    ".data/okx-storage-acceptance-20261017-v7/runs/dc128090-cdf5-4f61-a3a4-09befc81ce77/task-after.json": "36a9da5191832188d335f2d9637ef9300d6e4a041214f297919618a98bcec1a0",
+    "docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-14/closed-evidence.json": "8c796c0d0c794066cb550efff506b6e87e779989612af6bbfcbe85b968da3479"
+  },
+  "closure": {
+    "processExited": true,
+    "runnerControlFinished": true,
+    "closeFailureEvents": 0,
+    "providerSettled": true,
+    "diagnosticFailure": null,
+    "sourceInputBytesUnchanged": true,
+    "supplementalDatabaseAuditRun": false,
+    "originalTaskDatabaseOpened": false
+  },
+  "limits": [
+    "One requested real window only; no second run, full suite or constructor-based copy audit.",
+    "No actual new A/B or unknown event occurred; prior offline tests are not relabeled real evidence.",
+    "Current-review scheduling progress is established, while final valid review completion and recovery-followup acceptance are not."
+  ]
+}

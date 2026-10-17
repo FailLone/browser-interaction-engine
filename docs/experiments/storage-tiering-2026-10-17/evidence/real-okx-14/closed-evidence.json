@@ -1,0 +1,27 @@
+{
+  "runId": "dc128090-cdf5-4f61-a3a4-09befc81ce77",
+  "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+  "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v7",
+  "runDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v7/runs/dc128090-cdf5-4f61-a3a4-09befc81ce77",
+  "sourceCodeRevision": "cbf6a5d8321a846dc8f3619cca8b3c52650bc808",
+  "productCommit": "e6e4f6e38ec3a39d1bb0a6b58cb54d8e2e5ba349",
+  "sourceInventorySha256": "35985b6edfaffb744d071a73370445d4cfd6c890366a670bb4202a17f4452013",
+  "sourceFiles": 7631,
+  "sourceLogicalBytes": 220365354,
+  "sourceDatabase": {
+    "path": "engine/engine.sqlite",
+    "bytes": 153182208,
+    "sha256": "7e5b1c6fad3e48f0ff391a286be56399cad7220040c8d801d404aaa986457635"
+  },
+  "pluginDatabase": {
+    "path": "plugin/explorer.sqlite",
+    "bytes": 23007232,
+    "sha256": "a8419102f104a0e9df6404e7422ea60c5f0d46a9425495e9a6769f9be72cf110"
+  },
+  "summarySha256": "93837b4b3d502f6563816fab36371650a3dccc5f03791464ead3186345049244",
+  "run12FrozenBytesUnchanged": true,
+  "processExited": true,
+  "runControlFinished": true,
+  "noDatabaseOpened": true,
+  "retention": "Raw output remains once in v7. Frozen input remains unchanged. No constructor-based supplemental audit or second window."
+}
