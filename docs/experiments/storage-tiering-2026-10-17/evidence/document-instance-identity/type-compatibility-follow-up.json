@@ -1,0 +1,24 @@
+{
+  "baseCommit": "211841e008634d0571cbad7513698484d19380f7",
+  "initialFailure": {
+    "source": "Parent unified typecheck report",
+    "cause": "Inferred BrowserEngine reader return type made optional identityBasis required; existing Custom override omits the opt-in declaration",
+    "location": "tests/operation-receipt-batch.test.ts:172",
+    "secondaryDiagnostics": "factories access incompatibility",
+    "rawDiagnosticLogCapturedHere": false
+  },
+  "fix": {
+    "file": "packages/browser/src/index.ts",
+    "typeImport": "ReceiptCoverageReader from @interaction/core; already exported by core/index.ts",
+    "explicitReturnType": "ReceiptCoverageReader<Observation>",
+    "runtimeLogicChanged": false,
+    "sourceSha256": "d62573faee72c195fe28bcbd4f505f494915eee90f9d1106ee0334dcf8b73f2c"
+  },
+  "validation": {
+    "command": "pnpm run typecheck",
+    "followUpInvocations": 1,
+    "exitCode": 0,
+    "logSha256": "2f02a7b106a729075908377a23b737b34dfdf6040b037df3d73dfeb4d4149d72",
+    "behaviorTestsRerun": false
+  }
+}

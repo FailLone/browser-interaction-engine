@@ -19,7 +19,7 @@ import { InspectionCoordinator, validateInspectionOptions } from './inspection.j
 import { PurposeReviews } from './purpose-reviews.js';
 import type { ActionCandidate, ListPurposeReviewInput, RevokePurposeReviewInput } from '@interaction/adapter-playwright';
 import type { InspectionResult } from './inspection-types.js';
-import { InteractionEngine as CoreEngine, EngineError, type Persistence, type Predicate, type InteractionScope, type Checkpoint } from '@interaction/core';
+import { InteractionEngine as CoreEngine, EngineError, type Persistence, type Predicate, type InteractionScope, type Checkpoint, type ReceiptCoverageReader } from '@interaction/core';
 import { RetainedPersistence, type RetentionOptions } from '@interaction/storage-retained';
 import { subscribeEvents, projectEvent, type SubscriptionOptions, type SnapshotEvent, type DeliveryMode } from './subscription.js';
 import { classificationMatches, navigationIntent, BrowserAdapter, supplementDiscoverySchema, reuseControlReviewsSchema, reuseRegionReviewsSchema, PlaywrightAdapter, commandSchema, regionReviewSchema, boundaryExitReviewSchema, type Command, type Observation, type SessionOptions, type EngineHooks } from '@interaction/adapter-playwright';
@@ -170,7 +170,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     if(!after.ownerDependencyDispatch)return 'dispatch_witness_missing';
     return 'retained_receipt_condition_unverified';
   }
-  protected override retainedReceiptCoverageReader() {
+  protected override retainedReceiptCoverageReader():ReceiptCoverageReader<Observation> {
     // These ledger decisions live only for one synchronous query. A subsequent
     // unknown result, boundary failure or review revocation is always re-read.
     // Logical identity is not used by this reader: unique instances, complete

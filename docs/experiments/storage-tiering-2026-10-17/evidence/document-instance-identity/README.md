@@ -28,3 +28,11 @@ No existing testing browser, service or task database was accessed. Browser fixt
 ## Limits
 
 This verifies the explicit proof contract and rejection boundaries, not real OKX coverage improvement. Run 8 retains incomplete source graphs and lacks dispatch witnesses; this patch does not repair, backfill or reinterpret that historical evidence. A new real receipt with complete evidence is still needed. Instance-bound proof is local to the retained document and does not prove semantic novelty across sessions or exhaustive coverage of undeclared JavaScript state.
+
+## Type compatibility follow-up
+
+The parent's first unified type check on `211841e008634d0571cbad7513698484d19380f7` failed: TypeScript inferred `BrowserEngine.retainedReceiptCoverageReader()`'s concrete returned object with a required `identityBasis`, despite the core port declaring it optional. The existing custom wrapper in `tests/operation-receipt-batch.test.ts:172` intentionally omits that opt-in and therefore could not override the inferred signature; the later `factories` diagnostics followed from that incompatibility.
+
+The follow-up imports the already-exported `ReceiptCoverageReader` type and explicitly annotates the browser method as `ReceiptCoverageReader<Observation>`. No runtime statement or test changed. Existing custom readers may omit the declaration and retain the default identity gate.
+
+Exactly one follow-up `pnpm run typecheck` passed, including both repository `tsc --noEmit` and `tsc -p packages/core/tsconfig.json`. The 70 behavior checks were not rerun for this type-only change. `typecheck-follow-up.log` records the successful output with its terminal trailing blank line omitted; `type-compatibility-follow-up.json` records the source hash and the originally reported failure. This completes the integration type-check item left pending in the initial `validation.json`.
