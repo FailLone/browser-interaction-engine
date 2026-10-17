@@ -1,0 +1,5 @@
+{
+  "exitCode": 0,
+  "elapsedMs": 7142.134958,
+  "reason": "Permit separate evidence directory and checkpoint aggregate metrics at read boundaries; acceptance checks unchanged"
+}

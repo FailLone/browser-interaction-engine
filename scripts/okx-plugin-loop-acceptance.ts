@@ -6,7 +6,7 @@ import { appendFileSync, lstatSync, readFileSync, realpathSync, writeFileSync } 
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { BrowserEngine, type ActionAttempt } from '@interaction/browser';
 import { SqliteStore } from '@interaction/storage-sqlite';
@@ -16,7 +16,7 @@ import { acceptanceHost, observeRecoveryCall, settleOwnedTask, settlePendingProv
   installAcceptanceStopSignals, AcceptanceWindow, planResolutionChanges, type AcceptanceCallMetric } from './okx-storage-acceptance.js';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const OUT = join(ROOT, 'docs/experiments/storage-tiering-2026-10-17/evidence/plugin-loop-1');
+const EVIDENCE_ROOT = join(ROOT, 'docs/experiments/storage-tiering-2026-10-17/evidence');
 const sha = (value: string | Uint8Array) => createHash('sha256').update(value).digest('hex');
 const errorCode = (error: unknown) => {
   const code = (error as { code?: unknown })?.code;
@@ -28,10 +28,13 @@ type Dispatch = { sessionId: string; actionId: string; requestId: string; guard:
   scheduled: Data; recovery?: Recovery; correspondence?: unknown; correspondenceVerified: boolean; receipt?: ActionAttempt };
 
 export async function runPluginLoopAcceptance(argv: string[]) {
+  assert.ok(argv.length === 2 || argv.length === 4); assert.equal(argv[0], '--run');
+  if (argv.length === 4) assert.equal(argv[2], '--evidence');
+  const OUT = argv.length === 4 ? resolve(argv[3]) : join(EVIDENCE_ROOT, 'plugin-loop-1');
+  assert.equal(dirname(OUT), EVIDENCE_ROOT); assert.match(basename(OUT), /^plugin-loop-[1-9][0-9]*$/);
   const began = performance.now(), elapsed = () => performance.now() - began;
   const write = (name: string, value: unknown) => writeFileSync(join(OUT, name), JSON.stringify(value, null, 2) + '\n', { flag: 'wx', mode: 0o600 });
   const log = (type: string, data: unknown) => appendFileSync(join(OUT, 'timeline.jsonl'), JSON.stringify({ at: new Date().toISOString(), elapsedMs: elapsed(), type, data }) + '\n', { mode: 0o600 });
-  assert.equal(argv.length, 2); assert.equal(argv[0], '--run');
   const prep = JSON.parse(readFileSync(join(OUT, 'preparation.json'), 'utf8')) as Data;
   const directory = resolve(argv[1]);
   assert.equal(directory, prep.destination); assert.notEqual(directory, prep.source);
@@ -65,6 +68,11 @@ export async function runPluginLoopAcceptance(argv: string[]) {
   const baselineAttempts = new Set<string>(), baselinePending = new Map<string, { item: PlanItem; occurrenceId: string }>();
   const sessions = new Set<string>(), scheduled = new Map<string, Data>(), dispatches = new Map<string, Dispatch>();
   const pendingProviders = new Map<string, Promise<unknown>>(), hostCalls: Record<string, AcceptanceCallMetric> = {};
+  let lastMetricsAt = 0;
+  const checkpointMetrics = () => {
+    if (elapsed() - lastMetricsAt < 1000) return;
+    lastMetricsAt = elapsed(); log('host.metrics', { hostCalls, providerCounts });
+  };
   const providerCounts = { jev: { started: 0, returned: 0, failed: 0, cancelled: 0, elapsedMs: 0 }, llm: { started: 0, returned: 0, failed: 0, cancelled: 0, elapsedMs: 0 } };
   const budget = new AcceptanceWindow({ rounds: 1, actions: 20, modelRequests: 80, durationMs: 235000 }, elapsed);
   budget.start();
@@ -171,6 +179,9 @@ export async function runPluginLoopAcceptance(argv: string[]) {
     if (!baselinePending.size) throw Object.assign(new Error('NO_RETAINED_UNEXECUTED_OPERATION'), { code: 'NO_RETAINED_UNEXECUTED_OPERATION' });
     const raw = engine;
     const entries: Partial<BrowserEngine> = {
+      // Flush aggregate counters at read boundaries even when synchronous work
+      // prevents timers and final cleanup from running before the hard limit.
+      observation: (...args) => { checkpointMetrics(); return raw.observation(...args); },
       createSession: async (...args) => { fence(); budget.enter('round'); const result = await raw.createSession(...args); sessions.add(result.id); return result; },
       execute: async (...args) => {
         fence(); const [sessionId, actionId, requestId, value, guard] = args;
