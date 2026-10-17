@@ -6,9 +6,10 @@ import { createOwnerDependencyCodec } from '../packages/adapter-playwright/src/o
 
 const browsers: Browser[] = [];
 afterEach(async () => { for (const browser of browsers.splice(0)) await browser.close(); });
-async function capture(html: string, reference = true) {
+async function capture(html: string, reference = true, setup?: string) {
   const browser = await chromium.launch({ headless: true }); browsers.push(browser);
   const page = await browser.newPage(); await page.setContent(`<!doctype html>${html}`);
+  if (setup) await page.evaluate(setup);
   return await page.evaluate(`(() => { const __name = fn => fn;
     const collect = (${collectOwnerDependencies.toString()}), factory = (${createOwnerDependencyCodec.toString()});
     const documentId = '29bf5614-9dd5-4b6d-9caa-0be76239c708', ids = new WeakMap(); let next = 0;
@@ -49,13 +50,16 @@ function root(result: Awaited<ReturnType<typeof capture>>, id: string) {
   const localId = result.controls.find(c => c.id === id)!.localId;
   return result.decoded!.roots.find(item => item.localId === localId)!;
 }
+function legacyFacts(graph: OwnerDependencies) {
+  return { ...graph, references: graph.references.map(({ lookup: _lookup, ...ref }) => ref) };
+}
 
 it('incrementally retains a complete graph larger than the wire cap with exactly the same raw semantic facts', async () => {
   const rows = Array.from({ length: 120 }, (_, i) => `<li data-record="record-${i}"><button data-control id="mode-${i}" aria-expanded="false" ${i === 0 ? 'aria-describedby="external"' : ''}>Mode ${i}</button><span>Detail ${i}</span></li>`).join('');
   const result = await capture(`<main><ul>${rows}</ul><section><input type="hidden" value="A" aria-describedby="external"></section><span id="external">External state</span></main>`);
   bounds(result); expect(result.raw!.complete).toBe(true); expect(result.decoded!.complete).toBe(true);
   expect(Buffer.byteLength(JSON.stringify(result.raw))).toBeGreaterThan(131072);
-  expect(result.decoded).toEqual({ ...result.raw, limits: result.decoded!.limits });
+  expect(legacyFacts(result.decoded!)).toEqual({ ...result.raw, limits: result.decoded!.limits });
   expect(result.progress.mutations).toBeGreaterThan(result.decoded!.nodes.length);
   expect(result.progress.failures).toEqual([]);
 });
@@ -78,12 +82,25 @@ it('rejects oversized raw candidate values without constructing an unbounded exp
   expect(result.progress.maxExpanded).toBeLessThan(100000);
 });
 
-it('does not turn compact encoding into permission to ignore missing IDREFs or deep ancestry', async () => {
+it('records explicit negative light-DOM lookup while legacy absence and deep ancestry remain unavailable', async () => {
   const deep = '<div>'.repeat(19) + '<button data-control id="deep" aria-expanded="false">Deep</button>' + '</div>'.repeat(19);
   const result = await capture(`<main><section><button data-control id="missing" aria-expanded="false" aria-controls="absent">Missing</button></section>${deep}</main>`);
-  bounds(result); expect(result.decoded).toEqual({ ...result.raw, limits: result.decoded!.limits });
-  expect(root(result, 'missing')).toMatchObject({ complete: false, reasons: expect.arrayContaining(['missing_idref']) });
+  bounds(result);
+  const legacyMissing = result.raw!.roots.find(item => item.localId === root(result, 'missing').localId)!;
+  expect(legacyMissing).toMatchObject({ complete: false, reasons: expect.arrayContaining(['missing_idref']) });
+  expect(root(result, 'missing')).toMatchObject({ complete: true, reasons: [] });
   expect(root(result, 'deep')).toMatchObject({ complete: false, reasons: expect.arrayContaining(['ancestor_depth']) });
   expect(result.decoded!.ancestry).toBeUndefined();
-  expect(result.decoded!.references.find(ref => ref.token === 'absent')?.lookup).toBeUndefined();
+  expect(result.decoded!.references.find(ref => ref.token === 'absent')).toMatchObject({ status: 'missing', targetIds: [],
+    lookup: { scope: 'document-light-dom', documentId: result.decoded!.documentId, matches: 0 } });
+});
+
+it.each([
+  ['failed-query', `(() => { const query = document.querySelectorAll.bind(document); document.querySelectorAll = selector => { if (selector === '#absent') throw Error('fixture query failure'); return query(selector); }; })()`, 'idref_lookup_failed'],
+  ['inexact-NUL', `document.querySelector('#missing').setAttribute('aria-controls', '\\0')`, 'unsupported_idref_token'],
+  ['shadow-source', `document.querySelector('#missing').attachShadow({mode: 'open'})`, 'unsupported_shadow_scope'],
+] as const)('never records complete negative lookup for %s', async (_name, setup, reason) => {
+  const result = await capture('<section><div data-control id="missing" role="button" aria-expanded="false" aria-controls="absent">Missing</div></section>', false, setup);
+  bounds(result); expect(root(result, 'missing')).toMatchObject({ complete: false, reasons: expect.arrayContaining([reason]) });
+  expect(result.decoded!.references.every(ref => !ref.lookup)).toBe(true);
 });

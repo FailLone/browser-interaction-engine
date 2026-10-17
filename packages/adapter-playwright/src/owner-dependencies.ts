@@ -144,20 +144,32 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
   const readReferences = (el: Element, node: OwnerDependencyNode) => {
     if (references.has(el)) return references.get(el)!;
     const local = new Set<string>(), indices: number[] = [], targets: Element[] = [];
-    const add = (attribute: string, token: string, matches: Element[]) => {
+    const add = (attribute: string, token: string, matches: Element[], lookup?: OwnerDependencyReference['lookup']) => {
       if (result.references.length >= limits.references) { fail(local, 'reference_budget'); return; }
       const status = matches.length === 1 ? 'unique' : matches.length ? 'ambiguous' : 'missing';
       // At most two matches are required to prove ambiguity; no first-match
       // inference or traversal into an arbitrarily chosen duplicate target.
-      const ref: OwnerDependencyReference = { sourceId: node.id, attribute, token, status, targetIds: matches.slice(0, 2).map(instance) };
+      const ref: OwnerDependencyReference = { sourceId: node.id, attribute, token, status, targetIds: matches.slice(0, 2).map(instance), ...(lookup ? { lookup } : {}) };
       if (!reserve(size(ref) + 1, builder && (() => builder!.addReference(ref) !== undefined))) { fail(local, budgetFailure); return; }
       indices.push(result.references.length); result.references.push(ref);
-      if (status === 'unique') targets.push(matches[0]); else fail(local, status === 'missing' ? 'missing_idref' : 'ambiguous_idref');
+      if (status === 'unique') targets.push(matches[0]);
+      else if (status !== 'missing' || lookup?.matches !== 0) fail(local, status === 'missing' ? 'missing_idref' : 'ambiguous_idref');
     };
     for (const [attribute, raw] of Object.entries(node.attributes)) if (idrefAttributes.has(attribute)) {
       for (const token of new Set(raw.trim().split(/\s+/).filter(Boolean))) {
-        if (!idTargets.has(token)) { const found = document.querySelectorAll(`#${CSS.escape(token)}`); idTargets.set(token, found.length > 1 ? [found[0], found[1]] : found.length ? [found[0]] : []); }
-        add(attribute, token, idTargets.get(token)!);
+        // CSS.escape replaces NUL rather than representing that exact ID. Do
+        // not turn an inexact query or an exception into a negative lookup.
+        if (codec && token.includes('\0')) { fail(local, 'unsupported_idref_token'); continue; }
+        try {
+          if (!idTargets.has(token)) { const found = document.querySelectorAll(`#${CSS.escape(token)}`); idTargets.set(token, found.length > 1 ? [found[0], found[1]] : found.length ? [found[0]] : []); }
+        } catch (error) {
+          if (!codec) throw error;
+          fail(local, 'idref_lookup_failed'); continue;
+        }
+        const matches = idTargets.get(token)!;
+        const lookup: OwnerDependencyReference['lookup'] = codec && el.getRootNode() === document && !el.shadowRoot
+          ? { scope: 'document-light-dom', documentId, matches: Math.min(2, matches.length) as 0 | 1 | 2 } : undefined;
+        add(attribute, token, matches, lookup);
       }
     }
     const associated = associations.get(el);

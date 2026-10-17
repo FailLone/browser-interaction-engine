@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/owner-dependency-compact-capture.test.ts (7 tests) 1346ms
+   ✓ incrementally retains a complete graph larger than the wire cap with exactly the same raw semantic facts  336ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  13:04:41
+   Duration  1.69s (transform 45ms, setup 0ms, collect 199ms, tests 1.35s, environment 0ms, prepare 35ms)
+

@@ -1,0 +1,46 @@
+{
+  "results": [
+    {
+      "name": "collector",
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/owner-dependency-compact-capture.test.ts"
+      ],
+      "exitCode": 0,
+      "started": 1792213481.000248,
+      "finished": 1792213483.15477
+    },
+    {
+      "name": "adapter-selected",
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/owner-dependencies-capture.test.ts",
+        "-t",
+        "records .* IDREF lookup"
+      ],
+      "exitCode": 0,
+      "started": 1792213483.154832,
+      "finished": 1792213485.047332
+    },
+    {
+      "name": "types",
+      "argv": [
+        "pnpm",
+        "exec",
+        "tsc",
+        "-p",
+        "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-lookup-types-ouukg1bd/tsconfig.json"
+      ],
+      "exitCode": 0,
+      "started": 1792213485.0473778,
+      "finished": 1792213487.310116
+    }
+  ],
+  "scope": "Explicit complete light-DOM lookup only; source errors/inexact NUL/shadow and ambiguous matches do not prove absence; old raw-v2 still rejects missing."
+}
