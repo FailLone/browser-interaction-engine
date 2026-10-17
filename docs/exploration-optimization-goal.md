@@ -2,9 +2,11 @@
 
 本次完整目标：完成可行的恢复、性能、存储优化，包括 Observation 结构共享、历史分层与按引用回收、任务库压缩和全量读取优化；验证后将 refactor 与 autonomous-exploration 的代码一并合入 main；再以真实 OKX USD→BTC 页面持续探索，发现异常立即停止该轮、保留证据并修复。队列为空、模拟测试或单次恢复成功均不构成穷尽证明。
 
-当前源码/main 为 `4f868d6`，产品 `2bee1db` 已完成发布验证并合入 main（含 autonomous）。第十窗已结算冻结：check true/false、Close、Trade 共 4 次实际成功，4/4 document 条件覆盖有效；可见边界退出后 Trade 接续成立，但所有 receipt 的 identityAuthorized/replayAuthorized/arrivalVerified 全为 false，后续严格 checkpoint 仍 UNREACHABLE。第 3 项第三道验收门未通过，仍未完结。计划 876→1,106 的 230 条新增意义未定，旧范围和失败债保留，JEV 6/LLM 0/unknown 0；本窗不追加性能结论。当前事实统一见[第十窗报告](experiments/storage-tiering-2026-10-17/evidence/real-okx-10/README.md)。
+当前 main 为 `d71f1d5`（含 autonomous），产品 `f3c4316` 已通过固定提交的隔离发布检查。第十一窗已结算冻结：4/4 实际操作取得 document 条件覆盖；原 header 审阅项以 `current_review_occurrence_present` 暂缓，保留未完成状态且不授予覆盖，已证实本次错误回退修复生效。随后另一个历史 Main menu / Trade / generic 审阅项严格恢复 UNREACHABLE，15.885 秒、恢复动作 0。第 3 项的真实到达及后续新覆盖验收门仍未通过，不能宣布完结或穷尽；本窗没有新增性能结论。最终事实见[第十一窗报告](experiments/storage-tiering-2026-10-17/evidence/real-okx-11/README.md)。
 
-第十窗后，冻结来源证实调度在较新来源已证明审阅实例仍在场时，仍回退同项旧 checkpoint。`f3c4316` 仅在当前无活动边界时把该项暂缓，保留未测、分类与失败债；有活动边界时沿用原行为。新增反例在旧版失败，修复后相关文件一次 17/17 通过，见[单一结论检查点](experiments/storage-tiering-2026-10-17/evidence/review-present-source-fallback/README.md)。发布检查及真实复验另设关口，不能把这组调度用例当作真实恢复成功。
+`f3c4316` 只在当前无活动边界时将已在场审阅项整体暂缓；有活动边界时沿用原行为，未改变分类、身份、覆盖或 unknown 契约。新增反例在旧版失败，修复后相关文件一次 17/17 通过；[定向检查点](experiments/storage-tiering-2026-10-17/evidence/review-present-source-fallback/README.md)、[发布检查](experiments/storage-tiering-2026-10-17/evidence/review-present-source-release/validation.json)与真实复验分别支持各自结论。第十窗的 4/4 条件覆盖和严格恢复失败完整保留于[原报告](experiments/storage-tiering-2026-10-17/evidence/real-okx-10/README.md)，不回填旧结果。
+
+下一检查点先明确历史审阅来源的恢复候选契约，再决定产品补丁；本次不再开第十二窗逐项试错。必须区分当前可审阅、存在候选路径、已验证到达、暂不可达与未知，保留旧待测与失败债，并定义事实变化后的重新评估条件。不得仅因 entry path 不可重放就跳过整个 checkpoint，也不得把新的 Trade 点击等同于旧 generic 审阅目标。先以既有冻结材料验证一个具体结论；有产品变化且定向检查通过，才有新的真实复验理由。
 
 当前交付顺序：先完成第 3 项恢复路线选择及真实接续阻塞的收尾。第七窗候选读取优化、无效审阅来源修复、隐藏父记录/非局部依赖采集、派发证据及逐来源条件结案已有受控证据。`5eca079` 已把同一 before 候选的直接结案接入 SDK 条件查询，缺证旧项、合法补证及用户范围均保留。新增的批量 receipt 查询将不同回执的重复会话扫描限制在一次同步核对内；只共享本次读取，不跨轮保存权限或条件结论，见[批量查询检查点](experiments/storage-tiering-2026-10-17/evidence/receipt-condition-batch/README.md)。`49702b4` 另使事件读取只核对任务头，省去无关的完整任务组装；两个补丁分别记录，不混报性能收益。
 
@@ -29,12 +31,12 @@
 | Observation 不可变结构共享 | `70b8cb4` 已实现，存储与恢复回归通过 | 精确还原、A/B 独立、损坏拒绝与 SIGKILL 恢复；捕获 fixture 形状 DB −57.8%，大合成与 churn 写入仍有回归 |
 | 历史分层及引用回收 | `70b8cb4` 已实现，显式全根验证与碎片重打包 | 不删 Observation 根、不清 unknown；维护成本及逻辑内容／引用一致性已单独测量 |
 | 任务库压缩 | `70b8cb4` 已实现，schema 4 及 occurrence 引用 | 历史任务关闭后 DB −60.8%–78.3%；热写后 WAL、全活跃任务并非都缩小 |
-| 第 3 项条件结案查询共享 | 行为/成本与发布门已通过；真实到达及接续门仍未通过 | 固定本地 receipt 完整结果一致，require 44→17、list 56→23；最新产品已通过发布检查并合入 main。第十窗 4/4 document 条件覆盖有效，Close→Trade 接续成立，但严格 checkpoint 仍失败；仅读取优化不代表真实恢复提速 |
+| 第 3 项条件结案查询共享 | 行为/成本与发布门已通过；真实到达及接续门仍未通过 | 固定本地 receipt 完整结果一致，require 44→17、list 56→23；最新产品已通过发布检查并合入 main。第十一窗 4/4 document 条件覆盖有效，header 错误回退已消除，但另一个严格 checkpoint 仍失败；仅读取优化不代表真实恢复提速 |
 | 全量读取优化 | `70b8cb4` 已实现，一次组装任务与 occurrence 顺序 | 历史 task() 快 7.2%–11.9%，taskState 快 21%–27%；全活跃完整读约慢 8%，大头 CAS 与进程 RSS 存在代价 |
 | 其他性能与恢复优化 | `70b8cb4` 已实现，留存计数索引、批量回收与跨实例文件锁 | 100/1,000 历史观察热写均 5 get／0 list；基线缺块竞态失败，新实现通过；批量删除 130.23→9.77 ms，普通文件操作增加锁开销 |
 | 真实 state 占用优化 | `91af435` 大型 state 单行压缩、逐条验证迁移 | 同真实快照完整 SQLite 库整理后 −35.5%；热 list 约慢 3.5%，9 次更新 32.92→55.64 ms；26 类实体及 14 Observation 摘要一致 |
-| 合入 main（含 autonomous） | main/source 为 `4f868d6`，产品 `2bee1db` 已合入 | 固定发布构建/类型/编译后 API 通过；autonomous `4857ad5` 是 main 的祖先；原工作区保持 |
-| 真实 OKX 持续探索 | 已运行十窗；第十窗有有效条件覆盖，严格恢复仍被拒，已结算冻结 | check true/false、Close、Trade 成功且 4/4 document 条件证明；Close→Trade 观察连续。严格 checkpoint UNREACHABLE/14.233 秒/0 动作，receipt arrival 全 false；计划 876→1,106、旧范围与失败债保留。第 3 项未完结，未证明穷尽 |
+| 合入 main（含 autonomous） | main 为 `d71f1d5`，产品 `f3c4316` 已合入 | 固定发布构建/类型/编译后 API 通过；autonomous `4857ad5` 是 main 的祖先；原工作区保持 |
+| 真实 OKX 持续探索 | 已运行十一窗；已证实 header 错误回退修复，严格到达门仍未过 | 第十一窗 4/4 document 条件覆盖；header item 暂缓且不授予覆盖。另一个历史 Trade generic 审阅项严格 checkpoint UNREACHABLE/15.885 秒/0 动作，receipt arrival 全 false；JEV 6/LLM 0/unknown 0。第 3 项未完结，未证明穷尽 |
 | 当前动作按观察读取 | 可选存储查询与保守 SQLite 索引，完整审计保留全历史 | 同帧 8 API × 2 完整结果 16/16 相等；动作解码 11,450→207，专项 22/22；首次索引约 946 KB，1,536 条批量插入/重写分别增加约 30/39 ms，不宣称整轮提速 |
 | 失败落点不新增重试预算 | 保存有证据的结果条件并核对旧数据，纯不稳定失败不固化 | 真实冻结 `scheduledRecovery` 验收阻止旧 Wallet 重试、原 attempts/plan 不变、二次幂等；unknown 与单次 SDK 续行保持；12 新测试、联合 74 项与 typecheck 通过 |
 | 身份热路径压缩可行性 | 九个独立进程对照后拒绝直接 gzip | 约省 5.60 MB，但热 list 2.74×、旧行重写 3.22×、RSS 增约 68 MiB；全部精确还原及负面样本保留 |

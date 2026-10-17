@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-17T06:00:48.879605+00:00",
+  "stage": "generated launcher module parse",
+  "error": "SyntaxError: Unexpected identifier s",
+  "reason": "Purpose prose contained an apostrophe inside the retained launcher single-quoted source string.",
+  "sourceBeforeSha256": "223aa902aa5afafa46cb52d58e6bbb2c43d2e0e35aaecdaa03e18fc0c19319ef",
+  "sourceAfterSha256": "bb45bc4690b5ff3d234121829ed24a39818a52e11a0d44dc74e7230f7531bfb8",
+  "mutation": "Purpose wording only: remove possessive apostrophe. No budget, gate or product changes.",
+  "childSpawned": false,
+  "browserStarted": false,
+  "databaseOpened": false,
+  "launchRecordExists": false,
+  "activeRunExists": false
+}

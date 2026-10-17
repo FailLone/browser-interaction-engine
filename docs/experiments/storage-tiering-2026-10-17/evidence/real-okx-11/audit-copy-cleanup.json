@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-17T06:09:04.696156+00:00",
+  "removedExclusiveTemporaryDirectory": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run11-receipt-audit-6kx3ynoj",
+  "databaseSha256BeforeRemoval": "1bb29aa58e368d0371eba9e505378301dd65d3419d94268b5fdcdd522c889c50",
+  "databaseBytes": 135548928,
+  "sourceDatabaseSha256Matches": true,
+  "sourcePreserved": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v4/engine/engine.sqlite",
+  "databaseOpened": false,
+  "reason": "The unique SDK audit is complete and released; original frozen evidence retained once."
+}
