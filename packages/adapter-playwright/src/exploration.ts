@@ -1,6 +1,6 @@
 import { canonical, hash, id, type CorrespondenceHint, type ExplorationCase, type RestorationStep } from '@interaction/core';
 import type { ActionCandidate, Control, Observation, Session } from './types.js';
-import { observableCanonical } from './model.js';
+import { readonlyReadout, observableCanonical } from './model.js';
 import { constrain } from './policy.js';
 import { ruleMatches, signature, formBinding } from './util.js';
 import { browserBranchConditions } from './branch-conditions.js';
@@ -179,6 +179,40 @@ export function interactionProjection(o: Pick<Observation, 'documentId' | 'url' 
     })) });
 }
 
+const localRestorePolicy = 'browser-local-restoration/v1';
+/** A single inverse's observable UI effects, never business-state equality.
+ * Retain ALL captured controls (including generic review targets), editable
+ * values and nonlocal modes. Only native readout values may vary. Do not use
+ * graph grouping here: grouping is not restoration evidence. */
+function localRestorationKey(o: Observation, action: ActionCandidate): string | undefined {
+  if (o.gaps.some(g => g.critical) || Object.values(o.context).some(c => c.status !== 'known')
+    || !o.stable && !o.gaps.some(g => ['INTERACTION_STABLE', 'PARTIAL_INTERACTION_READY'].includes(g.code))) return;
+  const target = o.controls.find(c => c.localId === action.localId), branch = browserBranchConditions(action, o);
+  if (!target || target.readiness || !branch || new Set(o.controls.map(c => c.instanceId)).size !== o.controls.length
+    || new Set(o.controls.map(c => c.localId)).size !== o.controls.length) return;
+  const controls = o.controls.map(c => c.nativeReadOnly === true && readonlyReadout(c) ? { ...c, value: '' } : c);
+  return hash({ policy: localRestorePolicy, document: o.documentId, instanceScope: o.instanceScope, ruleVersion: o.ruleVersion,
+    observable: observableCanonical({ ...o, controls }), branch: branch.key, boundaries: o.boundaries,
+    regions: o.regions.map(r => ({ key: r.key, role: r.role, label: r.label, parentKey: r.parentKey })),
+    bindings: controls.map(c => ({ localId: c.localId, instanceId: c.instanceId, identityId: c.identityId, hypothesisId: c.hypothesisId,
+      readOnly: c.readOnly, nativeReadOnly: c.nativeReadOnly, review: c.reviewBinding, ancestry: c.reviewReuseBinding, declared: c.reviewAttributes,
+      context: c.identityContext, record: c.structuralItem, hints: c.interactionHints })),
+  });
+}
+
+export function verifyRestorationStep(step: RestorationStep, before: Observation, after: Observation) {
+  const expected = step.targetPostcondition;
+  if (!expected || expected.policy !== localRestorePolicy || expected.beforeObservationId !== before.id
+    || step.action.observationId !== before.id || before.sessionId !== after.sessionId
+    || !localRestorationKey(before, step.action))
+    return { result: 'unknown' as const, reason: 'local_restoration_evidence_unavailable', evidence: [] };
+  const actual = localRestorationKey(after, step.action);
+  return { result: !actual ? 'unknown' as const : actual === expected.expectedKey ? 'pass' as const : 'fail' as const,
+    reason: !actual ? 'local_restoration_evidence_unavailable' : actual === expected.expectedKey ? 'local_restoration_postcondition_verified' : 'local_restoration_effects_changed',
+    evidence: [localRestorePolicy, 'Full captured control structure, editable values, modes, bindings and boundary preserved except the declared inverse',
+      'Only native noninteractive readonly output values may differ; original observations retained'] };
+}
+
 /** Only application-declared reversibility permits synthesizing an inverse operation. */
 export function restorationStep(target: Observation, current: Observation, session: Session): RestorationStep | undefined {
   if (!session.options.reversible?.length || target.url !== current.url || canonical(target.context) !== canonical(current.context)
@@ -203,7 +237,10 @@ export function restorationStep(target: Observation, current: Observation, sessi
     // Predict exactly this field's inverse. Unexpected effects on other controls
     // invalidate the step even if its target field was successfully restored.
     const restored: Control = { ...c, value: old.value, checked: old.checked, selected: old.selected, constraints: old.constraints };
-    const expectedCanonical = observableCanonical({ ...current, controls: current.controls.map(x => x === c ? restored : x) });
-    return { action: constrained, expectedCanonical, evidence: ['Application-declared reversible operation', `Restore ${c.identityId} from observation ${target.id}`, 'Verify complete observable projection after the inverse operation'] };
+    const expected = { ...current, controls: current.controls.map(x => x === c ? restored : x) };
+    const expectedCanonical = observableCanonical(expected), expectedKey = localRestorationKey(expected, constrained);
+    return { action: constrained, expectedCanonical,
+      ...(expectedKey ? { targetPostcondition: { policy: localRestorePolicy, beforeObservationId: current.id, expectedKey } } : {}),
+      evidence: ['Application-declared reversible operation', `Restore ${c.identityId} from observation ${target.id}`, 'Strict checkpoint uses the complete observable projection; directed recovery verifies each inverse postcondition'] };
   }
 }

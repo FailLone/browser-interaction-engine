@@ -10,7 +10,7 @@ import { observableCanonical, compareObservations, browserStateGrouping } from '
 import { sessionSchema } from './schema.js';
 import { signature } from './util.js';
 import { constrain, hasDeclaredBoundaryExit, hasObservedBoundaryExit } from './policy.js';
-import { browserControlCorrespondence, browserOperationCorrespondenceHint, controlCase, controlsTraversalCase, explorationCase, restorationStep } from './exploration.js';
+import { browserControlCorrespondence, browserOperationCorrespondenceHint, controlCase, controlsTraversalCase, explorationCase, restorationStep, verifyRestorationStep } from './exploration.js';
 export { browserControlCorrespondence, browserControlBindingKey, browserOperationCorrespondenceHint, browserOperationKey, browserOperationSchedulingKey, legacyBrowserOperationKey } from './exploration.js';
 export { navigationIntent, type NavigationIntent } from './navigation.js';
 import { historyReturn, observedSourcePosition } from './navigation.js';
@@ -86,6 +86,7 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   }
   explorationScope(o: Observation) { return canonical({ url: o.url, boundaries: o.boundaries?.map(b => b.key) || [] }); }
   restorationStep = restorationStep;
+  verifyRestorationStep = verifyRestorationStep;
   explorationGroups(...args: Parameters<typeof listGroups>) { return [...listGroups(...args), ...structuralListGroups(...args), ...decisionScopes(args[0], args[1], args[2])]; }
   returnToObservation = historyReturn;
   observedSourcePosition = observedSourcePosition;

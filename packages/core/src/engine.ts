@@ -1793,10 +1793,18 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if (action.risk !== 'interface' || !action.replayable || action.excluded || action.preconditions.blockers?.length || !action.preconditions.identityResolved || action.basis?.status === 'tentative') break;
         this.store.put('action', action);
         const attempt = await this.runAction(sessionId, action.id, id(), undefined, 'recovery'); performed.push(attempt.id);
-        if (attempt.status !== 'succeeded' || this.observation(sessionId).canonical !== step.expectedCanonical) {
+        if (attempt.status !== 'succeeded' || this.unverifiedRecoveryAttempts(sessionId).length) {
+          status = 'UNVERIFIED'; reason = 'Declared local restoration execution was not verified'; return finish();
+        }
+        const after = this.observation(sessionId);
+        const postcondition = directed && this.adapter.verifyRestorationStep
+          ? this.adapter.verifyRestorationStep(step, current, after)
+          : { result: after.canonical === step.expectedCanonical ? 'pass' as const : 'fail' as const, reason: 'strict_observable_postcondition', evidence: step.evidence };
+        checks.push({ name: `local-restoration-step:${attempt.id}:${postcondition.reason}`, result: postcondition.result });
+        this.emit(sessionId, 'checkpoint.local_restore', { checkpointId, attemptId: attempt.id, mode: directed ? 'target' : 'checkpoint', expected: directed ? step.targetPostcondition : undefined, postcondition, evidence: step.evidence });
+        if (postcondition.result !== 'pass') {
           status = 'UNVERIFIED'; reason = 'Declared local restoration diverged from its expected observation'; return finish();
         }
-        this.emit(sessionId, 'checkpoint.local_restore', { checkpointId, attemptId: attempt.id, evidence: step.evidence });
         verification = await verify(); checks = verification.checks;
         if (verification.status) { status = verification.status; reason = `Verification after declared local restoration: ${status}`; return finish(); }
       }

@@ -101,7 +101,14 @@ export interface InteractionDriver<O extends Observation, S extends SessionOptio
 }
 export interface ScopeStart { name: string; region: string }
 export interface ExplorationCase { key: string; policy: string; evidence: string[] }
-export interface RestorationStep { action: ActionCandidate; expectedCanonical: string; evidence: string[] }
+export interface RestorationStep {
+  action: ActionCandidate;
+  expectedCanonical: string;
+  /** An adapter-owned single-step postcondition, not final target arrival or
+   * whole-checkpoint equality. Bound to the source actually used for this step. */
+  targetPostcondition?: { policy: string; beforeObservationId: string; expectedKey: string };
+  evidence: string[];
+}
 /** Platform evidence for a retained position; no UI or operation equivalence. */
 export interface ObservedSourcePosition {
   status: 'reached' | 'returnable' | 'unavailable' | 'unknown';
@@ -173,6 +180,9 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   explorationGroups?(actions: ActionCandidate[], observation: O, session: Session<S>, known: import('./types.js').ExplorationGroup[]): import('./types.js').ExplorationGroupProposal[];
   /** Only explicitly declared reversible operations may produce local restoration steps. */
   restorationStep?(target: O, current: O, session: Session<S>): RestorationStep | undefined;
+  /** Used only for directed recovery; absent support retains strict equality.
+   * Unknown/failure must stop before another inverse operation is dispatched. */
+  verifyRestorationStep?(step: RestorationStep, before: O, after: O): { result: 'pass' | 'fail' | 'unknown'; reason: string; evidence: string[] };
   /** An explicitly configured environment reset, executed through the normal action ledger. */
   resetAction?(observation: O, session: Session<S>): ActionCandidate | undefined;
   inRegion?(control: O['controls'][number], region: string, observation: O): boolean;

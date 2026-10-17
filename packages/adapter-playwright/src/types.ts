@@ -98,6 +98,9 @@ export interface ScrollContainer {
   left: number; top: number; maxLeft: number; maxTop: number; width: number; height: number;
 }
 export interface Control extends CoreControl {
+  /** Actual native HTML readOnly property. Missing in legacy observations;
+   * aria-readonly alone never proves a noneditable native output. */
+  nativeReadOnly?: boolean;
   localId: ID; instanceId: ID; identityId?: ID; hypothesisId?: ID;
   tag: string; role: string; name: string; label: string; stableKey?: string;
   region: string; regionInstanceId?: string; form: string; selector: string; rect: Rect;

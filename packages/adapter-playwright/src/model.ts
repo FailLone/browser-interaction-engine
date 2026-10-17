@@ -15,17 +15,23 @@ export function observableCanonical(o: ObservableFrame) {
   return canonical({ ...(currentRules(o) ? { policy: 'browser-observable-v8' } : {}), url: o.url, context: o.context, scroll: o.scroll, scrollContainers: o.scrollContainers?.map(({ nodeId: _, ...c }) => c) || [], components, overlays: o.overlays?.map(layer => ({ key: layer.key, kind: layer.kind, parentKey: layer.parentKey })) || [], incomplete: o.gaps.filter(g => g.critical).map(g => g.code).sort(), controls: o.controls.map(c => ({ signature: signature(c), stableKey: key(c), identityScope: c.identityScope, formOwner: formBinding(c), readiness: c.readiness, scroll: c.scroll, pressed: c.pressed, value: c.value, displayedText: c.displayedText, checked: c.checked, selected: c.selected, visible: c.visible, enabled: c.enabled, editable: c.editable, expanded: c.expanded, constraints: c.constraints, options: c.options, actionBasis: c.actionBasis, hitTarget: c.actionable?.hitTarget, outsideScrollableArea: c.actionable?.outsideScrollableArea })) });
 }
 
+/** Historical readout grouping predicate. Restoration additionally requires
+ * captured nativeReadOnly: aria-readonly alone is not native enforcement. */
+export function readonlyReadout(c: Control): boolean {
+  return ['input', 'textarea'].includes(c.tag) && c.readOnly === true && !c.editable
+    && c.actions.every(kind => kind === 'fill') && !c.interactionHints?.length
+    && !Object.keys(c.reviewBinding?.attributes || {}).some(key => /^on/i.test(key))
+    && !c.controls && !c.structuralItem && !c.hypothesisId && c.identityScope !== 'instance'
+    && c.checked === null && c.pressed == null && c.expanded === null && !c.selected.length && !c.options.length;
+}
+
 /** Compact graph membership, never operation equivalence or a restorable checkpoint.
  * Read-only readouts can still influence application behavior: their exact values
  * remain in observations, strict path checks and stateful traversal samples. */
 export function browserStateGrouping(o: Observation, session: Session): StateGrouping | undefined {
   if (!['controls', 'representative'].includes(session.options.exploration || '') || o.gaps.some(g => g.critical)) return;
   const controls = o.controls.map(c => {
-    const readout = ['input', 'textarea'].includes(c.tag) && c.readOnly && !c.editable
-      && c.actions.every(kind => kind === 'fill') && !c.interactionHints?.length
-      && !Object.keys(c.reviewBinding?.attributes || {}).some(key => /^on/i.test(key))
-      && !c.controls && !c.structuralItem && !c.hypothesisId && c.identityScope !== 'instance'
-      && c.checked === null && c.pressed == null && c.expanded === null && !c.selected.length && !c.options.length;
+    const readout = readonlyReadout(c);
     return { ...c, ...(readout ? { value: '' } : {}),
       ...(c.liveContent ? { name: c.liveContent.name, displayedText: c.liveContent.text } : {}) };
   });
