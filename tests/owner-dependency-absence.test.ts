@@ -135,6 +135,43 @@ it.each([40, 508])('walks %s ancestor-only nodes to html under the explicit node
   expect(run(f)).toBeDefined();
   both(f, o => { delete graph(o).ancestry; }); expect(run(f)).toBeUndefined();
 });
+it('admits 513 through 768 compact nodes only with explicit expanded limits and preserves legacy ceilings', () => {
+  const codec = createOwnerDependencyCodec();
+  for (const count of [513, 640, 768]) {
+    const f = fixture(); both(f, o => {
+      const g = graph(o); parents(o, count - g.nodes.length); g.ancestry = 'node-bounded-v1';
+      g.limits = { ...g.limits, nodes: 768, bytes: 196608 };
+    });
+    expect(run(f)).toBeUndefined(); // The same raw v2 graph never acquires larger ceilings.
+    const rawV1 = structuredClone(f); both(rawV1, o => {
+      const g = graph(o); g.version = 'browser-owner-dependencies-v1'; delete g.nativeInputIds; delete g.nativeRoots;
+    });
+    expect(run(rawV1)).toBeUndefined();
+    for (const o of [f.before, f.current]) {
+      const compact = codec.encode(graph(o)); expect(compact).toBeDefined(); o.ownerDependencies = compact!;
+    }
+    witness(f); expect(run(f)).toBeDefined();
+    const oldLimits = structuredClone(f);
+    for (const o of [oldLimits.before, oldLimits.current]) o.ownerDependencies!.limits = { nodes: 512, references: 64, bytes: 131072, depth: 16 };
+    witness(oldLimits); expect(run(oldLimits)).toBeUndefined();
+    const excessiveLimits = structuredClone(f);
+    for (const o of [excessiveLimits.before, excessiveLimits.current]) o.ownerDependencies!.limits.nodes = 769;
+    witness(excessiveLimits); expect(run(excessiveLimits)).toBeUndefined();
+    if (count === 768) {
+      // A 769th, otherwise valid ancestor cannot fit a declared 768-node graph.
+      for (const o of [f.before, f.current]) {
+        const wire = o.ownerDependencies!;
+        if (wire.version !== 'browser-owner-dependencies-v3') throw Error('Expected compact fixture');
+        const extra = wire.ids.length; wire.ids.push('extra-parent');
+        const owner = wire.nodes.find(n => wire.ids[n[0]] === 'owner')!;
+        const ancestor = structuredClone(wire.nodes.find(n => wire.ids[n[0]] === 'parent-0')!);
+        ancestor[0] = extra; ancestor[1] = owner[1]; owner[1] = extra;
+        wire.nodes.push(ancestor); wire.closures[0][2].push(extra);
+      }
+      witness(f); expect(run(f)).toBeUndefined();
+    }
+  }
+});
 it.each(['over-node-budget', 'cycle', 'missing-parent', 'outside-closure', 'non-html-root', 'unknown-profile'] as const)(
   'does not mistake incomplete ancestry for a complete chain: %s', reason => {
     const f = fixture(); both(f, o => {

@@ -1,0 +1,41 @@
+{
+  "format": "compact-reader-resource-validation-v1",
+  "at": "2026-10-17T05:16:06.810894+00:00",
+  "head": "6f906eac11d14411e071122a1287f91d2c6758d8",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/owner-dependency-absence.test.ts",
+    "--maxWorkers=1",
+    "--no-file-parallelism",
+    "-t",
+    "admits 513 through 768 compact nodes only with explicit expanded limits"
+  ],
+  "exitCode": 0,
+  "sourceBeforeSha256": {
+    "packages/browser/src/document-coverage.ts": "f5b8eef9d62591a8c1592b767a18d12dc08c405a2e94f8f6ae96863df616c0dc",
+    "packages/adapter-playwright/src/owner-dependency-codec.ts": "924df89641d5fafc8a4edaf2e4d53478e2efe8a257a1ca94dd694731bf8c239e",
+    "packages/adapter-playwright/src/types.ts": "0570285b04721df724b3625e14ad5921d636166dd30ee6ce33fb5c4a5e111be7",
+    "tests/owner-dependency-absence.test.ts": "6c68e166845b41e209b1c1a3d10c025f354d104f6fdeffc4aabd79225113f4d8"
+  },
+  "sourceAfterSha256": {
+    "packages/browser/src/document-coverage.ts": "f5b8eef9d62591a8c1592b767a18d12dc08c405a2e94f8f6ae96863df616c0dc",
+    "packages/adapter-playwright/src/owner-dependency-codec.ts": "924df89641d5fafc8a4edaf2e4d53478e2efe8a257a1ca94dd694731bf8c239e",
+    "packages/adapter-playwright/src/types.ts": "0570285b04721df724b3625e14ad5921d636166dd30ee6ce33fb5c4a5e111be7",
+    "tests/owner-dependency-absence.test.ts": "6c68e166845b41e209b1c1a3d10c025f354d104f6fdeffc4aabd79225113f4d8"
+  },
+  "sourceUnchanged": true,
+  "focusedTest": {
+    "passed": 1,
+    "oldTestsSkipped": 28,
+    "cases": "513, 640, 768 compact nodes with declared 768/196608; raw v1/v2 and old limits rejected; 769 actual nodes and over-limit declaration rejected"
+  },
+  "testLogSha256": "6b7d1e9e2f47021a9c6beac56b3c4a3e473c88eb762d177f5095f91ecf137911",
+  "contract": "Only compact evidence may declare up to 768 nodes and 196608 bytes; raw v1/v2 stay at 512 nodes and 131072 bytes. All graph, identity, authority, dispatch and recursion guards unchanged.",
+  "realPageProof": false,
+  "browserStarted": false,
+  "databaseOpened": false,
+  "performanceClaim": false
+}

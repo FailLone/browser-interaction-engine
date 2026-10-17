@@ -1,0 +1,125 @@
+{
+  "format": "compact-static-required-footer-diagnosis-v1",
+  "at": "2026-10-17T05:15:10.077432+00:00",
+  "sourceCommit": "6f906eac11d14411e071122a1287f91d2c6758d8",
+  "sourceResult": {
+    "path": "docs/experiments/storage-tiering-2026-10-17/evidence/compact-static-admission/result.json",
+    "bytes": 36422,
+    "sha256": "4ca580b4fc545884b2bc10f7fae204f336924bc76d3d9d4ccb11481e9063ec3a"
+  },
+  "sourceDiagnosis": {
+    "path": "docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-8/collection-diagnosis.json",
+    "bytes": 1657488,
+    "sha256": "1f759a21bd5a7338dfaa1837d33834263b75b1c545fe8658aa1ba851aba19a26"
+  },
+  "observationId": "1ed23726-5e7b-49a8-b885-4631d40d627c",
+  "details": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1/engine/evidence/1ed23726-5e7b-49a8-b885-4631d40d627c.details.json.meta.json",
+    "sha256": "f6ca0890fb6b7c81fbd9e64caf63c9a63870424decd7ca4f29a8b254c7996446",
+    "detailsSha256": "c367da278b2b8bc4bb37944b3842aadffe92515a95c7711d102c4b78c9e0489f",
+    "bytes": 4417212,
+    "blocks": 148,
+    "allBlockHashesVerified": true
+  },
+  "html": {
+    "bytes": 225050,
+    "sha256": "960045803f2a2d6a559da53eaa7233845b854602a224d83aebb04f3e27529095",
+    "truncated": false
+  },
+  "actualReceiptTarget": {
+    "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1384",
+    "label": "1W",
+    "completeInSourceResult": true
+  },
+  "incompleteRequiredControl": {
+    "localId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:1396",
+    "selector": "#language",
+    "label": "Selected language and currency: English/USD",
+    "tag": "button",
+    "expanded": false,
+    "selectorDependency": true,
+    "nativeInput": false,
+    "fixtureOwnerId": "cb5c7267-b2f8-4686-ab5c-6b90256c5d53:100063",
+    "owner": "div.f-l",
+    "sourceReasons": [
+      "byte_budget"
+    ]
+  },
+  "readOnlyStructureCounts": {
+    "knownRequiredControls": 36,
+    "requiredControls": 37,
+    "knownRequiredOwners": 28,
+    "knownRequiredUnionLowerBound": 507,
+    "knownUnionContainsFooterNodes": false,
+    "languageIdMatches": 1,
+    "ownerSubtreeElements": 5,
+    "ownerSubtreeTags": {
+      "div": 2,
+      "button": 1,
+      "span": 1,
+      "i": 1
+    },
+    "attributeNames": [
+      "class",
+      "id",
+      "type",
+      "aria-expanded",
+      "aria-controls",
+      "aria-label"
+    ],
+    "ownerAndAncestors": 6,
+    "additionalAncestors": [
+      "div.f-b",
+      "div.footer-wrap",
+      "footer#footerContainer",
+      "body",
+      "html"
+    ],
+    "idref": {
+      "attribute": "aria-controls",
+      "target": "footer-language-list",
+      "matches": 1,
+      "targetElements": 1,
+      "insideOwnerSubtree": true
+    },
+    "fullOwnerClosureElements": 10,
+    "sharedElements": [
+      "body",
+      "html"
+    ],
+    "additionalRequiredElementsLowerBound": 8,
+    "combinedRequiredElementsLowerBound": 515,
+    "configuredNodeLimitAtSource": 512,
+    "exceedsByAtLeast": 3,
+    "sourceGraphNodes": 512,
+    "sourceRequiredUnionNodes": 507,
+    "maximumNonrequiredNodesReclaimable": 5
+  },
+  "conclusion": "The retained structure requires additional nodes, not just closure metadata. Under the source 512-node ceiling, prepaying metadata or reclaiming optional nodes cannot make all required closures complete. This is a structural lower bound, not a live-page proof.",
+  "failureReasonCaveat": {
+    "file": "packages/adapter-playwright/src/owner-dependencies.ts",
+    "lines": [
+      222,
+      235,
+      238
+    ],
+    "meaning": "An unretained closure or failure to write fuller root diagnostics can leave the prepaid byte_budget reason; that single root reason does not exclude node exhaustion."
+  },
+  "method": {
+    "details": "Verified original manifest and every decompressed block hash, counted retained detail-node owner subtrees and semantic ancestors without executing the collector.",
+    "footer": "Parsed the already retained untruncated HTML with Python stdlib HTMLParser. No mismatched closing tags were reported; #language was unique. Counted only its owner subtree, explicit IDREF target and ancestor chain.",
+    "observation": "Decoded one persisted observation on the existing private audit SQLite copy through a read-only native handle; no host/store/browser construction.",
+    "collectorExecuted": false,
+    "browserStarted": false,
+    "staticCaptureRepeated": false,
+    "originalDatabaseOpened": false,
+    "htmlGraphOrDatabaseCopied": false,
+    "privateAuditCopyUnchanged": true,
+    "privateAuditCopySha256": "6d147043776ca6dea844a76a68307605e59b65682ae3a01feba04e57558b502d"
+  },
+  "limitations": [
+    "Detail nodes are truncated; their 507-node union is a lower bound. Full retained HTML supplies the missing footer structure, not missing live native values.",
+    "Details and observation timestamps differ; the existing static mapping passed but does not establish original same-instant identity or interaction state.",
+    "No recovery, dispatch, receipt coverage, or performance success is claimed."
+  ]
+}

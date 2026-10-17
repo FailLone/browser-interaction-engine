@@ -39,7 +39,7 @@ function index(o: Observation, decode: ReturnType<typeof createOwnerDependencyCo
   const g = compact ? decode(snapshot) : snapshot;
   if (!g || !['browser-owner-dependencies-v1', 'browser-owner-dependencies-v2'].includes(g.version) || !g.inventoryComplete || g.documentId !== o.documentId || !g.baseURI) return;
   if (g.ancestry !== undefined && g.ancestry !== 'node-bounded-v1') return;
-  const maximum = { nodes: 512, references: 64, bytes: 131072, depth: 16 };
+  const maximum = { nodes: compact ? 768 : 512, references: 64, bytes: compact ? 196608 : 131072, depth: 16 };
   if (!g.limits || Object.entries(maximum).some(([key, max]) => {
     const value = g.limits[key as keyof typeof maximum]; return !Number.isInteger(value) || value <= 0 || value > max;
   }) || g.nodes.length > g.limits.nodes || g.references.length > g.limits.references
