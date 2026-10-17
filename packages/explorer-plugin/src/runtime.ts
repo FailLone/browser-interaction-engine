@@ -29,6 +29,7 @@ import {receiptConditionReader} from './receipt-condition.js';
 import { availabilityObligation } from './operation-availability.js';
 import {auditGapIndex,type AuditGapIndex} from './audit-gap-index.js';
 import {observationActionIndex} from './observation-action-index.js';
+import {createCurrentSourceExclusion} from './current-source-exclusion.js';
 import { initialSchedule, orderedObligations, unfinishedObligations, selectObligation, reserveObligation, bindScheduledRoute, routeDebtAllows, localSelectionLimit, type ObligationSelection } from './obligation-scheduler.js';
 import type { Checkpoint } from '@interaction/browser';
 
@@ -814,6 +815,7 @@ export class ExplorerPlugin {
     const anchors=new Map<string,ReviewAnchorObservation|undefined>();
     const reviewMaterials=new Map<string,ReturnType<ExplorerHost['controlReviewMaterial']>|undefined>();
     let currentIndex:ReturnType<typeof observationActionIndex>|undefined,currentInScope:ReturnType<typeof controlScopeMatcher>|undefined;
+    let currentSourceExclusion=createCurrentSourceExclusion(o);
     const targetConditions=(facts:Retained,action:ActionCandidate)=>{
       const conditions=facts.conditions??=new Map();
       if(!conditions.has(action))conditions.set(action,browserTargetConditions(action,facts.source));
@@ -877,12 +879,14 @@ export class ExplorerPlugin {
         const currentIds=new Set(transition.retainedControls.filter(control=>previous.has(control.beforeLocalId)).map(control=>control.afterLocalId));
         if(item.scope.kind){
           const scoped=new Set((currentIndex??=observationActionIndex(o,actions)).matching(item.scope));
-          const present=actions.filter(action=>scoped.has(action)||action.kind===item.scope.kind&&!!action.localId&&currentIds.has(action.localId));
-          if(targets.length&&targets.every(action=>!action.preconditions.enabled)&&present.length&&present.every(action=>!action.preconditions.enabled))return {skip:true,reason:'source_target_already_disabled'};
-          if(present.some(action=>availability.actions.find(fact=>fact.actionId===action.id)?.blockers.some(blocker=>blocker.code==='ACTION_BLOCKED'&&['submission_not_authorized','interface_risk_required','action_basis_unconfirmed'].includes(blocker.reason))))return {skip:true,reason:'current_target_policy_blocked'};
+          const present=actions.filter(action=>(scoped.has(action)||action.kind===item.scope.kind&&!!action.localId&&currentIds.has(action.localId))
+            &&currentSourceExclusion.operation(source,targets[0],action,transition));
+          if(present.length===1&&!targets[0].preconditions.enabled&&!present[0].preconditions.enabled)return {skip:true,reason:'source_target_already_disabled'};
+          if(present.length===1&&availability.actions.find(fact=>fact.actionId===present[0].id)?.blockers.some(blocker=>blocker.code==='ACTION_BLOCKED'&&['submission_not_authorized','interface_risk_required','action_basis_unconfirmed'].includes(blocker.reason)))return {skip:true,reason:'current_target_policy_blocked'};
         }else{
           if(!previous.size)return unverified;
-          if(o.controls.some(control=>control.visible&&control.enabled&&(currentIds.has(control.localId)||(currentInScope??=controlScopeMatcher(o,actions))(item.scope,control))))return {skip:true,reason:'current_review_occurrence_present',stop:!o.boundaries?.at(-1)};
+          const present=o.controls.filter(control=>control.visible&&control.enabled&&(currentIds.has(control.localId)||(currentInScope??=controlScopeMatcher(o,actions))(item.scope,control)));
+          if(currentSourceExclusion.review(source,source.controls.filter(control=>previous.has(control.localId)),present,transition))return {skip:true,reason:'current_review_occurrence_present'};
         }
       }
       return sameObservedState(source,o)?unverified:eligible;
@@ -913,6 +917,7 @@ export class ExplorerPlugin {
     // it is deliberately outside the recorded-fact view.
     yielded=()=>{checkpointCandidates.clear();if(!selectionView?.reviewMaterial)reviewMaterials.clear();};
     invalidate=()=>{
+      currentSourceExclusion=createCurrentSourceExclusion(o);
       retained.clear();anchors.clear();reviewMaterials.clear();currentIndex=undefined;currentInScope=undefined;checkpointCandidates.clear();
       projections.clear();projectionCount=0;
       routeCondition=this.routeConditionReader(o,actions);

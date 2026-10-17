@@ -132,8 +132,11 @@ it.each(['stable-replay-failure','only-unstable','current-target-visible'] as co
    expect(selected?.routeKey).toBe(key);expect(task.routeRetries.routes[key].failedResultConditions).toBeUndefined();
   }else{
    expect(selected).toBeUndefined();
-   expect(task.scheduling.deferred?.[item.id].reason).toBe(variant==='current-target-visible'?'current_review_occurrence_present':'route_retry_failed_result_condition');
-   if(variant==='stable-replay-failure')expect(task.routeRetries.routes[key].conditions['old-entry'].resultCondition).toMatchObject({conditionVersion,basis:'replay-target-unavailable'});
+   // A visible same-name control without captured classification/conditions is
+   // not proof of current review equivalence. Existing failed-route debt still
+   // prevents a retry, including the current-target-visible fixture.
+   expect(task.scheduling.deferred?.[item.id].reason).toBe('route_retry_failed_result_condition');
+   expect(task.routeRetries.routes[key].conditions['old-entry'].resultCondition).toMatchObject({conditionVersion,basis:'replay-target-unavailable'});
   }
   expect(task.plan).toEqual(before);expect(task.routeRetries.routes[key].conditions['old-entry'].attempts).toBe(1);
   expect(Object.keys(task.routeRetries.routes[key].conditions)).toEqual(['old-entry']);

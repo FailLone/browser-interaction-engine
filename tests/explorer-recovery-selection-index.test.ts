@@ -146,17 +146,30 @@ it('recomputes bound scheduling conditions for a changed context without renewin
  }finally{await f.close();}
 });
 
-it('does not retain current-review matching when the current capture and actions are rebuilt under the same IDs',async()=>{
+it('requires current-review proof and refreshes it when captures and actions are rebuilt under the same IDs',async()=>{
  const f=fixture();try{
   f.targetItem.scope={url,label:'Remaining',role:'button'};f.targetItem.reason='classification_unresolved';
   expect((await f.select())).toMatchObject({itemId:'target',targetActionIds:[]});
   const present=structuredClone(f.target);f.current.controls=[present];
+  // The old fixture supplied only matching scope hints. Those alone cannot
+  // exclude a retained source, even when generated IDs happen to be unchanged.
+  expect((await f.select())).toMatchObject({itemId:'target',targetActionIds:[]});
+  for(const c of [f.target,present]){
+   c.reviewBinding={parentInstanceId:'parent',attributes:{id:'remaining',type:'button'}};
+   c.reviewReuseBinding={ancestors:[{tag:'section',selector:'#commands',attributes:{id:'commands'},label:'Commands'}]};
+   c.classificationBinding={truncated:false,text:'Remaining',nodes:[{instanceId:c.instanceId,parentInstanceId:'parent',tag:'button',attributes:{id:'remaining',type:'button'}}],references:[]};
+  }
   expect((await f.select())).toBeUndefined();expect(f.task.scheduling!.deferred!.target.reason).toBe('current_review_occurrence_present');
   present.name='Another';present.label='Another';
   expect((await f.select())).toMatchObject({itemId:'target',targetActionIds:[]});
   f.actionRows.set(f.current.id,[action(f.current,present,{id:f.sourceAction.id,label:'Remaining'})]);
+  // A rebuilt action label can match the scope while the captured control's
+  // classification still differs. Matching that action is not review proof.
+  expect((await f.select())).toMatchObject({itemId:'target',targetActionIds:[]});
+  present.name='Remaining';present.label='Remaining';
   expect((await f.select())).toBeUndefined();expect(f.task.scheduling!.deferred!.target.reason).toBe('current_review_occurrence_present');
-  f.actionRows.set(f.current.id,[]);expect((await f.select())).toMatchObject({itemId:'target',targetActionIds:[]});
+  present.name='Another';present.label='Another';f.actionRows.set(f.current.id,[]);
+  expect((await f.select())).toMatchObject({itemId:'target',targetActionIds:[]});
  }finally{await f.close();}
 });
 

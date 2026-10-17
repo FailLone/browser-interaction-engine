@@ -102,7 +102,7 @@ it('continues to a retained visible source after rejecting a newer hidden source
  }finally{await f.close();}
 });
 
-it.each([false,true])('defers an already present review item only without an active boundary (active: %s)',async activeBoundary=>{
+it.each([false,true])('retained-only current hints do not exclude an unverified review source (active: %s)',async activeBoundary=>{
  const f=fixture();try{
   f.source.controls=[control('old-review')];f.source.regions[0].label='Historical menu';
   f.review.scope.region='Historical menu';
@@ -125,24 +125,18 @@ it.each([false,true])('defers an already present review item only without an act
   const transition=vi.fn((_sid:string,sourceId:string)=>({retainedControls:sourceId===newer.id
    ?[{beforeLocalId:'retained-header',afterLocalId:'current-header'}]:[]}));
   f.host.interactionTransition=transition as unknown as ExplorerHost['interactionTransition'];
-  // Neither same label nor current scope equality causes the defer: only the
-  // newest source's retained occurrence corresponds to this current header.
+  // A retained occurrence is a candidate correspondence. This historical
+  // fixture has no classification/branch proof and a changed region, so it
+  // cannot discard that source, nor stop all older sources for the same item.
   expect(controlScopeMatcher(f.source,[])(f.review.scope,f.source.controls[0])).toBe(true);
   expect(controlScopeMatcher(newer,[])(f.review.scope,newer.controls[0])).toBe(true);
   expect(controlScopeMatcher(f.current,[])(f.review.scope,f.current.controls[0])).toBe(false);
   const plan=structuredClone(f.task.plan),debt=structuredClone(f.task.routeRetries);
-  if(activeBoundary){
-   // The retained header can be behind a modal. This patch must not turn the
-   // existing present predicate into permission to review that background node.
-   expect((await f.select())).toMatchObject({itemId:'review',source:{id:f.source.id}});
-   expect(transition.mock.calls.map(call=>call[1])).toEqual([newer.id,f.source.id]);
-   expect(f.task.scheduling.deferred?.review).toBeUndefined();
-  }else{
-   expect((await f.select())).toMatchObject({itemId:'genuinely-missing',source:{id:missing.id}});
-   expect(transition.mock.calls.map(call=>call[1])).toEqual([newer.id,missing.id]);
-   expect(f.task.scheduling.deferred?.review.reason).toBe('current_review_occurrence_present');
-   expect(Object.values(f.task.scheduling.routes).some(route=>route.itemIds.includes('review'))).toBe(false);
-  }
+  // A restore candidate remains eligible even if a current modal obscures the
+  // hinted header. This selection does not claim that review can run now.
+  expect((await f.select())).toMatchObject({itemId:'review',source:{id:newer.id}});
+  expect(transition.mock.calls.map(call=>call[1])).toEqual([newer.id]);
+  expect(f.task.scheduling.deferred?.review).toBeUndefined();
   expect(f.task.plan).toEqual(plan);expect(f.task.status).toBe('running');expect(f.review.status).toBe('unresolved');
   expect(f.task.routeRetries).toEqual(debt);expect(f.current.controls[0].hypothesisId).toBe('hypothesis-current-header');
   expect(f.host.reachCheckpoint).not.toHaveBeenCalled();expect(f.host.execute).not.toHaveBeenCalled();
