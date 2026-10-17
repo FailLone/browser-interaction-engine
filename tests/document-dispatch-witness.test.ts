@@ -9,11 +9,12 @@ import { BrowserAdapter } from '@interaction/adapter-playwright';
 import { MemoryStore } from '@interaction/storage-memory';
 import { browserBranchConditions } from '../packages/adapter-playwright/src/branch-conditions.js';
 import { pageOf } from './helpers.js';
+import { readOwnerGraph } from './owner-dependency-helpers.js';
 
 const sha = (value: string) => createHash('sha256').update(value).digest('hex');
 function modeOwner(observation: Pick<Observation, 'controls' | 'ownerDependencies'>) {
   const mode = observation.controls.find(control => control.selector === '#mode')!;
-  const graph = observation.ownerDependencies!;
+  const graph = readOwnerGraph(observation);
   const root = graph.roots.find(root => root.localId === mode.localId)!;
   return graph.nodes.find(node => node.id === root.ownerId)!;
 }

@@ -1,3 +1,4 @@
+import { readOwnerGraph, mutableOwnerGraph } from './owner-dependency-helpers.js';
 import {createServer} from 'node:http';
 import {beforeAll,expect,it,vi} from 'vitest';
 import {BrowserEngine,PlaywrightAdapter,controlReviewConditions,controlReviewKey,type ActionAttempt,type ActionCandidate,type BoundaryExitResult,type ControlReviewRecord,type FrontierItem,type Observation,type Session} from '@interaction/browser';
@@ -35,7 +36,7 @@ beforeAll(async()=>{
   expect(host.list(s.id,'hypothesis')).toEqual([]);
   for(const o of [target,before]){
    expect(o.ownerDependencies?.inventoryComplete).toBe(true);
-   for(const localId of [flag.localId,...o.ownerDependencies!.selectorIds])expect(o.ownerDependencies!.roots.find(r=>r.localId===localId)?.complete).toBe(true);
+   for(const localId of [flag.localId,...readOwnerGraph(o).selectorIds])expect(readOwnerGraph(o).roots.find(r=>r.localId===localId)?.complete).toBe(true);
    expect(browserBranchConditions(targetAction,o)).toBeUndefined();
   }
   seed={sid:s.id,targetId:target.id,actionId:targetAction.id,attemptId:attempt.id,reviewId:review.id,rows:Object.fromEntries(kinds.map(kind=>[kind,host.store.list<Row>(kind,s.id)]))};
@@ -53,7 +54,7 @@ function fixture(change?:(d:Draft)=>void){
 function pending(d:Draft,id:string,patch:Partial<FrontierItem>={}):FrontierItem {
  return {id,sessionId:seed.sid,key:id,stateId:d.target.stateId,contextKey:'fixture',action:structuredClone(d.action),status:'pending',attempts:[],depth:0,...patch};
 }
-function ownerNode(o:Observation,selector:string){const c=o.controls.find(c=>c.selector===selector)!,graph=o.ownerDependencies!,root=graph.roots.find(r=>r.localId===c.localId)!;return graph.nodes.find(n=>n.id===root.ownerId)!;}
+function ownerNode(o:Observation,selector:string){const c=o.controls.find(c=>c.selector===selector)!,graph=mutableOwnerGraph(o),root=graph.roots.find(r=>r.localId===c.localId)!;return graph.nodes.find(n=>n.id===root.ownerId)!;}
 
 it('seed checkpoint: proves a real success against the earlier same-document instance-only source without replay or writes',async()=>{
  const f=fixture(),create=vi.spyOn(PlaywrightAdapter.prototype,'createDriver').mockImplementation(()=>{throw Error('Read query must not attach a browser');});
@@ -97,7 +98,7 @@ it('consumes the public proof in the actual plugin outcome gate and removes one 
 
 it.each(['parent-record','sibling-href','nonlocal-input','hidden-mode','replacement-target','new-document','new-browser','missing-graph'] as const)('declines changed or absent retained conditions: %s',async change=>{
  const f=fixture(d=>{
-  const graph=d.target.ownerDependencies!,mode=d.target.controls.find(c=>c.selector==='#mode')!;
+  const graph=mutableOwnerGraph(d.target),mode=d.target.controls.find(c=>c.selector==='#mode')!;
   if(change==='parent-record')ownerNode(d.target,'#mode').attributes['data-record']='other-record';
   if(change==='sibling-href'){const link=graph.nodes.find(n=>n.attributes.href==='/mode-record')!;link.attributes.href='/other-record';link.resolved!.href=new URL('/other-record',d.target.url).href;}
   if(change==='nonlocal-input'){d.target.controls.find(c=>c.selector==='#nonlocal')!.value='B';graph.nodes.find(n=>n.attributes.id==='nonlocal')!.live!.value='B';}

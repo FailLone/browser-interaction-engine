@@ -27,6 +27,7 @@ import { collectEvidence } from './collect-evidence.js';
 import { installImageResourceEvidence } from './image-resource-evidence.js';
 import { collectIdentityContexts } from './identity-context.js';
 import { collectOwnerDependencies } from './owner-dependencies.js';
+import { createOwnerDependencyCodec } from './owner-dependency-codec.js';
 import { collectPopupRelations } from './popup-relations.js';
 import { collectComponents } from './components.js';
 import { evidenceOptionsSchema } from './schema.js';
@@ -523,7 +524,10 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
     const args = `, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? discoverStructuralLists.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? describeStructuralLists.toString() : 'undefined'}, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}, ${this.discoveryPlan?.status === 'active' ? JSON.stringify(this.discoveryPlan) : 'undefined'}`;
-    const source = `(() => { const __name = (fn) => fn; const dom = (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}, ${collectScrollContainers.toString()}, ${collectBoundaryExits.toString()}, ${ownerDependencies && this.options.exploration === 'controls' ? collectOwnerDependencies.toString() : 'undefined'}${args}); if (dom.ownerDependencies) dom.ownerDependencies = JSON.stringify(dom.ownerDependencies); return dom; })()`;
+    const ownerCollector = ownerDependencies && this.options.exploration === 'controls'
+      ? `(controls, elements, instance, documentId) => (${collectOwnerDependencies.toString()})(controls, elements, instance, documentId, undefined, (${createOwnerDependencyCodec.toString()}))`
+      : 'undefined';
+    const source = `(() => { const __name = (fn) => fn; const dom = (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}, ${collectScrollContainers.toString()}, ${collectBoundaryExits.toString()}, ${ownerCollector}${args}); if (dom.ownerDependencies) dom.ownerDependencies = JSON.stringify(dom.ownerDependencies); return dom; })()`;
     // Preserve arbitrary legal HTML attribute keys across the automation protocol.
     const transferred = await this.page.evaluate(source) as Omit<DOMSnapshot, 'ownerDependencies'> & { ownerDependencies?: string; discoveryTopology: string[][]; discoveryScan: DiscoverySnapshot };
     const raw = { ...transferred, ...(transferred.ownerDependencies ? { ownerDependencies: JSON.parse(transferred.ownerDependencies) as NonNullable<DOMSnapshot['ownerDependencies']> } : { ownerDependencies: undefined }) };

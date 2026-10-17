@@ -1,3 +1,4 @@
+import { readOwnerGraph } from './owner-dependency-helpers.js';
 import { createServer } from 'node:http';
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -129,13 +130,13 @@ it('capture keeps both sampling graphs and persists the graph belonging to its f
   vi.spyOn(f.driver, 'readDOM').mockImplementation(async (detailed = false, ownerDependencies = true) => {
     if (detailed) await f.page.locator('section').evaluate(el => el.setAttribute('data-record', 'B'));
     const result = await original(detailed, ownerDependencies);
-    reads.push({ detailed, enabled: ownerDependencies, record: result.ownerDependencies!.nodes.find(n => n.attributes['data-record'])!.attributes['data-record'] });
+    reads.push({ detailed, enabled: ownerDependencies, record: readOwnerGraph(result).nodes.find(n => n.attributes['data-record'])!.attributes['data-record'] });
     return result;
   });
   const o = await f.engine.observe(f.sid);
   expect(reads.some(r => !r.detailed && r.record === 'A')).toBe(true); expect(reads.some(r => r.detailed && r.record === 'B')).toBe(true);
   expect(reads.every(r => r.enabled)).toBe(true);
-  expect(o.ownerDependencies?.nodes.find(n => n.attributes['data-record'])?.attributes['data-record']).toBe('B');
+  expect(readOwnerGraph(o).nodes.find(n => n.attributes['data-record'])?.attributes['data-record']).toBe('B');
   expect(f.engine.observation(f.sid, o.id).ownerDependencies).toEqual(o.ownerDependencies);
 });
 it('keeps owner collection disabled through discovery invalidation recursion', async () => {

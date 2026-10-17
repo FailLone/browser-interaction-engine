@@ -1,3 +1,4 @@
+import { mutableOwnerGraph } from './owner-dependency-helpers.js';
 import { expect, it, vi } from 'vitest';
 import { hash } from '@interaction/core';
 import type { ActionAttempt, ActionCandidate, Control, Observation, OwnerDependencies, OwnerDependencyNode } from '@interaction/browser';
@@ -52,7 +53,7 @@ function witness(f: { before: Observation; after: Observation; attempt: ActionAt
     url: f.before.url, capturedAt: f.attempt.startedAt };
 }
 const run = (f: F, auth = authority) => documentCoverageReader(auth)(f.action, f.current, f.attempt, f.before, f.after);
-const graph = (o: Observation) => o.ownerDependencies!;
+const graph = (o: Observation) => mutableOwnerGraph(o);
 const n = (o: Observation, id: string) => graph(o).nodes.find(n => n.id === id)!;
 function both(f: F, change: (o: Observation) => void) { change(f.before); change(f.current); witness(f); }
 function ambiguousIdentityFixture() {

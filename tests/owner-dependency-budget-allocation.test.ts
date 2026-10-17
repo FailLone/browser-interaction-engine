@@ -1,3 +1,4 @@
+import { readOwnerGraph, mutableOwnerGraph, compactOwnerGraph } from './owner-dependency-helpers.js';
 import { createServer } from 'node:http';
 import { afterEach, expect, it } from 'vitest';
 import { hash } from '@interaction/core';
@@ -42,7 +43,7 @@ async function fixture(large = true) {
 }
 function rootFor(o: Observation, selector: string) {
   const control = o.controls.find(c => c.selector === selector)!;
-  return o.ownerDependencies!.roots.find(root => root.localId === control.localId)!;
+  return readOwnerGraph(o).roots.find(root => root.localId === control.localId)!;
 }
 function withinBudget(graph: OwnerDependencies) {
   expect(Buffer.byteLength(JSON.stringify(graph))).toBeLessThanOrEqual(graph.limits.bytes);
@@ -51,7 +52,7 @@ function withinBudget(graph: OwnerDependencies) {
 }
 
 it('preserves complete required roots and a real receipt proof after a large later optional owner exhausts bytes', async () => {
-  const f = await fixture(), graph = f.before.ownerDependencies!;
+  const f = await fixture(), graph = readOwnerGraph(f.before);
   expect(graph).toMatchObject({ inventoryComplete: true, complete: false, reasons: expect.arrayContaining(['byte_budget']) });
   expect(graph.roots.map(root => root.localId).sort()).toEqual(f.before.controls.map(control => control.localId).sort());
   expect(graph.nativeRoots).toHaveLength(1); expect(graph.nativeRoots![0].complete).toBe(true);
@@ -60,8 +61,8 @@ it('preserves complete required roots and a real receipt proof after a large lat
   expect(rootFor(f.before, '#later-79').complete).toBe(false);
   expect(f.before.controls.find(c => c.selector === '#field')?.checked).toBeNull();
   expect(f.before.controls.find(c => c.selector === '#editor')?.editable).toBe(true);
-  withinBudget(graph);
-  expect(f.after.ownerDependencyDispatch?.graphKey).toBe(hash(graph));
+  expect(Buffer.byteLength(JSON.stringify(f.before.ownerDependencies))).toBeLessThanOrEqual(graph.limits.bytes);
+  expect(f.after.ownerDependencyDispatch?.graphKey).toBe(hash(f.before.ownerDependencies));
   expect(f.host.operationReceiptCondition(f.sid, { attemptId: f.attempt.id })).toMatchObject({
     actualSuccess: true, conditionVerified: true, status: 'document', identityAuthorized: false,
     replayAuthorized: false, currentExecution: false, arrivalVerified: false,
@@ -69,21 +70,21 @@ it('preserves complete required roots and a real receipt proof after a large lat
 });
 
 it('does not change required proof when a later optional owner expands a shared ancestor before failing', async () => {
-  const f = await fixture(), graph = f.before.ownerDependencies!, main = graph.nodes.find(node => node.attributes.id === 'shared')!;
+  const f = await fixture(), graph = readOwnerGraph(f.before), main = graph.nodes.find(node => node.attributes.id === 'shared')!;
   expect(main.children?.length).toBeGreaterThan(100); // The optional collection really did upgrade this ancestor.
   const required = graph.closures.find(closure => closure.id === rootFor(f.before, '#flag').closureId)!;
   expect(required.nodeIds).toContain(main.id); expect(required.subtreeIds).not.toContain(main.id);
   const proof = f.compare(f.before); expect(proof).toBeDefined();
   // Reader-only comparison with the earlier ancestor-only representation. The
   // clones and witness below are synthetic and never written to the host store.
-  const earlier = structuredClone(f.before), earlierMain = earlier.ownerDependencies!.nodes.find(node => node.id === main.id)!;
-  delete earlierMain.children; earlierMain.childrenComplete = false;
+  const earlier = structuredClone(f.before), earlierMain = mutableOwnerGraph(earlier).nodes.find(node => node.id === main.id)!;
+  delete earlierMain.children; earlierMain.childrenComplete = false; compactOwnerGraph(earlier);
   const witness = structuredClone(f.after); witness.ownerDependencyDispatch!.graphKey = hash(earlier.ownerDependencies);
   expect(f.compare(f.before, earlier, witness)).toEqual(proof);
-  const reordered = structuredClone(f.before); reordered.ownerDependencies!.roots.reverse();
+  const reordered = structuredClone(f.before); mutableOwnerGraph(reordered).roots.reverse(); compactOwnerGraph(reordered);
   witness.ownerDependencyDispatch!.graphKey = hash(reordered.ownerDependencies);
   expect(f.compare(reordered, reordered, witness)).toEqual(proof); // Root inventory order is not condition semantics.
-  expect(hash(f.host.observation(f.sid, f.before.id).ownerDependencies)).toBe(hash(graph));
+  expect(hash(f.host.observation(f.sid, f.before.id).ownerDependencies)).toBe(hash(f.before.ownerDependencies));
 });
 
 it.each([{ nodes: 3 }, { bytes: 2048 }] as const)('still denies required or inventory exhaustion under %s', async limits => {

@@ -1,3 +1,4 @@
+import { readOwnerGraph, mutableOwnerGraph } from './owner-dependency-helpers.js';
 import { createServer } from 'node:http';
 import { afterEach, expect, it } from 'vitest';
 import { hash } from '@interaction/core';
@@ -28,14 +29,14 @@ async function fixture() {
 }
 
 it('proves a stable complete real receipt while retaining hidden native fields outside all action and identity inventories', async () => {
-  const f = await fixture(), graph = f.before.ownerDependencies!, hidden = graph.nodes.find(node => node.attributes.id === 'business')!;
+  const f = await fixture(), graph = readOwnerGraph(f.before), hidden = graph.nodes.find(node => node.attributes.id === 'business')!;
   expect(graph.version).toBe('browser-owner-dependencies-v2'); expect(graph.inventoryComplete).toBe(true);
   expect(graph.nativeInputIds).toContain(hidden.id); expect(graph.nativeRoots).toEqual([expect.objectContaining({instanceId: hidden.id, complete: true})]);
   expect(graph.references.some(ref => ref.sourceId === hidden.id && ref.token === 'external' && ref.status === 'unique')).toBe(true);
   expect(hidden.live?.value).toBe('A'); expect(f.before.controls.some(c => c.instanceId === hidden.id)).toBe(false);
   expect(f.host.actions(f.sid).some(a => a.localId === hidden.id)).toBe(false);
   expect(f.host.list<{occurrences?: {localId: string}[]}>(f.sid, 'identity').some(identity => identity.occurrences?.some(item => item.localId === hidden.id))).toBe(false);
-  expect(f.after.ownerDependencyDispatch?.graphKey).toBe(hash(graph));
+  expect(f.after.ownerDependencyDispatch?.graphKey).toBe(hash(f.before.ownerDependencies));
   expect(f.proof()).toMatchObject({actualSuccess: true, conditionVerified: true, status: 'document', identityAuthorized: false, replayAuthorized: false, currentExecution: false, arrivalVerified: false});
 });
 
@@ -45,7 +46,7 @@ it('rejects a changed nonlocal hidden value or IDREF binding while identical ret
   await f.page.locator('#business').evaluate(el => { (el as HTMLInputElement).value = 'B'; });
   const b = await f.host.observe(f.sid);
   expect(b.controls.find(c => c.selector === '#flag')?.checked).toBe(false);
-  expect(b.ownerDependencies!.nodes.find(n => n.attributes.id === 'business')?.live?.value).toBe('B');
+  expect(readOwnerGraph(b).nodes.find(n => n.attributes.id === 'business')?.live?.value).toBe('B');
   expect(f.compare(b)).toBeUndefined();
   await f.page.locator('#business').evaluate(el => { (el as HTMLInputElement).value = 'A'; });
   await f.page.locator('#external').evaluate(el => el.setAttribute('data-record', 'external-B'));
@@ -56,7 +57,7 @@ it('rejects a changed nonlocal hidden value or IDREF binding while identical ret
 it('rejects absent, omitted or malformed v2 native proof even when both sides claim completeness', async () => {
   const f = await fixture();
   for (const change of ['missing-inventory', 'missing-root', 'missing-live', 'missing-reference', 'incomplete-root'] as const) {
-    const before = structuredClone(f.before), after = structuredClone(f.after), graph = before.ownerDependencies!;
+    const before = structuredClone(f.before), after = structuredClone(f.after), graph = mutableOwnerGraph(before);
     const root = graph.nativeRoots![0], hidden = graph.nodes.find(node => node.id === root.instanceId)!;
     if (change === 'missing-inventory') delete graph.nativeInputIds;
     if (change === 'missing-root') graph.nativeRoots = [];
@@ -66,7 +67,7 @@ it('rejects absent, omitted or malformed v2 native proof even when both sides cl
     after.ownerDependencyDispatch!.graphKey = hash(graph); // Isolate reader validation; this does not edit stored evidence.
     expect(f.compare(before, before, after), change).toBeUndefined();
   }
-  const legacy = structuredClone(f.before); legacy.ownerDependencies = { ...legacy.ownerDependencies!, version: 'browser-owner-dependencies-v1', inventoryComplete: false,
+  const legacy = structuredClone(f.before); legacy.ownerDependencies = { ...readOwnerGraph(legacy), version: 'browser-owner-dependencies-v1', inventoryComplete: false,
     nativeInputIds: undefined, nativeRoots: undefined, roots: [], closures: [], nodes: [], references: [], complete: false, reasons: ['unretained_native_input'] };
   expect(f.compare(legacy)).toBeUndefined();
 });

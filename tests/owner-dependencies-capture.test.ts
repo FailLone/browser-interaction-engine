@@ -1,3 +1,4 @@
+import { readOwnerGraph } from './owner-dependency-helpers.js';
 import { createServer } from 'node:http';
 import { afterEach, expect, it } from 'vitest';
 import { BrowserEngine, type Observation, type OwnerDependencies, type OwnerDependencyLimits } from '@interaction/browser';
@@ -19,7 +20,7 @@ async function fixture(html: string) {
   return { engine, sid: session.id, page: pageOf(engine), observe, current: () => engine.observation(session.id) };
 }
 function dependency(o: Observation, selector: string) {
-  const c = o.controls.find(c => c.selector === selector)!, graph = o.ownerDependencies!;
+  const c = o.controls.find(c => c.selector === selector)!, graph = readOwnerGraph(o);
   const root = graph.roots.find(root => root.localId === c.localId)!, closure = graph.closures.find(closure => closure.id === root.closureId)!;
   return { c, graph, root, closure, nodes: graph.nodes.filter(node => closure.nodeIds.includes(node.id)), refs: graph.references.filter((_, i) => closure.referenceIds.includes(i)) };
 }
@@ -80,12 +81,14 @@ it('captures transitive IDREF targets, text and cyclic references once with veri
   expect(next.nodes.find(n => n.attributes.id === 'inner')).toMatchObject({ attributes: { 'data-record': 'B' }, children: [{ text: 'Changed' }], childrenComplete: true });
 });
 
-it.each(['missing', 'duplicate'] as const)('marks %s IDREFs incomplete instead of choosing a target', async variant => {
+it.each(['missing', 'duplicate'] as const)('records %s IDREF lookup without choosing an ambiguous target', async variant => {
   const f = await fixture(`<section><button id="mode" aria-expanded="false" aria-controls="panel">Mode</button></section>${variant === 'duplicate' ? '<div id="panel">A</div><div id="panel">B</div>' : ''}`);
   const { root, refs, closure } = dependency(f.current(), '#mode');
-  expect(root.complete).toBe(false); expect(closure.complete).toBe(false);
-  expect(refs.find(ref => ref.token === 'panel')).toMatchObject({ status: variant === 'missing' ? 'missing' : 'ambiguous' });
-  expect(root.reasons).toContain(variant === 'missing' ? 'missing_idref' : 'ambiguous_idref');
+  expect(root.complete).toBe(variant === 'missing'); expect(closure.complete).toBe(variant === 'missing');
+  expect(refs.find(ref => ref.token === 'panel')).toMatchObject({ status: variant === 'missing' ? 'missing' : 'ambiguous',
+    lookup: { scope: 'document-light-dom', documentId: f.current().documentId, matches: variant === 'missing' ? 0 : 2 } });
+  if (variant === 'missing') expect(root.reasons).toEqual([]);
+  else expect(root.reasons).toContain('ambiguous_idref');
 });
 
 it('captures native property state and external form ownership when HTML attributes remain unchanged', async () => {
@@ -147,14 +150,14 @@ it('retains formerly omitted native inputs as dependencies without changing the 
   const f = await fixture('<section><button id="mode" aria-expanded="false">Mode</button></section><div><input id="hidden-business" type="hidden" value="A"></div>');
   const before = f.current();
   expect(before.controls.some(c => c.selector === '#hidden-business')).toBe(false);
-  expect(before.ownerDependencies).toMatchObject({ version: 'browser-owner-dependencies-v2', inventoryComplete: true, complete: true, reasons: [] });
-  const graph = before.ownerDependencies!, hidden = graph.nodes.find(node => node.attributes.id === 'hidden-business')!;
+  expect(readOwnerGraph(before)).toMatchObject({ version: 'browser-owner-dependencies-v2', inventoryComplete: true, complete: true, reasons: [] });
+  const graph = readOwnerGraph(before), hidden = graph.nodes.find(node => node.attributes.id === 'hidden-business')!;
   expect(graph.nativeInputIds).toContain(hidden.id); expect(graph.nativeRoots).toEqual([expect.objectContaining({ instanceId: hidden.id, complete: true })]);
   expect(hidden.live?.value).toBe('A');
   await f.page.locator('#hidden-business').evaluate(el => { (el as HTMLInputElement).value = 'B'; });
   const after = await f.observe();
   expect(after.controls).toEqual(before.controls);
-  expect(after.ownerDependencies?.nodes.find(node => node.id === hidden.id)?.live?.value).toBe('B');
-  expect(after.ownerDependencies?.nativeInputIds).toEqual(graph.nativeInputIds);
+  expect(readOwnerGraph(after).nodes.find(node => node.id === hidden.id)?.live?.value).toBe('B');
+  expect(readOwnerGraph(after).nativeInputIds).toEqual(graph.nativeInputIds);
   expect(f.engine.actions(f.sid).some(action => action.localId === hidden.id)).toBe(false);
 });
