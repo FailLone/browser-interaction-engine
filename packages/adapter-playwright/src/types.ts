@@ -199,7 +199,7 @@ export interface Observation extends CoreObservation<Control> {
   actionDiscovery?: { version: 'dom-actions-v2'; documentHints: ActionEvidence[] };
   screenshot?: string; gaps: Gap[]; stable: boolean;
   evidence?: BrowserEvidenceManifest;
-  stateId: ID; visitId: ID; fingerprint: string; canonical: string; ruleVersion: 'observable-v1' | 'observable-v2' | 'observable-v3' | 'observable-v3-live-v1' | 'observable-v3-live-v2' | 'observable-v4' | 'observable-v5' | 'observable-v6' | 'observable-v7';
+  stateId: ID; visitId: ID; fingerprint: string; canonical: string; ruleVersion: 'observable-v1' | 'observable-v2' | 'observable-v3' | 'observable-v3-live-v1' | 'observable-v3-live-v2' | 'observable-v4' | 'observable-v5' | 'observable-v6' | 'observable-v7' | 'observable-v8';
   cause: 'initial' | 'action' | 'inspection' | 'recovery' | 'external';
 }
 export interface ContextRule { key: string; selector: string; attribute?: string; required?: boolean }

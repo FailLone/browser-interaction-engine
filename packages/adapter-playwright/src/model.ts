@@ -1,10 +1,18 @@
 import type { Observation, Diff, Control, Session, StateGrouping } from './types.js';
 import { canonical, signature, formBinding } from './util.js';
-export function observableCanonical(o: Pick<Observation, 'url' | 'controls' | 'context' | 'scroll' | 'gaps' | 'overlays' | 'components' | 'scrollContainers'>) {
+import { structuralStateKeys } from './structural-state-key.js';
+type ObservableFrame = Pick<Observation, 'url' | 'controls' | 'context' | 'scroll' | 'gaps' | 'overlays' | 'components' | 'scrollContainers'>
+  & Partial<Pick<Observation, 'ruleVersion' | 'regionCandidates'>>;
+// Raw captures have no ruleVersion yet. Explicit old observations retain their
+// original canonical encoding; stored checkpoints are never upgraded in place.
+const currentRules = (o: Pick<ObservableFrame, 'ruleVersion'>) => o.ruleVersion === undefined || o.ruleVersion === 'observable-v8';
+export function observableCanonical(o: ObservableFrame) {
+  const portable = currentRules(o) ? structuralStateKeys(o) : undefined;
+  const key = (control: Control | undefined) => control && (portable?.get(control) || control.stableKey);
   const components = o.components?.map(c => ({ kind: c.kind, name: c.name, status: c.basis.status,
     parent: o.components?.filter(p => p.id === c.parentId).map(p => ({ kind: p.kind, name: p.name })),
-    members: c.members.map(({ localId, ...semantics }) => { const control = o.controls.find(v => v.localId === localId); return { ...semantics, signature: control && signature(control), stableKey: control?.stableKey }; }) })) || [];
-  return canonical({ url: o.url, context: o.context, scroll: o.scroll, scrollContainers: o.scrollContainers?.map(({ nodeId: _, ...c }) => c) || [], components, overlays: o.overlays?.map(layer => ({ key: layer.key, kind: layer.kind, parentKey: layer.parentKey })) || [], incomplete: o.gaps.filter(g => g.critical).map(g => g.code).sort(), controls: o.controls.map(c => ({ signature: signature(c), stableKey: c.stableKey, identityScope: c.identityScope, formOwner: formBinding(c), readiness: c.readiness, scroll: c.scroll, pressed: c.pressed, value: c.value, displayedText: c.displayedText, checked: c.checked, selected: c.selected, visible: c.visible, enabled: c.enabled, editable: c.editable, expanded: c.expanded, constraints: c.constraints, options: c.options, actionBasis: c.actionBasis, hitTarget: c.actionable?.hitTarget, outsideScrollableArea: c.actionable?.outsideScrollableArea })) });
+    members: c.members.map(({ localId, ...semantics }) => { const control = o.controls.find(v => v.localId === localId); return { ...semantics, signature: control && signature(control), stableKey: key(control) }; }) })) || [];
+  return canonical({ ...(currentRules(o) ? { policy: 'browser-observable-v8' } : {}), url: o.url, context: o.context, scroll: o.scroll, scrollContainers: o.scrollContainers?.map(({ nodeId: _, ...c }) => c) || [], components, overlays: o.overlays?.map(layer => ({ key: layer.key, kind: layer.kind, parentKey: layer.parentKey })) || [], incomplete: o.gaps.filter(g => g.critical).map(g => g.code).sort(), controls: o.controls.map(c => ({ signature: signature(c), stableKey: key(c), identityScope: c.identityScope, formOwner: formBinding(c), readiness: c.readiness, scroll: c.scroll, pressed: c.pressed, value: c.value, displayedText: c.displayedText, checked: c.checked, selected: c.selected, visible: c.visible, enabled: c.enabled, editable: c.editable, expanded: c.expanded, constraints: c.constraints, options: c.options, actionBasis: c.actionBasis, hitTarget: c.actionable?.hitTarget, outsideScrollableArea: c.actionable?.outsideScrollableArea })) });
 }
 
 /** Compact graph membership, never operation equivalence or a restorable checkpoint.
@@ -26,7 +34,7 @@ export function browserStateGrouping(o: Observation, session: Session): StateGro
   const bindings = controls.map(c => ({ readOnly: c.readOnly, attributes: c.reviewBinding?.attributes, declared: c.reviewAttributes,
     record: c.structuralItem && { recordKey: c.structuralItem.recordKey, template: c.structuralItem.template, slot: c.structuralItem.slot },
     unresolved: c.hypothesisId ? c.localId : undefined, instance: c.identityScope === 'instance' ? c.instanceId : undefined }));
-  return { policy: 'browser-state-grouping-v1', canonical: canonical({ observable: observableCanonical({ ...o, controls }), bindings }),
+  return { policy: currentRules(o) ? 'browser-state-grouping-v2' : 'browser-state-grouping-v1', canonical: canonical({ observable: observableCanonical({ ...o, controls }), bindings }),
     evidence: ['Graph membership only; strict observation facts retained separately',
       'Read-only noninteractive values and captured native-link readouts omitted from this index only',
       'Modes, editable values, bindings, constraints, visibility and readiness retained; no execution or coverage permission'] };
