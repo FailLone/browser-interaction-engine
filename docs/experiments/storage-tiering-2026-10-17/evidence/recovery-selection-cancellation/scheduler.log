@@ -1,0 +1,50 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-recovery-selection-cancellation.test.ts (13 tests) 102ms
+ ❯ tests/explorer-recovery-selection-index.test.ts (15 tests | 1 failed) 161ms
+   ✓ preserves direct control matching for ambiguous IDs, missing IDs, values and scope wildcards 104ms
+   ✓ rebuilds control matching after same-ID captures, context and action-set changes 0ms
+   ✓ associates all defer events with the supplied frame without rereading current observation for each item 24ms
+   ✓ does not manufacture a unique retained target by omitting an unsupported duplicate 4ms
+   ✓ does not manufacture a unique retained target by omitting an foreign-owner duplicate 2ms
+   ✓ recomputes a formerly unavailable target condition on every selection and keeps hidden nonlocal modes 3ms
+   ✓ recomputes bound scheduling conditions for a changed context without renewing the original debt 2ms
+   ✓ does not retain current-review matching when the current capture and actions are rebuilt under the same IDs 2ms
+   ✓ retains unknown debt across fresh selectors and never dispatches 2ms
+   ✓ retains saturated debt across fresh selectors and never dispatches 2ms
+   ✓ retains failed landing debt across fresh selectors and never dispatches 2ms
+   ✓ retains opaque legacy debt across fresh selectors and never dispatches 2ms
+   ✓ retains the original composite route instead of minting an independent singleton budget 2ms
+   × uses combined SDK source facts without changing the selected task or rereading the same source 7ms
+     → expected { frame: { …(6) }, …(8) } to deeply equal { frame: { …(6) }, …(8) }
+   ✓ does not bypass a rejected combined source read with legacy APIs 2ms
+ ✓ tests/explorer-source-return-scheduling.test.ts (35 tests) 74ms
+ ✓ tests/explorer-recovery-candidates.test.ts (17 tests) 47ms
+ ✓ tests/explorer-review-source-visibility.test.ts (17 tests) 43ms
+ ✓ tests/explorer-review-source-priority.test.ts (18 tests) 47ms
+ ✓ tests/explorer-recovery-failure-condition.test.ts (12 tests) 27ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/explorer-recovery-selection-index.test.ts > uses combined SDK source facts without changing the selected task or rereading the same source
+AssertionError: expected { frame: { …(6) }, …(8) } to deeply equal { frame: { …(6) }, …(8) }
+
+Compared values have no visual difference.
+
+ ❯ tests/explorer-recovery-selection-index.test.ts:207:30
+    205|   });
+    206|   f.host.recoverySourceMaterial=material;f.readObservation.mockClear()…
+    207|   expect((await f.select())).toEqual(legacy);expect(f.task).toEqual(af…
+       |                              ^
+    208|   expect(material).toHaveBeenCalledOnce();expect(f.readObservation).no…
+    209|   f.source.context.account.value='changed';(await f.select());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  1 failed | 126 passed (127)
+   Start at  14:56:51
+   Duration  4.18s (transform 604ms, setup 0ms, collect 2.74s, tests 501ms, environment 1ms, prepare 237ms)
+

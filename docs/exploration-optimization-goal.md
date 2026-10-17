@@ -4,9 +4,11 @@
 
 当前 main 为 `7c0273d`（含 autonomous），恢复候选产品 `c3a7d1a` 已通过定向行为及隔离发布检查。第十二窗已正常结算：5/5 实际操作取得 document 条件覆盖，但恢复调用为 0，新 `checkpoint_no_known_path` 暂缓效果未被实际事件证实；旧 Trade 项由既有失败债暂缓。窗口暴露长同步扫描的响应性问题：metrics 间隔 168.994 秒，停止请求处理延迟 41.510 秒，期间又开始 1 次动作。unknown/在途/provider 最终均清空，旧计划与路线债保留。第 3 项真实到达及后续新覆盖门仍未通过，不能宣布完结或穷尽；没有新增性能/存储收益结论。最终事实见[第十二窗报告](experiments/storage-tiering-2026-10-17/evidence/real-okx-12/README.md)。
 
+`a32a9bc` 已完成候选扫描的协作式中断及等待后事实复核，尚未合入 main。一次定向检查为 126/127，新增 13 个取消/失效用例全部通过，另两个审阅选择用例通过；旧函数引用比较及测试夹具类型修复后，只补跑失败单例、三条受影响用例和根/core types，均通过。产品在补跑前后未变，不称全套单次全绿。备用候选不会因跨批次被永久丢弃；最终异步返回到实际选中之间也重核历史来源、检查点和路线债。单个 SDK 同步查询仍不可抢占，事实复核增加读取成本，未声称提速或真实停止时延改善。证据唯一保存在[可中断检查点](experiments/storage-tiering-2026-10-17/evidence/recovery-selection-cancellation/README.md)。本补丁不追加真实窗口，下一补丁独立处理重复读取和复核成本；第 3 项门槛不变。
+
 `f3c4316` 只在当前无活动边界时将已在场审阅项整体暂缓；有活动边界时沿用原行为，未改变分类、身份、覆盖或 unknown 契约。新增反例在旧版失败，修复后相关文件一次 17/17 通过；[定向检查点](experiments/storage-tiering-2026-10-17/evidence/review-present-source-fallback/README.md)、[发布检查](experiments/storage-tiering-2026-10-17/evidence/review-present-source-release/validation.json)与真实复验分别支持各自结论。第十窗的 4/4 条件覆盖和严格恢复失败完整保留于[原报告](experiments/storage-tiering-2026-10-17/evidence/real-okx-10/README.md)，不回填旧结果。
 
-恢复候选契约已在 `c3a7d1a` 实现：SDK 分别评估八种既有策略，插件只暂缓明确 `no_known_path` 的严格检查点来源，保留旧待测、失败债、unknown 及实际到达验证；八项分批耗尽后继续，不设永久黑名单。首次定向检查 66/74 通过，8 个新 core 用例暴露不支持的变化索引被误判；修复后只补跑新 core 文件 18/18 及 types，未重跑已过旧组。唯一冻结查询证明第十一窗最终事实下的旧 Trade 来源确实无已知候选路径，未给其补记到达或覆盖；见[候选契约检查点](experiments/storage-tiering-2026-10-17/evidence/recovery-candidate-contract/README.md)。固定产品的构建、公开声明、编译后候选 API 三项发布检查已通过；未重复根/core types，临时归档已清理，见[发布检查](experiments/storage-tiering-2026-10-17/evidence/recovery-candidate-release/README.md)。第十二窗已按一个窗口执行并结算，没有追加窗口；既有失败债先暂缓旧 Trade，新 API 的真实效果仍未证实。下一补丁只处理候选扫描可中断与停止后不继续派发，再分别处理精简投影/共享读取的性能；先用受控大候选集合或冻结输入，不以真实窗口反复试错。没有新的性能或存储收益结论。
+恢复候选契约已在 `c3a7d1a` 实现：SDK 分别评估八种既有策略，插件只暂缓明确 `no_known_path` 的严格检查点来源，保留旧待测、失败债、unknown 及实际到达验证；八项分批耗尽后继续，不设永久黑名单。首次定向检查 66/74 通过，8 个新 core 用例暴露不支持的变化索引被误判；修复后只补跑新 core 文件 18/18 及 types，未重跑已过旧组。唯一冻结查询证明第十一窗最终事实下的旧 Trade 来源确实无已知候选路径，未给其补记到达或覆盖；见[候选契约检查点](experiments/storage-tiering-2026-10-17/evidence/recovery-candidate-contract/README.md)。固定产品的构建、公开声明、编译后候选 API 三项发布检查已通过；未重复根/core types，临时归档已清理，见[发布检查](experiments/storage-tiering-2026-10-17/evidence/recovery-candidate-release/README.md)。第十二窗已按一个窗口执行并结算，没有追加窗口；既有失败债先暂缓旧 Trade，新 API 的真实效果仍未证实。候选扫描可中断与派发前复核已由 `a32a9bc` 完成；后续单独处理精简投影/共享读取的性能，先用受控集合或冻结输入，不以真实窗口反复试错。没有新的性能或存储收益结论。
 
 当前交付顺序：先完成第 3 项恢复路线选择及真实接续阻塞的收尾。第七窗候选读取优化、无效审阅来源修复、隐藏父记录/非局部依赖采集、派发证据及逐来源条件结案已有受控证据。`5eca079` 已把同一 before 候选的直接结案接入 SDK 条件查询，缺证旧项、合法补证及用户范围均保留。新增的批量 receipt 查询将不同回执的重复会话扫描限制在一次同步核对内；只共享本次读取，不跨轮保存权限或条件结论，见[批量查询检查点](experiments/storage-tiering-2026-10-17/evidence/receipt-condition-batch/README.md)。`49702b4` 另使事件读取只核对任务头，省去无关的完整任务组装；两个补丁分别记录，不混报性能收益。
 
@@ -35,8 +37,8 @@
 | 全量读取优化 | `70b8cb4` 已实现，一次组装任务与 occurrence 顺序 | 历史 task() 快 7.2%–11.9%，taskState 快 21%–27%；全活跃完整读约慢 8%，大头 CAS 与进程 RSS 存在代价 |
 | 其他性能与恢复优化 | `70b8cb4` 已实现，留存计数索引、批量回收与跨实例文件锁 | 100/1,000 历史观察热写均 5 get／0 list；基线缺块竞态失败，新实现通过；批量删除 130.23→9.77 ms，普通文件操作增加锁开销 |
 | 真实 state 占用优化 | `91af435` 大型 state 单行压缩、逐条验证迁移 | 同真实快照完整 SQLite 库整理后 −35.5%；热 list 约慢 3.5%，9 次更新 32.92→55.64 ms；26 类实体及 14 Observation 摘要一致 |
-| 合入 main（含 autonomous） | main 为 `d71f1d5`，产品 `f3c4316` 已合入 | 固定发布构建/类型/编译后 API 通过；autonomous `4857ad5` 是 main 的祖先；原工作区保持 |
-| 真实 OKX 持续探索 | 已运行十一窗；已证实 header 错误回退修复，严格到达门仍未过 | 第十一窗 4/4 document 条件覆盖；header item 暂缓且不授予覆盖。另一个历史 Trade generic 审阅项严格 checkpoint UNREACHABLE/15.885 秒/0 动作，receipt arrival 全 false；JEV 6/LLM 0/unknown 0。第 3 项未完结，未证明穷尽 |
+| 合入 main（含 autonomous） | main 为 `7c0273d`，产品 `c3a7d1a` 已合入；可中断补丁 `a32a9bc` 尚未合入 | 已合入版本的固定发布构建/类型/编译后 API 通过；autonomous `4857ad5` 是 main 的祖先；原工作区保持 |
+| 真实 OKX 持续探索 | 已关闭十二窗；真实到达及后续覆盖联合门仍未过 | 第十二窗 5/5 document 条件覆盖，但恢复调用及到达均为 0；新候选 API 的真实暂缓效果仍未证实。JEV 6/LLM 0/unknown 0；可中断补丁未追加窗口。第 3 项未完结，未证明穷尽 |
 | 当前动作按观察读取 | 可选存储查询与保守 SQLite 索引，完整审计保留全历史 | 同帧 8 API × 2 完整结果 16/16 相等；动作解码 11,450→207，专项 22/22；首次索引约 946 KB，1,536 条批量插入/重写分别增加约 30/39 ms，不宣称整轮提速 |
 | 失败落点不新增重试预算 | 保存有证据的结果条件并核对旧数据，纯不稳定失败不固化 | 真实冻结 `scheduledRecovery` 验收阻止旧 Wallet 重试、原 attempts/plan 不变、二次幂等；unknown 与单次 SDK 续行保持；12 新测试、联合 74 项与 typecheck 通过 |
 | 身份热路径压缩可行性 | 九个独立进程对照后拒绝直接 gzip | 约省 5.60 MB，但热 list 2.74×、旧行重写 3.22×、RSS 增约 68 MiB；全部精确还原及负面样本保留 |

@@ -1,0 +1,79 @@
+{
+  "at": "2026-10-17T06:56:51.415675+00:00",
+  "base": "b33e567dc2cf1a54bc6dd173a4d8b3f0ddea172b",
+  "conclusion": "Cooperative recovery selection observes cancellation and rejects facts invalidated across yields before dispatch; no latency, throughput, storage or real recovery-rate claim.",
+  "reason": "Run12 exposed a long synchronous scan; private scheduler is now async, requiring invalidation and caller guards.",
+  "inputs": {
+    "packages/explorer-plugin/src/runtime.ts": "9fcda5531e7efc4c5caeaa6124dc49d08465b9700642c60f9fd993bb5a977d37",
+    "packages/explorer-plugin/src/review-recovery.ts": "5a4f22e31e7fdcac3e7096d023cfed5b08ca95e65622e4d175087860cf489869",
+    "tests/explorer-recovery-selection-cancellation.test.ts": "7fc641822200b7d53e703c62d104cae7b2cb74b3f07d501a535ebbd0a1434865",
+    "tests/explorer-recovery-candidates.test.ts": "010ac94b62ad7b200c4877dfdb7ed958082e7da88beeefb9647925e3284044c6",
+    "tests/explorer-recovery-failure-condition.test.ts": "f3c90632da3a8c9c2c8f5ee75cfbe6d3478421324f363aa71a2e6d17eada5ec6",
+    "tests/explorer-recovery-selection-index.test.ts": "e3b8c173df058d28fda8eb421cf70d2576510c113727fe90e4900741a1ada451",
+    "tests/explorer-review-source-priority.test.ts": "21bfdd33ce573443deee0acbd38f7b2dd69cded4a5fef0a89320defc5b946fb3",
+    "tests/explorer-review-source-visibility.test.ts": "a31fc5b69c10bbd6a66b0d5f9cd030d02b6f4e200996b9b6135764fe5433254e",
+    "tests/explorer-source-return-scheduling.test.ts": "086eac1616d934a0c521bedf27bbe108f565e67f067a656c8c41bf1cd3ea9127",
+    "tests/explorer-review-recovery.test.ts": "d291f7231be0161c31d4484b164b639c52d38b81ec6888c57cba0dc4f3f5d972",
+    "package.json": "c3fca09d482c5b8d8d5e133a2610614f6abf5436d30437efd7e0fe2960d41a3f",
+    "pnpm-lock.yaml": "21f5dffd918855f1d871ffd51544f7d8e5424b612af2ac07dbffbb90b05390fa",
+    "tsconfig.json": "eaa95b4e22a0b55b6a39f75267574a698cefac756bed09168937126d56429b6a",
+    "packages/core/tsconfig.json": "9837c4b8c9eedb792a5461d7db123c4b38df2e7d1c8824206eb18c5bbd8ee220",
+    "vitest.config.ts": "651c618fb0e3a0775117d74332116ef86cbcd909dc9c99fc9e5b7a1b4e24ff98"
+  },
+  "steps": [
+    {
+      "name": "scheduler",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/explorer-recovery-selection-cancellation.test.ts",
+        "tests/explorer-recovery-candidates.test.ts",
+        "tests/explorer-recovery-failure-condition.test.ts",
+        "tests/explorer-recovery-selection-index.test.ts",
+        "tests/explorer-review-source-priority.test.ts",
+        "tests/explorer-review-source-visibility.test.ts",
+        "tests/explorer-source-return-scheduling.test.ts"
+      ],
+      "exitCode": 1,
+      "log": "scheduler.log",
+      "sha256": "f950105973605779a9e52f6bd22b3783f90853fd5e1e085ad48ae23544966f62"
+    },
+    {
+      "name": "review-selection",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/explorer-review-recovery.test.ts",
+        "-t",
+        "prefers a currently recorded GET history anchor|the scheduler selects the refreshed native-history checkpoint"
+      ],
+      "exitCode": 0,
+      "log": "review-selection.log",
+      "sha256": "79f576fd909c50d06aa1e52a81878dba07ea1d987c6d9ea15c3ad8a3c3ed9e15"
+    },
+    {
+      "name": "types",
+      "command": [
+        "pnpm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 2,
+      "log": "types.log",
+      "sha256": "5305db3a988350eea8cd9e9424afa91e491403dfc5be1242dc203c0c4db126c2"
+    }
+  ],
+  "scope": {
+    "browser": false,
+    "services": false,
+    "taskDatabase": false,
+    "testDatabases": "Existing pure scheduler fixtures use in-memory stores only.",
+    "performanceBenchmark": false
+  },
+  "inputsUnchanged": true,
+  "finishedAt": "2026-10-17T06:57:05.000881+00:00"
+}
