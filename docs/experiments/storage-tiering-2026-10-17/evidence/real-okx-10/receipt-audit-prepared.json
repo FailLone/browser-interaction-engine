@@ -1,0 +1,170 @@
+{
+  "prepared": true,
+  "executed": false,
+  "databaseOpened": false,
+  "retainedWrapper": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-9/receipt-audit.mjs",
+    "sha256": "d099ef3d4135873ce7746af0aa79872838da5ea2df1942c2d754c68e569afe8b",
+    "fixedRunId": "717bba24-03b5-487f-a96a-b60ef8cd9972",
+    "wrapperTransformations": [
+      {
+        "name": "typescript-resolution",
+        "beforeSha256": "54f8595792575e569f8dd7ce82abcf7890ae15f4114fec759f8159dbdbb5e349",
+        "afterSha256": "0faf2b2eb5d9b97379151cfc6e2991ba5f204f654c29f85df1ff1299952d2d79"
+      },
+      {
+        "name": "current-script",
+        "beforeSha256": "46d131d9e0d1bb7c26290aec4ac1804a2b2bd265797745b43d8fa635af760b4b",
+        "afterSha256": "2753acff6d1ee3623e8193dfa72e6a0d3829b16d09ce4a820654d9227a2244a3"
+      },
+      {
+        "name": "current-source-module-resolution",
+        "beforeSha256": "cf681e65165756dbaee4c61ed47b877b0b88670f0757a13f4c2de1fcc45da96d",
+        "afterSha256": "c77d14cb29fd5119db22b041f874d942637d7395ecf9759063d8e087e25e4638"
+      },
+      {
+        "name": "owned-v3-runs-only",
+        "beforeSha256": "751ebdbc69bf93d173b54e392783f76bb28d3b03f9d3b7a6b73ced07dccde131",
+        "afterSha256": "b1a9e659ec0dbc1b56388c1c934f92ff83298395e4c8232dd16f2a98335a79ac"
+      },
+      {
+        "name": "fixed-run-id",
+        "beforeSha256": "250db34719203306b1ee7397b35a4df13ae1187bec788a56c62400faad07e8ff",
+        "afterSha256": "3de29071360119c3eb735905b0056e06894ab52298217bfa2ce4ac3f5d5fdd20"
+      },
+      {
+        "name": "compiled-source-name",
+        "beforeSha256": "123c26d3c1eab1d989feec47c791c3ad662377e416a326fee1921500906c3fa8",
+        "afterSha256": "7f6d84fbc0ab00b475cb612f34ebd4afdc8bb714cd5b5bc66cf1eae2b16847f3"
+      },
+      {
+        "name": "append-window-diagnostics",
+        "beforeSha256": "76305a51e2c917e70fd5d9185e66942db588a43dec02843774a2a4c55ae05f60",
+        "afterSha256": "5da016c6a6bc9bc1199460112b1b5bd8498e97cd9337c82943b664b8db39c640"
+      }
+    ],
+    "mandatoryWindowOnly": true,
+    "additionalSdkQueries": 0,
+    "originalBatchSelectionAndLoopUnchanged": true,
+    "graphAndObservationCaches": "diagnostic query lifetime only"
+  },
+  "format": "retained-receipt-audit-wrapper-v1",
+  "template": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-8/receipt-audit.ts",
+    "sha256": "e7ebad3dd1b2f7b8dfd6fe2120427945aa2633d35a2bc154c9a02c2db24fe1fb"
+  },
+  "wrapper": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-10/receipt-audit.mjs",
+    "sha256": "3a76d6ab81b113232c9e5e3c11f1990067ced1f9a4e43cbed479068b1461c389"
+  },
+  "transformedTypeScriptSha256": "2336930a9517797b08f3735edf4f9f9c0f1a8dedb660bae9e004c9bf4cfeeea1",
+  "transpiledModuleSha256": "f1ec13bef60b14efc5e6982198775c51deb77179111d38b9518afb6a42b20154",
+  "typescriptVersion": "5.9.3",
+  "transformations": [
+    {
+      "name": "source-import:@interaction/browser",
+      "beforeSha256": "e255422f3251f941cc7f5354de308da1daceee32f5a21b0c37f27c85c2743d0b",
+      "afterSha256": "d379ed5996f6ecc0bf295955a7812abfbf012124c04e5c899a4e98c791d32fb5"
+    },
+    {
+      "name": "source-import:@interaction/core",
+      "beforeSha256": "fe9d8c430809044d0b2a29471e297c7b9c3a36373e2e590a41a58b950651ef19",
+      "afterSha256": "153d1499543f5b00fe020928df4305831a0344ecdebccde1ade2c0c38f70ddc3"
+    },
+    {
+      "name": "source-import:@interaction/storage-sqlite",
+      "beforeSha256": "086bf0e08b69969fc32a031717803bbd2aa0e1b6b92d62afce172317c6a75d92",
+      "afterSha256": "0887eda52cc419a52d84eb0b9ae90ce86ad9b613ba2ec0112d41b1df3e803ba0"
+    },
+    {
+      "name": "fixed-root-and-wrapper-script",
+      "beforeSha256": "38e5d7c61d13bfea1d20bf3ee02147a70b0081180830d25e9e50ff5ca46b70d5",
+      "afterSha256": "a4ed8a01996a9cb29c7847d8fe824870d97cd4420c4d176c1eb9c3f68905e9fc"
+    },
+    {
+      "name": "source-resolution-provenance",
+      "beforeSha256": "c9b332ec10ec79191e266cf91f11b80cf79f12972b64c00dbe7dbfbc77e4482b",
+      "afterSha256": "23213c4a6fbaf823218201fb3e083d4430b309e890024dae30be04e7029d65c3"
+    },
+    {
+      "name": "diagnostic-compact-decode",
+      "beforeSha256": "4b8058473b59c898b9d7f232f096b75b8f07934f0c3a86af3b8f5e782d7103b5",
+      "afterSha256": "56ff65c7c3bb4b0178d511e19ce0116d6aca51172d157ac7e6dd0b75568fac5d"
+    },
+    {
+      "name": "diagnostic-wire-presence",
+      "beforeSha256": "9d8e11676aa7991053b11dd97f4cfbf3351f7123120a8d07c7d0a781f73cbc79",
+      "afterSha256": "71ac3892e85562c0d93dc85999f5a98687c85e7e760cb3eb07432e3b97f610d7"
+    },
+    {
+      "name": "diagnostic-wire-and-semantic-versions",
+      "beforeSha256": "35324c8c40b01813edf28088de0b88ddd0f179a4e422d16ed6dc6295f7a19309",
+      "afterSha256": "42296d97eaacca9bea51beea30b0779a2b00c745ed88d848ded2673b088aaf0f"
+    },
+    {
+      "name": "diagnostic-wire-and-expanded-bytes",
+      "beforeSha256": "ef027d512c2611b999a86828e4832c5a430fc4469fcb45864a5f68fa3a6755e7",
+      "afterSha256": "c79419da5000d76a160e8b5465b0dfc71627776cfd457fa7f36eb2e7549cfa0c"
+    },
+    {
+      "name": "diagnostic-native-counts",
+      "beforeSha256": "cbeaa6547bf3ad5315a8e01bca2b1cbe922360bbf64d29c9346f2cf44fcf5175",
+      "afterSha256": "71e0654a1aa45d2716d356d8602582de53687aa6383d39cf2c3bcd41c3723f24"
+    },
+    {
+      "name": "explicit-audit-entry",
+      "beforeSha256": "7d5d3f63a3bddde40385b3264a1412a96232f21bff1db066839b86c59d2e229e",
+      "afterSha256": "e7c43f489fc75811e0d7e64d8e3b3707a06b3868303e6013f9a5b621b46f29b3"
+    },
+    {
+      "name": "audit-reuse-provenance",
+      "beforeSha256": "8f19aec9bcf3bd794f13d242f70dedde28774c97de99317df566bbb5d0a4ee25",
+      "afterSha256": "f5f493e8c1e018eeb903abbd7932591bf5a7f1d3ca9a58ede495dce11f667097"
+    },
+    {
+      "name": "export-without-automatic-execution",
+      "beforeSha256": "c81dca016282bc79b440beced9804752228a7ab93d1125e9870522af3901e0ad",
+      "afterSha256": "e3def7540d759f7ac21ec990a5e003cd474f03f7dbd2492e12ea1f34249927f4"
+    },
+    {
+      "name": "shared-diagnostic-graph-cache",
+      "beforeSha256": "e946cd63289b2e6a0d520736264d63fabec1e333492fae8a4a6e27832db5ad9c",
+      "afterSha256": "987d971ad3363735be5e51c1c514dcf5477145d2da01067c4f692d480975611e"
+    },
+    {
+      "name": "use-shared-diagnostic-decode",
+      "beforeSha256": "052232b01d071fad640cb6ee9da0dd8a83161d94bf6b7743b432e598cecc6fb1",
+      "afterSha256": "381bec4df07a86e638af55255a043677133f98543dff04ad55dbb3dada6f30f7"
+    },
+    {
+      "name": "shared-diagnostic-observation-cache",
+      "beforeSha256": "e1137c6ea10b580068fdb4f2859f92fbb70defbce921524f9c77f670d74fe35d",
+      "afterSha256": "42cf9f4acffc5a25befeb543fde7d8ac5e94f681eb90317458c9d5304227f140"
+    },
+    {
+      "name": "cached-before-read",
+      "beforeSha256": "e39f89d2a49e73586d19b7243f449f0c46bb53ace698fd3c697390664231f6ed",
+      "afterSha256": "7b5e814e049d170f52c8889259560075952ef90acb25516d4fb8e9091931a6fa"
+    },
+    {
+      "name": "cached-after-read",
+      "beforeSha256": "e675aa759755f052bfeceabb87a6309d384355d0ac6f1630620e9cb12aee453c",
+      "afterSha256": "5d859f822dcd67c8fa59b40b5d7eb6003268c3d706960c5766c955cdbf7411f2"
+    },
+    {
+      "name": "window-only-mandatory-summary",
+      "beforeSha256": "7269da6bb8381bf95516979bba3b551a48620cf839bee6f1288cc1635882c513",
+      "afterSha256": "d1461c781e9b9c903474114ad7b8d5407c19fc52b83e32536a2e824b3be8cbc6"
+    }
+  ],
+  "moduleResolution": {
+    "@interaction/browser": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/browser/src/index.ts",
+    "@interaction/core": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/index.ts",
+    "@interaction/storage-sqlite": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/index.ts",
+    "@interaction/adapter-playwright": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/index.ts"
+  },
+  "diagnosticOnlyDecode": true,
+  "dispatchHashesOriginalWire": true,
+  "sdkBatchLoopUnchanged": true,
+  "output": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-10/receipt-audit.json"
+}

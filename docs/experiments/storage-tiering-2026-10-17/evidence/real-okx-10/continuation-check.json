@@ -1,0 +1,202 @@
+{
+  "format": "run10-export-continuation-check-v1",
+  "runId": "717bba24-03b5-487f-a96a-b60ef8cd9972",
+  "method": "Read frozen JSON exports and the completed unique receipt-audit.json only; no database or SDK access.",
+  "sources": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v3/runs/717bba24-03b5-487f-a96a-b60ef8cd9972/task-before.json",
+      "bytes": 3077452,
+      "sha256": "d8fcd76cee8bc39e90761c4a20da91a9624270b51a250b5a0714d507ff11c752"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v3/runs/717bba24-03b5-487f-a96a-b60ef8cd9972/task-after.json",
+      "bytes": 3599215,
+      "sha256": "09875e1a2cb77d74221c7530b84ea6f466e5149bd0fceeb3cb5d0b8bab16f581"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v3/runs/717bba24-03b5-487f-a96a-b60ef8cd9972/summary.json",
+      "bytes": 45438,
+      "sha256": "a67d0f112bb15cbd05672199632bee72c74eacd40db63fefa3d15583d257c66e"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v3/runs/717bba24-03b5-487f-a96a-b60ef8cd9972/coverage-review.json",
+      "bytes": 2926532,
+      "sha256": "0a35089a7026c20e51d0a9745e55666a5a3dcaa76296ab1c7b23539e5121afa4"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-10/receipt-audit.json",
+      "bytes": 444716,
+      "sha256": "269786b67bbce6a80956af77b337d8c4fad96388824ee7437243aca05b1f149b"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/real-okx-10/closed-evidence.json",
+      "bytes": 1393,
+      "sha256": "3316abe6dc53fafcf129aaa7f9d1faa1ac1b0bf25f139a16b35c1b684a7e4c69"
+    }
+  ],
+  "plan": {
+    "before": {
+      "rows": 876,
+      "attemptEvidenceReferences": 169,
+      "conditionCompletion": {
+        "none": 820,
+        "unverified": 56
+      }
+    },
+    "after": {
+      "rows": 1106,
+      "attemptEvidenceReferences": 177,
+      "conditionCompletion": {
+        "none": 1047,
+        "unverified": 58,
+        "verified": 1
+      }
+    },
+    "oldIdMultiplicityRetained": true,
+    "duplicateIdsBefore": 0,
+    "duplicateIdsAfter": 0,
+    "oldScopesPrerequisitesAndAuthorityUnchanged": true,
+    "newRows": 230,
+    "newRowsByReasonAndStatus": [
+      {
+        "reason": "action_basis_unconfirmed",
+        "status": "unresolved",
+        "count": 1
+      },
+      {
+        "reason": "observed_in_scope",
+        "status": "succeeded",
+        "count": 1
+      },
+      {
+        "reason": "operation_not_executed",
+        "status": "unresolved",
+        "count": 2
+      },
+      {
+        "reason": "pointer_intercepted",
+        "status": "unresolved",
+        "count": 5
+      },
+      {
+        "reason": "region_review_required",
+        "status": "unresolved",
+        "count": 221
+      }
+    ],
+    "oldChangedRows": 204,
+    "oldChangedFieldCounts": {
+      "evidence": 204,
+      "resolvedBy": 4,
+      "attempts": 4,
+      "status": 2,
+      "reviewResolvedBy": 2,
+      "reviewRecoveryWait": 4,
+      "operationSchedulingNormalization": 113,
+      "operationAvailability": 15,
+      "conditionCompletion": 2
+    },
+    "oldStatusChanges": [
+      {
+        "id": "8a77d2f6-5659-45d9-b7cf-32d9113610f8",
+        "before": "unresolved",
+        "after": "succeeded",
+        "reasonBefore": "classification_unresolved",
+        "reasonAfter": "classification_unresolved",
+        "reviewResolutionOnly": true
+      },
+      {
+        "id": "dae8f2d9-5411-4e9a-a4c1-b304396c54ae",
+        "before": "unresolved",
+        "after": "succeeded",
+        "reasonBefore": "operation_basis_unconfirmed",
+        "reasonAfter": "operation_basis_unconfirmed",
+        "reviewResolutionOnly": true
+      }
+    ],
+    "newSemanticCoverageFromRowCount": "not-established; 230 rows are bookkeeping, not 230 unique UI branches"
+  },
+  "routeDebt": {
+    "before": {
+      "routes": 6,
+      "conditions": 11,
+      "failedResultConditions": 3
+    },
+    "after": {
+      "routes": 7,
+      "conditions": 12,
+      "failedResultConditions": 4
+    },
+    "oldRouteIdsRetained": true,
+    "oldRouteRecordsUnchanged": true,
+    "newRoutes": {
+      "7630d1f6555cb1a9903a8dc9eacbab276d400f7bc579adc32f2d991645bd6164": {
+        "conditions": {
+          "613636bec2298b894b26fcc0bd8d6988679dcdf22c7e3b5520c0378b2fac5bcb": {
+            "attempts": 1,
+            "outcome": "unreachable",
+            "reason": "Checkpoint path contains actions without replay permission",
+            "evidence": {
+              "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+              "observationId": "5b1dbdbe-28db-4e98-bb36-7fab92bf5333"
+            },
+            "attemptKey": "2dd18e6c-7f1a-4cf7-85e1-5fcdfb4027cd",
+            "resultCondition": {
+              "conditionVersion": "613636bec2298b894b26fcc0bd8d6988679dcdf22c7e3b5520c0378b2fac5bcb",
+              "evidence": {
+                "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+                "observationId": "5b1dbdbe-28db-4e98-bb36-7fab92bf5333"
+              },
+              "basis": "complete-observation"
+            }
+          }
+        },
+        "completedProgressKeys": [],
+        "failedResultConditions": {
+          "613636bec2298b894b26fcc0bd8d6988679dcdf22c7e3b5520c0378b2fac5bcb": {
+            "conditionVersion": "613636bec2298b894b26fcc0bd8d6988679dcdf22c7e3b5520c0378b2fac5bcb",
+            "evidence": {
+              "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+              "observationId": "5b1dbdbe-28db-4e98-bb36-7fab92bf5333"
+            },
+            "basis": "complete-observation",
+            "sourceConditionVersion": "613636bec2298b894b26fcc0bd8d6988679dcdf22c7e3b5520c0378b2fac5bcb",
+            "attemptKey": "2dd18e6c-7f1a-4cf7-85e1-5fcdfb4027cd"
+          }
+        }
+      }
+    },
+    "newRouteNecessity": "not-established-by-export-counts; no old debt was erased or marked successful"
+  },
+  "window": {
+    "actualSuccessfulExplorationReceipts": 4,
+    "sdkDocumentConditionVerified": 4,
+    "legacyArrivalCandidates": 0,
+    "unknown": 0,
+    "inFlight": 0,
+    "providerPending": 0,
+    "providerStarted": {
+      "jev": 6,
+      "llm": 0
+    },
+    "recoveries": [
+      {
+        "api": "reachCheckpoint",
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "elapsedMs": 14232.740791000018,
+        "status": "UNREACHABLE",
+        "observationId": "5b1dbdbe-28db-4e98-bb36-7fab92bf5333",
+        "attemptIds": [],
+        "checkpointVerified": false
+      }
+    ],
+    "originalStopReason": "recovery_not_verified"
+  },
+  "bounds": {
+    "databaseOpened": false,
+    "sdkQueried": false,
+    "performanceComparison": false,
+    "thirdAcceptanceGatePassed": false,
+    "exhaustive": false
+  }
+}

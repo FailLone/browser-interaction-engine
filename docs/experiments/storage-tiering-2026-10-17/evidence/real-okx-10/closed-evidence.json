@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-17T05:45:41.676728+00:00",
+  "runId": "717bba24-03b5-487f-a96a-b60ef8cd9972",
+  "taskId": "6c56a979-34f0-4599-a5b7-9461c357144d",
+  "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v3",
+  "runDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v3/runs/717bba24-03b5-487f-a96a-b60ef8cd9972",
+  "sourceInventorySha256": "11110ed74311c09022a3b6c96e20e22dffc66d86f9220138fd8e2bbea8329a76",
+  "sourceFiles": 6147,
+  "sourceLogicalBytes": 182553803,
+  "sourceDatabase": {
+    "path": "engine/engine.sqlite",
+    "bytes": 127401984,
+    "sha256": "a1dfbc1534374ecab30888d4119a5221fa0ad34d8225bdfabb59cc8e20d24cc4"
+  },
+  "pluginDatabase": {
+    "path": "plugin/explorer.sqlite",
+    "bytes": 18423808,
+    "sha256": "c35f316924324ec7a8fe3333afd73851d5d66a6089ba73f6c46afc8420654296"
+  },
+  "summarySha256": "a67d0f112bb15cbd05672199632bee72c74eacd40db63fefa3d15583d257c66e",
+  "run9FrozenBytesUnchanged": true,
+  "sourceCodeRevision": "4f868d68494dd59853f2a6d03afb5d80e695e532",
+  "noDatabaseOpened": true,
+  "retention": "Closed evidence stays here once. No restart or migration of this frozen directory. Audit uses an exclusive temporary DB-only copy; immutable blobs remain shared with frozen run 9."
+}

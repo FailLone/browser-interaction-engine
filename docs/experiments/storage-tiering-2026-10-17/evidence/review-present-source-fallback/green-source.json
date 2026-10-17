@@ -1,0 +1,8 @@
+{
+  "baseCommit": "4f868d68494dd59853f2a6d03afb5d80e695e532",
+  "files": {
+    "packages/explorer-plugin/src/runtime.ts": "e7d2a5bb4bbff154283996d29058714b6d5e2fc814c7a72a0334a4d9494d756f",
+    "tests/explorer-review-source-visibility.test.ts": "3c97dca8f095a2ba83769e9ca956b9628122e5896e7f9f22a0c22808bc907fa3"
+  },
+  "phase": "green: single guarded candidate-loop break; active-boundary control added following parent safety constraint"
+}

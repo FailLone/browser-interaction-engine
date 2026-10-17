@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-17T05:54:56.839803+00:00",
+  "removedExclusiveTemporaryDirectory": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run10-receipt-audit-j3_8w95r",
+  "databaseSha256BeforeRemoval": "a1dfbc1534374ecab30888d4119a5221fa0ad34d8225bdfabb59cc8e20d24cc4",
+  "databaseBytes": 127401984,
+  "sourceDatabaseSha256Matches": true,
+  "sourcePreserved": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v3/engine/engine.sqlite",
+  "databaseOpened": false,
+  "priorGuardRejection": "First attempt expected only engine.sqlite; ownership.json was also present. No mutation occurred. Its contents were then checked against audit-copy.json before removal.",
+  "reason": "One SDK audit and bounded read-only recovery diagnosis completed; retain original evidence once."
+}

@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/explorer-review-source-visibility.test.ts (17 tests) 43ms
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  13:56:32
+   Duration  1.05s (transform 514ms, setup 0ms, collect 873ms, tests 43ms, environment 0ms, prepare 36ms)
+

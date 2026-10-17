@@ -1,0 +1,16 @@
+{
+  "phase": "red: expected counterexample failure",
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/explorer-review-source-visibility.test.ts",
+    "-t",
+    "defers a review item when its newest source occurrence is present"
+  ],
+  "exitCode": 1,
+  "started": 1792216541.632509,
+  "finished": 1792216543.216152,
+  "scope": "Pure in-memory runtime selection; no browser, service or persistent database."
+}

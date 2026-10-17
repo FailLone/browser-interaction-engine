@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-17T05:40:20.410560+00:00",
+  "reason": "First launcher invocation omitted required --run; explicit guard rejected before reading provider configuration, spawning process, opening database or browser.",
+  "processSpawned": false,
+  "databaseOpened": false,
+  "browserStarted": false,
+  "productChanged": false,
+  "correction": "Supply the existing required --run argument; no product or acceptance threshold change."
+}
