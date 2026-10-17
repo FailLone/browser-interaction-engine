@@ -1,0 +1,60 @@
+{
+  "results": [
+    {
+      "name": "budget-native",
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/owner-dependency-budget-allocation.test.ts",
+        "tests/native-dependency-coverage.test.ts"
+      ],
+      "exitCode": 1,
+      "started": 1792211637.944354,
+      "finished": 1792211643.782617
+    },
+    {
+      "name": "consumer-selected",
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/document-coverage-graph.test.ts",
+        "tests/owner-dependencies-capture.test.ts",
+        "tests/document-operation-coverage.test.ts",
+        "-t",
+        "canonicalizes graph index order|does not import unrelated children|marks .* IDREFs incomplete|unrelated broad body owner|retains an unknown receipt over a persistence reopen"
+      ],
+      "exitCode": 0,
+      "started": 1792211643.7826822,
+      "finished": 1792211647.1503968
+    },
+    {
+      "name": "types-root",
+      "argv": [
+        "pnpm",
+        "exec",
+        "tsc",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "started": 1792211647.150453,
+      "finished": 1792211653.905639
+    },
+    {
+      "name": "types-core",
+      "argv": [
+        "pnpm",
+        "exec",
+        "tsc",
+        "-p",
+        "packages/core/tsconfig.json"
+      ],
+      "exitCode": 0,
+      "started": 1792211653.905691,
+      "finished": 1792211654.8302999
+    }
+  ]
+}

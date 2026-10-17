@@ -1,0 +1,15 @@
+
+ RUN  v3.2.7 /private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-owner-budget-beffd31-bdhrcufe/archive
+
+ ✓ tests/owner-dependency-budget-allocation.test.ts (5 tests) 2505ms
+   ✓ preserves complete required roots and a real receipt proof after a large later optional owner exhausts bytes  805ms
+   ✓ does not change required proof when a later optional owner expands a shared ancestor before failing  686ms
+   ✓ still denies required or inventory exhaustion under { nodes: 3 }  341ms
+   ✓ still denies required or inventory exhaustion under { bytes: 2048 }  337ms
+   ✓ checks the entire retained-control mapping before committing any dependency payload  335ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  12:35:04
+   Duration  3.43s (transform 408ms, setup 0ms, collect 785ms, tests 2.50s, environment 0ms, prepare 36ms)
+

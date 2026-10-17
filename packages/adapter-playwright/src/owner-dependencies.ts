@@ -10,9 +10,9 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
     inventoryComplete: true, nativeInputIds: [], nativeRoots: [], roots: [], closures: [], nodes: [], references: [], limits: { ...limits }, complete: false, reasons: [] };
   const reasons = new Set<string>(), encoder = new TextEncoder();
   const size = (value: unknown) => encoder.encode(JSON.stringify(value)).byteLength;
-  // Reserve room for bounded status/reason metadata. Entries are charged once;
-  // replacing an ancestor-only node charges only its additional bytes.
-  let bytes = size(result) + 1024;
+  // Inventory is reserved in full before payload. The remaining fixed allowance
+  // covers the bounded global reason set; payload entries are charged once.
+  let bytes = 0;
   const reserve = (additional: number) => {
     if (bytes + additional > limits.bytes) { reasons.add('byte_budget'); return false; }
     bytes += additional; return true;
@@ -24,19 +24,41 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
     if (size(result) > limits.bytes) { result.selectorIds = []; result.nativeInputIds = []; result.baseURI = ''; }
     return result;
   };
-  if (bytes > limits.bytes) { reasons.add('byte_budget'); return incompleteInventory(); }
+  const itemSelector = '[data-row-key],[data-item-key],li,tr,[role=row],[role=listitem],[role=treeitem],[role=option]';
+  const ownerOf = (element: Element) => element.closest(itemSelector) || element.parentElement || element;
+  const retainedElements = new Set<Element>(), localIds = new Set<string>(), instanceIds = new Set<string>();
+  for (let index = 0; index < controls.length; index++) {
+    const control = controls[index], element = elements[index];
+    if (!element || !control.localId || !control.instanceId || instance(element) !== control.instanceId
+      || retainedElements.has(element) || localIds.has(control.localId) || instanceIds.has(control.instanceId)) {
+      reasons.add('control_element_mismatch'); return incompleteInventory();
+    }
+    retainedElements.add(element); localIds.add(control.localId); instanceIds.add(control.instanceId);
+  }
+  if (elements.length !== controls.length) { reasons.add('control_element_mismatch'); return incompleteInventory(); }
   // Native fields can affect operations outside their local DOM owner. Retain
   // omitted fields as bounded dependencies, without inventing controls/actions.
-  const retainedElements = new Set(elements);
   const nativeOnly: Element[] = [];
   for (const input of document.querySelectorAll('input,select,textarea')) {
     if (result.nativeInputIds!.length >= limits.nodes) { reasons.add('native_input_budget'); return incompleteInventory(); }
     const inputId = instance(input);
-    if (!reserve(size(inputId) + 1)) return incompleteInventory();
     result.nativeInputIds!.push(inputId);
     if (!retainedElements.has(input)) nativeOnly.push(input);
   }
-  const itemSelector = '[data-row-key],[data-item-key],li,tr,[role=row],[role=listitem],[role=treeitem],[role=option]';
+  // A failed root has a real, pre-paid inventory entry. Optional payload cannot
+  // consume the space needed to report later roots or invalidate earlier ones.
+  const nativeEntries = nativeOnly.map(element => {
+    const owner = ownerOf(element), ownerId = instance(owner);
+    const root = { instanceId: instance(element), ownerId, closureId: ownerId, complete: false, reasons: ['byte_budget'] };
+    result.nativeRoots!.push(root); return { element, owner, root };
+  });
+  const entries = controls.map((control, index) => {
+    const element = elements[index], owner = ownerOf(element), ownerId = instance(owner);
+    const root = { localId: control.localId, instanceId: control.instanceId, ownerId, closureId: ownerId, complete: false, reasons: ['byte_budget'] };
+    result.roots.push(root); return { control, element, owner, root };
+  });
+  bytes = size(result) + 1024;
+  if (bytes > limits.bytes) { reasons.add('byte_budget'); return incompleteInventory(); }
   const idrefAttributes = new Set(['for', 'aria-labelledby', 'aria-describedby', 'aria-controls', 'aria-owns', 'aria-activedescendant', 'aria-details', 'aria-errormessage', 'headers', 'list', 'form', 'popovertarget', 'commandfor']);
   const nodes = new Map<Element, OwnerDependencyNode | undefined>(), nodeIndices = new Map<string, number>();
   const nodeFailures = new Map<Element, string[]>(), expanded = new Map<Element, { children: Element[]; reasons: string[] }>();
@@ -164,32 +186,31 @@ export function collectOwnerDependencies(controls: Control[], elements: Element[
     }
     const closure: OwnerDependencyClosure = { id: instance(owner), subtreeId: instance(owner), nodeIds: [...members].sort(),
       referenceIds: [...refIds].sort((a, b) => a - b), subtreeIds: [...subtreeIds].sort(), complete: !local.size, reasons: [...local].sort() };
-    if (!reserve(size(closure) + 1)) { closure.complete = false; closure.reasons = [...new Set([...closure.reasons, 'byte_budget'])]; }
-    result.closures.push(closure); closures.set(owner, closure); return closure;
+    if (reserve(size(closure) + 1)) result.closures.push(closure);
+    else { closure.complete = false; closure.reasons = [...new Set([...closure.reasons, 'byte_budget'])]; }
+    // Cache failed owners too: unchanged remaining capacity cannot complete a
+    // repeated request. An unretained closure is never a complete root grant.
+    closures.set(owner, closure); return closure;
   };
-  const selectorIds = new Set(result.selectorIds), order = controls.map((control, index) => ({ control, element: elements[index] }))
-    .sort((a, b) => Number(selectorIds.has(b.control.localId)) - Number(selectorIds.has(a.control.localId)));
+  const selectorIds = new Set(result.selectorIds);
+  const required = (control: Control) => selectorIds.has(control.localId) || ['input', 'select', 'textarea'].includes(control.tag) || control.editable;
+  const order = entries.sort((a, b) => Number(required(b.control)) - Number(required(a.control)));
+  const finishRoot = (root: OwnerDependencies['roots'][number] | NonNullable<OwnerDependencies['nativeRoots']>[number], closure: OwnerDependencyClosure) => {
+    const captured = closure.nodeIds.includes(root.instanceId);
+    const next = { ...root, complete: closure.complete && captured,
+      reasons: [...new Set([...closure.reasons, ...(!captured ? ['target_not_captured'] : [])])].sort() };
+    // If even extra diagnostic detail cannot fit, retain the already reserved
+    // explicit byte-budget failure rather than discard the complete inventory.
+    if (reserve(Math.max(0, size(next) - size(root)))) Object.assign(root, next);
+  };
   // Required nonlocal fields are collected before unrelated control owners can
   // consume the shared budget. Every closure still uses the same hard limits.
-  for (const element of nativeOnly) {
-    const owner = element.closest(itemSelector) || element.parentElement || element;
-    const closure = buildClosure(owner), instanceId = instance(element), complete = closure.complete && closure.nodeIds.includes(instanceId);
-    const root = { instanceId, ownerId: instance(owner), closureId: closure.id, complete,
-      reasons: [...new Set([...closure.reasons, ...(!closure.nodeIds.includes(instanceId) ? ['target_not_captured'] : [])])].sort() };
-    if (!reserve(size(root) + 1)) return incompleteInventory();
-    result.nativeRoots!.push(root);
-  }
-  for (const { control, element } of order) {
-    if (!element || instance(element) !== control.instanceId) { reasons.add('control_element_mismatch'); return incompleteInventory(); }
-    const owner = element.closest(itemSelector) || element.parentElement || element;
-    const closure = buildClosure(owner), complete = closure.complete && closure.nodeIds.includes(control.instanceId);
-    const root = { localId: control.localId, instanceId: control.instanceId, ownerId: instance(owner), closureId: closure.id, complete,
-      reasons: [...new Set([...closure.reasons, ...(!closure.nodeIds.includes(control.instanceId) ? ['target_not_captured'] : [])])].sort() };
-    if (!reserve(size(root) + 1)) return incompleteInventory();
-    result.roots.push(root);
-  }
+  for (const { owner, root } of nativeEntries) finishRoot(root, buildClosure(owner));
+  for (const { owner, root } of order) finishRoot(root, buildClosure(owner));
   result.complete = [...result.roots, ...result.nativeRoots!].every(root => root.complete); result.reasons = [...reasons].sort();
-  // Includes inventory/closure metadata in the byte ceiling, not just raw nodes.
+  // Defensive invariant check, not the ordinary payload-exhaustion path. Shared
+  // complete subtrees are cached; later ancestor-only expansion cannot alter
+  // their attributes/native values/references or required closure membership.
   if (size(result) > limits.bytes) { reasons.add('byte_budget'); return incompleteInventory(); }
   return result;
 }

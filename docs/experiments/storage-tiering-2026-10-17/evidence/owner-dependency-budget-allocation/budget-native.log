@@ -1,0 +1,65 @@
+
+ RUN  v3.2.7 /private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-owner-budget-beffd31-bdhrcufe/archive
+
+ ❯ tests/owner-dependency-budget-allocation.test.ts (5 tests | 2 failed) 2454ms
+   × preserves complete required roots and a real receipt proof after a large later optional owner exhausts bytes 825ms
+     → expected { actualSuccess: true, …(11) } to match object { actualSuccess: true, …(6) }
+(11 matching properties omitted from actual)
+   ✓ does not change required proof when a later optional owner expands a shared ancestor before failing  690ms
+   × still denies required or inventory exhaustion under { nodes: 2 } 304ms
+     → expected [ 'native_input_budget' ] to include 'node_budget'
+   ✓ still denies required or inventory exhaustion under { bytes: 2048 }  301ms
+   ✓ checks the entire retained-control mapping before committing any dependency payload  334ms
+ ✓ tests/native-dependency-coverage.test.ts (4 tests) 1507ms
+   ✓ proves a stable complete real receipt while retaining hidden native fields outside all action and identity inventories  409ms
+   ✓ rejects a changed nonlocal hidden value or IDREF binding while identical retained A evidence remains usable  453ms
+   ✓ rejects absent, omitted or malformed v2 native proof even when both sides claim completeness  307ms
+   ✓ keeps shared node/byte limits and refuses a truncated native dependency instead of waiving it  337ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/owner-dependency-budget-allocation.test.ts > preserves complete required roots and a real receipt proof after a large later optional owner exhausts bytes
+AssertionError: expected { actualSuccess: true, …(11) } to match object { actualSuccess: true, …(6) }
+(11 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -3,7 +3,7 @@
+    "arrivalVerified": false,
+    "conditionVerified": true,
+    "currentExecution": false,
+    "identityAuthorized": false,
+    "replayAuthorized": false,
+-   "status": "document",
++   "status": "portable",
+  }
+
+ ❯ tests/owner-dependency-budget-allocation.test.ts:65:80
+     63|   withinBudget(graph);
+     64|   expect(f.after.ownerDependencyDispatch?.graphKey).toBe(hash(graph));
+     65|   expect(f.host.operationReceiptCondition(f.sid, { attemptId: f.attemp…
+       |                                                                                ^
+     66|     actualSuccess: true, conditionVerified: true, status: 'document', …
+     67|     replayAuthorized: false, currentExecution: false, arrivalVerified:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/owner-dependency-budget-allocation.test.ts > still denies required or inventory exhaustion under { nodes: 2 }
+AssertionError: expected [ 'native_input_budget' ] to include 'node_budget'
+ ❯ tests/owner-dependency-budget-allocation.test.ts:91:61
+     89| it.each([{ nodes: 2 }, { bytes: 2048 }] as const)('still denies requir…
+     90|   const f = await fixture(false), graph = await f.bounded(limits);
+     91|   expect(graph.complete).toBe(false); expect(graph.reasons).toContain(…
+       |                                                             ^
+     92|   withinBudget(graph);
+     93|   const before = { ...structuredClone(f.before), ownerDependencies: gr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 7 passed (9)
+   Start at  12:33:58
+   Duration  5.36s (transform 417ms, setup 0ms, collect 1.13s, tests 3.96s, environment 0ms, prepare 68ms)
+

@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-owner-budget-beffd31-bdhrcufe/archive
+
+ ✓ tests/document-operation-coverage.test.ts (24 tests | 23 skipped) 489ms
+ ✓ tests/owner-dependencies-capture.test.ts (15 tests | 12 skipped) 640ms
+ ✓ tests/document-coverage-graph.test.ts (86 tests | 84 skipped) 18ms
+
+ Test Files  3 passed (3)
+      Tests  6 passed | 119 skipped (125)
+   Start at  12:34:04
+   Duration  2.90s (transform 554ms, setup 0ms, collect 1.36s, tests 1.15s, environment 0ms, prepare 100ms)
+

@@ -1,0 +1,155 @@
+{
+  "scope": "Complete dependency inventory reservation and retention of already-complete required roots after later optional payload exhaustion. No proof-policy or limit changes.",
+  "baseRevision": "beffd31ceb3b0b9a2a455fe1cb3d2e81725d7976",
+  "workspaceHeadAtFinalization": "38c1875fa5b4f112a0d09bad0b1d11dc3c903473",
+  "archive": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-owner-budget-beffd31-bdhrcufe/archive",
+  "sourceArchiveSha256": "2c55da6af6897c42be31786164b0de6eb92b23ceadf367e5fbed3970ca4cfe4c",
+  "files": [
+    {
+      "path": "packages/adapter-playwright/src/owner-dependencies.ts",
+      "initialSha256": "e1bfd4b41ee7e39340192408360f8c93f21ed229d776d4271cf5af0cb630fc4e",
+      "validatedSha256": "e1bfd4b41ee7e39340192408360f8c93f21ed229d776d4271cf5af0cb630fc4e",
+      "workspaceEqualsArchive": true,
+      "productUnchangedSinceFirstRun": true
+    },
+    {
+      "path": "tests/owner-dependency-budget-allocation.test.ts",
+      "initialSha256": "d4b38e1f15337d20b70552eb50c42f2db3af21c5c7d81ebf623888cb5bac4c30",
+      "validatedSha256": "1a476d5b2b71f5df6318dbdd88200baf9626edbecf69c7fd600725bd235a7edb",
+      "workspaceEqualsArchive": true,
+      "productUnchangedSinceFirstRun": null
+    }
+  ],
+  "integratedPackageSources": {
+    "count": 152,
+    "sha256": "1b889d2c62976282bdad4b47ee093b17bddb50a6a20992b5e6ea24c071169f2d",
+    "workspaceEqualsValidatedArchive": true
+  },
+  "results": {
+    "budgetInvariants": {
+      "passed": 5,
+      "log": "budget-fixed.log"
+    },
+    "existingNativeProof": {
+      "passed": 4,
+      "log": "budget-native.log"
+    },
+    "selectedConsumersAndUnknownReopen": {
+      "passed": 6,
+      "skipped": 119,
+      "log": "consumer-selected.log",
+      "unknownPersistenceReopenIncluded": true
+    },
+    "rootTypes": {
+      "exitCode": 0,
+      "log": "types-root.log"
+    },
+    "coreTypes": {
+      "exitCode": 0,
+      "log": "types-core.log"
+    },
+    "changedFixtureTypes": {
+      "exitCode": 0,
+      "log": "types-test-fixed.log"
+    }
+  },
+  "initialFailures": {
+    "combinedTests": 9,
+    "passed": 7,
+    "failed": 2,
+    "log": "budget-native.log",
+    "causes": [
+      "The new fixture was still portable, so SDK returned verified portable coverage rather than exercising document fallback. Reused the existing native fixture hidden semantic-list structure.",
+      "The fixture had three native inputs, so nodes=2 correctly failed native inventory before closure capture. nodes=3 exercises required closure exhaustion."
+    ],
+    "productCodeChangedToResolveFailures": false
+  },
+  "verified": [
+    "Complete control/native root inventory survives optional byte exhaustion.",
+    "Selector/native/editable roots are prioritized even when their DOM order follows a large optional owner.",
+    "An actual local native success retains its dispatch witness and SDK document condition proof with all permission flags false.",
+    "Optional expansion of a shared ancestor does not change the complete required proof.",
+    "Changing raw root inventory order preserves the canonical condition key.",
+    "Required node exhaustion, inventory byte exhaustion and mismatched retained mapping remain unavailable.",
+    "Output payload, nodes and references remain within the unchanged limits.",
+    "Unknown receipt blocks coverage across a persistence reopen."
+  ],
+  "limits": {
+    "nodes": 512,
+    "references": 64,
+    "bytes": 131072,
+    "depth": 16,
+    "changed": false
+  },
+  "implementation": {
+    "rollback": "None. Existing charged partial data remain bounded; cached complete subtrees and immutable native/attribute/reference facts are retained. Reader ignores ancestor-only child expansion.",
+    "inventory": "All mappings validated and control/native root failure slots reserved before node/ref payload.",
+    "closure": "Metadata must be charged before insertion; unretained closures are incomplete and cached.",
+    "root": "If diagnostic detail cannot fit, the pre-paid explicit byte-budget failure stays in the complete root inventory."
+  },
+  "boundaries": [
+    "No reader/types/default-limit changes, v3, target-aware capture, IDREF or depth repair.",
+    "No real OKX structures/browser/services/original task database or audit database used.",
+    "Only owned local HTTP/browser/MemoryStore fixtures and the one existing unknown test with its owned temporary persistence were used; resources closed by fixture cleanup.",
+    "No historical retained fixture rewritten or backfilled.",
+    "No claim that this allocation change makes either static OKX frame fit; existing raw representation is independently over budget.",
+    "No full identity/protocol/performance rerun.",
+    "The root/core checks include final integrated product sources; after first run only test fixture HTML/node limit changed, followed by selected test types."
+  ],
+  "diffCheck": {
+    "sourceAndTests": "passed",
+    "rawLogs": "Original output retained, including whitespace from Vitest."
+  },
+  "artifacts": [
+    {
+      "path": "budget-fixed.log",
+      "bytes": 864,
+      "sha256": "5ee6a20fbe6fd29a32f196815b4cd398494b086f0f2d4b2ff5133f31c7f70de1"
+    },
+    {
+      "path": "budget-native.log",
+      "bytes": 3635,
+      "sha256": "f4f50504a69ff3df4eb6340212609536ad5e99b6dca71378765c9bdd7f1f00cf"
+    },
+    {
+      "path": "consumer-selected.log",
+      "bytes": 539,
+      "sha256": "58ea55bb6c365e7a3a917d510113d73af11c82d65d884ee9cad938ea0468f010"
+    },
+    {
+      "path": "fixed-validation.json",
+      "bytes": 777,
+      "sha256": "5903bb16aca1ce0434d1587d78875603a3e77107b35a1b814402628cbd6ff579"
+    },
+    {
+      "path": "initial-validation.json",
+      "bytes": 1429,
+      "sha256": "b69755fcaa9981ce58ab0e280d2293e450700959ec204152d428354e6f9cd25e"
+    },
+    {
+      "path": "preparation.json",
+      "bytes": 2552,
+      "sha256": "6787a69d7ebc642c2021178404bce821c8e9b1443d183248bae0667f8a686dac"
+    },
+    {
+      "path": "typecheck-test-config.json",
+      "bytes": 161,
+      "sha256": "af0997396a81a54044c670c438954746793a03c0b4aa97499d25d3c77c32235f"
+    },
+    {
+      "path": "types-core.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "types-root.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "types-test-fixed.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
