@@ -20,7 +20,7 @@ import { POLICY_VERSION } from './decision-policy.js';
 import { semanticAnswerSchema, semanticRejection, type SemanticReview } from './semantic-review.js';
 import { remapStoredScopes, remapStoredReviewScopes, recoverStoredScopeSources } from './scope-migration.js';
 import { reviewGapChanges, controlReviewGapReasons } from './review-ledger.js';
-import { reviewRecoveryChanges, prioritizeReviewAnchors, currentHistoryAnchor, validReviewRecoveryWait, type ReviewRecoveryChange, type UnresolvedReview } from './review-recovery.js';
+import { reviewRecoveryChanges, prioritizeReviewAnchors, currentHistoryAnchor, validReviewRecoveryWait, type ReviewRecoveryChange, type UnresolvedReview, type ReviewAnchorObservation } from './review-recovery.js';
 import { pageSourceObligation, sourceReturnCondition } from './source-return.js';
 import { recoveryFailureCondition } from './recovery-failure.js';
 import { completedOperations } from './completion-evidence.js';
@@ -771,6 +771,7 @@ export class ExplorerPlugin {
       index?:ReturnType<typeof observationActionIndex>;inScope?:ReturnType<typeof controlScopeMatcher>;
       conditions?:Map<ActionCandidate,ReturnType<typeof browserTargetConditions>>};
     const retained=new Map<string,Retained|undefined>();
+    const anchors=new Map<string,ReviewAnchorObservation|undefined>();
     let currentIndex:ReturnType<typeof observationActionIndex>|undefined,currentInScope:ReturnType<typeof controlScopeMatcher>|undefined;
     const targetConditions=(facts:Retained,action:ActionCandidate)=>{
       const conditions=facts.conditions??=new Map();
@@ -786,13 +787,24 @@ export class ExplorerPlugin {
       retained.set(observationId,value);while(retained.size>8)retained.delete(retained.keys().next().value!);return value;
     };
     const readRouteSource=(sessionId:string,observationId:string)=>sessionId===o.sessionId?read(observationId)?.source:this.host.observation(sessionId,observationId);
+    const readAnchor=(observationId:string)=>{
+      if(!this.host.recoveryAnchorMaterial)return read(observationId)?.source;
+      if(anchors.has(observationId))return anchors.get(observationId);
+      let source:ReviewAnchorObservation|undefined;
+      try{
+        const material=this.host.recoveryAnchorMaterial(o.sessionId,{sourceObservationId:observationId,currentObservationId:o.id});
+        if(material.source.id===observationId&&material.source.sessionId===o.sessionId)source=material.source;
+      }catch{/* Missing anchor facts affect ordering only; every candidate still receives full validation. */}
+      anchors.set(observationId,source);while(anchors.size>8)anchors.delete(anchors.keys().next().value!);
+      return source;
+    };
     // Strict-checkpoint strategy facts are lazy and bounded to this selection.
     // An absent/unknown assessment preserves the existing recovery contract;
     // neither this negative hint nor a positive strategy grants arrival/dispatch.
     type CheckpointCandidate=ReturnType<NonNullable<ExplorerHost['checkpointRecoveryCandidates']>>[number];
     const checkpointCandidates=new Map<string,CheckpointCandidate|undefined>();
     invalidate=()=>{
-      retained.clear();currentIndex=undefined;currentInScope=undefined;checkpointCandidates.clear();
+      retained.clear();anchors.clear();currentIndex=undefined;currentInScope=undefined;checkpointCandidates.clear();
       routeCondition=this.routeConditionReader(o,actions);
     };
     const noKnownCheckpointPath=(checkpoint:Checkpoint,source:Observation,lookahead:Checkpoint[])=>{
@@ -849,7 +861,10 @@ export class ExplorerPlugin {
       // its first eligible row is unchanged by the stable native-first sort.
       // Check lazily instead of reading all historical checkpoints up front.
       if(!returnToSource&&!item.scope.kind&&controlReviewGapReasons.has(item.reason)){
-        const prioritized=prioritizeReviewAnchors(candidates,o,id=>read(id)?.source,{checkpoint:()=>checkpoint(16),resume});
+        // With one distinct source, the complete read is needed immediately by
+        // candidate validation anyway. Multi-source ordering needs only anchors.
+        const multipleSources=candidates.some(candidate=>candidate.observationId!==candidates[0].observationId);
+        const prioritized=prioritizeReviewAnchors(candidates,o,multipleSources?readAnchor:id=>read(id)?.source,{checkpoint:()=>checkpoint(16),resume});
         if(Array.isArray(prioritized))candidates=prioritized;
         else {candidates=await prioritized;resume();}
       }

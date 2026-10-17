@@ -45,6 +45,13 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     unknownOutcomes: BrowserEngine.prototype.unknownOutcomes,
     retained: BrowserEngine.prototype.retainedReceiptCoverageReader,
   };
+  private static readonly recoveryAnchorDefaults = {
+    observation: BrowserEngine.prototype.observation,
+    actions: BrowserEngine.prototype.actions,
+    transition: BrowserEngine.prototype.interactionTransition,
+    observationActions: BrowserEngine.prototype.observationActions,
+    sourceMaterial: BrowserEngine.prototype.recoverySourceMaterial,
+  };
   declare readonly store: RetainedPersistence;
   private readonly inspections: InspectionCoordinator;
   private readonly interventions: Interventions;
@@ -130,6 +137,28 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     // including the protected composition helper that may return borrowed facts.
     const material={source,actions,transition};
     return detached&&this.store.recordReadIsolation==='detached'&&baseReads()?material:clone(material);
+  }
+  /** Small detached facts for ordering retained sources against the current
+   * cursor. No reachability, identity, replay or execution claim, and no cache.
+   * Custom composition reads retain the full material path and its failures. */
+  recoveryAnchorMaterial(sid:string,input:{sourceObservationId:string;currentObservationId:string}):{source:Pick<Observation,'id'|'sessionId'|'url'|'navigation'|'context'|'gaps'>} {
+    if(!input||typeof input.sourceObservationId!=='string'||!input.sourceObservationId
+      ||typeof input.currentObservationId!=='string'||!input.currentObservationId)throw new EngineError('INVALID_QUERY','Recovery anchor material requires two explicit observation IDs');
+    const defaults=BrowserEngine.recoveryAnchorDefaults;
+    const baseReads=()=>this.observation===defaults.observation&&this.actions===defaults.actions
+      &&this.interactionTransition===defaults.transition&&this.observationActions===defaults.observationActions&&this.recoverySourceMaterial===defaults.sourceMaterial;
+    const read=()=>{
+      if(!baseReads())return this.recoverySourceMaterial(sid,input).source;
+      const currentObservationId=this.session(sid).currentObservationId;
+      if(!baseReads())return this.recoverySourceMaterial(sid,input).source;
+      if(currentObservationId!==input.currentObservationId)throw new EngineError('STALE_OBSERVATION','Recovery anchor material requires the current observation');
+      const source=this.observation(sid,input.sourceObservationId);
+      // A read decorator can replace another method while reading. Do not use
+      // the fast path after such a composition change.
+      return baseReads()?source:this.recoverySourceMaterial(sid,input).source;
+    };
+    const {id,sessionId,url,navigation,context,gaps}=read();
+    return {source:clone({id,sessionId,url,navigation,context,gaps})};
   }
   private transitionForObservations(before:Observation,after:Observation,beforeId:string,afterId:string) {
     const verified=!after.gaps.some(g=>g.critical),documentChanged=before.instanceScope!==after.instanceScope;

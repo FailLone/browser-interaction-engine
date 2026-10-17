@@ -22,7 +22,7 @@ export function reviewRecoveryMaterialKey(o:Observation,item:Material) {
   return digest({policy:'review-recovery-material-v1',reviewPolicy:POLICY_VERSION,ruleVersion:o.ruleVersion,instance:o.instanceScope,url:o.url,context:o.context,
     gaps:o.gaps,boundaries:o.boundaries,control:item.control,surroundings:item.surroundings,actions,reviews:item.reviews.map(r=>[r.id,r.status,r.conditionKey]),needsReview:item.needsReview});
 }
-const known=(o:Observation)=>!o.gaps.some(g=>g.critical)&&Object.values(o.context).every(c=>c.status==='known');
+const known=(o:Pick<Observation,'gaps'|'context'>)=>!o.gaps.some(g=>g.critical)&&Object.values(o.context).every(c=>c.status==='known');
 const signature=(c:Observation['controls'][number])=>digest({tag:c.tag,role:c.role,name:c.name,label:c.label});
 const meaning=(task:Task,item:PlanItem)=>digest({goal:task.goal,coverageMode:task.coverageMode,scope:item.scope,sessionOptions:task.sessionOptions,reviewPolicy:POLICY_VERSION});
 const activeTarget=(o:Observation,c:Observation['controls'][number])=>{
@@ -113,7 +113,8 @@ export function reviewRecoveryChanges(task:Task,o:Observation,host:ExplorerHost,
 }
 
 /** A cost hint only; the adapter rechecks the exact native entry at dispatch. */
-export function currentHistoryAnchor(source:Observation,current:Observation) {
+export type ReviewAnchorObservation=Pick<Observation,'url'|'navigation'|'context'|'gaps'>;
+export function currentHistoryAnchor(source:ReviewAnchorObservation,current:ReviewAnchorObservation) {
   const from=source.navigation,live=current.navigation;
   if(!from||!live||from.browserSessionId!==live.browserSessionId||!known(source)||!known(current))return false;
   const entry=from.entries[from.currentIndex],at=live.entries[live.currentIndex];
@@ -126,9 +127,9 @@ export function currentHistoryAnchor(source:Observation,current:Observation) {
  * Short scans stay synchronous. After an actual yield the caller revalidates
  * captured inputs before the next source read, and again on awaiting the result.
  */
-export function prioritizeReviewAnchors(checkpoints:Checkpoint[],current:Observation,read:(id:string)=>Observation|undefined):Checkpoint[];
-export function prioritizeReviewAnchors(checkpoints:Checkpoint[],current:Observation,read:(id:string)=>Observation|undefined,scan:{checkpoint:()=>void|Promise<void>;resume:()=>void}):Checkpoint[]|Promise<Checkpoint[]>;
-export function prioritizeReviewAnchors(checkpoints:Checkpoint[],current:Observation,read:(id:string)=>Observation|undefined,scan?:{checkpoint:()=>void|Promise<void>;resume:()=>void}):Checkpoint[]|Promise<Checkpoint[]> {
+export function prioritizeReviewAnchors(checkpoints:Checkpoint[],current:Observation,read:(id:string)=>ReviewAnchorObservation|undefined):Checkpoint[];
+export function prioritizeReviewAnchors(checkpoints:Checkpoint[],current:Observation,read:(id:string)=>ReviewAnchorObservation|undefined,scan:{checkpoint:()=>void|Promise<void>;resume:()=>void}):Checkpoint[]|Promise<Checkpoint[]>;
+export function prioritizeReviewAnchors(checkpoints:Checkpoint[],current:Observation,read:(id:string)=>ReviewAnchorObservation|undefined,scan?:{checkpoint:()=>void|Promise<void>;resume:()=>void}):Checkpoint[]|Promise<Checkpoint[]> {
   const anchored:Checkpoint[]=[],other:Checkpoint[]=[];
   let index=0;
   const project=()=>{
