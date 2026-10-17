@@ -66,6 +66,77 @@ export class ControlReviews {
     return {risk:'interface',basis:{status:'supported',evidence:[...(action.basis?.evidence||[]),proof]},
       evidence:[`historical-control-review:${review.id}`,'same-instance-exact-review-conditions','coverage-only-review-clarification']};
   }
+  /** Authority for a receipt-bound coverage comparison, never a dispatch grant.
+   * The caller still proves document, dependency, context and operation equality.
+   * No record or positive authority survives this synchronous read. */
+  coverageAuthority(action:ActionCandidate,o:Observation,attempt:ActionAttempt,before:Observation):{source:ActionCandidate;target:ActionCandidate;evidence:string[];reviewSource?:{observation:Observation;control:Control}}|undefined {
+    try {
+      const prior=attempt.action,reuseRule='reused-control-review/v1';
+      if(attempt.status!=='succeeded'||!attempt.afterId||attempt.sessionId!==o.sessionId||before.sessionId!==o.sessionId||attempt.beforeId!==before.id
+        ||action.sessionId!==o.sessionId||action.observationId!==o.id||prior.sessionId!==before.sessionId||prior.observationId!==before.id
+        ||prior.risk!=='interface'||prior.basis?.status!=='supported'||action.kind!==prior.kind||canonical(action.value)!==canonical(prior.value))return;
+      const references=(a:ActionCandidate)=>a.basis?.evidence.filter(e=>e.rule===rule||e.rule===reuseRule||'reviewId' in e.facts||'sourceReviewId' in e.facts)||[];
+      const sourceRefs=references(prior),targetRefs=references(action);
+      if(!sourceRefs.length&&!targetRefs.length){
+        if(prior.source==='control-review'||action.source==='control-review'||action.risk!=='interface'||action.basis?.status!=='supported')return;
+        return {source:prior,target:action,evidence:['native-supported-operation-authority']};
+      }
+      const proofs=sourceRefs.filter(e=>e.rule===rule);if(proofs.length!==1)return;
+      const proof=proofs[0];if(typeof proof.facts.reviewId!=='string')return;
+      const review=this.store.get<ControlReviewRecord>('control-review',proof.facts.reviewId);
+      if(!review||review.id!==proof.facts.reviewId||review.sessionId!==o.sessionId||review.localId!==prior.localId||review.kind!==prior.kind||review.risk!=='interface'
+        ||!o.instanceScope||o.instanceScope!==before.instanceScope||!o.ruleVersion||o.ruleVersion!==before.ruleVersion)return;
+      const started=Date.parse(attempt.startedAt),beforeAt=Date.parse(before.capturedAt),targetAt=Date.parse(o.capturedAt);
+      if(![started,beforeAt,targetAt].every(Number.isFinite)||beforeAt>started||Date.parse(review.at)>started
+        ||review.status==='invalidated'&&review.invalidation?.observationId!==attempt.afterId)return;
+      const seen=new Set<string>(),origins=new Map<string,{observation:Observation;control:Control}>();
+      const available=(r:ControlReviewRecord):boolean=>{
+        if(seen.size>=64||seen.has(r.id)||r.sessionId!==o.sessionId||r.kind!==prior.kind||r.risk!=='interface'
+          ||!['active','invalidated'].includes(r.status)||!Number.isFinite(Date.parse(r.at))||controlReviewKey(r.conditions)!==r.conditionKey)return false;
+        seen.add(r.id);
+        const observation=this.store.get<Observation>('observation',r.observationId),at=Date.parse(observation?.capturedAt||'');
+        if(!observation||observation.id!==r.observationId||observation.sessionId!==r.sessionId||!observation.ruleVersion||observation.ruleVersion!==before.ruleVersion
+          ||!Number.isFinite(at)||at>Date.parse(r.at))return false;
+        const matches=observation.controls.filter(c=>c.localId===r.localId),control=matches[0];
+        if(matches.length!==1||!control.instanceId||observation.controls.filter(c=>c.instanceId===control.instanceId).length!==1)return false;
+        const conditions=controlReviewConditions(control,observation,r.kind,r.exitBoundary,r.surroundingContextKey);
+        if(!conditions||controlReviewKey(conditions)!==r.conditionKey)return false;
+        if(r.reuse&&(canonical(r.reuseConditions)!==canonical(controlReuseConditions(control,observation,r.kind))||!r.reuseConditions))return false;
+        origins.set(r.id,{observation,control});
+        if(!r.reusedFrom)return true;
+        const parent=this.store.get<ControlReviewRecord>('control-review',r.reusedFrom.reviewId);
+        return !!parent&&parent.id===r.reusedFrom.reviewId&&!!parent.reuse&&!!r.reuse&&!!parent.reuseConditions&&!!r.reuseConditions
+          &&parent.reuse.businessScope===r.reuse.businessScope&&canonical(parent.reuseConditions)===canonical(r.reuseConditions)
+          &&r.reusedFrom.conditionKey===this.reuseKey(parent)&&Date.parse(parent.at)<=Date.parse(r.at)&&available(parent);
+      };
+      if(!available(review))return;
+      const source=origins.get(review.id)!,old=before.controls.filter(c=>c.localId===prior.localId),targets=o.controls.filter(c=>c.localId===action.localId);
+      if(old.length!==1||targets.length!==1||!old[0].instanceId||old[0].instanceId!==targets[0].instanceId||source.control.instanceId!==old[0].instanceId
+        ||source.observation.instanceScope!==before.instanceScope||Date.parse(source.observation.capturedAt)>beforeAt
+        ||[before,o].some(observation=>observation.controls.filter(c=>c.instanceId===old[0].instanceId).length!==1))return;
+      for(const [control,observation] of [[old[0],before],[targets[0],o],[source.control,source.observation]] as const){
+        if(canonical(control.reviewAttributes||{})!==canonical(old[0].reviewAttributes||{}))return;
+        const conditions=controlReviewConditions(control,observation,review.kind,review.exitBoundary,review.surroundingContextKey);
+        if(!conditions||controlReviewKey(conditions)!==review.conditionKey)return;
+      }
+      const validProofs=(candidate:ActionCandidate,refs:ReturnType<typeof references>,observation:Observation)=>{
+        const exact=refs.filter(e=>e.rule===rule),reused=refs.filter(e=>e.rule===reuseRule);
+        if(exact.length!==1||exact[0].facts.reviewId!==review.id||exact[0].facts.conditionKey!==review.conditionKey
+          ||exact[0].facts.sourceObservationId!==review.observationId||exact[0].source!==review.source)return false;
+        if(review.reusedFrom){
+          if(reused.length!==1||reused[0].source!==review.source||reused[0].facts.reviewId!==review.id||reused[0].facts.sourceReviewId!==review.reusedFrom.reviewId
+            ||reused[0].facts.conditionKey!==review.reusedFrom.conditionKey||reused[0].facts.businessScope!==review.reuse?.businessScope)return false;
+        }else if(reused.length)return false;
+        return refs.every(e=>e.rule===rule||e.rule===reuseRule||e.rule==='declared-boundary-exit/v1'&&!!review.exitBoundary&&e.source===review.source
+          &&e.facts.reviewId===review.id&&e.facts.boundaryKey===review.exitBoundary&&e.facts.observationId===observation.id&&e.facts.localId===candidate.localId);
+      };
+      if(!validProofs(prior,sourceRefs,before)||targetRefs.length&&!validProofs(action,targetRefs,o)||!targetRefs.length&&action.source==='control-review')return;
+      const evidence=[`historical-control-review:${review.id}`,...[...seen].filter(id=>id!==review.id).map(id=>`control-review-provenance:${id}`),'receipt-bound-review-authority'];
+      if(action.risk==='interface'&&action.basis?.status==='supported')return {source:prior,target:action,evidence,reviewSource:source};
+      const projection=this.coverageProjection(action,o,attempt,before);
+      return projection?{source:prior,target:{...action,risk:projection.risk,basis:projection.basis},evidence:[...evidence,...projection.evidence],reviewSource:source}:undefined;
+    }catch{return;}
+  }
   material(o:Observation,actions:ActionCandidate[],nonInteractive=this.nonInteractive(o)):ControlReviewMaterial {
     const observedUI=this.store.get<import('@interaction/adapter-playwright').Session>('session',o.sessionId)?.options.executionPolicy==='observed-ui';
     const records=this.records(o.sessionId),surroundings=controlSurroundingsReader(o);

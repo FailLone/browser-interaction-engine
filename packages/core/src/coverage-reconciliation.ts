@@ -25,6 +25,14 @@ export interface EquivalentCoverage {
   identityId?: string; policy: string; evidence: string[];
 }
 
+/** Composition-owned proof for a retained successful receipt. This is narrower
+ * than an adapter sample: it is never consulted for arrival or replay. */
+export type ReceiptCoverageReader<O extends Observation> = {
+  (action: ActionCandidate, observation: O, attempt: ActionAttempt, before: O, after: O): ExplorationCase | undefined;
+  /** Optional cheap exclusion only. A true result grants no equivalence. */
+  acceptsObservation?: (observation: O) => boolean;
+};
+
 /** A correspondence is evidence for scheduling, never an identity or replay grant. */
 export interface CorrespondenceHint {
   key: string; policy: string; evidence: string[]; invalidatedBy: string[];
@@ -49,7 +57,8 @@ export function operationSample<O extends Observation>(a: ActionCandidate, o: O,
 /** Successful operation samples may discharge equivalent unattempted work, never failed attempts.
  * This is coverage only: it grants no identity, scope, replay or dispatch permission. */
 export function reconcileCoverage<O extends Observation>(session: Session, frontier: FrontierItem[], attempts: ActionAttempt[], observations: O[],
-  hypotheses: IdentityHypothesis[], sample: (a: ActionCandidate, o: O) => ExplorationCase | undefined): Map<string, EquivalentCoverage> {
+  hypotheses: IdentityHypothesis[], sample: (a: ActionCandidate, o: O) => ExplorationCase | undefined,
+  receiptCoverage?: ReceiptCoverageReader<O>): Map<string, EquivalentCoverage> {
   const result = new Map<string, EquivalentCoverage>();
   if (session.options.exploration !== 'controls') return result;
   const resolve = identityResolver(hypotheses.filter(h => h.sessionId === session.id));
@@ -83,6 +92,18 @@ export function reconcileCoverage<O extends Observation>(session: Session, front
     return keys.get(a);
   };
   const succeeded = new Map<string, EquivalentCoverage>();
+  // Index actual receipts by instance and input. The composition still checks
+  // their complete evidence; this index only avoids all-pairs reconciliation.
+  const retained = new Map<string, {attempt:ActionAttempt;before:O;after:O}[]>();
+  const receiptKey = (action:ActionCandidate, o:O) => {
+    const c=action.localId?controls.get(o.id)?.get(action.localId):undefined;
+    return c?.instanceId&&o.instanceScope?canonical([o.instanceScope,c.instanceId,action.kind,action.value]):undefined;
+  };
+  const rawSamples = new WeakMap<ActionCandidate, ReturnType<typeof operationSample>>();
+  const rawSample = (action:ActionCandidate,o:O) => {
+    if(!rawSamples.has(action))rawSamples.set(action,operationSample(action,o,sample));
+    return rawSamples.get(action);
+  };
   for (const a of attempts) {
     const before = byObservation.get(a.beforeId), after = a.afterId && byObservation.get(a.afterId);
     if (a.sessionId !== session.id || a.status !== 'succeeded' || !before || !after || a.action.observationId !== before.id
@@ -90,11 +111,24 @@ export function reconcileCoverage<O extends Observation>(session: Session, front
     const k = cached(a.action);
     if (k) succeeded.set(k.key, { attemptId: a.id, beforeId: before.id, afterId: after.id, identityId: k.identity,
       policy: k.sample.policy, evidence: k.sample.evidence });
+    const index=receiptCoverage&&receiptCoverage.acceptsObservation?.(before)!==false&&receiptKey(a.action,before);
+    if(index){const entries=retained.get(index)||[];entries.push({attempt:a,before,after});retained.set(index,entries);}
   }
   for (const f of frontier) {
     if (f.sessionId !== session.id || f.samplingMigration || f.attempts.length || ['executing', 'unknown'].includes(f.status)) continue;
     const k = cached(f.action), proof = k && succeeded.get(k.key);
-    if (proof) result.set(f.id, proof);
+    if (proof) { result.set(f.id, proof); continue; }
+    const o=byObservation.get(f.action.observationId);
+    if(!receiptCoverage||!o||receiptCoverage.acceptsObservation?.(o)===false)continue;
+    const index=receiptKey(f.action,o);if(!index)continue;
+    for(const {attempt,before,after} of retained.get(index)||[]){
+      // An unavailable portable proof may have a narrower retained alternative.
+      // Two known portable cases that differ must never be washed into equality.
+      if(rawSample(f.action,o)&&rawSample(attempt.action,before))continue;
+      const retainedProof=receiptCoverage(f.action,o,attempt,before,after);
+      if(retainedProof){result.set(f.id,{attemptId:attempt.id,beforeId:before.id,afterId:after.id,
+        policy:retainedProof.policy,evidence:retainedProof.evidence});break;}
+    }
   }
   return result;
 }

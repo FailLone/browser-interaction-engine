@@ -12,7 +12,7 @@ import { ExplorationGroups, currentExplorationDecision, explorationGates, valida
 import { explorationReviewMaterial } from './exploration-review.js';
 import { auditExploration } from './exploration-audit.js';
 import { isObservedUIOperation, isObservedUIProbe, type ProbeGuard, type ProbeAvailability, type DispatchGuard, type ActionAvailability, type ExecutionBlocker, type ExecutionGuard } from './execution-readiness.js';
-import { identityResolver, operationSample, type OperationCorrespondence, reconcileCoverage } from './coverage-reconciliation.js';
+import { identityResolver, operationSample, type OperationCorrespondence, type ReceiptCoverageReader, reconcileCoverage } from './coverage-reconciliation.js';
 import type { ExplorationGroup, ExplorationGroupDecision, ExplorationGroupResolution } from './types.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
 import type { EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
@@ -50,6 +50,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
    * a composition-owned review proof. This narrow projection is coverage only:
    * it cannot alter target coordinates, inputs, preconditions or stored facts. */
   protected historicalReviewProjection(_action:ActionCandidate,_observation:O,_attempt:ActionAttempt,_before:O):{risk:'interface';basis:NonNullable<ActionCandidate['basis']>;evidence:string[]}|undefined {return;}
+  /** Fresh synchronous reader per query. Coverage-only fallback for unavailable
+   * portable samples; never target arrival, replay or current execution. */
+  protected retainedReceiptCoverageReader():ReceiptCoverageReader<O>|undefined { return; }
   /** Reviewed capabilities precede caller action policy, which may still veto them. */
   protected async reviewActions(actions: ActionCandidate[], _observation: O): Promise<ActionCandidate[]> { return actions; }
   protected executionSessionBlockers(_observation:O,_purpose:ActionAttempt['purpose']):ExecutionBlocker[]{return [];}
@@ -151,6 +154,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     result.repeatable=true;result.reason='verified_replayable_operation';result.evidence.push(`replayable-attempt:${attempt.id}`);return result;
   }
   private correspondenceReader() {
+    const retainedCoverage=this.retainedReceiptCoverageReader();
     type Control=O['controls'][number];
     const records=new Map<string,{value?:unknown;error?:unknown}>();
     const memo=<T>(key:string,load:()=>T):T=>{
@@ -265,6 +269,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       }else {result.reason='target_correspondence_missing';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
       const a=sample(sourceAction,before),requiresTargetConditions=!attempt||input.requireTargetConditions;
       let b=sample(action,current),reviewProjection:ReturnType<typeof this.historicalReviewProjection>;
+      const portableUnavailable=!a||!b;
       // Historical review clarification never authorizes target arrival or
       // replay. The original identity checks and complete operation sample
       // (including nonlocal dependencies) still have to agree.
@@ -276,7 +281,15 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       // not rebuild target-arrival projections for every historical proof pair.
       const priorConditions=requiresTargetConditions?targetConditions(sourceAction,before):undefined,conditions=requiresTargetConditions?targetConditions(action,current):undefined;
       if(requiresTargetConditions)result.conditionKey=hash({source:a?.key,target:b?.key,priorConditions:priorConditions?.key,conditions:conditions?.key});
-      if(!a||!b){result.reason='operation_conditions_unavailable';return result as ExplorationTargetCorrespondence;}
+      if(!a||!b){
+        const retained=portableUnavailable&&attempt&&after&&!requiresTargetConditions&&retainedCoverage?.(action,current,attempt,before,after);
+        if(retained){
+          result.equivalent=true;result.reason='equivalent_retained_operation_sample';result.policy=retained.policy;
+          result.evidence=[...evidence,...retained.evidence,`attempt:${attempt!.id}`,`observation:${before.id}`,`observation:${after!.id}`,`observation:${current.id}`];
+          return result as OperationCorrespondence;
+        }
+        result.reason='operation_conditions_unavailable';return result as ExplorationTargetCorrespondence;
+      }
       if(a.key!==b.key){result.reason='operation_conditions_changed';return result as ExplorationTargetCorrespondence;}
       // Coverage keeps its existing sampling contract. Target arrival and repeated
       // traversal additionally require the relevant UI preconditions to match.
@@ -349,7 +362,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     // correspondence contract can discharge work from another source condition;
     // unavailable evidence must not fall back to a broader traversal sample.
     const observations=this.store.list<O>('observation',m.session.id),equivalents=reconcileCoverage(m.session,m.raw,m.attempts,observations,m.hypotheses,(a,o)=>this.adapter.correspondenceCase
-      ?this.adapter.correspondenceCase(a,o,m.session):this.adapter.explorationCase?.(a,o,m.session));
+      ?this.adapter.correspondenceCase(a,o,m.session):this.adapter.explorationCase?.(a,o,m.session),this.retainedReceiptCoverageReader());
     return {...m,observations,equivalents,frontier:describeFrontier(m.raw,m.attempts,equivalents)};
   }
   /** A per-call evidence bundle; no cache survives an observation/review mutation. */
