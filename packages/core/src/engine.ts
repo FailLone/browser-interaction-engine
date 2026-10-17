@@ -413,6 +413,16 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     return this.store.listByObservation?.<ActionCandidate>('action',sessionId,observationId)
       ?? this.store.list<ActionCandidate>('action',sessionId).filter(a=>a.observationId===observationId);
   }
+  /** Composition-local facts: validate observation ownership once before reading
+   * its actions. No cache, policy projection or implicit record transaction. */
+  protected observationActions(sessionId:string,observationId?:string) {
+    const observation=this.observation(sessionId,observationId);
+    // Preserve subclasses/decorators that project public facts. Only the base
+    // implementations can safely share the observation validation above.
+    const readActions=this.actions,actions=readActions===InteractionEngine.prototype.actions&&this.observation===InteractionEngine.prototype.observation
+      ?this.actionsForObservation(sessionId,observation.id):readActions.call(this,sessionId,observationId);
+    return {observation,actions};
+  }
   actions(sessionId: string, observationId?: string) { const o = this.observation(sessionId, observationId); return this.actionsForObservation(sessionId,o.id); }
   graph(sessionId: string): Graph { return this.getGraph(sessionId); }
   getGraph(sessionId: string): Graph { this.session(sessionId); return { states: this.store.list('state', sessionId), transitions: this.store.list('transition', sessionId), visits: this.store.list('visit', sessionId) }; }

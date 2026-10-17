@@ -33,7 +33,7 @@ import type { Checkpoint } from '@interaction/browser';
 const requiredCapabilities: (keyof ExplorerHost)[]=['operationCoverageCandidates','actionAvailability','operationCorrespondences','explorationSnapshot','controlInterpretationSnapshot','boundaryState','interactionTransition','navigationIsolation','recoveryAssessment','sessions','session','createSession','observation','observe','actions','execute','command','getFrontier','report','list','regionReviewMaterial','explorationReviewMaterial','controlClassificationMaterial','controlReviewMaterial','purposeReviewMaterial','discoveryScanMaterial','createCheckpoint','reachCheckpoint','pause','stop','pinEvidence','unpinEvidence'];
 const now=()=>new Date().toISOString();
 type ScheduledRoute=NonNullable<Task['scheduling']>['routes'][string];
-type RouteConditionReader=(route:ScheduledRoute)=>string|undefined;
+type RouteConditionReader=(route:ScheduledRoute,readSource?:(sessionId:string,observationId:string)=>Observation|undefined)=>string|undefined;
 type ScheduledRecovery={frame:Frame;source:Observation;remaining:Scope[];itemId:string;routeKey:string;targetActionIds:string[];conditionVersion:string;returnToSource?:boolean};
 export class ExplorerPlugin {
   readonly router:DecisionRouter;
@@ -610,8 +610,8 @@ export class ExplorerPlugin {
     // action reader explicitly, and must rebuild it after any awaited recovery.
     type Current={action:ActionCandidate;scope:Scope;verified:boolean;native:boolean;link:boolean;ambiguous:boolean};
     let current:Map<string,Current[]>|undefined,rows:Current[]=[];
-    return route=>{
-      if(route.arrivalMode==='observed-source'){try{return sourceReturnCondition(this.host.observation(route.sessionId,route.observationId),o);}catch{return;}}
+    return (route,readSource)=>{
+      if(route.arrivalMode==='observed-source'){try{const source=readSource?readSource(route.sessionId,route.observationId):this.host.observation(route.sessionId,route.observationId);return source&&sourceReturnCondition(source,o);}catch{return;}}
       if(route.membershipUnavailable||!route.memberKeys||!route.pathKeys)return;
       if(!current){
         current=new Map();const controls=new Map(o.controls.map(control=>[control.localId,control])),scoped=new Map<string,Current[]>();
@@ -686,9 +686,12 @@ export class ExplorerPlugin {
     const read=(observationId:string)=>{
       if(retained.has(observationId)){const value=retained.get(observationId);retained.delete(observationId);retained.set(observationId,value);return value;}
       let value:Retained|undefined;
-      try{value={source:this.host.observation(o.sessionId,observationId),actions:this.host.actions(o.sessionId,observationId)};}catch{}
+      try{value=this.host.recoverySourceMaterial
+        ?this.host.recoverySourceMaterial(o.sessionId,{sourceObservationId:observationId,currentObservationId:o.id})
+        :{source:this.host.observation(o.sessionId,observationId),actions:this.host.actions(o.sessionId,observationId)};}catch{}
       retained.set(observationId,value);while(retained.size>8)retained.delete(retained.keys().next().value!);return value;
     };
+    const readRouteSource=(sessionId:string,observationId:string)=>sessionId===o.sessionId?read(observationId)?.source:this.host.observation(sessionId,observationId);
     let reviewFallback:{recovery:ScheduledRecovery;route:ScheduledRoute;pageIds:Set<string>}|undefined;
     for(const item of pending){
       if(reviewFallback&&!reviewFallback.pageIds.has(item.id))continue;
@@ -757,7 +760,7 @@ export class ExplorerPlugin {
         if(task.routeRetries?.routes[key]&&!schedule.routes[key])bindScheduledRoute(schedule,key,{sessionId:o.sessionId,observationId:source.id,checkpointId:checkpoint.id,targets:budgetTargets,path,itemIds:[item.id],memberKeys:budgetTargets.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),pathKeys:path.map(scope=>recoveryRouteKey(source,sourceActions,[scope]))});
         if(!routeDebtAllows(schedule,key)){reason='legacy_route_debt_unmapped';continue;}
         const route={sessionId:o.sessionId,observationId:source.id,checkpointId:checkpoint.id,targets:budgetTargets,path,...(returnToSource?{arrivalMode:'observed-source' as const}:{}),...(!legacy&&sourceCondition?{sourceCondition}:{}),itemIds:[...new Set([...(old?.[1].itemIds||[]),item.id])],memberKeys:old?.[1].memberKeys||budgetTargets.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),pathKeys:old?.[1].pathKeys||path.map(scope=>recoveryRouteKey(source,sourceActions,[scope])),...old?.[1].failure?{failure:old[1].failure}:{}};
-        const conditionVersion=routeCondition(route);if(!conditionVersion){reason='route_condition_unverified';continue;}
+        const conditionVersion=routeCondition(route,readRouteSource);if(!conditionVersion){reason='route_condition_unverified';continue;}
         // Older ledgers consumed only the starting condition. Revalidate their
         // recorded failure endpoint before treating it as negative retry evidence.
         // This adds no attempts and never releases an unknown result.
@@ -767,7 +770,7 @@ export class ExplorerPlugin {
             const ended=record.evidence.sessionId===o.sessionId&&read(record.evidence.observationId);
             if(!ended)continue;
             const resultCondition=recoveryFailureCondition(ended.source,conditionVersion,record.reason);
-            if(!resultCondition||this.routeConditionReader(ended.source,ended.actions)(route)!==conditionVersion)continue;
+            if(!resultCondition||this.routeConditionReader(ended.source,ended.actions)(route,readRouteSource)!==conditionVersion)continue;
             task.routeRetries=retainRouteFailureCondition(task.routeRetries,key,priorCondition,resultCondition);
             this.event(task,'recovery.failure_condition_retained',{routeKey:key,attemptKey:record.attemptKey,conditionVersion,resultCondition,currentExecution:false,coverageGranted:false});
           }

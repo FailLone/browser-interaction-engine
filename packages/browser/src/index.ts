@@ -1,6 +1,6 @@
 import { ExplorationDecisionReuse } from './exploration-decision-reuse.js';
 import { Interventions } from './interventions.js';
-import { canonical, hash, now } from '@interaction/core';
+import { canonical, clone, hash, now } from '@interaction/core';
 import { interventionResponseSchema, continuationSchema, type InterventionResponseInput, type InterventionResponseRecord, type ContinueExplorationInput, type ContinuationRecord } from '@interaction/adapter-playwright';
 import { reviewExplorationDecisionReuseSchema, reuseExplorationDecisionsSchema, revokeExplorationDecisionReuseSchema } from '@interaction/adapter-playwright';
 import { scrollProbeSchema, type ScrollProbeOptions } from '@interaction/adapter-playwright';
@@ -84,7 +84,26 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       originalStatus:attempt?.status,verified:false as const,replayAllowed:false as const,evidence:attempt?{sessionId:sid,observationId:attempt.afterId||attempt.beforeId,attemptId}:undefined};
   }
   interactionTransition(sid:string,beforeId:string,afterId:string) {
-    const before=this.observation(sid,beforeId),after=this.observation(sid,afterId),verified=!after.gaps.some(g=>g.critical),documentChanged=before.instanceScope!==after.instanceScope;
+    return this.transitionForObservations(this.observation(sid,beforeId),this.observation(sid,afterId),beforeId,afterId);
+  }
+  /** Synchronous retained facts for candidate selection, not arrival or execution
+   * permission. Both IDs may be historical. Reads have the same semantics as the
+   * separate methods, not a cross-connection atomic snapshot; callers may use an
+   * existing record transaction. No facts are retained after this call returns. */
+  recoverySourceMaterial(sid:string,input:{sourceObservationId:string;currentObservationId:string}) {
+    const {sourceObservationId,currentObservationId}=input;
+    if(!sourceObservationId||!currentObservationId)throw new EngineError('INVALID_QUERY','Recovery source material requires two explicit observation IDs');
+    const {observation:source,actions}=this.observationActions(sid,sourceObservationId);
+    const readTransition=this.interactionTransition;
+    const transition=readTransition===BrowserEngine.prototype.interactionTransition&&this.observation===CoreEngine.prototype.observation
+      ?this.transitionForObservations(source,currentObservationId===sourceObservationId?source:this.observation(sid,currentObservationId),sourceObservationId,currentObservationId)
+      :readTransition.call(this,sid,sourceObservationId,currentObservationId);
+    // A third-party store may return borrowed objects. Isolate the public result
+    // without freezing store-owned facts or assuming callers never mutate them.
+    return clone({source,actions,transition});
+  }
+  private transitionForObservations(before:Observation,after:Observation,beforeId:string,afterId:string) {
+    const verified=!after.gaps.some(g=>g.critical),documentChanged=before.instanceScope!==after.instanceScope;
     // Occurrence continuity only: changed text, conditions or review validity do
     // not become operation equivalence, identity permission or replay authority.
     const counts=new Map<string,number>(),targets=new Map<string,Observation['controls']>();

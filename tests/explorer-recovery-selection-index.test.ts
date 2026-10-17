@@ -185,3 +185,30 @@ it('retains the original composite route instead of minting an independent singl
   expect(Object.keys(f.task.scheduling.routes)).toEqual([key]);
  }finally{await f.close();}
 });
+
+it('uses combined SDK source facts without changing the selected task or rereading the same source',async()=>{
+ const f=fixture();try{
+  const before=structuredClone(f.task),legacy=f.select(),after=structuredClone(f.task);
+  Object.assign(f.task,structuredClone(before));delete f.task.scheduling;
+  const material=vi.fn((_sid:string,input:{sourceObservationId:string;currentObservationId:string})=>{
+   expect(input.currentObservationId).toBe(f.current.id);
+   return {source:structuredClone(f.frames.get(input.sourceObservationId)!),actions:structuredClone(f.actionRows.get(input.sourceObservationId)!),
+    transition:{beforeId:input.sourceObservationId,afterId:input.currentObservationId,verified:true,documentChanged:true,navigated:false,retainedControls:[],entered:[],exited:[],revealedControlIds:[]}};
+  });
+  f.host.recoverySourceMaterial=material;f.readObservation.mockClear();vi.mocked(f.host.actions).mockClear();
+  expect(f.select()).toEqual(legacy);expect(f.task).toEqual(after);
+  expect(material).toHaveBeenCalledOnce();expect(f.readObservation).not.toHaveBeenCalled();expect(f.host.actions).not.toHaveBeenCalled();
+  f.source.context.account.value='changed';f.select();
+  expect(material).toHaveBeenCalledTimes(2);expect(f.host.reachCheckpoint).not.toHaveBeenCalled();
+ }finally{await f.close();}
+});
+
+it('does not bypass a rejected combined source read with legacy APIs',async()=>{
+ const f=fixture();try{
+  f.host.recoverySourceMaterial=vi.fn(()=>{throw Error('source facts unavailable');});f.readObservation.mockClear();
+  const plan=structuredClone(f.task.plan);expect(f.select()).toBeUndefined();expect(f.task.plan).toEqual(plan);
+  expect(f.readObservation).not.toHaveBeenCalled();expect(f.host.actions).not.toHaveBeenCalled();
+  expect(f.task.scheduling!.deferred!.target.reason).toBe('source_target_unverified');
+  expect(f.host.reachCheckpoint).not.toHaveBeenCalled();
+ }finally{await f.close();}
+});

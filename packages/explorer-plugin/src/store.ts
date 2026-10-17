@@ -214,9 +214,13 @@ export class ExplorerStore {
   /** Only settled plan entries and non-current, non-running rounds are cold.
    * Unknown/future plan states remain hot; classification grants no authority. */
   private packCold(id:string,roundCount:number,force=false) {
-    const rows=this.statement(`SELECT * FROM task_items INDEXED BY task_cold_items WHERE task_id=? AND chunk_id IS NULL AND (kind='rounds' OR status IN ('succeeded','excluded','superseded')) AND
-      ((kind='plan' AND status IN ('succeeded','excluded','superseded')) OR (kind='rounds' AND position<? AND status<>'running')) ORDER BY kind,position`).all(id,roundCount-1) as ItemRow[];
-    if(!force&&rows.length<64)return;
+    const eligible=`FROM task_items INDEXED BY task_cold_items WHERE task_id=? AND chunk_id IS NULL AND (kind='rounds' OR status IN ('succeeded','excluded','superseded')) AND
+      ((kind='plan' AND status IN ('succeeded','excluded','superseded')) OR (kind='rounds' AND position<? AND status<>'running'))`;
+    // Most active writes do not reach the packing threshold. Probe at most 64
+    // eligible rows without transferring their retained JSON into JavaScript.
+    // Keep the old packing trigger, including already-cold rows from older writers.
+    if(!force&&!this.statement(`SELECT 1 ${eligible} LIMIT 1 OFFSET 63`).get(id,roundCount-1))return;
+    const rows=this.statement(`SELECT * ${eligible} ORDER BY kind,position`).all(id,roundCount-1) as ItemRow[];
     this.packRows(id,rows.map(row=>({...row,value:this.readItem(row,new Map())})));
   }
   private packRows(id:string,rows:PreparedItem[]) {
@@ -253,7 +257,7 @@ export class ExplorerStore {
   save(task: Task, expectedVersion?:string):string {
     task.updatedAt=new Date().toISOString();const {plan,rounds,...header}=task;
     if(!Array.isArray(plan)||!Array.isArray(rounds))throw new ExplorerError('CORRUPT_TASK');
-    const groups=([['plan',plan],['rounds',rounds]] as const).map(([kind,items])=>({kind,items:items.map(value=>{const json=JSON.stringify(value);return {value:parseTaskValue<StoredItem>(json),json,hash:digest(json)};})}));
+    const groups=([['plan',plan],['rounds',rounds]] as const).map(([kind,items])=>({kind,items:items.map(value=>{const json=JSON.stringify(value);return {json,hash:digest(json)};})}));
     const json=JSON.stringify(header),encoded=this.headerEncoding(json,header);
     return this.db.transaction(()=>{
       const before=this.statement('SELECT * FROM tasks WHERE id=?').get(task.id) as TaskRow|undefined;
@@ -267,9 +271,9 @@ export class ExplorerStore {
       for(const {kind,items} of groups){
         items.forEach((item,position)=>{
           if(hashes.get(`${kind}:${position}`)===item.hash)return;
-          const occurrence=newTaskOccurrenceId();
-          if(this.isCold(kind,item.value,position,rounds.length))cold.push({kind,position,json:item.json,content_hash:item.hash,occurrence_id:occurrence,value:item.value});
-          else this.writeItem(task.id,kind,position,item.json,item.hash,occurrence,item.value);
+          const occurrence=newTaskOccurrenceId(),value=parseTaskValue<StoredItem>(item.json);
+          if(this.isCold(kind,value,position,rounds.length))cold.push({kind,position,json:item.json,content_hash:item.hash,occurrence_id:occurrence,value});
+          else this.writeItem(task.id,kind,position,item.json,item.hash,occurrence,value);
         });
         this.statement('DELETE FROM task_items WHERE task_id=? AND kind=? AND position>=?').run(task.id,kind,items.length);
       }
@@ -399,10 +403,12 @@ export class ExplorerStore {
   applyTaskDelta(id:string,expectedVersion:string,delta:TaskDelta) {
     if(delta.header.id!==id || 'plan' in delta.header || 'rounds' in delta.header)throw new ExplorerError('INVALID_TASK_DELTA');
     const updatedAt=new Date().toISOString(),header={...delta.header,updatedAt},json=JSON.stringify(header),encoded=this.headerEncoding(json,header);
-    // Serialize only named records, before acquiring SQLite's write lock.
+    // Serialize only named records, before acquiring SQLite's write lock. Decode
+    // the canonical JSON only if it will be written: clients may name an unchanged
+    // current round on every flush, and that round can retain a large audit trail.
     const prepared=([['plan',delta.plan],['rounds',delta.rounds]] as const).map(([kind,change])=>({kind,change,
-      update:(change?.update??[]).map(item=>{const json=JSON.stringify(item.value);return {...item,value:parseTaskValue<typeof item.value>(json),json,hash:digest(json)};}),
-      append:(change?.append??[]).map(item=>{const json=JSON.stringify(item.value);return {...item,value:parseTaskValue<typeof item.value>(json),json,hash:digest(json)};})}));
+      update:(change?.update??[]).map(item=>{const json=JSON.stringify(item.value);return {occurrenceId:item.occurrenceId,json,hash:digest(json)};}),
+      append:(change?.append??[]).map(item=>{const json=JSON.stringify(item.value);return {occurrenceId:item.occurrenceId,json,hash:digest(json)};})}));
     return this.db.transaction(()=>{
       const before=this.row(id);if(before.version!==expectedVersion)throw new ExplorerError('STALE_TASK_VERSION');this.validateHeaderProjection(before);
       let changed=(before.header_data===null?before.json!==json:before.header_hash!==encoded.content_hash),planCount=before.plan_count,roundCount=before.round_count;
@@ -415,14 +421,14 @@ export class ExplorerStore {
         for(const item of update){
           const old=lookup.get(id,kind,item.occurrenceId) as {position:number;content_hash:string}|undefined;
           if(!old)throw new ExplorerError('TASK_OCCURRENCE_NOT_FOUND');
-          if(old.content_hash!==item.hash){this.writeItem(id,kind,old.position,item.json,item.hash,item.occurrenceId,item.value);changed=true;}
+          if(old.content_hash!==item.hash){this.writeItem(id,kind,old.position,item.json,item.hash,item.occurrenceId,parseTaskValue<StoredItem>(item.json));changed=true;}
         }
         for(const key of remove){
           if(!this.db.prepare('DELETE FROM task_items WHERE task_id=? AND kind=? AND occurrence_id=?').run(id,kind,key).changes)throw new ExplorerError('TASK_OCCURRENCE_NOT_FOUND');changed=true;
         }
         for(const [offset,item] of append.entries()){
           if(lookup.get(id,kind,item.occurrenceId))throw new ExplorerError('INVALID_TASK_DELTA');
-          this.writeItem(id,kind,count+offset,item.json,item.hash,item.occurrenceId,item.value);changed=true;
+          this.writeItem(id,kind,count+offset,item.json,item.hash,item.occurrenceId,parseTaskValue<StoredItem>(item.json));changed=true;
         }
         const nextCount=count-remove.length+append.length;
         if(remove.length || change.order){
