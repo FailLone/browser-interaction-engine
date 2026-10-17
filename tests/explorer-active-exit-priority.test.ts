@@ -26,13 +26,15 @@ function fixture() {
   let actions: ActionCandidate[] = [];
   const blocked = new Set<string>(), events: { type: string; data: unknown }[] = [], attempts = new Map<string, ActionAttempt[]>();
   const effect = () => vi.fn(async () => { throw Error('Scheduling fixture forbids host effects'); });
+  const availability = () => ({ observationId: observation.id, revision: 'fixture-availability',
+    actions: actions.map(a => ({ actionId: a.id, executable: !blocked.has(a.id), blockers: blocked.has(a.id)
+      ? [{ code: 'UNKNOWN_DISPATCH_REQUIRES_REVIEW', reason: 'Unknown result' }] : [] })) });
   const host = { events: new EventEmitter(), session: () => ({ actionCount: 0, options: {} }), observation: () => observation,
     actions: () => actions, list: (sid: string, kind: string) => kind === 'attempt' ? attempts.get(sid) || [] : [],
     boundaryState: () => ({ verified: false }), recoveryAssessment: (sid: string) => ({ observationId: observation.id,
       unknownAttempts: (attempts.get(sid) || []).filter(a => a.status === 'unknown') }),
-    explorationSnapshot: () => ({ actions, operationCandidates: actions, availability: { observationId: observation.id,
-      actions: actions.map(a => ({ actionId: a.id, executable: !blocked.has(a.id), blockers: blocked.has(a.id)
-        ? [{ code: 'UNKNOWN_DISPATCH_REQUIRES_REVIEW', reason: 'Unknown result' }] : [] })) } }),
+    actionAvailability: availability,
+    explorationSnapshot: () => ({ actions, operationCandidates: actions, availability: availability() }),
     createCheckpoint: effect(), reachCheckpoint: effect(), reachExplorationTarget: effect(), returnToObservedSource: effect(),
     execute: effect(), observe: effect(), createSession: effect() } as unknown as ExplorerHost;
   const store = { save: vi.fn(), decisionCursor: () => 0, decisions: () => [], close: () => {},
@@ -56,13 +58,14 @@ function fixture() {
     updateObligations: (...args: unknown[]) => void;
     normalizeScheduling: (...args: unknown[]) => boolean;
     gap: (...args: unknown[]) => PlanItem;
-    scheduledRecovery: (...args: unknown[]) => { itemId: string; source: Observation; routeKey: string };
+    scheduledRecovery: (...args: unknown[]) => { itemId: string; source: Observation; routeKey: string; revalidate: () => void };
   };
   runtime.retainHostLimitations = runtime.reconcileReviewLedger = runtime.applyReviewRecoveryChanges = async () => {};
   runtime.auditRemainingScopes = runtime.updateObligations = () => {};
   runtime.normalizeScheduling = () => false;
   runtime.gap = () => item('fixture-gap', { url });
-  const remote = vi.spyOn(runtime, 'scheduledRecovery').mockReturnValue({ itemId: 'remote', source: { ...observation, id: 'retained' }, routeKey: 'strict-route' });
+  const remoteRevalidate = vi.fn();
+  const remote = vi.spyOn(runtime, 'scheduledRecovery').mockReturnValue({ itemId: 'remote', source: { ...observation, id: 'retained' }, routeKey: 'strict-route', revalidate: remoteRevalidate });
   function add(label: string, exit = false) {
     const control = { localId: label, identityId: `identity-${label}`, instanceId: `instance-${label}`, identityScope: 'semantic',
       tag: 'button', role: 'button', name: label, label, visible: true, enabled: true, actions: ['click'], selected: [],
@@ -78,8 +81,11 @@ function fixture() {
     actions.push(action); task.plan.push(item(label, { url, kind: 'click', label })); return action;
   }
   async function select() {
+    const revalidationsBefore = remoteRevalidate.mock.calls.length;
     await expect(runtime.step(task, round, new AbortController().signal)).rejects.toBe(selected);
-    return events.filter(e => e.type === 'obligation.selected').at(-1)!.data as ObligationSelection;
+    const choice = events.filter(e => e.type === 'obligation.selected').at(-1)!.data as ObligationSelection;
+    expect(remoteRevalidate.mock.calls.length - revalidationsBefore).toBe(Number(choice.kind === 'recovery' || choice.kind === 'inspect'));
+    return choice;
   }
   function noEffects() {
     for (const name of ['createCheckpoint', 'reachCheckpoint', 'reachExplorationTarget', 'returnToObservedSource', 'execute', 'observe', 'createSession'] as const)
