@@ -2,7 +2,15 @@
 
 本次完整目标：完成可行的恢复、性能、存储优化，包括 Observation 结构共享、历史分层与按引用回收、任务库压缩和全量读取优化；验证后将 refactor 与 autonomous-exploration 的代码一并合入 main；再以真实 OKX USD→BTC 页面持续探索，发现异常立即停止该轮、保留证据并修复。队列为空、模拟测试或单次恢复成功均不构成穷尽证明。
 
-最新阶段收尾（产品 `d11b4f3`）：缺少 portable target 条件不再自动排除 SDK 明确支持尝试的严格检查点恢复，保留唯一对应、操作条件、A/B 普通失败预算、unknown 和派发前复验。最终 137 项定向检查与根类型检查通过，见[行为证据](experiments/storage-tiering-2026-10-17/evidence/strict-checkpoint-fallback/README.md)。固定提交的独立构建、公开声明消费及编译后接口三项各一次通过，临时归档已清理；产品连同之前的选择周期优化已快进合入 main（含 autonomous），见[收尾报告](experiments/storage-tiering-2026-10-17/evidence/selection-closeout-release/README.md)。没有操作浏览器、服务或原任务库，没有推送远端。开发、离线发布和本地合并门已关闭；第 3 项整体仍缺实际到达与后续新覆盖的有界真实联合验收，不能宣称恢复率、性能改善或穷尽。
+最新真实验收（2026-10-17，第十三窗）：产品仍为 `d11b4f3`，验收入口 `6d3d384` 已合入本地 main。先修复旧脚本直接覆写 SDK 方法会撤销 selection view 资格的问题，仅将预算/计量移到外层 facade；67 项相关检查及根类型检查一次通过。随后从冻结第十二窗创建独立任务库副本，实际启动一次 240 秒 OKX 接续；143.300 秒按恢复未验证门停止，152 秒左右完成关闭与证据结算，没有重跑。原任务库及 primary/autonomous 工作区保持不变。
+
+本窗 **真实联合门未通过**：共享读取 view 实际启用 1/1；选中并调用一次严格 checkpoint 恢复，耗时 41.980 秒，关闭弹层与重开入口两个 recovery 操作成功，但最终 `UNVERIFIED / observation-completeness unknown`，后续新探索/条件覆盖为 0。末次记录 `stable=false`、无 critical gap，含 `EVIDENCE_CAPTURE_CHANGED` 和 `INTERACTION_STABLE`。其 canonical 与旧源不同；仅放宽稳定性门仍不足以证明严格到达，尚未证明差异仅为价格。弹层本来可见而仍被关闭重入，必要性需身份/上下文与到达契约验证，不能只按同名判为无理由重复。
+
+启动到首次采样约 65.803 秒，已调用 observation 1,959 次（累计 30.385 秒）、actions 1,830 次（累计 25.949 秒，返回 384,144 行，非去重控件数）。一次浏览器 observe 25.930 秒；reattached 事件到 selected 事件 4.924 秒，包含审计、选择及复核，不是独立选择器计时。选择阶段产生 358 个不同 item 的暂缓事件；这既不证明排除完全正确，也不构成覆盖。本窗不能推出提速比例。运行数据新增 8,714,699 字节，其中 engine DB +6,590,464、plugin DB +385,024；无存储下降结论。JEV/LLM 均为 0，原因是提前停在恢复，不能算模型调用优化收益。
+
+1,241 个计划 ID 全部保留，未完成必测项 1,235→1,237，是两个弹层历史审阅项重新打开；8 条旧路线记录逐字段不变，新增 1 条 unverified 记录。没有新增 unknown 或在途动作，失败后实际位置被记录为未验证，没有虚记恢复或覆盖成功。单次副本补充审计查询零写入且未启浏览器，但构造器改写临时副本（SQLite 1、Engine 2 次 SQL change），物理不变门 `passed=false` 原样保留，临时副本已删除；投影可作诊断，不能称完整无变更审计通过。SDK 实时失败结果和零新覆盖独立成立。下一窄结论优先解决弹层审阅的局部到达/采集一致性合同，再把选择周期的共享事实方法应用到启动重建；不追加真实窗口来反复试错。原始证据只在独立 v6 保存一份，见[第十三窗结果与阶段数据](experiments/storage-tiering-2026-10-17/evidence/real-okx-13/outcome.json)。
+
+前一离线阶段收尾（产品 `d11b4f3`）：缺少 portable target 条件不再自动排除 SDK 明确支持尝试的严格检查点恢复，保留唯一对应、操作条件、A/B 普通失败预算、unknown 和派发前复验。最终 137 项定向检查与根类型检查通过，见[行为证据](experiments/storage-tiering-2026-10-17/evidence/strict-checkpoint-fallback/README.md)。固定提交的独立构建、公开声明消费及编译后接口三项各一次通过，临时归档已清理；产品连同之前的选择周期优化已快进合入 main（含 autonomous），见[收尾报告](experiments/storage-tiering-2026-10-17/evidence/selection-closeout-release/README.md)。没有操作浏览器、服务或原任务库，没有推送远端。开发、离线发布和本地合并门已关闭；第 3 项整体仍缺实际到达与后续新覆盖的有界真实联合验收，不能宣称恢复率、性能改善或穷尽。
 
 前一离线检查点（产品 `63c57e5`）：确认 `551a6b9` 的无候选不能作为正确性通过。缓存投影对应没有错配，但旧筛选把一个等价近期来源的“当前已在场”用于终止整个 item 的历史扫描，真实 USD 审阅项的第二个来源因此未被访问。`a77bdd6` 修复 negative wait 未核对最新历史材料；`63c57e5` 修复当前证据跨条件误排除及 whole-item stop，均在原选择周期与有界缓存上增量修复，unknown/失败债保持。114 个不同定向用例分检查点通过，保留夹具遮挡导致的首轮失败与修正后精确旧版对照，见[验证说明](experiments/storage-tiering-2026-10-17/evidence/recovery-exclusion-fixes/README.md)。
 

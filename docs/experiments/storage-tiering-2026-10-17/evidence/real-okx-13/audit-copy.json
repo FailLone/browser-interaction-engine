@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-17T09:36:46.324991+00:00",
+  "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v6/engine/engine.sqlite",
+  "engineDirectory": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run13-receipt-audit-s4isbxse/engine",
+  "runDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v6/runs/d10da47e-2950-49c0-b2d3-4b799e302bb4",
+  "sha256": "42fa804e9a162dee6c8f36c310b5e651cfbc183b6074c373ebcb0e8edca300e1",
+  "bytes": 150405120,
+  "databaseOpened": false,
+  "evidenceBlobsCopied": false,
+  "cleanup": "Remove the exclusive temporary audit directory after the one settled audit; preserve source/output hashes and the frozen evidence."
+}
