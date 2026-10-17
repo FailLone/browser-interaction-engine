@@ -1,0 +1,14 @@
+{
+  "baseCommit": "ae897380d2248783176769a0bcaebb60fa4fbe8d",
+  "conclusion": "Avoid deriving portable coverage cases that cannot match any fully evidenced success; keep full matching and retained receipt rules.",
+  "pureTests": 28,
+  "integrationTests": 58,
+  "typeChecks": "both passed",
+  "repeatedCheckReason": "The first paired diagnostic failed before calling reconciliation because hashing all 187 large observations in one canonical string exceeded the JS string limit. Changed diagnostic hashing to stream one record at a time; no product behavior changed for this retry.",
+  "materialOutputIdentical": true,
+  "pairedEquivalentFrontierCount": 0,
+  "limits": [
+    "Real-world paired coverage map is empty on both versions; positive counterpart cases are separately tested, so empty output alone is not treated as proof.",
+    "Fixed OKX local/global replay plus actual continuation is the release criterion. Offline timing and tests are not a substitute."
+  ]
+}

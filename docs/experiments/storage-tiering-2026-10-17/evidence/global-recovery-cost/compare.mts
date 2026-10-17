@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync} from 'node:fs';
+import {pathToFileURL} from 'node:url';
+import {performance} from 'node:perf_hooks';
+import {createHash} from 'node:crypto';
+import {BrowserEngine,canonical,reconcileCoverage,type Observation} from '@interaction/browser';
+import {SqliteStore} from '@interaction/storage-sqlite';
+const [directory,baselineFile,output]=process.argv.slice(2);
+assert.ok(directory&&baselineFile&&output&&directory.includes('/bie-global-recovery-cost-'));
+const {reconcileCoverage:oldReconcile}=await import(pathToFileURL(baselineFile).href);
+const sid='412937f3-c4f5-4799-b86c-74adf480f329',store=new SqliteStore(directory),engine=new BrowserEngine({persistence:store});
+(engine as any).adapter.createDriver=()=>{throw Error('Offline comparison forbids browser creation');};
+const m=(engine as any).coverageInputs(sid),observations=store.list<Observation>('observation',sid);
+const digest=(v:unknown)=>createHash('sha256').update(canonical(v)).digest('hex');
+const inputDigest=()=>{const h=createHash('sha256');for(const [kind,rows] of Object.entries({...m,observations})){h.update(kind);for(const row of Array.isArray(rows)?rows:[rows])h.update(JSON.stringify(row));}return h.digest('hex');};
+const inputsBefore=inputDigest();
+const run=(fn:typeof reconcileCoverage)=>{
+ let sampleCalls=0;const observationIds=new Set<string>();const started=performance.now();
+ const result=fn(m.session,m.raw,m.attempts,observations,m.hypotheses,(a,o)=>{sampleCalls++;observationIds.add(o.id);return (engine as any).adapter.correspondenceCase(a,o,m.session);},(engine as any).retainedReceiptCoverageReader());
+ return {rows:[...result].sort(([a],[b])=>a.localeCompare(b)),elapsedMs:performance.now()-started,sampleCalls,sampledObservations:observationIds.size};
+};
+const before=run(oldReconcile),after=run(reconcileCoverage);
+assert.deepEqual(after.rows,before.rows,'No candidate or proof may be lost or gained by the negative index');assert.equal(inputDigest(),inputsBefore);
+const report={snapshot:{observations:observations.length,frontier:m.raw.length,attempts:m.attempts.length},outputIdentical:true,inputUnchanged:true,resultSha256:digest(before.rows),equivalentFrontierCount:before.rows.length,before:{elapsedMs:before.elapsedMs,sampleCalls:before.sampleCalls,sampledObservations:before.sampledObservations},after:{elapsedMs:after.elapsedMs,sampleCalls:after.sampleCalls,sampledObservations:after.sampledObservations},limits:['Single offline paired comparison with warmed shared input, baseline first; not end-to-end timing or a success-rate estimate.','All retained receipt checks and existing portable condition keys remain authoritative.','No browser or task database opened.']};
+writeFileSync(output,JSON.stringify(report,null,2)+'\n',{flag:'wx'});console.log(JSON.stringify(report,null,2));await engine.close();

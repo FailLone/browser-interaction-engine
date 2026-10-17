@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
+
+ ✓ tests/coverage-reconciliation-index.test.ts (17 tests) 17ms
+ ✓ tests/receipt-coverage-reconciliation.test.ts (11 tests) 13ms
+
+ Test Files  2 passed (2)
+      Tests  28 passed (28)
+   Start at  22:22:15
+   Duration  675ms (transform 158ms, setup 0ms, collect 273ms, tests 31ms, environment 0ms, prepare 79ms)

@@ -1,0 +1,12 @@
+{
+  "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-recovery-acceptance-20261017-v18/engine/engine.sqlite",
+  "owned": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-global-recovery-cost-qbosb1h7",
+  "sourceDatabaseAndWalUnchanged": true,
+  "sourceHashes": {
+    "engine.sqlite-wal": "5deb87390849a5b447e02da9da957ccc3390708303109d553cd369dfccc1145a",
+    "engine.sqlite": "6e8da8390862a5bb5fbe49222d4dc706183ee2bbd601ef3c9772ff1c63573a96"
+  },
+  "snapshotSha256": "25b35f61267d1547b5574cb1597b886c607e4a4af6448a3f8a524e206c3e932a",
+  "browserStarted": false,
+  "taskDatabaseOpened": false
+}

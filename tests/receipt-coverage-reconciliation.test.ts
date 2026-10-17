@@ -51,5 +51,5 @@ it('does not rebuild portable samples for observations excluded by the compositi
   const f=fixture(),sample=vi.fn(()=>undefined);
   Object.assign(f.receipt,{acceptsObservation:()=>false});
   expect(f.evaluate(undefined,undefined,sample).size).toBe(0);
-  expect(f.receipt).not.toHaveBeenCalled();expect(sample).toHaveBeenCalledTimes(2);
+  expect(f.receipt).not.toHaveBeenCalled();expect(sample).toHaveBeenCalledTimes(1);
 });

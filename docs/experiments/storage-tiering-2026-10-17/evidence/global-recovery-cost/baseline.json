@@ -1,0 +1,549 @@
+{
+  "mode": "interventions",
+  "observationId": "93795f81-146a-4ab4-8662-1e2aca0e0bd5",
+  "controls": 301,
+  "entityCounts": [
+    {
+      "kind": "action",
+      "count": 37569
+    },
+    {
+      "kind": "attempt",
+      "count": 71
+    },
+    {
+      "kind": "boundary-exit-episode",
+      "count": 1
+    },
+    {
+      "kind": "boundary-exit-request",
+      "count": 1
+    },
+    {
+      "kind": "checkpoint",
+      "count": 57
+    },
+    {
+      "kind": "control-classification",
+      "count": 24
+    },
+    {
+      "kind": "control-classification-request",
+      "count": 1
+    },
+    {
+      "kind": "control-review-request",
+      "count": 1
+    },
+    {
+      "kind": "discovery-request",
+      "count": 1
+    },
+    {
+      "kind": "evidence-entry",
+      "count": 374
+    },
+    {
+      "kind": "evidence-retention",
+      "count": 187
+    },
+    {
+      "kind": "exploration-group",
+      "count": 600
+    },
+    {
+      "kind": "frontier",
+      "count": 3361
+    },
+    {
+      "kind": "hypothesis",
+      "count": 346
+    },
+    {
+      "kind": "identity",
+      "count": 5288
+    },
+    {
+      "kind": "intervention-snapshot",
+      "count": 202
+    },
+    {
+      "kind": "observation",
+      "count": 187
+    },
+    {
+      "kind": "page-exploration",
+      "count": 1
+    },
+    {
+      "kind": "reach",
+      "count": 9
+    },
+    {
+      "kind": "region-review",
+      "count": 32
+    },
+    {
+      "kind": "region-review-request",
+      "count": 1
+    },
+    {
+      "kind": "review-target-reach",
+      "count": 2
+    },
+    {
+      "kind": "scope",
+      "count": 16
+    },
+    {
+      "kind": "session",
+      "count": 1
+    },
+    {
+      "kind": "source-return",
+      "count": 4
+    },
+    {
+      "kind": "state",
+      "count": 114
+    },
+    {
+      "kind": "transition",
+      "count": 71
+    },
+    {
+      "kind": "visit",
+      "count": 187
+    }
+  ],
+  "elapsedMs": 14404.545209,
+  "outputSha256": "cdf175ecc8ea2203a202ab6ca3480876461310dd89ac915fa8d4521e1feec5ae",
+  "items": 82,
+  "readyIds": 48,
+  "topSelf": [
+    {
+      "function": "(garbage collector)",
+      "url": "",
+      "line": 0,
+      "ms": 2702.374
+    },
+    {
+      "function": "decodeStoredEntity",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/entity-codec.ts",
+      "line": 1,
+      "ms": 1625.373
+    },
+    {
+      "function": "modeStructureReader",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 766.794
+    },
+    {
+      "function": "canonical",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 494.745
+    },
+    {
+      "function": "canonical",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 388.171
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 369.089
+    },
+    {
+      "function": "observedModeConditions",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/branch-conditions.ts",
+      "line": 1,
+      "ms": 293.166
+    },
+    {
+      "function": "update",
+      "url": "",
+      "line": 0,
+      "ms": 283.041
+    },
+    {
+      "function": "process",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+      "line": 72,
+      "ms": 213.707
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 181.167
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 165.622
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 161.919
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 151.38
+    },
+    {
+      "function": "all",
+      "url": "",
+      "line": 0,
+      "ms": 142.996
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 131.75
+    },
+    {
+      "function": "canonical",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 128.54
+    },
+    {
+      "function": "canonical",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 123.29
+    },
+    {
+      "function": "process",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+      "line": 72,
+      "ms": 119.207
+    },
+    {
+      "function": "process",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+      "line": 72,
+      "ms": 107.71
+    },
+    {
+      "function": "utf8Slice",
+      "url": "",
+      "line": 0,
+      "ms": 106.922
+    },
+    {
+      "function": "process",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+      "line": 72,
+      "ms": 100.914
+    },
+    {
+      "function": "canonical",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 98.377
+    },
+    {
+      "function": "process",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/@noble+hashes@2.4.0/node_modules/@noble/hashes/sha2.js",
+      "line": 72,
+      "ms": 94.249
+    },
+    {
+      "function": "(program)",
+      "url": "",
+      "line": 0,
+      "ms": 84.412
+    },
+    {
+      "function": "canonical",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 78.454
+    }
+  ],
+  "topInclusive": [
+    {
+      "function": "(root)",
+      "url": "",
+      "line": 0,
+      "ms": 14472.834
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/docs/experiments/storage-tiering-2026-10-17/evidence/global-recovery-cost/measure.mts",
+      "line": 0,
+      "ms": 11667.129
+    },
+    {
+      "function": "material",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/browser/src/interventions.ts",
+      "line": 1,
+      "ms": 11598.587
+    },
+    {
+      "function": "interventionMaterial",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/browser/src/index.ts",
+      "line": 1,
+      "ms": 11598.587
+    },
+    {
+      "function": "coverageMaterial",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts",
+      "line": 1,
+      "ms": 11241.171
+    },
+    {
+      "function": "getFrontier",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts",
+      "line": 1,
+      "ms": 11241.171
+    },
+    {
+      "function": "reconcileMaterial",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts",
+      "line": 1,
+      "ms": 11203.462
+    },
+    {
+      "function": "reconcileCoverage",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/coverage-reconciliation.ts",
+      "line": 1,
+      "ms": 8543.126
+    },
+    {
+      "function": "key",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/coverage-reconciliation.ts",
+      "line": 1,
+      "ms": 8497.709
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/coverage-reconciliation.ts",
+      "line": 1,
+      "ms": 8497.709
+    },
+    {
+      "function": "operationSample",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/coverage-reconciliation.ts",
+      "line": 1,
+      "ms": 8457.458
+    },
+    {
+      "function": "controlCase",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/exploration.ts",
+      "line": 1,
+      "ms": 8439.707
+    },
+    {
+      "function": "correspondenceCase",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/index.ts",
+      "line": 1,
+      "ms": 8439.707
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/engine.ts",
+      "line": 1,
+      "ms": 8439.707
+    },
+    {
+      "function": "controlCaseProjection",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/exploration.ts",
+      "line": 1,
+      "ms": 8434.665
+    },
+    {
+      "function": "browserPortableBranchConditions",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/branch-conditions.ts",
+      "line": 1,
+      "ms": 8340.368
+    },
+    {
+      "function": "observedModeConditions",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/branch-conditions.ts",
+      "line": 1,
+      "ms": 8284.576
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 4987.03
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 4476.487
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 4449.946
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 4078.315
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 3874.066
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 3543.31
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 3305.061
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 2761.271
+    },
+    {
+      "function": "(garbage collector)",
+      "url": "",
+      "line": 0,
+      "ms": 2702.374
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/index.ts",
+      "line": 10,
+      "ms": 2645.211
+    },
+    {
+      "function": "sqliteTransaction",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/node_modules/.pnpm/better-sqlite3@12.11.1/node_modules/better-sqlite3/lib/methods/transaction.js",
+      "line": 52,
+      "ms": 2645.211
+    },
+    {
+      "function": "list",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/index.ts",
+      "line": 10,
+      "ms": 2645.211
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/index.ts",
+      "line": 10,
+      "ms": 2641.378
+    },
+    {
+      "function": "decodeStoredEntity",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/storage-sqlite/src/entity-codec.ts",
+      "line": 1,
+      "ms": 2636.294
+    },
+    {
+      "function": "modeStructureReader",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 2232.045
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 1980.372
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 1462.501
+    },
+    {
+      "function": "canonical",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 1276.292
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 1240.033
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 891.827
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 758.923
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 609.027
+    },
+    {
+      "function": "canonical",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 597.004
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 586.459
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/adapter-playwright/src/mode-structure.ts",
+      "line": 1,
+      "ms": 582.116
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 408.248
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 367.05
+    },
+    {
+      "function": "",
+      "url": "file:///Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/packages/core/src/util.ts",
+      "line": 1,
+      "ms": 365.959
+    }
+  ],
+  "browserStarted": false,
+  "taskDatabaseOpened": false
+}

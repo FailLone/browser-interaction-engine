@@ -87,7 +87,7 @@ export function reconcileCoverage<O extends Observation>(session: Session, front
     return [id, counts] as const;
   }));
   const keys = new WeakMap<ActionCandidate, ReturnType<typeof key>>();
-  function key(a: ActionCandidate) {
+  function key(a: ActionCandidate, possible?: Set<string>) {
     const o = byObservation.get(a.observationId);
     if (!o || a.sessionId !== session.id || !a.controlId || a.basis?.status !== 'supported' || o.gaps.some(g => g.critical)) return;
     if (canonical(a.preconditions.context) !== canonical(o.context) || Object.values(o.context).some(c => c.status !== 'known')) return;
@@ -96,19 +96,26 @@ export function reconcileCoverage<O extends Observation>(session: Session, front
     const identity = resolve(c);
     // A contradictory decision cannot make two simultaneous targets equivalent.
     if (identity && identityCounts.get(o.id)?.get(identity) !== 1) return;
+    const target = identity || [o.instanceScope, c.instanceId];
+    // These are necessary fields of the final key, not an equivalence proof.
+    // Skip an expensive adapter projection only when no fully sampled success
+    // can share its target, operation, input, declared context and risk.
+    const necessary = canonical({ target, kind: a.kind, value: a.value, context: o.context, risk: a.risk });
+    if (possible && !possible.has(necessary)) return;
     const control = identity ? { ...c, identityId: identity, hypothesisId: undefined } : c;
     const action = identity ? { ...a, controlId: identity, target: undefined, preconditions: { ...a.preconditions, identityResolved: true } } : a;
     const projected = identity ? { ...o, controls: o.controls.map(old => old === c ? control : old) } : o;
     const s = operationSample(action, projected, sample);
     if (!s) return;
-    return { key: hash({ sample: s.key, target: identity || [o.instanceScope, c.instanceId] }), identity, sample: s };
+    return { key: hash({ sample: s.key, target }), necessary, identity, sample: s };
   }
-  const cached = (a: ActionCandidate) => {
+  const cached = (a: ActionCandidate, possible?: Set<string>) => {
     // Supplied input variants can share an ID; cache only the exact action object.
-    if (!keys.has(a)) keys.set(a, key(a));
+    if (!keys.has(a)) keys.set(a, key(a, possible));
     return keys.get(a);
   };
   const succeeded = new Map<string, EquivalentCoverage>();
+  const possible = new Set<string>();
   // Index actual receipts by instance and input. The composition still checks
   // their complete evidence; this index only avoids all-pairs reconciliation.
   const retained = new Map<string, {attempt:ActionAttempt;before:O;after:O}[]>();
@@ -126,14 +133,17 @@ export function reconcileCoverage<O extends Observation>(session: Session, front
     if (a.sessionId !== session.id || a.status !== 'succeeded' || !before || !after || a.action.observationId !== before.id
       || before.gaps.some(g => g.critical) || after.gaps.some(g => g.critical)) continue;
     const k = cached(a.action);
-    if (k) succeeded.set(k.key, { attemptId: a.id, beforeId: before.id, afterId: after.id, identityId: k.identity,
-      policy: k.sample.policy, evidence: k.sample.evidence });
+    if (k) {
+      possible.add(k.necessary);
+      succeeded.set(k.key, { attemptId: a.id, beforeId: before.id, afterId: after.id, identityId: k.identity,
+        policy: k.sample.policy, evidence: k.sample.evidence });
+    }
     const index=receiptCoverage&&receiptCoverage.acceptsObservation?.(before)!==false&&receiptKey(a.action,before);
     if(index){const entries=retained.get(index)||[];entries.push({attempt:a,before,after});retained.set(index,entries);}
   }
   for (const f of frontier) {
     if (f.sessionId !== session.id || f.samplingMigration || f.attempts.length || ['executing', 'unknown'].includes(f.status)) continue;
-    const k = cached(f.action), proof = k && succeeded.get(k.key);
+    const k = possible.size ? cached(f.action, possible) : undefined, proof = k && succeeded.get(k.key);
     if (proof) { result.set(f.id, proof); continue; }
     const o=byObservation.get(f.action.observationId);
     if(!receiptCoverage||!o||receiptCoverage.acceptsObservation?.(o)===false)continue;
