@@ -2,6 +2,7 @@ import { expect, it, vi } from 'vitest';
 import { InteractionEngine, id, now, type ActionAttempt, type InteractionAdapter, type InteractionDriver, type ObservationData } from '@interaction/core';
 import { MemoryStore } from '@interaction/storage-memory';
 import { PlaywrightAdapter, browserControlReviewMaterialKey, createBrowserControlReviewMaterialKey, browserControlReviewTargetCorrespondence, type ActionCandidate, type Control, type Observation, type Session, type SessionOptions } from '@interaction/browser';
+import { modeStructureFixture } from './fixtures/mode-structure.js';
 
 const url='https://review-target.fixture.invalid/';
 function control(localId:string,role='generic',name='USD'):Control {
@@ -24,6 +25,7 @@ function observed():Observation {
 // are exercised. No browser, server, SQLite or provider is constructed.
 class Driver implements InteractionDriver<Observation,SessionOptions> {
   layers=0; quote=1; connectedState=false; unknownMode=false; staleReview=false;
+  structuredModes=false; modeDocument='document';
   readonly reopen=vi.fn(async()=>{throw Error('Entry reopening is forbidden by this fixture');});
   readonly execute=vi.fn(async(a:ActionCandidate)=>{if(a.kind!=='click'||!a.boundary)throw Error('Only existing boundary exits are allowed');this.layers--;this.quote++;});
   readonly preflight=vi.fn(async(_o:Observation,_a?:ActionCandidate,reviewIds?:string[])=>reviewIds?.length&&this.staleReview?'stale' as const:'valid' as const);
@@ -33,6 +35,11 @@ class Driver implements InteractionDriver<Observation,SessionOptions> {
   async validate(){ }
   async capture():Promise<ObservationData<Observation>> {
     const o=observed();
+    if(this.structuredModes){
+      const f=modeStructureFixture({documentId:this.modeDocument});
+      o.controls[0]=f.target;o.controls.push(f.owner,...Object.values(f.modes));
+      o.documentId=o.instanceScope=this.modeDocument;
+    }
     if(this.unknownMode)delete (o.controls[1] as Partial<Control>).checked;
     o.controls.push({...control('quote','textbox','BTC output'),tag:'input',readOnly:true,value:String(this.quote)});
     for(let layer=1;layer<=this.layers;layer++){
@@ -58,15 +65,30 @@ function adapter(driver:Driver):InteractionAdapter<Observation,SessionOptions>&{
     returnAction:browser.returnAction,entryAction:browser.entryAction,controlCorrespondence:browser.controlCorrespondence,
     controlReviewTargetCorrespondence:browser.controlReviewTargetCorrespondence};
 }
-async function fixture(layers=1,unknownMode=false) {
-  const driver=new Driver();driver.unknownMode=unknownMode;
+async function fixture(layers=1,unknownMode=false,structuredModes=false) {
+  const driver=new Driver();driver.unknownMode=unknownMode;driver.structuredModes=structuredModes;
   const store=new MemoryStore(),platform=adapter(driver),engine=new InteractionEngine({adapter:platform,persistence:store});
   const session=await engine.createSession({url,exploration:'controls',maxActions:10,maxDurationMs:10000});
   const source=engine.observation(session.id),checkpoint=await engine.createCheckpoint(session.id,'review source');
-  driver.layers=layers;driver.quote++;await engine.observe(session.id);
+  driver.layers=layers;driver.quote++;if(structuredModes)driver.modeDocument='rebuilt-document';await engine.observe(session.id);
   const input={checkpointId:checkpoint.id,observationId:source.id,localId:'usd'};
   return {driver,store,platform,engine,session,source,input};
 }
+
+it.each([0,2])('verifies historical review conditions after %i boundary exits with rebuilt same-name hidden modes',async layers=>{
+  const f=await fixture(layers,false,true);try{
+    const sourceBefore=structuredClone(f.source);
+    const result=await f.engine.reachControlReviewTarget(f.session.id,{...f.input,requireSourceEquivalent:true});
+    expect(result).toMatchObject({status:'CURRENT_REVIEWABLE',sourceEquivalent:'equivalent',matchedLocalId:'usd',
+      checkpointVerified:false,currentExecution:false,coverageGranted:false,executionAuthorized:false});
+    expect(result.checks).toContainEqual({name:'historical-review-source-conditions',result:'pass'});
+    expect(result.checks).toContainEqual({name:'live-review-target-preflight',result:'pass'});
+    expect(result.attemptIds).toHaveLength(layers);expect(f.driver.execute).toHaveBeenCalledTimes(layers);expect(f.driver.reopen).not.toHaveBeenCalled();
+    expect(f.engine.observation(f.session.id).instanceScope).not.toBe(f.source.instanceScope);
+    expect(f.engine.observation(f.session.id).controls.filter(c=>c.name==='More').every(c=>!!c.hypothesisId)).toBe(true);
+    expect(f.source).toEqual(sourceBefore);
+  }finally{await f.engine.close();}
+});
 
 it.each([1,2])('stops after %i existing boundary exits at current review material, without whole-page replay',async layers=>{
   const f=await fixture(layers,true);try{
@@ -115,7 +137,8 @@ it.each<{reason:string;localId:string;change:(o:Observation)=>void}>([
   {reason:'selector_identity_hypothesis',localId:'mode',change:o=>{o.controls[1].hypothesisId='unresolved-selector';}},
   {reason:'selector_instance_bound',localId:'mode',change:o=>{o.controls[1].identityScope='instance';}},
   {reason:'selector_record_key_missing',localId:'mode',change:o=>{o.controls[1].structuralItem={ownerInstanceId:'owner',rowInstanceId:'row',template:'mode-row',slot:'mode'};}},
-  {reason:'selector_binding_duplicate',localId:'duplicate-mode',change:o=>{o.controls.push({...structuredClone(o.controls[1]),localId:'duplicate-mode',instanceId:'document:duplicate-mode'});}},
+  // Collision families are now assessed together, before either member is bound.
+  {reason:'selector_binding_duplicate',localId:'mode',change:o=>{o.controls.push({...structuredClone(o.controls[1]),localId:'duplicate-mode',instanceId:'document:duplicate-mode'});}},
   {reason:'selector_limit_exceeded',localId:'mode-32',change:o=>{for(let n=1;n<=32;n++)o.controls.push({...control(`mode-${n}`,'checkbox',`Mode ${n}`),checked:false});}},
 ])('reports the first portable selector rejection $reason while preserving reflexive review proof',({reason,localId,change})=>{
   const o=observed();change(o);o.controls.push({...control('later-missing','checkbox','Later missing'),checked:null});

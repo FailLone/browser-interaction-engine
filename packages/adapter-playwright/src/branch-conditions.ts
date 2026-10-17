@@ -1,11 +1,12 @@
 import { canonical, hash, type ReviewConditionAssessment } from '@interaction/core';
 import type { ActionCandidate, Control, Observation } from './types.js';
 import { formBinding } from './util.js';
+import { modeStructureReader } from './mode-structure.js';
 
 /** A bound on evidence, not permission to ignore additional dependencies. */
 export const MAX_BRANCH_CONDITIONS = 32;
 export interface BrowserBranchConditions {
-  policy: 'browser-branch-conditions-v1' | 'browser-branch-conditions-v2';
+  policy: 'browser-branch-conditions-v1' | 'browser-branch-conditions-v2' | 'browser-branch-conditions-v3';
   key: string;
   conditions: { binding: string; state: Record<string, string[] | boolean | 'mixed'>; relation: string }[];
   evidence: string[];
@@ -33,10 +34,10 @@ function selectorState(c: Control, selections: Map<string, boolean>) {
   return Object.keys(state).length ? state : undefined;
 }
 
-function binding(c: Control) {
+function binding(c: Control, includeHypothesis = false) {
   // Unkeyed virtual records and unresolved selectors cannot establish portable
   // source conditions. Never substitute a row/DOM instance or its index.
-  if (c.identityScope === 'instance' || c.hypothesisId || c.structuralItem && !c.structuralItem.recordKey) return;
+  if (c.identityScope === 'instance' || !includeHypothesis && c.hypothesisId || c.structuralItem && !c.structuralItem.recordKey) return;
   const item = c.structuralItem;
   return canonical({ tag: c.tag, role: c.role, name: c.label || c.name, type: c.constraints.type,
     anchor: item ? { record: item.recordKey, template: item.template, slot: item.slot } : c.stableKey,
@@ -94,10 +95,10 @@ export function browserReviewBranchConditions(target: Control, o: Observation): 
 
 /** The same projection and first rejection, without a second selector scan. */
 export function assessBrowserReviewBranchConditions(target: Control, o: Observation): BrowserBranchConditionsAssessment {
-  return observedModeConditions(target, o, false, 'v2');
+  return observedModeConditions(target, o, false, 'v3');
 }
 
-function observedModeConditions(target: Control, o: Observation, omitTargetMode: boolean, version: 'v1' | 'v2'): BrowserBranchConditionsAssessment {
+function observedModeConditions(target: Control, o: Observation, omitTargetMode: boolean, version: 'v1' | 'v2' | 'v3'): BrowserBranchConditionsAssessment {
   const unavailable = (reason: string, localId?: string): BrowserBranchConditionsAssessment =>
     ({ assessment: { status: 'unavailable', reason, ...(localId ? { localId } : {}) } });
   if (!target) return unavailable('review_target_missing');
@@ -107,6 +108,7 @@ function observedModeConditions(target: Control, o: Observation, omitTargetMode:
   const targetComponents = components(target.localId), targetRegions = regions(target.region);
   const selections = new Map((o.components || []).flatMap(c => c.members.filter(m => typeof m.selected === 'boolean').map(m => [m.localId, m.selected!] as const)));
   const conditions: BrowserBranchConditions['conditions'] = [], bindings = new Set<string>();
+  const rows:{c:Control;state:Exclude<ReturnType<typeof selectorState>,undefined>;base?:string}[]=[],counts=new Map<string,number>();
   for (const c of o.controls) {
     // v1 exists only to verify persisted scheduling keys against their retained
     // source. Current correspondence, coverage and recovery always use v2.
@@ -115,6 +117,11 @@ function observedModeConditions(target: Control, o: Observation, omitTargetMode:
     // The sample's destination value is already part of the operation key. Its
     // own starting value must not manufacture repeated fill/select/check work.
     if (c === target && omitTargetMode) continue;
+    const base=binding(c,true);if(base)counts.set(base,(counts.get(base)||0)+1);
+    rows.push({c,state,base});
+  }
+  let structure:ReturnType<typeof modeStructureReader>|undefined,usedStructure=false;
+  for(const {c,state,base} of rows){
     let relation: string;
     if (c === target) relation = 'target-mode';
     else if (target.formOwner && c.formOwner?.instanceId === target.formOwner.instanceId) relation = 'same-native-form';
@@ -125,7 +132,16 @@ function observedModeConditions(target: Control, o: Observation, omitTargetMode:
     else relation = 'observed-document-mode';
     if (state === null) return unavailable('selector_state_missing', c.localId);
     if (c.readiness?.status === 'unstable') return unavailable('selector_unstable', c.localId);
-    const key = binding(c);
+    let key = binding(c);
+    // Resolve the whole collision family consistently, never just the second
+    // member. Only review v3 opts in; operation v1/v2 and saved retry keys stay
+    // on their exact prior projection. A reference is not an identity grant.
+    const unanchored=!c.stableKey&&!c.identityContext?.scope&&!c.identityContext?.binding&&!c.formOwner&&!c.structuralItem;
+    if(version==='v3'&&(!key||unanchored||base&&(counts.get(base)||0)>1)){
+      const reference=(structure??=modeStructureReader(o))(c);
+      if(reference){key=canonical({policy:reference.policy,base,structure:reference.key});usedStructure=true;}
+      else if(base&&(counts.get(base)||0)>1)return unavailable('selector_binding_duplicate',c.localId);
+    }
     if (!key) return unavailable(c.identityScope === 'instance' ? 'selector_instance_bound'
       : c.hypothesisId ? 'selector_identity_hypothesis' : c.structuralItem && !c.structuralItem.recordKey ? 'selector_record_key_missing'
       : 'selector_binding_unavailable', c.localId);
@@ -134,12 +150,13 @@ function observedModeConditions(target: Control, o: Observation, omitTargetMode:
     if (conditions.length > MAX_BRANCH_CONDITIONS) return unavailable('selector_limit_exceeded', c.localId);
   }
   conditions.sort((a, b) => a.binding.localeCompare(b.binding));
-  const policy = version === 'v1' ? 'browser-branch-conditions-v1' as const : 'browser-branch-conditions-v2' as const;
+  const policy = version === 'v1' ? 'browser-branch-conditions-v1' as const : usedStructure?'browser-branch-conditions-v3' as const:'browser-branch-conditions-v2' as const;
   return { assessment: { status: 'available', reason: 'observed_branch_conditions_available' },
     conditions: { policy, key: hash({ policy, conditions }), conditions, evidence: [
     version === 'v1' ? 'Legacy visible selectors within the historical form/component/region projection; source-key decoding only'
       : 'All captured selector states, including cross-form, cross-region and hidden modes; structure does not prove independence',
     'Passive text and free-text starting values excluded; selector values and semantic bindings retained',
     'Observed source-condition samples only; unobserved JavaScript state, free-text dependencies and all combinations are not covered',
+    ...(usedStructure?['Unique anchored fragments in complete captured trees resolve mode references; identity and execution authority remain unchanged']:[]),
   ] } };
 }
