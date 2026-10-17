@@ -28,15 +28,16 @@ export function recoverySelectionPrototypeGuard(prototypes: readonly object[]) {
  * view after yielding and retain the normal final/dispatch validation. The
  * proof concerns records/readers, not edits to a consumer's own materials;
  * consumers must not mutate the facts they reuse under this proof. */
-export interface RecoverySelectionView<Current, Source, Anchor = never> {
+export interface RecoverySelectionView<Current, Source, Anchor = never, ReviewMaterial = never> {
   readonly current: Current;
   source(observationId: string): Source;
   readonly anchor?: (observationId: string) => Anchor;
+  readonly reviewMaterial?: (observationId: string) => ReviewMaterial;
   assertCurrent(): void;
   close(): void;
 }
 
-export interface RecoverySelectionViewReaders<Current, Source, Anchor = never> {
+export interface RecoverySelectionViewReaders<Current, Source, Anchor = never, ReviewMaterial = never> {
   /** Explicit composition proof supplied by the SDK, not inferred from a store
    * cursor. Unknown/custom readers or unversioned external policy return false.
    * It must also reject changes to the participating methods/services. */
@@ -47,17 +48,18 @@ export interface RecoverySelectionViewReaders<Current, Source, Anchor = never> {
   current(): Current;
   source(observationId: string): Source;
   anchor?(observationId: string): Anchor;
+  reviewMaterial?(observationId: string): ReviewMaterial;
 }
 
 /** A lifetime boundary, not a generic cache. Only the initial current material
  * is retained here; callers own bounded source/projection caches and dispose
  * them with the view. No transaction, driver or persistent write is introduced.
  * The caller's proof must cover every dependency of these synchronous readers. */
-export function createRecoverySelectionView<Current, Source, Anchor = never>(
-  readers: RecoverySelectionViewReaders<Current, Source, Anchor>,
-): RecoverySelectionView<Current, Source, Anchor> | undefined {
+export function createRecoverySelectionView<Current, Source, Anchor = never, ReviewMaterial = never>(
+  readers: RecoverySelectionViewReaders<Current, Source, Anchor, ReviewMaterial>,
+): RecoverySelectionView<Current, Source, Anchor, ReviewMaterial> | undefined {
   const supported = readers.supported, recordRevision = readers.recordRevision;
-  const currentReader = readers.current, sourceReader = readers.source, anchorReader = readers.anchor;
+  const currentReader = readers.current, sourceReader = readers.source, anchorReader = readers.anchor, reviewReader = readers.reviewMaterial;
   const revision = () => {
     try {
       if (!supported()) return;
@@ -93,6 +95,7 @@ export function createRecoverySelectionView<Current, Source, Anchor = never>(
     current,
     source: (observationId: string) => read(() => sourceReader(observationId)),
     ...(anchorReader ? { anchor: (observationId: string) => read(() => anchorReader(observationId)) } : {}),
+    ...(reviewReader ? { reviewMaterial: (observationId: string) => read(() => reviewReader(observationId)) } : {}),
     assertCurrent,
     close: () => { invalid = true; },
   });

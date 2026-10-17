@@ -99,6 +99,26 @@ it('preserves a stable reader error but checks validity on the exceptional path'
   expectStale(view.assertCurrent);
 });
 
+it('reads optional historical review material lazily and checks its generation before, after and on errors', () => {
+  const f = fixture(), error = new Error('Historical review unavailable');
+  const reviewMaterial = vi.fn((id: string) => ({ observationId: id, controls: [] }));
+  const create = () => createRecoverySelectionView({ ...f.readers, reviewMaterial });
+  const view = create()!;
+  expect(reviewMaterial).not.toHaveBeenCalled();
+  expect(view.reviewMaterial!('source')).toEqual({ observationId: 'source', controls: [] });
+  reviewMaterial.mockImplementationOnce(() => { throw error; });
+  expect(() => view.reviewMaterial!('source')).toThrow(error);
+  expect(() => view.assertCurrent()).not.toThrow();
+  reviewMaterial.mockClear(); f.state.revision = 'records:2';
+  expectStale(() => view.reviewMaterial!('source')); expect(reviewMaterial).not.toHaveBeenCalled();
+  const next = create()!;
+  reviewMaterial.mockImplementationOnce(id => { f.state.revision = 'records:3'; return { observationId: id, controls: [] }; });
+  expectStale(() => next.reviewMaterial!('source'));
+  const last = create()!;
+  reviewMaterial.mockImplementationOnce(() => { f.state.revision = 'records:4'; throw error; });
+  expectStale(() => last.reviewMaterial!('source')); expectStale(last.assertCurrent);
+});
+
 it('treats unavailable revision checks as unsupported initially and stale after creation', () => {
   const f = fixture(), error = new Error('Revision reader unavailable');
   f.readers.recordRevision.mockImplementationOnce(() => { throw error; });
@@ -148,6 +168,31 @@ it('offers the default SDK composition with unchanged ordinary current/source fa
   expect(view.source('source')).toEqual(f.engine.recoverySourceMaterial('session', { sourceObservationId: 'source', currentObservationId: 'current' }));
   expect(view.anchor!('source')).toEqual(f.engine.recoveryAnchorMaterial('session', { sourceObservationId: 'source', currentObservationId: 'current' }));
   expect(f.store.recordRevision()).toBe(revision); expect(f.store.events('session')).toEqual([]);
+});
+
+it('reads detached historical review facts through the default SDK view without changing the current cursor or granting authority', () => {
+  const f = browserFixture();
+  f.store.put('action', { ...f.action, id: 'source-action', observationId: f.source.id });
+  const record = { id: 'source-review', sessionId: 'session', observationId: f.source.id, localId: 'button', kind: 'click',
+    status: 'revoked', conditionKey: 'fixture-condition', conditions: { instanceScope: f.source.instanceScope, target: { instanceId: 'button-instance' } } };
+  f.store.put('control-review', record);
+  const revision = f.store.recordRevision(), view = f.create()!;
+  const material = f.engine.recoveryReviewMaterial('session', { observationId: f.source.id });
+  expect(material).toMatchObject({ sessionId: 'session', observationId: f.source.id,
+    controls: [{ actions: [{ id: 'source-action', observationId: f.source.id }], reviews: [{ id: record.id, status: 'revoked' }] }] });
+  expect(view.reviewMaterial!(f.source.id)).toEqual(material);
+  expect(f.engine.session('session').currentObservationId).toBe(f.current.id);
+  expect(() => f.engine.controlInterpretationSnapshot('session', f.source.id)).toThrow();
+  material.controls[0].control.label = 'caller-only'; material.controls[0].reviews[0].status = 'active';
+  expect(f.engine.recoveryReviewMaterial('session', { observationId: f.source.id }).controls[0]).toMatchObject({ control: { label: 'Open' }, reviews: [{ status: 'revoked' }] });
+  expect(f.store.recordRevision()).toBe(revision); expect(f.store.events('session')).toEqual([]);
+  for (const field of ['checkpointVerified', 'executionAuthorized', 'currentExecution', 'coverageGranted']) expect(material).not.toHaveProperty(field);
+  f.store.put('control-review', { ...record, status: 'superseded' });
+  expectStale(() => view.reviewMaterial!(f.source.id));
+  expect(f.create()!.reviewMaterial!(f.source.id).controls[0].reviews[0].status).toBe('superseded');
+  expect(() => f.engine.recoveryReviewMaterial('session', { observationId: '' })).toThrow('requires an explicit observation ID');
+  f.store.put('observation', { ...f.source, id: 'foreign-source', sessionId: 'another-session' });
+  expect(() => f.engine.recoveryReviewMaterial('session', { observationId: 'foreign-source' })).toThrow('does not belong to session');
 });
 
 it('invalidates on record changes and retains the original unknown-outcome availability gate', () => {

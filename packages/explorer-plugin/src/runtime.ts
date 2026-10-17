@@ -812,6 +812,7 @@ export class ExplorerPlugin {
       conditions?:Map<ActionCandidate,ReturnType<typeof browserTargetConditions>>};
     const retained=new Map<string,Retained|undefined>();
     const anchors=new Map<string,ReviewAnchorObservation|undefined>();
+    const reviewMaterials=new Map<string,ReturnType<ExplorerHost['controlReviewMaterial']>|undefined>();
     let currentIndex:ReturnType<typeof observationActionIndex>|undefined,currentInScope:ReturnType<typeof controlScopeMatcher>|undefined;
     const targetConditions=(facts:Retained,action:ActionCandidate)=>{
       const conditions=facts.conditions??=new Map();
@@ -829,6 +830,16 @@ export class ExplorerPlugin {
       retained.set(observationId,value);while(retained.size>8)retained.delete(retained.keys().next().value!);return value;
     };
     const readRouteSource=(sessionId:string,observationId:string)=>sessionId===o.sessionId?read(observationId)?.source:this.host.observation(sessionId,observationId);
+    const readReviewMaterial=(observationId:string)=>{
+      if(reviewMaterials.has(observationId))return reviewMaterials.get(observationId);
+      selectionView?.assertCurrent();
+      let value:ReturnType<ExplorerHost['controlReviewMaterial']>|undefined;
+      try{value=selectionView?.reviewMaterial?selectionView.reviewMaterial(observationId)
+        :this.host.recoveryReviewMaterial?.(o.sessionId,{observationId});}catch{/* Missing facts cannot retain a negative wait. */}
+      selectionView?.assertCurrent();
+      reviewMaterials.set(observationId,value);while(reviewMaterials.size>8)reviewMaterials.delete(reviewMaterials.keys().next().value!);
+      return value;
+    };
     const readAnchor=(observationId:string)=>{
       if(!this.host.recoveryAnchorMaterial)return read(observationId)?.source;
       if(anchors.has(observationId))return anchors.get(observationId);
@@ -900,9 +911,9 @@ export class ExplorerPlugin {
     const checkpointCandidates=new Map<string,CheckpointCandidate|undefined>();
     // Checkpoint strategy evaluation has additional adapter/hook dependencies;
     // it is deliberately outside the recorded-fact view.
-    yielded=()=>checkpointCandidates.clear();
+    yielded=()=>{checkpointCandidates.clear();if(!selectionView?.reviewMaterial)reviewMaterials.clear();};
     invalidate=()=>{
-      retained.clear();anchors.clear();currentIndex=undefined;currentInScope=undefined;checkpointCandidates.clear();
+      retained.clear();anchors.clear();reviewMaterials.clear();currentIndex=undefined;currentInScope=undefined;checkpointCandidates.clear();
       projections.clear();projectionCount=0;
       routeCondition=this.routeConditionReader(o,actions);
     };
@@ -946,7 +957,7 @@ export class ExplorerPlugin {
     for(const item of pending){
       const wait=checkpoint();if(wait){await wait;resume();}
       if(reviewFallback&&!reviewFallback.pageIds.has(item.id))continue;
-      if(validReviewRecoveryWait(task,item,o,id=>read(id)?.source)){deferSelection(item.id,recoveryConditionVersion(o),'unchanged_unresolved_review',o.id);continue;}
+      if(validReviewRecoveryWait(task,item,o,id=>read(id)?.source,readReviewMaterial)){deferSelection(item.id,recoveryConditionVersion(o),'unchanged_unresolved_review',o.id);continue;}
       const returnToSource=!!this.host.returnToObservedSource&&pageSourceObligation(item);
       // A different arrival contract cannot isolate unresolved execution debt.
       // Legacy records without source IDs remain blocked until SDK-backed

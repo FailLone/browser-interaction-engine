@@ -20,7 +20,7 @@ import { PageExploration } from './page-exploration.js';
 export type { PageExplorationState } from './page-exploration.js';
 import { InspectionCoordinator, validateInspectionOptions } from './inspection.js';
 import { PurposeReviews } from './purpose-reviews.js';
-import type { ActionCandidate, ListPurposeReviewInput, RevokePurposeReviewInput } from '@interaction/adapter-playwright';
+import type { ActionCandidate, ControlReviewMaterial, ListPurposeReviewInput, RevokePurposeReviewInput } from '@interaction/adapter-playwright';
 import type { InspectionResult } from './inspection-types.js';
 import { InteractionEngine as CoreEngine, EngineError, type Persistence, type Predicate, type InteractionScope, type Checkpoint, type ReceiptCoverageReader } from '@interaction/core';
 import { RetainedPersistence, type RetentionOptions } from '@interaction/storage-retained';
@@ -163,6 +163,16 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     const {id,sessionId,url,navigation,context,gaps}=read();
     return {source:clone({id,sessionId,url,navigation,context,gaps})};
   }
+  /** Fresh review facts for an explicitly retained observation. This does not
+   * make that source current or grant arrival, identity, replay or execution.
+   * Unlike current-only review APIs, the historical ID is never implicit. */
+  recoveryReviewMaterial(sid:string,input:{observationId:string}):ControlReviewMaterial {
+    if(!input||typeof input.observationId!=='string'||!input.observationId)throw new EngineError('INVALID_QUERY','Recovery review material requires an explicit observation ID');
+    const {observation,actions}=this.observationActions(sid,input.observationId);
+    if(observation.id!==input.observationId||observation.sessionId!==sid||actions.some(action=>action.sessionId!==sid||action.observationId!==observation.id))
+      throw new EngineError('STALE_OBSERVATION','Recovery review source does not match the requested observation');
+    return clone(this.controls.material(observation,actions));
+  }
   /** Recorded selection facts only. Unsupported/custom compositions keep the
    * separate fresh-reader contract. Any view must be discarded on invalidation;
    * queued recovery and dispatch continue to validate all their own conditions. */
@@ -179,6 +189,7 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       },
       source:(sourceObservationId:string)=>this.recoverySourceMaterial(sid,{sourceObservationId,currentObservationId}),
       anchor:(sourceObservationId:string)=>this.recoveryAnchorMaterial(sid,{sourceObservationId,currentObservationId}),
+      reviewMaterial:(observationId:string)=>this.recoveryReviewMaterial(sid,{observationId}),
     });
   }
   private transitionForObservations(before:Observation,after:Observation,beforeId:string,afterId:string) {

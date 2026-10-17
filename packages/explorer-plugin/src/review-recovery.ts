@@ -28,7 +28,8 @@ const meaning=(task:Task,item:PlanItem)=>digest({goal:task.goal,coverageMode:tas
 const activeTarget=(o:Observation,c:Observation['controls'][number])=>{
   const boundary=o.boundaries?.at(-1);return !boundary||!!o.overlays?.find(overlay=>overlay.key===boundary.key)?.controlIds.includes(c.localId);
 };
-export function validReviewRecoveryWait(task:Task,item:PlanItem,current:Observation,read:(id:string)=>Observation|undefined) {
+export function validReviewRecoveryWait(task:Task,item:PlanItem,current:Observation,read:(id:string)=>Observation|undefined,
+  readMaterial?:(id:string)=>ReturnType<ExplorerHost['controlReviewMaterial']>|undefined) {
   const wait=item.reviewRecoveryWait;
   if(!wait||wait.policy!=='review-recovery-wait-v1'||wait.meaningKey!==meaning(task,item)||wait.source.sessionId!==current.sessionId||!known(current)
     ||task.pendingDispatch||task.unverifiedRecoveries?.length||!task.rounds.some(r=>r.sessionId===wait.source.sessionId))return false;
@@ -39,7 +40,17 @@ export function validReviewRecoveryWait(task:Task,item:PlanItem,current:Observat
   const targets=source.controls.filter(c=>c.localId===wait.localId),target=targets.length===1?targets[0]:undefined;
   if(!target||target.hypothesisId||!activeTarget(source,target)||source.controls.filter(c=>signature(c)===signature(target)).length!==1)return false;
   const conditions=classificationCorrespondenceConditions(target,source);
-  return conditions?.identityKey===wait.identityKey&&conditions.conditionKey===wait.conditionKey;
+  if(conditions?.identityKey!==wait.identityKey||conditions.conditionKey!==wait.conditionKey)return false;
+  // A captured control cannot certify mutable review/action records. Missing
+  // historical material withdraws only this negative scheduling conclusion;
+  // normal route, debt and dispatch gates remain responsible for any recovery.
+  try{
+    const material=readMaterial?.(source.id);
+    if(material?.observationId!==source.id||material.sessionId!==source.sessionId)return false;
+    const matches=material.controls.filter(row=>row.control.localId===target.localId);
+    return matches.length===1&&matches[0].control.instanceId===target.instanceId&&matches[0].needsReview===true
+      &&reviewRecoveryMaterialKey(source,matches[0])===wait.materialKey;
+  }catch{return false;}
 }
 
 /** Scheduling evidence only. A portable SDK projection must exist on both
@@ -58,6 +69,21 @@ export function reviewRecoveryChanges(task:Task,o:Observation,host:ExplorerHost,
   const actions=host.actions(o.sessionId,o.id),inScope=controlScopeMatcher(o,actions),material=host.controlReviewMaterial(o.sessionId);
   if(material.observationId!==o.id)return [];
   const availability=host.actionAvailability(o.sessionId,o.id),sourceCache=new Map<string,{o:Observation;actions:ActionCandidate[]}|undefined>();
+  const sourceFacts=(id:string)=>{
+    if(!sourceCache.has(id)){
+      try{sourceCache.set(id,id===o.id?{o,actions}:{o:host.observation(o.sessionId,id),actions:host.actions(o.sessionId,id)});}catch{sourceCache.set(id,undefined);}
+      while(sourceCache.size>8)sourceCache.delete(sourceCache.keys().next().value!);
+    }
+    return sourceCache.get(id);
+  };
+  const materials=new Map<string,ReturnType<ExplorerHost['controlReviewMaterial']>|undefined>([[o.id,material]]);
+  const readMaterial=(id:string)=>{
+    if(!materials.has(id)){
+      try{materials.set(id,host.recoveryReviewMaterial?.(o.sessionId,{observationId:id}));}catch{materials.set(id,undefined);}
+      while(materials.size>8)materials.delete(materials.keys().next().value!);
+    }
+    return materials.get(id);
+  };
   const projections=new WeakMap<Observation,Map<string,ReturnType<typeof classificationCorrespondenceConditions>>>(),signatureCounts=new WeakMap<Observation,Map<string,number>>();
   const projection=(observed:Observation,c:Observation['controls'][number])=>{
     let cache=projections.get(observed);if(!cache){cache=new Map();projections.set(observed,cache);}
@@ -71,8 +97,8 @@ export function reviewRecoveryChanges(task:Task,o:Observation,host:ExplorerHost,
   for(const item of items) {
     const change:ReviewRecoveryChange={itemId:item.id},targets=o.controls.filter(c=>c.visible&&inScope(item.scope,c)),target=targets.length===1?targets[0]:undefined;
     if(options.rejected?.length&&!options.checkpointId&&(!target||!rejectedIds.has(target.localId)))continue;
-    if(item.reviewRecoveryWait&&!validReviewRecoveryWait(task,item,o,id=>{try{return host.observation(o.sessionId,id);}catch{return undefined;}}))change.clearWait=true;
-    // An absent target preserves its last explicit negative review. An ambiguous
+    if(item.reviewRecoveryWait&&!validReviewRecoveryWait(task,item,o,id=>sourceFacts(id)?.o,readMaterial))change.clearWait=true;
+    // An absent target preserves only a still-verifiable negative review. An ambiguous
     // or changed current target cannot inherit that wait or become a new source.
     if(!targets.length){if(change.clearWait)changes.push(change);continue;}
     const current=target&&projection(o,target),review=target&&material.controls.find(m=>m.control.localId===target.localId);
@@ -84,12 +110,7 @@ export function reviewRecoveryChanges(task:Task,o:Observation,host:ExplorerHost,
     let proof:ReviewRecoveryChange['proof'];
     for(const ref of [...item.evidence].reverse()) {
       if(ref.attemptId||ref.sessionId!==o.sessionId)continue;
-      const key=ref.observationId;
-      if(!sourceCache.has(key)){
-        try{sourceCache.set(key,ref.observationId===o.id?{o,actions}:{o:host.observation(ref.sessionId,key),actions:host.actions(ref.sessionId,key)});}catch{sourceCache.set(key,undefined);}
-        while(sourceCache.size>8)sourceCache.delete(sourceCache.keys().next().value!);
-      }
-      const source=sourceCache.get(key);if(!source||source.o.id!==ref.observationId||source.o.sessionId!==ref.sessionId||source.o.ruleVersion!==o.ruleVersion||!known(source.o))continue;
+      const source=sourceFacts(ref.observationId);if(!source||source.o.id!==ref.observationId||source.o.sessionId!==ref.sessionId||source.o.ruleVersion!==o.ruleVersion||!known(source.o))continue;
       const matchesScope=controlScopeMatcher(source.o,source.actions),matches=source.o.controls.filter(c=>c.visible&&matchesScope(item.scope,c));
       if(matches.length!==1||!activeTarget(source.o,matches[0])||!unique(source.o,matches[0]))continue;
       const old=projection(source.o,matches[0]);

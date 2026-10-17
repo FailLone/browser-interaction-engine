@@ -21,9 +21,10 @@ function fixture() {
  const original=observation('original'),current=observation('current','new','browser'),observations=new Map([original,current].map(o=>[o.id,o]));
  const store=new ExplorerStore(':memory:'),events=new EventEmitter(),actions:ActionCandidate[]=[];
  let active=current,unknown=false,executable=false;
- const material=()=>({sessionId:'session',observationId:active.id,controls:active.controls.map(control=>({control,actions:actions.filter(a=>a.localId===control.localId),reviews:[],needsReview:true,surroundings:{version:'control-surroundings/v1',key:'missing-owner',ownerInstanceId:'owner',complete:false,truncated:false,reasons:['owner_too_distant'],nodes:[],controls:[]}}))});
+ const material=(observed=active)=>({sessionId:'session',observationId:observed.id,controls:observed.controls.map(control=>({control,actions:actions.filter(a=>a.localId===control.localId),reviews:[],needsReview:true,surroundings:{version:'control-surroundings/v1',key:'missing-owner',ownerInstanceId:'owner',complete:false,truncated:false,reasons:['owner_too_distant'],nodes:[],controls:[]}}))});
  const host={events,session:()=>({id:'session',options:{},actionCount:0,currentObservationId:active.id}),observation:(_sid:string,id?:string)=>{const o=id?observations.get(id):active;if(!o)throw Error('missing source');return o;},
-  actions:()=>actions,recoveryAssessment:()=>({unknownAttempts:unknown?[{id:'unknown'}]:[],blockingBoundaryExit:undefined}),controlReviewMaterial:material,
+  actions:()=>actions,recoveryAssessment:()=>({unknownAttempts:unknown?[{id:'unknown'}]:[],blockingBoundaryExit:undefined}),controlReviewMaterial:()=>material(),
+  recoveryReviewMaterial:(_sid:string,input:{observationId:string})=>{const source=observations.get(input.observationId);if(!source)throw Error('missing source');return material(source);},
   actionAvailability:()=>({observationId:active.id,revision:'fixture-revision',actions:actions.map(a=>({actionId:a.id,executable,blockers:[]}))}),pinEvidence:vi.fn(async()=>[]),
   list:()=>[],interactionTransition:()=>({retainedControls:[]})} as unknown as ExplorerHost;
  const plugin=new ExplorerPlugin(host,store),task=plugin.create({url,coverageMode:'all'});
@@ -76,14 +77,14 @@ it('keeps waits across routine revision changes only while source, browser and t
  const f=fixture();try{
   f.apply(reviewRecoveryChanges(f.task,f.current,f.host,{rejected:[{localId:f.current.controls[0].localId,decisionId:'negative',kind:'probe'}]}));
   const away=observation('away','away-document','browser');away.url='https://fixture.invalid/away';away.controls=[];f.setActive(away);
-  const read=(id:string)=>f.observations.get(id);f.task.revision++;
-  expect(validReviewRecoveryWait(f.task,f.item,away,read)).toBe(true);
-  away.ruleVersion='observable-v6';expect(validReviewRecoveryWait(f.task,f.item,away,read)).toBe(false);away.ruleVersion=f.current.ruleVersion;
-  away.context={account:{status:'known',value:'new',source:'test'}};expect(validReviewRecoveryWait(f.task,f.item,away,read)).toBe(false);away.context={};
-  expect(validReviewRecoveryWait(f.task,f.item,away,()=>({...f.current,id:'wrong-id'}))).toBe(false);
-  f.task.goal='Explicit different goal';expect(validReviewRecoveryWait(f.task,f.item,away,read)).toBe(false);f.task.goal='';
-  expect(validReviewRecoveryWait(f.task,f.item,away,()=>undefined)).toBe(false);
-  away.navigation!.browserSessionId='new-browser';expect(validReviewRecoveryWait(f.task,f.item,away,read)).toBe(false);
+  const read=(id:string)=>f.observations.get(id),readMaterial=(id:string)=>f.host.recoveryReviewMaterial!('session',{observationId:id});f.task.revision++;
+  expect(validReviewRecoveryWait(f.task,f.item,away,read,readMaterial)).toBe(true);
+  away.ruleVersion='observable-v6';expect(validReviewRecoveryWait(f.task,f.item,away,read,readMaterial)).toBe(false);away.ruleVersion=f.current.ruleVersion;
+  away.context={account:{status:'known',value:'new',source:'test'}};expect(validReviewRecoveryWait(f.task,f.item,away,read,readMaterial)).toBe(false);away.context={};
+  expect(validReviewRecoveryWait(f.task,f.item,away,()=>({...f.current,id:'wrong-id'}),readMaterial)).toBe(false);
+  f.task.goal='Explicit different goal';expect(validReviewRecoveryWait(f.task,f.item,away,read,readMaterial)).toBe(false);f.task.goal='';
+  expect(validReviewRecoveryWait(f.task,f.item,away,()=>undefined,readMaterial)).toBe(false);
+  away.navigation!.browserSessionId='new-browser';expect(validReviewRecoveryWait(f.task,f.item,away,read,readMaterial)).toBe(false);
  }finally{await f.close();}
 });
 
