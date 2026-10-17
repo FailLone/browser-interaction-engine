@@ -1,0 +1,113 @@
+{
+  "schema": "review-handoff-checkpoint/v1",
+  "date": "2026-10-17",
+  "baseCommit": "07b25e906c88e0f305961fc71ce62b9cc2bf0e1b",
+  "productCommit": "e6e4f6e38ec3a39d1bb0a6b58cb54d8e2e5ba349",
+  "fixtureCommit": "d4ac7a8",
+  "sourceHashes": {
+    "packages/explorer-plugin/src/reviews.ts": "e6a6719854215926517aff8eee958b7c01007bdc3b5dedc26e57a4de71cd6680",
+    "packages/explorer-plugin/src/runtime.ts": "4454f4071d132cb3f138da69450f9a244e98eed7d6e60b7482605191b881a906",
+    "tests/explorer-review-handoff.test.ts": "3bd1b64f9a8c6d40c289dd9a015e1653d2f959964a3aba33d35e462de9bfbb94",
+    "tests/explorer-active-exit-priority.test.ts": "101b51840a6d98b064fe8cfac5b23ad6a9b20d0690fbe952e2401483e18ac391"
+  },
+  "conclusion": "At the local-action quota, current reviews no longer yield to an action that remote fairness can preempt. Reviews neither reset the quota nor grant historical arrival or coverage.",
+  "frozenEvidence": {
+    "runId": "d10da47e-2950-49c0-b2d3-4b799e302bb4",
+    "outcome": "../real-okx-13/outcome.json",
+    "sourceDirectory": ".data/okx-storage-acceptance-20261017-v6/runs/d10da47e-2950-49c0-b2d3-4b799e302bb4",
+    "files": [
+      {
+        "file": "task-before.json",
+        "sha256": "f02ec00c20712401e492d5f9f9a84d24071b47eb992b77f6ccdf710acab1b4d8",
+        "localSelections": 4,
+        "reviewedKeys": 8
+      },
+      {
+        "file": "task-after.json",
+        "sha256": "8d48dcd3b39f2fc40f826738d7a008b70e96a582c33d3dec3ecd60fb3b511cb0",
+        "localSelections": 0,
+        "reviewedKeys": 0
+      }
+    ],
+    "interpretation": "Persisted quota 4 and zero provider calls are consistent with the reproduced handoff defect; the frozen documents do not independently prove that live SDK review would succeed."
+  },
+  "verification": {
+    "runner": "Node v24.22.0, vitest v3.2.7; no browser, service, database or provider created",
+    "oldProduct": {
+      "command": "node node_modules/vitest/vitest.mjs run tests/explorer-review-handoff.test.ts --reporter=verbose",
+      "testCount": 6,
+      "passed": 2,
+      "failed": 4,
+      "durationSeconds": 1.1,
+      "testMilliseconds": 29,
+      "expectedRegressions": 2,
+      "fixtureFailures": 2,
+      "note": "Quota review and stale-observation review reached remote selection too early. Two low-quota fixtures lacked exact operation-condition scope; corrected without another old-version run. Original output only in the tool transcript; no separate raw log."
+    },
+    "groups": [
+      {
+        "files": [
+          "explorer-review-handoff",
+          "explorer-current-source-exclusion",
+          "explorer-recovery-selection-index",
+          "explorer-active-exit-priority",
+          "recovery-selection-view"
+        ],
+        "tests": 66,
+        "passed": 54,
+        "failed": 12,
+        "durationSeconds": 3.25,
+        "testMilliseconds": 297,
+        "note": "All 12 failures in legacy exit fixture missing host.actionAvailability and remote.revalidate, which HEAD already required. Product was unchanged for subsequent checks."
+      },
+      {
+        "file": "explorer-scheduling",
+        "filter": "^(retains unresolved obligations and their entry path|does not skip unresolved controls for a ready|preserves active boundary priority even|does not persist out-of-scope obligations|propagates stale availability)",
+        "passed": 8,
+        "skipped": 28,
+        "durationSeconds": 1.1,
+        "testMilliseconds": 15,
+        "note": "Only no-browser tests selected."
+      },
+      {
+        "files": [
+          "explorer-review-handoff",
+          "explorer-active-exit-priority"
+        ],
+        "passed": 22,
+        "failed": 0,
+        "durationSeconds": 1.62,
+        "testMilliseconds": 53,
+        "rerunReason": "Added required boundary intent and final-validation fixture methods."
+      },
+      {
+        "file": "explorer-review-handoff",
+        "passed": 6,
+        "failed": 0,
+        "durationSeconds": 1.15,
+        "testMilliseconds": 26,
+        "rerunReason": "Final fixture now uses typed ActionCandidate and legal sampleValidity=known."
+      }
+    ],
+    "typecheck": {
+      "command": "node node_modules/typescript/bin/tsc --noEmit",
+      "finalExitCode": 0,
+      "previousFailures": [
+        "New action fixture missing boundary.intent",
+        "After intent fix: sampleValidity valid was not a legal SDK value"
+      ],
+      "rerunReason": "Only new test fixture types changed; production code unchanged."
+    },
+    "uniqueCasesPassedAcrossCheckpoints": 74,
+    "fullSuiteRun": false,
+    "allGroupsPassedOnFirstRun": false,
+    "independentStaticReview": "No blocking findings. Quota remains 4 through review, old A/B evidence and failure debt unchanged; existing unknown and stale gates retained."
+  },
+  "limits": [
+    "No real OKX rerun or actual SDK/adapter review submission; simulated current review material exercises real reviewNext, runtime.step and guarded apply/assert.",
+    "No claim of higher real recovery success rate, performance speedup or lower storage.",
+    "Does not address below-quota candidates later eliminated by uniqueness checks.",
+    "Multiple current reviews can precede the remote turn; existing model/time budgets apply, no strict next-step fairness guarantee.",
+    "Strict checkpoint completeness/canonical verification, source correspondence and startup reconstruction costs are unchanged."
+  ]
+}
