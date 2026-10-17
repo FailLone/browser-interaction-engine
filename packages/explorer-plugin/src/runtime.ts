@@ -1378,10 +1378,15 @@ export class ExplorerPlugin {
       const reentry=selectedReentry||this.neededEntry(task,round,action,o);
       const repetition=reentry?this.reentryPermission(task,round,action,o):undefined;
       if(reentry&&!repetition?.repeatable)throw new ExplorerError('REENTRY_EVIDENCE_CHANGED');
-      if(reentry)this.recordEntry(task,round,action,o);
+      const reentryItem=reentry?this.recordEntry(task,round,action,o):undefined;
       const purpose=reentry?'prerequisite':includesScope(task.plan,action,o);const items=task.plan.filter(i=>i.required&&schedulableObligation(i)&&!i.reason.startsWith('missing_capability:')&&matches(i.scope,action,o)&&(!boundOperationCondition(i)||boundOperationCondition(i)===keyFor(action,o)));
       if(purpose==='target'&&!items.some(i=>i.scope.kind&&i.scope.label)) {const leaf=this.newItem({title:`${action.kind} ${action.label}`,scope:scopeFor(action,o),prerequisites:[...entryPath],completion:'Successful action with a subsequent observation',required:true,reason:'observed_in_scope'},false,o,keyFor(action,o));this.appendPlan(task,leaf);items.push(leaf);}
       reserveObligation(schedule,selection!);
+      // A fresh entry can also be the necessary route to an existing child.
+      // Keep that child as the next scheduling hint, while charging this turn
+      // to the originally selected kind. Neither entry success nor this hint
+      // proves arrival, identity correspondence or completion of the child.
+      if(reentryItem){schedule.selection={itemId:reentryItem.id,kind:'reentry',actionId:action.id,source:reentryItem.evidence.find(ref=>!ref.attemptId)};schedule.cursor=reentryItem.id;}
       const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id};
       const attemptKey=this.attemptKey(round,action,o);round.tried.push(attemptKey);this.persist(task);this.event(task,'action.scheduled',{requestId,actionId:action.id,label:action.label,kind:action.kind,purpose,itemIds:items.map(i=>i.id)});this.event(task,'action.dispatch',{requestId,actionId:action.id,purpose});
       try {const attempt=await this.host.execute(sid,action.id,requestId,undefined,{observationId:o.id,...(repetition?{repetitionSource:repetition.source}:{}),profile:this.host.session(sid).options.executionPolicy==='observed-ui'?'observed-ui-exploration':'interface-exploration'});this.recordOutcome(task,attempt,items.map(i=>i.id));if(attempt.status==='succeeded'&&attempt.afterId)this.trackTransition(task,round,o,this.host.observation(sid,attempt.afterId),scopeFor(action,o),entryPath,attempt);
@@ -1597,6 +1602,7 @@ export class ExplorerPlugin {
     (r.reentryProgress??={})[progress.key]={attempts:progress.attempts+1,completedScopes:progress.completedScopes};
     r.reentries.push(this.entryKey(task,a,o));
     this.event(task,'branch.reentry_planned',{scope:scopeFor(a,o),itemId:target.item.id,target:target.item.scope,route:target.proof.map(r=>({entry:r.entry,targets:r.targets,evidence:r.evidence})),reason:'observed_route_to_absent_unfinished_target',executionAuthorized:false});
+    return target.item;
   }
   private reentryTarget(task:Task,a:ActionCandidate,o:Observation,targets:PlanItem[],requireRepeatable=false) {
     const visible=o.controls.filter(c=>c.visible).map(c=>scopeForControl(c,o)),routeFor=routeFinder(task,scopeFor(a,o),o,requireRepeatable?route=>!!this.routePermission(route,a,o)?.repeatable:undefined);

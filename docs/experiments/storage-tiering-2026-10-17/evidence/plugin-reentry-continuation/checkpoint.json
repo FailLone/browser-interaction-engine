@@ -1,0 +1,25 @@
+{
+  "baseCommit": "0f76af5f559416d48a5d9ca4000f353d4edb881c",
+  "branch": "codex/exploration-layered-refactor",
+  "conclusion": "A fresh selected entry that also serves a retained child keeps the child as the durable next scheduling hint, while its dispatch and receipt remain bound to the entry and its original scheduling kind still pays the fairness quota.",
+  "behavior": {
+    "log": "behavior.log",
+    "testFiles": 2,
+    "passed": 17,
+    "newCases": [
+      "Fresh necessary entry persists its actual child before dispatch without transferring the entry receipt or resetting fairness",
+      "Unknown entry receipt remains unknown and blocks continuation without completing either child",
+      "No-attempt rejection restores the prior selection, cursor and fairness count",
+      "Explicit reentry preserves the selected child when multiple children share the entry"
+    ],
+    "existingGuards": ["unknown result across restart", "stale review", "unverified boundary exit", "finite local preference", "retained route debt"],
+    "runs": 1
+  },
+  "types": { "command": "tsc --noEmit", "log": "types.log", "exitCode": 0, "runs": 1 },
+  "limits": [
+    "Pure runtime tests use supplied route permission and attempt facts; no browser, service or database is created.",
+    "Scheduling metadata does not establish arrival, historical target correspondence, replay authority or child completion.",
+    "This patch does not fix the Main menu decision ordering or the instance-bound Convert target correspondence gap.",
+    "No new live acceptance, recovery latency result or A/B behavior claim is made."
+  ]
+}

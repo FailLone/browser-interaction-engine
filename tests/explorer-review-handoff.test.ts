@@ -4,7 +4,7 @@ import type { ActionAttempt, ActionCandidate, Observation } from '@interaction/b
 import { ExplorerPlugin, type Decision, type ExplorerHost, type ExplorerStore, type PlanItem, type Round, type Scope, type Task } from '@interaction/explorer-plugin';
 import { localSelectionLimit, type ObligationSelection } from '../packages/explorer-plugin/src/obligation-scheduler.js';
 import { recordRouteRetry } from '../packages/explorer-plugin/src/obligation-lifecycle.js';
-import { scopeFor, schedulingKeyFor } from '../packages/explorer-plugin/src/policy.js';
+import { digest, keyFor, scopeFor, schedulingKeyFor } from '../packages/explorer-plugin/src/policy.js';
 
 const url = 'https://review-handoff.fixture.invalid/';
 const remoteSelected = new Error('Remote selected; stop before reservation or browser effects');
@@ -21,7 +21,7 @@ function item(id: string, scope: Scope, dispatchScope = true): PlanItem {
 // fairness selection. Only independent audit projections, durable persistence,
 // retained route discovery and model answers are substituted. No provider, SDK
 // engine, browser, database or server is created; all navigation is forbidden.
-function fixture(count = localSelectionLimit) {
+function fixture(count = localSelectionLimit, continueDispatch = false) {
   const control = (id: string, role: string, label: string): Control => ({ localId: id, instanceId: `instance-${id}`,
     identityId: `identity-${id}`, identityScope: 'semantic', stableKey: `id:${id}`, tag: role === 'button' ? 'button' : 'div',
     role, name: label, label, region: 'modal', form: '', selector: `#${id}`, visible: true, enabled: true, editable: false,
@@ -72,7 +72,7 @@ function fixture(count = localSelectionLimit) {
   const store = { save: vi.fn(), close: () => {}, decisionCursor: () => decisions.length,
     decisions: (_id: string, cursor = 0) => decisions.slice(cursor),
     decision: (decision: Decision) => { if (!decisions.includes(decision)) decisions.push(decision); },
-    event: (event: Event) => { events.push(event); if (event.type === 'obligation.selected') throw localSelected; return event; },
+    event: (event: Event) => { events.push(event); if (!continueDispatch && event.type === 'obligation.selected') throw localSelected; return event; },
   } as unknown as ExplorerStore;
   const plugin = new ExplorerPlugin(host, store), task = plugin.create({ url, coverageMode: 'all' });
   const review = { ...item('review', { url, label: dialog.name, role: dialog.role }, false), reason: 'classification_unresolved', status: 'unresolved' as const,
@@ -112,7 +112,8 @@ function fixture(count = localSelectionLimit) {
     for (const name of ['createCheckpoint', 'reachCheckpoint', 'reachExplorationTarget', 'returnToObservedSource', 'execute', 'observe', 'createSession'] as const)
       expect(host[name]).not.toHaveBeenCalled();
   };
-  return { host, plugin, task, round, review, events, decisions, attempts, choose, remote, revalidate, step, retained, noBrowserEffects,
+  return { host, store, plugin, task, round, review, events, decisions, attempts, choose, remote, revalidate, step, retained, noBrowserEffects,
+    clearClassification: () => { needsClassification = false; },
     race: () => { race = true; }, blockExit: () => { blockingBoundaryExit = true; },
     run: () => runtime.run(task, new AbortController().signal) as Promise<void> };
 }
@@ -175,5 +176,103 @@ it('does not review through an unverified boundary exit', async () => {
     await expect(f.step()).rejects.toMatchObject({ code: 'BOUNDARY_EXIT_UNVERIFIED' });
     expect(f.choose).not.toHaveBeenCalled(); expect(f.host.command).not.toHaveBeenCalled(); expect(f.remote).not.toHaveBeenCalled();
     expect(f.retained()).toEqual(before); f.noBrowserEffects();
+  } finally { await f.plugin.close(); }
+});
+
+// Exercise the real selection -> neededEntry -> recordEntry -> reservation ->
+// recordOutcome chain. Only historical permission and the final transition /
+// aggregate completion projections are supplied as independent recorded facts.
+function reentryDispatchFixture(outcome: 'succeeded' | 'unknown' | 'no-attempt', explicitReentry = false) {
+  const f = fixture(1, true), runtime = f.plugin as any, o = f.host.observation(f.round.sessionId);
+  const action = f.host.actions(o.sessionId)[0], entry = item('entry-owner', scopeFor(action, o));
+  const child = (id: string, label: string): PlanItem => ({ ...item(id, { url, label, role: 'button', kind: 'click' }),
+    prerequisites: [entry.scope], evidence: [{ sessionId: 'old-session', observationId: 'old-opened' }] });
+  const first = child('first-child', 'Convert'), second = child('second-child', 'Swap');
+  f.task.plan = [entry, first, second];
+  f.clearClassification();
+  f.round.entryRoutes = [{ entry: entry.scope, targets: [first.scope, second.scope], context: digest(o.context),
+    evidence: { sessionId: 'old-session', beforeId: 'old-before', observationId: 'old-opened', attemptId: 'old-entry-attempt' } }];
+  const repeatedSource = { sessionId: 'old-session', attemptId: 'old-entry-attempt' };
+  vi.spyOn(runtime, 'routePermission').mockReturnValue({ repeatable: true, source: repeatedSource });
+  // No alternate remote route is introduced by this fixture. A previously
+  // consumed local action still has the independently verified reentry route.
+  f.remote.mockImplementation(async () => undefined);
+  if (explicitReentry) {
+    f.round.tried.push(keyFor(action, o));
+    f.task.scheduling!.cursor = first.id;
+    f.task.scheduling!.selection = { itemId: second.id, kind: 'reentry', actionId: action.id, source: second.evidence[0] };
+  }
+  const priorSchedule = structuredClone(f.task.scheduling!);
+  const saved: Task[] = [];
+  vi.mocked(f.store.save).mockImplementation(task => { saved.push(structuredClone(task)); return `saved-${saved.length}`; });
+  f.host.createCheckpoint = vi.fn(async () => ({ id: 'entry-checkpoint' })) as unknown as ExplorerHost['createCheckpoint'];
+  f.host.interactionTransition = vi.fn(() => ({ verified: false })) as unknown as ExplorerHost['interactionTransition'];
+  runtime.settleScopes = () => {};
+  const recorded = vi.spyOn(runtime, 'recordOutcome');
+  const after = { ...o, id: 'entry-after' };
+  let current = o, atDispatch: Task | undefined, dispatchGuard: unknown;
+  f.host.observation = ((_sid: string, id?: string) => id === o.id ? o : id === after.id ? after : current) as ExplorerHost['observation'];
+  const rejection = Object.assign(new Error('No dispatch receipt was created'), { code: 'PRECONDITIONS_CHANGED' });
+  f.host.execute = vi.fn(async (sid, actionId, requestId, _value, guard) => {
+    expect(sid).toBe(o.sessionId); expect(actionId).toBe(action.id);
+    atDispatch = structuredClone(saved.at(-1)!); dispatchGuard = structuredClone(guard);
+    if (outcome === 'no-attempt') throw rejection;
+    const receipt: ActionAttempt = { id: 'new-entry-attempt', sessionId: sid, requestId, action, beforeId: o.id,
+      ...(outcome === 'succeeded' ? { afterId: after.id } : {}), startedAt: '2026-10-18T00:00:00Z', status: outcome,
+      purpose: 'exploration', executionProfile: 'interface-exploration', repetitionSource: repeatedSource };
+    f.attempts.set(sid, [receipt]);
+    if (outcome === 'succeeded') current = after;
+    return receipt;
+  });
+  const assertDispatchBinding = (target: PlanItem, localSelections: number) => {
+    expect(atDispatch?.scheduling).toMatchObject({ cursor: target.id, localSelections,
+      selection: { itemId: target.id, kind: 'reentry', actionId: action.id, source: target.evidence[0] } });
+    expect(atDispatch?.pendingDispatch).toMatchObject({ sessionId: o.sessionId, actionId: action.id, observationId: o.id, itemIds: [entry.id] });
+    expect(dispatchGuard).toMatchObject({ observationId: o.id, profile: 'interface-exploration', repetitionSource: repeatedSource });
+    expect(f.events.find(e => e.type === 'branch.reentry_planned')?.data).toMatchObject({ itemId: target.id, target: target.scope });
+    for (const call of recorded.mock.calls) expect(call[2]).toEqual([entry.id]);
+    for (const pending of [first, second]) {
+      expect(pending.status).toBe('pending'); expect(pending.attempts).toEqual([]);
+      expect(pending.resolvedBy).toBeUndefined(); expect(pending.conditionCompletion).toBeUndefined();
+    }
+  };
+  return { ...f, entry, first, second, action, priorSchedule, recorded, rejection, assertDispatchBinding };
+}
+
+it('retains the real child before a fresh prerequisite dispatch without transferring its entry receipt or resetting fairness', async () => {
+  const f = reentryDispatchFixture('succeeded'); try {
+    expect(await f.step()).toBe(true);
+    f.assertDispatchBinding(f.first, 2);
+    expect(f.events.find(e => e.type === 'obligation.selected')?.data).toMatchObject({ itemId: f.entry.id, kind: 'current' });
+    expect(f.recorded).toHaveBeenCalledOnce(); expect(f.entry.attempts).toHaveLength(1);
+    expect(f.task.pendingDispatch).toBeUndefined();
+  } finally { await f.plugin.close(); }
+});
+
+it('keeps an unknown prerequisite attached to the entry while the child remains only a scheduling hint', async () => {
+  const f = reentryDispatchFixture('unknown'); try {
+    await expect(f.step()).rejects.toMatchObject({ code: 'UNKNOWN_DISPATCH_REQUIRES_REVIEW' });
+    f.assertDispatchBinding(f.first, 2);
+    expect(f.task.pendingDispatch?.itemIds).toEqual([f.entry.id]);
+    expect(f.entry.attempts).toEqual([expect.objectContaining({ outcome: 'unknown', evidence: expect.objectContaining({ attemptId: 'new-entry-attempt' }) })]);
+    expect(f.attempts.get(f.round.sessionId)?.[0].status).toBe('unknown');
+  } finally { await f.plugin.close(); }
+});
+
+it('rolls back child selection and fairness when a fresh prerequisite produces no attempt', async () => {
+  const f = reentryDispatchFixture('no-attempt'); try {
+    await expect(f.step()).rejects.toBe(f.rejection);
+    f.assertDispatchBinding(f.first, 2);
+    expect(f.task.scheduling).toEqual(f.priorSchedule); expect(f.task.pendingDispatch).toBeUndefined();
+    expect(f.recorded).not.toHaveBeenCalled(); expect(f.entry.attempts).toEqual([]);
+  } finally { await f.plugin.close(); }
+});
+
+it('preserves the selected reentry child when several children share the same entry', async () => {
+  const f = reentryDispatchFixture('succeeded', true); try {
+    expect(await f.step()).toBe(true);
+    f.assertDispatchBinding(f.second, 0);
+    expect(f.events.find(e => e.type === 'obligation.selected')?.data).toMatchObject({ itemId: f.second.id, kind: 'reentry' });
+    expect(f.recorded).toHaveBeenCalledOnce(); expect(f.entry.attempts).toHaveLength(1);
   } finally { await f.plugin.close(); }
 });
