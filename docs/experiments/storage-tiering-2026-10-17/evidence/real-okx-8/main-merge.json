@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-17T03:54:48.981972+00:00",
+  "method": "fast-forward only",
+  "before": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine",
+    "head": "069b65b47d951cdcced4d895e2abe33738267e5a",
+    "branch": "main",
+    "status": ""
+  },
+  "after": {
+    "path": "/Users/xietian/.codex/worktrees/exploration-recovery/browser-interaction-engine",
+    "head": "a82f6c5010903f762e0d7740c404c1f903d16df5",
+    "branch": "main",
+    "status": ""
+  },
+  "autonomousIncluded": true,
+  "autonomousCommit": "4857ad571c19995480a4c149abd9b2868a94c965",
+  "protectedWorktreesUnchanged": [
+    {
+      "path": "/Users/xietian/Projects/browser-interaction-engine",
+      "head": "6e111284ac3a6642844531dbc06bce462ca4293c",
+      "branch": "codex/single-selection-state-rule",
+      "status": ""
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/autonomous-exploration/browser-interaction-engine",
+      "head": "4857ad571c19995480a4c149abd9b2868a94c965",
+      "branch": "codex/autonomous-exploration",
+      "status": ""
+    }
+  ],
+  "releaseEvidence": "../step3-release-7c1bf9c/README.md",
+  "runnerDeltaEvidence": "../recovery-exception-stop/README.md",
+  "serviceOrBrowserOperations": 0
+}
