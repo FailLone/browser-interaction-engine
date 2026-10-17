@@ -1,0 +1,17 @@
+{
+  "reviewer": "acceptance_metrics_review",
+  "mode": "read-only evidence review; no browser, test, or database operations",
+  "conclusion": "local target recovery passed; global triggered but unsettled at deadline; overall not accepted",
+  "localProof": [
+    "Initial dialog blocks USD",
+    "Close and Trade succeeded in same document; no entry replay or navigation",
+    "Source conditions equivalent and live target preflight valid"
+  ],
+  "retainedLimits": [
+    "Trade recoverySegment remains unverified for strict canonical matching",
+    "No global target preflight, returned result, or normal closure",
+    "235-second internal callback not evidenced",
+    "Checkbox values absent in timeline; same labels alone do not prove repetition"
+  ],
+  "processCleanupObservation": "Post-run process listing contained no owned runner or Playwright Chromium process. Normal SDK browser closure was not recorded."
+}

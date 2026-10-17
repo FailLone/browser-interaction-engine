@@ -1,0 +1,124 @@
+{
+  "testedCommit": "9fed86cc9bf03ae03f5e9b1b3b7db88ac9231762",
+  "sourceEngineBytesUnchanged": true,
+  "sourceFilesChecked": 7263,
+  "sourceBytesChecked": 179287032,
+  "sourceFullEngineInventorySha256": "b28d2d405b05a6c4377b892f42870dbb0bc3a41771da1b6fbf0955890cf260d8",
+  "taskDatabaseNotCopiedOrOpened": true,
+  "runtimeCodeUnchanged": true,
+  "harnessUnchangedDuringRun": true,
+  "sourcePlanReference": "../real-okx-17/source-plan.json",
+  "verdict": "partial_local_pass_global_deadline",
+  "overallAccepted": false,
+  "localAccepted": true,
+  "globalResult": "no_settled_sdk_result",
+  "maxWindowMs": 240000,
+  "stopRequestedMs": 240004.131041,
+  "processElapsedMs": 242080.396916,
+  "exitCode": -9,
+  "softDeadlineEventRecorded": false,
+  "ownedBrowserNormalClosureRecorded": false,
+  "phaseTimings": {
+    "initialization": {
+      "driverCalls": 3,
+      "driverElapsedMs": 11298.881166999996,
+      "methods": {
+        "start": {
+          "calls": 1,
+          "elapsedMs": 1076.379167
+        },
+        "capture": {
+          "calls": 2,
+          "elapsedMs": 10222.501999999997
+        }
+      },
+      "apiMs": 54998.705625,
+      "outsideMeasuredDriverMs": 43699.824458
+    },
+    "local": {
+      "driverCalls": 9,
+      "driverElapsedMs": 20744.27216700001,
+      "methods": {
+        "capture": {
+          "calls": 3,
+          "elapsedMs": 14273.726791999994
+        },
+        "preflight": {
+          "calls": 4,
+          "elapsedMs": 4257.92708400001
+        },
+        "execute": {
+          "calls": 2,
+          "elapsedMs": 2212.618291000006
+        }
+      },
+      "apiMs": 73884.984084,
+      "outsideMeasuredDriverMs": 53140.711916999986
+    },
+    "global-setup": {
+      "driverCalls": 1,
+      "driverElapsedMs": 2300.226083000016,
+      "methods": {
+        "capture": {
+          "calls": 1,
+          "elapsedMs": 2300.226083000016
+        }
+      },
+      "apiMs": 18192.97245900001,
+      "outsideMeasuredDriverMs": 15892.746375999996
+    },
+    "global": {
+      "driverCalls": 13,
+      "driverElapsedMs": 19884.64720799995,
+      "methods": {
+        "capture": {
+          "calls": 5,
+          "elapsedMs": 14630.156125000009
+        },
+        "preflight": {
+          "calls": 4,
+          "elapsedMs": 2225.879331999953
+        },
+        "execute": {
+          "calls": 3,
+          "elapsedMs": 1999.7730839999858
+        },
+        "reopen": {
+          "calls": 1,
+          "elapsedMs": 1028.8386670000036
+        }
+      },
+      "observedUntilLastEventMs": 88269.097875,
+      "apiReturned": false
+    }
+  },
+  "counts": {
+    "captures": 11,
+    "driverCalls": 26,
+    "actionsStarted": 6,
+    "actionsCompleted": 6,
+    "actionStatusCounts": {
+      "succeeded": 6
+    },
+    "entryReopenActions": 1,
+    "modelCalls": 0,
+    "newCoverageGranted": false,
+    "localLiveTargetPreflights": 2,
+    "globalLiveTargetPreflights": 0
+  },
+  "globalHistoricalAndCurrentSessionIdsExist": true,
+  "limitations": [
+    "Local pass is a settled target-directed review-arrival result, not strict checkpoint equality or interactive follow-up execution.",
+    "Global call was interrupted; action success is not arrival success. No outcome.json was fabricated.",
+    "Phase API and driver times are inclusive; residual includes SDK/adapter/storage and scheduling, not a CPU profile.",
+    "Global used remaining time in one shared window, not a separate 240-second budget.",
+    "No new live retries or coverage runs; no performance-improvement claim."
+  ],
+  "localExitVerification": {
+    "evidence": "local-recovery.json#/exitTransitions",
+    "verified": true,
+    "attemptIds": [
+      "0cbf5694-03f7-485d-a819-df7580b2701d"
+    ]
+  }
+}

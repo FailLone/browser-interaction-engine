@@ -1,0 +1,11 @@
+{
+  "baselineRunner": "../real-okx-17/run.mts",
+  "changes": [
+    "New independent evidence and engine-copy paths; historical source-plan referenced in place",
+    "Deadline gates before measured driver calls except close, recovery cases, global navigation/observation; no new phase after 235 seconds; explicit final elapsed bound"
+  ],
+  "criteriaChanged": false,
+  "totalWindowMs": 240000,
+  "firstFailureStops": true,
+  "productCommit": "9fed86cc9bf03ae03f5e9b1b3b7db88ac9231762"
+}

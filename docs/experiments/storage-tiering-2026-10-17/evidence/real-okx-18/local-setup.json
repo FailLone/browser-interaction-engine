@@ -1,0 +1,66 @@
+{
+  "elapsedMs": 54998.705625,
+  "source": {
+    "id": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+    "url": "https://www.okx.com/convert/usd-to-btc",
+    "instanceScope": "931d199d-1a84-48ac-b463-2b393eaf01ce",
+    "browserSessionId": "d9a24c0f-6bfc-4251-a734-ebd9f9b21795",
+    "boundaries": [],
+    "criticalGaps": []
+  },
+  "current": {
+    "id": "7f754dc9-cdbb-4742-8a47-971914a50224",
+    "url": "https://www.okx.com/convert/usd-to-btc",
+    "instanceScope": "3d1673d3-9e26-42de-8bd4-c171793a1301",
+    "browserSessionId": "d9de383c-26e5-4da0-a30a-2df998f03300",
+    "boundaries": [
+      {
+        "key": "dialog:okd-dialog-window",
+        "name": "dialog",
+        "region": "document",
+        "evidence": [
+          "aria-modal"
+        ]
+      }
+    ],
+    "criticalGaps": []
+  },
+  "proofs": [
+    {
+      "targetMatched": true,
+      "reviewable": false,
+      "sourceEquivalent": "unknown",
+      "reason": "outside_active_boundary",
+      "evidence": [
+        "unique-captured-target-semantics",
+        "complete-classification-subtree",
+        "captured-idref-topology",
+        "unchanged-classification-conditions",
+        "unique-captured-control-and-owner"
+      ],
+      "source": {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "b0381d61-11e9-451a-9d0c-7859f4dcc8cc",
+        "localId": "931d199d-1a84-48ac-b463-2b393eaf01ce:1810"
+      },
+      "target": {
+        "sessionId": "412937f3-c4f5-4799-b86c-74adf480f329",
+        "observationId": "7f754dc9-cdbb-4742-8a47-971914a50224",
+        "localId": "3d1673d3-9e26-42de-8bd4-c171793a1301:1811"
+      },
+      "preflightRequired": true,
+      "identityAuthorized": false,
+      "replayAuthorized": false,
+      "executionAuthorized": false,
+      "currentExecution": false,
+      "coverageGranted": false,
+      "checkpointVerified": false,
+      "currentMaterialKey": "b7b210c5e643d006824ff642cab6b878407edb617b0a12e700c92d9362c24aef",
+      "currentConditionAssessment": {
+        "status": "unavailable",
+        "reason": "review_target_outside_active_boundary",
+        "localId": "3d1673d3-9e26-42de-8bd4-c171793a1301:1811"
+      }
+    }
+  ]
+}
