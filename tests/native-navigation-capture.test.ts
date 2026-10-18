@@ -1,7 +1,7 @@
 import {createServer} from 'node:http';
-import {expect,it} from 'vitest';
+import {expect,it,vi} from 'vitest';
 import {PlaywrightAdapter,nativeDocumentReturnReady} from '@interaction/adapter-playwright';
-import {act,testEngine} from './helpers.js';
+import {act,testEngine,pageOf} from './helpers.js';
 
 it.each([false,true])('observes a committed native navigation while destination fields remain unready (early URL replacement: %s)',async rewrite=>{
  const server=createServer((req,res)=>{res.setHeader('Content-Type','text/html');res.end(req.url==='/'?'<a href="/live">Open live page</a>':`<h1>Live page</h1><a href="/">Return</a><form><input id="changing" aria-label="Changing"></form><script>${rewrite?`history.replaceState({},'', '/renamed#mode')`:''};setInterval(()=>document.querySelector('#changing').value=String(Date.now()),10)</script>`);});
@@ -44,4 +44,23 @@ it('does not treat a prevented native link with changing local state as a commit
  const f=await testEngine(url,{contextRules:[],exploration:'controls',settleMs:120,observeTimeoutMs:800});
  try{const attempt=await act(f.engine,f.sessionId,'Prevented link');expect(attempt.status).toBe('unknown');expect(f.engine.observation(f.sessionId).navigationCapture).toBeUndefined();expect(navigated).toBe(0);expect(f.engine.list(f.sessionId,'attempt')).toHaveLength(1);}
  finally{await f.close();await new Promise<void>(r=>server.close(()=>r()));}
+});
+
+it.each([false,true])('recollects a late native URL replacement within one capture deadline (keeps changing: %s)',async keepsChanging=>{
+ let navigated=0;const server=createServer((req,res)=>{if(req.url==='/live')navigated++;res.setHeader('Content-Type','text/html');res.end(req.url==='/'?'<a href="/live">Open</a>':'<h1>Destination</h1>');});
+ await new Promise<void>(r=>server.listen(0,'127.0.0.1',r));const url=`http://127.0.0.1:${(server.address() as any).port}`;
+ const f=await testEngine(url,{contextRules:[],exploration:'controls',settleMs:60,observeTimeoutMs:650});
+ const page=pageOf(f.engine),screenshot=page.screenshot.bind(page);let changes=0;
+ const spy=vi.spyOn(page,'screenshot').mockImplementation(async options=>{
+  const result=await screenshot(options);
+  if(!changes||keepsChanging){changes++;await page.evaluate(n=>history.replaceState({},'',`/renamed-${n}`),changes);}
+  return result;
+ });
+ try{
+  const attempt=await act(f.engine,f.sessionId,'Open'),after=f.engine.observation(f.sessionId);
+  expect(navigated).toBe(1);expect(f.engine.list(f.sessionId,'attempt')).toHaveLength(1);
+  expect(after.gaps.some(g=>g.code==='EVIDENCE_CONSISTENCY_RETRIED')).toBe(true);
+  if(keepsChanging){expect(attempt.status).toBe('unknown');expect(after.gaps.some(g=>g.code==='NAVIGATION_HISTORY_CHANGED'&&g.critical)).toBe(true);}
+  else {expect(attempt.status,attempt.reason).toBe('succeeded');expect(after.url).toBe(url+'/renamed-1');expect(after.navigation!.entries[after.navigation!.currentIndex].url).toBe(after.url);expect(after.gaps.some(g=>g.critical)).toBe(false);}
+ }finally{spy.mockRestore();await f.close();await new Promise<void>(r=>server.close(()=>r()));}
 });

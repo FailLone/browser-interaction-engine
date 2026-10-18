@@ -601,6 +601,10 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   async capture(observationId: string, captureContext?: CaptureContext<Observation>) {
     // A capture consumes the slot even on failure, mismatch or ordinary observe.
     const dispatch = this.ownerDispatch; this.ownerDispatch = undefined; this.preparedOwnerDispatch = undefined;
+    return this.captureWithinDeadline(observationId, captureContext, Date.now() + this.options.observeTimeoutMs, dispatch);
+  }
+  private async captureWithinDeadline(observationId: string, captureContext: CaptureContext<Observation> | undefined,
+    deadline: number, dispatch: Observation['ownerDependencyDispatch'], consistencyRetries = 0): ReturnType<InteractionDriver<Observation, SessionOptions>['capture']> {
     const dispatched = captureContext?.afterAction;
     const ownerDependencyDispatch = dispatch && dispatched && dispatch.beforeId === dispatched.before.id
       && dispatch.sessionId === dispatched.before.sessionId && dispatch.actionId === dispatched.action.id
@@ -611,7 +615,6 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       && dispatch.actionKey === hash(dispatched.action) && dispatch.graphKey === hash(dispatched.before.ownerDependencies)
       && dispatch.contextKey === hash(dispatched.before.context) ? dispatch : undefined;
     if (!this.page) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
-    const deadline = Date.now() + this.options.observeTimeoutMs;
     let stable = false; let interactionStable = false; let captureRetries = 0;
     let dom: Awaited<ReturnType<BrowserAdapter['readDOM']>> | undefined;
     let lastError: string | undefined;
@@ -774,6 +777,13 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         stable = false; gaps.push({ code: 'NAVIGATION_HISTORY_CHANGED', message: 'Browser history changed during evidence collection', critical: true });
       }
     } catch (error) { stable = false; gaps.push({ code: 'OBSERVATION_INTERRUPTED', message: String(error), critical: true }); }
+    // Native GET destinations can replace their URL after the first DOM window.
+    // Re-collect the complete evidence inside the original capture deadline;
+    // never replay the input or attach a new history position to the old DOM.
+    if (pendingNavigation && Date.now() < deadline && gaps.some(g => ['NAVIGATION_HISTORY_CHANGED', 'OBSERVATION_INTERRUPTED'].includes(g.code))) {
+      return this.captureWithinDeadline(observationId, captureContext, deadline, dispatch, consistencyRetries + 1);
+    }
+    if (consistencyRetries) gaps.push({ code: 'EVIDENCE_CONSISTENCY_RETRIED', message: `Re-collected after ${consistencyRetries} navigation consistency change(s) inside the original capture deadline; the browser action was not repeated` });
     if (this.options.evidence.enabled) {
       if (!dom.detailDom) evidenceManifest.gaps.push({ code: 'DETAIL_DOM_UNAVAILABLE', message: 'Detailed DOM was not captured; historical queries cannot reconstruct it later' });
       evidenceManifest.gaps.push(...gaps, ...accessibility.gaps, ...(dom.detailDom?.gaps || []));
