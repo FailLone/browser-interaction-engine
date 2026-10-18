@@ -23,6 +23,8 @@ export interface ReviewContext {
   reviewQuotaReached?():boolean;
   /** Dispatch/recovery must exhaust current program work before semantic fallback. */
   deferSemanticReview?:boolean;
+  /** One concrete program-established gap; never a page-wide semantic pass. */
+  semanticLocalId?:string;
   choose(purpose:string,instructions:string,state:unknown,options:Record<string,unknown>,constraints?:ChoiceConstraints):Promise<{value:string;decision:Decision}>;
   assess(purpose:string,state:unknown,checks:NonNullable<ModelRequest['checks']>):Promise<{values:Record<string,boolean|null>;decision:Decision}>;
   refresh(decision:Decision,key:string):Promise<boolean>;
@@ -167,7 +169,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     return true;
   };
   for(const focused of priorityIds.size?[true,false]:[false]) {
-  const relevantIds=focused?priorityControls:allRelevantIds;
+  const relevantIds=c.semanticLocalId?new Set(allRelevantIds.has(c.semanticLocalId)?[c.semanticLocalId]:[]):focused?priorityControls:allRelevantIds;
   const pendingOccurrence=o.controls.some(x=>x.hypothesisId&&allRelevantIds.has(x.localId)&&host.list<IdentityHypothesis>(sid,'hypothesis').some(h=>h.id===x.hypothesisId&&h.status==='pending'));
   // Current-occurrence separation is a bounded program operation, with region
   // and group preparation before it. Do not yield halfway through that setup:
@@ -267,7 +269,6 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     }
     const hypothesis=host.list<IdentityHypothesis>(sid,'hypothesis').find(h=>h.status==='pending'&&!done(`identity:${h.id}`)&&o.controls.some(x=>x.hypothesisId===h.id&&relevantIds.has(x.localId)));
     if(hypothesis){mark(`identity:${hypothesis.id}`);await c.programApply!({type:'resolveIdentity',hypothesisId:hypothesis.id,identityId:hypothesis.provisionalIdentityId,source:'explorer-program',evidence:[`observation:${o.id}`,'Keep current occurrence independent'],guard:{observationId:o.id,revision:hypothesis.revisions.length}},'independent_current_occurrence');return true;}
-    if(c.deferSemanticReview){retainBeforeYield();return false;}
     // Exhaust bounded observation supplied by the SDK before asking a model to
     // interpret a weak candidate. This never dispatches an interaction.
     if(!focused&&!boundary){
@@ -277,6 +278,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
         if(target){mark(`scan-target:${discovery.topologyKey}:${target.id}`);mark(`scan:${discovery.topologyKey}:${discovery.supplement?.targetId||''}`);await c.programApply!({type:'supplementDiscovery',scan:{observationId:o.id,targetId:target.id,source:'explorer-program',evidence:[`observation:${o.id}`],budget:{elements:1000}}},'bounded_discovery_target');return true;}
       }
     }
+    if(c.deferSemanticReview){retainBeforeYield();return false;}
   }
   const classifications=readClassification();
   if(c.programApply){

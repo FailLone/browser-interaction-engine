@@ -114,8 +114,9 @@ it.each(['disabled','offline'] as const)('does not repeat a no-effect observatio
   const task=plugin.create({url:f.url,coverageContract:contract(f.url),sessionOptions:{coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui',headless:true},budget:{rounds:1,actions:5,durationMs:15000}});
   plugin.start(task.id);await plugin.waitForIdle(task.id);const final=store.task(task.id),attempts=final.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
   expect(attempts.map(a=>a.action.kind),final.reason).toEqual(['hover']);expect(attempts[0].effectsAssessment).toBe('not-assessed');expect(final.status).not.toBe('completed');
-  expect(final.plan.some(i=>i.required&&i.status!=='succeeded')).toBe(true);expect(final.status).not.toBe('configuration_required');expect(store.events(task.id).some(e=>e.type==='model.fallback_needed')).toBe(true);
-  const decisions=store.decisions(task.id);if(mode==='disabled')expect(decisions).toEqual([]);else {expect(decisions.length).toBeGreaterThan(0);expect(decisions.every(d=>!d.answer)).toBe(true);const events=store.events(task.id);expect(events.findIndex(e=>e.type==='action.dispatch')).toBeLessThan(events.findIndex(e=>e.type==='decision.requested'));}
+  expect(final.plan.some(i=>i.required&&i.status!=='succeeded')).toBe(true);expect(final.status).not.toBe('configuration_required');
+  expect(store.events(task.id).some(e=>e.type==='model.fallback_not_needed'&&(e.data as any).reason==='no_new_concrete_operation_gap')).toBe(true);
+  expect(store.decisions(task.id)).toEqual([]);
  }finally{await plugin.close();await f.close();}
 });
 

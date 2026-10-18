@@ -30,6 +30,7 @@ import { recoveryFailureCondition } from './recovery-failure.js';
 import { completedOperations } from './completion-evidence.js';
 import { exactSourceExecution, operationSourceCompletion } from './operation-source-completion.js';
 import {receiptConditionReader} from './receipt-condition.js';
+import {programModelGapCandidates,operationToken,type ProgramModelGap} from './program-model-gap.js';
 import { availabilityObligation } from './operation-availability.js';
 import { currentObligationTarget } from './current-obligation-target.js';
 import {auditGapIndex,type AuditGapIndex} from './audit-gap-index.js';
@@ -47,6 +48,7 @@ export class ExplorerPlugin {
   readonly router:DecisionRouter;
   private active?: {task:Task;controller:AbortController;promise:Promise<void>};
   private closed=false;
+  private activeProgramGap?:{taskId:string;key:string;localId:string;deadline:number};
   private writers=new WeakMap<Task,TaskWriter>();
   private onEvent=(event:EngineEvent)=>{
     const active=this.active?.task,owned=active?.rounds.some(r=>r.sessionId===event.sessionId);
@@ -58,7 +60,16 @@ export class ExplorerPlugin {
       data:{engineSequence:event.sequence,at:event.at,status:data?.status,label:data?.action?.label,kind:data?.action?.kind,reason:data?.reason}});
   };
   constructor(readonly host:ExplorerHost,readonly store:ExplorerStore,providers:Providers={}) {
-    this.router=new DecisionRouter(store,providers,t=>{this.checkBudget(t);if(t.usage.modelRequests>=t.budget.modelRequests)throw new ExplorerError('BUDGET_EXHAUSTED');t.usage.modelRequests++;this.persist(t);});
+    this.router=new DecisionRouter(store,providers,t=>{
+      this.checkBudget(t);if(t.usage.modelRequests>=t.budget.modelRequests)throw new ExplorerError('BUDGET_EXHAUSTED');
+      if(t.coverageContract?.programNavigation){
+        const context=this.activeProgramGap,gap=context?.taskId===t.id&&t.programModelGaps?.[context.key];
+        if(!context||!gap)throw new ExplorerError('PROGRAM_MODEL_GAP_REQUIRED');
+        if(gap.calls>=gap.maxCalls||Date.now()>=context.deadline)throw new ExplorerError('PROGRAM_MODEL_GAP_LIMIT');
+        gap.calls++;
+      }
+      t.usage.modelRequests++;this.persist(t);
+    });
     host.events.on('event',this.onEvent);
   }
   capabilities(){return {missing:requiredCapabilities.filter(key=>typeof this.host[key]!=='function'),boundaryExit:typeof (this.host as unknown as Record<string,unknown>).boundaryExitMaterial==='function'};}
@@ -302,6 +313,13 @@ export class ExplorerPlugin {
     if(changes.some(change=>change.source))await this.reconcileReviewLedger(task,o,signal);
   }
   private async decide(task:Task,signal:AbortSignal,request:Omit<ModelRequest,'id'>,validate?:(v:unknown)=>unknown) {
+    if(task.coverageContract?.programNavigation){
+      const context=this.activeProgramGap,gap=context?.taskId===task.id?task.programModelGaps?.[context.key]:undefined;
+      const allowed=gap?.kind==='classification'?['control-classification','classification-clarification']:['control-risk','operation-clarification'];
+      if(!gap||!allowed.includes(request.purpose))throw new ExplorerError('PROGRAM_MODEL_GAP_REQUIRED');
+      request={...request,state:{...(request.state as Record<string,unknown>),programGap:{key:gap.key,kind:gap.kind,question:gap.question,source:gap.source,checks:gap.checks,maxCalls:gap.maxCalls,maxDurationMs:gap.maxDurationMs}}};
+      this.event(task,'model.gap_question',{gapKey:gap.key,purpose:request.purpose,question:gap.question,source:gap.source,programChecks:gap.checks});
+    }
     const revision=task.revision,oid=(request.state as {observationId?:string})?.observationId;
     if(oid){this.assert(task,signal,oid,revision);await this.host.pinEvidence(task.rounds.at(-1)!.sessionId,oid,`explorer:${task.id}`);this.assert(task,signal,oid,revision);}
     return this.router.decide(task,request,signal,()=>!signal.aborted&&task.status==='running'&&task.revision===revision&&(!oid||this.host.observation(task.rounds.at(-1)!.sessionId).id===oid),validate);
@@ -364,8 +382,28 @@ export class ExplorerPlugin {
   }
   private async apply(task:Task,signal:AbortSignal,o:Observation,decisions:Decision|Decision[],command:unknown) {
     const batch=Array.isArray(decisions)?decisions:[decisions];
-    try{for(const d of batch)this.assert(task,signal,o.id,d.revision);await this.host.command(o.sessionId,command);for(const d of batch){this.router.mark(d,'applied');this.router.effect(d,'review',{command,resultObservationId:this.host.observation(o.sessionId).id,...(batch.length>1?{decisionIds:batch.map(d=>d.id)}:{})});}this.syncUsage(task);this.persist(task);}
-    catch(e){for(const d of batch)this.router.mark(d,(e as {code?:string}).code?.includes('STALE')?'stale':'rejected',(e as {code?:string}).code||'HOST_COMMAND_REJECTED');throw e;}
+    try{for(const d of batch)this.assert(task,signal,o.id,d.revision);await this.host.command(o.sessionId,command);this.recordProgramGapValidation(task,o,command,true);for(const d of batch){this.router.mark(d,'applied');this.router.effect(d,'review',{command,resultObservationId:this.host.observation(o.sessionId).id,...(batch.length>1?{decisionIds:batch.map(d=>d.id)}:{})});}this.syncUsage(task);this.persist(task);}
+    catch(e){const reason=(e as {code?:string}).code||'HOST_COMMAND_REJECTED';this.recordProgramGapValidation(task,o,command,false,reason);for(const d of batch)this.router.mark(d,reason.includes('STALE')?'stale':'rejected',reason);throw e;}
+  }
+  private recordProgramGapValidation(task:Task,o:Observation,command:unknown,accepted:boolean,reason?:string) {
+    const context=this.activeProgramGap,gap:ProgramModelGap|undefined=context?.taskId===task.id?task.programModelGaps?.[context.key]:undefined;
+    if(!gap||!context)return;
+    const validation:ProgramModelGap['validations'][number]={accepted,command:(command as {type?:string}).type||'unknown',beforeId:o.id,reason};
+    gap.validations.push(validation);
+    // Diagnostic availability must never turn an already accepted SDK command
+    // into a rejected review or create an execution gain without evidence.
+    try{
+      const after=this.host.observation(o.sessionId);validation.afterId=after.id;
+      if(accepted){
+      const availability=this.host.actionAvailability(o.sessionId,after.id);
+      const ready=this.host.actions(o.sessionId,after.id).filter(a=>a.localId===context.localId&&contractOperationAllowed(task.coverageContract,a,after)
+        &&availability.actions.find(x=>x.actionId===a.id)?.executable).map(operationToken);
+      gap.newlyExecutable=[...new Set([...gap.newlyExecutable,...ready.filter(key=>!gap.initialExecutable.includes(key))])];
+      }
+    }catch(error){
+      this.event(task,'model.gap_gain_unavailable',{gapKey:gap.key,reason:(error as {code?:string}).code||safeError(error),coverageGranted:false});
+    }
+    this.event(task,'model.gap_sdk_validation',{gapKey:gap.key,...validation,newlyExecutable:gap.newlyExecutable,coverageGranted:false});
   }
   private recordProbeOutcome(task:Task,attempt:ActionAttempt,scope:Scope) {
     const ref={sessionId:attempt.sessionId,observationId:attempt.afterId||attempt.beforeId,attemptId:attempt.id};
@@ -600,6 +638,11 @@ export class ExplorerPlugin {
       else {item.status=attempt.status==='unknown'?'unresolved':'blocked';item.reason=attempt.status==='unknown'?'unknown_action_outcome':attempt.reason||attempt.status;}
     }
     if(attempt.status==='succeeded'&&attempt.afterId)this.settleScopes(task,this.host.observation(attempt.sessionId,attempt.afterId),new Set(),true);
+    for(const gap of Object.values(task.programModelGaps||{}))if(gap.source.sessionId===attempt.sessionId&&gap.source.localId===attempt.action.localId
+      &&gap.newlyExecutable.includes(operationToken(attempt.action))&&!gap.gains.some(g=>g.attemptId===attempt.id)){
+      const gain={attemptId:attempt.id,status:attempt.status,conditionVerified:readCondition(attempt).conditionVerified};gap.gains.push(gain);
+      this.event(task,'model.gap_execution',{gapKey:gap.key,decisionIds:gap.decisionIds,...gain,beforeId:attempt.beforeId,afterId:attempt.afterId,basis:'actual_execution_after_sdk_review_of_current_instance',businessOutcomeVerified:false});
+    }
     this.syncUsage(task);this.event(task,'action.verified',{decisionId:task.pendingDispatch?.decisionId,requestId:attempt.requestId,actionId:attempt.action.id,attemptId:attempt.id,status:attempt.status,beforeId:attempt.beforeId,afterId:attempt.afterId,effectsAssessment:attempt.effectsAssessment});
   }
   private async initializePlan(task:Task,signal:AbortSignal,o:Observation) {
@@ -1292,6 +1335,7 @@ export class ExplorerPlugin {
     try { const reviewed=deferDestinationReview?false:await reviewNext({host:this.host,task,observation:o,
       reviewQuotaReached:()=>task.usage.modelRequests-modelRequestsBefore>=2,
       deferSemanticReview:!!task.coverageContract?.programNavigation&&!semanticFallback,
+      semanticLocalId:semanticFallback?this.activeProgramGap?.localId:undefined,
       allowIndependentActionYield:(round.consecutiveReviewSteps??0)>=2,
       priorityActionIds:reviewTarget?.currentActionId?[reviewTarget.currentActionId]:undefined,
       allowPriorityActionYield:!!reviewTarget&&(reviewTarget.reason==='current_target_observed'||!!reviewTarget.source&&!!reviewTarget.correspondence),
@@ -1617,14 +1661,52 @@ export class ExplorerPlugin {
       return true; // One newly consumed route condition is finite scheduling progress.
     }
     if(task.coverageContract?.programNavigation&&!semanticFallback){
-      this.event(task,'model.fallback_needed',{reason:'no_current_program_action_or_verified_recovery',observationId:o.id,unknownDutiesRetained:true});
-      if(!this.router.providers.jev&&!this.router.providers.llm){
-        this.event(task,'model.fallback_unavailable',{reason:'optional_models_not_configured',observationId:o.id,unknownDutiesRetained:true});
-        return false;
-      }
-      return this.step(task,round,signal,true);
+      // A scheduling preference is never a reason to ask for better ordering.
+      if(unique.length||reentries.length||recovery)return false;
+      return this.resolveProgramGap(task,round,o,signal);
     }
     return false;
+  }
+  private async resolveProgramGap(task:Task,round:Round,o:Observation,signal:AbortSignal) {
+    const candidate=programModelGapCandidates(this.host,task,o)[0];
+    if(!candidate){this.event(task,'model.fallback_not_needed',{reason:'no_new_concrete_operation_gap',observationId:o.id,unknownDutiesRetained:true});return false;}
+    const {gap,control,priorProbe,readyProbe}=candidate;
+    (task.programModelGaps??={})[gap.key]=gap;
+    // A crash may interrupt the finally block after a provider call was saved.
+    // It cannot reset this same evidence's call/time allowance on restart.
+    if(gap.calls>0){gap.status='rejected';this.event(task,'model.gap_rejected',{gapKey:gap.key,reason:'interrupted_gap_not_repeated',unknownDutiesRetained:true});this.persist(task);return false;}
+    if(!gap.probeChecked){
+      gap.probeChecked=true;gap.probeAttemptId=priorProbe?.id;
+      this.event(task,'model.gap_program_checks',{gapKey:gap.key,kind:gap.kind,source:gap.source,checks:gap.checks,
+        retainedRecoveryRoutes:Object.entries(task.scheduling?.routes||{}).map(([key,r])=>({key,failure:r.failure?.reason,debtAllows:routeDebtAllows(task.scheduling!,key)})),unknownDutiesRetained:true});
+      this.persist(task);
+      const probeKey=`probe:${o.instanceScope}:${control.instanceId}`;
+      if(!priorProbe&&readyProbe&&!round.reviewed.includes(probeKey)){
+        round.reviewed.push(probeKey);this.persist(task);
+        await this.probe(task,signal,o,undefined,control.localId,readyProbe.kind as 'hover'|'focus');
+        gap.probeAttemptId=this.host.list<ActionAttempt>(o.sessionId,'attempt').findLast(a=>a.action.localId===control.localId&&a.action.kind===readyProbe.kind)?.id;
+        this.event(task,'model.gap_probe_completed',{gapKey:gap.key,attemptId:gap.probeAttemptId,resultObservationId:this.host.observation(o.sessionId).id,coverageGranted:false});this.persist(task);return true;
+      }
+    }
+    this.event(task,'model.fallback_needed',{gapKey:gap.key,reason:gap.kind==='classification'?'captured_classification_ambiguous_after_program_checks':'captured_operation_effect_unresolved_after_program_checks',question:gap.question,observationId:o.id,programChecks:gap.checks,unknownDutiesRetained:true});
+    if(!this.router.providers.jev&&!this.router.providers.llm){gap.status='unavailable';this.event(task,'model.fallback_unavailable',{gapKey:gap.key,reason:'optional_models_not_configured',observationId:o.id,unknownDutiesRetained:true});this.persist(task);return false;}
+    const began=Date.now(),cursor=this.store.decisionCursor(task.id),controller=new AbortController(),timer=setTimeout(()=>controller.abort(),gap.maxDurationMs);
+    const localSignal=AbortSignal.any([signal,controller.signal]);this.activeProgramGap={taskId:task.id,key:gap.key,localId:control.localId,deadline:began+gap.maxDurationMs};
+    let progressed=false;
+    try{progressed=await this.step(task,round,localSignal,true);gap.status=gap.calls?'reviewed':'no_call';}
+    catch(error){
+      const reason=(error as {code?:string}).code||safeError(error);
+      if(signal.aborted||reason==='BUDGET_EXHAUSTED'||reason==='UNKNOWN_DISPATCH_REQUIRES_REVIEW')throw error;
+      gap.status=controller.signal.aborted?'timed_out':reason.startsWith('PROVIDER_')||reason==='JEV_TEMPORARILY_UNAVAILABLE'?'unavailable':'rejected';
+      this.event(task,'model.gap_rejected',{gapKey:gap.key,reason,status:gap.status,unknownDutiesRetained:true});
+    }finally{
+      clearTimeout(timer);delete this.activeProgramGap;gap.elapsedMs=Date.now()-began;
+      const decisions=this.store.decisions(task.id,cursor).filter(d=>(d.request.state as {programGap?:{key:string}})?.programGap?.key===gap.key);
+      gap.decisionIds=decisions.map(d=>d.id);
+      if(gap.status==='reviewed'&&decisions.length&&decisions.every(d=>!d.answer))gap.status='unavailable';
+      this.event(task,'model.gap_finished',{gapKey:gap.key,status:gap.status,calls:gap.calls,elapsedMs:gap.elapsedMs,decisionIds:gap.decisionIds,validations:gap.validations,newlyExecutable:gap.newlyExecutable,actualExecutionGains:gap.gains,unknownDutiesRetained:true});this.persist(task);
+    }
+    return progressed||gap.calls>0||this.host.observation(o.sessionId).id!==o.id;
   }
   private currentExit(a:ActionCandidate,o:Observation) {return a.boundary?.intent==='exit'&&a.boundary.key===o.boundaries?.at(-1)?.key;}
   private trackTransition(task:Task,round:Round,before:Observation,after:Observation,entry:Scope,entryPath:Scope[],attempt?:ActionAttempt) {
@@ -2014,6 +2096,7 @@ export class ExplorerPlugin {
       task.status='blocked';task.reason='no_executable_work';
       this.event(task,'plan.retained',{reason:task.reason,remaining:remaining.map(i=>i.id),unknownDutiesRetained:true,modelRequired:false});this.persist(task);return true;
     }
+    if(task.coverageContract?.programNavigation){this.event(task,'plan.retained',{reason:'independent_program_work_remains',remaining:remaining.map(i=>i.id),modelRequired:false});this.persist(task);return false;}
     const semanticGaps=remaining.filter(i=>['classification_unresolved','operation_basis_unconfirmed','INPUT_REQUIRED','input_sample_required','target_not_observed'].includes(i.reason));
     if(!semanticGaps.length){this.event(task,'plan.retained',{reason:'known_observation_obligations',remaining:remaining.map(i=>i.id),modelRequired:false});this.persist(task);return false;}
     const followupState={goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',unfinished:semanticGaps,observation:{url:o.url,regions:o.regions.map(r=>({label:r.label,role:r.role})),controls:o.controls.map(c=>({label:c.name,role:c.role})),actions:this.host.actions(round.sessionId).map(a=>scopeFor(a,o))}};

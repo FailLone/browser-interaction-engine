@@ -1,5 +1,6 @@
 import type { ActionAttempt, BrowserEngine, SessionOptions } from '@interaction/browser';
 import type { DispatchSourceAssociation } from './operation-source-completion.js';
+import type {ProgramModelGap} from './program-model-gap.js';
 import type { NavigationPosition } from './navigation-state.js';
 import type { ObligationProjection, RouteRetryLedger } from './obligation-lifecycle.js';
 import type { ObligationSchedule } from './obligation-scheduler.js';
@@ -132,6 +133,8 @@ export interface ScopeMigrationIndex {
 export interface Task {
   id: string; goal: string; url: string; createdAt: string; updatedAt: string; revision: number;
   scopeMigrationIndex?:ScopeMigrationIndex;
+  /** Bounded optional interpretation, never execution or coverage authority. */
+  programModelGaps?:Record<string,ProgramModelGap>;
   status: TaskStatus; reason?: string; budget: Budget; usage: Budget; activeSince?: number;
   /** Durable stop intent, recorded before awaiting in-flight work; not a settled time. */
   pauseRequestedAt?: number;
