@@ -1,3 +1,5 @@
+import {localOperationMaterial} from './local-operation-receipt.js';
+import {browserTargetReady} from './target-arrival.js';
 import {canonical,hash,type ComponentCorrespondenceMaterial} from '@interaction/core';
 import {browserTraversalFragments} from './fragment-projection.js';
 import {programNavigationAllowed} from './execution-boundary.js';
@@ -20,7 +22,11 @@ export function browserComponentCorrespondence(source:ActionCandidate,before:Obs
     ||source.kind!==action.kind||!equal(source.value,action.value))return result('conflict','component_context_or_operation_changed');
   const project=(a:ActionCandidate,o:Observation)=>{
     const c=o.controls.find(c=>c.localId===a.localId);
-    if(!c||!c.visible||c.readiness||c.formOwner||!c.enabled||c.hypothesisId||!o.stable||a.basis?.status!=='supported')return;
+    if(!c||!c.visible||c.readiness||c.formOwner||!c.enabled||c.hypothesisId||a.basis?.status!=='supported')return;
+    // The captured operation may be settled while an independent field keeps
+    // changing. Reuse the existing local readiness and complete dependency
+    // contracts; never infer readiness from a same-name sibling or page label.
+    if(!o.stable&&(!browserTargetReady(a,o)||!localOperationMaterial(o,c.localId).key))return;
     const fragments=browserTraversalFragments(o,[a],policy),matches=fragments.flatMap(f=>f.candidates.filter(x=>x.actionId===a.id).map(candidate=>({f,candidate})));
     if(matches.length!==1)return;
     const {f,candidate}=matches[0],owner=JSON.parse(f.owner),guard=JSON.parse(candidate.guard);

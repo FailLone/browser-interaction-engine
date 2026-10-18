@@ -1899,9 +1899,11 @@ export class ExplorerPlugin {
   }
   private entryObligations(task:Task,a:ActionCandidate,o:Observation) {
     const grants=task.plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='excluded'),actual=scopeFor(a,o);
+    const routeFor=this.currentEntryRoutes(task,a,o);
     return task.plan.filter(i=>i.required&&i.status!=='excluded'&&schedulableObligation(i)
       &&(i.dispatchScope===true||grants.some(grant=>Object.entries(grant.scope).every(([key,value])=>i.scope[key as keyof Scope]===value)))
-      &&i.prerequisites.some(p=>Object.entries(p).every(([key,value])=>actual[key as keyof Scope]===value)));
+      &&i.prerequisites.some(p=>Object.entries(p).every(([key,value])=>actual[key as keyof Scope]===value)
+        ||Object.entries(p).every(([key,value])=>routeFor(i.scope)?.[0].entry[key as keyof Scope]===value)));
   }
   private entryTargets(task:Task,a:ActionCandidate,o:Observation) {const selected=task.scheduling?.selection;return this.entryObligations(task,a,o).filter(i=>i.status!=='succeeded'&&!fragmentObligationSampled(task.fragmentTraversal?this.fragments(task):undefined,i)).sort((a,b)=>Number(selected?.kind==='reentry'&&b.id===selected.itemId)-Number(selected?.kind==='reentry'&&a.id===selected.itemId)||(Number(['hover','focus'].includes(a.scope.kind||''))-Number(['hover','focus'].includes(b.scope.kind||''))));}
   private entryProgressRecord(task:Task,r:Round,a:ActionCandidate,o:Observation) {
@@ -1959,7 +1961,7 @@ export class ExplorerPlugin {
     const {key,previous,owner}=this.entryProgressRecord(task,r,a,o);
     // New names, longer paths, observation IDs or duplicate ledger rows are not
     // child completion. A repeated parent cannot renew its own retry allowance.
-    const routeFor=routeFinder(task,scopeFor(a,o),o);
+    const routeFor=this.currentEntryRoutes(task,a,o);
     const completed=this.entryObligations(task,a,o).filter(i=>i.status==='succeeded'&&(i.resolvedBy?.attemptId||i.reviewResolvedBy)&&!matches(i.scope,a,o)&&!!routeFor(i.scope)).map(i=>i.operationConditionKey?digest({scope:i.scope,condition:i.operationConditionKey}):digest(i.scope));
     const progressed=completed.some(scope=>!previous?.completedScopes.includes(scope));
     return {key,attempts:progressed?0:previous?.attempts||0,completedScopes:[...new Set([...(previous?.completedScopes||[]),...completed])],previous,owner};
@@ -1976,7 +1978,7 @@ export class ExplorerPlugin {
     return target.item;
   }
   private reentryTarget(task:Task,a:ActionCandidate,o:Observation,targets:PlanItem[],requireRepeatable=false) {
-    const visible=o.controls.filter(c=>c.visible).map(c=>scopeForControl(c,o)),routeFor=routeFinder(task,scopeFor(a,o),o,requireRepeatable?route=>!!this.routePermission(route,a,o)?.repeatable:undefined);
+    const visible=o.controls.filter(c=>c.visible).map(c=>scopeForControl(c,o)),routeFor=this.currentEntryRoutes(task,a,o,requireRepeatable);
     for(const item of targets){
       // Reopening cannot resolve risk/review or an input variant on an already
       // visible control. Such obligations remain available to normal review.
@@ -2072,6 +2074,18 @@ export class ExplorerPlugin {
     const source=routeAttempt(this.host,route);
     if(!source||!this.host.repetitionAssessment)return;
     return this.host.repetitionAssessment(o.sessionId,{observationId:o.id,actionId:a.id,source});
+  }
+  private currentEntryRoutes(task:Task,a:ActionCandidate,o:Observation,requireRepeatable=false) {
+    // Only this currently observed first edge may bridge a rebuilt occurrence.
+    // The SDK must independently prove correspondence, source execution,
+    // current readiness and repetition authority. Historical deeper edges and
+    // original child scopes remain exact; this is no identity or coverage grant.
+    const permissions=new Map<NonNullable<Round['entryRoutes']>[number],boolean>();
+    const allowed=(route:NonNullable<Round['entryRoutes']>[number])=>{
+      if(!permissions.has(route))permissions.set(route,!!this.routePermission(route,a,o)?.repeatable);
+      return permissions.get(route)!;
+    };
+    return routeFinder(task,scopeFor(a,o),o,requireRepeatable?allowed:undefined,allowed);
   }
   private reentryPermission(task:Task,r:Round,a:ActionCandidate,o:Observation) {
     const targets=this.entryTargets(task,a,o),target=this.reentryTarget(task,a,o,targets,true);

@@ -4,7 +4,7 @@ import { controlInScope, digest, keyFor, matches, schedulingKeyFor } from './pol
 import { boundOperationCondition, validOperationSchedulingNormalization } from './plan-state.js';
 import {receiptConditionReader} from './receipt-condition.js';
 
-export interface DispatchSourceAssociation { actionKey:string; proof:ExplorationTargetCorrespondence }
+export interface DispatchSourceAssociation { actionKey:string; proof:ExplorationTargetCorrespondence; retainedProofs?:ExplorationTargetCorrespondence[] }
 
 /** A retry budget is not coverage. Only a retained receipt checked against the
  * host ledger can exempt the exact observed candidate from another audit gap.
@@ -98,7 +98,7 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
       if(target.localId!==actual.localId||target.controlId!==actual.controlId||target.kind!==actual.kind||target.risk!==actual.risk
         ||JSON.stringify(target.value)!==JSON.stringify(actual.value))return undefined;
       const legacy=item.operationConditionPolicy==='browser-operation-key-v2'&&!validOperationSchedulingNormalization(item);
-      let associated:DispatchSourceAssociation|undefined;
+      const verified:ExplorationTargetCorrespondence[]=[];
       for(const ref of collected.sources.values()){
         const {observation,actions}=readSource(ref.sessionId,ref.observationId);
         const originals=actions.filter(a=>a.sessionId===ref.sessionId&&a.observationId===ref.observationId&&matches(item.scope,a,observation)
@@ -106,15 +106,22 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
         if(originals.length!==1)continue;
         const source={...ref,actionId:originals[0].id};
         if(saved&&saved.actionKey!==digest(actual))return;
-        const result=saved?{sessionId:saved.proof.target.sessionId,observationId:saved.proof.target.observationId,results:[saved.proof]}
+        const savedProof=saved&&[saved.proof,...saved.retainedProofs||[]].find(proof=>digest(proof.source)===digest(source));
+        if(saved&&!savedProof)continue;
+        const result=savedProof?{sessionId:savedProof.target.sessionId,observationId:savedProof.target.observationId,results:[savedProof]}
           :query.call(host,attempt.sessionId,{observationId:attempt.beforeId,requests:[{actionId:actual.id,source}]});
         const proof=result?.results?.[0];
         if(result?.sessionId===attempt.sessionId&&result.observationId===attempt.beforeId&&result.results.length===1
           &&proof?.equivalent&&proof.identityAuthorized===false&&proof.replayAuthorized===false&&proof.currentExecution===false
           &&proof.target.sessionId===attempt.sessionId&&proof.target.observationId===attempt.beforeId&&proof.target.actionId===actual.id
-          &&proof.source.sessionId===source.sessionId&&proof.source.observationId===source.observationId&&proof.source.actionId===source.actionId)associated={actionKey:digest(actual),proof:structuredClone(proof)};
+          &&proof.source.sessionId===source.sessionId&&proof.source.observationId===source.observationId&&proof.source.actionId===source.actionId){
+          verified.push(structuredClone(proof));
+        }
       }
-      return associated;
+      // Preserve the first original binding. Each additional retained source
+      // needs its own direct pre-dispatch proof to this same action; no source
+      // is inferred from a sibling, a self match or a transitive relation.
+      return verified.length?{actionKey:digest(actual),proof:verified[0],...(verified.length>1?{retainedProofs:verified.slice(1)}:{})}:undefined;
     }catch{return undefined;}
   };
   // A current-only SDK query must run before dispatch. Its immutable source
@@ -128,7 +135,8 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
   // to sibling items, new children, other observations or transitive relations.
   const executedBoundSource=(item:PlanItem,source:{sessionId:string;observationId:string},action:ActionCandidate,attempt:ActionAttempt)=>{
     const saved=item.attempts.find(row=>row.evidence?.sessionId===attempt.sessionId&&row.evidence.attemptId===attempt.id)?.sourceAssociation;
-    const proof=saved?.proof;
+    const proof=saved&&[saved.proof,...saved.retainedProofs||[]].find(proof=>proof.source.sessionId===source.sessionId
+      &&proof.source.observationId===source.observationId&&proof.source.actionId===action.id);
     if(!saved||!proof||saved.actionKey!==digest(attempt.action)||proof.policy!=='captured-component-pair/v1'
       ||!proof.equivalent||proof.source.sessionId!==source.sessionId||proof.source.observationId!==source.observationId||proof.source.actionId!==action.id
       ||proof.target.sessionId!==attempt.sessionId||proof.target.observationId!==attempt.beforeId||proof.target.actionId!==attempt.action.id)return false;

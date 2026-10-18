@@ -63,7 +63,7 @@ export function routeKey(route:EntryRoute):string {
 }
 /** Prove a chain of actually observed reveals. Stored prerequisite prose alone
  * cannot justify replay; repeated cycles cannot manufacture a route. */
-export function routeFinder(task:Task,entry:Scope,o:Pick<Observation,'context'>,firstEdgeAllowed?:(route:EntryRoute)=>boolean) {
+export function routeFinder(task:Task,entry:Scope,o:Pick<Observation,'context'>,firstEdgeAllowed?:(route:EntryRoute)=>boolean,firstEdgeMatches?:(route:EntryRoute)=>boolean) {
   const context=digest(o.context),routes=task.rounds.flatMap(r=>r.entryRoutes||[]).filter(r=>r.context===context);
   let reachable:{scope:Scope;proof:EntryRoute[]}[]|undefined;
   return (target:Scope):EntryRoute[]|undefined=>{
@@ -73,7 +73,8 @@ export function routeFinder(task:Task,entry:Scope,o:Pick<Observation,'context'>,
       const queue:{scope:Scope;proof:EntryRoute[]}[]=[{scope:entry,proof:[]}],seen=new Set<string>();
       for(let index=0;index<queue.length;index++){
         const node=queue[index],key=digest(node.scope);if(seen.has(key))continue;seen.add(key);
-        for(const route of routes.filter(r=>routeMatches(r.entry,node.scope)&&(!node.scope.kind||r.entry.region===node.scope.region)&&(!node.scope.kind||r.entry.kind===node.scope.kind)&&(node.scope.value===undefined||r.entry.value===node.scope.value))){
+        for(const route of routes.filter(r=>(routeMatches(r.entry,node.scope)&&(!node.scope.kind||r.entry.region===node.scope.region)&&(!node.scope.kind||r.entry.kind===node.scope.kind)&&(node.scope.value===undefined||r.entry.value===node.scope.value))
+          ||!node.proof.length&&firstEdgeMatches?.(r))){
           // Only the current entry can be assessed against the current browser.
           // Filtering deeper edges with current facts would reject valid nested
           // routes; each later edge must be revalidated when it becomes current.

@@ -154,3 +154,16 @@ it('retains prepare batching and rejects unknown annotations without a resolvabl
   expect(f.host.operationReceiptConditions).toHaveBeenCalledTimes(1);
   f.item.attempts.push({roundId:'interrupted',outcome:'unknown'});expect(operationSourceCompletion(f.host)(f.item)).toBe(false);
 });
+
+it('retains a direct pre-dispatch binding for every original source without overwriting the first with a later match',()=>{
+  const f=fixture();f.b.o.controls[1].checked=false;
+  f.item.evidence.push({sessionId:f.b.o.sessionId,observationId:f.b.o.id});
+  const binding=operationSourceCompletion(f.host).prepareAssociation(f.item,f.current.a)!;
+  expect(binding.proof.source.observationId).toBe(f.a.o.id);
+  expect(binding.retainedProofs?.map(p=>p.source.observationId)).toEqual([f.b.o.id]);
+  expect([binding.proof,...binding.retainedProofs!].every(p=>p.target.actionId===f.current.a.id)).toBe(true);
+  const restored=JSON.parse(JSON.stringify(binding));
+  vi.mocked(f.host.explorationTargetCorrespondences!).mockImplementation(()=>{throw Error('STALE_OBSERVATION');});
+  expect(operationSourceCompletion(f.host).associate(f.item,f.attempt,restored)).toBe(true);
+  expect(operationSourceCompletion(f.host).associate(f.item,{...f.attempt,action:{...f.attempt.action,id:'wrong-action'}},restored)).toBe(false);
+});

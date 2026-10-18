@@ -124,3 +124,17 @@ it('filters only first edges, preserving nested paths, cycles and legacy route b
   expect(routeKey({...a,targets:[scope('Nested'),scope('Child')]})).toBe(routeKey({...a,targets:[scope('Child'),scope('Nested'),scope('Child')]}));
   expect(routeKey({...a,sourceConditionKey:undefined})).not.toBe(routeKey(a));
 });
+
+it('bridges only the current first occurrence with independent SDK permission and keeps historical deeper edges exact',()=>{
+  const scope=(label:string,key:string):Scope=>({url:'https://fixture.test/',label,role:'button',kind:'click',stableKey:key});
+  const route=(entry:Scope,target:Scope):EntryRoute=>({entry,targets:[target],context:digest({}),evidence:{sessionId:'s',beforeId:'before',observationId:'after'}});
+  const old=scope('Open','old-record'),current=scope('Open','new-record'),nested=scope('Nested','nested-old'),child=scope('Child','child');
+  const first=route(old,nested),second=route(nested,child),impostor=route(scope('Nested','nested-other'),scope('Unrelated','unrelated'));
+  const task={rounds:[{entryRoutes:[first,second,impostor]}]} as Task;
+  expect(routeFinder(task,current,{context:{}})(child)).toBeUndefined();
+  const permitted=vi.fn((r:EntryRoute)=>r===first);
+  const find=routeFinder(task,current,{context:{}},undefined,permitted);
+  expect(find(child)).toEqual([first,second]);expect(find(impostor.targets[0])).toBeUndefined();
+  expect(routeFinder(task,current,{context:{}},()=>false,permitted)(child)).toBeUndefined();
+  expect(routeFinder(task,current,{context:{tenant:{status:'known',source:'fixture',value:'changed'}}},undefined,permitted)(child)).toBeUndefined();
+});
