@@ -1,6 +1,7 @@
 import type { Provider } from '@interaction/explorer-plugin';
 import type { Control } from '@interaction/adapter-playwright';
 import { maskVolatile } from './abstraction.js';
+import { metered, type ProviderMeter } from './meter.js';
 
 /** A goal compiled into crawl scope: which pages, which UI areas, what to reach. */
 export interface GoalPlan {
@@ -41,15 +42,16 @@ export async function planGoal(llm: Provider, goal: string, entry: string, contr
  */
 export class GoalRelevance {
   private readonly scores = new Map<string, number>();
-  calls = 0;
-  constructor(private readonly jev: Provider, readonly plan: GoalPlan, private readonly threshold = 0.3, private readonly timeoutMs = 20000) {}
+  private readonly jev: Provider & { meter: ProviderMeter };
+  constructor(jev: Provider, readonly plan: GoalPlan, private readonly threshold = 0.3, private readonly timeoutMs = 20000) { this.jev = metered(jev); }
+  get meter() { return this.jev.meter; }
+  get calls() { return this.jev.meter.calls; }
 
   score(classKey: string) { return this.scores.get(classKey); }
 
   async assess(items: { classKey: string; description: string }[]) {
     const pending = [...new Map(items.filter(i => !this.scores.has(i.classKey)).map(i => [i.classKey, i])).values()].slice(0, 100);
     if (!pending.length) return;
-    this.calls++;
     const context = `Goal: ${this.plan.goal}\nFocus: ${this.plan.focus.join('; ')}\nTasks: ${this.plan.tasks.join('; ')}`;
     try {
       const answer = await this.jev.decide({

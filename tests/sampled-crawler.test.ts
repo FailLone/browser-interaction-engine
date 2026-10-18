@@ -71,24 +71,32 @@ test('crawls the entry page: modal first, lists sampled, out-of-scope links skip
   expect(findings.filter(f => f.rule === 'clipped-text' && f.text.includes('clipped label'))).toHaveLength(1);
 }, 120000);
 
-test('JEV is asked first; an uncertain JEV answer escalates to the LLM; answers are cached', async () => {
+test('one JEV checklist per batch; uncertain items are left to a trial, LLM only on request; counts and cost are exact', async () => {
   const { ModelJudge } = await import('@interaction/crawler');
   const calls: string[] = [];
-  const provider = (name: string, answer: (q: unknown) => { probability?: number; value?: boolean }) => ({ name, model: name,
-    async decide(request: { state: unknown }) { calls.push(name); const a = answer(request.state); return { model: name, value: a.value ?? (a.probability! >= 0.5), probability: a.probability }; } });
-  const judge = new ModelJudge({
-    jev: provider('jev', q => ({ probability: JSON.stringify(q).includes('Unsure') ? 0.5 : 0.95 })),
-    llm: provider('llm', () => ({ value: false })),
-  });
+  const jev = { name: 'jev', model: 'jev', async decide(request: { kind: string; checks?: Record<string, unknown>; state: unknown }) {
+    calls.push(`jev:${request.kind}:${Object.keys(request.checks || {}).length}`);
+    const state = request.state as Record<string, { control: { name: string } }>;
+    return { model: 'jev', value: Object.fromEntries(Object.entries(state).map(([k, v]) => [k, v.control.name === 'Unsure' ? 0.5 : v.control.name === 'Total' ? 0.1 : 0.95])), usage: { input_tokens: 300, cost: 0.0000126 } };
+  } };
+  const llm = { name: 'llm', model: 'llm', async decide() { calls.push('llm'); return { model: 'llm', value: false, usage: { prompt_tokens: 100, cost: 0.00002 } }; } };
   const control = (name: string) => ({ kind: 'interactive' as const, control: { tag: 'div', role: 'generic', name, hints: ['pointer-cursor/v1'], text: name } });
-  expect(await judge.ask(control('Open menu'))).toMatchObject({ yes: true, source: 'jev' });
-  expect(await judge.ask(control('Unsure'))).toMatchObject({ yes: false, source: 'llm' });
-  expect(await judge.ask(control('Open menu'))).toMatchObject({ yes: true, source: 'cache' });
-  expect(calls).toEqual(['jev', 'jev', 'llm']);
-  expect(judge.stats).toMatchObject({ jev: 2, llm: 1, cached: 1 });
+
+  const judge = new ModelJudge({ jev, llm });
+  const answers = await judge.askAll([control('Open menu'), control('Unsure'), control('Total')]);
+  expect(answers.map(a => a.verdict)).toEqual(['yes', 'uncertain', 'no']);
+  expect(await judge.ask(control('Open menu'))).toMatchObject({ verdict: 'yes', source: 'jev' });
+  expect(calls).toEqual(['jev:checklist:3']);
+  expect(judge.stats).toMatchObject({ questions: 4, cacheHits: 1, answeredByJev: 2, uncertain: 1, answeredByLlm: 0, yes: 1, no: 1 });
+  expect(judge.stats.jev).toMatchObject({ calls: 1, judgments: 3, inputTokens: 300, costUsd: 0.0000126 });
+  expect(judge.stats.llm).toMatchObject({ calls: 0, costUsd: 0 });
+
+  const escalating = new ModelJudge({ jev, llm, escalate: q => q.kind === 'interactive' });
+  expect(await escalating.ask(control('Unsure'))).toMatchObject({ verdict: 'no', source: 'llm' });
+  expect(escalating.stats.llm).toMatchObject({ calls: 1, costUsd: 0.00002 });
 });
 
-test('a weak pointer-only control is crawled only after the judge confirms it', async () => {
+test('a weak pointer-only control is crawled unless the judge rules it out', async () => {
   const { ModelJudge } = await import('@interaction/crawler');
   // Listener attached in script: the DOM only shows a pointer cursor, no click evidence.
   const weak = `<!doctype html><title>Weak</title><main><div id="weak" style="cursor:pointer;padding:8px">Show more rates</div>
@@ -98,7 +106,8 @@ test('a weak pointer-only control is crawled only after the judge confirms it', 
   await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
   const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
   const run = async (yes: boolean) => {
-    const judge = new ModelJudge({ jev: { name: 'jev', model: 'jev', async decide() { return { model: 'jev', value: yes, probability: yes ? 0.95 : 0.05 }; } } });
+    const jev = { name: 'jev', model: 'jev', async decide(request: { state: unknown }) { return { model: 'jev', value: Object.fromEntries(Object.keys(request.state as object).map(k => [k, yes ? 0.95 : 0.05])) }; } };
+    const judge = new ModelJudge({ jev });
     const events: CrawlEvent[] = [];
     await new SampledCrawler({ url, durationMs: 30000, settleMs: 100, checks: [], judge, log: e => events.push(e) }).run();
     return events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action').map(a => a.step.label);

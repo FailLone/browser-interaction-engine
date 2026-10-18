@@ -5,6 +5,7 @@ import { allowed, defaultPolicy, linkTarget, placement, type CrawlKind, type Cra
 import { findingKey, type Finding, type PageCheck } from './checks.js';
 import type { Judge, Question } from './judge.js';
 import type { GoalRelevance } from './goal.js';
+import type { ProviderMeter } from './meter.js';
 
 export interface CrawlOptions {
   url: string;
@@ -38,7 +39,7 @@ export type CrawlEvent =
   | { type: 'action'; at: number; step: Step; url: string; overlay?: string; tier: string; outcome: 'ok' | 'failed' | 'no_change'; error?: string; newState: boolean; after: string }
   | { type: 'backtrack'; at: number; reason: string; url: string }
   | { type: 'finding'; at: number; finding: Finding; state: string; url: string }
-  | { type: 'judgement'; at: number; question: string; label: string; yes: boolean; source: string; probability?: number }
+  | { type: 'judgement'; at: number; question: string; label: string; verdict: 'yes' | 'no' | 'uncertain'; source: string; probability?: number }
   | { type: 'stop'; at: number; reason: string };
 
 interface Candidate { control: Control; kind: CrawlKind; classKey: string; tier: number; tierName: string; value?: string; relevance?: number }
@@ -140,6 +141,7 @@ export class SampledCrawler {
       maxPerClass: Math.max(0, ...this.classCounts.values()),
       backtracks: this.events.filter(e => e.type === 'backtrack').length,
       judge: this.options.judge?.stats,
+      models: modelCost([this.options.judge?.stats.jev, this.options.relevance?.meter], [this.options.judge?.stats.llm]),
       weakControlsConfirmed: this.confirmed.size,
       goal: this.options.relevance && { plan: this.options.relevance.plan, jevCalls: this.options.relevance.calls, prunedClasses: this.pruned.size },
       lists: { classes: this.listMembers.size, membersSeen: [...this.listMembers.values()].reduce((n, m) => n + m.size, 0),
@@ -156,7 +158,7 @@ export class SampledCrawler {
 
   private async snapshot(): Promise<Snapshot> {
     const dom = await this.adapter.readDOM(false, false);
-    return { url: dom.url, title: dom.title, text: dom.text, controls: dom.controls as Control[], overlays: dom.overlays };
+    return { url: dom.url, title: dom.title, text: dom.text, controls: dom.controls as Control[], overlays: dom.overlays, regions: dom.regions };
   }
 
   /** A page is worth entering if it is the entry, already known, or its template has budget left. */
@@ -202,14 +204,15 @@ export class SampledCrawler {
       const cls = controlClass(c);
       if (this.asked.has(cls)) continue;
       this.asked.add(cls);
-      batch.push({ cls, label: name.slice(0, 60), question: { kind: 'interactive', control: { tag: c.tag, role: c.role, name: maskVolatile(name), hints: c.interactionHints.map(h => h.rule), text: maskVolatile(c.displayedText || '') } } });
+      batch.push({ cls, label: name.slice(0, 60), question: { kind: 'interactive', control: { tag: c.tag, role: c.role, name: maskVolatile(name), hints: c.interactionHints.map(h => h.rule), text: maskVolatile(c.displayedText || ''), context: [c.landmark, s.regions?.find(r => r.key === c.region)?.label].filter(Boolean).map(x => maskVolatile(String(x))).join(' / ') || undefined } } });
     }
     if (!batch.length) return;
     const answers = judge.askAll ? await judge.askAll(batch.map(b => b.question)) : await Promise.all(batch.map(b => judge.ask(b.question)));
     batch.forEach(({ cls, label }, i) => {
       const answer = answers[i];
-      this.emit({ type: 'judgement', at: this.now(), question: 'interactive', label, yes: answer.yes, source: answer.source, probability: answer.probability });
-      if (answer.yes) this.confirmed.add(cls);
+      this.emit({ type: 'judgement', at: this.now(), question: 'interactive', label, verdict: answer.verdict, source: answer.source, probability: answer.probability });
+      // Uncertain weak controls are tried once: a click is cheaper and more accurate than an LLM.
+      if (answer.verdict !== 'no') this.confirmed.add(cls);
     });
   }
 
@@ -255,7 +258,7 @@ export class SampledCrawler {
     await relevance.assess(rows.map(r => ({ classKey: r.classKey, description: `${r.kind} ${r.control.role} "${maskVolatile(r.control.name || r.control.label)}"${r.control.landmark ? ` in site ${r.control.landmark}` : ''}` })));
     for (const r of rows) if (!relevance.relevant(r.classKey) && !this.pruned.has(r.classKey)) {
       this.pruned.add(r.classKey);
-      this.emit({ type: 'judgement', at: this.now(), question: 'relevance', label: r.control.name.slice(0, 60), yes: false, source: 'jev', probability: relevance.score(r.classKey) });
+      this.emit({ type: 'judgement', at: this.now(), question: 'relevance', label: r.control.name.slice(0, 60), verdict: 'no', source: 'jev', probability: relevance.score(r.classKey) });
     }
   }
 
@@ -302,8 +305,8 @@ export class SampledCrawler {
       const textBefore = before.text || '', textAfter = after.text || '';
       if (this.options.judge && textBefore && maskVolatile(textBefore) !== maskVolatile(textAfter)) {
         const answer = await this.options.judge.ask({ kind: 'effect', action: `${c.kind} ${step.label}`, before: excerpt(textBefore, textAfter), after: excerpt(textAfter, textBefore) });
-        this.emit({ type: 'judgement', at: this.now(), question: 'effect', label: step.label, yes: answer.yes, source: answer.source, probability: answer.probability });
-        if (answer.yes) { outcome = 'ok'; afterKey = `${afterKey}|content:${c.classKey}`; }
+        this.emit({ type: 'judgement', at: this.now(), question: 'effect', label: step.label, verdict: answer.verdict, source: answer.source, probability: answer.probability });
+        if (answer.verdict === 'yes') { outcome = 'ok'; afterKey = `${afterKey}|content:${c.classKey}`; }
       }
     }
     if (outcome === 'ok') this.path.push(step);
@@ -375,4 +378,15 @@ function placementOfUrl(url: string, options: { url: string; policy: CrawlPolicy
 function excerpt(text: string, other: string, size = 600) {
   let start = 0; while (start < text.length && text[start] === other[start]) start++;
   return text.slice(Math.max(0, start - 100), start - 100 + size);
+}
+
+/** Combined JEV / LLM spend for the run summary (planning calls are added by the host). */
+function modelCost(jev: (ProviderMeter | undefined)[], llm: (ProviderMeter | undefined)[]) {
+  const sum = (meters: (ProviderMeter | undefined)[]) => meters.filter((m): m is ProviderMeter => !!m).reduce((t, m) => ({
+    calls: t.calls + m.calls, failures: t.failures + m.failures, judgments: t.judgments + m.judgments, inputTokens: t.inputTokens + m.inputTokens,
+    outputTokens: t.outputTokens + m.outputTokens, costUsd: t.costUsd + m.costUsd, unpricedCalls: t.unpricedCalls + m.unpricedCalls,
+    avgMs: 0, elapsedMs: t.elapsedMs + m.elapsedMs,
+  }), { calls: 0, failures: 0, judgments: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, unpricedCalls: 0, avgMs: 0, elapsedMs: 0 });
+  const withAvg = (t: ReturnType<typeof sum>) => ({ ...t, avgMs: t.calls ? Math.round(t.elapsedMs / t.calls) : 0 });
+  return { jev: withAvg(sum(jev)), llm: withAvg(sum(llm)) };
 }

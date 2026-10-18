@@ -1,0 +1,98 @@
+{
+  "elapsedMs": 130142,
+  "actions": 59,
+  "states": 29,
+  "onEntryPage": 59,
+  "inOverlay": 6,
+  "failed": 1,
+  "byTier": {
+    "overlay": 6,
+    "body": 23,
+    "in-page-disclosure": 12,
+    "chrome": 18,
+    "navigate": 0
+  },
+  "maxPerClass": 1,
+  "backtracks": 6,
+  "judge": {
+    "questions": 27,
+    "cacheHits": 0,
+    "answeredByJev": 16,
+    "answeredByLlm": 0,
+    "uncertain": 11,
+    "unavailable": 0,
+    "yes": 13,
+    "no": 3,
+    "jevProbabilities": [
+      0,
+      3,
+      3,
+      8,
+      0,
+      0,
+      0,
+      1,
+      4,
+      8
+    ],
+    "jev": {
+      "calls": 10,
+      "failures": 0,
+      "judgments": 27,
+      "inputTokens": 10148,
+      "outputTokens": 506,
+      "costUsd": 0.00042621599999999993,
+      "unpricedCalls": 0,
+      "elapsedMs": 6855,
+      "byPurpose": {
+        "crawler-interactive": {
+          "calls": 10,
+          "costUsd": 0.00042621599999999993
+        }
+      }
+    },
+    "llm": {
+      "calls": 0,
+      "failures": 0,
+      "judgments": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0,
+      "unpricedCalls": 0,
+      "elapsedMs": 0,
+      "byPurpose": {}
+    }
+  },
+  "models": {
+    "jev": {
+      "calls": 10,
+      "failures": 0,
+      "judgments": 27,
+      "inputTokens": 10148,
+      "outputTokens": 506,
+      "costUsd": 0.00042621599999999993,
+      "unpricedCalls": 0,
+      "avgMs": 686,
+      "elapsedMs": 6855
+    },
+    "llm": {
+      "calls": 0,
+      "failures": 0,
+      "judgments": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0,
+      "unpricedCalls": 0,
+      "avgMs": 0,
+      "elapsedMs": 0
+    }
+  },
+  "weakControlsConfirmed": 24,
+  "lists": {
+    "classes": 8,
+    "membersSeen": 77,
+    "executed": 5
+  },
+  "pages": 1,
+  "findings": {}
+}

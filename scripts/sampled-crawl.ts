@@ -3,7 +3,7 @@
 // Model plugin and goal mode use the existing EXPLORER_JEV_* / EXPLORER_LLM_* variables.
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { GoalRelevance, ModelJudge, SampledCrawler, defaultPolicy, planGoal } from '@interaction/crawler';
+import { GoalRelevance, ModelJudge, SampledCrawler, defaultPolicy, metered, planGoal } from '@interaction/crawler';
 import { BrowserAdapter, PlaywrightAdapter } from '@interaction/adapter-playwright';
 import { MemoryEvidenceStore } from '@interaction/storage-memory';
 import { providersFromEnv } from '@interaction/explorer-plugin';
@@ -23,12 +23,15 @@ console.log('model judge', judge ? `jev=${providers.jev?.model ?? 'none'} llm=${
 // Goal mode: the LLM plans scope from the entry page's controls; JEV prunes off-goal actions.
 const goal = process.argv[6];
 let relevance: GoalRelevance | undefined;
+let planning: import('@interaction/crawler').ProviderMeter | undefined;
 if (goal) {
   if (!providers.llm || !providers.jev) throw new Error('Goal mode needs both EXPLORER_JEV_* and EXPLORER_LLM_*');
   const adapter = new BrowserAdapter(new PlaywrightAdapter().parseOptions({ url, headless: true }), new MemoryEvidenceStore());
   await adapter.start(); await adapter.page!.waitForTimeout(1500);
   const dom = await adapter.readDOM(false, false); await adapter.close();
-  const plan = await planGoal(providers.llm, goal, url, dom.controls.filter(c => c.visible));
+  const planner = metered(providers.llm);
+  const plan = await planGoal(planner, goal, url, dom.controls.filter(c => c.visible));
+  planning = planner.meter;
   for (const pattern of plan.allowedPaths) policy.allowedPaths.push(new RegExp(pattern));
   relevance = new GoalRelevance(providers.jev, plan);
   console.log('goal plan', JSON.stringify(plan));
@@ -41,11 +44,13 @@ const crawler = new SampledCrawler({
     if (event.type === 'action') console.log(t, event.tier.padEnd(18), event.step.kind.padEnd(5), event.outcome.padEnd(9), event.newState ? 'NEW' : '   ', JSON.stringify(event.step.label), event.overlay || '', event.error || '');
     else if (event.type === 'state') console.log(t, 'state', event.state.url, event.state.overlay || '', event.state.controls);
     else if (event.type === 'finding') console.log(t, 'finding', event.finding.rule, JSON.stringify(event.finding.text), event.finding.detail);
-    else if (event.type === 'judgement') console.log(t, 'judge', event.question, event.source, event.yes ? 'YES' : 'no', event.probability ?? '', JSON.stringify(event.label));
+    else if (event.type === 'judgement') console.log(t, 'judge', event.question, event.source, event.verdict, event.probability ?? '', JSON.stringify(event.label));
     else console.log(t, event.type, event.reason);
   },
 });
-const summary = await crawler.run();
+const summary = { ...await crawler.run(), ...(planning ? { goalPlanning: planning } : {}) };
+const total = (planning?.costUsd || 0) + (summary.models.jev.costUsd + summary.models.llm.costUsd);
+console.log(`model spend: JEV ${summary.models.jev.calls} calls $${summary.models.jev.costUsd.toFixed(6)}, LLM ${summary.models.llm.calls + (planning?.calls || 0)} calls $${(summary.models.llm.costUsd + (planning?.costUsd || 0)).toFixed(6)}, total $${total.toFixed(6)}`);
 writeFileSync(join(out, 'summary.json'), JSON.stringify(summary, null, 2));
 writeFileSync(join(out, 'findings.json'), JSON.stringify([...crawler.findings.values()], null, 2));
 console.log(JSON.stringify(summary, null, 2));

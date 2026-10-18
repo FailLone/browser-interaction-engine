@@ -4,3 +4,4 @@ export * from './crawler.js';
 export * from './checks.js';
 export * from './judge.js';
 export * from './goal.js';
+export * from './meter.js';
