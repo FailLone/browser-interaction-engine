@@ -1,0 +1,72 @@
+{
+  "version": "broad-public-ui-v2-costs",
+  "observeTimeoutMs": 10000,
+  "strategy": "program-only",
+  "coverageContract": {
+    "version": 1,
+    "noticePreferences": [
+      "7天内不再提示"
+    ],
+    "programNavigation": "public-navigation-v1",
+    "mode": "targeted",
+    "roots": [
+      {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc"
+      }
+    ],
+    "routes": [
+      {
+        "origin": "https://www.okx.com",
+        "pathnamePattern": "^/(?:[a-z]{2}(?:-[a-z]+)?/)?(?:convert(?:/[^/]+)?|trade-convert|trade-spot(?:/[a-z0-9-]+)?|markets(?:/[^?#]*)?|price(?:/[^?#]*)?|learn(?:/[^?#]*)?|help(?:/[^?#]*)?)?/?$",
+        "scope": {}
+      }
+    ],
+    "exclusions": [],
+    "allowedOperations": [
+      "check",
+      "click",
+      "hover",
+      "focus",
+      "scroll",
+      "history",
+      "press",
+      "dismiss"
+    ]
+  },
+  "wallMs": 240000,
+  "actions": 80,
+  "cooperativeStopMs": 210000,
+  "entry": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+  "coveragePolicy": "finite-ui-v1",
+  "executionPolicy": "observed-ui",
+  "internalRounds": 3,
+  "scope": "Full observed public UI at the entry, home, convert, spot, markets, price, learn and help paths, including modal interiors, nested overlays, header menus, body tabs, disclosure controls, dropdowns, pagination and scroll-revealed contents when actually present and mechanically authorized.",
+  "goal": "Explore the allowed public UI autonomously. Finish executable work in the active region, retain unavailable original duties, and return through recorded entrances when needed. Observe public menus, page tabs, disclosures, dropdowns, pagination, scrolling, dialogs and nested dialogs when present. The named notice preference is authorized. Do not log in, register, fill forms, trade, submit, make identity or residence claims, write externally, or evade access restrictions. Changing live prices is not new coverage.",
+  "acceptance": {
+    "minBranches": 3,
+    "minOriginalStrictChains": 3,
+    "minChainRegions": 2,
+    "strict": "Original unfinished item and first reveal source retained; absent after departure; recorded entrance actually executes; independent SDK correspondence verifies original target; distinct later child executes; original item durably condition-verified. Navigation requires independent DOM URL matching. In-place UI requires independently observed target-bound toggle, selected tab/panel, menu contents, pagination contents or scroll-revealed content. No-effect, repeated hover, state count, history alone and same-label new items do not qualify.",
+    "branch": "A successful receipt with independent newly exposed actionable content or native navigation to a distinct normalized pathname. Reveal branches keyed by source pathname and captured owning entry scope; subsequent no-effect/repetition is not a new branch.",
+    "region": "Source pathname plus captured structural landmark/region at original discovery; anonymous whole-page fallback cannot split one region. Sibling labels alone cannot split a region.",
+    "incomplete": "Keep all unknown/unexecuted duties with reasons. Absent control types are observations, not fake obligations or acceptance substitutions."
+  },
+  "environment": {
+    "node": "v24.22.0",
+    "freshBrowser": true,
+    "headless": true,
+    "settleMs": 200,
+    "actionTimeoutMs": 8000,
+    "maxDepth": 30
+  },
+  "safetyGuard": "Same existing forbidden business/authentication/form/claim boundary, plus expanded caller URL predicate. Every startup/recovery/auxiliary/failed dispatch counted. No harness-selected actions or product site strings.",
+  "models": "Program-only baseline/final comparison; optional existing concrete-gap models never replace independent program work, maximum two provider calls and 12 seconds per evidence gap.",
+  "costMeasurement": {
+    "baseline1": "Preserved initial v1 run; lacks complete cost sampling and expanded checker. Not the fully instrumented matched reference.",
+    "intervalMs": 10000,
+    "storage": "Engine and explorer DB/WAL/SHM, evidence, exports/logs and audit copies separate; startup, 10-second intervals, worker settled, closed. No VACUUM.",
+    "memory": "Worker process.memoryUsage and process.resourceUsage maxRSS (KiB), excludes browser processes. Timers can be late during synchronous work.",
+    "timing": "Consumer SDK wall spans and readDOM spans are inclusive and overlap capture/recovery; use interval unions. V8 1ms CPU samples attribute self CPU to source functions, not wall time or browser CPU. No storage-method wrappers that invalidate SDK read fences.",
+    "acceptance": "Unchanged three branches, three original strict chains, two source regions. No scope/budget/success definition change."
+  }
+}
