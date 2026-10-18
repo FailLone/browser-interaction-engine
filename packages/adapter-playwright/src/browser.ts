@@ -499,6 +499,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   private navigationSessionId = '';
   private documentMethods = new Map<string, string>();
   private entryMethods = new Map<number, string>();
+  private loaderMethods = new Map<string, string>();
+  private documentRequests = new Map<string, { loaderId: string; method: string }>();
   private lastDocumentResponse?: { url: string; method: string };
   private discoveryPlan?: DiscoveryScanPlan & { status: 'active' | 'invalidated'; reason?: string };
   private preparedOwnerDispatch?: { action: ActionCandidate; beforeId: string; graphKey: string; context: Context;
@@ -517,8 +519,21 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     this.browser = await chromium.launch({ headless: this.options.headless });
     this.context = await this.browser.newContext({ viewport: this.options.viewport, storageState: this.options.storageState as any, acceptDownloads: false });
     this.page = await this.context.newPage();
-    this.navigationSessionId = id(); this.documentMethods.clear(); this.entryMethods.clear(); this.lastDocumentResponse = undefined;
+    this.navigationSessionId = id(); this.documentMethods.clear(); this.entryMethods.clear(); this.loaderMethods.clear(); this.documentRequests.clear(); this.lastDocumentResponse = undefined;
     this.navigationClient = await this.context.newCDPSession(this.page);
+    // A document may replace its URL before the first capture. Bind the HTTP
+    // method to its native loader, never infer GET from the rewritten pathname.
+    this.navigationClient.on('Network.requestWillBeSent', event => {
+      if (event.type === 'Document') this.documentRequests.set(event.requestId, { loaderId: event.loaderId, method: event.request.method });
+    });
+    this.navigationClient.on('Network.responseReceived', event => {
+      const request = this.documentRequests.get(event.requestId);
+      if (event.type === 'Document' && request && request.loaderId === event.loaderId) {
+        this.loaderMethods.set(event.loaderId, request.method);
+        this.documentRequests.delete(event.requestId);
+      }
+    });
+    await this.navigationClient.send('Network.enable');
     this.page.on('response', response => {
       const request = response.request();
       if (request.isNavigationRequest() && request.frame() === this.page?.mainFrame()) this.lastDocumentResponse = { url: response.url(), method: request.method() };
@@ -544,6 +559,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const history = await this.navigationClient.send('Page.getNavigationHistory');
     const current = history.entries[history.currentIndex];
     if (documentId && current) {
+      const { frameTree } = await this.navigationClient.send('Page.getFrameTree'), frame = frameTree.frame;
+      const loaderMethod = this.loaderMethods.get(frame.loaderId);
+      if (!this.documentMethods.has(documentId) && loaderMethod && frame.url + (frame.urlFragment || '') === current.url) this.documentMethods.set(documentId, loaderMethod);
       const withoutHash = (url: string) => url.split('#')[0];
       if (!this.documentMethods.has(documentId) && this.lastDocumentResponse && withoutHash(this.lastDocumentResponse.url) === withoutHash(current.url)) {
         this.documentMethods.set(documentId, this.lastDocumentResponse.method);

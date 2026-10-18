@@ -3,14 +3,15 @@ import {expect,it} from 'vitest';
 import {PlaywrightAdapter} from '@interaction/adapter-playwright';
 import {act,testEngine} from './helpers.js';
 
-it('observes a committed native navigation while destination fields remain explicitly unready',async()=>{
- const server=createServer((req,res)=>{res.setHeader('Content-Type','text/html');res.end(req.url==='/'?'<a href="/live">Open live page</a>':`<h1>Live page</h1><a href="/">Return</a><form><input id="changing" aria-label="Changing"></form><script>setInterval(()=>document.querySelector('#changing').value=String(Date.now()),10)</script>`);});
+it.each([false,true])('observes a committed native navigation while destination fields remain unready (early URL replacement: %s)',async rewrite=>{
+ const server=createServer((req,res)=>{res.setHeader('Content-Type','text/html');res.end(req.url==='/'?'<a href="/live">Open live page</a>':`<h1>Live page</h1><a href="/">Return</a><form><input id="changing" aria-label="Changing"></form><script>${rewrite?`history.replaceState({},'', '/renamed#mode')`:''};setInterval(()=>document.querySelector('#changing').value=String(Date.now()),10)</script>`);});
  await new Promise<void>(r=>server.listen(0,'127.0.0.1',r));const url=`http://127.0.0.1:${(server.address() as any).port}`;
  const f=await testEngine(url,{contextRules:[],exploration:'controls',settleMs:120,observeTimeoutMs:1600});
  try{
   const attempt=await act(f.engine,f.sessionId,'Open live page');const after=f.engine.observation(f.sessionId);
-  expect(attempt.status,attempt.reason).toBe('succeeded');expect(after.url).toBe(url+'/live');expect(after.stable).toBe(false);
-  expect(after.navigationCapture).toMatchObject({beforeId:attempt.beforeId,actionId:attempt.action.id,requestedUrl:url+'/live',observedUrl:url+'/live'});
+  expect(attempt.status,attempt.reason).toBe('succeeded');const destination=url+(rewrite?'/renamed#mode':'/live');expect(after.url).toBe(destination);expect(after.stable).toBe(false);
+  expect(after.navigationCapture).toMatchObject({beforeId:attempt.beforeId,actionId:attempt.action.id,requestedUrl:url+'/live',observedUrl:destination});
+  expect(after.navigation!.entries[after.navigation!.currentIndex].method).toBe('GET');
   expect(after.navigationCapture!.samples).toBeGreaterThanOrEqual(2);expect(after.gaps.some(g=>g.critical)).toBe(false);
   expect(after.controls.find(c=>c.name==='Changing')?.readiness?.status).toBe('unstable');
   await expect(act(f.engine,f.sessionId,'Changing','fill','example')).rejects.toHaveProperty('code');
