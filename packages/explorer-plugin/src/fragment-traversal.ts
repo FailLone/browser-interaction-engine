@@ -83,7 +83,7 @@ export function preferFragmentCandidate<T extends {actionId?:string}>(l:Fragment
   if(l.root.policy!==fragmentProjectionPolicy)return choices[0];
   const peers=new Map<string,number>();
   return bestFragmentCandidate(choices.map(choice=>{const ref=choice.actionId?f.byAction.get(choice.actionId):undefined;
-    if(ref&&!peers.has(ref.fragmentId))peers.set(ref.fragmentId,l.peers(ref.fragmentId));
+    if(ref&&!peers.has(ref.fragmentId))peers.set(ref.fragmentId,l.reusablePeers(ref.fragmentId));
     return {choice,access:ref?l.counts(ref.candidateId):{direct:false,duplicate:0,equivalent:0},factor:fragmentDuplicationFactor(0,ref?peers.get(ref.fragmentId)!:0)};
   }))?.choice;
 }

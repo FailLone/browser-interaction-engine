@@ -1,0 +1,82 @@
+{
+  "revision": "62a1fc9a36aa031511cb01d7b59aa46d9a02e361",
+  "result": {
+    "accepted": false,
+    "reason": "strict_pending_child_reentry_not_established",
+    "elapsedMs": 227986,
+    "actions": 13,
+    "chains": [],
+    "coverage": {
+      "finite": {
+        "total": 457,
+        "verified": 10,
+        "remaining": 447
+      },
+      "observedCombinations": 12,
+      "unknownDependencies": [
+        "unobserved JavaScript dependencies",
+        "unobserved condition combinations",
+        "unbounded free-input values",
+        "unassessed business effects"
+      ],
+      "exhaustive": false
+    },
+    "taskStatus": "paused",
+    "taskReason": "user_paused"
+  },
+  "fragments": {
+    "run": "/Users/xietian/.codex/worktrees/broader-ui-exploration/browser-interaction-engine/.data/broader-ui/link-index-narrow-1",
+    "policy": "guarded-host-fragments/v3",
+    "fragmentCount": 206,
+    "mappingCount": 2534,
+    "actualAccessEvents": 10,
+    "accessWithoutLoggedSucceededReceipt": [],
+    "uniqueProjectedPrunedCandidates": 0,
+    "uniquePropagatedPrunedCandidates": 0,
+    "observationsWithPruning": 0,
+    "registration": {
+      "calls": 35,
+      "totalMs": 5714.621706000008,
+      "p50Ms": 129.9137499999997,
+      "p95Ms": 373.3267500000002,
+      "maxMs": 412.66158300000825
+    },
+    "accessRecording": {
+      "calls": 10,
+      "totalMs": 3706.9872929999838,
+      "p50Ms": 330.08212499998626,
+      "p95Ms": 526.5256660000014,
+      "maxMs": 526.5256660000014
+    },
+    "cumulativeMappedActionObservations": 1669,
+    "cumulativeUnmappedActionObservations": 6461,
+    "rootBytes": 198,
+    "auditLedgerBytes": 30043783,
+    "ledgerBytes": 30043783,
+    "bounded": false,
+    "pending": 495,
+    "projectedPrunedPending": 0,
+    "requiredRestoreDispatches": 1,
+    "limitations": [
+      "Projection counts include observations and are not dispatches avoided or verified coverage.",
+      "Unmapped actions remain in the same strategy; unknown duties remain pending.",
+      "Timing categories can overlap, especially access recording and registration.",
+      "No browser or original-DB mutation is performed by this report."
+    ]
+  },
+  "fileSHA256": {
+    "result.json": "e17d33bdc5efbc00543b6661633597107bbde0896673247337470367287107bf",
+    "audit.json": "8039f717e62cafad920fadb8fe937868e1fc64de589be1efdac4900a95ea798a",
+    "protocol.json": "fcdd828abb4b493217de8ee3617dbb6c7a0f8f56ad28623da0f846544f1376cd",
+    "source.json": "87273e789a535fea0da8b24318b0d54a0dd7d767796829b7f02d98307d314541",
+    "source.diff": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "coverage-ledger.json": "7aa871bcbbe9f0444bbe25c66cacd88aabea8a910234d8261c561a5e956013ff",
+    "fragment-summary.json": "5cacd0c595196311b78997cb08eaaaddc70a70568c9dbb8637bea62011673af4",
+    "fragment-storage.json": "c37746825ea9f046b1c2a4c2e039412d4b6aef4178d7479091054af7bbeb4dcd"
+  },
+  "limits": [
+    "Strict chain absent; this is a failed acceptance.",
+    "Paused/user_paused status is the harness cooperative cutoff, not a human pause instruction.",
+    "No product source was changed during the run."
+  ]
+}

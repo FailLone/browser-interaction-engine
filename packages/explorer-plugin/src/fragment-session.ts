@@ -18,7 +18,7 @@ export class FragmentSession {
   private maps:Partial<{[K in FragmentRowKind]:Map<string,FragmentRows[K]>}>={};
   private atoms=new Map<string,FragmentDelta['atoms'][number]>();private materials=new Map<string,FragmentDelta['materials'][number]>();
   private countCache=new Map<string,FragmentCounters>();private cacheStamp='';
-  private samplingCache=new Map<string,StoredSamplingDecision>();
+  private samplingCache=new Map<string,{decision:StoredSamplingDecision;crossContext:boolean}>();
   private peerCache=new Map<string,number>();private checkedClasses=new Set<string>();
   private baseRoot?:FragmentRoot;
   private snapshot<T>(read:()=>T):T{return this.store.db.inTransaction?read():this.store.db.transaction(read)();}
@@ -182,7 +182,7 @@ export class FragmentSession {
     return this.snapshot(()=>this.samplingSnapshot(candidateId));
   }
   private samplingSnapshot(candidateId:string):StoredSamplingDecision {
-    this.checkSnapshot();const cached=this.samplingCache.get(candidateId);if(cached)return structuredClone(cached);
+    this.checkSnapshot();const cached=this.samplingCache.get(candidateId);if(cached)return structuredClone(cached.decision);
     const target=this.get('candidates',candidateId);if(!target)throw new ExplorerError('FRAGMENT_CANDIDATE_NOT_FOUND');this.validateCandidate(target);
     const context=target.context===undefined?undefined:this.raw(target.context,'context');
     let total=0,direct=0,same=0,witnessed=0,conflict=false,differentContexts=false,firstEffect:string|undefined,firstContext:string|undefined;
@@ -199,7 +199,8 @@ export class FragmentSession {
       conflictCount:conflict?witnessed:0,recheckBudget:1,coverageGranted:false,
       ...(status==='context-sample'?{assumption:'unverified-external-context' as const}:status==='same-context'?{assumption:'observed-context-only' as const}:{}),
       evidenceRef:{rootKey:this.root.rootKey,candidateId,epoch:this.root.epoch,originSet:'direct-sampling-sources'}};
-    if(this.samplingCache.size>=2048)this.samplingCache.delete(this.samplingCache.keys().next().value!);this.samplingCache.set(candidateId,result);return structuredClone(result);
+    if(this.samplingCache.size>=2048)this.samplingCache.delete(this.samplingCache.keys().next().value!);
+    this.samplingCache.set(candidateId,{decision:result,crossContext:!conflict&&differentContexts});return structuredClone(result);
   }
   /** Complete direct source provenance, separately paginated from effective
    * borrowed access. Conflicting and validation origins remain auditable. */
@@ -235,6 +236,33 @@ export class FragmentSession {
     return this.snapshot(()=>{this.countsSnapshot(candidateId);const q=this.accessQuery(candidateId);return (this.store.db.prepare(`${q.sql} SELECT json,direct,duplicate FROM origins WHERE id>? ORDER BY id LIMIT ?`).all(...q.params,after,limit) as {json:string;direct:number;duplicate:number}[]).map(row=>({event:JSON.parse(row.json) as FragmentRows['events'],direct:!!row.direct,duplicate:!!row.duplicate}));});
   }
   peers(fragmentId:string):number {return this.snapshot(()=>{this.checkSnapshot();const old=this.peerCache.get(fragmentId);if(old!==undefined)return old;const value=this.peersSnapshot(fragmentId);if(this.peerCache.size>=2048)this.peerCache.delete(this.peerCache.keys().next().value!);this.peerCache.set(fragmentId,value);return value;});}
+  /** Expected reuse for the existing duplication formula. V3 local matching is
+   * only an index: an unvalidated context or conflicting result must not earn
+   * the same scheduling benefit as a reusable sample. This is a priority hint,
+   * never access, identity, execution or coverage. All siblings share it. */
+  reusablePeers(fragmentId:string):number {return this.snapshot(()=>{
+    this.checkSnapshot();if(this.root.policy!=='guarded-host-fragments/v3')return this.peersSnapshot(fragmentId);
+    const key='reusable:'+fragmentId,old=this.peerCache.get(key);if(old!==undefined)return old;
+    const peers=new Set<string>(),owner=this.get('fragments',fragmentId);if(!owner)throw new ExplorerError('CORRUPT_FRAGMENT_STORAGE');
+    for(const source of this.candidates(fragmentId)){
+      if(source.context===undefined||this.get('revocations',source.id)||this.samplingSnapshot(source.id).conflictCount)continue;
+      const context=this.raw(source.context,'context'),revoked=new Set<string>();
+      const edges=()=>this.rows('edges','source_id=?',[source.id],e=>e.sourceCandidateId===source.id);
+      for(const edge of edges())if(edge.revoked)revoked.add(edge.targetCandidateId);
+      const consider=(target:CandidateRecord)=>{
+        if(target.fragmentId===fragmentId||peers.has(target.fragmentId)||target.context===undefined||revoked.has(target.id)||this.get('revocations',target.id))return;
+        this.validateCandidate(target);const fragment=this.get('fragments',target.fragmentId)!;
+        if(source.path!==target.path||source.operation!==target.operation||source.guard!==target.guard||owner.structure!==fragment.structure||owner.owner!==fragment.owner)return;
+        const decision=this.samplingSnapshot(target.id);if(decision.conflictCount)return;
+        if(context!==this.raw(target.context,'context')&&!this.samplingCache.get(target.id)!.crossContext)return;
+        peers.add(target.fragmentId);
+      };
+      // Stream indexed memberships; retain IDs, not every peer's metadata.
+      if(source.classId)for(const c of this.rows('candidates','class_id=?',[source.classId],c=>c.classId===source.classId))consider(c);
+      for(const edge of edges())if(!edge.revoked){const target=this.get('candidates',edge.targetCandidateId);if(!target)throw new ExplorerError('CORRUPT_FRAGMENT_STORAGE');consider(target);}
+    }
+    const value=peers.size;if(this.peerCache.size>=2048)this.peerCache.delete(this.peerCache.keys().next().value!);this.peerCache.set(key,value);return value;
+  });}
   private peersSnapshot(fragmentId:string):number {
     if(!this.legacyEdges()){
       const revoked=(id:string)=>!!this.get('revocations',id),classes=new Set(this.candidates(fragmentId).filter(c=>c.classId&&!revoked(c.id)).map(c=>c.classId!)),peers=new Set<string>();

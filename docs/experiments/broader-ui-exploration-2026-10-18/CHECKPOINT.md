@@ -228,3 +228,17 @@ Applied narrow semantics-preserving optimization only: linkFragmentObligations u
 
 
 Link-index original251 terminal78142exit1:207pass44fail,exactsamefailednamesasfragment-251-4;all11originaltestfiles byte-identicalto574a7ea.37focused/twotypecheckspassed. Evidence link-index-validation.json;alltest/browserprocessesterminal. Commitcurrenttwo-fileoptimization+honestv3controlarchives,thenfreshlocaltwiceandsamebudgetOKX.
+
+
+Productfreeze 62a1fc9a36aa031511cb01d7b59aa46d9a02e361:link-index-local-1/2 bothPASS38.338/37.797s,30commands,30/30finite,1strictchain,15originalpendingIDsafterrealprocessrestart,0duplicatecompletion;all527sourcehashesequal/diffsempty. Evidence link-index-local-evidence.json. Currentrealbrowser link-index-narrow-1 session59323 underoriginal240s/80/210coop;DO NOT modifyproduct/test/scriptswhileactive. Priorallgates terminal;nootherownliveprocess. StrictOKXgoalstillunachieved.
+
+
+Link-index narrow terminal59323exit2:FAILED227.986s/13commands/0strictchains;taskpaused/user_paused is harnesscooperativestop, nothumanpause.457finite/10verified/447remaining;unknownsretained. Exactsourcefreeze62a1fc9 unchanged. Archived link-index-narrow-evidence.json. Allownprocessesterminal. Indexoptimization improved local calculation but goalstillunachieved. Nextdiagnosis: raw local peers currently boost FRAGGEN duplicationfactor even when context recheck/conflictingeffects prevent sharing. V3 class is a local index only; evaluate a conservative factor input using same full observed context or validated consistent actual contexts, with revocations/conflicts respected. Preserve closest-fragment shared factor/formula, strictorigin/correspondence/coverage and noquota; no policycodechange yet.
+
+
+Reuse-factor correction nowdirty: private samplingcache retains derived crossContextwitnessboolean fromsamecomplete all-origin scan; publicsamplerdecisionsunchanged. NewreusablePeers usesexactsamecontextorvalidatedconsistentrealcontexts, excludesmissingcontext/conflicts/revocations, validateslocalmaterials, streamsmembers ratherthanallmetadata. Rawpeersauditsremainunchanged. preferFragmentCandidate suppliesreusablecounttoexistingclosest-fragment formula;noquota/noalteredcoverage. Closedcopydiagnosis priority-diagnosis-1 confirmsat40.191s More3raw/0same-contextdisplacedfreshlocalchildren0;later4/5raw/0same-contextsimilarly. Thisiswhypriorityinputchanged,notaguaranteeofstrictsuccess.
+
+32focusedinitialpassed,47finalfocused(core6/storage12/samplingstorage14/handoff15)afterstreamingrefinementpassed;bothfinaltypecheckspassed.14browser/indexpassed(browser4/restart2/sampling6/index2),testlogscontain unmatched filename filters but actualreported4suites14passed. Active-exitcorrectfilename session17469running;original251 session77019running. Productsource frozenwhiletestsactive. Allrealbrowsersareclosed; newlocaltwice/OKXpending. Docs-onlyarchives include62a localandfailednarrow.
+
+
+Reuse-factor finalgate:original251session77019terminalexit1,207pass44fail,exactoldfailure set,all11originaltestfilesunchangedfrom574a7ea. Active-exit17469terminal16/16passed,all77distinctfocusedcases/twotypecheckspassed. Evidence reuse-factor-validation.json. Allownprocessesterminal;commitcleanfreeze,nextoriginalfulllocaltwiceandreal240s/80strictOKX+confirmation. Goalunachieved.

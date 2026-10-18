@@ -2,6 +2,7 @@ import {afterEach,expect,it} from 'vitest';
 import {fragmentFixture} from './fragment-storage-helpers.js';
 import {TaskWriter} from '../packages/explorer-plugin/src/task-writer.js';
 import {decideFragmentSampling,type SamplingOrigin} from '../packages/explorer-plugin/src/fragment-sampling.js';
+import {preferFragmentCandidate,type FragmentFrontier} from '../packages/explorer-plugin/src/fragment-traversal.js';
 const fixtures:ReturnType<typeof fragmentFixture>[]=[];
 afterEach(()=>{for(const f of fixtures.splice(0))f.close();});
 const fixture=()=>{const f=fragmentFixture();fixtures.push(f);return f;};
@@ -75,4 +76,44 @@ it('commits a conflicting result atomically with pending outcome and usage, and 
  f.store.fragmentRecords.db.exec('DROP TRIGGER reject_context_commit');f.writer.flush();
  const committed=new TaskWriter(f.store,f.store.taskState(f.task.id)).fragments();expect(committed.sampling(id)?.status).toBe('observed-effect-conflict');
  expect(f.store.task(f.task.id).pendingDispatch?.requestId).toBe('pending');expect(f.store.task(f.task.id).usage.actions).toBe(3);
+});
+
+it('does not let unvalidated context occurrences outbid a fresh revealed child',()=>{
+ const f=fixture(),menu=register(f,'current','current-context');
+ for(let i=0;i<20;i++)register(f,'old-'+i,'other-context-'+i);
+ const child=f.session.register('https://example.test/current',{...projection('current-context'),owner:'different complete child fragment'},source);
+ const frontier:FragmentFrontier={observationId:'before',byAction:new Map([
+  ['menu',{fragmentId:menu.fragment.id,candidateId:menu.candidates[0].id}],['child',{fragmentId:child.fragment.id,candidateId:child.candidates[0].id}],
+ ]),pruned:[],registered:0,mapped:0,unmapped:0,elapsedMs:0};
+ const choices=[{actionId:'child'},{actionId:'menu'}];
+ expect(f.session.peers(menu.fragment.id)).toBe(20);expect(f.session.reusablePeers(menu.fragment.id)).toBe(0);
+ expect(preferFragmentCandidate(f.session,frontier,choices)).toBe(choices[0]);
+ register(f,'same-context','current-context');
+ expect(f.session.reusablePeers(menu.fragment.id)).toBe(1);
+ expect(preferFragmentCandidate(f.session,frontier,choices)).toBe(choices[1]);
+ expect(f.session.delta()?.events).toEqual([]);expect(f.task.plan).toEqual([]);
+});
+
+it('earns cross-context priority only from consistent actual witnesses and withdraws it on conflict, including after reload',()=>{
+ const f=fixture(),a=register(f,'A','A'),b=register(f,'B','B'),c=register(f,'C','C');
+ expect(f.session.reusablePeers(a.fragment.id)).toBe(0);
+ record(f,a,'actual-A','same');expect(f.session.reusablePeers(a.fragment.id)).toBe(0);
+ record(f,b,'actual-B','same');
+ for(const item of [a,b,c])expect(f.session.reusablePeers(item.fragment.id)).toBe(2);
+ f.writer.flush();const cold=new TaskWriter(f.store,f.store.taskState(f.task.id)).fragments();expect(cold.reusablePeers(c.fragment.id)).toBe(2);
+ record(f,c,'actual-C','different');
+ for(const item of [a,b,c])expect(f.session.reusablePeers(item.fragment.id)).toBe(0);
+ expect(f.session.counts(a.candidates[0].id).direct).toBe(true);f.writer.flush();
+ const reloaded=new TaskWriter(f.store,f.store.taskState(f.task.id)).fragments();expect(reloaded.reusablePeers(a.fragment.id)).toBe(0);
+ expect(reloaded.get('events','actual-A')).toBeDefined();
+});
+
+it('preserves one-way priority revocations and missing contexts through explicit export/import',()=>{
+ const f=fixture(),a=register(f,'A','same'),b=register(f,'B','same'),missing=register(f,'missing');
+ expect(f.session.reusablePeers(a.fragment.id)).toBe(1);expect(f.session.reusablePeers(missing.fragment.id)).toBe(0);
+ f.session.put('edges',{id:'A-to-B',sourceFragmentId:a.fragment.id,sourceCandidateId:a.candidates[0].id,targetFragmentId:b.fragment.id,targetCandidateId:b.candidates[0].id,kind:'equivalent',revoked:{reason:'one-way mismatch'}});
+ expect(f.session.reusablePeers(a.fragment.id)).toBe(0);expect(f.session.reusablePeers(b.fragment.id)).toBe(1);
+ f.writer.flush();const imported=fragmentFixture(':memory:',f.session.exportLegacy());fixtures.push(imported);
+ expect(imported.session.reusablePeers(a.fragment.id)).toBe(0);expect(imported.session.reusablePeers(b.fragment.id)).toBe(1);
+ expect(imported.session.reusablePeers(missing.fragment.id)).toBe(0);
 });
