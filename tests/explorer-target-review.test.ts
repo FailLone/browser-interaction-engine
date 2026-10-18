@@ -103,3 +103,29 @@ it('reviews relevant finite classification before yielding a selected child that
  expect(f.c.hasPendingAction).not.toHaveBeenCalled();
  f.classifications.controls[2].needsClassification=false;expect(await reviewNext(f.c)).toBe(false);expect(f.c.hasPendingAction).toHaveBeenCalled();
 });
+
+it.each(['control-risk','probe-risk'] as const)('yields after a bounded batch of negative %s decisions without dropping remaining duties',async purpose=>{
+ const f=fixture();f.c.priorityActionIds=[];f.host.session=()=>({options:{executionPolicy:'interface-only'}}) as any;
+ f.regions.enabled=false;f.regions.unassignedControlIds=[];f.regions.unassignedPageTraversal=false;
+ for(const item of f.operations.controls)item.needsReview=true;
+ if(purpose==='probe-risk')for(const item of f.operations.controls)item.reviews=[{status:'active',kind:'click'}];
+ const assessed:string[]=[];f.c.assess=vi.fn(async(p,state)=>{
+  assessed.push((state as any).control.localId);expect(p).toBe(purpose);
+  return {values:{interface_click:false,external_click:true,interface_hover:null,external_hover:null,interface_focus:null,external_focus:true},decision:{id:`decision-${assessed.length}`} as any};
+ });
+ f.c.reviewQuotaReached=()=>assessed.length>=2;
+ const plan=JSON.stringify(f.c.task.plan);
+ expect(await reviewNext(f.c)).toBe(true);expect(assessed).toEqual(['target','peer']);
+ expect(f.c.probe).not.toHaveBeenCalled();expect(f.c.apply).not.toHaveBeenCalled();
+ expect(JSON.stringify(f.c.task.plan)).toBe(plan);
+ expect(f.c.gap).toHaveBeenCalledWith(purpose==='probe-risk'?'probe_unresolved':'operation_risk_unresolved',expect.objectContaining({label:'target'}));
+ assessed.length=0;f.c.reviewQuotaReached=()=>assessed.length>=1;await reviewNext(f.c);expect(assessed).toEqual(['other']);
+});
+
+it('bounds uncertain operation descriptions under observed-ui without upgrading a tentative basis',async()=>{
+ const f=fixture();f.c.priorityActionIds=[];f.regions.enabled=false;f.regions.unassignedControlIds=[];f.regions.unassignedPageTraversal=false;
+ for(const item of f.operations.controls){item.needsReview=true;item.control.actionBasis.click={status:'tentative',evidence:[{source:'css',rule:'pointer-cursor/v1',facts:{cursor:'pointer'}}]};}
+ let requests=0;f.c.choose=vi.fn(async()=>({value:'uncertain',decision:{id:`description-${++requests}`} as any}));f.c.reviewQuotaReached=()=>requests>=2;
+ expect(await reviewNext(f.c)).toBe(true);expect(requests).toBe(2);expect(f.c.apply).not.toHaveBeenCalled();expect(f.c.probe).not.toHaveBeenCalled();
+ expect(f.c.gap).toHaveBeenCalledTimes(2);expect(f.controls.every(c=>c.actionBasis.click.status==='tentative')).toBe(true);
+});

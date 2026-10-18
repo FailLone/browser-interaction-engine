@@ -1,0 +1,15 @@
+{
+  "coverage-ledger.json": "23983ca125e454e0b3c5c2fe898ae1e08abe2eb9e072adc51b6a1ef86ac17ee0",
+  "decisions.json.gz": "9d33cb369c9325a342e2845cd595c954002173e8e0e25cc3432a93bda33ff71f",
+  "diagnostic.ts": "0e9e403c862390325ae4c6fe37b17a12491f99e945abfaf1f3d8e27ff005bfa3",
+  "persistence.tar.gz": "4b5a7fa31ffc1b7b8f208636c7dea95e5bdd2018131af1b538e3b2d54ed6220b",
+  "result.json": "382f1dced7d7135cd9b46cf1e93612a92a93361a6c3da0d78760852c75f795b9",
+  "site/index.html": "32bd6513c00da080624ad9b49ece2a3c10c1687c563b3c20f3c01ee0b26c4677",
+  "site/menu.jsx": "0463e62dbbca1842684c3bae2e6f8770dce6673383d2a3771cfff7f7ed7eb49b",
+  "source.json": "ce17cafa1f5a94787d3cb22ded9ee2da3a10e16711cca6dea0a48de32af4f2eb",
+  "stage2-react-probe-interpretation.json": "c57ee0cfac9e4a02e4ac9d3fc724adce8215849ec21e66c00e2aa3379994d47c",
+  "stage2-react-probe-interpretation.log": "a1210611b5666b2e072afb3d74a573a19ffea8d814c3da87760251ac0791e375",
+  "stage2-react-probe-interpretation.ts": "6b04bf1944d2752f34a01bde11e17276bf56b626fadfbdb8f0182d42b0348c3d",
+  "task-final.json": "c2ae12e06df28dea0152968965a21d3f863f5175cea30816421ee8b7e7ff8552",
+  "timeline.jsonl.gz": "38ca1e8e387b2a9550564ccbf27bb53b4b4a8ff51be930f51d1bf419bb6a4f22"
+}

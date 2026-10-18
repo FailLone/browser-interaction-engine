@@ -1,0 +1,416 @@
+{
+  "version": 1,
+  "policy": "finite-ui-v1",
+  "taskId": "b81fd46a-4acc-4ee8-94b0-7b6cbbbf8de9",
+  "coverageContract": {
+    "version": 1,
+    "mode": "exhaustive",
+    "roots": [
+      {
+        "url": "http://127.0.0.1:5173/"
+      }
+    ],
+    "exclusions": [],
+    "allowedOperations": [
+      "hover",
+      "focus"
+    ]
+  },
+  "claim": "Finite observed UI operation samples only; neither all condition combinations nor business effects are certified",
+  "finite": {
+    "obligations": [
+      {
+        "itemId": "ab8be30f-6dab-48b9-a9fa-c2283c0d859a",
+        "scope": {
+          "url": "http://127.0.0.1:5173/",
+          "landmark": "banner",
+          "region": "Public information",
+          "label": "Information menu",
+          "role": "generic",
+          "stableKey": "id:menu",
+          "targetBinding": "browser-target-binding:v1:48c759b9adbcf0da05cfcc774f88428d5912e11281e53207014949adf41e0f32",
+          "kind": "hover"
+        },
+        "status": "unresolved",
+        "reason": "execution_dependency_unproved",
+        "verified": false,
+        "discovery": [
+          {
+            "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+            "observationId": "2f8c19fc-433a-4c56-a8a4-1516fb0cef0c"
+          },
+          {
+            "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+            "observationId": "05956390-048a-42ee-bf73-06c2e8bfc8b2"
+          },
+          {
+            "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+            "observationId": "9dc6f7a4-c603-4947-89da-cde0fc2e7c62"
+          }
+        ],
+        "receiptReferences": []
+      }
+    ],
+    "total": 1,
+    "verified": 0,
+    "remaining": [
+      "ab8be30f-6dab-48b9-a9fa-c2283c0d859a"
+    ]
+  },
+  "conditionCombinations": {
+    "policy": "observed-condition-combinations-v1",
+    "exhaustive": false,
+    "rows": [
+      {
+        "key": "1b6e8fc7f9ec8b3b32bd0e2cc073d25bd3cf8e36c12711238ae078bac860f367",
+        "conditions": {
+          "url": "http://127.0.0.1:5173/",
+          "context": {},
+          "boundaries": [],
+          "controls": [
+            {
+              "reference": "browser-target-binding:v1:48c759b9adbcf0da05cfcc774f88428d5912e11281e53207014949adf41e0f32",
+              "key": "id:menu",
+              "tag": "div",
+              "role": "generic",
+              "name": "Information menu",
+              "visible": true,
+              "enabled": true,
+              "checked": null,
+              "expanded": false,
+              "pressed": null,
+              "selected": [],
+              "constraints": {
+                "type": "div",
+                "required": false,
+                "valid": true
+              }
+            }
+          ]
+        },
+        "sources": [
+          {
+            "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+            "observationId": "3fa01f89-18ad-4abc-a40c-4c5b4eb9fcc9"
+          },
+          {
+            "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+            "observationId": "3dc5de1d-1176-4c2c-bdb8-ef6d69b3915f"
+          },
+          {
+            "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+            "observationId": "2f8c19fc-433a-4c56-a8a4-1516fb0cef0c"
+          },
+          {
+            "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+            "observationId": "05956390-048a-42ee-bf73-06c2e8bfc8b2"
+          },
+          {
+            "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+            "observationId": "9dc6f7a4-c603-4947-89da-cde0fc2e7c62"
+          }
+        ],
+        "operations": {
+          "cb53cca5d69b2877078c17dbe40bc57259a18835df6d579a3f32a9071fa13622": {
+            "scope": {
+              "url": "http://127.0.0.1:5173/",
+              "landmark": "banner",
+              "region": "Public information",
+              "label": "Information menu",
+              "role": "generic",
+              "stableKey": "id:menu",
+              "targetBinding": "browser-target-binding:v1:48c759b9adbcf0da05cfcc774f88428d5912e11281e53207014949adf41e0f32",
+              "kind": "hover"
+            },
+            "observed": [
+              "3fa01f89-18ad-4abc-a40c-4c5b4eb9fcc9",
+              "3dc5de1d-1176-4c2c-bdb8-ef6d69b3915f",
+              "2f8c19fc-433a-4c56-a8a4-1516fb0cef0c",
+              "05956390-048a-42ee-bf73-06c2e8bfc8b2",
+              "9dc6f7a4-c603-4947-89da-cde0fc2e7c62"
+            ],
+            "executed": [],
+            "status": "observed_not_executed"
+          }
+        }
+      }
+    ],
+    "count": 1,
+    "meaning": "Exact observed conditions with actual before-frame execution evidence. Untested combinations and causal independence remain unproved."
+  },
+  "unknownDependencies": {
+    "status": "unproved",
+    "categories": [
+      "unobserved JavaScript dependencies",
+      "unobserved condition combinations",
+      "unbounded free-input values",
+      "unassessed business effects"
+    ],
+    "observations": [
+      {
+        "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+        "observationId": "3fa01f89-18ad-4abc-a40c-4c5b4eb9fcc9",
+        "code": "UNSUPPORTED_CANVAS",
+        "critical": false,
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "coverageScope": {
+          "version": "dom-subtree-v1",
+          "documentId": "fc65fd97-9085-4653-ba35-809fe6f8b67c",
+          "rootInstanceId": "fc65fd97-9085-4653-ba35-809fe6f8b67c:19",
+          "ancestorInstanceIds": [
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:18",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:3",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:7",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:4",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:8"
+          ],
+          "affectedControlIds": [],
+          "complete": true
+        }
+      },
+      {
+        "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+        "observationId": "3fa01f89-18ad-4abc-a40c-4c5b4eb9fcc9",
+        "code": "EVENT_LISTENER_COVERAGE",
+        "critical": false,
+        "message": "Complete delegated and addEventListener enumeration is unavailable. Current-element event metadata is only a hint; handler purpose and business effects are unknown. Focus and appearance alone do not establish an operation."
+      },
+      {
+        "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+        "observationId": "3dc5de1d-1176-4c2c-bdb8-ef6d69b3915f",
+        "code": "UNSUPPORTED_CANVAS",
+        "critical": false,
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "coverageScope": {
+          "version": "dom-subtree-v1",
+          "documentId": "fc65fd97-9085-4653-ba35-809fe6f8b67c",
+          "rootInstanceId": "fc65fd97-9085-4653-ba35-809fe6f8b67c:19",
+          "ancestorInstanceIds": [
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:18",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:3",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:7",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:4",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:8"
+          ],
+          "affectedControlIds": [],
+          "complete": true
+        }
+      },
+      {
+        "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+        "observationId": "3dc5de1d-1176-4c2c-bdb8-ef6d69b3915f",
+        "code": "EVENT_LISTENER_COVERAGE",
+        "critical": false,
+        "message": "Complete delegated and addEventListener enumeration is unavailable. Current-element event metadata is only a hint; handler purpose and business effects are unknown. Focus and appearance alone do not establish an operation."
+      },
+      {
+        "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+        "observationId": "2f8c19fc-433a-4c56-a8a4-1516fb0cef0c",
+        "code": "UNSUPPORTED_CANVAS",
+        "critical": false,
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "coverageScope": {
+          "version": "dom-subtree-v1",
+          "documentId": "fc65fd97-9085-4653-ba35-809fe6f8b67c",
+          "rootInstanceId": "fc65fd97-9085-4653-ba35-809fe6f8b67c:19",
+          "ancestorInstanceIds": [
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:18",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:3",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:7",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:4",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:8"
+          ],
+          "affectedControlIds": [],
+          "complete": true
+        }
+      },
+      {
+        "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+        "observationId": "2f8c19fc-433a-4c56-a8a4-1516fb0cef0c",
+        "code": "EVENT_LISTENER_COVERAGE",
+        "critical": false,
+        "message": "Complete delegated and addEventListener enumeration is unavailable. Current-element event metadata is only a hint; handler purpose and business effects are unknown. Focus and appearance alone do not establish an operation."
+      },
+      {
+        "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+        "observationId": "05956390-048a-42ee-bf73-06c2e8bfc8b2",
+        "code": "UNSUPPORTED_CANVAS",
+        "critical": false,
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "coverageScope": {
+          "version": "dom-subtree-v1",
+          "documentId": "fc65fd97-9085-4653-ba35-809fe6f8b67c",
+          "rootInstanceId": "fc65fd97-9085-4653-ba35-809fe6f8b67c:19",
+          "ancestorInstanceIds": [
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:18",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:3",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:7",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:4",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:8"
+          ],
+          "affectedControlIds": [],
+          "complete": true
+        }
+      },
+      {
+        "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+        "observationId": "05956390-048a-42ee-bf73-06c2e8bfc8b2",
+        "code": "EVENT_LISTENER_COVERAGE",
+        "critical": false,
+        "message": "Complete delegated and addEventListener enumeration is unavailable. Current-element event metadata is only a hint; handler purpose and business effects are unknown. Focus and appearance alone do not establish an operation."
+      },
+      {
+        "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+        "observationId": "9dc6f7a4-c603-4947-89da-cde0fc2e7c62",
+        "code": "UNSUPPORTED_CANVAS",
+        "critical": false,
+        "message": "CANVAS internals are outside V0.1 coverage",
+        "coverageScope": {
+          "version": "dom-subtree-v1",
+          "documentId": "fc65fd97-9085-4653-ba35-809fe6f8b67c",
+          "rootInstanceId": "fc65fd97-9085-4653-ba35-809fe6f8b67c:19",
+          "ancestorInstanceIds": [
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:18",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:3",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:7",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:4",
+            "fc65fd97-9085-4653-ba35-809fe6f8b67c:8"
+          ],
+          "affectedControlIds": [],
+          "complete": true
+        }
+      },
+      {
+        "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+        "observationId": "9dc6f7a4-c603-4947-89da-cde0fc2e7c62",
+        "code": "EVENT_LISTENER_COVERAGE",
+        "critical": false,
+        "message": "Complete delegated and addEventListener enumeration is unavailable. Current-element event metadata is only a hint; handler purpose and business effects are unknown. Focus and appearance alone do not establish an operation."
+      }
+    ]
+  },
+  "blockers": [
+    {
+      "itemId": "52000f6b-6e98-4e10-87ec-dc4fe63523be",
+      "scope": {
+        "url": "http://127.0.0.1:5173/"
+      },
+      "status": "unresolved",
+      "reason": "caller_contract_root",
+      "evidence": []
+    },
+    {
+      "itemId": "88643753-4795-4d61-ab42-93f017849b0a",
+      "scope": {
+        "url": "http://127.0.0.1:5173/"
+      },
+      "status": "unresolved",
+      "reason": "missing_capability:UNSUPPORTED_CANVAS",
+      "evidence": [
+        {
+          "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+          "observationId": "3fa01f89-18ad-4abc-a40c-4c5b4eb9fcc9"
+        }
+      ]
+    },
+    {
+      "itemId": "89e844d8-1e2e-4be8-ad72-553d913709d3",
+      "scope": {
+        "url": "http://127.0.0.1:5173/",
+        "landmark": "banner",
+        "region": "Public information",
+        "label": "Information menu",
+        "role": "generic",
+        "stableKey": "id:menu",
+        "targetBinding": "browser-target-binding:v1:48c759b9adbcf0da05cfcc774f88428d5912e11281e53207014949adf41e0f32"
+      },
+      "status": "unresolved",
+      "reason": "operation_risk_unresolved",
+      "evidence": [
+        {
+          "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+          "observationId": "2f8c19fc-433a-4c56-a8a4-1516fb0cef0c"
+        }
+      ]
+    },
+    {
+      "itemId": "2bce61f6-baf4-4595-9138-9162648baf15",
+      "scope": {
+        "url": "http://127.0.0.1:5173/",
+        "landmark": "banner",
+        "region": "Public information",
+        "label": "Information menu",
+        "role": "generic",
+        "stableKey": "id:menu",
+        "targetBinding": "browser-target-binding:v1:48c759b9adbcf0da05cfcc774f88428d5912e11281e53207014949adf41e0f32"
+      },
+      "status": "unresolved",
+      "reason": "probe_unresolved",
+      "evidence": [
+        {
+          "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+          "observationId": "2f8c19fc-433a-4c56-a8a4-1516fb0cef0c"
+        }
+      ]
+    },
+    {
+      "itemId": "d7362805-22b1-474f-854f-e2d94c57bd04",
+      "scope": {
+        "url": "http://127.0.0.1:5173/",
+        "landmark": "banner",
+        "region": "Public information",
+        "label": "Information menu",
+        "role": "generic",
+        "stableKey": "id:menu",
+        "targetBinding": "browser-target-binding:v1:48c759b9adbcf0da05cfcc774f88428d5912e11281e53207014949adf41e0f32"
+      },
+      "status": "unresolved",
+      "reason": "operation_basis_unconfirmed",
+      "evidence": [
+        {
+          "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+          "observationId": "2f8c19fc-433a-4c56-a8a4-1516fb0cef0c"
+        },
+        {
+          "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+          "observationId": "05956390-048a-42ee-bf73-06c2e8bfc8b2"
+        },
+        {
+          "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+          "observationId": "9dc6f7a4-c603-4947-89da-cde0fc2e7c62"
+        }
+      ]
+    },
+    {
+      "itemId": "ab8be30f-6dab-48b9-a9fa-c2283c0d859a",
+      "scope": {
+        "url": "http://127.0.0.1:5173/",
+        "landmark": "banner",
+        "region": "Public information",
+        "label": "Information menu",
+        "role": "generic",
+        "stableKey": "id:menu",
+        "targetBinding": "browser-target-binding:v1:48c759b9adbcf0da05cfcc774f88428d5912e11281e53207014949adf41e0f32",
+        "kind": "hover"
+      },
+      "status": "unresolved",
+      "reason": "execution_dependency_unproved",
+      "evidence": [
+        {
+          "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+          "observationId": "2f8c19fc-433a-4c56-a8a4-1516fb0cef0c"
+        },
+        {
+          "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+          "observationId": "05956390-048a-42ee-bf73-06c2e8bfc8b2"
+        },
+        {
+          "sessionId": "aa96a460-e224-4a9f-8402-2866af8cdcd1",
+          "observationId": "9dc6f7a4-c603-4947-89da-cde0fc2e7c62"
+        }
+      ]
+    }
+  ],
+  "unsuccessfulExecutions": [],
+  "recovery": []
+}

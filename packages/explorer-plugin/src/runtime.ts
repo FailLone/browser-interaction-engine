@@ -1281,8 +1281,10 @@ export class ExplorerPlugin {
     };
     const reviewTarget=reviewSelection&&reviewSelection.kind!=='current'
       ?currentObligationTarget(this.host,task.plan.find(item=>item.id===reviewSelection.itemId),o,this.host.actions(sid,o.id)):undefined;
+    const modelRequestsBefore=task.usage.modelRequests;
     const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id),unresolvedBefore=new Set(Object.keys(round.unresolvedPurposeReviews||{})),unresolvedReviews:UnresolvedReview[]=[];
     try { const reviewed=await reviewNext({host:this.host,task,observation:o,
+      reviewQuotaReached:()=>task.usage.modelRequests-modelRequestsBefore>=2,
       allowIndependentActionYield:(round.consecutiveReviewSteps??0)>=2,
       priorityActionIds:reviewTarget?.currentActionId?[reviewTarget.currentActionId]:undefined,
       allowPriorityActionYield:!!reviewTarget&&(reviewTarget.reason==='current_target_observed'||!!reviewTarget.source&&!!reviewTarget.correspondence),

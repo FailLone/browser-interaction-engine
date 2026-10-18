@@ -1,16 +1,16 @@
 {
   "status": "active_not_complete",
-  "productRevision": "3698f0522f145c3f08869c848f6df8948fc7b11a",
+  "productRevision": "0b025cd1aa7e5e1b1750bcc27ec842b55bf0dc61",
   "localFrozenConfirmation": {
     "sameSourceHashes": true,
-    "sourceFiles": 491,
+    "sourceFiles": 492,
     "emptyDiffs": true,
     "runs": [
       {
-        "name": "stage2-local-7",
-        "result": "evidence/stage2-local-7/result.json",
+        "name": "stage2-local-11",
+        "result": "evidence/stage2-local-11/result.json",
         "passed": true,
-        "elapsedMs": 49775,
+        "elapsedMs": 47802,
         "commands": 34,
         "branches": 23,
         "finiteVerified": 37,
@@ -31,10 +31,10 @@
         "continuedOriginalPending": 15
       },
       {
-        "name": "stage2-local-8-confirmation",
-        "result": "evidence/stage2-local-8-confirmation/result.json",
+        "name": "stage2-local-12-confirmation",
+        "result": "evidence/stage2-local-12-confirmation/result.json",
         "passed": true,
-        "elapsedMs": 53103,
+        "elapsedMs": 49458,
         "commands": 34,
         "branches": 23,
         "finiteVerified": 37,
@@ -57,16 +57,25 @@
     ]
   },
   "focusedTests": {
-    "passed": 83,
-    "log": "stage2-focused-7.log"
+    "passed": 174,
+    "total": 175,
+    "log": "stage2-focused-9.log",
+    "knownFailure": "shares document projections across target keys without changing captured facts",
+    "baselineProof": "stage2-review-projection-baseline.log",
+    "baselineRevision": "87ab6eb",
+    "separatePurposeReuse": {
+      "passed": 11,
+      "total": 11,
+      "log": "stage2-purpose-reuse-1.log"
+    }
   },
-  "typecheck": "stage2-types-17.log",
+  "typecheck": "stage2-types-20.log",
   "broadTests": {
     "tests": 251,
     "passed": 206,
     "failed": 45,
     "newFailures": 0,
-    "comparison": "stage2-broad-summary-5.json"
+    "comparison": "stage2-broad-summary-7.json"
   },
   "scopeAuthorization": "stage2-scope-consistency.json",
   "failedRunsPreserved": [
@@ -84,14 +93,23 @@
     "frozenConfirmationProved": false,
     "result": "evidence/stage2-okx-3/result.json",
     "elapsedMs": 213204,
-    "actions": 5
+    "actions": 5,
+    "evaluatedProductRevision": "3698f05",
+    "currentProductEvaluated": false
   },
   "completion": "Not achieved: real OKX strict chain and independent confirmation remain mandatory.",
   "diagnostics": {
-    "path": "evidence/stage2-probe-diagnostics",
-    "offlineModelConclusion": "uncertain; no probe permission",
-    "readOnlyBrowserCommands": 1,
+    "minimalDelegatedMenu": "evidence/stage2-react-menu-1",
+    "actualMenuExpansion": false,
+    "realModelProbe": "uncertain",
+    "calls": {
+      "jev": 3,
+      "llmSupplement": 1
+    },
+    "browserCommands": 1,
     "browserInteractions": 0,
-    "observedGap": "Own current React event props are absent from existing action collector. No implementation or execution authorization yet."
+    "phaseComparison": "stage2-phase-comparison.json",
+    "CSSInspection": "evidence/stage2-hover-css-diagnostics",
+    "next": "Resolve observation admission contract with an explicit, auditable bounded-probe design; no speculative repeated full OKX evaluation."
   }
 }

@@ -1,0 +1,332 @@
+{
+  "runs": [
+    {
+      "run": "stage2-okx-1",
+      "elapsedMs": 215142,
+      "commands": 7,
+      "firstNavigationAfterStartupMs": null,
+      "navigationsAfterStartup": [],
+      "firstToLastCandidateCounts": [
+        {
+          "observationId": "6430b53d-8d04-4d92-997e-cc4aa2d32df6",
+          "controls": 290,
+          "visibleControls": 222,
+          "tentativeControls": 2,
+          "headerControls": 70
+        },
+        {
+          "observationId": "afea6a57-18ef-45df-9a35-dd5be052632a",
+          "controls": 282,
+          "visibleControls": 217,
+          "tentativeControls": 2,
+          "headerControls": 70
+        }
+      ],
+      "modelStages": {
+        "region-review": {
+          "requests": 16,
+          "returned": 16,
+          "elapsedMsSum": 13478,
+          "gateSatisfied": 0,
+          "undetermined": 0
+        },
+        "control-classification": {
+          "requests": 29,
+          "returned": 29,
+          "elapsedMsSum": 17086,
+          "gateSatisfied": 0,
+          "undetermined": 0
+        },
+        "classification-clarification": {
+          "requests": 1,
+          "returned": 1,
+          "elapsedMsSum": 6271,
+          "gateSatisfied": 0,
+          "undetermined": 0
+        },
+        "control-risk": {
+          "requests": 2,
+          "returned": 2,
+          "elapsedMsSum": 2228,
+          "gateSatisfied": 0,
+          "undetermined": 2
+        },
+        "probe-risk": {
+          "requests": 4,
+          "returned": 4,
+          "elapsedMsSum": 1878,
+          "gateSatisfied": 0,
+          "undetermined": 4
+        },
+        "followup-strategy": {
+          "requests": 1,
+          "returned": 1,
+          "elapsedMsSum": 2290,
+          "gateSatisfied": 0,
+          "undetermined": 0
+        }
+      },
+      "captureElapsedMsSum": null,
+      "captureTimingNote": "Not instrumented in original run; no fabricated collection-duration attribution",
+      "identityPostResolutionTailsMs": [
+        4143,
+        4562,
+        4611,
+        4598,
+        4137
+      ],
+      "identityTailNote": "Engine identity.resolved to plugin program.review; includes capture and bookkeeping, excludes preflight and is not a pure capture measurement",
+      "menuExecutions": [],
+      "newVisibleNavigationHrefs": [],
+      "actualBrowserDispatches": 5,
+      "sdkProbeDispatchEvents": 0,
+      "strictChains": 0,
+      "riskGateNote": "gateSatisfied counts model conjunctions before SDK checks; never execution permission or a successful dispatch",
+      "retainedFinite": {
+        "total": 194,
+        "verified": 3,
+        "remaining": 191
+      },
+      "status": "paused"
+    },
+    {
+      "run": "stage2-okx-2",
+      "elapsedMs": 213379,
+      "commands": 5,
+      "firstNavigationAfterStartupMs": null,
+      "navigationsAfterStartup": [],
+      "firstToLastCandidateCounts": [
+        {
+          "observationId": "1ea434a0-cc77-4555-8945-a93d82767d1d",
+          "controls": 291,
+          "visibleControls": 223,
+          "tentativeControls": 2,
+          "headerControls": 70
+        },
+        {
+          "observationId": "fba455f9-f3b9-45f0-8723-a4ff7c512158",
+          "controls": 282,
+          "visibleControls": 217,
+          "tentativeControls": 2,
+          "headerControls": 70
+        }
+      ],
+      "modelStages": {
+        "region-review": {
+          "requests": 14,
+          "returned": 14,
+          "elapsedMsSum": 11735,
+          "gateSatisfied": 0,
+          "undetermined": 0
+        },
+        "control-classification": {
+          "requests": 28,
+          "returned": 28,
+          "elapsedMsSum": 14941,
+          "gateSatisfied": 0,
+          "undetermined": 0
+        },
+        "classification-clarification": {
+          "requests": 1,
+          "returned": 1,
+          "elapsedMsSum": 3685,
+          "gateSatisfied": 0,
+          "undetermined": 0
+        },
+        "control-risk": {
+          "requests": 7,
+          "returned": 6,
+          "elapsedMsSum": 4458,
+          "gateSatisfied": 0,
+          "undetermined": 3
+        },
+        "probe-risk": {
+          "requests": 2,
+          "returned": 2,
+          "elapsedMsSum": 840,
+          "gateSatisfied": 0,
+          "undetermined": 2
+        },
+        "operation-clarification": {
+          "requests": 1,
+          "returned": 1,
+          "elapsedMsSum": 4948,
+          "gateSatisfied": 0,
+          "undetermined": 0
+        }
+      },
+      "captureElapsedMsSum": null,
+      "captureTimingNote": "Not instrumented in original run; no fabricated collection-duration attribution",
+      "identityPostResolutionTailsMs": [
+        4002,
+        4543,
+        4570,
+        4567,
+        4624,
+        4615,
+        4617,
+        4656,
+        4662,
+        4715
+      ],
+      "identityTailNote": "Engine identity.resolved to plugin program.review; includes capture and bookkeeping, excludes preflight and is not a pure capture measurement",
+      "menuExecutions": [],
+      "newVisibleNavigationHrefs": [],
+      "actualBrowserDispatches": 4,
+      "sdkProbeDispatchEvents": 0,
+      "strictChains": 0,
+      "riskGateNote": "gateSatisfied counts model conjunctions before SDK checks; never execution permission or a successful dispatch",
+      "retainedFinite": {
+        "total": 193,
+        "verified": 3,
+        "remaining": 190
+      },
+      "status": "paused"
+    },
+    {
+      "run": "stage2-okx-3",
+      "elapsedMs": 213204,
+      "commands": 5,
+      "firstNavigationAfterStartupMs": null,
+      "navigationsAfterStartup": [],
+      "firstToLastCandidateCounts": [
+        {
+          "observationId": "7cdecd0a-cdfe-4163-bdd9-d819503a9316",
+          "controls": 291,
+          "visibleControls": 223,
+          "tentativeControls": 2,
+          "headerControls": 70
+        },
+        {
+          "observationId": "636e8a61-b786-4e55-bb94-cd33a369ef45",
+          "controls": 282,
+          "visibleControls": 217,
+          "tentativeControls": 2,
+          "headerControls": 70
+        }
+      ],
+      "modelStages": {
+        "control-classification": {
+          "requests": 28,
+          "returned": 28,
+          "elapsedMsSum": 17416,
+          "gateSatisfied": 0,
+          "undetermined": 0
+        },
+        "classification-clarification": {
+          "requests": 1,
+          "returned": 1,
+          "elapsedMsSum": 4994,
+          "gateSatisfied": 0,
+          "undetermined": 0
+        },
+        "control-risk": {
+          "requests": 14,
+          "returned": 14,
+          "elapsedMsSum": 7852,
+          "gateSatisfied": 0,
+          "undetermined": 3
+        },
+        "probe-risk": {
+          "requests": 34,
+          "returned": 33,
+          "elapsedMsSum": 15563,
+          "gateSatisfied": 0,
+          "undetermined": 33
+        },
+        "operation-clarification": {
+          "requests": 1,
+          "returned": 1,
+          "elapsedMsSum": 4491,
+          "gateSatisfied": 0,
+          "undetermined": 0
+        }
+      },
+      "captureElapsedMsSum": null,
+      "captureTimingNote": "Not instrumented in original run; no fabricated collection-duration attribution",
+      "identityPostResolutionTailsMs": [
+        4000,
+        4266,
+        4233,
+        4257,
+        4312,
+        4304,
+        4305,
+        4382,
+        4360,
+        4383
+      ],
+      "identityTailNote": "Engine identity.resolved to plugin program.review; includes capture and bookkeeping, excludes preflight and is not a pure capture measurement",
+      "menuExecutions": [],
+      "newVisibleNavigationHrefs": [],
+      "actualBrowserDispatches": 4,
+      "sdkProbeDispatchEvents": 0,
+      "strictChains": 0,
+      "riskGateNote": "gateSatisfied counts model conjunctions before SDK checks; never execution permission or a successful dispatch",
+      "retainedFinite": {
+        "total": 193,
+        "verified": 3,
+        "remaining": 190
+      },
+      "status": "paused"
+    },
+    {
+      "run": "stage2-react-menu-1",
+      "elapsedMs": 4320,
+      "commands": 1,
+      "firstNavigationAfterStartupMs": null,
+      "navigationsAfterStartup": [],
+      "firstToLastCandidateCounts": [
+        {
+          "observationId": "3fa01f89-18ad-4abc-a40c-4c5b4eb9fcc9",
+          "controls": 3,
+          "visibleControls": 1,
+          "tentativeControls": 1,
+          "headerControls": 3
+        },
+        {
+          "observationId": "9dc6f7a4-c603-4947-89da-cde0fc2e7c62",
+          "controls": 3,
+          "visibleControls": 1,
+          "tentativeControls": 1,
+          "headerControls": 3
+        }
+      ],
+      "modelStages": {
+        "control-classification": {
+          "requests": 1,
+          "returned": 1,
+          "elapsedMsSum": 1123,
+          "gateSatisfied": 0,
+          "undetermined": 0
+        },
+        "control-risk": {
+          "requests": 1,
+          "returned": 1,
+          "elapsedMsSum": 478,
+          "gateSatisfied": 0,
+          "undetermined": 0
+        },
+        "probe-risk": {
+          "requests": 1,
+          "returned": 1,
+          "elapsedMsSum": 426,
+          "gateSatisfied": 0,
+          "undetermined": 1
+        }
+      },
+      "captureElapsedMsSum": 1707,
+      "captureTimingNote": "Directly instrumented",
+      "identityPostResolutionTailsMs": [],
+      "identityTailNote": "Engine identity.resolved to plugin program.review; includes capture and bookkeeping, excludes preflight and is not a pure capture measurement",
+      "menuExecutions": [],
+      "newVisibleNavigationHrefs": [],
+      "actualBrowserDispatches": 0,
+      "sdkProbeDispatchEvents": 0,
+      "strictChains": null,
+      "riskGateNote": "gateSatisfied counts model conjunctions before SDK checks; never execution permission or a successful dispatch",
+      "retainedFinite": null,
+      "status": "blocked"
+    }
+  ]
+}

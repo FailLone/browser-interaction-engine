@@ -17,6 +17,8 @@ export interface ReviewContext {
   allowIndependentActionYield?:boolean;
   /** Current SDK-corresponding child actions. Ordering only; never execution permission. */
   priorityActionIds?:readonly string[];
+  /** Yield only after a complete review unit; prepared host batches must flush first. */
+  reviewQuotaReached?():boolean;
   choose(purpose:string,instructions:string,state:unknown,options:Record<string,unknown>,constraints?:ChoiceConstraints):Promise<{value:string;decision:Decision}>;
   assess(purpose:string,state:unknown,checks:NonNullable<ModelRequest['checks']>):Promise<{values:Record<string,boolean|null>;decision:Decision}>;
   refresh(decision:Decision,key:string):Promise<boolean>;
@@ -322,7 +324,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       if(d.value==='uncertain'){for(const control of current)c.gap('identity_unresolved',scopeForControl(control,o));d={value:'independent',decision:d.decision};}
     }
     mark(key);
-    if(d.value==='uncertain'){for(const control of current)c.gap('identity_unresolved',scopeForControl(control,o));continue;}
+    if(d.value==='uncertain'){for(const control of current)c.gap('identity_unresolved',scopeForControl(control,o));if(c.reviewQuotaReached?.())return true;continue;}
     await c.apply(d.decision,{type:'resolveIdentity',hypothesisId:h.id,identityId:d.value==='independent'?h.provisionalIdentityId:d.value,source,evidence:evidence(d.decision),guard:{observationId:o.id,revision:h.revisions.length}});return true;
   }
   // Missing input content is separate from operation permission. Native supported
@@ -336,7 +338,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(done(key))continue;
     const generated=await c.generate('input-samples','Supply a small bounded set of synthetic input strings matching the captured field constraints. This only supplies content for an already supported fill operation; it does not approve risk, authorize submission, predict behavior or claim execution. Do not supply credentials, personal data or payment information. Return an empty list if no appropriate sample can be supplied.',{observationId:o.id,goal:task.goal,control:target,kind:'fill',constraints:target.constraints,missing:'input_sample_required'},z.object({samples:z.array(z.string()).max(5)}).strict());
     mark(key);
-    if(!generated.value.samples.length){c.gap('input_samples_unavailable',scopeForControl(target,o));continue;}
+    if(!generated.value.samples.length){c.gap('input_samples_unavailable',scopeForControl(target,o));if(c.reviewQuotaReached?.())return true;continue;}
     await c.apply(generated.decision,{type:'reviewControls',review:{observationId:o.id,source:'explorer-input-samples',reviews:[{localId:target.localId,kind:'fill',risk:action.risk,replayable:false,samples:[...new Set(generated.value.samples)],reason:'Supply content for an already supported fill; retain its existing risk and validate constraints at dispatch',evidence:[`observation:${o.id}`,`action:${action.id}`,...evidence(generated.decision)]}]}});return true;
   }
   const control=readOperations();
@@ -357,14 +359,14 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
         if(!complete&&await c.refresh(selected.decision,`operation:${o.instanceScope}:${item.control.instanceId}`))return true;
         if(complete)selected=await c.clarify({key:`operation-description:${item.control.instanceId}`,purpose:'operation-description',parent:selected.decision,operation:false,options,evidence:{current:item.control,offeredOperations:offered,...(surroundings?{surroundings}:{})},requiredEvidence:Object.fromEntries(Object.keys(offered).map(kind=>[kind,['current','offeredOperations',...(surroundings?['surroundings']:[])]])),instructions:'Resolve the remaining operation/target ambiguity using the captured own-node basis and complete structure. Select only an offered operation on the current target; do not promote a container because its descendants are interactive. This is a description for bounded exploration, not a pure-UI risk certificate or a prediction of correct behavior. Do not infer business authorization, invent input capabilities or claim execution occurred. Return uncertain if the evidence still does not distinguish the target operation.'});
       }
-      if(!Object.hasOwn(offered,selected.value)){mark(key);c.gap('operation_basis_unconfirmed',scopeForControl(item.control,o));continue;}
+      if(!Object.hasOwn(offered,selected.value)){mark(key);c.gap('operation_basis_unconfirmed',scopeForControl(item.control,o));if(c.reviewQuotaReached?.())return true;continue;}
       let samples:(string|boolean)[]|undefined;const decisions=[selected.decision];
       if(['fill','select','press','check'].includes(selected.value)){
         samples=[...new Set(item.actions.filter(a=>a.kind===selected.value&&a.risk!=='submission'&&typeof a.value===(selected.value==='check'?'boolean':'string')).map(a=>a.value as string|boolean))];
         if(!samples.length&&['fill','press'].includes(selected.value)){
           const generated=await c.generate('input-samples','Supply a small bounded set of input values compatible with the captured field constraints and exploration task. Do not supply credentials, personal data, authentication, payment or submission commands. Samples are proposed input content, not claims of expected functional outcomes.',{observationId:o.id,goal:task.goal,control:item.control,kind:selected.value},z.object({samples:z.array(z.string()).min(1).max(5)}).strict());samples=generated.value.samples;decisions.push(generated.decision);
         }
-        if(!samples.length){mark(key);c.gap('input_samples_unavailable',scopeForControl(item.control,o));continue;}
+        if(!samples.length){mark(key);c.gap('input_samples_unavailable',scopeForControl(item.control,o));if(c.reviewQuotaReached?.())return true;continue;}
       }
       mark(key);await c.apply(decisions,{type:'reviewControls',review:{observationId:o.id,source,reviews:[{localId:item.control.localId,kind:selected.value,risk:'unknown',replayable:false,...(samples?{samples}:{}),...(surroundings?{surroundingContextKey:surroundings.key}:{}),reason:'Describe a captured operation on the current instance; effects remain unassessed',evidence:decisions.flatMap(evidence)}]}});return true;
     }
@@ -408,7 +410,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
         const clarified=await c.clarify({key:`risk:${item.control.instanceId}`,purpose:'operation-clarification',parent:judged.decision,operation:true,instructions:'Resolve the remaining purpose ambiguity for one offered operation. Establish its interface effect from the captured relationship or controlled content, and separately rule out an external/business write. A popup or shared-container relationship is evidence to interpret, not automatic permission. Neighboring inputs do not imply a clear operation; establish the specific effect from all facts and do not infer safety from a label. Return uncertain if either effect remains unclear.',options:{...Object.fromEntries(Object.keys(effects).map(k=>[k,`Review ${k} as interface-only if evidenced`])),uncertain:'Cannot establish a safe interface-only purpose'},evidence:{current:item.control,actions:semanticActions(item.actions),...Object.fromEntries(Object.entries(effects).map(([k,v])=>[`effect:${k}`,v]))},requiredEvidence:Object.fromEntries(Object.keys(effects).map(k=>[k,['current','actions',`effect:${k}`]]))});
         if(clarified.value!=='uncertain'){kind=clarified.value;decision=clarified.decision;}
       }
-      if(!kind){mark(key);(round.unresolvedPurposeReviews??={})[unresolvedKey]={decisionId:decision.id,observationId:o.id};c.gap('operation_risk_unresolved',scopeForControl(item.control,o));c.unresolvedReview?.({localId:item.control.localId,decisionId:decision.id,kind:'purpose'});continue;}
+      if(!kind){mark(key);(round.unresolvedPurposeReviews??={})[unresolvedKey]={decisionId:decision.id,observationId:o.id};c.gap('operation_risk_unresolved',scopeForControl(item.control,o));c.unresolvedReview?.({localId:item.control.localId,decisionId:decision.id,kind:'purpose'});if(c.reviewQuotaReached?.())return true;continue;}
     }
     const d={value:kind,decision};mark(key);
     const contextBinding=surroundings?.complete?{surroundingContextKey:surroundings.key}:{};
@@ -432,6 +434,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
         const generated=await c.generate('purpose-description','Describe only the evidenced list purpose and business scope.',{observationId:o.id,condition},z.object({purpose:z.string().min(1),businessScope:z.string().min(1)}).strict());
         await c.apply(generated.decision,{type:'reviewListPurpose',review:{...generated.value,groupId:group.id,revision:group.revision,observationId:o.id,conditionKey:condition.key,source,evidence:[...evidence(d.decision),...evidence(generated.decision)],risk:'interface',reuse:'matching-list-members'}});return true;
       }
+      if(c.reviewQuotaReached?.())return true;
     }
   }
   // An interactive classification does not resolve purpose. A bounded probe has
@@ -455,7 +458,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     }
     const d=await c.assess('probe-risk',{observationId:o.id,control:item.control,actions:semanticActions(item.actions),limit:'One explicit observation probe per current element in this document and round. No automatic replay or click authorization.'},checks);mark(key);
     const kind=(['hover','focus'] as const).find(k=>d.values[`interface_${k}`]===true&&d.values[`external_${k}`]===false);
-    if(!kind){c.gap('probe_unresolved',scopeForControl(item.control,o));c.unresolvedReview?.({localId:item.control.localId,decisionId:d.decision.id,kind:'probe'});continue;}
+    if(!kind){c.gap('probe_unresolved',scopeForControl(item.control,o));c.unresolvedReview?.({localId:item.control.localId,decisionId:d.decision.id,kind:'probe'});if(c.reviewQuotaReached?.())return true;continue;}
     await c.probe(d.decision,item.control.localId,kind);return true;
   }
   if(focused)continue;
@@ -482,7 +485,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
         interface_exit:{instructions:'Does the captured boundary and candidate evidence support a bounded attempt at interface-only cancellation by clicking this outside surface? Geometry alone does not establish the click effect; do not infer a successful closure or approve any business operation.'},
         external_exit:{instructions:'Is there evidence that this candidate click submits, purchases, deletes, authenticates, or otherwise writes external/business state? Judge independently of whether it might also close the popup.'},
       });
-      if(judgment.values.interface_exit!==true||judgment.values.external_exit!==false){mark(key);continue;}
+      if(judgment.values.interface_exit!==true||judgment.values.external_exit!==false){mark(key);if(c.reviewQuotaReached?.())return true;continue;}
       mark(key);await c.apply(judgment.decision,{type:'reviewBoundaryExit',review:{observationId:o.id,boundaryKey:boundary.key,source,evidence:evidence(judgment.decision),decision:{mode:'attempt',candidateId:candidate.id,preserveControlIds:preserved.map(control=>control.localId)}}});return true;
     }
     c.gap('boundary_exit_unresolved',{url:o.url,region:exits.boundary?.name});return false;
