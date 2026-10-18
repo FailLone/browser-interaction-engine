@@ -1,0 +1,75 @@
+{
+  "status": "storage pre-policy integration; real OKX not yet renewed",
+  "files": [
+    {
+      "input": ".data/broader-ui/storage-prep/codec-1.log",
+      "archive": "shared-storage-codec-1.log.gz",
+      "sha256": "cb0001ef5eb4151bc9e9d287fb7264afa2adc57741a6307558e883156b58dc12"
+    },
+    {
+      "input": ".data/broader-ui/storage-prep/storage-1.log",
+      "archive": "shared-storage-storage-1.log.gz",
+      "sha256": "22591fdcb5d729741b0e080f334c77459fbf97deb6b95474e9510b9c5da79f5b"
+    },
+    {
+      "input": ".data/broader-ui/storage-prep/storage-2.log",
+      "archive": "shared-storage-storage-2.log.gz",
+      "sha256": "e57cba704bc3848632b1297a7a931364b0ecc66f99f977a516e5888f0fb45cf8"
+    },
+    {
+      "input": ".data/broader-ui/storage-prep/storage-3.log",
+      "archive": "shared-storage-storage-3.log.gz",
+      "sha256": "d8c7455a42367288b0c5410a055d9cc64bd29787fcd7e8ee2857c544d860c101"
+    },
+    {
+      "input": ".data/broader-ui/storage-prep/browser-1.log",
+      "archive": "shared-storage-browser-1.log.gz",
+      "sha256": "f2899ff31cf0f57dad308a7e546d1bab741f497373c0b147f4d14c0cb81d43b1"
+    },
+    {
+      "input": ".data/broader-ui/storage-prep/storage-focused-1.log",
+      "archive": "shared-storage-storage-focused-1.log.gz",
+      "sha256": "32fbdfb8b583bdb35b0454897c679b722e3daad3cd1fbe27dc29d8e85867335f"
+    },
+    {
+      "input": ".data/broader-ui/storage-prep/storage-packed-1.log",
+      "archive": "shared-storage-storage-packed-1.log.gz",
+      "sha256": "38118025338ca547f699af83dc8c141b74bd143fadde26c7061f4d6225ef32f5"
+    },
+    {
+      "input": ".data/broader-ui/storage-prep/storage-packed-2.log",
+      "archive": "shared-storage-storage-packed-2.log.gz",
+      "sha256": "5cfca2dc0f853e6ae892dbc1a3f3536d95c7d7753b82d41c503ccade8807cb46"
+    },
+    {
+      "input": ".data/broader-ui/storage-prep/storage-focused-2.log",
+      "archive": "shared-storage-storage-focused-2.log.gz",
+      "sha256": "69de8bdefe649343a2df4a055fd351ea7d1af0600d284ae0b841fe9d77952ce4"
+    },
+    {
+      "input": ".data/broader-ui/storage-prep/types-5.log",
+      "archive": "shared-storage-types-5.log.gz",
+      "sha256": "39fe5975cee7d32092db1ba50229596db0ee9a5a133742de09db609fe896902c"
+    },
+    {
+      "input": ".data/broader-ui/storage-prep/production-bench-1/results.json",
+      "archive": "shared-storage-production-bench-1-results.json.gz",
+      "sha256": "060fb7cc556dd393cf4d2f0daaf09cd8b31af066b59e9db1e6420c559091efbb"
+    },
+    {
+      "input": ".data/broader-ui/storage-prep/production-bench-2/results.json",
+      "archive": "shared-storage-production-bench-2-results.json.gz",
+      "sha256": "9b6f582f0b8e958d345a493dc2e78b83e34bfd19489b11e1610bab10eee9e259"
+    },
+    {
+      "input": ".data/broader-ui/storage-prep/production-bench-3/results.json",
+      "archive": "shared-storage-production-bench-3-results.json.gz",
+      "sha256": "008ccfc3d70cddb697aafad802f5e7509014ad900077f2e842383258902446fa"
+    },
+    {
+      "input": ".data/broader-ui/storage-prep/baseline-574a/source.json",
+      "archive": "shared-storage-baseline-574a-source.json.gz",
+      "sha256": "5198187dd6c9f9ee6a68407fc982b4b597e80a93c872c6a64bc30ef6f61164a1"
+    }
+  ]
+}

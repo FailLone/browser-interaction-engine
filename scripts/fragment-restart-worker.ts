@@ -14,16 +14,16 @@ engine.execute=async(...args)=>{
  const action=engine.actions(args[0]).find(a=>a.id===args[1]);
  if(phase==='crash'&&action?.label==='Unique destination'){
    // The plugin has durably stored dispatch intent; kill before any SDK receipt.
-   writeFileSync(join(dir,'crash-intent.json'),JSON.stringify(store.task(id)));process.exit(76);
+   writeFileSync(join(dir,'crash-intent.json'),JSON.stringify({...store.task(id),fragmentTraversal:store.exportFragments(id)}));process.exit(76);
  }
  return execute(...args);
 };
 const timer=setInterval(()=>{
  if(phase!=='first'||stopping)return;
  const task=store.task(id);
- if((task.fragmentTraversal?.events.length||0)>=2&&!task.pendingDispatch){stopping=true;pause=plugin.pause(id);}
+ if((store.fragmentRecords.stats(id).events||0)>=2&&!task.pendingDispatch){stopping=true;pause=plugin.pause(id);}
 },10);
 try{
  plugin.start(id);await plugin.waitForIdle(id);await pause;
- writeFileSync(join(dir,`task-${phase}.json`),JSON.stringify({pid:process.pid,task:store.task(id),events:store.events(id),attempts:store.task(id).rounds.flatMap(r=>engine.list(r.sessionId,'attempt'))}));
+ writeFileSync(join(dir,`task-${phase}.json`),JSON.stringify({pid:process.pid,task:{...store.task(id),fragmentTraversal:store.exportFragments(id)},events:store.events(id),attempts:store.task(id).rounds.flatMap(r=>engine.list(r.sessionId,'attempt'))}));
 }finally{clearInterval(timer);await plugin.close();await engine.close();}

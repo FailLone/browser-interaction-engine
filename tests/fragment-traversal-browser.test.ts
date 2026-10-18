@@ -1,4 +1,8 @@
-import {expect,it} from 'vitest';
+import {afterEach,expect,it} from 'vitest';
+import {fragmentFixture} from './fragment-storage-helpers.js';
+const ledgers:ReturnType<typeof fragmentFixture>[]=[];
+afterEach(()=>{for(const f of ledgers.splice(0))f.close();});
+const ledger=(legacy?:Parameters<typeof fragmentFixture>[1])=>{const f=fragmentFixture(':memory:',legacy);ledgers.push(f);return f.session;};
 import {createServer} from 'node:http';
 import {mkdtempSync,rmSync,mkdirSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
@@ -10,7 +14,7 @@ import type {PlanItem} from '@interaction/explorer-plugin';
 import {pageOf} from './helpers.js';
 import {explorerFixture} from './explorer-plugin-helpers.js';
 import {ExplorerPlugin,ExplorerStore} from '@interaction/explorer-plugin';
-import {initialFragmentLedger,registerFragmentObservation,recordFragmentOutcome,fragmentActionEvidence,preferFragmentCandidate,fragmentStateOrder,revokeFragmentMappings,linkFragmentObligations,fragmentObligationSampled} from '../packages/explorer-plugin/src/fragment-traversal.js';
+import {registerFragmentObservation,recordFragmentOutcome,fragmentActionEvidence,preferFragmentCandidate,fragmentStateOrder,revokeFragmentMappings,linkFragmentObligations,fragmentObligationSampled} from '../packages/explorer-plugin/src/fragment-traversal.js';
 
 async function fixture(){
  const nav='<header><nav aria-label="Public navigation"><details id="menu"><summary>Menu</summary><a href="/b">Overview</a><a href="/detail">Original detail</a></details></nav></header>';
@@ -23,7 +27,7 @@ const options=(url:string)=>({url,coveragePolicy:'finite-ui-v1' as const,executi
  executionBoundary:{version:1 as const,programNavigation:'public-navigation-v1' as const,allowedOperations:['click','hover','focus','history'],urls:[{origin:new URL(url).origin,pathnamePattern:'^/.*$',match:'route' as const}],exclusions:[]}});
 it('imports late mappings from actual receipts, survives serialization, and rejects changed guards and unknown receipts',async()=>{
  const f=await fixture();try{
-  const s=await f.host.createSession(options(f.url)),a=f.host.observation(s.id),actions=f.host.actions(s.id),l=initialFragmentLedger();
+  const s=await f.host.createSession(options(f.url)),a=f.host.observation(s.id),actions=f.host.actions(s.id),l=ledger();
   const front=registerFragmentObservation(l,a,actions,'authority',new Set(actions.map(a=>a.id))),menu=actions.find(a=>a.label==='Menu'&&a.kind==='click')!;
   writeFileSync(resolve('.data/broader-ui/fragment-capture-debug.json'),JSON.stringify({a,actions}));
   expect(front.byAction.has(menu.id),JSON.stringify(browserTraversalFragments(a,actions,'authority'))).toBe(true);
@@ -31,21 +35,22 @@ it('imports late mappings from actual receipts, survives serialization, and reje
   expect(attempt.status).toBe('succeeded');expect(recordFragmentOutcome(l,front,attempt)).toBe(true);expect(recordFragmentOutcome(l,front,attempt)).toBe(false);
   const item:PlanItem={id:'explicit-revision-case',title:'Pending',scope:scopeFor(menu,a),prerequisites:[],completion:'real receipt',required:true,status:'pending',reason:'observed_in_scope',dispatchScope:false,evidence:[{sessionId:a.sessionId,observationId:a.id}],attempts:[],operationConditionKey:schedulingKeyFor(menu,a)};
   linkFragmentObligations(l,front,a,actions,[item]);expect(fragmentObligationSampled(l,item)).toBe(true);
-  const revised=structuredClone(l);registerFragmentObservation(revised,a,actions,'explicitly-revised-authority',new Set(actions.map(a=>a.id)));
+  const revised=ledger(l.exportLegacy());registerFragmentObservation(revised,a,actions,'explicitly-revised-authority',new Set(actions.map(a=>a.id)));
   expect(fragmentObligationSampled(revised,item)).toBe(false);expect(item.status).toBe('pending');expect(item.resolvedBy).toBeUndefined();
   const opened=f.host.observation(s.id),next=f.host.actions(s.id).find(a=>a.label==='Overview'&&a.kind==='click')!;
   await f.host.execute(s.id,next.id,'real-next',undefined,{observationId:opened.id,profile:'observed-ui-exploration'});
   const b=f.host.observation(s.id),ba=f.host.actions(s.id),warm=registerFragmentObservation(l,b,ba,'authority',new Set(ba.map(a=>a.id))),bm=ba.find(a=>a.label==='Menu'&&a.kind==='click')!;
-  expect(fragmentActionEvidence(l,warm,bm.id)).toMatchObject({pruned:true,originAttemptIds:[attempt.id],coverageGranted:false});
-  const onceBounded=structuredClone(l);onceBounded.bounded=true;
+  expect(fragmentActionEvidence(l,warm,bm.id)).toMatchObject({pruned:true,originCount:1,coverageGranted:false});
+  expect(l.origins(warm.byAction.get(bm.id)!.candidateId).map(row=>row.event.id)).toEqual([attempt.id]);
+  const onceBounded=ledger(l.exportLegacy());// Legacy capacity flags do not limit the new durable graph.
   const later=registerFragmentObservation(onceBounded,{...b,url:new URL('/later',b.url).href},ba,'authority',new Set(ba.map(a=>a.id)));
   expect(later.registered).toBeGreaterThan(0);expect(fragmentActionEvidence(onceBounded,later,bm.id)?.pruned).toBe(true);
-  const cold=JSON.parse(JSON.stringify(l)),again=registerFragmentObservation(cold,b,ba,'authority',new Set(ba.map(a=>a.id)));
+  const cold=ledger(JSON.parse(JSON.stringify(l.exportLegacy()))),again=registerFragmentObservation(cold,b,ba,'authority',new Set(ba.map(a=>a.id)));
   expect(fragmentActionEvidence(cold,again,bm.id)).toEqual(fragmentActionEvidence(l,warm,bm.id));
   expect(preferFragmentCandidate(cold,again,ba.map(a=>({actionId:a.id})))).toEqual(preferFragmentCandidate(l,warm,ba.map(a=>({actionId:a.id}))));
   expect(fragmentStateOrder(cold,b)).toEqual(fragmentStateOrder(l,b));
   const restoredAccess=fragmentActionEvidence(cold,again,bm.id)!;revokeFragmentMappings(cold,restoredAccess.candidateId!,'explicit mismatch');expect(fragmentActionEvidence(cold,again,bm.id)?.pruned).toBe(false);
-  expect(cold.events).toHaveLength(1);
+  expect([...cold.rows('events')]).toHaveLength(1);
   registerFragmentObservation(cold,{...b,url:new URL('/d',b.url).href},ba,'authority',new Set(ba.map(a=>a.id)));
   const afterRevocation=registerFragmentObservation(cold,b,ba,'authority',new Set(ba.map(a=>a.id)));
   expect(fragmentActionEvidence(cold,afterRevocation,bm.id)?.pruned).toBe(false);
@@ -75,7 +80,7 @@ it('prunes the shared menu on B, executes its unique link, then actually restore
   mkdirSync(resolve('.data/broader-ui'),{recursive:true});writeFileSync(resolve('.data/broader-ui/fragment-browser-proof.json'),JSON.stringify({task:final,events,attempts,observations:final.rounds.flatMap(r=>f.host.list<Observation>(r.sessionId,'observation'))}));
   expect(attempts.some(a=>a.action.label==='Unique destination'&&a.status==='succeeded'),final.reason).toBe(true);
   expect(attempts.filter(a=>a.action.label==='Menu'&&f.host.observation(a.sessionId,a.beforeId).url===new URL('/b',f.url).href)).toHaveLength(0);
-  expect(events.some(e=>e.type==='fragment.frontier'&&(e.data as any).pruned.some((p:any)=>p.originAttemptIds.length))).toBe(true);
+  expect(events.some(e=>e.type==='fragment.frontier'&&(e.data as any).pruned.some((p:any)=>p.originCount))).toBe(true);
   const restored=attempts.find(a=>a.action.label==='Menu'&&a.repetitionSource);expect(restored).toBeDefined();expect(restored?.status).toBe('succeeded');
   const original=final.plan.find(i=>i.scope.label==='Original detail'&&i.resolvedBy?.attemptId);expect(original?.status,final.reason).toBe('succeeded');
   expect(original?.conditionCompletion?.status).toBe('verified');expect(original?.resolvedBy?.attemptId).not.toBe(restored?.id);
@@ -86,7 +91,7 @@ it('prunes the shared menu on B, executes its unique link, then actually restore
 it('actually executes the same operation in two observed external modes without sharing access',async()=>{
  const f=await explorerFixture(`<aside><select id="mode" aria-label="Mode"><option>A</option><option>B</option></select></aside><nav><details id="apply" ontoggle="document.querySelector('output').textContent=document.querySelector('select').value"><summary>Apply</summary><p>Content</p></details></nav><output></output>`);
  try{
-  const s=await f.host.createSession(options(f.url)),l=initialFragmentLedger(),receipts:ActionAttempt[]=[];
+  const s=await f.host.createSession(options(f.url)),l=ledger(),receipts:ActionAttempt[]=[];
   for(const mode of ['A','B']){
    if(mode==='B'){await pageOf(f.host).evaluate(()=>{document.querySelector('select')!.value='B';document.querySelector('details')!.open=false;});await f.host.observe(s.id);}
    const o=f.host.observation(s.id),actions=f.host.actions(s.id),a=actions.find(a=>a.label==='Apply'&&a.kind==='click')!;
@@ -95,7 +100,7 @@ it('actually executes the same operation in two observed external modes without 
    const receipt=await f.host.execute(s.id,a.id,'mode-'+mode,undefined,{observationId:o.id,profile:'observed-ui-exploration'});receipts.push(receipt);
    expect(receipt.status).toBe('succeeded');expect(await pageOf(f.host).locator('output').textContent()).toBe(mode);expect(recordFragmentOutcome(l,front,receipt)).toBe(true);
   }
-  expect(l.events.map(e=>e.id)).toEqual(receipts.map(a=>a.id));
+  expect([...l.rows('events')].map(e=>e.id)).toEqual(receipts.map(a=>a.id));
  }finally{await f.close();}
 });
 

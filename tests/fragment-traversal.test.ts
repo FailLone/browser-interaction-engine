@@ -1,7 +1,11 @@
-import {expect,it} from 'vitest';
+import {afterEach,expect,it} from 'vitest';
+import {fragmentFixture,emptyLegacy} from './fragment-storage-helpers.js';
+const opened:ReturnType<typeof fragmentFixture>[]=[];
+afterEach(()=>{for(const f of opened.splice(0))f.close();});
+const stored=(legacy:ReturnType<typeof emptyLegacy>)=>{const f=fragmentFixture(':memory:',legacy);opened.push(f);return f.session;};
 import type {Observation} from '@interaction/browser';
 import {digest} from '../packages/explorer-plugin/src/policy.js';
-import {initialFragmentLedger,preferFragmentCandidate,fragmentStateOrder,type FragmentFrontier} from '../packages/explorer-plugin/src/fragment-traversal.js';
+import {preferFragmentCandidate,fragmentStateOrder,type FragmentFrontier} from '../packages/explorer-plugin/src/fragment-traversal.js';
 import {encodeFragmentMaterial,decodeFragmentMaterial} from '../packages/explorer-plugin/src/fragment-material.js';
 import {bestFragmentCandidate,bestFragmentState,emptyFragmentAccess,fragmentAccessCounters,fragmentCandidateInfluence,fragmentDuplicationFactor,mapFragmentCandidates,recordFragmentAccess,transferFragmentAccess,type TraversalFragment} from '../packages/explorer-plugin/src/fragment-traversal-core.js';
 const fragment=(id:string,guard='/buy'):TraversalFragment=>({id,structure:'nav/a[1]',owner:'main-navigation',revision:id,candidates:[{id:id+'-a',path:'a[1]',operation:'click',guard,access:emptyFragmentAccess()}]});
@@ -34,20 +38,22 @@ it('never rewards an unreachable negative distance or a stale fresh latch',()=>{
  expect(bestFragmentState([{...empty,fresh:1},fresh])?.id).toBe('old');
 });
 it('shares the closest fragment factor across old siblings and newly revealed children',()=>{
- const l=initialFragmentLedger(),base=fragment('current');base.candidates.push({...base.candidates[0],id:'new-child',path:'input[1]'});
+ const l=emptyLegacy(),base=fragment('current');base.candidates.push({...base.candidates[0],id:'new-child',path:'input[1]'});
  l.fragments.push({...base,url:'https://example.test/',source:{sessionId:'s',observationId:'o',regionId:'region'}});
  // Only the old sibling maps to retained snapshots. This affects the whole
  // fragment's expected reuse, never the fresh child's relative priority.
+ for(const id of ['old-A','old-B'])l.fragments.push({...fragment(id),url:'https://example.test/'+id,source:{sessionId:'s',observationId:'o',regionId:'region'}});
  l.mappings.push(...['old-A','old-B'].map(id=>({sourceFragmentId:'current',targetFragmentId:id,sourceCandidateId:'current-a',targetCandidateId:id+'-a',kind:'equivalent' as const})));
  const front:FragmentFrontier={observationId:'o',byAction:new Map([['child',{fragmentId:'current',candidateId:'new-child'}],['sibling',{fragmentId:'current',candidateId:'current-a'}]]),pruned:[],registered:0,mapped:0,unmapped:0,elapsedMs:0};
- const choices=[{actionId:'child'},{actionId:'sibling'}];expect(preferFragmentCandidate(l,front,choices)).toBe(choices[0]);
+ const choices=[{actionId:'child'},{actionId:'sibling'}];expect(preferFragmentCandidate(stored(l),front,choices)).toBe(choices[0]);
 });
 it('sums negative actual-access influence in state scores instead of clipping it away',()=>{
- const l=initialFragmentLedger(),f=fragment('retained');f.candidates[0].access=recordFragmentAccess(emptyFragmentAccess(),'actual');
+ const l=emptyLegacy(),f=fragment('retained');f.candidates[0].access=recordFragmentAccess(emptyFragmentAccess(),'actual');
  f.candidates.push({...fragment('fresh').candidates[0]});
  l.fragments.push({...f,url:'https://example.test/retained',source:{sessionId:'s',observationId:'old',regionId:'region'}});
  const navigation={browserSessionId:'browser',currentIndex:0,entries:[{id:1,url:'https://example.test/retained',method:'GET'}]} as Observation['navigation'];
+ l.events.push({id:'actual',candidateId:f.candidates[0].id,fragmentId:f.id,sessionId:'s',observationId:'o',afterId:'after',actionId:'a'});
  l.states.push({id:'state',url:'https://example.test/retained',context:digest({}),candidateIds:f.candidates.map(c=>c.id),source:{sessionId:'s',observationId:'old'},navigation});
- const result=fragmentStateOrder(l,{url:'https://example.test/current',context:{},navigation} as Observation);
+ const result=fragmentStateOrder(stored(l),{url:'https://example.test/current',context:{},navigation} as Observation);
  expect(result.order[0]).toMatchObject({fresh:1,influence:.25,reachable:true,cost:1});
 });

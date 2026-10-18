@@ -1,5 +1,6 @@
 import { ExplorerStore, newTaskOccurrenceId, type TaskItemDelta } from './store.js';
 import { ExplorerError, type Task, type PlanItem, type Round } from './types.js';
+import {FragmentSession} from './fragment-session.js';
 
 /** Explicit runtime write set. Object references associate persistence handles;
  * they never establish that nested data is unchanged, or establish UI identity.
@@ -17,11 +18,22 @@ export class TaskWriter {
   private planArray:PlanItem[];
   private roundArray:Round[];
   private rewrite=false;
+  private fragmentSession?:FragmentSession;
   conflicted=false;
   constructor(private store:ExplorerStore,state:ReturnType<ExplorerStore['taskState']>) {
     this.task=state.task;this.version=state.version;
     this.planArray=this.task.plan;this.roundArray=this.task.rounds;
     this.bind(state);
+    if(this.task.fragmentTraversal)this.fragments();
+  }
+  fragments(){
+    if(this.conflicted)throw new ExplorerError('STALE_TASK_VERSION');
+    if(!this.fragmentSession){const root=this.task.fragmentTraversal;
+      this.fragmentSession=new FragmentSession(this.store.fragmentRecords,this.task.id,root&&'storageVersion' in root?root:undefined);
+      if(root&&!('storageVersion' in root))this.fragmentSession.importLegacy(root);
+      this.task.fragmentTraversal=this.fragmentSession.root;
+    }
+    return this.fragmentSession;
   }
   private bind(order:{plan:string[];rounds:string[]}) {
     if(order.plan.length!==this.task.plan.length||order.rounds.length!==this.task.rounds.length)throw new ExplorerError('INVALID_TASK_WRITE_SET');
@@ -64,20 +76,22 @@ export class TaskWriter {
     try {
       if(this.rewrite) {
         if(new Set(this.task.plan).size!==this.task.plan.length||new Set(this.task.rounds).size!==this.task.rounds.length)throw new ExplorerError('INVALID_TASK_WRITE_SET');
-        this.version=this.store.save(this.task,this.version);
+        this.version=this.store.save(this.task,this.version,this.fragmentSession?.delta());
         this.bind(this.store.taskOrder(this.task.id,this.version));this.rewrite=false;
       } else {
         this.assertMembership();const current=this.task.rounds.at(-1);if(current)this.roundChanged(current);
         const {plan,rounds,...header}=this.task;
         const result=this.store.applyTaskDelta(this.task.id,this.version,{header,
-          plan:this.delta(this.planRefs,this.dirtyPlan,this.addedPlan),rounds:this.delta(this.roundRefs,this.dirtyRounds,this.addedRounds)});
+          plan:this.delta(this.planRefs,this.dirtyPlan,this.addedPlan),rounds:this.delta(this.roundRefs,this.dirtyRounds,this.addedRounds),fragments:this.fragmentSession?.delta()});
         this.version=result.version;this.task.updatedAt=result.updatedAt;
       }
       this.dirtyPlan.clear();this.dirtyRounds.clear();this.addedPlan.clear();this.addedRounds.clear();
+      this.fragmentSession?.committed();
     } catch(error) {
       // Never turn a stale writer into an unconditional full save. Its unknown
       // outcome and budget snapshot may be older than another committed owner.
       if((error as {code?:string}).code==='STALE_TASK_VERSION')this.conflicted=true;
+      this.store.fragmentRecords.invalidate();
       throw error;
     }
   }

@@ -6,6 +6,9 @@ import { taskDigest as digest, packTaskValue, unpackTaskValue, packTaskRecords, 
 import type { Decision, ExplorerEvent, Task } from './types.js';
 import { ExplorerError } from './types.js';
 import { settleInterruptedClock } from './task-lifecycle.js';
+import {FragmentStore} from './fragment-store.js';
+import {FragmentSession} from './fragment-session.js';
+import type {FragmentDelta,FragmentRoot} from './fragment-records.js';
 
 type TaskRow = { id:string; json:string; version:string; plan_count:number; round_count:number; header_data:Buffer|null; header_hash:string|null; header_size:number|null; header_proof:string };
 type StoredItem = Task['plan'][number]|Task['rounds'][number];
@@ -22,7 +25,7 @@ export type TaskItemDelta<T> = {
   /** Exact final order, including appended occurrences and excluding removed ones. */
   order?: string[];
 };
-export interface TaskDelta { header:TaskHeader; plan?:TaskItemDelta<Task['plan'][number]>; rounds?:TaskItemDelta<Task['rounds'][number]> }
+export interface TaskDelta { header:TaskHeader; plan?:TaskItemDelta<Task['plan'][number]>; rounds?:TaskItemDelta<Task['rounds'][number]>;fragments?:FragmentDelta }
 export interface TaskItemQuery { expectedVersion?:string; statuses?:string[]; required?:boolean; occurrenceIds?:string[]; afterPosition?:number; limit?:number }
 /** Persistence occurrence only. Never a business/control identity or coverage key. */
 export const newTaskOccurrenceId = () => randomBytes(16).toString('hex');
@@ -30,6 +33,7 @@ const newVersion = () => randomBytes(32).toString('hex');
 
 export class ExplorerStore {
   private db: Database.Database;
+  fragmentRecords!:FragmentStore;
   private statements=new Map<string,Database.Statement>();
   private statementBytes=0;
   private statement(sql:string) {
@@ -54,7 +58,7 @@ export class ExplorerStore {
       CREATE TABLE IF NOT EXISTS events(sequence INTEGER PRIMARY KEY AUTOINCREMENT,task_id TEXT NOT NULL,json TEXT NOT NULL);
       CREATE INDEX IF NOT EXISTS event_task ON events(task_id,sequence);`);
       const version = (this.db.prepare('SELECT version FROM explorer_meta').get() as {version:number}).version;
-      if (version !== 1 && version !== 2 && version !== 3 && version !== 4) throw new ExplorerError('STORE_VERSION');
+      if (![1,2,3,4,5].includes(version)) throw new ExplorerError('STORE_VERSION');
       this.db.exec(`CREATE TABLE IF NOT EXISTS task_items(
         task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
         kind TEXT NOT NULL CHECK(kind IN ('plan','rounds')), position INTEGER NOT NULL,
@@ -111,6 +115,8 @@ export class ExplorerStore {
           UPDATE explorer_meta SET version=4;`);
         for(const row of old){this.writeHeader(row.id,row.json,row.version,row.plan_count,row.round_count);this.packCold(row.id,row.round_count,true);}
       }
+      this.fragmentRecords=new FragmentStore(this.db);
+      this.db.prepare('UPDATE explorer_meta SET version=5').run();
       // Existing databases pay one index build. Subsequent restarts inspect
       // unsettled records without parsing every historical model request.
       this.db.exec(`CREATE INDEX IF NOT EXISTS decision_unsettled_task ON decisions(task_id) WHERE json_extract(json,'$.status') IN ('requested','returned');
@@ -254,19 +260,24 @@ export class ExplorerStore {
     this.statement('DELETE FROM task_chunks WHERE NOT EXISTS(SELECT 1 FROM task_items WHERE chunk_id=task_chunks.id)').run();
     return chunks;
   }
-  save(task: Task, expectedVersion?:string):string {
+  save(task: Task, expectedVersion?:string,fragments?:FragmentDelta):string {
     task.updatedAt=new Date().toISOString();const {plan,rounds,...header}=task;
+    if(header.fragmentTraversal&&!('storageVersion' in header.fragmentTraversal)){
+      const session=new FragmentSession(this.fragmentRecords,task.id);session.importLegacy(header.fragmentTraversal);
+      header.fragmentTraversal=session.root;fragments=session.delta();
+    }
     if(!Array.isArray(plan)||!Array.isArray(rounds))throw new ExplorerError('CORRUPT_TASK');
     const groups=([['plan',plan],['rounds',rounds]] as const).map(([kind,items])=>({kind,items:items.map(value=>{const json=JSON.stringify(value);return {json,hash:digest(json)};})}));
     const json=JSON.stringify(header),encoded=this.headerEncoding(json,header);
-    return this.db.transaction(()=>{
+    const version=this.db.transaction(()=>{
       const before=this.statement('SELECT * FROM tasks WHERE id=?').get(task.id) as TaskRow|undefined;
       if(expectedVersion!==undefined&&before?.version!==expectedVersion)throw new ExplorerError('STALE_TASK_VERSION');
       if(before)this.validateHeaderProjection(before);
       const hashes=new Map((this.statement('SELECT kind,position,content_hash FROM task_items WHERE task_id=?').all(task.id) as {kind:string;position:number;content_hash:string}[]).map(r=>[`${r.kind}:${r.position}`,r.content_hash]));
-      const changed=!before||(before.header_data===null?before.json!==json:before.header_hash!==encoded.content_hash)||before.plan_count!==plan.length||before.round_count!==rounds.length||groups.some(g=>g.items.some((item,position)=>hashes.get(`${g.kind}:${position}`)!==item.hash));
+      const changed=!!fragments||!before||(before.header_data===null?before.json!==json:before.header_hash!==encoded.content_hash)||before.plan_count!==plan.length||before.round_count!==rounds.length||groups.some(g=>g.items.some((item,position)=>hashes.get(`${g.kind}:${position}`)!==item.hash));
       if(!changed)return before!.version;
       const version=newVersion();this.writeHeader(task.id,json,version,plan.length,rounds.length,encoded);
+      this.commitFragments(task.id,header,fragments);
       const cold:PreparedItem[]=[];
       for(const {kind,items} of groups){
         items.forEach((item,position)=>{
@@ -282,6 +293,7 @@ export class ExplorerStore {
       if(cold.length>=64)this.packRows(task.id,cold);else for(const item of cold)this.writeItem(task.id,item.kind,item.position,item.json,item.content_hash,item.occurrence_id,item.value);
       this.warmCurrentRound(task.id,rounds.length);this.packCold(task.id,rounds.length);return version;
     }).immediate();
+    task.fragmentTraversal=header.fragmentTraversal;return version;
   }
   private assemble(row:TaskRow) {
     const header=this.header(row),items=this.statement('SELECT kind,position,json,content_hash,occurrence_id,chunk_id,chunk_slot,status,required,session_id FROM task_items WHERE task_id=? ORDER BY kind,position').raw(true).all(row.id) as [ItemKind,number,string,string,string,number|null,number|null,string|null,number|null,string|null][];
@@ -342,6 +354,7 @@ export class ExplorerStore {
   private header(row:TaskRow):TaskHeader {
     const header=parseTaskValue<TaskHeader>(this.headerJson(row));
     if(!header||typeof header!=='object'||Array.isArray(header)||header.id!==row.id || 'plan' in header || 'rounds' in header || (row.header_data!==null&&row.json!==JSON.stringify({id:header.id,goal:header.goal,url:header.url,status:header.status})))throw new ExplorerError('CORRUPT_TASK');
+    if(header.fragmentTraversal&&'storageVersion' in header.fragmentTraversal)this.fragmentRecords.assertRoot(row.id,header.fragmentTraversal);
     return header;
   }
   taskHeader(id:string) {
@@ -411,7 +424,8 @@ export class ExplorerStore {
       append:(change?.append??[]).map(item=>{const json=JSON.stringify(item.value);return {occurrenceId:item.occurrenceId,json,hash:digest(json)};})}));
     return this.db.transaction(()=>{
       const before=this.row(id);if(before.version!==expectedVersion)throw new ExplorerError('STALE_TASK_VERSION');this.validateHeaderProjection(before);
-      let changed=(before.header_data===null?before.json!==json:before.header_hash!==encoded.content_hash),planCount=before.plan_count,roundCount=before.round_count;
+      let changed=!!delta.fragments||(before.header_data===null?before.json!==json:before.header_hash!==encoded.content_hash),planCount=before.plan_count,roundCount=before.round_count;
+      this.commitFragments(id,header,delta.fragments);
       for(const {kind,change,update,append} of prepared){
         if(!change)continue;
         const remove=change.remove??[],claimed=[...update.map(i=>i.occurrenceId),...append.map(i=>i.occurrenceId),...remove];
@@ -448,6 +462,18 @@ export class ExplorerStore {
       if(changed){this.writeHeader(id,json,version,planCount,roundCount,encoded);if(delta.rounds?.order||delta.rounds?.remove?.length)this.warmCurrentRound(id,roundCount);if(delta.plan||delta.rounds)this.packCold(id,roundCount);}
       return {version,updatedAt,planCount,roundCount};
     }).immediate();
+  }
+  private commitFragments(id:string,header:TaskHeader,delta?:FragmentDelta){
+    const root=header.fragmentTraversal;
+    if(root&&!('storageVersion' in root)){if(delta)throw new ExplorerError('INVALID_FRAGMENT_DELTA');return;}
+    if(delta){if(JSON.stringify(root)!==JSON.stringify(delta.root))throw new ExplorerError('INVALID_FRAGMENT_DELTA');this.fragmentRecords.apply(id,delta);}
+    else this.fragmentRecords.assertRoot(id,root as FragmentRoot|undefined);
+  }
+  /** Opt-in complete audit export; ordinary task reads retain the small root. */
+  exportFragments(id:string){
+    return this.db.transaction(()=>{const root=this.taskHeader(id).header.fragmentTraversal;
+      if(!root)return;if(!('storageVersion' in root))return structuredClone(root);
+      return new FragmentSession(this.fragmentRecords,id,root).exportLegacy();})();
   }
   tasks(): Task[] { return this.db.transaction(() => (this.db.prepare('SELECT * FROM tasks ORDER BY rowid').all() as TaskRow[]).map(r=>this.assemble(r).task))(); }
   taskSummaries(): {id:string;goal:string;url:string;status:Task['status'];rounds:{sessionId:string}[]}[] {

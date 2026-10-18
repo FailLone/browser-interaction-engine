@@ -11,6 +11,8 @@
 export interface FragmentAccess {
   direct:string[]; duplicate:string[]; equivalent:string[];
 }
+export interface FragmentCounters {direct:boolean;duplicate:number;equivalent:number}
+export type FragmentAccessView=FragmentAccess|FragmentCounters;
 export interface FragmentCandidate {
   id:string; path:string; operation:string; guard:string;
   access:FragmentAccess;
@@ -29,14 +31,16 @@ export const emptyFragmentAccess=():FragmentAccess=>({direct:[],duplicate:[],equ
 const union=(...values:string[][])=>[...new Set(values.flat())].sort();
 /** Every actual direct visit increments duplicate and equivalent upstream. The
  * host derives that from unique durable events, so replay/loading is idempotent. */
-export function fragmentAccessCounters(access:FragmentAccess) {
+export function fragmentAccessCounters(access:FragmentAccessView):FragmentCounters {
+  if(typeof access.direct==='boolean')return access as FragmentCounters;
+  access=access as FragmentAccess;
   const direct=union(access.direct),duplicate=union(direct,access.duplicate),equivalent=union(duplicate,access.equivalent);
   return {direct:direct.length>0,duplicate:duplicate.length,equivalent:equivalent.length};
 }
-export function fragmentWasExplored(access:FragmentAccess) {
+export function fragmentWasExplored(access:FragmentAccessView) {
   const counts=fragmentAccessCounters(access);return counts.direct||counts.duplicate>0||counts.equivalent>0;
 }
-export function fragmentCandidateInfluence(access:FragmentAccess) {
+export function fragmentCandidateInfluence(access:FragmentAccessView) {
   const c=fragmentAccessCounters(access);return (c.direct?0:1)-.5*c.duplicate-.25*c.equivalent;
 }
 export function fragmentDuplicationFactor(duplicates:number,equivalents:number) {return 2*(1+duplicates)-1+equivalents;}
@@ -65,7 +69,7 @@ export function recordFragmentAccess(access:FragmentAccess,eventId:string):Fragm
 }
 /** Fresh-first positive scoring follows getBestCandidate. Host skipExplored is
  * applied outside this function and never removes an obligation or route. */
-export function bestFragmentCandidate<T extends {access:FragmentAccess;factor:number}>(candidates:readonly T[],maxRepeat=2):T|undefined {
+export function bestFragmentCandidate<T extends {access:FragmentAccessView;factor:number}>(candidates:readonly T[],maxRepeat=2):T|undefined {
   let fresh:T|undefined,repeated:T|undefined,maxFresh=0,maxRepeated=0;
   for(const candidate of candidates){const c=fragmentAccessCounters(candidate.access);if(c.direct||c.equivalent>=maxRepeat)continue;
     const score=fragmentCandidateInfluence(candidate.access)*candidate.factor;

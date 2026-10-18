@@ -137,7 +137,7 @@ export interface ScopeMigrationIndex {
 }
 export interface Task {
   /** Separate reversible exploration projection; never completion evidence. */
-  fragmentTraversal?:import('./fragment-traversal.js').FragmentTraversalLedger;
+  fragmentTraversal?:import('./fragment-records.js').FragmentRoot|import('./fragment-records.js').FragmentTraversalLedger;
   /** Only explicit user scope revision invalidates fragment sampling authority. */
   fragmentAuthorityEpoch?:number;
   id: string; goal: string; url: string; createdAt: string; updatedAt: string; revision: number;

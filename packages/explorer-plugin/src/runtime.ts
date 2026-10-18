@@ -1,4 +1,4 @@
-import {initialFragmentLedger,registerFragmentObservation,recordFragmentOutcome,fragmentActionEvidence,preferFragmentCandidate,fragmentStateOrder,linkFragmentObligations,fragmentObligationSampled,sampledFragmentAction,type FragmentFrontier} from './fragment-traversal.js';
+import {registerFragmentObservation,recordFragmentOutcome,fragmentActionEvidence,preferFragmentCandidate,fragmentStateOrder,linkFragmentObligations,fragmentObligationSampled,sampledFragmentAction,type FragmentFrontier} from './fragment-traversal.js';
 import {programNavigationDependencies} from '@interaction/browser';
 import {coverageLedger} from './coverage-ledger.js';
 import {contractOperationAllowed,contractProposalError,contractExecutionBoundary,observedContractRoots} from './coverage-contract.js';
@@ -15,6 +15,7 @@ import type { ActionCandidate, ActionAttempt, Observation, EngineEvent, Boundary
 import { ExplorerError, type Task, type Round, type Frame, type PlanItem, type Scope, type ExplorerHost, type Providers, type Decision, type ModelRequest } from './types.js';
 import { ExplorerStore } from './store.js';
 import { TaskWriter } from './task-writer.js';
+import {FragmentSession} from './fragment-session.js';
 import { DecisionRouter } from './router.js';
 import { createTaskSchema, budgetSchema, planSchema, initialTaskSchema, plannedScopeSchema, limitationAcceptanceSchema, jsonSchema } from './schema.js';
 import { digest, includesScope, schedulingKeyFor as keyFor, keyFor as retainedKeyFor, matches, permitted, unexecutedAction, scopeFor, scopeForControl, navigationTarget, controlInScope, controlScopeMatcher, actionScopeReader, broadScope, decisionScope, decisionPlan, migrateOperationConditions, normalizeOperationScheduling, schedulingOperationConditionPolicy as operationConditionPolicy } from './policy.js';
@@ -51,6 +52,11 @@ export class ExplorerPlugin {
   private closed=false;
   private activeProgramGap?:{taskId:string;key:string;localId:string;deadline:number};
   private writers=new WeakMap<Task,TaskWriter>();
+  private fragmentSessions=new WeakMap<Task,FragmentSession>();
+  private fragments(task:Task){
+    const writer=this.writers.get(task);if(writer)return writer.fragments();
+    let session=this.fragmentSessions.get(task);if(!session){const root=task.fragmentTraversal;session=new FragmentSession(this.store.fragmentRecords,task.id,root&&'storageVersion' in root?root:undefined);if(root&&!('storageVersion' in root))session.importLegacy(root);task.fragmentTraversal=session.root;this.fragmentSessions.set(task,session);}return session;
+  }
   private fragmentFrontiers=new WeakMap<Task,{key:string;frontier:FragmentFrontier}>();
   private fragmentAuthority(task:Task){return digest({contract:task.coverageContract,options:task.sessionOptions,goal:task.goal,epoch:task.fragmentAuthorityEpoch||0});}
   private prepareFragments(task:Task,o:Observation,actions=this.host.actions(o.sessionId,o.id)) {
@@ -60,11 +66,11 @@ export class ExplorerPlugin {
     const availability=this.host.actionAvailability(o.sessionId,o.id);
     const eligible=new Set(actions.filter(a=>contractOperationAllowed(task.coverageContract,a,o)&&includesScope(task.plan,a,o)
       &&permitted(a,o,availability)&&!this.navigationIsUnverified(task,a,o)).map(a=>a.id));
-    const ledger=task.fragmentTraversal??=initialFragmentLedger(),frontier=registerFragmentObservation(ledger,o,actions,authority,eligible);
+    const ledger=this.fragments(task),frontier=registerFragmentObservation(ledger,o,actions,authority,eligible);
     this.fragmentFrontiers.set(task,{key,frontier});
     linkFragmentObligations(ledger,frontier,o,actions,task.plan);
-    this.event(task,'fragment.frontier',{policy:ledger.policy,observationId:o.id,epoch:ledger.epoch,registered:frontier.registered,mappings:frontier.mapped,
-      candidates:frontier.byAction.size,unmapped:frontier.unmapped,elapsedMs:frontier.elapsedMs,bounded:!!ledger.bounded,
+    this.event(task,'fragment.frontier',{policy:ledger.root.policy,observationId:o.id,epoch:ledger.root.epoch,registered:frontier.registered,mappings:frontier.mapped,
+      candidates:frontier.byAction.size,unmapped:frontier.unmapped,elapsedMs:frontier.elapsedMs,storageVersion:ledger.root.storageVersion,
       pruned:frontier.pruned.slice(0,128).map(actionId=>({actionId,...fragmentActionEvidence(ledger,frontier,actionId)})),
       omittedPruned:Math.max(0,frontier.pruned.length-128),obligationsRetained:true,coverageGranted:false});
     return frontier;
@@ -172,7 +178,7 @@ export class ExplorerPlugin {
   }
   async waitForIdle(id?:string){if(!id||this.active?.task.id===id)await this.active?.promise;}
   async close(){if(this.closed)return;this.closed=true;if(this.active)await this.pause(this.active.task.id);this.host.events.off('event',this.onEvent);this.store.close();}
-  private persist(task:Task,expectedVersion?:string) {const writer=this.writers.get(task);if(writer)writer.flush();else this.store.save(task,expectedVersion);}
+  private persist(task:Task,expectedVersion?:string) {const writer=this.writers.get(task);if(writer)writer.flush();else {const fragments=this.fragmentSessions.get(task);this.store.save(task,expectedVersion,fragments?.delta());fragments?.committed();}}
   private changedPlan(task:Task,item:PlanItem) {this.writers.get(task)?.planChanged(item);}
   private changedRound(task:Task,round:Round) {this.writers.get(task)?.roundChanged(round);}
   private appendPlan(task:Task,item:PlanItem) {const writer=this.writers.get(task);if(writer)writer.appendPlan(item);else task.plan.push(item);}
@@ -624,8 +630,8 @@ export class ExplorerPlugin {
     const round=task.rounds.at(-1)!;const ref={sessionId:attempt.sessionId,observationId:attempt.afterId||attempt.beforeId,attemptId:attempt.id};
     if(attempt.status==='succeeded'&&attempt.afterId){
       const fragmentStarted=performance.now(),source=this.host.observation(attempt.sessionId,attempt.beforeId),frontier=this.prepareFragments(task,source);
-      if(frontier&&recordFragmentOutcome(task.fragmentTraversal!,frontier,attempt))this.event(task,'fragment.access_recorded',{
-        attemptId:attempt.id,...fragmentActionEvidence(task.fragmentTraversal!,frontier,attempt.action.id),actualExecution:true,functionalCoverage:false,elapsedMs:performance.now()-fragmentStarted},attempt.beforeId);
+      if(frontier&&recordFragmentOutcome(this.fragments(task),frontier,attempt))this.event(task,'fragment.access_recorded',{
+        attemptId:attempt.id,...fragmentActionEvidence(this.fragments(task),frontier,attempt.action.id),actualExecution:true,functionalCoverage:false,elapsedMs:performance.now()-fragmentStarted},attempt.beforeId);
     }
     const readCondition=receiptConditionReader(this.host),sourcesCompleted=operationSourceCompletion(this.host,attempt,readCondition);
     const normalizationHost=this.normalizationReader(),normalizer=createOperationSchedulingNormalizer(normalizationHost);
@@ -936,15 +942,15 @@ export class ExplorerPlugin {
     // and SDK arrival verification still apply, and every child remains pending.
     const recoveryOrder=orderedObligations(task.plan,schedule);
     {
-      const work=task.fragmentTraversal&&fragmentStateOrder(task.fragmentTraversal,o),rank=new Map<string,number>();
+      const work=task.fragmentTraversal&&fragmentStateOrder(this.fragments(task),o),rank=new Map<string,number>();
       for(const state of work?.order||[])if(!rank.has(state.url))rank.set(state.url,rank.size);
       recoveryOrder.sort((a,b)=>(rank.get(a.scope.url||'')??Infinity)-(rank.get(b.scope.url||'')??Infinity)||Number(!pageSourceObligation(a))-Number(!pageSourceObligation(b)));
-      if(work)emitSelection('fragment.states_ranked',{...work,reason:'fresh_then_influence_minus_known_native_cost',strictFallbackRetained:true,coverageGranted:false});
+      if(work)emitSelection('fragment.states_ranked',{root:task.fragmentTraversal,order:work.order.slice(0,32),deferred:work.deferred.slice(0,32),omitted:{order:Math.max(0,work.order.length-32),deferred:Math.max(0,work.deferred.length-32)},reason:'fresh_then_influence_minus_known_native_cost',strictFallbackRetained:true,coverageGranted:false});
     }
     for(const item of recoveryOrder){
       const wait=checkpoint();if(wait){await wait;resume();}
       if(sourceReturnOnly&&!pageSourceObligation(item))continue;
-      if(fragmentObligationSampled(task.fragmentTraversal,item)){deferSelection(item.id,recoveryConditionVersion(o),'fragment_sampled_ordinary_target',o.id);continue;}
+      if(fragmentObligationSampled(this.fragments(task),item)){deferSelection(item.id,recoveryConditionVersion(o),'fragment_sampled_ordinary_target',o.id);continue;}
       if(!authorities.some(authority=>contains(authority.scope,item)||authority.prerequisites.some(scope=>contains(scope,item)))||exclusions.some(excluded=>contains(excluded.scope,item)))continue;
       if(item.reason.startsWith('missing_capability:')||item.reason==='unknown_action_outcome')continue;
       const entry=entries.get(item.id);
@@ -1070,7 +1076,7 @@ export class ExplorerPlugin {
       if(item.scope.kind&&(targets.length!==1||!targetConditions(facts,targets[0])&&!this.host.checkpointRecoveryCandidates))return unverified;
       if(task.fragmentTraversal&&item.dispatchScope!==true&&targets.length===1){
         const sampled=facts.sampledFragments??=new Map<string,boolean>(),id=targets[0].id;
-        if(!sampled.has(id))sampled.set(id,sampledFragmentAction(task.fragmentTraversal,source,sourceActions,this.fragmentAuthority(task),id));
+        if(!sampled.has(id))sampled.set(id,sampledFragmentAction(this.fragments(task),source,sourceActions,this.fragmentAuthority(task),id));
         if(sampled.get(id))return {skip:true,reason:'fragment_sampled_ordinary_target'};
       }
       if(!broadScope(item.scope)){
@@ -1454,7 +1460,7 @@ export class ExplorerPlugin {
     }
     const incomplete=this.auditRemainingScopes(task,round,o,snapshot,completed);
     const registeredFragments=this.fragmentFrontiers.get(task)?.frontier;
-    if(task.fragmentTraversal&&registeredFragments?.observationId===o.id)linkFragmentObligations(task.fragmentTraversal,registeredFragments,o,actions,task.plan);
+    if(task.fragmentTraversal&&registeredFragments?.observationId===o.id)linkFragmentObligations(this.fragments(task),registeredFragments,o,actions,task.plan);
     const routeCondition=this.routeConditionReader(o,actions);
     const projection=this.updateObligations(task,o,snapshot.operationCandidates,routeCondition);
     const schedule=this.initializeScheduling(task),pending=unfinishedObligations(task.plan),byId=new Map(pending.map(item=>[item.id,item]));
@@ -1514,9 +1520,9 @@ export class ExplorerPlugin {
     if(task.fragmentTraversal&&frontier?.observationId===o.id){
       // Access propagation replaces sampling hints for mapped candidates. A
       // successful guarded repeat is absent from ordinary work, not completed.
-      for(const work of currentWork){const evidence=work.selection.actionId&&fragmentActionEvidence(task.fragmentTraversal,frontier,work.selection.actionId);
+      for(const work of currentWork){const evidence=work.selection.actionId&&fragmentActionEvidence(this.fragments(task),frontier,work.selection.actionId);
         if(evidence)work.untried=!evidence.pruned&&!currentURLLink(work.selection);}
-      const best=preferFragmentCandidate(task.fragmentTraversal,frontier,currentWork.filter(c=>c.untried).map(c=>c.selection));
+      const best=preferFragmentCandidate(this.fragments(task),frontier,currentWork.filter(c=>c.untried).map(c=>c.selection));
       if(best){const index=currentWork.findIndex(c=>c.selection===best);currentWork.unshift(...currentWork.splice(index,1));}
     }
     const fragmentInput={boundaryActive:!!o.overlays?.some(overlay=>['modal','dialog'].includes(overlay.kind)),continuation:arrivedChoice||arrivedReentry||returnedReentry||undefined,current:currentWork,remote:reentries};
@@ -1846,7 +1852,7 @@ export class ExplorerPlugin {
       &&(i.dispatchScope===true||grants.some(grant=>Object.entries(grant.scope).every(([key,value])=>i.scope[key as keyof Scope]===value)))
       &&i.prerequisites.some(p=>Object.entries(p).every(([key,value])=>actual[key as keyof Scope]===value)));
   }
-  private entryTargets(task:Task,a:ActionCandidate,o:Observation) {const selected=task.scheduling?.selection;return this.entryObligations(task,a,o).filter(i=>i.status!=='succeeded'&&!fragmentObligationSampled(task.fragmentTraversal,i)).sort((a,b)=>Number(selected?.kind==='reentry'&&b.id===selected.itemId)-Number(selected?.kind==='reentry'&&a.id===selected.itemId)||(Number(['hover','focus'].includes(a.scope.kind||''))-Number(['hover','focus'].includes(b.scope.kind||''))));}
+  private entryTargets(task:Task,a:ActionCandidate,o:Observation) {const selected=task.scheduling?.selection;return this.entryObligations(task,a,o).filter(i=>i.status!=='succeeded'&&!fragmentObligationSampled(this.fragments(task),i)).sort((a,b)=>Number(selected?.kind==='reentry'&&b.id===selected.itemId)-Number(selected?.kind==='reentry'&&a.id===selected.itemId)||(Number(['hover','focus'].includes(a.scope.kind||''))-Number(['hover','focus'].includes(b.scope.kind||''))));}
   private entryProgressRecord(task:Task,r:Round,a:ActionCandidate,o:Observation) {
     const entry=scopeFor(a,o),condition=browserTargetConditions(a,o)?.key||'unverified';
     const key=digest({policy:'entry-progress-v2',route:recoveryRouteKey(o,[a],[entry]),condition}),oldKey=digest({entry,context:o.context}),legacyKey=digest(entry);
@@ -1861,7 +1867,7 @@ export class ExplorerPlugin {
     if(this.currentExit(a,o))return true;
     if(completed)return false;
     const frontier=this.fragmentFrontiers.get(task)?.frontier;
-    if(task.fragmentTraversal&&frontier?.observationId===o.id&&fragmentActionEvidence(task.fragmentTraversal,frontier,a.id)?.pruned){
+    if(task.fragmentTraversal&&frontier?.observationId===o.id&&fragmentActionEvidence(this.fragments(task),frontier,a.id)?.pruned){
       // Selected original children must execute after independent SDK target
       // correspondence; restoring an entry is separately handled by neededEntry.
       const selection=task.scheduling?.selection;

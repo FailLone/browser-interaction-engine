@@ -1,0 +1,37 @@
+# Shared fragment storage
+
+This replaces the compressed whole-ledger task header. It does not add an exploration mode or change guarded equivalence. Source alignment: `/Users/xietian/Experiments/fraggen-port-evidence-20261018/storage/`, upstream Crawljax `a9e14583`, and this repository's existing immutable observation packs and transactional TaskWriter.
+
+The v2 storage root in Task contains policy, task ownership, epoch and authority. Full exact structure/owner/operation/guard bytes are content addressed independently of compression. Large top-level JSON value spans share atoms while retaining whitespace, escaping, order and every byte. Candidate and fragment metadata use immutable dictionary/Zstd blocks with validated slots and indexed projections. The material, payload, index and root checks fail closed on corruption. A bounded 8 MiB/2048-entry cache is disposable; durable history has no 2 MiB/128-fragment/4096-edge/256-state coverage ceiling.
+
+New eligible equivalent relations use the exact `(policy,structure,owner,path,operation,guard)` class key, with at most one member per fragment. Candidate identities remain distinct. Each real succeeded attempt has one source event. Indexed class queries derive direct/duplicate/equivalent counters; an explicit recursive graph preserves legacy directed, duplicate, cyclic, missing and revoked edges. Migration never turns an incomplete legacy graph into a clique. Candidate revocation retains own actual origins and removes transfer. Source receipts are paginated; routine audit events contain counters and stable references, not copies of every source and edge.
+
+TaskWriter owns an explicit fragment delta. Its materials, memberships, origins and root commit in the existing ExplorerStore CAS transaction with header, plan, round, pending dispatch and budget changes. Failed commits retain the write set; stale writers never fall back to an unconditional save. The engine receipt database is separate: durable SDK receipt precedes idempotent ingest, and an absent fragment event never means the browser action did not happen.
+
+Normal task reads do not unpack the graph. `ExplorerStore.exportFragments` explicitly materializes a v1 audit view; it is an export, not runtime storage. `FragmentSession.origins` pages actual provenance. `FragmentStore.verify` checks saved references; explicit `compact` removes only unreachable objects/empty packs after validation. It never evicts candidates, states, pending links or actual events. Original plain and deflate wire materials, IDs, source order and legacy capacity diagnostics remain exportable.
+
+## Validation at the storage checkpoint
+
+74 focused cases pass across codec, storage, traversal and existing task stores/writers. Cases cover 300 fragments/300 states, one event across 300 members, no unchanged-graph rewrite, atomic rollback, stale owners, plain/deflate migration, legacy duplicate cycles, single-edge and candidate revocation, late/ambiguous/changed guards, external corruption, packed-index tampering, cache eviction and reachable-object maintenance. Both project typechecks pass. An earlier integration also passed 12 pure/browser/restart cases, including an actual independent original-child receipt and real normal/crash process exits; these must be renewed after final policy integration.
+
+The production experiment uses the research's frozen real 18-fragment/49-candidate export and explicitly synthetic 2/4/8/16 copies. New IDs are mapped back to input occurrences for comparison. At all five scales, complete materials, directed mappings, counters, pruning, influence, fragment peer factors and selected candidate agree. The comparison baseline imports five byte-identical store/writer dependencies from product `574a7ea`; all writes use new experiment databases. No original evidence database is opened.
+
+| Fragments | Old compressed DB bytes | Shared DB bytes | Old event WAL bytes | Shared event WAL bytes |
+|---:|---:|---:|---:|---:|
+| 18 | 274432 | 372736 | 107152 | 20632 |
+| 36 | 290816 | 479232 | 115392 | 20632 |
+| 72 | 315392 | 630784 | 127752 | 20632 |
+| 144 | 417792 | 905216 | 168952 | 20632 |
+| 288 | 970752 | 1462272 | 457352 | 20632 |
+
+These are single production-store samples, not p95 latency claims. At 288 fragments, the new event delta is 511 JSON bytes and commits in 0.414 ms versus the old full-ledger event step's 45.122 ms. The ordinary new header flush writes 4152 WAL bytes and does not call fragment persistence. Registration totals 678.750 ms; explicit whole-audit parity costs 2671.240 ms; cold session load plus first counter query costs 8.292 ms. The indexed shared representation is **not smaller on disk** at these scales. Its primary demonstrated gains are bounded event write amplification and separation of material/history from routine header serialization. Process RSS includes the pairwise reference oracle and full audit export; it is not an isolated runtime-cache measurement.
+
+The first metadata layout consumed 2203648 bytes at 288 fragments. Immutable metadata packing and removal of redundant indexes reduced this to 1462272 bytes. Earlier failures, intermediate layouts and all successful samples are retained in `evidence/shared-storage-evidence.json` and `.data/broader-ui/storage-prep/`. This storage result is not an OKX pruning or strict-reentry success. The earlier zero-chain real runs remain failed.
+
+Reproduce using Node 24.22, the repository dependencies, a fresh output directory, the exported research input and the baseline snapshot recorded in the evidence index:
+
+```sh
+node --import tsx --conditions=development docs/experiments/broader-ui-exploration-2026-10-18/benchmark-fragment-storage.ts run /Users/xietian/Experiments/fraggen-port-evidence-20261018/storage/inputs/task-final.json NEW_OUTPUT .data/broader-ui/storage-prep/baseline-574a
+```
+
+Remaining gates: integrate the independently committed matching policy, renew all relevant browser/restart and original 251-case comparisons, freeze source, run the original full local acceptance twice, then the fixed 240-second/80-command OKX strict reentry and confirmation. No threshold increase, semantic guard removal, return quota or pending-duty deletion is authorized as a substitute.
