@@ -20,14 +20,27 @@ export function navigationIntent(action:ActionCandidate,o:Observation):Navigatio
 export const historyPosition = (history: BrowserHistory) => ({ browserSessionId: history.browserSessionId,
   entryId: history.entries[history.currentIndex]?.id, url: history.entries[history.currentIndex]?.url });
 
+
+/** A router may intercept a native link and preserve its fragment. Require the
+ * captured HTTP destination, not a label or a guessed route, to match exactly. */
+export function sameHTTPDestination(a:string,b:string):boolean {
+ try{const x=new URL(a),y=new URL(b);return ['http:','https:'].includes(x.protocol)&&x.origin+x.pathname+x.search===y.origin+y.pathname+y.search;}catch{return false;}
+}
+function committedNavigationProof(current:Observation):boolean {
+ const proof=current.navigationCapture,entry=current.navigation?.entries[current.navigation.currentIndex];
+ if(!proof||proof.documentId!==current.documentId||proof.observedUrl!==current.url||proof.sourceUrl===current.url
+   ||proof.samples<2||proof.settledMs<0||entry?.url!==current.url||entry.method!=='GET')return false;
+ return proof.version===1?proof.sourceDocumentId!==current.documentId:
+   proof.transition==='same-document-url'&&proof.sourceDocumentId===current.documentId&&proof.entryId===entry.id
+   &&sameHTTPDestination(proof.requestedUrl,current.url);
+}
+
 /** Only a committed, separately settled native document can avoid recapturing
  * unrelated changing controls before history return. No control readiness or
  * restored source-state equivalence is asserted here. */
 export function nativeDocumentReturnReady(target: Observation, current: Observation) {
-  const proof=current.navigationCapture,entry=current.navigation?.entries[current.navigation.currentIndex];
   return target.stable&&!target.gaps.some(g=>g.critical)&&!current.gaps.some(g=>g.critical)&&!current.boundaries?.length
-    &&!!proof&&proof.version===1&&proof.documentId===current.documentId&&proof.sourceDocumentId!==current.documentId
-    &&proof.observedUrl===current.url&&proof.samples>=2&&proof.settledMs>=0&&entry?.url===current.url&&entry.method==='GET'
+    &&committedNavigationProof(current)
     &&observedSourcePosition(target,current).status==='returnable';
 }
 

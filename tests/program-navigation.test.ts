@@ -2,7 +2,7 @@ import {expect,it} from 'vitest';
 import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {createServer} from 'vite';
-import {BrowserEngine,programNavigationAllowed,programNavigationProbe,type Observation} from '@interaction/browser';
+import {BrowserEngine,PlaywrightAdapter,programNavigationAllowed,programNavigationProbe,type Observation} from '@interaction/browser';
 import {SqliteStore} from '@interaction/storage-sqlite';
 import {ExplorerPlugin,ExplorerStore} from '@interaction/explorer-plugin';
 import {explorerFixture} from './explorer-plugin-helpers.js';
@@ -193,5 +193,31 @@ it('finishes executable inner-modal work beyond the background quota, retains bl
   expect(attempts.map(a=>a.action.label),final.reason).toEqual(['Inner 0','Inner 1','Inner 2','Inner 3','Inner 4','Close inner','Outer work','Close outer','Background']);
   expect(attempts.every(a=>a.status==='succeeded')).toBe(true);expect(store.decisions(task.id)).toEqual([]);
   expect(final.plan.some(i=>i.required&&i.scope.label==='Unapproved'&&i.status!=='succeeded')).toBe(true);expect(final.status).not.toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
+
+it('prepares the active notice before background navigation on a continuously changing page',async()=>{
+ const html='<header><nav aria-label="Public navigation"><details><summary>Background menu</summary><a href="/overview">Overview</a></details></nav></header><form><input id="quote" aria-label="Changing quote"></form><div style="position:fixed;inset:0;background:#fff9;z-index:5"><div role="dialog" aria-modal="true" aria-label="Notice" style="position:absolute;top:100px;left:100px;background:white;padding:20px"><label><input id="remember" type="checkbox">Remember notice</label><button type="button" onclick="this.parentElement.parentElement.remove()">Close</button></div></div><script>setInterval(()=>document.querySelector("#quote").value=String(Date.now()),10)</script>';
+ const f=await explorerFixture(html),store=new ExplorerStore(':memory:'),plugin=new ExplorerPlugin(f.host,store,{});
+ try{
+  const task=plugin.create({url:f.url,coverageContract:{...contract(f.url),noticePreferences:['Remember notice'],allowedOperations:['check','click','hover','history']},sessionOptions:{coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui',headless:true,settleMs:100,observeTimeoutMs:1000},budget:{rounds:1,actions:2,durationMs:15000}});
+  plugin.start(task.id);await plugin.waitForIdle(task.id);
+  const final=store.task(task.id),attempts=final.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
+  expect(attempts.map(a=>[a.action.label,a.action.kind,a.status])).toEqual([['Remember notice','check','succeeded'],['Close','click','succeeded']]);
+  const before=f.host.observation(attempts[0].sessionId,attempts[0].beforeId);expect(before.stable).toBe(false);expect(before.boundaries).toHaveLength(1);
+  expect(f.host.observation(attempts[0].sessionId,attempts[0].afterId).controls.find(c=>c.name==='Remember notice')?.checked).toBe(true);
+  const closeBefore=f.host.observation(attempts[1].sessionId,attempts[1].beforeId),after=f.host.observation(attempts[1].sessionId,attempts[1].afterId),adapter=new PlaywrightAdapter();
+  expect(after.boundaryExitCapture?.samples).toBeGreaterThanOrEqual(2);expect(after.controls.find(c=>c.name==='Changing quote')?.readiness?.status).toBe('unstable');
+  for(const change of ['not-closed','wrong-parent','wrong-document','wrong-url','wrong-context','critical-gap','missing-proof','one-sample'] as const){
+   const altered=structuredClone(after);
+   if(change==='not-closed')altered.boundaries=closeBefore.boundaries;if(change==='wrong-parent')altered.boundaries=[{key:'other'} as any];
+   if(change==='wrong-document')altered.documentId='other';if(change==='wrong-url')altered.url+='other';
+   if(change==='wrong-context')altered.context={changed:{value:'other',status:'known',source:'test'}};
+   if(change==='critical-gap')altered.gaps.push({code:'READ_FAILED',message:'Incomplete',critical:true});
+   if(change==='missing-proof')delete altered.boundaryExitCapture;if(change==='one-sample')altered.boundaryExitCapture!.samples=1;
+   expect(adapter.actionObservationReady(attempts[1].action,closeBefore,altered),change).toBe(false);
+  }
+  expect(final.plan.some(i=>i.required&&i.status!=='succeeded'&&i.scope.label==='Changing quote')).toBe(true);
+  expect(store.decisions(task.id)).toEqual([]);
  }finally{await plugin.close();await f.close();}
 });

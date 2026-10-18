@@ -64,3 +64,32 @@ it.each([false,true])('recollects a late native URL replacement within one captu
   else {expect(attempt.status,attempt.reason).toBe('succeeded');expect(after.url).toBe(url+'/renamed-1');expect(after.navigation!.entries[after.navigation!.currentIndex].url).toBe(after.url);expect(after.gaps.some(g=>g.critical)).toBe(false);}
  }finally{spy.mockRestore();await f.close();await new Promise<void>(r=>server.close(()=>r()));}
 });
+
+it.each(['push','replace'] as const)('verifies a same-document native HTTP destination with %s history while retaining unready fields',async mode=>{
+ let requests=0;const server=createServer((_req,res)=>{requests++;res.setHeader('Content-Type','text/html');res.end(`<a href="/live" onclick="event.preventDefault();history.${mode}State({},'', '/live#view');this.remove();setInterval(()=>document.querySelector('#changing').value=String(Date.now()),10)">Open live page</a><form><input id="changing" aria-label="Changing"></form>`);});
+ await new Promise<void>(r=>server.listen(0,'127.0.0.1',r));const url=`http://127.0.0.1:${(server.address() as any).port}`;
+ const f=await testEngine(url,{contextRules:[],exploration:'controls',settleMs:120,observeTimeoutMs:1000});
+ try{
+  const initialRequests=requests,attempt=await act(f.engine,f.sessionId,'Open live page'),after=f.engine.observation(f.sessionId),before=f.engine.observation(f.sessionId,attempt.beforeId),adapter=new PlaywrightAdapter();
+  expect(attempt.status,attempt.reason).toBe('succeeded');expect(after.documentId).toBe(before.documentId);expect(after.url).toBe(url+'/live#view');
+  expect(after.navigationCapture).toMatchObject({version:2,transition:'same-document-url',beforeId:before.id,actionId:attempt.action.id});
+  expect(after.controls.find(c=>c.name==='Changing')?.readiness?.status).toBe('unstable');expect(requests).toBe(initialRequests);
+  expect(nativeDocumentReturnReady(before,after)).toBe(mode==='push');
+  expect(f.engine.list(f.sessionId,'attempt')).toHaveLength(1);
+  for(const change of ['wrong-document','wrong-url','wrong-entry','wrong-source-entry','wrong-action','critical-gap','one-sample'] as const){
+   const altered=structuredClone(after),p=altered.navigationCapture!;if(p.version!==2)throw Error('missing same-document proof');
+   if(change==='wrong-document')altered.documentId='different';if(change==='wrong-url')altered.url=url+'/unexpected';
+   if(change==='wrong-entry')p.entryId=-1;if(change==='wrong-source-entry')p.sourceEntryId=-1;if(change==='wrong-action')p.actionId='different';
+   if(change==='critical-gap')altered.gaps.push({code:'READ_FAILED',message:'Incomplete',critical:true});if(change==='one-sample')p.samples=1;
+   expect(adapter.actionObservationReady(attempt.action,before,altered),change).toBe(false);
+  }
+ }finally{await f.close();await new Promise<void>(r=>server.close(()=>r()));}
+});
+
+it('retains unknown when an intercepted native link changes to an unrelated same-document URL',async()=>{
+ const server=createServer((_req,res)=>{res.setHeader('Content-Type','text/html');res.end(`<a href="/live" onclick="event.preventDefault();history.replaceState({},'', '/unexpected');this.remove();setInterval(()=>document.querySelector('#changing').value=String(Date.now()),10)">Open</a><form><input id="changing" aria-label="Changing"></form>`);});
+ await new Promise<void>(r=>server.listen(0,'127.0.0.1',r));const url=`http://127.0.0.1:${(server.address() as any).port}`;
+ const f=await testEngine(url,{contextRules:[],exploration:'controls',settleMs:120,observeTimeoutMs:800});
+ try{const a=await act(f.engine,f.sessionId,'Open');expect(a.status).toBe('unknown');expect(f.engine.observation(f.sessionId).navigationCapture).toBeUndefined();expect(f.engine.list(f.sessionId,'attempt')).toHaveLength(1);}
+ finally{await f.close();await new Promise<void>(r=>server.close(()=>r()));}
+});
