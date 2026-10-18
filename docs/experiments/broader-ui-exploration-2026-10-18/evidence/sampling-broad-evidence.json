@@ -1,0 +1,144 @@
+{
+  "product": "c4f987a44ca1f9f05b41b47cecd0d952da917652",
+  "result": {
+    "accepted": false,
+    "checks": {
+      "budget": true,
+      "branches": false,
+      "originalStrictChains": false,
+      "chainRegions": false
+    },
+    "reason": "broad_coverage_incomplete",
+    "branchCount": 2,
+    "branches": [
+      {
+        "key": "navigation:https://www.okx.com/zh-hans/help/withdrawal-of-okx-hks-vasp-license-application",
+        "kind": "navigation",
+        "attemptId": "cac03db6-71b1-40c9-b57d-d587ec446e10",
+        "from": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "to": "https://www.okx.com/zh-hans/help/withdrawal-of-okx-hks-vasp-license-application",
+        "label": "公告"
+      },
+      {
+        "key": "navigation:https://www.okx.com/zh-hans/help",
+        "kind": "navigation",
+        "attemptId": "520e7f05-b717-4dec-b83e-b34632db6266",
+        "from": "https://www.okx.com/zh-hans/help/withdrawal-of-okx-hks-vasp-license-application",
+        "to": "https://www.okx.com/zh-hans/help",
+        "label": "帮助中心"
+      }
+    ],
+    "strictChains": 0,
+    "chainRegions": 0,
+    "chains": [],
+    "originalAuditAccepted": false,
+    "originalAuditorUnchanged": true,
+    "coverage": {
+      "finite": {
+        "total": 631,
+        "verified": 12,
+        "remaining": 619
+      },
+      "observedCombinations": 15,
+      "unknownDependencies": [
+        "unobserved JavaScript dependencies",
+        "unobserved condition combinations",
+        "unbounded free-input values",
+        "unassessed business effects"
+      ],
+      "exhaustive": false
+    },
+    "calls": {
+      "jev": 0,
+      "llm": 0
+    },
+    "taskStatus": "budget_exhausted",
+    "taskReason": "BUDGET_EXHAUSTED",
+    "elapsedMs": 223921,
+    "timedOut": false,
+    "actions": 14,
+    "execution": {
+      "code": 0,
+      "signal": null,
+      "pid": 58747
+    }
+  },
+  "fragments": {
+    "run": "/Users/xietian/.codex/worktrees/broader-ui-exploration/browser-interaction-engine/.data/broader-ui/sampling-broad-1",
+    "policy": "guarded-host-fragments/v3",
+    "fragmentCount": 265,
+    "mappingCount": 4638,
+    "actualAccessEvents": 11,
+    "accessWithoutLoggedSucceededReceipt": [],
+    "uniqueProjectedPrunedCandidates": 0,
+    "uniquePropagatedPrunedCandidates": 0,
+    "observationsWithPruning": 0,
+    "registration": {
+      "calls": 39,
+      "totalMs": 7201.145874999984,
+      "p50Ms": 157.58979100000215,
+      "p95Ms": 354.7035410000026,
+      "maxMs": 357.31883299999754
+    },
+    "accessRecording": {
+      "calls": 11,
+      "totalMs": 12002.14554000006,
+      "p50Ms": 1148.7060409999976,
+      "p95Ms": 2146.282542000001,
+      "maxMs": 2146.282542000001
+    },
+    "cumulativeMappedActionObservations": 2709,
+    "cumulativeUnmappedActionObservations": 3463,
+    "rootBytes": 198,
+    "auditLedgerBytes": 31634371,
+    "ledgerBytes": 31634371,
+    "bounded": false,
+    "pending": 689,
+    "projectedPrunedPending": 0,
+    "requiredRestoreDispatches": 0,
+    "limitations": [
+      "Projection counts include observations and are not dispatches avoided or verified coverage.",
+      "Unmapped actions remain in the same strategy; unknown duties remain pending.",
+      "Timing categories can overlap, especially access recording and registration.",
+      "No browser or original-DB mutation is performed by this report."
+    ]
+  },
+  "mappingURLs": {
+    "same": 3290,
+    "cross": 1348
+  },
+  "samplingCheckRows": {
+    "context-recheck-required": 26
+  },
+  "fileSHA256": {
+    "source.json": "b8c6af0df4257443b4bb6b68d29ecad7477ba0cec898ca88ae0920596ccf4959",
+    "source.diff": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "protocol.json": "a056bccae651591017b8cfd46b9182ff5c6aae1fa350467a2d7ae178e5b478c8",
+    "result.json": "f4aa1d428ea6b2bd9f781f953d0ef88287c76731cd84ea70c3904434acc123f8",
+    "audit.json": "397afeebb033b8c3d43903c385f859fe6d63fef5e34bc245ec8eb17ff03366c9",
+    "broad-audit.json": "feff9427031db064bf2bee5d0db7b5966930aeacc0c87d029cbb3c0b16e3e73b",
+    "coverage-ledger.json": "5fc598cc9304baa901e7354220fd81dc8911775985f4dd3e703933750106d854",
+    "fragment-summary.json": "1e88e4c94ad9052da96753f93de67ab6e6361a68291bce2901034491c3746eff",
+    "fragment-storage.json": "f366097ef20ae0658e2ec438b383c9691a9a3ea68e11fa20c7132f7b2acfbaa3",
+    "cost-summary.json": "c04b9357667bfe52eb3a9ec964a7ed75a9ac842bd40ea19ee93147c21a75cf9e",
+    "cpu-attribution.json": "631679e15f8bffebeda4dcde7bccb01ef1ba833a2a22ef386697c536a00adc98"
+  },
+  "limitations": [
+    "Failed original broad composite and strict-chain criteria remain failed.",
+    "About eight seconds of concurrent offline link benchmarking; timing cannot be treated as an isolated throughput comparison.",
+    "CPU sampled inclusive categories overlap.",
+    "No approved indirect sample or fake coverage."
+  ],
+  "sourceComparison": {
+    "revision": "c4f987a44ca1f9f05b41b47cecd0d952da917652",
+    "common521HashesMatchLocalAndNarrow": true,
+    "sourceDiffBytes": 0,
+    "note": "Local harness also records six app/TSX/CSS files; real harness records521 TS/MJS/JSON sources. All common hashes are identical."
+  },
+  "outcomeDiagnosis": {
+    "repeatedLocalClasses": 3,
+    "actualOriginsPerRepeatedClass": 2,
+    "matchingEffectsPerRepeatedClass": false,
+    "note": "Trade, More and Language each have two actual origins in different contexts, but complete observed effects differ; no cross-context sample is approved. No noise or outside effect was discarded to force agreement."
+  }
+}

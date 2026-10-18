@@ -1,5 +1,6 @@
 import {browserTraversalFragments,browserFragmentObservedEffect,fragmentProjectionPolicy,type ActionCandidate,type ActionAttempt,type Observation} from '@interaction/browser';
-import {digest,matches,schedulingKeyFor} from './policy.js';
+import {digest} from './policy.js';
+import {observationActionIndex} from './observation-action-index.js';
 import {boundOperationCondition} from './plan-state.js';
 import {ExplorerError,type PlanItem} from './types.js';
 import {FragmentSession} from './fragment-session.js';
@@ -50,9 +51,13 @@ export function fragmentActionEvidence(l:FragmentSession,f:FragmentFrontier,acti
 }
 export function linkFragmentObligations(l:FragmentSession,f:FragmentFrontier,o:Observation,actions:readonly ActionCandidate[],plan:readonly PlanItem[]){
   if(l.root.policy!==fragmentProjectionPolicy)return;
+  // One synchronous observation owns this index. Repeated obligation rows do
+  // not need to rebuild each action's captured scope or condition; ambiguity
+  // and the exact literal/condition comparison remain unchanged.
+  const index=observationActionIndex(o,actions);
   for(const item of plan){
     if(!item.scope.kind||item.dispatchScope===true)continue;
-    const condition=boundOperationCondition(item),current=actions.filter(a=>matches(item.scope,a,o)&&(!condition||condition===schedulingKeyFor(a,o)));
+    const condition=boundOperationCondition(item),current=index.matching(item.scope).filter(a=>!condition||condition===index.condition(a));
     if(current.length!==1)continue;const ref=f.byAction.get(current[0].id);if(!ref)continue;
     const scopeKey=digest({scope:item.scope,condition}),old=l.get('obligations',item.id);
     if(old?.scopeKey===scopeKey&&old.authority===l.root.authority&&old.candidateIds.includes(ref.candidateId))continue;

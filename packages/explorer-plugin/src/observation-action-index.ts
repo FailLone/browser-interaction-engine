@@ -5,7 +5,7 @@ import {actionScopeReader,schedulingKeyFor,scopeFor} from './policy.js';
 /** Synchronous, one-observation lookup. These keys only accelerate the existing
  * literal scope filter; they establish no target equivalence or permission.
  * Discard the whole index after the enclosing evidence read returns. */
-export function observationActionIndex(observation:Observation,actions:ActionCandidate[]) {
+export function observationActionIndex(observation:Observation,actions:readonly ActionCandidate[]) {
   const readScope=actionScopeReader(observation),scopes=new Map(actions.map(action=>[action,action.localId?readScope(action):scopeFor(action,observation)]));
   const indexes=new Map<string,Map<string,ActionCandidate[]>>(),conditions=new Map<ActionCandidate,string>();
   // Encode each value using exactly the comparison used by matches(). JSON

@@ -1,0 +1,255 @@
+{
+  "purpose": "V3 frozen original local full-cycle acceptance and independent confirmation",
+  "runs": [
+    {
+      "path": ".data/broader-ui/sampling-local-1",
+      "revision": "c4f987a44ca1f9f05b41b47cecd0d952da917652",
+      "sourceFiles": 527,
+      "sourceDiffBytes": 0,
+      "passed": true,
+      "elapsedMs": 38490,
+      "commands": 30,
+      "finite": {
+        "total": 30,
+        "verified": 30,
+        "remaining": []
+      },
+      "strictChains": [
+        {
+          "itemId": "014fa6d9-9247-475c-bd15-ca3058733c79",
+          "label": "Market",
+          "entryAttemptId": "f53f7079-d488-455b-92f4-041ae1fa048c",
+          "childAttemptId": "4f613bbb-41df-456e-8c65-5425640bc6f6",
+          "checks": {
+            "originalPendingAtSelection": true,
+            "originalDiscovered": true,
+            "absent": true,
+            "pluginSelected": true,
+            "entryActuallyExecuted": true,
+            "targetCorrespondence": true,
+            "childExecuted": true,
+            "durableCompletion": true,
+            "independentDOM": true
+          },
+          "passed": true,
+          "proof": {
+            "equivalent": true,
+            "reason": "equivalent_observed_target",
+            "source": {
+              "sessionId": "a99d9276-0e30-4757-8f3f-785a7c13d257",
+              "observationId": "c3868963-6e40-4687-9cfc-4078a33bb650",
+              "actionId": "eddbc01a-262e-4681-b092-e97b80f44b37"
+            },
+            "target": {
+              "sessionId": "a99d9276-0e30-4757-8f3f-785a7c13d257",
+              "observationId": "448b01ad-025f-44f2-bd4c-8d7c3752f346",
+              "actionId": "cd9799a2-bd2d-4693-bcbc-5b83dfec814c"
+            },
+            "evidence": [
+              "captured-semantic-context",
+              "semantic-ancestor-scope/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+              "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+              "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+              "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+              "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+              "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+              "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+              "observation:c3868963-6e40-4687-9cfc-4078a33bb650",
+              "observation:448b01ad-025f-44f2-bd4c-8d7c3752f346"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "conditionKey": "880c4fb97a0ccc52afc1d112f8e106ec8175352e9fb679fda7adc0c98a84000a",
+            "policy": "browser-controls-correspondence-v2"
+          }
+        }
+      ],
+      "pendingAfterRestart": [
+        "bd55554a-0195-4361-b0af-cc75ac3dac38",
+        "177ec1d8-2e30-42ed-a385-f2ce2d4ba03b",
+        "cab7c160-4ff4-4c9d-a46f-97abe0538dbb",
+        "ec3aab3e-c600-4541-b281-0c18a05558d1",
+        "d40df88a-d0bd-4b24-a68e-81e24e955abd",
+        "2039ce40-601c-42f7-8d5b-226245f51a0c",
+        "c364d046-faf2-4ca0-ab51-49a72da64252",
+        "14e493ed-ac88-46bd-98c9-1e4f309e5f8e",
+        "8367e623-275c-43e1-8729-aadd497e9602",
+        "9a766c04-490c-4578-8c99-dd407e577cf6",
+        "531037a0-77d6-49bc-9846-34b6fa861592",
+        "0c89f0cd-4bc1-4351-9a71-1e90364f5817",
+        "db23a99c-26a5-41dd-9eb0-86cb515c7f02",
+        "4f829cee-15da-43d7-a72e-614762249060",
+        "36125f42-adda-461d-9b07-7675bb6f0f55"
+      ],
+      "duplicateCompletedConditionAttempts": [],
+      "archives": [
+        {
+          "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/sampling-local-1-protocol.json.gz",
+          "sha256": "4cd527ef824e00087679340e772aa488135332d38b8234ef37959da32a6542d2",
+          "bytes": 1485
+        },
+        {
+          "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/sampling-local-1-source.json.gz",
+          "sha256": "4f64566b82689dff704e8dffa8a8bcfe375a7723f5efb9695f7a9bb1d2293f41",
+          "bytes": 60321
+        },
+        {
+          "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/sampling-local-1-source.diff.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/sampling-local-1-result.json.gz",
+          "sha256": "63412b33fac910606c3200b48f04aaf74af31e7bce5262168d8509846ae48985",
+          "bytes": 8545
+        },
+        {
+          "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/sampling-local-1-audit.json.gz",
+          "sha256": "6c911431fe860c2f6f1b62fdbe69c090770ef0ca62fa88bf665d3f558fa1ecd3",
+          "bytes": 8300
+        },
+        {
+          "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/sampling-local-1-coverage-ledger.json.gz",
+          "sha256": "88d41318b5e61b0af53fd68382f17d3ba21a1320806abdafdb75b29fa0263c73",
+          "bytes": 510617
+        }
+      ]
+    },
+    {
+      "path": ".data/broader-ui/sampling-local-2",
+      "revision": "c4f987a44ca1f9f05b41b47cecd0d952da917652",
+      "sourceFiles": 527,
+      "sourceDiffBytes": 0,
+      "passed": true,
+      "elapsedMs": 40594,
+      "commands": 30,
+      "finite": {
+        "total": 30,
+        "verified": 30,
+        "remaining": []
+      },
+      "strictChains": [
+        {
+          "itemId": "1b19888c-2fa1-4e32-bcc7-3455957fef63",
+          "label": "Market",
+          "entryAttemptId": "d9654d65-b34d-451b-a941-60c02511d5bc",
+          "childAttemptId": "2691fda7-d81a-452d-84c9-7e805bf2684c",
+          "checks": {
+            "originalPendingAtSelection": true,
+            "originalDiscovered": true,
+            "absent": true,
+            "pluginSelected": true,
+            "entryActuallyExecuted": true,
+            "targetCorrespondence": true,
+            "childExecuted": true,
+            "durableCompletion": true,
+            "independentDOM": true
+          },
+          "passed": true,
+          "proof": {
+            "equivalent": true,
+            "reason": "equivalent_observed_target",
+            "source": {
+              "sessionId": "de20fc5c-15ae-4647-857c-6629eaa083a6",
+              "observationId": "424daa25-1bbb-4b2e-98c5-610a172d4042",
+              "actionId": "0ae112a3-1d32-487d-a199-a312108b60e7"
+            },
+            "target": {
+              "sessionId": "de20fc5c-15ae-4647-857c-6629eaa083a6",
+              "observationId": "1a2d9cad-29d8-4bab-ac08-3973a3dfbef2",
+              "actionId": "1c87e59e-f741-47cb-aa62-fd1be71338bc"
+            },
+            "evidence": [
+              "captured-semantic-context",
+              "semantic-ancestor-scope/v1",
+              "One operation sample per encountered control, target constraints, option and declared context",
+              "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+              "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+              "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+              "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+              "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+              "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+              "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+              "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+              "observation:424daa25-1bbb-4b2e-98c5-610a172d4042",
+              "observation:1a2d9cad-29d8-4bab-ac08-3973a3dfbef2"
+            ],
+            "invalidatedBy": [
+              "observation-or-review-change",
+              "nonunique-correspondence",
+              "changed-operation-conditions",
+              "changed-declared-context"
+            ],
+            "identityAuthorized": false,
+            "replayAuthorized": false,
+            "currentExecution": false,
+            "conditionKey": "3cfe9374b1b53fab08a841fa7ef50adc48cbeded810d817d5382e7732efe8f31",
+            "policy": "browser-controls-correspondence-v2"
+          }
+        }
+      ],
+      "pendingAfterRestart": [
+        "09739a6c-5055-41c5-9725-b1fb37d81989",
+        "e694210a-b946-49e0-ac9c-536ae3ea60de",
+        "e2d948ad-aee5-4558-b6c5-088ab85cdca4",
+        "a4875510-b5ba-491a-ba3f-4551fc5f86d0",
+        "91e5dcec-7193-4425-b6cc-a14cc819a54d",
+        "f323fed4-47f7-448c-b58c-328e9a9130e0",
+        "96b5d5a4-3c9e-4be9-87fa-77b22e585ed1",
+        "9006d372-f4b9-4eeb-af0c-96130ca00e43",
+        "e4ee6fae-ab45-44c0-91ba-820c2375bbea",
+        "c90de383-0b37-45af-9a2b-d16a490fec32",
+        "36111e75-ca2c-4f42-830e-63aae77daee5",
+        "b27b109e-9347-4cd8-82b8-00aaa9852539",
+        "429162d8-a7c0-498f-b6be-11393d34ced8",
+        "aeb09c52-4df3-41dc-8c9b-381d22b6f6b6",
+        "2db90c1c-9bab-48cf-9984-00ea645bc25b"
+      ],
+      "duplicateCompletedConditionAttempts": [],
+      "archives": [
+        {
+          "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/sampling-local-2-protocol.json.gz",
+          "sha256": "4cd527ef824e00087679340e772aa488135332d38b8234ef37959da32a6542d2",
+          "bytes": 1485
+        },
+        {
+          "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/sampling-local-2-source.json.gz",
+          "sha256": "4f64566b82689dff704e8dffa8a8bcfe375a7723f5efb9695f7a9bb1d2293f41",
+          "bytes": 60321
+        },
+        {
+          "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/sampling-local-2-source.diff.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/sampling-local-2-result.json.gz",
+          "sha256": "19f5760fb03bcb7e2494d6e9ca9f9c6da73326bbe2a0a7ce729327af7139b29d",
+          "bytes": 8545
+        },
+        {
+          "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/sampling-local-2-audit.json.gz",
+          "sha256": "c065cddef864b782eda4b3affc604805dbcf17d30e37d93cc050a3bbfa24dd1e",
+          "bytes": 8300
+        },
+        {
+          "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/sampling-local-2-coverage-ledger.json.gz",
+          "sha256": "59aadaf92a046eb5328cb0b63668d43240f5e48256f80218417b688b43d17c15",
+          "bytes": 509433
+        }
+      ]
+    }
+  ],
+  "frozenSourcesEqual": true,
+  "scopeComparison": "sampling-local-scope-comparison.json"
+}
