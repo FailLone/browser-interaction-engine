@@ -124,3 +124,13 @@ test('goal mode explores goal-relevant actions and prunes the rest', async () =>
   expect(labels).not.toContain('Details');
   expect(relevance.calls).toBeGreaterThan(0);
 }, 120000);
+
+test('mode selectors stay distinct while repeated records merge', async () => {
+  const { controlClass } = await import('@interaction/crawler');
+  const item = { ownerInstanceId: 'o', template: 't', slot: 's', rowInstanceId: 'r' };
+  const control = (role: string, name: string) => ({ role, name, label: '', displayedText: '', tag: 'div', structuralItem: item }) as never;
+  // Chart ranges and page tabs: each switches to different content.
+  expect(new Set(['1h', '24h', '1W', '1M'].map(n => controlClass(control('tab', n)))).size).toBe(4);
+  // Trading-pair links in one list are one kind of thing.
+  expect(new Set(['BTC to PKR', 'BTC to EUR', 'BTC to CNY'].map(n => controlClass(control('link', n)))).size).toBe(1);
+});

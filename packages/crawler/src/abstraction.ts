@@ -33,14 +33,23 @@ export function activeOverlay(s: Snapshot): Overlay | undefined {
   return (s.overlays || []).filter(o => o.controlIds.some(id => visible.has(id))).at(-1);
 }
 
+/**
+ * Mode selectors (tabs, radios, segmented options) look like repeated rows but
+ * each one switches to different content: every member is its own component.
+ */
+const modeRoles = new Set(['tab', 'radio', 'menuitemradio', 'option', 'switch']);
+
 /** A list member's class: one entry per (list owner, template slot), not per row. */
 function listClass(c: Control): string | undefined {
+  if (modeRoles.has(c.role)) return;
   return c.structuralItem ? `list:${c.structuralItem.template}:${c.structuralItem.slot}` : c.list ? `list:${c.list.selector}:${c.role}` : undefined;
 }
 
 /** Component class, stable across live-value changes and list membership. */
 export function controlClass(c: Control): string {
-  return listClass(c) || [c.landmark || '', c.role, c.tag, maskVolatile(c.name || c.label || c.displayedText || '')].join('|');
+  const name = c.name || c.label || c.displayedText || '';
+  // Mode labels are short and static ("1h", "24h", "1W"); masking digits would merge them.
+  return listClass(c) || [c.landmark || '', c.role, c.tag, modeRoles.has(c.role) && name.length <= 24 ? name : maskVolatile(name)].join('|');
 }
 
 /**
