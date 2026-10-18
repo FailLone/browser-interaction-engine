@@ -1,0 +1,41 @@
+{
+  "revision": "83c435f7e286cb463b77e949f27d25c29aea6c88",
+  "assertFixedExitCode": 0,
+  "elapsedMs": 40439,
+  "commands": 37,
+  "finite": {
+    "total": 38,
+    "verified": 38,
+    "remaining": []
+  },
+  "duplicateCompletedConditionAttempts": [],
+  "status": "blocked",
+  "reason": "no_new_evidence",
+  "retainedUnknowns": 4,
+  "classificationUnknownRetained": true,
+  "doneExecutions": 4,
+  "doneWithVerifiedRepetitionSource": 3,
+  "identicalToFullLocalSourceManifest": true,
+  "archives": [
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-uncertain-replay-1-result.json.gz",
+      "rawSHA256": "e5c427577364480292029eb7c57c7ee24891648b2a086dcbda6001542dadeef7",
+      "archiveSHA256": "1717b2682e278ce6051d789ce56d747a4ba3e167f5b900319975205b64aa0178"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-uncertain-replay-1-source.json.gz",
+      "rawSHA256": "43cb9d4a179f9d6174e1cf5476197524d0d712ea7fd0b51dafa2f2f40145fb6d",
+      "archiveSHA256": "c536887357c374159b619f8ca6bc16c0a6ec222bdff1e9503386e03a721eee08"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-uncertain-replay-1-task.json.gz",
+      "rawSHA256": "f66dceacde5ca83e3ba0d93d1203351bcf158a5e089ed77f0991b264bc19c464",
+      "archiveSHA256": "90a75ffc875ca6205524ea7c35ce9f29b87c98e39b314373c6e586119bfacba6"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-uncertain-replay-1-events.jsonl.gz",
+      "rawSHA256": "626fb5006be189e8fcfff1b595bef36c33f8bd16791b3ebd16f9f7b67ce40477",
+      "archiveSHA256": "42218168326d7a52980a599f766bb4c69082527ec1c624a5e20f7eeba8b69145"
+    }
+  ]
+}

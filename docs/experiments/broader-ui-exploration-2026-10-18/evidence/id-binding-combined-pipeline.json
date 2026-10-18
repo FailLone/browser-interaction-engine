@@ -1,0 +1,331 @@
+{
+  "productRevision": "83c435f7e286cb463b77e949f27d25c29aea6c88",
+  "diagnosticScriptSHA256": "b79abfc3251820d57ebc2ee4d745b190ec8085e07aabe418212e1e8f69d0c574",
+  "actualSourceAuditSHA256": "6625635d778d3a27b5850a7255a08b31a8aa134f71a590b97fb35965fefce532",
+  "firstBlockDistributions": {
+    "frozen-v3": {
+      "unmapped:no_complete_fragment": 54,
+      "unmapped:non_fragment_operation": 7,
+      "no_actual_local_origin": 193,
+      "owner_mismatch": 7,
+      "unmapped:mode:selector_unstable": 2,
+      "context-recheck-required": 1
+    },
+    "local-id-binding": {
+      "unmapped:no_complete_fragment": 54,
+      "unmapped:non_fragment_operation": 7,
+      "no_actual_local_origin": 193,
+      "owner_mismatch": 3,
+      "unmapped:mode:selector_unstable": 2,
+      "context-recheck-required": 5
+    },
+    "local-id-binding-current-effects": {
+      "unmapped:no_complete_fragment": 54,
+      "unmapped:non_fragment_operation": 7,
+      "no_actual_local_origin": 193,
+      "owner_mismatch": 3,
+      "unmapped:mode:selector_unstable": 2,
+      "context-recheck-required": 5
+    }
+  },
+  "mappingStageChanges": 4,
+  "samplingPermissionChanges": 0,
+  "currentEffectChanges": 0,
+  "rankingChangesOnLoggedOrder": [
+    0,
+    0
+  ],
+  "currentOriginChecks": [
+    {
+      "sequence": 236,
+      "attemptId": "9824bbe6-0263-4ae7-9efd-2b25b150a4fb",
+      "label": "\u4ea4\u6613",
+      "sourceIds": [
+        "9824bbe6-0263-4ae7-9efd-2b25b150a4fb"
+      ],
+      "contexts": 1,
+      "effectVariants": 1,
+      "missingEffects": 0,
+      "sampling": {
+        "status": "direct",
+        "sourceCount": 1,
+        "validationCount": 0,
+        "conflictCount": 0,
+        "recheckBudget": 1,
+        "coverageGranted": false,
+        "evidenceRef": {
+          "rootKey": "task",
+          "candidateId": "0c409330a73bdb39dff93c6e1a9fab1d69cf83ba15283e92ce52e708a817c8e9",
+          "epoch": 364,
+          "originSet": "direct-sampling-sources"
+        }
+      }
+    },
+    {
+      "sequence": 296,
+      "attemptId": "388e2ed9-68d7-4556-bf57-e74400853433",
+      "label": "\u4ea4\u6613",
+      "sourceIds": [
+        "388e2ed9-68d7-4556-bf57-e74400853433"
+      ],
+      "contexts": 1,
+      "effectVariants": 1,
+      "missingEffects": 0,
+      "sampling": {
+        "status": "direct",
+        "sourceCount": 1,
+        "validationCount": 0,
+        "conflictCount": 0,
+        "recheckBudget": 1,
+        "coverageGranted": false,
+        "evidenceRef": {
+          "rootKey": "task",
+          "candidateId": "54db5c5fef5d103911610832b26ddc8cbb7d2f5aa2462cd9c634d9fade50b4f2",
+          "epoch": 500,
+          "originSet": "direct-sampling-sources"
+        }
+      }
+    },
+    {
+      "sequence": 379,
+      "attemptId": "1ee5755e-8033-4bb4-8d42-b3bf2edd8ed9",
+      "label": "\u6253\u5f00 \u73b0\u8d27 \u5b50\u83dc\u5355",
+      "sourceIds": [
+        "1ee5755e-8033-4bb4-8d42-b3bf2edd8ed9"
+      ],
+      "contexts": 1,
+      "effectVariants": 1,
+      "missingEffects": 0,
+      "sampling": {
+        "status": "direct",
+        "sourceCount": 1,
+        "validationCount": 0,
+        "conflictCount": 0,
+        "recheckBudget": 1,
+        "coverageGranted": false,
+        "evidenceRef": {
+          "rootKey": "task",
+          "candidateId": "98d60884d1fa993ff464880f5aebe47df4c70907f1c6c0bfd33905c8a7a582f0",
+          "epoch": 623,
+          "originSet": "direct-sampling-sources"
+        }
+      }
+    },
+    {
+      "sequence": 512,
+      "attemptId": "98b89aaa-1576-43e8-99c6-c0dee525281a",
+      "label": "\u6253\u5f00 \u73b0\u8d27 \u5b50\u83dc\u5355",
+      "sourceIds": [
+        "98b89aaa-1576-43e8-99c6-c0dee525281a"
+      ],
+      "contexts": 1,
+      "effectVariants": 1,
+      "missingEffects": 0,
+      "sampling": {
+        "status": "direct",
+        "sourceCount": 1,
+        "validationCount": 0,
+        "conflictCount": 0,
+        "recheckBudget": 1,
+        "coverageGranted": false,
+        "evidenceRef": {
+          "rootKey": "task",
+          "candidateId": "ba6d4b058c58f1810d980ca682e76851d792c8dc6548d68aed5d2b39819bdd95",
+          "epoch": 891,
+          "originSet": "direct-sampling-sources"
+        }
+      }
+    },
+    {
+      "sequence": 603,
+      "attemptId": "be8cfe61-5dd2-4963-8d1a-fff32b8ace5d",
+      "label": "USDT",
+      "sourceIds": [
+        "be8cfe61-5dd2-4963-8d1a-fff32b8ace5d"
+      ],
+      "contexts": 1,
+      "effectVariants": 1,
+      "missingEffects": 0,
+      "sampling": {
+        "status": "direct",
+        "sourceCount": 1,
+        "validationCount": 0,
+        "conflictCount": 0,
+        "recheckBudget": 1,
+        "coverageGranted": false,
+        "evidenceRef": {
+          "rootKey": "task",
+          "candidateId": "fa2f9416b8c309dc377bf96948ad35590337be85f6138e9d9805bffd1740b428",
+          "epoch": 892,
+          "originSet": "direct-sampling-sources"
+        }
+      }
+    },
+    {
+      "sequence": 682,
+      "attemptId": "2374d94f-cb88-478d-9874-63c7bcf9766c",
+      "label": "Crypto",
+      "sourceIds": [
+        "2374d94f-cb88-478d-9874-63c7bcf9766c"
+      ],
+      "contexts": 1,
+      "effectVariants": 1,
+      "missingEffects": 0,
+      "sampling": {
+        "status": "direct",
+        "sourceCount": 1,
+        "validationCount": 0,
+        "conflictCount": 0,
+        "recheckBudget": 1,
+        "coverageGranted": false,
+        "evidenceRef": {
+          "rootKey": "task",
+          "candidateId": "fa48843faa275dd45093d7cd2b862de8abbcde93fcd9b81cece10ed4769de24d",
+          "epoch": 893,
+          "originSet": "direct-sampling-sources"
+        }
+      }
+    },
+    {
+      "sequence": 754,
+      "attemptId": "e9d3da48-c068-4b52-b78a-027d66061f0f",
+      "label": "USDT",
+      "sourceIds": [
+        "e9d3da48-c068-4b52-b78a-027d66061f0f"
+      ],
+      "contexts": 1,
+      "effectVariants": 1,
+      "missingEffects": 0,
+      "sampling": {
+        "status": "direct",
+        "sourceCount": 1,
+        "validationCount": 0,
+        "conflictCount": 0,
+        "recheckBudget": 1,
+        "coverageGranted": false,
+        "evidenceRef": {
+          "rootKey": "task",
+          "candidateId": "a2a22afed90f1a197acbe6ba77133827c3b2f4a955dcb19cca0234913bd8bd3c",
+          "epoch": 1031,
+          "originSet": "direct-sampling-sources"
+        }
+      }
+    },
+    {
+      "sequence": 975,
+      "attemptId": "f6856b7c-8c8b-4aa2-83e7-57d4c232fd56",
+      "label": "BTC/USDT\u6700\u65b0\u4ef782,085.324 \u5c0f\u65f6\u6da8\u8dcc+0.61%",
+      "sourceIds": [
+        "f6856b7c-8c8b-4aa2-83e7-57d4c232fd56"
+      ],
+      "contexts": 1,
+      "effectVariants": 1,
+      "missingEffects": 0,
+      "sampling": {
+        "status": "direct",
+        "sourceCount": 1,
+        "validationCount": 0,
+        "conflictCount": 0,
+        "recheckBudget": 1,
+        "coverageGranted": false,
+        "evidenceRef": {
+          "rootKey": "task",
+          "candidateId": "d084952fd9f8350cfb016692094bea663e0bcf8438093de80d0078d6c911f369",
+          "epoch": 1061,
+          "originSet": "direct-sampling-sources"
+        }
+      }
+    },
+    {
+      "sequence": 1340,
+      "attemptId": "61c642fe-93b8-473d-8aba-97cb34f49307",
+      "label": "\u6253\u5f00 \u73b0\u8d27 \u5b50\u83dc\u5355",
+      "sourceIds": [
+        "1ee5755e-8033-4bb4-8d42-b3bf2edd8ed9",
+        "61c642fe-93b8-473d-8aba-97cb34f49307"
+      ],
+      "contexts": 2,
+      "effectVariants": 2,
+      "missingEffects": 0,
+      "sampling": {
+        "status": "direct",
+        "sourceCount": 1,
+        "validationCount": 0,
+        "conflictCount": 2,
+        "recheckBudget": 1,
+        "coverageGranted": false,
+        "evidenceRef": {
+          "rootKey": "task",
+          "candidateId": "de636845554659a35dfe747b5c2265a83361e688362ff4aac7874afdad01a16e",
+          "epoch": 1129,
+          "originSet": "direct-sampling-sources"
+        }
+      }
+    },
+    {
+      "sequence": 1513,
+      "attemptId": "b20642a4-33cc-4f1f-8509-21e1c3cf809b",
+      "label": "USDT",
+      "sourceIds": [
+        "be8cfe61-5dd2-4963-8d1a-fff32b8ace5d",
+        "b20642a4-33cc-4f1f-8509-21e1c3cf809b"
+      ],
+      "contexts": 2,
+      "effectVariants": 2,
+      "missingEffects": 0,
+      "sampling": {
+        "status": "direct",
+        "sourceCount": 1,
+        "validationCount": 0,
+        "conflictCount": 2,
+        "recheckBudget": 1,
+        "coverageGranted": false,
+        "evidenceRef": {
+          "rootKey": "task",
+          "candidateId": "19d629eb9ee1d608c054180f47559d94634d67714190f41dc0762c06be6888c6",
+          "epoch": 1167,
+          "originSet": "direct-sampling-sources"
+        }
+      }
+    },
+    {
+      "sequence": 1624,
+      "attemptId": "612e084f-e4b4-4a6a-8aa7-79d1e8d43293",
+      "label": "Crypto",
+      "sourceIds": [
+        "2374d94f-cb88-478d-9874-63c7bcf9766c",
+        "612e084f-e4b4-4a6a-8aa7-79d1e8d43293"
+      ],
+      "contexts": 2,
+      "effectVariants": 2,
+      "missingEffects": 0,
+      "sampling": {
+        "status": "direct",
+        "sourceCount": 1,
+        "validationCount": 0,
+        "conflictCount": 2,
+        "recheckBudget": 1,
+        "coverageGranted": false,
+        "evidenceRef": {
+          "rootKey": "task",
+          "candidateId": "1429107c7dfd5534ef71b7ad0b6a086c685f06c2970936a52da5826813993749",
+          "epoch": 1168,
+          "originSet": "direct-sampling-sources"
+        }
+      }
+    }
+  ],
+  "archive": {
+    "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-pipeline-current-effects-1-result.json.gz",
+    "rawSHA256": "cf3834cad03338450fa9851bdb5242f6801acd1b6f5b276a502590f568e6d974",
+    "compressedSHA256": "c86bc8048693fd09b0b4dc39431e5d1dea14ba0ddeaa2ec5de271d58bd1cca6f"
+  },
+  "limitations": [
+    "Only original logged eligible candidates are counted; omitted candidates are reported.",
+    "Origin availability follows the actual access-recorded chronology. No extra real sources or inherited origins are invented.",
+    "Effects stay frozen and byte-exact in the first two mapping-only variants. The optional third projects current effects from the same actual observations.",
+    "A direct receipt takes precedence in sampling status, so originChecks separately report conflicting effect variants.",
+    "bestOnLoggedOrder uses the logged candidate order, not a reconstruction of pre-ranking tie order. It is not a guaranteed next browser dispatch.",
+    "No actual new browser commands, strict reentry, execution permission or coverage are claimed."
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "result": {
+    "revision": "83c435f7e286cb463b77e949f27d25c29aea6c88",
+    "numTotalTests": 251,
+    "numPassedTests": 207,
+    "numFailedTests": 44,
+    "addedFailures": [],
+    "removedFailures": [],
+    "originalFiles": [
+      {
+        "file": "tests/boundary-dismissal.test.ts",
+        "unchanged": true
+      },
+      {
+        "file": "tests/boundary-regressions.test.ts",
+        "unchanged": true
+      },
+      {
+        "file": "tests/explorer-plugin.test.ts",
+        "unchanged": true
+      },
+      {
+        "file": "tests/explorer-reentry-progress.test.ts",
+        "unchanged": true
+      },
+      {
+        "file": "tests/explorer-review-source-visibility.test.ts",
+        "unchanged": true
+      },
+      {
+        "file": "tests/explorer-scheduling.test.ts",
+        "unchanged": true
+      },
+      {
+        "file": "tests/nonmodal-reentry.test.ts",
+        "unchanged": true
+      },
+      {
+        "file": "tests/okx-plugin-loop-reentry.test.ts",
+        "unchanged": true
+      },
+      {
+        "file": "tests/operation-correspondence-batch.test.ts",
+        "unchanged": true
+      },
+      {
+        "file": "tests/receipt-coverage-reconciliation.test.ts",
+        "unchanged": true
+      },
+      {
+        "file": "tests/reviewed-boundary-exit.test.ts",
+        "unchanged": true
+      }
+    ],
+    "baseline": "p1p2-original-251.json / 682838f",
+    "currentResult": ".data/broader-ui/storage-prep/id-binding-original-251.json"
+  },
+  "archives": [
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-original-251.json.gz",
+      "rawSHA256": "22c101915caed6aa549410f6f8074e55b97e1267698e79f30c90cac470ed4e34",
+      "archiveSHA256": "143a074d376d63c63e0a67f25b15a95e9f8fc0da8c833d2c7708fe440e03bbc6"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-original-251.log.gz",
+      "rawSHA256": "62b5265360dd987e9b2e3d0d5707cde4b6332eee110445cdd7df30ba1850b3e4",
+      "archiveSHA256": "73f043d1b15300473b221942c6bf2be01b75cb9ea948065f317774bdb86bbec3"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-original-251-comparison.json.gz",
+      "rawSHA256": "fc239b500029fb62d264739877ebf8a9f52bd48c02cd057a37da5021e817825c",
+      "archiveSHA256": "e7963f2d8495990a3e184cb65d8c048df8dc1e1367355e6458eb54750e2909c6"
+    }
+  ]
+}
