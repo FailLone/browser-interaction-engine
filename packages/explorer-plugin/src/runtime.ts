@@ -36,7 +36,7 @@ import { currentObligationTarget } from './current-obligation-target.js';
 import {auditGapIndex,type AuditGapIndex} from './audit-gap-index.js';
 import {observationActionIndex} from './observation-action-index.js';
 import {createCurrentSourceExclusion} from './current-source-exclusion.js';
-import { initialSchedule, orderedObligations, operationSamplePriority, unfinishedObligations, selectObligation, reserveObligation, bindScheduledRoute, routeDebtAllows, localSelectionLimit, type ObligationSelection } from './obligation-scheduler.js';
+import { initialSchedule, orderedObligations, operationSamplePriority, programOperationSamplePriority, unfinishedObligations, selectObligation, reserveObligation, bindScheduledRoute, routeDebtAllows, localSelectionLimit, type ObligationSelection } from './obligation-scheduler.js';
 import type { Checkpoint } from '@interaction/browser';
 
 const requiredCapabilities: (keyof ExplorerHost)[]=['operationCoverageCandidates','actionAvailability','operationCorrespondences','explorationSnapshot','controlInterpretationSnapshot','boundaryState','interactionTransition','navigationIsolation','recoveryAssessment','sessions','session','createSession','observation','observe','actions','execute','command','getFrontier','report','list','regionReviewMaterial','explorationReviewMaterial','controlClassificationMaterial','controlReviewMaterial','purposeReviewMaterial','discoveryScanMaterial','createCheckpoint','reachCheckpoint','pause','stop','pinEvidence','unpinEvidence'];
@@ -180,7 +180,7 @@ export class ExplorerPlugin {
     return {observation:(sid,id)=>cached(observations,key(sid,id),()=>this.host.observation(sid,id)),
       actions:(sid,id)=>cached(actions,key(sid,id),()=>this.host.actions(sid,id)),list:this.host.list.bind(this.host)};
   }
-  private event(task:Task,type:string,data:unknown,observationId?:string){const round=task.rounds.at(-1);try{if(round&&!observationId)observationId=this.host.observation(round.sessionId).id;}catch{}return this.store.event({taskId:task.id,type,actor:'program',sessionId:round?.sessionId,observationId,data});}
+  private event(task:Task,type:string,data:unknown,observationId?:string){const round=task.rounds.at(-1);try{if(round&&!observationId)observationId=this.host.session(round.sessionId).currentObservationId;}catch{}return this.store.event({taskId:task.id,type,actor:'program',sessionId:round?.sessionId,observationId,data});}
   private syncUsage(task:Task) {for(const r of task.rounds){let actions:number;try{actions=this.host.session(r.sessionId).actionCount;}catch{continue;/* Missing historical host data remains a recorded gap. */}task.usage.actions+=Math.max(0,actions-r.actions);if(r.actions!==actions){this.changedRound(task,r);r.actions=actions;}}}
   private sessionTimeExhausted(round:Round) {const s=this.host.session(round.sessionId);return s.elapsedMs>=s.options.maxDurationMs;}
   private elapsed(task:Task){return task.usage.durationMs+(typeof task.activeSince==='number'?Math.max(0,Date.now()-task.activeSince):0);}
@@ -1359,7 +1359,7 @@ export class ExplorerPlugin {
       defer:(d,reason)=>{this.router.mark(d,'rejected',reason);this.router.effect(d,'review-deferred',{reason,sourceObservationId:o.id,executionAuthorized:false});},
       unchanged:previous=>this.event(task,'review.unchanged',{...previous,reason:'unchanged_unresolved_evidence',executionAuthorized:false}),
       unresolvedReview:rejected=>unresolvedReviews.push(rejected),
-      apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),probe:(d,localId,kind)=>this.probe(task,signal,o,d,localId,kind),retain:groups=>this.retainScopes(task,signal,o,groups),gap:(reason,scope,required,prerequisites)=>{this.gap(task,reason,scope,required,prerequisites);}});for(const d of this.store.decisions(task.id,decisionCursor).filter(d=>d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}
+      apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),probe:(d,localId,kind)=>this.probe(task,signal,o,d,localId,kind),retain:groups=>this.retainScopes(task,signal,o,groups),gap:(reason,scope,required,prerequisites)=>{this.gap(task,reason,scope,required,prerequisites,true,o);}});for(const d of this.store.decisions(task.id,decisionCursor).filter(d=>d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}
       if(unresolvedReviews.length&&this.host.observation(sid).id===o.id)await this.applyReviewRecoveryChanges(task,o,signal,reviewRecoveryChanges(task,o,this.host,{rejected:unresolvedReviews}));if(reviewed){round.consecutiveReviewSteps=Math.min(2,(round.consecutiveReviewSteps??0)+1);return true;} } catch(error) {
       round.reviewed.splice(reviewedBefore);
       for(const key of Object.keys(round.unresolvedPurposeReviews||{}))if(!unresolvedBefore.has(key))delete round.unresolvedPurposeReviews![key];
@@ -1408,7 +1408,7 @@ export class ExplorerPlugin {
     const arrived=schedule.selection&&schedule.selection.kind!=='current'?schedule.selection.itemId:undefined;
     const arrivedTarget=arrived&&projection.entries.find(entry=>entry.itemId===arrived&&entry.currentActionId
       &&(['active','alias'].includes(entry.state))&&(entry.reason==='current_target_observed'||entry.source&&entry.correspondence));
-    const samplePriority=operationSamplePriority(task.plan);
+    const samplePriority=(task.coverageContract?.programNavigation?programOperationSamplePriority:operationSamplePriority)(task.plan);
     const ordered=orderedObligations(task.plan,schedule).sort((a,b)=>samplePriority(a)-samplePriority(b)),targetOrder=new Map(ordered.map((item,index)=>[item.id,index]));
     const orderedActions=unique.slice().sort((a,b)=>Number(a.boundary?.intent==='exit')-Number(b.boundary?.intent==='exit')||Number(!!navigationTarget(a,o))-Number(!!navigationTarget(b,o)));
     const local:ObligationSelection[]=[],reentries:ObligationSelection[]=[];
@@ -1433,7 +1433,7 @@ export class ExplorerPlugin {
     // priority: a child link can precede a background tab, while local controls
     // in that same branch precede navigation, preferences and its exit.
     const departure=(choice:ObligationSelection)=>{const a=actions.find(a=>a.id===choice.actionId)!;return this.currentExit(a,o)?3:navigationTarget(a,o)?2:a.source==='program-notice-preference'?1:closing(choice);};
-    if(task.coverageContract?.programNavigation)local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||locality(b)-locality(a)||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||departure(a)-departure(b)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+    if(task.coverageContract?.programNavigation)local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||Math.min(1,locality(b))-Math.min(1,locality(a))||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||locality(b)-locality(a)||departure(a)-departure(b)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     else local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||closing(a)-closing(b)||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||locality(b)-locality(a)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     const inPlace=local.filter(choice=>{const action=actions.find(action=>action.id===choice.actionId)!;return action.boundary?.intent!=='exit'&&!navigationTarget(action,o);});
     if(!task.coverageContract?.programNavigation&&inPlace.length)local.splice(0,local.length,...local.filter(choice=>choice.itemId===arrived||inPlace.includes(choice)));
@@ -1561,11 +1561,11 @@ export class ExplorerPlugin {
     // Record every remaining in-scope unavailable case, including ungrouped controls.
     for(const action of snapshot.operationCandidates.filter(a=>includesScope(task.plan,a,o)==='target'&&!completed.has(a))) {
       const path=pathFor(scopeFor(action,o),action.localId);
-      if(this.navigationIsUnverified(task,action,o)){this.gap(task,'unknown_action_outcome',scopeFor(action,o),true,path);continue;}
+      if(this.navigationIsUnverified(task,action,o)){this.gap(task,'unknown_action_outcome',scopeFor(action,o),true,path,true,o);continue;}
       if(this.wasTried(task,round,action,o))continue;
       const dependency=dependencies.get(action.id);
-      if(dependency&&!dependency.allowed){this.gap(task,'execution_dependency_unproved',scopeFor(action,o),true,path);this.event(task,'progress.blocked',{actionId:action.id,observationId:o.id,blockers:dependency.blockers,retained:true,coverageGranted:false});continue;}
-      if(!permitted(action,o,availability)){const gap=unexecutedAction(action,availability);this.gap(task,gap.reason,scopeFor(action,o),gap.required,path);}
+      if(dependency&&!dependency.allowed){this.gap(task,'execution_dependency_unproved',scopeFor(action,o),true,path,true,o);this.event(task,'progress.blocked',{actionId:action.id,observationId:o.id,blockers:dependency.blockers,retained:true,coverageGranted:false});continue;}
+      if(!permitted(action,o,availability)){const gap=unexecutedAction(action,availability);this.gap(task,gap.reason,scopeFor(action,o),gap.required,path,true,o);}
     }
     if(recovery) {
       this.assertRecoveryOutcomes(task);

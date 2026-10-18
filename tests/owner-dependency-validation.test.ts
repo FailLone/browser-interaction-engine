@@ -61,7 +61,7 @@ it.each(cases)('keeps all existing DOM facts identical and records graph work av
   if (name === 'complete') expect(fullGraph?.complete).toBe(true);
   if (name === '200-controls') expect(full.controls).toHaveLength(200);
   if (name === 'unretained-native') {
-    expect(fullGraph).toMatchObject({ version: 'browser-owner-dependencies-v2', inventoryComplete: true });
+    expect(readOwnerGraph(full)).toMatchObject({ version: 'browser-owner-dependencies-v2', inventoryComplete: true });
     expect(fullGraph!.nativeRoots).toHaveLength(1);
     expect(full.controls.some(c => c.selector === '#business')).toBe(false);
   }

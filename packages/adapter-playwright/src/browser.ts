@@ -582,10 +582,12 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const ownerCollector = ownerDependencies && this.options.exploration === 'controls'
       ? `(controls, elements, instance, documentId, priorityLocalIds) => (${collectOwnerDependencies.toString()})(controls, elements, instance, documentId, undefined, (${createOwnerDependencyCodec.toString()}), priorityLocalIds)`
       : 'undefined';
-    const source = `(() => { const __name = (fn) => fn; const dom = (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}, ${collectScrollContainers.toString()}, ${collectBoundaryExits.toString()}, ${ownerCollector}${args}); if (dom.ownerDependencies) dom.ownerDependencies = JSON.stringify(dom.ownerDependencies); return dom; })()`;
+    const source = `(() => { const __name = (fn) => fn; const dom = (${collectDOM.toString()})(${collectOverlays.toString()}, ${collectActionEvidence.toString()}, ${collectIdentityContexts.toString()}, ${collectPopupRelations.toString()}, ${collectComponents.toString()}, ${collectScrollContainers.toString()}, ${collectBoundaryExits.toString()}, ${ownerCollector}${args}); return JSON.stringify(dom); })()`;
     // Preserve arbitrary legal HTML attribute keys across the automation protocol.
-    const transferred = await this.page.evaluate(source) as Omit<DOMSnapshot, 'ownerDependencies'> & { ownerDependencies?: string; discoveryTopology: string[][]; discoveryScan: DiscoverySnapshot };
-    const raw = { ...transferred, ...(transferred.ownerDependencies ? { ownerDependencies: JSON.parse(transferred.ownerDependencies) as NonNullable<DOMSnapshot['ownerDependencies']> } : { ownerDependencies: undefined }) };
+    // The complete snapshot is inert JSON evidence. One string avoids the browser
+    // protocol recursively tagging, validating and reconstructing every field.
+    // Capture scope, samples, bounds and all retained evidence stay unchanged.
+    const raw = JSON.parse(await this.page.evaluate(source) as string) as DOMSnapshot & { discoveryTopology: string[][]; discoveryScan: DiscoverySnapshot };
     const { discoveryTopology, ...dom } = raw;
     dom.discoveryScan.topologyKey = hash(discoveryTopology);
     const plan = this.discoveryPlan;

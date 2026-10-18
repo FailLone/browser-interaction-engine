@@ -74,3 +74,21 @@ export function operationSamplePriority(plan:readonly PlanItem[]):(item:PlanItem
     &&item.conditionCompletion?.status==='verified'&&item.resolvedBy?.attemptId){const k=key(item);successes.set(k,(successes.get(k)||0)+1);}
   return item=>item.scope.kind&&item.scope.stableKey?(successes.get(key(item))||0):0;
 }
+
+/** Program traversal hint for already sampled operations, including successful
+ * no-effect observations whose source duties correctly remain unresolved.
+ * A captured target binding can group rebuilt instances for ordering only;
+ * every item/source/condition and all actual execution gates remain separate. */
+export function programOperationSamplePriority(plan:readonly PlanItem[]):(item:PlanItem)=>number {
+  const key=(item:PlanItem)=>{
+    if(!item.scope.kind||!item.scope.targetBinding&&!item.scope.stableKey)return;
+    const {stableKey,...scope}=item.scope;
+    return JSON.stringify(Object.entries(item.scope.targetBinding?scope:item.scope).sort(([a],[b])=>a.localeCompare(b)));
+  };
+  const attempts=new Map<string,Set<string>>(),verified=operationSamplePriority(plan);
+  for(const item of plan){const k=key(item);if(!k)continue;const seen=attempts.get(k)||new Set<string>();
+    for(const attempt of item.attempts)if(attempt.outcome==='succeeded'&&attempt.evidence?.attemptId)seen.add(attempt.evidence.attemptId);
+    attempts.set(k,seen);
+  }
+  return item=>Math.max(verified(item),attempts.get(key(item)||'')?.size||0);
+}
